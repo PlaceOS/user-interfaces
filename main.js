@@ -4464,9 +4464,10 @@ Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
 exports.MeetingFlowConfirmComponent = void 0;
+var common_1 = __webpack_require__(/*! @angular/common */ 60316);
 var bottom_sheet_1 = __webpack_require__(/*! @angular/material/bottom-sheet */ 15244);
 var dialog_1 = __webpack_require__(/*! @angular/material/dialog */ 12587);
-var common_1 = __webpack_require__(/*! @placeos/common */ 22797);
+var common_2 = __webpack_require__(/*! @placeos/common */ 22797);
 var events_1 = __webpack_require__(/*! @placeos/events */ 40569);
 var organisation_1 = __webpack_require__(/*! @placeos/organisation */ 2510);
 var space_pipe_1 = __webpack_require__(/*! libs/spaces/src/lib/space.pipe */ 22011);
@@ -4485,7 +4486,7 @@ var i11 = __webpack_require__(/*! ../../../../../../libs/components/src/lib/icon
 function MeetingFlowConfirmComponent_button_0_Template(rf, ctx) {
   if (rf & 1) {
     var _r1 = i0.ɵɵgetCurrentView();
-    i0.ɵɵelementStart(0, "button", 19);
+    i0.ɵɵelementStart(0, "button", 22);
     i0.ɵɵlistener("click", function MeetingFlowConfirmComponent_button_0_Template_button_click_0_listener() {
       i0.ɵɵrestoreView(_r1);
       var ctx_r1 = i0.ɵɵnextContext();
@@ -4498,15 +4499,15 @@ function MeetingFlowConfirmComponent_button_0_Template(rf, ctx) {
 }
 function MeetingFlowConfirmComponent_mat_spinner_4_Template(rf, ctx) {
   if (rf & 1) {
-    i0.ɵɵelement(0, "mat-spinner", 20);
+    i0.ɵɵelement(0, "mat-spinner", 23);
   }
 }
 function MeetingFlowConfirmComponent_div_18_Template(rf, ctx) {
   if (rf & 1) {
-    i0.ɵɵelementStart(0, "div", 11)(1, "app-icon");
+    i0.ɵɵelementStart(0, "div", 11)(1, "app-icon", 12);
     i0.ɵɵtext(2, "update");
     i0.ɵɵelementEnd();
-    i0.ɵɵelementStart(3, "div", 12);
+    i0.ɵɵelementStart(3, "div", 13);
     i0.ɵɵtext(4);
     i0.ɵɵelementEnd()();
   }
@@ -4516,9 +4517,21 @@ function MeetingFlowConfirmComponent_div_18_Template(rf, ctx) {
     i0.ɵɵtextInterpolate(ctx_r1.formatted_recurrence);
   }
 }
-function MeetingFlowConfirmComponent_section_30_mat_chip_9_Template(rf, ctx) {
+function MeetingFlowConfirmComponent_div_25_Template(rf, ctx) {
   if (rf & 1) {
-    i0.ɵɵelementStart(0, "mat-chip")(1, "div", 25)(2, "app-icon", 26);
+    i0.ɵɵelementStart(0, "div", 24);
+    i0.ɵɵtext(1);
+    i0.ɵɵelementEnd();
+  }
+  if (rf & 2) {
+    var ctx_r1 = i0.ɵɵnextContext();
+    i0.ɵɵadvance();
+    i0.ɵɵtextInterpolate1(" ", ctx_r1.formattedTime(ctx_r1.tz), " ");
+  }
+}
+function MeetingFlowConfirmComponent_section_26_mat_chip_9_Template(rf, ctx) {
+  if (rf & 1) {
+    i0.ɵɵelementStart(0, "mat-chip")(1, "div", 29)(2, "app-icon", 30);
     i0.ɵɵtext(3, "business");
     i0.ɵɵelementEnd();
     i0.ɵɵtext(4);
@@ -4530,16 +4543,16 @@ function MeetingFlowConfirmComponent_section_30_mat_chip_9_Template(rf, ctx) {
     i0.ɵɵtextInterpolate1(" ", user_r3.name || user_r3.email, " ");
   }
 }
-function MeetingFlowConfirmComponent_section_30_Template(rf, ctx) {
+function MeetingFlowConfirmComponent_section_26_Template(rf, ctx) {
   if (rf & 1) {
-    i0.ɵɵelementStart(0, "section", 21)(1, "app-icon", 9);
+    i0.ɵɵelementStart(0, "section", 25)(1, "app-icon", 9);
     i0.ɵɵtext(2, "done");
     i0.ɵɵelementEnd();
     i0.ɵɵelementStart(3, "div", 10)(4, "h3");
     i0.ɵɵi18n(5, 2);
     i0.ɵɵelementEnd();
-    i0.ɵɵelementStart(6, "div", 22)(7, "mat-chip-list", 23, 0);
-    i0.ɵɵtemplate(9, MeetingFlowConfirmComponent_section_30_mat_chip_9_Template, 5, 1, "mat-chip", 24);
+    i0.ɵɵelementStart(6, "div", 26)(7, "mat-chip-list", 27, 0);
+    i0.ɵɵtemplate(9, MeetingFlowConfirmComponent_section_26_mat_chip_9_Template, 5, 1, "mat-chip", 28);
     i0.ɵɵelementEnd()()()();
   }
   if (rf & 2) {
@@ -4551,10 +4564,10 @@ function MeetingFlowConfirmComponent_section_30_Template(rf, ctx) {
     i0.ɵɵproperty("ngForOf", ctx_r1.event.attendees);
   }
 }
-function MeetingFlowConfirmComponent_section_31_ng_container_6_Template(rf, ctx) {
+function MeetingFlowConfirmComponent_section_27_ng_container_6_Template(rf, ctx) {
   if (rf & 1) {
     i0.ɵɵelementContainerStart(0);
-    i0.ɵɵelementStart(1, "div", 11)(2, "app-icon");
+    i0.ɵɵelementStart(1, "div", 11)(2, "app-icon", 12);
     i0.ɵɵtext(3, "meeting_room");
     i0.ɵɵelementEnd();
     i0.ɵɵelementStart(4, "div");
@@ -4569,16 +4582,16 @@ function MeetingFlowConfirmComponent_section_31_ng_container_6_Template(rf, ctx)
     i0.ɵɵtextInterpolate2(" ", (ctx_r1.level == null ? null : ctx_r1.level.display_name) || (ctx_r1.level == null ? null : ctx_r1.level.name), ", ", s_r4.display_name || s_r4.name, " ");
   }
 }
-function MeetingFlowConfirmComponent_section_31_Template(rf, ctx) {
+function MeetingFlowConfirmComponent_section_27_Template(rf, ctx) {
   if (rf & 1) {
-    i0.ɵɵelementStart(0, "section", 27)(1, "app-icon", 9);
+    i0.ɵɵelementStart(0, "section", 31)(1, "app-icon", 9);
     i0.ɵɵtext(2, "done");
     i0.ɵɵelementEnd();
     i0.ɵɵelementStart(3, "div", 10)(4, "h3");
     i0.ɵɵi18n(5, 3);
     i0.ɵɵelementEnd();
-    i0.ɵɵtemplate(6, MeetingFlowConfirmComponent_section_31_ng_container_6_Template, 6, 2, "ng-container", 24);
-    i0.ɵɵelementStart(7, "div", 11)(8, "app-icon");
+    i0.ɵɵtemplate(6, MeetingFlowConfirmComponent_section_27_ng_container_6_Template, 6, 2, "ng-container", 28);
+    i0.ɵɵelementStart(7, "div", 11)(8, "app-icon", 12);
     i0.ɵɵtext(9, "place");
     i0.ɵɵelementEnd();
     i0.ɵɵelementStart(10, "div");
@@ -4593,11 +4606,11 @@ function MeetingFlowConfirmComponent_section_31_Template(rf, ctx) {
     i0.ɵɵtextInterpolate(ctx_r1.location);
   }
 }
-function MeetingFlowConfirmComponent_button_33_Template(rf, ctx) {
+function MeetingFlowConfirmComponent_button_29_Template(rf, ctx) {
   if (rf & 1) {
     var _r5 = i0.ɵɵgetCurrentView();
-    i0.ɵɵelementStart(0, "button", 28);
-    i0.ɵɵlistener("click", function MeetingFlowConfirmComponent_button_33_Template_button_click_0_listener() {
+    i0.ɵɵelementStart(0, "button", 32);
+    i0.ɵɵlistener("click", function MeetingFlowConfirmComponent_button_29_Template_button_click_0_listener() {
       i0.ɵɵrestoreView(_r5);
       var ctx_r1 = i0.ɵɵnextContext();
       return i0.ɵɵresetView(ctx_r1.postForm());
@@ -4606,7 +4619,7 @@ function MeetingFlowConfirmComponent_button_33_Template(rf, ctx) {
     i0.ɵɵelementEnd();
   }
 }
-var MeetingFlowConfirmComponent = /*#__PURE__*/function (_common_1$AsyncHandle) {
+var MeetingFlowConfirmComponent = /*#__PURE__*/function (_common_2$AsyncHandle) {
   function MeetingFlowConfirmComponent(_sheet_ref, _event_form, _org, _space_pipe, _dialog, _settings) {
     var _this;
     _classCallCheck(this, MeetingFlowConfirmComponent);
@@ -4618,6 +4631,7 @@ var MeetingFlowConfirmComponent = /*#__PURE__*/function (_common_1$AsyncHandle) 
     _this._dialog = _dialog;
     _this._settings = _settings;
     _this.show_close = false;
+    _this._date = new common_1.DatePipe('en');
     _this.loading = _this._event_form.loading;
     _this.postForm = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
       var result;
@@ -4629,7 +4643,7 @@ var MeetingFlowConfirmComponent = /*#__PURE__*/function (_common_1$AsyncHandle) 
               break;
             }
             _context.next = 3;
-            return (0, common_1.openConfirmModal)({
+            return (0, common_2.openConfirmModal)({
               title: 'Make Booking without a Room',
               content: 'You are creating a booking without a room, are you sure?',
               icon: {
@@ -4646,7 +4660,7 @@ var MeetingFlowConfirmComponent = /*#__PURE__*/function (_common_1$AsyncHandle) 
           case 6:
             _context.next = 8;
             return _this._event_form.postForm()["catch"](function (_) {
-              (0, common_1.notifyError)(_);
+              (0, common_2.notifyError)(_);
               throw _;
             });
           case 8:
@@ -4667,8 +4681,26 @@ var MeetingFlowConfirmComponent = /*#__PURE__*/function (_common_1$AsyncHandle) 
     _this._space = _this.event.resources[0];
     return _this;
   }
-  _inherits(MeetingFlowConfirmComponent, _common_1$AsyncHandle);
+  _inherits(MeetingFlowConfirmComponent, _common_2$AsyncHandle);
   return _createClass(MeetingFlowConfirmComponent, [{
+    key: "formattedTime",
+    value: function formattedTime(tz) {
+      var date = this.event.date;
+      var date_end = this.event.date_end;
+      var all_day = this.event.all_day;
+      var tz_format = this._date.transform(date, 'z', tz);
+      var start_date = this._date.transform(date, 'MMM d', tz);
+      var start_time = this._date.transform(date, this.time_format, tz);
+      var end_date = this._date.transform(date_end, 'MMM d', tz);
+      var end_time = this._date.transform(date_end, this.time_format, tz);
+      if (this.is_multiday) {
+        return "".concat(start_date).concat(all_day ? '' : ', ' + start_time, " - ").concat(end_date).concat(all_day ? '' : ', ' + end_time);
+      } else if (all_day) {
+        return 'All Day';
+      }
+      return "".concat(start_time, " - ").concat(end_time, " ").concat('(' + tz_format + ')');
+    }
+  }, {
     key: "is_multiday",
     get: function get() {
       return this.event.duration > 24 * 60;
@@ -4677,6 +4709,18 @@ var MeetingFlowConfirmComponent = /*#__PURE__*/function (_common_1$AsyncHandle) 
     key: "time_format",
     get: function get() {
       return this._settings.time_format;
+    }
+  }, {
+    key: "timezone",
+    get: function get() {
+      return this._settings.get('app.events.use_building_timezone') ? this._org.building.timezone : '';
+    }
+  }, {
+    key: "tz",
+    get: function get() {
+      var tz = this.timezone;
+      if (!tz) return '';
+      return (0, common_2.getTimezoneOffsetString)(tz);
     }
   }, {
     key: "formatted_recurrence",
@@ -4747,7 +4791,7 @@ var MeetingFlowConfirmComponent = /*#__PURE__*/function (_common_1$AsyncHandle) 
       }).join('\n');
     }
   }]);
-}(common_1.AsyncHandler);
+}(common_2.AsyncHandler);
 _MeetingFlowConfirmComponent = MeetingFlowConfirmComponent;
 _MeetingFlowConfirmComponent.ɵfac = function MeetingFlowConfirmComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _MeetingFlowConfirmComponent)(i0.ɵɵdirectiveInject(i1.MatBottomSheetRef, 8), i0.ɵɵdirectiveInject(i2.EventFormService), i0.ɵɵdirectiveInject(i3.OrganisationService), i0.ɵɵdirectiveInject(i4.SpacePipe), i0.ɵɵdirectiveInject(i5.MatDialog), i0.ɵɵdirectiveInject(i6.SettingsService));
@@ -4759,8 +4803,8 @@ _MeetingFlowConfirmComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
     show_close: "show_close"
   },
   features: [i0.ɵɵProvidersFeature([space_pipe_1.SpacePipe]), i0.ɵɵInheritDefinitionFeature],
-  decls: 35,
-  vars: 34,
+  decls: 31,
+  vars: 17,
   consts: function consts() {
     var i18n_0;
     if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
@@ -4780,7 +4824,7 @@ _MeetingFlowConfirmComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
       var MSG_EXTERNAL_2503133629493199843$$APPS_WORKPLACE_SRC_APP_BOOK_MEETING_FLOW_MEETING_FLOW_CONFIRM_COMPONENT_TS_1 = goog.getMsg("{VAR_PLURAL, plural, =1 {attendee } other {attendees }}");
       i18n_1 = MSG_EXTERNAL_2503133629493199843$$APPS_WORKPLACE_SRC_APP_BOOK_MEETING_FLOW_MEETING_FLOW_CONFIRM_COMPONENT_TS_1;
     } else {
-      i18n_1 = $localize(_templateObject2 || (_templateObject2 = _taggedTemplateLiteral([":\u241F4b21718d2cf1162c66e915d086412945cb82f5c5\u241F2503133629493199843:{VAR_PLURAL, plural, =1 {attendee } other {attendees }}"])));
+      i18n_1 = $localize(_templateObject2 || (_templateObject2 = _taggedTemplateLiteral([":\u241F64205c6826cfcef845a49a0f970cb8b70b58dd35\u241F2503133629493199843:{VAR_PLURAL, plural, =1 {attendee } other {attendees }}"])));
     }
     i18n_1 = i0.ɵɵi18nPostprocess(i18n_1, {
       "VAR_PLURAL": "\uFFFD1\uFFFD"
@@ -4790,18 +4834,18 @@ _MeetingFlowConfirmComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
       /**
        * @suppress {msgDescriptions}
        */
-      var MSG_EXTERNAL_5235780670058538300$$APPS_WORKPLACE_SRC_APP_BOOK_MEETING_FLOW_MEETING_FLOW_CONFIRM_COMPONENT_TS_2 = goog.getMsg(" {$interpolation} {$icu} ", {
+      var MSG_EXTERNAL_6605563295675126050$$APPS_WORKPLACE_SRC_APP_BOOK_MEETING_FLOW_MEETING_FLOW_CONFIRM_COMPONENT_TS_2 = goog.getMsg(" {$interpolation} {$icu} ", {
         "icu": i18n_1,
         "interpolation": "\uFFFD0\uFFFD"
       }, {
         original_code: {
-          "icu": "{ event.attendees.length,\n                    plural, =1 { attendee } other { attendees } }",
+          "icu": "{event.attendees.length, plural,\n                        =1 {attendee }\n                        other {attendees }\n                    }",
           "interpolation": "{{ event.attendees.length }}"
         }
       });
-      i18n_2 = MSG_EXTERNAL_5235780670058538300$$APPS_WORKPLACE_SRC_APP_BOOK_MEETING_FLOW_MEETING_FLOW_CONFIRM_COMPONENT_TS_2;
+      i18n_2 = MSG_EXTERNAL_6605563295675126050$$APPS_WORKPLACE_SRC_APP_BOOK_MEETING_FLOW_MEETING_FLOW_CONFIRM_COMPONENT_TS_2;
     } else {
-      i18n_2 = $localize(_templateObject3 || (_templateObject3 = _taggedTemplateLiteral([":\u241F107fd539cb631844739e297e9d5474c7fec90b32\u241F5235780670058538300: ", ":INTERPOLATION: ", ":ICU: "])), "\uFFFD0\uFFFD", i18n_1);
+      i18n_2 = $localize(_templateObject3 || (_templateObject3 = _taggedTemplateLiteral([":\u241F5220326dfa43d08a2aad30893d833f17896c65af\u241F6605563295675126050: ", ":INTERPOLATION: ", ":ICU: "])), "\uFFFD0\uFFFD", i18n_1);
     }
     var i18n_3;
     if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
@@ -4823,7 +4867,7 @@ _MeetingFlowConfirmComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
     } else {
       i18n_4 = $localize(_templateObject5 || (_templateObject5 = _taggedTemplateLiteral([":\u241F0ad83be7464a0a2e8d100342e144bc3fbc789f9d\u241F3141803775366633134: Confirm "])));
     }
-    return [["chipList", ""], i18n_0, i18n_2, i18n_3, i18n_4, ["icon", "", "matRipple", "", "name", "close-meeting-confirm", 3, "click", 4, "ngIf"], [1, "flex", "items-center", "justify-between", "px-2"], ["diameter", "32", 4, "ngIf"], ["period", "", 1, "flex", "space-x-1", "px-2"], [1, "text-success", "mt-1"], ["details", "", 1, "leading-6"], [1, "flex", "items-center", "space-x-2"], ["date", ""], ["class", "flex items-center space-x-2", 4, "ngIf"], ["time", ""], ["attendees", "", "class", "flex space-x-1 px-2", 4, "ngIf"], ["spaces", "", "class", "flex space-x-1 px-2", 4, "ngIf"], [1, "p-2", "w-full", "border-t", "border-base-200", "mt-4"], ["btn", "", "name", "confirm-meeting", "matRipple", "", "class", "w-full", 3, "click", 4, "ngIf"], ["icon", "", "matRipple", "", "name", "close-meeting-confirm", 3, "click"], ["diameter", "32"], ["attendees", "", 1, "flex", "space-x-1", "px-2"], ["attendee-list", ""], ["aria-label", "User selection"], [4, "ngFor", "ngForOf"], [1, "flex", "items-center"], [1, "mr-2"], ["spaces", "", 1, "flex", "space-x-1", "px-2"], ["btn", "", "name", "confirm-meeting", "matRipple", "", 1, "w-full", 3, "click"]];
+    return [["chipList", ""], i18n_0, i18n_2, i18n_3, i18n_4, ["icon", "", "matRipple", "", "name", "close-meeting-confirm", 3, "click", 4, "ngIf"], [1, "flex", "items-center", "justify-between", "px-2"], ["diameter", "32", 4, "ngIf"], ["period", "", 1, "flex", "space-x-1", "px-2"], [1, "text-success", "mt-1"], ["details", "", 1, "leading-6"], [1, "flex", "items-center", "space-x-2"], [1, "text-2xl"], ["date", ""], ["class", "flex items-center space-x-2", 4, "ngIf"], [1, "flex", "flex-col", "leading-tight"], ["time", ""], ["class", "text-xs opacity-30", 4, "ngIf"], ["attendees", "", "class", "flex space-x-1 px-2", 4, "ngIf"], ["spaces", "", "class", "flex space-x-1 px-2", 4, "ngIf"], [1, "p-2", "w-full", "border-t", "border-base-200", "mt-4"], ["btn", "", "name", "confirm-meeting", "matRipple", "", "class", "w-full", 3, "click", 4, "ngIf"], ["icon", "", "matRipple", "", "name", "close-meeting-confirm", 3, "click"], ["diameter", "32"], [1, "text-xs", "opacity-30"], ["attendees", "", 1, "flex", "space-x-1", "px-2"], ["attendee-list", ""], ["aria-label", "User selection"], [4, "ngFor", "ngForOf"], [1, "flex", "items-center"], [1, "mr-2"], ["spaces", "", 1, "flex", "space-x-1", "px-2"], ["btn", "", "name", "confirm-meeting", "matRipple", "", 1, "w-full", 3, "click"]];
   },
   template: function MeetingFlowConfirmComponent_Template(rf, ctx) {
     if (rf & 1) {
@@ -4840,50 +4884,48 @@ _MeetingFlowConfirmComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
       i0.ɵɵelementStart(9, "div", 10)(10, "h3");
       i0.ɵɵtext(11);
       i0.ɵɵelementEnd();
-      i0.ɵɵelementStart(12, "div", 11)(13, "app-icon");
+      i0.ɵɵelementStart(12, "div", 11)(13, "app-icon", 12);
       i0.ɵɵtext(14, "today");
       i0.ɵɵelementEnd();
-      i0.ɵɵelementStart(15, "div", 12);
+      i0.ɵɵelementStart(15, "div", 13);
       i0.ɵɵtext(16);
       i0.ɵɵpipe(17, "date");
       i0.ɵɵelementEnd()();
-      i0.ɵɵtemplate(18, MeetingFlowConfirmComponent_div_18_Template, 5, 1, "div", 13);
-      i0.ɵɵelementStart(19, "div", 11)(20, "app-icon");
+      i0.ɵɵtemplate(18, MeetingFlowConfirmComponent_div_18_Template, 5, 1, "div", 14);
+      i0.ɵɵelementStart(19, "div", 11)(20, "app-icon", 12);
       i0.ɵɵtext(21, "schedule");
       i0.ɵɵelementEnd();
-      i0.ɵɵelementStart(22, "div", 14);
-      i0.ɵɵtext(23);
-      i0.ɵɵpipe(24, "date");
-      i0.ɵɵpipe(25, "date");
-      i0.ɵɵpipe(26, "date");
-      i0.ɵɵpipe(27, "date");
-      i0.ɵɵpipe(28, "date");
-      i0.ɵɵpipe(29, "date");
+      i0.ɵɵelementStart(22, "div", 15)(23, "div", 16);
+      i0.ɵɵtext(24);
+      i0.ɵɵelementEnd();
+      i0.ɵɵtemplate(25, MeetingFlowConfirmComponent_div_25_Template, 2, 1, "div", 17);
       i0.ɵɵelementEnd()()()();
-      i0.ɵɵtemplate(30, MeetingFlowConfirmComponent_section_30_Template, 10, 3, "section", 15)(31, MeetingFlowConfirmComponent_section_31_Template, 12, 2, "section", 16);
-      i0.ɵɵelementStart(32, "footer", 17);
-      i0.ɵɵtemplate(33, MeetingFlowConfirmComponent_button_33_Template, 2, 0, "button", 18);
-      i0.ɵɵpipe(34, "async");
+      i0.ɵɵtemplate(26, MeetingFlowConfirmComponent_section_26_Template, 10, 3, "section", 18)(27, MeetingFlowConfirmComponent_section_27_Template, 12, 2, "section", 19);
+      i0.ɵɵelementStart(28, "footer", 20);
+      i0.ɵɵtemplate(29, MeetingFlowConfirmComponent_button_29_Template, 2, 0, "button", 21);
+      i0.ɵɵpipe(30, "async");
       i0.ɵɵelementEnd();
     }
     if (rf & 2) {
       i0.ɵɵproperty("ngIf", ctx.show_close);
       i0.ɵɵadvance(4);
-      i0.ɵɵproperty("ngIf", i0.ɵɵpipeBind1(5, 9, ctx.loading));
+      i0.ɵɵproperty("ngIf", i0.ɵɵpipeBind1(5, 10, ctx.loading));
       i0.ɵɵadvance(7);
       i0.ɵɵtextInterpolate(ctx.event.title || "Meeting Details");
       i0.ɵɵadvance(5);
-      i0.ɵɵtextInterpolate(i0.ɵɵpipeBind2(17, 11, ctx.event.date, "fullDate"));
+      i0.ɵɵtextInterpolate(i0.ɵɵpipeBind2(17, 12, ctx.event.date, "fullDate"));
       i0.ɵɵadvance(2);
       i0.ɵɵproperty("ngIf", ctx.event.recurrence == null ? null : ctx.event.recurrence.pattern);
-      i0.ɵɵadvance(5);
-      i0.ɵɵtextInterpolate1(" ", ctx.is_multiday ? i0.ɵɵpipeBind2(24, 14, ctx.event.date, "MMM d") + (ctx.event.all_day ? "" : i0.ɵɵpipeBind2(25, 17, ctx.event.date, ", " + ctx.time_format)) + " - " + i0.ɵɵpipeBind2(26, 20, ctx.event.date_end, "MMM d") + (ctx.event.all_day ? "" : i0.ɵɵpipeBind2(27, 23, ctx.event.date_end, ", " + ctx.time_format)) : ctx.event.all_day ? "All Day" : i0.ɵɵpipeBind2(28, 26, ctx.event.date, ctx.time_format) + " - " + i0.ɵɵpipeBind2(29, 29, ctx.event.date + ctx.event.duration * 60 * 1000, ctx.time_format + " (z)"), " ");
-      i0.ɵɵadvance(7);
+      i0.ɵɵadvance(6);
+      i0.ɵɵtextInterpolate(ctx.formattedTime());
+      i0.ɵɵadvance();
+      i0.ɵɵproperty("ngIf", ctx.timezone);
+      i0.ɵɵadvance();
       i0.ɵɵproperty("ngIf", ctx.event.attendees.length);
       i0.ɵɵadvance();
       i0.ɵɵproperty("ngIf", ctx.space == null ? null : ctx.space.id);
       i0.ɵɵadvance(2);
-      i0.ɵɵproperty("ngIf", !i0.ɵɵpipeBind1(34, 32, ctx.loading));
+      i0.ɵɵproperty("ngIf", !i0.ɵɵpipeBind1(30, 15, ctx.loading));
     }
   },
   dependencies: [i7.NgForOf, i7.NgIf, i8.MatProgressSpinner, i9.MatChip, i10.MatRipple, i11.IconComponent, i7.AsyncPipe, i7.DatePipe],
@@ -28748,6 +28790,7 @@ Object.defineProperty(exports, "__esModule", ({
 }));
 exports.setAppName = setAppName;
 exports.log = log;
+exports.padLength = padLength;
 exports.getItemWithKeys = getItemWithKeys;
 exports.unique = unique;
 exports.randomInt = randomInt;
@@ -28808,6 +28851,19 @@ function log(type, msg, args) {
       (_console2 = console)[stream].apply(_console2, ["%c[".concat(app_name, "]%c[").concat(type, "] %c").concat(msg)].concat(colors));
     }
   }
+}
+/**
+ * Pad the start of a string or number with given character
+ * @param value String or number to pad
+ * @param length Length of the final string
+ * @param character Character to pad output string with. Defaults to `0`.
+ */
+function padLength(value) {
+  var length = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 2;
+  var character = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '0';
+  var str = "".concat(value);
+  while (str.length < length) str = "".concat(character).concat(str);
+  return str;
 }
 /**
  * Get item from the nested object
@@ -30996,10 +31052,12 @@ Object.defineProperty(exports, "__esModule", ({
 exports.LOCAL_TIMEZONE = void 0;
 exports.localToTimezone = localToTimezone;
 exports.timezoneToLocal = timezoneToLocal;
+exports.getTimezoneOffsetString = getTimezoneOffsetString;
 exports.getTimezoneOffsetInMinutes = getTimezoneOffsetInMinutes;
 exports.getTimezoneDifferenceInHours = getTimezoneDifferenceInHours;
 var date_fns_1 = __webpack_require__(/*! date-fns */ 25773);
 var date_fns_tz_1 = __webpack_require__(/*! date-fns-tz */ 79315);
+var general_1 = __webpack_require__(/*! ./general */ 64217);
 exports.LOCAL_TIMEZONE = ((_Intl = Intl) === null || _Intl === void 0 || (_Intl = _Intl.DateTimeFormat()) === null || _Intl === void 0 || (_Intl = _Intl.resolvedOptions()) === null || _Intl === void 0 ? void 0 : _Intl.timeZone) || 'Australia/Sydney';
 function localToTimezone(date) {
   var tz = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : exports.LOCAL_TIMEZONE;
@@ -31010,6 +31068,12 @@ function timezoneToLocal(date) {
   var tz = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : exports.LOCAL_TIMEZONE;
   var offset_diff = (0, date_fns_tz_1.getTimezoneOffset)(exports.LOCAL_TIMEZONE) - (0, date_fns_tz_1.getTimezoneOffset)(tz);
   return (0, date_fns_1.addMilliseconds)(date, offset_diff).valueOf();
+}
+function getTimezoneOffsetString(tz) {
+  var offset = getTimezoneOffsetInMinutes(tz);
+  var hours = Math.floor(Math.abs(offset) / 60);
+  var minutes = Math.abs(offset) % 60;
+  return "".concat(offset > 0 ? '+' : '-').concat((0, general_1.padLength)(hours, 2)).concat((0, general_1.padLength)(minutes, 2));
 }
 function getTimezoneOffsetInMinutes(timeZone) {
   var date = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : new Date();
@@ -32476,15 +32540,15 @@ exports.VERSION = void 0;
 /* tslint:disable */
 exports.VERSION = {
   "dirty": false,
-  "raw": "57df4df",
-  "hash": "57df4df",
+  "raw": "66f8bac",
+  "hash": "66f8bac",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "57df4df",
+  "suffix": "66f8bac",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1727690712285
+  "time": 1727933593392
 };
 /* tslint:enable */
 
@@ -40861,14 +40925,8 @@ Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
 exports.MediaDurationPipe = void 0;
-exports.padLength = padLength;
+var common_1 = __webpack_require__(/*! @placeos/common */ 22797);
 var i0 = __webpack_require__(/*! @angular/core */ 37580);
-function padLength(value) {
-  var length = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 2;
-  var str = "".concat(value);
-  while (str.length < length) str = "0".concat(str);
-  return str;
-}
 var MediaDurationPipe = /*#__PURE__*/function () {
   function MediaDurationPipe() {
     _classCallCheck(this, MediaDurationPipe);
@@ -40881,11 +40939,11 @@ var MediaDurationPipe = /*#__PURE__*/function () {
       var minutes = Math.floor(period_length / 60 % 60);
       var seconds = Math.floor(period_length % 60);
       var milliseconds = Math.floor(period_length * 1000 % 1000);
-      var str = "".concat(padLength(minutes), ":").concat(padLength(seconds));
+      var str = "".concat((0, common_1.padLength)(minutes), ":").concat((0, common_1.padLength)(seconds));
       if (show_ms) {
-        str += ".".concat(padLength(milliseconds, 3));
+        str += ".".concat((0, common_1.padLength)(milliseconds, 3));
       }
-      if (hours > 0) str = "".concat(padLength(hours), ":").concat(str);
+      if (hours > 0) str = "".concat((0, common_1.padLength)(hours), ":").concat(str);
       return str;
     }
   }]);
@@ -42386,7 +42444,7 @@ _StatusPillComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
   ngContentSelectors: _c0,
   decls: 10,
   vars: 31,
-  consts: [[1, "flex", "items-center", "bg-opacity-30", "rounded-2xl", "px-2", "py-1", "text-base", "space-x-2", "font-medium", "text-black"], [1, "rounded-full", "h-5", "w-5", "flex", "items-center", "justify-center"], [1, "text-2xl", 3, "ngSwitch"], [4, "ngSwitchCase"], [4, "ngSwitchDefault"]],
+  consts: [[1, "flex", "items-center", "bg-opacity-30", "rounded-full", "px-2", "py-1", "text-base", "space-x-2", "font-medium", "text-black"], [1, "rounded-full", "h-5", "w-5", "flex", "items-center", "justify-center"], [1, "text-2xl", 3, "ngSwitch"], [4, "ngSwitchCase"], [4, "ngSwitchDefault"]],
   template: function StatusPillComponent_Template(rf, ctx) {
     if (rf & 1) {
       i0.ɵɵprojectionDef();
@@ -44139,6 +44197,7 @@ var event_details_modal_component_1 = __webpack_require__(/*! ./event-details-mo
 var organisation_service_1 = __webpack_require__(/*! libs/organisation/src/lib/organisation.service */ 19863);
 var space_pipe_1 = __webpack_require__(/*! libs/spaces/src/lib/space.pipe */ 22011);
 var group_event_details_modal_component_1 = __webpack_require__(/*! ./group-event-details-modal.component */ 58094);
+var common_2 = __webpack_require__(/*! @angular/common */ 60316);
 var i0 = __webpack_require__(/*! @angular/core */ 37580);
 var i1 = __webpack_require__(/*! @angular/material/dialog */ 12587);
 var i2 = __webpack_require__(/*! @angular/router */ 95072);
@@ -44186,20 +44245,32 @@ function EventCardComponent_h4_0_Template(rf, ctx) {
     i0.ɵɵtextInterpolate1("(", i0.ɵɵpipeBind2(6, 6, ctx_r0.event == null ? null : ctx_r0.event.date, "z"), ")");
   }
 }
-function EventCardComponent_a_1_div_18_Template(rf, ctx) {
+function EventCardComponent_a_1_div_9_Template(rf, ctx) {
   if (rf & 1) {
-    i0.ɵɵelementStart(0, "div", 12)(1, "app-icon");
+    i0.ɵɵelementStart(0, "div", 20);
+    i0.ɵɵtext(1);
+    i0.ɵɵelementEnd();
+  }
+  if (rf & 2) {
+    var ctx_r0 = i0.ɵɵnextContext(2);
+    i0.ɵɵadvance();
+    i0.ɵɵtextInterpolate1(" ", ctx_r0.period_tz, " ");
+  }
+}
+function EventCardComponent_a_1_div_21_Template(rf, ctx) {
+  if (rf & 1) {
+    i0.ɵɵelementStart(0, "div", 14)(1, "app-icon");
     i0.ɵɵtext(2, "restaurant");
     i0.ɵɵelementEnd();
-    i0.ɵɵelementStart(3, "div", 14);
+    i0.ɵɵelementStart(3, "div", 16);
     i0.ɵɵtext(4, "Catered");
     i0.ɵɵelementEnd()();
   }
 }
-function EventCardComponent_a_1_div_26_div_1_Template(rf, ctx) {
+function EventCardComponent_a_1_div_29_div_1_Template(rf, ctx) {
   if (rf & 1) {
-    i0.ɵɵelementStart(0, "div", 21);
-    i0.ɵɵelement(1, "a-user-avatar", 22);
+    i0.ɵɵelementStart(0, "div", 24);
+    i0.ɵɵelement(1, "a-user-avatar", 25);
     i0.ɵɵelementEnd();
   }
   if (rf & 2) {
@@ -44208,9 +44279,9 @@ function EventCardComponent_a_1_div_26_div_1_Template(rf, ctx) {
     i0.ɵɵproperty("user", user_r3);
   }
 }
-function EventCardComponent_a_1_div_26_div_3_Template(rf, ctx) {
+function EventCardComponent_a_1_div_29_div_3_Template(rf, ctx) {
   if (rf & 1) {
-    i0.ɵɵelementStart(0, "div", 21)(1, "div", 23);
+    i0.ɵɵelementStart(0, "div", 24)(1, "div", 26);
     i0.ɵɵtext(2);
     i0.ɵɵelementEnd()();
   }
@@ -44220,12 +44291,12 @@ function EventCardComponent_a_1_div_26_div_3_Template(rf, ctx) {
     i0.ɵɵtextInterpolate1(" +", (ctx_r0.event == null ? null : ctx_r0.event.attendees == null ? null : ctx_r0.event.attendees.length) - 5, " ");
   }
 }
-function EventCardComponent_a_1_div_26_Template(rf, ctx) {
+function EventCardComponent_a_1_div_29_Template(rf, ctx) {
   if (rf & 1) {
-    i0.ɵɵelementStart(0, "div", 18);
-    i0.ɵɵtemplate(1, EventCardComponent_a_1_div_26_div_1_Template, 2, 1, "div", 19);
+    i0.ɵɵelementStart(0, "div", 21);
+    i0.ɵɵtemplate(1, EventCardComponent_a_1_div_29_div_1_Template, 2, 1, "div", 22);
     i0.ɵɵpipe(2, "slice");
-    i0.ɵɵtemplate(3, EventCardComponent_a_1_div_26_div_3_Template, 3, 1, "div", 20);
+    i0.ɵɵtemplate(3, EventCardComponent_a_1_div_29_div_3_Template, 3, 1, "div", 23);
     i0.ɵɵelementEnd();
   }
   if (rf & 2) {
@@ -44248,50 +44319,56 @@ function EventCardComponent_a_1_Template(rf, ctx) {
     i0.ɵɵelementStart(1, "div", 7)(2, "h4", 8);
     i0.ɵɵtext(3);
     i0.ɵɵelementEnd();
-    i0.ɵɵelementStart(4, "div", 9)(5, "status-pill", 10);
-    i0.ɵɵtext(6);
-    i0.ɵɵelementEnd()();
-    i0.ɵɵelementStart(7, "div", 11)(8, "div", 12)(9, "app-icon");
-    i0.ɵɵtext(10, "meeting_room");
+    i0.ɵɵelementStart(4, "div", 9)(5, "status-pill", 10)(6, "div", 11)(7, "div");
+    i0.ɵɵtext(8);
     i0.ɵɵelementEnd();
-    i0.ɵɵelementStart(11, "div", 13);
-    i0.ɵɵtext(12);
-    i0.ɵɵelementEnd()();
-    i0.ɵɵelementStart(13, "div", 12)(14, "app-icon");
-    i0.ɵɵtext(15, "person_outline");
-    i0.ɵɵelementEnd();
-    i0.ɵɵelementStart(16, "div", 14);
-    i0.ɵɵtext(17);
-    i0.ɵɵelementEnd()();
-    i0.ɵɵtemplate(18, EventCardComponent_a_1_div_18_Template, 5, 0, "div", 15);
-    i0.ɵɵelementStart(19, "div", 12)(20, "app-icon");
-    i0.ɵɵtext(21, "people");
-    i0.ɵɵelementEnd();
-    i0.ɵɵelementStart(22, "div", 14);
-    i0.ɵɵtext(23);
+    i0.ɵɵtemplate(9, EventCardComponent_a_1_div_9_Template, 2, 1, "div", 12);
     i0.ɵɵelementEnd()()();
-    i0.ɵɵelementStart(24, "app-icon", 16);
-    i0.ɵɵtext(25, " chevron_right ");
+    i0.ɵɵelementStart(10, "div", 13)(11, "div", 14)(12, "app-icon");
+    i0.ɵɵtext(13, "meeting_room");
     i0.ɵɵelementEnd();
-    i0.ɵɵtemplate(26, EventCardComponent_a_1_div_26_Template, 4, 6, "div", 17);
+    i0.ɵɵelementStart(14, "div", 15);
+    i0.ɵɵtext(15);
+    i0.ɵɵelementEnd()();
+    i0.ɵɵelementStart(16, "div", 14)(17, "app-icon");
+    i0.ɵɵtext(18, "person_outline");
+    i0.ɵɵelementEnd();
+    i0.ɵɵelementStart(19, "div", 16);
+    i0.ɵɵtext(20);
+    i0.ɵɵelementEnd()();
+    i0.ɵɵtemplate(21, EventCardComponent_a_1_div_21_Template, 5, 0, "div", 17);
+    i0.ɵɵelementStart(22, "div", 14)(23, "app-icon");
+    i0.ɵɵtext(24, "people");
+    i0.ɵɵelementEnd();
+    i0.ɵɵelementStart(25, "div", 16);
+    i0.ɵɵtext(26);
+    i0.ɵɵelementEnd()()();
+    i0.ɵɵelementStart(27, "app-icon", 18);
+    i0.ɵɵtext(28, " chevron_right ");
+    i0.ɵɵelementEnd();
+    i0.ɵɵtemplate(29, EventCardComponent_a_1_div_29_Template, 4, 6, "div", 19);
     i0.ɵɵelementEnd()();
   }
   if (rf & 2) {
-    var tmp_8_0;
+    var tmp_10_0;
     var ctx_r0 = i0.ɵɵnextContext();
-    i0.ɵɵproperty("routerLink", i0.ɵɵpureFunction0(11, _c0))("queryParams", i0.ɵɵpureFunction1(12, _c1, ctx_r0.event == null ? null : ctx_r0.event.id));
+    i0.ɵɵproperty("routerLink", i0.ɵɵpureFunction0(14, _c0))("queryParams", i0.ɵɵpureFunction1(15, _c1, ctx_r0.event == null ? null : ctx_r0.event.id));
     i0.ɵɵadvance(3);
     i0.ɵɵtextInterpolate(ctx_r0.event == null ? null : ctx_r0.event.title);
     i0.ɵɵadvance(2);
     i0.ɵɵproperty("status", ctx_r0.status);
     i0.ɵɵadvance();
+    i0.ɵɵclassProp("pr-4", ctx_r0.timezone);
+    i0.ɵɵadvance(2);
     i0.ɵɵtextInterpolate(ctx_r0.period);
+    i0.ɵɵadvance();
+    i0.ɵɵproperty("ngIf", ctx_r0.timezone);
     i0.ɵɵadvance(6);
     i0.ɵɵtextInterpolate1(" ", ctx_r0.location, " ");
     i0.ɵɵadvance(5);
     i0.ɵɵtextInterpolate1(" ", (ctx_r0.event == null ? null : ctx_r0.event.organiser == null ? null : ctx_r0.event.organiser.name) || (ctx_r0.event == null ? null : ctx_r0.event.organiser == null ? null : ctx_r0.event.organiser.email), " ");
     i0.ɵɵadvance();
-    i0.ɵɵproperty("ngIf", ctx_r0.event == null ? null : (tmp_8_0 = ctx_r0.event.ext("catering")) == null ? null : tmp_8_0.length);
+    i0.ɵɵproperty("ngIf", ctx_r0.event == null ? null : (tmp_10_0 = ctx_r0.event.ext("catering")) == null ? null : tmp_10_0.length);
     i0.ɵɵadvance(5);
     i0.ɵɵtextInterpolate2(" ", ctx_r0.event == null ? null : ctx_r0.event.attendees == null ? null : ctx_r0.event.attendees.length, " ", (ctx_r0.event == null ? null : ctx_r0.event.attendees == null ? null : ctx_r0.event.attendees.length) === 1 ? "Person" : "People", " ");
     i0.ɵɵadvance(3);
@@ -44312,22 +44389,67 @@ var EventCardComponent = /*#__PURE__*/function (_common_1$AsyncHandle) {
     _this.edit = new core_1.EventEmitter();
     _this.remove = new core_1.EventEmitter();
     _this.location = '';
+    _this._date = new common_2.DatePipe('en');
     return _this;
   }
   _inherits(EventCardComponent, _common_1$AsyncHandle);
   return _createClass(EventCardComponent, [{
+    key: "timezone",
+    get: function get() {
+      return this._settings.get('app.events.use_building_timezone') ? this._org.building.timezone : '';
+    }
+  }, {
+    key: "tz",
+    get: function get() {
+      var tz = this.timezone;
+      if (!tz) return '';
+      return (0, common_1.getTimezoneOffsetString)(tz);
+    }
+  }, {
     key: "time_format",
     get: function get() {
       return this._settings.time_format;
     }
   }, {
+    key: "period",
+    get: function get() {
+      var _this$event;
+      if ((_this$event = this.event) !== null && _this$event !== void 0 && _this$event.all_day) return 'All Day';
+      return this.formattedTime();
+    }
+  }, {
+    key: "period_tz",
+    get: function get() {
+      return this.formattedTime(this.tz);
+    }
+  }, {
+    key: "formattedTime",
+    value: function formattedTime(tz) {
+      var _this$event2;
+      var date = this.event.date;
+      var date_end = this.event.date_end;
+      var all_day = this.event.all_day;
+      var tz_format = this._date.transform(date, 'z', tz);
+      var start_date = this._date.transform(date, 'MMM d', tz);
+      var start_time = this._date.transform(date, this.time_format, tz);
+      var end_date = this._date.transform(date_end, 'MMM d', tz);
+      var end_time = this._date.transform(date_end, this.time_format, tz);
+      var is_multiday = ((_this$event2 = this.event) === null || _this$event2 === void 0 ? void 0 : _this$event2.duration) > 24 * 60;
+      if (is_multiday) {
+        return "".concat(start_date).concat(all_day ? '' : ', ' + start_time, " - ").concat(end_date).concat(all_day ? '' : ', ' + end_time);
+      } else if (all_day) {
+        return 'All Day';
+      }
+      return "".concat(start_time, " - ").concat(end_time, " ").concat('(' + tz_format + ')');
+    }
+  }, {
     key: "status",
     get: function get() {
-      var _this$event, _this$event2, _this$event3, _this$event4;
-      if (((_this$event = this.event) === null || _this$event === void 0 ? void 0 : _this$event.state) === 'done') return 'neutral';
-      if (((_this$event2 = this.event) === null || _this$event2 === void 0 ? void 0 : _this$event2.status) === 'approved') return 'success';
-      if (((_this$event3 = this.event) === null || _this$event3 === void 0 ? void 0 : _this$event3.status) === 'tentative') return 'warning';
-      if (((_this$event4 = this.event) === null || _this$event4 === void 0 ? void 0 : _this$event4.status) === 'declined') return 'error';
+      var _this$event3, _this$event4, _this$event5, _this$event6;
+      if (((_this$event3 = this.event) === null || _this$event3 === void 0 ? void 0 : _this$event3.state) === 'done') return 'neutral';
+      if (((_this$event4 = this.event) === null || _this$event4 === void 0 ? void 0 : _this$event4.status) === 'approved') return 'success';
+      if (((_this$event5 = this.event) === null || _this$event5 === void 0 ? void 0 : _this$event5.status) === 'tentative') return 'warning';
+      if (((_this$event6 = this.event) === null || _this$event6 === void 0 ? void 0 : _this$event6.status) === 'declined') return 'error';
       return 'warning';
     }
   }, {
@@ -44386,8 +44508,8 @@ var EventCardComponent = /*#__PURE__*/function (_common_1$AsyncHandle) {
   }, {
     key: "day",
     get: function get() {
-      var _this$event5;
-      var date = ((_this$event5 = this.event) === null || _this$event5 === void 0 ? void 0 : _this$event5.date) || Date.now();
+      var _this$event7;
+      var date = ((_this$event7 = this.event) === null || _this$event7 === void 0 ? void 0 : _this$event7.date) || Date.now();
       var is_today = (0, date_fns_1.isSameDay)(Date.now(), date);
       return "".concat(is_today ? 'Today' : (0, date_fns_1.format)(date, 'EEEE'));
     }
@@ -44395,12 +44517,12 @@ var EventCardComponent = /*#__PURE__*/function (_common_1$AsyncHandle) {
     key: "getLocationString",
     value: function () {
       var _getLocationString = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3() {
-        var _this$event6, _this$event7, _this$event8;
+        var _this$event8, _this$event9, _this$event10;
         var system, space, zone_list, zone;
         return _regeneratorRuntime().wrap(function _callee3$(_context3) {
           while (1) switch (_context3.prev = _context3.next) {
             case 0:
-              system = ((_this$event6 = this.event) === null || _this$event6 === void 0 ? void 0 : _this$event6.resources[0]) || ((_this$event7 = this.event) === null || _this$event7 === void 0 ? void 0 : _this$event7.system) || ((_this$event8 = this.event) === null || _this$event8 === void 0 ? void 0 : _this$event8.space) || {};
+              system = ((_this$event8 = this.event) === null || _this$event8 === void 0 ? void 0 : _this$event8.resources[0]) || ((_this$event9 = this.event) === null || _this$event9 === void 0 ? void 0 : _this$event9.system) || ((_this$event10 = this.event) === null || _this$event10 === void 0 ? void 0 : _this$event10.space) || {};
               _context3.next = 3;
               return this._space_pipe.transform(system.id || system.email);
             case 3:
@@ -44421,21 +44543,6 @@ var EventCardComponent = /*#__PURE__*/function (_common_1$AsyncHandle) {
       }
       return getLocationString;
     }()
-  }, {
-    key: "period",
-    get: function get() {
-      var _this$event9, _this$event10, _this$event11, _this$event12;
-      if ((_this$event9 = this.event) !== null && _this$event9 !== void 0 && _this$event9.all_day) return 'All Day';
-      var start = ((_this$event10 = this.event) === null || _this$event10 === void 0 ? void 0 : _this$event10.date) || Date.now();
-      var duration = ((_this$event11 = this.event) === null || _this$event11 === void 0 ? void 0 : _this$event11.duration) || 60;
-      var end = (0, date_fns_1.addMinutes)(start, duration);
-      var is_multiday = ((_this$event12 = this.event) === null || _this$event12 === void 0 ? void 0 : _this$event12.duration) > 24 * 60;
-      var dur = (0, date_fns_1.formatDuration)({
-        hours: Math.floor(duration / 60),
-        minutes: duration % 60
-      }).replace(' hour', 'hr').replace(' minute', 'min');
-      return "".concat((0, date_fns_1.format)(start, (is_multiday ? "MMM d, " : '') + this.time_format), " - ").concat((0, date_fns_1.format)(end, (is_multiday ? "MMM d, " : '') + this.time_format), " ").concat(duration < 24 * 60 ? '(' + dur + ')' : '');
-    }
   }, {
     key: "viewDetails",
     value: function viewDetails() {
@@ -44483,10 +44590,10 @@ _EventCardComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
   features: [i0.ɵɵProvidersFeature([space_pipe_1.SpacePipe]), i0.ɵɵInheritDefinitionFeature, i0.ɵɵNgOnChangesFeature],
   decls: 2,
   vars: 2,
-  consts: [["class", "mb-2 flex items-center", "date", "", 4, "ngIf"], ["name", "view-event-details", "class", "w-full cursor-pointer relative", 3, "routerLink", "queryParams", "click", 4, "ngIf"], ["date", "", 1, "mb-2", "flex", "items-center"], ["day", "", 4, "ngIf"], [1, "text-xs", "px-2"], ["day", ""], ["name", "view-event-details", 1, "w-full", "cursor-pointer", "relative", 3, "click", "routerLink", "queryParams"], [1, "w-full", "bg-base-100", "border", "border-base-300", "rounded-xl", "shadow", "py-4", "relative"], [1, "px-4", "text-lg"], [1, "flex", "mx-4", "my-2"], [3, "status"], [1, "flex", "flex-wrap", "flex-col", "sm:flex-row", "sm:divide-x", "divide-base-200-500", "py-2", "space-y-2", "sm:space-y-0"], [1, "flex", "items-center", "px-4"], [1, "mx-2", "truncate"], [1, "mx-2"], ["class", "flex items-center px-4", 4, "ngIf"], [1, "absolute", "top-1/2", "right-1", "text-4xl", "-translate-y-1/2"], ["class", "absolute bottom-2 right-2 sm:bottom-auto sm:top-2 text-sm sm:text-base flex items-center pr-4", 4, "ngIf"], [1, "absolute", "bottom-2", "right-2", "sm:bottom-auto", "sm:top-2", "text-sm", "sm:text-base", "flex", "items-center", "pr-4"], ["class", "h-10 w-6", 4, "ngFor", "ngForOf"], ["class", "h-10 w-6", 4, "ngIf"], [1, "h-10", "w-6"], [3, "user"], [1, "bg-secondary", "rounded-full", "h-10", "w-10", "border-2", "border-base-100", "flex", "items-center", "justify-center", "text-secondary-content"]],
+  consts: [["class", "mb-2 flex items-center", "date", "", 4, "ngIf"], ["name", "view-event-details", "class", "w-full cursor-pointer relative", 3, "routerLink", "queryParams", "click", 4, "ngIf"], ["date", "", 1, "mb-2", "flex", "items-center"], ["day", "", 4, "ngIf"], [1, "text-xs", "px-2"], ["day", ""], ["name", "view-event-details", 1, "w-full", "cursor-pointer", "relative", 3, "click", "routerLink", "queryParams"], [1, "w-full", "bg-base-100", "border", "border-base-300", "rounded-xl", "shadow", "py-4", "relative"], [1, "px-4", "text-lg"], [1, "flex", "mx-4", "my-2"], [3, "status"], [1, "flex", "flex-col", "leading-tight"], ["class", "opacity-30 text-xs", 4, "ngIf"], [1, "flex", "flex-wrap", "flex-col", "sm:flex-row", "sm:divide-x", "divide-base-200-500", "py-2", "space-y-2", "sm:space-y-0"], [1, "flex", "items-center", "px-4"], [1, "mx-2", "truncate"], [1, "mx-2"], ["class", "flex items-center px-4", 4, "ngIf"], [1, "absolute", "top-1/2", "right-1", "text-4xl", "-translate-y-1/2"], ["class", "absolute bottom-2 right-2 sm:bottom-auto sm:top-2 text-sm sm:text-base flex items-center pr-4", 4, "ngIf"], [1, "opacity-30", "text-xs"], [1, "absolute", "bottom-2", "right-2", "sm:bottom-auto", "sm:top-2", "text-sm", "sm:text-base", "flex", "items-center", "pr-4"], ["class", "h-10 w-6", 4, "ngFor", "ngForOf"], ["class", "h-10 w-6", 4, "ngIf"], [1, "h-10", "w-6"], [3, "user"], [1, "bg-secondary", "rounded-full", "h-10", "w-10", "border-2", "border-base-100", "flex", "items-center", "justify-center", "text-secondary-content"]],
   template: function EventCardComponent_Template(rf, ctx) {
     if (rf & 1) {
-      i0.ɵɵtemplate(0, EventCardComponent_h4_0_Template, 7, 9, "h4", 0)(1, EventCardComponent_a_1_Template, 27, 14, "a", 1);
+      i0.ɵɵtemplate(0, EventCardComponent_h4_0_Template, 7, 9, "h4", 0)(1, EventCardComponent_a_1_Template, 30, 17, "a", 1);
     }
     if (rf & 2) {
       i0.ɵɵproperty("ngIf", ctx.event);
@@ -44533,6 +44640,7 @@ var space_class_1 = __webpack_require__(/*! libs/spaces/src/lib/space.class */ 3
 var ts_client_1 = __webpack_require__(/*! @placeos/ts-client */ 35713);
 var map_locate_modal_component_1 = __webpack_require__(/*! libs/components/src/lib/map-locate-modal.component */ 90620);
 var events_fn_1 = __webpack_require__(/*! ./events.fn */ 51416);
+var common_2 = __webpack_require__(/*! @angular/common */ 60316);
 var i0 = __webpack_require__(/*! @angular/core */ 37580);
 var i1 = __webpack_require__(/*! libs/organisation/src/lib/organisation.service */ 19863);
 var i2 = __webpack_require__(/*! libs/spaces/src/lib/space.pipe */ 22011);
@@ -44547,13 +44655,13 @@ var _c0 = function _c0() {
 };
 function EventDetailsModalComponent_div_3_Template(rf, ctx) {
   if (rf & 1) {
-    i0.ɵɵelement(0, "div", 56);
+    i0.ɵɵelement(0, "div", 58);
   }
 }
 function EventDetailsModalComponent_div_4_Template(rf, ctx) {
   if (rf & 1) {
-    i0.ɵɵelementStart(0, "div", 57);
-    i0.ɵɵelement(1, "image-carousel", 58);
+    i0.ɵɵelementStart(0, "div", 59);
+    i0.ɵɵelement(1, "image-carousel", 60);
     i0.ɵɵelementEnd();
   }
   if (rf & 2) {
@@ -44562,19 +44670,31 @@ function EventDetailsModalComponent_div_4_Template(rf, ctx) {
     i0.ɵɵproperty("images", ctx_r1.event == null ? null : ctx_r1.event.system == null ? null : ctx_r1.event.system.images);
   }
 }
-function EventDetailsModalComponent_div_11_button_1_Template(rf, ctx) {
+function EventDetailsModalComponent_div_13_Template(rf, ctx) {
+  if (rf & 1) {
+    i0.ɵɵelementStart(0, "div", 61);
+    i0.ɵɵtext(1);
+    i0.ɵɵelementEnd();
+  }
+  if (rf & 2) {
+    var ctx_r1 = i0.ɵɵnextContext();
+    i0.ɵɵadvance();
+    i0.ɵɵtextInterpolate1(" ", ctx_r1.period_tz, " ");
+  }
+}
+function EventDetailsModalComponent_div_14_button_1_Template(rf, ctx) {
   if (rf & 1) {
     var _r3 = i0.ɵɵgetCurrentView();
-    i0.ɵɵelementStart(0, "button", 62);
-    i0.ɵɵlistener("click", function EventDetailsModalComponent_div_11_button_1_Template_button_click_0_listener() {
+    i0.ɵɵelementStart(0, "button", 65);
+    i0.ɵɵlistener("click", function EventDetailsModalComponent_div_14_button_1_Template_button_click_0_listener() {
       i0.ɵɵrestoreView(_r3);
       var ctx_r1 = i0.ɵɵnextContext(2);
       return i0.ɵɵresetView(ctx_r1.checkin());
     });
-    i0.ɵɵelementStart(1, "div", 63)(2, "app-icon", 64);
+    i0.ɵɵelementStart(1, "div", 66)(2, "app-icon", 67);
     i0.ɵɵtext(3);
     i0.ɵɵelementEnd();
-    i0.ɵɵelementStart(4, "div", 65);
+    i0.ɵɵelementStart(4, "div", 68);
     i0.ɵɵi18n(5, 9);
     i0.ɵɵelementEnd()()();
   }
@@ -44588,22 +44708,22 @@ function EventDetailsModalComponent_div_11_button_1_Template(rf, ctx) {
     i0.ɵɵi18nApply(5);
   }
 }
-function EventDetailsModalComponent_div_11_button_2_Template(rf, ctx) {
+function EventDetailsModalComponent_div_14_button_2_Template(rf, ctx) {
   if (rf & 1) {
-    i0.ɵɵelementStart(0, "button", 66)(1, "app-icon");
+    i0.ɵɵelementStart(0, "button", 69)(1, "app-icon");
     i0.ɵɵtext(2, "more_horiz");
     i0.ɵɵelementEnd()();
   }
   if (rf & 2) {
     i0.ɵɵnextContext(2);
-    var menu_r4 = i0.ɵɵreference(75);
+    var menu_r4 = i0.ɵɵreference(80);
     i0.ɵɵproperty("matMenuTriggerFor", menu_r4);
   }
 }
-function EventDetailsModalComponent_div_11_Template(rf, ctx) {
+function EventDetailsModalComponent_div_14_Template(rf, ctx) {
   if (rf & 1) {
-    i0.ɵɵelementStart(0, "div", 59);
-    i0.ɵɵtemplate(1, EventDetailsModalComponent_div_11_button_1_Template, 6, 8, "button", 60)(2, EventDetailsModalComponent_div_11_button_2_Template, 3, 1, "button", 61);
+    i0.ɵɵelementStart(0, "div", 62);
+    i0.ɵɵtemplate(1, EventDetailsModalComponent_div_14_button_1_Template, 6, 8, "button", 63)(2, EventDetailsModalComponent_div_14_button_2_Template, 3, 1, "button", 64);
     i0.ɵɵelementEnd();
   }
   if (rf & 2) {
@@ -44614,7 +44734,19 @@ function EventDetailsModalComponent_div_11_Template(rf, ctx) {
     i0.ɵɵproperty("ngIf", ctx_r1.allow_edit);
   }
 }
-function EventDetailsModalComponent_ng_container_31_Template(rf, ctx) {
+function EventDetailsModalComponent_div_31_Template(rf, ctx) {
+  if (rf & 1) {
+    i0.ɵɵelementStart(0, "div", 61);
+    i0.ɵɵtext(1);
+    i0.ɵɵelementEnd();
+  }
+  if (rf & 2) {
+    var ctx_r1 = i0.ɵɵnextContext();
+    i0.ɵɵadvance();
+    i0.ɵɵtextInterpolate1(" ", ctx_r1.period_tz, " ");
+  }
+}
+function EventDetailsModalComponent_ng_container_36_Template(rf, ctx) {
   if (rf & 1) {
     i0.ɵɵelementContainerStart(0);
     i0.ɵɵtext(1);
@@ -44626,9 +44758,9 @@ function EventDetailsModalComponent_ng_container_31_Template(rf, ctx) {
     i0.ɵɵtextInterpolate1(" ", (ctx_r1.level == null ? null : ctx_r1.level.display_name) || (ctx_r1.level == null ? null : ctx_r1.level.name), ", ");
   }
 }
-function EventDetailsModalComponent_div_33_Template(rf, ctx) {
+function EventDetailsModalComponent_div_38_Template(rf, ctx) {
   if (rf & 1) {
-    i0.ɵɵelementStart(0, "div", 29)(1, "app-icon");
+    i0.ɵɵelementStart(0, "div", 31)(1, "app-icon");
     i0.ɵɵtext(2, "place");
     i0.ɵɵelementEnd();
     i0.ɵɵelementStart(3, "div");
@@ -44641,9 +44773,9 @@ function EventDetailsModalComponent_div_33_Template(rf, ctx) {
     i0.ɵɵtextInterpolate2(" ", (ctx_r1.building == null ? null : ctx_r1.building.display_name) || (ctx_r1.building == null ? null : ctx_r1.building.name), ", ", ctx_r1.building == null ? null : ctx_r1.building.address, " ");
   }
 }
-function EventDetailsModalComponent_ng_container_65_div_5_div_13_span_4_Template(rf, ctx) {
+function EventDetailsModalComponent_ng_container_70_div_5_div_13_span_4_Template(rf, ctx) {
   if (rf & 1) {
-    i0.ɵɵelementStart(0, "span", 83);
+    i0.ɵɵelementStart(0, "span", 86);
     i0.ɵɵtext(1);
     i0.ɵɵelementEnd();
   }
@@ -44655,17 +44787,17 @@ function EventDetailsModalComponent_ng_container_65_div_5_div_13_span_4_Template
     i0.ɵɵtextInterpolate1(" ", (item_r7.option_list == null ? null : item_r7.option_list.length) || "0", " option(s) ");
   }
 }
-function EventDetailsModalComponent_ng_container_65_div_5_div_13_Template(rf, ctx) {
+function EventDetailsModalComponent_ng_container_70_div_5_div_13_Template(rf, ctx) {
   if (rf & 1) {
-    i0.ɵɵelementStart(0, "div", 78)(1, "div", 79)(2, "span", 73);
+    i0.ɵɵelementStart(0, "div", 81)(1, "div", 82)(2, "span", 76);
     i0.ɵɵtext(3);
     i0.ɵɵelementEnd();
-    i0.ɵɵtemplate(4, EventDetailsModalComponent_ng_container_65_div_5_div_13_span_4_Template, 2, 2, "span", 80);
+    i0.ɵɵtemplate(4, EventDetailsModalComponent_ng_container_70_div_5_div_13_span_4_Template, 2, 2, "span", 83);
     i0.ɵɵelementEnd();
-    i0.ɵɵelementStart(5, "div", 81);
+    i0.ɵɵelementStart(5, "div", 84);
     i0.ɵɵtext(6);
     i0.ɵɵelementEnd();
-    i0.ɵɵelementStart(7, "div", 82);
+    i0.ɵɵelementStart(7, "div", 85);
     i0.ɵɵtext(8);
     i0.ɵɵpipe(9, "currency");
     i0.ɵɵelementEnd()();
@@ -44683,19 +44815,19 @@ function EventDetailsModalComponent_ng_container_65_div_5_div_13_Template(rf, ct
     i0.ɵɵtextInterpolate1(" ", i0.ɵɵpipeBind2(9, 4, item_r7.unit_price_with_options / 100, ctx_r1.currency_code), " ea ");
   }
 }
-function EventDetailsModalComponent_ng_container_65_div_5_Template(rf, ctx) {
+function EventDetailsModalComponent_ng_container_70_div_5_Template(rf, ctx) {
   if (rf & 1) {
     var _r5 = i0.ɵɵgetCurrentView();
-    i0.ɵɵelementStart(0, "div", 70)(1, "div", 71)(2, "div", 72)(3, "div", 73);
+    i0.ɵɵelementStart(0, "div", 73)(1, "div", 74)(2, "div", 75)(3, "div", 76);
     i0.ɵɵtext(4);
     i0.ɵɵpipe(5, "date");
     i0.ɵɵelementEnd();
-    i0.ɵɵelementStart(6, "div", 74);
+    i0.ɵɵelementStart(6, "div", 77);
     i0.ɵɵtext(7);
     i0.ɵɵpipe(8, "currency");
     i0.ɵɵelementEnd()();
-    i0.ɵɵelementStart(9, "button", 75);
-    i0.ɵɵlistener("click", function EventDetailsModalComponent_ng_container_65_div_5_Template_button_click_9_listener() {
+    i0.ɵɵelementStart(9, "button", 78);
+    i0.ɵɵlistener("click", function EventDetailsModalComponent_ng_container_70_div_5_Template_button_click_9_listener() {
       var order_r6 = i0.ɵɵrestoreView(_r5).$implicit;
       var ctx_r1 = i0.ɵɵnextContext(2);
       return i0.ɵɵresetView(ctx_r1.show_order[order_r6.id] = !ctx_r1.show_order[order_r6.id]);
@@ -44703,8 +44835,8 @@ function EventDetailsModalComponent_ng_container_65_div_5_Template(rf, ctx) {
     i0.ɵɵelementStart(10, "app-icon");
     i0.ɵɵtext(11);
     i0.ɵɵelementEnd()()();
-    i0.ɵɵelementStart(12, "div", 76);
-    i0.ɵɵtemplate(13, EventDetailsModalComponent_ng_container_65_div_5_div_13_Template, 10, 7, "div", 77);
+    i0.ɵɵelementStart(12, "div", 79);
+    i0.ɵɵtemplate(13, EventDetailsModalComponent_ng_container_70_div_5_div_13_Template, 10, 7, "div", 80);
     i0.ɵɵelementEnd()();
   }
   if (rf & 2) {
@@ -44724,14 +44856,14 @@ function EventDetailsModalComponent_ng_container_65_div_5_Template(rf, ctx) {
     i0.ɵɵproperty("ngForOf", order_r6.items);
   }
 }
-function EventDetailsModalComponent_ng_container_65_Template(rf, ctx) {
+function EventDetailsModalComponent_ng_container_70_Template(rf, ctx) {
   if (rf & 1) {
     i0.ɵɵelementContainerStart(0);
-    i0.ɵɵelementStart(1, "div", 32)(2, "h3", 67);
+    i0.ɵɵelementStart(1, "div", 34)(2, "h3", 70);
     i0.ɵɵi18n(3, 10);
     i0.ɵɵelementEnd();
-    i0.ɵɵelementStart(4, "div", 68);
-    i0.ɵɵtemplate(5, EventDetailsModalComponent_ng_container_65_div_5_Template, 14, 13, "div", 69);
+    i0.ɵɵelementStart(4, "div", 71);
+    i0.ɵɵtemplate(5, EventDetailsModalComponent_ng_container_70_div_5_Template, 14, 13, "div", 72);
     i0.ɵɵelementEnd()();
     i0.ɵɵelementContainerEnd();
   }
@@ -44741,10 +44873,10 @@ function EventDetailsModalComponent_ng_container_65_Template(rf, ctx) {
     i0.ɵɵproperty("ngForOf", ctx_r1.event.valid_catering);
   }
 }
-function EventDetailsModalComponent_ng_container_67_Template(rf, ctx) {
+function EventDetailsModalComponent_ng_container_72_Template(rf, ctx) {
   if (rf & 1) {
     i0.ɵɵelementContainerStart(0);
-    i0.ɵɵelement(1, "interactive-map", 84);
+    i0.ɵɵelement(1, "interactive-map", 87);
     i0.ɵɵelementContainerEnd();
   }
   if (rf & 2) {
@@ -44753,9 +44885,9 @@ function EventDetailsModalComponent_ng_container_67_Template(rf, ctx) {
     i0.ɵɵproperty("src", ctx_r1.level == null ? null : ctx_r1.level.map_id)("features", ctx_r1.features)("options", i0.ɵɵpureFunction0(3, _c0));
   }
 }
-function EventDetailsModalComponent_div_68_div_3_Template(rf, ctx) {
+function EventDetailsModalComponent_div_73_div_3_Template(rf, ctx) {
   if (rf & 1) {
-    i0.ɵɵelement(0, "div", 87);
+    i0.ɵɵelement(0, "div", 90);
     i0.ɵɵpipe(1, "sanitize");
   }
   if (rf & 2) {
@@ -44763,12 +44895,12 @@ function EventDetailsModalComponent_div_68_div_3_Template(rf, ctx) {
     i0.ɵɵproperty("innerHTML", i0.ɵɵpipeBind1(1, 1, ctx_r1.body) || "Unable to sanitize notes contents", i0.ɵɵsanitizeHtml);
   }
 }
-function EventDetailsModalComponent_div_68_Template(rf, ctx) {
+function EventDetailsModalComponent_div_73_Template(rf, ctx) {
   if (rf & 1) {
-    i0.ɵɵelementStart(0, "div", 32)(1, "h3", 85);
+    i0.ɵɵelementStart(0, "div", 34)(1, "h3", 88);
     i0.ɵɵi18n(2, 11);
     i0.ɵɵelementEnd();
-    i0.ɵɵtemplate(3, EventDetailsModalComponent_div_68_div_3_Template, 2, 3, "div", 86);
+    i0.ɵɵtemplate(3, EventDetailsModalComponent_div_73_div_3_Template, 2, 3, "div", 89);
     i0.ɵɵelementEnd();
   }
   if (rf & 2) {
@@ -44777,12 +44909,12 @@ function EventDetailsModalComponent_div_68_Template(rf, ctx) {
     i0.ɵɵproperty("ngIf", ctx_r1.body);
   }
 }
-function EventDetailsModalComponent_ng_container_69_div_5_div_13_Template(rf, ctx) {
+function EventDetailsModalComponent_ng_container_74_div_5_div_13_Template(rf, ctx) {
   if (rf & 1) {
-    i0.ɵɵelementStart(0, "div", 78)(1, "div", 79)(2, "span", 73);
+    i0.ɵɵelementStart(0, "div", 81)(1, "div", 82)(2, "span", 76);
     i0.ɵɵtext(3);
     i0.ɵɵelementEnd()();
-    i0.ɵɵelementStart(4, "div", 81);
+    i0.ɵɵelementStart(4, "div", 84);
     i0.ɵɵtext(5);
     i0.ɵɵelementEnd()();
   }
@@ -44794,27 +44926,27 @@ function EventDetailsModalComponent_ng_container_69_div_5_div_13_Template(rf, ct
     i0.ɵɵtextInterpolate1(" x", item_r10.quantity, " ");
   }
 }
-function EventDetailsModalComponent_ng_container_69_div_5_Template(rf, ctx) {
+function EventDetailsModalComponent_ng_container_74_div_5_Template(rf, ctx) {
   if (rf & 1) {
     var _r8 = i0.ɵɵgetCurrentView();
-    i0.ɵɵelementStart(0, "div", 90)(1, "button", 91);
-    i0.ɵɵlistener("click", function EventDetailsModalComponent_ng_container_69_div_5_Template_button_click_1_listener() {
+    i0.ɵɵelementStart(0, "div", 93)(1, "button", 94);
+    i0.ɵɵlistener("click", function EventDetailsModalComponent_ng_container_74_div_5_Template_button_click_1_listener() {
       var request_r9 = i0.ɵɵrestoreView(_r8).$implicit;
       var ctx_r1 = i0.ɵɵnextContext(2);
       return i0.ɵɵresetView(ctx_r1.show_request[request_r9.id] = !ctx_r1.show_request[request_r9.id]);
     });
-    i0.ɵɵelementStart(2, "div", 92)(3, "div", 73);
+    i0.ɵɵelementStart(2, "div", 95)(3, "div", 76);
     i0.ɵɵtext(4);
     i0.ɵɵpipe(5, "date");
     i0.ɵɵelementEnd()();
-    i0.ɵɵelementStart(6, "div", 93)(7, "app-icon");
+    i0.ɵɵelementStart(6, "div", 96)(7, "app-icon");
     i0.ɵɵtext(8);
     i0.ɵɵelementEnd()();
-    i0.ɵɵelementStart(9, "div", 94)(10, "app-icon", 64);
+    i0.ɵɵelementStart(9, "div", 97)(10, "app-icon", 67);
     i0.ɵɵtext(11);
     i0.ɵɵelementEnd()()();
-    i0.ɵɵelementStart(12, "div", 76);
-    i0.ɵɵtemplate(13, EventDetailsModalComponent_ng_container_69_div_5_div_13_Template, 6, 2, "div", 77);
+    i0.ɵɵelementStart(12, "div", 79);
+    i0.ɵɵtemplate(13, EventDetailsModalComponent_ng_container_74_div_5_div_13_Template, 6, 2, "div", 80);
     i0.ɵɵelementEnd()();
   }
   if (rf & 2) {
@@ -44835,14 +44967,14 @@ function EventDetailsModalComponent_ng_container_69_div_5_Template(rf, ctx) {
     i0.ɵɵproperty("ngForOf", request_r9.items);
   }
 }
-function EventDetailsModalComponent_ng_container_69_Template(rf, ctx) {
+function EventDetailsModalComponent_ng_container_74_Template(rf, ctx) {
   if (rf & 1) {
     i0.ɵɵelementContainerStart(0);
-    i0.ɵɵelementStart(1, "div", 32)(2, "h3", 88);
+    i0.ɵɵelementStart(1, "div", 34)(2, "h3", 91);
     i0.ɵɵi18n(3, 12);
     i0.ɵɵelementEnd();
-    i0.ɵɵelementStart(4, "div", 68);
-    i0.ɵɵtemplate(5, EventDetailsModalComponent_ng_container_69_div_5_Template, 14, 21, "div", 89);
+    i0.ɵɵelementStart(4, "div", 71);
+    i0.ɵɵtemplate(5, EventDetailsModalComponent_ng_container_74_div_5_Template, 14, 21, "div", 92);
     i0.ɵɵelementEnd()();
     i0.ɵɵelementContainerEnd();
   }
@@ -44855,11 +44987,11 @@ function EventDetailsModalComponent_ng_container_69_Template(rf, ctx) {
     i0.ɵɵproperty("ngForOf", ctx_r1.event.valid_assets);
   }
 }
-function EventDetailsModalComponent_div_73_Template(rf, ctx) {
+function EventDetailsModalComponent_div_78_Template(rf, ctx) {
   if (rf & 1) {
     var _r11 = i0.ɵɵgetCurrentView();
-    i0.ɵɵelementStart(0, "div", 95)(1, "attendee-list", 96);
-    i0.ɵɵlistener("click", function EventDetailsModalComponent_div_73_Template_attendee_list_click_1_listener() {
+    i0.ɵɵelementStart(0, "div", 98)(1, "attendee-list", 99);
+    i0.ɵɵlistener("click", function EventDetailsModalComponent_div_78_Template_attendee_list_click_1_listener() {
       i0.ɵɵrestoreView(_r11);
       var ctx_r1 = i0.ɵɵnextContext();
       return i0.ɵɵresetView(ctx_r1.show_attendees = false);
@@ -44872,16 +45004,16 @@ function EventDetailsModalComponent_div_73_Template(rf, ctx) {
     i0.ɵɵproperty("list", ctx_r1.event.attendees)("host", ctx_r1.event.host);
   }
 }
-function EventDetailsModalComponent_button_76_Template(rf, ctx) {
+function EventDetailsModalComponent_button_81_Template(rf, ctx) {
   if (rf & 1) {
     var _r12 = i0.ɵɵgetCurrentView();
-    i0.ɵɵelementStart(0, "button", 97);
-    i0.ɵɵlistener("click", function EventDetailsModalComponent_button_76_Template_button_click_0_listener() {
+    i0.ɵɵelementStart(0, "button", 100);
+    i0.ɵɵlistener("click", function EventDetailsModalComponent_button_81_Template_button_click_0_listener() {
       i0.ɵɵrestoreView(_r12);
       var ctx_r1 = i0.ɵɵnextContext();
       return i0.ɵɵresetView(ctx_r1.edit.emit(ctx_r1.space));
     });
-    i0.ɵɵelementStart(1, "div", 52)(2, "app-icon", 64);
+    i0.ɵɵelementStart(1, "div", 54)(2, "app-icon", 67);
     i0.ɵɵtext(3, "edit");
     i0.ɵɵelementEnd();
     i0.ɵɵelementStart(4, "div");
@@ -44893,16 +45025,16 @@ function EventDetailsModalComponent_button_76_Template(rf, ctx) {
     i0.ɵɵproperty("matTooltip", !ctx_r1.can_edit ? ctx_r1.no_edit_message : "")("disabled", !ctx_r1.can_edit);
   }
 }
-function EventDetailsModalComponent_button_83_Template(rf, ctx) {
+function EventDetailsModalComponent_button_88_Template(rf, ctx) {
   if (rf & 1) {
     var _r13 = i0.ɵɵgetCurrentView();
-    i0.ɵɵelementStart(0, "button", 51);
-    i0.ɵɵlistener("click", function EventDetailsModalComponent_button_83_Template_button_click_0_listener() {
+    i0.ɵɵelementStart(0, "button", 53);
+    i0.ɵɵlistener("click", function EventDetailsModalComponent_button_88_Template_button_click_0_listener() {
       i0.ɵɵrestoreView(_r13);
       var ctx_r1 = i0.ɵɵnextContext();
       return i0.ɵɵresetView(ctx_r1.remove.emit(true));
     });
-    i0.ɵɵelementStart(1, "div", 52)(2, "app-icon", 53);
+    i0.ɵɵelementStart(1, "div", 54)(2, "app-icon", 55);
     i0.ɵɵtext(3, "delete");
     i0.ɵɵelementEnd();
     i0.ɵɵelementStart(4, "div");
@@ -44910,16 +45042,16 @@ function EventDetailsModalComponent_button_83_Template(rf, ctx) {
     i0.ɵɵelementEnd()()();
   }
 }
-function EventDetailsModalComponent_button_84_Template(rf, ctx) {
+function EventDetailsModalComponent_button_89_Template(rf, ctx) {
   if (rf & 1) {
     var _r14 = i0.ɵɵgetCurrentView();
-    i0.ɵɵelementStart(0, "button", 51);
-    i0.ɵɵlistener("click", function EventDetailsModalComponent_button_84_Template_button_click_0_listener() {
+    i0.ɵɵelementStart(0, "button", 53);
+    i0.ɵɵlistener("click", function EventDetailsModalComponent_button_89_Template_button_click_0_listener() {
       var act_r15 = i0.ɵɵrestoreView(_r14).$implicit;
       var ctx_r1 = i0.ɵɵnextContext();
       return i0.ɵɵresetView(ctx_r1.action.emit(act_r15.id));
     });
-    i0.ɵɵelementStart(1, "div", 52)(2, "app-icon", 64);
+    i0.ɵɵelementStart(1, "div", 54)(2, "app-icon", 67);
     i0.ɵɵtext(3);
     i0.ɵɵelementEnd();
     i0.ɵɵelementStart(4, "div");
@@ -44976,7 +45108,9 @@ var EventDetailsModalComponent = /*#__PURE__*/function () {
     this.pending_count = this._event.attendees.reduce(function (count, user) {
       return count += user.response_status === 'tentative' || user.response_status === 'needsAction' ? 1 : 0;
     }, 0);
+    this._date = new common_2.DatePipe('en');
     this._load().then();
+    console.log('Timezone:', this.timezone);
   }
   return _createClass(EventDetailsModalComponent, [{
     key: "can_edit",
@@ -44986,6 +45120,18 @@ var EventDetailsModalComponent = /*#__PURE__*/function () {
       //     this.event.duration <= 24 * 60 ||
       //     this._settings.get('app.events.allow_multiday')
       // );
+    }
+  }, {
+    key: "timezone",
+    get: function get() {
+      return this._settings.get('app.events.use_building_timezone') ? this._org.building.timezone : '';
+    }
+  }, {
+    key: "tz",
+    get: function get() {
+      var tz = this.timezone;
+      if (!tz) return '';
+      return (0, common_1.getTimezoneOffsetString)(tz);
     }
   }, {
     key: "body",
@@ -45020,17 +45166,34 @@ var EventDetailsModalComponent = /*#__PURE__*/function () {
   }, {
     key: "period",
     get: function get() {
-      var _this$event8, _this$event9, _this$event10, _this$event11;
+      var _this$event8;
       if ((_this$event8 = this.event) !== null && _this$event8 !== void 0 && _this$event8.all_day) return 'All Day';
-      var start = ((_this$event9 = this.event) === null || _this$event9 === void 0 ? void 0 : _this$event9.date) || Date.now();
-      var duration = ((_this$event10 = this.event) === null || _this$event10 === void 0 ? void 0 : _this$event10.duration) || 60;
-      var end = (0, date_fns_1.addMinutes)(start, duration);
-      var is_multiday = ((_this$event11 = this.event) === null || _this$event11 === void 0 ? void 0 : _this$event11.duration) > 24 * 60;
-      var dur = (0, date_fns_1.formatDuration)({
-        hours: Math.floor(duration / 60),
-        minutes: duration % 60
-      }).replace(' hour', 'hr').replace(' minute', 'min');
-      return "".concat((0, date_fns_1.format)(start, (is_multiday ? "MMM d, " : '') + this.time_format), " - ").concat((0, date_fns_1.format)(end, (is_multiday ? "MMM d, " : '') + this.time_format), " ").concat(duration < 24 * 60 ? '(' + dur + ')' : '');
+      return this.formattedTime();
+    }
+  }, {
+    key: "period_tz",
+    get: function get() {
+      return this.formattedTime(this.tz);
+    }
+  }, {
+    key: "formattedTime",
+    value: function formattedTime(tz) {
+      var _this$event9;
+      var date = this.event.date;
+      var date_end = this.event.date_end;
+      var all_day = this.event.all_day;
+      var tz_format = this._date.transform(date, 'z', tz);
+      var start_date = this._date.transform(date, 'MMM d', tz);
+      var start_time = this._date.transform(date, this.time_format, tz);
+      var end_date = this._date.transform(date_end, 'MMM d', tz);
+      var end_time = this._date.transform(date_end, this.time_format, tz);
+      var is_multiday = ((_this$event9 = this.event) === null || _this$event9 === void 0 ? void 0 : _this$event9.duration) > 24 * 60;
+      if (is_multiday) {
+        return "".concat(start_date).concat(all_day ? '' : ', ' + start_time, " - ").concat(end_date).concat(all_day ? '' : ', ' + end_time);
+      } else if (all_day) {
+        return 'All Day';
+      }
+      return "".concat(start_time, " - ").concat(end_time, " ").concat('(' + tz_format + ')');
     }
   }, {
     key: "optionList",
@@ -45164,8 +45327,8 @@ _EventDetailsModalComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
     remove: "remove"
   },
   features: [i0.ɵɵProvidersFeature([space_pipe_1.SpacePipe])],
-  decls: 85,
-  vars: 33,
+  decls: 90,
+  vars: 37,
   consts: function consts() {
     var i18n_0;
     if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
@@ -45335,7 +45498,7 @@ _EventDetailsModalComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
     } else {
       i18n_14 = $localize(_templateObject15 || (_templateObject15 = _taggedTemplateLiteral([":\u241F8fcf89a6df3c02c129a41d4b202221a4013f107c\u241F941732683947462971:", ":INTERPOLATION:"])), "\uFFFD0\uFFFD");
     }
-    return [["menu", "matMenu"], i18n_0, i18n_1, i18n_2, i18n_3, i18n_4, i18n_5, i18n_6, i18n_7, i18n_8, i18n_9, i18n_10, i18n_11, i18n_12, i18n_13, i18n_14, [1, "w-[100vw]", "h-[100vh]", "sm:relative", "sm:inset-auto", "sm:w-[51rem]", "sm:h-auto", "sm:max-h-[80vh]", "bg-base-100", "sm:bg-base-200", "sm:dark:bg-neutral-600", "sm:rounded", "overflow-auto", "space-y-2", "pb-2"], [1, "sm:flex", "flex-col", "items-center", "pb-4", "max-h-screen", "sm:max-h-[80vh]", "sm:px-16", "sm:border-b", "bg-base-100", "border-base-200"], ["binding", "", "mod", "Bookings", "bind", "status", 3, "modelChange", "model", "sys"], ["class", "h-8 w-full sm:hidden block", 4, "ngIf"], ["class", "bg-neutral w-full h-64 sm:rounded-b overflow-hidden", 4, "ngIf"], ["title", "", 1, "px-3", "mt-2", "text-xl", "font-medium", "w-full"], [1, "sm:flex", "items-center", "justify-between", "w-full"], [1, "flex", "m-2"], [3, "status"], ["actions", "", "class", "flex items-center space-x-2 px-2", 4, "ngIf"], [1, "sm:flex", "flex-wrap", "sm:px-12"], [1, "sm:p-4", "sm:bg-base-100", "sm:dark:bg-neutral-700", "rounded", "sm:m-2", "sm:border", "border-base-200", "flex-grow-[3]", "min-w-1/3", "sm:w-[16rem]", "space-y-2"], [1, "px-3", "mt-2", "text-lg", "font-medium", "mb-2"], [1, "flex", "items-center", "px-2", "space-x-2"], [4, "ngIf"], ["class", "flex items-center px-2 space-x-2", 4, "ngIf"], [1, "mt-4", "sm:p-4", "sm:bg-base-100", "sm:dark:bg-neutral-700", "rounded", "sm:m-2", "sm:border", "border-base-200", "flex-grow-[3]", "min-w-1/3", "sm:w-[16rem]"], [1, "mx-3", "border-t", "border-base-200", "sm:border-none", "flex", "items-center", "justify-between"], [1, "text-lg", "font-medium"], ["matRipple", "", "show-attendees", "", 1, "clear", "text-xs", "underline", 3, "click"], [1, "flex", "items-center", "p-1"], [1, "flex", "flex-col", "flex-1", "items-center", "justify-center", "space-y-1"], [1, "text-lg"], [1, "text-sm", "uppercase"], [1, "mx-3", "mt-2", "pt-2", "text-lg", "font-medium", "border-t", "border-base-200"], ["host", "", 1, "px-2", "flex", "items-center", "space-x-2"], [3, "user"], [1, "text-sm", "flex-1", "w-px"], [1, "opacity-60", "truncate", "w-full", 3, "title"], ["map", "", 1, "mt-4", "sm:mt-2", "h-64", "sm:h-48", "relative", "border", "border-base-200", "overflow-hidden", "rounded", "sm:bg-base-100", "sm:dark:bg-neutral-700", "m-2", "flex-grow-[3]", "min-w-1/3", "p-2", "w-[calc(100%-1rem)]", "sm:w-[16rem]", 3, "click"], ["class", "mt-4 sm:p-4 sm:bg-base-100 sm:dark:bg-neutral-700 rounded sm:m-2 sm:border border-base-200 flex-grow-[3] min-w-1/3 sm:w-[16rem]", 4, "ngIf"], ["icon", "", "matRipple", "", "mat-dialog-close", "", 1, "absolute", "top-2", "left-2", "bg-neutral", "text-white"], ["class", "absolute inset-0 z-50", 4, "ngIf"], ["xPosition", "before"], ["mat-menu-item", "", "mat-dialog-close", "", 3, "matTooltip", "disabled", "click", 4, "ngIf"], ["mat-menu-item", "", 3, "click"], [1, "flex", "items-center", "space-x-2", "text-base", "pr-2"], [1, "text-2xl", "text-error"], ["mat-menu-item", "", 3, "click", 4, "ngIf"], ["mat-menu-item", "", 3, "click", 4, "ngFor", "ngForOf"], [1, "h-8", "w-full", "sm:hidden", "block"], [1, "bg-neutral", "w-full", "h-64", "sm:rounded-b", "overflow-hidden"], [1, "w-full", "h-64", 3, "images"], ["actions", "", 1, "flex", "items-center", "space-x-2", "px-2"], ["btn", "", "matRipple", "", "class", "flex-1 h-10", 3, "bg-success", "border-none", "pointer-events-none", "click", 4, "ngIf"], ["icon", "", "matRipple", "", "class", "bg-secondary rounded text-white h-12 w-12", 3, "matMenuTriggerFor", 4, "ngIf"], ["btn", "", "matRipple", "", 1, "flex-1", "h-10", 3, "click"], [1, "flex", "items-center", "space-x-2", "justify-center"], [1, "text-2xl"], [1, "pr-4"], ["icon", "", "matRipple", "", 1, "bg-secondary", "rounded", "text-white", "h-12", "w-12", 3, "matMenuTriggerFor"], [1, "mx-3", "my-2", "text-lg", "font-medium"], [1, "flex", "flex-col", "space-y-2"], ["order", "", "class", "border border-base-300 bg-base-100 rounded-xl overflow-hidden", 4, "ngFor", "ngForOf"], ["order", "", 1, "border", "border-base-300", "bg-base-100", "rounded-xl", "overflow-hidden"], [1, "flex", "items-center", "space-x-2", "p-3"], [1, "flex-1"], [1, "text-sm"], [1, "text-xs", "opacity-60"], ["icon", "", "matRipple", "", 3, "click", "matTooltip"], [1, "flex", "flex-col", "bg-base-200", "divide-y", "divide-base-100"], ["class", "flex items-center px-3 py-1 space-x-2 hover:opacity-90", 4, "ngFor", "ngForOf"], [1, "flex", "items-center", "px-3", "py-1", "space-x-2", "hover:opacity-90"], [1, "flex", "items-center", "flex-1"], ["class", "text-xs opacity-60 ml-4 font-normal", 3, "matTooltip", 4, "ngIf"], [1, "rounded", "bg-success", "text-success-content", "text-xs", "px-2", "py-1"], [1, "rounded", "bg-info", "text-info-content", "text-xs", "px-2", "py-1"], [1, "text-xs", "opacity-60", "ml-4", "font-normal", 3, "matTooltip"], [1, "pointer-events-none", 3, "src", "features", "options"], [1, "mx-3", "text-lg", "font-medium", "border-t", "sm:border-none", "border-base-200"], ["notes", "", "class", "mx-4 overflow-hidden max-w-full", 3, "innerHTML", 4, "ngIf"], ["notes", "", 1, "mx-4", "overflow-hidden", "max-w-full", 3, "innerHTML"], [1, "mx-3", "pt-2", "text-lg", "font-medium"], ["request", "", "class", "border border-base-300 bg-base-100 rounded-xl overflow-hidden", 4, "ngFor", "ngForOf"], ["request", "", 1, "border", "border-base-300", "bg-base-100", "rounded-xl", "overflow-hidden"], ["matRipple", "", 1, "flex", "items-center", "space-x-2", "p-3", "w-full", 3, "click"], [1, "flex-1", "text-left"], [1, "flex", "items-center", "justify-center", "rounded-full", "w-8", "h-8", 3, "matTooltip"], [1, "flex", "items-center", "justify-center", "rounded-full", "w-8", "h-8"], [1, "absolute", "inset-0", "z-50"], [3, "click", "list", "host"], ["mat-menu-item", "", "mat-dialog-close", "", 3, "click", "matTooltip", "disabled"]];
+    return [["menu", "matMenu"], i18n_0, i18n_1, i18n_2, i18n_3, i18n_4, i18n_5, i18n_6, i18n_7, i18n_8, i18n_9, i18n_10, i18n_11, i18n_12, i18n_13, i18n_14, [1, "w-[100vw]", "h-[100vh]", "sm:relative", "sm:inset-auto", "sm:w-[51rem]", "sm:h-auto", "sm:max-h-[80vh]", "bg-base-100", "sm:bg-base-200", "sm:dark:bg-neutral-600", "sm:rounded", "overflow-auto", "space-y-2", "pb-2"], [1, "sm:flex", "flex-col", "items-center", "pb-4", "max-h-screen", "sm:max-h-[80vh]", "sm:px-16", "sm:border-b", "bg-base-100", "border-base-200"], ["binding", "", "mod", "Bookings", "bind", "status", 3, "modelChange", "model", "sys"], ["class", "h-8 w-full sm:hidden block", 4, "ngIf"], ["class", "bg-neutral w-full h-64 sm:rounded-b overflow-hidden", 4, "ngIf"], ["title", "", 1, "px-3", "mt-2", "text-xl", "font-medium", "w-full"], [1, "sm:flex", "items-center", "justify-between", "w-full"], [1, "flex", "m-2"], [3, "status"], [1, "flex", "flex-col", "leading-tight"], ["class", "opacity-30 text-xs", 4, "ngIf"], ["actions", "", "class", "flex items-center space-x-2 px-2", 4, "ngIf"], [1, "sm:flex", "flex-wrap", "sm:px-12"], [1, "sm:p-4", "sm:bg-base-100", "sm:dark:bg-neutral-700", "rounded", "sm:m-2", "sm:border", "border-base-200", "flex-grow-[3]", "min-w-1/3", "sm:w-[16rem]", "space-y-2"], [1, "px-3", "mt-2", "text-lg", "font-medium", "mb-2"], [1, "flex", "items-center", "px-2", "space-x-2"], [4, "ngIf"], ["class", "flex items-center px-2 space-x-2", 4, "ngIf"], [1, "mt-4", "sm:p-4", "sm:bg-base-100", "sm:dark:bg-neutral-700", "rounded", "sm:m-2", "sm:border", "border-base-200", "flex-grow-[3]", "min-w-1/3", "sm:w-[16rem]"], [1, "mx-3", "border-t", "border-base-200", "sm:border-none", "flex", "items-center", "justify-between"], [1, "text-lg", "font-medium"], ["matRipple", "", "show-attendees", "", 1, "clear", "text-xs", "underline", 3, "click"], [1, "flex", "items-center", "p-1"], [1, "flex", "flex-col", "flex-1", "items-center", "justify-center", "space-y-1"], [1, "text-lg"], [1, "text-sm", "uppercase"], [1, "mx-3", "mt-2", "pt-2", "text-lg", "font-medium", "border-t", "border-base-200"], ["host", "", 1, "px-2", "flex", "items-center", "space-x-2"], [3, "user"], [1, "text-sm", "flex-1", "w-px"], [1, "opacity-60", "truncate", "w-full", 3, "title"], ["map", "", 1, "mt-4", "sm:mt-2", "h-64", "sm:h-48", "relative", "border", "border-base-200", "overflow-hidden", "rounded", "sm:bg-base-100", "sm:dark:bg-neutral-700", "m-2", "flex-grow-[3]", "min-w-1/3", "p-2", "w-[calc(100%-1rem)]", "sm:w-[16rem]", 3, "click"], ["class", "mt-4 sm:p-4 sm:bg-base-100 sm:dark:bg-neutral-700 rounded sm:m-2 sm:border border-base-200 flex-grow-[3] min-w-1/3 sm:w-[16rem]", 4, "ngIf"], ["icon", "", "matRipple", "", "mat-dialog-close", "", 1, "absolute", "top-2", "left-2", "bg-neutral", "text-white"], ["class", "absolute inset-0 z-50", 4, "ngIf"], ["xPosition", "before"], ["mat-menu-item", "", "mat-dialog-close", "", 3, "matTooltip", "disabled", "click", 4, "ngIf"], ["mat-menu-item", "", 3, "click"], [1, "flex", "items-center", "space-x-2", "text-base", "pr-2"], [1, "text-2xl", "text-error"], ["mat-menu-item", "", 3, "click", 4, "ngIf"], ["mat-menu-item", "", 3, "click", 4, "ngFor", "ngForOf"], [1, "h-8", "w-full", "sm:hidden", "block"], [1, "bg-neutral", "w-full", "h-64", "sm:rounded-b", "overflow-hidden"], [1, "w-full", "h-64", 3, "images"], [1, "opacity-30", "text-xs"], ["actions", "", 1, "flex", "items-center", "space-x-2", "px-2"], ["btn", "", "matRipple", "", "class", "flex-1 h-10", 3, "bg-success", "border-none", "pointer-events-none", "click", 4, "ngIf"], ["icon", "", "matRipple", "", "class", "bg-secondary rounded text-white h-12 w-12", 3, "matMenuTriggerFor", 4, "ngIf"], ["btn", "", "matRipple", "", 1, "flex-1", "h-10", 3, "click"], [1, "flex", "items-center", "space-x-2", "justify-center"], [1, "text-2xl"], [1, "pr-4"], ["icon", "", "matRipple", "", 1, "bg-secondary", "rounded", "text-white", "h-12", "w-12", 3, "matMenuTriggerFor"], [1, "mx-3", "my-2", "text-lg", "font-medium"], [1, "flex", "flex-col", "space-y-2"], ["order", "", "class", "border border-base-300 bg-base-100 rounded-xl overflow-hidden", 4, "ngFor", "ngForOf"], ["order", "", 1, "border", "border-base-300", "bg-base-100", "rounded-xl", "overflow-hidden"], [1, "flex", "items-center", "space-x-2", "p-3"], [1, "flex-1"], [1, "text-sm"], [1, "text-xs", "opacity-60"], ["icon", "", "matRipple", "", 3, "click", "matTooltip"], [1, "flex", "flex-col", "bg-base-200", "divide-y", "divide-base-100"], ["class", "flex items-center px-3 py-1 space-x-2 hover:opacity-90", 4, "ngFor", "ngForOf"], [1, "flex", "items-center", "px-3", "py-1", "space-x-2", "hover:opacity-90"], [1, "flex", "items-center", "flex-1"], ["class", "text-xs opacity-60 ml-4 font-normal", 3, "matTooltip", 4, "ngIf"], [1, "rounded", "bg-success", "text-success-content", "text-xs", "px-2", "py-1"], [1, "rounded", "bg-info", "text-info-content", "text-xs", "px-2", "py-1"], [1, "text-xs", "opacity-60", "ml-4", "font-normal", 3, "matTooltip"], [1, "pointer-events-none", 3, "src", "features", "options"], [1, "mx-3", "text-lg", "font-medium", "border-t", "sm:border-none", "border-base-200"], ["notes", "", "class", "mx-4 overflow-hidden max-w-full", 3, "innerHTML", 4, "ngIf"], ["notes", "", 1, "mx-4", "overflow-hidden", "max-w-full", 3, "innerHTML"], [1, "mx-3", "pt-2", "text-lg", "font-medium"], ["request", "", "class", "border border-base-300 bg-base-100 rounded-xl overflow-hidden", 4, "ngFor", "ngForOf"], ["request", "", 1, "border", "border-base-300", "bg-base-100", "rounded-xl", "overflow-hidden"], ["matRipple", "", 1, "flex", "items-center", "space-x-2", "p-3", "w-full", 3, "click"], [1, "flex-1", "text-left"], [1, "flex", "items-center", "justify-center", "rounded-full", "w-8", "h-8", 3, "matTooltip"], [1, "flex", "items-center", "justify-center", "rounded-full", "w-8", "h-8"], [1, "absolute", "inset-0", "z-50"], [3, "click", "list", "host"], ["mat-menu-item", "", "mat-dialog-close", "", 3, "click", "matTooltip", "disabled"]];
   },
   template: function EventDetailsModalComponent_Template(rf, ctx) {
     if (rf & 1) {
@@ -45351,103 +45514,107 @@ _EventDetailsModalComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
       i0.ɵɵelementStart(5, "h3", 21);
       i0.ɵɵtext(6);
       i0.ɵɵelementEnd();
-      i0.ɵɵelementStart(7, "div", 22)(8, "div", 23)(9, "status-pill", 24);
-      i0.ɵɵtext(10);
+      i0.ɵɵelementStart(7, "div", 22)(8, "div", 23)(9, "status-pill", 24)(10, "div", 25)(11, "div");
+      i0.ɵɵtext(12);
+      i0.ɵɵelementEnd();
+      i0.ɵɵtemplate(13, EventDetailsModalComponent_div_13_Template, 2, 1, "div", 26);
+      i0.ɵɵelementEnd()()();
+      i0.ɵɵtemplate(14, EventDetailsModalComponent_div_14_Template, 3, 2, "div", 27);
       i0.ɵɵelementEnd()();
-      i0.ɵɵtemplate(11, EventDetailsModalComponent_div_11_Template, 3, 2, "div", 25);
+      i0.ɵɵelementStart(15, "div", 28)(16, "div", 29)(17, "h3", 30);
+      i0.ɵɵi18n(18, 1);
+      i0.ɵɵelementEnd();
+      i0.ɵɵelementStart(19, "div", 31)(20, "app-icon");
+      i0.ɵɵtext(21, "event");
+      i0.ɵɵelementEnd();
+      i0.ɵɵelementStart(22, "div");
+      i0.ɵɵtext(23);
+      i0.ɵɵpipe(24, "date");
       i0.ɵɵelementEnd()();
-      i0.ɵɵelementStart(12, "div", 26)(13, "div", 27)(14, "h3", 28);
-      i0.ɵɵi18n(15, 1);
+      i0.ɵɵelementStart(25, "div", 31)(26, "app-icon");
+      i0.ɵɵtext(27, "schedule");
       i0.ɵɵelementEnd();
-      i0.ɵɵelementStart(16, "div", 29)(17, "app-icon");
-      i0.ɵɵtext(18, "event");
+      i0.ɵɵelementStart(28, "div", 25)(29, "div");
+      i0.ɵɵtext(30);
       i0.ɵɵelementEnd();
-      i0.ɵɵelementStart(19, "div");
-      i0.ɵɵtext(20);
-      i0.ɵɵpipe(21, "date");
+      i0.ɵɵtemplate(31, EventDetailsModalComponent_div_31_Template, 2, 1, "div", 26);
       i0.ɵɵelementEnd()();
-      i0.ɵɵelementStart(22, "div", 29)(23, "app-icon");
-      i0.ɵɵtext(24, "schedule");
+      i0.ɵɵelementStart(32, "div", 31)(33, "app-icon");
+      i0.ɵɵtext(34, "map");
       i0.ɵɵelementEnd();
-      i0.ɵɵelementStart(25, "div");
-      i0.ɵɵtext(26);
+      i0.ɵɵelementStart(35, "div");
+      i0.ɵɵtemplate(36, EventDetailsModalComponent_ng_container_36_Template, 2, 1, "ng-container", 32);
+      i0.ɵɵtext(37);
       i0.ɵɵelementEnd()();
-      i0.ɵɵelementStart(27, "div", 29)(28, "app-icon");
-      i0.ɵɵtext(29, "map");
+      i0.ɵɵtemplate(38, EventDetailsModalComponent_div_38_Template, 5, 2, "div", 33);
       i0.ɵɵelementEnd();
-      i0.ɵɵelementStart(30, "div");
-      i0.ɵɵtemplate(31, EventDetailsModalComponent_ng_container_31_Template, 2, 1, "ng-container", 30);
-      i0.ɵɵtext(32);
-      i0.ɵɵelementEnd()();
-      i0.ɵɵtemplate(33, EventDetailsModalComponent_div_33_Template, 5, 2, "div", 31);
+      i0.ɵɵelementStart(39, "div", 34)(40, "div", 35)(41, "h3", 36);
+      i0.ɵɵi18n(42, 2);
       i0.ɵɵelementEnd();
-      i0.ɵɵelementStart(34, "div", 32)(35, "div", 33)(36, "h3", 34);
-      i0.ɵɵi18n(37, 2);
-      i0.ɵɵelementEnd();
-      i0.ɵɵelementStart(38, "button", 35);
-      i0.ɵɵlistener("click", function EventDetailsModalComponent_Template_button_click_38_listener() {
+      i0.ɵɵelementStart(43, "button", 37);
+      i0.ɵɵlistener("click", function EventDetailsModalComponent_Template_button_click_43_listener() {
         i0.ɵɵrestoreView(_r1);
         return i0.ɵɵresetView(ctx.show_attendees = true);
       });
-      i0.ɵɵi18n(39, 3);
+      i0.ɵɵi18n(44, 3);
       i0.ɵɵelementEnd()();
-      i0.ɵɵelementStart(40, "div", 36)(41, "div", 37)(42, "div", 38);
-      i0.ɵɵtext(43);
-      i0.ɵɵelementEnd();
-      i0.ɵɵelementStart(44, "div", 39);
-      i0.ɵɵi18n(45, 4);
-      i0.ɵɵelementEnd()();
-      i0.ɵɵelementStart(46, "div", 37)(47, "div", 38);
+      i0.ɵɵelementStart(45, "div", 38)(46, "div", 39)(47, "div", 40);
       i0.ɵɵtext(48);
       i0.ɵɵelementEnd();
-      i0.ɵɵelementStart(49, "div", 39);
-      i0.ɵɵi18n(50, 5);
+      i0.ɵɵelementStart(49, "div", 41);
+      i0.ɵɵi18n(50, 4);
       i0.ɵɵelementEnd()();
-      i0.ɵɵelementStart(51, "div", 37)(52, "div", 38);
+      i0.ɵɵelementStart(51, "div", 39)(52, "div", 40);
       i0.ɵɵtext(53);
       i0.ɵɵelementEnd();
-      i0.ɵɵelementStart(54, "div", 39);
-      i0.ɵɵi18n(55, 6);
+      i0.ɵɵelementStart(54, "div", 41);
+      i0.ɵɵi18n(55, 5);
+      i0.ɵɵelementEnd()();
+      i0.ɵɵelementStart(56, "div", 39)(57, "div", 40);
+      i0.ɵɵtext(58);
+      i0.ɵɵelementEnd();
+      i0.ɵɵelementStart(59, "div", 41);
+      i0.ɵɵi18n(60, 6);
       i0.ɵɵelementEnd()()();
-      i0.ɵɵelementStart(56, "h3", 40);
-      i0.ɵɵi18n(57, 7);
+      i0.ɵɵelementStart(61, "h3", 42);
+      i0.ɵɵi18n(62, 7);
       i0.ɵɵelementEnd();
-      i0.ɵɵelementStart(58, "div", 41);
-      i0.ɵɵelement(59, "a-user-avatar", 42);
-      i0.ɵɵelementStart(60, "div", 43)(61, "div");
-      i0.ɵɵtext(62);
+      i0.ɵɵelementStart(63, "div", 43);
+      i0.ɵɵelement(64, "a-user-avatar", 44);
+      i0.ɵɵelementStart(65, "div", 45)(66, "div");
+      i0.ɵɵtext(67);
       i0.ɵɵelementEnd();
-      i0.ɵɵelementStart(63, "div", 44);
-      i0.ɵɵtext(64);
+      i0.ɵɵelementStart(68, "div", 46);
+      i0.ɵɵtext(69);
       i0.ɵɵelementEnd()()()();
-      i0.ɵɵtemplate(65, EventDetailsModalComponent_ng_container_65_Template, 6, 1, "ng-container", 30);
-      i0.ɵɵelementStart(66, "button", 45);
-      i0.ɵɵlistener("click", function EventDetailsModalComponent_Template_button_click_66_listener() {
+      i0.ɵɵtemplate(70, EventDetailsModalComponent_ng_container_70_Template, 6, 1, "ng-container", 32);
+      i0.ɵɵelementStart(71, "button", 47);
+      i0.ɵɵlistener("click", function EventDetailsModalComponent_Template_button_click_71_listener() {
         i0.ɵɵrestoreView(_r1);
         return i0.ɵɵresetView(ctx.viewLocation());
       });
-      i0.ɵɵtemplate(67, EventDetailsModalComponent_ng_container_67_Template, 2, 4, "ng-container", 30);
+      i0.ɵɵtemplate(72, EventDetailsModalComponent_ng_container_72_Template, 2, 4, "ng-container", 32);
       i0.ɵɵelementEnd();
-      i0.ɵɵtemplate(68, EventDetailsModalComponent_div_68_Template, 4, 1, "div", 46)(69, EventDetailsModalComponent_ng_container_69_Template, 6, 2, "ng-container", 30);
-      i0.ɵɵelementStart(70, "button", 47)(71, "app-icon");
-      i0.ɵɵtext(72, "close");
+      i0.ɵɵtemplate(73, EventDetailsModalComponent_div_73_Template, 4, 1, "div", 48)(74, EventDetailsModalComponent_ng_container_74_Template, 6, 2, "ng-container", 32);
+      i0.ɵɵelementStart(75, "button", 49)(76, "app-icon");
+      i0.ɵɵtext(77, "close");
       i0.ɵɵelementEnd()();
-      i0.ɵɵtemplate(73, EventDetailsModalComponent_div_73_Template, 2, 2, "div", 48);
+      i0.ɵɵtemplate(78, EventDetailsModalComponent_div_78_Template, 2, 2, "div", 50);
       i0.ɵɵelementEnd();
-      i0.ɵɵelementStart(74, "mat-menu", 49, 0);
-      i0.ɵɵtemplate(76, EventDetailsModalComponent_button_76_Template, 6, 2, "button", 50);
-      i0.ɵɵelementStart(77, "button", 51);
-      i0.ɵɵlistener("click", function EventDetailsModalComponent_Template_button_click_77_listener() {
+      i0.ɵɵelementStart(79, "mat-menu", 51, 0);
+      i0.ɵɵtemplate(81, EventDetailsModalComponent_button_81_Template, 6, 2, "button", 52);
+      i0.ɵɵelementStart(82, "button", 53);
+      i0.ɵɵlistener("click", function EventDetailsModalComponent_Template_button_click_82_listener() {
         i0.ɵɵrestoreView(_r1);
         return i0.ɵɵresetView(ctx.remove.emit());
       });
-      i0.ɵɵelementStart(78, "div", 52)(79, "app-icon", 53);
-      i0.ɵɵtext(80, "delete");
+      i0.ɵɵelementStart(83, "div", 54)(84, "app-icon", 55);
+      i0.ɵɵtext(85, "delete");
       i0.ɵɵelementEnd();
-      i0.ɵɵelementStart(81, "div");
-      i0.ɵɵi18n(82, 8);
+      i0.ɵɵelementStart(86, "div");
+      i0.ɵɵi18n(87, 8);
       i0.ɵɵelementEnd()()();
-      i0.ɵɵtemplate(83, EventDetailsModalComponent_button_83_Template, 6, 0, "button", 54)(84, EventDetailsModalComponent_button_84_Template, 6, 2, "button", 55);
+      i0.ɵɵtemplate(88, EventDetailsModalComponent_button_88_Template, 6, 0, "button", 56)(89, EventDetailsModalComponent_button_89_Template, 6, 2, "button", 57);
       i0.ɵɵelementEnd()();
     }
     if (rf & 2) {
@@ -45465,13 +45632,19 @@ _EventDetailsModalComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
       i0.ɵɵadvance(3);
       i0.ɵɵproperty("status", ctx.event_status);
       i0.ɵɵadvance();
-      i0.ɵɵtextInterpolate1(" ", ctx.period, " ");
+      i0.ɵɵclassProp("pr-4", ctx.timezone);
+      i0.ɵɵadvance(2);
+      i0.ɵɵtextInterpolate(ctx.period);
+      i0.ɵɵadvance();
+      i0.ɵɵproperty("ngIf", ctx.timezone);
       i0.ɵɵadvance();
       i0.ɵɵproperty("ngIf", ctx.event.state !== "done");
       i0.ɵɵadvance(9);
-      i0.ɵɵtextInterpolate(i0.ɵɵpipeBind2(21, 30, ctx.event.date, "EEEE, dd LLLL y"));
-      i0.ɵɵadvance(6);
+      i0.ɵɵtextInterpolate1(" ", i0.ɵɵpipeBind2(24, 34, ctx.event.date, "EEEE, dd LLLL y"), " ");
+      i0.ɵɵadvance(7);
       i0.ɵɵtextInterpolate(ctx.period);
+      i0.ɵɵadvance();
+      i0.ɵɵproperty("ngIf", ctx.timezone);
       i0.ɵɵadvance(5);
       i0.ɵɵproperty("ngIf", ctx.level);
       i0.ɵɵadvance();
@@ -56080,14 +56253,13 @@ var _DateFieldComponent;
 Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
-exports.DateFieldComponent = void 0;
+exports.DateFieldComponent = exports.TimezoneDiffRange = void 0;
 var core_1 = __webpack_require__(/*! @angular/core */ 37580);
 var forms_1 = __webpack_require__(/*! @angular/forms */ 34456);
 var custom_tooltip_component_1 = __webpack_require__(/*! libs/components/src/lib/custom-tooltip.component */ 22238);
 var date_fns_1 = __webpack_require__(/*! date-fns */ 25773);
 var async_handler_class_1 = __webpack_require__(/*! libs/common/src/lib/async-handler.class */ 75354);
 var common_1 = __webpack_require__(/*! @placeos/common */ 22797);
-var media_duration_pipe_1 = __webpack_require__(/*! libs/components/src/lib/media-duration.pipe */ 28975);
 var i0 = __webpack_require__(/*! @angular/core */ 37580);
 var _c0 = ["*"];
 function DateFieldComponent_Conditional_3_Template(rf, ctx) {
@@ -56107,18 +56279,53 @@ function DateFieldComponent_Conditional_4_Template(rf, ctx) {
     i0.ɵɵelementEnd();
   }
 }
+function DateFieldComponent_div_5_span_1_Template(rf, ctx) {
+  if (rf & 1) {
+    i0.ɵɵelementStart(0, "span");
+    i0.ɵɵtext(1);
+    i0.ɵɵpipe(2, "date");
+    i0.ɵɵelementEnd();
+  }
+  if (rf & 2) {
+    var ctx_r0 = i0.ɵɵnextContext(2);
+    i0.ɵɵadvance();
+    i0.ɵɵtextInterpolate1(" ", i0.ɵɵpipeBind3(2, 1, ctx_r0.start_of_day, "MMM d, " + ctx_r0.time_format + (ctx_r0.range === 1 ? " (z)" : ""), ctx_r0.tz), " ");
+  }
+}
+function DateFieldComponent_div_5_span_2_Template(rf, ctx) {
+  if (rf & 1) {
+    i0.ɵɵelementStart(0, "span");
+    i0.ɵɵtext(1, " - ");
+    i0.ɵɵelementEnd();
+  }
+}
+function DateFieldComponent_div_5_span_3_Template(rf, ctx) {
+  if (rf & 1) {
+    i0.ɵɵelementStart(0, "span");
+    i0.ɵɵtext(1);
+    i0.ɵɵpipe(2, "date");
+    i0.ɵɵelementEnd();
+  }
+  if (rf & 2) {
+    var ctx_r0 = i0.ɵɵnextContext(2);
+    i0.ɵɵadvance();
+    i0.ɵɵtextInterpolate1(" ", i0.ɵɵpipeBind3(2, 1, ctx_r0.end_of_day, "MMM d, " + ctx_r0.time_format + " (z)", ctx_r0.tz), " ");
+  }
+}
 function DateFieldComponent_div_5_Template(rf, ctx) {
   if (rf & 1) {
     i0.ɵɵelementStart(0, "div", 9);
-    i0.ɵɵtext(1);
-    i0.ɵɵpipe(2, "date");
-    i0.ɵɵpipe(3, "date");
+    i0.ɵɵtemplate(1, DateFieldComponent_div_5_span_1_Template, 3, 5, "span", 8)(2, DateFieldComponent_div_5_span_2_Template, 2, 0, "span", 8)(3, DateFieldComponent_div_5_span_3_Template, 3, 5, "span", 8);
     i0.ɵɵelementEnd();
   }
   if (rf & 2) {
     var ctx_r0 = i0.ɵɵnextContext();
     i0.ɵɵadvance();
-    i0.ɵɵtextInterpolate2(" ", i0.ɵɵpipeBind3(2, 2, ctx_r0.start_of_day, "MMM d, " + ctx_r0.time_format, ctx_r0.tz), " - ", i0.ɵɵpipeBind3(3, 6, ctx_r0.end_of_day, "MMM d, " + ctx_r0.time_format + " (z)", ctx_r0.tz), " ");
+    i0.ɵɵproperty("ngIf", ctx_r0.range !== 2);
+    i0.ɵɵadvance();
+    i0.ɵɵproperty("ngIf", ctx_r0.range === 0);
+    i0.ɵɵadvance();
+    i0.ɵɵproperty("ngIf", ctx_r0.range !== 1);
   }
 }
 function DateFieldComponent_span_10_Template(rf, ctx) {
@@ -56145,6 +56352,12 @@ function DateFieldComponent_ng_template_11_Template(rf, ctx) {
     i0.ɵɵproperty("ngModel", ctx_r0.date || ctx_r0.now)("from", ctx_r0.from)("to", ctx_r0.until)("offset_weekday", ctx_r0.week_start);
   }
 }
+var TimezoneDiffRange;
+(function (TimezoneDiffRange) {
+  TimezoneDiffRange[TimezoneDiffRange["Both"] = 0] = "Both";
+  TimezoneDiffRange[TimezoneDiffRange["Start"] = 1] = "Start";
+  TimezoneDiffRange[TimezoneDiffRange["End"] = 2] = "End";
+})(TimezoneDiffRange || (exports.TimezoneDiffRange = TimezoneDiffRange = {}));
 var DateFieldComponent = /*#__PURE__*/function (_async_handler_class_) {
   function DateFieldComponent(_injector) {
     var _this;
@@ -56158,6 +56371,7 @@ var DateFieldComponent = /*#__PURE__*/function (_async_handler_class_) {
     _this.use_24hr = false;
     _this["short"] = false;
     _this.timezone = '';
+    _this.range = TimezoneDiffRange.Both;
     _this.now = Date.now();
     return _this;
   }
@@ -56192,13 +56406,9 @@ var DateFieldComponent = /*#__PURE__*/function (_async_handler_class_) {
   }, {
     key: "tz",
     get: function get() {
-      // Get Timezone as +/-HHMM
       var tz = this.timezone;
       if (!tz) return '';
-      var offset = (0, common_1.getTimezoneOffsetInMinutes)(tz);
-      var hours = Math.floor(Math.abs(offset) / 60);
-      var minutes = Math.abs(offset) % 60;
-      return "".concat(offset > 0 ? '+' : '-').concat((0, media_duration_pipe_1.padLength)(hours, 2)).concat((0, media_duration_pipe_1.padLength)(minutes, 2));
+      return (0, common_1.getTimezoneOffsetString)(tz);
     }
   }, {
     key: "from",
@@ -56303,7 +56513,8 @@ _DateFieldComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
     use_24hr: "use_24hr",
     disabled: "disabled",
     "short": "short",
-    timezone: "timezone"
+    timezone: "timezone",
+    range: "range"
   },
   features: [i0.ɵɵProvidersFeature([{
     provide: forms_1.NG_VALUE_ACCESSOR,
@@ -56322,7 +56533,7 @@ _DateFieldComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
       i0.ɵɵelementStart(0, "button", 1)(1, "div", 2)(2, "div", 3);
       i0.ɵɵtemplate(3, DateFieldComponent_Conditional_3_Template, 2, 4)(4, DateFieldComponent_Conditional_4_Template, 2, 0, "span", 4);
       i0.ɵɵelementEnd();
-      i0.ɵɵtemplate(5, DateFieldComponent_div_5_Template, 4, 10, "div", 5);
+      i0.ɵɵtemplate(5, DateFieldComponent_div_5_Template, 4, 3, "div", 5);
       i0.ɵɵelementEnd();
       i0.ɵɵelementStart(6, "div", 6)(7, "app-icon");
       i0.ɵɵtext(8, "today");
@@ -56805,7 +57016,6 @@ var core_1 = __webpack_require__(/*! @angular/core */ 37580);
 var forms_1 = __webpack_require__(/*! @angular/forms */ 34456);
 var common_1 = __webpack_require__(/*! @placeos/common */ 22797);
 var date_fns_1 = __webpack_require__(/*! date-fns */ 25773);
-var media_duration_pipe_1 = __webpack_require__(/*! libs/components/src/lib/media-duration.pipe */ 28975);
 var i0 = __webpack_require__(/*! @angular/core */ 37580);
 var i1 = __webpack_require__(/*! @angular/common */ 60316);
 var i2 = __webpack_require__(/*! @angular/material/form-field */ 24950);
@@ -56914,10 +57124,7 @@ var DurationFieldComponent = /*#__PURE__*/function () {
       // Get Timezone as +/-HHMM
       var tz = this.timezone;
       if (!tz) return '';
-      var offset = (0, common_1.getTimezoneOffsetInMinutes)(tz);
-      var hours = Math.floor(Math.abs(offset) / 60);
-      var minutes = Math.abs(offset) % 60;
-      return "".concat(offset > 0 ? '+' : '-').concat((0, media_duration_pipe_1.padLength)(hours, 2)).concat((0, media_duration_pipe_1.padLength)(minutes, 2));
+      return (0, common_1.getTimezoneOffsetString)(tz);
     }
   }, {
     key: "ngOnInit",
@@ -59903,7 +60110,6 @@ var forms_1 = __webpack_require__(/*! @angular/forms */ 34456);
 var select_1 = __webpack_require__(/*! @angular/material/select */ 25175);
 var common_1 = __webpack_require__(/*! @placeos/common */ 22797);
 var date_fns_1 = __webpack_require__(/*! date-fns */ 25773);
-var media_duration_pipe_1 = __webpack_require__(/*! libs/components/src/lib/media-duration.pipe */ 28975);
 var i0 = __webpack_require__(/*! @angular/core */ 37580);
 var i1 = __webpack_require__(/*! @angular/common */ 60316);
 var i2 = __webpack_require__(/*! @angular/forms */ 34456);
@@ -60008,6 +60214,7 @@ var TimeFieldComponent = /*#__PURE__*/function (_common_1$AsyncHandle) {
     _this.date = new Date().valueOf();
     /** String representing the currently set time */
     _this.time = (0, date_fns_1.format)(new Date(), 'HH:mm');
+    _this.active_time = Date.now();
     return _this;
   }
   _inherits(TimeFieldComponent, _common_1$AsyncHandle);
@@ -60022,10 +60229,7 @@ var TimeFieldComponent = /*#__PURE__*/function (_common_1$AsyncHandle) {
       // Get Timezone as +/-HHMM
       var tz = this.timezone;
       if (!tz) return '';
-      var offset = (0, common_1.getTimezoneOffsetInMinutes)(tz);
-      var hours = Math.floor(Math.abs(offset) / 60);
-      var minutes = Math.abs(offset) % 60;
-      return "".concat(offset > 0 ? '+' : '-').concat((0, media_duration_pipe_1.padLength)(hours, 2)).concat((0, media_duration_pipe_1.padLength)(minutes, 2));
+      return (0, common_1.getTimezoneOffsetString)(tz);
     }
   }, {
     key: "ngOnInit",
@@ -60077,16 +60281,20 @@ var TimeFieldComponent = /*#__PURE__*/function (_common_1$AsyncHandle) {
       this.time = new_value;
       if (this._onChange) {
         var _time = (this.time || '00:00').split(':');
-        var date = (0, date_fns_1.startOfMinute)((0, date_fns_1.set)(this.date, {
+        var _date = (0, date_fns_1.startOfMinute)((0, date_fns_1.set)(this.date, {
           hours: +_time[0],
           minutes: +_time[1]
         }));
-        this._onChange(date.valueOf());
+        this._onChange(_date.valueOf());
       }
       var time = this.force_time || this.time;
-      this.active_time = (_this$_time_options$f = this._time_options.find(function (_) {
+      var date = (0, date_fns_1.startOfMinute)((0, date_fns_1.set)(this.date, {
+        hours: +time[0],
+        minutes: +time[1]
+      }));
+      this.active_time = ((_this$_time_options$f = this._time_options.find(function (_) {
         return _.id === time;
-      })) === null || _this$_time_options$f === void 0 ? void 0 : _this$_time_options$f.date;
+      })) === null || _this$_time_options$f === void 0 ? void 0 : _this$_time_options$f.date) || date;
     }
     /**
      * Update local value when form control value is changed
@@ -60104,9 +60312,9 @@ var TimeFieldComponent = /*#__PURE__*/function (_common_1$AsyncHandle) {
       this.time = (0, date_fns_1.format)(date, 'HH:mm');
       this._time_options = this.generateAvailableTimes(this.date, !this.no_past_times, this.step);
       var time = this.force_time || this.time;
-      this.active_time = (_this$_time_options$f2 = this._time_options.find(function (_) {
+      this.active_time = ((_this$_time_options$f2 = this._time_options.find(function (_) {
         return _.id === time;
-      })) === null || _this$_time_options$f2 === void 0 ? void 0 : _this$_time_options$f2.date;
+      })) === null || _this$_time_options$f2 === void 0 ? void 0 : _this$_time_options$f2.date) || date;
     }
   }, {
     key: "setDisabledState",
@@ -69380,11 +69588,11 @@ function SpaceFiltersComponent_div_26_Template(rf, ctx) {
   if (rf & 2) {
     var ctx_r1 = i0.ɵɵnextContext();
     i0.ɵɵadvance(2);
-    i0.ɵɵtextInterpolate1(" ", i0.ɵɵpipeBind1(3, 8, "FORM.END_DATE"), "");
+    i0.ɵɵtextInterpolate1(" ", i0.ɵɵpipeBind1(3, 9, "FORM.END_DATE"), "");
     i0.ɵɵadvance(4);
-    i0.ɵɵproperty("ngModel", ctx_r1.form.getRawValue().date_end)("ngModelOptions", i0.ɵɵpureFunction0(12, _c0))("from", ctx_r1.start_date)("to", ctx_r1.end_date)("short", true)("timezone", ctx_r1.timezone);
+    i0.ɵɵproperty("ngModel", ctx_r1.form.getRawValue().date_end)("ngModelOptions", i0.ɵɵpureFunction0(13, _c0))("from", ctx_r1.start_date)("to", ctx_r1.end_date)("short", true)("timezone", ctx_r1.timezone)("range", 2);
     i0.ɵɵadvance();
-    i0.ɵɵtextInterpolate1(" ", i0.ɵɵpipeBind1(8, 10, "FORM.DATE_ERROR"), " ");
+    i0.ɵɵtextInterpolate1(" ", i0.ɵɵpipeBind1(8, 11, "FORM.DATE_ERROR"), " ");
   }
 }
 function SpaceFiltersComponent_div_27_Template(rf, ctx) {
@@ -69734,7 +69942,7 @@ _SpaceFiltersComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
     viewing_map: "viewing_map"
   },
   decls: 35,
-  vars: 30,
+  vars: 31,
   consts: function consts() {
     var i18n_0;
     if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
@@ -69900,7 +70108,7 @@ _SpaceFiltersComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
     } else {
       i18n_12 = $localize(_templateObject13 || (_templateObject13 = _taggedTemplateLiteral([":\u241Fc17e2cc448524a39eb83b2937cea3235a2e8bf37\u241F2296888311792137027: Apply Filters "])));
     }
-    return [i18n_0, i18n_1, i18n_2, i18n_3, i18n_4, i18n_7, i18n_8, i18n_9, i18n_10, i18n_11, i18n_12, [1, "flex", "items-center", "border-b", "border-base-200", "pb-2", "sm:hidden"], [1, "flex-1", "pl-2"], ["icon", "", "matRipple", "", "name", "close-space-filters", 3, "click", 4, "ngIf"], [1, "font-medium", "flex-2", "text-center"], [1, "flex-1"], [1, "max-h-[65vh]", "p-2", "overflow-y-auto", "overflow-x-hidden", "divide-y", "divide-base-200", "w-full", "max-w-[100vw]", 3, "formGroup"], ["details", ""], [1, "text-lg", "font-medium", "mb-1"], [1, "flex-1", "min-w-[8rem]", "flex", "flex-col"], ["for", "location"], ["appearance", "outline", "class", "w-full", 4, "ngIf"], [1, "flex", "items-center", "flex-wrap", "sm:space-x-2"], [1, "flex-1", "min-w-[8rem]"], ["for", "date"], ["name", "date", 3, "ngModelChange", "ngModel", "ngModelOptions", "to", "short", "timezone"], ["class", "flex-1 min-w-[8rem] relative", 4, "ngIf"], ["class", "flex justify-end -mt-2 mb-2", 4, "ngIf"], ["class", "flex items-center space-x-2", 4, "ngIf"], ["favs", "", "class", "space-y-2 pb-4", 4, "ngIf"], ["features", "", "class", "space-y-2", 4, "ngIf"], ["class", "px-2 pt-2 w-full border-t border-base-200", 4, "ngIf"], ["icon", "", "matRipple", "", "name", "close-space-filters", 3, "click"], ["appearance", "outline", 1, "w-full"], ["name", "region", "placeholder", i18n_5, 3, "ngModelChange", "ngModel", "ngModelOptions"], [3, "value", 4, "ngFor", "ngForOf"], [3, "value"], ["name", "building", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], ["name", "location", "placeholder", i18n_6, 3, "ngModelChange", "ngModel", "ngModelOptions", "multiple"], [1, "flex", "flex-col-reverse"], ["class", "opacity-30 text-xs", 4, "ngIf"], [1, "opacity-30", "text-xs"], [1, "opacity-0"], [1, "flex-1", "min-w-[8rem]", "relative"], ["name", "date", 3, "ngModelChange", "ngModel", "ngModelOptions", "from", "to", "short", "timezone"], [1, "flex", "justify-end", "-mt-2", "mb-2"], ["formControlName", "all_day"], [1, "flex", "items-center", "space-x-2"], [1, "flex-1", "w-1/3"], ["for", "start-time"], ["name", "start-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "use_24hr", "timezone"], ["class", "flex-1 w-1/3", 4, "ngIf"], ["for", "end-time"], ["name", "end-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "from", "use_24hr", "timezone"], ["name", "end-time", "formControlName", "duration", 3, "time", "max", "use_24hr", "timezone"], ["favs", "", 1, "space-y-2", "pb-4"], [1, "text-lg", "font-medium"], [1, "flex", "items-center"], ["for", "fav", 1, "flex-1", "w-1/2"], ["name", "fav", 3, "ngModelChange", "ngModel", "ngModelOptions"], ["features", "", 1, "space-y-2"], [4, "ngFor", "ngForOf"], ["class", "flex items-center", 4, "ngIf"], ["for", "feat", 1, "flex-1", "w-1/2"], ["name", "feat", 3, "ngModelChange", "ngModel", "ngModelOptions"], [1, "px-2", "pt-2", "w-full", "border-t", "border-base-200"], ["btn", "", "matRipple", "", "name", "apply-space-filters", 1, "w-full", 3, "click"]];
+    return [i18n_0, i18n_1, i18n_2, i18n_3, i18n_4, i18n_7, i18n_8, i18n_9, i18n_10, i18n_11, i18n_12, [1, "flex", "items-center", "border-b", "border-base-200", "pb-2", "sm:hidden"], [1, "flex-1", "pl-2"], ["icon", "", "matRipple", "", "name", "close-space-filters", 3, "click", 4, "ngIf"], [1, "font-medium", "flex-2", "text-center"], [1, "flex-1"], [1, "max-h-[65vh]", "p-2", "overflow-y-auto", "overflow-x-hidden", "divide-y", "divide-base-200", "w-full", "max-w-[100vw]", 3, "formGroup"], ["details", ""], [1, "text-lg", "font-medium", "mb-1"], [1, "flex-1", "min-w-[8rem]", "flex", "flex-col"], ["for", "location"], ["appearance", "outline", "class", "w-full", 4, "ngIf"], [1, "flex", "items-center", "flex-wrap", "sm:space-x-2"], [1, "flex-1", "min-w-[8rem]"], ["for", "date"], ["name", "date", 3, "ngModelChange", "ngModel", "ngModelOptions", "to", "short", "timezone", "range"], ["class", "flex-1 min-w-[8rem] relative", 4, "ngIf"], ["class", "flex justify-end -mt-2 mb-2", 4, "ngIf"], ["class", "flex items-center space-x-2", 4, "ngIf"], ["favs", "", "class", "space-y-2 pb-4", 4, "ngIf"], ["features", "", "class", "space-y-2", 4, "ngIf"], ["class", "px-2 pt-2 w-full border-t border-base-200", 4, "ngIf"], ["icon", "", "matRipple", "", "name", "close-space-filters", 3, "click"], ["appearance", "outline", 1, "w-full"], ["name", "region", "placeholder", i18n_5, 3, "ngModelChange", "ngModel", "ngModelOptions"], [3, "value", 4, "ngFor", "ngForOf"], [3, "value"], ["name", "building", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], ["name", "location", "placeholder", i18n_6, 3, "ngModelChange", "ngModel", "ngModelOptions", "multiple"], [1, "flex", "flex-col-reverse"], ["class", "opacity-30 text-xs", 4, "ngIf"], [1, "opacity-30", "text-xs"], [1, "opacity-0"], [1, "flex-1", "min-w-[8rem]", "relative"], ["name", "date", 3, "ngModelChange", "ngModel", "ngModelOptions", "from", "to", "short", "timezone", "range"], [1, "flex", "justify-end", "-mt-2", "mb-2"], ["formControlName", "all_day"], [1, "flex", "items-center", "space-x-2"], [1, "flex-1", "w-1/3"], ["for", "start-time"], ["name", "start-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "use_24hr", "timezone"], ["class", "flex-1 w-1/3", 4, "ngIf"], ["for", "end-time"], ["name", "end-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "from", "use_24hr", "timezone"], ["name", "end-time", "formControlName", "duration", 3, "time", "max", "use_24hr", "timezone"], ["favs", "", 1, "space-y-2", "pb-4"], [1, "text-lg", "font-medium"], [1, "flex", "items-center"], ["for", "fav", 1, "flex-1", "w-1/2"], ["name", "fav", 3, "ngModelChange", "ngModel", "ngModelOptions"], ["features", "", 1, "space-y-2"], [4, "ngFor", "ngForOf"], ["class", "flex items-center", 4, "ngIf"], ["for", "feat", 1, "flex-1", "w-1/2"], ["name", "feat", 3, "ngModelChange", "ngModel", "ngModelOptions"], [1, "px-2", "pt-2", "w-full", "border-t", "border-base-200"], ["btn", "", "matRipple", "", "name", "apply-space-filters", 1, "w-full", 3, "click"]];
   },
   template: function SpaceFiltersComponent_Template(rf, ctx) {
     if (rf & 1) {
@@ -69938,7 +70146,7 @@ _SpaceFiltersComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
       i0.ɵɵi18n(24, 4);
       i0.ɵɵpipe(25, "translate");
       i0.ɵɵelementEnd()();
-      i0.ɵɵtemplate(26, SpaceFiltersComponent_div_26_Template, 9, 13, "div", 26);
+      i0.ɵɵtemplate(26, SpaceFiltersComponent_div_26_Template, 9, 14, "div", 26);
       i0.ɵɵelementEnd();
       i0.ɵɵtemplate(27, SpaceFiltersComponent_div_27_Template, 3, 0, "div", 27)(28, SpaceFiltersComponent_div_28_Template, 8, 7, "div", 28);
       i0.ɵɵelementEnd();
@@ -69953,21 +70161,21 @@ _SpaceFiltersComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
     if (rf & 2) {
       var tmp_2_0;
       var tmp_3_0;
-      var tmp_16_0;
+      var tmp_17_0;
       i0.ɵɵadvance(2);
       i0.ɵɵproperty("ngIf", ctx.can_close);
       i0.ɵɵadvance(4);
       i0.ɵɵproperty("formGroup", ctx.form);
       i0.ɵɵadvance(7);
-      i0.ɵɵproperty("ngIf", ctx.use_region && ((tmp_2_0 = i0.ɵɵpipeBind1(14, 17, ctx.regions)) == null ? null : tmp_2_0.length));
+      i0.ɵɵproperty("ngIf", ctx.use_region && ((tmp_2_0 = i0.ɵɵpipeBind1(14, 18, ctx.regions)) == null ? null : tmp_2_0.length));
       i0.ɵɵadvance(2);
-      i0.ɵɵproperty("ngIf", !ctx.use_region && ((tmp_3_0 = i0.ɵɵpipeBind1(16, 19, ctx.buildings)) == null ? null : tmp_3_0.length) > 1);
+      i0.ɵɵproperty("ngIf", !ctx.use_region && ((tmp_3_0 = i0.ɵɵpipeBind1(16, 20, ctx.buildings)) == null ? null : tmp_3_0.length) > 1);
       i0.ɵɵadvance(2);
       i0.ɵɵproperty("ngIf", !ctx.hide_levels);
       i0.ɵɵadvance(6);
-      i0.ɵɵproperty("ngModel", ctx.form.getRawValue().date)("ngModelOptions", i0.ɵɵpureFunction0(29, _c0))("to", ctx.end_date)("short", true)("timezone", ctx.timezone);
+      i0.ɵɵproperty("ngModel", ctx.form.getRawValue().date)("ngModelOptions", i0.ɵɵpureFunction0(30, _c0))("to", ctx.end_date)("short", true)("timezone", ctx.timezone)("range", ctx.multiday ? 1 : 0);
       i0.ɵɵadvance(2);
-      i0.ɵɵi18nExp(i0.ɵɵpipeBind1(25, 21, "FORM.DATE_ERROR"));
+      i0.ɵɵi18nExp(i0.ɵɵpipeBind1(25, 22, "FORM.DATE_ERROR"));
       i0.ɵɵi18nApply(24);
       i0.ɵɵadvance();
       i0.ɵɵproperty("ngIf", ctx.multiday);
@@ -69976,9 +70184,9 @@ _SpaceFiltersComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
       i0.ɵɵadvance();
       i0.ɵɵproperty("ngIf", !ctx.form.value.all_day);
       i0.ɵɵadvance();
-      i0.ɵɵproperty("ngIf", !ctx.viewing_map || !i0.ɵɵpipeBind1(30, 23, ctx.using_mapspeople));
+      i0.ɵɵproperty("ngIf", !ctx.viewing_map || !i0.ɵɵpipeBind1(30, 24, ctx.using_mapspeople));
       i0.ɵɵadvance(2);
-      i0.ɵɵproperty("ngIf", ((tmp_16_0 = i0.ɵɵpipeBind1(32, 25, ctx.features)) == null ? null : tmp_16_0.length) && (!ctx.viewing_map || !i0.ɵɵpipeBind1(33, 27, ctx.using_mapspeople)));
+      i0.ɵɵproperty("ngIf", ((tmp_17_0 = i0.ɵɵpipeBind1(32, 26, ctx.features)) == null ? null : tmp_17_0.length) && (!ctx.viewing_map || !i0.ɵɵpipeBind1(33, 28, ctx.using_mapspeople)));
       i0.ɵɵadvance(3);
       i0.ɵɵproperty("ngIf", ctx.can_close);
     }
