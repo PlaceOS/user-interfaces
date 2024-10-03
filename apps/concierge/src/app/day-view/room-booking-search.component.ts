@@ -132,7 +132,18 @@ export class RoomBookingSearchComponent extends AsyncHandler {
                             .toLowerCase()
                             ?.includes(search) ||
                         e.resources[0]?.name.toLowerCase()?.includes(search) ||
-                        e.resources[0]?.email.toLowerCase()?.includes(search))
+                        e.resources[0]?.email.toLowerCase()?.includes(search) ||
+                        e.extension_data.host_entity
+                            ?.toLowerCase()
+                            ?.includes(search) ||
+                        e.extension_data.visitor_entity
+                            ?.toLowerCase()
+                            ?.includes(search) ||
+                        e.attendees.find(
+                            (user) =>
+                                user.name?.toLowerCase().includes(search) ||
+                                user?.email?.toLowerCase().includes(search),
+                        ))
                 );
             });
         }),
