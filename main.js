@@ -3831,10 +3831,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! date-fns */ 49675);
 /* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! date-fns */ 56441);
 /* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! date-fns */ 28797);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! date-fns */ 77177);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! date-fns */ 1874);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! date-fns */ 99134);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! date-fns */ 77177);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! date-fns */ 1874);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! date-fns */ 99134);
 /* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! rxjs */ 71536);
+/* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! rxjs */ 90521);
+/* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! rxjs */ 68824);
 /* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! rxjs/operators */ 8627);
 /* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! rxjs/operators */ 71963);
 /* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! rxjs/operators */ 29314);
@@ -3842,20 +3844,21 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! rxjs/operators */ 7841);
 /* harmony import */ var _placeos_organisation__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @placeos/organisation */ 2510);
 /* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! @angular/core */ 37580);
-/* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! @angular/common */ 60316);
-/* harmony import */ var _angular_forms__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! @angular/forms */ 34456);
-/* harmony import */ var _angular_material_form_field__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! @angular/material/form-field */ 24950);
-/* harmony import */ var _angular_material_input__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! @angular/material/input */ 95541);
-/* harmony import */ var _angular_material_core__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! @angular/material/core */ 74646);
-/* harmony import */ var _angular_material_checkbox__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! @angular/material/checkbox */ 97024);
-/* harmony import */ var _angular_material_autocomplete__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! @angular/material/autocomplete */ 79771);
+/* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! @angular/common */ 60316);
+/* harmony import */ var _angular_forms__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! @angular/forms */ 34456);
+/* harmony import */ var _angular_material_form_field__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! @angular/material/form-field */ 24950);
+/* harmony import */ var _angular_material_input__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! @angular/material/input */ 95541);
+/* harmony import */ var _angular_material_core__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! @angular/material/core */ 74646);
+/* harmony import */ var _angular_material_checkbox__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! @angular/material/checkbox */ 97024);
+/* harmony import */ var _angular_material_autocomplete__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! @angular/material/autocomplete */ 79771);
 /* harmony import */ var _libs_form_fields_src_lib_date_field_component__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../../../../../libs/form-fields/src/lib/date-field.component */ 19608);
 /* harmony import */ var _libs_form_fields_src_lib_duration_field_component__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../../../../../libs/form-fields/src/lib/duration-field.component */ 83476);
 /* harmony import */ var _libs_form_fields_src_lib_time_field_component__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../../../../../../libs/form-fields/src/lib/time-field.component */ 81413);
 /* harmony import */ var _libs_form_fields_src_lib_user_search_field_component__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../../../../../../libs/form-fields/src/lib/user-search-field.component */ 18000);
 /* harmony import */ var _libs_form_fields_src_lib_host_select_field_component__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../../../../../../libs/form-fields/src/lib/host-select-field.component */ 65347);
 /* harmony import */ var _libs_form_fields_src_lib_recurrence_field_component__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../../../../../../libs/form-fields/src/lib/recurrence-field.component */ 83138);
-/* harmony import */ var _ngx_translate_core__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! @ngx-translate/core */ 597);
+/* harmony import */ var _ngx_translate_core__WEBPACK_IMPORTED_MODULE_34__ = __webpack_require__(/*! @ngx-translate/core */ 597);
+
 
 
 
@@ -4117,7 +4120,7 @@ function MeetingFormDetailsComponent_div_0_div_15_Template(rf, ctx) {
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵadvance"](9);
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵproperty"]("matAutocomplete", auto_r5);
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵadvance"](3);
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵproperty"]("ngForOf", _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵpipeBind1"](15, 5, ctx_r0.host_entity_list));
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵproperty"]("ngForOf", _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵpipeBind1"](15, 5, ctx_r0.filtered_entities));
   }
 }
 function MeetingFormDetailsComponent_div_0_div_16_mat_checkbox_7_Template(rf, ctx) {
@@ -4187,7 +4190,7 @@ function MeetingFormDetailsComponent_div_0_Template(rf, ctx) {
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵproperty"]("ngIf", ctx_r0.allow_recurrence);
   }
 }
-class MeetingFormDetailsComponent {
+class MeetingFormDetailsComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_0__.AsyncHandler {
   get max_duration() {
     return this._settings.get('app.events.max_duration') || 480;
   }
@@ -4219,25 +4222,34 @@ class MeetingFormDetailsComponent {
     return this._settings.get('app.use_24_hour_time');
   }
   constructor(_settings, _event_form, _org) {
+    super();
     this._settings = _settings;
     this._event_form = _event_form;
     this._org = _org;
     this.host_entity_list = this._org.initialised.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_16__.filter)(_ => !!_), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_17__.switchMap)(_ => (0,_placeos_ts_client__WEBPACK_IMPORTED_MODULE_2__.showMetadata)(this._org.organisation.id, 'host_entities').pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_18__.catchError)(() => (0,rxjs__WEBPACK_IMPORTED_MODULE_19__.of)({
       details: []
     })))), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_20__.map)(_ => _.details instanceof Array ? _.details : []), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_21__.shareReplay)(1));
-    this.force_time = (0,date_fns__WEBPACK_IMPORTED_MODULE_22__.set)(Date.now(), {
+    this._host_entity = new rxjs__WEBPACK_IMPORTED_MODULE_22__.BehaviorSubject('');
+    this.filtered_entities = (0,rxjs__WEBPACK_IMPORTED_MODULE_23__.combineLatest)([this.host_entity_list, this._host_entity]).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_20__.map)(([list, entity]) => entity ? list.filter(_ => _.toLowerCase().includes(entity.toLowerCase())) : list));
+    this.force_time = (0,date_fns__WEBPACK_IMPORTED_MODULE_24__.set)(Date.now(), {
       hours: 6,
       minutes: 0
     }).valueOf();
     this.duration_info = time => {
       const date = this.form.getRawValue().date;
       if ((0,date_fns__WEBPACK_IMPORTED_MODULE_11__.format)(date, 'yyyy-MM-dd') !== (0,date_fns__WEBPACK_IMPORTED_MODULE_11__.format)(time, 'yyyy-MM-dd')) return '';
-      const diff = (0,date_fns__WEBPACK_IMPORTED_MODULE_23__.differenceInMinutes)(time, date);
-      return ` (${(0,date_fns__WEBPACK_IMPORTED_MODULE_24__.formatDuration)({
+      const diff = (0,date_fns__WEBPACK_IMPORTED_MODULE_25__.differenceInMinutes)(time, date);
+      return ` (${(0,date_fns__WEBPACK_IMPORTED_MODULE_26__.formatDuration)({
         hours: Math.floor(diff / 60),
         minutes: diff % 60
       })})`;
     };
+  }
+  ngOnChanges(changes) {
+    if (changes.form && this.form) {
+      this.subscription('host_entity_change', this.form.valueChanges.subscribe(() => this._host_entity.next(this.form.getRawValue().host_entity)));
+      this._host_entity.next(this.form.getRawValue().host_entity);
+    }
   }
   static #_ = this.ɵfac = function MeetingFormDetailsComponent_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || MeetingFormDetailsComponent)(_angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵdirectiveInject"](_placeos_common__WEBPACK_IMPORTED_MODULE_0__.SettingsService), _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵdirectiveInject"](_placeos_events__WEBPACK_IMPORTED_MODULE_1__.EventFormService), _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵdirectiveInject"](_placeos_organisation__WEBPACK_IMPORTED_MODULE_3__.OrganisationService));
@@ -4248,6 +4260,7 @@ class MeetingFormDetailsComponent {
     inputs: {
       form: "form"
     },
+    features: [_angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵInheritDefinitionFeature"], _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵNgOnChangesFeature"]],
     decls: 1,
     vars: 1,
     consts: [["auto", "matAutocomplete"], [3, "formGroup", 4, "ngIf"], [3, "formGroup"], [1, "flex", "items-center", "flex-wrap", "sm:space-x-2"], [1, "flex-1", "min-w-[256px]"], ["for", "title"], ["appearance", "outline", 1, "w-full"], ["matInput", "", "name", "title", "formControlName", "title", "placeholder", "e.g. Team Meeting"], ["class", "flex-1 min-w-[256px] relative", 4, "ngIf"], ["class", "flex items-center flex-wrap sm:space-x-2", 4, "ngIf"], ["class", "flex items-center space-x-2", 4, "ngIf"], ["class", "w-full flex flex-col", 4, "ngIf"], [1, "flex-1", "min-w-[256px]", "relative"], ["for", "date"], ["name", "date", "formControlName", "date", 3, "to"], ["formControlName", "all_day", "class", "absolute -top-2 right-2", 4, "ngIf"], ["formControlName", "all_day", 1, "absolute", "-top-2", "right-2"], ["name", "date", "formControlName", "date_end", 3, "from", "to"], [1, "flex", "items-center", "space-x-2"], [1, "flex-1", "w-1/3"], ["for", "start-time"], ["name", "start-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "use_24hr"], ["class", "flex-1 w-1/3", 4, "ngIf"], ["for", "end-time"], ["name", "end-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "from", "use_24hr", "extra_info_fn"], ["name", "end-time", "formControlName", "duration", 3, "time", "max", "use_24hr"], [1, "w-full", "flex", "flex-col"], ["for", "host"], ["name", "host", "formControlName", "organiser"], ["name", "host", "formControlName", "organiser", 1, "mb-4"], [1, "flex", "flex-col", "flex-1"], ["for", "host_entity"], ["matInput", "", "name", "host_entity", "formControlName", "host_entity", "placeholder", "Organisational Entity of the Host", 3, "matAutocomplete"], [1, "w-full"], [3, "value", 4, "ngFor", "ngForOf"], [3, "value"], ["for", "recurrence"], ["name", "recurrence", "formControlName", "recurrence", 3, "date"], ["formControlName", "update_master", 4, "ngIf"], ["formControlName", "update_master"]],
@@ -4259,7 +4272,7 @@ class MeetingFormDetailsComponent {
         _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵproperty"]("ngIf", ctx.form);
       }
     },
-    dependencies: [_angular_common__WEBPACK_IMPORTED_MODULE_25__.NgForOf, _angular_common__WEBPACK_IMPORTED_MODULE_25__.NgIf, _angular_forms__WEBPACK_IMPORTED_MODULE_26__.DefaultValueAccessor, _angular_forms__WEBPACK_IMPORTED_MODULE_26__.NgControlStatus, _angular_forms__WEBPACK_IMPORTED_MODULE_26__.NgControlStatusGroup, _angular_forms__WEBPACK_IMPORTED_MODULE_26__.NgModel, _angular_material_form_field__WEBPACK_IMPORTED_MODULE_27__.MatFormField, _angular_material_form_field__WEBPACK_IMPORTED_MODULE_27__.MatError, _angular_material_input__WEBPACK_IMPORTED_MODULE_28__.MatInput, _angular_material_core__WEBPACK_IMPORTED_MODULE_29__.MatOption, _angular_material_checkbox__WEBPACK_IMPORTED_MODULE_30__.MatCheckbox, _angular_material_autocomplete__WEBPACK_IMPORTED_MODULE_31__.MatAutocomplete, _angular_material_autocomplete__WEBPACK_IMPORTED_MODULE_31__.MatAutocompleteTrigger, _angular_forms__WEBPACK_IMPORTED_MODULE_26__.FormGroupDirective, _angular_forms__WEBPACK_IMPORTED_MODULE_26__.FormControlName, _libs_form_fields_src_lib_date_field_component__WEBPACK_IMPORTED_MODULE_4__.DateFieldComponent, _libs_form_fields_src_lib_duration_field_component__WEBPACK_IMPORTED_MODULE_5__.DurationFieldComponent, _libs_form_fields_src_lib_time_field_component__WEBPACK_IMPORTED_MODULE_6__.TimeFieldComponent, _libs_form_fields_src_lib_user_search_field_component__WEBPACK_IMPORTED_MODULE_7__.UserSearchFieldComponent, _libs_form_fields_src_lib_host_select_field_component__WEBPACK_IMPORTED_MODULE_8__.HostSelectFieldComponent, _libs_form_fields_src_lib_recurrence_field_component__WEBPACK_IMPORTED_MODULE_9__.RecurrenceFieldComponent, _angular_common__WEBPACK_IMPORTED_MODULE_25__.AsyncPipe, _ngx_translate_core__WEBPACK_IMPORTED_MODULE_32__.TranslatePipe],
+    dependencies: [_angular_common__WEBPACK_IMPORTED_MODULE_27__.NgForOf, _angular_common__WEBPACK_IMPORTED_MODULE_27__.NgIf, _angular_forms__WEBPACK_IMPORTED_MODULE_28__.DefaultValueAccessor, _angular_forms__WEBPACK_IMPORTED_MODULE_28__.NgControlStatus, _angular_forms__WEBPACK_IMPORTED_MODULE_28__.NgControlStatusGroup, _angular_forms__WEBPACK_IMPORTED_MODULE_28__.NgModel, _angular_material_form_field__WEBPACK_IMPORTED_MODULE_29__.MatFormField, _angular_material_form_field__WEBPACK_IMPORTED_MODULE_29__.MatError, _angular_material_input__WEBPACK_IMPORTED_MODULE_30__.MatInput, _angular_material_core__WEBPACK_IMPORTED_MODULE_31__.MatOption, _angular_material_checkbox__WEBPACK_IMPORTED_MODULE_32__.MatCheckbox, _angular_material_autocomplete__WEBPACK_IMPORTED_MODULE_33__.MatAutocomplete, _angular_material_autocomplete__WEBPACK_IMPORTED_MODULE_33__.MatAutocompleteTrigger, _angular_forms__WEBPACK_IMPORTED_MODULE_28__.FormGroupDirective, _angular_forms__WEBPACK_IMPORTED_MODULE_28__.FormControlName, _libs_form_fields_src_lib_date_field_component__WEBPACK_IMPORTED_MODULE_4__.DateFieldComponent, _libs_form_fields_src_lib_duration_field_component__WEBPACK_IMPORTED_MODULE_5__.DurationFieldComponent, _libs_form_fields_src_lib_time_field_component__WEBPACK_IMPORTED_MODULE_6__.TimeFieldComponent, _libs_form_fields_src_lib_user_search_field_component__WEBPACK_IMPORTED_MODULE_7__.UserSearchFieldComponent, _libs_form_fields_src_lib_host_select_field_component__WEBPACK_IMPORTED_MODULE_8__.HostSelectFieldComponent, _libs_form_fields_src_lib_recurrence_field_component__WEBPACK_IMPORTED_MODULE_9__.RecurrenceFieldComponent, _angular_common__WEBPACK_IMPORTED_MODULE_27__.AsyncPipe, _ngx_translate_core__WEBPACK_IMPORTED_MODULE_34__.TranslatePipe],
     encapsulation: 2
   });
 }
@@ -13719,15 +13732,15 @@ __webpack_require__.r(__webpack_exports__);
 /* tslint:disable */
 const VERSION = {
   "dirty": false,
-  "raw": "193f6c5",
-  "hash": "193f6c5",
+  "raw": "d8ce9f9",
+  "hash": "d8ce9f9",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "193f6c5",
+  "suffix": "d8ce9f9",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1727931988617
+  "time": 1727932638391
 };
 /* tslint:enable */
 
