@@ -1911,7 +1911,7 @@ class RoomBookingSearchComponent extends _placeos_common__WEBPACK_IMPORTED_MODUL
     this.filtered = (0,rxjs__WEBPACK_IMPORTED_MODULE_6__.combineLatest)([this.search, this.events]).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_7__.map)(([search, event_list]) => {
       search = search.toLowerCase();
       return event_list.filter(e => {
-        return !e.is_system_event && (e.title.toLowerCase().includes(search) || e.organiser?.name.toLowerCase().includes(search) || e.host.toLowerCase().includes(search) || e.system?.display_name.toLowerCase().includes(search) || e.system?.name.toLowerCase().includes(search) || e.resources[0]?.display_name.toLowerCase()?.includes(search) || e.resources[0]?.name.toLowerCase()?.includes(search) || e.resources[0]?.email.toLowerCase()?.includes(search));
+        return !e.is_system_event && (e.title.toLowerCase().includes(search) || e.organiser?.name.toLowerCase().includes(search) || e.host.toLowerCase().includes(search) || e.system?.display_name.toLowerCase().includes(search) || e.system?.name.toLowerCase().includes(search) || e.resources[0]?.display_name.toLowerCase()?.includes(search) || e.resources[0]?.name.toLowerCase()?.includes(search) || e.resources[0]?.email.toLowerCase()?.includes(search) || e.extension_data.host_entity?.toLowerCase()?.includes(search) || e.extension_data.visitor_entity?.toLowerCase()?.includes(search) || e.attendees.find(user => user.name?.toLowerCase().includes(search) || user?.email?.toLowerCase().includes(search)));
       });
     }));
   }
