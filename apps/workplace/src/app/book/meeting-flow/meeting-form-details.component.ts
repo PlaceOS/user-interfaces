@@ -1,6 +1,6 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, SimpleChanges } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { SettingsService } from '@placeos/common';
+import { AsyncHandler, SettingsService } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
 import { PlaceMetadata, showMetadata } from '@placeos/ts-client';
 import {
@@ -13,12 +13,13 @@ import {
     set,
     startOfDay,
 } from 'date-fns';
-import { of } from 'rxjs';
+import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
 import {
     catchError,
     filter,
     map,
     shareReplay,
+    startWith,
     switchMap,
 } from 'rxjs/operators';
 import { OrganisationService } from '@placeos/organisation';
@@ -177,7 +178,7 @@ import { OrganisationService } from '@placeos/organisation';
                     </mat-form-field>
                     <mat-autocomplete #auto="matAutocomplete" class="w-full">
                         <mat-option
-                            *ngFor="let option of host_entity_list | async"
+                            *ngFor="let option of filtered_entities | async"
                             [value]="option"
                         >
                             {{ option }}
@@ -205,20 +206,36 @@ import { OrganisationService } from '@placeos/organisation';
     `,
     styles: [],
 })
-export class MeetingFormDetailsComponent {
+export class MeetingFormDetailsComponent extends AsyncHandler {
     @Input() public form: FormGroup;
 
-    public readonly host_entity_list = this._org.initialised.pipe(
-        filter((_) => !!_),
-        switchMap((_) =>
-            showMetadata(this._org.organisation.id, 'host_entities').pipe(
-                catchError(() => of({ details: [] } as any)),
+    public readonly host_entity_list: Observable<string[]> =
+        this._org.initialised.pipe(
+            filter((_) => !!_),
+            switchMap((_) =>
+                showMetadata(this._org.organisation.id, 'host_entities').pipe(
+                    catchError(() => of({ details: [] } as any)),
+                ),
             ),
+            map((_: PlaceMetadata) =>
+                _.details instanceof Array ? _.details : [],
+            ),
+            shareReplay(1),
+        );
+
+    private _host_entity = new BehaviorSubject<string>('');
+
+    public filtered_entities = combineLatest([
+        this.host_entity_list,
+        this._host_entity,
+    ]).pipe(
+        map(([list, entity]) =>
+            entity
+                ? list.filter((_) =>
+                      _.toLowerCase().includes(entity.toLowerCase()),
+                  )
+                : list,
         ),
-        map((_: PlaceMetadata) =>
-            _.details instanceof Array ? _.details : [],
-        ),
-        shareReplay(1),
     );
 
     public readonly force_time = set(Date.now(), {
@@ -294,5 +311,19 @@ export class MeetingFormDetailsComponent {
         private _settings: SettingsService,
         private _event_form: EventFormService,
         private _org: OrganisationService,
-    ) {}
+    ) {
+        super();
+    }
+
+    public ngOnChanges(changes: SimpleChanges) {
+        if (changes.form && this.form) {
+            this.subscription(
+                'host_entity_change',
+                this.form.valueChanges.subscribe(() =>
+                    this._host_entity.next(this.form.getRawValue().host_entity),
+                ),
+            );
+            this._host_entity.next(this.form.getRawValue().host_entity);
+        }
+    }
 }
