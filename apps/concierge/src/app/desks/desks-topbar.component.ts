@@ -148,7 +148,7 @@ export class DesksTopbarComponent extends AsyncHandler implements OnInit {
         private _org: OrganisationService,
         private _route: ActivatedRoute,
         private _router: Router,
-        private _dialog: MatDialog
+        private _dialog: MatDialog,
     ) {
         super();
     }
@@ -165,7 +165,7 @@ export class DesksTopbarComponent extends AsyncHandler implements OnInit {
                         const level = this._org.levelWithID(zones);
                         if (!level) return;
                         this._org.building = this._org.buildings.find(
-                            (bld) => bld.id === level.parent_id
+                            (bld) => bld.id === level.parent_id,
                         );
                     }
                 }
@@ -179,14 +179,14 @@ export class DesksTopbarComponent extends AsyncHandler implements OnInit {
                 }
                 this.manage = this._router.url?.includes('manage');
                 this.is_map = this._router.url?.includes('map');
-            })
+            }),
         );
         this.subscription(
             'router.events',
             this._router.events.subscribe(() => {
                 this.manage = this._router.url?.includes('manage');
                 this.is_map = this._router.url?.includes('map');
-            })
+            }),
         );
         this.subscription(
             'levels',
@@ -196,13 +196,13 @@ export class DesksTopbarComponent extends AsyncHandler implements OnInit {
                     filters?.zones?.filter(
                         (zone) =>
                             levels.find((lvl) => lvl.id === zone) ||
-                            zone === 'All'
+                            zone === 'All',
                     ) || [];
                 if (!zones.length && levels.length) {
                     zones.push(levels[0].id);
                 }
                 this.updateZones(zones);
-            })
+            }),
         );
         this.manage = this._router.url?.includes('manage');
         this.is_map = this._router.url?.includes('map');
@@ -213,7 +213,7 @@ export class DesksTopbarComponent extends AsyncHandler implements OnInit {
         desk.staff_name = `[NEW_DESK]`;
         this._desks.addDesks([desk]);
         notifyInfo('New desk added to local data.', undefined, () =>
-            notifyInfo('Make sure to save the new desk before using it.')
+            notifyInfo('Make sure to save the new desk before using it.'),
         );
     }
 
@@ -240,8 +240,8 @@ export class DesksTopbarComponent extends AsyncHandler implements OnInit {
                         new Desk({
                             ..._,
                             id: _.id || `desk-${randomInt(999_999)}`,
-                        })
-                )
+                        }),
+                ),
             );
         } catch (e) {
             console.error(e);
