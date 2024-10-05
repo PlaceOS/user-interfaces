@@ -10,8 +10,19 @@ import {
     ElementRef,
 } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
-
-import * as dayjs from 'dayjs';
+import {
+    startOfDay,
+    set,
+    addMinutes,
+    addDays,
+    differenceInSeconds,
+    isBefore,
+    isAfter,
+    isSameMinute,
+    format,
+    startOfMinute,
+    differenceInMinutes,
+} from 'date-fns';
 
 export interface ITimelineEventGroup {
     name?: string;
@@ -52,7 +63,7 @@ export class EventTimelineComponent
     /** Groups and events */
     @Input() public groups: ITimelineEventGroup[];
     /** Selected date */
-    @Input() public date = dayjs().valueOf();
+    @Input() public date = Date.now();
     /** Selected duration in min */
     @Input() public duration = 30;
     /** Whether time can be changed */
@@ -71,13 +82,14 @@ export class EventTimelineComponent
     public content: ElementRef<HTMLDivElement>;
 
     public ngOnInit(): void {
-        this.model.start = dayjs(this.date).hour(6).minute(30);
-        this.model.end = dayjs(this.date).hour(21).minute(30);
+        this.model.start = set(this.date, { hours: 6, minutes: 30 });
+        this.model.end = set(this.date, { hours: 21, minutes: 30 });
         this.generateBlocks();
         this.updateTime();
         this.interval('timer', () => this.updateTime(), 60 * 1000);
-        const now = dayjs();
-        const tomorrow = dayjs().add(1, 'd').startOf('d');
+        const now = Date.now();
+        ('');
+        const tomorrow = addDays(startOfDay(now), 1).valueOf();
         this.timeout(
             'update_date',
             () => {
@@ -85,10 +97,10 @@ export class EventTimelineComponent
                 this.interval(
                     'update_date',
                     () => this.updateStartEnd(),
-                    24 * 60 * 60 * 1000
+                    24 * 60 * 60 * 1000,
                 );
             },
-            Math.floor(tomorrow.diff(now, 's'))
+            Math.floor(differenceInSeconds(tomorrow, now)),
         );
     }
 
@@ -102,8 +114,8 @@ export class EventTimelineComponent
     }
 
     public updateStartEnd() {
-        this.model.start = dayjs(this.date).hour(6).minute(30);
-        this.model.end = dayjs(this.date).hour(21).minute(30);
+        this.model.start = set(this.date, { hours: 6, minutes: 30 });
+        this.model.end = set(this.date, { hours: 21, minutes: 30 });
         this.updatePeriod();
         this.updateTime();
     }
@@ -112,11 +124,7 @@ export class EventTimelineComponent
         const start = this.model.start;
         const end = this.model.end;
         const blocks: ITimelineBlock[] = [];
-        for (
-            let time = dayjs(start);
-            time.isBefore(end);
-            time = time.add(5, 'm')
-        ) {
+        for (let time = start; time.isBefore(end); time = time.add(5, 'm')) {
             blocks.push({
                 id: time.format('HH:mm'),
                 display: time.format('hh:00 a'),
@@ -133,26 +141,27 @@ export class EventTimelineComponent
             'process',
             () => {
                 this.model.groups = [];
-                const date = dayjs(this.model.start);
+                const date = this.model.start;
                 const end = this.model.end;
                 for (const grp of this.groups || []) {
                     const blocks: ITimelineBlock[] = [];
                     for (
-                        let time = dayjs(date);
-                        time.isBefore(end);
-                        time = time.add(5, 'm')
+                        let time = date;
+                        isBefore(time, end);
+                        time = addMinutes(time, 5).valueOf()
                     ) {
-                        const blk_end = dayjs(time).add(5, 'm');
+                        const blk_end = addMinutes(time, 5);
                         let events = [];
                         if (grp.events) {
                             events = grp.events.filter((i) => {
-                                const event_time = dayjs(this.date)
-                                    .hour(Math.floor(i.start))
-                                    .minute(Math.floor((i.start * 60) % 60));
+                                const event_time = set(this.date, {
+                                    hours: Math.floor(i.start),
+                                    minutes: Math.floor((i.start * 60) % 60),
+                                });
                                 return (
-                                    (event_time.isAfter(time, 'm') ||
-                                        event_time.isSame(time, 'm')) &&
-                                    event_time.isBefore(blk_end, 'm')
+                                    (isAfter(event_time, time) ||
+                                        isSameMinute(event_time, time)) &&
+                                    isBefore(event_time, blk_end)
                                 );
                             });
                         }
@@ -165,7 +174,7 @@ export class EventTimelineComponent
                 }
                 this.checkInUseBlocks();
             },
-            20
+            20,
         );
     }
 
@@ -180,13 +189,13 @@ export class EventTimelineComponent
         for (const grp of this.model.groups) {
             for (const event of grp.events || []) {
                 const start = this.hoursToDate(event.start);
-                const end = dayjs(start).add(event.duration, 'm');
+                const end = addMinutes(start, event.duration);
                 for (
-                    let time = dayjs(start);
-                    time.isBefore(end);
-                    time = time.add(5, 'm')
+                    let time = start;
+                    isBefore(time, end);
+                    time = addMinutes(time, 5).valueOf()
                 ) {
-                    const display = time.format('HH:mm');
+                    const display = format(time, 'HH:mm');
                     const blk = blocks.find((i) => i.id === display);
                     if (blk) {
                         blk.unavailable = true;
@@ -198,35 +207,39 @@ export class EventTimelineComponent
     }
 
     public hoursToDate(time: number) {
-        let t = dayjs()
-            .startOf('d')
-            .hour(Math.floor(time))
-            .minute(Math.floor((time * 60) % 60));
-        t = t.minute(Math.floor(t.minute() / 5) * 5);
-        return t;
+        let t = set(startOfDay(Date.now()), {
+            hours: Math.floor(time),
+            minutes: Math.floor((time * 60) % 60),
+        });
+        t = set(t, { minutes: Math.floor(t.getMinutes() / 5) * 5 });
+        return t.valueOf();
     }
 
     public timeToDate(timestamp: string) {
         const parts = timestamp.split(':');
-        let t = dayjs()
-            .startOf('d')
-            .hour(+parts[0])
-            .minute(+parts[1]);
-        t = t.minute(Math.floor(t.minute() / 5) * 5);
-        return t;
+        let t = set(startOfDay(Date.now()), {
+            hours: +parts[0],
+            minutes: +parts[1],
+        });
+        t = set(t, { minutes: Math.floor(t.getMinutes() / 5) * 5 });
+        return t.valueOf();
     }
 
     public updatePeriod() {
-        const start = dayjs(this.date).startOf('m');
-        const period = this.model.end.diff(this.model.start, 'm') / 60;
-        this.model.start_time = start.diff(this.model.start, 'm') / 60 / period;
+        const start = startOfMinute(this.date);
+        const period =
+            differenceInMinutes(this.model.end, this.model.start) / 60;
+        this.model.start_time =
+            differenceInMinutes(start, this.model.start) / 60 / period;
         this.model.duration = this.duration / 60 / period;
     }
 
     public updateTime() {
-        const start = dayjs().startOf('m');
-        const period = this.model.end.diff(this.model.start, 'm') / 60;
-        this.model.today = start.diff(this.model.start, 'm') / 60 / period;
+        const start = startOfMinute(Date.now());
+        const period =
+            differenceInMinutes(this.model.end, this.model.start) / 60;
+        this.model.today =
+            differenceInMinutes(start, this.model.start) / 60 / period;
     }
 
     public resetMove() {
@@ -242,9 +255,10 @@ export class EventTimelineComponent
             return;
         }
         const parts = block.id.split(':');
-        const time = dayjs(this.date)
-            .hour(+parts[0])
-            .minute(+parts[1]);
+        const time = set(this.date, {
+            hours: +parts[0],
+            minutes: +parts[1],
+        });
         this.date = time.valueOf();
         this.dateChange.emit(this.date);
         this.updatePeriod();
@@ -283,36 +297,39 @@ export class EventTimelineComponent
                     const hour =
                         Math.ceil(
                             (diff_time * percent + start_time) *
-                                (60 / block_size)
+                                (60 / block_size),
                         ) /
                         (60 / block_size);
                     if (this.model.move === 'end') {
-                        let date = dayjs(this.date);
-                        const end = dayjs(this.date)
-                            .hour(Math.floor(hour))
-                            .minute(Math.floor((hour * 60) % 60));
-                        if (end.isSame(date, 'm') || end.isBefore(date, 'm')) {
-                            date = dayjs(end).add(-this.duration, 'm');
-                            this.date = date.valueOf();
+                        let date = this.date;
+                        const end = set(this.date, {
+                            hours: Math.floor(hour),
+                            minutes: Math.floor((hour * 60) % 60),
+                        });
+                        if (isSameMinute(end, date) || isBefore(end, date)) {
+                            date = addMinutes(end, -this.duration).valueOf();
                         } else {
-                            const duration = Math.floor(end.diff(date, 'm'));
+                            const duration = Math.floor(
+                                differenceInMinutes(end, date),
+                            );
                             this.duration = Math.max(
                                 60,
-                                duration || block_size
+                                duration || block_size,
                             );
                             this.durationChange.emit(this.duration);
                         }
                     } else if (this.model.move === 'start') {
-                        const date = dayjs(this.date)
-                            .hour(Math.floor(hour))
-                            .minute(Math.floor((hour * 60) % 60));
+                        const date = set(this.date, {
+                            hours: Math.floor(hour),
+                            minutes: Math.floor((hour * 60) % 60),
+                        });
                         this.date = date.valueOf();
                     }
                     this.dateChange.emit(this.date);
                     this.updatePeriod();
                 }
             },
-            10
+            10,
         );
     }
 }

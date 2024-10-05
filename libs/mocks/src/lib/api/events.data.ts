@@ -1,17 +1,17 @@
 import { predictableRandomInt, unique } from '@placeos/common';
-import * as dayjs from 'dayjs';
 import { generateCateringOrder } from './catering.data';
 import { MOCK_SPACES } from './spaces.data';
 import { ACTIVE_USER, MOCK_GUESTS, MOCK_STAFF } from './users.data';
+import { addMinutes, getUnixTime, setHours, startOfDay } from 'date-fns';
 
-let EVENT_TIME = dayjs().startOf('d').hour(7);
+let EVENT_TIME = setHours(startOfDay(Date.now()), 7);
 
 const nextEventTime = (save = false): number => {
-    const next = EVENT_TIME.add((predictableRandomInt(8) + 1) * 15, 'm');
+    const next = addMinutes(EVENT_TIME, (predictableRandomInt(8) + 1) * 15);
     if (save) {
         EVENT_TIME = next;
     }
-    return next.unix();
+    return getUnixTime(next);
 };
 
 const event_status = ['tentative', 'confirmed', 'cancelled'];
@@ -20,8 +20,8 @@ const randomStatus = (): string => {
     return rnd < 2
         ? event_status[2]
         : rnd < 5
-        ? event_status[0]
-        : event_status[1];
+          ? event_status[0]
+          : event_status[1];
 };
 
 export const MOCK_EVENTS = new Array(200).fill(0).map((_, index) => {
@@ -30,7 +30,7 @@ export const MOCK_EVENTS = new Array(200).fill(0).map((_, index) => {
         .fill(0)
         .map(() => PEOPLE[predictableRandomInt(PEOPLE.length)]);
     attendees.sort(
-        (a, b) => (a.visit_expected ? 0 : -1) - (b.visit_expected ? 0 : -1)
+        (a, b) => (a.visit_expected ? 0 : -1) - (b.visit_expected ? 0 : -1),
     );
     const space = MOCK_SPACES[predictableRandomInt(MOCK_SPACES.length)];
     attendees = attendees.concat({ ...space, resource: true });
@@ -55,8 +55,8 @@ export const MOCK_EVENTS = new Array(200).fill(0).map((_, index) => {
                 predictableRandomInt(99999) % 2 === 0
                     ? 'accepted'
                     : predictableRandomInt(99999) % 6 === 0
-                    ? 'declined'
-                    : 'tentative',
+                      ? 'declined'
+                      : 'tentative',
         })),
         title: `Some Meeting ${index}`,
         body: `A Description`,
