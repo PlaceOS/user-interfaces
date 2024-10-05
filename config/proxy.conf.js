@@ -3,7 +3,7 @@ const domain = 'placeos-dev.aca.im';
 /** Whether the proxied endpoints use SSL */
 const secure = true;
 /** Whether the SSL certificate used is valid on the internet */
-const valid_ssl = false;
+const valid_ssl = true;
 
 const PROXY_CONFIG = [
     {
