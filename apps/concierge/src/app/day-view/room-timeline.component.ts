@@ -396,7 +396,7 @@ Host:  ${event.organiser?.name || event.host}`;
             ? 0
             : getTimezoneDifferenceInHours(this.timezone, current_tz);
         const start_time = setHours(
-            startOfDay(date),
+            startOfDay(this._state.getDate()),
             this.block_start - offset,
         );
         const diff = differenceInMinutes(date, start_time);

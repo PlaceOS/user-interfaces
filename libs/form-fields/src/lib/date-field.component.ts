@@ -15,6 +15,7 @@ import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.c
 import { addYears, endOfDay, set, startOfDay } from 'date-fns';
 import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
 import { getTimezoneOffsetString } from '@placeos/common';
+import { DatePipe } from '@angular/common';
 
 export enum TimezoneDiffRange {
     Both,
@@ -45,23 +46,9 @@ export enum TimezoneDiffRange {
                     }
                 </div>
                 <div class="text-xs opacity-30 truncate" *ngIf="timezone">
-                    <span *ngIf="range !== 2">
-                        {{
-                            start_of_day
-                                | date
-                                    : 'MMM d, ' +
-                                          time_format +
-                                          (range === 1 ? ' (z)' : '')
-                                    : tz
-                        }}
-                    </span>
+                    <span *ngIf="range !== 2">{{ start_of_day }}</span>
                     <span *ngIf="range === 0"> - </span>
-                    <span *ngIf="range !== 1">
-                        {{
-                            end_of_day
-                                | date: 'MMM d, ' + time_format + ' (z)' : tz
-                        }}
-                    </span>
+                    <span *ngIf="range !== 1">{{ end_of_day }}</span>
                 </div>
             </div>
             <div class="h-10 w-10 flex items-center justify-center text-2xl">
@@ -127,12 +114,18 @@ export class DateFieldComponent
         return this.use_24hr ? 'HH : mm' : 'h : mm a';
     }
 
+    private _date_pipe = new DatePipe('en');
+
     public get start_of_day() {
-        return startOfDay(this.date).valueOf();
+        const start = startOfDay(this.date).valueOf();
+        const format = `MMM d, ${this.time_format}${this.range === 1 ? ' (z)' : ''}`;
+        return this._date_pipe.transform(start, format, this.tz);
     }
 
     public get end_of_day() {
-        return endOfDay(this.date).valueOf();
+        const end = endOfDay(this.date).valueOf();
+        const format = `MMM d, ${this.time_format}${this.range === 1 ? ' (z)' : ''}`;
+        return this._date_pipe.transform(end, format, this.tz);
     }
 
     public get has_error(): boolean {

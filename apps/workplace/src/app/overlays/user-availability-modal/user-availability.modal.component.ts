@@ -2,13 +2,12 @@ import { Component, OnInit, EventEmitter, Output, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { BehaviorSubject } from 'rxjs';
 import { debounceTime, switchMap } from 'rxjs/operators';
-import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
+import { endOfDay, getUnixTime, isBefore, set, startOfDay } from 'date-fns';
 
 import { AsyncHandler, DialogEvent } from '@placeos/common';
 import { StaffUser } from '@placeos/users';
 import { ITimelineEventGroup } from '../../components/event-timeline/event-timeline.component';
 
-import * as dayjs from 'dayjs';
 import { queryEvents } from '@placeos/events';
 
 @Component({
@@ -47,7 +46,7 @@ export class UserAvailabilityModalComponent
         this.date$
             .pipe(
                 debounceTime(500),
-                switchMap(() => this.loadAvailability())
+                switchMap(() => this.loadAvailability()),
             )
             .subscribe((res) => (this.groups = res));
     }
@@ -70,13 +69,13 @@ export class UserAvailabilityModalComponent
                         .toPromise()
                         .then((res) =>
                             res.map((i) => ({
-                                start: dayjs(i.date).hour(),
+                                start: new Date(i.date).getHours(),
                                 duration: i.duration,
-                            }))
+                            })),
                         )
                         .catch((err) => []),
                 };
-            })
+            }),
         );
         this.loading = false;
         return result;
@@ -84,17 +83,17 @@ export class UserAvailabilityModalComponent
 
     /** Change date keeping hours and minutes */
     public changeDate(new_date: number) {
-        const date = dayjs(this.date);
-        this.date = dayjs(new_date)
-            .hour(date.hour())
-            .minute(date.minute())
-            .valueOf();
+        const date = new Date(this.date);
+        this.date = set(new_date, {
+            hours: date.getHours(),
+            minutes: date.getMinutes(),
+        }).valueOf();
         this.date$.next(this.date);
     }
 
     /** Whether date is in the past */
     public get is_past(): boolean {
-        return dayjs(this.date).isBefore(dayjs());
+        return isBefore(this.date, Date.now());
     }
 
     public save() {

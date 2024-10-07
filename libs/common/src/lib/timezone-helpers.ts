@@ -23,14 +23,19 @@ export function timezoneToLocal(
     return addMilliseconds(date, offset_diff).valueOf();
 }
 
+const TIMZONE_OFFSET_STRINGS = {};
+
 export function getTimezoneOffsetString(tz: string) {
+    if (TIMZONE_OFFSET_STRINGS[tz]) return TIMZONE_OFFSET_STRINGS[tz];
     const offset = getTimezoneOffsetInMinutes(tz);
     const hours = Math.floor(Math.abs(offset) / 60);
     const minutes = Math.abs(offset) % 60;
-    return `${offset > 0 ? '+' : '-'}${padLength(hours, 2)}${padLength(
+    const output = `${offset > 0 ? '+' : '-'}${padLength(hours, 2)}${padLength(
         minutes,
         2,
     )}`;
+    TIMZONE_OFFSET_STRINGS[tz] = output;
+    return output;
 }
 
 export function getTimezoneOffsetInMinutes(timeZone, date = new Date()) {

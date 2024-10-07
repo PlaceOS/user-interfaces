@@ -282,6 +282,10 @@ export class EventsStateService extends AsyncHandler {
         return !tz ? 0 : getTimezoneDifferenceInHours(current_tz, tz);
     }
 
+    public getDate() {
+        return this._date.getValue();
+    }
+
     constructor(
         private _org: OrganisationService,
         private _dialog: MatDialog,

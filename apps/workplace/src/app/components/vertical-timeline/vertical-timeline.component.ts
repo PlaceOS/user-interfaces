@@ -9,13 +9,22 @@ import {
     OnChanges,
     SimpleChanges,
 } from '@angular/core';
-import { formatDuration } from 'date-fns';
+import {
+    addMinutes,
+    differenceInMinutes,
+    endOfDay,
+    format,
+    formatDuration,
+    isBefore,
+    isSameMinute,
+    set,
+    startOfDay,
+    startOfMinute,
+} from 'date-fns';
 
 import { AsyncHandler } from '@placeos/common';
 
 import { ITimelineEventGroup } from '../event-timeline/event-timeline.component';
-
-import * as dayjs from 'dayjs';
 
 @Component({
     selector: 'vertical-timeline',
@@ -66,41 +75,43 @@ export class VerticalTimelineComponent
 
     /** Timeline start */
     public get timeline_start() {
-        return dayjs(this.date).startOf('d');
+        return startOfDay(this.date).valueOf();
     }
 
     /** Timeline end */
     public get timeline_end() {
-        return dayjs(this.date).endOf('d');
+        return endOfDay(this.date).valueOf();
     }
 
     public generateBlocks() {
         this.blocks = [];
         const start = this.timeline_start;
         const end = this.timeline_end;
-        const now = dayjs();
+        const now = Date.now();
         for (
             let time = start;
-            time.isBefore(end, 'm');
-            time = time.add(5, 'm')
+            isBefore(startOfMinute(time), startOfMinute(end));
+            time = addMinutes(time, 5).valueOf()
         ) {
+            const minute = new Date(time).getMinutes();
             this.blocks.push({
-                id: time.format('HH:mm'),
-                display: time.format('HH:mm'),
-                hour: time.minute() === 0,
-                show: time.minute() % 30 === 0,
-                disabled: time.isBefore(now, 'm'),
+                id: format(time, 'HH:mm'),
+                display: format(time, 'HH:mm'),
+                hour: minute === 0,
+                show: minute % 30 === 0,
+                disabled: isBefore(time, now),
             });
         }
         this.checkInUseBlocks();
     }
 
     public get display(): string {
-        const date = dayjs(this.date);
-        const end = dayjs(this.date).add(this.duration, 'm');
+        const date = this.date;
+        const end = addMinutes(this.date, this.duration);
         const duration = formatDuration({ minutes: this.duration });
-        return `${date.format('hh:mm A')} - ${end.format(
-            'hh:mm A'
+        return `${format(date, 'hh:mm A')} - ${format(
+            end,
+            'hh:mm A',
         )} (${duration})`;
     }
 
@@ -132,48 +143,51 @@ export class VerticalTimelineComponent
                         (center.y - off.y - content_box.top) /
                         content_box.height;
                     const percent = percent_h;
-
+                    const tl_start = new Date(this.timeline_start);
                     const start_time =
-                        this.timeline_start.hour() +
-                        this.timeline_start.minute() / 60;
+                        tl_start.getHours() + tl_start.getMinutes() / 60;
+                    const tl_end = new Date(this.timeline_end);
                     const end_time =
-                        this.timeline_end.hour() +
-                        this.timeline_end.minute() / 60;
+                        tl_end.getHours() + tl_end.getMinutes() / 60;
                     const diff_time = end_time - start_time;
                     const block_size = 15;
                     const hour =
                         Math.ceil(
                             (diff_time * percent + start_time) *
-                                (60 / block_size)
+                                (60 / block_size),
                         ) /
                         (60 / block_size);
                     if (this.active_move === 'bottom') {
-                        let date = dayjs(this.date);
-                        const end = dayjs(this.date)
-                            .hour(Math.floor(hour))
-                            .minute(Math.floor((hour * 60) % 60));
-                        if (end.isSame(date, 'm') || end.isBefore(date, 'm')) {
-                            date = dayjs(end).add(-this.duration, 'm');
+                        let date = this.date;
+                        const end = set(this.date, {
+                            hours: Math.floor(hour),
+                            minutes: Math.floor((hour * 60) % 60),
+                        });
+                        if (isSameMinute(end, date) || isBefore(end, date)) {
+                            date = addMinutes(end, -this.duration).valueOf();
                             this.date = date.valueOf();
                         } else {
-                            const duration = Math.floor(end.diff(date, 'm'));
+                            const duration = Math.floor(
+                                differenceInMinutes(end, date),
+                            );
                             this.duration = Math.max(
                                 60,
-                                duration || block_size
+                                duration || block_size,
                             );
                             this.durationChange.emit(this.duration);
                         }
                     } else if (this.active_move === 'top') {
-                        const date = dayjs(this.date)
-                            .hour(Math.floor(hour))
-                            .minute(Math.floor((hour * 60) % 60));
+                        const date = set(this.date, {
+                            hours: Math.floor(hour),
+                            minutes: Math.floor((hour * 60) % 60),
+                        });
                         this.date = date.valueOf();
                     }
                     this.dateChange.emit(this.date);
                     this.updateStartEnd();
                 }
             },
-            10
+            10,
         );
     }
 
@@ -199,13 +213,13 @@ export class VerticalTimelineComponent
         for (const grp of this.groups) {
             for (const event of grp.events || []) {
                 const start = this.hoursToDate(event.start);
-                const end = dayjs(start).add(event.duration, 'm');
+                const end = addMinutes(start, event.duration);
                 for (
-                    let time = dayjs(start);
-                    time.isBefore(end);
-                    time = time.add(5, 'm')
+                    let time = start;
+                    isBefore(time, end);
+                    time = addMinutes(time, 5).valueOf()
                 ) {
-                    const display = time.format('HH:mm');
+                    const display = format(time, 'HH:mm');
                     const blk = blocks.find((i) => i.id === display);
                     if (blk) {
                         blk.unavailable = true;
@@ -217,12 +231,12 @@ export class VerticalTimelineComponent
     }
 
     public hoursToDate(time: number) {
-        let t = dayjs()
-            .startOf('d')
-            .hour(Math.floor(time))
-            .minute(Math.floor((time * 60) % 60));
-        t = t.minute(Math.floor(t.minute() / 5) * 5);
-        return t;
+        let t = set(startOfDay(Date.now()), {
+            hours: Math.floor(time),
+            minutes: Math.floor((time * 60) % 60),
+        });
+        t = set(t, { minutes: Math.floor(t.getMinutes() / 5) * 5 });
+        return t.valueOf();
     }
 
     public updateStartEnd() {
@@ -234,9 +248,11 @@ export class VerticalTimelineComponent
     }
 
     public updatePeriod() {
-        const start = dayjs(this.date).startOf('m');
-        const period = this.timeline_end.diff(this.timeline_start, 'm') / 60;
-        this.active_start = start.diff(this.timeline_start, 'm') / 60 / period;
+        const start = startOfMinute(this.date);
+        const period =
+            differenceInMinutes(this.timeline_end, this.timeline_start) / 60;
+        this.active_start =
+            differenceInMinutes(start, this.timeline_start) / 60 / period;
         this.active_length = this.duration / 60 / period;
     }
 }
