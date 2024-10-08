@@ -16022,11 +16022,15 @@ function timezoneToLocal(date, tz = LOCAL_TIMEZONE) {
   const offset_diff = (0,date_fns_tz__WEBPACK_IMPORTED_MODULE_0__.getTimezoneOffset)(LOCAL_TIMEZONE) - (0,date_fns_tz__WEBPACK_IMPORTED_MODULE_0__.getTimezoneOffset)(tz);
   return (0,date_fns__WEBPACK_IMPORTED_MODULE_2__.addMilliseconds)(date, offset_diff).valueOf();
 }
+const TIMZONE_OFFSET_STRINGS = {};
 function getTimezoneOffsetString(tz) {
+  if (TIMZONE_OFFSET_STRINGS[tz]) return TIMZONE_OFFSET_STRINGS[tz];
   const offset = getTimezoneOffsetInMinutes(tz);
   const hours = Math.floor(Math.abs(offset) / 60);
   const minutes = Math.abs(offset) % 60;
-  return `${offset > 0 ? '+' : '-'}${(0,_general__WEBPACK_IMPORTED_MODULE_1__.padLength)(hours, 2)}${(0,_general__WEBPACK_IMPORTED_MODULE_1__.padLength)(minutes, 2)}`;
+  const output = `${offset > 0 ? '+' : '-'}${(0,_general__WEBPACK_IMPORTED_MODULE_1__.padLength)(hours, 2)}${(0,_general__WEBPACK_IMPORTED_MODULE_1__.padLength)(minutes, 2)}`;
+  TIMZONE_OFFSET_STRINGS[tz] = output;
+  return output;
 }
 function getTimezoneOffsetInMinutes(timeZone, date = new Date()) {
   const options = {
@@ -17383,15 +17387,15 @@ __webpack_require__.r(__webpack_exports__);
 /* tslint:disable */
 const VERSION = {
   "dirty": false,
-  "raw": "944153d",
-  "hash": "944153d",
+  "raw": "1460fc7",
+  "hash": "1460fc7",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "944153d",
+  "suffix": "1460fc7",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1727934467406
+  "time": 1728345379682
 };
 /* tslint:enable */
 
@@ -37653,14 +37657,16 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   TimezoneDiffRange: () => (/* binding */ TimezoneDiffRange)
 /* harmony export */ });
 /* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @angular/core */ 37580);
-/* harmony import */ var _angular_forms__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! @angular/forms */ 34456);
+/* harmony import */ var _angular_forms__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! @angular/forms */ 34456);
 /* harmony import */ var libs_components_src_lib_custom_tooltip_component__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! libs/components/src/lib/custom-tooltip.component */ 22238);
 /* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! date-fns */ 33240);
 /* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! date-fns */ 56441);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! date-fns */ 34938);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! date-fns */ 77177);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! date-fns */ 34938);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! date-fns */ 77177);
 /* harmony import */ var libs_common_src_lib_async_handler_class__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! libs/common/src/lib/async-handler.class */ 75354);
 /* harmony import */ var _placeos_common__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @placeos/common */ 22797);
+/* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @angular/common */ 60316);
+
 
 
 
@@ -37690,13 +37696,12 @@ function DateFieldComponent_div_5_span_1_Template(rf, ctx) {
   if (rf & 1) {
     _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵelementStart"](0, "span");
     _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵtext"](1);
-    _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵpipe"](2, "date");
     _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵelementEnd"]();
   }
   if (rf & 2) {
     const ctx_r0 = _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵnextContext"](2);
     _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵadvance"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵtextInterpolate1"](" ", _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵpipeBind3"](2, 1, ctx_r0.start_of_day, "MMM d, " + ctx_r0.time_format + (ctx_r0.range === 1 ? " (z)" : ""), ctx_r0.tz), " ");
+    _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵtextInterpolate"](ctx_r0.start_of_day);
   }
 }
 function DateFieldComponent_div_5_span_2_Template(rf, ctx) {
@@ -37710,19 +37715,18 @@ function DateFieldComponent_div_5_span_3_Template(rf, ctx) {
   if (rf & 1) {
     _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵelementStart"](0, "span");
     _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵtext"](1);
-    _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵpipe"](2, "date");
     _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵelementEnd"]();
   }
   if (rf & 2) {
     const ctx_r0 = _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵnextContext"](2);
     _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵadvance"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵtextInterpolate1"](" ", _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵpipeBind3"](2, 1, ctx_r0.end_of_day, "MMM d, " + ctx_r0.time_format + " (z)", ctx_r0.tz), " ");
+    _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵtextInterpolate"](ctx_r0.end_of_day);
   }
 }
 function DateFieldComponent_div_5_Template(rf, ctx) {
   if (rf & 1) {
     _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵelementStart"](0, "div", 9);
-    _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵtemplate"](1, DateFieldComponent_div_5_span_1_Template, 3, 5, "span", 8)(2, DateFieldComponent_div_5_span_2_Template, 2, 0, "span", 8)(3, DateFieldComponent_div_5_span_3_Template, 3, 5, "span", 8);
+    _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵtemplate"](1, DateFieldComponent_div_5_span_1_Template, 2, 1, "span", 8)(2, DateFieldComponent_div_5_span_2_Template, 2, 0, "span", 8)(3, DateFieldComponent_div_5_span_3_Template, 2, 1, "span", 8);
     _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵelementEnd"]();
   }
   if (rf & 2) {
@@ -37773,10 +37777,14 @@ class DateFieldComponent extends libs_common_src_lib_async_handler_class__WEBPAC
     return this.use_24hr ? 'HH : mm' : 'h : mm a';
   }
   get start_of_day() {
-    return (0,date_fns__WEBPACK_IMPORTED_MODULE_4__.startOfDay)(this.date).valueOf();
+    const start = (0,date_fns__WEBPACK_IMPORTED_MODULE_4__.startOfDay)(this.date).valueOf();
+    const format = `MMM d, ${this.time_format}${this.range === 1 ? ' (z)' : ''}`;
+    return this._date_pipe.transform(start, format, this.tz);
   }
   get end_of_day() {
-    return (0,date_fns__WEBPACK_IMPORTED_MODULE_5__.endOfDay)(this.date).valueOf();
+    const end = (0,date_fns__WEBPACK_IMPORTED_MODULE_5__.endOfDay)(this.date).valueOf();
+    const format = `MMM d, ${this.time_format}${this.range === 1 ? ' (z)' : ''}`;
+    return this._date_pipe.transform(end, format, this.tz);
   }
   get has_error() {
     return this._control?.invalid && this._control?.touched;
@@ -37798,6 +37806,7 @@ class DateFieldComponent extends libs_common_src_lib_async_handler_class__WEBPAC
     this.timezone = '';
     this.range = TimezoneDiffRange.Both;
     this.now = Date.now();
+    this._date_pipe = new _angular_common__WEBPACK_IMPORTED_MODULE_6__.DatePipe('en');
   }
   /** First allowed date on the calendar */
   get from() {
@@ -37805,10 +37814,10 @@ class DateFieldComponent extends libs_common_src_lib_async_handler_class__WEBPAC
   }
   /** Current date value */
   get until() {
-    return new Date(this.to_date) || (0,date_fns__WEBPACK_IMPORTED_MODULE_6__.addYears)((0,date_fns__WEBPACK_IMPORTED_MODULE_5__.endOfDay)(new Date()), 1);
+    return new Date(this.to_date) || (0,date_fns__WEBPACK_IMPORTED_MODULE_7__.addYears)((0,date_fns__WEBPACK_IMPORTED_MODULE_5__.endOfDay)(new Date()), 1);
   }
   ngOnInit() {
-    this._control = this._injector.get(_angular_forms__WEBPACK_IMPORTED_MODULE_7__.NgControl);
+    this._control = this._injector.get(_angular_forms__WEBPACK_IMPORTED_MODULE_8__.NgControl);
     this.date = Date.now();
   }
   /**
@@ -37818,7 +37827,7 @@ class DateFieldComponent extends libs_common_src_lib_async_handler_class__WEBPAC
   setValue(new_value) {
     // Keep hours and minutes of the old date
     const old_date = new Date(this.date);
-    let new_date = (0,date_fns__WEBPACK_IMPORTED_MODULE_8__.set)(new_value, {
+    let new_date = (0,date_fns__WEBPACK_IMPORTED_MODULE_9__.set)(new_value, {
       hours: old_date.getHours(),
       minutes: old_date.getMinutes()
     }).valueOf();
@@ -37886,7 +37895,7 @@ class DateFieldComponent extends libs_common_src_lib_async_handler_class__WEBPAC
       range: "range"
     },
     features: [_angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵProvidersFeature"]([{
-      provide: _angular_forms__WEBPACK_IMPORTED_MODULE_7__.NG_VALUE_ACCESSOR,
+      provide: _angular_forms__WEBPACK_IMPORTED_MODULE_8__.NG_VALUE_ACCESSOR,
       useExisting: (0,_angular_core__WEBPACK_IMPORTED_MODULE_3__.forwardRef)(() => DateFieldComponent),
       multi: true
     }]), _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵInheritDefinitionFeature"]],
@@ -40056,8 +40065,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @angular/core */ 37580);
 /* harmony import */ var _angular_forms__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @angular/forms */ 34456);
 /* harmony import */ var _placeos_common__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @placeos/common */ 22797);
-/* harmony import */ var quill__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! quill */ 41242);
-/* harmony import */ var quill__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(quill__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var quill__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! quill */ 83890);
 
 
 
@@ -40136,7 +40144,7 @@ class RichTextInputComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_0_
       this._editor_el.nativeElement.innerHTML = '';
       delete this._editor;
     }
-    this._editor = new (quill__WEBPACK_IMPORTED_MODULE_1___default())(this._editor_el.nativeElement, {
+    this._editor = new quill__WEBPACK_IMPORTED_MODULE_1__["default"](this._editor_el.nativeElement, {
       bounds: this._container_el.nativeElement,
       placeholder: this.placeholder,
       modules: {
@@ -43762,23 +43770,25 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   MOCK_EVENTS: () => (/* binding */ MOCK_EVENTS)
 /* harmony export */ });
 /* harmony import */ var _placeos_common__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @placeos/common */ 22797);
-/* harmony import */ var dayjs__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! dayjs */ 49645);
-/* harmony import */ var dayjs__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(dayjs__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var _catering_data__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./catering.data */ 8287);
-/* harmony import */ var _spaces_data__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./spaces.data */ 27309);
-/* harmony import */ var _users_data__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./users.data */ 90726);
+/* harmony import */ var _catering_data__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./catering.data */ 8287);
+/* harmony import */ var _spaces_data__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./spaces.data */ 27309);
+/* harmony import */ var _users_data__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./users.data */ 90726);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! date-fns */ 3330);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! date-fns */ 33240);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! date-fns */ 49675);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! date-fns */ 99908);
 
 
 
 
 
-let EVENT_TIME = dayjs__WEBPACK_IMPORTED_MODULE_1__().startOf('d').hour(7);
+let EVENT_TIME = (0,date_fns__WEBPACK_IMPORTED_MODULE_4__.setHours)((0,date_fns__WEBPACK_IMPORTED_MODULE_5__.startOfDay)(Date.now()), 7);
 const nextEventTime = (save = false) => {
-  const next = EVENT_TIME.add(((0,_placeos_common__WEBPACK_IMPORTED_MODULE_0__.predictableRandomInt)(8) + 1) * 15, 'm');
+  const next = (0,date_fns__WEBPACK_IMPORTED_MODULE_6__.addMinutes)(EVENT_TIME, ((0,_placeos_common__WEBPACK_IMPORTED_MODULE_0__.predictableRandomInt)(8) + 1) * 15);
   if (save) {
     EVENT_TIME = next;
   }
-  return next.unix();
+  return (0,date_fns__WEBPACK_IMPORTED_MODULE_7__.getUnixTime)(next);
 };
 const event_status = ['tentative', 'confirmed', 'cancelled'];
 const randomStatus = () => {
@@ -43786,15 +43796,15 @@ const randomStatus = () => {
   return rnd < 2 ? event_status[2] : rnd < 5 ? event_status[0] : event_status[1];
 };
 const MOCK_EVENTS = new Array(200).fill(0).map((_, index) => {
-  const PEOPLE = _users_data__WEBPACK_IMPORTED_MODULE_4__.MOCK_STAFF.concat(_users_data__WEBPACK_IMPORTED_MODULE_4__.MOCK_GUESTS);
+  const PEOPLE = _users_data__WEBPACK_IMPORTED_MODULE_3__.MOCK_STAFF.concat(_users_data__WEBPACK_IMPORTED_MODULE_3__.MOCK_GUESTS);
   let attendees = new Array((0,_placeos_common__WEBPACK_IMPORTED_MODULE_0__.predictableRandomInt)(8, 1)).fill(0).map(() => PEOPLE[(0,_placeos_common__WEBPACK_IMPORTED_MODULE_0__.predictableRandomInt)(PEOPLE.length)]);
   attendees.sort((a, b) => (a.visit_expected ? 0 : -1) - (b.visit_expected ? 0 : -1));
-  const space = _spaces_data__WEBPACK_IMPORTED_MODULE_3__.MOCK_SPACES[(0,_placeos_common__WEBPACK_IMPORTED_MODULE_0__.predictableRandomInt)(_spaces_data__WEBPACK_IMPORTED_MODULE_3__.MOCK_SPACES.length)];
+  const space = _spaces_data__WEBPACK_IMPORTED_MODULE_2__.MOCK_SPACES[(0,_placeos_common__WEBPACK_IMPORTED_MODULE_0__.predictableRandomInt)(_spaces_data__WEBPACK_IMPORTED_MODULE_2__.MOCK_SPACES.length)];
   attendees = attendees.concat({
     ...space,
     resource: true
   });
-  if ((0,_placeos_common__WEBPACK_IMPORTED_MODULE_0__.predictableRandomInt)(9999) % 2 === 0) attendees.unshift(_users_data__WEBPACK_IMPORTED_MODULE_4__.ACTIVE_USER);else attendees.unshift(_users_data__WEBPACK_IMPORTED_MODULE_4__.MOCK_STAFF[(0,_placeos_common__WEBPACK_IMPORTED_MODULE_0__.predictableRandomInt)(_users_data__WEBPACK_IMPORTED_MODULE_4__.MOCK_STAFF.length)]);
+  if ((0,_placeos_common__WEBPACK_IMPORTED_MODULE_0__.predictableRandomInt)(9999) % 2 === 0) attendees.unshift(_users_data__WEBPACK_IMPORTED_MODULE_3__.ACTIVE_USER);else attendees.unshift(_users_data__WEBPACK_IMPORTED_MODULE_3__.MOCK_STAFF[(0,_placeos_common__WEBPACK_IMPORTED_MODULE_0__.predictableRandomInt)(_users_data__WEBPACK_IMPORTED_MODULE_3__.MOCK_STAFF.length)]);
   attendees = (0,_placeos_common__WEBPACK_IMPORTED_MODULE_0__.unique)(attendees, 'email') || [{}];
   const event_start = nextEventTime(true);
   const event_end = nextEventTime();
@@ -43827,7 +43837,7 @@ const MOCK_EVENTS = new Array(200).fill(0).map((_, index) => {
     meeting_id: meeting_url ? `m${(0,_placeos_common__WEBPACK_IMPORTED_MODULE_0__.predictableRandomInt)(9999)}` : '',
     meeting_provider: meeting_url ? 'PlaceOS' : '',
     extension_data: {
-      catering: (0,_placeos_common__WEBPACK_IMPORTED_MODULE_0__.predictableRandomInt)(99999) % 4 === 0 ? [(0,_catering_data__WEBPACK_IMPORTED_MODULE_2__.generateCateringOrder)({
+      catering: (0,_placeos_common__WEBPACK_IMPORTED_MODULE_0__.predictableRandomInt)(99999) % 4 === 0 ? [(0,_catering_data__WEBPACK_IMPORTED_MODULE_1__.generateCateringOrder)({
         id: `cal-event-${index}`,
         event_start,
         event_end
