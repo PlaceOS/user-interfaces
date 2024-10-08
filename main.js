@@ -31069,11 +31069,15 @@ function timezoneToLocal(date) {
   var offset_diff = (0, date_fns_tz_1.getTimezoneOffset)(exports.LOCAL_TIMEZONE) - (0, date_fns_tz_1.getTimezoneOffset)(tz);
   return (0, date_fns_1.addMilliseconds)(date, offset_diff).valueOf();
 }
+var TIMZONE_OFFSET_STRINGS = {};
 function getTimezoneOffsetString(tz) {
+  if (TIMZONE_OFFSET_STRINGS[tz]) return TIMZONE_OFFSET_STRINGS[tz];
   var offset = getTimezoneOffsetInMinutes(tz);
   var hours = Math.floor(Math.abs(offset) / 60);
   var minutes = Math.abs(offset) % 60;
-  return "".concat(offset > 0 ? '+' : '-').concat((0, general_1.padLength)(hours, 2)).concat((0, general_1.padLength)(minutes, 2));
+  var output = "".concat(offset > 0 ? '+' : '-').concat((0, general_1.padLength)(hours, 2)).concat((0, general_1.padLength)(minutes, 2));
+  TIMZONE_OFFSET_STRINGS[tz] = output;
+  return output;
 }
 function getTimezoneOffsetInMinutes(timeZone) {
   var date = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : new Date();
@@ -32540,15 +32544,15 @@ exports.VERSION = void 0;
 /* tslint:disable */
 exports.VERSION = {
   "dirty": false,
-  "raw": "944153d",
-  "hash": "944153d",
+  "raw": "1460fc7",
+  "hash": "1460fc7",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "944153d",
+  "suffix": "1460fc7",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1727934524250
+  "time": 1728345383705
 };
 /* tslint:enable */
 
@@ -56335,6 +56339,7 @@ var custom_tooltip_component_1 = __webpack_require__(/*! libs/components/src/lib
 var date_fns_1 = __webpack_require__(/*! date-fns */ 25773);
 var async_handler_class_1 = __webpack_require__(/*! libs/common/src/lib/async-handler.class */ 75354);
 var common_1 = __webpack_require__(/*! @placeos/common */ 22797);
+var common_2 = __webpack_require__(/*! @angular/common */ 60316);
 var i0 = __webpack_require__(/*! @angular/core */ 37580);
 var _c0 = ["*"];
 function DateFieldComponent_Conditional_3_Template(rf, ctx) {
@@ -56358,13 +56363,12 @@ function DateFieldComponent_div_5_span_1_Template(rf, ctx) {
   if (rf & 1) {
     i0.ɵɵelementStart(0, "span");
     i0.ɵɵtext(1);
-    i0.ɵɵpipe(2, "date");
     i0.ɵɵelementEnd();
   }
   if (rf & 2) {
     var ctx_r0 = i0.ɵɵnextContext(2);
     i0.ɵɵadvance();
-    i0.ɵɵtextInterpolate1(" ", i0.ɵɵpipeBind3(2, 1, ctx_r0.start_of_day, "MMM d, " + ctx_r0.time_format + (ctx_r0.range === 1 ? " (z)" : ""), ctx_r0.tz), " ");
+    i0.ɵɵtextInterpolate(ctx_r0.start_of_day);
   }
 }
 function DateFieldComponent_div_5_span_2_Template(rf, ctx) {
@@ -56378,19 +56382,18 @@ function DateFieldComponent_div_5_span_3_Template(rf, ctx) {
   if (rf & 1) {
     i0.ɵɵelementStart(0, "span");
     i0.ɵɵtext(1);
-    i0.ɵɵpipe(2, "date");
     i0.ɵɵelementEnd();
   }
   if (rf & 2) {
     var ctx_r0 = i0.ɵɵnextContext(2);
     i0.ɵɵadvance();
-    i0.ɵɵtextInterpolate1(" ", i0.ɵɵpipeBind3(2, 1, ctx_r0.end_of_day, "MMM d, " + ctx_r0.time_format + " (z)", ctx_r0.tz), " ");
+    i0.ɵɵtextInterpolate(ctx_r0.end_of_day);
   }
 }
 function DateFieldComponent_div_5_Template(rf, ctx) {
   if (rf & 1) {
     i0.ɵɵelementStart(0, "div", 9);
-    i0.ɵɵtemplate(1, DateFieldComponent_div_5_span_1_Template, 3, 5, "span", 8)(2, DateFieldComponent_div_5_span_2_Template, 2, 0, "span", 8)(3, DateFieldComponent_div_5_span_3_Template, 3, 5, "span", 8);
+    i0.ɵɵtemplate(1, DateFieldComponent_div_5_span_1_Template, 2, 1, "span", 8)(2, DateFieldComponent_div_5_span_2_Template, 2, 0, "span", 8)(3, DateFieldComponent_div_5_span_3_Template, 2, 1, "span", 8);
     i0.ɵɵelementEnd();
   }
   if (rf & 2) {
@@ -56448,6 +56451,7 @@ var DateFieldComponent = /*#__PURE__*/function (_async_handler_class_) {
     _this.timezone = '';
     _this.range = TimezoneDiffRange.Both;
     _this.now = Date.now();
+    _this._date_pipe = new common_2.DatePipe('en');
     return _this;
   }
   /** First allowed date on the calendar */
@@ -56465,12 +56469,16 @@ var DateFieldComponent = /*#__PURE__*/function (_async_handler_class_) {
   }, {
     key: "start_of_day",
     get: function get() {
-      return (0, date_fns_1.startOfDay)(this.date).valueOf();
+      var start = (0, date_fns_1.startOfDay)(this.date).valueOf();
+      var format = "MMM d, ".concat(this.time_format).concat(this.range === 1 ? ' (z)' : '');
+      return this._date_pipe.transform(start, format, this.tz);
     }
   }, {
     key: "end_of_day",
     get: function get() {
-      return (0, date_fns_1.endOfDay)(this.date).valueOf();
+      var end = (0, date_fns_1.endOfDay)(this.date).valueOf();
+      var format = "MMM d, ".concat(this.time_format).concat(this.range === 1 ? ' (z)' : '');
+      return this._date_pipe.transform(end, format, this.tz);
     }
   }, {
     key: "has_error",
@@ -59058,7 +59066,7 @@ exports.RichTextInputComponent = void 0;
 var core_1 = __webpack_require__(/*! @angular/core */ 37580);
 var forms_1 = __webpack_require__(/*! @angular/forms */ 34456);
 var common_1 = __webpack_require__(/*! @placeos/common */ 22797);
-var quill_1 = __webpack_require__(/*! quill */ 41242);
+var quill_1 = __webpack_require__(/*! quill */ 83890);
 var i0 = __webpack_require__(/*! @angular/core */ 37580);
 var _c0 = ["container"];
 var _c1 = ["editor"];
@@ -63149,18 +63157,18 @@ Object.defineProperty(exports, "__esModule", ({
 }));
 exports.MOCK_EVENTS = void 0;
 var common_1 = __webpack_require__(/*! @placeos/common */ 22797);
-var dayjs = __webpack_require__(/*! dayjs */ 49645);
 var catering_data_1 = __webpack_require__(/*! ./catering.data */ 8287);
 var spaces_data_1 = __webpack_require__(/*! ./spaces.data */ 27309);
 var users_data_1 = __webpack_require__(/*! ./users.data */ 90726);
-var EVENT_TIME = dayjs().startOf('d').hour(7);
+var date_fns_1 = __webpack_require__(/*! date-fns */ 25773);
+var EVENT_TIME = (0, date_fns_1.setHours)((0, date_fns_1.startOfDay)(Date.now()), 7);
 var nextEventTime = function nextEventTime() {
   var save = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
-  var next = EVENT_TIME.add(((0, common_1.predictableRandomInt)(8) + 1) * 15, 'm');
+  var next = (0, date_fns_1.addMinutes)(EVENT_TIME, ((0, common_1.predictableRandomInt)(8) + 1) * 15);
   if (save) {
     EVENT_TIME = next;
   }
-  return next.unix();
+  return (0, date_fns_1.getUnixTime)(next);
 };
 var event_status = ['tentative', 'confirmed', 'cancelled'];
 var randomStatus = function randomStatus() {
