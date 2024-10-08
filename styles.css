@@ -1325,6 +1325,9 @@ video {
 #placeos .max-h-\[10rem\] {
   max-height: 10rem;
 }
+#placeos .max-h-\[15rem\] {
+  max-height: 15rem;
+}
 #placeos .max-h-\[20rem\] {
   max-height: 20rem;
 }
@@ -1765,6 +1768,9 @@ video {
 }
 #placeos .min-w-\[14\%\] {
   min-width: 14%;
+}
+#placeos .min-w-\[18rem\] {
+  min-width: 18rem;
 }
 #placeos .min-w-\[20rem\] {
   min-width: 20rem;
@@ -4827,6 +4833,9 @@ a[icon][disabled] {
   position: relative;
   margin-top: -1rem;
   top: 0.25rem;
+}
+#placeos .mat-mdc-select-value {
+  overflow: visible;
 }
 #placeos mat-slide-toggle .mdc-slide-toggle-bar {
   height: 24px;
