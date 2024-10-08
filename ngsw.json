@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1727934619255,
+  "timestamp": 1728345500178,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -13,11 +13,11 @@
       "urls": [
         "./favicon.ico",
         "./index.html",
-        "./main.8c517e779088e9d2.js",
+        "./main.0539caac57a08187.js",
         "./manifest.webmanifest",
         "./polyfills.22e29b47c2b58674.js",
-        "./runtime.743af9980f78d753.js",
-        "./styles.9a29871d17973d6c.css"
+        "./runtime.84096e4f7d1be712.js",
+        "./styles.1a61701ae5d34bf3.css"
       ],
       "patterns": []
     },
@@ -190,8 +190,8 @@
     "./assets/support/opera-logo.svg": "23f8e25409598ac843eefe81ea3c09b4f460844d",
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
     "./favicon.ico": "4e23d0f9b6ddaf3c9ddef90dbaed2342941297b5",
-    "./index.html": "54d502d45bef4d29233b25f393cb054cc3032ad7",
-    "./main.8c517e779088e9d2.js": "faa94ff749f10b77d655c42d73774b60833c04bc",
+    "./index.html": "02070aeeffa8f8537792386303a9387da4fbbef1",
+    "./main.0539caac57a08187.js": "8300f33f9b2a03f3513cc9804c603d3ba1b0dddd",
     "./manifest.webmanifest": "82971c858291f0ddb5d37cc8e43d81fce9a88bc5",
     "./material-icons-outlined.f86cb7b0aa53f0fe.woff2": "2f9e28ab559782402f27332633c843c40209d95a",
     "./material-icons-round.b10ec9db5b7fbc74.woff2": "abe05e0641f1050fbe00ef0dbb10c5ea72c26cff",
@@ -202,8 +202,8 @@
     "./material-symbols-rounded.d51d7c7913e7f9fc.woff2": "1b5557d408be7a0280f189251a25719a114dfb5e",
     "./material-symbols-sharp.50f198bbcba918df.woff2": "3ca7850e8f453acc7afc0a9f3afa7c83140d3608",
     "./polyfills.22e29b47c2b58674.js": "58fa2e0e4e13530af701c1716a8cd6fe16c39dfc",
-    "./runtime.743af9980f78d753.js": "76cf3e457a01b337b7133c16e0ba5816fe55b3f3",
-    "./styles.9a29871d17973d6c.css": "9296a65192624f1217984ad32281978fa8232d14"
+    "./runtime.84096e4f7d1be712.js": "5d502063bcaa81a7dd8d6d3e2e00c2867f6db959",
+    "./styles.1a61701ae5d34bf3.css": "cfcc7729cc01ef110281aee7f8749e8db55aec7e"
   },
   "navigationUrls": [
     {
