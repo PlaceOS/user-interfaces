@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1722920233303,
+  "timestamp": 1728350388856,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -13,10 +13,10 @@
       "urls": [
         "./favicon.ico",
         "./index.html",
-        "./main.6fea4e69af6459cd.js",
-        "./polyfills.e9b0580fdda66554.js",
+        "./main.5c4db18d267a6371.js",
+        "./polyfills.4227380e057d8cc3.js",
         "./runtime.e8421102b1145d79.js",
-        "./styles.cffd2f8a7e39721d.css"
+        "./styles.5ab05b97638f627e.css"
       ],
       "patterns": []
     },
@@ -108,9 +108,9 @@
         "./material-icons-sharp.3885863ee4746422.woff2",
         "./material-icons-two-tone.675bd578bd14533e.woff2",
         "./material-icons.59322316b3fd6063.woff2",
-        "./material-symbols-outlined.74d7de20d24523b3.woff2",
-        "./material-symbols-rounded.d4f98d2cbb06a84d.woff2",
-        "./material-symbols-sharp.85c33a0c35e45fd0.woff2"
+        "./material-symbols-outlined.bcc6ea8cf49c6826.woff2",
+        "./material-symbols-rounded.d51d7c7913e7f9fc.woff2",
+        "./material-symbols-sharp.50f198bbcba918df.woff2"
       ],
       "patterns": []
     }
@@ -193,19 +193,19 @@
     "./assets/yolov8x_web_model/metadata.yaml": "b1a29dc18ee0c4b5f0f7240d2d92cd8b2fa03318",
     "./assets/yolov8x_web_model/model.json": "51607c6c0f465d41cdca4d65a17cfbf9c9f99c62",
     "./favicon.ico": "4e23d0f9b6ddaf3c9ddef90dbaed2342941297b5",
-    "./index.html": "fa73dad03e6a3beef9acb9804780c3891f7138ef",
-    "./main.6fea4e69af6459cd.js": "8b865c1d8023fc3ce559b807d93ac7b2a7025880",
+    "./index.html": "b314f5d8b0a0f78133913a1ecee655f967392de7",
+    "./main.5c4db18d267a6371.js": "a49f7daa04da448bf57dbbd2825cd78fd6fc35e1",
     "./material-icons-outlined.f86cb7b0aa53f0fe.woff2": "2f9e28ab559782402f27332633c843c40209d95a",
     "./material-icons-round.b10ec9db5b7fbc74.woff2": "abe05e0641f1050fbe00ef0dbb10c5ea72c26cff",
     "./material-icons-sharp.3885863ee4746422.woff2": "cf1c7b4d066d18af44cf7bc664dd2e46652a3a30",
     "./material-icons-two-tone.675bd578bd14533e.woff2": "296ff0bff395a77c2e33e7e31fffe73980bd93cf",
     "./material-icons.59322316b3fd6063.woff2": "0bc0c675480d94ec7e8609dda6227f88c5d08d2c",
-    "./material-symbols-outlined.74d7de20d24523b3.woff2": "e881e9e4f00134c807fafa6167405d6e2cf2be40",
-    "./material-symbols-rounded.d4f98d2cbb06a84d.woff2": "ae85125ea3b1e3bef1db9d214fc44c2de1d6c335",
-    "./material-symbols-sharp.85c33a0c35e45fd0.woff2": "74cd86ecbc1c9d6df763b17ee61194b2dc81e2ef",
-    "./polyfills.e9b0580fdda66554.js": "7bc74a9fd66dea0ab986ee19fd061e590445e822",
+    "./material-symbols-outlined.bcc6ea8cf49c6826.woff2": "8eabd6dbf6426bf2cb725b3d0c68ec5ce0c55227",
+    "./material-symbols-rounded.d51d7c7913e7f9fc.woff2": "1b5557d408be7a0280f189251a25719a114dfb5e",
+    "./material-symbols-sharp.50f198bbcba918df.woff2": "3ca7850e8f453acc7afc0a9f3afa7c83140d3608",
+    "./polyfills.4227380e057d8cc3.js": "68b17f3f9f481b891687147522eb642a3c7565db",
     "./runtime.e8421102b1145d79.js": "f858c5f7f19e0da4ab48b3198c5b142f7a3a1adf",
-    "./styles.cffd2f8a7e39721d.css": "592f1bdadf0705688d51a5e92a5ab9e6b3d6fcb9"
+    "./styles.5ab05b97638f627e.css": "0197e6db36f77cf58d24f4d521dbd154287565a6"
   },
   "navigationUrls": [
     {
