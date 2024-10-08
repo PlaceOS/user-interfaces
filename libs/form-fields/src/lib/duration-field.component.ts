@@ -46,10 +46,10 @@ export interface DurationOption {
             </div>
             <app-icon class="text-2xl">arrow_drop_down</app-icon>
         </button>
-        <mat-menu #menu="matMenu" class="max-h-[15rem]">
+        <mat-menu #menu="matMenu" class="max-h-[15rem] min-w-[18rem] ">
             <button
                 mat-menu-item
-                class="min-w-64 text-left"
+                class="text-left"
                 *ngFor="let option of duration_options"
                 (click)="setValue(option.id)"
             >
@@ -81,7 +81,7 @@ export interface DurationOption {
                     <div>{{ force }}</div>
                     <app-icon
                         *ngIf="selected?.id === option.id"
-                        class="text-2xl"
+                        class="text-2xl ml-2"
                     >
                         done
                     </app-icon>

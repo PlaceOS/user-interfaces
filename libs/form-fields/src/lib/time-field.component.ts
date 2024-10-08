@@ -48,12 +48,12 @@ import {
             </div>
             <app-icon class="text-2xl">arrow_drop_down</app-icon>
         </button>
-        <mat-menu #menu="matMenu" class="max-h-[15rem]">
+        <mat-menu #menu="matMenu" class="max-h-[15rem] min-w-[18rem]">
             <button
                 mat-menu-item
                 *ngIf="force_time"
                 [value]="force_time"
-                class="min-w-64 text-left"
+                class="text-left"
                 (click)="setValue(force_time)"
             >
                 <div class=" flex items-center justify-between">
@@ -67,7 +67,7 @@ import {
                     </div>
                     <app-icon
                         *ngIf="active_time === force_time"
-                        class="text-2xl"
+                        class="text-2xl ml-2"
                     >
                         done
                     </app-icon>
@@ -77,7 +77,7 @@ import {
                 mat-menu-item
                 *ngFor="let option of time_options"
                 [value]="option.id"
-                class="min-w-64 text-left"
+                class="text-left"
                 (click)="setValue(option.id)"
             >
                 <div class=" flex items-center justify-between">
@@ -92,7 +92,7 @@ import {
                     </div>
                     <app-icon
                         *ngIf="active_time === option.date"
-                        class="text-2xl"
+                        class="text-2xl ml-2"
                     >
                         done
                     </app-icon>
