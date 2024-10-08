@@ -165,6 +165,26 @@ import { OrganisationService } from '@placeos/organisation';
                     name="host"
                     formControlName="organiser"
                 ></host-select-field>
+                <div class="flex flex-col flex-1">
+                    <label for="host_entity">Host's Entity:</label>
+                    <mat-form-field appearance="outline" class="w-full">
+                        <input
+                            matInput
+                            name="host_entity"
+                            formControlName="host_entity"
+                            placeholder="Organisational Entity of the Host"
+                            [matAutocomplete]="auto"
+                        />
+                    </mat-form-field>
+                    <mat-autocomplete #auto="matAutocomplete" class="w-full">
+                        <mat-option
+                            *ngFor="let option of filtered_entities | async"
+                            [value]="option"
+                        >
+                            {{ option }}
+                        </mat-option>
+                    </mat-autocomplete>
+                </div>
             </div>
             <div *ngIf="can_book_for_anyone" class="w-full flex flex-col">
                 <label for="host">
