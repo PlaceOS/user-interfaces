@@ -2719,7 +2719,7 @@ Host:  ${event.organiser?.name || event.host}`;
   timeToOffset(date) {
     const current_tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
     const offset = !this.timezone ? 0 : (0,_placeos_common__WEBPACK_IMPORTED_MODULE_2__.getTimezoneDifferenceInHours)(this.timezone, current_tz);
-    const start_time = (0,date_fns__WEBPACK_IMPORTED_MODULE_13__.setHours)((0,date_fns__WEBPACK_IMPORTED_MODULE_14__.startOfDay)(date), this.block_start - offset);
+    const start_time = (0,date_fns__WEBPACK_IMPORTED_MODULE_13__.setHours)((0,date_fns__WEBPACK_IMPORTED_MODULE_14__.startOfDay)(this._state.getDate()), this.block_start - offset);
     const diff = (0,date_fns__WEBPACK_IMPORTED_MODULE_20__.differenceInMinutes)(date, start_time);
     return Math.max(0, diff / 60) / this.block_range * 100;
   }
