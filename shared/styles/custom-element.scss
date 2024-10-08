@@ -692,6 +692,10 @@ a[icon] {
         }
     }
 
+    .mat-mdc-select-value {
+        overflow: visible;
+    }
+
     mat-slide-toggle {
         .mdc-slide-toggle-bar {
             height: 24px;

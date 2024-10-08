@@ -29,26 +29,34 @@ import {
 @Component({
     selector: 'a-time-field',
     template: `
-        <mat-form-field appearance="outline">
-            <mat-select
-                #select
-                [ngModel]="force_time || time"
-                [disabled]="disabled"
-                (ngModelChange)="setValue($event)"
+        <button
+            class="flex items-center justify-between border border-neutral rounded h-12 w-full px-2"
+            [disabled]="disabled"
+            [class.opacity-30]="disabled"
+            matRipple
+            [matMenuTriggerFor]="menu"
+        >
+            <div
+                class="flex flex-col leading-tight px-2 text-left flex-1 w-1/2"
             >
-                <mat-select-trigger>
-                    <div
-                        class="flex flex-col leading-tight absolute -translate-y-1/2 top-2"
-                    >
-                        <div class="">
-                            {{ active_time | date: time_format }}
-                        </div>
-                        <div class="text-xs opacity-30" *ngIf="timezone">
-                            {{ active_time | date: time_format + ' (z)' : tz }}
-                        </div>
-                    </div>
-                </mat-select-trigger>
-                <mat-option *ngIf="force_time" [value]="force_time">
+                <div class="truncate">
+                    {{ active_time | date: time_format }}
+                </div>
+                <div class="text-xs opacity-30 truncate" *ngIf="timezone">
+                    {{ active_time | date: time_format + ' (z)' : tz }}
+                </div>
+            </div>
+            <app-icon class="text-2xl">arrow_drop_down</app-icon>
+        </button>
+        <mat-menu #menu="matMenu" class="max-h-[15rem] min-w-[18rem]">
+            <button
+                mat-menu-item
+                *ngIf="force_time"
+                [value]="force_time"
+                class="text-left"
+                (click)="setValue(force_time)"
+            >
+                <div class=" flex items-center justify-between">
                     <div class="flex flex-col leading-tight">
                         <div class="">
                             {{ force_time | date: time_format }}
@@ -57,11 +65,22 @@ import {
                             {{ force_time | date: time_format + ' (z)' : tz }}
                         </div>
                     </div>
-                </mat-option>
-                <mat-option
-                    *ngFor="let option of time_options"
-                    [value]="option.id"
-                >
+                    <app-icon
+                        *ngIf="active_time === force_time"
+                        class="text-2xl ml-2"
+                    >
+                        done
+                    </app-icon>
+                </div>
+            </button>
+            <button
+                mat-menu-item
+                *ngFor="let option of time_options"
+                [value]="option.id"
+                class="text-left"
+                (click)="setValue(option.id)"
+            >
+                <div class=" flex items-center justify-between">
                     <div class="flex flex-col leading-tight">
                         <div class="">
                             {{ option.date | date: time_format }}
@@ -71,9 +90,16 @@ import {
                             {{ option.date | date: time_format + ' (z)' : tz }}
                         </div>
                     </div>
-                </mat-option>
-            </mat-select>
-        </mat-form-field>
+                    <app-icon
+                        *ngIf="active_time === option.date"
+                        class="text-2xl ml-2"
+                    >
+                        done
+                    </app-icon>
+                </div>
+            </button>
+        </mat-menu>
+        <mat-error><ng-content></ng-content></mat-error>
     `,
     styles: [
         `
@@ -143,6 +169,9 @@ export class TimeFieldComponent
             this.step,
         );
         this.timeout('hide', () => (this.show_select = false));
+        this.active_time =
+            this._time_options.find((_) => _.id === format(this.date, 'HH:mm'))
+                ?.date || this.active_time;
     }
 
     public ngOnChanges(changes: SimpleChanges): void {

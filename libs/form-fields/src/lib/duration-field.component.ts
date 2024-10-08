@@ -19,75 +19,76 @@ export interface DurationOption {
 @Component({
     selector: 'a-duration-field',
     template: `
-        <div class="duration-field" [attr.disabled]="disabled">
-            <mat-form-field appearance="outline">
-                <mat-select
-                    #select
-                    [value]="duration"
-                    [disabled]="disabled"
-                    [placeholder]="duration + ' minutes'"
-                    (valueChange)="setValue($event)"
-                >
-                    <mat-select-trigger>
-                        <div
-                            class="flex flex-col leading-tight absolute -translate-y-1/2 top-2"
-                        >
-                            <div>
+        <button
+            class="flex items-center justify-between border border-neutral rounded h-12 w-full px-2"
+            [disabled]="disabled"
+            [class.opacity-30]="disabled"
+            matRipple
+            [matMenuTriggerFor]="menu"
+        >
+            <div
+                class="flex flex-col leading-tight px-2 text-left flex-1 w-1/2"
+            >
+                <div class="truncate">
+                    {{
+                        selected?.date
+                            ? (selected?.date
+                                  | date
+                                      : (selected.id >= 24 * 60
+                                            ? 'mediumDate'
+                                            : time_format)) + ' ('
+                            : ''
+                    }}{{ selected?.name }}{{ selected?.date ? ')' : '' }}
+                </div>
+                <div class="text-xs opacity-30 truncate" *ngIf="timezone">
+                    {{ selected?.date | date: time_format + ' (z)' : tz }}
+                </div>
+            </div>
+            <app-icon class="text-2xl">arrow_drop_down</app-icon>
+        </button>
+        <mat-menu #menu="matMenu" class="max-h-[15rem] min-w-[18rem] ">
+            <button
+                mat-menu-item
+                class="text-left"
+                *ngFor="let option of duration_options"
+                (click)="setValue(option.id)"
+            >
+                <div class=" flex items-center justify-between">
+                    <ng-container *ngIf="!force">
+                        <div class="flex flex-col leading-tight">
+                            <div class="truncate">
                                 {{
-                                    selected?.date
-                                        ? (selected?.date
+                                    option.date
+                                        ? (option.date
                                               | date
-                                                  : (selected.id >= 24 * 60
+                                                  : (option.id >= 24 * 60
                                                         ? 'mediumDate'
                                                         : time_format)) + ' ('
                                         : ''
-                                }}{{ selected?.name
-                                }}{{ selected?.date ? ')' : '' }}
+                                }}{{ option.name }}{{ option.date ? ')' : '' }}
                             </div>
-                            <div class="text-xs opacity-30" *ngIf="timezone">
+                            <div
+                                class="text-xs opacity-30 truncate"
+                                *ngIf="timezone"
+                            >
                                 {{
-                                    selected?.date
+                                    option.date
                                         | date: time_format + ' (z)' : tz
                                 }}
                             </div>
                         </div>
-                    </mat-select-trigger>
-                    <mat-option
-                        *ngFor="let option of duration_options"
-                        [value]="option.id"
+                    </ng-container>
+                    <div>{{ force }}</div>
+                    <app-icon
+                        *ngIf="selected?.id === option.id"
+                        class="text-2xl ml-2"
                     >
-                        <ng-container *ngIf="!force">
-                            <div class="flex flex-col leading-tight">
-                                <div>
-                                    {{
-                                        option.date
-                                            ? (option.date
-                                                  | date
-                                                      : (option.id >= 24 * 60
-                                                            ? 'mediumDate'
-                                                            : time_format)) +
-                                              ' ('
-                                            : ''
-                                    }}{{ option.name
-                                    }}{{ option.date ? ')' : '' }}
-                                </div>
-                                <div
-                                    class="text-xs opacity-30"
-                                    *ngIf="timezone"
-                                >
-                                    {{
-                                        option.date
-                                            | date: time_format + ' (z)' : tz
-                                    }}
-                                </div>
-                            </div>
-                        </ng-container>
-                        {{ force }}
-                    </mat-option>
-                </mat-select>
-                <mat-error><ng-content></ng-content></mat-error>
-            </mat-form-field>
-        </div>
+                        done
+                    </app-icon>
+                </div>
+            </button>
+        </mat-menu>
+        <mat-error><ng-content></ng-content></mat-error>
     `,
     styles: [
         `
