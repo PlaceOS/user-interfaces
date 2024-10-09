@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>Outlook Plugin Auth | PlaceOS</title>
+        <style>
+            * {
+                font-family: monospace;
+            }
+
+            [loader] {
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background-color: #424242;
+                color: #fff;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+            }
+        </style>
+    </head>
+    <body>
+        <div loader>
+            <div spinner></div>
+            <p id="info">Establishing session...</p>
+        </div>
+        <script
+            type="text/javascript"
+            src="https://appsforoffice.microsoft.com/lib/1.1/hosted/office.js"
+        ></script>
+        <script>
+            function convertPairStringToMap(str) {
+                var map = {};
+                var str_pairs = str.split('&');
+                for (let i = 0; i < str_pairs.length; i++) {
+                    var split_pair = str_pairs[i].split('=');
+                    if (split_pair[1]) {
+                        map[decodeURIComponent(split_pair[0].replace('?', ''))] =
+                            decodeURIComponent(split_pair[1]);
+                    }
+                }
+                return map;
+            }
+
+            function handleAuthAndContinue() {
+                var element = document.getElementById('info');
+                try {
+                    element.innerHTML = 'Establishing session...';
+                    var query = convertPairStringToMap(window.location.search);
+                    if (query.redirect) {
+                        element.innerHTML = 'Redirecting to auth provider...';
+                        location.href = query.redirect;
+                    } else if (query.access_token) {
+                        element.innerHTML =
+                            'Returning credentials to plugin...';
+                        Office.onReady(() => {
+                            Office.context.ui.messageParent(
+                                query.access_token || ''
+                            );
+                        });
+                    } else {
+                        element.innerHTML =
+                            'Unable to complete login. <pre>' +
+                            JSON.stringify(query, undefined, 4) +
+                            '</pre>' +
+                            window.location.search + ' | '
+                            location.href;
+                    }
+                } catch (e) {
+                    element.innerHTML =
+                        element.innerHTML +
+                        '<code>Error:' +
+                        e +
+                        '</code>[' +
+                        Object.keys(Office || {}).join(', ') +
+                        ']' +
+                        +Object.keys((Office || {}).context || {}).join(', ');
+                }
+            }
+
+            window.onerror = function (msg) {
+                var element = document.getElementById('info');
+                element.innerHTML =
+                    element.innerHTML +
+                    '<code>Error:' +
+                    msg +
+                    '</code>[' +
+                    Object.keys(Office || {}).join(', ') +
+                    ']' +
+                    +Object.keys((Office || {}).context || {}).join(', ');
+            };
+
+            if (window.addEventListener) {
+                window.addEventListener(
+                    'DOMContentLoaded',
+                    handleAuthAndContinue
+                );
+            } else {
+                handleAuthAndContinue(); // IE 8
+            }
+        </script>
+    </body>
+</html>
