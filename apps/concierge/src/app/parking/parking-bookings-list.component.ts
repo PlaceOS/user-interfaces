@@ -169,7 +169,11 @@ import { ParkingStateService } from './parking-state.service';
                     icon
                     matRipple
                     [matMenuTriggerFor]="menu"
-                    [disabled]="row.checked_in || row.status === 'ended'"
+                    [disabled]="
+                        row.checked_in ||
+                        row.state === 'in_progress' ||
+                        row.status === 'ended'
+                    "
                     (click)="editReservation(row)"
                 >
                     <app-icon class="text-2xl">edit</app-icon>
