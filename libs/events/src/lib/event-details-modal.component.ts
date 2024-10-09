@@ -27,7 +27,7 @@ const EMPTY_ACTIONS = [];
     selector: 'event-details-modal',
     template: `
         <div
-            class="w-[100vw] h-[100vh] sm:relative sm:inset-auto sm:w-[51rem] sm:h-auto sm:max-h-[80vh] bg-base-100 sm:bg-base-200 sm:dark:bg-neutral-600 sm:rounded overflow-auto space-y-2 pb-2"
+            class="w-[100vw] h-[100vh] sm:relative sm:inset-auto sm:w-[51rem] sm:h-auto sm:max-h-[80vh] bg-base-100 sm:bg-base-200 sm:rounded overflow-auto space-y-2 pb-2"
         >
             <div
                 class="sm:flex flex-col items-center pb-4 max-h-screen sm:max-h-[80vh] sm:px-16 sm:border-b bg-base-100 border-base-200"
@@ -128,7 +128,7 @@ const EMPTY_ACTIONS = [];
             </div>
             <div class="sm:flex flex-wrap sm:px-12">
                 <div
-                    class="sm:p-4 sm:bg-base-100 sm:dark:bg-neutral-700 rounded sm:m-2 sm:border border-base-200 flex-grow-[3] min-w-1/3 sm:w-[16rem] space-y-2"
+                    class="sm:p-4 sm:bg-base-100 rounded sm:m-2 sm:border border-base-200 flex-grow-[3] min-w-1/3 sm:w-[16rem] space-y-2"
                 >
                     <h3 class="px-3 mt-2 text-lg font-medium mb-2" i18n>
                         Details
@@ -173,7 +173,7 @@ const EMPTY_ACTIONS = [];
                     </div>
                 </div>
                 <div
-                    class="mt-4 sm:p-4 sm:bg-base-100 sm:dark:bg-neutral-700 rounded sm:m-2 sm:border border-base-200 flex-grow-[3] min-w-1/3 sm:w-[16rem]"
+                    class="mt-4 sm:p-4 sm:bg-base-100 rounded sm:m-2 sm:border border-base-200 flex-grow-[3] min-w-1/3 sm:w-[16rem]"
                 >
                     <div
                         class="mx-3 border-t border-base-200 sm:border-none flex items-center justify-between"
@@ -230,7 +230,7 @@ const EMPTY_ACTIONS = [];
                 </div>
                 <ng-container *ngIf="has_catering">
                     <div
-                        class="mt-4 sm:p-4 sm:bg-base-100 sm:dark:bg-neutral-700 rounded sm:m-2 sm:border border-base-200 flex-grow-[3] min-w-1/3 sm:w-[16rem]"
+                        class="mt-4 sm:p-4 sm:bg-base-100 rounded sm:m-2 sm:border border-base-200 flex-grow-[3] min-w-1/3 sm:w-[16rem]"
                     >
                         <h3 class="mx-3 my-2 text-lg font-medium" i18n>
                             Catering
@@ -331,7 +331,7 @@ const EMPTY_ACTIONS = [];
                 </ng-container>
                 <button
                     map
-                    class="mt-4 sm:mt-2 h-64 sm:h-48 relative border border-base-200 overflow-hidden rounded sm:bg-base-100 sm:dark:bg-neutral-700 m-2 flex-grow-[3] min-w-1/3 p-2 w-[calc(100%-1rem)] sm:w-[16rem]"
+                    class="mt-4 sm:mt-2 h-64 sm:h-48 relative border border-base-200 overflow-hidden rounded sm:bg-base-100 m-2 flex-grow-[3] min-w-1/3 p-2 w-[calc(100%-1rem)] sm:w-[16rem]"
                     (click)="viewLocation()"
                 >
                     <ng-container *ngIf="!hide_map">
@@ -347,7 +347,7 @@ const EMPTY_ACTIONS = [];
                     </ng-container>
                 </button>
                 <div
-                    class="mt-4 sm:p-4 sm:bg-base-100 sm:dark:bg-neutral-700 rounded sm:m-2 sm:border border-base-200 flex-grow-[3] min-w-1/3 sm:w-[16rem]"
+                    class="mt-4 sm:p-4 sm:bg-base-100 rounded sm:m-2 sm:border border-base-200 flex-grow-[3] min-w-1/3 sm:w-[16rem]"
                     *ngIf="body"
                 >
                     <h3
@@ -368,7 +368,7 @@ const EMPTY_ACTIONS = [];
                 </div>
                 <ng-container *ngIf="has_assets">
                     <div
-                        class="mt-4 sm:p-4 sm:bg-base-100 sm:dark:bg-neutral-700 rounded sm:m-2 sm:border border-base-200 flex-grow-[3] min-w-1/3 sm:w-[16rem]"
+                        class="mt-4 sm:p-4 sm:bg-base-100 rounded sm:m-2 sm:border border-base-200 flex-grow-[3] min-w-1/3 sm:w-[16rem]"
                     >
                         <h3 class="mx-3 pt-2 text-lg font-medium" i18n>
                             Assets ({{ event.valid_assets?.length || 0 }})
@@ -509,6 +509,12 @@ const EMPTY_ACTIONS = [];
                     <div class="flex items-center space-x-2 text-base pr-2">
                         <app-icon class="text-2xl text-error">delete</app-icon>
                         <div i18n>Delete event</div>
+                    </div>
+                </button>
+                <button mat-menu-item (click)="print()">
+                    <div class="flex items-center space-x-2 text-base pr-2">
+                        <app-icon class="text-2xl text-error">print</app-icon>
+                        <div i18n>Print event</div>
                     </div>
                 </button>
                 <button
@@ -743,5 +749,9 @@ export class EventDetailsModalComponent {
         ref.afterClosed().subscribe(() => {
             this.hide_map = false;
         });
+    }
+
+    public print() {
+        window.print();
     }
 }

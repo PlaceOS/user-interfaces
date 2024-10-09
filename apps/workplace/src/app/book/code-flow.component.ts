@@ -89,7 +89,7 @@ import QrScanner from 'qr-scanner';
                             'flex-1 text-black border-none w-40 ' +
                             (is_scanning
                                 ? 'bg-base-100'
-                                : 'bg-transparent hover:bg-base-100 hover:dark:bg-neutral-600 bg-opacity-50')
+                                : 'bg-transparent hover:bg-base-100 bg-opacity-50')
                         "
                         (click)="is_scanning = true"
                     >
@@ -101,7 +101,7 @@ import QrScanner from 'qr-scanner';
                             'flex-1 text-black border-none w-40 ' +
                             (!is_scanning
                                 ? 'bg-base-100'
-                                : 'bg-transparent hover:bg-base-100 hover:dark:bg-neutral-600 bg-opacity-50')
+                                : 'bg-transparent hover:bg-base-100 bg-opacity-50')
                         "
                         (click)="is_scanning = false"
                     >
@@ -182,7 +182,7 @@ export class BookCodeFlowComponent
         private _router: Router,
         private _route: ActivatedRoute,
         private _event_form: EventFormService,
-        private _booking_form: BookingFormService
+        private _booking_form: BookingFormService,
     ) {
         super();
     }
@@ -205,9 +205,9 @@ export class BookCodeFlowComponent
                 if (params.has('space_id'))
                     this._checkinEvent(
                         params.get('space_id'),
-                        params.get('email')
+                        params.get('email'),
                     );
-            })
+            }),
         );
     }
 
@@ -218,7 +218,7 @@ export class BookCodeFlowComponent
             .then((stream) => (this._video_el.nativeElement.srcObject = stream))
             .catch((e) => console.error('Unable to fetch media devices!', e));
         this._qr_scanner = new QrScanner(this._video_el.nativeElement, (r) =>
-            this.handleQrCode(r)
+            this.handleQrCode(r),
         );
         this._qr_scanner.start();
     }
@@ -240,7 +240,7 @@ export class BookCodeFlowComponent
 
     private async _checkinBooking(
         asset_id: string,
-        type: BookingType = 'desk'
+        type: BookingType = 'desk',
     ) {
         this.loading = true;
         let bookings = await queryBookings({
@@ -257,7 +257,7 @@ export class BookCodeFlowComponent
                 .toPromise()
                 .catch((_) => {
                     notifyError(
-                        `Unable to checkin booking with resource "${asset_id}"`
+                        `Unable to checkin booking with resource "${asset_id}"`,
                     );
                     this.loading = false;
                     throw _;
@@ -311,14 +311,14 @@ export class BookCodeFlowComponent
             .toPromise()
             .catch((_) => []);
         const item = bookings.find((_) =>
-            _.resources.find((s) => s.id === space_id || s.email === space_id)
+            _.resources.find((s) => s.id === space_id || s.email === space_id),
         );
         if (item) {
             await checkinEventGuest(item.id, email, true)
                 .toPromise()
                 .catch((_) => {
                     notifyError(
-                        `Unable to checkin event with resource "${space_id}"`
+                        `Unable to checkin event with resource "${space_id}"`,
                     );
                     this.loading = false;
                     throw _;

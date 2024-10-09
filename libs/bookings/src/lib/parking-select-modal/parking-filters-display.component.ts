@@ -46,22 +46,17 @@ import { BookingFormService } from '../booking-form.service';
             filters
             class="flex items-center flex-wrap p-2 w-[35rem] max-w-full sm:max-w-[35rem]"
         >
-            <div
-                filter-item
-                zone
-                class="dark:border-base-200-500"
-                *ngIf="location"
-            >
+            <div filter-item zone *ngIf="location">
                 {{ location }}
             </div>
-            <div filter-item date class="dark:border-base-200-500">
+            <div filter-item date>
                 {{ start | date: 'mediumDate' }}
             </div>
-            <div filter-item time class="dark:border-base-200-500">
+            <div filter-item time>
                 {{ start | date: time_format }} &mdash;
                 {{ end | date: time_format }}
             </div>
-            <div filter-item count class="dark:border-base-200-500" i18n>
+            <div filter-item count i18n>
                 Min. {{ (options | async)?.capcaity || 2 }} People
             </div>
             <div filter-item *ngFor="let feat of (options | async)?.features">
@@ -127,7 +122,7 @@ export class ParkingSpaceFiltersDisplayComponent extends AsyncHandler {
         private _bsheet: MatBottomSheet,
         private _event_form: BookingFormService,
         private _org: OrganisationService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         super();
     }
@@ -136,8 +131,8 @@ export class ParkingSpaceFiltersDisplayComponent extends AsyncHandler {
         this.subscription(
             'opts',
             this.options.subscribe(({ zone_id }) =>
-                this._updateLocation([zone_id])
-            )
+                this._updateLocation([zone_id]),
+            ),
         );
     }
 
