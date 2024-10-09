@@ -609,6 +609,12 @@ a[icon] {
     }
 }
 
+@media print {
+    .mat-mdc-dialog-surface {
+        box-shadow: none;
+    }
+}
+
 #placeos {
     mat-select {
         .mdc-select-trigger {
