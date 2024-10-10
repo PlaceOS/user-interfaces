@@ -2464,7 +2464,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! date-fns */ 5469);
 /* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! date-fns */ 33240);
 /* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! date-fns */ 56441);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! date-fns */ 28797);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! date-fns */ 31257);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! date-fns */ 3330);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! date-fns */ 28797);
 /* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! rxjs */ 90521);
 /* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! rxjs */ 68824);
 /* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! rxjs */ 71536);
@@ -2482,8 +2484,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _set_datetime_modal_component__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./set-datetime-modal.component */ 27146);
 /* harmony import */ var _explore_parking_info_component__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./explore-parking-info.component */ 17889);
 /* harmony import */ var libs_bookings_src_lib_parking_service__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! libs/bookings/src/lib/parking.service */ 1593);
-/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! @angular/core */ 37580);
-/* harmony import */ var _angular_material_dialog__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! @angular/material/dialog */ 12587);
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! @angular/core */ 37580);
+/* harmony import */ var _angular_material_dialog__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! @angular/material/dialog */ 12587);
 
 
 
@@ -2549,12 +2551,12 @@ class ExploreParkingService extends _placeos_common__WEBPACK_IMPORTED_MODULE_1__
     /** Available parking spaces for the current level and date */
     this.available_spaces = (0,rxjs__WEBPACK_IMPORTED_MODULE_13__.combineLatest)([this.events, this.active_spaces, this._parking.users]).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_12__.map)(([events, spaces, users]) => {
       const available = spaces.filter(_ => {
-        const event = events.find(e => e.asset_id === _.id);
+        const event = events.find(e => e.asset_id === _.id && !e.rejected);
         const assigned = `${event?.user_email || _.assigned_to || ''}`.toLowerCase();
         const user = users.find(u => u.email.toLowerCase() === assigned.toLowerCase());
         this._users[_.id] = assigned;
         this._plate_numbers[_.id] = event?.extension_data?.plate_number || user?.plate_number || undefined;
-        return !assigned;
+        return !event;
       });
       this._updateParkingSpaces(spaces, available);
       return available;
@@ -2593,7 +2595,7 @@ class ExploreParkingService extends _placeos_common__WEBPACK_IMPORTED_MODULE_1__
         const can_book = !!available.find(_ => _.id === space.id);
         const is_assigned = !!space.assigned_to;
         const id = space.map_id || space.id;
-        const status = can_book ? 'free' : assigned_space ? 'pending' : 'busy';
+        const status = is_assigned ? can_book ? 'pending' : 'busy' : can_book ? 'free' : 'busy';
         styles[`#${id}`] = {
           fill: colours[`parking-${status}`] || colours[`${status}`] || _explore_spaces_service__WEBPACK_IMPORTED_MODULE_6__.DEFAULT_COLOURS[`${status}`],
           opacity: 0.6
@@ -2607,7 +2609,7 @@ class ExploreParkingService extends _placeos_common__WEBPACK_IMPORTED_MODULE_1__
             ...space,
             user: _this._users[space.id],
             plate_number: _this._plate_numbers[space.id],
-            status: status === 'pending' && assigned_space ? 'reserved' : status
+            status: status === 'pending' && is_assigned ? 'reserved' : status
           }
         });
         if (!can_book) continue;
@@ -2638,34 +2640,24 @@ class ExploreParkingService extends _placeos_common__WEBPACK_IMPORTED_MODULE_1__
               type: 'parking'
             });
             options = _this._options.getValue();
-            if (options.date) {
-              _this._bookings.form.patchValue({
-                date: options.date
-              });
-              _this._bookings.form.patchValue({
-                all_day: !!options.all_day
-              });
-            }
-            let {
-              date,
-              duration,
-              user
-            } = yield _this._setBookingTime(_this._bookings.form.value.date, _this._bookings.form.value.duration, _this._options.getValue()?.custom ?? false, space);
-            user = user || options.host || (0,_placeos_common__WEBPACK_IMPORTED_MODULE_1__.currentUser)();
+            let user = options.host || (0,_placeos_common__WEBPACK_IMPORTED_MODULE_1__.currentUser)();
             const user_email = user?.email;
-            const lvl = _this._state.active_level;
+            const zone = _this._org.levelWithID([space.zone_id || space.zone]) || _this._state.active_level;
+            const date = !options.date || (0,date_fns__WEBPACK_IMPORTED_MODULE_25__.isSameDay)(options.date, Date.now()) ? (0,date_fns__WEBPACK_IMPORTED_MODULE_18__.startOfMinute)(Date.now()).valueOf() : (0,date_fns__WEBPACK_IMPORTED_MODULE_26__.setHours)(options.date, 8).valueOf();
+            debugger;
             _this._bookings.form.patchValue({
               resources: [space],
               asset_id: space.id,
               asset_name: space.name,
               date,
-              duration: options.all_day ? 12 * 60 : duration,
+              duration: 11 * 60,
+              all_day: true,
               map_id: space?.map_id || space?.id,
               description: space.name,
               user,
               user_email,
               booking_type: 'parking',
-              zones: space.zone ? [space.zone?.parent_id, space.zone?.id] : [lvl.parent_id, lvl.id]
+              zones: [_this._org.organisation.id, _this._org.region?.id, zone.parent_id, zone.id]
             });
             yield _this._bookings.confirmPost().catch(e => {
               if (e === 'User cancelled') throw e;
@@ -2673,7 +2665,7 @@ class ExploreParkingService extends _placeos_common__WEBPACK_IMPORTED_MODULE_1__
               throw e;
             });
             (0,_placeos_common__WEBPACK_IMPORTED_MODULE_1__.notifySuccess)(`Successfully booked parking space ${space.name || space.id}`);
-            _this._poll.next(Date.now());
+            _this.timeout('poll', () => _this._poll.next(Date.now()), 1000);
           });
           return function book_fn() {
             return _ref.apply(this, arguments);
@@ -2696,7 +2688,7 @@ class ExploreParkingService extends _placeos_common__WEBPACK_IMPORTED_MODULE_1__
     return (0,_home_runner_work_user_interfaces_user_interfaces_node_modules_babel_runtime_helpers_esm_asyncToGenerator_js__WEBPACK_IMPORTED_MODULE_0__["default"])(function* () {
       let user = null;
       if (!!_this2._settings.get('app.parking.allow_time_changes')) {
-        const until = (0,date_fns__WEBPACK_IMPORTED_MODULE_22__.endOfDay)((0,date_fns__WEBPACK_IMPORTED_MODULE_25__.addDays)(Date.now(), _this2._settings.get('app.parking.available_period') || 90));
+        const until = (0,date_fns__WEBPACK_IMPORTED_MODULE_22__.endOfDay)((0,date_fns__WEBPACK_IMPORTED_MODULE_27__.addDays)(Date.now(), _this2._settings.get('app.parking.available_period') || 90));
         const ref = _this2._dialog.open(_set_datetime_modal_component__WEBPACK_IMPORTED_MODULE_8__.SetDatetimeModalComponent, {
           data: {
             date,
@@ -2720,9 +2712,9 @@ class ExploreParkingService extends _placeos_common__WEBPACK_IMPORTED_MODULE_1__
     })();
   }
   static #_ = this.ɵfac = function ExploreParkingService_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || ExploreParkingService)(_angular_core__WEBPACK_IMPORTED_MODULE_26__["ɵɵinject"](libs_organisation_src_lib_organisation_service__WEBPACK_IMPORTED_MODULE_3__.OrganisationService), _angular_core__WEBPACK_IMPORTED_MODULE_26__["ɵɵinject"](_explore_state_service__WEBPACK_IMPORTED_MODULE_5__.ExploreStateService), _angular_core__WEBPACK_IMPORTED_MODULE_26__["ɵɵinject"](_placeos_common__WEBPACK_IMPORTED_MODULE_1__.SettingsService), _angular_core__WEBPACK_IMPORTED_MODULE_26__["ɵɵinject"](libs_bookings_src_lib_booking_form_service__WEBPACK_IMPORTED_MODULE_7__.BookingFormService), _angular_core__WEBPACK_IMPORTED_MODULE_26__["ɵɵinject"](libs_bookings_src_lib_parking_service__WEBPACK_IMPORTED_MODULE_10__.ParkingService), _angular_core__WEBPACK_IMPORTED_MODULE_26__["ɵɵinject"](_angular_material_dialog__WEBPACK_IMPORTED_MODULE_27__.MatDialog));
+    return new (__ngFactoryType__ || ExploreParkingService)(_angular_core__WEBPACK_IMPORTED_MODULE_28__["ɵɵinject"](libs_organisation_src_lib_organisation_service__WEBPACK_IMPORTED_MODULE_3__.OrganisationService), _angular_core__WEBPACK_IMPORTED_MODULE_28__["ɵɵinject"](_explore_state_service__WEBPACK_IMPORTED_MODULE_5__.ExploreStateService), _angular_core__WEBPACK_IMPORTED_MODULE_28__["ɵɵinject"](_placeos_common__WEBPACK_IMPORTED_MODULE_1__.SettingsService), _angular_core__WEBPACK_IMPORTED_MODULE_28__["ɵɵinject"](libs_bookings_src_lib_booking_form_service__WEBPACK_IMPORTED_MODULE_7__.BookingFormService), _angular_core__WEBPACK_IMPORTED_MODULE_28__["ɵɵinject"](libs_bookings_src_lib_parking_service__WEBPACK_IMPORTED_MODULE_10__.ParkingService), _angular_core__WEBPACK_IMPORTED_MODULE_28__["ɵɵinject"](_angular_material_dialog__WEBPACK_IMPORTED_MODULE_29__.MatDialog));
   };
-  static #_2 = this.ɵprov = /*@__PURE__*/_angular_core__WEBPACK_IMPORTED_MODULE_26__["ɵɵdefineInjectable"]({
+  static #_2 = this.ɵprov = /*@__PURE__*/_angular_core__WEBPACK_IMPORTED_MODULE_28__["ɵɵdefineInjectable"]({
     token: ExploreParkingService,
     factory: ExploreParkingService.ɵfac
   });

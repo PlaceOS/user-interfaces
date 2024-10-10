@@ -1298,6 +1298,9 @@ video {
 #placeos .h-\[calc\(100vh-4rem\)\] {
   height: calc(100vh - 4rem);
 }
+#placeos .h-\[calc\(100vh-5rem\)\] {
+  height: calc(100vh - 5rem);
+}
 #placeos .h-\[calc\(100vh-7rem\)\] {
   height: calc(100vh - 7rem);
 }
@@ -1454,6 +1457,9 @@ video {
 #placeos .min-h-min {
   min-height: min-content;
 }
+#placeos .min-h-screen {
+  min-height: 100vh;
+}
 #placeos .\!w-full {
   width: 100% !important;
 }
@@ -1609,6 +1615,9 @@ video {
 }
 #placeos .w-\[24rem\] {
   width: 24rem;
+}
+#placeos .w-\[28\%\] {
+  width: 28%;
 }
 #placeos .w-\[28rem\] {
   width: 28rem;
@@ -3394,15 +3403,6 @@ body {
   background-color: var(--s);
 }
 
-#placeos .dark\:text-white:is(.dark *) {
-  --tw-text-opacity: 1;
-  color: rgb(255 255 255 / var(--tw-text-opacity));
-}
-
-#placeos .dark\:text-opacity-30:is(.dark *) {
-  --tw-text-opacity: 0.3;
-}
-
 @media (min-width: 640px) {
 
   #placeos .sm\:relative {
@@ -3838,6 +3838,10 @@ body {
 
   #placeos .print\:hidden {
     display: none;
+  }
+
+  #placeos .print\:h-\[25vh\] {
+    height: 25vh;
   }
 
   #placeos .print\:h-auto {
@@ -4408,6 +4412,17 @@ code {
   width: auto;
 }
 
+@media print {
+  .cdk-overlay-container {
+    position: initial;
+  }
+  .cdk-overlay-backdrop {
+    display: none;
+  }
+  #placeos mat-dialog-container .mdc-dialog__surface {
+    box-shadow: none;
+  }
+}
 .mdc-dialog__container {
   padding: 0;
 }
