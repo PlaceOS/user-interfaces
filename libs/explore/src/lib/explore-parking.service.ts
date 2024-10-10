@@ -15,6 +15,7 @@ import {
     endOfDay,
     endOfMinute,
     getUnixTime,
+    setHours,
     startOfDay,
     startOfMinute,
 } from 'date-fns';
@@ -298,13 +299,7 @@ export class ExploreParkingService extends AsyncHandler {
                         all_day: !!options.all_day,
                     });
                 }
-                let { date, duration, user } = await this._setBookingTime(
-                    this._bookings.form.value.date,
-                    this._bookings.form.value.duration,
-                    this._options.getValue()?.custom ?? false,
-                    space as any,
-                );
-                user = user || options.host || currentUser();
+                let user = options.host || currentUser();
                 const user_email = user?.email;
                 const lvl = this._state.active_level;
                 const zone =
@@ -315,8 +310,8 @@ export class ExploreParkingService extends AsyncHandler {
                     resources: [space],
                     asset_id: space.id,
                     asset_name: space.name,
-                    date,
-                    duration: options.all_day ? 12 * 60 : duration,
+                    date: setHours(options.date, 8).valueOf(),
+                    duration: 12 * 60,
                     map_id: space?.map_id || space?.id,
                     description: space.name,
                     user,
