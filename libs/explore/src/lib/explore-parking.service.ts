@@ -15,6 +15,7 @@ import {
     endOfDay,
     endOfMinute,
     getUnixTime,
+    isSameDay,
     setHours,
     startOfDay,
     startOfMinute,
@@ -291,27 +292,24 @@ export class ExploreParkingService extends AsyncHandler {
                 this._bookings.newForm();
                 this._bookings.setOptions({ type: 'parking' });
                 options = this._options.getValue();
-                if (options.date) {
-                    this._bookings.form.patchValue({
-                        date: options.date,
-                    });
-                    this._bookings.form.patchValue({
-                        all_day: !!options.all_day,
-                    });
-                }
                 let user = options.host || currentUser();
                 const user_email = user?.email;
-                const lvl = this._state.active_level;
                 const zone =
                     this._org.levelWithID([
                         space.zone_id || (space as any).zone,
-                    ]) || lvl;
+                    ]) || this._state.active_level;
+                const date =
+                    !options.date || isSameDay(options.date, Date.now())
+                        ? startOfMinute(Date.now()).valueOf()
+                        : setHours(options.date, 8).valueOf();
+                debugger;
                 this._bookings.form.patchValue({
                     resources: [space],
                     asset_id: space.id,
                     asset_name: space.name,
-                    date: setHours(options.date, 8).valueOf(),
-                    duration: 12 * 60,
+                    date,
+                    duration: 11 * 60,
+                    all_day: true,
                     map_id: space?.map_id || space?.id,
                     description: space.name,
                     user,
