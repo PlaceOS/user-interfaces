@@ -9296,7 +9296,7 @@ _BookingDetailsModalComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
     } else {
       i18n_5 = $localize(_templateObject6 || (_templateObject6 = _taggedTemplateLiteral([":\u241F2f3dfd27ad1999e91bb66ad271f967d6e543956f\u241F834898868131691573:End booking"])));
     }
-    return [["menu", "matMenu"], ["loading_state", ""], i18n_0, i18n_1, i18n_2, i18n_3, i18n_4, i18n_5, [1, "w-[100vw]", "h-[100vh]", "sm:relative", "sm:inset-auto", "sm:w-[51rem]", "sm:h-auto", "sm:max-h-[80vh]", "bg-base-100", "sm:bg-base-200", "sm:dark:bg-neutral-600", "sm:rounded", "overflow-auto", "space-y-2", "pb-2"], [1, "sm:flex", "flex-col", "items-center", "pb-4", "max-h-screen", "sm:max-h-[80vh]", "sm:px-16", "sm:border-b", "bg-base-100", "border-base-200"], ["class", "h-8 w-full sm:hidden block", 4, "ngIf"], ["class", "bg-neutral w-full h-64 sm:rounded-b overflow-hidden", 4, "ngIf"], ["title", "", 1, "px-3", "mt-2", "text-xl", "font-medium", "w-full"], [1, "sm:flex", "items-center", "justify-between", "w-full"], [1, "flex", "m-2"], [3, "status"], ["actions", "", "class", "flex items-center space-x-2 px-2", 4, "ngIf"], [1, "sm:flex", "flex-wrap", "sm:px-12"], [1, "sm:p-4", "sm:bg-base-100", "sm:dark:bg-neutral-700", "rounded", "sm:m-2", "sm:border", "border-base-200", "flex-grow-[4]", "min-w-1/3", "sm:w-[16rem]"], [1, "px-3", "mt-2", "text-lg", "font-medium", "mb-2"], [1, "flex", "items-center", "px-2", "space-x-2"], [4, "ngIf"], ["map", "", 1, "mt-4", "sm:my-2", "h-64", "sm:h-48", "relative", "border", "border-base-200", "overflow-hidden", "rounded", "sm:bg-base-100", "m-2", "flex-grow-[3]", "min-w-1/3", "w-[calc(100%-1rem)]", "p-2", "sm:w-[16rem]", 3, "click"], ["icon", "", "matRipple", "", "mat-dialog-close", "", 1, "absolute", "top-0", "left-2", "bg-neutral", "text-white"], ["xPosition", "before"], ["mat-menu-item", "", "mat-dialog-close", "", 3, "click", 4, "ngIf"], ["mat-menu-item", "", 3, "click", 4, "ngIf"], [1, "h-8", "w-full", "sm:hidden", "block"], [1, "bg-neutral", "w-full", "h-64", "sm:rounded-b", "overflow-hidden"], [1, "w-full", "h-64", 3, "images"], ["actions", "", 1, "flex", "items-center", "space-x-2", "px-2"], ["btn", "", "matRipple", "", "class", "flex-1 h-10 border-none", 3, "bg-success", "text-success-content", "disabled", "click", 4, "ngIf"], ["icon", "", "matRipple", "", 1, "bg-secondary", "rounded", "text-white", "h-12", "w-12", 3, "matMenuTriggerFor"], ["btn", "", "matRipple", "", 1, "flex-1", "h-10", "border-none", 3, "click", "disabled"], ["class", "flex items-center space-x-2 justify-center", 4, "ngIf", "ngIfElse"], [1, "flex", "items-center", "space-x-2", "justify-center"], [1, "mr-4"], [1, "mx-auto", 3, "diameter"], [1, "mt-4", "sm:p-4", "sm:bg-base-100", "sm:dark:bg-neutral-700", "rounded", "sm:m-2", "sm:border", "border-base-200", "flex-grow-[3]", "min-w-1/3", "sm:w-[16rem]"], [1, "mx-3", "py-2", "text-lg", "font-medium"], [1, "flex", "flex-col", "space-y-2"], ["request", "", "class", "border border-base-300 bg-base-100 rounded-xl overflow-hidden", 4, "ngFor", "ngForOf"], ["request", "", 1, "border", "border-base-300", "bg-base-100", "rounded-xl", "overflow-hidden"], ["matRipple", "", 1, "flex", "items-center", "space-x-2", "p-3", "w-full", 3, "click"], [1, "flex-1", "text-left"], [1, "text-sm"], [1, "flex", "items-center", "justify-center", "rounded-full", "w-8", "h-8", 3, "matTooltip"], [1, "flex", "items-center", "justify-center", "rounded-full", "w-8", "h-8"], [1, "text-2xl"], [1, "flex", "flex-col", "bg-base-200", "divide-y", "divide-base-100"], ["class", "flex items-center px-3 py-1 space-x-2 hover:opacity-90", 4, "ngFor", "ngForOf"], [1, "flex", "items-center", "px-3", "py-1", "space-x-2", "hover:opacity-90"], [1, "flex", "items-center", "flex-1"], [1, "rounded", "bg-success", "text-success-content", "text-xs", "px-2", "py-1"], [1, "pointer-events-none", 3, "src", "features", "options"], ["mat-menu-item", "", "mat-dialog-close", "", 3, "click"], [1, "flex", "items-center", "space-x-2", "text-base"], ["mat-menu-item", "", 3, "click"], ["className", "material-symbols-rounded"], [1, "text-error"]];
+    return [["menu", "matMenu"], ["loading_state", ""], i18n_0, i18n_1, i18n_2, i18n_3, i18n_4, i18n_5, [1, "w-[100vw]", "h-[100vh]", "sm:relative", "sm:inset-auto", "sm:w-[51rem]", "sm:h-auto", "sm:max-h-[80vh]", "bg-base-100", "sm:bg-base-200", "sm:rounded", "overflow-auto", "space-y-2", "pb-2"], [1, "sm:flex", "flex-col", "items-center", "pb-4", "max-h-screen", "sm:max-h-[80vh]", "sm:px-16", "sm:border-b", "bg-base-100", "border-base-200"], ["class", "h-8 w-full sm:hidden block", 4, "ngIf"], ["class", "bg-neutral w-full h-64 sm:rounded-b overflow-hidden", 4, "ngIf"], ["title", "", 1, "px-3", "mt-2", "text-xl", "font-medium", "w-full"], [1, "sm:flex", "items-center", "justify-between", "w-full"], [1, "flex", "m-2"], [3, "status"], ["actions", "", "class", "flex items-center space-x-2 px-2", 4, "ngIf"], [1, "sm:flex", "flex-wrap", "sm:px-12"], [1, "sm:p-4", "sm:bg-base-100", "rounded", "sm:m-2", "sm:border", "border-base-200", "flex-grow-[4]", "min-w-1/3", "sm:w-[16rem]"], [1, "px-3", "mt-2", "text-lg", "font-medium", "mb-2"], [1, "flex", "items-center", "px-2", "space-x-2"], [4, "ngIf"], ["map", "", 1, "mt-4", "sm:my-2", "h-64", "sm:h-48", "relative", "border", "border-base-200", "overflow-hidden", "rounded", "sm:bg-base-100", "m-2", "flex-grow-[3]", "min-w-1/3", "w-[calc(100%-1rem)]", "p-2", "sm:w-[16rem]", 3, "click"], ["icon", "", "matRipple", "", "mat-dialog-close", "", 1, "absolute", "top-0", "left-2", "bg-neutral", "text-white"], ["xPosition", "before"], ["mat-menu-item", "", "mat-dialog-close", "", 3, "click", 4, "ngIf"], ["mat-menu-item", "", 3, "click", 4, "ngIf"], [1, "h-8", "w-full", "sm:hidden", "block"], [1, "bg-neutral", "w-full", "h-64", "sm:rounded-b", "overflow-hidden"], [1, "w-full", "h-64", 3, "images"], ["actions", "", 1, "flex", "items-center", "space-x-2", "px-2"], ["btn", "", "matRipple", "", "class", "flex-1 h-10 border-none", 3, "bg-success", "text-success-content", "disabled", "click", 4, "ngIf"], ["icon", "", "matRipple", "", 1, "bg-secondary", "rounded", "text-white", "h-12", "w-12", 3, "matMenuTriggerFor"], ["btn", "", "matRipple", "", 1, "flex-1", "h-10", "border-none", 3, "click", "disabled"], ["class", "flex items-center space-x-2 justify-center", 4, "ngIf", "ngIfElse"], [1, "flex", "items-center", "space-x-2", "justify-center"], [1, "mr-4"], [1, "mx-auto", 3, "diameter"], [1, "mt-4", "sm:p-4", "sm:bg-base-100", "rounded", "sm:m-2", "sm:border", "border-base-200", "flex-grow-[3]", "min-w-1/3", "sm:w-[16rem]"], [1, "mx-3", "py-2", "text-lg", "font-medium"], [1, "flex", "flex-col", "space-y-2"], ["request", "", "class", "border border-base-300 bg-base-100 rounded-xl overflow-hidden", 4, "ngFor", "ngForOf"], ["request", "", 1, "border", "border-base-300", "bg-base-100", "rounded-xl", "overflow-hidden"], ["matRipple", "", 1, "flex", "items-center", "space-x-2", "p-3", "w-full", 3, "click"], [1, "flex-1", "text-left"], [1, "text-sm"], [1, "flex", "items-center", "justify-center", "rounded-full", "w-8", "h-8", 3, "matTooltip"], [1, "flex", "items-center", "justify-center", "rounded-full", "w-8", "h-8"], [1, "text-2xl"], [1, "flex", "flex-col", "bg-base-200", "divide-y", "divide-base-100"], ["class", "flex items-center px-3 py-1 space-x-2 hover:opacity-90", 4, "ngFor", "ngForOf"], [1, "flex", "items-center", "px-3", "py-1", "space-x-2", "hover:opacity-90"], [1, "flex", "items-center", "flex-1"], [1, "rounded", "bg-success", "text-success-content", "text-xs", "px-2", "py-1"], [1, "pointer-events-none", 3, "src", "features", "options"], ["mat-menu-item", "", "mat-dialog-close", "", 3, "click"], [1, "flex", "items-center", "space-x-2", "text-base"], ["mat-menu-item", "", 3, "click"], ["className", "material-symbols-rounded"], [1, "text-error"]];
   },
   template: function BookingDetailsModalComponent_Template(rf, ctx) {
     if (rf & 1) {
@@ -19079,7 +19079,7 @@ _ParkingSpaceFiltersDisplayComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent
     } else {
       i18n_3 = $localize(_templateObject4 || (_templateObject4 = _taggedTemplateLiteral([":\u241Fe1bcafb95323d9492bfdfa190a129131e6255cdb\u241F7211304359187007121: Min. ", ":INTERPOLATION: People "])), "\uFFFD0\uFFFD");
     }
-    return [i18n_0, i18n_1, i18n_2, i18n_3, ["actions", "", 1, "sm:hidden", "space-x-2", "flex", "items-center", "p-2"], ["matRipple", "", "filters", "", 1, "flex-1", "w-1/2", 3, "click"], [1, "flex", "items-center"], ["matRipple", "", "map", "", 1, "rounded-l", "rounded-r-none", 3, "click"], ["matRipple", "", "list", "", 1, "rounded-r", "rounded-l-none", 3, "click"], ["filters", "", 1, "flex", "items-center", "flex-wrap", "p-2", "w-[35rem]", "max-w-full", "sm:max-w-[35rem]"], ["filter-item", "", "zone", "", "class", "dark:border-base-200-500", 4, "ngIf"], ["filter-item", "", "date", "", 1, "dark:border-base-200-500"], ["filter-item", "", "time", "", 1, "dark:border-base-200-500"], ["filter-item", "", "count", "", 1, "dark:border-base-200-500"], ["filter-item", "", 4, "ngFor", "ngForOf"], ["filter-item", "", "zone", "", 1, "dark:border-base-200-500"], ["filter-item", ""], ["icon", "", "matRipple", "", 1, "-mr-4", 3, "click"]];
+    return [i18n_0, i18n_1, i18n_2, i18n_3, ["actions", "", 1, "sm:hidden", "space-x-2", "flex", "items-center", "p-2"], ["matRipple", "", "filters", "", 1, "flex-1", "w-1/2", 3, "click"], [1, "flex", "items-center"], ["matRipple", "", "map", "", 1, "rounded-l", "rounded-r-none", 3, "click"], ["matRipple", "", "list", "", 1, "rounded-r", "rounded-l-none", 3, "click"], ["filters", "", 1, "flex", "items-center", "flex-wrap", "p-2", "w-[35rem]", "max-w-full", "sm:max-w-[35rem]"], ["filter-item", "", "zone", "", 4, "ngIf"], ["filter-item", "", "date", ""], ["filter-item", "", "time", ""], ["filter-item", "", "count", ""], ["filter-item", "", 4, "ngFor", "ngForOf"], ["filter-item", "", "zone", ""], ["filter-item", ""], ["icon", "", "matRipple", "", 1, "-mr-4", 3, "click"]];
   },
   template: function ParkingSpaceFiltersDisplayComponent_Template(rf, ctx) {
     if (rf & 1) {
@@ -32544,15 +32544,15 @@ exports.VERSION = void 0;
 /* tslint:disable */
 exports.VERSION = {
   "dirty": false,
-  "raw": "bfd7634",
-  "hash": "bfd7634",
+  "raw": "dfa5509",
+  "hash": "dfa5509",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "bfd7634",
+  "suffix": "dfa5509",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1728356975423
+  "time": 1728533064340
 };
 /* tslint:enable */
 
@@ -44362,11 +44362,11 @@ function EventCardComponent_a_1_Template(rf, ctx) {
     i0.ɵɵadvance(2);
     i0.ɵɵproperty("status", ctx_r0.status);
     i0.ɵɵadvance();
-    i0.ɵɵclassProp("pr-4", ctx_r0.timezone);
+    i0.ɵɵclassProp("pr-4", ctx_r0.timezone && ctx_r0.tz);
     i0.ɵɵadvance(2);
     i0.ɵɵtextInterpolate(ctx_r0.period);
     i0.ɵɵadvance();
-    i0.ɵɵproperty("ngIf", ctx_r0.timezone);
+    i0.ɵɵproperty("ngIf", ctx_r0.timezone && ctx_r0.tz);
     i0.ɵɵadvance(6);
     i0.ɵɵtextInterpolate1(" ", ctx_r0.location, " ");
     i0.ɵɵadvance(5);
@@ -44393,6 +44393,7 @@ var EventCardComponent = /*#__PURE__*/function (_common_1$AsyncHandle) {
     _this.edit = new core_1.EventEmitter();
     _this.remove = new core_1.EventEmitter();
     _this.location = '';
+    _this._local_tz = (0, common_1.getTimezoneOffsetString)(Intl.DateTimeFormat().resolvedOptions().timeZone);
     _this._date = new common_2.DatePipe('en');
     return _this;
   }
@@ -44407,7 +44408,8 @@ var EventCardComponent = /*#__PURE__*/function (_common_1$AsyncHandle) {
     get: function get() {
       var tz = this.timezone;
       if (!tz) return '';
-      return (0, common_1.getTimezoneOffsetString)(tz);
+      var tz_offset = (0, common_1.getTimezoneOffsetString)(tz);
+      return tz_offset === this._local_tz ? '' : tz_offset;
     }
   }, {
     key: "time_format",
@@ -44625,7 +44627,7 @@ var _regeneratorRuntime = (__webpack_require__(/*! ./node_modules/@babel/runtime
 var _asyncToGenerator = (__webpack_require__(/*! ./node_modules/@babel/runtime/helpers/asyncToGenerator.js */ 95386)["default"]);
 var _classCallCheck = (__webpack_require__(/*! ./node_modules/@babel/runtime/helpers/classCallCheck.js */ 80912)["default"]);
 var _createClass = (__webpack_require__(/*! ./node_modules/@babel/runtime/helpers/createClass.js */ 92974)["default"]);
-var _EventDetailsModalComponent, _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7, _templateObject8, _templateObject9, _templateObject10, _templateObject11, _templateObject12, _templateObject13, _templateObject14, _templateObject15;
+var _EventDetailsModalComponent, _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7, _templateObject8, _templateObject9, _templateObject10, _templateObject11, _templateObject12, _templateObject13, _templateObject14, _templateObject15, _templateObject16;
 Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
@@ -44659,13 +44661,13 @@ var _c0 = function _c0() {
 };
 function EventDetailsModalComponent_div_3_Template(rf, ctx) {
   if (rf & 1) {
-    i0.ɵɵelement(0, "div", 60);
+    i0.ɵɵelement(0, "div", 61);
   }
 }
 function EventDetailsModalComponent_div_4_Template(rf, ctx) {
   if (rf & 1) {
-    i0.ɵɵelementStart(0, "div", 61);
-    i0.ɵɵelement(1, "image-carousel", 62);
+    i0.ɵɵelementStart(0, "div", 62);
+    i0.ɵɵelement(1, "image-carousel", 63);
     i0.ɵɵelementEnd();
   }
   if (rf & 2) {
@@ -44676,7 +44678,7 @@ function EventDetailsModalComponent_div_4_Template(rf, ctx) {
 }
 function EventDetailsModalComponent_div_13_Template(rf, ctx) {
   if (rf & 1) {
-    i0.ɵɵelementStart(0, "div", 63);
+    i0.ɵɵelementStart(0, "div", 64);
     i0.ɵɵtext(1);
     i0.ɵɵelementEnd();
   }
@@ -44689,17 +44691,17 @@ function EventDetailsModalComponent_div_13_Template(rf, ctx) {
 function EventDetailsModalComponent_div_14_button_1_Template(rf, ctx) {
   if (rf & 1) {
     var _r3 = i0.ɵɵgetCurrentView();
-    i0.ɵɵelementStart(0, "button", 67);
+    i0.ɵɵelementStart(0, "button", 68);
     i0.ɵɵlistener("click", function EventDetailsModalComponent_div_14_button_1_Template_button_click_0_listener() {
       i0.ɵɵrestoreView(_r3);
       var ctx_r1 = i0.ɵɵnextContext(2);
       return i0.ɵɵresetView(ctx_r1.checkin());
     });
-    i0.ɵɵelementStart(1, "div", 68)(2, "app-icon", 69);
+    i0.ɵɵelementStart(1, "div", 69)(2, "app-icon", 70);
     i0.ɵɵtext(3);
     i0.ɵɵelementEnd();
-    i0.ɵɵelementStart(4, "div", 70);
-    i0.ɵɵi18n(5, 9);
+    i0.ɵɵelementStart(4, "div", 71);
+    i0.ɵɵi18n(5, 10);
     i0.ɵɵelementEnd()()();
   }
   if (rf & 2) {
@@ -44714,7 +44716,7 @@ function EventDetailsModalComponent_div_14_button_1_Template(rf, ctx) {
 }
 function EventDetailsModalComponent_div_14_button_2_Template(rf, ctx) {
   if (rf & 1) {
-    i0.ɵɵelementStart(0, "button", 71)(1, "app-icon");
+    i0.ɵɵelementStart(0, "button", 72)(1, "app-icon");
     i0.ɵɵtext(2, "more_horiz");
     i0.ɵɵelementEnd()();
   }
@@ -44726,8 +44728,8 @@ function EventDetailsModalComponent_div_14_button_2_Template(rf, ctx) {
 }
 function EventDetailsModalComponent_div_14_Template(rf, ctx) {
   if (rf & 1) {
-    i0.ɵɵelementStart(0, "div", 64);
-    i0.ɵɵtemplate(1, EventDetailsModalComponent_div_14_button_1_Template, 6, 8, "button", 65)(2, EventDetailsModalComponent_div_14_button_2_Template, 3, 1, "button", 66);
+    i0.ɵɵelementStart(0, "div", 65);
+    i0.ɵɵtemplate(1, EventDetailsModalComponent_div_14_button_1_Template, 6, 8, "button", 66)(2, EventDetailsModalComponent_div_14_button_2_Template, 3, 1, "button", 67);
     i0.ɵɵelementEnd();
   }
   if (rf & 2) {
@@ -44740,7 +44742,7 @@ function EventDetailsModalComponent_div_14_Template(rf, ctx) {
 }
 function EventDetailsModalComponent_div_31_Template(rf, ctx) {
   if (rf & 1) {
-    i0.ɵɵelementStart(0, "div", 63);
+    i0.ɵɵelementStart(0, "div", 64);
     i0.ɵɵtext(1);
     i0.ɵɵelementEnd();
   }
@@ -44764,7 +44766,7 @@ function EventDetailsModalComponent_ng_container_36_Template(rf, ctx) {
 }
 function EventDetailsModalComponent_div_38_Template(rf, ctx) {
   if (rf & 1) {
-    i0.ɵɵelementStart(0, "div", 31)(1, "app-icon");
+    i0.ɵɵelementStart(0, "div", 32)(1, "app-icon");
     i0.ɵɵtext(2, "place");
     i0.ɵɵelementEnd();
     i0.ɵɵelementStart(3, "div");
@@ -44779,9 +44781,9 @@ function EventDetailsModalComponent_div_38_Template(rf, ctx) {
 }
 function EventDetailsModalComponent_div_45_Template(rf, ctx) {
   if (rf & 1) {
-    i0.ɵɵelementStart(0, "div", 72);
+    i0.ɵɵelementStart(0, "div", 73);
     i0.ɵɵtext(1, " Entity: ");
-    i0.ɵɵelementStart(2, "span", 73);
+    i0.ɵɵelementStart(2, "span", 74);
     i0.ɵɵtext(3);
     i0.ɵɵelementEnd()();
   }
@@ -44793,9 +44795,9 @@ function EventDetailsModalComponent_div_45_Template(rf, ctx) {
 }
 function EventDetailsModalComponent_div_71_Template(rf, ctx) {
   if (rf & 1) {
-    i0.ɵɵelementStart(0, "div", 74);
+    i0.ɵɵelementStart(0, "div", 75);
     i0.ɵɵtext(1, " Entity: ");
-    i0.ɵɵelementStart(2, "span", 73);
+    i0.ɵɵelementStart(2, "span", 74);
     i0.ɵɵtext(3);
     i0.ɵɵelementEnd()();
   }
@@ -44807,7 +44809,7 @@ function EventDetailsModalComponent_div_71_Template(rf, ctx) {
 }
 function EventDetailsModalComponent_ng_container_72_div_5_div_13_span_4_Template(rf, ctx) {
   if (rf & 1) {
-    i0.ɵɵelementStart(0, "span", 91);
+    i0.ɵɵelementStart(0, "span", 92);
     i0.ɵɵtext(1);
     i0.ɵɵelementEnd();
   }
@@ -44821,15 +44823,15 @@ function EventDetailsModalComponent_ng_container_72_div_5_div_13_span_4_Template
 }
 function EventDetailsModalComponent_ng_container_72_div_5_div_13_Template(rf, ctx) {
   if (rf & 1) {
-    i0.ɵɵelementStart(0, "div", 86)(1, "div", 87)(2, "span", 81);
+    i0.ɵɵelementStart(0, "div", 87)(1, "div", 88)(2, "span", 82);
     i0.ɵɵtext(3);
     i0.ɵɵelementEnd();
-    i0.ɵɵtemplate(4, EventDetailsModalComponent_ng_container_72_div_5_div_13_span_4_Template, 2, 2, "span", 88);
+    i0.ɵɵtemplate(4, EventDetailsModalComponent_ng_container_72_div_5_div_13_span_4_Template, 2, 2, "span", 89);
     i0.ɵɵelementEnd();
-    i0.ɵɵelementStart(5, "div", 89);
+    i0.ɵɵelementStart(5, "div", 90);
     i0.ɵɵtext(6);
     i0.ɵɵelementEnd();
-    i0.ɵɵelementStart(7, "div", 90);
+    i0.ɵɵelementStart(7, "div", 91);
     i0.ɵɵtext(8);
     i0.ɵɵpipe(9, "currency");
     i0.ɵɵelementEnd()();
@@ -44850,15 +44852,15 @@ function EventDetailsModalComponent_ng_container_72_div_5_div_13_Template(rf, ct
 function EventDetailsModalComponent_ng_container_72_div_5_Template(rf, ctx) {
   if (rf & 1) {
     var _r5 = i0.ɵɵgetCurrentView();
-    i0.ɵɵelementStart(0, "div", 78)(1, "div", 79)(2, "div", 80)(3, "div", 81);
+    i0.ɵɵelementStart(0, "div", 79)(1, "div", 80)(2, "div", 81)(3, "div", 82);
     i0.ɵɵtext(4);
     i0.ɵɵpipe(5, "date");
     i0.ɵɵelementEnd();
-    i0.ɵɵelementStart(6, "div", 82);
+    i0.ɵɵelementStart(6, "div", 83);
     i0.ɵɵtext(7);
     i0.ɵɵpipe(8, "currency");
     i0.ɵɵelementEnd()();
-    i0.ɵɵelementStart(9, "button", 83);
+    i0.ɵɵelementStart(9, "button", 84);
     i0.ɵɵlistener("click", function EventDetailsModalComponent_ng_container_72_div_5_Template_button_click_9_listener() {
       var order_r6 = i0.ɵɵrestoreView(_r5).$implicit;
       var ctx_r1 = i0.ɵɵnextContext(2);
@@ -44867,8 +44869,8 @@ function EventDetailsModalComponent_ng_container_72_div_5_Template(rf, ctx) {
     i0.ɵɵelementStart(10, "app-icon");
     i0.ɵɵtext(11);
     i0.ɵɵelementEnd()()();
-    i0.ɵɵelementStart(12, "div", 84);
-    i0.ɵɵtemplate(13, EventDetailsModalComponent_ng_container_72_div_5_div_13_Template, 10, 7, "div", 85);
+    i0.ɵɵelementStart(12, "div", 85);
+    i0.ɵɵtemplate(13, EventDetailsModalComponent_ng_container_72_div_5_div_13_Template, 10, 7, "div", 86);
     i0.ɵɵelementEnd()();
   }
   if (rf & 2) {
@@ -44891,11 +44893,11 @@ function EventDetailsModalComponent_ng_container_72_div_5_Template(rf, ctx) {
 function EventDetailsModalComponent_ng_container_72_Template(rf, ctx) {
   if (rf & 1) {
     i0.ɵɵelementContainerStart(0);
-    i0.ɵɵelementStart(1, "div", 34)(2, "h3", 75);
-    i0.ɵɵi18n(3, 10);
+    i0.ɵɵelementStart(1, "div", 35)(2, "h3", 76);
+    i0.ɵɵi18n(3, 11);
     i0.ɵɵelementEnd();
-    i0.ɵɵelementStart(4, "div", 76);
-    i0.ɵɵtemplate(5, EventDetailsModalComponent_ng_container_72_div_5_Template, 14, 13, "div", 77);
+    i0.ɵɵelementStart(4, "div", 77);
+    i0.ɵɵtemplate(5, EventDetailsModalComponent_ng_container_72_div_5_Template, 14, 13, "div", 78);
     i0.ɵɵelementEnd()();
     i0.ɵɵelementContainerEnd();
   }
@@ -44908,7 +44910,7 @@ function EventDetailsModalComponent_ng_container_72_Template(rf, ctx) {
 function EventDetailsModalComponent_ng_container_74_Template(rf, ctx) {
   if (rf & 1) {
     i0.ɵɵelementContainerStart(0);
-    i0.ɵɵelement(1, "interactive-map", 92);
+    i0.ɵɵelement(1, "interactive-map", 93);
     i0.ɵɵelementContainerEnd();
   }
   if (rf & 2) {
@@ -44919,7 +44921,7 @@ function EventDetailsModalComponent_ng_container_74_Template(rf, ctx) {
 }
 function EventDetailsModalComponent_div_75_div_3_Template(rf, ctx) {
   if (rf & 1) {
-    i0.ɵɵelement(0, "div", 95);
+    i0.ɵɵelement(0, "div", 96);
     i0.ɵɵpipe(1, "sanitize");
   }
   if (rf & 2) {
@@ -44929,10 +44931,10 @@ function EventDetailsModalComponent_div_75_div_3_Template(rf, ctx) {
 }
 function EventDetailsModalComponent_div_75_Template(rf, ctx) {
   if (rf & 1) {
-    i0.ɵɵelementStart(0, "div", 34)(1, "h3", 93);
-    i0.ɵɵi18n(2, 11);
+    i0.ɵɵelementStart(0, "div", 35)(1, "h3", 94);
+    i0.ɵɵi18n(2, 12);
     i0.ɵɵelementEnd();
-    i0.ɵɵtemplate(3, EventDetailsModalComponent_div_75_div_3_Template, 2, 3, "div", 94);
+    i0.ɵɵtemplate(3, EventDetailsModalComponent_div_75_div_3_Template, 2, 3, "div", 95);
     i0.ɵɵelementEnd();
   }
   if (rf & 2) {
@@ -44943,10 +44945,10 @@ function EventDetailsModalComponent_div_75_Template(rf, ctx) {
 }
 function EventDetailsModalComponent_ng_container_76_div_5_div_13_Template(rf, ctx) {
   if (rf & 1) {
-    i0.ɵɵelementStart(0, "div", 86)(1, "div", 87)(2, "span", 81);
+    i0.ɵɵelementStart(0, "div", 87)(1, "div", 88)(2, "span", 82);
     i0.ɵɵtext(3);
     i0.ɵɵelementEnd()();
-    i0.ɵɵelementStart(4, "div", 89);
+    i0.ɵɵelementStart(4, "div", 90);
     i0.ɵɵtext(5);
     i0.ɵɵelementEnd()();
   }
@@ -44961,24 +44963,24 @@ function EventDetailsModalComponent_ng_container_76_div_5_div_13_Template(rf, ct
 function EventDetailsModalComponent_ng_container_76_div_5_Template(rf, ctx) {
   if (rf & 1) {
     var _r8 = i0.ɵɵgetCurrentView();
-    i0.ɵɵelementStart(0, "div", 98)(1, "button", 99);
+    i0.ɵɵelementStart(0, "div", 99)(1, "button", 100);
     i0.ɵɵlistener("click", function EventDetailsModalComponent_ng_container_76_div_5_Template_button_click_1_listener() {
       var request_r9 = i0.ɵɵrestoreView(_r8).$implicit;
       var ctx_r1 = i0.ɵɵnextContext(2);
       return i0.ɵɵresetView(ctx_r1.show_request[request_r9.id] = !ctx_r1.show_request[request_r9.id]);
     });
-    i0.ɵɵelementStart(2, "div", 100)(3, "div", 81);
+    i0.ɵɵelementStart(2, "div", 101)(3, "div", 82);
     i0.ɵɵtext(4);
     i0.ɵɵpipe(5, "date");
     i0.ɵɵelementEnd()();
-    i0.ɵɵelementStart(6, "div", 101)(7, "app-icon");
+    i0.ɵɵelementStart(6, "div", 102)(7, "app-icon");
     i0.ɵɵtext(8);
     i0.ɵɵelementEnd()();
-    i0.ɵɵelementStart(9, "div", 102)(10, "app-icon", 69);
+    i0.ɵɵelementStart(9, "div", 103)(10, "app-icon", 70);
     i0.ɵɵtext(11);
     i0.ɵɵelementEnd()()();
-    i0.ɵɵelementStart(12, "div", 84);
-    i0.ɵɵtemplate(13, EventDetailsModalComponent_ng_container_76_div_5_div_13_Template, 6, 2, "div", 85);
+    i0.ɵɵelementStart(12, "div", 85);
+    i0.ɵɵtemplate(13, EventDetailsModalComponent_ng_container_76_div_5_div_13_Template, 6, 2, "div", 86);
     i0.ɵɵelementEnd()();
   }
   if (rf & 2) {
@@ -45002,11 +45004,11 @@ function EventDetailsModalComponent_ng_container_76_div_5_Template(rf, ctx) {
 function EventDetailsModalComponent_ng_container_76_Template(rf, ctx) {
   if (rf & 1) {
     i0.ɵɵelementContainerStart(0);
-    i0.ɵɵelementStart(1, "div", 34)(2, "h3", 96);
-    i0.ɵɵi18n(3, 12);
+    i0.ɵɵelementStart(1, "div", 35)(2, "h3", 97);
+    i0.ɵɵi18n(3, 13);
     i0.ɵɵelementEnd();
-    i0.ɵɵelementStart(4, "div", 76);
-    i0.ɵɵtemplate(5, EventDetailsModalComponent_ng_container_76_div_5_Template, 14, 21, "div", 97);
+    i0.ɵɵelementStart(4, "div", 77);
+    i0.ɵɵtemplate(5, EventDetailsModalComponent_ng_container_76_div_5_Template, 14, 21, "div", 98);
     i0.ɵɵelementEnd()();
     i0.ɵɵelementContainerEnd();
   }
@@ -45022,7 +45024,7 @@ function EventDetailsModalComponent_ng_container_76_Template(rf, ctx) {
 function EventDetailsModalComponent_div_80_Template(rf, ctx) {
   if (rf & 1) {
     var _r11 = i0.ɵɵgetCurrentView();
-    i0.ɵɵelementStart(0, "div", 103)(1, "attendee-list", 104);
+    i0.ɵɵelementStart(0, "div", 104)(1, "attendee-list", 105);
     i0.ɵɵlistener("click", function EventDetailsModalComponent_div_80_Template_attendee_list_click_1_listener() {
       i0.ɵɵrestoreView(_r11);
       var ctx_r1 = i0.ɵɵnextContext();
@@ -45039,17 +45041,17 @@ function EventDetailsModalComponent_div_80_Template(rf, ctx) {
 function EventDetailsModalComponent_button_83_Template(rf, ctx) {
   if (rf & 1) {
     var _r12 = i0.ɵɵgetCurrentView();
-    i0.ɵɵelementStart(0, "button", 105);
+    i0.ɵɵelementStart(0, "button", 106);
     i0.ɵɵlistener("click", function EventDetailsModalComponent_button_83_Template_button_click_0_listener() {
       i0.ɵɵrestoreView(_r12);
       var ctx_r1 = i0.ɵɵnextContext();
       return i0.ɵɵresetView(ctx_r1.edit.emit(ctx_r1.space));
     });
-    i0.ɵɵelementStart(1, "div", 56)(2, "app-icon", 69);
+    i0.ɵɵelementStart(1, "div", 57)(2, "app-icon", 70);
     i0.ɵɵtext(3, "edit");
     i0.ɵɵelementEnd();
     i0.ɵɵelementStart(4, "div");
-    i0.ɵɵi18n(5, 13);
+    i0.ɵɵi18n(5, 14);
     i0.ɵɵelementEnd()()();
   }
   if (rf & 2) {
@@ -45057,37 +45059,37 @@ function EventDetailsModalComponent_button_83_Template(rf, ctx) {
     i0.ɵɵproperty("matTooltip", !ctx_r1.can_edit ? ctx_r1.no_edit_message : "")("disabled", !ctx_r1.can_edit);
   }
 }
-function EventDetailsModalComponent_button_90_Template(rf, ctx) {
+function EventDetailsModalComponent_button_96_Template(rf, ctx) {
   if (rf & 1) {
     var _r13 = i0.ɵɵgetCurrentView();
-    i0.ɵɵelementStart(0, "button", 55);
-    i0.ɵɵlistener("click", function EventDetailsModalComponent_button_90_Template_button_click_0_listener() {
+    i0.ɵɵelementStart(0, "button", 56);
+    i0.ɵɵlistener("click", function EventDetailsModalComponent_button_96_Template_button_click_0_listener() {
       i0.ɵɵrestoreView(_r13);
       var ctx_r1 = i0.ɵɵnextContext();
       return i0.ɵɵresetView(ctx_r1.remove.emit(true));
     });
-    i0.ɵɵelementStart(1, "div", 56)(2, "app-icon", 57);
+    i0.ɵɵelementStart(1, "div", 57)(2, "app-icon", 58);
     i0.ɵɵtext(3, "delete");
     i0.ɵɵelementEnd();
     i0.ɵɵelementStart(4, "div");
-    i0.ɵɵi18n(5, 14);
+    i0.ɵɵi18n(5, 15);
     i0.ɵɵelementEnd()()();
   }
 }
-function EventDetailsModalComponent_button_91_Template(rf, ctx) {
+function EventDetailsModalComponent_button_97_Template(rf, ctx) {
   if (rf & 1) {
     var _r14 = i0.ɵɵgetCurrentView();
-    i0.ɵɵelementStart(0, "button", 55);
-    i0.ɵɵlistener("click", function EventDetailsModalComponent_button_91_Template_button_click_0_listener() {
+    i0.ɵɵelementStart(0, "button", 56);
+    i0.ɵɵlistener("click", function EventDetailsModalComponent_button_97_Template_button_click_0_listener() {
       var act_r15 = i0.ɵɵrestoreView(_r14).$implicit;
       var ctx_r1 = i0.ɵɵnextContext();
       return i0.ɵɵresetView(ctx_r1.action.emit(act_r15.id));
     });
-    i0.ɵɵelementStart(1, "div", 56)(2, "app-icon", 69);
+    i0.ɵɵelementStart(1, "div", 57)(2, "app-icon", 70);
     i0.ɵɵtext(3);
     i0.ɵɵelementEnd();
     i0.ɵɵelementStart(4, "div");
-    i0.ɵɵi18n(5, 15);
+    i0.ɵɵi18n(5, 16);
     i0.ɵɵelementEnd()()();
   }
   if (rf & 2) {
@@ -45131,6 +45133,7 @@ var EventDetailsModalComponent = /*#__PURE__*/function () {
     this.level = new level_class_1.BuildingLevel();
     this.building = new building_class_1.Building();
     this.space = new space_class_1.Space();
+    this._local_tz = (0, common_1.getTimezoneOffsetString)(Intl.DateTimeFormat().resolvedOptions().timeZone);
     this.accept_count = this._event.attendees.reduce(function (count, user) {
       return count += user.response_status === 'accepted' ? 1 : 0;
     }, 0);
@@ -45163,7 +45166,8 @@ var EventDetailsModalComponent = /*#__PURE__*/function () {
     get: function get() {
       var tz = this.timezone;
       if (!tz) return '';
-      return (0, common_1.getTimezoneOffsetString)(tz);
+      var tz_offset = (0, common_1.getTimezoneOffsetString)(tz);
+      return tz_offset === this._local_tz ? '' : tz_offset;
     }
   }, {
     key: "body",
@@ -45344,6 +45348,11 @@ var EventDetailsModalComponent = /*#__PURE__*/function () {
         _this2.hide_map = false;
       });
     }
+  }, {
+    key: "print",
+    value: function print() {
+      window.print();
+    }
   }]);
 }();
 _EventDetailsModalComponent = EventDetailsModalComponent;
@@ -45359,7 +45368,7 @@ _EventDetailsModalComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
     remove: "remove"
   },
   features: [i0.ɵɵProvidersFeature([space_pipe_1.SpacePipe])],
-  decls: 92,
+  decls: 98,
   vars: 39,
   consts: function consts() {
     var i18n_0;
@@ -45447,209 +45456,230 @@ _EventDetailsModalComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
       /**
        * @suppress {msgDescriptions}
        */
-      var MSG_EXTERNAL_3151361020738293834$$LIBS_EVENTS_SRC_LIB_EVENT_DETAILS_MODAL_COMPONENT_TS_8 = goog.getMsg(" {$interpolation} ", {
-        "interpolation": "\uFFFD0\uFFFD"
-      }, {
-        original_code: {
-          "interpolation": "{{\n                                        room_status === 'pending'\n                                            ? 'Check in'\n                                            : 'Checked in'\n                                    }}"
-        }
-      });
-      i18n_8 = MSG_EXTERNAL_3151361020738293834$$LIBS_EVENTS_SRC_LIB_EVENT_DETAILS_MODAL_COMPONENT_TS_8;
+      var MSG_EXTERNAL_3510992542220959923$$LIBS_EVENTS_SRC_LIB_EVENT_DETAILS_MODAL_COMPONENT_TS_8 = goog.getMsg("Print event");
+      i18n_8 = MSG_EXTERNAL_3510992542220959923$$LIBS_EVENTS_SRC_LIB_EVENT_DETAILS_MODAL_COMPONENT_TS_8;
     } else {
-      i18n_8 = $localize(_templateObject9 || (_templateObject9 = _taggedTemplateLiteral([":\u241Fe00cf812605b14c9c2390da404d3cd3ea67f19a6\u241F3151361020738293834: ", ":INTERPOLATION: "])), "\uFFFD0\uFFFD");
+      i18n_8 = $localize(_templateObject9 || (_templateObject9 = _taggedTemplateLiteral([":\u241Fc2d85636ba32bd1dd78e1a65f42f02651e54a66e\u241F3510992542220959923:Print event"])));
     }
     var i18n_9;
     if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
       /**
        * @suppress {msgDescriptions}
        */
-      var MSG_EXTERNAL_6975755512274629403$$LIBS_EVENTS_SRC_LIB_EVENT_DETAILS_MODAL_COMPONENT_TS_9 = goog.getMsg(" Catering ");
-      i18n_9 = MSG_EXTERNAL_6975755512274629403$$LIBS_EVENTS_SRC_LIB_EVENT_DETAILS_MODAL_COMPONENT_TS_9;
+      var MSG_EXTERNAL_3151361020738293834$$LIBS_EVENTS_SRC_LIB_EVENT_DETAILS_MODAL_COMPONENT_TS_9 = goog.getMsg(" {$interpolation} ", {
+        "interpolation": "\uFFFD0\uFFFD"
+      }, {
+        original_code: {
+          "interpolation": "{{\n                                        room_status === 'pending'\n                                            ? 'Check in'\n                                            : 'Checked in'\n                                    }}"
+        }
+      });
+      i18n_9 = MSG_EXTERNAL_3151361020738293834$$LIBS_EVENTS_SRC_LIB_EVENT_DETAILS_MODAL_COMPONENT_TS_9;
     } else {
-      i18n_9 = $localize(_templateObject10 || (_templateObject10 = _taggedTemplateLiteral([":\u241Fef2612559c447d8f4c218c06bb66af9de8edf365\u241F6975755512274629403: Catering "])));
+      i18n_9 = $localize(_templateObject10 || (_templateObject10 = _taggedTemplateLiteral([":\u241Fe00cf812605b14c9c2390da404d3cd3ea67f19a6\u241F3151361020738293834: ", ":INTERPOLATION: "])), "\uFFFD0\uFFFD");
     }
     var i18n_10;
     if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
       /**
        * @suppress {msgDescriptions}
        */
-      var MSG_EXTERNAL_4484880822148672471$$LIBS_EVENTS_SRC_LIB_EVENT_DETAILS_MODAL_COMPONENT_TS_10 = goog.getMsg(" Notes ");
-      i18n_10 = MSG_EXTERNAL_4484880822148672471$$LIBS_EVENTS_SRC_LIB_EVENT_DETAILS_MODAL_COMPONENT_TS_10;
+      var MSG_EXTERNAL_6975755512274629403$$LIBS_EVENTS_SRC_LIB_EVENT_DETAILS_MODAL_COMPONENT_TS_10 = goog.getMsg(" Catering ");
+      i18n_10 = MSG_EXTERNAL_6975755512274629403$$LIBS_EVENTS_SRC_LIB_EVENT_DETAILS_MODAL_COMPONENT_TS_10;
     } else {
-      i18n_10 = $localize(_templateObject11 || (_templateObject11 = _taggedTemplateLiteral([":\u241F195b2f1c65301b0700459c9d0ae2ce407ed9c7bf\u241F4484880822148672471: Notes "])));
+      i18n_10 = $localize(_templateObject11 || (_templateObject11 = _taggedTemplateLiteral([":\u241Fef2612559c447d8f4c218c06bb66af9de8edf365\u241F6975755512274629403: Catering "])));
     }
     var i18n_11;
     if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
       /**
        * @suppress {msgDescriptions}
        */
-      var MSG_EXTERNAL_3391582008093299175$$LIBS_EVENTS_SRC_LIB_EVENT_DETAILS_MODAL_COMPONENT_TS_11 = goog.getMsg(" Assets ({$interpolation}) ", {
-        "interpolation": "\uFFFD0\uFFFD"
-      }, {
-        original_code: {
-          "interpolation": "{{ event.valid_assets?.length || 0 }}"
-        }
-      });
-      i18n_11 = MSG_EXTERNAL_3391582008093299175$$LIBS_EVENTS_SRC_LIB_EVENT_DETAILS_MODAL_COMPONENT_TS_11;
+      var MSG_EXTERNAL_4484880822148672471$$LIBS_EVENTS_SRC_LIB_EVENT_DETAILS_MODAL_COMPONENT_TS_11 = goog.getMsg(" Notes ");
+      i18n_11 = MSG_EXTERNAL_4484880822148672471$$LIBS_EVENTS_SRC_LIB_EVENT_DETAILS_MODAL_COMPONENT_TS_11;
     } else {
-      i18n_11 = $localize(_templateObject12 || (_templateObject12 = _taggedTemplateLiteral([":\u241Fe30ee857e7399db3f72ec7aa8aa9b56ce76fca96\u241F3391582008093299175: Assets (", ":INTERPOLATION:) "])), "\uFFFD0\uFFFD");
+      i18n_11 = $localize(_templateObject12 || (_templateObject12 = _taggedTemplateLiteral([":\u241F195b2f1c65301b0700459c9d0ae2ce407ed9c7bf\u241F4484880822148672471: Notes "])));
     }
     var i18n_12;
     if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
       /**
        * @suppress {msgDescriptions}
        */
-      var MSG_EXTERNAL_2772374745622574688$$LIBS_EVENTS_SRC_LIB_EVENT_DETAILS_MODAL_COMPONENT_TS_12 = goog.getMsg("Edit event");
-      i18n_12 = MSG_EXTERNAL_2772374745622574688$$LIBS_EVENTS_SRC_LIB_EVENT_DETAILS_MODAL_COMPONENT_TS_12;
+      var MSG_EXTERNAL_3391582008093299175$$LIBS_EVENTS_SRC_LIB_EVENT_DETAILS_MODAL_COMPONENT_TS_12 = goog.getMsg(" Assets ({$interpolation}) ", {
+        "interpolation": "\uFFFD0\uFFFD"
+      }, {
+        original_code: {
+          "interpolation": "{{ event.valid_assets?.length || 0 }}"
+        }
+      });
+      i18n_12 = MSG_EXTERNAL_3391582008093299175$$LIBS_EVENTS_SRC_LIB_EVENT_DETAILS_MODAL_COMPONENT_TS_12;
     } else {
-      i18n_12 = $localize(_templateObject13 || (_templateObject13 = _taggedTemplateLiteral([":\u241F56c74224d22c7379fdbf9d0a00c8bf519a9ee661\u241F2772374745622574688:Edit event"])));
+      i18n_12 = $localize(_templateObject13 || (_templateObject13 = _taggedTemplateLiteral([":\u241Fe30ee857e7399db3f72ec7aa8aa9b56ce76fca96\u241F3391582008093299175: Assets (", ":INTERPOLATION:) "])), "\uFFFD0\uFFFD");
     }
     var i18n_13;
     if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
       /**
        * @suppress {msgDescriptions}
        */
-      var MSG_EXTERNAL_3974228098480354844$$LIBS_EVENTS_SRC_LIB_EVENT_DETAILS_MODAL_COMPONENT_TS_13 = goog.getMsg("Delete Series");
-      i18n_13 = MSG_EXTERNAL_3974228098480354844$$LIBS_EVENTS_SRC_LIB_EVENT_DETAILS_MODAL_COMPONENT_TS_13;
+      var MSG_EXTERNAL_2772374745622574688$$LIBS_EVENTS_SRC_LIB_EVENT_DETAILS_MODAL_COMPONENT_TS_13 = goog.getMsg("Edit event");
+      i18n_13 = MSG_EXTERNAL_2772374745622574688$$LIBS_EVENTS_SRC_LIB_EVENT_DETAILS_MODAL_COMPONENT_TS_13;
     } else {
-      i18n_13 = $localize(_templateObject14 || (_templateObject14 = _taggedTemplateLiteral([":\u241Fecb2e91e2775870da0ea8e51b4951994493672fb\u241F3974228098480354844:Delete Series"])));
+      i18n_13 = $localize(_templateObject14 || (_templateObject14 = _taggedTemplateLiteral([":\u241F56c74224d22c7379fdbf9d0a00c8bf519a9ee661\u241F2772374745622574688:Edit event"])));
     }
     var i18n_14;
     if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
       /**
        * @suppress {msgDescriptions}
        */
-      var MSG_EXTERNAL_941732683947462971$$LIBS_EVENTS_SRC_LIB_EVENT_DETAILS_MODAL_COMPONENT_TS_14 = goog.getMsg("{$interpolation}", {
+      var MSG_EXTERNAL_3974228098480354844$$LIBS_EVENTS_SRC_LIB_EVENT_DETAILS_MODAL_COMPONENT_TS_14 = goog.getMsg("Delete Series");
+      i18n_14 = MSG_EXTERNAL_3974228098480354844$$LIBS_EVENTS_SRC_LIB_EVENT_DETAILS_MODAL_COMPONENT_TS_14;
+    } else {
+      i18n_14 = $localize(_templateObject15 || (_templateObject15 = _taggedTemplateLiteral([":\u241Fecb2e91e2775870da0ea8e51b4951994493672fb\u241F3974228098480354844:Delete Series"])));
+    }
+    var i18n_15;
+    if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
+      /**
+       * @suppress {msgDescriptions}
+       */
+      var MSG_EXTERNAL_941732683947462971$$LIBS_EVENTS_SRC_LIB_EVENT_DETAILS_MODAL_COMPONENT_TS_15 = goog.getMsg("{$interpolation}", {
         "interpolation": "\uFFFD0\uFFFD"
       }, {
         original_code: {
           "interpolation": "{{ act.name }}"
         }
       });
-      i18n_14 = MSG_EXTERNAL_941732683947462971$$LIBS_EVENTS_SRC_LIB_EVENT_DETAILS_MODAL_COMPONENT_TS_14;
+      i18n_15 = MSG_EXTERNAL_941732683947462971$$LIBS_EVENTS_SRC_LIB_EVENT_DETAILS_MODAL_COMPONENT_TS_15;
     } else {
-      i18n_14 = $localize(_templateObject15 || (_templateObject15 = _taggedTemplateLiteral([":\u241F8fcf89a6df3c02c129a41d4b202221a4013f107c\u241F941732683947462971:", ":INTERPOLATION:"])), "\uFFFD0\uFFFD");
+      i18n_15 = $localize(_templateObject16 || (_templateObject16 = _taggedTemplateLiteral([":\u241F8fcf89a6df3c02c129a41d4b202221a4013f107c\u241F941732683947462971:", ":INTERPOLATION:"])), "\uFFFD0\uFFFD");
     }
-    return [["menu", "matMenu"], i18n_0, i18n_1, i18n_2, i18n_3, i18n_4, i18n_5, i18n_6, i18n_7, i18n_8, i18n_9, i18n_10, i18n_11, i18n_12, i18n_13, i18n_14, [1, "w-[100vw]", "h-[100vh]", "sm:relative", "sm:inset-auto", "sm:w-[51rem]", "sm:h-auto", "sm:max-h-[80vh]", "bg-base-100", "sm:bg-base-200", "sm:dark:bg-neutral-600", "sm:rounded", "overflow-auto", "space-y-2", "pb-2"], [1, "sm:flex", "flex-col", "items-center", "pb-4", "max-h-screen", "sm:max-h-[80vh]", "sm:px-16", "sm:border-b", "bg-base-100", "border-base-200"], ["binding", "", "mod", "Bookings", "bind", "status", 3, "modelChange", "model", "sys"], ["class", "h-8 w-full sm:hidden block", 4, "ngIf"], ["class", "bg-neutral w-full h-64 sm:rounded-b overflow-hidden", 4, "ngIf"], ["title", "", 1, "px-3", "mt-2", "text-xl", "font-medium", "w-full"], [1, "sm:flex", "items-center", "justify-between", "w-full"], [1, "flex", "m-2"], [3, "status"], [1, "flex", "flex-col", "leading-tight"], ["class", "opacity-30 text-xs", 4, "ngIf"], ["actions", "", "class", "flex items-center space-x-2 px-2", 4, "ngIf"], [1, "sm:flex", "flex-wrap", "sm:px-12"], [1, "sm:p-4", "sm:bg-base-100", "sm:dark:bg-neutral-700", "rounded", "sm:m-2", "sm:border", "border-base-200", "flex-grow-[3]", "min-w-1/3", "sm:w-[16rem]", "space-y-2"], [1, "px-3", "mt-2", "text-lg", "font-medium", "mb-2"], [1, "flex", "items-center", "px-2", "space-x-2"], [4, "ngIf"], ["class", "flex items-center px-2 space-x-2", 4, "ngIf"], [1, "mt-4", "sm:p-4", "sm:bg-base-100", "sm:dark:bg-neutral-700", "rounded", "sm:m-2", "sm:border", "border-base-200", "flex-grow-[3]", "min-w-1/3", "sm:w-[16rem]"], [1, "mx-3", "border-t", "border-base-200", "sm:border-none", "flex", "items-center", "justify-between"], [1, "text-lg", "font-medium"], ["matRipple", "", "show-attendees", "", 1, "clear", "text-xs", "underline", 3, "click"], ["class", "flex items-center py-2 space-x-2 text-sm px-4 max-w-full", 4, "ngIf"], [1, "flex", "items-center", "p-1"], [1, "flex", "flex-col", "flex-1", "items-center", "justify-center", "space-y-1"], [1, "text-lg"], [1, "text-sm", "uppercase"], [1, "mx-3", "mt-2", "pt-2", "text-lg", "font-medium", "border-t", "border-base-200"], ["host", "", 1, "px-2", "flex", "items-center", "space-x-2"], [3, "user"], [1, "text-sm", "flex-1", "w-px"], [1, "opacity-60", "truncate", "w-full", 3, "title"], ["class", "flex items-center space-x-2 text-sm px-4 py-2 max-w-full", 4, "ngIf"], ["map", "", 1, "mt-4", "sm:mt-2", "h-64", "sm:h-48", "relative", "border", "border-base-200", "overflow-hidden", "rounded", "sm:bg-base-100", "sm:dark:bg-neutral-700", "m-2", "flex-grow-[3]", "min-w-1/3", "p-2", "w-[calc(100%-1rem)]", "sm:w-[16rem]", 3, "click"], ["class", "mt-4 sm:p-4 sm:bg-base-100 sm:dark:bg-neutral-700 rounded sm:m-2 sm:border border-base-200 flex-grow-[3] min-w-1/3 sm:w-[16rem]", 4, "ngIf"], ["icon", "", "matRipple", "", "mat-dialog-close", "", 1, "absolute", "top-2", "left-2", "bg-neutral", "text-white"], ["class", "absolute inset-0 z-50", 4, "ngIf"], ["xPosition", "before"], ["mat-menu-item", "", "mat-dialog-close", "", 3, "matTooltip", "disabled", "click", 4, "ngIf"], ["mat-menu-item", "", 3, "click"], [1, "flex", "items-center", "space-x-2", "text-base", "pr-2"], [1, "text-2xl", "text-error"], ["mat-menu-item", "", 3, "click", 4, "ngIf"], ["mat-menu-item", "", 3, "click", 4, "ngFor", "ngForOf"], [1, "h-8", "w-full", "sm:hidden", "block"], [1, "bg-neutral", "w-full", "h-64", "sm:rounded-b", "overflow-hidden"], [1, "w-full", "h-64", 3, "images"], [1, "opacity-30", "text-xs"], ["actions", "", 1, "flex", "items-center", "space-x-2", "px-2"], ["btn", "", "matRipple", "", "class", "flex-1 h-10", 3, "bg-success", "border-none", "pointer-events-none", "click", 4, "ngIf"], ["icon", "", "matRipple", "", "class", "bg-secondary rounded text-white h-12 w-12", 3, "matMenuTriggerFor", 4, "ngIf"], ["btn", "", "matRipple", "", 1, "flex-1", "h-10", 3, "click"], [1, "flex", "items-center", "space-x-2", "justify-center"], [1, "text-2xl"], [1, "pr-4"], ["icon", "", "matRipple", "", 1, "bg-secondary", "rounded", "text-white", "h-12", "w-12", 3, "matMenuTriggerFor"], [1, "flex", "items-center", "py-2", "space-x-2", "text-sm", "px-4", "max-w-full"], [1, "ml-2", "opacity-60", "p-1", "text-xs", "bg-base-200", "rounded", "truncate"], [1, "flex", "items-center", "space-x-2", "text-sm", "px-4", "py-2", "max-w-full"], [1, "mx-3", "my-2", "text-lg", "font-medium"], [1, "flex", "flex-col", "space-y-2"], ["order", "", "class", "border border-base-300 bg-base-100 rounded-xl overflow-hidden", 4, "ngFor", "ngForOf"], ["order", "", 1, "border", "border-base-300", "bg-base-100", "rounded-xl", "overflow-hidden"], [1, "flex", "items-center", "space-x-2", "p-3"], [1, "flex-1"], [1, "text-sm"], [1, "text-xs", "opacity-60"], ["icon", "", "matRipple", "", 3, "click", "matTooltip"], [1, "flex", "flex-col", "bg-base-200", "divide-y", "divide-base-100"], ["class", "flex items-center px-3 py-1 space-x-2 hover:opacity-90", 4, "ngFor", "ngForOf"], [1, "flex", "items-center", "px-3", "py-1", "space-x-2", "hover:opacity-90"], [1, "flex", "items-center", "flex-1"], ["class", "text-xs opacity-60 ml-4 font-normal", 3, "matTooltip", 4, "ngIf"], [1, "rounded", "bg-success", "text-success-content", "text-xs", "px-2", "py-1"], [1, "rounded", "bg-info", "text-info-content", "text-xs", "px-2", "py-1"], [1, "text-xs", "opacity-60", "ml-4", "font-normal", 3, "matTooltip"], [1, "pointer-events-none", 3, "src", "features", "options"], [1, "mx-3", "text-lg", "font-medium", "border-t", "sm:border-none", "border-base-200"], ["notes", "", "class", "mx-4 overflow-hidden max-w-full", 3, "innerHTML", 4, "ngIf"], ["notes", "", 1, "mx-4", "overflow-hidden", "max-w-full", 3, "innerHTML"], [1, "mx-3", "pt-2", "text-lg", "font-medium"], ["request", "", "class", "border border-base-300 bg-base-100 rounded-xl overflow-hidden", 4, "ngFor", "ngForOf"], ["request", "", 1, "border", "border-base-300", "bg-base-100", "rounded-xl", "overflow-hidden"], ["matRipple", "", 1, "flex", "items-center", "space-x-2", "p-3", "w-full", 3, "click"], [1, "flex-1", "text-left"], [1, "flex", "items-center", "justify-center", "rounded-full", "w-8", "h-8", 3, "matTooltip"], [1, "flex", "items-center", "justify-center", "rounded-full", "w-8", "h-8"], [1, "absolute", "inset-0", "z-50"], [3, "click", "list", "host"], ["mat-menu-item", "", "mat-dialog-close", "", 3, "click", "matTooltip", "disabled"]];
+    return [["menu", "matMenu"], i18n_0, i18n_1, i18n_2, i18n_3, i18n_4, i18n_5, i18n_6, i18n_7, i18n_8, i18n_9, i18n_10, i18n_11, i18n_12, i18n_13, i18n_14, i18n_15, [1, "w-[100vw]", "h-[100vh]", "sm:relative", "sm:inset-auto", "sm:w-[51rem]", "sm:h-auto", "sm:max-h-[80vh]", "bg-base-100", "sm:bg-base-200", "sm:rounded", "overflow-auto", "space-y-2", "pb-2"], [1, "sm:flex", "flex-col", "items-center", "pb-4", "max-h-screen", "sm:max-h-[80vh]", "sm:px-16", "sm:border-b", "bg-base-100", "border-base-200"], ["binding", "", "mod", "Bookings", "bind", "status", 3, "modelChange", "model", "sys"], ["class", "h-8 w-full sm:hidden block", 4, "ngIf"], ["class", "bg-neutral w-full h-64 sm:rounded-b overflow-hidden", 4, "ngIf"], ["title", "", 1, "px-3", "mt-2", "text-xl", "font-medium", "w-full"], [1, "sm:flex", "items-center", "justify-between", "w-full"], [1, "flex", "m-2"], [3, "status"], [1, "flex", "flex-col", "leading-tight"], ["class", "opacity-30 text-xs", 4, "ngIf"], ["actions", "", "class", "flex items-center space-x-2 px-2", 4, "ngIf"], [1, "sm:flex", "flex-wrap", "sm:px-12"], [1, "sm:p-4", "sm:bg-base-100", "rounded", "sm:m-2", "sm:border", "border-base-200", "flex-grow-[3]", "min-w-1/3", "sm:w-[16rem]", "space-y-2"], [1, "px-3", "mt-2", "text-lg", "font-medium", "mb-2"], [1, "flex", "items-center", "px-2", "space-x-2"], [4, "ngIf"], ["class", "flex items-center px-2 space-x-2", 4, "ngIf"], [1, "mt-4", "sm:p-4", "sm:bg-base-100", "rounded", "sm:m-2", "sm:border", "border-base-200", "flex-grow-[3]", "min-w-1/3", "sm:w-[16rem]"], [1, "mx-3", "border-t", "border-base-200", "sm:border-none", "flex", "items-center", "justify-between"], [1, "text-lg", "font-medium"], ["matRipple", "", "show-attendees", "", 1, "clear", "text-xs", "underline", 3, "click"], ["class", "flex items-center py-2 space-x-2 text-sm px-4 max-w-full", 4, "ngIf"], [1, "flex", "items-center", "p-1"], [1, "flex", "flex-col", "flex-1", "items-center", "justify-center", "space-y-1"], [1, "text-lg"], [1, "text-sm", "uppercase"], [1, "mx-3", "mt-2", "pt-2", "text-lg", "font-medium", "border-t", "border-base-200"], ["host", "", 1, "px-2", "flex", "items-center", "space-x-2"], [3, "user"], [1, "text-sm", "flex-1", "w-px"], [1, "opacity-60", "truncate", "w-full", 3, "title"], ["class", "flex items-center space-x-2 text-sm px-4 py-2 max-w-full", 4, "ngIf"], ["map", "", 1, "mt-4", "sm:mt-2", "h-64", "sm:h-48", "relative", "border", "border-base-200", "overflow-hidden", "rounded", "sm:bg-base-100", "m-2", "flex-grow-[3]", "min-w-1/3", "p-2", "w-[calc(100%-1rem)]", "sm:w-[16rem]", 3, "click"], ["class", "mt-4 sm:p-4 sm:bg-base-100 rounded sm:m-2 sm:border border-base-200 flex-grow-[3] min-w-1/3 sm:w-[16rem]", 4, "ngIf"], ["icon", "", "matRipple", "", "mat-dialog-close", "", 1, "absolute", "top-2", "left-2", "bg-neutral", "text-white"], ["class", "absolute inset-0 z-50", 4, "ngIf"], ["xPosition", "before"], ["mat-menu-item", "", "mat-dialog-close", "", 3, "matTooltip", "disabled", "click", 4, "ngIf"], ["mat-menu-item", "", 3, "click"], [1, "flex", "items-center", "space-x-2", "text-base", "pr-2"], [1, "text-2xl", "text-error"], ["mat-menu-item", "", 3, "click", 4, "ngIf"], ["mat-menu-item", "", 3, "click", 4, "ngFor", "ngForOf"], [1, "h-8", "w-full", "sm:hidden", "block"], [1, "bg-neutral", "w-full", "h-64", "sm:rounded-b", "overflow-hidden"], [1, "w-full", "h-64", 3, "images"], [1, "opacity-30", "text-xs"], ["actions", "", 1, "flex", "items-center", "space-x-2", "px-2"], ["btn", "", "matRipple", "", "class", "flex-1 h-10", 3, "bg-success", "border-none", "pointer-events-none", "click", 4, "ngIf"], ["icon", "", "matRipple", "", "class", "bg-secondary rounded text-white h-12 w-12", 3, "matMenuTriggerFor", 4, "ngIf"], ["btn", "", "matRipple", "", 1, "flex-1", "h-10", 3, "click"], [1, "flex", "items-center", "space-x-2", "justify-center"], [1, "text-2xl"], [1, "pr-4"], ["icon", "", "matRipple", "", 1, "bg-secondary", "rounded", "text-white", "h-12", "w-12", 3, "matMenuTriggerFor"], [1, "flex", "items-center", "py-2", "space-x-2", "text-sm", "px-4", "max-w-full"], [1, "ml-2", "opacity-60", "p-1", "text-xs", "bg-base-200", "rounded", "truncate"], [1, "flex", "items-center", "space-x-2", "text-sm", "px-4", "py-2", "max-w-full"], [1, "mx-3", "my-2", "text-lg", "font-medium"], [1, "flex", "flex-col", "space-y-2"], ["order", "", "class", "border border-base-300 bg-base-100 rounded-xl overflow-hidden", 4, "ngFor", "ngForOf"], ["order", "", 1, "border", "border-base-300", "bg-base-100", "rounded-xl", "overflow-hidden"], [1, "flex", "items-center", "space-x-2", "p-3"], [1, "flex-1"], [1, "text-sm"], [1, "text-xs", "opacity-60"], ["icon", "", "matRipple", "", 3, "click", "matTooltip"], [1, "flex", "flex-col", "bg-base-200", "divide-y", "divide-base-100"], ["class", "flex items-center px-3 py-1 space-x-2 hover:opacity-90", 4, "ngFor", "ngForOf"], [1, "flex", "items-center", "px-3", "py-1", "space-x-2", "hover:opacity-90"], [1, "flex", "items-center", "flex-1"], ["class", "text-xs opacity-60 ml-4 font-normal", 3, "matTooltip", 4, "ngIf"], [1, "rounded", "bg-success", "text-success-content", "text-xs", "px-2", "py-1"], [1, "rounded", "bg-info", "text-info-content", "text-xs", "px-2", "py-1"], [1, "text-xs", "opacity-60", "ml-4", "font-normal", 3, "matTooltip"], [1, "pointer-events-none", 3, "src", "features", "options"], [1, "mx-3", "text-lg", "font-medium", "border-t", "sm:border-none", "border-base-200"], ["notes", "", "class", "mx-4 overflow-hidden max-w-full", 3, "innerHTML", 4, "ngIf"], ["notes", "", 1, "mx-4", "overflow-hidden", "max-w-full", 3, "innerHTML"], [1, "mx-3", "pt-2", "text-lg", "font-medium"], ["request", "", "class", "border border-base-300 bg-base-100 rounded-xl overflow-hidden", 4, "ngFor", "ngForOf"], ["request", "", 1, "border", "border-base-300", "bg-base-100", "rounded-xl", "overflow-hidden"], ["matRipple", "", 1, "flex", "items-center", "space-x-2", "p-3", "w-full", 3, "click"], [1, "flex-1", "text-left"], [1, "flex", "items-center", "justify-center", "rounded-full", "w-8", "h-8", 3, "matTooltip"], [1, "flex", "items-center", "justify-center", "rounded-full", "w-8", "h-8"], [1, "absolute", "inset-0", "z-50"], [3, "click", "list", "host"], ["mat-menu-item", "", "mat-dialog-close", "", 3, "click", "matTooltip", "disabled"]];
   },
   template: function EventDetailsModalComponent_Template(rf, ctx) {
     if (rf & 1) {
       var _r1 = i0.ɵɵgetCurrentView();
-      i0.ɵɵelementStart(0, "div", 16)(1, "div", 17)(2, "i", 18);
+      i0.ɵɵelementStart(0, "div", 17)(1, "div", 18)(2, "i", 19);
       i0.ɵɵtwoWayListener("modelChange", function EventDetailsModalComponent_Template_i_modelChange_2_listener($event) {
         i0.ɵɵrestoreView(_r1);
         i0.ɵɵtwoWayBindingSet(ctx.room_status, $event) || (ctx.room_status = $event);
         return i0.ɵɵresetView($event);
       });
       i0.ɵɵelementEnd();
-      i0.ɵɵtemplate(3, EventDetailsModalComponent_div_3_Template, 1, 0, "div", 19)(4, EventDetailsModalComponent_div_4_Template, 2, 1, "div", 20);
-      i0.ɵɵelementStart(5, "h3", 21);
+      i0.ɵɵtemplate(3, EventDetailsModalComponent_div_3_Template, 1, 0, "div", 20)(4, EventDetailsModalComponent_div_4_Template, 2, 1, "div", 21);
+      i0.ɵɵelementStart(5, "h3", 22);
       i0.ɵɵtext(6);
       i0.ɵɵelementEnd();
-      i0.ɵɵelementStart(7, "div", 22)(8, "div", 23)(9, "status-pill", 24)(10, "div", 25)(11, "div");
+      i0.ɵɵelementStart(7, "div", 23)(8, "div", 24)(9, "status-pill", 25)(10, "div", 26)(11, "div");
       i0.ɵɵtext(12);
       i0.ɵɵelementEnd();
-      i0.ɵɵtemplate(13, EventDetailsModalComponent_div_13_Template, 2, 1, "div", 26);
+      i0.ɵɵtemplate(13, EventDetailsModalComponent_div_13_Template, 2, 1, "div", 27);
       i0.ɵɵelementEnd()()();
-      i0.ɵɵtemplate(14, EventDetailsModalComponent_div_14_Template, 3, 2, "div", 27);
+      i0.ɵɵtemplate(14, EventDetailsModalComponent_div_14_Template, 3, 2, "div", 28);
       i0.ɵɵelementEnd()();
-      i0.ɵɵelementStart(15, "div", 28)(16, "div", 29)(17, "h3", 30);
+      i0.ɵɵelementStart(15, "div", 29)(16, "div", 30)(17, "h3", 31);
       i0.ɵɵi18n(18, 1);
       i0.ɵɵelementEnd();
-      i0.ɵɵelementStart(19, "div", 31)(20, "app-icon");
+      i0.ɵɵelementStart(19, "div", 32)(20, "app-icon");
       i0.ɵɵtext(21, "event");
       i0.ɵɵelementEnd();
       i0.ɵɵelementStart(22, "div");
       i0.ɵɵtext(23);
       i0.ɵɵpipe(24, "date");
       i0.ɵɵelementEnd()();
-      i0.ɵɵelementStart(25, "div", 31)(26, "app-icon");
+      i0.ɵɵelementStart(25, "div", 32)(26, "app-icon");
       i0.ɵɵtext(27, "schedule");
       i0.ɵɵelementEnd();
-      i0.ɵɵelementStart(28, "div", 25)(29, "div");
+      i0.ɵɵelementStart(28, "div", 26)(29, "div");
       i0.ɵɵtext(30);
       i0.ɵɵelementEnd();
-      i0.ɵɵtemplate(31, EventDetailsModalComponent_div_31_Template, 2, 1, "div", 26);
+      i0.ɵɵtemplate(31, EventDetailsModalComponent_div_31_Template, 2, 1, "div", 27);
       i0.ɵɵelementEnd()();
-      i0.ɵɵelementStart(32, "div", 31)(33, "app-icon");
+      i0.ɵɵelementStart(32, "div", 32)(33, "app-icon");
       i0.ɵɵtext(34, "map");
       i0.ɵɵelementEnd();
       i0.ɵɵelementStart(35, "div");
-      i0.ɵɵtemplate(36, EventDetailsModalComponent_ng_container_36_Template, 2, 1, "ng-container", 32);
+      i0.ɵɵtemplate(36, EventDetailsModalComponent_ng_container_36_Template, 2, 1, "ng-container", 33);
       i0.ɵɵtext(37);
       i0.ɵɵelementEnd()();
-      i0.ɵɵtemplate(38, EventDetailsModalComponent_div_38_Template, 5, 2, "div", 33);
+      i0.ɵɵtemplate(38, EventDetailsModalComponent_div_38_Template, 5, 2, "div", 34);
       i0.ɵɵelementEnd();
-      i0.ɵɵelementStart(39, "div", 34)(40, "div", 35)(41, "h3", 36);
+      i0.ɵɵelementStart(39, "div", 35)(40, "div", 36)(41, "h3", 37);
       i0.ɵɵi18n(42, 2);
       i0.ɵɵelementEnd();
-      i0.ɵɵelementStart(43, "button", 37);
+      i0.ɵɵelementStart(43, "button", 38);
       i0.ɵɵlistener("click", function EventDetailsModalComponent_Template_button_click_43_listener() {
         i0.ɵɵrestoreView(_r1);
         return i0.ɵɵresetView(ctx.show_attendees = true);
       });
       i0.ɵɵi18n(44, 3);
       i0.ɵɵelementEnd()();
-      i0.ɵɵtemplate(45, EventDetailsModalComponent_div_45_Template, 4, 1, "div", 38);
-      i0.ɵɵelementStart(46, "div", 39)(47, "div", 40)(48, "div", 41);
+      i0.ɵɵtemplate(45, EventDetailsModalComponent_div_45_Template, 4, 1, "div", 39);
+      i0.ɵɵelementStart(46, "div", 40)(47, "div", 41)(48, "div", 42);
       i0.ɵɵtext(49);
       i0.ɵɵelementEnd();
-      i0.ɵɵelementStart(50, "div", 42);
+      i0.ɵɵelementStart(50, "div", 43);
       i0.ɵɵi18n(51, 4);
       i0.ɵɵelementEnd()();
-      i0.ɵɵelementStart(52, "div", 40)(53, "div", 41);
+      i0.ɵɵelementStart(52, "div", 41)(53, "div", 42);
       i0.ɵɵtext(54);
       i0.ɵɵelementEnd();
-      i0.ɵɵelementStart(55, "div", 42);
+      i0.ɵɵelementStart(55, "div", 43);
       i0.ɵɵi18n(56, 5);
       i0.ɵɵelementEnd()();
-      i0.ɵɵelementStart(57, "div", 40)(58, "div", 41);
+      i0.ɵɵelementStart(57, "div", 41)(58, "div", 42);
       i0.ɵɵtext(59);
       i0.ɵɵelementEnd();
-      i0.ɵɵelementStart(60, "div", 42);
+      i0.ɵɵelementStart(60, "div", 43);
       i0.ɵɵi18n(61, 6);
       i0.ɵɵelementEnd()()();
-      i0.ɵɵelementStart(62, "h3", 43);
+      i0.ɵɵelementStart(62, "h3", 44);
       i0.ɵɵi18n(63, 7);
       i0.ɵɵelementEnd();
-      i0.ɵɵelementStart(64, "div", 44);
-      i0.ɵɵelement(65, "a-user-avatar", 45);
-      i0.ɵɵelementStart(66, "div", 46)(67, "div");
+      i0.ɵɵelementStart(64, "div", 45);
+      i0.ɵɵelement(65, "a-user-avatar", 46);
+      i0.ɵɵelementStart(66, "div", 47)(67, "div");
       i0.ɵɵtext(68);
       i0.ɵɵelementEnd();
-      i0.ɵɵelementStart(69, "div", 47);
+      i0.ɵɵelementStart(69, "div", 48);
       i0.ɵɵtext(70);
       i0.ɵɵelementEnd()()();
-      i0.ɵɵtemplate(71, EventDetailsModalComponent_div_71_Template, 4, 1, "div", 48);
+      i0.ɵɵtemplate(71, EventDetailsModalComponent_div_71_Template, 4, 1, "div", 49);
       i0.ɵɵelementEnd();
-      i0.ɵɵtemplate(72, EventDetailsModalComponent_ng_container_72_Template, 6, 1, "ng-container", 32);
-      i0.ɵɵelementStart(73, "button", 49);
+      i0.ɵɵtemplate(72, EventDetailsModalComponent_ng_container_72_Template, 6, 1, "ng-container", 33);
+      i0.ɵɵelementStart(73, "button", 50);
       i0.ɵɵlistener("click", function EventDetailsModalComponent_Template_button_click_73_listener() {
         i0.ɵɵrestoreView(_r1);
         return i0.ɵɵresetView(ctx.viewLocation());
       });
-      i0.ɵɵtemplate(74, EventDetailsModalComponent_ng_container_74_Template, 2, 4, "ng-container", 32);
+      i0.ɵɵtemplate(74, EventDetailsModalComponent_ng_container_74_Template, 2, 4, "ng-container", 33);
       i0.ɵɵelementEnd();
-      i0.ɵɵtemplate(75, EventDetailsModalComponent_div_75_Template, 4, 1, "div", 50)(76, EventDetailsModalComponent_ng_container_76_Template, 6, 2, "ng-container", 32);
-      i0.ɵɵelementStart(77, "button", 51)(78, "app-icon");
+      i0.ɵɵtemplate(75, EventDetailsModalComponent_div_75_Template, 4, 1, "div", 51)(76, EventDetailsModalComponent_ng_container_76_Template, 6, 2, "ng-container", 33);
+      i0.ɵɵelementStart(77, "button", 52)(78, "app-icon");
       i0.ɵɵtext(79, "close");
       i0.ɵɵelementEnd()();
-      i0.ɵɵtemplate(80, EventDetailsModalComponent_div_80_Template, 2, 2, "div", 52);
+      i0.ɵɵtemplate(80, EventDetailsModalComponent_div_80_Template, 2, 2, "div", 53);
       i0.ɵɵelementEnd();
-      i0.ɵɵelementStart(81, "mat-menu", 53, 0);
-      i0.ɵɵtemplate(83, EventDetailsModalComponent_button_83_Template, 6, 2, "button", 54);
-      i0.ɵɵelementStart(84, "button", 55);
+      i0.ɵɵelementStart(81, "mat-menu", 54, 0);
+      i0.ɵɵtemplate(83, EventDetailsModalComponent_button_83_Template, 6, 2, "button", 55);
+      i0.ɵɵelementStart(84, "button", 56);
       i0.ɵɵlistener("click", function EventDetailsModalComponent_Template_button_click_84_listener() {
         i0.ɵɵrestoreView(_r1);
         return i0.ɵɵresetView(ctx.remove.emit());
       });
-      i0.ɵɵelementStart(85, "div", 56)(86, "app-icon", 57);
+      i0.ɵɵelementStart(85, "div", 57)(86, "app-icon", 58);
       i0.ɵɵtext(87, "delete");
       i0.ɵɵelementEnd();
       i0.ɵɵelementStart(88, "div");
       i0.ɵɵi18n(89, 8);
       i0.ɵɵelementEnd()()();
-      i0.ɵɵtemplate(90, EventDetailsModalComponent_button_90_Template, 6, 0, "button", 58)(91, EventDetailsModalComponent_button_91_Template, 6, 2, "button", 59);
+      i0.ɵɵelementStart(90, "button", 56);
+      i0.ɵɵlistener("click", function EventDetailsModalComponent_Template_button_click_90_listener() {
+        i0.ɵɵrestoreView(_r1);
+        return i0.ɵɵresetView(ctx.print());
+      });
+      i0.ɵɵelementStart(91, "div", 57)(92, "app-icon", 58);
+      i0.ɵɵtext(93, "print");
+      i0.ɵɵelementEnd();
+      i0.ɵɵelementStart(94, "div");
+      i0.ɵɵi18n(95, 9);
+      i0.ɵɵelementEnd()()();
+      i0.ɵɵtemplate(96, EventDetailsModalComponent_button_96_Template, 6, 0, "button", 59)(97, EventDetailsModalComponent_button_97_Template, 6, 2, "button", 60);
       i0.ɵɵelementEnd()();
     }
     if (rf & 2) {
@@ -45667,11 +45697,11 @@ _EventDetailsModalComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
       i0.ɵɵadvance(3);
       i0.ɵɵproperty("status", ctx.event_status);
       i0.ɵɵadvance();
-      i0.ɵɵclassProp("pr-4", ctx.timezone);
+      i0.ɵɵclassProp("pr-4", ctx.timezone && ctx.tz);
       i0.ɵɵadvance(2);
       i0.ɵɵtextInterpolate(ctx.period);
       i0.ɵɵadvance();
-      i0.ɵɵproperty("ngIf", ctx.timezone);
+      i0.ɵɵproperty("ngIf", ctx.timezone && ctx.tz);
       i0.ɵɵadvance();
       i0.ɵɵproperty("ngIf", ctx.event.state !== "done");
       i0.ɵɵadvance(9);
@@ -45679,7 +45709,7 @@ _EventDetailsModalComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
       i0.ɵɵadvance(7);
       i0.ɵɵtextInterpolate(ctx.period);
       i0.ɵɵadvance();
-      i0.ɵɵproperty("ngIf", ctx.timezone);
+      i0.ɵɵproperty("ngIf", ctx.timezone && ctx.tz);
       i0.ɵɵadvance(5);
       i0.ɵɵproperty("ngIf", ctx.level);
       i0.ɵɵadvance();
@@ -45716,7 +45746,7 @@ _EventDetailsModalComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
       i0.ɵɵproperty("ngIf", ctx.show_attendees);
       i0.ɵɵadvance(3);
       i0.ɵɵproperty("ngIf", !ctx.hide_edit);
-      i0.ɵɵadvance(7);
+      i0.ɵɵadvance(13);
       i0.ɵɵproperty("ngIf", ctx.event.recurring_event_id);
       i0.ɵɵadvance();
       i0.ɵɵproperty("ngForOf", ctx.custom_actions);
@@ -52393,7 +52423,7 @@ var ExploreParkingService = /*#__PURE__*/function (_common_1$AsyncHandle) {
       var available = spaces.filter(function (_) {
         var _event$extension_data;
         var event = events.find(function (e) {
-          return e.asset_id === _.id;
+          return e.asset_id === _.id && !e.rejected;
         });
         var assigned = "".concat((event === null || event === void 0 ? void 0 : event.user_email) || _.assigned_to || '').toLowerCase();
         var user = users.find(function (u) {
@@ -52401,7 +52431,7 @@ var ExploreParkingService = /*#__PURE__*/function (_common_1$AsyncHandle) {
         });
         _this._users[_.id] = assigned;
         _this._plate_numbers[_.id] = (event === null || event === void 0 || (_event$extension_data = event.extension_data) === null || _event$extension_data === void 0 ? void 0 : _event$extension_data.plate_number) || (user === null || user === void 0 ? void 0 : user.plate_number) || undefined;
-        return !assigned;
+        return !event;
       });
       _this._updateParkingSpaces(spaces, available);
       return available;
@@ -52474,7 +52504,7 @@ var ExploreParkingService = /*#__PURE__*/function (_common_1$AsyncHandle) {
                       });
                       is_assigned = !!space.assigned_to;
                       id = space.map_id || space.id;
-                      status = can_book ? 'free' : assigned_space ? 'pending' : 'busy';
+                      status = is_assigned ? can_book ? 'pending' : 'busy' : can_book ? 'free' : 'busy';
                       styles["#".concat(id)] = {
                         fill: colours["parking-".concat(status)] || colours["".concat(status)] || explore_spaces_service_1.DEFAULT_COLOURS["".concat(status)],
                         opacity: 0.6
@@ -52487,7 +52517,7 @@ var ExploreParkingService = /*#__PURE__*/function (_common_1$AsyncHandle) {
                         data: _objectSpread(_objectSpread({}, space), {}, {
                           user: _this3._users[space.id],
                           plate_number: _this3._plate_numbers[space.id],
-                          status: status === 'pending' && assigned_space ? 'reserved' : status
+                          status: status === 'pending' && is_assigned ? 'reserved' : status
                         })
                       });
                       if (can_book) {
@@ -52498,8 +52528,8 @@ var ExploreParkingService = /*#__PURE__*/function (_common_1$AsyncHandle) {
                     case 9:
                       book_fn = /*#__PURE__*/function () {
                         var _ref10 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
-                          var _space$groups, _this3$_options$getVa, _this3$_options$getVa2, _user, _space$zone3, _space$zone4;
-                          var _space$zone, _space$zone2, _yield$_this3$_setBoo, date, duration, user, user_email, lvl;
+                          var _space$groups, _this3$_org$region;
+                          var _space$zone, _space$zone2, user, user_email, zone, date;
                           return _regeneratorRuntime().wrap(function _callee$(_context) {
                             while (1) switch (_context.prev = _context.next) {
                               case 0:
@@ -52552,47 +52582,37 @@ var ExploreParkingService = /*#__PURE__*/function (_common_1$AsyncHandle) {
                                   type: 'parking'
                                 });
                                 options = _this3._options.getValue();
-                                if (options.date) {
-                                  _this3._bookings.form.patchValue({
-                                    date: options.date
-                                  });
-                                  _this3._bookings.form.patchValue({
-                                    all_day: !!options.all_day
-                                  });
-                                }
-                                _context.next = 21;
-                                return _this3._setBookingTime(_this3._bookings.form.value.date, _this3._bookings.form.value.duration, (_this3$_options$getVa = (_this3$_options$getVa2 = _this3._options.getValue()) === null || _this3$_options$getVa2 === void 0 ? void 0 : _this3$_options$getVa2.custom) !== null && _this3$_options$getVa !== void 0 ? _this3$_options$getVa : false, space);
-                              case 21:
-                                _yield$_this3$_setBoo = _context.sent;
-                                date = _yield$_this3$_setBoo.date;
-                                duration = _yield$_this3$_setBoo.duration;
-                                user = _yield$_this3$_setBoo.user;
-                                user = user || options.host || (0, common_1.currentUser)();
-                                user_email = (_user = user) === null || _user === void 0 ? void 0 : _user.email;
-                                lvl = _this3._state.active_level;
+                                user = options.host || (0, common_1.currentUser)();
+                                user_email = user === null || user === void 0 ? void 0 : user.email;
+                                zone = _this3._org.levelWithID([space.zone_id || space.zone]) || _this3._state.active_level;
+                                date = !options.date || (0, date_fns_1.isSameDay)(options.date, Date.now()) ? (0, date_fns_1.startOfMinute)(Date.now()).valueOf() : (0, date_fns_1.setHours)(options.date, 8).valueOf();
+                                debugger;
                                 _this3._bookings.form.patchValue({
                                   resources: [space],
                                   asset_id: space.id,
                                   asset_name: space.name,
                                   date: date,
-                                  duration: options.all_day ? 12 * 60 : duration,
+                                  duration: 11 * 60,
+                                  all_day: true,
                                   map_id: (space === null || space === void 0 ? void 0 : space.map_id) || (space === null || space === void 0 ? void 0 : space.id),
                                   description: space.name,
                                   user: user,
                                   user_email: user_email,
                                   booking_type: 'parking',
-                                  zones: space.zone ? [(_space$zone3 = space.zone) === null || _space$zone3 === void 0 ? void 0 : _space$zone3.parent_id, (_space$zone4 = space.zone) === null || _space$zone4 === void 0 ? void 0 : _space$zone4.id] : [lvl.parent_id, lvl.id]
+                                  zones: [_this3._org.organisation.id, (_this3$_org$region = _this3._org.region) === null || _this3$_org$region === void 0 ? void 0 : _this3$_org$region.id, zone.parent_id, zone.id]
                                 });
-                                _context.next = 31;
+                                _context.next = 26;
                                 return _this3._bookings.confirmPost()["catch"](function (e) {
                                   if (e === 'User cancelled') throw e;
                                   (0, common_1.notifyError)("Failed to book parking space ".concat(space.name || space.id, ". ").concat(e.message || e.error || e));
                                   throw e;
                                 });
-                              case 31:
+                              case 26:
                                 (0, common_1.notifySuccess)("Successfully booked parking space ".concat(space.name || space.id));
-                                _this3._poll.next(Date.now());
-                              case 33:
+                                _this3.timeout('poll', function () {
+                                  return _this3._poll.next(Date.now());
+                                }, 1000);
+                              case 28:
                               case "end":
                                 return _context.stop();
                             }
@@ -56452,6 +56472,7 @@ var DateFieldComponent = /*#__PURE__*/function (_async_handler_class_) {
     _this.range = TimezoneDiffRange.Both;
     _this.now = Date.now();
     _this._date_pipe = new common_2.DatePipe('en');
+    _this._local_tz = (0, common_1.getTimezoneOffsetString)(Intl.DateTimeFormat().resolvedOptions().timeZone);
     return _this;
   }
   /** First allowed date on the calendar */
@@ -56491,7 +56512,8 @@ var DateFieldComponent = /*#__PURE__*/function (_async_handler_class_) {
     get: function get() {
       var tz = this.timezone;
       if (!tz) return '';
-      return (0, common_1.getTimezoneOffsetString)(tz);
+      var tz_offset = (0, common_1.getTimezoneOffsetString)(tz);
+      return tz_offset === this._local_tz ? '' : tz_offset;
     }
   }, {
     key: "from",
@@ -56633,7 +56655,7 @@ _DateFieldComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
       i0.ɵɵadvance(3);
       i0.ɵɵconditional(ctx.date ? 3 : 4);
       i0.ɵɵadvance(2);
-      i0.ɵɵproperty("ngIf", ctx.timezone);
+      i0.ɵɵproperty("ngIf", ctx.timezone && ctx.tz);
       i0.ɵɵadvance(5);
       i0.ɵɵproperty("ngIf", ctx.has_error);
     }
@@ -57150,7 +57172,7 @@ function DurationFieldComponent_button_10_ng_container_2_Template(rf, ctx) {
     i0.ɵɵadvance(3);
     i0.ɵɵtextInterpolate3(" ", option_r3.date ? i0.ɵɵpipeBind2(4, 4, option_r3.date, option_r3.id >= 24 * 60 ? "mediumDate" : ctx_r0.time_format) + " (" : "", "", option_r3.name, "", option_r3.date ? ")" : "", " ");
     i0.ɵɵadvance(2);
-    i0.ɵɵproperty("ngIf", ctx_r0.timezone);
+    i0.ɵɵproperty("ngIf", ctx_r0.timezone && ctx_r0.tz);
   }
 }
 function DurationFieldComponent_button_10_app_icon_5_Template(rf, ctx) {
@@ -57206,6 +57228,7 @@ var DurationFieldComponent = /*#__PURE__*/function () {
     this.duration = 60;
     /** List of available duration options */
     this.duration_options = [];
+    this._local_tz = (0, common_1.getTimezoneOffsetString)(Intl.DateTimeFormat().resolvedOptions().timeZone);
   }
   return _createClass(DurationFieldComponent, [{
     key: "time_format",
@@ -57223,10 +57246,10 @@ var DurationFieldComponent = /*#__PURE__*/function () {
   }, {
     key: "tz",
     get: function get() {
-      // Get Timezone as +/-HHMM
       var tz = this.timezone;
       if (!tz) return '';
-      return (0, common_1.getTimezoneOffsetString)(tz);
+      var tz_offset = (0, common_1.getTimezoneOffsetString)(tz);
+      return tz_offset === this._local_tz ? '' : tz_offset;
     }
   }, {
     key: "ngOnInit",
@@ -57410,7 +57433,7 @@ _DurationFieldComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
       i0.ɵɵadvance(3);
       i0.ɵɵtextInterpolate3(" ", (ctx.selected == null ? null : ctx.selected.date) ? i0.ɵɵpipeBind2(4, 9, ctx.selected == null ? null : ctx.selected.date, ctx.selected.id >= 24 * 60 ? "mediumDate" : ctx.time_format) + " (" : "", "", ctx.selected == null ? null : ctx.selected.name, "", (ctx.selected == null ? null : ctx.selected.date) ? ")" : "", " ");
       i0.ɵɵadvance(2);
-      i0.ɵɵproperty("ngIf", ctx.timezone);
+      i0.ɵɵproperty("ngIf", ctx.timezone && ctx.tz);
       i0.ɵɵadvance(5);
       i0.ɵɵproperty("ngForOf", ctx.duration_options);
     }
@@ -60275,7 +60298,7 @@ function TimeFieldComponent_button_10_Template(rf, ctx) {
     i0.ɵɵadvance(4);
     i0.ɵɵtextInterpolate1(" ", i0.ɵɵpipeBind2(5, 4, ctx_r0.force_time, ctx_r0.time_format), " ");
     i0.ɵɵadvance(2);
-    i0.ɵɵproperty("ngIf", ctx_r0.timezone);
+    i0.ɵɵproperty("ngIf", ctx_r0.timezone && ctx_r0.tz);
     i0.ɵɵadvance();
     i0.ɵɵproperty("ngIf", ctx_r0.active_time === ctx_r0.force_time);
   }
@@ -60326,7 +60349,7 @@ function TimeFieldComponent_button_11_Template(rf, ctx) {
     i0.ɵɵadvance(4);
     i0.ɵɵtextInterpolate2(" ", i0.ɵɵpipeBind2(5, 5, option_r4.date, ctx_r0.time_format), " ", ctx_r0.extra_info_fn(option_r4.date), " ");
     i0.ɵɵadvance(2);
-    i0.ɵɵproperty("ngIf", ctx_r0.timezone);
+    i0.ɵɵproperty("ngIf", ctx_r0.timezone && ctx_r0.tz);
     i0.ɵɵadvance();
     i0.ɵɵproperty("ngIf", ctx_r0.active_time === option_r4.date);
   }
@@ -60352,6 +60375,7 @@ var TimeFieldComponent = /*#__PURE__*/function (_common_1$AsyncHandle) {
     /** String representing the currently set time */
     _this.time = (0, date_fns_1.format)(new Date(), 'HH:mm');
     _this.active_time = Date.now();
+    _this._local_tz = (0, common_1.getTimezoneOffsetString)(Intl.DateTimeFormat().resolvedOptions().timeZone);
     return _this;
   }
   _inherits(TimeFieldComponent, _common_1$AsyncHandle);
@@ -60363,10 +60387,10 @@ var TimeFieldComponent = /*#__PURE__*/function (_common_1$AsyncHandle) {
   }, {
     key: "tz",
     get: function get() {
-      // Get Timezone as +/-HHMM
       var tz = this.timezone;
       if (!tz) return '';
-      return (0, common_1.getTimezoneOffsetString)(tz);
+      var tz_offset = (0, common_1.getTimezoneOffsetString)(tz);
+      return tz_offset === this._local_tz ? '' : tz_offset;
     }
   }, {
     key: "ngOnInit",
@@ -60600,7 +60624,7 @@ _TimeFieldComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
       i0.ɵɵadvance(3);
       i0.ɵɵtextInterpolate1(" ", i0.ɵɵpipeBind2(4, 8, ctx.active_time, ctx.time_format), " ");
       i0.ɵɵadvance(2);
-      i0.ɵɵproperty("ngIf", ctx.timezone);
+      i0.ɵɵproperty("ngIf", ctx.timezone && ctx.tz);
       i0.ɵɵadvance(5);
       i0.ɵɵproperty("ngIf", ctx.force_time);
       i0.ɵɵadvance();
@@ -69464,7 +69488,7 @@ _SpaceFiltersDisplayComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
     } else {
       i18n_3 = $localize(_templateObject4 || (_templateObject4 = _taggedTemplateLiteral([":\u241Fdfdd3d7879401ba6edca2e5198df414f15c112c2\u241F5300384898733875729: Min. ", ":INTERPOLATION: People "])), "\uFFFD0\uFFFD");
     }
-    return [i18n_0, i18n_1, i18n_2, i18n_3, ["actions", "", 1, "sm:hidden", "space-x-2", "flex", "items-center", "p-2"], ["btn", "", "matRipple", "", "name", "edit-space-filters", 1, "flex-1", "w-1/2", 3, "click"], [1, "flex", "items-center"], ["btn", "", "matRipple", "", "name", "view-space-map", 1, "rounded-l", "rounded-r-none", 3, "click"], ["btn", "", "matRipple", "", "name", "view-space-list", 1, "rounded-r", "rounded-l-none", 3, "click"], ["filters", "", 1, "flex", "items-center", "flex-wrap", "p-2", "w-[35rem]", "max-w-full", "sm:max-w-[35rem]"], ["btn", "", "matRipple", "", "name", "clear-space-filters", "class", "min-h-[2rem] mb-2 mr-2", 3, "click", 4, "ngIf"], ["filter-item", "", "zone", "", "class", "dark:border-base-200-500", 4, "ngIf"], ["filter-item", "", "date", "", 1, "dark:border-base-200-500"], ["filter-item", "", "time", "", 1, "dark:border-base-200-500"], [4, "ngIf"], ["filter-item", "", "count", "", 1, "dark:border-base-200-500"], ["filter-item", "", 4, "ngFor", "ngForOf"], ["btn", "", "matRipple", "", "name", "clear-space-filters", 1, "min-h-[2rem]", "mb-2", "mr-2", 3, "click"], ["filter-item", "", "zone", "", 1, "dark:border-base-200-500"], ["filter-item", ""], [1, "truncate"], ["icon", "", "matRipple", "", "name", "remove-space-filter", 1, "-mr-4", 3, "click"]];
+    return [i18n_0, i18n_1, i18n_2, i18n_3, ["actions", "", 1, "sm:hidden", "space-x-2", "flex", "items-center", "p-2"], ["btn", "", "matRipple", "", "name", "edit-space-filters", 1, "flex-1", "w-1/2", 3, "click"], [1, "flex", "items-center"], ["btn", "", "matRipple", "", "name", "view-space-map", 1, "rounded-l", "rounded-r-none", 3, "click"], ["btn", "", "matRipple", "", "name", "view-space-list", 1, "rounded-r", "rounded-l-none", 3, "click"], ["filters", "", 1, "flex", "items-center", "flex-wrap", "p-2", "w-[35rem]", "max-w-full", "sm:max-w-[35rem]"], ["btn", "", "matRipple", "", "name", "clear-space-filters", "class", "min-h-[2rem] mb-2 mr-2", 3, "click", 4, "ngIf"], ["filter-item", "", "zone", "", 4, "ngIf"], ["filter-item", "", "date", ""], ["filter-item", "", "time", ""], [4, "ngIf"], ["filter-item", "", "count", ""], ["filter-item", "", 4, "ngFor", "ngForOf"], ["btn", "", "matRipple", "", "name", "clear-space-filters", 1, "min-h-[2rem]", "mb-2", "mr-2", 3, "click"], ["filter-item", "", "zone", ""], ["filter-item", ""], [1, "truncate"], ["icon", "", "matRipple", "", "name", "remove-space-filter", 1, "-mr-4", 3, "click"]];
   },
   template: function SpaceFiltersDisplayComponent_Template(rf, ctx) {
     if (rf & 1) {
