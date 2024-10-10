@@ -1,7 +1,12 @@
 import { Component } from '@angular/core';
-import { SettingsService } from '@placeos/common';
+import { Router } from '@angular/router';
+import { BookingFormService, findNearbyFeature } from '@placeos/bookings';
+import { notifyError, SettingsService } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
+import { SpacePipe } from '@placeos/spaces';
+import { set } from 'date-fns';
+import { take } from 'rxjs/operators';
 
 @Component({
     selector: 'meeting-flow-success',
@@ -36,6 +41,16 @@ import { OrganisationService } from '@placeos/organisation';
                 <p *ngIf="true">
                     Please allow up to 5 minutes for you booking to be approved.
                 </p>
+                <div class="h-4"></div>
+                <button
+                    btn
+                    matRipple
+                    class="w-48"
+                    *ngIf="space.email && allow_desk_booking"
+                    (click)="startDeskBooking()"
+                >
+                    Book nearby desk
+                </button>
             </main>
             <footer
                 class="sticky bottom-0 bg-base-100 p-2 w-full border-t border-base-200 mt-4 flex items-center justify-center"
@@ -55,6 +70,12 @@ import { OrganisationService } from '@placeos/organisation';
     styles: [``],
 })
 export class MeetingFlowSuccessComponent {
+    private _space_pipe: SpacePipe = new SpacePipe(this._org);
+
+    public get allow_desk_booking() {
+        return this._settings.get('app.features').includes('desks');
+    }
+
     public get last_event() {
         return this._event_form.last_success;
     }
@@ -71,9 +92,58 @@ export class MeetingFlowSuccessComponent {
         return this._settings.time_format;
     }
 
+    public startDeskBooking() {
+        this._router.navigate(['/book', 'new-desks', 'form']);
+        setTimeout(async () => {
+            this._booking_form.newForm();
+            const space = await this._space_pipe.transform(
+                this.space.id || this.space.email,
+            );
+            const level = this._org.levelWithID(space?.zones);
+            this._booking_form.setOptions({ type: 'desk', zone_id: level?.id });
+            this._booking_form.form.patchValue({
+                date: set(this.last_event.date, {
+                    hours: 8,
+                    minutes: 0,
+                }).valueOf(),
+                duration: 10 * 60,
+                all_day: this.last_event.all_day,
+                booking_type: 'desk',
+            });
+            console.log('Space:', space);
+            const resources = await this._booking_form.available_resources
+                .pipe(take(1))
+                .toPromise();
+            const bookable_desks = resources
+                .map((_) => _.map_id || _.id)
+                .filter((i) => i);
+            const nearby = await findNearbyFeature(
+                level.map_id,
+                space?.map_id,
+                bookable_desks,
+            );
+            if (!nearby) return notifyError('No available desks nearby');
+            const resource = resources.find((_) => _.map_id === nearby);
+            this._booking_form.form.patchValue({
+                date: set(this.last_event.date, {
+                    hours: 8,
+                    minutes: 0,
+                }).valueOf(),
+                duration: 10 * 60,
+                all_day: this.last_event.all_day,
+                booking_type: 'desk',
+                asset_id: nearby,
+                asset_name: resource.name,
+                resources: [resource],
+            });
+        }, 50);
+    }
+
     constructor(
         private _event_form: EventFormService,
         private _org: OrganisationService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
+        private _booking_form: BookingFormService,
+        private _router: Router,
     ) {}
 }
