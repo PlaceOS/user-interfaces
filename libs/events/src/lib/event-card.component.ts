@@ -45,10 +45,13 @@ import { DatePipe } from '@angular/common';
                     <status-pill [status]="status">
                         <div
                             class="flex flex-col leading-tight"
-                            [class.pr-4]="timezone"
+                            [class.pr-4]="timezone && tz"
                         >
                             <div>{{ period }}</div>
-                            <div class="opacity-30 text-xs" *ngIf="timezone">
+                            <div
+                                class="opacity-30 text-xs"
+                                *ngIf="timezone && tz"
+                            >
                                 {{ period_tz }}
                             </div>
                         </div>
@@ -140,6 +143,10 @@ export class EventCardComponent extends AsyncHandler {
 
     public location = '';
 
+    private _local_tz = getTimezoneOffsetString(
+        Intl.DateTimeFormat().resolvedOptions().timeZone,
+    );
+
     public get timezone() {
         return this._settings.get('app.events.use_building_timezone')
             ? this._org.building.timezone
@@ -149,7 +156,8 @@ export class EventCardComponent extends AsyncHandler {
     public get tz() {
         const tz = this.timezone;
         if (!tz) return '';
-        return getTimezoneOffsetString(tz);
+        const tz_offset = getTimezoneOffsetString(tz);
+        return tz_offset === this._local_tz ? '' : tz_offset;
     }
 
     public get time_format() {

@@ -20,6 +20,7 @@ import { MapLocateModalComponent } from 'libs/components/src/lib/map-locate-moda
 import { CateringItem } from 'libs/catering/src/lib/catering-item.class';
 import { getEventMetadata } from './events.fn';
 import { DatePipe } from '@angular/common';
+import { I } from '@angular/cdk/keycodes';
 
 const EMPTY_ACTIONS = [];
 
@@ -64,12 +65,12 @@ const EMPTY_ACTIONS = [];
                         <status-pill [status]="event_status">
                             <div
                                 class="flex flex-col leading-tight"
-                                [class.pr-4]="timezone"
+                                [class.pr-4]="timezone && tz"
                             >
                                 <div>{{ period }}</div>
                                 <div
                                     class="opacity-30 text-xs"
-                                    *ngIf="timezone"
+                                    *ngIf="timezone && tz"
                                 >
                                     {{ period_tz }}
                                 </div>
@@ -143,7 +144,10 @@ const EMPTY_ACTIONS = [];
                         <app-icon>schedule</app-icon>
                         <div class="flex flex-col leading-tight">
                             <div>{{ period }}</div>
-                            <div class="opacity-30 text-xs" *ngIf="timezone">
+                            <div
+                                class="opacity-30 text-xs"
+                                *ngIf="timezone && tz"
+                            >
                                 {{ period_tz }}
                             </div>
                         </div>
@@ -582,6 +586,10 @@ export class EventDetailsModalComponent {
     public building: Building = new Building();
     public space: Space = new Space();
 
+    private _local_tz = getTimezoneOffsetString(
+        Intl.DateTimeFormat().resolvedOptions().timeZone,
+    );
+
     public get timezone() {
         return this._settings.get('app.events.use_building_timezone')
             ? this._org.building.timezone
@@ -591,7 +599,8 @@ export class EventDetailsModalComponent {
     public get tz() {
         const tz = this.timezone;
         if (!tz) return '';
-        return getTimezoneOffsetString(tz);
+        const tz_offset = getTimezoneOffsetString(tz);
+        return tz_offset === this._local_tz ? '' : tz_offset;
     }
 
     public accept_count = this._event.attendees.reduce(

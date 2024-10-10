@@ -42,7 +42,7 @@ import {
                 <div class="truncate">
                     {{ active_time | date: time_format }}
                 </div>
-                <div class="text-xs opacity-30 truncate" *ngIf="timezone">
+                <div class="text-xs opacity-30 truncate" *ngIf="timezone && tz">
                     {{ active_time | date: time_format + ' (z)' : tz }}
                 </div>
             </div>
@@ -61,7 +61,7 @@ import {
                         <div class="">
                             {{ force_time | date: time_format }}
                         </div>
-                        <div class="text-xs opacity-30" *ngIf="timezone">
+                        <div class="text-xs opacity-30" *ngIf="timezone && tz">
                             {{ force_time | date: time_format + ' (z)' : tz }}
                         </div>
                     </div>
@@ -86,7 +86,7 @@ import {
                             {{ option.date | date: time_format }}
                             {{ extra_info_fn(option.date) }}
                         </div>
-                        <div class="text-xs opacity-30" *ngIf="timezone">
+                        <div class="text-xs opacity-30" *ngIf="timezone && tz">
                             {{ option.date | date: time_format + ' (z)' : tz }}
                         </div>
                     </div>
@@ -154,11 +154,15 @@ export class TimeFieldComponent
         return this.use_24hr ? 'HH : mm' : 'h : mm a';
     }
 
+    private _local_tz = getTimezoneOffsetString(
+        Intl.DateTimeFormat().resolvedOptions().timeZone,
+    );
+
     public get tz() {
-        // Get Timezone as +/-HHMM
         const tz = this.timezone;
         if (!tz) return '';
-        return getTimezoneOffsetString(tz);
+        const tz_offset = getTimezoneOffsetString(tz);
+        return tz_offset === this._local_tz ? '' : tz_offset;
     }
 
     public ngOnInit(): void {
