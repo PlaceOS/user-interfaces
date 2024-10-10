@@ -383,7 +383,7 @@ function ParkingBookingsListComponent_ng_template_14_Template(rf, ctx) {
     const row_r10 = ctx.row;
     const ctx_r3 = _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵnextContext"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵadvance"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵproperty"]("matMenuTriggerFor", ctx_r3.menu)("disabled", row_r10.checked_in || row_r10.status === "ended");
+    _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵproperty"]("matMenuTriggerFor", ctx_r3.menu)("disabled", row_r10.checked_in || row_r10.state === "in_progress" || row_r10.status === "ended");
   }
 }
 class ParkingBookingsListComponent {
@@ -500,7 +500,10 @@ class ParkingMapComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_1__.A
         var _ref = (0,_home_runner_work_user_interfaces_user_interfaces_node_modules_babel_runtime_helpers_esm_asyncToGenerator_js__WEBPACK_IMPORTED_MODULE_0__["default"])(function* (space) {
           const options = yield _this._parking.options.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_7__.take)(1)).toPromise();
           yield _this._parking.editReservation(undefined, {
-            space,
+            space: {
+              ...space,
+              zone: _this._org.levelWithID([space.zone_id || space.zone])
+            },
             date: options.date
           });
         });

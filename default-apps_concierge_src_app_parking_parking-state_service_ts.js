@@ -221,6 +221,7 @@ class ParkingBookingModalComponent extends _placeos_common__WEBPACK_IMPORTED_MOD
       _this.form.updateValueAndValidity();
       if (!_this.form.valid) return;
       _this.loading = true;
+      const id = _this.form.value.id;
       if (_this._data.external_user) {
         _this.form.patchValue({
           user_id: undefined
@@ -233,6 +234,7 @@ class ParkingBookingModalComponent extends _placeos_common__WEBPACK_IMPORTED_MOD
         throw e;
       });
       _this.form.controls.plate_number.setValidators([]);
+      (0,_placeos_common__WEBPACK_IMPORTED_MODULE_2__.notifySuccess)(`Successfully ${id ? 'updated' : 'created'} parking reservation`);
       _this._dialog_ref.close(result.id);
     })();
   }
