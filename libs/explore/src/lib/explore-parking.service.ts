@@ -150,7 +150,9 @@ export class ExploreParkingService extends AsyncHandler {
     ]).pipe(
         map(([events, spaces, users]) => {
             const available = spaces.filter((_) => {
-                const event = events.find((e) => e.asset_id === _.id);
+                const event = events.find(
+                    (e) => e.asset_id === _.id && !e.rejected,
+                );
                 const assigned = `${
                     event?.user_email || _.assigned_to || ''
                 }`.toLowerCase();
@@ -162,7 +164,7 @@ export class ExploreParkingService extends AsyncHandler {
                     event?.extension_data?.plate_number ||
                     user?.plate_number ||
                     undefined;
-                return !assigned;
+                return !event;
             });
             this._updateParkingSpaces(spaces, available);
             return available;
@@ -221,10 +223,12 @@ export class ExploreParkingService extends AsyncHandler {
             const can_book = !!available.find((_) => _.id === space.id);
             const is_assigned = !!space.assigned_to;
             const id = space.map_id || space.id;
-            const status = can_book
-                ? 'free'
-                : assigned_space
-                  ? 'pending'
+            const status = is_assigned
+                ? can_book
+                    ? 'pending'
+                    : 'busy'
+                : can_book
+                  ? 'free'
                   : 'busy';
             styles[`#${id}`] = {
                 fill:
@@ -243,7 +247,7 @@ export class ExploreParkingService extends AsyncHandler {
                     user: this._users[space.id],
                     plate_number: this._plate_numbers[space.id],
                     status:
-                        status === 'pending' && assigned_space
+                        status === 'pending' && is_assigned
                             ? 'reserved'
                             : status,
                 },
