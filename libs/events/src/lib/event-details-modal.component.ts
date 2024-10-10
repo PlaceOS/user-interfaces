@@ -28,10 +28,10 @@ const EMPTY_ACTIONS = [];
     selector: 'event-details-modal',
     template: `
         <div
-            class="w-[100vw] h-[100vh] sm:relative sm:inset-auto sm:w-[51rem] sm:h-auto sm:max-h-[80vh] bg-base-100 sm:bg-base-200 sm:rounded overflow-auto space-y-2 pb-2"
+            class="w-screen h-screen print:min-h-screen print:w-screen sm:relative sm:inset-auto sm:w-[51rem] sm:h-auto sm:max-h-[80vh] bg-base-100 sm:bg-base-200 sm:rounded overflow-auto space-y-2 pb-2"
         >
             <div
-                class="sm:flex flex-col items-center pb-4 max-h-screen sm:max-h-[80vh] sm:px-16 sm:border-b bg-base-100 border-base-200"
+                class="sm:flex flex-col items-center pb-4 max-h-screen sm:max-h-[80vh] sm:px-16 sm:border-b bg-base-100 border-base-200 print:border-none"
             >
                 <i
                     binding
@@ -45,7 +45,7 @@ const EMPTY_ACTIONS = [];
                     *ngIf="!event?.system?.images?.length"
                 ></div>
                 <div
-                    class="bg-neutral w-full h-64 sm:rounded-b overflow-hidden"
+                    class="bg-neutral w-full h-64 sm:rounded-b overflow-hidden print:hidden"
                     *ngIf="event?.system?.images?.length"
                 >
                     <image-carousel
@@ -79,7 +79,7 @@ const EMPTY_ACTIONS = [];
                     </div>
                     <div
                         actions
-                        class="flex items-center space-x-2 px-2"
+                        class="flex items-center space-x-2 px-2 print:hidden"
                         *ngIf="event.state !== 'done'"
                     >
                         <button
@@ -186,7 +186,7 @@ const EMPTY_ACTIONS = [];
                         <button
                             matRipple
                             show-attendees
-                            class="clear text-xs underline"
+                            class="clear text-xs underline print:hidden"
                             (click)="show_attendees = true"
                             i18n
                         >
@@ -212,6 +212,26 @@ const EMPTY_ACTIONS = [];
                             <div class="text-lg">{{ pending_count || 0 }}</div>
                             <div class="text-sm uppercase" i18n>Pending</div>
                         </div>
+                    </div>
+                    <div class="hidden print:block">
+                        <ng-container *ngFor="let user of event.attendees">
+                            <div
+                                class="px-2 flex items-center space-x-2"
+                                attendee
+                                *ngIf="user.email !== event.host"
+                            >
+                                <a-user-avatar [user]="user"></a-user-avatar>
+                                <div class="text-sm flex-1 w-px">
+                                    <div>{{ user?.name }}</div>
+                                    <div
+                                        class="opacity-60 truncate w-full"
+                                        [title]="user.email"
+                                    >
+                                        {{ user.email }}
+                                    </div>
+                                </div>
+                            </div>
+                        </ng-container>
                     </div>
                     <h3
                         class="mx-3 mt-2 pt-2 text-lg font-medium border-t border-base-200"
@@ -267,6 +287,7 @@ const EMPTY_ACTIONS = [];
                                     <button
                                         icon
                                         matRipple
+                                        class="print:hidden"
                                         [matTooltip]="
                                             show_order[order.id]
                                                 ? 'Hide order items'
@@ -289,7 +310,9 @@ const EMPTY_ACTIONS = [];
                                 <div
                                     class="flex flex-col bg-base-200 divide-y divide-base-100"
                                     [@show]="
-                                        show_order[order.id] ? 'show' : 'hide'
+                                        print || show_order[order.id]
+                                            ? 'show'
+                                            : 'hide'
                                     "
                                 >
                                     <div
@@ -352,7 +375,7 @@ const EMPTY_ACTIONS = [];
                 </button>
                 <div
                     class="mt-4 sm:p-4 sm:bg-base-100 rounded sm:m-2 sm:border border-base-200 flex-grow-[3] min-w-1/3 sm:w-[16rem]"
-                    *ngIf="body"
+                    *ngIf="raw_body"
                 >
                     <h3
                         class="mx-3 text-lg font-medium border-t sm:border-none border-base-200"
@@ -363,7 +386,7 @@ const EMPTY_ACTIONS = [];
                     <div
                         notes
                         class="mx-4 overflow-hidden max-w-full"
-                        *ngIf="body"
+                        *ngIf="raw_body"
                         [innerHTML]="
                             (body | sanitize) ||
                             'Unable to sanitize notes contents'
@@ -454,7 +477,7 @@ const EMPTY_ACTIONS = [];
                                 <div
                                     class="flex flex-col bg-base-200 divide-y divide-base-100"
                                     [@show]="
-                                        show_request[request.id]
+                                        print || show_request[request.id]
                                             ? 'show'
                                             : 'hide'
                                     "
@@ -483,7 +506,7 @@ const EMPTY_ACTIONS = [];
                     icon
                     matRipple
                     mat-dialog-close
-                    class="absolute top-2 left-2 bg-neutral text-white"
+                    class="absolute top-2 left-2 bg-neutral text-white print:hidden"
                 >
                     <app-icon>close</app-icon>
                 </button>
@@ -515,9 +538,9 @@ const EMPTY_ACTIONS = [];
                         <div i18n>Delete event</div>
                     </div>
                 </button>
-                <button mat-menu-item (click)="print()">
+                <button mat-menu-item (click)="printEvent()">
                     <div class="flex items-center space-x-2 text-base pr-2">
-                        <app-icon class="text-2xl text-error">print</app-icon>
+                        <app-icon class="text-2xl">print</app-icon>
                         <div i18n>Print event</div>
                     </div>
                 </button>
@@ -558,6 +581,8 @@ export class EventDetailsModalComponent {
     public room_status = '';
     public hide_map = false;
     public hide_edit = false;
+    public raw_body = '';
+    public print = false;
     public show_attendees: boolean = false;
     public readonly event = this._event;
     public readonly no_edit_message =
@@ -572,6 +597,10 @@ export class EventDetailsModalComponent {
     public readonly has_catering = this.event?.ext('catering')?.length > 0;
     public readonly has_assets = !!this.event?.linked_bookings?.find(
         (_) => _.booking_type === 'asset-request',
+    );
+
+    private _local_tz = getTimezoneOffsetString(
+        Intl.DateTimeFormat().resolvedOptions().timeZone,
     );
 
     public get can_edit() {
@@ -652,6 +681,12 @@ export class EventDetailsModalComponent {
         private _settings: SettingsService,
         private _dialog: MatDialog,
     ) {
+        const doc = new DOMParser().parseFromString(
+            this.event.body,
+            'text/html',
+        );
+        this.raw_body = (doc.body.textContent || '').trim();
+        console.log('Body:', this.raw_body);
         this._load().then();
         console.log('Timezone:', this.timezone);
     }
@@ -713,6 +748,11 @@ export class EventDetailsModalComponent {
                 content: MapPinComponent,
             },
         ];
+        const doc = new DOMParser().parseFromString(
+            this.event.body,
+            'text/html',
+        );
+        this.raw_body = (doc.body.textContent || '').trim();
         if (
             this.event.extension_data.catering?.length ||
             this.event.extension_data.assets?.length
@@ -760,7 +800,11 @@ export class EventDetailsModalComponent {
         });
     }
 
-    public print() {
-        window.print();
+    public printEvent() {
+        this.print = true;
+        setTimeout(() => {
+            window.print();
+            setTimeout(() => (this.print = false), 100);
+        }, 300);
     }
 }
