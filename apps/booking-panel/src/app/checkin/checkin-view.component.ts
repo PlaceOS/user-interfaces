@@ -1,12 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { getNextFreeTimeSlot } from '@placeos/events';
 import { AsyncHandler } from '@placeos/common';
 import { startOfMinute } from 'date-fns';
 import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
+
 import { currentPeriod, nextPeriod } from '../new-panel/helpers';
 import { PanelStateService } from '../panel-state.service';
-import { getNextFreeTimeSlot } from '@placeos/events';
 
 @Component({
     selector: 'checkin-view',
@@ -70,7 +71,7 @@ import { getNextFreeTimeSlot } from '@placeos/events';
                                                       )?.current[1],
                                                       minute: (
                                                           event_state | async
-                                                      )?.current[2]
+                                                      )?.current[2],
                                                   }
                                     }}
                                 </ng-container>
@@ -85,7 +86,7 @@ import { getNextFreeTimeSlot } from '@placeos/events';
                                                 : {
                                                       minute: (
                                                           event_state | async
-                                                      )?.current[2]
+                                                      )?.current[2],
                                                   }
                                     }}
                                 </ng-container>
@@ -115,7 +116,7 @@ import { getNextFreeTimeSlot } from '@placeos/events';
                                                       )?.current[1],
                                                       minute: (
                                                           event_state | async
-                                                      )?.current[2]
+                                                      )?.current[2],
                                                   }
                                     }}
                                 </ng-container>
@@ -128,7 +129,7 @@ import { getNextFreeTimeSlot } from '@placeos/events';
                                                 : {
                                                       minute: (
                                                           event_state | async
-                                                      )?.current[2]
+                                                      )?.current[2],
                                                   }
                                     }}
                                 </ng-container>
@@ -282,11 +283,11 @@ export class CheckinViewComponent extends AsyncHandler implements OnInit {
         map(([c, n, l]) => ({
             current: currentPeriod(l, c, n),
             next: nextPeriod(n),
-        }))
+        })),
     );
 
     public readonly next_available = this._state.bookings.pipe(
-        map((_) => getNextFreeTimeSlot(_).start)
+        map((_) => getNextFreeTimeSlot(_).start),
     );
 
     public get time() {
@@ -299,7 +300,7 @@ export class CheckinViewComponent extends AsyncHandler implements OnInit {
 
     constructor(
         private _state: PanelStateService,
-        private _route: ActivatedRoute
+        private _route: ActivatedRoute,
     ) {
         super();
     }
@@ -308,7 +309,7 @@ export class CheckinViewComponent extends AsyncHandler implements OnInit {
         this._state.system = '';
         this.subscription(
             'next-available',
-            this.next_available.subscribe((_) => (this.start = _))
+            this.next_available.subscribe((_) => (this.start = _)),
         );
         this.subscription(
             'route.params',
@@ -316,7 +317,7 @@ export class CheckinViewComponent extends AsyncHandler implements OnInit {
                 if (params.has('system_id')) {
                     this._state.system = params.get('system_id');
                 }
-            })
+            }),
         );
         this.subscription(
             'route.query',
@@ -324,7 +325,7 @@ export class CheckinViewComponent extends AsyncHandler implements OnInit {
                 if (params.has('user')) {
                     this.has_user = true;
                 }
-            })
+            }),
         );
     }
 }

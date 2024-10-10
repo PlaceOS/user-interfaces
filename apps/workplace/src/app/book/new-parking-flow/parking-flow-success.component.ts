@@ -27,6 +27,47 @@ import { SettingsService } from '@placeos/common';
                     }}.
                 </p>
                 <img src="assets/icons/parking-success.svg" />
+                <div
+                    class="flex flex-col items-center space-y-4 p-4 relative"
+                    *ngIf="show_links"
+                >
+                    <a
+                        btn
+                        matRipple
+                        name="desk-outlook-link"
+                        class="flex items-center p-2 space-x-2 pr-4 w-64 rounded inverse"
+                        [href]="outlook_link | sanitize: 'url'"
+                        target="_blank"
+                        rel="noopener noreferer"
+                    >
+                        <img src="assets/icons/outlook.svg" class="w-6" />
+                        <span i18n>Add to Outlook</span>
+                    </a>
+                    <a
+                        btn
+                        matRipple
+                        name="desk-google-link"
+                        class="flex items-center p-2 space-x-2 pr-4 w-64 rounded inverse"
+                        [href]="google_link | sanitize: 'url'"
+                        target="_blank"
+                        rel="noopener noreferer"
+                    >
+                        <img src="assets/icons/gcal.svg" class="w-6" />
+                        <span i18n>Add to Google Calendar</span>
+                    </a>
+                    <a
+                        btn
+                        matRipple
+                        name="desk-ical-link"
+                        class="flex items-center p-2 space-x-2 pr-4 w-64 rounded inverse"
+                        [href]="ical_link | safe: 'url'"
+                        target="_blank"
+                        rel="noopener noreferer"
+                    >
+                        <app-icon class="text-xl">download</app-icon>
+                        <span i18n>Download iCal File</span>
+                    </a>
+                </div>
             </main>
             <footer
                 class="sticky bottom-0 bg-base-100 p-2 w-full border-t border-base-200 mt-4 flex items-center justify-center"
@@ -66,8 +107,12 @@ export class ParkingFlowSuccessComponent {
         return this._settings.time_format;
     }
 
+    public get show_links() {
+        return this._settings.get('app.parking.show_calendar_links');
+    }
+
     constructor(
         private _state: BookingFormService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {}
 }

@@ -40,7 +40,7 @@ export interface DurationOption {
                             : ''
                     }}{{ selected?.name }}{{ selected?.date ? ')' : '' }}
                 </div>
-                <div class="text-xs opacity-30 truncate" *ngIf="timezone">
+                <div class="text-xs opacity-30 truncate" *ngIf="timezone && tz">
                     {{ selected?.date | date: time_format + ' (z)' : tz }}
                 </div>
             </div>
@@ -69,7 +69,7 @@ export interface DurationOption {
                             </div>
                             <div
                                 class="text-xs opacity-30 truncate"
-                                *ngIf="timezone"
+                                *ngIf="timezone && tz"
                             >
                                 {{
                                     option.date
@@ -148,11 +148,15 @@ export class DurationFieldComponent
         return this.duration_options.find((_) => _.id === this.duration);
     }
 
+    private _local_tz = getTimezoneOffsetString(
+        Intl.DateTimeFormat().resolvedOptions().timeZone,
+    );
+
     public get tz() {
-        // Get Timezone as +/-HHMM
         const tz = this.timezone;
         if (!tz) return '';
-        return getTimezoneOffsetString(tz);
+        const tz_offset = getTimezoneOffsetString(tz);
+        return tz_offset === this._local_tz ? '' : tz_offset;
     }
 
     public ngOnInit(): void {

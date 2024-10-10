@@ -113,21 +113,24 @@ export class PanelViewDetailsComponent {
 
     public async ngOnInit() {
         this._state.current.subscribe();
-        this._state.settings.subscribe(({ custom_qr_url, custom_qr_color }) => {
-            if (custom_qr_url) {
-                this.qr_code = generateQRCode(
-                    custom_qr_url,
-                    '#fff0',
-                    custom_qr_color || '#fff',
-                );
-            } else if (!this.qr_code) {
-                const url = `${location.origin}${location.pathname}#/checkin/${this._state.system}?user=true`;
-                this.qr_code = generateQRCode(
-                    url,
-                    '#fff0',
-                    custom_qr_color || '#fff',
-                );
-            }
-        });
+        this._state.settings.subscribe(
+            ({ custom_qr_url, custom_qr_color, disable_book_now_host }) => {
+                if (custom_qr_url) {
+                    this.qr_code = generateQRCode(
+                        custom_qr_url,
+                        '#fff0',
+                        custom_qr_color || '#fff',
+                    );
+                } else if (!this.qr_code) {
+                    let url = `${location.origin}${location.pathname}#/checkin/${this._state.system}`;
+                    if (!disable_book_now_host) url += '?user=true';
+                    this.qr_code = generateQRCode(
+                        url,
+                        '#fff0',
+                        custom_qr_color || '#fff',
+                    );
+                }
+            },
+        );
     }
 }

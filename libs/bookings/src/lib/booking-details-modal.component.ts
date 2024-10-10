@@ -20,7 +20,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
     selector: 'booking-details-modal',
     template: `
         <div
-            class="w-[100vw] h-[100vh] sm:relative sm:inset-auto sm:w-[51rem] sm:h-auto sm:max-h-[80vh] bg-base-100 sm:bg-base-200 sm:dark:bg-neutral-600 sm:rounded overflow-auto space-y-2 pb-2"
+            class="w-[100vw] h-[100vh] sm:relative sm:inset-auto sm:w-[51rem] sm:h-auto sm:max-h-[80vh] bg-base-100 sm:bg-base-200 sm:rounded overflow-auto space-y-2 pb-2"
         >
             <div
                 class="sm:flex flex-col items-center pb-4 max-h-screen sm:max-h-[80vh] sm:px-16 sm:border-b bg-base-100 border-base-200"
@@ -108,7 +108,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
             </div>
             <div class="sm:flex flex-wrap sm:px-12">
                 <div
-                    class="sm:p-4 sm:bg-base-100 sm:dark:bg-neutral-700 rounded sm:m-2 sm:border border-base-200 flex-grow-[4] min-w-1/3 sm:w-[16rem]"
+                    class="sm:p-4 sm:bg-base-100 rounded sm:m-2 sm:border border-base-200 flex-grow-[4] min-w-1/3 sm:w-[16rem]"
                 >
                     <h3 class="px-3 mt-2 text-lg font-medium mb-2" i18n>
                         Details
@@ -140,7 +140,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                 </div>
                 <ng-container *ngIf="has_assets">
                     <div
-                        class="mt-4 sm:p-4 sm:bg-base-100 sm:dark:bg-neutral-700 rounded sm:m-2 sm:border border-base-200 flex-grow-[3] min-w-1/3 sm:w-[16rem]"
+                        class="mt-4 sm:p-4 sm:bg-base-100 rounded sm:m-2 sm:border border-base-200 flex-grow-[3] min-w-1/3 sm:w-[16rem]"
                     >
                         <h3 class="mx-3 py-2 text-lg font-medium" i18n>
                             Assets ({{ booking.valid_assets?.length || 0 }})

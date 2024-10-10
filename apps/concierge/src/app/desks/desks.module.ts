@@ -24,6 +24,7 @@ import { SharedBookingsModule } from '@placeos/bookings';
 import { FormFieldsModule } from '@placeos/form-fields';
 import { NewDesksComponent } from './new-desks.component';
 import { DeskModalComponent } from './desk-modal.component';
+import { DeskQrCodeModalComponent } from './desk-qr-code-modal.component';
 
 const ROUTES: Route[] = [
     {
@@ -59,6 +60,7 @@ const ROUTES: Route[] = [
         NewDeskFormDetailsComponent,
         DeskBookModalComponent,
         DeskModalComponent,
+        DeskQrCodeModalComponent,
     ],
     imports: [
         CommonModule,

@@ -8,6 +8,7 @@ import {
     getInvalidFields,
     notify,
     notifyError,
+    notifySuccess,
 } from '@placeos/common';
 import { BuildingLevel } from '@placeos/organisation';
 import { User } from '@placeos/users';
@@ -211,6 +212,7 @@ export class ParkingBookingModalComponent extends AsyncHandler {
         this.form.updateValueAndValidity();
         if (!this.form.valid) return;
         this.loading = true;
+        const id = this.form.value.id;
         if (this._data.external_user) {
             this.form.patchValue({ user_id: undefined });
         }
@@ -221,6 +223,9 @@ export class ParkingBookingModalComponent extends AsyncHandler {
             throw e;
         });
         this.form.controls.plate_number.setValidators([]);
+        notifySuccess(
+            `Successfully ${id ? 'updated' : 'created'} parking reservation`,
+        );
         this._dialog_ref.close(result.id);
     }
 }

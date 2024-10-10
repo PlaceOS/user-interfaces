@@ -77,6 +77,22 @@ code {
     }
 }
 
+@media print {
+    .cdk-overlay-container {
+        position: initial;
+    }
+
+    .cdk-overlay-backdrop {
+        display: none;
+    }
+
+    #placeos mat-dialog-container {
+        .mdc-dialog__surface {
+            box-shadow: none;
+        }
+    }
+}
+
 .mdc-dialog__container {
     padding: 0;
 

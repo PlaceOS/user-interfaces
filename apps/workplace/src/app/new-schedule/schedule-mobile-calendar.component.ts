@@ -43,7 +43,7 @@ import {
             <div class="flex items-center justify-center text-sm mb-2">
                 <div
                     class="opacity-60 text-center w-10 mx-2"
-                    *ngFor="let day of date_list | slice: 0:7"
+                    *ngFor="let day of date_list | slice: 0 : 7"
                 >
                     {{ day.id | date: 'EE' }}
                 </div>
@@ -57,8 +57,6 @@ import {
                     [class.text-opacity-30]="!day.is_month"
                     [class.text-white]="day.id === active_date"
                     [class.text-black]="day.id !== active_date"
-                    [class.dark:text-white]="day.id !== active_date"
-                    [class.dark:text-opacity-30]="!day.is_month"
                     [class.bg-primary]="day.id === active_date"
                     [class.font-normal]="day.id !== active_date"
                     (click)="setValue(day.id)"

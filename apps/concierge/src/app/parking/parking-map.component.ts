@@ -67,7 +67,10 @@ export class ParkingMapComponent extends AsyncHandler {
                 .pipe(take(1))
                 .toPromise();
             await this._parking.editReservation(undefined, {
-                space,
+                space: {
+                    ...space,
+                    zone: this._org.levelWithID([space.zone_id || space.zone]),
+                },
                 date: options.date,
             });
         };

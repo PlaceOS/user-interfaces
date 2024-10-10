@@ -45,7 +45,7 @@ export enum TimezoneDiffRange {
                         <span class="opacity-30">No Date Selected</span>
                     }
                 </div>
-                <div class="text-xs opacity-30 truncate" *ngIf="timezone">
+                <div class="text-xs opacity-30 truncate" *ngIf="timezone && tz">
                     <span *ngIf="range !== 2">{{ start_of_day }}</span>
                     <span *ngIf="range === 0"> - </span>
                     <span *ngIf="range !== 1">{{ end_of_day }}</span>
@@ -132,10 +132,15 @@ export class DateFieldComponent
         return this._control?.invalid && this._control?.touched;
     }
 
+    private _local_tz = getTimezoneOffsetString(
+        Intl.DateTimeFormat().resolvedOptions().timeZone,
+    );
+
     public get tz() {
         const tz = this.timezone;
         if (!tz) return '';
-        return getTimezoneOffsetString(tz);
+        const tz_offset = getTimezoneOffsetString(tz);
+        return tz_offset === this._local_tz ? '' : tz_offset;
     }
 
     @ViewChild(CustomTooltipComponent) private _tooltip: CustomTooltipComponent;

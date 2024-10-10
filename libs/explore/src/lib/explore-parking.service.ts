@@ -15,6 +15,8 @@ import {
     endOfDay,
     endOfMinute,
     getUnixTime,
+    isSameDay,
+    setHours,
     startOfDay,
     startOfMinute,
 } from 'date-fns';
@@ -148,7 +150,9 @@ export class ExploreParkingService extends AsyncHandler {
     ]).pipe(
         map(([events, spaces, users]) => {
             const available = spaces.filter((_) => {
-                const event = events.find((e) => e.asset_id === _.id);
+                const event = events.find(
+                    (e) => e.asset_id === _.id && !e.rejected,
+                );
                 const assigned = `${
                     event?.user_email || _.assigned_to || ''
                 }`.toLowerCase();
@@ -160,7 +164,7 @@ export class ExploreParkingService extends AsyncHandler {
                     event?.extension_data?.plate_number ||
                     user?.plate_number ||
                     undefined;
-                return !assigned;
+                return !event;
             });
             this._updateParkingSpaces(spaces, available);
             return available;
@@ -219,10 +223,12 @@ export class ExploreParkingService extends AsyncHandler {
             const can_book = !!available.find((_) => _.id === space.id);
             const is_assigned = !!space.assigned_to;
             const id = space.map_id || space.id;
-            const status = can_book
-                ? 'free'
-                : assigned_space
-                  ? 'pending'
+            const status = is_assigned
+                ? can_book
+                    ? 'pending'
+                    : 'busy'
+                : can_book
+                  ? 'free'
                   : 'busy';
             styles[`#${id}`] = {
                 fill:
@@ -241,7 +247,7 @@ export class ExploreParkingService extends AsyncHandler {
                     user: this._users[space.id],
                     plate_number: this._plate_numbers[space.id],
                     status:
-                        status === 'pending' && assigned_space
+                        status === 'pending' && is_assigned
                             ? 'reserved'
                             : status,
                 },
@@ -290,37 +296,35 @@ export class ExploreParkingService extends AsyncHandler {
                 this._bookings.newForm();
                 this._bookings.setOptions({ type: 'parking' });
                 options = this._options.getValue();
-                if (options.date) {
-                    this._bookings.form.patchValue({
-                        date: options.date,
-                    });
-                    this._bookings.form.patchValue({
-                        all_day: !!options.all_day,
-                    });
-                }
-                let { date, duration, user } = await this._setBookingTime(
-                    this._bookings.form.value.date,
-                    this._bookings.form.value.duration,
-                    this._options.getValue()?.custom ?? false,
-                    space as any,
-                );
-                user = user || options.host || currentUser();
+                let user = options.host || currentUser();
                 const user_email = user?.email;
-                const lvl = this._state.active_level;
+                const zone =
+                    this._org.levelWithID([
+                        space.zone_id || (space as any).zone,
+                    ]) || this._state.active_level;
+                const date =
+                    !options.date || isSameDay(options.date, Date.now())
+                        ? startOfMinute(Date.now()).valueOf()
+                        : setHours(options.date, 8).valueOf();
+                debugger;
                 this._bookings.form.patchValue({
                     resources: [space],
                     asset_id: space.id,
                     asset_name: space.name,
                     date,
-                    duration: options.all_day ? 12 * 60 : duration,
+                    duration: 11 * 60,
+                    all_day: true,
                     map_id: space?.map_id || space?.id,
                     description: space.name,
                     user,
                     user_email,
                     booking_type: 'parking',
-                    zones: space.zone
-                        ? [space.zone?.parent_id, space.zone?.id]
-                        : [lvl.parent_id, lvl.id],
+                    zones: [
+                        this._org.organisation.id,
+                        this._org.region?.id,
+                        zone.parent_id,
+                        zone.id,
+                    ],
                 });
                 await this._bookings.confirmPost().catch((e) => {
                     if (e === 'User cancelled') throw e;
@@ -336,7 +340,7 @@ export class ExploreParkingService extends AsyncHandler {
                         space.name || space.id
                     }`,
                 );
-                this._poll.next(Date.now());
+                this.timeout('poll', () => this._poll.next(Date.now()), 1000);
             };
             actions.push({
                 id,

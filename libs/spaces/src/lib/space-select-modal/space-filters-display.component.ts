@@ -59,25 +59,20 @@ import { SpaceFiltersComponent } from './space-filters.component';
             >
                 Clear Filters
             </button>
-            <div
-                filter-item
-                zone
-                class="dark:border-base-200-500"
-                *ngIf="location"
-            >
+            <div filter-item zone *ngIf="location">
                 {{ location }}
             </div>
-            <div filter-item date class="dark:border-base-200-500">
+            <div filter-item date>
                 {{ start | date: 'mediumDate' }}
             </div>
-            <div filter-item time class="dark:border-base-200-500">
+            <div filter-item time>
                 <ng-container *ngIf="!all_day">
                     {{ start | date: time_format }} &mdash;
                     {{ end | date: time_format }}
                 </ng-container>
                 <ng-container *ngIf="all_day">All Day</ng-container>
             </div>
-            <div filter-item count class="dark:border-base-200-500" i18n>
+            <div filter-item count i18n>
                 Min. {{ (options | async)?.capacity || 2 }} People
             </div>
             <div filter-item *ngFor="let feat of (options | async)?.features">
@@ -150,7 +145,7 @@ export class SpaceFiltersDisplayComponent extends AsyncHandler {
         private _bsheet: MatBottomSheet,
         private _event_form: EventFormService,
         private _org: OrganisationService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         super();
     }
@@ -159,8 +154,8 @@ export class SpaceFiltersDisplayComponent extends AsyncHandler {
         this.subscription(
             'opts',
             this.options.subscribe(({ zone_ids }) =>
-                this._updateLocation(zone_ids)
-            )
+                this._updateLocation(zone_ids),
+            ),
         );
     }
 

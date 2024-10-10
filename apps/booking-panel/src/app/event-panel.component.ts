@@ -3,13 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { CalendarEvent } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
-import {
-    addHours,
-    endOfHour,
-    getUnixTime,
-    startOfHour,
-    startOfMinute,
-} from 'date-fns';
+import { startOfMinute } from 'date-fns';
 import { first, map } from 'rxjs/operators';
 import { PanelStateService } from './panel-state.service';
 import { generateQRCode } from 'libs/common/src/lib/qr-code';
