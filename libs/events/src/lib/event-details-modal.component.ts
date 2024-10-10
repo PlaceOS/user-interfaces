@@ -212,6 +212,26 @@ const EMPTY_ACTIONS = [];
                             <div class="text-sm uppercase" i18n>Pending</div>
                         </div>
                     </div>
+                    <div class="hidden print:block">
+                        <ng-container *ngFor="let user of event.attendees">
+                            <div
+                                class="px-2 flex items-center space-x-2"
+                                attendee
+                                *ngIf="user.email !== event.host"
+                            >
+                                <a-user-avatar [user]="user"></a-user-avatar>
+                                <div class="text-sm flex-1 w-px">
+                                    <div>{{ user?.name }}</div>
+                                    <div
+                                        class="opacity-60 truncate w-full"
+                                        [title]="user.email"
+                                    >
+                                        {{ user.email }}
+                                    </div>
+                                </div>
+                            </div>
+                        </ng-container>
+                    </div>
                     <h3
                         class="mx-3 mt-2 pt-2 text-lg font-medium border-t border-base-200"
                         i18n
@@ -266,6 +286,7 @@ const EMPTY_ACTIONS = [];
                                     <button
                                         icon
                                         matRipple
+                                        class="print:hidden"
                                         [matTooltip]="
                                             show_order[order.id]
                                                 ? 'Hide order items'
@@ -288,7 +309,9 @@ const EMPTY_ACTIONS = [];
                                 <div
                                     class="flex flex-col bg-base-200 divide-y divide-base-100"
                                     [@show]="
-                                        show_order[order.id] ? 'show' : 'hide'
+                                        print || show_order[order.id]
+                                            ? 'show'
+                                            : 'hide'
                                     "
                                 >
                                     <div
@@ -453,7 +476,7 @@ const EMPTY_ACTIONS = [];
                                 <div
                                     class="flex flex-col bg-base-200 divide-y divide-base-100"
                                     [@show]="
-                                        show_request[request.id]
+                                        print || show_request[request.id]
                                             ? 'show'
                                             : 'hide'
                                     "
@@ -514,7 +537,7 @@ const EMPTY_ACTIONS = [];
                         <div i18n>Delete event</div>
                     </div>
                 </button>
-                <button mat-menu-item (click)="print()">
+                <button mat-menu-item (click)="printEvent()">
                     <div class="flex items-center space-x-2 text-base pr-2">
                         <app-icon class="text-2xl">print</app-icon>
                         <div i18n>Print event</div>
@@ -558,6 +581,7 @@ export class EventDetailsModalComponent {
     public hide_map = false;
     public hide_edit = false;
     public raw_body = '';
+    public print = false;
     public show_attendees: boolean = false;
     public readonly event = this._event;
     public readonly no_edit_message =
@@ -771,7 +795,11 @@ export class EventDetailsModalComponent {
         });
     }
 
-    public print() {
-        setTimeout(() => window.print(), 100);
+    public printEvent() {
+        this.print = true;
+        setTimeout(() => {
+            window.print();
+            setTimeout(() => (this.print = false), 100);
+        }, 300);
     }
 }
