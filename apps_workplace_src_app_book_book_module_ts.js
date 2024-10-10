@@ -596,9 +596,9 @@ function BookCodeFlowComponent_div_0_Template(rf, ctx) {
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵadvance"](3);
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtwoWayProperty"]("ngModel", ctx_r1.room_code);
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵadvance"](2);
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵclassMap"]("flex-1 text-black border-none w-40 " + (ctx_r1.is_scanning ? "bg-base-100" : "bg-transparent hover:bg-base-100 hover:dark:bg-neutral-600 bg-opacity-50"));
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵclassMap"]("flex-1 text-black border-none w-40 " + (ctx_r1.is_scanning ? "bg-base-100" : "bg-transparent hover:bg-base-100 bg-opacity-50"));
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵadvance"](2);
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵclassMap"]("flex-1 text-black border-none w-40 " + (!ctx_r1.is_scanning ? "bg-base-100" : "bg-transparent hover:bg-base-100 hover:dark:bg-neutral-600 bg-opacity-50"));
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵclassMap"]("flex-1 text-black border-none w-40 " + (!ctx_r1.is_scanning ? "bg-base-100" : "bg-transparent hover:bg-base-100 bg-opacity-50"));
   }
 }
 function BookCodeFlowComponent_ng_template_1_Template(rf, ctx) {
@@ -5297,14 +5297,26 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   MeetingFlowSuccessComponent: () => (/* binding */ MeetingFlowSuccessComponent)
 /* harmony export */ });
-/* harmony import */ var _placeos_common__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @placeos/common */ 22797);
-/* harmony import */ var _placeos_events__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @placeos/events */ 40569);
-/* harmony import */ var _placeos_organisation__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @placeos/organisation */ 2510);
-/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @angular/core */ 37580);
-/* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @angular/common */ 60316);
-/* harmony import */ var _angular_material_core__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @angular/material/core */ 74646);
-/* harmony import */ var _angular_router__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @angular/router */ 95072);
-/* harmony import */ var _ngx_translate_core__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! @ngx-translate/core */ 597);
+/* harmony import */ var _home_runner_work_user_interfaces_user_interfaces_node_modules_babel_runtime_helpers_esm_asyncToGenerator_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js */ 89204);
+/* harmony import */ var _placeos_bookings__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @placeos/bookings */ 85616);
+/* harmony import */ var _placeos_common__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @placeos/common */ 22797);
+/* harmony import */ var _placeos_events__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @placeos/events */ 40569);
+/* harmony import */ var _placeos_organisation__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @placeos/organisation */ 2510);
+/* harmony import */ var _placeos_spaces__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @placeos/spaces */ 44855);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! date-fns */ 77177);
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! rxjs/operators */ 33602);
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @angular/core */ 37580);
+/* harmony import */ var _angular_router__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! @angular/router */ 95072);
+/* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! @angular/common */ 60316);
+/* harmony import */ var _angular_material_core__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! @angular/material/core */ 74646);
+/* harmony import */ var _ngx_translate_core__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! @ngx-translate/core */ 597);
+
+
+
+
+
+
+
 
 
 
@@ -5319,57 +5331,73 @@ __webpack_require__.r(__webpack_exports__);
 const _c0 = () => ["/"];
 function MeetingFlowSuccessComponent_span_8_span_2_Template(rf, ctx) {
   if (rf & 1) {
-    _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵi18nStart"](0, 0, 2);
-    _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵelement"](1, "span");
-    _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵi18nEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵi18nStart"](0, 0, 2);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelement"](1, "span");
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵi18nEnd"]();
   }
 }
 function MeetingFlowSuccessComponent_span_8_Template(rf, ctx) {
   if (rf & 1) {
-    _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵi18nStart"](0, 0, 1);
-    _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵelementStart"](1, "span");
-    _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵtemplate"](2, MeetingFlowSuccessComponent_span_8_span_2_Template, 2, 0, "span", 6);
-    _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵi18nEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵi18nStart"](0, 0, 1);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](1, "span");
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtemplate"](2, MeetingFlowSuccessComponent_span_8_span_2_Template, 2, 0, "span", 6);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵi18nEnd"]();
   }
   if (rf & 2) {
-    const ctx_r0 = _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵnextContext"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵadvance"](2);
-    _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵproperty"]("ngIf", ctx_r0.level);
-    _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵi18nExp"]((ctx_r0.level == null ? null : ctx_r0.level.display_name) || (ctx_r0.level == null ? null : ctx_r0.level.name))((ctx_r0.space == null ? null : ctx_r0.space.display_name) || (ctx_r0.space == null ? null : ctx_r0.space.name));
-    _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵi18nApply"](0);
+    const ctx_r0 = _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵnextContext"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵadvance"](2);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵproperty"]("ngIf", ctx_r0.level);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵi18nExp"]((ctx_r0.level == null ? null : ctx_r0.level.display_name) || (ctx_r0.level == null ? null : ctx_r0.level.name))((ctx_r0.space == null ? null : ctx_r0.space.display_name) || (ctx_r0.space == null ? null : ctx_r0.space.name));
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵi18nApply"](0);
   }
 }
 function MeetingFlowSuccessComponent_span_9_Template(rf, ctx) {
   if (rf & 1) {
-    _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵi18nStart"](0, 0, 3);
-    _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵelement"](1, "span");
-    _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵi18nEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵi18nStart"](0, 0, 3);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelement"](1, "span");
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵi18nEnd"]();
   }
 }
 function MeetingFlowSuccessComponent_span_11_Template(rf, ctx) {
   if (rf & 1) {
-    _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵi18nStart"](0, 0, 4);
-    _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵelement"](1, "span");
-    _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵpipe"](2, "date");
-    _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵpipe"](3, "date");
-    _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵi18nEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵi18nStart"](0, 0, 4);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelement"](1, "span");
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵpipe"](2, "date");
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵpipe"](3, "date");
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵi18nEnd"]();
   }
   if (rf & 2) {
-    const ctx_r0 = _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵnextContext"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵadvance"](3);
-    _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵi18nExp"](_angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵpipeBind2"](2, 2, ctx_r0.last_event.date, ctx_r0.time_format))(_angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵpipeBind2"](3, 5, ctx_r0.last_event.date + ctx_r0.last_event.duration * 60 * 1000, ctx_r0.time_format));
-    _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵi18nApply"](0);
+    const ctx_r0 = _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵnextContext"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵadvance"](3);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵi18nExp"](_angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵpipeBind2"](2, 2, ctx_r0.last_event.date, ctx_r0.time_format))(_angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵpipeBind2"](3, 5, ctx_r0.last_event.date + ctx_r0.last_event.duration * 60 * 1000, ctx_r0.time_format));
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵi18nApply"](0);
   }
 }
 function MeetingFlowSuccessComponent_p_12_Template(rf, ctx) {
   if (rf & 1) {
-    _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵelementStart"](0, "p");
-    _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵtext"](1, " Please allow up to 5 minutes for you booking to be approved. ");
-    _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](0, "p");
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtext"](1, " Please allow up to 5 minutes for you booking to be approved. ");
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]();
+  }
+}
+function MeetingFlowSuccessComponent_button_14_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r2 = _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵgetCurrentView"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](0, "button", 11);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵlistener"]("click", function MeetingFlowSuccessComponent_button_14_Template_button_click_0_listener() {
+      _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵrestoreView"](_r2);
+      const ctx_r0 = _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵnextContext"]();
+      return _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵresetView"](ctx_r0.startDeskBooking());
+    });
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtext"](1, " Book nearby desk ");
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]();
   }
 }
 class MeetingFlowSuccessComponent {
+  get allow_desk_booking() {
+    return this._settings.get('app.features').includes('desks');
+  }
   get last_event() {
     return this._event_form.last_success;
   }
@@ -5382,19 +5410,62 @@ class MeetingFlowSuccessComponent {
   get time_format() {
     return this._settings.time_format;
   }
-  constructor(_event_form, _org, _settings) {
+  startDeskBooking() {
+    var _this = this;
+    this._router.navigate(['/book', 'new-desks', 'form']);
+    setTimeout( /*#__PURE__*/(0,_home_runner_work_user_interfaces_user_interfaces_node_modules_babel_runtime_helpers_esm_asyncToGenerator_js__WEBPACK_IMPORTED_MODULE_0__["default"])(function* () {
+      _this._booking_form.newForm();
+      const space = yield _this._space_pipe.transform(_this.space.id || _this.space.email);
+      const level = _this._org.levelWithID(space?.zones);
+      _this._booking_form.setOptions({
+        type: 'desk',
+        zone_id: level?.id
+      });
+      _this._booking_form.form.patchValue({
+        date: (0,date_fns__WEBPACK_IMPORTED_MODULE_7__.set)(_this.last_event.date, {
+          hours: 8,
+          minutes: 0
+        }).valueOf(),
+        duration: 10 * 60,
+        all_day: _this.last_event.all_day,
+        booking_type: 'desk'
+      });
+      console.log('Space:', space);
+      const resources = yield _this._booking_form.available_resources.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_8__.take)(1)).toPromise();
+      const bookable_desks = resources.map(_ => _.map_id || _.id).filter(i => i);
+      const nearby = yield (0,_placeos_bookings__WEBPACK_IMPORTED_MODULE_1__.findNearbyFeature)(level.map_id, space?.map_id, bookable_desks);
+      if (!nearby) return (0,_placeos_common__WEBPACK_IMPORTED_MODULE_2__.notifyError)('No available desks nearby');
+      const resource = resources.find(_ => _.map_id === nearby);
+      _this._booking_form.form.patchValue({
+        date: (0,date_fns__WEBPACK_IMPORTED_MODULE_7__.set)(_this.last_event.date, {
+          hours: 8,
+          minutes: 0
+        }).valueOf(),
+        duration: 10 * 60,
+        all_day: _this.last_event.all_day,
+        booking_type: 'desk',
+        asset_id: nearby,
+        asset_name: resource.name,
+        resources: [resource]
+      });
+    }), 50);
+  }
+  constructor(_event_form, _org, _settings, _booking_form, _router) {
     this._event_form = _event_form;
     this._org = _org;
     this._settings = _settings;
+    this._booking_form = _booking_form;
+    this._router = _router;
+    this._space_pipe = new _placeos_spaces__WEBPACK_IMPORTED_MODULE_5__.SpacePipe(this._org);
   }
   static #_ = this.ɵfac = function MeetingFlowSuccessComponent_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || MeetingFlowSuccessComponent)(_angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵdirectiveInject"](_placeos_events__WEBPACK_IMPORTED_MODULE_1__.EventFormService), _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵdirectiveInject"](_placeos_organisation__WEBPACK_IMPORTED_MODULE_2__.OrganisationService), _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵdirectiveInject"](_placeos_common__WEBPACK_IMPORTED_MODULE_0__.SettingsService));
+    return new (__ngFactoryType__ || MeetingFlowSuccessComponent)(_angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵdirectiveInject"](_placeos_events__WEBPACK_IMPORTED_MODULE_3__.EventFormService), _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵdirectiveInject"](_placeos_organisation__WEBPACK_IMPORTED_MODULE_4__.OrganisationService), _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵdirectiveInject"](_placeos_common__WEBPACK_IMPORTED_MODULE_2__.SettingsService), _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵdirectiveInject"](_placeos_bookings__WEBPACK_IMPORTED_MODULE_1__.BookingFormService), _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵdirectiveInject"](_angular_router__WEBPACK_IMPORTED_MODULE_9__.Router));
   };
-  static #_2 = this.ɵcmp = /*@__PURE__*/_angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵdefineComponent"]({
+  static #_2 = this.ɵcmp = /*@__PURE__*/_angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵdefineComponent"]({
     type: MeetingFlowSuccessComponent,
     selectors: [["meeting-flow-success"]],
-    decls: 17,
-    vars: 16,
+    decls: 19,
+    vars: 17,
     consts: () => {
       let i18n_0;
       if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
@@ -5430,50 +5501,54 @@ class MeetingFlowSuccessComponent {
       } else {
         i18n_0 = $localize`:␟e1282d0c22e56ac0dbb84506339593df729e6612␟2432279147622715319: Your ${"\uFFFD*8:1\uFFFD\uFFFD#1:1\uFFFD"}:START_TAG_SPAN_1: room booking for ${"\uFFFD0:1\uFFFD"}:INTERPOLATION:${"\uFFFD*2:2\uFFFD\uFFFD#1:2\uFFFD"}:START_TAG_SPAN:,${"[\uFFFD/#1:2\uFFFD\uFFFD/*2:2\uFFFD|\uFFFD/#1:1\uFFFD\uFFFD/*8:1\uFFFD|\uFFFD/#1:3\uFFFD\uFFFD/*9:3\uFFFD|\uFFFD/#1:4\uFFFD\uFFFD/*11:4\uFFFD]"}:CLOSE_TAG_SPAN: ${"\uFFFD1:1\uFFFD"}:INTERPOLATION_1: ${"[\uFFFD/#1:2\uFFFD\uFFFD/*2:2\uFFFD|\uFFFD/#1:1\uFFFD\uFFFD/*8:1\uFFFD|\uFFFD/#1:3\uFFFD\uFFFD/*9:3\uFFFD|\uFFFD/#1:4\uFFFD\uFFFD/*11:4\uFFFD]"}:CLOSE_TAG_SPAN:${"\uFFFD*9:3\uFFFD\uFFFD#1:3\uFFFD"}:START_TAG_SPAN_2:meeting${"[\uFFFD/#1:2\uFFFD\uFFFD/*2:2\uFFFD|\uFFFD/#1:1\uFFFD\uFFFD/*8:1\uFFFD|\uFFFD/#1:3\uFFFD\uFFFD/*9:3\uFFFD|\uFFFD/#1:4\uFFFD\uFFFD/*11:4\uFFFD]"}:CLOSE_TAG_SPAN: has been successfully booked for ${"\uFFFD0\uFFFD"}:INTERPOLATION_2:${"\uFFFD*11:4\uFFFD\uFFFD#1:4\uFFFD"}:START_TAG_SPAN_3: at ${"\uFFFD0:4\uFFFD"}:INTERPOLATION_3:-${"\uFFFD1:4\uFFFD"}:INTERPOLATION_4:${"[\uFFFD/#1:2\uFFFD\uFFFD/*2:2\uFFFD|\uFFFD/#1:1\uFFFD\uFFFD/*8:1\uFFFD|\uFFFD/#1:3\uFFFD\uFFFD/*9:3\uFFFD|\uFFFD/#1:4\uFFFD\uFFFD/*11:4\uFFFD]"}:CLOSE_TAG_SPAN:. `;
       }
-      i18n_0 = _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵi18nPostprocess"](i18n_0);
-      return [i18n_0, [1, "absolute", "inset-0", "bg-base-100", "flex", "flex-col", "z-50", "overflow-auto"], [1, "flex-1", "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-8"], [1, "text-2xl", "font-medium"], ["src", "assets/icons/success.svg"], [1, "text-center", "max-w-[32rem]"], [4, "ngIf"], [1, "sticky", "bottom-0", "bg-base-100", "p-2", "w-full", "border-t", "border-base-200", "mt-4", "flex", "items-center", "justify-center"], ["btn", "", "name", "meeting-created-continue", "matRipple", "", 1, "w-full", "max-w-[32rem]", 3, "routerLink"]];
+      i18n_0 = _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵi18nPostprocess"](i18n_0);
+      return [i18n_0, [1, "absolute", "inset-0", "bg-base-100", "flex", "flex-col", "z-50", "overflow-auto"], [1, "flex-1", "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-8"], [1, "text-2xl", "font-medium"], ["src", "assets/icons/success.svg"], [1, "text-center", "max-w-[32rem]"], [4, "ngIf"], [1, "h-4"], ["btn", "", "matRipple", "", "class", "w-48", 3, "click", 4, "ngIf"], [1, "sticky", "bottom-0", "bg-base-100", "p-2", "w-full", "border-t", "border-base-200", "mt-4", "flex", "items-center", "justify-center"], ["btn", "", "name", "meeting-created-continue", "matRipple", "", 1, "w-full", "max-w-[32rem]", 3, "routerLink"], ["btn", "", "matRipple", "", 1, "w-48", 3, "click"]];
     },
     template: function MeetingFlowSuccessComponent_Template(rf, ctx) {
       if (rf & 1) {
-        _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵelementStart"](0, "div", 1)(1, "main", 2)(2, "h2", 3);
-        _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵtext"](3);
-        _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵpipe"](4, "translate");
-        _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵelementEnd"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵelement"](5, "img", 4);
-        _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵelementStart"](6, "p", 5);
-        _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵi18nStart"](7, 0);
-        _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵtemplate"](8, MeetingFlowSuccessComponent_span_8_Template, 3, 3, "span", 6)(9, MeetingFlowSuccessComponent_span_9_Template, 2, 0, "span", 6);
-        _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵpipe"](10, "date");
-        _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵtemplate"](11, MeetingFlowSuccessComponent_span_11_Template, 4, 8, "span", 6);
-        _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵi18nEnd"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵelementEnd"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵtemplate"](12, MeetingFlowSuccessComponent_p_12_Template, 2, 0, "p", 6);
-        _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵelementEnd"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵelementStart"](13, "footer", 7)(14, "a", 8);
-        _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵtext"](15);
-        _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵpipe"](16, "translate");
-        _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵelementEnd"]()()();
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](0, "div", 1)(1, "main", 2)(2, "h2", 3);
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtext"](3);
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵpipe"](4, "translate");
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelement"](5, "img", 4);
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](6, "p", 5);
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵi18nStart"](7, 0);
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtemplate"](8, MeetingFlowSuccessComponent_span_8_Template, 3, 3, "span", 6)(9, MeetingFlowSuccessComponent_span_9_Template, 2, 0, "span", 6);
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵpipe"](10, "date");
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtemplate"](11, MeetingFlowSuccessComponent_span_11_Template, 4, 8, "span", 6);
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵi18nEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtemplate"](12, MeetingFlowSuccessComponent_p_12_Template, 2, 0, "p", 6);
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelement"](13, "div", 7);
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtemplate"](14, MeetingFlowSuccessComponent_button_14_Template, 2, 0, "button", 8);
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](15, "footer", 9)(16, "a", 10);
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtext"](17);
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵpipe"](18, "translate");
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]()()();
       }
       if (rf & 2) {
-        _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵadvance"](3);
-        _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵtextInterpolate1"](" ", _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵpipeBind1"](4, 8, "WPA.BOOKING_CONFIRMED"), " ");
-        _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵadvance"](5);
-        _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵproperty"]("ngIf", ctx.space);
-        _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵadvance"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵproperty"]("ngIf", !ctx.space);
-        _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵadvance"](2);
-        _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵproperty"]("ngIf", !(ctx.last_event == null ? null : ctx.last_event.all_day));
-        _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵi18nExp"](_angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵpipeBind2"](10, 10, ctx.last_event.date, "mediumDate"));
-        _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵi18nApply"](7);
-        _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵadvance"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵproperty"]("ngIf", true);
-        _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵadvance"](2);
-        _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵproperty"]("routerLink", _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵpureFunction0"](15, _c0));
-        _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵadvance"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵtextInterpolate1"](" ", _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵpipeBind1"](16, 13, "WPA.BOOKING_DONE_CONTINUE"), " ");
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵadvance"](3);
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtextInterpolate1"](" ", _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵpipeBind1"](4, 9, "WPA.BOOKING_CONFIRMED"), " ");
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵadvance"](5);
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵproperty"]("ngIf", ctx.space);
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵadvance"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵproperty"]("ngIf", !ctx.space);
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵadvance"](2);
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵproperty"]("ngIf", !(ctx.last_event == null ? null : ctx.last_event.all_day));
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵi18nExp"](_angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵpipeBind2"](10, 11, ctx.last_event.date, "mediumDate"));
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵi18nApply"](7);
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵadvance"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵproperty"]("ngIf", true);
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵadvance"](2);
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵproperty"]("ngIf", ctx.space.email && ctx.allow_desk_booking);
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵadvance"](2);
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵproperty"]("routerLink", _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵpureFunction0"](16, _c0));
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵadvance"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtextInterpolate1"](" ", _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵpipeBind1"](18, 14, "WPA.BOOKING_DONE_CONTINUE"), " ");
       }
     },
-    dependencies: [_angular_common__WEBPACK_IMPORTED_MODULE_4__.NgIf, _angular_material_core__WEBPACK_IMPORTED_MODULE_5__.MatRipple, _angular_router__WEBPACK_IMPORTED_MODULE_6__.RouterLink, _angular_common__WEBPACK_IMPORTED_MODULE_4__.DatePipe, _ngx_translate_core__WEBPACK_IMPORTED_MODULE_7__.TranslatePipe]
+    dependencies: [_angular_common__WEBPACK_IMPORTED_MODULE_10__.NgIf, _angular_material_core__WEBPACK_IMPORTED_MODULE_11__.MatRipple, _angular_router__WEBPACK_IMPORTED_MODULE_9__.RouterLink, _angular_common__WEBPACK_IMPORTED_MODULE_10__.DatePipe, _ngx_translate_core__WEBPACK_IMPORTED_MODULE_12__.TranslatePipe]
   });
 }
 
@@ -8348,10 +8423,16 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _placeos_bookings__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @placeos/bookings */ 85616);
 /* harmony import */ var _placeos_common__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @placeos/common */ 22797);
-/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @angular/core */ 37580);
-/* harmony import */ var _angular_material_core__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @angular/material/core */ 74646);
-/* harmony import */ var _angular_router__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @angular/router */ 95072);
-/* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @angular/common */ 60316);
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @angular/core */ 37580);
+/* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @angular/common */ 60316);
+/* harmony import */ var _libs_components_src_lib_icon_component__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../../../../libs/components/src/lib/icon.component */ 69434);
+/* harmony import */ var _angular_material_core__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! @angular/material/core */ 74646);
+/* harmony import */ var _angular_router__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! @angular/router */ 95072);
+/* harmony import */ var _libs_components_src_lib_safe_pipe__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../../../../../libs/components/src/lib/safe.pipe */ 26781);
+/* harmony import */ var _libs_components_src_lib_sanitise_pipe__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../../../../../libs/components/src/lib/sanitise.pipe */ 54616);
+
+
+
 
 
 
@@ -8361,6 +8442,39 @@ __webpack_require__.r(__webpack_exports__);
 
 
 const _c0 = () => ["/"];
+function ParkingFlowSuccessComponent_div_11_Template(rf, ctx) {
+  if (rf & 1) {
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementStart"](0, "div", 14)(1, "a", 15);
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpipe"](2, "sanitize");
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelement"](3, "img", 16);
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementStart"](4, "span");
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵi18n"](5, 3);
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementEnd"]()();
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementStart"](6, "a", 17);
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpipe"](7, "sanitize");
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelement"](8, "img", 18);
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementStart"](9, "span");
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵi18n"](10, 4);
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementEnd"]()();
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementStart"](11, "a", 19);
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpipe"](12, "safe");
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementStart"](13, "app-icon", 20);
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵtext"](14, "download");
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementStart"](15, "span");
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵi18n"](16, 5);
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementEnd"]()()();
+  }
+  if (rf & 2) {
+    const ctx_r0 = _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵnextContext"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵadvance"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵproperty"]("href", _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpipeBind2"](2, 3, ctx_r0.outlook_link, "url"), _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵsanitizeUrl"]);
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵadvance"](5);
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵproperty"]("href", _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpipeBind2"](7, 6, ctx_r0.google_link, "url"), _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵsanitizeUrl"]);
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵadvance"](5);
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵproperty"]("href", _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpipeBind2"](12, 9, ctx_r0.ical_link, "url"), _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵsanitizeUrl"]);
+  }
+}
 class ParkingFlowSuccessComponent {
   get location() {
     const resource = this.last_event?.extension_data?.booking_asset;
@@ -8373,18 +8487,21 @@ class ParkingFlowSuccessComponent {
   get time_format() {
     return this._settings.time_format;
   }
+  get show_links() {
+    return this._settings.get('app.parking.show_calendar_links');
+  }
   constructor(_state, _settings) {
     this._state = _state;
     this._settings = _settings;
   }
   static #_ = this.ɵfac = function ParkingFlowSuccessComponent_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || ParkingFlowSuccessComponent)(_angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵdirectiveInject"](_placeos_bookings__WEBPACK_IMPORTED_MODULE_0__.BookingFormService), _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵdirectiveInject"](_placeos_common__WEBPACK_IMPORTED_MODULE_1__.SettingsService));
+    return new (__ngFactoryType__ || ParkingFlowSuccessComponent)(_angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵdirectiveInject"](_placeos_bookings__WEBPACK_IMPORTED_MODULE_0__.BookingFormService), _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵdirectiveInject"](_placeos_common__WEBPACK_IMPORTED_MODULE_1__.SettingsService));
   };
-  static #_2 = this.ɵcmp = /*@__PURE__*/_angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵdefineComponent"]({
+  static #_2 = this.ɵcmp = /*@__PURE__*/_angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵdefineComponent"]({
     type: ParkingFlowSuccessComponent,
     selectors: [["parking-flow-success"]],
-    decls: 14,
-    vars: 16,
+    decls: 15,
+    vars: 17,
     consts: () => {
       let i18n_0;
       if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
@@ -8434,36 +8551,69 @@ class ParkingFlowSuccessComponent {
       } else {
         i18n_2 = $localize`:␟44c59d98706bc456a0feecbb41601eec38da367e␟1969482015227334006: Great, thanks! `;
       }
-      return [i18n_0, i18n_1, i18n_2, [1, "absolute", "inset-0", "bg-base-100", "flex", "flex-col", "z-50", "overflow-auto"], [1, "flex-1", "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-8"], [1, "text-2xl", "font-medium"], [1, "text-center", "max-w-[32rem]"], ["src", "assets/icons/parking-success.svg"], [1, "sticky", "bottom-0", "bg-base-100", "p-2", "w-full", "border-t", "border-base-200", "mt-4", "flex", "items-center", "justify-center"], ["btn", "", "matRipple", "", 1, "w-full", "max-w-[32rem]", 3, "routerLink"]];
+      let i18n_3;
+      if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
+        /**
+         * @suppress {msgDescriptions}
+         */
+        const MSG_EXTERNAL_7547869007893180695$$APPS_WORKPLACE_SRC_APP_BOOK_NEW_PARKING_FLOW_PARKING_FLOW_SUCCESS_COMPONENT_TS_3 = goog.getMsg("Add to Outlook");
+        i18n_3 = MSG_EXTERNAL_7547869007893180695$$APPS_WORKPLACE_SRC_APP_BOOK_NEW_PARKING_FLOW_PARKING_FLOW_SUCCESS_COMPONENT_TS_3;
+      } else {
+        i18n_3 = $localize`:␟11765fae755306c1287745a7ddb4461aae072a68␟7547869007893180695:Add to Outlook`;
+      }
+      let i18n_4;
+      if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
+        /**
+         * @suppress {msgDescriptions}
+         */
+        const MSG_EXTERNAL_2479867054818994962$$APPS_WORKPLACE_SRC_APP_BOOK_NEW_PARKING_FLOW_PARKING_FLOW_SUCCESS_COMPONENT_TS_4 = goog.getMsg("Add to Google Calendar");
+        i18n_4 = MSG_EXTERNAL_2479867054818994962$$APPS_WORKPLACE_SRC_APP_BOOK_NEW_PARKING_FLOW_PARKING_FLOW_SUCCESS_COMPONENT_TS_4;
+      } else {
+        i18n_4 = $localize`:␟fa6bd0f777a40a0f26b09751bf006c7337d547ac␟2479867054818994962:Add to Google Calendar`;
+      }
+      let i18n_5;
+      if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
+        /**
+         * @suppress {msgDescriptions}
+         */
+        const MSG_EXTERNAL_4894641609416495396$$APPS_WORKPLACE_SRC_APP_BOOK_NEW_PARKING_FLOW_PARKING_FLOW_SUCCESS_COMPONENT_TS_5 = goog.getMsg("Download iCal File");
+        i18n_5 = MSG_EXTERNAL_4894641609416495396$$APPS_WORKPLACE_SRC_APP_BOOK_NEW_PARKING_FLOW_PARKING_FLOW_SUCCESS_COMPONENT_TS_5;
+      } else {
+        i18n_5 = $localize`:␟1af54061e7f4bcfb1048ffaa05c9b8f7c4b41679␟4894641609416495396:Download iCal File`;
+      }
+      return [i18n_0, i18n_1, i18n_2, i18n_3, i18n_4, i18n_5, [1, "absolute", "inset-0", "bg-base-100", "flex", "flex-col", "z-50", "overflow-auto"], [1, "flex-1", "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-8"], [1, "text-2xl", "font-medium"], [1, "text-center", "max-w-[32rem]"], ["src", "assets/icons/parking-success.svg"], ["class", "flex flex-col items-center space-y-4 p-4 relative", 4, "ngIf"], [1, "sticky", "bottom-0", "bg-base-100", "p-2", "w-full", "border-t", "border-base-200", "mt-4", "flex", "items-center", "justify-center"], ["btn", "", "matRipple", "", 1, "w-full", "max-w-[32rem]", 3, "routerLink"], [1, "flex", "flex-col", "items-center", "space-y-4", "p-4", "relative"], ["btn", "", "matRipple", "", "name", "desk-outlook-link", "target", "_blank", "rel", "noopener noreferer", 1, "flex", "items-center", "p-2", "space-x-2", "pr-4", "w-64", "rounded", "inverse", 3, "href"], ["src", "assets/icons/outlook.svg", 1, "w-6"], ["btn", "", "matRipple", "", "name", "desk-google-link", "target", "_blank", "rel", "noopener noreferer", 1, "flex", "items-center", "p-2", "space-x-2", "pr-4", "w-64", "rounded", "inverse", 3, "href"], ["src", "assets/icons/gcal.svg", 1, "w-6"], ["btn", "", "matRipple", "", "name", "desk-ical-link", "target", "_blank", "rel", "noopener noreferer", 1, "flex", "items-center", "p-2", "space-x-2", "pr-4", "w-64", "rounded", "inverse", 3, "href"], [1, "text-xl"]];
     },
     template: function ParkingFlowSuccessComponent_Template(rf, ctx) {
       if (rf & 1) {
-        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](0, "div", 3)(1, "main", 4)(2, "h2", 5);
-        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵi18n"](3, 0);
-        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](4, "p", 6);
-        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵi18nStart"](5, 1);
-        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelement"](6, "span");
-        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵpipe"](7, "date");
-        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵpipe"](8, "date");
-        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵpipe"](9, "date");
-        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵi18nEnd"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelement"](10, "img", 7);
-        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](11, "footer", 8)(12, "a", 9);
-        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵi18n"](13, 2);
-        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]()()();
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementStart"](0, "div", 6)(1, "main", 7)(2, "h2", 8);
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵi18n"](3, 0);
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementStart"](4, "p", 9);
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵi18nStart"](5, 1);
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelement"](6, "span");
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpipe"](7, "date");
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpipe"](8, "date");
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpipe"](9, "date");
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵi18nEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelement"](10, "img", 10);
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵtemplate"](11, ParkingFlowSuccessComponent_div_11_Template, 17, 12, "div", 11);
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementStart"](12, "footer", 12)(13, "a", 13);
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵi18n"](14, 2);
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementEnd"]()()();
       }
       if (rf & 2) {
-        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵadvance"](9);
-        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵi18nExp"](ctx.last_event.asset_name)(ctx.location)(_angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵpipeBind2"](7, 6, ctx.last_event.date, "mediumDate"))(_angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵpipeBind2"](8, 9, ctx.last_event.date, ctx.time_format))(_angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵpipeBind2"](9, 12, ctx.last_event.date + ctx.last_event.duration * 60 * 1000, ctx.time_format));
-        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵi18nApply"](5);
-        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵadvance"](3);
-        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵproperty"]("routerLink", _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵpureFunction0"](15, _c0));
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵadvance"](9);
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵi18nExp"](ctx.last_event.asset_name)(ctx.location)(_angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpipeBind2"](7, 7, ctx.last_event.date, "mediumDate"))(_angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpipeBind2"](8, 10, ctx.last_event.date, ctx.time_format))(_angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpipeBind2"](9, 13, ctx.last_event.date + ctx.last_event.duration * 60 * 1000, ctx.time_format));
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵi18nApply"](5);
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵadvance"](2);
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵproperty"]("ngIf", ctx.show_links);
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵadvance"](2);
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵproperty"]("routerLink", _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpureFunction0"](16, _c0));
       }
     },
-    dependencies: [_angular_material_core__WEBPACK_IMPORTED_MODULE_3__.MatRipple, _angular_router__WEBPACK_IMPORTED_MODULE_4__.RouterLink, _angular_common__WEBPACK_IMPORTED_MODULE_5__.DatePipe]
+    dependencies: [_angular_common__WEBPACK_IMPORTED_MODULE_6__.NgIf, _libs_components_src_lib_icon_component__WEBPACK_IMPORTED_MODULE_2__.IconComponent, _angular_material_core__WEBPACK_IMPORTED_MODULE_7__.MatRipple, _angular_router__WEBPACK_IMPORTED_MODULE_8__.RouterLink, _angular_common__WEBPACK_IMPORTED_MODULE_6__.DatePipe, _libs_components_src_lib_safe_pipe__WEBPACK_IMPORTED_MODULE_3__.SafePipe, _libs_components_src_lib_sanitise_pipe__WEBPACK_IMPORTED_MODULE_4__.SanitizePipe]
   });
 }
 
