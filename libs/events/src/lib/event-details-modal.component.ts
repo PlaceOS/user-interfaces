@@ -599,10 +599,6 @@ export class EventDetailsModalComponent {
         (_) => _.booking_type === 'asset-request',
     );
 
-    private _local_tz = getTimezoneOffsetString(
-        Intl.DateTimeFormat().resolvedOptions().timeZone,
-    );
-
     public get can_edit() {
         return true;
         // return (
