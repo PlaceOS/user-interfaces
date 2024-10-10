@@ -19,6 +19,7 @@ import { DeskBookModalComponent } from './desk-book-modal.component';
 import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';
 import { combineLatest } from 'rxjs';
 import { map, take } from 'rxjs/operators';
+import { DeskQrCodeModalComponent } from './desk-qr-code-modal.component';
 
 @Component({
     selector: '[app-new-desks]',
@@ -151,6 +152,16 @@ import { map, take } from 'rxjs/operators';
                             icon
                             matRipple
                             class="bg-secondary text-secondary-content rounded h-12 w-12"
+                            matTooltip="View Desk QR Codes"
+                            (click)="viewQRCodes()"
+                        >
+                            <app-icon>qr_code</app-icon>
+                        </button>
+                        <button
+                            btn
+                            icon
+                            matRipple
+                            class="bg-secondary text-secondary-content rounded h-12 w-12"
                             matTooltip="Upload Desks CSV"
                         >
                             <app-icon>cloud_upload</app-icon>
@@ -221,8 +232,8 @@ export class NewDesksComponent
         map(([bld, region]) =>
             this._settings.get('app.use_region')
                 ? this._org.levelsForRegion(region)
-                : this._org.levelsForBuilding(bld)
-        )
+                : this._org.levelsForBuilding(bld),
+        ),
     );
     public readonly setDate = (date) => this._state.setFilters({ date });
     public readonly setFilters = (o) => this._state.setFilters(o);
@@ -247,7 +258,7 @@ export class NewDesksComponent
         private _route: ActivatedRoute,
         private _dialog: MatDialog,
         private _org: OrganisationService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         super();
     }
@@ -262,7 +273,7 @@ export class NewDesksComponent
                     this.path = url_parts[parts.length - 1].split('?')[0];
                     this._checkManage();
                 }
-            })
+            }),
         );
         this.subscription(
             'route.query',
@@ -274,10 +285,10 @@ export class NewDesksComponent
                     this._state.setFilters({ zones });
                     if (!level) return;
                     this._org.building = this._org.buildings.find(
-                        (bld) => bld.id === level.parent_id
+                        (bld) => bld.id === level.parent_id,
                     );
                 }
-            })
+            }),
         );
         const parts = this._router.url?.split('/') || [''];
         this.path = parts[parts.length - 1].split('?')[0];
@@ -286,6 +297,10 @@ export class NewDesksComponent
 
     public ngOnDestroy() {
         super.ngOnDestroy();
+    }
+
+    public viewQRCodes() {
+        this._dialog.open(DeskQrCodeModalComponent);
     }
 
     public newDeskBooking() {
@@ -327,8 +342,8 @@ export class NewDesksComponent
                         new Desk({
                             ..._,
                             id: _.id || `desk-${randomInt(999_999)}`,
-                        })
-                )
+                        }),
+                ),
             );
         } catch (e) {
             console.error(e);
@@ -349,7 +364,7 @@ export class NewDesksComponent
                         zones?.length &&
                         zones.some((z) => lvls.find((lvl) => lvl.id === z));
                     if (!levels_in_zones) this.updateZones([lvls[0].id]);
-                })
+                }),
             );
         } else this.unsub('zone-changes');
     }
