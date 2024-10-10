@@ -3823,6 +3823,10 @@ body {
 
 @media print {
 
+  #placeos .print\:block {
+    display: block;
+  }
+
   #placeos .print\:flex {
     display: flex;
   }
