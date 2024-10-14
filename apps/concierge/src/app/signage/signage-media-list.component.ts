@@ -1,9 +1,8 @@
-import { Component, Input, SimpleChanges, ViewChild } from '@angular/core';
+import { Component, Input, SimpleChanges } from '@angular/core';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { SignageStateService } from './signage-state.service';
 import { listSignagePlaylistMedia, SignageMedia } from '@placeos/ts-client';
-import { CdkDropList } from '@angular/cdk/drag-drop';
 import { getUnixTime, startOfMinute } from 'date-fns';
 
 @Component({
