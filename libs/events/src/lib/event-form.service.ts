@@ -803,7 +803,10 @@ export class EventFormService extends AsyncHandler {
             this.setView('success');
             this.timeout('post_finshed', () => this._changed.next(Date.now()));
             resolve(result);
-            this._saveEntity(result.extension_data?.host_entity);
+            this._saveEntity([
+                result.extension_data?.host_entity,
+                result.extension_data?.visitor_entity,
+            ]);
             this._loading.next('');
         });
     }
@@ -885,19 +888,20 @@ export class EventFormService extends AsyncHandler {
         );
     }
 
-    private async _saveEntity(entity: string) {
-        if (!entity) return;
+    private async _saveEntity(entities: string[]) {
+        entities = entities.filter((_) => !!_);
+        if (!entities?.length) return;
         const metadata = await showMetadata(
             this._org.organisation.id,
-            'host_entities',
+            'entities',
         ).toPromise();
         const entity_list =
             metadata.details instanceof Array ? metadata.details : [];
-        const new_list = unique([...entity_list, entity]);
+        const new_list = unique([...entity_list, ...entities]);
         await updateMetadata(this._org.organisation.id, {
-            name: 'host_entities',
+            name: 'entities',
             details: new_list,
-            description: 'List of host entities',
+            description: 'List of entities',
         }).toPromise();
     }
 }

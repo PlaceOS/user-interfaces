@@ -243,7 +243,7 @@ export class MeetingFormDetailsComponent extends AsyncHandler {
         this._org.initialised.pipe(
             filter((_) => !!_),
             switchMap((_) =>
-                showMetadata(this._org.organisation.id, 'host_entities').pipe(
+                showMetadata(this._org.organisation.id, 'entities').pipe(
                     catchError(() => of({ details: [] } as any)),
                 ),
             ),

@@ -21,11 +21,21 @@ import { OrganisationService } from '@placeos/organisation';
 import { Space } from '@placeos/spaces';
 import { FindAvailabilityModalComponent } from '@placeos/users';
 import { CateringOrderStateService } from 'libs/catering/src/lib/catering-order-modal/catering-order-state.service';
-import { BehaviorSubject, combineLatest, of } from 'rxjs';
-import { debounceTime, first, map, switchMap, tap } from 'rxjs/operators';
+import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
+import {
+    catchError,
+    debounceTime,
+    filter,
+    first,
+    map,
+    shareReplay,
+    switchMap,
+    tap,
+} from 'rxjs/operators';
 import { MeetingFlowConfirmModalComponent } from './meeting-flow-confirm-modal.component';
 import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
 import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
+import { PlaceMetadata, showMetadata } from '@placeos/ts-client';
 
 @Component({
     selector: 'meeting-flow-form',
@@ -131,9 +141,23 @@ import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
                                     matInput
                                     name="visitor_entity"
                                     formControlName="visitor_entity"
-                                    placeholder="Organisational Entity of the Visior"
+                                    placeholder="Organisational Entity of the Host"
+                                    [matAutocomplete]="auto"
                                 />
                             </mat-form-field>
+                            <mat-autocomplete
+                                #auto="matAutocomplete"
+                                class="w-full"
+                            >
+                                <mat-option
+                                    *ngFor="
+                                        let option of filtered_entities | async
+                                    "
+                                    [value]="option"
+                                >
+                                    {{ option }}
+                                </mat-option>
+                            </mat-autocomplete>
                         </div>
                     </section>
                     <section class="p-2">
@@ -398,6 +422,35 @@ export class MeetingFlowFormComponent extends AsyncHandler {
     public hide_block: Record<string, boolean> = {};
     public code_filter = new BehaviorSubject('');
     public invalid_assets: string[] = [];
+
+    private _visitor_entity = new BehaviorSubject<string>('');
+
+    public readonly host_entity_list: Observable<string[]> =
+        this._org.initialised.pipe(
+            filter((_) => !!_),
+            switchMap((_) =>
+                showMetadata(this._org.organisation.id, 'entities').pipe(
+                    catchError(() => of({ details: [] } as any)),
+                ),
+            ),
+            map((_: PlaceMetadata) =>
+                _.details instanceof Array ? _.details : [],
+            ),
+            shareReplay(1),
+        );
+
+    public filtered_entities = combineLatest([
+        this.host_entity_list,
+        this._visitor_entity,
+    ]).pipe(
+        map(([list, entity]) =>
+            entity
+                ? list.filter((_) =>
+                      _.toLowerCase().includes(entity.toLowerCase()),
+                  )
+                : list,
+        ),
+    );
 
     public readonly has_catering = this._catering.available_menu.pipe(
         map((l) => l.length > 0),
