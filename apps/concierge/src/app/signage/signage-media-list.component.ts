@@ -9,7 +9,7 @@ import { getUnixTime, startOfMinute } from 'date-fns';
 @Component({
     selector: 'signage-media-list',
     template: `
-        <div class="p-4">
+        <div class="p-4 relative">
             <h3 class="text-xl font-medium text-center mb-4">Media</h3>
             <mat-form-field appearance="outline" class="w-full no-subscript">
                 <input
@@ -19,6 +19,20 @@ import { getUnixTime, startOfMinute } from 'date-fns';
                     (ngModelChange)="search.next($event)"
                 />
             </mat-form-field>
+            <button
+                icon
+                matRipple
+                class="absolute top-2 right-2 border border-base-300"
+                matTooltip="Upload Media"
+                matTooltipPosition="left"
+            >
+                <app-icon>add</app-icon>
+                <input
+                    type="file"
+                    class="absolute inset-0 opacity-0"
+                    (change)="previewFile($event)"
+                />
+            </button>
         </div>
         @if ((media | async)?.length > 0) {
             <div
@@ -174,6 +188,9 @@ export class SignageMediaListComponent {
             ),
         ),
     );
+
+    public readonly previewFile = (event) =>
+        this._state.previewFileFromInput(event);
 
     public playlist_ids: string[] = [];
 
