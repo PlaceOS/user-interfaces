@@ -5227,6 +5227,8 @@ class MeetingFlowFormComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_
         location.reload();
       })));
       _this.timeout('init_valid_assets', () => _this._updateValidAssets(), 1000);
+      _this.subscription('visitor_entity_change', _this.form.valueChanges.subscribe(() => _this._visitor_entity.next(_this.form.getRawValue().visitor_entity)));
+      _this._visitor_entity.next(_this.form.getRawValue().visitor_entity);
     })();
   }
   focusInput() {
