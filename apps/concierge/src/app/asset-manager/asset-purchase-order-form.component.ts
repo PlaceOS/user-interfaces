@@ -78,7 +78,7 @@ import { OrganisationService } from '@placeos/organisation';
                         </div>
                     </div>
                     <div class="flex space-x-2">
-                        <div class="flex flex-col space-y-2">
+                        <div class="flex flex-col space-y-2 flex-1">
                             <label for="depreciation-start-date">
                                 Expected Service Start Date
                             </label>
@@ -88,7 +88,7 @@ import { OrganisationService } from '@placeos/organisation';
                                 formControlName="expected_service_start_date"
                             ></a-date-field>
                         </div>
-                        <div class="flex flex-col space-y-2">
+                        <div class="flex flex-col space-y-2 flex-1">
                             <label for="depreciation-end-date">
                                 Expected Service End Date
                             </label>
@@ -214,7 +214,6 @@ export class AssetPurchaseOrderFormComponent extends AsyncHandler {
                             asset.expected_service_end_date * 1000,
                         expected_service_start_date:
                             asset.expected_service_start_date * 1000,
-                        unit_price: +asset.unit_price,
                     });
                     this.item = asset;
                     this._id.next(asset.id);
@@ -241,6 +240,7 @@ export class AssetPurchaseOrderFormComponent extends AsyncHandler {
             getUnixTime(data.expected_service_end_date) ||
             this.item?.expected_service_end_date ||
             null;
+        data.unit_price = +data.unit_price;
         const item = await saveAssetPurchaseOrder(data as any)
             .toPromise()
             .catch((e) => {
