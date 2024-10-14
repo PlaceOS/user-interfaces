@@ -23985,15 +23985,15 @@ __webpack_require__.r(__webpack_exports__);
 /* tslint:disable */
 const VERSION = {
   "dirty": false,
-  "raw": "dfa5509",
-  "hash": "dfa5509",
+  "raw": "bfa4817",
+  "hash": "bfa4817",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "dfa5509",
+  "suffix": "bfa4817",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1728532994763
+  "time": 1728865918839
 };
 /* tslint:enable */
 
@@ -36097,7 +36097,7 @@ class EventFormService extends _placeos_common__WEBPACK_IMPORTED_MODULE_2__.Asyn
         _this2.setView('success');
         _this2.timeout('post_finshed', () => _this2._changed.next(Date.now()));
         resolve(result);
-        _this2._saveEntity(result.extension_data?.host_entity);
+        _this2._saveEntity([result.extension_data?.host_entity, result.extension_data?.visitor_entity]);
         _this2._loading.next('');
       });
       return function (_x, _x2) {
@@ -36139,17 +36139,18 @@ class EventFormService extends _placeos_common__WEBPACK_IMPORTED_MODULE_2__.Asyn
     const old_visitors = this._settings.get('visitor-invitees') || [];
     this._settings.saveUserSetting('visitor-invitees', (0,_placeos_common__WEBPACK_IMPORTED_MODULE_2__.unique)([...old_visitors.filter(_ => !_.includes(_.email)), ...visitors.map(_ => `${_.email}|${_.name}|${_.organisation}`)]));
   }
-  _saveEntity(entity) {
+  _saveEntity(entities) {
     var _this5 = this;
     return (0,_home_runner_work_user_interfaces_user_interfaces_node_modules_babel_runtime_helpers_esm_asyncToGenerator_js__WEBPACK_IMPORTED_MODULE_0__["default"])(function* () {
-      if (!entity) return;
-      const metadata = yield (0,_placeos_ts_client__WEBPACK_IMPORTED_MODULE_1__.showMetadata)(_this5._org.organisation.id, 'host_entities').toPromise();
+      entities = entities.filter(_ => !!_);
+      if (!entities?.length) return;
+      const metadata = yield (0,_placeos_ts_client__WEBPACK_IMPORTED_MODULE_1__.showMetadata)(_this5._org.organisation.id, 'entities').toPromise();
       const entity_list = metadata.details instanceof Array ? metadata.details : [];
-      const new_list = (0,_placeos_common__WEBPACK_IMPORTED_MODULE_2__.unique)([...entity_list, entity]);
+      const new_list = (0,_placeos_common__WEBPACK_IMPORTED_MODULE_2__.unique)([...entity_list, ...entities]);
       yield (0,_placeos_ts_client__WEBPACK_IMPORTED_MODULE_1__.updateMetadata)(_this5._org.organisation.id, {
-        name: 'host_entities',
+        name: 'entities',
         details: new_list,
-        description: 'List of host entities'
+        description: 'List of entities'
       }).toPromise();
     })();
   }
