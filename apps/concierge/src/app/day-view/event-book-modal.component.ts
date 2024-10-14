@@ -2,6 +2,7 @@ import { Component, Output, EventEmitter, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
+    AsyncHandler,
     DialogEvent,
     SettingsService,
     currentUser,
@@ -9,9 +10,18 @@ import {
     notifySuccess,
 } from '@placeos/common';
 import { CalendarEvent, EventFormService } from '@placeos/events';
+import { OrganisationService } from '@placeos/organisation';
+import { PlaceMetadata, showMetadata } from '@placeos/ts-client';
 import { CateringOrderStateService } from 'libs/catering/src/lib/catering-order-modal/catering-order-state.service';
-import { BehaviorSubject, combineLatest } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
+import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
+import {
+    catchError,
+    filter,
+    map,
+    shareReplay,
+    switchMap,
+    tap,
+} from 'rxjs/operators';
 
 @Component({
     selector: 'event-book-modal',
@@ -114,9 +124,21 @@ import { map, tap } from 'rxjs/operators';
                                 matInput
                                 name="visitor_entity"
                                 formControlName="visitor_entity"
-                                placeholder="Organisational Entity of the Visior"
+                                placeholder="Organisational Entity of the Host"
+                                [matAutocomplete]="auto"
                             />
                         </mat-form-field>
+                        <mat-autocomplete
+                            #auto="matAutocomplete"
+                            class="w-full"
+                        >
+                            <mat-option
+                                *ngFor="let option of filtered_entities | async"
+                                [value]="option"
+                            >
+                                {{ option }}
+                            </mat-option>
+                        </mat-autocomplete>
                     </div>
                 </section>
                 <section class="p-2">
@@ -352,11 +374,39 @@ import { map, tap } from 'rxjs/operators';
     styles: [``],
     animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
 })
-export class EventBookModalComponent {
+export class EventBookModalComponent extends AsyncHandler {
     @Output() public event = new EventEmitter<DialogEvent>();
     public readonly loading = new BehaviorSubject(false);
     public hide_block: Record<string, boolean> = {};
     public code_filter = new BehaviorSubject('');
+    private _visitor_entity = new BehaviorSubject<string>('');
+
+    public readonly host_entity_list: Observable<string[]> =
+        this._org.initialised.pipe(
+            filter((_) => !!_),
+            switchMap((_) =>
+                showMetadata(this._org.organisation.id, 'entities').pipe(
+                    catchError(() => of({ details: [] } as any)),
+                ),
+            ),
+            map((_: PlaceMetadata) =>
+                _.details instanceof Array ? _.details : [],
+            ),
+            shareReplay(1),
+        );
+
+    public filtered_entities = combineLatest([
+        this.host_entity_list,
+        this._visitor_entity,
+    ]).pipe(
+        map(([list, entity]) =>
+            entity
+                ? list.filter((_) =>
+                      _.toLowerCase().includes(entity.toLowerCase()),
+                  )
+                : list,
+        ),
+    );
 
     public readonly has_catering = this._catering.available_menu.pipe(
         map((l) => l.length > 0),
@@ -437,10 +487,22 @@ export class EventBookModalComponent {
         private _settings: SettingsService,
         private _catering: CateringOrderStateService,
         private _dialog_ref: MatDialogRef<EventBookModalComponent>,
-    ) {}
+        private _org: OrganisationService,
+    ) {
+        super();
+    }
 
     public async ngOnInit() {
         await this._event_form.newForm(this._data.event);
+        this.subscription(
+            'visitor_entity_change',
+            this.form.valueChanges.subscribe(() =>
+                this._visitor_entity.next(
+                    this.form.getRawValue().visitor_entity,
+                ),
+            ),
+        );
+        this._visitor_entity.next(this.form.getRawValue().visitor_entity);
     }
 
     public async save() {
