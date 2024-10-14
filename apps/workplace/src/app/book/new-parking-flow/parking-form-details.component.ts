@@ -41,7 +41,7 @@ import { addDays, endOfDay } from 'date-fns';
                         <mat-error i18n>Meeting title is required.</mat-error>
                     </mat-form-field>
                 </div>
-                <div class="flex-1 min-w-[256px]">
+                <div class="flex-1 min-w-[256px] relative">
                     <label for="date" i18n>Date<span>*</span></label>
                     <a-date-field
                         name="date"
@@ -51,9 +51,20 @@ import { addDays, endOfDay } from 'date-fns';
                     >
                         Date and time must be in the future
                     </a-date-field>
+                    <mat-checkbox
+                        formControlName="all_day"
+                        *ngIf="allow_all_day"
+                        class="absolute -top-2 right-0"
+                        i18n
+                    >
+                        All Day
+                    </mat-checkbox>
                 </div>
             </div>
-            <div class="flex items-center space-x-2" *ngIf="false">
+            <div
+                class="flex items-center space-x-2"
+                *ngIf="!form.value.all_day"
+            >
                 <div class="flex-1 w-1/3">
                     <label for="start-time" i18n
                         >Start Time<span>*</span></label
@@ -131,7 +142,7 @@ export class ParkingFormDetailsComponent extends AsyncHandler {
     }
 
     public get allow_all_day() {
-        return this._settings.get('app.bookings.allow_all_day');
+        return this._settings.get('app.parking.allow_all_day') || true;
     }
 
     public get use_24hr() {

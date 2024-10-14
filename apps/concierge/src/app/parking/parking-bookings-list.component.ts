@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { ParkingStateService } from './parking-state.service';
+import { SettingsService } from '@placeos/common';
 
 @Component({
     selector: 'parking-bookings-list',
@@ -19,6 +20,7 @@ import { ParkingStateService } from './parking-state.service';
                     size: '4.75rem',
                     sortable: false,
                 },
+                { key: 'date', name: 'Time', content: date_template },
                 { key: 'asset_name', name: 'Bay Number' },
                 {
                     key: 'user_name',
@@ -54,6 +56,17 @@ import { ParkingStateService } from './parking-state.service';
             [filter]="(options | async)?.search"
             [sortable]="true"
         ></simple-table>
+        <ng-template #date_template let-row="row">
+            <div class="px-4 py-2">
+                {{
+                    row.all_day || row.duration > 12 * 60
+                        ? 'All Day'
+                        : (row.date | date: time_format) +
+                          ' - ' +
+                          (row.date_end | date: time_format)
+                }}
+            </div>
+        </ng-template>
         <ng-template #person_template let-row="row">
             <div class="px-4 py-2">
                 <div>{{ row.user_name || row.user_email }}</div>
@@ -193,5 +206,12 @@ export class ParkingBookingsListComponent {
     public readonly approve = (e) => this._state.approveBooking(e);
     public readonly editReservation = (e) => this._state.editReservation(e);
 
-    constructor(private _state: ParkingStateService) {}
+    public get time_format() {
+        return this._settings.time_format;
+    }
+
+    constructor(
+        private _state: ParkingStateService,
+        private _settings: SettingsService,
+    ) {}
 }

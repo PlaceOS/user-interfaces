@@ -1,6 +1,11 @@
 import { Component } from '@angular/core';
 import { BookingFormService } from '@placeos/bookings';
 import { SettingsService } from '@placeos/common';
+import {
+    generateCalendarFileLink,
+    generateGoogleCalendarLink,
+    generateMicrosoftCalendarLink,
+} from 'libs/common/src/lib/calendar-links';
 
 @Component({
     selector: 'parking-flow-success',
@@ -87,6 +92,9 @@ import { SettingsService } from '@placeos/common';
     styles: [``],
 })
 export class ParkingFlowSuccessComponent {
+    public outlook_link = '';
+    public google_link = '';
+    public ical_link = '';
     public get location() {
         const resource = this.last_event?.extension_data?.booking_asset;
         if (!resource) return '';
@@ -115,4 +123,14 @@ export class ParkingFlowSuccessComponent {
         private _state: BookingFormService,
         private _settings: SettingsService,
     ) {}
+
+    public ngOnInit() {
+        const event: any = {
+            ...this.last_event,
+            location: `${this.location}, ${this.last_event.asset_name || ''}`,
+        };
+        this.outlook_link = generateMicrosoftCalendarLink(event);
+        this.google_link = generateGoogleCalendarLink(event);
+        this.ical_link = generateCalendarFileLink(event);
+    }
 }

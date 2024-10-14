@@ -114,8 +114,8 @@ import { OrganisationService } from '@placeos/organisation';
                             {
                                 key: 'actions',
                                 name: ' ',
-                                content: action_template
-                            }
+                                content: action_template,
+                            },
                         ]"
                         empty_message="No assets for this purchase order"
                     ></simple-table>
@@ -177,7 +177,7 @@ export class AssetPurchaseOrderFormComponent extends AsyncHandler {
                         ?.name || asset.id,
             }));
         }),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     public get base_route() {
@@ -188,7 +188,7 @@ export class AssetPurchaseOrderFormComponent extends AsyncHandler {
         private _state: AssetManagerStateService,
         private _route: ActivatedRoute,
         private _router: Router,
-        private _org: OrganisationService
+        private _org: OrganisationService,
     ) {
         super();
     }
@@ -214,6 +214,7 @@ export class AssetPurchaseOrderFormComponent extends AsyncHandler {
                             asset.expected_service_end_date * 1000,
                         expected_service_start_date:
                             asset.expected_service_start_date * 1000,
+                        unit_price: +asset.unit_price,
                     });
                     this.item = asset;
                     this._id.next(asset.id);
@@ -222,7 +223,7 @@ export class AssetPurchaseOrderFormComponent extends AsyncHandler {
                 if (params.get('group_id')) {
                     this.product_id = params.get('group_id');
                 }
-            })
+            }),
         );
         this._state.setOptions({ active_item: null });
     }

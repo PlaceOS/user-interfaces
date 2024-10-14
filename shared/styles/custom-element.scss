@@ -625,6 +625,12 @@ a[icon] {
     }
 }
 
+@media print {
+    .mat-mdc-dialog-surface {
+        box-shadow: none;
+    }
+}
+
 #placeos {
     mat-select {
         .mdc-select-trigger {
@@ -752,6 +758,10 @@ a[icon] {
                 background-color: var(--in);
             }
         }
+    }
+
+    .mat-mdc-select-value {
+        overflow: hidden;
     }
 
     .mdc-tab__text-label {

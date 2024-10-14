@@ -199,6 +199,9 @@ const app: any = {
         show_calendar_links: true,
         hide_map: false,
     },
+    parking: {
+        allow_all_day: true,
+    },
     analytics: {
         enabled: true,
         tracking_id: '',
