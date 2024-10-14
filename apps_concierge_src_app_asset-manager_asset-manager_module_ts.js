@@ -2867,7 +2867,8 @@ class AssetPurchaseOrderFormComponent extends _placeos_common__WEBPACK_IMPORTED_
             order_number: asset.purchase_order_number,
             purchase_date: asset.purchase_date * 1000,
             expected_service_end_date: asset.expected_service_end_date * 1000,
-            expected_service_start_date: asset.expected_service_start_date * 1000
+            expected_service_start_date: asset.expected_service_start_date * 1000,
+            unit_price: +asset.unit_price
           });
           _this2.item = asset;
           _this2._id.next(asset.id);
