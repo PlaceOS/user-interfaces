@@ -3781,6 +3781,10 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 }
 @media print {
 
+  #placeos .print\:block {
+    display: block;
+  }
+
   #placeos .print\:flex {
     display: flex;
   }
@@ -3797,8 +3801,20 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
     height: auto;
   }
 
+  #placeos .print\:min-h-screen {
+    min-height: 100vh;
+  }
+
+  #placeos .print\:w-screen {
+    width: 100vw;
+  }
+
   #placeos .print\:overflow-visible {
     overflow: visible;
+  }
+
+  #placeos .print\:border-none {
+    border-style: none;
   }
 
   #placeos .print\:text-sm {
@@ -4793,6 +4809,11 @@ a[icon][disabled] {
   background: #fff;
 }
 
+@media print {
+  .mat-mdc-dialog-surface {
+    box-shadow: none;
+  }
+}
 #placeos mat-select .mdc-select-trigger .mdc-select-arrow-wrapper {
   transform: none;
 }
@@ -4881,6 +4902,9 @@ a[icon][disabled] {
 #placeos mat-checkbox.mat-mdc-checkbox-checked .mdc-checkbox__background, #placeos mat-checkbox[ng-reflect-indeterminate=true] .mdc-checkbox__background {
   border-color: var(--in);
   background-color: var(--in);
+}
+#placeos .mat-mdc-select-value {
+  overflow: hidden;
 }
 #placeos .mdc-tab__text-label {
   color: var(--bc);
