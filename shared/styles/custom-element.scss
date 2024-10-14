@@ -86,6 +86,10 @@ code {
         display: none;
     }
 
+    .cdk-global-overlay-wrapper {
+        display: block;
+    }
+
     #placeos mat-dialog-container {
         .mdc-dialog__surface {
             box-shadow: none;

@@ -20,7 +20,6 @@ import { MapLocateModalComponent } from 'libs/components/src/lib/map-locate-moda
 import { CateringItem } from 'libs/catering/src/lib/catering-item.class';
 import { getEventMetadata } from './events.fn';
 import { DatePipe } from '@angular/common';
-import { I } from '@angular/cdk/keycodes';
 
 const EMPTY_ACTIONS = [];
 
@@ -28,7 +27,7 @@ const EMPTY_ACTIONS = [];
     selector: 'event-details-modal',
     template: `
         <div
-            class="w-screen h-screen print:min-h-screen print:w-screen sm:relative sm:inset-auto sm:w-[51rem] sm:h-auto sm:max-h-[80vh] bg-base-100 sm:bg-base-200 sm:rounded overflow-auto space-y-2 pb-2"
+            class="w-screen h-screen print:min-h-screen print:w-screen sm:relative sm:inset-auto sm:w-[51rem] sm:h-auto sm:max-h-[80vh] bg-base-100 sm:bg-base-200 sm:rounded overflow-auto space-y-2 pb-2 print:overflow-visible"
         >
             <div
                 class="sm:flex flex-col items-center pb-4 max-h-screen sm:max-h-[80vh] sm:px-16 sm:border-b bg-base-100 border-base-200 print:border-none"
@@ -426,7 +425,7 @@ const EMPTY_ACTIONS = [];
                                         </div>
                                     </div>
                                     <div
-                                        class="flex items-center justify-center rounded-full w-8 h-8"
+                                        class="flex items-center justify-center rounded-full w-8 h-8 print:hidden"
                                         [class.bg-success]="
                                             request.state === 'approved'
                                         "
@@ -463,7 +462,7 @@ const EMPTY_ACTIONS = [];
                                         </app-icon>
                                     </div>
                                     <div
-                                        class="flex items-center justify-center rounded-full w-8 h-8"
+                                        class="flex items-center justify-center rounded-full w-8 h-8 print:hidden"
                                     >
                                         <app-icon class="text-2xl">
                                             {{
