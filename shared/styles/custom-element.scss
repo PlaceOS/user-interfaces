@@ -760,6 +760,10 @@ a[icon] {
         }
     }
 
+    .mat-mdc-select-value {
+        overflow: hidden;
+    }
+
     .mdc-tab__text-label {
         color: var(--bc);
     }
