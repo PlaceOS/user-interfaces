@@ -32544,15 +32544,15 @@ exports.VERSION = void 0;
 /* tslint:disable */
 exports.VERSION = {
   "dirty": false,
-  "raw": "dfa5509",
-  "hash": "dfa5509",
+  "raw": "bfa4817",
+  "hash": "bfa4817",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "dfa5509",
+  "suffix": "bfa4817",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1728533064340
+  "time": 1728865925504
 };
 /* tslint:enable */
 
@@ -46268,7 +46268,7 @@ var EventFormService = /*#__PURE__*/function (_common_1$AsyncHandle) {
       var ignore_owner = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
       return new Promise( /*#__PURE__*/function () {
         var _ref18 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3(resolve, reject) {
-          var _this7$event, _form$get, _form$get2, _form$get3, _ref19, _ref20, _spaces$, _this7$event2, _this7$event3, _this7$event4, _value$organiser, _ref21, _value$organiser2, _ref22, _ref23, _event$extension_data2, _result$extension_dat;
+          var _this7$event, _form$get, _form$get2, _form$get3, _ref19, _ref20, _spaces$, _this7$event2, _this7$event3, _this7$event4, _value$organiser, _ref21, _value$organiser2, _ref22, _ref23, _event$extension_data2, _result$extension_dat, _result$extension_dat2;
           var form, event, ical_uid, value, _value, id, host, date, duration, creator, all_day, assets, recurrence, spaces, catering, changed_times, changed_spaces, is_owner, space, attendees, message, space_id, query, receipt, d, _iterator2, _step2, order, setup, breakdown, _iterator3, _step3, _space, overflow, processed_assets, result, domain, visitors, creating_assets, on_error, _spaces$2, _spaces$3, _spaces$4, _this7$_org$region, _this7$_org$building, _spaces$5, requests;
           return _regeneratorRuntime().wrap(function _callee3$(_context3) {
             while (1) switch (_context3.prev = _context3.next) {
@@ -46532,7 +46532,7 @@ var EventFormService = /*#__PURE__*/function (_common_1$AsyncHandle) {
                   return _this7._changed.next(Date.now());
                 });
                 resolve(result);
-                _this7._saveEntity((_result$extension_dat = result.extension_data) === null || _result$extension_dat === void 0 ? void 0 : _result$extension_dat.host_entity);
+                _this7._saveEntity([(_result$extension_dat = result.extension_data) === null || _result$extension_dat === void 0 ? void 0 : _result$extension_dat.host_entity, (_result$extension_dat2 = result.extension_data) === null || _result$extension_dat2 === void 0 ? void 0 : _result$extension_dat2.visitor_entity]);
                 _this7._loading.next('');
               case 76:
               case "end":
@@ -46648,30 +46648,34 @@ var EventFormService = /*#__PURE__*/function (_common_1$AsyncHandle) {
   }, {
     key: "_saveEntity",
     value: function () {
-      var _saveEntity2 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee6(entity) {
+      var _saveEntity2 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee6(entities) {
+        var _entities;
         var metadata, entity_list, new_list;
         return _regeneratorRuntime().wrap(function _callee6$(_context6) {
           while (1) switch (_context6.prev = _context6.next) {
             case 0:
-              if (entity) {
-                _context6.next = 2;
+              entities = entities.filter(function (_) {
+                return !!_;
+              });
+              if ((_entities = entities) !== null && _entities !== void 0 && _entities.length) {
+                _context6.next = 3;
                 break;
               }
               return _context6.abrupt("return");
-            case 2:
-              _context6.next = 4;
-              return (0, ts_client_1.showMetadata)(this._org.organisation.id, 'host_entities').toPromise();
-            case 4:
+            case 3:
+              _context6.next = 5;
+              return (0, ts_client_1.showMetadata)(this._org.organisation.id, 'entities').toPromise();
+            case 5:
               metadata = _context6.sent;
               entity_list = metadata.details instanceof Array ? metadata.details : [];
-              new_list = (0, common_1.unique)([].concat(_toConsumableArray(entity_list), [entity]));
-              _context6.next = 9;
+              new_list = (0, common_1.unique)([].concat(_toConsumableArray(entity_list), _toConsumableArray(entities)));
+              _context6.next = 10;
               return (0, ts_client_1.updateMetadata)(this._org.organisation.id, {
-                name: 'host_entities',
+                name: 'entities',
                 details: new_list,
-                description: 'List of host entities'
+                description: 'List of entities'
               }).toPromise();
-            case 9:
+            case 10:
             case "end":
               return _context6.stop();
           }
