@@ -87,14 +87,6 @@ import { addDays, endOfDay } from 'date-fns';
                         [use_24hr]="use_24hr"
                     >
                     </a-duration-field>
-                    <mat-checkbox
-                        formControlName="all_day"
-                        *ngIf="allow_all_day"
-                        class="absolute -top-2 right-0"
-                        i18n
-                    >
-                        All Day
-                    </mat-checkbox>
                 </div>
             </div>
             <div *ngIf="can_book_for_others" class="w-full flex flex-col">
