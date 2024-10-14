@@ -32544,15 +32544,15 @@ exports.VERSION = void 0;
 /* tslint:disable */
 exports.VERSION = {
   "dirty": false,
-  "raw": "5de3bb8",
-  "hash": "5de3bb8",
+  "raw": "850c834",
+  "hash": "850c834",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "5de3bb8",
+  "suffix": "850c834",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1728867166477
+  "time": 1728880675546
 };
 /* tslint:enable */
 
@@ -44661,13 +44661,13 @@ var _c0 = function _c0() {
 };
 function EventDetailsModalComponent_div_3_Template(rf, ctx) {
   if (rf & 1) {
-    i0.ɵɵelement(0, "div", 61);
+    i0.ɵɵelement(0, "div", 64);
   }
 }
 function EventDetailsModalComponent_div_4_Template(rf, ctx) {
   if (rf & 1) {
-    i0.ɵɵelementStart(0, "div", 62);
-    i0.ɵɵelement(1, "image-carousel", 63);
+    i0.ɵɵelementStart(0, "div", 65);
+    i0.ɵɵelement(1, "image-carousel", 66);
     i0.ɵɵelementEnd();
   }
   if (rf & 2) {
@@ -44678,7 +44678,7 @@ function EventDetailsModalComponent_div_4_Template(rf, ctx) {
 }
 function EventDetailsModalComponent_div_13_Template(rf, ctx) {
   if (rf & 1) {
-    i0.ɵɵelementStart(0, "div", 64);
+    i0.ɵɵelementStart(0, "div", 67);
     i0.ɵɵtext(1);
     i0.ɵɵelementEnd();
   }
@@ -44691,16 +44691,16 @@ function EventDetailsModalComponent_div_13_Template(rf, ctx) {
 function EventDetailsModalComponent_div_14_button_1_Template(rf, ctx) {
   if (rf & 1) {
     var _r3 = i0.ɵɵgetCurrentView();
-    i0.ɵɵelementStart(0, "button", 68);
+    i0.ɵɵelementStart(0, "button", 71);
     i0.ɵɵlistener("click", function EventDetailsModalComponent_div_14_button_1_Template_button_click_0_listener() {
       i0.ɵɵrestoreView(_r3);
       var ctx_r1 = i0.ɵɵnextContext(2);
       return i0.ɵɵresetView(ctx_r1.checkin());
     });
-    i0.ɵɵelementStart(1, "div", 69)(2, "app-icon", 70);
+    i0.ɵɵelementStart(1, "div", 72)(2, "app-icon", 61);
     i0.ɵɵtext(3);
     i0.ɵɵelementEnd();
-    i0.ɵɵelementStart(4, "div", 71);
+    i0.ɵɵelementStart(4, "div", 73);
     i0.ɵɵi18n(5, 10);
     i0.ɵɵelementEnd()()();
   }
@@ -44716,20 +44716,20 @@ function EventDetailsModalComponent_div_14_button_1_Template(rf, ctx) {
 }
 function EventDetailsModalComponent_div_14_button_2_Template(rf, ctx) {
   if (rf & 1) {
-    i0.ɵɵelementStart(0, "button", 72)(1, "app-icon");
+    i0.ɵɵelementStart(0, "button", 74)(1, "app-icon");
     i0.ɵɵtext(2, "more_horiz");
     i0.ɵɵelementEnd()();
   }
   if (rf & 2) {
     i0.ɵɵnextContext(2);
-    var menu_r4 = i0.ɵɵreference(82);
+    var menu_r4 = i0.ɵɵreference(84);
     i0.ɵɵproperty("matMenuTriggerFor", menu_r4);
   }
 }
 function EventDetailsModalComponent_div_14_Template(rf, ctx) {
   if (rf & 1) {
-    i0.ɵɵelementStart(0, "div", 65);
-    i0.ɵɵtemplate(1, EventDetailsModalComponent_div_14_button_1_Template, 6, 8, "button", 66)(2, EventDetailsModalComponent_div_14_button_2_Template, 3, 1, "button", 67);
+    i0.ɵɵelementStart(0, "div", 68);
+    i0.ɵɵtemplate(1, EventDetailsModalComponent_div_14_button_1_Template, 6, 8, "button", 69)(2, EventDetailsModalComponent_div_14_button_2_Template, 3, 1, "button", 70);
     i0.ɵɵelementEnd();
   }
   if (rf & 2) {
@@ -44742,7 +44742,7 @@ function EventDetailsModalComponent_div_14_Template(rf, ctx) {
 }
 function EventDetailsModalComponent_div_31_Template(rf, ctx) {
   if (rf & 1) {
-    i0.ɵɵelementStart(0, "div", 64);
+    i0.ɵɵelementStart(0, "div", 67);
     i0.ɵɵtext(1);
     i0.ɵɵelementEnd();
   }
@@ -44781,9 +44781,9 @@ function EventDetailsModalComponent_div_38_Template(rf, ctx) {
 }
 function EventDetailsModalComponent_div_45_Template(rf, ctx) {
   if (rf & 1) {
-    i0.ɵɵelementStart(0, "div", 73);
+    i0.ɵɵelementStart(0, "div", 75);
     i0.ɵɵtext(1, " Entity: ");
-    i0.ɵɵelementStart(2, "span", 74);
+    i0.ɵɵelementStart(2, "span", 76);
     i0.ɵɵtext(3);
     i0.ɵɵelementEnd()();
   }
@@ -44793,11 +44793,47 @@ function EventDetailsModalComponent_div_45_Template(rf, ctx) {
     i0.ɵɵtextInterpolate1(" ", ctx_r1.event.extension_data.visitor_entity, " ");
   }
 }
-function EventDetailsModalComponent_div_71_Template(rf, ctx) {
+function EventDetailsModalComponent_ng_container_63_div_1_Template(rf, ctx) {
   if (rf & 1) {
-    i0.ɵɵelementStart(0, "div", 75);
+    i0.ɵɵelementStart(0, "div", 78);
+    i0.ɵɵelement(1, "a-user-avatar", 48);
+    i0.ɵɵelementStart(2, "div", 49)(3, "div");
+    i0.ɵɵtext(4);
+    i0.ɵɵelementEnd();
+    i0.ɵɵelementStart(5, "div", 50);
+    i0.ɵɵtext(6);
+    i0.ɵɵelementEnd()()();
+  }
+  if (rf & 2) {
+    var user_r5 = i0.ɵɵnextContext().$implicit;
+    i0.ɵɵadvance();
+    i0.ɵɵproperty("user", user_r5);
+    i0.ɵɵadvance(3);
+    i0.ɵɵtextInterpolate(user_r5 == null ? null : user_r5.name);
+    i0.ɵɵadvance();
+    i0.ɵɵproperty("title", user_r5.email);
+    i0.ɵɵadvance();
+    i0.ɵɵtextInterpolate1(" ", user_r5.email, " ");
+  }
+}
+function EventDetailsModalComponent_ng_container_63_Template(rf, ctx) {
+  if (rf & 1) {
+    i0.ɵɵelementContainerStart(0);
+    i0.ɵɵtemplate(1, EventDetailsModalComponent_ng_container_63_div_1_Template, 7, 4, "div", 77);
+    i0.ɵɵelementContainerEnd();
+  }
+  if (rf & 2) {
+    var user_r5 = ctx.$implicit;
+    var ctx_r1 = i0.ɵɵnextContext();
+    i0.ɵɵadvance();
+    i0.ɵɵproperty("ngIf", user_r5.email !== ctx_r1.event.host);
+  }
+}
+function EventDetailsModalComponent_div_73_Template(rf, ctx) {
+  if (rf & 1) {
+    i0.ɵɵelementStart(0, "div", 79);
     i0.ɵɵtext(1, " Entity: ");
-    i0.ɵɵelementStart(2, "span", 74);
+    i0.ɵɵelementStart(2, "span", 76);
     i0.ɵɵtext(3);
     i0.ɵɵelementEnd()();
   }
@@ -44807,97 +44843,97 @@ function EventDetailsModalComponent_div_71_Template(rf, ctx) {
     i0.ɵɵtextInterpolate1(" ", ctx_r1.event.extension_data.host_entity, " ");
   }
 }
-function EventDetailsModalComponent_ng_container_72_div_5_div_13_span_4_Template(rf, ctx) {
+function EventDetailsModalComponent_ng_container_74_div_5_div_13_span_4_Template(rf, ctx) {
   if (rf & 1) {
-    i0.ɵɵelementStart(0, "span", 92);
+    i0.ɵɵelementStart(0, "span", 96);
     i0.ɵɵtext(1);
     i0.ɵɵelementEnd();
   }
   if (rf & 2) {
-    var item_r7 = i0.ɵɵnextContext().$implicit;
+    var item_r8 = i0.ɵɵnextContext().$implicit;
     var ctx_r1 = i0.ɵɵnextContext(3);
-    i0.ɵɵproperty("matTooltip", ctx_r1.optionList(item_r7));
+    i0.ɵɵproperty("matTooltip", ctx_r1.optionList(item_r8));
     i0.ɵɵadvance();
-    i0.ɵɵtextInterpolate1(" ", (item_r7.option_list == null ? null : item_r7.option_list.length) || "0", " option(s) ");
+    i0.ɵɵtextInterpolate1(" ", (item_r8.option_list == null ? null : item_r8.option_list.length) || "0", " option(s) ");
   }
 }
-function EventDetailsModalComponent_ng_container_72_div_5_div_13_Template(rf, ctx) {
+function EventDetailsModalComponent_ng_container_74_div_5_div_13_Template(rf, ctx) {
   if (rf & 1) {
-    i0.ɵɵelementStart(0, "div", 87)(1, "div", 88)(2, "span", 82);
+    i0.ɵɵelementStart(0, "div", 91)(1, "div", 92)(2, "span", 86);
     i0.ɵɵtext(3);
     i0.ɵɵelementEnd();
-    i0.ɵɵtemplate(4, EventDetailsModalComponent_ng_container_72_div_5_div_13_span_4_Template, 2, 2, "span", 89);
+    i0.ɵɵtemplate(4, EventDetailsModalComponent_ng_container_74_div_5_div_13_span_4_Template, 2, 2, "span", 93);
     i0.ɵɵelementEnd();
-    i0.ɵɵelementStart(5, "div", 90);
+    i0.ɵɵelementStart(5, "div", 94);
     i0.ɵɵtext(6);
     i0.ɵɵelementEnd();
-    i0.ɵɵelementStart(7, "div", 91);
+    i0.ɵɵelementStart(7, "div", 95);
     i0.ɵɵtext(8);
     i0.ɵɵpipe(9, "currency");
     i0.ɵɵelementEnd()();
   }
   if (rf & 2) {
-    var item_r7 = ctx.$implicit;
+    var item_r8 = ctx.$implicit;
     var ctx_r1 = i0.ɵɵnextContext(3);
     i0.ɵɵadvance(3);
-    i0.ɵɵtextInterpolate(item_r7.name || "Item");
+    i0.ɵɵtextInterpolate(item_r8.name || "Item");
     i0.ɵɵadvance();
-    i0.ɵɵproperty("ngIf", item_r7.option_list == null ? null : item_r7.option_list.length);
+    i0.ɵɵproperty("ngIf", item_r8.option_list == null ? null : item_r8.option_list.length);
     i0.ɵɵadvance(2);
-    i0.ɵɵtextInterpolate1(" x", item_r7.quantity, " ");
+    i0.ɵɵtextInterpolate1(" x", item_r8.quantity, " ");
     i0.ɵɵadvance(2);
-    i0.ɵɵtextInterpolate1(" ", i0.ɵɵpipeBind2(9, 4, item_r7.unit_price_with_options / 100, ctx_r1.currency_code), " ea ");
+    i0.ɵɵtextInterpolate1(" ", i0.ɵɵpipeBind2(9, 4, item_r8.unit_price_with_options / 100, ctx_r1.currency_code), " ea ");
   }
 }
-function EventDetailsModalComponent_ng_container_72_div_5_Template(rf, ctx) {
+function EventDetailsModalComponent_ng_container_74_div_5_Template(rf, ctx) {
   if (rf & 1) {
-    var _r5 = i0.ɵɵgetCurrentView();
-    i0.ɵɵelementStart(0, "div", 79)(1, "div", 80)(2, "div", 81)(3, "div", 82);
+    var _r6 = i0.ɵɵgetCurrentView();
+    i0.ɵɵelementStart(0, "div", 83)(1, "div", 84)(2, "div", 85)(3, "div", 86);
     i0.ɵɵtext(4);
     i0.ɵɵpipe(5, "date");
     i0.ɵɵelementEnd();
-    i0.ɵɵelementStart(6, "div", 83);
+    i0.ɵɵelementStart(6, "div", 87);
     i0.ɵɵtext(7);
     i0.ɵɵpipe(8, "currency");
     i0.ɵɵelementEnd()();
-    i0.ɵɵelementStart(9, "button", 84);
-    i0.ɵɵlistener("click", function EventDetailsModalComponent_ng_container_72_div_5_Template_button_click_9_listener() {
-      var order_r6 = i0.ɵɵrestoreView(_r5).$implicit;
+    i0.ɵɵelementStart(9, "button", 88);
+    i0.ɵɵlistener("click", function EventDetailsModalComponent_ng_container_74_div_5_Template_button_click_9_listener() {
+      var order_r7 = i0.ɵɵrestoreView(_r6).$implicit;
       var ctx_r1 = i0.ɵɵnextContext(2);
-      return i0.ɵɵresetView(ctx_r1.show_order[order_r6.id] = !ctx_r1.show_order[order_r6.id]);
+      return i0.ɵɵresetView(ctx_r1.show_order[order_r7.id] = !ctx_r1.show_order[order_r7.id]);
     });
     i0.ɵɵelementStart(10, "app-icon");
     i0.ɵɵtext(11);
     i0.ɵɵelementEnd()()();
-    i0.ɵɵelementStart(12, "div", 85);
-    i0.ɵɵtemplate(13, EventDetailsModalComponent_ng_container_72_div_5_div_13_Template, 10, 7, "div", 86);
+    i0.ɵɵelementStart(12, "div", 89);
+    i0.ɵɵtemplate(13, EventDetailsModalComponent_ng_container_74_div_5_div_13_Template, 10, 7, "div", 90);
     i0.ɵɵelementEnd()();
   }
   if (rf & 2) {
-    var order_r6 = ctx.$implicit;
+    var order_r7 = ctx.$implicit;
     var ctx_r1 = i0.ɵɵnextContext(2);
     i0.ɵɵadvance(4);
-    i0.ɵɵtextInterpolate1(" Order at ", i0.ɵɵpipeBind2(5, 7, order_r6.deliver_at, "MMM d, " + ctx_r1.time_format), " ");
+    i0.ɵɵtextInterpolate1(" Order at ", i0.ɵɵpipeBind2(5, 7, order_r7.deliver_at, "MMM d, " + ctx_r1.time_format), " ");
     i0.ɵɵadvance(3);
-    i0.ɵɵtextInterpolate2(" ", order_r6.item_count, " item(s) for ", i0.ɵɵpipeBind2(8, 10, order_r6.total_cost / 100, ctx_r1.currency_code), " ");
+    i0.ɵɵtextInterpolate2(" ", order_r7.item_count, " item(s) for ", i0.ɵɵpipeBind2(8, 10, order_r7.total_cost / 100, ctx_r1.currency_code), " ");
     i0.ɵɵadvance(2);
-    i0.ɵɵproperty("matTooltip", ctx_r1.show_order[order_r6.id] ? "Hide order items" : "Show order items");
+    i0.ɵɵproperty("matTooltip", ctx_r1.show_order[order_r7.id] ? "Hide order items" : "Show order items");
     i0.ɵɵadvance(2);
-    i0.ɵɵtextInterpolate1(" ", ctx_r1.show_order[order_r6.id] ? "expand_less" : "expand_more", " ");
+    i0.ɵɵtextInterpolate1(" ", ctx_r1.show_order[order_r7.id] ? "expand_less" : "expand_more", " ");
     i0.ɵɵadvance();
-    i0.ɵɵproperty("@show", ctx_r1.show_order[order_r6.id] ? "show" : "hide");
+    i0.ɵɵproperty("@show", ctx_r1.print || ctx_r1.show_order[order_r7.id] ? "show" : "hide");
     i0.ɵɵadvance();
-    i0.ɵɵproperty("ngForOf", order_r6.items);
+    i0.ɵɵproperty("ngForOf", order_r7.items);
   }
 }
-function EventDetailsModalComponent_ng_container_72_Template(rf, ctx) {
+function EventDetailsModalComponent_ng_container_74_Template(rf, ctx) {
   if (rf & 1) {
     i0.ɵɵelementContainerStart(0);
-    i0.ɵɵelementStart(1, "div", 35)(2, "h3", 76);
+    i0.ɵɵelementStart(1, "div", 35)(2, "h3", 80);
     i0.ɵɵi18n(3, 11);
     i0.ɵɵelementEnd();
-    i0.ɵɵelementStart(4, "div", 77);
-    i0.ɵɵtemplate(5, EventDetailsModalComponent_ng_container_72_div_5_Template, 14, 13, "div", 78);
+    i0.ɵɵelementStart(4, "div", 81);
+    i0.ɵɵtemplate(5, EventDetailsModalComponent_ng_container_74_div_5_Template, 14, 13, "div", 82);
     i0.ɵɵelementEnd()();
     i0.ɵɵelementContainerEnd();
   }
@@ -44907,10 +44943,10 @@ function EventDetailsModalComponent_ng_container_72_Template(rf, ctx) {
     i0.ɵɵproperty("ngForOf", ctx_r1.event.valid_catering);
   }
 }
-function EventDetailsModalComponent_ng_container_74_Template(rf, ctx) {
+function EventDetailsModalComponent_ng_container_76_Template(rf, ctx) {
   if (rf & 1) {
     i0.ɵɵelementContainerStart(0);
-    i0.ɵɵelement(1, "interactive-map", 93);
+    i0.ɵɵelement(1, "interactive-map", 97);
     i0.ɵɵelementContainerEnd();
   }
   if (rf & 2) {
@@ -44919,9 +44955,9 @@ function EventDetailsModalComponent_ng_container_74_Template(rf, ctx) {
     i0.ɵɵproperty("src", ctx_r1.level == null ? null : ctx_r1.level.map_id)("features", ctx_r1.features)("options", i0.ɵɵpureFunction0(3, _c0));
   }
 }
-function EventDetailsModalComponent_div_75_div_3_Template(rf, ctx) {
+function EventDetailsModalComponent_div_77_div_3_Template(rf, ctx) {
   if (rf & 1) {
-    i0.ɵɵelement(0, "div", 96);
+    i0.ɵɵelement(0, "div", 100);
     i0.ɵɵpipe(1, "sanitize");
   }
   if (rf & 2) {
@@ -44929,86 +44965,86 @@ function EventDetailsModalComponent_div_75_div_3_Template(rf, ctx) {
     i0.ɵɵproperty("innerHTML", i0.ɵɵpipeBind1(1, 1, ctx_r1.body) || "Unable to sanitize notes contents", i0.ɵɵsanitizeHtml);
   }
 }
-function EventDetailsModalComponent_div_75_Template(rf, ctx) {
+function EventDetailsModalComponent_div_77_Template(rf, ctx) {
   if (rf & 1) {
-    i0.ɵɵelementStart(0, "div", 35)(1, "h3", 94);
+    i0.ɵɵelementStart(0, "div", 35)(1, "h3", 98);
     i0.ɵɵi18n(2, 12);
     i0.ɵɵelementEnd();
-    i0.ɵɵtemplate(3, EventDetailsModalComponent_div_75_div_3_Template, 2, 3, "div", 95);
+    i0.ɵɵtemplate(3, EventDetailsModalComponent_div_77_div_3_Template, 2, 3, "div", 99);
     i0.ɵɵelementEnd();
   }
   if (rf & 2) {
     var ctx_r1 = i0.ɵɵnextContext();
     i0.ɵɵadvance(3);
-    i0.ɵɵproperty("ngIf", ctx_r1.body);
+    i0.ɵɵproperty("ngIf", ctx_r1.raw_body);
   }
 }
-function EventDetailsModalComponent_ng_container_76_div_5_div_13_Template(rf, ctx) {
+function EventDetailsModalComponent_ng_container_78_div_5_div_13_Template(rf, ctx) {
   if (rf & 1) {
-    i0.ɵɵelementStart(0, "div", 87)(1, "div", 88)(2, "span", 82);
+    i0.ɵɵelementStart(0, "div", 91)(1, "div", 92)(2, "span", 86);
     i0.ɵɵtext(3);
     i0.ɵɵelementEnd()();
-    i0.ɵɵelementStart(4, "div", 90);
+    i0.ɵɵelementStart(4, "div", 94);
     i0.ɵɵtext(5);
     i0.ɵɵelementEnd()();
   }
   if (rf & 2) {
-    var item_r10 = ctx.$implicit;
+    var item_r11 = ctx.$implicit;
     i0.ɵɵadvance(3);
-    i0.ɵɵtextInterpolate(item_r10.name || "Item");
+    i0.ɵɵtextInterpolate(item_r11.name || "Item");
     i0.ɵɵadvance(2);
-    i0.ɵɵtextInterpolate1(" x", item_r10.quantity, " ");
+    i0.ɵɵtextInterpolate1(" x", item_r11.quantity, " ");
   }
 }
-function EventDetailsModalComponent_ng_container_76_div_5_Template(rf, ctx) {
+function EventDetailsModalComponent_ng_container_78_div_5_Template(rf, ctx) {
   if (rf & 1) {
-    var _r8 = i0.ɵɵgetCurrentView();
-    i0.ɵɵelementStart(0, "div", 99)(1, "button", 100);
-    i0.ɵɵlistener("click", function EventDetailsModalComponent_ng_container_76_div_5_Template_button_click_1_listener() {
-      var request_r9 = i0.ɵɵrestoreView(_r8).$implicit;
+    var _r9 = i0.ɵɵgetCurrentView();
+    i0.ɵɵelementStart(0, "div", 103)(1, "button", 104);
+    i0.ɵɵlistener("click", function EventDetailsModalComponent_ng_container_78_div_5_Template_button_click_1_listener() {
+      var request_r10 = i0.ɵɵrestoreView(_r9).$implicit;
       var ctx_r1 = i0.ɵɵnextContext(2);
-      return i0.ɵɵresetView(ctx_r1.show_request[request_r9.id] = !ctx_r1.show_request[request_r9.id]);
+      return i0.ɵɵresetView(ctx_r1.show_request[request_r10.id] = !ctx_r1.show_request[request_r10.id]);
     });
-    i0.ɵɵelementStart(2, "div", 101)(3, "div", 82);
+    i0.ɵɵelementStart(2, "div", 105)(3, "div", 86);
     i0.ɵɵtext(4);
     i0.ɵɵpipe(5, "date");
     i0.ɵɵelementEnd()();
-    i0.ɵɵelementStart(6, "div", 102)(7, "app-icon");
+    i0.ɵɵelementStart(6, "div", 106)(7, "app-icon");
     i0.ɵɵtext(8);
     i0.ɵɵelementEnd()();
-    i0.ɵɵelementStart(9, "div", 103)(10, "app-icon", 70);
+    i0.ɵɵelementStart(9, "div", 107)(10, "app-icon", 61);
     i0.ɵɵtext(11);
     i0.ɵɵelementEnd()()();
-    i0.ɵɵelementStart(12, "div", 85);
-    i0.ɵɵtemplate(13, EventDetailsModalComponent_ng_container_76_div_5_div_13_Template, 6, 2, "div", 86);
+    i0.ɵɵelementStart(12, "div", 89);
+    i0.ɵɵtemplate(13, EventDetailsModalComponent_ng_container_78_div_5_div_13_Template, 6, 2, "div", 90);
     i0.ɵɵelementEnd()();
   }
   if (rf & 2) {
-    var request_r9 = ctx.$implicit;
+    var request_r10 = ctx.$implicit;
     var ctx_r1 = i0.ɵɵnextContext(2);
     i0.ɵɵadvance(4);
-    i0.ɵɵtextInterpolate1(" Requested for ", i0.ɵɵpipeBind2(5, 18, request_r9.deliver_at, "MMM d, " + ctx_r1.time_format), " ");
+    i0.ɵɵtextInterpolate1(" Requested for ", i0.ɵɵpipeBind2(5, 18, request_r10.deliver_at, "MMM d, " + ctx_r1.time_format), " ");
     i0.ɵɵadvance(2);
-    i0.ɵɵclassProp("bg-success", request_r9.state === "approved")("text-success-content", request_r9.state === "approved")("bg-warning", request_r9.state !== "approved" && request_r9.state !== "rejected")("text-warning-content", request_r9.state !== "approved" && request_r9.state !== "rejected")("bg-error", request_r9.state === "rejected")("text-error-content", request_r9.state === "rejected");
-    i0.ɵɵproperty("matTooltip", request_r9.state || "Tentative");
+    i0.ɵɵclassProp("bg-success", request_r10.state === "approved")("text-success-content", request_r10.state === "approved")("bg-warning", request_r10.state !== "approved" && request_r10.state !== "rejected")("text-warning-content", request_r10.state !== "approved" && request_r10.state !== "rejected")("bg-error", request_r10.state === "rejected")("text-error-content", request_r10.state === "rejected");
+    i0.ɵɵproperty("matTooltip", request_r10.state || "Tentative");
     i0.ɵɵadvance(2);
-    i0.ɵɵtextInterpolate1(" ", request_r9.state === "approved" ? "done" : request_r9.state === "rejected" ? "close" : "schedule", " ");
+    i0.ɵɵtextInterpolate1(" ", request_r10.state === "approved" ? "done" : request_r10.state === "rejected" ? "close" : "schedule", " ");
     i0.ɵɵadvance(3);
-    i0.ɵɵtextInterpolate1(" ", ctx_r1.show_request[request_r9.id] ? "expand_less" : "expand_more", " ");
+    i0.ɵɵtextInterpolate1(" ", ctx_r1.show_request[request_r10.id] ? "expand_less" : "expand_more", " ");
     i0.ɵɵadvance();
-    i0.ɵɵproperty("@show", ctx_r1.show_request[request_r9.id] ? "show" : "hide");
+    i0.ɵɵproperty("@show", ctx_r1.print || ctx_r1.show_request[request_r10.id] ? "show" : "hide");
     i0.ɵɵadvance();
-    i0.ɵɵproperty("ngForOf", request_r9.items);
+    i0.ɵɵproperty("ngForOf", request_r10.items);
   }
 }
-function EventDetailsModalComponent_ng_container_76_Template(rf, ctx) {
+function EventDetailsModalComponent_ng_container_78_Template(rf, ctx) {
   if (rf & 1) {
     i0.ɵɵelementContainerStart(0);
-    i0.ɵɵelementStart(1, "div", 35)(2, "h3", 97);
+    i0.ɵɵelementStart(1, "div", 35)(2, "h3", 101);
     i0.ɵɵi18n(3, 13);
     i0.ɵɵelementEnd();
-    i0.ɵɵelementStart(4, "div", 77);
-    i0.ɵɵtemplate(5, EventDetailsModalComponent_ng_container_76_div_5_Template, 14, 21, "div", 98);
+    i0.ɵɵelementStart(4, "div", 81);
+    i0.ɵɵtemplate(5, EventDetailsModalComponent_ng_container_78_div_5_Template, 14, 21, "div", 102);
     i0.ɵɵelementEnd()();
     i0.ɵɵelementContainerEnd();
   }
@@ -45021,12 +45057,12 @@ function EventDetailsModalComponent_ng_container_76_Template(rf, ctx) {
     i0.ɵɵproperty("ngForOf", ctx_r1.event.valid_assets);
   }
 }
-function EventDetailsModalComponent_div_80_Template(rf, ctx) {
+function EventDetailsModalComponent_div_82_Template(rf, ctx) {
   if (rf & 1) {
-    var _r11 = i0.ɵɵgetCurrentView();
-    i0.ɵɵelementStart(0, "div", 104)(1, "attendee-list", 105);
-    i0.ɵɵlistener("click", function EventDetailsModalComponent_div_80_Template_attendee_list_click_1_listener() {
-      i0.ɵɵrestoreView(_r11);
+    var _r12 = i0.ɵɵgetCurrentView();
+    i0.ɵɵelementStart(0, "div", 108)(1, "attendee-list", 109);
+    i0.ɵɵlistener("click", function EventDetailsModalComponent_div_82_Template_attendee_list_click_1_listener() {
+      i0.ɵɵrestoreView(_r12);
       var ctx_r1 = i0.ɵɵnextContext();
       return i0.ɵɵresetView(ctx_r1.show_attendees = false);
     });
@@ -45038,16 +45074,16 @@ function EventDetailsModalComponent_div_80_Template(rf, ctx) {
     i0.ɵɵproperty("list", ctx_r1.event.attendees)("host", ctx_r1.event.host);
   }
 }
-function EventDetailsModalComponent_button_83_Template(rf, ctx) {
+function EventDetailsModalComponent_button_85_Template(rf, ctx) {
   if (rf & 1) {
-    var _r12 = i0.ɵɵgetCurrentView();
-    i0.ɵɵelementStart(0, "button", 106);
-    i0.ɵɵlistener("click", function EventDetailsModalComponent_button_83_Template_button_click_0_listener() {
-      i0.ɵɵrestoreView(_r12);
+    var _r13 = i0.ɵɵgetCurrentView();
+    i0.ɵɵelementStart(0, "button", 110);
+    i0.ɵɵlistener("click", function EventDetailsModalComponent_button_85_Template_button_click_0_listener() {
+      i0.ɵɵrestoreView(_r13);
       var ctx_r1 = i0.ɵɵnextContext();
       return i0.ɵɵresetView(ctx_r1.edit.emit(ctx_r1.space));
     });
-    i0.ɵɵelementStart(1, "div", 57)(2, "app-icon", 70);
+    i0.ɵɵelementStart(1, "div", 59)(2, "app-icon", 61);
     i0.ɵɵtext(3, "edit");
     i0.ɵɵelementEnd();
     i0.ɵɵelementStart(4, "div");
@@ -45059,16 +45095,16 @@ function EventDetailsModalComponent_button_83_Template(rf, ctx) {
     i0.ɵɵproperty("matTooltip", !ctx_r1.can_edit ? ctx_r1.no_edit_message : "")("disabled", !ctx_r1.can_edit);
   }
 }
-function EventDetailsModalComponent_button_96_Template(rf, ctx) {
+function EventDetailsModalComponent_button_98_Template(rf, ctx) {
   if (rf & 1) {
-    var _r13 = i0.ɵɵgetCurrentView();
-    i0.ɵɵelementStart(0, "button", 56);
-    i0.ɵɵlistener("click", function EventDetailsModalComponent_button_96_Template_button_click_0_listener() {
-      i0.ɵɵrestoreView(_r13);
+    var _r14 = i0.ɵɵgetCurrentView();
+    i0.ɵɵelementStart(0, "button", 58);
+    i0.ɵɵlistener("click", function EventDetailsModalComponent_button_98_Template_button_click_0_listener() {
+      i0.ɵɵrestoreView(_r14);
       var ctx_r1 = i0.ɵɵnextContext();
       return i0.ɵɵresetView(ctx_r1.remove.emit(true));
     });
-    i0.ɵɵelementStart(1, "div", 57)(2, "app-icon", 58);
+    i0.ɵɵelementStart(1, "div", 59)(2, "app-icon", 60);
     i0.ɵɵtext(3, "delete");
     i0.ɵɵelementEnd();
     i0.ɵɵelementStart(4, "div");
@@ -45076,16 +45112,16 @@ function EventDetailsModalComponent_button_96_Template(rf, ctx) {
     i0.ɵɵelementEnd()()();
   }
 }
-function EventDetailsModalComponent_button_97_Template(rf, ctx) {
+function EventDetailsModalComponent_button_99_Template(rf, ctx) {
   if (rf & 1) {
-    var _r14 = i0.ɵɵgetCurrentView();
-    i0.ɵɵelementStart(0, "button", 56);
-    i0.ɵɵlistener("click", function EventDetailsModalComponent_button_97_Template_button_click_0_listener() {
-      var act_r15 = i0.ɵɵrestoreView(_r14).$implicit;
+    var _r15 = i0.ɵɵgetCurrentView();
+    i0.ɵɵelementStart(0, "button", 58);
+    i0.ɵɵlistener("click", function EventDetailsModalComponent_button_99_Template_button_click_0_listener() {
+      var act_r16 = i0.ɵɵrestoreView(_r15).$implicit;
       var ctx_r1 = i0.ɵɵnextContext();
-      return i0.ɵɵresetView(ctx_r1.action.emit(act_r15.id));
+      return i0.ɵɵresetView(ctx_r1.action.emit(act_r16.id));
     });
-    i0.ɵɵelementStart(1, "div", 57)(2, "app-icon", 70);
+    i0.ɵɵelementStart(1, "div", 59)(2, "app-icon", 61);
     i0.ɵɵtext(3);
     i0.ɵɵelementEnd();
     i0.ɵɵelementStart(4, "div");
@@ -45093,11 +45129,11 @@ function EventDetailsModalComponent_button_97_Template(rf, ctx) {
     i0.ɵɵelementEnd()()();
   }
   if (rf & 2) {
-    var act_r15 = ctx.$implicit;
+    var act_r16 = ctx.$implicit;
     i0.ɵɵadvance(3);
-    i0.ɵɵtextInterpolate(act_r15.icon);
+    i0.ɵɵtextInterpolate(act_r16.icon);
     i0.ɵɵadvance(2);
-    i0.ɵɵi18nExp(act_r15.name);
+    i0.ɵɵi18nExp(act_r16.name);
     i0.ɵɵi18nApply(5);
   }
 }
@@ -45119,6 +45155,8 @@ var EventDetailsModalComponent = /*#__PURE__*/function () {
     this.room_status = '';
     this.hide_map = false;
     this.hide_edit = false;
+    this.raw_body = '';
+    this.print = false;
     this.show_attendees = false;
     this.event = this._event;
     this.no_edit_message = 'Editing bookings long than \n a day is not available';
@@ -45144,6 +45182,9 @@ var EventDetailsModalComponent = /*#__PURE__*/function () {
       return count += user.response_status === 'tentative' || user.response_status === 'needsAction' ? 1 : 0;
     }, 0);
     this._date = new common_2.DatePipe('en');
+    var doc = new DOMParser().parseFromString(this.event.body, 'text/html');
+    this.raw_body = (doc.body.textContent || '').trim();
+    console.log('Body:', this.raw_body);
     this._load().then();
     console.log('Timezone:', this.timezone);
   }
@@ -45281,7 +45322,7 @@ var EventDetailsModalComponent = /*#__PURE__*/function () {
           _this = this,
           _this$event$extension,
           _this$event$extension2;
-        var metadata;
+        var doc, metadata;
         return _regeneratorRuntime().wrap(function _callee2$(_context2) {
           while (1) switch (_context2.prev = _context2.next) {
             case 0:
@@ -45297,22 +45338,24 @@ var EventDetailsModalComponent = /*#__PURE__*/function () {
                 location: this.space.map_id,
                 content: map_pin_component_1.MapPinComponent
               }];
+              doc = new DOMParser().parseFromString(this.event.body, 'text/html');
+              this.raw_body = (doc.body.textContent || '').trim();
               if (!((_this$event$extension = this.event.extension_data.catering) !== null && _this$event$extension !== void 0 && _this$event$extension.length || (_this$event$extension2 = this.event.extension_data.assets) !== null && _this$event$extension2 !== void 0 && _this$event$extension2.length)) {
-                _context2.next = 8;
+                _context2.next = 10;
                 break;
               }
               return _context2.abrupt("return");
-            case 8:
-              _context2.next = 10;
-              return (0, events_fn_1.getEventMetadata)(this._event.id, this.space.id).toPromise();
             case 10:
+              _context2.next = 12;
+              return (0, events_fn_1.getEventMetadata)(this._event.id, this.space.id).toPromise();
+            case 12:
               metadata = _context2.sent;
               if (metadata) {
                 this._event = new event_class_1.CalendarEvent(_objectSpread(_objectSpread({}, this._event), {}, {
                   extension_data: _objectSpread(_objectSpread({}, this._event.extension_data), metadata)
                 }));
               }
-            case 12:
+            case 14:
             case "end":
               return _context2.stop();
           }
@@ -45349,9 +45392,16 @@ var EventDetailsModalComponent = /*#__PURE__*/function () {
       });
     }
   }, {
-    key: "print",
-    value: function print() {
-      window.print();
+    key: "printEvent",
+    value: function printEvent() {
+      var _this3 = this;
+      this.print = true;
+      setTimeout(function () {
+        window.print();
+        setTimeout(function () {
+          return _this3.print = false;
+        }, 100);
+      }, 300);
     }
   }]);
 }();
@@ -45368,8 +45418,8 @@ _EventDetailsModalComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
     remove: "remove"
   },
   features: [i0.ɵɵProvidersFeature([space_pipe_1.SpacePipe])],
-  decls: 98,
-  vars: 39,
+  decls: 100,
+  vars: 40,
   consts: function consts() {
     var i18n_0;
     if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
@@ -45549,7 +45599,7 @@ _EventDetailsModalComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
     } else {
       i18n_15 = $localize(_templateObject16 || (_templateObject16 = _taggedTemplateLiteral([":\u241F8fcf89a6df3c02c129a41d4b202221a4013f107c\u241F941732683947462971:", ":INTERPOLATION:"])), "\uFFFD0\uFFFD");
     }
-    return [["menu", "matMenu"], i18n_0, i18n_1, i18n_2, i18n_3, i18n_4, i18n_5, i18n_6, i18n_7, i18n_8, i18n_9, i18n_10, i18n_11, i18n_12, i18n_13, i18n_14, i18n_15, [1, "w-[100vw]", "h-[100vh]", "sm:relative", "sm:inset-auto", "sm:w-[51rem]", "sm:h-auto", "sm:max-h-[80vh]", "bg-base-100", "sm:bg-base-200", "sm:rounded", "overflow-auto", "space-y-2", "pb-2"], [1, "sm:flex", "flex-col", "items-center", "pb-4", "max-h-screen", "sm:max-h-[80vh]", "sm:px-16", "sm:border-b", "bg-base-100", "border-base-200"], ["binding", "", "mod", "Bookings", "bind", "status", 3, "modelChange", "model", "sys"], ["class", "h-8 w-full sm:hidden block", 4, "ngIf"], ["class", "bg-neutral w-full h-64 sm:rounded-b overflow-hidden", 4, "ngIf"], ["title", "", 1, "px-3", "mt-2", "text-xl", "font-medium", "w-full"], [1, "sm:flex", "items-center", "justify-between", "w-full"], [1, "flex", "m-2"], [3, "status"], [1, "flex", "flex-col", "leading-tight"], ["class", "opacity-30 text-xs", 4, "ngIf"], ["actions", "", "class", "flex items-center space-x-2 px-2", 4, "ngIf"], [1, "sm:flex", "flex-wrap", "sm:px-12"], [1, "sm:p-4", "sm:bg-base-100", "rounded", "sm:m-2", "sm:border", "border-base-200", "flex-grow-[3]", "min-w-1/3", "sm:w-[16rem]", "space-y-2"], [1, "px-3", "mt-2", "text-lg", "font-medium", "mb-2"], [1, "flex", "items-center", "px-2", "space-x-2"], [4, "ngIf"], ["class", "flex items-center px-2 space-x-2", 4, "ngIf"], [1, "mt-4", "sm:p-4", "sm:bg-base-100", "rounded", "sm:m-2", "sm:border", "border-base-200", "flex-grow-[3]", "min-w-1/3", "sm:w-[16rem]"], [1, "mx-3", "border-t", "border-base-200", "sm:border-none", "flex", "items-center", "justify-between"], [1, "text-lg", "font-medium"], ["matRipple", "", "show-attendees", "", 1, "clear", "text-xs", "underline", 3, "click"], ["class", "flex items-center py-2 space-x-2 text-sm px-4 max-w-full", 4, "ngIf"], [1, "flex", "items-center", "p-1"], [1, "flex", "flex-col", "flex-1", "items-center", "justify-center", "space-y-1"], [1, "text-lg"], [1, "text-sm", "uppercase"], [1, "mx-3", "mt-2", "pt-2", "text-lg", "font-medium", "border-t", "border-base-200"], ["host", "", 1, "px-2", "flex", "items-center", "space-x-2"], [3, "user"], [1, "text-sm", "flex-1", "w-px"], [1, "opacity-60", "truncate", "w-full", 3, "title"], ["class", "flex items-center space-x-2 text-sm px-4 py-2 max-w-full", 4, "ngIf"], ["map", "", 1, "mt-4", "sm:mt-2", "h-64", "sm:h-48", "relative", "border", "border-base-200", "overflow-hidden", "rounded", "sm:bg-base-100", "m-2", "flex-grow-[3]", "min-w-1/3", "p-2", "w-[calc(100%-1rem)]", "sm:w-[16rem]", 3, "click"], ["class", "mt-4 sm:p-4 sm:bg-base-100 rounded sm:m-2 sm:border border-base-200 flex-grow-[3] min-w-1/3 sm:w-[16rem]", 4, "ngIf"], ["icon", "", "matRipple", "", "mat-dialog-close", "", 1, "absolute", "top-2", "left-2", "bg-neutral", "text-white"], ["class", "absolute inset-0 z-50", 4, "ngIf"], ["xPosition", "before"], ["mat-menu-item", "", "mat-dialog-close", "", 3, "matTooltip", "disabled", "click", 4, "ngIf"], ["mat-menu-item", "", 3, "click"], [1, "flex", "items-center", "space-x-2", "text-base", "pr-2"], [1, "text-2xl", "text-error"], ["mat-menu-item", "", 3, "click", 4, "ngIf"], ["mat-menu-item", "", 3, "click", 4, "ngFor", "ngForOf"], [1, "h-8", "w-full", "sm:hidden", "block"], [1, "bg-neutral", "w-full", "h-64", "sm:rounded-b", "overflow-hidden"], [1, "w-full", "h-64", 3, "images"], [1, "opacity-30", "text-xs"], ["actions", "", 1, "flex", "items-center", "space-x-2", "px-2"], ["btn", "", "matRipple", "", "class", "flex-1 h-10", 3, "bg-success", "border-none", "pointer-events-none", "click", 4, "ngIf"], ["icon", "", "matRipple", "", "class", "bg-secondary rounded text-white h-12 w-12", 3, "matMenuTriggerFor", 4, "ngIf"], ["btn", "", "matRipple", "", 1, "flex-1", "h-10", 3, "click"], [1, "flex", "items-center", "space-x-2", "justify-center"], [1, "text-2xl"], [1, "pr-4"], ["icon", "", "matRipple", "", 1, "bg-secondary", "rounded", "text-white", "h-12", "w-12", 3, "matMenuTriggerFor"], [1, "flex", "items-center", "py-2", "space-x-2", "text-sm", "px-4", "max-w-full"], [1, "ml-2", "opacity-60", "p-1", "text-xs", "bg-base-200", "rounded", "truncate"], [1, "flex", "items-center", "space-x-2", "text-sm", "px-4", "py-2", "max-w-full"], [1, "mx-3", "my-2", "text-lg", "font-medium"], [1, "flex", "flex-col", "space-y-2"], ["order", "", "class", "border border-base-300 bg-base-100 rounded-xl overflow-hidden", 4, "ngFor", "ngForOf"], ["order", "", 1, "border", "border-base-300", "bg-base-100", "rounded-xl", "overflow-hidden"], [1, "flex", "items-center", "space-x-2", "p-3"], [1, "flex-1"], [1, "text-sm"], [1, "text-xs", "opacity-60"], ["icon", "", "matRipple", "", 3, "click", "matTooltip"], [1, "flex", "flex-col", "bg-base-200", "divide-y", "divide-base-100"], ["class", "flex items-center px-3 py-1 space-x-2 hover:opacity-90", 4, "ngFor", "ngForOf"], [1, "flex", "items-center", "px-3", "py-1", "space-x-2", "hover:opacity-90"], [1, "flex", "items-center", "flex-1"], ["class", "text-xs opacity-60 ml-4 font-normal", 3, "matTooltip", 4, "ngIf"], [1, "rounded", "bg-success", "text-success-content", "text-xs", "px-2", "py-1"], [1, "rounded", "bg-info", "text-info-content", "text-xs", "px-2", "py-1"], [1, "text-xs", "opacity-60", "ml-4", "font-normal", 3, "matTooltip"], [1, "pointer-events-none", 3, "src", "features", "options"], [1, "mx-3", "text-lg", "font-medium", "border-t", "sm:border-none", "border-base-200"], ["notes", "", "class", "mx-4 overflow-hidden max-w-full", 3, "innerHTML", 4, "ngIf"], ["notes", "", 1, "mx-4", "overflow-hidden", "max-w-full", 3, "innerHTML"], [1, "mx-3", "pt-2", "text-lg", "font-medium"], ["request", "", "class", "border border-base-300 bg-base-100 rounded-xl overflow-hidden", 4, "ngFor", "ngForOf"], ["request", "", 1, "border", "border-base-300", "bg-base-100", "rounded-xl", "overflow-hidden"], ["matRipple", "", 1, "flex", "items-center", "space-x-2", "p-3", "w-full", 3, "click"], [1, "flex-1", "text-left"], [1, "flex", "items-center", "justify-center", "rounded-full", "w-8", "h-8", 3, "matTooltip"], [1, "flex", "items-center", "justify-center", "rounded-full", "w-8", "h-8"], [1, "absolute", "inset-0", "z-50"], [3, "click", "list", "host"], ["mat-menu-item", "", "mat-dialog-close", "", 3, "click", "matTooltip", "disabled"]];
+    return [["menu", "matMenu"], i18n_0, i18n_1, i18n_2, i18n_3, i18n_4, i18n_5, i18n_6, i18n_7, i18n_8, i18n_9, i18n_10, i18n_11, i18n_12, i18n_13, i18n_14, i18n_15, [1, "w-screen", "h-screen", "print:min-h-screen", "print:w-screen", "sm:relative", "sm:inset-auto", "sm:w-[51rem]", "sm:h-auto", "sm:max-h-[80vh]", "bg-base-100", "sm:bg-base-200", "sm:rounded", "overflow-auto", "space-y-2", "pb-2"], [1, "sm:flex", "flex-col", "items-center", "pb-4", "max-h-screen", "sm:max-h-[80vh]", "sm:px-16", "sm:border-b", "bg-base-100", "border-base-200", "print:border-none"], ["binding", "", "mod", "Bookings", "bind", "status", 3, "modelChange", "model", "sys"], ["class", "h-8 w-full sm:hidden block", 4, "ngIf"], ["class", "bg-neutral w-full h-64 sm:rounded-b overflow-hidden print:hidden", 4, "ngIf"], ["title", "", 1, "px-3", "mt-2", "text-xl", "font-medium", "w-full"], [1, "sm:flex", "items-center", "justify-between", "w-full"], [1, "flex", "m-2"], [3, "status"], [1, "flex", "flex-col", "leading-tight"], ["class", "opacity-30 text-xs", 4, "ngIf"], ["actions", "", "class", "flex items-center space-x-2 px-2 print:hidden", 4, "ngIf"], [1, "sm:flex", "flex-wrap", "sm:px-12"], [1, "sm:p-4", "sm:bg-base-100", "rounded", "sm:m-2", "sm:border", "border-base-200", "flex-grow-[3]", "min-w-1/3", "sm:w-[16rem]", "space-y-2"], [1, "px-3", "mt-2", "text-lg", "font-medium", "mb-2"], [1, "flex", "items-center", "px-2", "space-x-2"], [4, "ngIf"], ["class", "flex items-center px-2 space-x-2", 4, "ngIf"], [1, "mt-4", "sm:p-4", "sm:bg-base-100", "rounded", "sm:m-2", "sm:border", "border-base-200", "flex-grow-[3]", "min-w-1/3", "sm:w-[16rem]"], [1, "mx-3", "border-t", "border-base-200", "sm:border-none", "flex", "items-center", "justify-between"], [1, "text-lg", "font-medium"], ["matRipple", "", "show-attendees", "", 1, "clear", "text-xs", "underline", "print:hidden", 3, "click"], ["class", "flex items-center py-2 space-x-2 text-sm px-4 max-w-full", 4, "ngIf"], [1, "flex", "items-center", "p-1"], [1, "flex", "flex-col", "flex-1", "items-center", "justify-center", "space-y-1"], [1, "text-lg"], [1, "text-sm", "uppercase"], [1, "hidden", "print:block"], [4, "ngFor", "ngForOf"], [1, "mx-3", "mt-2", "pt-2", "text-lg", "font-medium", "border-t", "border-base-200"], ["host", "", 1, "px-2", "flex", "items-center", "space-x-2"], [3, "user"], [1, "text-sm", "flex-1", "w-px"], [1, "opacity-60", "truncate", "w-full", 3, "title"], ["class", "flex items-center space-x-2 text-sm px-4 py-2 max-w-full", 4, "ngIf"], ["map", "", 1, "mt-4", "sm:mt-2", "h-64", "sm:h-48", "relative", "border", "border-base-200", "overflow-hidden", "rounded", "sm:bg-base-100", "m-2", "flex-grow-[3]", "min-w-1/3", "p-2", "w-[calc(100%-1rem)]", "sm:w-[16rem]", 3, "click"], ["class", "mt-4 sm:p-4 sm:bg-base-100 rounded sm:m-2 sm:border border-base-200 flex-grow-[3] min-w-1/3 sm:w-[16rem]", 4, "ngIf"], ["icon", "", "matRipple", "", "mat-dialog-close", "", 1, "absolute", "top-2", "left-2", "bg-neutral", "text-white", "print:hidden"], ["class", "absolute inset-0 z-50", 4, "ngIf"], ["xPosition", "before"], ["mat-menu-item", "", "mat-dialog-close", "", 3, "matTooltip", "disabled", "click", 4, "ngIf"], ["mat-menu-item", "", 3, "click"], [1, "flex", "items-center", "space-x-2", "text-base", "pr-2"], [1, "text-2xl", "text-error"], [1, "text-2xl"], ["mat-menu-item", "", 3, "click", 4, "ngIf"], ["mat-menu-item", "", 3, "click", 4, "ngFor", "ngForOf"], [1, "h-8", "w-full", "sm:hidden", "block"], [1, "bg-neutral", "w-full", "h-64", "sm:rounded-b", "overflow-hidden", "print:hidden"], [1, "w-full", "h-64", 3, "images"], [1, "opacity-30", "text-xs"], ["actions", "", 1, "flex", "items-center", "space-x-2", "px-2", "print:hidden"], ["btn", "", "matRipple", "", "class", "flex-1 h-10", 3, "bg-success", "border-none", "pointer-events-none", "click", 4, "ngIf"], ["icon", "", "matRipple", "", "class", "bg-secondary rounded text-white h-12 w-12", 3, "matMenuTriggerFor", 4, "ngIf"], ["btn", "", "matRipple", "", 1, "flex-1", "h-10", 3, "click"], [1, "flex", "items-center", "space-x-2", "justify-center"], [1, "pr-4"], ["icon", "", "matRipple", "", 1, "bg-secondary", "rounded", "text-white", "h-12", "w-12", 3, "matMenuTriggerFor"], [1, "flex", "items-center", "py-2", "space-x-2", "text-sm", "px-4", "max-w-full"], [1, "ml-2", "opacity-60", "p-1", "text-xs", "bg-base-200", "rounded", "truncate"], ["class", "px-2 flex items-center space-x-2", "attendee", "", 4, "ngIf"], ["attendee", "", 1, "px-2", "flex", "items-center", "space-x-2"], [1, "flex", "items-center", "space-x-2", "text-sm", "px-4", "py-2", "max-w-full"], [1, "mx-3", "my-2", "text-lg", "font-medium"], [1, "flex", "flex-col", "space-y-2"], ["order", "", "class", "border border-base-300 bg-base-100 rounded-xl overflow-hidden", 4, "ngFor", "ngForOf"], ["order", "", 1, "border", "border-base-300", "bg-base-100", "rounded-xl", "overflow-hidden"], [1, "flex", "items-center", "space-x-2", "p-3"], [1, "flex-1"], [1, "text-sm"], [1, "text-xs", "opacity-60"], ["icon", "", "matRipple", "", 1, "print:hidden", 3, "click", "matTooltip"], [1, "flex", "flex-col", "bg-base-200", "divide-y", "divide-base-100"], ["class", "flex items-center px-3 py-1 space-x-2 hover:opacity-90", 4, "ngFor", "ngForOf"], [1, "flex", "items-center", "px-3", "py-1", "space-x-2", "hover:opacity-90"], [1, "flex", "items-center", "flex-1"], ["class", "text-xs opacity-60 ml-4 font-normal", 3, "matTooltip", 4, "ngIf"], [1, "rounded", "bg-success", "text-success-content", "text-xs", "px-2", "py-1"], [1, "rounded", "bg-info", "text-info-content", "text-xs", "px-2", "py-1"], [1, "text-xs", "opacity-60", "ml-4", "font-normal", 3, "matTooltip"], [1, "pointer-events-none", 3, "src", "features", "options"], [1, "mx-3", "text-lg", "font-medium", "border-t", "sm:border-none", "border-base-200"], ["notes", "", "class", "mx-4 overflow-hidden max-w-full", 3, "innerHTML", 4, "ngIf"], ["notes", "", 1, "mx-4", "overflow-hidden", "max-w-full", 3, "innerHTML"], [1, "mx-3", "pt-2", "text-lg", "font-medium"], ["request", "", "class", "border border-base-300 bg-base-100 rounded-xl overflow-hidden", 4, "ngFor", "ngForOf"], ["request", "", 1, "border", "border-base-300", "bg-base-100", "rounded-xl", "overflow-hidden"], ["matRipple", "", 1, "flex", "items-center", "space-x-2", "p-3", "w-full", 3, "click"], [1, "flex-1", "text-left"], [1, "flex", "items-center", "justify-center", "rounded-full", "w-8", "h-8", 3, "matTooltip"], [1, "flex", "items-center", "justify-center", "rounded-full", "w-8", "h-8"], [1, "absolute", "inset-0", "z-50"], [3, "click", "list", "host"], ["mat-menu-item", "", "mat-dialog-close", "", 3, "click", "matTooltip", "disabled"]];
   },
   template: function EventDetailsModalComponent_Template(rf, ctx) {
     if (rf & 1) {
@@ -45628,58 +45678,61 @@ _EventDetailsModalComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
       i0.ɵɵelementStart(60, "div", 43);
       i0.ɵɵi18n(61, 6);
       i0.ɵɵelementEnd()()();
-      i0.ɵɵelementStart(62, "h3", 44);
-      i0.ɵɵi18n(63, 7);
+      i0.ɵɵelementStart(62, "div", 44);
+      i0.ɵɵtemplate(63, EventDetailsModalComponent_ng_container_63_Template, 2, 1, "ng-container", 45);
       i0.ɵɵelementEnd();
-      i0.ɵɵelementStart(64, "div", 45);
-      i0.ɵɵelement(65, "a-user-avatar", 46);
-      i0.ɵɵelementStart(66, "div", 47)(67, "div");
-      i0.ɵɵtext(68);
+      i0.ɵɵelementStart(64, "h3", 46);
+      i0.ɵɵi18n(65, 7);
       i0.ɵɵelementEnd();
-      i0.ɵɵelementStart(69, "div", 48);
+      i0.ɵɵelementStart(66, "div", 47);
+      i0.ɵɵelement(67, "a-user-avatar", 48);
+      i0.ɵɵelementStart(68, "div", 49)(69, "div");
       i0.ɵɵtext(70);
-      i0.ɵɵelementEnd()()();
-      i0.ɵɵtemplate(71, EventDetailsModalComponent_div_71_Template, 4, 1, "div", 49);
       i0.ɵɵelementEnd();
-      i0.ɵɵtemplate(72, EventDetailsModalComponent_ng_container_72_Template, 6, 1, "ng-container", 33);
-      i0.ɵɵelementStart(73, "button", 50);
-      i0.ɵɵlistener("click", function EventDetailsModalComponent_Template_button_click_73_listener() {
+      i0.ɵɵelementStart(71, "div", 50);
+      i0.ɵɵtext(72);
+      i0.ɵɵelementEnd()()();
+      i0.ɵɵtemplate(73, EventDetailsModalComponent_div_73_Template, 4, 1, "div", 51);
+      i0.ɵɵelementEnd();
+      i0.ɵɵtemplate(74, EventDetailsModalComponent_ng_container_74_Template, 6, 1, "ng-container", 33);
+      i0.ɵɵelementStart(75, "button", 52);
+      i0.ɵɵlistener("click", function EventDetailsModalComponent_Template_button_click_75_listener() {
         i0.ɵɵrestoreView(_r1);
         return i0.ɵɵresetView(ctx.viewLocation());
       });
-      i0.ɵɵtemplate(74, EventDetailsModalComponent_ng_container_74_Template, 2, 4, "ng-container", 33);
+      i0.ɵɵtemplate(76, EventDetailsModalComponent_ng_container_76_Template, 2, 4, "ng-container", 33);
       i0.ɵɵelementEnd();
-      i0.ɵɵtemplate(75, EventDetailsModalComponent_div_75_Template, 4, 1, "div", 51)(76, EventDetailsModalComponent_ng_container_76_Template, 6, 2, "ng-container", 33);
-      i0.ɵɵelementStart(77, "button", 52)(78, "app-icon");
-      i0.ɵɵtext(79, "close");
+      i0.ɵɵtemplate(77, EventDetailsModalComponent_div_77_Template, 4, 1, "div", 53)(78, EventDetailsModalComponent_ng_container_78_Template, 6, 2, "ng-container", 33);
+      i0.ɵɵelementStart(79, "button", 54)(80, "app-icon");
+      i0.ɵɵtext(81, "close");
       i0.ɵɵelementEnd()();
-      i0.ɵɵtemplate(80, EventDetailsModalComponent_div_80_Template, 2, 2, "div", 53);
+      i0.ɵɵtemplate(82, EventDetailsModalComponent_div_82_Template, 2, 2, "div", 55);
       i0.ɵɵelementEnd();
-      i0.ɵɵelementStart(81, "mat-menu", 54, 0);
-      i0.ɵɵtemplate(83, EventDetailsModalComponent_button_83_Template, 6, 2, "button", 55);
-      i0.ɵɵelementStart(84, "button", 56);
-      i0.ɵɵlistener("click", function EventDetailsModalComponent_Template_button_click_84_listener() {
+      i0.ɵɵelementStart(83, "mat-menu", 56, 0);
+      i0.ɵɵtemplate(85, EventDetailsModalComponent_button_85_Template, 6, 2, "button", 57);
+      i0.ɵɵelementStart(86, "button", 58);
+      i0.ɵɵlistener("click", function EventDetailsModalComponent_Template_button_click_86_listener() {
         i0.ɵɵrestoreView(_r1);
         return i0.ɵɵresetView(ctx.remove.emit());
       });
-      i0.ɵɵelementStart(85, "div", 57)(86, "app-icon", 58);
-      i0.ɵɵtext(87, "delete");
+      i0.ɵɵelementStart(87, "div", 59)(88, "app-icon", 60);
+      i0.ɵɵtext(89, "delete");
       i0.ɵɵelementEnd();
-      i0.ɵɵelementStart(88, "div");
-      i0.ɵɵi18n(89, 8);
+      i0.ɵɵelementStart(90, "div");
+      i0.ɵɵi18n(91, 8);
       i0.ɵɵelementEnd()()();
-      i0.ɵɵelementStart(90, "button", 56);
-      i0.ɵɵlistener("click", function EventDetailsModalComponent_Template_button_click_90_listener() {
+      i0.ɵɵelementStart(92, "button", 58);
+      i0.ɵɵlistener("click", function EventDetailsModalComponent_Template_button_click_92_listener() {
         i0.ɵɵrestoreView(_r1);
-        return i0.ɵɵresetView(ctx.print());
+        return i0.ɵɵresetView(ctx.printEvent());
       });
-      i0.ɵɵelementStart(91, "div", 57)(92, "app-icon", 58);
-      i0.ɵɵtext(93, "print");
+      i0.ɵɵelementStart(93, "div", 59)(94, "app-icon", 61);
+      i0.ɵɵtext(95, "print");
       i0.ɵɵelementEnd();
-      i0.ɵɵelementStart(94, "div");
-      i0.ɵɵi18n(95, 9);
+      i0.ɵɵelementStart(96, "div");
+      i0.ɵɵi18n(97, 9);
       i0.ɵɵelementEnd()()();
-      i0.ɵɵtemplate(96, EventDetailsModalComponent_button_96_Template, 6, 0, "button", 59)(97, EventDetailsModalComponent_button_97_Template, 6, 2, "button", 60);
+      i0.ɵɵtemplate(98, EventDetailsModalComponent_button_98_Template, 6, 0, "button", 62)(99, EventDetailsModalComponent_button_99_Template, 6, 2, "button", 63);
       i0.ɵɵelementEnd()();
     }
     if (rf & 2) {
@@ -45705,7 +45758,7 @@ _EventDetailsModalComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
       i0.ɵɵadvance();
       i0.ɵɵproperty("ngIf", ctx.event.state !== "done");
       i0.ɵɵadvance(9);
-      i0.ɵɵtextInterpolate1(" ", i0.ɵɵpipeBind2(24, 36, ctx.event.date, "EEEE, dd LLLL y"), " ");
+      i0.ɵɵtextInterpolate1(" ", i0.ɵɵpipeBind2(24, 37, ctx.event.date, "EEEE, dd LLLL y"), " ");
       i0.ɵɵadvance(7);
       i0.ɵɵtextInterpolate(ctx.period);
       i0.ɵɵadvance();
@@ -45724,7 +45777,9 @@ _EventDetailsModalComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
       i0.ɵɵtextInterpolate(ctx.declined_count || 0);
       i0.ɵɵadvance(5);
       i0.ɵɵtextInterpolate(ctx.pending_count || 0);
-      i0.ɵɵadvance(6);
+      i0.ɵɵadvance(4);
+      i0.ɵɵproperty("ngForOf", ctx.event.attendees);
+      i0.ɵɵadvance(4);
       i0.ɵɵproperty("user", ctx.event.organiser);
       i0.ɵɵadvance(3);
       i0.ɵɵtextInterpolate(ctx.event.organiser == null ? null : ctx.event.organiser.name);
@@ -45739,7 +45794,7 @@ _EventDetailsModalComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
       i0.ɵɵadvance(2);
       i0.ɵɵproperty("ngIf", !ctx.hide_map);
       i0.ɵɵadvance();
-      i0.ɵɵproperty("ngIf", ctx.body);
+      i0.ɵɵproperty("ngIf", ctx.raw_body);
       i0.ɵɵadvance();
       i0.ɵɵproperty("ngIf", ctx.has_assets);
       i0.ɵɵadvance(4);
