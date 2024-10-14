@@ -4584,35 +4584,42 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _placeos_organisation__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @placeos/organisation */ 2510);
 /* harmony import */ var _placeos_users__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @placeos/users */ 41489);
 /* harmony import */ var libs_catering_src_lib_catering_order_modal_catering_order_state_service__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! libs/catering/src/lib/catering-order-modal/catering-order-state.service */ 20097);
-/* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! rxjs */ 90521);
-/* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! rxjs */ 68824);
-/* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! rxjs */ 71536);
-/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! rxjs/operators */ 35443);
-/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! rxjs/operators */ 66000);
-/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! rxjs/operators */ 19803);
-/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! rxjs/operators */ 71963);
-/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! rxjs/operators */ 57871);
+/* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! rxjs */ 90521);
+/* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! rxjs */ 71536);
+/* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! rxjs */ 68824);
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! rxjs/operators */ 8627);
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! rxjs/operators */ 71963);
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! rxjs/operators */ 29314);
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! rxjs/operators */ 35443);
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! rxjs/operators */ 7841);
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! rxjs/operators */ 66000);
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! rxjs/operators */ 19803);
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! rxjs/operators */ 57871);
 /* harmony import */ var _meeting_flow_confirm_modal_component__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./meeting-flow-confirm-modal.component */ 66843);
 /* harmony import */ var _meeting_flow_confirm_component__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./meeting-flow-confirm.component */ 53819);
 /* harmony import */ var libs_assets_src_lib_asset_state_service__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! libs/assets/src/lib/asset-state.service */ 46088);
-/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! @angular/core */ 37580);
-/* harmony import */ var _angular_router__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! @angular/router */ 95072);
-/* harmony import */ var _angular_material_dialog__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! @angular/material/dialog */ 12587);
-/* harmony import */ var _angular_material_bottom_sheet__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! @angular/material/bottom-sheet */ 15244);
-/* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! @angular/common */ 60316);
-/* harmony import */ var _libs_components_src_lib_icon_component__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../../../../../../libs/components/src/lib/icon.component */ 69434);
-/* harmony import */ var _angular_material_core__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! @angular/material/core */ 74646);
-/* harmony import */ var _angular_material_form_field__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! @angular/material/form-field */ 24950);
-/* harmony import */ var _angular_material_select__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! @angular/material/select */ 25175);
-/* harmony import */ var _angular_material_input__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! @angular/material/input */ 95541);
-/* harmony import */ var _libs_form_fields_src_lib_user_list_field_component__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../../../../../../libs/form-fields/src/lib/user-list-field.component */ 840);
-/* harmony import */ var _libs_form_fields_src_lib_space_list_field_component__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../../../../../../libs/form-fields/src/lib/space-list-field.component */ 84809);
-/* harmony import */ var _libs_form_fields_src_lib_rich_text_input_component__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../../../../../../libs/form-fields/src/lib/rich-text-input.component */ 81772);
-/* harmony import */ var _libs_assets_src_lib_asset_list_field_component__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../../../../../../libs/assets/src/lib/asset-list-field.component */ 83618);
-/* harmony import */ var _angular_forms__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! @angular/forms */ 34456);
-/* harmony import */ var _libs_catering_src_lib_catering_list_field_component__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../../../../../../libs/catering/src/lib/catering-list-field.component */ 61601);
-/* harmony import */ var _meeting_form_details_component__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./meeting-form-details.component */ 13291);
-/* harmony import */ var _ngx_translate_core__WEBPACK_IMPORTED_MODULE_34__ = __webpack_require__(/*! @ngx-translate/core */ 597);
+/* harmony import */ var _placeos_ts_client__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! @placeos/ts-client */ 35713);
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! @angular/core */ 37580);
+/* harmony import */ var _angular_router__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! @angular/router */ 95072);
+/* harmony import */ var _angular_material_dialog__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! @angular/material/dialog */ 12587);
+/* harmony import */ var _angular_material_bottom_sheet__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! @angular/material/bottom-sheet */ 15244);
+/* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! @angular/common */ 60316);
+/* harmony import */ var _libs_components_src_lib_icon_component__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../../../../../../libs/components/src/lib/icon.component */ 69434);
+/* harmony import */ var _angular_material_autocomplete__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! @angular/material/autocomplete */ 79771);
+/* harmony import */ var _angular_material_core__WEBPACK_IMPORTED_MODULE_34__ = __webpack_require__(/*! @angular/material/core */ 74646);
+/* harmony import */ var _angular_material_form_field__WEBPACK_IMPORTED_MODULE_35__ = __webpack_require__(/*! @angular/material/form-field */ 24950);
+/* harmony import */ var _angular_material_select__WEBPACK_IMPORTED_MODULE_36__ = __webpack_require__(/*! @angular/material/select */ 25175);
+/* harmony import */ var _angular_material_input__WEBPACK_IMPORTED_MODULE_37__ = __webpack_require__(/*! @angular/material/input */ 95541);
+/* harmony import */ var _libs_form_fields_src_lib_user_list_field_component__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../../../../../../libs/form-fields/src/lib/user-list-field.component */ 840);
+/* harmony import */ var _libs_form_fields_src_lib_space_list_field_component__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../../../../../../libs/form-fields/src/lib/space-list-field.component */ 84809);
+/* harmony import */ var _libs_form_fields_src_lib_rich_text_input_component__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../../../../../../libs/form-fields/src/lib/rich-text-input.component */ 81772);
+/* harmony import */ var _libs_assets_src_lib_asset_list_field_component__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../../../../../../libs/assets/src/lib/asset-list-field.component */ 83618);
+/* harmony import */ var _angular_forms__WEBPACK_IMPORTED_MODULE_38__ = __webpack_require__(/*! @angular/forms */ 34456);
+/* harmony import */ var _libs_catering_src_lib_catering_list_field_component__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ../../../../../../libs/catering/src/lib/catering-list-field.component */ 61601);
+/* harmony import */ var _meeting_form_details_component__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./meeting-form-details.component */ 13291);
+/* harmony import */ var _ngx_translate_core__WEBPACK_IMPORTED_MODULE_39__ = __webpack_require__(/*! @ngx-translate/core */ 597);
+
+
 
 
 
@@ -4662,339 +4669,361 @@ const _c2 = (a0, a1, a2, a3) => ({
 const _c3 = () => ({
   standalone: true
 });
-function MeetingFlowFormComponent_form_5_section_14_Template(rf, ctx) {
+function MeetingFlowFormComponent_form_5_section_14_mat_option_22_Template(rf, ctx) {
   if (rf & 1) {
-    const _r3 = _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵgetCurrentView"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementStart"](0, "section", 7)(1, "h3", 8)(2, "div", 9);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵtext"](3, " 2 ");
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementStart"](4, "div", 10);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵtext"](5);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵpipe"](6, "translate");
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelement"](7, "div", 11);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementStart"](8, "button", 23);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵlistener"]("click", function MeetingFlowFormComponent_form_5_section_14_Template_button_click_8_listener() {
-      _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵrestoreView"](_r3);
-      const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵnextContext"](2);
-      return _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵresetView"](ctx_r1.findAvailableTime());
-    });
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵtext"](9);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵpipe"](10, "translate");
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementStart"](11, "button", 24);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵlistener"]("click", function MeetingFlowFormComponent_form_5_section_14_Template_button_click_11_listener() {
-      _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵrestoreView"](_r3);
-      const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵnextContext"](2);
-      return _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵresetView"](ctx_r1.hide_block.attendees = !ctx_r1.hide_block.attendees);
-    });
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementStart"](12, "app-icon");
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵtext"](13);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementEnd"]()()();
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementStart"](14, "div", 13);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelement"](15, "a-user-list-field", 25);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementStart"](16, "label", 26);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵtext"](17, "Vistor's Entity:");
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementStart"](18, "mat-form-field", 27);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelement"](19, "input", 28);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementEnd"]()()();
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementStart"](0, "mat-option", 32);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵtext"](1);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementEnd"]();
   }
   if (rf & 2) {
-    const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵnextContext"](2);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵadvance"](5);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵtextInterpolate1"](" ", _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵpipeBind1"](6, 6, "FORM.ATTENDEES"), " ");
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵadvance"](4);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵtextInterpolate1"](" ", _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵpipeBind1"](10, 8, "WPA.AVAILABILITY"), " ");
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵadvance"](4);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵtextInterpolate"](ctx_r1.hide_block.attendees ? "expand_more" : "expand_less");
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵadvance"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵproperty"]("@show", ctx_r1.hide_block.attendees ? "hide" : "show");
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵadvance"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵproperty"]("time", ctx_r1.form.value.date)("guests", ctx_r1.allow_externals);
+    const option_r4 = ctx.$implicit;
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵproperty"]("value", option_r4);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵadvance"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵtextInterpolate1"](" ", option_r4, " ");
+  }
+}
+function MeetingFlowFormComponent_form_5_section_14_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r3 = _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵgetCurrentView"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementStart"](0, "section", 8)(1, "h3", 9)(2, "div", 10);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵtext"](3, " 2 ");
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementStart"](4, "div", 11);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵtext"](5);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵpipe"](6, "translate");
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelement"](7, "div", 12);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementStart"](8, "button", 24);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵlistener"]("click", function MeetingFlowFormComponent_form_5_section_14_Template_button_click_8_listener() {
+      _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵrestoreView"](_r3);
+      const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵnextContext"](2);
+      return _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵresetView"](ctx_r1.findAvailableTime());
+    });
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵtext"](9);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵpipe"](10, "translate");
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementStart"](11, "button", 25);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵlistener"]("click", function MeetingFlowFormComponent_form_5_section_14_Template_button_click_11_listener() {
+      _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵrestoreView"](_r3);
+      const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵnextContext"](2);
+      return _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵresetView"](ctx_r1.hide_block.attendees = !ctx_r1.hide_block.attendees);
+    });
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementStart"](12, "app-icon");
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵtext"](13);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementEnd"]()()();
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementStart"](14, "div", 14);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelement"](15, "a-user-list-field", 26);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementStart"](16, "label", 27);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵtext"](17, "Vistor's Entity:");
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementStart"](18, "mat-form-field", 28);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelement"](19, "input", 29);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementStart"](20, "mat-autocomplete", 30, 0);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵtemplate"](22, MeetingFlowFormComponent_form_5_section_14_mat_option_22_Template, 2, 2, "mat-option", 31);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵpipe"](23, "async");
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementEnd"]()()();
+  }
+  if (rf & 2) {
+    const auto_r5 = _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵreference"](21);
+    const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵnextContext"](2);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵadvance"](5);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵtextInterpolate1"](" ", _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵpipeBind1"](6, 8, "FORM.ATTENDEES"), " ");
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵadvance"](4);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵtextInterpolate1"](" ", _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵpipeBind1"](10, 10, "WPA.AVAILABILITY"), " ");
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵadvance"](4);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵtextInterpolate"](ctx_r1.hide_block.attendees ? "expand_more" : "expand_less");
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵadvance"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵproperty"]("@show", ctx_r1.hide_block.attendees ? "hide" : "show");
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵadvance"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵproperty"]("time", ctx_r1.form.value.date)("guests", ctx_r1.allow_externals);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵadvance"](4);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵproperty"]("matAutocomplete", auto_r5);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵadvance"](3);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵproperty"]("ngForOf", _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵpipeBind1"](23, 12, ctx_r1.filtered_entities));
   }
 }
 function MeetingFlowFormComponent_form_5_div_27_Template(rf, ctx) {
   if (rf & 1) {
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementStart"](0, "div", 29);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵtext"](1, " The selected room has less capacity than the number of meeting attendees. ");
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementStart"](0, "div", 33);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵtext"](1, " The selected room has less capacity than the number of meeting attendees. ");
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementEnd"]();
   }
 }
 function MeetingFlowFormComponent_form_5_section_29_mat_form_field_13_mat_option_5_Template(rf, ctx) {
   if (rf & 1) {
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementStart"](0, "mat-option", 39);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵtext"](1);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementStart"](0, "mat-option", 32);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵtext"](1);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementEnd"]();
   }
   if (rf & 2) {
-    const code_r6 = ctx.$implicit;
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵproperty"]("value", code_r6);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵadvance"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵtextInterpolate1"](" ", code_r6, " ");
+    const code_r8 = ctx.$implicit;
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵproperty"]("value", code_r8);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵadvance"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵtextInterpolate1"](" ", code_r8, " ");
   }
 }
 function MeetingFlowFormComponent_form_5_section_29_mat_form_field_13_Template(rf, ctx) {
   if (rf & 1) {
-    const _r5 = _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵgetCurrentView"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementStart"](0, "mat-form-field", 34);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵlistener"]("openedChange", function MeetingFlowFormComponent_form_5_section_29_mat_form_field_13_Template_mat_form_field_openedChange_0_listener() {
-      _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵrestoreView"](_r5);
-      const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵnextContext"](3);
-      return _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵresetView"](ctx_r1.focusInput());
+    const _r7 = _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵgetCurrentView"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementStart"](0, "mat-form-field", 38);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵlistener"]("openedChange", function MeetingFlowFormComponent_form_5_section_29_mat_form_field_13_Template_mat_form_field_openedChange_0_listener() {
+      _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵrestoreView"](_r7);
+      const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵnextContext"](3);
+      return _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵresetView"](ctx_r1.focusInput());
     });
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementStart"](1, "mat-select", 35)(2, "input", 36, 0);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵlistener"]("ngModelChange", function MeetingFlowFormComponent_form_5_section_29_mat_form_field_13_Template_input_ngModelChange_2_listener($event) {
-      _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵrestoreView"](_r5);
-      const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵnextContext"](3);
-      return _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵresetView"](ctx_r1.code_filter.next($event));
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementStart"](1, "mat-select", 39)(2, "input", 40, 1);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵlistener"]("ngModelChange", function MeetingFlowFormComponent_form_5_section_29_mat_form_field_13_Template_input_ngModelChange_2_listener($event) {
+      _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵrestoreView"](_r7);
+      const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵnextContext"](3);
+      return _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵresetView"](ctx_r1.code_filter.next($event));
     });
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelement"](4, "mat-option", 37);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵtemplate"](5, MeetingFlowFormComponent_form_5_section_29_mat_form_field_13_mat_option_5_Template, 2, 2, "mat-option", 38);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵpipe"](6, "async");
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementStart"](7, "mat-error");
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵtext"](8, " Catering charge code is required ");
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementEnd"]()();
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelement"](4, "mat-option", 41);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵtemplate"](5, MeetingFlowFormComponent_form_5_section_29_mat_form_field_13_mat_option_5_Template, 2, 2, "mat-option", 31);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵpipe"](6, "async");
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementStart"](7, "mat-error");
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵtext"](8, " Catering charge code is required ");
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementEnd"]()();
   }
   if (rf & 2) {
-    const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵnextContext"](3);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵadvance"](2);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵproperty"]("ngModel", ctx_r1.code_filter.getValue())("ngModelOptions", _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵpureFunction0"](5, _c3));
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵadvance"](3);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵproperty"]("ngForOf", _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵpipeBind1"](6, 3, ctx_r1.filtered_codes));
+    const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵnextContext"](3);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵadvance"](2);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵproperty"]("ngModel", ctx_r1.code_filter.getValue())("ngModelOptions", _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵpureFunction0"](5, _c3));
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵadvance"](3);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵproperty"]("ngForOf", _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵpipeBind1"](6, 3, ctx_r1.filtered_codes));
   }
 }
 function MeetingFlowFormComponent_form_5_section_29_mat_form_field_15_Template(rf, ctx) {
   if (rf & 1) {
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementStart"](0, "mat-form-field", 27);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵpipe"](1, "async");
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelement"](2, "textarea", 40);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementStart"](3, "mat-error");
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵtext"](4, " Catering Order notes are required ");
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementEnd"]()();
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementStart"](0, "mat-form-field", 28);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵpipe"](1, "async");
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelement"](2, "textarea", 42);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementStart"](3, "mat-error");
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵtext"](4, " Catering Order notes are required ");
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementEnd"]()();
   }
   if (rf & 2) {
-    const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵnextContext"](3);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵclassProp"]("mt-2", !_angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵpipeBind1"](1, 2, (ctx_r1.form.value.catering == null ? null : ctx_r1.form.value.catering.length) && ctx_r1.has_codes));
+    const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵnextContext"](3);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵclassProp"]("mt-2", !_angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵpipeBind1"](1, 2, (ctx_r1.form.value.catering == null ? null : ctx_r1.form.value.catering.length) && ctx_r1.has_codes));
   }
 }
 function MeetingFlowFormComponent_form_5_section_29_Template(rf, ctx) {
   if (rf & 1) {
-    const _r4 = _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵgetCurrentView"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementStart"](0, "section", 7)(1, "h3", 8)(2, "div", 9);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵtext"](3, " 4 ");
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementStart"](4, "div", 10);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵtext"](5);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵpipe"](6, "translate");
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelement"](7, "div", 11);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementStart"](8, "button", 30);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵlistener"]("click", function MeetingFlowFormComponent_form_5_section_29_Template_button_click_8_listener() {
-      _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵrestoreView"](_r4);
-      const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵnextContext"](2);
-      return _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵresetView"](ctx_r1.hide_block.catering = !ctx_r1.hide_block.catering);
+    const _r6 = _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵgetCurrentView"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementStart"](0, "section", 8)(1, "h3", 9)(2, "div", 10);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵtext"](3, " 4 ");
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementStart"](4, "div", 11);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵtext"](5);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵpipe"](6, "translate");
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelement"](7, "div", 12);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementStart"](8, "button", 34);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵlistener"]("click", function MeetingFlowFormComponent_form_5_section_29_Template_button_click_8_listener() {
+      _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵrestoreView"](_r6);
+      const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵnextContext"](2);
+      return _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵresetView"](ctx_r1.hide_block.catering = !ctx_r1.hide_block.catering);
     });
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementStart"](9, "app-icon");
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵtext"](10);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementEnd"]()()();
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementStart"](11, "div", 13);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelement"](12, "catering-list-field", 31);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵtemplate"](13, MeetingFlowFormComponent_form_5_section_29_mat_form_field_13_Template, 9, 6, "mat-form-field", 32);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵpipe"](14, "async");
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵtemplate"](15, MeetingFlowFormComponent_form_5_section_29_mat_form_field_15_Template, 5, 4, "mat-form-field", 33);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementEnd"]()();
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementStart"](9, "app-icon");
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵtext"](10);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementEnd"]()()();
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementStart"](11, "div", 14);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelement"](12, "catering-list-field", 35);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵtemplate"](13, MeetingFlowFormComponent_form_5_section_29_mat_form_field_13_Template, 9, 6, "mat-form-field", 36);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵpipe"](14, "async");
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵtemplate"](15, MeetingFlowFormComponent_form_5_section_29_mat_form_field_15_Template, 5, 4, "mat-form-field", 37);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementEnd"]()();
   }
   if (rf & 2) {
-    const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵnextContext"](2);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵadvance"](5);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵtextInterpolate1"](" ", _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵpipeBind1"](6, 6, "WPA.CATERING"), " ");
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵadvance"](5);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵtextInterpolate"](ctx_r1.hide_block.catering ? "expand_more" : "expand_less");
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵadvance"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵproperty"]("@show", ctx_r1.hide_block.catering ? "hide" : "show");
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵadvance"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵproperty"]("options", _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵpureFunction4"](10, _c2, ctx_r1.form.getRawValue().date, ctx_r1.form.value.duration, ctx_r1.form.value.all_day, (ctx_r1.form.value == null ? null : ctx_r1.form.value.resources == null ? null : ctx_r1.form.value.resources.length) ? ctx_r1.form.value == null ? null : ctx_r1.form.value.resources[0] == null ? null : ctx_r1.form.value.resources[0].level == null ? null : ctx_r1.form.value.resources[0].level.parent_id : ""));
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵadvance"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵproperty"]("ngIf", _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵpipeBind1"](14, 8, (ctx_r1.form.value.catering == null ? null : ctx_r1.form.value.catering.length) && ctx_r1.has_codes));
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵadvance"](2);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵproperty"]("ngIf", ctx_r1.form.value.catering == null ? null : ctx_r1.form.value.catering.length);
+    const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵnextContext"](2);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵadvance"](5);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵtextInterpolate1"](" ", _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵpipeBind1"](6, 6, "WPA.CATERING"), " ");
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵadvance"](5);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵtextInterpolate"](ctx_r1.hide_block.catering ? "expand_more" : "expand_less");
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵadvance"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵproperty"]("@show", ctx_r1.hide_block.catering ? "hide" : "show");
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵadvance"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵproperty"]("options", _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵpureFunction4"](10, _c2, ctx_r1.form.getRawValue().date, ctx_r1.form.value.duration, ctx_r1.form.value.all_day, (ctx_r1.form.value == null ? null : ctx_r1.form.value.resources == null ? null : ctx_r1.form.value.resources.length) ? ctx_r1.form.value == null ? null : ctx_r1.form.value.resources[0] == null ? null : ctx_r1.form.value.resources[0].level == null ? null : ctx_r1.form.value.resources[0].level.parent_id : ""));
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵadvance"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵproperty"]("ngIf", _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵpipeBind1"](14, 8, (ctx_r1.form.value.catering == null ? null : ctx_r1.form.value.catering.length) && ctx_r1.has_codes));
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵadvance"](2);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵproperty"]("ngIf", ctx_r1.form.value.catering == null ? null : ctx_r1.form.value.catering.length);
   }
 }
 function MeetingFlowFormComponent_form_5_section_31_Template(rf, ctx) {
   if (rf & 1) {
-    const _r7 = _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵgetCurrentView"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementStart"](0, "section", 7)(1, "h3", 8)(2, "div", 9);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵtext"](3);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵpipe"](4, "async");
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementStart"](5, "div", 10);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵtext"](6);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵpipe"](7, "translate");
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelement"](8, "div", 11);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementStart"](9, "button", 41);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵlistener"]("click", function MeetingFlowFormComponent_form_5_section_31_Template_button_click_9_listener() {
-      _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵrestoreView"](_r7);
-      const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵnextContext"](2);
-      return _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵresetView"](ctx_r1.hide_block.assets = !ctx_r1.hide_block.assets);
+    const _r9 = _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵgetCurrentView"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementStart"](0, "section", 8)(1, "h3", 9)(2, "div", 10);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵtext"](3);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵpipe"](4, "async");
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementStart"](5, "div", 11);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵtext"](6);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵpipe"](7, "translate");
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelement"](8, "div", 12);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementStart"](9, "button", 43);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵlistener"]("click", function MeetingFlowFormComponent_form_5_section_31_Template_button_click_9_listener() {
+      _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵrestoreView"](_r9);
+      const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵnextContext"](2);
+      return _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵresetView"](ctx_r1.hide_block.assets = !ctx_r1.hide_block.assets);
     });
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementStart"](10, "app-icon");
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵtext"](11);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementEnd"]()()();
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementStart"](12, "div", 13);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelement"](13, "asset-list-field", 42);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementEnd"]()();
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementStart"](10, "app-icon");
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵtext"](11);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementEnd"]()()();
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementStart"](12, "div", 14);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelement"](13, "asset-list-field", 44);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementEnd"]()();
   }
   if (rf & 2) {
-    const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵnextContext"](2);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵadvance"](3);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵtextInterpolate1"](" ", !_angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵpipeBind1"](4, 6, ctx_r1.has_catering) ? "4" : "5", " ");
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵadvance"](3);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵtextInterpolate1"](" ", _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵpipeBind1"](7, 8, "WPA.ASSETS"), " ");
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵadvance"](5);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵtextInterpolate"](ctx_r1.hide_block.assets ? "expand_more" : "expand_less");
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵadvance"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵproperty"]("@show", ctx_r1.hide_block.assets ? "hide" : "show");
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵadvance"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵproperty"]("options", _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵpureFunction4"](10, _c2, ctx_r1.form.getRawValue().date, ctx_r1.form.value.duration, ctx_r1.form.value.all_day, (ctx_r1.form.value == null ? null : ctx_r1.form.value.resources == null ? null : ctx_r1.form.value.resources.length) ? ctx_r1.form.value == null ? null : ctx_r1.form.value.resources[0] == null ? null : ctx_r1.form.value.resources[0].level == null ? null : ctx_r1.form.value.resources[0].level.parent_id : ""))("rejected_ids", ctx_r1.invalid_assets);
+    const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵnextContext"](2);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵadvance"](3);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵtextInterpolate1"](" ", !_angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵpipeBind1"](4, 6, ctx_r1.has_catering) ? "4" : "5", " ");
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵadvance"](3);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵtextInterpolate1"](" ", _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵpipeBind1"](7, 8, "WPA.ASSETS"), " ");
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵadvance"](5);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵtextInterpolate"](ctx_r1.hide_block.assets ? "expand_more" : "expand_less");
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵadvance"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵproperty"]("@show", ctx_r1.hide_block.assets ? "hide" : "show");
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵadvance"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵproperty"]("options", _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵpureFunction4"](10, _c2, ctx_r1.form.getRawValue().date, ctx_r1.form.value.duration, ctx_r1.form.value.all_day, (ctx_r1.form.value == null ? null : ctx_r1.form.value.resources == null ? null : ctx_r1.form.value.resources.length) ? ctx_r1.form.value == null ? null : ctx_r1.form.value.resources[0] == null ? null : ctx_r1.form.value.resources[0].level == null ? null : ctx_r1.form.value.resources[0].level.parent_id : ""))("rejected_ids", ctx_r1.invalid_assets);
   }
 }
 function MeetingFlowFormComponent_form_5_section_32_Template(rf, ctx) {
   if (rf & 1) {
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementStart"](0, "section", 7)(1, "h3", 43)(2, "div", 9);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵtext"](3);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵpipe"](4, "async");
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵpipe"](5, "async");
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementStart"](6, "div", 10);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵtext"](7);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵpipe"](8, "translate");
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementEnd"]()();
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementStart"](9, "div", 44)(10, "label", 45);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵtext"](11);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵpipe"](12, "translate");
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelement"](13, "rich-text-input", 46);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementEnd"]()();
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementStart"](0, "section", 8)(1, "h3", 45)(2, "div", 10);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵtext"](3);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵpipe"](4, "async");
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵpipe"](5, "async");
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementStart"](6, "div", 11);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵtext"](7);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵpipe"](8, "translate");
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementEnd"]()();
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementStart"](9, "div", 46)(10, "label", 47);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵtext"](11);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵpipe"](12, "translate");
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelement"](13, "rich-text-input", 48);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementEnd"]()();
   }
   if (rf & 2) {
-    const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵnextContext"](2);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵadvance"](3);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵtextInterpolate1"](" ", !_angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵpipeBind1"](4, 3, ctx_r1.has_catering) || !ctx_r1.has_assets ? !_angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵpipeBind1"](5, 5, ctx_r1.has_catering) && !ctx_r1.has_assets ? "4" : "5" : "6", " ");
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵadvance"](4);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵtextInterpolate1"](" ", _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵpipeBind1"](8, 7, "FORM.NOTES"), " ");
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵadvance"](4);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵtextInterpolate1"](" ", _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵpipeBind1"](12, 9, "WPA.NOTES_INFO"), " ");
+    const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵnextContext"](2);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵadvance"](3);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵtextInterpolate1"](" ", !_angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵpipeBind1"](4, 3, ctx_r1.has_catering) || !ctx_r1.has_assets ? !_angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵpipeBind1"](5, 5, ctx_r1.has_catering) && !ctx_r1.has_assets ? "4" : "5" : "6", " ");
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵadvance"](4);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵtextInterpolate1"](" ", _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵpipeBind1"](8, 7, "FORM.NOTES"), " ");
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵadvance"](4);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵtextInterpolate1"](" ", _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵpipeBind1"](12, 9, "WPA.NOTES_INFO"), " ");
   }
 }
 function MeetingFlowFormComponent_form_5_Template(rf, ctx) {
   if (rf & 1) {
-    const _r1 = _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵgetCurrentView"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementStart"](0, "form", 6)(1, "section", 7)(2, "h3", 8)(3, "div", 9);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵtext"](4, " 1 ");
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementStart"](5, "div", 10);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵtext"](6);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵpipe"](7, "translate");
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelement"](8, "div", 11);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementStart"](9, "button", 12);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵlistener"]("click", function MeetingFlowFormComponent_form_5_Template_button_click_9_listener() {
-      _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵrestoreView"](_r1);
-      const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵnextContext"]();
-      return _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵresetView"](ctx_r1.hide_block.details = !ctx_r1.hide_block.details);
+    const _r1 = _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵgetCurrentView"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementStart"](0, "form", 7)(1, "section", 8)(2, "h3", 9)(3, "div", 10);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵtext"](4, " 1 ");
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementStart"](5, "div", 11);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵtext"](6);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵpipe"](7, "translate");
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelement"](8, "div", 12);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementStart"](9, "button", 13);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵlistener"]("click", function MeetingFlowFormComponent_form_5_Template_button_click_9_listener() {
+      _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵrestoreView"](_r1);
+      const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵnextContext"]();
+      return _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵresetView"](ctx_r1.hide_block.details = !ctx_r1.hide_block.details);
     });
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementStart"](10, "app-icon");
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵtext"](11);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementEnd"]()()();
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementStart"](12, "div", 13);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelement"](13, "meeting-form-details", 14);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementEnd"]()();
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵtemplate"](14, MeetingFlowFormComponent_form_5_section_14_Template, 20, 10, "section", 15);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementStart"](15, "section", 7)(16, "h3", 8)(17, "div", 9);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵtext"](18, " 3 ");
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementStart"](19, "div", 10);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵtext"](20);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵpipe"](21, "translate");
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelement"](22, "div", 11);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementStart"](23, "button", 16);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵlistener"]("click", function MeetingFlowFormComponent_form_5_Template_button_click_23_listener() {
-      _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵrestoreView"](_r1);
-      const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵnextContext"]();
-      return _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵresetView"](ctx_r1.hide_block.resources = !ctx_r1.hide_block.resources);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementStart"](10, "app-icon");
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵtext"](11);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementEnd"]()()();
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementStart"](12, "div", 14);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelement"](13, "meeting-form-details", 15);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementEnd"]()();
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵtemplate"](14, MeetingFlowFormComponent_form_5_section_14_Template, 24, 14, "section", 16);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementStart"](15, "section", 8)(16, "h3", 9)(17, "div", 10);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵtext"](18, " 3 ");
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementStart"](19, "div", 11);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵtext"](20);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵpipe"](21, "translate");
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelement"](22, "div", 12);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementStart"](23, "button", 17);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵlistener"]("click", function MeetingFlowFormComponent_form_5_Template_button_click_23_listener() {
+      _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵrestoreView"](_r1);
+      const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵnextContext"]();
+      return _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵresetView"](ctx_r1.hide_block.resources = !ctx_r1.hide_block.resources);
     });
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementStart"](24, "app-icon");
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵtext"](25);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementEnd"]()()();
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementStart"](26, "div", 17);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵtemplate"](27, MeetingFlowFormComponent_form_5_div_27_Template, 2, 0, "div", 18);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelement"](28, "space-list-field", 19);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementEnd"]()();
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵtemplate"](29, MeetingFlowFormComponent_form_5_section_29_Template, 16, 15, "section", 15);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵpipe"](30, "async");
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵtemplate"](31, MeetingFlowFormComponent_form_5_section_31_Template, 14, 15, "section", 15)(32, MeetingFlowFormComponent_form_5_section_32_Template, 14, 11, "section", 15);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementStart"](33, "section", 20)(34, "button", 21);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵlistener"]("click", function MeetingFlowFormComponent_form_5_Template_button_click_34_listener() {
-      _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵrestoreView"](_r1);
-      const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵnextContext"]();
-      return _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵresetView"](ctx_r1.viewConfirm());
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementStart"](24, "app-icon");
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵtext"](25);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementEnd"]()()();
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementStart"](26, "div", 18);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵtemplate"](27, MeetingFlowFormComponent_form_5_div_27_Template, 2, 0, "div", 19);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelement"](28, "space-list-field", 20);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementEnd"]()();
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵtemplate"](29, MeetingFlowFormComponent_form_5_section_29_Template, 16, 15, "section", 16);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵpipe"](30, "async");
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵtemplate"](31, MeetingFlowFormComponent_form_5_section_31_Template, 14, 15, "section", 16)(32, MeetingFlowFormComponent_form_5_section_32_Template, 14, 11, "section", 16);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementStart"](33, "section", 21)(34, "button", 22);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵlistener"]("click", function MeetingFlowFormComponent_form_5_Template_button_click_34_listener() {
+      _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵrestoreView"](_r1);
+      const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵnextContext"]();
+      return _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵresetView"](ctx_r1.viewConfirm());
     });
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵtext"](35);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵpipe"](36, "translate");
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementStart"](37, "button", 22);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵlistener"]("click", function MeetingFlowFormComponent_form_5_Template_button_click_37_listener() {
-      _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵrestoreView"](_r1);
-      const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵnextContext"]();
-      return _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵresetView"](ctx_r1.clearForm());
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵtext"](35);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵpipe"](36, "translate");
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementStart"](37, "button", 23);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵlistener"]("click", function MeetingFlowFormComponent_form_5_Template_button_click_37_listener() {
+      _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵrestoreView"](_r1);
+      const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵnextContext"]();
+      return _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵresetView"](ctx_r1.clearForm());
     });
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵtext"](38, " ");
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵi18n"](39, 1);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵtext"](40);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵpipe"](41, "translate");
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementEnd"]()()();
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵtext"](38, " ");
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵi18n"](39, 2);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵtext"](40);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵpipe"](41, "translate");
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementEnd"]()()();
   }
   if (rf & 2) {
-    const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵnextContext"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵproperty"]("formGroup", ctx_r1.form);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵadvance"](6);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵtextInterpolate1"](" ", _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵpipeBind1"](7, 17, "WPA.DETAILS"), " ");
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵadvance"](5);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵtextInterpolate"](ctx_r1.hide_block.details ? "expand_more" : "expand_less");
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵadvance"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵproperty"]("@show", ctx_r1.hide_block.details ? "hide" : "show");
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵadvance"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵproperty"]("form", ctx_r1.form);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵadvance"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵproperty"]("ngIf", !ctx_r1.hide_attendees);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵadvance"](6);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵtextInterpolate1"](" ", _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵpipeBind1"](21, 19, "WPA.ROOM"), " ");
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵadvance"](5);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵtextInterpolate"](ctx_r1.hide_block.resources ? "expand_more" : "expand_less");
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵadvance"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵproperty"]("@show", ctx_r1.hide_block.resources ? "hide" : "show");
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵadvance"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵproperty"]("ngIf", !ctx_r1.strict_capacity_check && ctx_r1.total_capacity && ctx_r1.total_capacity <= (ctx_r1.form.value.attendees == null ? null : ctx_r1.form.value.attendees.length));
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵadvance"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵproperty"]("multiday", ctx_r1.allow_multiday);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵadvance"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵproperty"]("ngIf", _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵpipeBind1"](30, 21, ctx_r1.has_catering));
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵadvance"](2);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵproperty"]("ngIf", ctx_r1.has_assets);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵadvance"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵproperty"]("ngIf", !ctx_r1.hide_notes);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵadvance"](3);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵtextInterpolate1"](" ", _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵpipeBind1"](36, 23, "WPA.CONFIRM_MEETING"), " ");
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵadvance"](4);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵi18nExp"](!!ctx_r1.form.value.id);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵi18nApply"](39);
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵadvance"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵtextInterpolate1"](" ", _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵpipeBind1"](41, 25, "WPA.CLEAR_FORM"), " ");
+    const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵnextContext"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵproperty"]("formGroup", ctx_r1.form);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵadvance"](6);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵtextInterpolate1"](" ", _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵpipeBind1"](7, 17, "WPA.DETAILS"), " ");
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵadvance"](5);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵtextInterpolate"](ctx_r1.hide_block.details ? "expand_more" : "expand_less");
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵadvance"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵproperty"]("@show", ctx_r1.hide_block.details ? "hide" : "show");
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵadvance"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵproperty"]("form", ctx_r1.form);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵadvance"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵproperty"]("ngIf", !ctx_r1.hide_attendees);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵadvance"](6);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵtextInterpolate1"](" ", _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵpipeBind1"](21, 19, "WPA.ROOM"), " ");
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵadvance"](5);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵtextInterpolate"](ctx_r1.hide_block.resources ? "expand_more" : "expand_less");
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵadvance"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵproperty"]("@show", ctx_r1.hide_block.resources ? "hide" : "show");
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵadvance"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵproperty"]("ngIf", !ctx_r1.strict_capacity_check && ctx_r1.total_capacity && ctx_r1.total_capacity <= (ctx_r1.form.value.attendees == null ? null : ctx_r1.form.value.attendees.length));
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵadvance"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵproperty"]("multiday", ctx_r1.allow_multiday);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵadvance"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵproperty"]("ngIf", _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵpipeBind1"](30, 21, ctx_r1.has_catering));
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵadvance"](2);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵproperty"]("ngIf", ctx_r1.has_assets);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵadvance"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵproperty"]("ngIf", !ctx_r1.hide_notes);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵadvance"](3);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵtextInterpolate1"](" ", _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵpipeBind1"](36, 23, "WPA.CONFIRM_MEETING"), " ");
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵadvance"](4);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵi18nExp"](!!ctx_r1.form.value.id);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵi18nApply"](39);
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵadvance"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵtextInterpolate1"](" ", _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵpipeBind1"](41, 25, "WPA.CLEAR_FORM"), " ");
   }
 }
 class MeetingFlowFormComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_1__.AsyncHandler {
@@ -5045,19 +5074,24 @@ class MeetingFlowFormComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_
     this._org = _org;
     this._idle = _idle;
     this.hide_block = {};
-    this.code_filter = new rxjs__WEBPACK_IMPORTED_MODULE_17__.BehaviorSubject('');
+    this.code_filter = new rxjs__WEBPACK_IMPORTED_MODULE_18__.BehaviorSubject('');
     this.invalid_assets = [];
-    this.has_catering = this._catering.available_menu.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_18__.map)(l => l.length > 0));
-    this.has_codes = this._catering.charge_codes.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_18__.map)(l => l.length > 0), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_19__.tap)(has_codes => {
+    this._visitor_entity = new rxjs__WEBPACK_IMPORTED_MODULE_18__.BehaviorSubject('');
+    this.host_entity_list = this._org.initialised.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_19__.filter)(_ => !!_), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_20__.switchMap)(_ => (0,_placeos_ts_client__WEBPACK_IMPORTED_MODULE_9__.showMetadata)(this._org.organisation.id, 'entities').pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_21__.catchError)(() => (0,rxjs__WEBPACK_IMPORTED_MODULE_22__.of)({
+      details: []
+    })))), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_23__.map)(_ => _.details instanceof Array ? _.details : []), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_24__.shareReplay)(1));
+    this.filtered_entities = (0,rxjs__WEBPACK_IMPORTED_MODULE_25__.combineLatest)([this.host_entity_list, this._visitor_entity]).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_23__.map)(([list, entity]) => entity ? list.filter(_ => _.toLowerCase().includes(entity.toLowerCase())) : list));
+    this.has_catering = this._catering.available_menu.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_23__.map)(l => l.length > 0));
+    this.has_codes = this._catering.charge_codes.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_23__.map)(l => l.length > 0), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_26__.tap)(has_codes => {
       if (!has_codes) {
         this.form.get('catering_charge_code').setValidators([]);
         this.form.updateValueAndValidity();
       }
     }));
-    this.filtered_codes = (0,rxjs__WEBPACK_IMPORTED_MODULE_20__.combineLatest)([this.code_filter, this._catering.charge_codes]).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_18__.map)(([s, l]) => l.filter(_ => _.toLowerCase().includes(s.toLowerCase()))));
-    this._space_list = new rxjs__WEBPACK_IMPORTED_MODULE_17__.BehaviorSubject([]);
-    this._assets_available = this._space_list.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_21__.debounceTime)(300), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_22__.switchMap)(space_list => {
-      if (!space_list?.length) return (0,rxjs__WEBPACK_IMPORTED_MODULE_23__.of)(false);
+    this.filtered_codes = (0,rxjs__WEBPACK_IMPORTED_MODULE_25__.combineLatest)([this.code_filter, this._catering.charge_codes]).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_23__.map)(([s, l]) => l.filter(_ => _.toLowerCase().includes(s.toLowerCase()))));
+    this._space_list = new rxjs__WEBPACK_IMPORTED_MODULE_18__.BehaviorSubject([]);
+    this._assets_available = this._space_list.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_27__.debounceTime)(300), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_20__.switchMap)(space_list => {
+      if (!space_list?.length) return (0,rxjs__WEBPACK_IMPORTED_MODULE_22__.of)(false);
       const value = this.form.getRawValue();
       this._assets.setOptions({
         date: value.date,
@@ -5067,7 +5101,7 @@ class MeetingFlowFormComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_
         tags: [],
         categories: []
       });
-      return (0,rxjs__WEBPACK_IMPORTED_MODULE_20__.combineLatest)([this._assets.filtered_assets, this._assets.disabled_rooms]).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_18__.map)(([items, disabled_rooms]) => {
+      return (0,rxjs__WEBPACK_IMPORTED_MODULE_25__.combineLatest)([this._assets.filtered_assets, this._assets.disabled_rooms]).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_23__.map)(([items, disabled_rooms]) => {
         const assets_available = space_list.every(s => items.filter(_ => !_.hide_for_zones?.find(z => s.zones.includes(z))).length > 0);
         if (assets_available && !disabled_rooms.find(_ => space_list.find(i => i.id === _))) return true;
         const event = this._state.event;
@@ -5087,8 +5121,8 @@ class MeetingFlowFormComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_
         return false;
       }));
     }));
-    this._catering_available = (0,rxjs__WEBPACK_IMPORTED_MODULE_20__.combineLatest)([this._space_list, this.has_catering]).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_21__.debounceTime)(300), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_22__.switchMap)(([space_list, has_catering]) => {
-      if (!space_list?.length || !has_catering) return (0,rxjs__WEBPACK_IMPORTED_MODULE_23__.of)(false);
+    this._catering_available = (0,rxjs__WEBPACK_IMPORTED_MODULE_25__.combineLatest)([this._space_list, this.has_catering]).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_27__.debounceTime)(300), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_20__.switchMap)(([space_list, has_catering]) => {
+      if (!space_list?.length || !has_catering) return (0,rxjs__WEBPACK_IMPORTED_MODULE_22__.of)(false);
       const value = this.form.getRawValue();
       this._catering.setFilters({
         search: '',
@@ -5099,7 +5133,7 @@ class MeetingFlowFormComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_
         tags: [],
         categories: []
       });
-      return (0,rxjs__WEBPACK_IMPORTED_MODULE_20__.combineLatest)([this._catering.filtered_menu, this._catering.availability]).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_18__.map)(([menu, disabled_rooms]) => {
+      return (0,rxjs__WEBPACK_IMPORTED_MODULE_25__.combineLatest)([this._catering.filtered_menu, this._catering.availability]).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_23__.map)(([menu, disabled_rooms]) => {
         const can_cater = space_list.every(s => menu.filter(_ => !_.hide_for_zones.find(z => s.zones.includes(z))).length > 0);
         if (can_cater && !disabled_rooms.find(_ => space_list.find(i => i.id === _))) return true;
         const event = this._state.event;
@@ -5164,7 +5198,7 @@ class MeetingFlowFormComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_
   ngOnInit() {
     var _this = this;
     return (0,_home_runner_work_user_interfaces_user_interfaces_node_modules_babel_runtime_helpers_esm_asyncToGenerator_js__WEBPACK_IMPORTED_MODULE_0__["default"])(function* () {
-      yield _this._org.initialised.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_24__.first)(_ => _)).toPromise();
+      yield _this._org.initialised.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_28__.first)(_ => _)).toPromise();
       _this.subscription('asset_changes', _this.form.controls.assets.valueChanges.subscribe(() => _this._updateValidAssets()));
       for (const key of ['resources', 'date', 'duration', 'date_end']) {
         _this.subscription(`${key}_changes`, _this.form.controls[key].valueChanges.subscribe(() => _this.timeout('check_resources', () => _this._space_list.next(_this.form.value.resources || []))));
@@ -5226,23 +5260,23 @@ class MeetingFlowFormComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_
     });
   }
   static #_ = this.ɵfac = function MeetingFlowFormComponent_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || MeetingFlowFormComponent)(_angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵdirectiveInject"](_placeos_events__WEBPACK_IMPORTED_MODULE_2__.EventFormService), _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵdirectiveInject"](libs_catering_src_lib_catering_order_modal_catering_order_state_service__WEBPACK_IMPORTED_MODULE_5__.CateringOrderStateService), _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵdirectiveInject"](libs_assets_src_lib_asset_state_service__WEBPACK_IMPORTED_MODULE_8__.AssetStateService), _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵdirectiveInject"](_placeos_common__WEBPACK_IMPORTED_MODULE_1__.SettingsService), _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵdirectiveInject"](_angular_router__WEBPACK_IMPORTED_MODULE_25__.Router), _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵdirectiveInject"](_angular_material_dialog__WEBPACK_IMPORTED_MODULE_26__.MatDialog), _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵdirectiveInject"](_angular_material_bottom_sheet__WEBPACK_IMPORTED_MODULE_27__.MatBottomSheet), _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵdirectiveInject"](_placeos_organisation__WEBPACK_IMPORTED_MODULE_3__.OrganisationService), _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵdirectiveInject"](_placeos_common__WEBPACK_IMPORTED_MODULE_1__.UserIdleTimeService));
+    return new (__ngFactoryType__ || MeetingFlowFormComponent)(_angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵdirectiveInject"](_placeos_events__WEBPACK_IMPORTED_MODULE_2__.EventFormService), _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵdirectiveInject"](libs_catering_src_lib_catering_order_modal_catering_order_state_service__WEBPACK_IMPORTED_MODULE_5__.CateringOrderStateService), _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵdirectiveInject"](libs_assets_src_lib_asset_state_service__WEBPACK_IMPORTED_MODULE_8__.AssetStateService), _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵdirectiveInject"](_placeos_common__WEBPACK_IMPORTED_MODULE_1__.SettingsService), _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵdirectiveInject"](_angular_router__WEBPACK_IMPORTED_MODULE_29__.Router), _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵdirectiveInject"](_angular_material_dialog__WEBPACK_IMPORTED_MODULE_30__.MatDialog), _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵdirectiveInject"](_angular_material_bottom_sheet__WEBPACK_IMPORTED_MODULE_31__.MatBottomSheet), _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵdirectiveInject"](_placeos_organisation__WEBPACK_IMPORTED_MODULE_3__.OrganisationService), _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵdirectiveInject"](_placeos_common__WEBPACK_IMPORTED_MODULE_1__.UserIdleTimeService));
   };
-  static #_2 = this.ɵcmp = /*@__PURE__*/_angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵdefineComponent"]({
+  static #_2 = this.ɵcmp = /*@__PURE__*/_angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵdefineComponent"]({
     type: MeetingFlowFormComponent,
     selectors: [["meeting-flow-form"]],
     viewQuery: function MeetingFlowFormComponent_Query(rf, ctx) {
       if (rf & 1) {
-        _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵviewQuery"](_c0, 5);
-        _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵviewQuery"](_c1, 5);
+        _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵviewQuery"](_c0, 5);
+        _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵviewQuery"](_c1, 5);
       }
       if (rf & 2) {
         let _t;
-        _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵqueryRefresh"](_t = _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵloadQuery"]()) && (ctx._confirm_ref = _t.first);
-        _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵqueryRefresh"](_t = _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵloadQuery"]()) && (ctx._input_el = _t.first);
+        _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵqueryRefresh"](_t = _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵloadQuery"]()) && (ctx._confirm_ref = _t.first);
+        _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵqueryRefresh"](_t = _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵloadQuery"]()) && (ctx._input_el = _t.first);
       }
     },
-    features: [_angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵInheritDefinitionFeature"]],
+    features: [_angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵInheritDefinitionFeature"]],
     decls: 6,
     vars: 5,
     consts: () => {
@@ -5256,28 +5290,28 @@ class MeetingFlowFormComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_
       } else {
         i18n_0 = $localize`:␟adb791738bde3c32e5011447096fb4a66ce91787␟1405384778004392663:{VAR_SELECT, select, true {Reset } false {Clear }}`;
       }
-      i18n_0 = _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵi18nPostprocess"](i18n_0, {
+      i18n_0 = _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵi18nPostprocess"](i18n_0, {
         "VAR_SELECT": "\uFFFD0\uFFFD"
       });
-      return [["input", ""], i18n_0, [1, "h-full", "w-full", "bg-base-200", "overflow-auto"], [1, "max-w-full", "w-[48rem]", "mx-auto", "sm:my-4", "bg-base-100", "border", "border-base-300"], [1, "w-full", "p-4", "sm:py-4", "sm:px-16", "text-2xl", "font-medium", "border-b", "border-base-300"], ["class", "p-0 sm:py-4 sm:px-16 divide-y divide-base-200 space-y-2", 3, "formGroup", 4, "ngIf"], [1, "p-0", "sm:py-4", "sm:px-16", "divide-y", "divide-base-200", "space-y-2", 3, "formGroup"], [1, "p-2"], [1, "space-x-2", "flex", "items-center"], [1, "bg-base-200", "rounded-full", "h-6", "w-6", "flex", "items-center", "justify-center"], [1, "text-xl"], [1, "flex-1", "w-px"], ["icon", "", "name", "toggle-details-meeting", "matRipple", "", 3, "click"], [1, "overflow-hidden"], [1, "mt-4", 3, "form"], ["class", "p-2", 4, "ngIf"], ["icon", "", "name", "toggle-spaces-meeting", "matRipple", "", 3, "click"], [1, "overflow-hidden", "flex", "flex-col", "items-center"], ["class", "bg-warning text-warning-content rounded shadow p-2 text-xs mx-auto my-2 inline-flex", 4, "ngIf"], ["formControlName", "resources", 1, "w-full", 3, "multiday"], [1, "flex", "flex-col", "sm:flex-row", "items-center", "sm:space-x-2", "p-2"], ["btn", "", "name", "open-meeting-confirm", "matRipple", "", "confirm", "", 1, "mb-2", "sm:mb-0", "w-full", "sm:w-auto", 3, "click"], ["btn", "", "name", "clear-form-meeting", "matRipple", "", "clear-form", "", 1, "inverse", "w-full", "sm:w-auto", 3, "click"], ["matRipple", "", "name", "find-attendee-availability", 1, "bg-none", "underline", "text-xs", "text-info", 3, "click"], ["icon", "", "name", "toggle-attendees-meeting", "matRipple", "", 3, "click"], ["formControlName", "attendees", 1, "mt-4", 3, "time", "guests"], ["for", "visitor_entity"], ["appearance", "outline", 1, "w-full"], ["matInput", "", "name", "visitor_entity", "formControlName", "visitor_entity", "placeholder", "Organisational Entity of the Visior"], [1, "bg-warning", "text-warning-content", "rounded", "shadow", "p-2", "text-xs", "mx-auto", "my-2", "inline-flex"], ["icon", "", "name", "toggle-catering-meeting", "matRipple", "", 3, "click"], ["formControlName", "catering", 3, "options"], ["appearance", "outline", "class", "w-full mt-2", 3, "openedChange", 4, "ngIf"], ["appearance", "outline", "class", "w-full", 3, "mt-2", 4, "ngIf"], ["appearance", "outline", 1, "w-full", "mt-2", 3, "openedChange"], ["formControlName", "catering_charge_code", "placeholder", "Charge Code"], ["placeholder", "Search charge codes...", 1, "sticky", "top-0", "bg-base-100", "px-4", "py-3", "text-base", "border-x-0", "border-t-0", "border-b", "focus:border-b", "border-base-200", "w-full", "rounded-none", "z-50", 3, "ngModelChange", "ngModel", "ngModelOptions"], [1, "hidden"], [3, "value", 4, "ngFor", "ngForOf"], [3, "value"], ["matInput", "", "formControlName", "catering_notes", "placeholder", "Extra catering details..."], ["icon", "", "name", "toggle-assets-meeting", "matRipple", "", 3, "click"], ["formControlName", "assets", 3, "options", "rejected_ids"], [1, "space-x-2", "flex", "items-center", "mb-4"], [1, "w-full", "flex", "flex-col"], ["for", "notes"], ["name", "notes", "formControlName", "body", "placeholder", "Notes..."]];
+      return [["auto", "matAutocomplete"], ["input", ""], i18n_0, [1, "h-full", "w-full", "bg-base-200", "overflow-auto"], [1, "max-w-full", "w-[48rem]", "mx-auto", "sm:my-4", "bg-base-100", "border", "border-base-300"], [1, "w-full", "p-4", "sm:py-4", "sm:px-16", "text-2xl", "font-medium", "border-b", "border-base-300"], ["class", "p-0 sm:py-4 sm:px-16 divide-y divide-base-200 space-y-2", 3, "formGroup", 4, "ngIf"], [1, "p-0", "sm:py-4", "sm:px-16", "divide-y", "divide-base-200", "space-y-2", 3, "formGroup"], [1, "p-2"], [1, "space-x-2", "flex", "items-center"], [1, "bg-base-200", "rounded-full", "h-6", "w-6", "flex", "items-center", "justify-center"], [1, "text-xl"], [1, "flex-1", "w-px"], ["icon", "", "name", "toggle-details-meeting", "matRipple", "", 3, "click"], [1, "overflow-hidden"], [1, "mt-4", 3, "form"], ["class", "p-2", 4, "ngIf"], ["icon", "", "name", "toggle-spaces-meeting", "matRipple", "", 3, "click"], [1, "overflow-hidden", "flex", "flex-col", "items-center"], ["class", "bg-warning text-warning-content rounded shadow p-2 text-xs mx-auto my-2 inline-flex", 4, "ngIf"], ["formControlName", "resources", 1, "w-full", 3, "multiday"], [1, "flex", "flex-col", "sm:flex-row", "items-center", "sm:space-x-2", "p-2"], ["btn", "", "name", "open-meeting-confirm", "matRipple", "", "confirm", "", 1, "mb-2", "sm:mb-0", "w-full", "sm:w-auto", 3, "click"], ["btn", "", "name", "clear-form-meeting", "matRipple", "", "clear-form", "", 1, "inverse", "w-full", "sm:w-auto", 3, "click"], ["matRipple", "", "name", "find-attendee-availability", 1, "bg-none", "underline", "text-xs", "text-info", 3, "click"], ["icon", "", "name", "toggle-attendees-meeting", "matRipple", "", 3, "click"], ["formControlName", "attendees", 1, "mt-4", 3, "time", "guests"], ["for", "visitor_entity"], ["appearance", "outline", 1, "w-full"], ["matInput", "", "name", "visitor_entity", "formControlName", "visitor_entity", "placeholder", "Organisational Entity of the Host", 3, "matAutocomplete"], [1, "w-full"], [3, "value", 4, "ngFor", "ngForOf"], [3, "value"], [1, "bg-warning", "text-warning-content", "rounded", "shadow", "p-2", "text-xs", "mx-auto", "my-2", "inline-flex"], ["icon", "", "name", "toggle-catering-meeting", "matRipple", "", 3, "click"], ["formControlName", "catering", 3, "options"], ["appearance", "outline", "class", "w-full mt-2", 3, "openedChange", 4, "ngIf"], ["appearance", "outline", "class", "w-full", 3, "mt-2", 4, "ngIf"], ["appearance", "outline", 1, "w-full", "mt-2", 3, "openedChange"], ["formControlName", "catering_charge_code", "placeholder", "Charge Code"], ["placeholder", "Search charge codes...", 1, "sticky", "top-0", "bg-base-100", "px-4", "py-3", "text-base", "border-x-0", "border-t-0", "border-b", "focus:border-b", "border-base-200", "w-full", "rounded-none", "z-50", 3, "ngModelChange", "ngModel", "ngModelOptions"], [1, "hidden"], ["matInput", "", "formControlName", "catering_notes", "placeholder", "Extra catering details..."], ["icon", "", "name", "toggle-assets-meeting", "matRipple", "", 3, "click"], ["formControlName", "assets", 3, "options", "rejected_ids"], [1, "space-x-2", "flex", "items-center", "mb-4"], [1, "w-full", "flex", "flex-col"], ["for", "notes"], ["name", "notes", "formControlName", "body", "placeholder", "Notes..."]];
     },
     template: function MeetingFlowFormComponent_Template(rf, ctx) {
       if (rf & 1) {
-        _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementStart"](0, "div", 2)(1, "div", 3)(2, "h2", 4);
-        _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵtext"](3);
-        _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵpipe"](4, "translate");
-        _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementEnd"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵtemplate"](5, MeetingFlowFormComponent_form_5_Template, 42, 27, "form", 5);
-        _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵelementEnd"]()();
+        _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementStart"](0, "div", 3)(1, "div", 4)(2, "h2", 5);
+        _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵtext"](3);
+        _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵpipe"](4, "translate");
+        _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵtemplate"](5, MeetingFlowFormComponent_form_5_Template, 42, 27, "form", 6);
+        _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵelementEnd"]()();
       }
       if (rf & 2) {
-        _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵadvance"](3);
-        _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵtextInterpolate2"](" ", !!ctx.form.value.id ? "Edit" : "Book", " ", _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵpipeBind1"](4, 3, "WPA.BOOK_MEETING_HEADING"), " ");
-        _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵadvance"](2);
-        _angular_core__WEBPACK_IMPORTED_MODULE_16__["ɵɵproperty"]("ngIf", ctx.form);
+        _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵadvance"](3);
+        _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵtextInterpolate2"](" ", !!ctx.form.value.id ? "Edit" : "Book", " ", _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵpipeBind1"](4, 3, "WPA.BOOK_MEETING_HEADING"), " ");
+        _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵadvance"](2);
+        _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵproperty"]("ngIf", ctx.form);
       }
     },
-    dependencies: [_angular_common__WEBPACK_IMPORTED_MODULE_28__.NgForOf, _angular_common__WEBPACK_IMPORTED_MODULE_28__.NgIf, _libs_components_src_lib_icon_component__WEBPACK_IMPORTED_MODULE_9__.IconComponent, _angular_material_core__WEBPACK_IMPORTED_MODULE_29__.MatOption, _angular_material_form_field__WEBPACK_IMPORTED_MODULE_30__.MatFormField, _angular_material_form_field__WEBPACK_IMPORTED_MODULE_30__.MatError, _angular_material_select__WEBPACK_IMPORTED_MODULE_31__.MatSelect, _angular_material_core__WEBPACK_IMPORTED_MODULE_29__.MatRipple, _angular_material_input__WEBPACK_IMPORTED_MODULE_32__.MatInput, _libs_form_fields_src_lib_user_list_field_component__WEBPACK_IMPORTED_MODULE_10__.UserListFieldComponent, _libs_form_fields_src_lib_space_list_field_component__WEBPACK_IMPORTED_MODULE_11__.SpaceListFieldComponent, _libs_form_fields_src_lib_rich_text_input_component__WEBPACK_IMPORTED_MODULE_12__.RichTextInputComponent, _libs_assets_src_lib_asset_list_field_component__WEBPACK_IMPORTED_MODULE_13__.AssetListFieldComponent, _angular_forms__WEBPACK_IMPORTED_MODULE_33__["ɵNgNoValidate"], _angular_forms__WEBPACK_IMPORTED_MODULE_33__.DefaultValueAccessor, _angular_forms__WEBPACK_IMPORTED_MODULE_33__.NgControlStatus, _angular_forms__WEBPACK_IMPORTED_MODULE_33__.NgControlStatusGroup, _angular_forms__WEBPACK_IMPORTED_MODULE_33__.NgModel, _libs_catering_src_lib_catering_list_field_component__WEBPACK_IMPORTED_MODULE_14__.CateringListFieldComponent, _angular_forms__WEBPACK_IMPORTED_MODULE_33__.FormGroupDirective, _angular_forms__WEBPACK_IMPORTED_MODULE_33__.FormControlName, _meeting_form_details_component__WEBPACK_IMPORTED_MODULE_15__.MeetingFormDetailsComponent, _angular_common__WEBPACK_IMPORTED_MODULE_28__.AsyncPipe, _ngx_translate_core__WEBPACK_IMPORTED_MODULE_34__.TranslatePipe],
+    dependencies: [_angular_common__WEBPACK_IMPORTED_MODULE_32__.NgForOf, _angular_common__WEBPACK_IMPORTED_MODULE_32__.NgIf, _libs_components_src_lib_icon_component__WEBPACK_IMPORTED_MODULE_10__.IconComponent, _angular_material_autocomplete__WEBPACK_IMPORTED_MODULE_33__.MatAutocomplete, _angular_material_core__WEBPACK_IMPORTED_MODULE_34__.MatOption, _angular_material_autocomplete__WEBPACK_IMPORTED_MODULE_33__.MatAutocompleteTrigger, _angular_material_form_field__WEBPACK_IMPORTED_MODULE_35__.MatFormField, _angular_material_form_field__WEBPACK_IMPORTED_MODULE_35__.MatError, _angular_material_select__WEBPACK_IMPORTED_MODULE_36__.MatSelect, _angular_material_core__WEBPACK_IMPORTED_MODULE_34__.MatRipple, _angular_material_input__WEBPACK_IMPORTED_MODULE_37__.MatInput, _libs_form_fields_src_lib_user_list_field_component__WEBPACK_IMPORTED_MODULE_11__.UserListFieldComponent, _libs_form_fields_src_lib_space_list_field_component__WEBPACK_IMPORTED_MODULE_12__.SpaceListFieldComponent, _libs_form_fields_src_lib_rich_text_input_component__WEBPACK_IMPORTED_MODULE_13__.RichTextInputComponent, _libs_assets_src_lib_asset_list_field_component__WEBPACK_IMPORTED_MODULE_14__.AssetListFieldComponent, _angular_forms__WEBPACK_IMPORTED_MODULE_38__["ɵNgNoValidate"], _angular_forms__WEBPACK_IMPORTED_MODULE_38__.DefaultValueAccessor, _angular_forms__WEBPACK_IMPORTED_MODULE_38__.NgControlStatus, _angular_forms__WEBPACK_IMPORTED_MODULE_38__.NgControlStatusGroup, _angular_forms__WEBPACK_IMPORTED_MODULE_38__.NgModel, _libs_catering_src_lib_catering_list_field_component__WEBPACK_IMPORTED_MODULE_15__.CateringListFieldComponent, _angular_forms__WEBPACK_IMPORTED_MODULE_38__.FormGroupDirective, _angular_forms__WEBPACK_IMPORTED_MODULE_38__.FormControlName, _meeting_form_details_component__WEBPACK_IMPORTED_MODULE_16__.MeetingFormDetailsComponent, _angular_common__WEBPACK_IMPORTED_MODULE_32__.AsyncPipe, _ngx_translate_core__WEBPACK_IMPORTED_MODULE_39__.TranslatePipe],
     encapsulation: 2,
     data: {
       animation: [_placeos_common__WEBPACK_IMPORTED_MODULE_1__.ANIMATION_SHOW_CONTRACT_EXPAND]
@@ -5998,7 +6032,7 @@ class MeetingFormDetailsComponent extends _placeos_common__WEBPACK_IMPORTED_MODU
     this._settings = _settings;
     this._event_form = _event_form;
     this._org = _org;
-    this.host_entity_list = this._org.initialised.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_16__.filter)(_ => !!_), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_17__.switchMap)(_ => (0,_placeos_ts_client__WEBPACK_IMPORTED_MODULE_2__.showMetadata)(this._org.organisation.id, 'host_entities').pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_18__.catchError)(() => (0,rxjs__WEBPACK_IMPORTED_MODULE_19__.of)({
+    this.host_entity_list = this._org.initialised.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_16__.filter)(_ => !!_), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_17__.switchMap)(_ => (0,_placeos_ts_client__WEBPACK_IMPORTED_MODULE_2__.showMetadata)(this._org.organisation.id, 'entities').pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_18__.catchError)(() => (0,rxjs__WEBPACK_IMPORTED_MODULE_19__.of)({
       details: []
     })))), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_20__.map)(_ => _.details instanceof Array ? _.details : []), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_21__.shareReplay)(1));
     this._host_entity = new rxjs__WEBPACK_IMPORTED_MODULE_22__.BehaviorSubject('');
