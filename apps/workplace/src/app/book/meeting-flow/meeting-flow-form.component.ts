@@ -790,6 +790,15 @@ export class MeetingFlowFormComponent extends AsyncHandler {
             () => this._updateValidAssets(),
             1000,
         );
+        this.subscription(
+            'visitor_entity_change',
+            this.form.valueChanges.subscribe(() =>
+                this._visitor_entity.next(
+                    this.form.getRawValue().visitor_entity,
+                ),
+            ),
+        );
+        this._visitor_entity.next(this.form.getRawValue().visitor_entity);
     }
 
     public focusInput() {
