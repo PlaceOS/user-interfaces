@@ -2,7 +2,7 @@ import { Component, Input, SimpleChanges, ViewChild } from '@angular/core';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { SignageStateService } from './signage-state.service';
-import { SignageMedia } from '@placeos/ts-client';
+import { listSignagePlaylistMedia, SignageMedia } from '@placeos/ts-client';
 import { CdkDropList } from '@angular/cdk/drag-drop';
 import { getUnixTime, startOfMinute } from 'date-fns';
 
@@ -116,6 +116,45 @@ import { getUnixTime, startOfMinute } from 'date-fns';
                             >
                                 <app-icon>more_vert</app-icon>
                             </button>
+                            <mat-menu #playlist_menu="matMenu">
+                                <div class="px-2">
+                                    <mat-form-field
+                                        appearance="outline"
+                                        class="w-full no-subscript"
+                                        (click)="$event.stopPropagation()"
+                                    >
+                                        <input
+                                            matInput
+                                            placeholder="Search..."
+                                            [ngModel]="
+                                                playlist_search.getValue()
+                                            "
+                                            (ngModelChange)="
+                                                playlist_search.next($event)
+                                            "
+                                        />
+                                    </mat-form-field>
+                                </div>
+                                <button
+                                    mat-menu-item
+                                    [disabled]="true"
+                                    *ngIf="!((playlists | async)?.length > 0)"
+                                >
+                                    No playlists
+                                </button>
+
+                                <button
+                                    mat-menu-item
+                                    *ngFor="let playlist of playlists | async"
+                                    (click)="addToPlaylist(media.id, playlist)"
+                                >
+                                    <div class="flex items-center space-x-2">
+                                        <div class="pr-2">
+                                            {{ playlist.name }}
+                                        </div>
+                                    </div>
+                                </button>
+                            </mat-menu>
                             <mat-menu #menu="matMenu">
                                 <button mat-menu-item (click)="editItem(media)">
                                     <div class="flex items-center space-x-2">
@@ -123,6 +162,17 @@ import { getUnixTime, startOfMinute } from 'date-fns';
                                             >edit</app-icon
                                         >
                                         <div class="pr-2">Edit Media Item</div>
+                                    </div>
+                                </button>
+                                <button
+                                    mat-menu-item
+                                    [matMenuTriggerFor]="playlist_menu"
+                                >
+                                    <div class="flex items-center space-x-2">
+                                        <app-icon class="text-2xl"
+                                            >add</app-icon
+                                        >
+                                        <div class="pr-2">Add to Playlist</div>
                                     </div>
                                 </button>
                                 <button
@@ -178,6 +228,17 @@ import { getUnixTime, startOfMinute } from 'date-fns';
 export class SignageMediaListComponent {
     @Input() public playlist_count = 0;
     public readonly search = new BehaviorSubject<string>('');
+    public readonly playlist_search = new BehaviorSubject<string>('');
+    public readonly playlists = combineLatest([
+        this.playlist_search,
+        this._state.playlists,
+    ]).pipe(
+        map(([search, list]) =>
+            list.filter((_) =>
+                _.name.toLowerCase().includes(search.toLowerCase()),
+            ),
+        ),
+    );
     public readonly media = combineLatest([
         this.search,
         this._state.media,
@@ -218,4 +279,12 @@ export class SignageMediaListComponent {
     }
 
     public drop(event) {}
+
+    public async addToPlaylist(media_id: string, playlist: any) {
+        const media_list = await listSignagePlaylistMedia(
+            playlist.id,
+        ).toPromise();
+        const new_media_list = [...media_list.items, media_id];
+        await this._state.updatePlaylistMedia(playlist.id, new_media_list);
+    }
 }
