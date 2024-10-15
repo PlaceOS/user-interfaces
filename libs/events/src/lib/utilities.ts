@@ -31,8 +31,6 @@ import { endInFuture } from './validators';
 import { getNextFreeTimeSlot } from './helpers';
 import { User } from 'libs/users/src/lib/user.class';
 import { Booking } from 'libs/bookings/src/lib/booking.class';
-import { time } from 'console';
-import { share } from 'rxjs/operators';
 
 let BOOKING_DATE = add(setMinutes(setHours(new Date(), 6), 0), { days: -1 });
 
