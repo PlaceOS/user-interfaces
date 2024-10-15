@@ -137,7 +137,7 @@ export class CalendarEvent {
     }
 
     public get view_access() {
-        return this.extension_data.view_access || 'PRIVATE';
+        return this.extension_data.view_access || 'OPEN';
     }
 
     /** Get field from extension data */

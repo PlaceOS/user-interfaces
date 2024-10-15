@@ -105,7 +105,7 @@ export function generateEventForm(
             event.extension_data?.shared_event || false,
         ),
         view_access: new FormControl(
-            event.extension_data?.view_access || 'PRIVATE',
+            event.extension_data?.view_access || 'OPEN',
         ),
         images: new FormControl(event.extension_data?.images || []),
         featured: new FormControl(event.extension_data?.featured || false),
