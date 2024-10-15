@@ -221,7 +221,9 @@ const EMPTY_ACTIONS = [];
                             >
                                 <a-user-avatar [user]="user"></a-user-avatar>
                                 <div class="text-sm flex-1 w-px">
-                                    <div>{{ user?.name }}</div>
+                                    <div class="truncate w-full">
+                                        {{ user?.name }}
+                                    </div>
                                     <div
                                         class="opacity-60 truncate w-full"
                                         [title]="user.email"
@@ -241,7 +243,9 @@ const EMPTY_ACTIONS = [];
                     <div class="px-2 flex items-center space-x-2" host>
                         <a-user-avatar [user]="event.organiser"></a-user-avatar>
                         <div class="text-sm flex-1 w-px">
-                            <div>{{ event.organiser?.name }}</div>
+                            <div class="truncate w-full">
+                                {{ event.organiser?.name }}
+                            </div>
                             <div
                                 class="opacity-60 truncate w-full"
                                 [title]="event.host"
