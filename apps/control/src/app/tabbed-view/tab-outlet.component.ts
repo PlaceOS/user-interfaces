@@ -30,6 +30,7 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
                     routerLinkActive="!opacity-100 !text-secondary"
                     queryParamsHandling="merge"
                     *ngFor="let tab of tabs | async"
+                    (click)="onAction()"
                 >
                     <app-icon class="text-5xl">{{ tab.icon }}</app-icon>
                     <p>{{ tab.name }}</p>
@@ -187,6 +188,8 @@ export class TabOutletComponent extends AsyncHandler {
         }),
     );
 
+    private _user_action = false;
+
     public readonly help = combineLatest([
         this._service.help_items,
         this.tab,
@@ -241,12 +244,22 @@ export class TabOutletComponent extends AsyncHandler {
         this.subscription(
             'inputs',
             combineLatest([this.inputs, this.system$, this.tab])
-                .pipe(debounceTime(100))
-                .subscribe(([_, { selected_input }, tab]) => {
-                    if (_.find((i) => (i.id || i.name) === selected_input))
-                        return;
-                    _.length ? this._service.setSelectedInput(_[0].id) : '';
+                .pipe(debounceTime(300))
+                .subscribe(([input_list, { selected_input }, tab]) => {
+                    const has_selected = input_list.find(
+                        (i) => (i.id || i.name) === selected_input,
+                    );
+                    if (has_selected || !this._user_action) return;
+                    input_list.length
+                        ? this._service.setSelectedInput(input_list[0].id)
+                        : '';
                 }),
         );
+    }
+
+    public onAction() {
+        if (this._user_action) return;
+        this._user_action = true;
+        setTimeout(() => (this._user_action = false), 1000);
     }
 }
