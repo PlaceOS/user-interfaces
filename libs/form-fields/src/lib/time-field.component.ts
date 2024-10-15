@@ -30,6 +30,7 @@ import {
     selector: 'a-time-field',
     template: `
         <button
+            time-field
             class="flex items-center justify-between border border-neutral rounded h-12 w-full px-2"
             [disabled]="disabled"
             [class.opacity-30]="disabled"

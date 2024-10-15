@@ -17,7 +17,9 @@ export default {
     transformIgnorePatterns: [
         'node_modules/(?!.*\\.mjs$)' || '/node_modules' || '**/node_modules',
     ],
-
+    moduleNameMapper: {
+        '^quill$': 'node_modules/quill/dist/quill.js',
+    },
     snapshotSerializers: [
         'jest-preset-angular/build/serializers/no-ng-attributes',
         'jest-preset-angular/build/serializers/ng-snapshot',

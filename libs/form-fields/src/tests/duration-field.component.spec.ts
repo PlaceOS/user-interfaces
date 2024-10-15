@@ -1,17 +1,19 @@
-import { MatSelectModule } from '@angular/material/select';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { timeFormatString } from '@placeos/common';
+import { MatMenuModule } from '@angular/material/menu';
+import { IconComponent } from '@placeos/components';
+
+import { addHours } from 'date-fns';
+import { MockComponent } from 'ng-mocks';
 
 import { DurationFieldComponent } from '../lib/duration-field.component';
-
-import { addHours, addMinutes, format, startOfMinute } from 'date-fns';
+import { MatFormFieldModule } from '@angular/material/form-field';
 
 describe('DurationFieldComponent', () => {
     let spectator: Spectator<DurationFieldComponent>;
     const createComponent = createComponentFactory({
         component: DurationFieldComponent,
-        imports: [MatFormFieldModule, MatSelectModule],
+        imports: [MatMenuModule, MatFormFieldModule],
+        declarations: [MockComponent(IconComponent)],
     });
 
     beforeEach(() => (spectator = createComponent()));
@@ -21,10 +23,10 @@ describe('DurationFieldComponent', () => {
     });
 
     it('should be able to be disabled', () => {
-        expect('mat-select').toHaveAttribute('aria-disabled', 'false');
+        expect('button[duration-field]').not.toHaveAttribute('disabled');
         spectator.component.setDisabledState(true);
         spectator.detectChanges();
-        expect('mat-select').toHaveAttribute('aria-disabled', 'true');
+        expect('button[duration-field]').toHaveAttribute('disabled');
     });
 
     it('should allow changing the min duration', () => {
@@ -34,7 +36,7 @@ describe('DurationFieldComponent', () => {
         spectator.setInput({ min: Math.floor(Math.random() * 10 + 2) * 15 });
         spectator.detectChanges();
         expect(spectator.component.duration_options[0].id).toBe(
-            spectator.component.min
+            spectator.component.min,
         );
     });
 

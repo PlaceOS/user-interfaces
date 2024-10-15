@@ -46,7 +46,7 @@ import { take } from 'rxjs/operators';
                     btn
                     matRipple
                     class="w-48"
-                    *ngIf="space.email && allow_desk_booking"
+                    *ngIf="space?.email && allow_desk_booking"
                     (click)="startDeskBooking()"
                 >
                     Book nearby desk
