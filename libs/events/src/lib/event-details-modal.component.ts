@@ -541,7 +541,11 @@ const EMPTY_ACTIONS = [];
                         <div i18n>Delete event</div>
                     </div>
                 </button>
-                <button mat-menu-item (click)="printEvent()">
+                <button
+                    mat-menu-item
+                    *ngIf="is_concierge"
+                    (click)="printEvent()"
+                >
                     <div class="flex items-center space-x-2 text-base pr-2">
                         <app-icon class="text-2xl">print</app-icon>
                         <div i18n>Print event</div>
@@ -601,6 +605,10 @@ export class EventDetailsModalComponent {
     public readonly has_assets = !!this.event?.linked_bookings?.find(
         (_) => _.booking_type === 'asset-request',
     );
+
+    public get is_concierge() {
+        return this._settings.app_name.toLowerCase().includes('concierge');
+    }
 
     public get can_edit() {
         return true;
