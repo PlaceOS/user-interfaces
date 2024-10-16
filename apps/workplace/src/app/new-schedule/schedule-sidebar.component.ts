@@ -1,6 +1,9 @@
 import { Component } from '@angular/core';
 import { SettingsService } from '@placeos/common';
-import { ScheduleStateService } from './schedule-state.service';
+import {
+    ScheduleOptions,
+    ScheduleStateService,
+} from './schedule-state.service';
 
 @Component({
     selector: 'schedule-sidebar',
@@ -8,6 +11,26 @@ import { ScheduleStateService } from './schedule-state.service';
         <div
             class="flex flex-col w-[18rem] h-full overflow-hidden bg-base-100[#1F2021] border-r border-base-200"
         >
+            <div class="flex items-center space-x-4 p-4">
+                <button
+                    btn
+                    matRipple
+                    class="flex-1"
+                    [class.inverse]="period !== 'day'"
+                    (click)="setOptions({ period: 'day' })"
+                >
+                    Day
+                </button>
+                <button
+                    btn
+                    matRipple
+                    class="flex-1"
+                    [class.inverse]="period !== 'week'"
+                    (click)="setOptions({ period: 'week' })"
+                >
+                    Week
+                </button>
+            </div>
             <date-calendar
                 class="border-b border-base-200"
                 [ngModel]="date | async"
@@ -184,12 +207,20 @@ export class ScheduleSidebarComponent {
     public readonly toggleType = (t) => this._state.toggleType(t);
     public readonly setDate = (d) => this._state.setDate(d);
 
+    public get period() {
+        return this._state.getOptions().period;
+    }
+
+    public setOptions(options: ScheduleOptions) {
+        this._state.setOptions(options);
+    }
+
     public hasFeature(feature: string) {
         return this._settings.get('app.features')?.includes(feature);
     }
 
     constructor(
         private _state: ScheduleStateService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {}
 }
