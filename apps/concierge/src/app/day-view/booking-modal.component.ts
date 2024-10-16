@@ -67,7 +67,7 @@ export class BookingModalComponent implements OnInit {
         @Inject(MAT_DIALOG_DATA) private _data: BookingModalData,
         private _service: EventFormService,
         private _dialog_ref: MatDialogRef<BookingModalComponent>,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {}
 
     public async ngOnInit() {

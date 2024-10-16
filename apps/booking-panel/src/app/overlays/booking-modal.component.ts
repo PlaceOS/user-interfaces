@@ -152,7 +152,6 @@ export class BookingModalComponent extends AsyncHandler {
             this.form.controls.organiser.setValidators([]);
             this.hide_host = true;
         }
-        console.log('Data:', this._data);
     }
 
     public searchStaff = (q: string) =>
