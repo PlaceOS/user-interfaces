@@ -2722,7 +2722,7 @@ class NewDeskFormDetailsComponent extends _placeos_common__WEBPACK_IMPORTED_MODU
     if (!this.can_recurr) return;
     this.recurrence = {
       pattern: recurrence_type,
-      days_of_week: new Array(7).fill(0).filter((_, i) => recurrence_days & _placeos_bookings__WEBPACK_IMPORTED_MODULE_0__.DAYS_OF_WEEK_INDEX[i]),
+      days_of_week: new Array(7).fill(0).map((_, i) => i).filter(i => recurrence_days & _placeos_bookings__WEBPACK_IMPORTED_MODULE_0__.DAYS_OF_WEEK_INDEX[i]),
       interval: recurrence_interval,
       start: date,
       end: recurrence_end
@@ -2747,7 +2747,7 @@ class NewDeskFormDetailsComponent extends _placeos_common__WEBPACK_IMPORTED_MODU
         recurrence_interval: recurrence.interval,
         recurrence_end: (0,date_fns__WEBPACK_IMPORTED_MODULE_16__.getUnixTime)(recurrence.end)
       });
-    } else if (recurrence.pattern === 'monthly') {
+    } else if (recurrence.pattern === 'monthly' || recurrence.pattern === 'month_day') {
       const date = new Date(this.form.value.date).getDate();
       let instance = Math.floor(date / 7) + (date % 7 ? 1 : 0);
       if (instance === 4 && date >= 25 || instance === 5) instance = -1;
