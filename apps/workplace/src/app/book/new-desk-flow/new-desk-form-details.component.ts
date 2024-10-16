@@ -362,7 +362,8 @@ export class NewDeskFormDetailsComponent extends AsyncHandler {
             pattern: recurrence_type,
             days_of_week: new Array(7)
                 .fill(0)
-                .filter((_, i) => recurrence_days & DAYS_OF_WEEK_INDEX[i]),
+                .map((_, i) => i)
+                .filter((i) => recurrence_days & DAYS_OF_WEEK_INDEX[i]),
             interval: recurrence_interval,
             start: date,
             end: recurrence_end,
@@ -394,7 +395,10 @@ export class NewDeskFormDetailsComponent extends AsyncHandler {
                 recurrence_interval: recurrence.interval,
                 recurrence_end: getUnixTime(recurrence.end),
             });
-        } else if (recurrence.pattern === 'monthly') {
+        } else if (
+            recurrence.pattern === 'monthly' ||
+            recurrence.pattern === 'month_day'
+        ) {
             const date = new Date(this.form.value.date).getDate();
             let instance = Math.floor(date / 7) + (date % 7 ? 1 : 0);
             if ((instance === 4 && date >= 25) || instance === 5) instance = -1;
