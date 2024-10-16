@@ -143,7 +143,6 @@ import { OrganisationService } from '@placeos/organisation';
                             [style.left]="i * block_width + 0.25 + 'rem'"
                             [style.top]="timeToOffset(event.date) + '%'"
                             [style.height]="endToOffset(event.duration) + '%'"
-                            [class.pointer-events-none]="event.state === 'done'"
                             (click)="viewEvent(event, space.id)"
                             [matTooltip]="eventTooltip(event)"
                             *ngIf="
