@@ -76,6 +76,7 @@ const events: any = {
     booking_unavailable: false,
     allow_externals: true,
     allow_recurrence: false,
+    allow_daily_allday_recurrence: false,
 };
 /*===========================*\
 ||  SPACE LISTING SETTINGS   ||
