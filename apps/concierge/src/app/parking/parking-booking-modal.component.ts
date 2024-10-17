@@ -154,8 +154,13 @@ export class ParkingBookingModalComponent extends AsyncHandler {
         this.form.patchValue({
             all_day: true,
             booking_type: 'parking',
-            user: (this._data.user as any) || currentUser(),
         });
+        if (!this.form.value.user) {
+            this.form.patchValue({
+                user:
+                    (this._data.booking?.attendees[0] as any) || currentUser(),
+            });
+        }
         if (this._data.user) {
             this.form.patchValue({
                 user_email: this._data.user.email,
