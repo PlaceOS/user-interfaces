@@ -239,11 +239,13 @@ import { OrganisationService } from '@placeos/organisation';
 export class MeetingFormDetailsComponent extends AsyncHandler {
     @Input() public form: FormGroup;
 
+    private _host_entity = new BehaviorSubject<string>('');
+
     public readonly host_entity_list: Observable<string[]> =
         this._org.initialised.pipe(
             filter((_) => !!_),
             switchMap((_) =>
-                showMetadata(this._org.organisation.id, 'entities').pipe(
+                showMetadata(this._org.organisation.id, 'host_entities').pipe(
                     catchError(() => of({ details: [] } as any)),
                 ),
             ),
@@ -252,8 +254,6 @@ export class MeetingFormDetailsComponent extends AsyncHandler {
             ),
             shareReplay(1),
         );
-
-    private _host_entity = new BehaviorSubject<string>('');
 
     public filtered_entities = combineLatest([
         this.host_entity_list,
@@ -355,9 +355,9 @@ export class MeetingFormDetailsComponent extends AsyncHandler {
         if (changes.form && this.form) {
             this.subscription(
                 'host_entity_change',
-                this.form.valueChanges.subscribe(() =>
-                    this._host_entity.next(this.form.getRawValue().host_entity),
-                ),
+                this.form.valueChanges.subscribe(() => {
+                    this._host_entity.next(this.form.getRawValue().host_entity);
+                }),
             );
             this._host_entity.next(this.form.getRawValue().host_entity);
         }

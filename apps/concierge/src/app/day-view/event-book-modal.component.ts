@@ -133,7 +133,10 @@ import {
                             class="w-full"
                         >
                             <mat-option
-                                *ngFor="let option of filtered_entities | async"
+                                *ngFor="
+                                    let option of filtered_visitor_entities
+                                        | async
+                                "
                                 [value]="option"
                             >
                                 {{ option }}
@@ -379,15 +382,17 @@ export class EventBookModalComponent extends AsyncHandler {
     public readonly loading = new BehaviorSubject(false);
     public hide_block: Record<string, boolean> = {};
     public code_filter = new BehaviorSubject('');
+
     private _visitor_entity = new BehaviorSubject<string>('');
 
-    public readonly host_entity_list: Observable<string[]> =
+    public readonly visitor_entity_list: Observable<string[]> =
         this._org.initialised.pipe(
             filter((_) => !!_),
             switchMap((_) =>
-                showMetadata(this._org.organisation.id, 'entities').pipe(
-                    catchError(() => of({ details: [] } as any)),
-                ),
+                showMetadata(
+                    this._org.organisation.id,
+                    'visitor_entities',
+                ).pipe(catchError(() => of({ details: [] } as any))),
             ),
             map((_: PlaceMetadata) =>
                 _.details instanceof Array ? _.details : [],
@@ -395,8 +400,8 @@ export class EventBookModalComponent extends AsyncHandler {
             shareReplay(1),
         );
 
-    public filtered_entities = combineLatest([
-        this.host_entity_list,
+    public filtered_visitor_entities = combineLatest([
+        this.visitor_entity_list,
         this._visitor_entity,
     ]).pipe(
         map(([list, entity]) =>
@@ -495,12 +500,12 @@ export class EventBookModalComponent extends AsyncHandler {
     public async ngOnInit() {
         await this._event_form.newForm(this._data.event);
         this.subscription(
-            'visitor_entity_change',
-            this.form.valueChanges.subscribe(() =>
+            'host_entity_change',
+            this.form.valueChanges.subscribe(() => {
                 this._visitor_entity.next(
                     this.form.getRawValue().visitor_entity,
-                ),
-            ),
+                );
+            }),
         );
         this._visitor_entity.next(this.form.getRawValue().visitor_entity);
     }
