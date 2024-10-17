@@ -410,7 +410,8 @@ export class PanelStateService extends AsyncHandler {
     ) {
         if (isAfter(details.date, addMinutes(Date.now(), 5)) || force_api) {
             this._events.form.controls.host.setValidators([]);
-            await this._events.postForm();
+            this._events.form.updateValueAndValidity();
+            await this._events.postForm(true);
         } else {
             const module = getModule(this.system, 'Bookings');
             if (!details || !module) return;
