@@ -5591,6 +5591,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   BookingCardComponent: () => (/* reexport safe */ _lib_booking_card_component__WEBPACK_IMPORTED_MODULE_8__.BookingCardComponent),
 /* harmony export */   BookingDetailsModalComponent: () => (/* reexport safe */ _lib_booking_details_modal_component__WEBPACK_IMPORTED_MODULE_7__.BookingDetailsModalComponent),
 /* harmony export */   BookingFormService: () => (/* reexport safe */ _lib_booking_form_service__WEBPACK_IMPORTED_MODULE_1__.BookingFormService),
+/* harmony export */   DAYS_OF_WEEK_INDEX: () => (/* reexport safe */ _lib_booking_class__WEBPACK_IMPORTED_MODULE_2__.DAYS_OF_WEEK_INDEX),
 /* harmony export */   DesksService: () => (/* reexport safe */ _lib_desk_service__WEBPACK_IMPORTED_MODULE_5__.DesksService),
 /* harmony export */   FAV_PARKING_KEY: () => (/* reexport safe */ _lib_parking_select_modal_parking_select_modal_component__WEBPACK_IMPORTED_MODULE_9__.FAV_PARKING_KEY),
 /* harmony export */   LockersService: () => (/* reexport safe */ _lib_lockers_service__WEBPACK_IMPORTED_MODULE_6__.LockersService),
@@ -7308,6 +7309,7 @@ class BookingLinkModalComponent {
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   Booking: () => (/* binding */ Booking),
+/* harmony export */   DAYS_OF_WEEK_INDEX: () => (/* binding */ DAYS_OF_WEEK_INDEX),
 /* harmony export */   RecurrenceDays: () => (/* binding */ RecurrenceDays),
 /* harmony export */   WeekOfMonth: () => (/* binding */ WeekOfMonth)
 /* harmony export */ });
@@ -7338,6 +7340,7 @@ var RecurrenceDays;
   RecurrenceDays[RecurrenceDays["FRIDAY"] = 2] = "FRIDAY";
   RecurrenceDays[RecurrenceDays["SATURDAY"] = 1] = "SATURDAY";
 })(RecurrenceDays || (RecurrenceDays = {}));
+const DAYS_OF_WEEK_INDEX = [RecurrenceDays.SUNDAY, RecurrenceDays.MONDAY, RecurrenceDays.TUESDAY, RecurrenceDays.WEDNESDAY, RecurrenceDays.THURSDAY, RecurrenceDays.FRIDAY, RecurrenceDays.SATURDAY];
 var WeekOfMonth;
 (function (WeekOfMonth) {
   WeekOfMonth[WeekOfMonth["First"] = 1] = "First";
@@ -19665,7 +19668,8 @@ const events = {
   features_on_form: false,
   booking_unavailable: false,
   allow_externals: true,
-  allow_recurrence: false
+  allow_recurrence: false,
+  allow_daily_allday_recurrence: false
 };
 /*===========================*\
 ||  SPACE LISTING SETTINGS   ||
@@ -19780,6 +19784,7 @@ const app = {
     allow_all_day: true,
     auto_allocation: false,
     show_calendar_links: true,
+    allow_recurrence: true,
     hide_map: false
   },
   parking: {
@@ -21297,15 +21302,15 @@ __webpack_require__.r(__webpack_exports__);
 /* tslint:disable */
 const VERSION = {
   "dirty": false,
-  "raw": "3c24f0a",
-  "hash": "3c24f0a",
+  "raw": "7974a85",
+  "hash": "7974a85",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "3c24f0a",
+  "suffix": "7974a85",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1729126216351
+  "time": 1729155678660
 };
 /* tslint:enable */
 
@@ -33472,7 +33477,8 @@ class EventFormService extends _placeos_common__WEBPACK_IMPORTED_MODULE_2__.Asyn
         _this2.setView('success');
         _this2.timeout('post_finshed', () => _this2._changed.next(Date.now()));
         resolve(result);
-        _this2._saveEntity([result.extension_data?.host_entity, result.extension_data?.visitor_entity]);
+        _this2._saveEntity([result.extension_data?.host_entity]);
+        _this2._saveEntity([result.extension_data?.visitor_entity], 'visitor');
         _this2._loading.next('');
       });
       return function (_x, _x2) {
@@ -33514,18 +33520,18 @@ class EventFormService extends _placeos_common__WEBPACK_IMPORTED_MODULE_2__.Asyn
     const old_visitors = this._settings.get('visitor-invitees') || [];
     this._settings.saveUserSetting('visitor-invitees', (0,_placeos_common__WEBPACK_IMPORTED_MODULE_2__.unique)([...old_visitors.filter(_ => !_.includes(_.email)), ...visitors.map(_ => `${_.email}|${_.name}|${_.organisation}`)]));
   }
-  _saveEntity(entities) {
+  _saveEntity(entities, type = 'host') {
     var _this5 = this;
     return (0,_home_runner_work_user_interfaces_user_interfaces_node_modules_babel_runtime_helpers_esm_asyncToGenerator_js__WEBPACK_IMPORTED_MODULE_0__["default"])(function* () {
       entities = entities.filter(_ => !!_);
       if (!entities?.length) return;
-      const metadata = yield (0,_placeos_ts_client__WEBPACK_IMPORTED_MODULE_1__.showMetadata)(_this5._org.organisation.id, 'entities').toPromise();
+      const metadata = yield (0,_placeos_ts_client__WEBPACK_IMPORTED_MODULE_1__.showMetadata)(_this5._org.organisation.id, `${type}_entities`).toPromise();
       const entity_list = metadata.details instanceof Array ? metadata.details : [];
       const new_list = (0,_placeos_common__WEBPACK_IMPORTED_MODULE_2__.unique)([...entity_list, ...entities]);
       yield (0,_placeos_ts_client__WEBPACK_IMPORTED_MODULE_1__.updateMetadata)(_this5._org.organisation.id, {
-        name: 'entities',
+        name: `${type}_entities`,
         details: new_list,
-        description: 'List of entities'
+        description: `List of ${type} entities`
       }).toPromise();
     })();
   }
