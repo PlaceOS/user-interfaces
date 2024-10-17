@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { RoomManagementService } from './room-management.service';
 import { Clipboard } from '@angular/cdk/clipboard';
-import { notifySuccess } from '@placeos/common';
+import { notifySuccess, SettingsService } from '@placeos/common';
 
 @Component({
     selector: 'room-list',
@@ -15,13 +15,13 @@ import { notifySuccess } from '@placeos/common';
                     {
                         key: 'display_name',
                         name: 'Room Name',
-                        content: name_template
+                        content: name_template,
                     },
                     {
                         key: 'zones',
                         name: 'Level',
                         size: '10rem',
-                        content: level_template
+                        content: level_template,
                     },
                     { key: 'capacity', name: 'Capacity', size: '6rem' },
                     { key: 'type', name: 'Room Type', size: '8rem' },
@@ -30,15 +30,15 @@ import { notifySuccess } from '@placeos/common';
                         name: 'Bookable',
                         size: '5.5rem',
                         content: bool_template,
-                        sortable: false
+                        sortable: false,
                     },
                     {
                         key: 'actions',
                         name: ' ',
                         content: action_template,
-                        size: '3.5rem',
-                        sortable: false
-                    }
+                        size: '6.5rem',
+                        sortable: false,
+                    },
                 ]"
                 [sortable]="true"
             ></simple-table>
@@ -72,7 +72,6 @@ import { notifySuccess } from '@placeos/common';
         <ng-template #action_template let-row="row">
             <div class="flex items-center space-x-2 p-2 mx-auto">
                 <button
-                    btn
                     icon
                     matRipple
                     matTooltip="Edit Room"
@@ -80,6 +79,23 @@ import { notifySuccess } from '@placeos/common';
                 >
                     <app-icon>edit</app-icon>
                 </button>
+            </div>
+            <div class="flex items-center space-x-2 p-2 mx-auto">
+                <a
+                    icon
+                    matRipple
+                    matTooltip="View AV Control Panel"
+                    [href]="
+                        row.support_url || control_path + row.id
+                            | sanitize: 'url'
+                    "
+                    target="_blank"
+                    ref="noopener noreferrer"
+                >
+                    <app-icon className="material-symbols-rounded">
+                        tv_remote
+                    </app-icon>
+                </a>
             </div>
         </ng-template>
     `,
@@ -95,8 +111,15 @@ export class RoomListComponent {
         if (success) notifySuccess('Room ID copied to clipboard.');
     };
 
+    public get control_path() {
+        return (
+            this._settings.get('app.control_path') || '/av_control/#/tabbed/'
+        );
+    }
+
     constructor(
         private _manager: RoomManagementService,
-        private _clipboard: Clipboard
+        private _clipboard: Clipboard,
+        private _settings: SettingsService,
     ) {}
 }

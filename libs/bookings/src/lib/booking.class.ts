@@ -46,6 +46,16 @@ export enum RecurrenceDays {
     SATURDAY = 1 << 0,
 }
 
+export const DAYS_OF_WEEK_INDEX = [
+    RecurrenceDays.SUNDAY,
+    RecurrenceDays.MONDAY,
+    RecurrenceDays.TUESDAY,
+    RecurrenceDays.WEDNESDAY,
+    RecurrenceDays.THURSDAY,
+    RecurrenceDays.FRIDAY,
+    RecurrenceDays.SATURDAY,
+];
+
 export interface LinkedCalendarEvent {
     id?: string;
     date: number;
