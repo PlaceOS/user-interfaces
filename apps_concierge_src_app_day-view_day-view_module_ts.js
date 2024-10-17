@@ -1496,18 +1496,21 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _events_state_service__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./events-state.service */ 88288);
 /* harmony import */ var _placeos_organisation__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @placeos/organisation */ 2510);
 /* harmony import */ var _placeos_ts_client__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @placeos/ts-client */ 35713);
-/* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! rxjs */ 90521);
-/* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! rxjs */ 68824);
-/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! rxjs/operators */ 35443);
-/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! @angular/core */ 37580);
-/* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! @angular/common */ 60316);
-/* harmony import */ var _angular_forms__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! @angular/forms */ 34456);
-/* harmony import */ var _angular_material_tooltip__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! @angular/material/tooltip */ 80640);
-/* harmony import */ var _angular_material_progress_spinner__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! @angular/material/progress-spinner */ 41134);
-/* harmony import */ var _angular_material_core__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! @angular/material/core */ 74646);
-/* harmony import */ var _libs_components_src_lib_icon_component__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../../../../libs/components/src/lib/icon.component */ 69434);
-/* harmony import */ var _libs_components_src_lib_authenticated_image_directive__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../../../../libs/components/src/lib/authenticated-image.directive */ 93208);
-/* harmony import */ var _libs_spaces_src_lib_space_pipe__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../../../../../libs/spaces/src/lib/space.pipe */ 22011);
+/* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! rxjs */ 90521);
+/* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! rxjs */ 68824);
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! rxjs/operators */ 35443);
+/* harmony import */ var _placeos_common__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @placeos/common */ 22797);
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! @angular/core */ 37580);
+/* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! @angular/common */ 60316);
+/* harmony import */ var _angular_forms__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! @angular/forms */ 34456);
+/* harmony import */ var _angular_material_tooltip__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! @angular/material/tooltip */ 80640);
+/* harmony import */ var _angular_material_progress_spinner__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! @angular/material/progress-spinner */ 41134);
+/* harmony import */ var _angular_material_core__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! @angular/material/core */ 74646);
+/* harmony import */ var _libs_components_src_lib_icon_component__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../../../../libs/components/src/lib/icon.component */ 69434);
+/* harmony import */ var _libs_components_src_lib_authenticated_image_directive__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../../../../../libs/components/src/lib/authenticated-image.directive */ 93208);
+/* harmony import */ var _libs_spaces_src_lib_space_pipe__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../../../../../libs/spaces/src/lib/space.pipe */ 22011);
+
+
 
 
 
@@ -1527,127 +1530,157 @@ __webpack_require__.r(__webpack_exports__);
 
 function RoomBookingsApprovalsComponent_div_15_Template(rf, ctx) {
   if (rf & 1) {
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](0, "div", 12);
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelement"](1, "img", 13);
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](2, "p");
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtext"](3, "No pending requests");
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]()();
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementStart"](0, "div", 12);
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelement"](1, "img", 13);
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementStart"](2, "p");
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtext"](3, "No pending requests");
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementEnd"]()();
   }
 }
-function RoomBookingsApprovalsComponent_div_17_img_7_Template(rf, ctx) {
+function RoomBookingsApprovalsComponent_div_17_span_7_Template(rf, ctx) {
   if (rf & 1) {
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelement"](0, "img", 27);
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵpipe"](1, "space");
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵpipe"](2, "async");
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementStart"](0, "span");
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtext"](1);
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipe"](2, "date");
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementEnd"]();
+  }
+  if (rf & 2) {
+    const event_r2 = _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵnextContext"]().$implicit;
+    const ctx_r2 = _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵnextContext"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtextInterpolate"](_angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind3"](2, 1, event_r2.date, "z", ctx_r2.tz));
+  }
+}
+function RoomBookingsApprovalsComponent_div_17_img_9_Template(rf, ctx) {
+  if (rf & 1) {
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelement"](0, "img", 28);
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipe"](1, "space");
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipe"](2, "async");
   }
   if (rf & 2) {
     let tmp_3_0;
-    const event_r2 = _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵnextContext"]().$implicit;
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵproperty"]("source", (tmp_3_0 = _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵpipeBind1"](2, 3, _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵpipeBind1"](1, 1, event_r2.resources[0] == null ? null : event_r2.resources[0].email))) == null ? null : tmp_3_0.images[0]);
+    const event_r2 = _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵnextContext"]().$implicit;
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("source", (tmp_3_0 = _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](2, 3, _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](1, 1, event_r2.resources[0] == null ? null : event_r2.resources[0].email))) == null ? null : tmp_3_0.images[0]);
   }
 }
 function RoomBookingsApprovalsComponent_div_17_Template(rf, ctx) {
   if (rf & 1) {
-    const _r1 = _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵgetCurrentView"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](0, "div", 14)(1, "h3");
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtext"](2);
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](3, "p", 15);
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtext"](4);
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵpipe"](5, "date");
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](6, "div", 16);
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtemplate"](7, RoomBookingsApprovalsComponent_div_17_img_7_Template, 3, 5, "img", 17);
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](8, "div", 18)(9, "div", 19)(10, "app-icon", 20);
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtext"](11, "place");
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]()();
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](12, "div", 21);
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtext"](13);
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵpipe"](14, "space");
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵpipe"](15, "async");
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵpipe"](16, "space");
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵpipe"](17, "async");
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]()();
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](18, "div", 18)(19, "div", 19)(20, "app-icon", 20);
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtext"](21, "person");
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]()();
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](22, "div", 21);
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtext"](23);
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]()();
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](24, "div", 22)(25, "button", 23);
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵlistener"]("click", function RoomBookingsApprovalsComponent_div_17_Template_button_click_25_listener() {
-      const event_r2 = _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵrestoreView"](_r1).$implicit;
-      const ctx_r2 = _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵnextContext"]();
-      return _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵresetView"](ctx_r2.approve(event_r2));
+    const _r1 = _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵgetCurrentView"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementStart"](0, "div", 14)(1, "h3");
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtext"](2);
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementStart"](3, "p", 15);
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtext"](4);
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipe"](5, "date");
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipe"](6, "date");
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtemplate"](7, RoomBookingsApprovalsComponent_div_17_span_7_Template, 3, 5, "span", 16);
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementStart"](8, "div", 17);
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtemplate"](9, RoomBookingsApprovalsComponent_div_17_img_9_Template, 3, 5, "img", 18);
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementStart"](10, "div", 19)(11, "div", 20)(12, "app-icon", 21);
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtext"](13, "place");
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementEnd"]()();
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementStart"](14, "div", 22);
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtext"](15);
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipe"](16, "space");
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipe"](17, "async");
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipe"](18, "space");
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipe"](19, "async");
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementEnd"]()();
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementStart"](20, "div", 19)(21, "div", 20)(22, "app-icon", 21);
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtext"](23, "person");
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementEnd"]()();
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementStart"](24, "div", 22);
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtext"](25);
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementEnd"]()();
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementStart"](26, "div", 23)(27, "button", 24);
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵlistener"]("click", function RoomBookingsApprovalsComponent_div_17_Template_button_click_27_listener() {
+      const event_r2 = _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵrestoreView"](_r1).$implicit;
+      const ctx_r2 = _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵnextContext"]();
+      return _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵresetView"](ctx_r2.approve(event_r2));
     });
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](26, "div");
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtext"](27);
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](28, "app-icon", 24);
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtext"](29, "done");
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]()();
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](30, "button", 25);
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵlistener"]("click", function RoomBookingsApprovalsComponent_div_17_Template_button_click_30_listener() {
-      const event_r2 = _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵrestoreView"](_r1).$implicit;
-      const ctx_r2 = _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵnextContext"]();
-      return _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵresetView"](ctx_r2.reject(event_r2));
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementStart"](28, "div");
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtext"](29);
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementStart"](30, "app-icon", 25);
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtext"](31, "done");
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementEnd"]()();
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementStart"](32, "button", 26);
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵlistener"]("click", function RoomBookingsApprovalsComponent_div_17_Template_button_click_32_listener() {
+      const event_r2 = _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵrestoreView"](_r1).$implicit;
+      const ctx_r2 = _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵnextContext"]();
+      return _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵresetView"](ctx_r2.reject(event_r2));
     });
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](31, "div");
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtext"](32);
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](33, "app-icon", 26);
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtext"](34, "close");
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]()()()();
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementStart"](33, "div");
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtext"](34);
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementStart"](35, "app-icon", 27);
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtext"](36, "close");
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementEnd"]()()()();
   }
   if (rf & 2) {
-    let tmp_5_0;
+    let tmp_6_0;
     const event_r2 = ctx.$implicit;
-    const ctx_r2 = _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵnextContext"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵadvance"](2);
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtextInterpolate"](event_r2.title);
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵadvance"](2);
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtextInterpolate1"](" ", _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵpipeBind2"](5, 9, event_r2.date, "medium"), " ");
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵadvance"](3);
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵproperty"]("ngIf", event_r2.resources.length);
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵadvance"](6);
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtextInterpolate1"](" ", ((tmp_5_0 = event_r2.resources.length && _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵpipeBind1"](15, 14, _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵpipeBind1"](14, 12, event_r2.resources[0] == null ? null : event_r2.resources[0].email))) == null ? null : tmp_5_0.display_name) || ((tmp_5_0 = _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵpipeBind1"](17, 18, _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵpipeBind1"](16, 16, event_r2.resources[0] == null ? null : event_r2.resources[0].email))) == null ? null : tmp_5_0.name) || "No Location", " ");
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵadvance"](10);
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtextInterpolate1"](" ", (event_r2.organiser == null ? null : event_r2.organiser.name) || event_r2.host, " ");
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵadvance"](2);
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵproperty"]("disabled", ctx_r2.status[event_r2.id] === "accept");
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵadvance"](2);
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtextInterpolate1"](" ", ctx_r2.status[event_r2.id] === "accept" ? "Approved" : "Approve", " ");
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵadvance"](3);
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵproperty"]("disabled", ctx_r2.status[event_r2.id] === "decline");
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵadvance"](2);
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtextInterpolate1"](" ", ctx_r2.status[event_r2.id] === "decline" ? "Declined" : "Decline", " ");
+    const ctx_r2 = _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵnextContext"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"](2);
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtextInterpolate"](event_r2.title);
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"](2);
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtextInterpolate2"](" ", _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind3"](5, 11, event_r2.date, "mediumDate", ctx_r2.tz), " ", _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind3"](6, 15, event_r2.date, ctx_r2.time_format, ctx_r2.tz), " ");
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"](3);
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngIf", ctx_r2.tz);
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"](2);
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngIf", event_r2.resources.length);
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"](6);
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtextInterpolate1"](" ", ((tmp_6_0 = event_r2.resources.length && _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](17, 21, _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](16, 19, event_r2.resources[0] == null ? null : event_r2.resources[0].email))) == null ? null : tmp_6_0.display_name) || ((tmp_6_0 = _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](19, 25, _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](18, 23, event_r2.resources[0] == null ? null : event_r2.resources[0].email))) == null ? null : tmp_6_0.name) || "No Location", " ");
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"](10);
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtextInterpolate1"](" ", (event_r2.organiser == null ? null : event_r2.organiser.name) || event_r2.host, " ");
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"](2);
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("disabled", ctx_r2.status[event_r2.id] === "accept");
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"](2);
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtextInterpolate1"](" ", ctx_r2.status[event_r2.id] === "accept" ? "Approved" : "Approve", " ");
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"](3);
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("disabled", ctx_r2.status[event_r2.id] === "decline");
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"](2);
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtextInterpolate1"](" ", ctx_r2.status[event_r2.id] === "decline" ? "Declined" : "Decline", " ");
   }
 }
 function RoomBookingsApprovalsComponent_div_19_Template(rf, ctx) {
   if (rf & 1) {
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](0, "div", 28);
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelement"](1, "div", 29)(2, "mat-spinner", 30);
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](3, "p", 31);
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtext"](4, "Processing...");
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]()();
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementStart"](0, "div", 29);
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelement"](1, "div", 30)(2, "mat-spinner", 31);
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementStart"](3, "p", 32);
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtext"](4, "Processing...");
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementEnd"]()();
   }
 }
 function RoomBookingsApprovalsComponent_button_20_Template(rf, ctx) {
   if (rf & 1) {
-    const _r4 = _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵgetCurrentView"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](0, "button", 32);
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵlistener"]("click", function RoomBookingsApprovalsComponent_button_20_Template_button_click_0_listener() {
-      _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵrestoreView"](_r4);
-      const ctx_r2 = _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵnextContext"]();
-      return _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵresetView"](ctx_r2.show = !ctx_r2.show);
+    const _r4 = _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵgetCurrentView"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementStart"](0, "button", 33);
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵlistener"]("click", function RoomBookingsApprovalsComponent_button_20_Template_button_click_0_listener() {
+      _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵrestoreView"](_r4);
+      const ctx_r2 = _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵnextContext"]();
+      return _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵresetView"](ctx_r2.show = !ctx_r2.show);
     });
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](1, "app-icon");
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtext"](2, "chevron_left");
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]()();
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementStart"](1, "app-icon");
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtext"](2, "chevron_left");
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementEnd"]()();
   }
 }
 class RoomBookingsApprovalsComponent {
+  get time_format() {
+    return this._settings.time_format;
+  }
+  get timezone() {
+    return this._settings.get('app.events.use_building_timezone') ? this._org.building.timezone : '';
+  }
+  get tz() {
+    const tz = this.timezone;
+    if (!tz) return '';
+    const tz_offset = (0,_placeos_common__WEBPACK_IMPORTED_MODULE_4__.getTimezoneOffsetString)(tz);
+    return tz_offset === this._local_tz ? '' : tz_offset;
+  }
   set show(value) {
     this._show = value;
     sessionStorage.setItem('PlaceOS.Concierge.show_room_approvals', `${value}`);
@@ -1655,15 +1688,17 @@ class RoomBookingsApprovalsComponent {
   get show() {
     return this._show;
   }
-  constructor(_state, _org) {
+  constructor(_state, _org, _settings) {
     this._state = _state;
     this._org = _org;
+    this._settings = _settings;
     this._show = true;
     this.loading = false;
     this.status = {};
-    this.search = new rxjs__WEBPACK_IMPORTED_MODULE_8__.BehaviorSubject('');
+    this.search = new rxjs__WEBPACK_IMPORTED_MODULE_9__.BehaviorSubject('');
     this.pending = this._state.pending;
-    this.filtered_pending = (0,rxjs__WEBPACK_IMPORTED_MODULE_9__.combineLatest)([this._state.pending, this.search]).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_10__.map)(([list, search]) => list.filter(event => event.title.toLowerCase().includes(search.toLowerCase()) || event.host.toLowerCase().includes(search.toLowerCase()) || event.organiser?.name.toLowerCase().includes(search.toLowerCase()))));
+    this._local_tz = (0,_placeos_common__WEBPACK_IMPORTED_MODULE_4__.getTimezoneOffsetString)(Intl.DateTimeFormat().resolvedOptions().timeZone);
+    this.filtered_pending = (0,rxjs__WEBPACK_IMPORTED_MODULE_10__.combineLatest)([this._state.pending, this.search]).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_11__.map)(([list, search]) => list.filter(event => event.title.toLowerCase().includes(search.toLowerCase()) || event.host.toLowerCase().includes(search.toLowerCase()) || event.organiser?.name.toLowerCase().includes(search.toLowerCase()))));
   }
   ngOnInit() {
     this._show = sessionStorage.getItem('PlaceOS.Concierge.show_room_approvals') !== 'false';
@@ -1695,66 +1730,66 @@ class RoomBookingsApprovalsComponent {
     })();
   }
   static #_ = this.ɵfac = function RoomBookingsApprovalsComponent_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || RoomBookingsApprovalsComponent)(_angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵdirectiveInject"](_events_state_service__WEBPACK_IMPORTED_MODULE_1__.EventsStateService), _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵdirectiveInject"](_placeos_organisation__WEBPACK_IMPORTED_MODULE_2__.OrganisationService));
+    return new (__ngFactoryType__ || RoomBookingsApprovalsComponent)(_angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵdirectiveInject"](_events_state_service__WEBPACK_IMPORTED_MODULE_1__.EventsStateService), _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵdirectiveInject"](_placeos_organisation__WEBPACK_IMPORTED_MODULE_2__.OrganisationService), _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵdirectiveInject"](_placeos_common__WEBPACK_IMPORTED_MODULE_4__.SettingsService));
   };
-  static #_2 = this.ɵcmp = /*@__PURE__*/_angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵdefineComponent"]({
+  static #_2 = this.ɵcmp = /*@__PURE__*/_angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵdefineComponent"]({
     type: RoomBookingsApprovalsComponent,
     selectors: [["room-bookings-approvals"]],
     decls: 21,
     vars: 19,
-    consts: [[1, "flex", "flex-col", "h-full", "overflow-hidden", "border-l", "border-base-200", "w-[20rem]"], [1, "flex", "items-center", "p-2", "justify-center", "border-b", "border-base-200", "space-x-2", "relative"], ["btn", "", "icon", "", "matRipple", "", "matTooltip", "Hide Pending Approvals", "matTooltipPosition", "left", 1, "absolute", "top-4", "left-2", "bg-base-200", 3, "click"], [1, "flex-1", "py-4", "text-center"], [1, "border-b", "border-base-200", "relative"], ["type", "text", "placeholder", "Search...", 1, "w-full", "py-3", "pr-4", "pl-10", 3, "ngModelChange", "ngModel"], [1, "absolute", "top-1/2", "left-2", "-translate-y-1/2", "text-2xl", "pointer-events-none"], [1, "flex-1", "overflow-auto", "p-2", "space-y-2"], ["class", "w-full h-full flex flex-col items-center justify-center space-y-2", 4, "ngIf"], ["class", "relative border border-base-200 p-2 w-full rounded", 4, "ngFor", "ngForOf"], ["class", "absolute bottom-0 left-0 right-0 top-14 p-2 flex flex-col items-center justify-center space-y-2", 4, "ngIf"], ["btn", "", "icon", "", "matRipple", "", "class", "bg-warning absolute top-2 -left-8 shadow text-warning-content", "matTooltip", "Show Pending Approvals", "matTooltipPosition", "left", 3, "click", 4, "ngIf"], [1, "w-full", "h-full", "flex", "flex-col", "items-center", "justify-center", "space-y-2"], ["src", "assets/icons/no-pending.svg"], [1, "relative", "border", "border-base-200", "p-2", "w-full", "rounded"], [1, "opacity-30", "text-xs", "mb-2"], [1, "w-64", "h-32", "overflow-hidden", "mb-2", "bg-base-200"], ["auth", "", "class", "object-cover min-w-full min-h-full", 3, "source", 4, "ngIf"], [1, "flex", "items-center", "space-x-2", "mb-2"], [1, "h-8", "w-8", "bg-base-200", "rounded-full", "flex", "items-center", "justify-center"], [1, "text-xl"], [1, "flex-1", "text-xs"], [1, "flex", "items-center", "space-x-2"], ["btn", "", "matRipple", "", 1, "border-success", "bg-success-light", "text-black", "flex", "flex-1", "items-center", "space-x-2", 3, "click", "disabled"], [1, "text-success"], ["btn", "", "matRipple", "", 1, "border-error", "bg-error-light", "text-black", "flex", "flex-1", "items-center", "space-x-2", 3, "click", "disabled"], [1, "text-error"], ["auth", "", 1, "object-cover", "min-w-full", "min-h-full", 3, "source"], [1, "absolute", "bottom-0", "left-0", "right-0", "top-14", "p-2", "flex", "flex-col", "items-center", "justify-center", "space-y-2"], [1, "absolute", "inset-0", "bg-base-100", "opacity-80", "z-0"], ["diameter", "32"], [1, "relative", "z-10"], ["btn", "", "icon", "", "matRipple", "", "matTooltip", "Show Pending Approvals", "matTooltipPosition", "left", 1, "bg-warning", "absolute", "top-2", "-left-8", "shadow", "text-warning-content", 3, "click"]],
+    consts: [[1, "flex", "flex-col", "h-full", "overflow-hidden", "border-l", "border-base-200", "w-[20rem]"], [1, "flex", "items-center", "p-2", "justify-center", "border-b", "border-base-200", "space-x-2", "relative"], ["btn", "", "icon", "", "matRipple", "", "matTooltip", "Hide Pending Approvals", "matTooltipPosition", "left", 1, "absolute", "top-4", "left-2", "bg-base-200", 3, "click"], [1, "flex-1", "py-4", "text-center"], [1, "border-b", "border-base-200", "relative"], ["type", "text", "placeholder", "Search...", 1, "w-full", "py-3", "pr-4", "pl-10", 3, "ngModelChange", "ngModel"], [1, "absolute", "top-1/2", "left-2", "-translate-y-1/2", "text-2xl", "pointer-events-none"], [1, "flex-1", "overflow-auto", "p-2", "space-y-2"], ["class", "w-full h-full flex flex-col items-center justify-center space-y-2", 4, "ngIf"], ["class", "relative border border-base-200 p-2 w-full rounded", 4, "ngFor", "ngForOf"], ["class", "absolute bottom-0 left-0 right-0 top-14 p-2 flex flex-col items-center justify-center space-y-2", 4, "ngIf"], ["btn", "", "icon", "", "matRipple", "", "class", "bg-warning absolute top-2 -left-8 shadow text-warning-content", "matTooltip", "Show Pending Approvals", "matTooltipPosition", "left", 3, "click", 4, "ngIf"], [1, "w-full", "h-full", "flex", "flex-col", "items-center", "justify-center", "space-y-2"], ["src", "assets/icons/no-pending.svg"], [1, "relative", "border", "border-base-200", "p-2", "w-full", "rounded"], [1, "opacity-30", "text-xs", "mb-2"], [4, "ngIf"], [1, "w-64", "h-32", "overflow-hidden", "mb-2", "bg-base-200"], ["auth", "", "class", "object-cover min-w-full min-h-full", 3, "source", 4, "ngIf"], [1, "flex", "items-center", "space-x-2", "mb-2"], [1, "h-8", "w-8", "bg-base-200", "rounded-full", "flex", "items-center", "justify-center"], [1, "text-xl"], [1, "flex-1", "text-xs"], [1, "flex", "items-center", "space-x-2"], ["btn", "", "matRipple", "", 1, "border-success", "bg-success-light", "text-black", "flex", "flex-1", "items-center", "space-x-2", 3, "click", "disabled"], [1, "text-success"], ["btn", "", "matRipple", "", 1, "border-error", "bg-error-light", "text-black", "flex", "flex-1", "items-center", "space-x-2", 3, "click", "disabled"], [1, "text-error"], ["auth", "", 1, "object-cover", "min-w-full", "min-h-full", 3, "source"], [1, "absolute", "bottom-0", "left-0", "right-0", "top-14", "p-2", "flex", "flex-col", "items-center", "justify-center", "space-y-2"], [1, "absolute", "inset-0", "bg-base-100", "opacity-80", "z-0"], ["diameter", "32"], [1, "relative", "z-10"], ["btn", "", "icon", "", "matRipple", "", "matTooltip", "Show Pending Approvals", "matTooltipPosition", "left", 1, "bg-warning", "absolute", "top-2", "-left-8", "shadow", "text-warning-content", 3, "click"]],
     template: function RoomBookingsApprovalsComponent_Template(rf, ctx) {
       if (rf & 1) {
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](0, "div", 0)(1, "div", 1)(2, "button", 2);
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵlistener"]("click", function RoomBookingsApprovalsComponent_Template_button_click_2_listener() {
+        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementStart"](0, "div", 0)(1, "div", 1)(2, "button", 2);
+        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵlistener"]("click", function RoomBookingsApprovalsComponent_Template_button_click_2_listener() {
           return ctx.show = !ctx.show;
         });
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](3, "app-icon");
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtext"](4, "chevron_right");
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]()();
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](5, "h3", 3);
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtext"](6);
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵpipe"](7, "async");
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵpipe"](8, "async");
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]()();
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](9, "div", 4)(10, "input", 5);
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵpipe"](11, "async");
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵlistener"]("ngModelChange", function RoomBookingsApprovalsComponent_Template_input_ngModelChange_10_listener($event) {
+        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementStart"](3, "app-icon");
+        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtext"](4, "chevron_right");
+        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementEnd"]()();
+        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementStart"](5, "h3", 3);
+        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtext"](6);
+        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipe"](7, "async");
+        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipe"](8, "async");
+        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementEnd"]()();
+        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementStart"](9, "div", 4)(10, "input", 5);
+        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipe"](11, "async");
+        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵlistener"]("ngModelChange", function RoomBookingsApprovalsComponent_Template_input_ngModelChange_10_listener($event) {
           return ctx.search.next($event);
         });
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](12, "app-icon", 6);
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtext"](13, " search ");
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]()();
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](14, "div", 7);
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtemplate"](15, RoomBookingsApprovalsComponent_div_15_Template, 4, 0, "div", 8);
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵpipe"](16, "async");
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtemplate"](17, RoomBookingsApprovalsComponent_div_17_Template, 35, 20, "div", 9);
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵpipe"](18, "async");
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtemplate"](19, RoomBookingsApprovalsComponent_div_19_Template, 5, 0, "div", 10);
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtemplate"](20, RoomBookingsApprovalsComponent_button_20_Template, 3, 0, "button", 11);
+        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementStart"](12, "app-icon", 6);
+        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtext"](13, " search ");
+        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementEnd"]()();
+        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementStart"](14, "div", 7);
+        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtemplate"](15, RoomBookingsApprovalsComponent_div_15_Template, 4, 0, "div", 8);
+        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipe"](16, "async");
+        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtemplate"](17, RoomBookingsApprovalsComponent_div_17_Template, 37, 27, "div", 9);
+        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipe"](18, "async");
+        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtemplate"](19, RoomBookingsApprovalsComponent_div_19_Template, 5, 0, "div", 10);
+        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtemplate"](20, RoomBookingsApprovalsComponent_button_20_Template, 3, 0, "button", 11);
       }
       if (rf & 2) {
         let tmp_1_0;
         let tmp_3_0;
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵstyleProp"]("width", ctx.show ? "" : "0px");
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵadvance"](6);
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtextInterpolate2"](" Pending Approval (", ((tmp_1_0 = _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵpipeBind1"](7, 9, ctx.filtered_pending)) == null ? null : tmp_1_0.length) || "0", " of ", ((tmp_1_0 = _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵpipeBind1"](8, 11, ctx.pending)) == null ? null : tmp_1_0.length) || "0", ") ");
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵadvance"](4);
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵproperty"]("ngModel", _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵpipeBind1"](11, 13, ctx.search));
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵadvance"](5);
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵproperty"]("ngIf", !((tmp_3_0 = _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵpipeBind1"](16, 15, ctx.filtered_pending)) == null ? null : tmp_3_0.length));
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵadvance"](2);
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵproperty"]("ngForOf", _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵpipeBind1"](18, 17, ctx.filtered_pending));
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵadvance"](2);
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵproperty"]("ngIf", ctx.loading);
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵadvance"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵproperty"]("ngIf", !ctx.show);
+        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵstyleProp"]("width", ctx.show ? "" : "0px");
+        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"](6);
+        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtextInterpolate2"](" Pending Approval (", ((tmp_1_0 = _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](7, 9, ctx.filtered_pending)) == null ? null : tmp_1_0.length) || "0", " of ", ((tmp_1_0 = _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](8, 11, ctx.pending)) == null ? null : tmp_1_0.length) || "0", ") ");
+        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"](4);
+        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngModel", _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](11, 13, ctx.search));
+        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"](5);
+        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngIf", !((tmp_3_0 = _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](16, 15, ctx.filtered_pending)) == null ? null : tmp_3_0.length));
+        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"](2);
+        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngForOf", _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](18, 17, ctx.filtered_pending));
+        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"](2);
+        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngIf", ctx.loading);
+        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngIf", !ctx.show);
       }
     },
-    dependencies: [_angular_common__WEBPACK_IMPORTED_MODULE_11__.NgForOf, _angular_common__WEBPACK_IMPORTED_MODULE_11__.NgIf, _angular_forms__WEBPACK_IMPORTED_MODULE_12__.DefaultValueAccessor, _angular_forms__WEBPACK_IMPORTED_MODULE_12__.NgControlStatus, _angular_forms__WEBPACK_IMPORTED_MODULE_12__.NgModel, _angular_material_tooltip__WEBPACK_IMPORTED_MODULE_13__.MatTooltip, _angular_material_progress_spinner__WEBPACK_IMPORTED_MODULE_14__.MatProgressSpinner, _angular_material_core__WEBPACK_IMPORTED_MODULE_15__.MatRipple, _libs_components_src_lib_icon_component__WEBPACK_IMPORTED_MODULE_4__.IconComponent, _libs_components_src_lib_authenticated_image_directive__WEBPACK_IMPORTED_MODULE_5__.AuthenticatedImageDirective, _angular_common__WEBPACK_IMPORTED_MODULE_11__.AsyncPipe, _angular_common__WEBPACK_IMPORTED_MODULE_11__.DatePipe, _libs_spaces_src_lib_space_pipe__WEBPACK_IMPORTED_MODULE_6__.SpacePipe],
+    dependencies: [_angular_common__WEBPACK_IMPORTED_MODULE_12__.NgForOf, _angular_common__WEBPACK_IMPORTED_MODULE_12__.NgIf, _angular_forms__WEBPACK_IMPORTED_MODULE_13__.DefaultValueAccessor, _angular_forms__WEBPACK_IMPORTED_MODULE_13__.NgControlStatus, _angular_forms__WEBPACK_IMPORTED_MODULE_13__.NgModel, _angular_material_tooltip__WEBPACK_IMPORTED_MODULE_14__.MatTooltip, _angular_material_progress_spinner__WEBPACK_IMPORTED_MODULE_15__.MatProgressSpinner, _angular_material_core__WEBPACK_IMPORTED_MODULE_16__.MatRipple, _libs_components_src_lib_icon_component__WEBPACK_IMPORTED_MODULE_5__.IconComponent, _libs_components_src_lib_authenticated_image_directive__WEBPACK_IMPORTED_MODULE_6__.AuthenticatedImageDirective, _angular_common__WEBPACK_IMPORTED_MODULE_12__.AsyncPipe, _angular_common__WEBPACK_IMPORTED_MODULE_12__.DatePipe, _libs_spaces_src_lib_space_pipe__WEBPACK_IMPORTED_MODULE_7__.SpacePipe],
     styles: ["[_nghost-%COMP%] {\n                display: block;\n                position: relative;\n                height: 100%;\n            }\n        \n/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbInJvb20tYXBwcm92YWxzLmNvbXBvbmVudC50cyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiO1lBQ1k7Z0JBQ0ksY0FBYztnQkFDZCxrQkFBa0I7Z0JBQ2xCLFlBQVk7WUFDaEIiLCJmaWxlIjoicm9vbS1hcHByb3ZhbHMuY29tcG9uZW50LnRzIiwic291cmNlc0NvbnRlbnQiOlsiXG4gICAgICAgICAgICA6aG9zdCB7XG4gICAgICAgICAgICAgICAgZGlzcGxheTogYmxvY2s7XG4gICAgICAgICAgICAgICAgcG9zaXRpb246IHJlbGF0aXZlO1xuICAgICAgICAgICAgICAgIGhlaWdodDogMTAwJTtcbiAgICAgICAgICAgIH1cbiAgICAgICAgIl19 */\n/*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIndlYnBhY2s6Ly8uL2FwcHMvY29uY2llcmdlL3NyYy9hcHAvZGF5LXZpZXcvcm9vbS1hcHByb3ZhbHMuY29tcG9uZW50LnRzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiI7WUFDWTtnQkFDSSxjQUFjO2dCQUNkLGtCQUFrQjtnQkFDbEIsWUFBWTtZQUNoQjs7QUFFWixnZkFBZ2YiLCJzb3VyY2VzQ29udGVudCI6WyJcbiAgICAgICAgICAgIDpob3N0IHtcbiAgICAgICAgICAgICAgICBkaXNwbGF5OiBibG9jaztcbiAgICAgICAgICAgICAgICBwb3NpdGlvbjogcmVsYXRpdmU7XG4gICAgICAgICAgICAgICAgaGVpZ2h0OiAxMDAlO1xuICAgICAgICAgICAgfVxuICAgICAgICAiXSwic291cmNlUm9vdCI6IiJ9 */"]
   });
 }
@@ -2962,7 +2997,7 @@ function RoomWeekBookingsTimelineComponent_div_18_Template(rf, ctx) {
     const date_r1 = ctx.$implicit;
     const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵnextContext"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"](2);
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtextInterpolate1"](" ", _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind2"](3, 2, date_r1, "EEE, MMM d"), " ");
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtextInterpolate1"](" ", _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind3"](3, 2, date_r1, "EEE, MMM d", ctx_r1.tz), " ");
     _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"](2);
     _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngIf", ctx_r1.isToday(date_r1));
   }
@@ -3177,8 +3212,8 @@ class RoomWeekBookingsTimelineComponent extends _placeos_common__WEBPACK_IMPORTE
     selectors: [["room-week-bookings-timeline"]],
     features: [_angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵInheritDefinitionFeature"]],
     decls: 27,
-    vars: 34,
-    consts: [["class", "mx-2 mt-2 p-2 w-[calc(100%-1rem)] bg-info text-info-content rounded-lg text-center text-xs", 4, "ngIf"], [1, "relative", "flex", "items-center", "justify-center", "p-2", "space-x-2", "border-b", "border-base-200", "z-20"], [3, "dateChange", "date", "is_new"], ["class", "absolute top-1/2 -translate-y-1/2 left-4 text-info text-sm", 4, "ngIf"], [1, "absolute", "top-1/2", "-translate-y-1/2", "right-8"], [3, "selected"], ["timeline", "", 1, "grid", "overflow-auto", "w-full", "h-1/2", "flex-1", "z-0"], ["timezone", "", 1, "sticky", "top-0", "left-0", "z-30", "bg-base-100", "flex", "items-center", "justify-center"], [1, "text-xs", "opacity-30"], [1, "absolute", "h-2", "w-px", "right-0", "bottom-0", "bg-base-300"], [1, "absolute", "w-2", "h-px", "right-0", "bottom-0", "bg-base-300"], ["day-headers", "", 1, "sticky", "top-0", "z-20", "border-b", "border-base-300", "flex", "items-center", "bg-base-100", "min-w-[calc(100%-3rem)]"], ["class", "relative flex-1 h-full min-w-48 flex flex-col items-center justify-center leading-tight", 4, "ngFor", "ngForOf"], ["empty-block", "", 1, "sticky", "left-0", "z-10", "border-r", "border-base-300", "bg-base-100", "min-h-full"], ["date-blocks", "", 1, "relative", "overflow-hidden", "min-w-[calc(100%-3rem)]", "flex"], ["class", "flex-1 min-w-48 overflow-hidden p-2 border-r border-base-200", 4, "ngFor", "ngForOf"], [1, "mx-2", "mt-2", "p-2", "w-[calc(100%-1rem)]", "bg-info", "text-info-content", "rounded-lg", "text-center", "text-xs"], [1, "absolute", "top-1/2", "-translate-y-1/2", "left-4", "text-info", "text-sm"], [1, "relative", "flex-1", "h-full", "min-w-48", "flex", "flex-col", "items-center", "justify-center", "leading-tight"], [1, "truncate"], ["class", "text-info text-xs", 4, "ngIf"], [1, "absolute", "h-2", "w-px", "-left-px", "bottom-0", "bg-base-300"], [1, "text-info", "text-xs"], [1, "flex-1", "min-w-48", "overflow-hidden", "p-2", "border-r", "border-base-200"], ["matRipple", "", "class", "flex p-2 w-full space-x-2 hover:bg-base-200 rounded text-left", 3, "click", 4, "ngFor", "ngForOf"], ["matRipple", "", 1, "flex", "p-2", "w-full", "space-x-2", "hover:bg-base-200", "rounded", "text-left", 3, "click"], [1, "h-2", "w-2", "rounded-full", "my-1.5"], [1, "flex-1", "w-1/2"], [1, "text-sm", "truncate"], [1, "text-xs", "opacity-60", "flex-1"], [4, "ngIf"], [1, "text-xs", "truncate", "opacity-30"]],
+    vars: 36,
+    consts: [["class", "mx-2 mt-2 p-2 w-[calc(100%-1rem)] bg-info text-info-content rounded-lg text-center text-xs", 4, "ngIf"], [1, "relative", "flex", "items-center", "justify-center", "p-2", "space-x-2", "border-b", "border-base-200", "z-20"], [3, "dateChange", "date", "step", "is_new"], ["class", "absolute top-1/2 -translate-y-1/2 left-4 text-info text-sm", 4, "ngIf"], [1, "absolute", "top-1/2", "-translate-y-1/2", "right-8"], [3, "selected"], ["timeline", "", 1, "grid", "overflow-auto", "w-full", "h-1/2", "flex-1", "z-0"], ["timezone", "", 1, "sticky", "top-0", "left-0", "z-30", "bg-base-100", "flex", "items-center", "justify-center"], [1, "text-xs", "opacity-30"], [1, "absolute", "h-2", "w-px", "right-0", "bottom-0", "bg-base-300"], [1, "absolute", "w-2", "h-px", "right-0", "bottom-0", "bg-base-300"], ["day-headers", "", 1, "sticky", "top-0", "z-20", "border-b", "border-base-300", "flex", "items-center", "bg-base-100", "min-w-[calc(100%-3rem)]"], ["class", "relative flex-1 h-full min-w-48 flex flex-col items-center justify-center leading-tight", 4, "ngFor", "ngForOf"], ["empty-block", "", 1, "sticky", "left-0", "z-10", "border-r", "border-base-300", "bg-base-100", "min-h-full"], ["date-blocks", "", 1, "relative", "overflow-hidden", "min-w-[calc(100%-3rem)]", "flex"], ["class", "flex-1 min-w-48 overflow-hidden p-2 border-r border-base-200", 4, "ngFor", "ngForOf"], [1, "mx-2", "mt-2", "p-2", "w-[calc(100%-1rem)]", "bg-info", "text-info-content", "rounded-lg", "text-center", "text-xs"], [1, "absolute", "top-1/2", "-translate-y-1/2", "left-4", "text-info", "text-sm"], [1, "relative", "flex-1", "h-full", "min-w-48", "flex", "flex-col", "items-center", "justify-center", "leading-tight"], [1, "truncate"], ["class", "text-info text-xs absolute bottom-1 left-1/2 -translate-x-1/2", 4, "ngIf"], [1, "absolute", "h-2", "w-px", "-left-px", "bottom-0", "bg-base-300"], [1, "text-info", "text-xs", "absolute", "bottom-1", "left-1/2", "-translate-x-1/2"], [1, "flex-1", "min-w-48", "overflow-hidden", "p-2", "border-r", "border-base-200"], ["matRipple", "", "class", "flex p-2 w-full space-x-2 hover:bg-base-200 rounded text-left", 3, "click", 4, "ngFor", "ngForOf"], ["matRipple", "", 1, "flex", "p-2", "w-full", "space-x-2", "hover:bg-base-200", "rounded", "text-left", 3, "click"], [1, "h-2", "w-2", "rounded-full", "my-1.5"], [1, "flex-1", "w-1/2"], [1, "text-sm", "truncate"], [1, "text-xs", "opacity-60", "flex-1"], [4, "ngIf"], [1, "text-xs", "truncate", "opacity-30"]],
     template: function RoomWeekBookingsTimelineComponent_Template(rf, ctx) {
       if (rf & 1) {
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtemplate"](0, RoomWeekBookingsTimelineComponent_div_0_Template, 2, 0, "div", 0);
@@ -3204,7 +3239,7 @@ class RoomWeekBookingsTimelineComponent extends _placeos_common__WEBPACK_IMPORTE
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementEnd"]();
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementStart"](16, "div", 11);
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipe"](17, "async");
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtemplate"](18, RoomWeekBookingsTimelineComponent_div_18_Template, 6, 5, "div", 12);
+        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtemplate"](18, RoomWeekBookingsTimelineComponent_div_18_Template, 6, 6, "div", 12);
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipe"](19, "async");
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementEnd"]();
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelement"](20, "div", 13);
@@ -3217,25 +3252,25 @@ class RoomWeekBookingsTimelineComponent extends _placeos_common__WEBPACK_IMPORTE
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementEnd"]()();
       }
       if (rf & 2) {
-        let tmp_5_0;
-        let tmp_8_0;
+        let tmp_6_0;
+        let tmp_9_0;
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngIf", ctx.timezone && ctx.tz);
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"](2);
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("date", _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](3, 13, ctx.date))("is_new", true);
+        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("date", _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](3, 14, ctx.date))("step", 7)("is_new", true);
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"](2);
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngIf", _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](5, 15, ctx.this_week));
+        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngIf", _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](5, 16, ctx.this_week));
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"](7);
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtextInterpolate1"](" ", _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind2"](13, 19, _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](12, 17, ctx.date), "z"), " ");
+        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtextInterpolate1"](" ", _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind3"](13, 20, _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](12, 18, ctx.date), "z", ctx.tz), " ");
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"](5);
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵstyleProp"]("width", ((tmp_5_0 = _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](17, 22, ctx.days)) == null ? null : tmp_5_0.length) * 12 + "rem");
+        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵstyleProp"]("width", ((tmp_6_0 = _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](17, 24, ctx.days)) == null ? null : tmp_6_0.length) * 12 + "rem");
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"](2);
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngForOf", _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](19, 24, ctx.days));
+        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngForOf", _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](19, 26, ctx.days));
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"](2);
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵstyleProp"]("height", _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](21, 26, ctx.event_max_count) ? _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](22, 28, ctx.event_max_count) * 5.375 + "rem" : "");
+        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵstyleProp"]("height", _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](21, 28, ctx.event_max_count) ? _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](22, 30, ctx.event_max_count) * 5.375 + "rem" : "");
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"](3);
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵstyleProp"]("width", ((tmp_8_0 = _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](24, 30, ctx.days)) == null ? null : tmp_8_0.length) * 12 + "rem");
+        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵstyleProp"]("width", ((tmp_9_0 = _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](24, 32, ctx.days)) == null ? null : tmp_9_0.length) * 12 + "rem");
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"](2);
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngForOf", _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](26, 32, ctx.days));
+        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngForOf", _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](26, 34, ctx.days));
       }
     },
     dependencies: [_angular_common__WEBPACK_IMPORTED_MODULE_15__.NgForOf, _angular_common__WEBPACK_IMPORTED_MODULE_15__.NgIf, _ui_date_options_component__WEBPACK_IMPORTED_MODULE_5__.DateOptionsComponent, _angular_material_core__WEBPACK_IMPORTED_MODULE_20__.MatRipple, _room_booking_search_component__WEBPACK_IMPORTED_MODULE_6__.RoomBookingSearchComponent, _angular_common__WEBPACK_IMPORTED_MODULE_15__.AsyncPipe, _angular_common__WEBPACK_IMPORTED_MODULE_15__.DatePipe, _libs_users_src_lib_user_pipe__WEBPACK_IMPORTED_MODULE_7__.UserPipe],

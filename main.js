@@ -415,7 +415,7 @@ function EventBookModalComponent_main_8_section_14_Template(rf, ctx) {
     _angular_core__WEBPACK_IMPORTED_MODULE_13__["ɵɵadvance"](4);
     _angular_core__WEBPACK_IMPORTED_MODULE_13__["ɵɵproperty"]("matAutocomplete", auto_r5);
     _angular_core__WEBPACK_IMPORTED_MODULE_13__["ɵɵadvance"](3);
-    _angular_core__WEBPACK_IMPORTED_MODULE_13__["ɵɵproperty"]("ngForOf", _angular_core__WEBPACK_IMPORTED_MODULE_13__["ɵɵpipeBind1"](23, 11, ctx_r1.filtered_entities));
+    _angular_core__WEBPACK_IMPORTED_MODULE_13__["ɵɵproperty"]("ngForOf", _angular_core__WEBPACK_IMPORTED_MODULE_13__["ɵɵpipeBind1"](23, 11, ctx_r1.filtered_visitor_entities));
   }
 }
 function EventBookModalComponent_main_8_div_27_Template(rf, ctx) {
@@ -747,10 +747,10 @@ class EventBookModalComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_1
     this.hide_block = {};
     this.code_filter = new rxjs__WEBPACK_IMPORTED_MODULE_14__.BehaviorSubject('');
     this._visitor_entity = new rxjs__WEBPACK_IMPORTED_MODULE_14__.BehaviorSubject('');
-    this.host_entity_list = this._org.initialised.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_15__.filter)(_ => !!_), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_16__.switchMap)(_ => (0,_placeos_ts_client__WEBPACK_IMPORTED_MODULE_4__.showMetadata)(this._org.organisation.id, 'entities').pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_17__.catchError)(() => (0,rxjs__WEBPACK_IMPORTED_MODULE_18__.of)({
+    this.visitor_entity_list = this._org.initialised.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_15__.filter)(_ => !!_), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_16__.switchMap)(_ => (0,_placeos_ts_client__WEBPACK_IMPORTED_MODULE_4__.showMetadata)(this._org.organisation.id, 'visitor_entities').pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_17__.catchError)(() => (0,rxjs__WEBPACK_IMPORTED_MODULE_18__.of)({
       details: []
     })))), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_19__.map)(_ => _.details instanceof Array ? _.details : []), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_20__.shareReplay)(1));
-    this.filtered_entities = (0,rxjs__WEBPACK_IMPORTED_MODULE_21__.combineLatest)([this.host_entity_list, this._visitor_entity]).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_19__.map)(([list, entity]) => entity ? list.filter(_ => _.toLowerCase().includes(entity.toLowerCase())) : list));
+    this.filtered_visitor_entities = (0,rxjs__WEBPACK_IMPORTED_MODULE_21__.combineLatest)([this.visitor_entity_list, this._visitor_entity]).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_19__.map)(([list, entity]) => entity ? list.filter(_ => _.toLowerCase().includes(entity.toLowerCase())) : list));
     this.has_catering = this._catering.available_menu.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_19__.map)(l => l.length > 0));
     this.has_codes = this._catering.charge_codes.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_19__.map)(l => l.length > 0), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_22__.tap)(has_codes => {
       if (!has_codes) {
@@ -764,7 +764,9 @@ class EventBookModalComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_1
     var _this = this;
     return (0,_home_runner_work_user_interfaces_user_interfaces_node_modules_babel_runtime_helpers_esm_asyncToGenerator_js__WEBPACK_IMPORTED_MODULE_0__["default"])(function* () {
       yield _this._event_form.newForm(_this._data.event);
-      _this.subscription('visitor_entity_change', _this.form.valueChanges.subscribe(() => _this._visitor_entity.next(_this.form.getRawValue().visitor_entity)));
+      _this.subscription('host_entity_change', _this.form.valueChanges.subscribe(() => {
+        _this._visitor_entity.next(_this.form.getRawValue().visitor_entity);
+      }));
       _this._visitor_entity.next(_this.form.getRawValue().visitor_entity);
     })();
   }
@@ -3076,16 +3078,17 @@ class DateOptionsComponent {
     this.week_start = 0;
     /** Currently selected date */
     this.date = new Date().valueOf();
+    this.step = 1;
     /** Emitter for changes to the date */
     this.dateChange = new _angular_core__WEBPACK_IMPORTED_MODULE_3__.EventEmitter();
     /** Change date to the previous date */
     this.previousDay = () => {
-      this.date = (0,date_fns__WEBPACK_IMPORTED_MODULE_4__.subDays)(new Date(this.date), 1).valueOf();
+      this.date = (0,date_fns__WEBPACK_IMPORTED_MODULE_4__.subDays)(new Date(this.date), this.step).valueOf();
       this.dateChange.emit(this.date);
     };
     /** Change date to the next date */
     this.nextDay = () => {
-      this.date = (0,date_fns__WEBPACK_IMPORTED_MODULE_5__.addDays)(new Date(this.date), 1).valueOf();
+      this.date = (0,date_fns__WEBPACK_IMPORTED_MODULE_5__.addDays)(new Date(this.date), this.step).valueOf();
       this.dateChange.emit(this.date);
     };
   }
@@ -3104,7 +3107,8 @@ class DateOptionsComponent {
       is_new: "is_new",
       disabled: "disabled",
       week_start: "week_start",
-      date: "date"
+      date: "date",
+      step: "step"
     },
     outputs: {
       dateChange: "dateChange"
@@ -3881,14 +3885,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! date-fns */ 77177);
 /* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! date-fns */ 1874);
 /* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! date-fns */ 99134);
-/* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! rxjs */ 71536);
-/* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! rxjs */ 90521);
+/* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! rxjs */ 90521);
+/* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! rxjs */ 71536);
 /* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! rxjs */ 68824);
-/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! rxjs/operators */ 8627);
-/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! rxjs/operators */ 71963);
-/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! rxjs/operators */ 29314);
-/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! rxjs/operators */ 35443);
-/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! rxjs/operators */ 7841);
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! rxjs/operators */ 8627);
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! rxjs/operators */ 71963);
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! rxjs/operators */ 29314);
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! rxjs/operators */ 35443);
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! rxjs/operators */ 7841);
 /* harmony import */ var _placeos_organisation__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @placeos/organisation */ 2510);
 /* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! @angular/core */ 37580);
 /* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! @angular/common */ 60316);
@@ -4304,11 +4308,11 @@ class MeetingFormDetailsComponent extends _placeos_common__WEBPACK_IMPORTED_MODU
     this._settings = _settings;
     this._event_form = _event_form;
     this._org = _org;
-    this.host_entity_list = this._org.initialised.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_16__.filter)(_ => !!_), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_17__.switchMap)(_ => (0,_placeos_ts_client__WEBPACK_IMPORTED_MODULE_2__.showMetadata)(this._org.organisation.id, 'entities').pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_18__.catchError)(() => (0,rxjs__WEBPACK_IMPORTED_MODULE_19__.of)({
+    this._host_entity = new rxjs__WEBPACK_IMPORTED_MODULE_16__.BehaviorSubject('');
+    this.host_entity_list = this._org.initialised.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_17__.filter)(_ => !!_), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_18__.switchMap)(_ => (0,_placeos_ts_client__WEBPACK_IMPORTED_MODULE_2__.showMetadata)(this._org.organisation.id, 'host_entities').pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_19__.catchError)(() => (0,rxjs__WEBPACK_IMPORTED_MODULE_20__.of)({
       details: []
-    })))), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_20__.map)(_ => _.details instanceof Array ? _.details : []), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_21__.shareReplay)(1));
-    this._host_entity = new rxjs__WEBPACK_IMPORTED_MODULE_22__.BehaviorSubject('');
-    this.filtered_entities = (0,rxjs__WEBPACK_IMPORTED_MODULE_23__.combineLatest)([this.host_entity_list, this._host_entity]).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_20__.map)(([list, entity]) => entity ? list.filter(_ => _.toLowerCase().includes(entity.toLowerCase())) : list));
+    })))), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_21__.map)(_ => _.details instanceof Array ? _.details : []), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_22__.shareReplay)(1));
+    this.filtered_entities = (0,rxjs__WEBPACK_IMPORTED_MODULE_23__.combineLatest)([this.host_entity_list, this._host_entity]).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_21__.map)(([list, entity]) => entity ? list.filter(_ => _.toLowerCase().includes(entity.toLowerCase())) : list));
     this.force_time = (0,date_fns__WEBPACK_IMPORTED_MODULE_24__.set)(Date.now(), {
       hours: 6,
       minutes: 0
@@ -4325,7 +4329,9 @@ class MeetingFormDetailsComponent extends _placeos_common__WEBPACK_IMPORTED_MODU
   }
   ngOnChanges(changes) {
     if (changes.form && this.form) {
-      this.subscription('host_entity_change', this.form.valueChanges.subscribe(() => this._host_entity.next(this.form.getRawValue().host_entity)));
+      this.subscription('host_entity_change', this.form.valueChanges.subscribe(() => {
+        this._host_entity.next(this.form.getRawValue().host_entity);
+      }));
       this._host_entity.next(this.form.getRawValue().host_entity);
     }
   }
@@ -6711,6 +6717,7 @@ class AssetsModule {
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   Booking: () => (/* binding */ Booking),
+/* harmony export */   DAYS_OF_WEEK_INDEX: () => (/* binding */ DAYS_OF_WEEK_INDEX),
 /* harmony export */   RecurrenceDays: () => (/* binding */ RecurrenceDays),
 /* harmony export */   WeekOfMonth: () => (/* binding */ WeekOfMonth)
 /* harmony export */ });
@@ -6741,6 +6748,7 @@ var RecurrenceDays;
   RecurrenceDays[RecurrenceDays["FRIDAY"] = 2] = "FRIDAY";
   RecurrenceDays[RecurrenceDays["SATURDAY"] = 1] = "SATURDAY";
 })(RecurrenceDays || (RecurrenceDays = {}));
+const DAYS_OF_WEEK_INDEX = [RecurrenceDays.SUNDAY, RecurrenceDays.MONDAY, RecurrenceDays.TUESDAY, RecurrenceDays.WEDNESDAY, RecurrenceDays.THURSDAY, RecurrenceDays.FRIDAY, RecurrenceDays.SATURDAY];
 var WeekOfMonth;
 (function (WeekOfMonth) {
   WeekOfMonth[WeekOfMonth["First"] = 1] = "First";
@@ -13854,15 +13862,15 @@ __webpack_require__.r(__webpack_exports__);
 /* tslint:disable */
 const VERSION = {
   "dirty": false,
-  "raw": "3c24f0a",
-  "hash": "3c24f0a",
+  "raw": "7974a85",
+  "hash": "7974a85",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "3c24f0a",
+  "suffix": "7974a85",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1729126169835
+  "time": 1729155680049
 };
 /* tslint:enable */
 
@@ -26029,7 +26037,8 @@ class EventFormService extends _placeos_common__WEBPACK_IMPORTED_MODULE_2__.Asyn
         _this2.setView('success');
         _this2.timeout('post_finshed', () => _this2._changed.next(Date.now()));
         resolve(result);
-        _this2._saveEntity([result.extension_data?.host_entity, result.extension_data?.visitor_entity]);
+        _this2._saveEntity([result.extension_data?.host_entity]);
+        _this2._saveEntity([result.extension_data?.visitor_entity], 'visitor');
         _this2._loading.next('');
       });
       return function (_x, _x2) {
@@ -26071,18 +26080,18 @@ class EventFormService extends _placeos_common__WEBPACK_IMPORTED_MODULE_2__.Asyn
     const old_visitors = this._settings.get('visitor-invitees') || [];
     this._settings.saveUserSetting('visitor-invitees', (0,_placeos_common__WEBPACK_IMPORTED_MODULE_2__.unique)([...old_visitors.filter(_ => !_.includes(_.email)), ...visitors.map(_ => `${_.email}|${_.name}|${_.organisation}`)]));
   }
-  _saveEntity(entities) {
+  _saveEntity(entities, type = 'host') {
     var _this5 = this;
     return (0,_home_runner_work_user_interfaces_user_interfaces_node_modules_babel_runtime_helpers_esm_asyncToGenerator_js__WEBPACK_IMPORTED_MODULE_0__["default"])(function* () {
       entities = entities.filter(_ => !!_);
       if (!entities?.length) return;
-      const metadata = yield (0,_placeos_ts_client__WEBPACK_IMPORTED_MODULE_1__.showMetadata)(_this5._org.organisation.id, 'entities').toPromise();
+      const metadata = yield (0,_placeos_ts_client__WEBPACK_IMPORTED_MODULE_1__.showMetadata)(_this5._org.organisation.id, `${type}_entities`).toPromise();
       const entity_list = metadata.details instanceof Array ? metadata.details : [];
       const new_list = (0,_placeos_common__WEBPACK_IMPORTED_MODULE_2__.unique)([...entity_list, ...entities]);
       yield (0,_placeos_ts_client__WEBPACK_IMPORTED_MODULE_1__.updateMetadata)(_this5._org.organisation.id, {
-        name: 'entities',
+        name: `${type}_entities`,
         details: new_list,
-        description: 'List of entities'
+        description: `List of ${type} entities`
       }).toPromise();
     })();
   }

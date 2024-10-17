@@ -12,20 +12,25 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   ParkingBookingModalComponent: () => (/* binding */ ParkingBookingModalComponent)
 /* harmony export */ });
 /* harmony import */ var _home_runner_work_user_interfaces_user_interfaces_node_modules_babel_runtime_helpers_esm_asyncToGenerator_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js */ 89204);
-/* harmony import */ var _angular_forms__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! @angular/forms */ 34456);
-/* harmony import */ var _angular_material_dialog__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! @angular/material/dialog */ 12587);
+/* harmony import */ var _angular_forms__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! @angular/forms */ 34456);
+/* harmony import */ var _angular_material_dialog__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! @angular/material/dialog */ 12587);
 /* harmony import */ var _placeos_bookings__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @placeos/bookings */ 85616);
 /* harmony import */ var _placeos_common__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @placeos/common */ 22797);
-/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! @angular/core */ 37580);
-/* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! @angular/common */ 60316);
-/* harmony import */ var _angular_material_form_field__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! @angular/material/form-field */ 24950);
-/* harmony import */ var _angular_material_input__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! @angular/material/input */ 95541);
-/* harmony import */ var _angular_material_progress_spinner__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! @angular/material/progress-spinner */ 41134);
-/* harmony import */ var _angular_material_core__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! @angular/material/core */ 74646);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! date-fns */ 56441);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! date-fns */ 28797);
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! @angular/core */ 37580);
+/* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! @angular/common */ 60316);
+/* harmony import */ var _angular_material_form_field__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! @angular/material/form-field */ 24950);
+/* harmony import */ var _angular_material_input__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! @angular/material/input */ 95541);
+/* harmony import */ var _angular_material_checkbox__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! @angular/material/checkbox */ 97024);
+/* harmony import */ var _angular_material_progress_spinner__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! @angular/material/progress-spinner */ 41134);
+/* harmony import */ var _angular_material_core__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! @angular/material/core */ 74646);
 /* harmony import */ var _libs_form_fields_src_lib_date_field_component__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../../../../libs/form-fields/src/lib/date-field.component */ 19608);
-/* harmony import */ var _libs_form_fields_src_lib_user_search_field_component__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../../../../libs/form-fields/src/lib/user-search-field.component */ 18000);
-/* harmony import */ var _libs_components_src_lib_icon_component__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../../../../libs/components/src/lib/icon.component */ 69434);
-/* harmony import */ var _libs_bookings_src_lib_parking_space_list_field_component__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../../../../../libs/bookings/src/lib/parking-space-list-field.component */ 24844);
+/* harmony import */ var _libs_form_fields_src_lib_duration_field_component__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../../../../libs/form-fields/src/lib/duration-field.component */ 83476);
+/* harmony import */ var _libs_form_fields_src_lib_time_field_component__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../../../../libs/form-fields/src/lib/time-field.component */ 81413);
+/* harmony import */ var _libs_form_fields_src_lib_user_search_field_component__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../../../../../libs/form-fields/src/lib/user-search-field.component */ 18000);
+/* harmony import */ var _libs_components_src_lib_icon_component__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../../../../../libs/components/src/lib/icon.component */ 69434);
+/* harmony import */ var _libs_bookings_src_lib_parking_space_list_field_component__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../../../../../libs/bookings/src/lib/parking-space-list-field.component */ 24844);
 
 
 
@@ -44,108 +49,176 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+
+
+
+
+
+const _c0 = () => ({
+  standalone: true
+});
 function ParkingBookingModalComponent_button_4_Template(rf, ctx) {
   if (rf & 1) {
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](0, "button", 7)(1, "app-icon");
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtext"](2, "close");
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]()();
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](0, "button", 10)(1, "app-icon");
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtext"](2, "close");
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementEnd"]()();
   }
 }
 function ParkingBookingModalComponent_main_5_div_1_Template(rf, ctx) {
   if (rf & 1) {
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](0, "div", 24);
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelement"](1, "a-user-search-field", 25);
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](0, "div", 30);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelement"](1, "a-user-search-field", 31);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementEnd"]();
   }
 }
-function ParkingBookingModalComponent_main_5_span_25_Template(rf, ctx) {
+function ParkingBookingModalComponent_main_5_mat_checkbox_21_Template(rf, ctx) {
   if (rf & 1) {
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](0, "span");
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtext"](1, "*");
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](0, "mat-checkbox", 32);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵi18n"](1, 1);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementEnd"]();
+  }
+}
+function ParkingBookingModalComponent_main_5_div_22_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r1 = _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵgetCurrentView"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](0, "div", 13)(1, "div", 33)(2, "label", 34);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵi18nStart"](3, 2);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelement"](4, "span");
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵi18nEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](5, "a-time-field", 35);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵlistener"]("ngModelChange", function ParkingBookingModalComponent_main_5_div_22_Template_a_time_field_ngModelChange_5_listener($event) {
+      _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵrestoreView"](_r1);
+      const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵnextContext"](2);
+      return _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵresetView"](ctx_r1.form.patchValue({
+        date: $event
+      }));
+    });
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementEnd"]()();
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](6, "div", 36)(7, "label", 37);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵi18nStart"](8, 3);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelement"](9, "span");
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵi18nEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelement"](10, "a-duration-field", 38);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementEnd"]()();
+  }
+  if (rf & 2) {
+    const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵnextContext"](2);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵadvance"](5);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵproperty"]("ngModel", ctx_r1.form.value.date)("ngModelOptions", _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵpureFunction0"](6, _c0))("use_24hr", ctx_r1.use_24hr);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵadvance"](5);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵproperty"]("time", ctx_r1.form == null ? null : ctx_r1.form.value == null ? null : ctx_r1.form.value.date)("max", ctx_r1.max_duration)("use_24hr", ctx_r1.use_24hr);
+  }
+}
+function ParkingBookingModalComponent_main_5_span_28_Template(rf, ctx) {
+  if (rf & 1) {
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](0, "span");
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtext"](1, "*");
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementEnd"]();
   }
 }
 function ParkingBookingModalComponent_main_5_Template(rf, ctx) {
   if (rf & 1) {
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](0, "main", 8);
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtemplate"](1, ParkingBookingModalComponent_main_5_div_1_Template, 2, 0, "div", 9);
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](2, "div", 10)(3, "div", 11)(4, "label", 12);
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtext"](5, "Name");
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](6, "mat-form-field", 13);
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelement"](7, "input", 14);
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](8, "mat-error");
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtext"](9, "A name is required");
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]()()();
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](10, "div", 11)(11, "label", 15);
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtext"](12, "Email");
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](13, "mat-form-field", 13);
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelement"](14, "input", 16);
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](15, "mat-error");
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtext"](16, "An email is required");
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]()()()();
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](17, "label", 17);
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtext"](18, "Date");
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelement"](19, "a-date-field", 18);
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](20, "label", 19);
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtext"](21, "Parking Space");
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelement"](22, "parking-space-list-field", 20);
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](23, "label", 21);
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtext"](24, " Plate Number");
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtemplate"](25, ParkingBookingModalComponent_main_5_span_25_Template, 2, 0, "span", 22);
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](26, "mat-form-field", 13);
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelement"](27, "input", 23);
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](28, "mat-error");
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtext"](29, "A plate number is required");
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]()()();
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](0, "main", 11);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtemplate"](1, ParkingBookingModalComponent_main_5_div_1_Template, 2, 0, "div", 12);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](2, "div", 13)(3, "div", 14)(4, "label", 15);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtext"](5, "Name");
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](6, "mat-form-field", 16);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelement"](7, "input", 17);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](8, "mat-error");
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtext"](9, "A name is required");
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementEnd"]()()();
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](10, "div", 14)(11, "label", 18);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtext"](12, "Email");
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](13, "mat-form-field", 16);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelement"](14, "input", 19);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](15, "mat-error");
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtext"](16, "An email is required");
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementEnd"]()()()();
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](17, "div", 20)(18, "label", 21);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtext"](19, "Date");
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelement"](20, "a-date-field", 22);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtemplate"](21, ParkingBookingModalComponent_main_5_mat_checkbox_21_Template, 2, 0, "mat-checkbox", 23);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtemplate"](22, ParkingBookingModalComponent_main_5_div_22_Template, 11, 7, "div", 24);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](23, "label", 25);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtext"](24, "Parking Space");
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelement"](25, "parking-space-list-field", 26);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](26, "label", 27);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtext"](27, " Plate Number");
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtemplate"](28, ParkingBookingModalComponent_main_5_span_28_Template, 2, 0, "span", 28);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](29, "mat-form-field", 16);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelement"](30, "input", 29);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](31, "mat-error");
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtext"](32, "A plate number is required");
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementEnd"]()()();
   }
   if (rf & 2) {
-    const ctx_r0 = _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵnextContext"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵproperty"]("formGroup", ctx_r0.form);
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵadvance"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵproperty"]("ngIf", !ctx_r0.user);
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵadvance"](24);
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵproperty"]("ngIf", ctx_r0.user);
+    const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵnextContext"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵproperty"]("formGroup", ctx_r1.form);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵadvance"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵproperty"]("ngIf", !ctx_r1.user);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵadvance"](20);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵproperty"]("ngIf", ctx_r1.allow_all_day);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵadvance"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵproperty"]("ngIf", !ctx_r1.form.value.all_day);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵadvance"](6);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵproperty"]("ngIf", ctx_r1.user);
   }
 }
 function ParkingBookingModalComponent_footer_6_Template(rf, ctx) {
   if (rf & 1) {
-    const _r2 = _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵgetCurrentView"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](0, "footer", 26)(1, "button", 27);
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtext"](2, " Cancel ");
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](3, "button", 28);
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵlistener"]("click", function ParkingBookingModalComponent_footer_6_Template_button_click_3_listener() {
-      _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵrestoreView"](_r2);
-      const ctx_r0 = _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵnextContext"]();
-      return _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵresetView"](ctx_r0.postForm());
+    const _r3 = _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵgetCurrentView"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](0, "footer", 39)(1, "button", 40);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtext"](2, " Cancel ");
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](3, "button", 41);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵlistener"]("click", function ParkingBookingModalComponent_footer_6_Template_button_click_3_listener() {
+      _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵrestoreView"](_r3);
+      const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵnextContext"]();
+      return _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵresetView"](ctx_r1.postForm());
     });
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtext"](4, " Save ");
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]()();
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtext"](4, " Save ");
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementEnd"]()();
   }
 }
 function ParkingBookingModalComponent_ng_template_7_Template(rf, ctx) {
   if (rf & 1) {
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](0, "main", 29);
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelement"](1, "mat-spinner", 30);
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](2, "p");
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtext"](3, "Saving parking reservation...");
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]()();
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](0, "main", 42);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelement"](1, "mat-spinner", 43);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](2, "p");
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtext"](3, "Saving parking reservation...");
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementEnd"]()();
   }
 }
 class ParkingBookingModalComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_2__.AsyncHandler {
   get id() {
     return this.form.value.id;
   }
-  constructor(_data, _booking_form, _dialog_ref) {
+  get end_date() {
+    return (0,date_fns__WEBPACK_IMPORTED_MODULE_10__.endOfDay)((0,date_fns__WEBPACK_IMPORTED_MODULE_11__.addDays)(Date.now(), this._settings.get('app.parking.available_period') || 7));
+  }
+  get max_duration() {
+    return this._settings.get('app.bookings.max_duration') || 480;
+  }
+  get allow_all_day() {
+    return this._settings.get('app.parking.allow_all_day') || true;
+  }
+  get use_24hr() {
+    return this._settings.get('app.use_24_hour_time');
+  }
+  constructor(_data, _booking_form, _dialog_ref, _settings) {
     super();
     this._data = _data;
     this._booking_form = _booking_form;
     this._dialog_ref = _dialog_ref;
+    this._settings = _settings;
     this.loading = false;
     this.user = this._data.user;
     this.date = this._data.date;
@@ -179,7 +252,7 @@ class ParkingBookingModalComponent extends _placeos_common__WEBPACK_IMPORTED_MOD
         user_name: this._data.user.name,
         attendees: [this._data.user]
       });
-      this.form.controls.plate_number.setValidators([_angular_forms__WEBPACK_IMPORTED_MODULE_8__.Validators.required]);
+      this.form.controls.plate_number.setValidators([_angular_forms__WEBPACK_IMPORTED_MODULE_12__.Validators.required]);
       this.form.controls.user_name.disable();
       this.form.controls.user_email.disable();
     }
@@ -239,39 +312,87 @@ class ParkingBookingModalComponent extends _placeos_common__WEBPACK_IMPORTED_MOD
     })();
   }
   static #_ = this.ɵfac = function ParkingBookingModalComponent_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || ParkingBookingModalComponent)(_angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵdirectiveInject"](_angular_material_dialog__WEBPACK_IMPORTED_MODULE_9__.MAT_DIALOG_DATA), _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵdirectiveInject"](_placeos_bookings__WEBPACK_IMPORTED_MODULE_1__.BookingFormService), _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵdirectiveInject"](_angular_material_dialog__WEBPACK_IMPORTED_MODULE_9__.MatDialogRef));
+    return new (__ngFactoryType__ || ParkingBookingModalComponent)(_angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵdirectiveInject"](_angular_material_dialog__WEBPACK_IMPORTED_MODULE_13__.MAT_DIALOG_DATA), _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵdirectiveInject"](_placeos_bookings__WEBPACK_IMPORTED_MODULE_1__.BookingFormService), _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵdirectiveInject"](_angular_material_dialog__WEBPACK_IMPORTED_MODULE_13__.MatDialogRef), _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵdirectiveInject"](_placeos_common__WEBPACK_IMPORTED_MODULE_2__.SettingsService));
   };
-  static #_2 = this.ɵcmp = /*@__PURE__*/_angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵdefineComponent"]({
+  static #_2 = this.ɵcmp = /*@__PURE__*/_angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵdefineComponent"]({
     type: ParkingBookingModalComponent,
     selectors: [["parking-booking-modal"]],
-    features: [_angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵInheritDefinitionFeature"]],
+    features: [_angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵInheritDefinitionFeature"]],
     decls: 9,
     vars: 5,
-    consts: [["load_state", ""], [1, "w-[32rem]"], [1, "flex", "items-center", "justify-between", "px-2", "w-full"], [1, "px-2"], ["icon", "", "matRipple", "", "mat-dialog-close", "", 4, "ngIf"], ["class", "p-4 flex flex-col max-h-[65vh] overflow-auto", 3, "formGroup", 4, "ngIf", "ngIfElse"], ["class", "flex items-center justify-end space-x-2 p-2 border-t border-base-200", 4, "ngIf"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], [1, "p-4", "flex", "flex-col", "max-h-[65vh]", "overflow-auto", 3, "formGroup"], ["class", "flex items-center space-x-2 mb-4", 4, "ngIf"], [1, "flex", "items-center", "space-x-2"], [1, "flex-1"], ["for", "user-name"], ["appearance", "outline", 1, "w-full"], ["matInput", "", "name", "user-name", "formControlName", "user_name", "placeholder", "Name"], ["for", "email"], ["matInput", "", "name", "email", "formControlName", "user_email", "placeholder", "Email"], ["for", "date"], ["formControlName", "date"], ["for", "parking-space"], ["name", "parking-space", "formControlName", "resources", 1, "mb-2"], ["for", "plate-number"], [4, "ngIf"], ["matInput", "", "name", "plate-number", "formControlName", "plate_number", "placeholder", "Plate Number"], [1, "flex", "items-center", "space-x-2", "mb-4"], ["name", "user", "formControlName", "user", 1, "flex-1"], [1, "flex", "items-center", "justify-end", "space-x-2", "p-2", "border-t", "border-base-200"], ["btn", "", "matRipple", "", "mat-dialog-close", "", 1, "w-32", "inverse"], ["btn", "", "matRipple", "", 1, "w-32", 3, "click"], [1, "p-8", "flex", "flex-col", "items-center", "justify-center", "user-y-2"], ["diameter", "32"]],
+    consts: () => {
+      let i18n_0;
+      if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
+        /**
+         * @suppress {msgDescriptions}
+         */
+        const MSG_EXTERNAL_835486935962207481$$APPS_CONCIERGE_SRC_APP_PARKING_PARKING_BOOKING_MODAL_COMPONENT_TS_0 = goog.getMsg(" All Day ");
+        i18n_0 = MSG_EXTERNAL_835486935962207481$$APPS_CONCIERGE_SRC_APP_PARKING_PARKING_BOOKING_MODAL_COMPONENT_TS_0;
+      } else {
+        i18n_0 = $localize`:␟d7f43e20f3a729fa3de32bc7a1f709ccd722eae5␟835486935962207481: All Day `;
+      }
+      let i18n_1;
+      if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
+        /**
+         * @suppress {msgDescriptions}
+         */
+        const MSG_EXTERNAL_3039786638368843634$$APPS_CONCIERGE_SRC_APP_PARKING_PARKING_BOOKING_MODAL_COMPONENT_TS_1 = goog.getMsg("Start Time{$startTagSpan}*{$closeTagSpan}", {
+          "closeTagSpan": "\uFFFD/#4\uFFFD",
+          "startTagSpan": "\uFFFD#4\uFFFD"
+        }, {
+          original_code: {
+            "closeTagSpan": "</span>",
+            "startTagSpan": "<span>"
+          }
+        });
+        i18n_1 = MSG_EXTERNAL_3039786638368843634$$APPS_CONCIERGE_SRC_APP_PARKING_PARKING_BOOKING_MODAL_COMPONENT_TS_1;
+      } else {
+        i18n_1 = $localize`:␟34a7595cdc15925514038224946986bfd90dc0ed␟3039786638368843634:Start Time${"\uFFFD#4\uFFFD"}:START_TAG_SPAN:*${"\uFFFD/#4\uFFFD"}:CLOSE_TAG_SPAN:`;
+      }
+      let i18n_2;
+      if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
+        /**
+         * @suppress {msgDescriptions}
+         */
+        const MSG_EXTERNAL_5960185837188220843$$APPS_CONCIERGE_SRC_APP_PARKING_PARKING_BOOKING_MODAL_COMPONENT_TS_2 = goog.getMsg("End Time{$startTagSpan}*{$closeTagSpan}", {
+          "closeTagSpan": "\uFFFD/#9\uFFFD",
+          "startTagSpan": "\uFFFD#9\uFFFD"
+        }, {
+          original_code: {
+            "closeTagSpan": "</span>",
+            "startTagSpan": "<span>"
+          }
+        });
+        i18n_2 = MSG_EXTERNAL_5960185837188220843$$APPS_CONCIERGE_SRC_APP_PARKING_PARKING_BOOKING_MODAL_COMPONENT_TS_2;
+      } else {
+        i18n_2 = $localize`:␟85d5c3a89bab9a7475a7db095089e161586cb7a1␟5960185837188220843:End Time${"\uFFFD#9\uFFFD"}:START_TAG_SPAN:*${"\uFFFD/#9\uFFFD"}:CLOSE_TAG_SPAN:`;
+      }
+      return [["load_state", ""], i18n_0, i18n_1, i18n_2, [1, "w-[32rem]"], [1, "flex", "items-center", "justify-between", "px-2", "w-full"], [1, "px-2"], ["icon", "", "matRipple", "", "mat-dialog-close", "", 4, "ngIf"], ["class", "p-4 flex flex-col max-h-[65vh] overflow-auto", 3, "formGroup", 4, "ngIf", "ngIfElse"], ["class", "flex items-center justify-end space-x-2 p-2 border-t border-base-200", 4, "ngIf"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], [1, "p-4", "flex", "flex-col", "max-h-[65vh]", "overflow-auto", 3, "formGroup"], ["class", "flex items-center space-x-2 mb-4", 4, "ngIf"], [1, "flex", "items-center", "space-x-2"], [1, "flex-1"], ["for", "user-name"], ["appearance", "outline", 1, "w-full"], ["matInput", "", "name", "user-name", "formControlName", "user_name", "placeholder", "Name"], ["for", "email"], ["matInput", "", "name", "email", "formControlName", "user_email", "placeholder", "Email"], [1, "relative"], ["for", "date"], ["formControlName", "date"], ["formControlName", "all_day", "class", "absolute -top-2 right-0", 4, "ngIf"], ["class", "flex items-center space-x-2", 4, "ngIf"], ["for", "parking-space"], ["name", "parking-space", "formControlName", "resources", 1, "mb-2"], ["for", "plate-number"], [4, "ngIf"], ["matInput", "", "name", "plate-number", "formControlName", "plate_number", "placeholder", "Plate Number"], [1, "flex", "items-center", "space-x-2", "mb-4"], ["name", "user", "formControlName", "user", 1, "flex-1"], ["formControlName", "all_day", 1, "absolute", "-top-2", "right-0"], [1, "flex-1", "w-1/3"], ["for", "start-time"], ["name", "start-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "use_24hr"], [1, "flex-1", "w-1/3", "relative"], ["for", "end-time"], ["name", "end-time", "formControlName", "duration", 3, "time", "max", "use_24hr"], [1, "flex", "items-center", "justify-end", "space-x-2", "p-2", "border-t", "border-base-200"], ["btn", "", "matRipple", "", "mat-dialog-close", "", 1, "w-32", "inverse"], ["btn", "", "matRipple", "", 1, "w-32", 3, "click"], [1, "p-8", "flex", "flex-col", "items-center", "justify-center", "user-y-2"], ["diameter", "32"]];
+    },
     template: function ParkingBookingModalComponent_Template(rf, ctx) {
       if (rf & 1) {
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](0, "div", 1)(1, "header", 2)(2, "h2", 3);
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtext"](3);
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtemplate"](4, ParkingBookingModalComponent_button_4_Template, 3, 0, "button", 4);
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtemplate"](5, ParkingBookingModalComponent_main_5_Template, 30, 3, "main", 5)(6, ParkingBookingModalComponent_footer_6_Template, 5, 0, "footer", 6);
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtemplate"](7, ParkingBookingModalComponent_ng_template_7_Template, 4, 0, "ng-template", null, 0, _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtemplateRefExtractor"]);
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](0, "div", 4)(1, "header", 5)(2, "h2", 6);
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtext"](3);
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtemplate"](4, ParkingBookingModalComponent_button_4_Template, 3, 0, "button", 7);
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtemplate"](5, ParkingBookingModalComponent_main_5_Template, 33, 5, "main", 8)(6, ParkingBookingModalComponent_footer_6_Template, 5, 0, "footer", 9);
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtemplate"](7, ParkingBookingModalComponent_ng_template_7_Template, 4, 0, "ng-template", null, 0, _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtemplateRefExtractor"]);
       }
       if (rf & 2) {
-        const load_state_r3 = _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵreference"](8);
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵadvance"](3);
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtextInterpolate1"](" ", ctx.id ? "Edit" : "New", " Parking Reservation ");
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵadvance"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵproperty"]("ngIf", !ctx.loading);
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵadvance"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵproperty"]("ngIf", !ctx.loading)("ngIfElse", load_state_r3);
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵadvance"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵproperty"]("ngIf", !ctx.loading);
+        const load_state_r4 = _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵreference"](8);
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵadvance"](3);
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtextInterpolate1"](" ", ctx.id ? "Edit" : "New", " Parking Reservation ");
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵadvance"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵproperty"]("ngIf", !ctx.loading);
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵadvance"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵproperty"]("ngIf", !ctx.loading)("ngIfElse", load_state_r4);
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵadvance"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵproperty"]("ngIf", !ctx.loading);
       }
     },
-    dependencies: [_angular_common__WEBPACK_IMPORTED_MODULE_10__.NgIf, _angular_material_form_field__WEBPACK_IMPORTED_MODULE_11__.MatFormField, _angular_material_form_field__WEBPACK_IMPORTED_MODULE_11__.MatError, _angular_material_input__WEBPACK_IMPORTED_MODULE_12__.MatInput, _angular_material_progress_spinner__WEBPACK_IMPORTED_MODULE_13__.MatProgressSpinner, _angular_material_dialog__WEBPACK_IMPORTED_MODULE_9__.MatDialogClose, _angular_material_core__WEBPACK_IMPORTED_MODULE_14__.MatRipple, _angular_forms__WEBPACK_IMPORTED_MODULE_8__.DefaultValueAccessor, _angular_forms__WEBPACK_IMPORTED_MODULE_8__.NgControlStatus, _angular_forms__WEBPACK_IMPORTED_MODULE_8__.NgControlStatusGroup, _angular_forms__WEBPACK_IMPORTED_MODULE_8__.FormGroupDirective, _angular_forms__WEBPACK_IMPORTED_MODULE_8__.FormControlName, _libs_form_fields_src_lib_date_field_component__WEBPACK_IMPORTED_MODULE_3__.DateFieldComponent, _libs_form_fields_src_lib_user_search_field_component__WEBPACK_IMPORTED_MODULE_4__.UserSearchFieldComponent, _libs_components_src_lib_icon_component__WEBPACK_IMPORTED_MODULE_5__.IconComponent, _libs_bookings_src_lib_parking_space_list_field_component__WEBPACK_IMPORTED_MODULE_6__.ParkingSpaceListFieldComponent]
+    dependencies: [_angular_common__WEBPACK_IMPORTED_MODULE_14__.NgIf, _angular_material_form_field__WEBPACK_IMPORTED_MODULE_15__.MatFormField, _angular_material_form_field__WEBPACK_IMPORTED_MODULE_15__.MatError, _angular_material_input__WEBPACK_IMPORTED_MODULE_16__.MatInput, _angular_material_checkbox__WEBPACK_IMPORTED_MODULE_17__.MatCheckbox, _angular_material_progress_spinner__WEBPACK_IMPORTED_MODULE_18__.MatProgressSpinner, _angular_material_dialog__WEBPACK_IMPORTED_MODULE_13__.MatDialogClose, _angular_material_core__WEBPACK_IMPORTED_MODULE_19__.MatRipple, _angular_forms__WEBPACK_IMPORTED_MODULE_12__.DefaultValueAccessor, _angular_forms__WEBPACK_IMPORTED_MODULE_12__.NgControlStatus, _angular_forms__WEBPACK_IMPORTED_MODULE_12__.NgControlStatusGroup, _angular_forms__WEBPACK_IMPORTED_MODULE_12__.NgModel, _angular_forms__WEBPACK_IMPORTED_MODULE_12__.FormGroupDirective, _angular_forms__WEBPACK_IMPORTED_MODULE_12__.FormControlName, _libs_form_fields_src_lib_date_field_component__WEBPACK_IMPORTED_MODULE_3__.DateFieldComponent, _libs_form_fields_src_lib_duration_field_component__WEBPACK_IMPORTED_MODULE_4__.DurationFieldComponent, _libs_form_fields_src_lib_time_field_component__WEBPACK_IMPORTED_MODULE_5__.TimeFieldComponent, _libs_form_fields_src_lib_user_search_field_component__WEBPACK_IMPORTED_MODULE_6__.UserSearchFieldComponent, _libs_components_src_lib_icon_component__WEBPACK_IMPORTED_MODULE_7__.IconComponent, _libs_bookings_src_lib_parking_space_list_field_component__WEBPACK_IMPORTED_MODULE_8__.ParkingSpaceListFieldComponent]
   });
 }
 
@@ -1071,6 +1192,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   BookingCardComponent: () => (/* reexport safe */ _lib_booking_card_component__WEBPACK_IMPORTED_MODULE_8__.BookingCardComponent),
 /* harmony export */   BookingDetailsModalComponent: () => (/* reexport safe */ _lib_booking_details_modal_component__WEBPACK_IMPORTED_MODULE_7__.BookingDetailsModalComponent),
 /* harmony export */   BookingFormService: () => (/* reexport safe */ _lib_booking_form_service__WEBPACK_IMPORTED_MODULE_1__.BookingFormService),
+/* harmony export */   DAYS_OF_WEEK_INDEX: () => (/* reexport safe */ _lib_booking_class__WEBPACK_IMPORTED_MODULE_2__.DAYS_OF_WEEK_INDEX),
 /* harmony export */   DesksService: () => (/* reexport safe */ _lib_desk_service__WEBPACK_IMPORTED_MODULE_5__.DesksService),
 /* harmony export */   FAV_PARKING_KEY: () => (/* reexport safe */ _lib_parking_select_modal_parking_select_modal_component__WEBPACK_IMPORTED_MODULE_9__.FAV_PARKING_KEY),
 /* harmony export */   LockersService: () => (/* reexport safe */ _lib_lockers_service__WEBPACK_IMPORTED_MODULE_6__.LockersService),
