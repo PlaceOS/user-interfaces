@@ -804,15 +804,13 @@ export class MeetingFlowFormComponent extends AsyncHandler {
             1000,
         );
         this.subscription(
-            'host_entity_change',
+            'entity_change',
             this.form.valueChanges.subscribe(() => {
-                this._host_entity.next(this.form.getRawValue().host_entity);
                 this._visitor_entity.next(
                     this.form.getRawValue().visitor_entity,
                 );
             }),
         );
-        this._host_entity.next(this.form.getRawValue().host_entity);
         this._visitor_entity.next(this.form.getRawValue().visitor_entity);
     }
 
