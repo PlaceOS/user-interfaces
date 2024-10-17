@@ -83,7 +83,7 @@ import { DatePipe } from '@angular/common';
                     class="relative flex-1 h-full min-w-48 flex flex-col items-center justify-center leading-tight"
                 >
                     <div class="truncate">
-                        {{ date | date: 'EEE, MMM d' }}
+                        {{ date | date: 'EEE, MMM d' : tz }}
                     </div>
                     <div class="text-info text-xs" *ngIf="isToday(date)">
                         Today

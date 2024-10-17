@@ -9,9 +9,11 @@ import {
     notify,
     notifyError,
     notifySuccess,
+    SettingsService,
 } from '@placeos/common';
 import { BuildingLevel } from '@placeos/organisation';
 import { User } from '@placeos/users';
+import { addDays, endOfDay } from 'date-fns';
 
 @Component({
     selector: 'parking-booking-modal',
@@ -63,8 +65,48 @@ import { User } from '@placeos/users';
                         </mat-form-field>
                     </div>
                 </div>
-                <label for="date">Date</label>
-                <a-date-field formControlName="date"></a-date-field>
+                <div class="relative">
+                    <label for="date">Date</label>
+                    <a-date-field formControlName="date"></a-date-field>
+                    <mat-checkbox
+                        formControlName="all_day"
+                        *ngIf="allow_all_day"
+                        class="absolute -top-2 right-0"
+                        i18n
+                    >
+                        All Day
+                    </mat-checkbox>
+                </div>
+                <div
+                    class="flex items-center space-x-2"
+                    *ngIf="!form.value.all_day"
+                >
+                    <div class="flex-1 w-1/3">
+                        <label for="start-time" i18n
+                            >Start Time<span>*</span></label
+                        >
+                        <a-time-field
+                            name="start-time"
+                            [ngModel]="form.value.date"
+                            (ngModelChange)="form.patchValue({ date: $event })"
+                            [ngModelOptions]="{ standalone: true }"
+                            [use_24hr]="use_24hr"
+                        ></a-time-field>
+                    </div>
+                    <div class="flex-1 w-1/3 relative">
+                        <label for="end-time" i18n
+                            >End Time<span>*</span></label
+                        >
+                        <a-duration-field
+                            name="end-time"
+                            formControlName="duration"
+                            [time]="form?.value?.date"
+                            [max]="max_duration"
+                            [use_24hr]="use_24hr"
+                        >
+                        </a-duration-field>
+                    </div>
+                </div>
                 <label for="parking-space">Parking Space</label>
                 <parking-space-list-field
                     name="parking-space"
@@ -118,6 +160,27 @@ export class ParkingBookingModalComponent extends AsyncHandler {
         return this.form.value.id;
     }
 
+    public get end_date() {
+        return endOfDay(
+            addDays(
+                Date.now(),
+                this._settings.get('app.parking.available_period') || 7,
+            ),
+        );
+    }
+
+    public get max_duration() {
+        return this._settings.get('app.bookings.max_duration') || 480;
+    }
+
+    public get allow_all_day() {
+        return this._settings.get('app.parking.allow_all_day') || true;
+    }
+
+    public get use_24hr() {
+        return this._settings.get('app.use_24_hour_time');
+    }
+
     constructor(
         @Inject(MAT_DIALOG_DATA)
         private _data: {
@@ -132,6 +195,7 @@ export class ParkingBookingModalComponent extends AsyncHandler {
         },
         private _booking_form: BookingFormService,
         private _dialog_ref: MatDialogRef<ParkingBookingModalComponent>,
+        private _settings: SettingsService,
     ) {
         super();
     }

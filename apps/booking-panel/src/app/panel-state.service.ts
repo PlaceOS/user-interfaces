@@ -317,6 +317,8 @@ export class PanelStateService extends AsyncHandler {
                 'Unable to make bookings as the time available before the next meeting is less than 15 minutes',
             );
         }
+
+        var min_duration = this._settings.getValue().min_duration;
         const space = await this._space_pipe.transform(this.system);
         const details = await openBookingModal(
             {
@@ -327,6 +329,9 @@ export class PanelStateService extends AsyncHandler {
                     : startOfMinute(Date.now()).getTime() + 1000,
                 future,
                 max_duration,
+                min_duration: force_api
+                    ? Math.max(min_duration, 30)
+                    : min_duration,
             },
             this._dialog,
         );
@@ -410,7 +415,8 @@ export class PanelStateService extends AsyncHandler {
     ) {
         if (isAfter(details.date, addMinutes(Date.now(), 5)) || force_api) {
             this._events.form.controls.host.setValidators([]);
-            await this._events.postForm();
+            this._events.form.updateValueAndValidity();
+            await this._events.postForm(true);
         } else {
             const module = getModule(this.system, 'Bookings');
             if (!details || !module) return;
