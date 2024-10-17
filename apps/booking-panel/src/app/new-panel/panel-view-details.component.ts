@@ -123,7 +123,7 @@ export class PanelViewDetailsComponent {
                     );
                 } else if (!this.qr_code) {
                     let url = `${location.origin}${location.pathname}#/checkin/${this._state.system}`;
-                    if (!disable_book_now_host) url += '?user=true';
+                    url += '?user=true';
                     this.qr_code = generateQRCode(
                         url,
                         '#fff0',
