@@ -5,6 +5,7 @@ import { getModule } from '@placeos/ts-client';
 import { CalendarEvent } from '@placeos/events';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { getTimezoneOffsetString, SettingsService } from '@placeos/common';
 
 @Component({
     selector: 'room-bookings-approvals',
@@ -62,7 +63,11 @@ import { map } from 'rxjs/operators';
                 >
                     <h3>{{ event.title }}</h3>
                     <p class="opacity-30 text-xs mb-2">
-                        {{ event.date | date: 'medium' }}
+                        {{ event.date | date: 'mediumDate' : tz }}
+                        {{ event.date | date: time_format : tz }}
+                        <span *ngIf="tz">{{
+                            event.date | date: 'z' : tz
+                        }}</span>
                     </p>
                     <div class="w-64 h-32 overflow-hidden mb-2 bg-base-200">
                         <img
@@ -179,6 +184,27 @@ export class RoomBookingsApprovalsComponent {
 
     public readonly pending = this._state.pending;
 
+    public get time_format() {
+        return this._settings.time_format;
+    }
+
+    private _local_tz = getTimezoneOffsetString(
+        Intl.DateTimeFormat().resolvedOptions().timeZone,
+    );
+
+    public get timezone() {
+        return this._settings.get('app.events.use_building_timezone')
+            ? this._org.building.timezone
+            : '';
+    }
+
+    public get tz() {
+        const tz = this.timezone;
+        if (!tz) return '';
+        const tz_offset = getTimezoneOffsetString(tz);
+        return tz_offset === this._local_tz ? '' : tz_offset;
+    }
+
     public readonly filtered_pending = combineLatest([
         this._state.pending,
         this.search,
@@ -210,6 +236,7 @@ export class RoomBookingsApprovalsComponent {
     constructor(
         private _state: EventsStateService,
         private _org: OrganisationService,
+        private _settings: SettingsService,
     ) {}
 
     public ngOnInit() {
