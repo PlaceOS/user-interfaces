@@ -1,13 +1,14 @@
 import { DatePipe } from '@angular/common';
 import { Component, Input, Optional } from '@angular/core';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
-import { BookingFormService } from '@placeos/bookings';
+import { BookingFormService, DAYS_OF_WEEK_INDEX } from '@placeos/bookings';
 import {
     AsyncHandler,
     SettingsService,
     getTimezoneOffsetString,
     notifyError,
 } from '@placeos/common';
+import { formatRecurrence } from '@placeos/events';
 import { Desk, OrganisationService } from '@placeos/organisation';
 import { addMinutes, endOfDay } from 'date-fns';
 import { map, take } from 'rxjs/operators';
@@ -50,6 +51,16 @@ import { map, take } from 'rxjs/operators';
                 <div class="flex items-center space-x-2">
                     <app-icon class="text-2xl">calendar_today</app-icon>
                     <div date>{{ booking.date | date: 'fullDate' }}</div>
+                </div>
+                <div
+                    class="flex items-center space-x-2"
+                    *ngIf="
+                        booking.recurrence_type &&
+                        booking.recurrence_type !== 'none'
+                    "
+                >
+                    <app-icon class="text-2xl">update</app-icon>
+                    <div date>{{ formatted_recurrence }}</div>
                 </div>
                 <div class="flex items-center space-x-2">
                     <app-icon class="text-2xl">schedule</app-icon>
@@ -283,6 +294,21 @@ export class NewDeskFlowConfirmComponent extends AsyncHandler {
         return `${level?.display_name || level?.name}${building ? ',' : ''} ${
             building?.address || building?.display_name || building?.name || ''
         }`;
+    }
+
+    public get formatted_recurrence() {
+        return formatRecurrence({
+            pattern: this.booking.recurrence_type,
+            start: this.booking.date,
+            end: this.booking.recurrence_end * 1000,
+            interval: this.booking.recurrence_interval,
+            days_of_week: new Array(7)
+                .fill(0)
+                .map((_, i) => i)
+                .filter(
+                    (i) => this.booking.recurrence_days & DAYS_OF_WEEK_INDEX[i],
+                ),
+        });
     }
 
     constructor(

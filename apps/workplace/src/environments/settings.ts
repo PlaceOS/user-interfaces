@@ -198,6 +198,7 @@ const app: any = {
         allow_all_day: true,
         auto_allocation: false,
         show_calendar_links: true,
+        allow_recurrence: true,
         hide_map: false,
     },
     parking: {
