@@ -146,7 +146,6 @@ export class ParkingBookingModalComponent extends AsyncHandler {
                 this.form.patchValue({
                     user_name: user.name,
                     user_email: user.email,
-                    user_id: user.id || user.email,
                     attendees: [user],
                 });
             }),
@@ -164,7 +163,6 @@ export class ParkingBookingModalComponent extends AsyncHandler {
         if (this._data.user) {
             this.form.patchValue({
                 user_email: this._data.user.email,
-                user_id: this._data.user.email,
                 user_name: this._data.user.name,
                 attendees: [this._data.user],
             });
@@ -218,9 +216,7 @@ export class ParkingBookingModalComponent extends AsyncHandler {
         if (!this.form.valid) return;
         this.loading = true;
         const id = this.form.value.id;
-        if (this._data.external_user) {
-            this.form.patchValue({ user_id: undefined });
-        }
+        this.form.patchValue({ user_id: undefined });
         const result = await this._booking_form.postForm().catch((e) => {
             this.loading = false;
             this.form.controls.plate_number.setValidators([]);
