@@ -5577,7 +5577,7 @@ class MeetingFlowSuccessComponent {
         _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵadvance"]();
         _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵproperty"]("ngIf", true);
         _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵadvance"](2);
-        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵproperty"]("ngIf", ctx.space.email && ctx.allow_desk_booking);
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵproperty"]("ngIf", (ctx.space == null ? null : ctx.space.email) && ctx.allow_desk_booking);
         _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵadvance"](2);
         _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵproperty"]("routerLink", _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵpureFunction0"](16, _c0));
         _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵadvance"]();
@@ -8720,7 +8720,7 @@ const _c0 = () => ({
 });
 function ParkingFormDetailsComponent_div_0_mat_option_9_Template(rf, ctx) {
   if (rf & 1) {
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](0, "mat-option", 30);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](0, "mat-option", 29);
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtext"](1);
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]();
   }
@@ -8733,27 +8733,20 @@ function ParkingFormDetailsComponent_div_0_mat_option_9_Template(rf, ctx) {
 }
 function ParkingFormDetailsComponent_div_0_mat_checkbox_28_Template(rf, ctx) {
   if (rf & 1) {
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](0, "mat-checkbox", 31);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](0, "mat-checkbox", 30);
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵi18n"](1, 8);
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]();
-  }
-}
-function ParkingFormDetailsComponent_div_0_div_29_mat_checkbox_11_Template(rf, ctx) {
-  if (rf & 1) {
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](0, "mat-checkbox", 31);
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵi18n"](1, 11);
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]();
   }
 }
 function ParkingFormDetailsComponent_div_0_div_29_Template(rf, ctx) {
   if (rf & 1) {
     const _r4 = _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵgetCurrentView"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](0, "div", 32)(1, "div", 33)(2, "label", 34);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](0, "div", 31)(1, "div", 32)(2, "label", 33);
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵi18nStart"](3, 9);
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelement"](4, "span");
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵi18nEnd"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](5, "a-time-field", 35);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](5, "a-time-field", 34);
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵlistener"]("ngModelChange", function ParkingFormDetailsComponent_div_0_div_29_Template_a_time_field_ngModelChange_5_listener($event) {
       _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵrestoreView"](_r4);
       const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵnextContext"](2);
@@ -8762,34 +8755,31 @@ function ParkingFormDetailsComponent_div_0_div_29_Template(rf, ctx) {
       }));
     });
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]()();
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](6, "div", 36)(7, "label", 37);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](6, "div", 35)(7, "label", 36);
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵi18nStart"](8, 10);
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelement"](9, "span");
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵi18nEnd"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelement"](10, "a-duration-field", 38);
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtemplate"](11, ParkingFormDetailsComponent_div_0_div_29_mat_checkbox_11_Template, 2, 0, "mat-checkbox", 24);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelement"](10, "a-duration-field", 37);
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]()();
   }
   if (rf & 2) {
     const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵnextContext"](2);
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵadvance"](5);
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵproperty"]("ngModel", ctx_r1.form.value.date)("ngModelOptions", _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵpureFunction0"](7, _c0))("use_24hr", ctx_r1.use_24hr);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵproperty"]("ngModel", ctx_r1.form.value.date)("ngModelOptions", _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵpureFunction0"](6, _c0))("use_24hr", ctx_r1.use_24hr);
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵadvance"](5);
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵproperty"]("time", ctx_r1.form == null ? null : ctx_r1.form.value == null ? null : ctx_r1.form.value.date)("max", ctx_r1.max_duration)("use_24hr", ctx_r1.use_24hr);
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵadvance"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵproperty"]("ngIf", ctx_r1.allow_all_day);
   }
 }
 function ParkingFormDetailsComponent_div_0_div_30_Template(rf, ctx) {
   if (rf & 1) {
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](0, "div", 39)(1, "label", 40);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](0, "div", 38)(1, "label", 39);
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtext"](2);
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵpipe"](3, "translate");
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](4, "span");
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtext"](5, "*");
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]()();
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelement"](6, "host-select-field", 41);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelement"](6, "host-select-field", 40);
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]();
   }
   if (rf & 2) {
@@ -8800,50 +8790,50 @@ function ParkingFormDetailsComponent_div_0_div_30_Template(rf, ctx) {
 function ParkingFormDetailsComponent_div_0_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵgetCurrentView"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](0, "div", 13)(1, "div", 14)(2, "div", 15)(3, "label", 16);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](0, "div", 12)(1, "div", 13)(2, "div", 14)(3, "label", 15);
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵi18nStart"](4, 0);
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelement"](5, "span");
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵi18nEnd"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](6, "mat-form-field", 17)(7, "mat-select", 18);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](6, "mat-form-field", 16)(7, "mat-select", 17);
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵpipe"](8, "async");
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵlistener"]("ngModelChange", function ParkingFormDetailsComponent_div_0_Template_mat_select_ngModelChange_7_listener($event) {
       _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵrestoreView"](_r1);
       const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵnextContext"]();
       return _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵresetView"](ctx_r1.setBuilding($event));
     });
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtemplate"](9, ParkingFormDetailsComponent_div_0_mat_option_9_Template, 2, 2, "mat-option", 19);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtemplate"](9, ParkingFormDetailsComponent_div_0_mat_option_9_Template, 2, 2, "mat-option", 18);
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵpipe"](10, "async");
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](11, "mat-error");
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵi18n"](12, 1);
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]()()()();
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](13, "div", 14)(14, "div", 15)(15, "label", 16);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](13, "div", 13)(14, "div", 14)(15, "label", 15);
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵi18nStart"](16, 2);
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelement"](17, "span");
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵi18nEnd"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](18, "mat-form-field", 17);
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelement"](19, "input", 20);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](18, "mat-form-field", 16);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelement"](19, "input", 19);
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](20, "mat-error");
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵi18n"](21, 3);
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]()()();
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](22, "div", 21)(23, "label", 22);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](22, "div", 20)(23, "label", 21);
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵi18nStart"](24, 4);
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelement"](25, "span");
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵi18nEnd"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](26, "a-date-field", 23);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](26, "a-date-field", 22);
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵi18n"](27, 5);
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtemplate"](28, ParkingFormDetailsComponent_div_0_mat_checkbox_28_Template, 2, 0, "mat-checkbox", 24);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtemplate"](28, ParkingFormDetailsComponent_div_0_mat_checkbox_28_Template, 2, 0, "mat-checkbox", 23);
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]()();
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtemplate"](29, ParkingFormDetailsComponent_div_0_div_29_Template, 12, 8, "div", 25)(30, ParkingFormDetailsComponent_div_0_div_30_Template, 7, 3, "div", 26);
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](31, "div", 27)(32, "label", 28);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtemplate"](29, ParkingFormDetailsComponent_div_0_div_29_Template, 11, 7, "div", 24)(30, ParkingFormDetailsComponent_div_0_div_30_Template, 7, 3, "div", 25);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](31, "div", 26)(32, "label", 27);
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵi18n"](33, 6);
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](34, "mat-form-field", 17);
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelement"](35, "input", 29);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](34, "mat-form-field", 16);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelement"](35, "input", 28);
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](36, "mat-error");
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵi18n"](37, 7);
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]()()()();
@@ -9052,21 +9042,11 @@ class ParkingFormDetailsComponent extends _placeos_common__WEBPACK_IMPORTED_MODU
       } else {
         i18n_10 = $localize`:␟85d5c3a89bab9a7475a7db095089e161586cb7a1␟5960185837188220843:End Time${"\uFFFD#9\uFFFD"}:START_TAG_SPAN:*${"\uFFFD/#9\uFFFD"}:CLOSE_TAG_SPAN:`;
       }
-      let i18n_11;
-      if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
-        /**
-         * @suppress {msgDescriptions}
-         */
-        const MSG_EXTERNAL_835486935962207481$$APPS_WORKPLACE_SRC_APP_BOOK_NEW_PARKING_FLOW_PARKING_FORM_DETAILS_COMPONENT_TS_11 = goog.getMsg(" All Day ");
-        i18n_11 = MSG_EXTERNAL_835486935962207481$$APPS_WORKPLACE_SRC_APP_BOOK_NEW_PARKING_FLOW_PARKING_FORM_DETAILS_COMPONENT_TS_11;
-      } else {
-        i18n_11 = $localize`:␟d7f43e20f3a729fa3de32bc7a1f709ccd722eae5␟835486935962207481: All Day `;
-      }
-      return [i18n_0, i18n_1, i18n_2, i18n_3, i18n_4, i18n_5, i18n_6, i18n_7, i18n_8, i18n_9, i18n_10, i18n_11, [3, "formGroup", 4, "ngIf"], [3, "formGroup"], [1, "flex", "items-center", "flex-wrap", "sm:space-x-2"], [1, "flex-1", "min-w-[256px]"], ["for", "title"], ["appearance", "outline", 1, "w-full"], [3, "ngModelChange", "ngModel", "ngModelOptions"], [3, "value", 4, "ngFor", "ngForOf"], ["matInput", "", "name", "title", "formControlName", "title", "placeholder", "e.g. Team Meeting"], [1, "flex-1", "min-w-[256px]", "relative"], ["for", "date"], ["name", "date", "formControlName", "date", 3, "to"], ["formControlName", "all_day", "class", "absolute -top-2 right-0", 4, "ngIf"], ["class", "flex items-center space-x-2", 4, "ngIf"], ["class", "w-full flex flex-col", 4, "ngIf"], [1, "flex", "flex-col"], ["for", "plate-number"], ["matInput", "", "name", "plate-number", "formControlName", "plate_number", "placeholder", "e.g. ABC123"], [3, "value"], ["formControlName", "all_day", 1, "absolute", "-top-2", "right-0"], [1, "flex", "items-center", "space-x-2"], [1, "flex-1", "w-1/3"], ["for", "start-time"], ["name", "start-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "use_24hr"], [1, "flex-1", "w-1/3", "relative"], ["for", "end-time"], ["name", "end-time", "formControlName", "duration", 3, "time", "max", "use_24hr"], [1, "w-full", "flex", "flex-col"], ["for", "host"], ["name", "host", "formControlName", "organiser"]];
+      return [i18n_0, i18n_1, i18n_2, i18n_3, i18n_4, i18n_5, i18n_6, i18n_7, i18n_8, i18n_9, i18n_10, [3, "formGroup", 4, "ngIf"], [3, "formGroup"], [1, "flex", "items-center", "flex-wrap", "sm:space-x-2"], [1, "flex-1", "min-w-[256px]"], ["for", "title"], ["appearance", "outline", 1, "w-full"], [3, "ngModelChange", "ngModel", "ngModelOptions"], [3, "value", 4, "ngFor", "ngForOf"], ["matInput", "", "name", "title", "formControlName", "title", "placeholder", "e.g. Team Meeting"], [1, "flex-1", "min-w-[256px]", "relative"], ["for", "date"], ["name", "date", "formControlName", "date", 3, "to"], ["formControlName", "all_day", "class", "absolute -top-2 right-0", 4, "ngIf"], ["class", "flex items-center space-x-2", 4, "ngIf"], ["class", "w-full flex flex-col", 4, "ngIf"], [1, "flex", "flex-col"], ["for", "plate-number"], ["matInput", "", "name", "plate-number", "formControlName", "plate_number", "placeholder", "e.g. ABC123"], [3, "value"], ["formControlName", "all_day", 1, "absolute", "-top-2", "right-0"], [1, "flex", "items-center", "space-x-2"], [1, "flex-1", "w-1/3"], ["for", "start-time"], ["name", "start-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "use_24hr"], [1, "flex-1", "w-1/3", "relative"], ["for", "end-time"], ["name", "end-time", "formControlName", "duration", 3, "time", "max", "use_24hr"], [1, "w-full", "flex", "flex-col"], ["for", "host"], ["name", "host", "formControlName", "organiser"]];
     },
     template: function ParkingFormDetailsComponent_Template(rf, ctx) {
       if (rf & 1) {
-        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtemplate"](0, ParkingFormDetailsComponent_div_0_Template, 38, 13, "div", 12);
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtemplate"](0, ParkingFormDetailsComponent_div_0_Template, 38, 13, "div", 11);
       }
       if (rf & 2) {
         _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵproperty"]("ngIf", ctx.form);
