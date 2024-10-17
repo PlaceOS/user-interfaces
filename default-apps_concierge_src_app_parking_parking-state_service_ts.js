@@ -161,19 +161,21 @@ class ParkingBookingModalComponent extends _placeos_common__WEBPACK_IMPORTED_MOD
       this.form.patchValue({
         user_name: user.name,
         user_email: user.email,
-        user_id: user.id || user.email,
         attendees: [user]
       });
     }));
     this.form.patchValue({
       all_day: true,
-      booking_type: 'parking',
-      user: this._data.user || (0,_placeos_common__WEBPACK_IMPORTED_MODULE_2__.currentUser)()
+      booking_type: 'parking'
     });
+    if (!this.form.value.user) {
+      this.form.patchValue({
+        user: this._data.booking?.attendees[0] || (0,_placeos_common__WEBPACK_IMPORTED_MODULE_2__.currentUser)()
+      });
+    }
     if (this._data.user) {
       this.form.patchValue({
         user_email: this._data.user.email,
-        user_id: this._data.user.email,
         user_name: this._data.user.name,
         attendees: [this._data.user]
       });
@@ -222,11 +224,9 @@ class ParkingBookingModalComponent extends _placeos_common__WEBPACK_IMPORTED_MOD
       if (!_this.form.valid) return;
       _this.loading = true;
       const id = _this.form.value.id;
-      if (_this._data.external_user) {
-        _this.form.patchValue({
-          user_id: undefined
-        });
-      }
+      _this.form.patchValue({
+        user_id: undefined
+      });
       const result = yield _this._booking_form.postForm().catch(e => {
         _this.loading = false;
         _this.form.controls.plate_number.setValidators([]);
@@ -777,7 +777,10 @@ class ParkingStateService extends _placeos_common__WEBPACK_IMPORTED_MODULE_2__.A
             external_user
           }
         });
-        ref.afterClosed().subscribe(id => resolve(id));
+        ref.afterClosed().subscribe(id => {
+          resolve(id);
+          _this5._poll.next(Date.now());
+        });
       });
       return function (_x) {
         return _ref.apply(this, arguments);

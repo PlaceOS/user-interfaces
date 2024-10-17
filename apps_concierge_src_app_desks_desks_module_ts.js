@@ -677,12 +677,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _desks_state_service__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./desks-state.service */ 20631);
 /* harmony import */ var _placeos_common__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @placeos/common */ 22797);
 /* harmony import */ var libs_common_src_lib_qr_code__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! libs/common/src/lib/qr-code */ 75774);
-/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! rxjs/operators */ 35443);
-/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @angular/core */ 37580);
-/* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @angular/common */ 60316);
-/* harmony import */ var _angular_material_dialog__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! @angular/material/dialog */ 12587);
-/* harmony import */ var _angular_material_core__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! @angular/material/core */ 74646);
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! rxjs/operators */ 35443);
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @angular/core */ 37580);
+/* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! @angular/common */ 60316);
+/* harmony import */ var _angular_material_dialog__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! @angular/material/dialog */ 12587);
+/* harmony import */ var _angular_material_core__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! @angular/material/core */ 74646);
 /* harmony import */ var _libs_components_src_lib_icon_component__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../../../../libs/components/src/lib/icon.component */ 69434);
+/* harmony import */ var _libs_components_src_lib_safe_pipe__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../../../../libs/components/src/lib/safe.pipe */ 26781);
 
 
 
@@ -694,21 +695,25 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-function DeskQrCodeModalComponent_div_8_Template(rf, ctx) {
+
+function DeskQrCodeModalComponent_a_8_Template(rf, ctx) {
   if (rf & 1) {
-    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementStart"](0, "div", 6)(1, "div", 7);
-    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelement"](2, "img", 8);
-    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementStart"](3, "div", 9);
-    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵtext"](4);
-    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementEnd"]()();
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementStart"](0, "a", 6);
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpipe"](1, "safe");
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementStart"](2, "div", 7);
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelement"](3, "img", 8);
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementStart"](4, "div", 9);
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵtext"](5);
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementEnd"]()();
   }
   if (rf & 2) {
     const desk_r1 = ctx.$implicit;
-    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵadvance"](2);
-    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵproperty"]("src", desk_r1[1], _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵsanitizeUrl"]);
-    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵadvance"](2);
-    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵtextInterpolate1"](" ", desk_r1[0], " ");
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵproperty"]("href", _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpipeBind2"](1, 3, desk_r1.qr_link, "url"), _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵsanitizeUrl"]);
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵadvance"](3);
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵproperty"]("src", desk_r1.qr_code, _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵsanitizeUrl"]);
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵadvance"](2);
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵtextInterpolate1"](" ", desk_r1.name || desk_r1.id, " ");
   }
 }
 class DeskQrCodeModalComponent {
@@ -719,7 +724,10 @@ class DeskQrCodeModalComponent {
   constructor(_settings, _state) {
     this._settings = _settings;
     this._state = _state;
-    this.desks = this._state.desks.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_5__.map)(list => list.map(_ => [_.name || _.id, this.loadQrCode(_)])));
+    this.desks = this._state.desks.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_6__.map)(list => list.map(_ => {
+      this.loadQrCode(_);
+      return _;
+    })));
   }
   loadQrCode(item) {
     const link = `${this.kiosk_url}/#/book/code?asset_id=${encodeURIComponent(item.id)}`;
@@ -731,36 +739,36 @@ class DeskQrCodeModalComponent {
     window.print();
   }
   static #_ = this.ɵfac = function DeskQrCodeModalComponent_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || DeskQrCodeModalComponent)(_angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵdirectiveInject"](_placeos_common__WEBPACK_IMPORTED_MODULE_1__.SettingsService), _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵdirectiveInject"](_desks_state_service__WEBPACK_IMPORTED_MODULE_0__.DesksStateService));
+    return new (__ngFactoryType__ || DeskQrCodeModalComponent)(_angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵdirectiveInject"](_placeos_common__WEBPACK_IMPORTED_MODULE_1__.SettingsService), _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵdirectiveInject"](_desks_state_service__WEBPACK_IMPORTED_MODULE_0__.DesksStateService));
   };
-  static #_2 = this.ɵcmp = /*@__PURE__*/_angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵdefineComponent"]({
+  static #_2 = this.ɵcmp = /*@__PURE__*/_angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵdefineComponent"]({
     type: DeskQrCodeModalComponent,
     selectors: [["desk-qr-code-modal"]],
     decls: 10,
     vars: 3,
-    consts: [[1, "relative", "w-screen", "min-h-screen", "bg-base-100", "rounded-none"], [1, "sticky", "top-0", "flex", "items-center", "justify-between", "print:hidden", "p-4", "w-full"], ["btn", "", "matRipple", "", 3, "click"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], [1, "flex", "flex-wrap", "overflow-auto", "print:h-auto", "h-[calc(100vh-5rem)]"], ["class", "flex flex-col items-center justify-center w-[28%] print:h-[25vh] mx-auto", 4, "ngFor", "ngForOf"], [1, "flex", "flex-col", "items-center", "justify-center", "w-[28%]", "print:h-[25vh]", "mx-auto"], [1, "block", "p-2", "mx-4", "my-2", "rounded-lg", "border", "border-base-200", "bg-base-100"], [1, "w-48", 3, "src"], [1, "w-[calc(100%-2rem)]", "text-center", "my-1", "font-mono", "text-sm", "bg-base-200", "rounded", "p-1", "mx-4"]],
+    consts: [[1, "relative", "w-screen", "min-h-screen", "bg-base-100", "rounded-none"], [1, "sticky", "top-0", "flex", "items-center", "justify-between", "print:hidden", "p-4", "w-full"], ["btn", "", "matRipple", "", 3, "click"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], [1, "flex", "flex-wrap", "overflow-auto", "print:h-auto", "h-[calc(100vh-5rem)]"], ["target", "_blank", "ref", "noopener noreferrer", "class", "flex flex-col items-center justify-center w-[28%] landscape:w-[21%] print:landscape:h-[33.33vh] print:h-[25vh] mx-auto", 3, "href", 4, "ngFor", "ngForOf"], ["target", "_blank", "ref", "noopener noreferrer", 1, "flex", "flex-col", "items-center", "justify-center", "w-[28%]", "landscape:w-[21%]", "print:landscape:h-[33.33vh]", "print:h-[25vh]", "mx-auto", 3, "href"], [1, "block", "p-2", "mx-4", "my-2", "rounded-lg", "border", "border-base-200", "bg-base-100"], [1, "w-48", 3, "src"], [1, "w-[calc(100%-2rem)]", "text-center", "my-1", "font-mono", "text-sm", "bg-base-200", "rounded", "p-1", "mx-4"]],
     template: function DeskQrCodeModalComponent_Template(rf, ctx) {
       if (rf & 1) {
-        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementStart"](0, "div", 0)(1, "div", 1)(2, "button", 2);
-        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵlistener"]("click", function DeskQrCodeModalComponent_Template_button_click_2_listener() {
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementStart"](0, "div", 0)(1, "div", 1)(2, "button", 2);
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵlistener"]("click", function DeskQrCodeModalComponent_Template_button_click_2_listener() {
           return ctx.print();
         });
-        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵtext"](3, "Print QR Codes");
-        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementEnd"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementStart"](4, "button", 3)(5, "app-icon");
-        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵtext"](6, "close");
-        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementEnd"]()()();
-        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementStart"](7, "div", 4);
-        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵtemplate"](8, DeskQrCodeModalComponent_div_8_Template, 5, 2, "div", 5);
-        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵpipe"](9, "async");
-        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementEnd"]()();
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵtext"](3, "Print QR Codes");
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementStart"](4, "button", 3)(5, "app-icon");
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵtext"](6, "close");
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementEnd"]()()();
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementStart"](7, "div", 4);
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵtemplate"](8, DeskQrCodeModalComponent_a_8_Template, 6, 6, "a", 5);
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpipe"](9, "async");
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementEnd"]()();
       }
       if (rf & 2) {
-        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵadvance"](8);
-        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵproperty"]("ngForOf", _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵpipeBind1"](9, 1, ctx.desks));
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵadvance"](8);
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵproperty"]("ngForOf", _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpipeBind1"](9, 1, ctx.desks));
       }
     },
-    dependencies: [_angular_common__WEBPACK_IMPORTED_MODULE_6__.NgForOf, _angular_material_dialog__WEBPACK_IMPORTED_MODULE_7__.MatDialogClose, _angular_material_core__WEBPACK_IMPORTED_MODULE_8__.MatRipple, _libs_components_src_lib_icon_component__WEBPACK_IMPORTED_MODULE_3__.IconComponent, _angular_common__WEBPACK_IMPORTED_MODULE_6__.AsyncPipe]
+    dependencies: [_angular_common__WEBPACK_IMPORTED_MODULE_7__.NgForOf, _angular_material_dialog__WEBPACK_IMPORTED_MODULE_8__.MatDialogClose, _angular_material_core__WEBPACK_IMPORTED_MODULE_9__.MatRipple, _libs_components_src_lib_icon_component__WEBPACK_IMPORTED_MODULE_3__.IconComponent, _angular_common__WEBPACK_IMPORTED_MODULE_7__.AsyncPipe, _libs_components_src_lib_safe_pipe__WEBPACK_IMPORTED_MODULE_4__.SafePipe]
   });
 }
 

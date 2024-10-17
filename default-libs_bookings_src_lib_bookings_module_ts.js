@@ -1305,7 +1305,8 @@ class BookingFormService extends _placeos_common__WEBPACK_IMPORTED_MODULE_1__.As
       delete value.event_id;
       delete value.parent_id;
       const resources = value.resources || [];
-      const zones = resources[0]?.zone ? (0,_placeos_common__WEBPACK_IMPORTED_MODULE_1__.unique)([_this2._org.organisation.id, _this2._org.region?.id, resources[0]?.zone?.parent_id, resources[0]?.zone?.id]) : [_this2._org.organisation.id, _this2._org.region?.id];
+      const zone = _this2._org.levelWithID(resources[0]?.zone_id) || resources[0]?.zone;
+      const zones = zone && zone instanceof Object ? (0,_placeos_common__WEBPACK_IMPORTED_MODULE_1__.unique)([_this2._org.organisation.id, _this2._org.region?.id, zone.parent_id, zone.id]) : [_this2._org.organisation.id, _this2._org.region?.id];
       const q = event_id ? {
         ical_uid: value.ical_uid,
         event_id: event_id

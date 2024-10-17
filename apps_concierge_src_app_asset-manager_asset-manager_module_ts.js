@@ -2698,7 +2698,7 @@ const _c6 = a0 => ({
 const _c7 = (a0, a1, a2, a3) => [a0, a1, a2, a3];
 function AssetPurchaseOrderFormComponent_div_1_h3_42_Template(rf, ctx) {
   if (rf & 1) {
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](0, "h3", 30);
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](0, "h3", 31);
     _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtext"](1);
     _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵpipe"](2, "async");
     _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]();
@@ -2712,7 +2712,7 @@ function AssetPurchaseOrderFormComponent_div_1_h3_42_Template(rf, ctx) {
 }
 function AssetPurchaseOrderFormComponent_div_1_simple_table_43_Template(rf, ctx) {
   if (rf & 1) {
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelement"](0, "simple-table", 31);
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelement"](0, "simple-table", 32);
     _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵpipe"](1, "async");
   }
   if (rf & 2) {
@@ -2757,22 +2757,22 @@ function AssetPurchaseOrderFormComponent_div_1_Template(rf, ctx) {
     _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelement"](32, "input", 20);
     _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]()()();
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](33, "div", 13)(34, "div", 7)(35, "label", 21);
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](33, "div", 13)(34, "div", 21)(35, "label", 22);
     _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtext"](36, " Expected Service Start Date ");
     _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelement"](37, "a-date-field", 22);
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelement"](37, "a-date-field", 23);
     _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](38, "div", 7)(39, "label", 23);
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](38, "div", 21)(39, "label", 24);
     _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtext"](40, " Expected Service End Date ");
     _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelement"](41, "a-date-field", 24);
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelement"](41, "a-date-field", 25);
     _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]()();
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtemplate"](42, AssetPurchaseOrderFormComponent_div_1_h3_42_Template, 3, 3, "h3", 25)(43, AssetPurchaseOrderFormComponent_div_1_simple_table_43_Template, 2, 15, "simple-table", 26);
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtemplate"](42, AssetPurchaseOrderFormComponent_div_1_h3_42_Template, 3, 3, "h3", 26)(43, AssetPurchaseOrderFormComponent_div_1_simple_table_43_Template, 2, 15, "simple-table", 27);
     _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](44, "footer", 27)(45, "a", 28);
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](44, "footer", 28)(45, "a", 29);
     _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtext"](46, " Cancel ");
     _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](47, "button", 29);
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](47, "button", 30);
     _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵlistener"]("click", function AssetPurchaseOrderFormComponent_div_1_Template_button_click_47_listener() {
       _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵrestoreView"](_r1);
       const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵnextContext"]();
@@ -2803,8 +2803,8 @@ function AssetPurchaseOrderFormComponent_div_1_Template(rf, ctx) {
 }
 function AssetPurchaseOrderFormComponent_ng_template_2_Template(rf, ctx) {
   if (rf & 1) {
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](0, "div", 32);
-    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelement"](1, "mat-spinner", 33);
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](0, "div", 33);
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelement"](1, "mat-spinner", 34);
     _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](2, "p");
     _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtext"](3);
     _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]()();
@@ -2867,8 +2867,7 @@ class AssetPurchaseOrderFormComponent extends _placeos_common__WEBPACK_IMPORTED_
             order_number: asset.purchase_order_number,
             purchase_date: asset.purchase_date * 1000,
             expected_service_end_date: asset.expected_service_end_date * 1000,
-            expected_service_start_date: asset.expected_service_start_date * 1000,
-            unit_price: +asset.unit_price
+            expected_service_start_date: asset.expected_service_start_date * 1000
           });
           _this2.item = asset;
           _this2._id.next(asset.id);
@@ -2895,6 +2894,7 @@ class AssetPurchaseOrderFormComponent extends _placeos_common__WEBPACK_IMPORTED_
       data.purchase_date = (0,date_fns__WEBPACK_IMPORTED_MODULE_14__.getUnixTime)(data.purchase_date) || null;
       data.expected_service_start_date = (0,date_fns__WEBPACK_IMPORTED_MODULE_14__.getUnixTime)(data.expected_service_start_date) || _this3.item?.expected_service_start_date || null;
       data.expected_service_end_date = (0,date_fns__WEBPACK_IMPORTED_MODULE_14__.getUnixTime)(data.expected_service_end_date) || _this3.item?.expected_service_end_date || null;
+      data.unit_price = +data.unit_price;
       const item = yield (0,_placeos_assets__WEBPACK_IMPORTED_MODULE_2__.saveAssetPurchaseOrder)(data).toPromise().catch(e => {
         _this3.loading = '';
         (0,_placeos_common__WEBPACK_IMPORTED_MODULE_3__.notifyError)(`Error saving purchase order.: ${e.message}`);
@@ -2920,7 +2920,7 @@ class AssetPurchaseOrderFormComponent extends _placeos_common__WEBPACK_IMPORTED_
     features: [_angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵInheritDefinitionFeature"]],
     decls: 4,
     vars: 2,
-    consts: [["load_state", ""], [1, "absolute", "inset-0", "bg-base-100"], ["class", "h-full max-w-[32rem] mx-auto flex flex-col", 4, "ngIf", "ngIfElse"], [1, "h-full", "max-w-[32rem]", "mx-auto", "flex", "flex-col"], [1, "p-4"], [1, "text-center", "text-xl", "font-medium"], [1, "flex-1", "h-1/2", "overflow-auto", 3, "formGroup"], [1, "flex", "flex-col", "space-y-2"], ["for", "order-number"], ["appearance", "outline"], ["matInput", "", "name", "order-number", "placeholder", "Order Number", "formControlName", "order_number"], ["for", "invoice-number"], ["matInput", "", "name", "invoice-number", "placeholder", "Invoice Number", "formControlName", "invoice_number"], [1, "flex", "space-x-2"], [1, "flex-1", "flex", "flex-col", "space-y-2"], ["for", "purchase-date"], ["name", "purchase-date", "formControlName", "purchase_date", 3, "from"], ["for", "unit-price"], ["appearance", "outline", 1, "w-full"], ["matPrefix", ""], ["matInput", "", "name", "unit-price", "formControlName", "unit_price", 3, "from"], ["for", "depreciation-start-date"], ["name", "depreciation-start-date", "formControlName", "expected_service_start_date", 3, "from"], ["for", "depreciation-end-date"], ["name", "depreciation-end-date", "formControlName", "expected_service_end_date"], ["class", "font-medium mb-2", 4, "ngIf"], ["class", "w-full block text-sm", "empty_message", "No assets for this purchase order", 3, "data", "columns", 4, "ngIf"], [1, "flex", "justify-end", "space-x-2", "p-2", "border-t", "border-base-200"], ["btn", "", "matRipple", "", 1, "w-32", "inverse", 3, "routerLink"], ["btn", "", "matRipple", "", 1, "w-32", 3, "click"], [1, "font-medium", "mb-2"], ["empty_message", "No assets for this purchase order", 1, "w-full", "block", "text-sm", 3, "data", "columns"], [1, "absolute", "inset-0", "flex", "flex-col", "items-center", "justify-center", "space-y-2"], [3, "diameter"]],
+    consts: [["load_state", ""], [1, "absolute", "inset-0", "bg-base-100"], ["class", "h-full max-w-[32rem] mx-auto flex flex-col", 4, "ngIf", "ngIfElse"], [1, "h-full", "max-w-[32rem]", "mx-auto", "flex", "flex-col"], [1, "p-4"], [1, "text-center", "text-xl", "font-medium"], [1, "flex-1", "h-1/2", "overflow-auto", 3, "formGroup"], [1, "flex", "flex-col", "space-y-2"], ["for", "order-number"], ["appearance", "outline"], ["matInput", "", "name", "order-number", "placeholder", "Order Number", "formControlName", "order_number"], ["for", "invoice-number"], ["matInput", "", "name", "invoice-number", "placeholder", "Invoice Number", "formControlName", "invoice_number"], [1, "flex", "space-x-2"], [1, "flex-1", "flex", "flex-col", "space-y-2"], ["for", "purchase-date"], ["name", "purchase-date", "formControlName", "purchase_date", 3, "from"], ["for", "unit-price"], ["appearance", "outline", 1, "w-full"], ["matPrefix", ""], ["matInput", "", "name", "unit-price", "formControlName", "unit_price", 3, "from"], [1, "flex", "flex-col", "space-y-2", "flex-1"], ["for", "depreciation-start-date"], ["name", "depreciation-start-date", "formControlName", "expected_service_start_date", 3, "from"], ["for", "depreciation-end-date"], ["name", "depreciation-end-date", "formControlName", "expected_service_end_date"], ["class", "font-medium mb-2", 4, "ngIf"], ["class", "w-full block text-sm", "empty_message", "No assets for this purchase order", 3, "data", "columns", 4, "ngIf"], [1, "flex", "justify-end", "space-x-2", "p-2", "border-t", "border-base-200"], ["btn", "", "matRipple", "", 1, "w-32", "inverse", 3, "routerLink"], ["btn", "", "matRipple", "", 1, "w-32", 3, "click"], [1, "font-medium", "mb-2"], ["empty_message", "No assets for this purchase order", 1, "w-full", "block", "text-sm", 3, "data", "columns"], [1, "absolute", "inset-0", "flex", "flex-col", "items-center", "justify-center", "space-y-2"], [3, "diameter"]],
     template: function AssetPurchaseOrderFormComponent_Template(rf, ctx) {
       if (rf & 1) {
         _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](0, "div", 1);
