@@ -85,7 +85,10 @@ import { notifySuccess, SettingsService } from '@placeos/common';
                     icon
                     matRipple
                     matTooltip="View AV Control Panel"
-                    [href]="control_path + '/#/tabbed/' + row.id"
+                    [href]="
+                        row.support_url || control_path + row.id
+                            | sanitize: 'url'
+                    "
                     target="_blank"
                     ref="noopener noreferrer"
                 >
@@ -109,7 +112,9 @@ export class RoomListComponent {
     };
 
     public get control_path() {
-        return this._settings.get('app.control_path') || '/av_control';
+        return (
+            this._settings.get('app.control_path') || '/av_control/#/tabbed/'
+        );
     }
 
     constructor(
