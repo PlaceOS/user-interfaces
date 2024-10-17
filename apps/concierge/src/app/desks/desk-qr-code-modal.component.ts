@@ -20,21 +20,24 @@ import { map } from 'rxjs/operators';
             <div
                 class="flex flex-wrap overflow-auto print:h-auto h-[calc(100vh-5rem)]"
             >
-                <div
+                <a
+                    [href]="desk.qr_link | safe: 'url'"
+                    target="_blank"
+                    ref="noopener noreferrer"
                     *ngFor="let desk of desks | async"
-                    class="flex flex-col items-center justify-center w-[28%] print:h-[25vh] mx-auto"
+                    class="flex flex-col items-center justify-center w-[28%] landscape:w-[21%] print:landscape:h-[33.33vh] print:h-[25vh] mx-auto"
                 >
                     <div
                         class="block p-2 mx-4 my-2 rounded-lg border border-base-200 bg-base-100"
                     >
-                        <img class="w-48" [src]="desk[1]" />
+                        <img class="w-48" [src]="desk.qr_code" />
                     </div>
                     <div
                         class="w-[calc(100%-2rem)] text-center my-1 font-mono text-sm bg-base-200 rounded p-1 mx-4"
                     >
-                        {{ desk[0] }}
+                        {{ desk.name || desk.id }}
                     </div>
-                </div>
+                </a>
             </div>
         </div>
     `,
@@ -42,7 +45,12 @@ import { map } from 'rxjs/operators';
 })
 export class DeskQrCodeModalComponent {
     public readonly desks = this._state.desks.pipe(
-        map((list) => list.map((_) => [_.name || _.id, this.loadQrCode(_)])),
+        map((list) =>
+            list.map((_) => {
+                this.loadQrCode(_);
+                return _;
+            }),
+        ),
     );
 
     public get kiosk_url() {

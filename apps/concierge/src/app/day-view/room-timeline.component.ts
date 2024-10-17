@@ -35,7 +35,7 @@ import { OrganisationService } from '@placeos/organisation';
     template: `
         <div
             class="mx-2 mt-2 p-2 w-[calc(100%-1rem)] bg-info text-info-content rounded-lg text-center text-xs"
-            *ngIf="diff_tz"
+            *ngIf="timezone && tz"
         >
             Timezone of the building is displayed and is different from your
             local timezone.
@@ -143,7 +143,6 @@ import { OrganisationService } from '@placeos/organisation';
                             [style.left]="i * block_width + 0.25 + 'rem'"
                             [style.top]="timeToOffset(event.date) + '%'"
                             [style.height]="endToOffset(event.duration) + '%'"
-                            [class.pointer-events-none]="event.state === 'done'"
                             (click)="viewEvent(event, space.id)"
                             [matTooltip]="eventTooltip(event)"
                             *ngIf="
@@ -306,6 +305,10 @@ export class RoomBookingsTimelineComponent extends AsyncHandler {
     public readonly edit = (e) => this._state.newBooking(e);
     public readonly setDate = (d) => this._state.setDate(d);
 
+    private _local_tz = getTimezoneOffsetString(
+        Intl.DateTimeFormat().resolvedOptions().timeZone,
+    );
+
     public get timezone() {
         return this._settings.get('app.events.use_building_timezone')
             ? this._org.building.timezone
@@ -313,17 +316,10 @@ export class RoomBookingsTimelineComponent extends AsyncHandler {
     }
 
     public get tz() {
-        // Get Timezone as +/-HHMM
         const tz = this.timezone;
         if (!tz) return '';
-        return getTimezoneOffsetString(tz);
-    }
-
-    public get diff_tz() {
-        const tz = this.timezone;
-        if (!tz) return false;
-        const current_tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        return tz !== current_tz;
+        const tz_offset = getTimezoneOffsetString(tz);
+        return tz_offset === this._local_tz ? '' : tz_offset;
     }
 
     public get block_start() {

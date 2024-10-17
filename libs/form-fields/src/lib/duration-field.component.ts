@@ -20,6 +20,7 @@ export interface DurationOption {
     selector: 'a-duration-field',
     template: `
         <button
+            duration-field
             class="flex items-center justify-between border border-neutral rounded h-12 w-full px-2"
             [disabled]="disabled"
             [class.opacity-30]="disabled"

@@ -20,7 +20,6 @@ import { MapLocateModalComponent } from 'libs/components/src/lib/map-locate-moda
 import { CateringItem } from 'libs/catering/src/lib/catering-item.class';
 import { getEventMetadata } from './events.fn';
 import { DatePipe } from '@angular/common';
-import { I } from '@angular/cdk/keycodes';
 
 const EMPTY_ACTIONS = [];
 
@@ -28,7 +27,7 @@ const EMPTY_ACTIONS = [];
     selector: 'event-details-modal',
     template: `
         <div
-            class="w-screen h-screen print:min-h-screen print:w-screen sm:relative sm:inset-auto sm:w-[51rem] sm:h-auto sm:max-h-[80vh] bg-base-100 sm:bg-base-200 sm:rounded overflow-auto space-y-2 pb-2"
+            class="w-screen h-screen print:min-h-screen print:w-screen sm:relative sm:inset-auto sm:w-[51rem] sm:h-auto sm:max-h-[80vh] bg-base-100 sm:bg-base-200 sm:rounded overflow-auto space-y-2 pb-2 print:overflow-visible"
         >
             <div
                 class="sm:flex flex-col items-center pb-4 max-h-screen sm:max-h-[80vh] sm:px-16 sm:border-b bg-base-100 border-base-200 print:border-none"
@@ -233,7 +232,9 @@ const EMPTY_ACTIONS = [];
                             >
                                 <a-user-avatar [user]="user"></a-user-avatar>
                                 <div class="text-sm flex-1 w-px">
-                                    <div>{{ user?.name }}</div>
+                                    <div class="truncate w-full">
+                                        {{ user?.name }}
+                                    </div>
                                     <div
                                         class="opacity-60 truncate w-full"
                                         [title]="user.email"
@@ -253,7 +254,9 @@ const EMPTY_ACTIONS = [];
                     <div class="px-2 flex items-center space-x-2" host>
                         <a-user-avatar [user]="event.organiser"></a-user-avatar>
                         <div class="text-sm flex-1 w-px">
-                            <div>{{ event.organiser?.name }}</div>
+                            <div class="truncate w-full">
+                                {{ event.organiser?.name }}
+                            </div>
                             <div
                                 class="opacity-60 truncate w-full"
                                 [title]="event.host"
@@ -448,7 +451,7 @@ const EMPTY_ACTIONS = [];
                                         </div>
                                     </div>
                                     <div
-                                        class="flex items-center justify-center rounded-full w-8 h-8"
+                                        class="flex items-center justify-center rounded-full w-8 h-8 print:hidden"
                                         [class.bg-success]="
                                             request.state === 'approved'
                                         "
@@ -485,7 +488,7 @@ const EMPTY_ACTIONS = [];
                                         </app-icon>
                                     </div>
                                     <div
-                                        class="flex items-center justify-center rounded-full w-8 h-8"
+                                        class="flex items-center justify-center rounded-full w-8 h-8 print:hidden"
                                     >
                                         <app-icon class="text-2xl">
                                             {{
@@ -560,7 +563,11 @@ const EMPTY_ACTIONS = [];
                         <div i18n>Delete event</div>
                     </div>
                 </button>
-                <button mat-menu-item (click)="printEvent()">
+                <button
+                    mat-menu-item
+                    *ngIf="is_concierge"
+                    (click)="printEvent()"
+                >
                     <div class="flex items-center space-x-2 text-base pr-2">
                         <app-icon class="text-2xl">print</app-icon>
                         <div i18n>Print event</div>
@@ -620,6 +627,10 @@ export class EventDetailsModalComponent {
     public readonly has_assets = !!this.event?.linked_bookings?.find(
         (_) => _.booking_type === 'asset-request',
     );
+
+    public get is_concierge() {
+        return this._settings.app_name.toLowerCase().includes('concierge');
+    }
 
     public get can_edit() {
         return true;

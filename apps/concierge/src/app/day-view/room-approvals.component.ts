@@ -3,45 +3,61 @@ import { EventsStateService } from './events-state.service';
 import { OrganisationService } from '@placeos/organisation';
 import { getModule } from '@placeos/ts-client';
 import { CalendarEvent } from '@placeos/events';
+import { BehaviorSubject, combineLatest } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 @Component({
     selector: 'room-bookings-approvals',
     template: `
         <div
-            class="flex flex-col h-full overflow-hidden border-l border-base-200"
+            class="flex flex-col h-full overflow-hidden border-l border-base-200 w-[20rem]"
             [style.width]="show ? '' : '0px'"
         >
             <div
-                class="flex items-center p-2 border-b border-base-200 space-x-2"
+                class="flex items-center p-2 justify-center border-b border-base-200 space-x-2 relative"
             >
                 <button
                     btn
                     icon
                     matRipple
-                    class="bg-base-200"
+                    class="absolute top-4 left-2 bg-base-200"
                     matTooltip="Hide Pending Approvals"
                     matTooltipPosition="left"
                     (click)="show = !show"
                 >
                     <app-icon>chevron_right</app-icon>
                 </button>
-                <h3 class="flex-1">
-                    Pending Approval ({{ (pending | async)?.length || '0' }})
+                <h3 class="flex-1 py-4 text-center">
+                    Pending Approval ({{
+                        (filtered_pending | async)?.length || '0'
+                    }}
+                    of {{ (pending | async)?.length || '0' }})
                 </h3>
-                <button btn icon matRipple>
-                    <app-icon>search</app-icon>
-                </button>
+            </div>
+            <div class="border-b border-base-200 relative">
+                <input
+                    type="text"
+                    placeholder="Search..."
+                    class="w-full py-3 pr-4 pl-10"
+                    [ngModel]="search | async"
+                    (ngModelChange)="search.next($event)"
+                />
+                <app-icon
+                    class="absolute top-1/2 left-2 -translate-y-1/2 text-2xl pointer-events-none"
+                >
+                    search
+                </app-icon>
             </div>
             <div class="flex-1 overflow-auto p-2 space-y-2">
                 <div
-                    *ngIf="!(pending | async)?.length"
+                    *ngIf="!(filtered_pending | async)?.length"
                     class="w-full h-full flex flex-col items-center justify-center space-y-2"
                 >
                     <img src="assets/icons/no-pending.svg" />
                     <p>No pending requests</p>
                 </div>
                 <div
-                    *ngFor="let event of pending | async"
+                    *ngFor="let event of filtered_pending | async"
                     class="relative border border-base-200 p-2 w-full rounded"
                 >
                     <h3>{{ event.title }}</h3>
@@ -159,7 +175,25 @@ export class RoomBookingsApprovalsComponent {
     private _show = true;
     public loading = false;
     public status: Record<string, 'accept' | 'decline' | undefined> = {};
+    public readonly search = new BehaviorSubject('');
+
     public readonly pending = this._state.pending;
+
+    public readonly filtered_pending = combineLatest([
+        this._state.pending,
+        this.search,
+    ]).pipe(
+        map(([list, search]) =>
+            list.filter(
+                (event) =>
+                    event.title.toLowerCase().includes(search.toLowerCase()) ||
+                    event.host.toLowerCase().includes(search.toLowerCase()) ||
+                    event.organiser?.name
+                        .toLowerCase()
+                        .includes(search.toLowerCase()),
+            ),
+        ),
+    );
 
     public set show(value: boolean) {
         this._show = value;

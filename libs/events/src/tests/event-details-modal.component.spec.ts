@@ -38,6 +38,7 @@ describe('EventDetailsModalComponent', () => {
             MockProvider(SettingsService, {
                 get: jest.fn(),
                 time_format: 'h:mm a',
+                app_name: 'test',
             }),
         ],
         componentProviders: [

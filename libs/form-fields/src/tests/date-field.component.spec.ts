@@ -1,6 +1,5 @@
 import { DateFieldComponent } from '../lib/date-field.component';
 
-import * as dayjs from 'dayjs';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { CustomTooltipComponent, IconComponent } from '@placeos/components';
@@ -44,14 +43,14 @@ describe('DateFieldComponent', () => {
 
     it('should handler external changes to the date selected', fakeAsync(() => {
         expect(format(spectator.component.date, 'MMMM d, yyyy')).toEqual(
-            format(new Date(), 'MMMM d, yyyy')
+            format(new Date(), 'MMMM d, yyyy'),
         );
         const new_date = addDays(new Date(), randomInt(12, 2));
         spectator.component.writeValue(new_date.valueOf());
         spectator.detectChanges();
         spectator.tick(600);
         expect(format(spectator.component.date, 'MMMM d, yyyy')).toEqual(
-            format(new_date, 'MMMM d, yyyy')
+            format(new_date, 'MMMM d, yyyy'),
         );
     }));
 });

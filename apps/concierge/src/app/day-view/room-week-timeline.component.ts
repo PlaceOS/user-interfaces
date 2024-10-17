@@ -11,6 +11,7 @@ import { EventsStateService } from './events-state.service';
 import { MatDialog } from '@angular/material/dialog';
 import {
     AsyncHandler,
+    getTimezoneOffsetString,
     notifyError,
     notifySuccess,
     openConfirmModal,
@@ -24,10 +25,19 @@ import {
     EventDetailsModalComponent,
     SetupBreakdownModalComponent,
 } from '@placeos/events';
+import { OrganisationService } from '@placeos/organisation';
+import { DatePipe } from '@angular/common';
 
 @Component({
     selector: 'room-week-bookings-timeline',
     template: `
+        <div
+            class="mx-2 mt-2 p-2 w-[calc(100%-1rem)] bg-info text-info-content rounded-lg text-center text-xs"
+            *ngIf="timezone && tz"
+        >
+            Timezone of the building is displayed and is different from your
+            local timezone.
+        </div>
         <div
             class="relative flex items-center justify-center p-2 space-x-2 border-b border-base-200 z-20"
         >
@@ -119,9 +129,12 @@ import {
                                 {{ event.title }}
                             </div>
                             <div class="text-xs opacity-60 flex-1">
-                                {{ event.date | date: time_format }}
+                                {{ event.date | date: time_format : tz }}
                                 &ndash;
-                                {{ event.date_end | date: time_format }}
+                                {{ event.date_end | date: time_format : tz }}
+                                <span *ngIf="tz">{{
+                                    event.date_end | date: 'z' : tz
+                                }}</span>
                             </div>
                             <div class="text-xs truncate opacity-30">
                                 {{ event.system?.display_name }}
@@ -172,6 +185,8 @@ export class RoomWeekBookingsTimelineComponent extends AsyncHandler {
         map((d) => isSameWeek(d, Date.now())),
     );
 
+    private _data_pipe = new DatePipe('en');
+
     public readonly events = combineLatest([
         this.days,
         this._state.filtered,
@@ -183,12 +198,25 @@ export class RoomWeekBookingsTimelineComponent extends AsyncHandler {
                     _.system?.zones.find((_) => zones.includes(_)),
                 );
             }
+
             const map: Record<string, CalendarEvent[]> = {};
             for (const date of day_list) {
-                map[date] = events.filter(
-                    (event) =>
-                        isSameDay(date, event.date) && !event.is_system_event,
+                const date_value = this._data_pipe.transform(
+                    Date.now(),
+                    'yyyy-MM-dd',
+                    this.tz,
                 );
+                map[date] = events.filter((event) => {
+                    const event_date_value = this._data_pipe.transform(
+                        event.date,
+                        'yyyy-MM-dd',
+                        this.tz,
+                    );
+                    return (
+                        date_value === event_date_value &&
+                        !event.is_system_event
+                    );
+                });
             }
             return map;
         }),
@@ -204,6 +232,23 @@ export class RoomWeekBookingsTimelineComponent extends AsyncHandler {
             return length;
         }),
     );
+
+    private _local_tz = getTimezoneOffsetString(
+        Intl.DateTimeFormat().resolvedOptions().timeZone,
+    );
+
+    public get timezone() {
+        return this._settings.get('app.events.use_building_timezone')
+            ? this._org.building.timezone
+            : '';
+    }
+
+    public get tz() {
+        const tz = this.timezone;
+        if (!tz) return '';
+        const tz_offset = getTimezoneOffsetString(tz);
+        return tz_offset === this._local_tz ? '' : tz_offset;
+    }
 
     public get now() {
         return startOfMinute(Date.now()).valueOf();
@@ -224,6 +269,7 @@ export class RoomWeekBookingsTimelineComponent extends AsyncHandler {
         private _state: EventsStateService,
         private _dialog: MatDialog,
         private _settings: SettingsService,
+        private _org: OrganisationService,
     ) {
         super();
     }

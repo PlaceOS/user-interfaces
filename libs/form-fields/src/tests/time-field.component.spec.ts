@@ -13,23 +13,15 @@ import {
 import { IconComponent } from '@placeos/components';
 import { TimeFieldComponent } from '../lib/time-field.component';
 
-import * as dayjs from 'dayjs';
-import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { FormsModule } from '@angular/forms';
-import { MatInputModule } from '@angular/material/input';
+import { MatMenuModule } from '@angular/material/menu';
 
 describe('TimeFieldComponent', () => {
     let spectator: Spectator<TimeFieldComponent>;
     const createComponent = createComponentFactory({
         component: TimeFieldComponent,
         declarations: [MockComponent(IconComponent)],
-        imports: [
-            MatSelectModule,
-            MatFormFieldModule,
-            MatInputModule,
-            FormsModule,
-        ],
+        imports: [MatMenuModule, MatFormFieldModule],
     });
 
     beforeEach(() => (spectator = createComponent()));
@@ -43,15 +35,15 @@ describe('TimeFieldComponent', () => {
         // spectator.detectChanges();
         // spectator.tick(300);
         // spectator.detectChanges();
-        spectator.click('mat-select');
-        const option_elements = document.querySelectorAll('mat-option');
+        spectator.click('button[time-field]');
+        const option_elements = document.querySelectorAll('[mat-menu-item]');
         expect(option_elements.length).toBeGreaterThan(0);
         option_elements[0].dispatchEvent(new Event('click'));
         spectator.detectChanges();
         expect(spectator.component.time).toBe(
-            `${spectator.component.time_options[0].id}`
+            `${spectator.component.time_options[0].id}`,
         );
-        spectator.component.writeValue(dayjs().startOf('d').valueOf());
+        spectator.component.writeValue(startOfDay(Date.now()).valueOf());
         expect(spectator.component.time).toBe(`00:00`);
         flush();
     }));
@@ -74,14 +66,14 @@ describe('TimeFieldComponent', () => {
         spectator.setInput({ step });
         spectator.detectChanges();
         expect(spectator.component._time_options[1].id).toBe(
-            format(addMinutes(startOfDay(new Date()), step), 'HH:mm')
+            format(addMinutes(startOfDay(new Date()), step), 'HH:mm'),
         );
     });
 
     it('should allow the current time as an option', () => {
         const date_str = format(new Date(), 'HH:mm');
         const option = spectator.component.time_options.find(
-            (block) => block.id === date_str
+            (block) => block.id === date_str,
         );
         expect(option).toBeTruthy();
     });
@@ -93,7 +85,7 @@ describe('TimeFieldComponent', () => {
         const first_option = parse(
             `${spectator.component.time_options[0].id}`,
             'HH:mm',
-            new Date()
+            new Date(),
         );
         expect(date <= first_option).toBeTruthy();
     });

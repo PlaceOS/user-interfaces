@@ -20,6 +20,12 @@ import { Component } from '@angular/core';
                 width: 100%;
                 background-color: var(--b1);
             }
+
+            @media print {
+                :host {
+                    display: none;
+                }
+            }
         `,
     ],
 })
