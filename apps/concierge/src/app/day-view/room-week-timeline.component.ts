@@ -43,6 +43,7 @@ import { DatePipe } from '@angular/common';
         >
             <date-options
                 [date]="date | async"
+                [step]="7"
                 (dateChange)="setDate($event)"
                 [is_new]="true"
             ></date-options>
@@ -64,7 +65,7 @@ import { DatePipe } from '@angular/common';
                 class="sticky top-0 left-0 z-30 bg-base-100 flex items-center justify-center"
             >
                 <div class="text-xs opacity-30">
-                    {{ date | async | date: 'z' }}
+                    {{ date | async | date: 'z' : tz }}
                 </div>
                 <div
                     class="absolute h-2 w-px right-0 bottom-0 bg-base-300"
@@ -85,7 +86,10 @@ import { DatePipe } from '@angular/common';
                     <div class="truncate">
                         {{ date | date: 'EEE, MMM d' : tz }}
                     </div>
-                    <div class="text-info text-xs" *ngIf="isToday(date)">
+                    <div
+                        class="text-info text-xs absolute bottom-1 left-1/2 -translate-x-1/2"
+                        *ngIf="isToday(date)"
+                    >
                         Today
                     </div>
                     <div
