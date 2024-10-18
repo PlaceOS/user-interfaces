@@ -206,7 +206,7 @@ export class RoomWeekBookingsTimelineComponent extends AsyncHandler {
             const map: Record<string, CalendarEvent[]> = {};
             for (const date of day_list) {
                 const date_value = this._data_pipe.transform(
-                    Date.now(),
+                    date,
                     'yyyy-MM-dd',
                     this.tz,
                 );
