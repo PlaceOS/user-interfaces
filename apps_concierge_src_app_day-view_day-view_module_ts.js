@@ -3129,7 +3129,7 @@ class RoomWeekBookingsTimelineComponent extends _placeos_common__WEBPACK_IMPORTE
       }
       const map = {};
       for (const date of day_list) {
-        const date_value = this._data_pipe.transform(Date.now(), 'yyyy-MM-dd', this.tz);
+        const date_value = this._data_pipe.transform(date, 'yyyy-MM-dd', this.tz);
         map[date] = events.filter(event => {
           const event_date_value = this._data_pipe.transform(event.date, 'yyyy-MM-dd', this.tz);
           return date_value === event_date_value && !event.is_system_event;
