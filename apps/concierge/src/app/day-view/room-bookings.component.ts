@@ -3,7 +3,7 @@ import { OrganisationService } from '@placeos/organisation';
 import { EventsStateService } from './events-state.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AsyncHandler, SettingsService } from '@placeos/common';
-import { filter, map, take } from 'rxjs/operators';
+import { debounceTime, filter, map, take } from 'rxjs/operators';
 import { combineLatest } from 'rxjs';
 
 const EMPTY = [];
@@ -158,6 +158,7 @@ export class RoomBookingsComponent extends AsyncHandler {
     );
     /** List of levels for the active building */
     public readonly updateZones = (z) => {
+        console.warn('Update Zones:', z);
         this._router.navigate([], {
             relativeTo: this._route,
             queryParams: { zone_ids: z.join(',') },
@@ -167,6 +168,7 @@ export class RoomBookingsComponent extends AsyncHandler {
     };
     public readonly updateUIOptions = (o) => this._state.setUIOptions(o);
     public readonly setPeriod = (p) => {
+        console.warn('Set Period:', p);
         this._router.navigate([], {
             relativeTo: this._route,
             queryParams: { period: p },
@@ -227,28 +229,35 @@ export class RoomBookingsComponent extends AsyncHandler {
                         this._org.building = this._org.buildings.find(
                             (bld) => bld.id === level.parent_id,
                         );
+                        this.updateZones(zones);
                     }
                 }
             }),
         );
         this.subscription(
             'levels',
-            this._org.active_levels.subscribe(async (levels) => {
-                if (this.use_region) return;
-                const zones = (
-                    await this.zones.pipe(take(1)).toPromise()
-                ).filter((zone) => levels.find((lvl) => lvl.id === zone));
-                if (!zones.length && levels.length) {
-                    zones.push(levels[0].id);
-                }
-                this.updateZones(zones);
-            }),
+            this._org.active_levels
+                .pipe(debounceTime(300))
+                .subscribe(async (levels) => {
+                    if (this.use_region) return;
+                    const zones = (
+                        await this.zones.pipe(take(1)).toPromise()
+                    ).filter((zone) => levels.find((lvl) => lvl.id === zone));
+                    if (!zones.length && levels.length) {
+                        zones.push(levels[0].id);
+                    }
+                    this.updateZones(zones);
+                }),
         );
         this.subscription(
             'region',
             this._org.active_region
                 .pipe(filter((_) => !!_))
-                .subscribe((_) => this.updateZones([_.id])),
+                .subscribe(async (_) => {
+                    const zones = await this.zones.pipe(take(1)).toPromise();
+                    if (zones.length) return;
+                    this.updateZones([_.id]);
+                }),
         );
     }
 
