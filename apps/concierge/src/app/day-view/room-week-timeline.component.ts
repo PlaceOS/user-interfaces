@@ -208,7 +208,6 @@ export class RoomWeekBookingsTimelineComponent extends AsyncHandler {
                 const date_value = this._data_pipe.transform(
                     date,
                     'yyyy-MM-dd',
-                    this.tz,
                 );
                 map[date] = events.filter((event) => {
                     const event_date_value = this._data_pipe.transform(
