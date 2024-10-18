@@ -7562,7 +7562,7 @@ class NewDeskFormDetailsComponent extends _placeos_common__WEBPACK_IMPORTED_MODU
     return this._settings.get('app.desks.can_book_lockers');
   }
   get can_recurr() {
-    return this._settings.get('app.desks.recurrence_allowed');
+    return this._settings.get('app.desks.allow_recurrence');
   }
   get allow_groups() {
     return this._settings.get('app.desks.allow_groups');
