@@ -286,8 +286,9 @@ export class NewDeskFormDetailsComponent extends AsyncHandler {
     public get can_book_lockers() {
         return this._settings.get('app.desks.can_book_lockers');
     }
+
     public get can_recurr() {
-        return this._settings.get('app.desks.recurrence_allowed');
+        return this._settings.get('app.desks.allow_recurrence');
     }
 
     public get allow_groups() {
