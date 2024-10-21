@@ -3828,6 +3828,10 @@ body {
   #placeos .landscape\:hidden {
     display: none;
   }
+
+  #placeos .landscape\:w-\[21\%\] {
+    width: 21%;
+  }
 }
 
 @media print {
@@ -3871,6 +3875,13 @@ body {
   #placeos .print\:text-sm {
     font-size: 0.875rem;
     line-height: 1.25rem;
+  }
+
+  @media (orientation: landscape) {
+
+    #placeos .print\:landscape\:h-\[33\.33vh\] {
+      height: 33.33vh;
+    }
   }
 }
 
@@ -4434,6 +4445,9 @@ code {
   }
   .cdk-overlay-backdrop {
     display: none;
+  }
+  .cdk-global-overlay-wrapper {
+    display: block;
   }
   #placeos mat-dialog-container .mdc-dialog__surface {
     box-shadow: none;
