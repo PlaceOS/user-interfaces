@@ -1,13 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import {
-    debounceTime,
-    first,
-    map,
-    shareReplay,
-    switchMap,
-    tap,
-} from 'rxjs/operators';
+import { debounceTime, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 
 import { AsyncHandler } from '@placeos/common';
 import { Space } from '@placeos/spaces';
@@ -149,7 +142,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
         }),
         map((_) => _.data.map((_) => new Space(_ as any))),
         tap((_) => (this.loading = '')),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     private _event = false;
@@ -157,7 +150,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
     constructor(
         private route: ActivatedRoute,
         private _router: Router,
-        private _org: OrganisationService
+        private _org: OrganisationService,
     ) {
         super();
     }
@@ -172,11 +165,11 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
                 if (params.has('event')) this._event = true;
                 if (params.has('system_id') || params.has('sys_id')) {
                     this.system_id$.next(
-                        params.get('system_id') || params.get('sys_id')
+                        params.get('system_id') || params.get('sys_id'),
                     );
                     this.bootstrap();
                 }
-            })
+            }),
         );
         this.checkBootstrapped();
     }
@@ -194,12 +187,15 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
         this.loading = 'Checks';
         if (localStorage) {
             const system_id = localStorage.getItem('PLACEOS.BOOKINGS.system');
+            this._event =
+                this._event ||
+                localStorage.getItem('PLACEOS.Bookings.event') === 'true';
             if (system_id) {
                 this._router.navigate(
                     [this._event ? 'events' : 'panel', system_id],
                     {
                         queryParamsHandling: 'preserve',
-                    }
+                    },
                 );
                 return;
             }
@@ -217,6 +213,9 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
             localStorage.setItem('PLACEOS.BOOKINGS.system', system_id);
             localStorage.setItem('trust', 'true');
             localStorage.setItem('fixed_device', 'true');
+            if (this._event) {
+                localStorage.setItem('PLACEOS.Bookings.event', 'true');
+            }
         }
         this._router.navigate([this._event ? 'events' : 'panel', system_id], {
             queryParamsHandling: 'preserve',
