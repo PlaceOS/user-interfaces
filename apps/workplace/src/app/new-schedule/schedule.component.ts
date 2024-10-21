@@ -211,7 +211,7 @@ export class ScheduleComponent extends AsyncHandler {
                     ? null
                     : (item as any).calendar || currentUser()?.email,
                 system_id: (item as any).system?.id,
-                instance: !!(item as any).instance || undefined,
+                instance: remove_series ? undefined : !!(item as any).instance,
                 start_time: !!(item as any).instance
                     ? (item as any).instance
                     : undefined,

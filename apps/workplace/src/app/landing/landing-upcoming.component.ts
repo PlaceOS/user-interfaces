@@ -66,7 +66,7 @@ import { LandingStateService } from './landing-state.service';
                                 [booking]="event"
                                 [show_day]="true"
                                 (edit)="editBooking(event)"
-                                (remove)="remove(event)"
+                                (remove)="remove(event, true)"
                                 (end)="end(event)"
                             ></booking-card>
                         </ng-container>
@@ -138,7 +138,10 @@ export class LandingUpcomingComponent
         }, 100);
     }
 
-    public async remove(item: CalendarEvent | Booking) {
+    public async remove(
+        item: CalendarEvent | Booking,
+        remove_series: boolean = false,
+    ) {
         const time = `${format(item.date, 'dd MMM yyyy h:mma')}`;
         const resource_name =
             item instanceof CalendarEvent
@@ -159,7 +162,7 @@ export class LandingUpcomingComponent
                     ? null
                     : currentUser()?.email,
                 system_id: (item as any).system?.id,
-                instance: !!(item as any).instance,
+                instance: remove_series ? undefined : !!(item as any).instance,
                 start_time: !!(item as any).instance
                     ? (item as any).booking_start
                     : undefined,
