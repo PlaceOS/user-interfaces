@@ -1480,7 +1480,7 @@ class ScheduleComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_2__.Asy
       yield (item instanceof _placeos_events__WEBPACK_IMPORTED_MODULE_3__.CalendarEvent ? _placeos_events__WEBPACK_IMPORTED_MODULE_3__.removeEvent : _placeos_bookings__WEBPACK_IMPORTED_MODULE_1__.removeBooking)(remove_series ? item.recurring_event_id : item.id, {
         calendar: _this2._settings.get('app.no_user_calendar') ? null : item.calendar || (0,_placeos_common__WEBPACK_IMPORTED_MODULE_2__.currentUser)()?.email,
         system_id: item.system?.id,
-        instance: !!item.instance || undefined,
+        instance: remove_series ? undefined : !!item.instance,
         start_time: !!item.instance ? item.instance : undefined
       }).toPromise().catch(e => {
         (0,_placeos_common__WEBPACK_IMPORTED_MODULE_2__.notifyError)(`Unable to delete booking. ${e}`);

@@ -1628,7 +1628,7 @@ function LandingUpcomingComponent_ng_container_12_ng_container_1_booking_card_3_
       _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵrestoreView"](_r4);
       const event_r2 = _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵnextContext"]().$implicit;
       const ctx_r2 = _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵnextContext"](2);
-      return _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵresetView"](ctx_r2.remove(event_r2));
+      return _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵresetView"](ctx_r2.remove(event_r2, true));
     })("end", function LandingUpcomingComponent_ng_container_12_ng_container_1_booking_card_3_Template_booking_card_end_0_listener() {
       _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵrestoreView"](_r4);
       const event_r2 = _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵnextContext"]().$implicit;
@@ -1725,7 +1725,7 @@ class LandingUpcomingComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_
       });
     }, 100);
   }
-  remove(item) {
+  remove(item, remove_series = false) {
     var _this = this;
     return (0,_home_runner_work_user_interfaces_user_interfaces_node_modules_babel_runtime_helpers_esm_asyncToGenerator_js__WEBPACK_IMPORTED_MODULE_0__["default"])(function* () {
       const time = `${(0,date_fns__WEBPACK_IMPORTED_MODULE_8__.format)(item.date, 'dd MMM yyyy h:mma')}`;
@@ -1743,7 +1743,7 @@ class LandingUpcomingComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_
       yield (item instanceof _placeos_events__WEBPACK_IMPORTED_MODULE_3__.CalendarEvent ? _placeos_events__WEBPACK_IMPORTED_MODULE_3__.removeEvent : _placeos_bookings__WEBPACK_IMPORTED_MODULE_1__.removeBooking)(item.id, {
         calendar: _this._settings.get('app.no_user_calendar') ? null : (0,_placeos_common__WEBPACK_IMPORTED_MODULE_2__.currentUser)()?.email,
         system_id: item.system?.id,
-        instance: !!item.instance,
+        instance: remove_series ? undefined : !!item.instance,
         start_time: !!item.instance ? item.booking_start : undefined
       }).toPromise().catch(e => {
         (0,_placeos_common__WEBPACK_IMPORTED_MODULE_2__.notifyError)(`Unable to delete booking. ${e}`);
