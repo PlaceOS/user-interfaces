@@ -8760,7 +8760,7 @@ var _regeneratorRuntime = (__webpack_require__(/*! ./node_modules/@babel/runtime
 var _asyncToGenerator = (__webpack_require__(/*! ./node_modules/@babel/runtime/helpers/asyncToGenerator.js */ 95386)["default"]);
 var _classCallCheck = (__webpack_require__(/*! ./node_modules/@babel/runtime/helpers/classCallCheck.js */ 80912)["default"]);
 var _createClass = (__webpack_require__(/*! ./node_modules/@babel/runtime/helpers/createClass.js */ 92974)["default"]);
-var _BookingDetailsModalComponent, _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6;
+var _BookingDetailsModalComponent, _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7;
 Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
@@ -8797,13 +8797,13 @@ var _c0 = function _c0() {
 };
 function BookingDetailsModalComponent_div_2_Template(rf, ctx) {
   if (rf & 1) {
-    i0.ɵɵelement(0, "div", 27);
+    i0.ɵɵelement(0, "div", 28);
   }
 }
 function BookingDetailsModalComponent_div_3_Template(rf, ctx) {
   if (rf & 1) {
-    i0.ɵɵelementStart(0, "div", 28);
-    i0.ɵɵelement(1, "image-carousel", 29);
+    i0.ɵɵelementStart(0, "div", 29);
+    i0.ɵɵelement(1, "image-carousel", 30);
     i0.ɵɵelementEnd();
   }
   if (rf & 2) {
@@ -8814,10 +8814,10 @@ function BookingDetailsModalComponent_div_3_Template(rf, ctx) {
 }
 function BookingDetailsModalComponent_div_10_button_1_div_1_Template(rf, ctx) {
   if (rf & 1) {
-    i0.ɵɵelementStart(0, "div", 35)(1, "app-icon");
+    i0.ɵɵelementStart(0, "div", 36)(1, "app-icon");
     i0.ɵɵtext(2);
     i0.ɵɵelementEnd();
-    i0.ɵɵelementStart(3, "div", 36);
+    i0.ɵɵelementStart(3, "div", 37);
     i0.ɵɵtext(4);
     i0.ɵɵelementEnd()();
   }
@@ -8831,7 +8831,7 @@ function BookingDetailsModalComponent_div_10_button_1_div_1_Template(rf, ctx) {
 }
 function BookingDetailsModalComponent_div_10_button_1_ng_template_2_Template(rf, ctx) {
   if (rf & 1) {
-    i0.ɵɵelement(0, "mat-spinner", 37);
+    i0.ɵɵelement(0, "mat-spinner", 38);
   }
   if (rf & 2) {
     i0.ɵɵproperty("diameter", 32);
@@ -8840,13 +8840,13 @@ function BookingDetailsModalComponent_div_10_button_1_ng_template_2_Template(rf,
 function BookingDetailsModalComponent_div_10_button_1_Template(rf, ctx) {
   if (rf & 1) {
     var _r3 = i0.ɵɵgetCurrentView();
-    i0.ɵɵelementStart(0, "button", 33);
+    i0.ɵɵelementStart(0, "button", 34);
     i0.ɵɵlistener("click", function BookingDetailsModalComponent_div_10_button_1_Template_button_click_0_listener() {
       i0.ɵɵrestoreView(_r3);
       var ctx_r1 = i0.ɵɵnextContext(2);
       return i0.ɵɵresetView(ctx_r1.toggleCheckedIn());
     });
-    i0.ɵɵtemplate(1, BookingDetailsModalComponent_div_10_button_1_div_1_Template, 5, 2, "div", 34)(2, BookingDetailsModalComponent_div_10_button_1_ng_template_2_Template, 1, 1, "ng-template", null, 1, i0.ɵɵtemplateRefExtractor);
+    i0.ɵɵtemplate(1, BookingDetailsModalComponent_div_10_button_1_div_1_Template, 5, 2, "div", 35)(2, BookingDetailsModalComponent_div_10_button_1_ng_template_2_Template, 1, 1, "ng-template", null, 1, i0.ɵɵtemplateRefExtractor);
     i0.ɵɵelementEnd();
   }
   if (rf & 2) {
@@ -8860,9 +8860,9 @@ function BookingDetailsModalComponent_div_10_button_1_Template(rf, ctx) {
 }
 function BookingDetailsModalComponent_div_10_Template(rf, ctx) {
   if (rf & 1) {
-    i0.ɵɵelementStart(0, "div", 30);
-    i0.ɵɵtemplate(1, BookingDetailsModalComponent_div_10_button_1_Template, 4, 7, "button", 31);
-    i0.ɵɵelementStart(2, "button", 32)(3, "app-icon");
+    i0.ɵɵelementStart(0, "div", 31);
+    i0.ɵɵtemplate(1, BookingDetailsModalComponent_div_10_button_1_Template, 4, 7, "button", 32);
+    i0.ɵɵelementStart(2, "button", 33)(3, "app-icon");
     i0.ɵɵtext(4, "more_horiz");
     i0.ɵɵelementEnd()()();
   }
@@ -8877,10 +8877,10 @@ function BookingDetailsModalComponent_div_10_Template(rf, ctx) {
 }
 function BookingDetailsModalComponent_ng_container_36_div_5_div_13_Template(rf, ctx) {
   if (rf & 1) {
-    i0.ɵɵelementStart(0, "div", 51)(1, "div", 52)(2, "span", 45);
+    i0.ɵɵelementStart(0, "div", 52)(1, "div", 53)(2, "span", 46);
     i0.ɵɵtext(3);
     i0.ɵɵelementEnd()();
-    i0.ɵɵelementStart(4, "div", 53);
+    i0.ɵɵelementStart(4, "div", 54);
     i0.ɵɵtext(5);
     i0.ɵɵelementEnd()();
   }
@@ -8895,24 +8895,24 @@ function BookingDetailsModalComponent_ng_container_36_div_5_div_13_Template(rf, 
 function BookingDetailsModalComponent_ng_container_36_div_5_Template(rf, ctx) {
   if (rf & 1) {
     var _r6 = i0.ɵɵgetCurrentView();
-    i0.ɵɵelementStart(0, "div", 42)(1, "button", 43);
+    i0.ɵɵelementStart(0, "div", 43)(1, "button", 44);
     i0.ɵɵlistener("click", function BookingDetailsModalComponent_ng_container_36_div_5_Template_button_click_1_listener() {
       var request_r7 = i0.ɵɵrestoreView(_r6).$implicit;
       var ctx_r1 = i0.ɵɵnextContext(2);
       return i0.ɵɵresetView(ctx_r1.show_request[request_r7.id] = !ctx_r1.show_request[request_r7.id]);
     });
-    i0.ɵɵelementStart(2, "div", 44)(3, "div", 45);
+    i0.ɵɵelementStart(2, "div", 45)(3, "div", 46);
     i0.ɵɵtext(4);
     i0.ɵɵpipe(5, "date");
     i0.ɵɵelementEnd()();
-    i0.ɵɵelementStart(6, "div", 46)(7, "app-icon");
+    i0.ɵɵelementStart(6, "div", 47)(7, "app-icon");
     i0.ɵɵtext(8);
     i0.ɵɵelementEnd()();
-    i0.ɵɵelementStart(9, "div", 47)(10, "app-icon", 48);
+    i0.ɵɵelementStart(9, "div", 48)(10, "app-icon", 49);
     i0.ɵɵtext(11);
     i0.ɵɵelementEnd()()();
-    i0.ɵɵelementStart(12, "div", 49);
-    i0.ɵɵtemplate(13, BookingDetailsModalComponent_ng_container_36_div_5_div_13_Template, 6, 2, "div", 50);
+    i0.ɵɵelementStart(12, "div", 50);
+    i0.ɵɵtemplate(13, BookingDetailsModalComponent_ng_container_36_div_5_div_13_Template, 6, 2, "div", 51);
     i0.ɵɵelementEnd()();
   }
   if (rf & 2) {
@@ -8936,11 +8936,11 @@ function BookingDetailsModalComponent_ng_container_36_div_5_Template(rf, ctx) {
 function BookingDetailsModalComponent_ng_container_36_Template(rf, ctx) {
   if (rf & 1) {
     i0.ɵɵelementContainerStart(0);
-    i0.ɵɵelementStart(1, "div", 38)(2, "h3", 39);
+    i0.ɵɵelementStart(1, "div", 39)(2, "h3", 40);
     i0.ɵɵi18n(3, 3);
     i0.ɵɵelementEnd();
-    i0.ɵɵelementStart(4, "div", 40);
-    i0.ɵɵtemplate(5, BookingDetailsModalComponent_ng_container_36_div_5_Template, 14, 21, "div", 41);
+    i0.ɵɵelementStart(4, "div", 41);
+    i0.ɵɵtemplate(5, BookingDetailsModalComponent_ng_container_36_div_5_Template, 14, 21, "div", 42);
     i0.ɵɵelementEnd()();
     i0.ɵɵelementContainerEnd();
   }
@@ -8956,7 +8956,7 @@ function BookingDetailsModalComponent_ng_container_36_Template(rf, ctx) {
 function BookingDetailsModalComponent_ng_container_38_Template(rf, ctx) {
   if (rf & 1) {
     i0.ɵɵelementContainerStart(0);
-    i0.ɵɵelement(1, "interactive-map", 54);
+    i0.ɵɵelement(1, "interactive-map", 55);
     i0.ɵɵelementContainerEnd();
   }
   if (rf & 2) {
@@ -8968,13 +8968,13 @@ function BookingDetailsModalComponent_ng_container_38_Template(rf, ctx) {
 function BookingDetailsModalComponent_button_44_Template(rf, ctx) {
   if (rf & 1) {
     var _r9 = i0.ɵɵgetCurrentView();
-    i0.ɵɵelementStart(0, "button", 55);
+    i0.ɵɵelementStart(0, "button", 56);
     i0.ɵɵlistener("click", function BookingDetailsModalComponent_button_44_Template_button_click_0_listener() {
       i0.ɵɵrestoreView(_r9);
       var ctx_r1 = i0.ɵɵnextContext();
       return i0.ɵɵresetView(ctx_r1.edit.emit());
     });
-    i0.ɵɵelementStart(1, "div", 56)(2, "app-icon");
+    i0.ɵɵelementStart(1, "div", 57)(2, "app-icon");
     i0.ɵɵtext(3, "edit");
     i0.ɵɵelementEnd();
     i0.ɵɵelementStart(4, "div");
@@ -8985,13 +8985,13 @@ function BookingDetailsModalComponent_button_44_Template(rf, ctx) {
 function BookingDetailsModalComponent_button_45_Template(rf, ctx) {
   if (rf & 1) {
     var _r10 = i0.ɵɵgetCurrentView();
-    i0.ɵɵelementStart(0, "button", 57);
+    i0.ɵɵelementStart(0, "button", 58);
     i0.ɵɵlistener("click", function BookingDetailsModalComponent_button_45_Template_button_click_0_listener() {
       i0.ɵɵrestoreView(_r10);
       var ctx_r1 = i0.ɵɵnextContext();
       return i0.ɵɵresetView(ctx_r1.setDeskHeight());
     });
-    i0.ɵɵelementStart(1, "div", 56)(2, "app-icon", 58);
+    i0.ɵɵelementStart(1, "div", 57)(2, "app-icon", 59);
     i0.ɵɵtext(3, " height ");
     i0.ɵɵelementEnd();
     i0.ɵɵelementStart(4, "div");
@@ -9002,13 +9002,13 @@ function BookingDetailsModalComponent_button_45_Template(rf, ctx) {
 function BookingDetailsModalComponent_button_46_Template(rf, ctx) {
   if (rf & 1) {
     var _r11 = i0.ɵɵgetCurrentView();
-    i0.ɵɵelementStart(0, "button", 57);
+    i0.ɵɵelementStart(0, "button", 58);
     i0.ɵɵlistener("click", function BookingDetailsModalComponent_button_46_Template_button_click_0_listener() {
       i0.ɵɵrestoreView(_r11);
       var ctx_r1 = i0.ɵɵnextContext();
       return i0.ɵɵresetView(ctx_r1.remove.emit());
     });
-    i0.ɵɵelementStart(1, "div", 56)(2, "app-icon", 59);
+    i0.ɵɵelementStart(1, "div", 57)(2, "app-icon", 60);
     i0.ɵɵtext(3, "delete");
     i0.ɵɵelementEnd();
     i0.ɵɵelementStart(4, "div");
@@ -9019,17 +9019,34 @@ function BookingDetailsModalComponent_button_46_Template(rf, ctx) {
 function BookingDetailsModalComponent_button_47_Template(rf, ctx) {
   if (rf & 1) {
     var _r12 = i0.ɵɵgetCurrentView();
-    i0.ɵɵelementStart(0, "button", 57);
+    i0.ɵɵelementStart(0, "button", 58);
     i0.ɵɵlistener("click", function BookingDetailsModalComponent_button_47_Template_button_click_0_listener() {
       i0.ɵɵrestoreView(_r12);
       var ctx_r1 = i0.ɵɵnextContext();
-      return i0.ɵɵresetView(ctx_r1.end.emit());
+      return i0.ɵɵresetView(ctx_r1.remove.emit(true));
     });
-    i0.ɵɵelementStart(1, "div", 56)(2, "app-icon", 59);
+    i0.ɵɵelementStart(1, "div", 57)(2, "app-icon", 60);
     i0.ɵɵtext(3, "delete");
     i0.ɵɵelementEnd();
     i0.ɵɵelementStart(4, "div");
     i0.ɵɵi18n(5, 7);
+    i0.ɵɵelementEnd()()();
+  }
+}
+function BookingDetailsModalComponent_button_48_Template(rf, ctx) {
+  if (rf & 1) {
+    var _r13 = i0.ɵɵgetCurrentView();
+    i0.ɵɵelementStart(0, "button", 58);
+    i0.ɵɵlistener("click", function BookingDetailsModalComponent_button_48_Template_button_click_0_listener() {
+      i0.ɵɵrestoreView(_r13);
+      var ctx_r1 = i0.ɵɵnextContext();
+      return i0.ɵɵresetView(ctx_r1.end.emit());
+    });
+    i0.ɵɵelementStart(1, "div", 57)(2, "app-icon", 60);
+    i0.ɵɵtext(3, "delete");
+    i0.ɵɵelementEnd();
+    i0.ɵɵelementStart(4, "div");
+    i0.ɵɵi18n(5, 8);
     i0.ɵɵelementEnd()()();
   }
 }
@@ -9227,8 +9244,8 @@ _BookingDetailsModalComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
     remove: "remove",
     end: "end"
   },
-  decls: 48,
-  vars: 23,
+  decls: 49,
+  vars: 24,
   consts: function consts() {
     var i18n_0;
     if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
@@ -9291,67 +9308,77 @@ _BookingDetailsModalComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
       /**
        * @suppress {msgDescriptions}
        */
-      var MSG_EXTERNAL_834898868131691573$$LIBS_BOOKINGS_SRC_LIB_BOOKING_DETAILS_MODAL_COMPONENT_TS_5 = goog.getMsg("End booking");
-      i18n_5 = MSG_EXTERNAL_834898868131691573$$LIBS_BOOKINGS_SRC_LIB_BOOKING_DETAILS_MODAL_COMPONENT_TS_5;
+      var MSG_EXTERNAL_3974228098480354844$$LIBS_BOOKINGS_SRC_LIB_BOOKING_DETAILS_MODAL_COMPONENT_TS_5 = goog.getMsg("Delete Series");
+      i18n_5 = MSG_EXTERNAL_3974228098480354844$$LIBS_BOOKINGS_SRC_LIB_BOOKING_DETAILS_MODAL_COMPONENT_TS_5;
     } else {
-      i18n_5 = $localize(_templateObject6 || (_templateObject6 = _taggedTemplateLiteral([":\u241F2f3dfd27ad1999e91bb66ad271f967d6e543956f\u241F834898868131691573:End booking"])));
+      i18n_5 = $localize(_templateObject6 || (_templateObject6 = _taggedTemplateLiteral([":\u241Fecb2e91e2775870da0ea8e51b4951994493672fb\u241F3974228098480354844:Delete Series"])));
     }
-    return [["menu", "matMenu"], ["loading_state", ""], i18n_0, i18n_1, i18n_2, i18n_3, i18n_4, i18n_5, [1, "w-[100vw]", "h-[100vh]", "sm:relative", "sm:inset-auto", "sm:w-[51rem]", "sm:h-auto", "sm:max-h-[80vh]", "bg-base-100", "sm:bg-base-200", "sm:rounded", "overflow-auto", "space-y-2", "pb-2"], [1, "sm:flex", "flex-col", "items-center", "pb-4", "max-h-screen", "sm:max-h-[80vh]", "sm:px-16", "sm:border-b", "bg-base-100", "border-base-200"], ["class", "h-8 w-full sm:hidden block", 4, "ngIf"], ["class", "bg-neutral w-full h-64 sm:rounded-b overflow-hidden", 4, "ngIf"], ["title", "", 1, "px-3", "mt-2", "text-xl", "font-medium", "w-full"], [1, "sm:flex", "items-center", "justify-between", "w-full"], [1, "flex", "m-2"], [3, "status"], ["actions", "", "class", "flex items-center space-x-2 px-2", 4, "ngIf"], [1, "sm:flex", "flex-wrap", "sm:px-12"], [1, "sm:p-4", "sm:bg-base-100", "rounded", "sm:m-2", "sm:border", "border-base-200", "flex-grow-[4]", "min-w-1/3", "sm:w-[16rem]"], [1, "px-3", "mt-2", "text-lg", "font-medium", "mb-2"], [1, "flex", "items-center", "px-2", "space-x-2"], [4, "ngIf"], ["map", "", 1, "mt-4", "sm:my-2", "h-64", "sm:h-48", "relative", "border", "border-base-200", "overflow-hidden", "rounded", "sm:bg-base-100", "m-2", "flex-grow-[3]", "min-w-1/3", "w-[calc(100%-1rem)]", "p-2", "sm:w-[16rem]", 3, "click"], ["icon", "", "matRipple", "", "mat-dialog-close", "", 1, "absolute", "top-0", "left-2", "bg-neutral", "text-white"], ["xPosition", "before"], ["mat-menu-item", "", "mat-dialog-close", "", 3, "click", 4, "ngIf"], ["mat-menu-item", "", 3, "click", 4, "ngIf"], [1, "h-8", "w-full", "sm:hidden", "block"], [1, "bg-neutral", "w-full", "h-64", "sm:rounded-b", "overflow-hidden"], [1, "w-full", "h-64", 3, "images"], ["actions", "", 1, "flex", "items-center", "space-x-2", "px-2"], ["btn", "", "matRipple", "", "class", "flex-1 h-10 border-none", 3, "bg-success", "text-success-content", "disabled", "click", 4, "ngIf"], ["icon", "", "matRipple", "", 1, "bg-secondary", "rounded", "text-white", "h-12", "w-12", 3, "matMenuTriggerFor"], ["btn", "", "matRipple", "", 1, "flex-1", "h-10", "border-none", 3, "click", "disabled"], ["class", "flex items-center space-x-2 justify-center", 4, "ngIf", "ngIfElse"], [1, "flex", "items-center", "space-x-2", "justify-center"], [1, "mr-4"], [1, "mx-auto", 3, "diameter"], [1, "mt-4", "sm:p-4", "sm:bg-base-100", "rounded", "sm:m-2", "sm:border", "border-base-200", "flex-grow-[3]", "min-w-1/3", "sm:w-[16rem]"], [1, "mx-3", "py-2", "text-lg", "font-medium"], [1, "flex", "flex-col", "space-y-2"], ["request", "", "class", "border border-base-300 bg-base-100 rounded-xl overflow-hidden", 4, "ngFor", "ngForOf"], ["request", "", 1, "border", "border-base-300", "bg-base-100", "rounded-xl", "overflow-hidden"], ["matRipple", "", 1, "flex", "items-center", "space-x-2", "p-3", "w-full", 3, "click"], [1, "flex-1", "text-left"], [1, "text-sm"], [1, "flex", "items-center", "justify-center", "rounded-full", "w-8", "h-8", 3, "matTooltip"], [1, "flex", "items-center", "justify-center", "rounded-full", "w-8", "h-8"], [1, "text-2xl"], [1, "flex", "flex-col", "bg-base-200", "divide-y", "divide-base-100"], ["class", "flex items-center px-3 py-1 space-x-2 hover:opacity-90", 4, "ngFor", "ngForOf"], [1, "flex", "items-center", "px-3", "py-1", "space-x-2", "hover:opacity-90"], [1, "flex", "items-center", "flex-1"], [1, "rounded", "bg-success", "text-success-content", "text-xs", "px-2", "py-1"], [1, "pointer-events-none", 3, "src", "features", "options"], ["mat-menu-item", "", "mat-dialog-close", "", 3, "click"], [1, "flex", "items-center", "space-x-2", "text-base"], ["mat-menu-item", "", 3, "click"], ["className", "material-symbols-rounded"], [1, "text-error"]];
+    var i18n_6;
+    if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
+      /**
+       * @suppress {msgDescriptions}
+       */
+      var MSG_EXTERNAL_834898868131691573$$LIBS_BOOKINGS_SRC_LIB_BOOKING_DETAILS_MODAL_COMPONENT_TS_6 = goog.getMsg("End booking");
+      i18n_6 = MSG_EXTERNAL_834898868131691573$$LIBS_BOOKINGS_SRC_LIB_BOOKING_DETAILS_MODAL_COMPONENT_TS_6;
+    } else {
+      i18n_6 = $localize(_templateObject7 || (_templateObject7 = _taggedTemplateLiteral([":\u241F2f3dfd27ad1999e91bb66ad271f967d6e543956f\u241F834898868131691573:End booking"])));
+    }
+    return [["menu", "matMenu"], ["loading_state", ""], i18n_0, i18n_1, i18n_2, i18n_3, i18n_4, i18n_5, i18n_6, [1, "w-[100vw]", "h-[100vh]", "sm:relative", "sm:inset-auto", "sm:w-[51rem]", "sm:h-auto", "sm:max-h-[80vh]", "bg-base-100", "sm:bg-base-200", "sm:rounded", "overflow-auto", "space-y-2", "pb-2"], [1, "sm:flex", "flex-col", "items-center", "pb-4", "max-h-screen", "sm:max-h-[80vh]", "sm:px-16", "sm:border-b", "bg-base-100", "border-base-200"], ["class", "h-8 w-full sm:hidden block", 4, "ngIf"], ["class", "bg-neutral w-full h-64 sm:rounded-b overflow-hidden", 4, "ngIf"], ["title", "", 1, "px-3", "mt-2", "text-xl", "font-medium", "w-full"], [1, "sm:flex", "items-center", "justify-between", "w-full"], [1, "flex", "m-2"], [3, "status"], ["actions", "", "class", "flex items-center space-x-2 px-2", 4, "ngIf"], [1, "sm:flex", "flex-wrap", "sm:px-12"], [1, "sm:p-4", "sm:bg-base-100", "rounded", "sm:m-2", "sm:border", "border-base-200", "flex-grow-[4]", "min-w-1/3", "sm:w-[16rem]"], [1, "px-3", "mt-2", "text-lg", "font-medium", "mb-2"], [1, "flex", "items-center", "px-2", "space-x-2"], [4, "ngIf"], ["map", "", 1, "mt-4", "sm:my-2", "h-64", "sm:h-48", "relative", "border", "border-base-200", "overflow-hidden", "rounded", "sm:bg-base-100", "m-2", "flex-grow-[3]", "min-w-1/3", "w-[calc(100%-1rem)]", "p-2", "sm:w-[16rem]", 3, "click"], ["icon", "", "matRipple", "", "mat-dialog-close", "", 1, "absolute", "top-0", "left-2", "bg-neutral", "text-white"], ["xPosition", "before"], ["mat-menu-item", "", "mat-dialog-close", "", 3, "click", 4, "ngIf"], ["mat-menu-item", "", 3, "click", 4, "ngIf"], [1, "h-8", "w-full", "sm:hidden", "block"], [1, "bg-neutral", "w-full", "h-64", "sm:rounded-b", "overflow-hidden"], [1, "w-full", "h-64", 3, "images"], ["actions", "", 1, "flex", "items-center", "space-x-2", "px-2"], ["btn", "", "matRipple", "", "class", "flex-1 h-10 border-none", 3, "bg-success", "text-success-content", "disabled", "click", 4, "ngIf"], ["icon", "", "matRipple", "", 1, "bg-secondary", "rounded", "text-white", "h-12", "w-12", 3, "matMenuTriggerFor"], ["btn", "", "matRipple", "", 1, "flex-1", "h-10", "border-none", 3, "click", "disabled"], ["class", "flex items-center space-x-2 justify-center", 4, "ngIf", "ngIfElse"], [1, "flex", "items-center", "space-x-2", "justify-center"], [1, "mr-4"], [1, "mx-auto", 3, "diameter"], [1, "mt-4", "sm:p-4", "sm:bg-base-100", "rounded", "sm:m-2", "sm:border", "border-base-200", "flex-grow-[3]", "min-w-1/3", "sm:w-[16rem]"], [1, "mx-3", "py-2", "text-lg", "font-medium"], [1, "flex", "flex-col", "space-y-2"], ["request", "", "class", "border border-base-300 bg-base-100 rounded-xl overflow-hidden", 4, "ngFor", "ngForOf"], ["request", "", 1, "border", "border-base-300", "bg-base-100", "rounded-xl", "overflow-hidden"], ["matRipple", "", 1, "flex", "items-center", "space-x-2", "p-3", "w-full", 3, "click"], [1, "flex-1", "text-left"], [1, "text-sm"], [1, "flex", "items-center", "justify-center", "rounded-full", "w-8", "h-8", 3, "matTooltip"], [1, "flex", "items-center", "justify-center", "rounded-full", "w-8", "h-8"], [1, "text-2xl"], [1, "flex", "flex-col", "bg-base-200", "divide-y", "divide-base-100"], ["class", "flex items-center px-3 py-1 space-x-2 hover:opacity-90", 4, "ngFor", "ngForOf"], [1, "flex", "items-center", "px-3", "py-1", "space-x-2", "hover:opacity-90"], [1, "flex", "items-center", "flex-1"], [1, "rounded", "bg-success", "text-success-content", "text-xs", "px-2", "py-1"], [1, "pointer-events-none", 3, "src", "features", "options"], ["mat-menu-item", "", "mat-dialog-close", "", 3, "click"], [1, "flex", "items-center", "space-x-2", "text-base"], ["mat-menu-item", "", 3, "click"], ["className", "material-symbols-rounded"], [1, "text-error"]];
   },
   template: function BookingDetailsModalComponent_Template(rf, ctx) {
     if (rf & 1) {
       var _r1 = i0.ɵɵgetCurrentView();
-      i0.ɵɵelementStart(0, "div", 8)(1, "div", 9);
-      i0.ɵɵtemplate(2, BookingDetailsModalComponent_div_2_Template, 1, 0, "div", 10)(3, BookingDetailsModalComponent_div_3_Template, 2, 1, "div", 11);
-      i0.ɵɵelementStart(4, "h3", 12);
+      i0.ɵɵelementStart(0, "div", 9)(1, "div", 10);
+      i0.ɵɵtemplate(2, BookingDetailsModalComponent_div_2_Template, 1, 0, "div", 11)(3, BookingDetailsModalComponent_div_3_Template, 2, 1, "div", 12);
+      i0.ɵɵelementStart(4, "h3", 13);
       i0.ɵɵtext(5);
       i0.ɵɵelementEnd();
-      i0.ɵɵelementStart(6, "div", 13)(7, "div", 14)(8, "status-pill", 15);
+      i0.ɵɵelementStart(6, "div", 14)(7, "div", 15)(8, "status-pill", 16);
       i0.ɵɵtext(9);
       i0.ɵɵelementEnd()();
-      i0.ɵɵtemplate(10, BookingDetailsModalComponent_div_10_Template, 5, 2, "div", 16);
+      i0.ɵɵtemplate(10, BookingDetailsModalComponent_div_10_Template, 5, 2, "div", 17);
       i0.ɵɵelementEnd()();
-      i0.ɵɵelementStart(11, "div", 17)(12, "div", 18)(13, "h3", 19);
+      i0.ɵɵelementStart(11, "div", 18)(12, "div", 19)(13, "h3", 20);
       i0.ɵɵi18n(14, 2);
       i0.ɵɵelementEnd();
-      i0.ɵɵelementStart(15, "div", 20)(16, "app-icon");
+      i0.ɵɵelementStart(15, "div", 21)(16, "app-icon");
       i0.ɵɵtext(17, "event");
       i0.ɵɵelementEnd();
       i0.ɵɵelementStart(18, "div");
       i0.ɵɵtext(19);
       i0.ɵɵpipe(20, "date");
       i0.ɵɵelementEnd()();
-      i0.ɵɵelementStart(21, "div", 20)(22, "app-icon");
+      i0.ɵɵelementStart(21, "div", 21)(22, "app-icon");
       i0.ɵɵtext(23, "schedule");
       i0.ɵɵelementEnd();
       i0.ɵɵelementStart(24, "div");
       i0.ɵɵtext(25);
       i0.ɵɵelementEnd()();
-      i0.ɵɵelementStart(26, "div", 20)(27, "app-icon");
+      i0.ɵɵelementStart(26, "div", 21)(27, "app-icon");
       i0.ɵɵtext(28, "map");
       i0.ɵɵelementEnd();
       i0.ɵɵelementStart(29, "div");
       i0.ɵɵtext(30);
       i0.ɵɵelementEnd()();
-      i0.ɵɵelementStart(31, "div", 20)(32, "app-icon");
+      i0.ɵɵelementStart(31, "div", 21)(32, "app-icon");
       i0.ɵɵtext(33, "place");
       i0.ɵɵelementEnd();
       i0.ɵɵelementStart(34, "div");
       i0.ɵɵtext(35);
       i0.ɵɵelementEnd()()();
-      i0.ɵɵtemplate(36, BookingDetailsModalComponent_ng_container_36_Template, 6, 2, "ng-container", 21);
-      i0.ɵɵelementStart(37, "button", 22);
+      i0.ɵɵtemplate(36, BookingDetailsModalComponent_ng_container_36_Template, 6, 2, "ng-container", 22);
+      i0.ɵɵelementStart(37, "button", 23);
       i0.ɵɵlistener("click", function BookingDetailsModalComponent_Template_button_click_37_listener() {
         i0.ɵɵrestoreView(_r1);
         return i0.ɵɵresetView(ctx.viewLocation());
       });
-      i0.ɵɵtemplate(38, BookingDetailsModalComponent_ng_container_38_Template, 2, 4, "ng-container", 21);
+      i0.ɵɵtemplate(38, BookingDetailsModalComponent_ng_container_38_Template, 2, 4, "ng-container", 22);
       i0.ɵɵelementEnd()();
-      i0.ɵɵelementStart(39, "button", 23)(40, "app-icon");
+      i0.ɵɵelementStart(39, "button", 24)(40, "app-icon");
       i0.ɵɵtext(41, "close");
       i0.ɵɵelementEnd()()();
-      i0.ɵɵelementStart(42, "mat-menu", 24, 0);
-      i0.ɵɵtemplate(44, BookingDetailsModalComponent_button_44_Template, 6, 0, "button", 25)(45, BookingDetailsModalComponent_button_45_Template, 6, 0, "button", 26)(46, BookingDetailsModalComponent_button_46_Template, 6, 0, "button", 26)(47, BookingDetailsModalComponent_button_47_Template, 6, 0, "button", 26);
+      i0.ɵɵelementStart(42, "mat-menu", 25, 0);
+      i0.ɵɵtemplate(44, BookingDetailsModalComponent_button_44_Template, 6, 0, "button", 26)(45, BookingDetailsModalComponent_button_45_Template, 6, 0, "button", 27)(46, BookingDetailsModalComponent_button_46_Template, 6, 0, "button", 27)(47, BookingDetailsModalComponent_button_47_Template, 6, 0, "button", 27)(48, BookingDetailsModalComponent_button_48_Template, 6, 0, "button", 27);
       i0.ɵɵelementEnd();
     }
     if (rf & 2) {
@@ -9370,7 +9397,7 @@ _BookingDetailsModalComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
       i0.ɵɵadvance();
       i0.ɵɵproperty("ngIf", !ctx.booking.is_done);
       i0.ɵɵadvance(9);
-      i0.ɵɵtextInterpolate(i0.ɵɵpipeBind2(20, 20, ctx.booking.date, "EEEE, dd LLLL y"));
+      i0.ɵɵtextInterpolate(i0.ɵɵpipeBind2(20, 21, ctx.booking.date, "EEEE, dd LLLL y"));
       i0.ɵɵadvance(6);
       i0.ɵɵtextInterpolate(ctx.period);
       i0.ɵɵadvance(5);
@@ -9387,6 +9414,8 @@ _BookingDetailsModalComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
       i0.ɵɵproperty("ngIf", ctx.is_checked_in && ctx.desk_height_enabled);
       i0.ɵɵadvance();
       i0.ɵɵproperty("ngIf", !ctx.is_in_progress);
+      i0.ɵɵadvance();
+      i0.ɵɵproperty("ngIf", ctx.booking.instance && ctx.booking.booking_type !== "parking");
       i0.ɵɵadvance();
       i0.ɵɵproperty("ngIf", ctx.is_in_progress);
     }
@@ -11199,7 +11228,7 @@ var saveBooking = function saveBooking(data, q) {
   delete data.id;
   var instance = q === null || q === void 0 ? void 0 : q.instance;
   if (q) delete q.instance;
-  return id ? instance ? updateBookingInstance(id, data.instance, data) : updateBooking(id, data) : createBooking(data, q);
+  return id ? instance ? updateBookingInstance(id, data.instance || data.booking_start, data) : updateBooking(id, data) : createBooking(data, q);
 };
 exports.saveBooking = saveBooking;
 /**
@@ -32546,15 +32575,15 @@ exports.VERSION = void 0;
 /* tslint:disable */
 exports.VERSION = {
   "dirty": false,
-  "raw": "da5c16b",
-  "hash": "da5c16b",
+  "raw": "beefb51",
+  "hash": "beefb51",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "da5c16b",
+  "suffix": "beefb51",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1729496037029
+  "time": 1729496123304
 };
 /* tslint:enable */
 
@@ -44724,7 +44753,7 @@ function EventDetailsModalComponent_div_14_button_2_Template(rf, ctx) {
   }
   if (rf & 2) {
     i0.ɵɵnextContext(2);
-    var menu_r4 = i0.ɵɵreference(84);
+    var menu_r4 = i0.ɵɵreference(86);
     i0.ɵɵproperty("matMenuTriggerFor", menu_r4);
   }
 }
@@ -44742,7 +44771,20 @@ function EventDetailsModalComponent_div_14_Template(rf, ctx) {
     i0.ɵɵproperty("ngIf", ctx_r1.allow_edit);
   }
 }
-function EventDetailsModalComponent_div_31_Template(rf, ctx) {
+function EventDetailsModalComponent_div_26_Template(rf, ctx) {
+  if (rf & 1) {
+    i0.ɵɵelementStart(0, "div", 67);
+    i0.ɵɵtext(1);
+    i0.ɵɵpipe(2, "date");
+    i0.ɵɵelementEnd();
+  }
+  if (rf & 2) {
+    var ctx_r1 = i0.ɵɵnextContext();
+    i0.ɵɵadvance();
+    i0.ɵɵtextInterpolate1(" ", i0.ɵɵpipeBind3(2, 1, ctx_r1.event.date, "EEEE, dd LLLL y (z)", ctx_r1.tz), " ");
+  }
+}
+function EventDetailsModalComponent_div_33_Template(rf, ctx) {
   if (rf & 1) {
     i0.ɵɵelementStart(0, "div", 67);
     i0.ɵɵtext(1);
@@ -44754,7 +44796,7 @@ function EventDetailsModalComponent_div_31_Template(rf, ctx) {
     i0.ɵɵtextInterpolate1(" ", ctx_r1.period_tz, " ");
   }
 }
-function EventDetailsModalComponent_ng_container_36_Template(rf, ctx) {
+function EventDetailsModalComponent_ng_container_38_Template(rf, ctx) {
   if (rf & 1) {
     i0.ɵɵelementContainerStart(0);
     i0.ɵɵtext(1);
@@ -44766,7 +44808,7 @@ function EventDetailsModalComponent_ng_container_36_Template(rf, ctx) {
     i0.ɵɵtextInterpolate1(" ", (ctx_r1.level == null ? null : ctx_r1.level.display_name) || (ctx_r1.level == null ? null : ctx_r1.level.name), ", ");
   }
 }
-function EventDetailsModalComponent_div_38_Template(rf, ctx) {
+function EventDetailsModalComponent_div_40_Template(rf, ctx) {
   if (rf & 1) {
     i0.ɵɵelementStart(0, "div", 32)(1, "app-icon");
     i0.ɵɵtext(2, "place");
@@ -44781,7 +44823,7 @@ function EventDetailsModalComponent_div_38_Template(rf, ctx) {
     i0.ɵɵtextInterpolate2(" ", (ctx_r1.building == null ? null : ctx_r1.building.display_name) || (ctx_r1.building == null ? null : ctx_r1.building.name), ", ", ctx_r1.building == null ? null : ctx_r1.building.address, " ");
   }
 }
-function EventDetailsModalComponent_div_45_Template(rf, ctx) {
+function EventDetailsModalComponent_div_47_Template(rf, ctx) {
   if (rf & 1) {
     i0.ɵɵelementStart(0, "div", 76);
     i0.ɵɵtext(1, " Entity: ");
@@ -44795,7 +44837,7 @@ function EventDetailsModalComponent_div_45_Template(rf, ctx) {
     i0.ɵɵtextInterpolate1(" ", ctx_r1.event.extension_data.visitor_entity, " ");
   }
 }
-function EventDetailsModalComponent_ng_container_63_div_1_Template(rf, ctx) {
+function EventDetailsModalComponent_ng_container_65_div_1_Template(rf, ctx) {
   if (rf & 1) {
     i0.ɵɵelementStart(0, "div", 79);
     i0.ɵɵelement(1, "a-user-avatar", 48);
@@ -44818,10 +44860,10 @@ function EventDetailsModalComponent_ng_container_63_div_1_Template(rf, ctx) {
     i0.ɵɵtextInterpolate1(" ", user_r5.email, " ");
   }
 }
-function EventDetailsModalComponent_ng_container_63_Template(rf, ctx) {
+function EventDetailsModalComponent_ng_container_65_Template(rf, ctx) {
   if (rf & 1) {
     i0.ɵɵelementContainerStart(0);
-    i0.ɵɵtemplate(1, EventDetailsModalComponent_ng_container_63_div_1_Template, 7, 4, "div", 78);
+    i0.ɵɵtemplate(1, EventDetailsModalComponent_ng_container_65_div_1_Template, 7, 4, "div", 78);
     i0.ɵɵelementContainerEnd();
   }
   if (rf & 2) {
@@ -44831,7 +44873,7 @@ function EventDetailsModalComponent_ng_container_63_Template(rf, ctx) {
     i0.ɵɵproperty("ngIf", user_r5.email !== ctx_r1.event.host);
   }
 }
-function EventDetailsModalComponent_div_73_Template(rf, ctx) {
+function EventDetailsModalComponent_div_75_Template(rf, ctx) {
   if (rf & 1) {
     i0.ɵɵelementStart(0, "div", 80);
     i0.ɵɵtext(1, " Entity: ");
@@ -44845,7 +44887,7 @@ function EventDetailsModalComponent_div_73_Template(rf, ctx) {
     i0.ɵɵtextInterpolate1(" ", ctx_r1.event.extension_data.host_entity, " ");
   }
 }
-function EventDetailsModalComponent_ng_container_74_div_5_div_13_span_4_Template(rf, ctx) {
+function EventDetailsModalComponent_ng_container_76_div_5_div_13_span_4_Template(rf, ctx) {
   if (rf & 1) {
     i0.ɵɵelementStart(0, "span", 97);
     i0.ɵɵtext(1);
@@ -44859,12 +44901,12 @@ function EventDetailsModalComponent_ng_container_74_div_5_div_13_span_4_Template
     i0.ɵɵtextInterpolate1(" ", (item_r8.option_list == null ? null : item_r8.option_list.length) || "0", " option(s) ");
   }
 }
-function EventDetailsModalComponent_ng_container_74_div_5_div_13_Template(rf, ctx) {
+function EventDetailsModalComponent_ng_container_76_div_5_div_13_Template(rf, ctx) {
   if (rf & 1) {
     i0.ɵɵelementStart(0, "div", 92)(1, "div", 93)(2, "span", 87);
     i0.ɵɵtext(3);
     i0.ɵɵelementEnd();
-    i0.ɵɵtemplate(4, EventDetailsModalComponent_ng_container_74_div_5_div_13_span_4_Template, 2, 2, "span", 94);
+    i0.ɵɵtemplate(4, EventDetailsModalComponent_ng_container_76_div_5_div_13_span_4_Template, 2, 2, "span", 94);
     i0.ɵɵelementEnd();
     i0.ɵɵelementStart(5, "div", 95);
     i0.ɵɵtext(6);
@@ -44887,7 +44929,7 @@ function EventDetailsModalComponent_ng_container_74_div_5_div_13_Template(rf, ct
     i0.ɵɵtextInterpolate1(" ", i0.ɵɵpipeBind2(9, 4, item_r8.unit_price_with_options / 100, ctx_r1.currency_code), " ea ");
   }
 }
-function EventDetailsModalComponent_ng_container_74_div_5_Template(rf, ctx) {
+function EventDetailsModalComponent_ng_container_76_div_5_Template(rf, ctx) {
   if (rf & 1) {
     var _r6 = i0.ɵɵgetCurrentView();
     i0.ɵɵelementStart(0, "div", 84)(1, "div", 85)(2, "div", 86)(3, "div", 87);
@@ -44899,7 +44941,7 @@ function EventDetailsModalComponent_ng_container_74_div_5_Template(rf, ctx) {
     i0.ɵɵpipe(8, "currency");
     i0.ɵɵelementEnd()();
     i0.ɵɵelementStart(9, "button", 89);
-    i0.ɵɵlistener("click", function EventDetailsModalComponent_ng_container_74_div_5_Template_button_click_9_listener() {
+    i0.ɵɵlistener("click", function EventDetailsModalComponent_ng_container_76_div_5_Template_button_click_9_listener() {
       var order_r7 = i0.ɵɵrestoreView(_r6).$implicit;
       var ctx_r1 = i0.ɵɵnextContext(2);
       return i0.ɵɵresetView(ctx_r1.show_order[order_r7.id] = !ctx_r1.show_order[order_r7.id]);
@@ -44908,7 +44950,7 @@ function EventDetailsModalComponent_ng_container_74_div_5_Template(rf, ctx) {
     i0.ɵɵtext(11);
     i0.ɵɵelementEnd()()();
     i0.ɵɵelementStart(12, "div", 90);
-    i0.ɵɵtemplate(13, EventDetailsModalComponent_ng_container_74_div_5_div_13_Template, 10, 7, "div", 91);
+    i0.ɵɵtemplate(13, EventDetailsModalComponent_ng_container_76_div_5_div_13_Template, 10, 7, "div", 91);
     i0.ɵɵelementEnd()();
   }
   if (rf & 2) {
@@ -44928,14 +44970,14 @@ function EventDetailsModalComponent_ng_container_74_div_5_Template(rf, ctx) {
     i0.ɵɵproperty("ngForOf", order_r7.items);
   }
 }
-function EventDetailsModalComponent_ng_container_74_Template(rf, ctx) {
+function EventDetailsModalComponent_ng_container_76_Template(rf, ctx) {
   if (rf & 1) {
     i0.ɵɵelementContainerStart(0);
     i0.ɵɵelementStart(1, "div", 35)(2, "h3", 81);
     i0.ɵɵi18n(3, 10);
     i0.ɵɵelementEnd();
     i0.ɵɵelementStart(4, "div", 82);
-    i0.ɵɵtemplate(5, EventDetailsModalComponent_ng_container_74_div_5_Template, 14, 13, "div", 83);
+    i0.ɵɵtemplate(5, EventDetailsModalComponent_ng_container_76_div_5_Template, 14, 13, "div", 83);
     i0.ɵɵelementEnd()();
     i0.ɵɵelementContainerEnd();
   }
@@ -44945,7 +44987,7 @@ function EventDetailsModalComponent_ng_container_74_Template(rf, ctx) {
     i0.ɵɵproperty("ngForOf", ctx_r1.event.valid_catering);
   }
 }
-function EventDetailsModalComponent_ng_container_76_Template(rf, ctx) {
+function EventDetailsModalComponent_ng_container_78_Template(rf, ctx) {
   if (rf & 1) {
     i0.ɵɵelementContainerStart(0);
     i0.ɵɵelement(1, "interactive-map", 98);
@@ -44957,7 +44999,7 @@ function EventDetailsModalComponent_ng_container_76_Template(rf, ctx) {
     i0.ɵɵproperty("src", ctx_r1.level == null ? null : ctx_r1.level.map_id)("features", ctx_r1.features)("options", i0.ɵɵpureFunction0(3, _c0));
   }
 }
-function EventDetailsModalComponent_div_77_div_3_Template(rf, ctx) {
+function EventDetailsModalComponent_div_79_div_3_Template(rf, ctx) {
   if (rf & 1) {
     i0.ɵɵelement(0, "div", 101);
     i0.ɵɵpipe(1, "sanitize");
@@ -44967,12 +45009,12 @@ function EventDetailsModalComponent_div_77_div_3_Template(rf, ctx) {
     i0.ɵɵproperty("innerHTML", i0.ɵɵpipeBind1(1, 1, ctx_r1.body) || "Unable to sanitize notes contents", i0.ɵɵsanitizeHtml);
   }
 }
-function EventDetailsModalComponent_div_77_Template(rf, ctx) {
+function EventDetailsModalComponent_div_79_Template(rf, ctx) {
   if (rf & 1) {
     i0.ɵɵelementStart(0, "div", 35)(1, "h3", 99);
     i0.ɵɵi18n(2, 11);
     i0.ɵɵelementEnd();
-    i0.ɵɵtemplate(3, EventDetailsModalComponent_div_77_div_3_Template, 2, 3, "div", 100);
+    i0.ɵɵtemplate(3, EventDetailsModalComponent_div_79_div_3_Template, 2, 3, "div", 100);
     i0.ɵɵelementEnd();
   }
   if (rf & 2) {
@@ -44981,7 +45023,7 @@ function EventDetailsModalComponent_div_77_Template(rf, ctx) {
     i0.ɵɵproperty("ngIf", ctx_r1.raw_body);
   }
 }
-function EventDetailsModalComponent_ng_container_78_div_5_div_13_Template(rf, ctx) {
+function EventDetailsModalComponent_ng_container_80_div_5_div_13_Template(rf, ctx) {
   if (rf & 1) {
     i0.ɵɵelementStart(0, "div", 92)(1, "div", 93)(2, "span", 87);
     i0.ɵɵtext(3);
@@ -44998,11 +45040,11 @@ function EventDetailsModalComponent_ng_container_78_div_5_div_13_Template(rf, ct
     i0.ɵɵtextInterpolate1(" x", item_r11.quantity, " ");
   }
 }
-function EventDetailsModalComponent_ng_container_78_div_5_Template(rf, ctx) {
+function EventDetailsModalComponent_ng_container_80_div_5_Template(rf, ctx) {
   if (rf & 1) {
     var _r9 = i0.ɵɵgetCurrentView();
     i0.ɵɵelementStart(0, "div", 104)(1, "button", 105);
-    i0.ɵɵlistener("click", function EventDetailsModalComponent_ng_container_78_div_5_Template_button_click_1_listener() {
+    i0.ɵɵlistener("click", function EventDetailsModalComponent_ng_container_80_div_5_Template_button_click_1_listener() {
       var request_r10 = i0.ɵɵrestoreView(_r9).$implicit;
       var ctx_r1 = i0.ɵɵnextContext(2);
       return i0.ɵɵresetView(ctx_r1.show_request[request_r10.id] = !ctx_r1.show_request[request_r10.id]);
@@ -45018,7 +45060,7 @@ function EventDetailsModalComponent_ng_container_78_div_5_Template(rf, ctx) {
     i0.ɵɵtext(11);
     i0.ɵɵelementEnd()()();
     i0.ɵɵelementStart(12, "div", 90);
-    i0.ɵɵtemplate(13, EventDetailsModalComponent_ng_container_78_div_5_div_13_Template, 6, 2, "div", 91);
+    i0.ɵɵtemplate(13, EventDetailsModalComponent_ng_container_80_div_5_div_13_Template, 6, 2, "div", 91);
     i0.ɵɵelementEnd()();
   }
   if (rf & 2) {
@@ -45039,14 +45081,14 @@ function EventDetailsModalComponent_ng_container_78_div_5_Template(rf, ctx) {
     i0.ɵɵproperty("ngForOf", request_r10.items);
   }
 }
-function EventDetailsModalComponent_ng_container_78_Template(rf, ctx) {
+function EventDetailsModalComponent_ng_container_80_Template(rf, ctx) {
   if (rf & 1) {
     i0.ɵɵelementContainerStart(0);
     i0.ɵɵelementStart(1, "div", 35)(2, "h3", 102);
     i0.ɵɵi18n(3, 12);
     i0.ɵɵelementEnd();
     i0.ɵɵelementStart(4, "div", 82);
-    i0.ɵɵtemplate(5, EventDetailsModalComponent_ng_container_78_div_5_Template, 14, 21, "div", 103);
+    i0.ɵɵtemplate(5, EventDetailsModalComponent_ng_container_80_div_5_Template, 14, 21, "div", 103);
     i0.ɵɵelementEnd()();
     i0.ɵɵelementContainerEnd();
   }
@@ -45059,11 +45101,11 @@ function EventDetailsModalComponent_ng_container_78_Template(rf, ctx) {
     i0.ɵɵproperty("ngForOf", ctx_r1.event.valid_assets);
   }
 }
-function EventDetailsModalComponent_div_82_Template(rf, ctx) {
+function EventDetailsModalComponent_div_84_Template(rf, ctx) {
   if (rf & 1) {
     var _r12 = i0.ɵɵgetCurrentView();
     i0.ɵɵelementStart(0, "div", 109)(1, "attendee-list", 110);
-    i0.ɵɵlistener("click", function EventDetailsModalComponent_div_82_Template_attendee_list_click_1_listener() {
+    i0.ɵɵlistener("click", function EventDetailsModalComponent_div_84_Template_attendee_list_click_1_listener() {
       i0.ɵɵrestoreView(_r12);
       var ctx_r1 = i0.ɵɵnextContext();
       return i0.ɵɵresetView(ctx_r1.show_attendees = false);
@@ -45076,11 +45118,11 @@ function EventDetailsModalComponent_div_82_Template(rf, ctx) {
     i0.ɵɵproperty("list", ctx_r1.event.attendees)("host", ctx_r1.event.host);
   }
 }
-function EventDetailsModalComponent_button_85_Template(rf, ctx) {
+function EventDetailsModalComponent_button_87_Template(rf, ctx) {
   if (rf & 1) {
     var _r13 = i0.ɵɵgetCurrentView();
     i0.ɵɵelementStart(0, "button", 111);
-    i0.ɵɵlistener("click", function EventDetailsModalComponent_button_85_Template_button_click_0_listener() {
+    i0.ɵɵlistener("click", function EventDetailsModalComponent_button_87_Template_button_click_0_listener() {
       i0.ɵɵrestoreView(_r13);
       var ctx_r1 = i0.ɵɵnextContext();
       return i0.ɵɵresetView(ctx_r1.edit.emit(ctx_r1.space));
@@ -45097,11 +45139,11 @@ function EventDetailsModalComponent_button_85_Template(rf, ctx) {
     i0.ɵɵproperty("matTooltip", !ctx_r1.can_edit ? ctx_r1.no_edit_message : "")("disabled", !ctx_r1.can_edit);
   }
 }
-function EventDetailsModalComponent_button_92_Template(rf, ctx) {
+function EventDetailsModalComponent_button_94_Template(rf, ctx) {
   if (rf & 1) {
     var _r14 = i0.ɵɵgetCurrentView();
     i0.ɵɵelementStart(0, "button", 59);
-    i0.ɵɵlistener("click", function EventDetailsModalComponent_button_92_Template_button_click_0_listener() {
+    i0.ɵɵlistener("click", function EventDetailsModalComponent_button_94_Template_button_click_0_listener() {
       i0.ɵɵrestoreView(_r14);
       var ctx_r1 = i0.ɵɵnextContext();
       return i0.ɵɵresetView(ctx_r1.printEvent());
@@ -45114,11 +45156,11 @@ function EventDetailsModalComponent_button_92_Template(rf, ctx) {
     i0.ɵɵelementEnd()()();
   }
 }
-function EventDetailsModalComponent_button_93_Template(rf, ctx) {
+function EventDetailsModalComponent_button_95_Template(rf, ctx) {
   if (rf & 1) {
     var _r15 = i0.ɵɵgetCurrentView();
     i0.ɵɵelementStart(0, "button", 59);
-    i0.ɵɵlistener("click", function EventDetailsModalComponent_button_93_Template_button_click_0_listener() {
+    i0.ɵɵlistener("click", function EventDetailsModalComponent_button_95_Template_button_click_0_listener() {
       i0.ɵɵrestoreView(_r15);
       var ctx_r1 = i0.ɵɵnextContext();
       return i0.ɵɵresetView(ctx_r1.remove.emit(true));
@@ -45131,11 +45173,11 @@ function EventDetailsModalComponent_button_93_Template(rf, ctx) {
     i0.ɵɵelementEnd()()();
   }
 }
-function EventDetailsModalComponent_button_94_Template(rf, ctx) {
+function EventDetailsModalComponent_button_96_Template(rf, ctx) {
   if (rf & 1) {
     var _r16 = i0.ɵɵgetCurrentView();
     i0.ɵɵelementStart(0, "button", 59);
-    i0.ɵɵlistener("click", function EventDetailsModalComponent_button_94_Template_button_click_0_listener() {
+    i0.ɵɵlistener("click", function EventDetailsModalComponent_button_96_Template_button_click_0_listener() {
       var act_r17 = i0.ɵɵrestoreView(_r16).$implicit;
       var ctx_r1 = i0.ɵɵnextContext();
       return i0.ɵɵresetView(ctx_r1.action.emit(act_r17.id));
@@ -45233,6 +45275,11 @@ var EventDetailsModalComponent = /*#__PURE__*/function () {
       if (!tz) return '';
       var tz_offset = (0, common_1.getTimezoneOffsetString)(tz);
       return tz_offset === this._local_tz ? '' : tz_offset;
+    }
+  }, {
+    key: "tz_date_same",
+    get: function get() {
+      return !this._date.transform(this.event.date, 'yyyy-MM-dd', this.tz).localeCompare(this._date.transform(this.event.date, 'yyyy-MM-dd'));
     }
   }, {
     key: "body",
@@ -45442,8 +45489,8 @@ _EventDetailsModalComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
     remove: "remove"
   },
   features: [i0.ɵɵProvidersFeature([space_pipe_1.SpacePipe])],
-  decls: 95,
-  vars: 41,
+  decls: 97,
+  vars: 42,
   consts: function consts() {
     var i18n_0;
     if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
@@ -45652,100 +45699,102 @@ _EventDetailsModalComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
       i0.ɵɵelementStart(19, "div", 32)(20, "app-icon");
       i0.ɵɵtext(21, "event");
       i0.ɵɵelementEnd();
-      i0.ɵɵelementStart(22, "div");
-      i0.ɵɵtext(23);
-      i0.ɵɵpipe(24, "date");
+      i0.ɵɵelementStart(22, "div", 26)(23, "div");
+      i0.ɵɵtext(24);
+      i0.ɵɵpipe(25, "date");
+      i0.ɵɵelementEnd();
+      i0.ɵɵtemplate(26, EventDetailsModalComponent_div_26_Template, 3, 5, "div", 27);
       i0.ɵɵelementEnd()();
-      i0.ɵɵelementStart(25, "div", 32)(26, "app-icon");
-      i0.ɵɵtext(27, "schedule");
+      i0.ɵɵelementStart(27, "div", 32)(28, "app-icon");
+      i0.ɵɵtext(29, "schedule");
       i0.ɵɵelementEnd();
-      i0.ɵɵelementStart(28, "div", 26)(29, "div");
-      i0.ɵɵtext(30);
+      i0.ɵɵelementStart(30, "div", 26)(31, "div");
+      i0.ɵɵtext(32);
       i0.ɵɵelementEnd();
-      i0.ɵɵtemplate(31, EventDetailsModalComponent_div_31_Template, 2, 1, "div", 27);
+      i0.ɵɵtemplate(33, EventDetailsModalComponent_div_33_Template, 2, 1, "div", 27);
       i0.ɵɵelementEnd()();
-      i0.ɵɵelementStart(32, "div", 32)(33, "app-icon");
-      i0.ɵɵtext(34, "map");
+      i0.ɵɵelementStart(34, "div", 32)(35, "app-icon");
+      i0.ɵɵtext(36, "map");
       i0.ɵɵelementEnd();
-      i0.ɵɵelementStart(35, "div");
-      i0.ɵɵtemplate(36, EventDetailsModalComponent_ng_container_36_Template, 2, 1, "ng-container", 33);
-      i0.ɵɵtext(37);
+      i0.ɵɵelementStart(37, "div");
+      i0.ɵɵtemplate(38, EventDetailsModalComponent_ng_container_38_Template, 2, 1, "ng-container", 33);
+      i0.ɵɵtext(39);
       i0.ɵɵelementEnd()();
-      i0.ɵɵtemplate(38, EventDetailsModalComponent_div_38_Template, 5, 2, "div", 34);
+      i0.ɵɵtemplate(40, EventDetailsModalComponent_div_40_Template, 5, 2, "div", 34);
       i0.ɵɵelementEnd();
-      i0.ɵɵelementStart(39, "div", 35)(40, "div", 36)(41, "h3", 37);
-      i0.ɵɵi18n(42, 2);
+      i0.ɵɵelementStart(41, "div", 35)(42, "div", 36)(43, "h3", 37);
+      i0.ɵɵi18n(44, 2);
       i0.ɵɵelementEnd();
-      i0.ɵɵelementStart(43, "button", 38);
-      i0.ɵɵlistener("click", function EventDetailsModalComponent_Template_button_click_43_listener() {
+      i0.ɵɵelementStart(45, "button", 38);
+      i0.ɵɵlistener("click", function EventDetailsModalComponent_Template_button_click_45_listener() {
         i0.ɵɵrestoreView(_r1);
         return i0.ɵɵresetView(ctx.show_attendees = true);
       });
-      i0.ɵɵi18n(44, 3);
+      i0.ɵɵi18n(46, 3);
       i0.ɵɵelementEnd()();
-      i0.ɵɵtemplate(45, EventDetailsModalComponent_div_45_Template, 4, 1, "div", 39);
-      i0.ɵɵelementStart(46, "div", 40)(47, "div", 41)(48, "div", 42);
-      i0.ɵɵtext(49);
+      i0.ɵɵtemplate(47, EventDetailsModalComponent_div_47_Template, 4, 1, "div", 39);
+      i0.ɵɵelementStart(48, "div", 40)(49, "div", 41)(50, "div", 42);
+      i0.ɵɵtext(51);
       i0.ɵɵelementEnd();
-      i0.ɵɵelementStart(50, "div", 43);
-      i0.ɵɵi18n(51, 4);
+      i0.ɵɵelementStart(52, "div", 43);
+      i0.ɵɵi18n(53, 4);
       i0.ɵɵelementEnd()();
-      i0.ɵɵelementStart(52, "div", 41)(53, "div", 42);
-      i0.ɵɵtext(54);
+      i0.ɵɵelementStart(54, "div", 41)(55, "div", 42);
+      i0.ɵɵtext(56);
       i0.ɵɵelementEnd();
-      i0.ɵɵelementStart(55, "div", 43);
-      i0.ɵɵi18n(56, 5);
+      i0.ɵɵelementStart(57, "div", 43);
+      i0.ɵɵi18n(58, 5);
       i0.ɵɵelementEnd()();
-      i0.ɵɵelementStart(57, "div", 41)(58, "div", 42);
-      i0.ɵɵtext(59);
+      i0.ɵɵelementStart(59, "div", 41)(60, "div", 42);
+      i0.ɵɵtext(61);
       i0.ɵɵelementEnd();
-      i0.ɵɵelementStart(60, "div", 43);
-      i0.ɵɵi18n(61, 6);
+      i0.ɵɵelementStart(62, "div", 43);
+      i0.ɵɵi18n(63, 6);
       i0.ɵɵelementEnd()()();
-      i0.ɵɵelementStart(62, "div", 44);
-      i0.ɵɵtemplate(63, EventDetailsModalComponent_ng_container_63_Template, 2, 1, "ng-container", 45);
+      i0.ɵɵelementStart(64, "div", 44);
+      i0.ɵɵtemplate(65, EventDetailsModalComponent_ng_container_65_Template, 2, 1, "ng-container", 45);
       i0.ɵɵelementEnd();
-      i0.ɵɵelementStart(64, "h3", 46);
-      i0.ɵɵi18n(65, 7);
+      i0.ɵɵelementStart(66, "h3", 46);
+      i0.ɵɵi18n(67, 7);
       i0.ɵɵelementEnd();
-      i0.ɵɵelementStart(66, "div", 47);
-      i0.ɵɵelement(67, "a-user-avatar", 48);
-      i0.ɵɵelementStart(68, "div", 49)(69, "div", 50);
-      i0.ɵɵtext(70);
-      i0.ɵɵelementEnd();
-      i0.ɵɵelementStart(71, "div", 51);
+      i0.ɵɵelementStart(68, "div", 47);
+      i0.ɵɵelement(69, "a-user-avatar", 48);
+      i0.ɵɵelementStart(70, "div", 49)(71, "div", 50);
       i0.ɵɵtext(72);
-      i0.ɵɵelementEnd()()();
-      i0.ɵɵtemplate(73, EventDetailsModalComponent_div_73_Template, 4, 1, "div", 52);
       i0.ɵɵelementEnd();
-      i0.ɵɵtemplate(74, EventDetailsModalComponent_ng_container_74_Template, 6, 1, "ng-container", 33);
-      i0.ɵɵelementStart(75, "button", 53);
-      i0.ɵɵlistener("click", function EventDetailsModalComponent_Template_button_click_75_listener() {
+      i0.ɵɵelementStart(73, "div", 51);
+      i0.ɵɵtext(74);
+      i0.ɵɵelementEnd()()();
+      i0.ɵɵtemplate(75, EventDetailsModalComponent_div_75_Template, 4, 1, "div", 52);
+      i0.ɵɵelementEnd();
+      i0.ɵɵtemplate(76, EventDetailsModalComponent_ng_container_76_Template, 6, 1, "ng-container", 33);
+      i0.ɵɵelementStart(77, "button", 53);
+      i0.ɵɵlistener("click", function EventDetailsModalComponent_Template_button_click_77_listener() {
         i0.ɵɵrestoreView(_r1);
         return i0.ɵɵresetView(ctx.viewLocation());
       });
-      i0.ɵɵtemplate(76, EventDetailsModalComponent_ng_container_76_Template, 2, 4, "ng-container", 33);
+      i0.ɵɵtemplate(78, EventDetailsModalComponent_ng_container_78_Template, 2, 4, "ng-container", 33);
       i0.ɵɵelementEnd();
-      i0.ɵɵtemplate(77, EventDetailsModalComponent_div_77_Template, 4, 1, "div", 54)(78, EventDetailsModalComponent_ng_container_78_Template, 6, 2, "ng-container", 33);
-      i0.ɵɵelementStart(79, "button", 55)(80, "app-icon");
-      i0.ɵɵtext(81, "close");
+      i0.ɵɵtemplate(79, EventDetailsModalComponent_div_79_Template, 4, 1, "div", 54)(80, EventDetailsModalComponent_ng_container_80_Template, 6, 2, "ng-container", 33);
+      i0.ɵɵelementStart(81, "button", 55)(82, "app-icon");
+      i0.ɵɵtext(83, "close");
       i0.ɵɵelementEnd()();
-      i0.ɵɵtemplate(82, EventDetailsModalComponent_div_82_Template, 2, 2, "div", 56);
+      i0.ɵɵtemplate(84, EventDetailsModalComponent_div_84_Template, 2, 2, "div", 56);
       i0.ɵɵelementEnd();
-      i0.ɵɵelementStart(83, "mat-menu", 57, 0);
-      i0.ɵɵtemplate(85, EventDetailsModalComponent_button_85_Template, 6, 2, "button", 58);
-      i0.ɵɵelementStart(86, "button", 59);
-      i0.ɵɵlistener("click", function EventDetailsModalComponent_Template_button_click_86_listener() {
+      i0.ɵɵelementStart(85, "mat-menu", 57, 0);
+      i0.ɵɵtemplate(87, EventDetailsModalComponent_button_87_Template, 6, 2, "button", 58);
+      i0.ɵɵelementStart(88, "button", 59);
+      i0.ɵɵlistener("click", function EventDetailsModalComponent_Template_button_click_88_listener() {
         i0.ɵɵrestoreView(_r1);
         return i0.ɵɵresetView(ctx.remove.emit());
       });
-      i0.ɵɵelementStart(87, "div", 60)(88, "app-icon", 61);
-      i0.ɵɵtext(89, "delete");
+      i0.ɵɵelementStart(89, "div", 60)(90, "app-icon", 61);
+      i0.ɵɵtext(91, "delete");
       i0.ɵɵelementEnd();
-      i0.ɵɵelementStart(90, "div");
-      i0.ɵɵi18n(91, 8);
+      i0.ɵɵelementStart(92, "div");
+      i0.ɵɵi18n(93, 8);
       i0.ɵɵelementEnd()()();
-      i0.ɵɵtemplate(92, EventDetailsModalComponent_button_92_Template, 6, 0, "button", 62)(93, EventDetailsModalComponent_button_93_Template, 6, 0, "button", 62)(94, EventDetailsModalComponent_button_94_Template, 6, 2, "button", 63);
+      i0.ɵɵtemplate(94, EventDetailsModalComponent_button_94_Template, 6, 0, "button", 62)(95, EventDetailsModalComponent_button_95_Template, 6, 0, "button", 62)(96, EventDetailsModalComponent_button_96_Template, 6, 2, "button", 63);
       i0.ɵɵelementEnd()();
     }
     if (rf & 2) {
@@ -45770,9 +45819,11 @@ _EventDetailsModalComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
       i0.ɵɵproperty("ngIf", ctx.timezone && ctx.tz);
       i0.ɵɵadvance();
       i0.ɵɵproperty("ngIf", ctx.event.state !== "done");
-      i0.ɵɵadvance(9);
-      i0.ɵɵtextInterpolate1(" ", i0.ɵɵpipeBind2(24, 38, ctx.event.date, "EEEE, dd LLLL y"), " ");
-      i0.ɵɵadvance(7);
+      i0.ɵɵadvance(10);
+      i0.ɵɵtextInterpolate1(" ", i0.ɵɵpipeBind2(25, 39, ctx.event.date, "EEEE, dd LLLL y"), " ");
+      i0.ɵɵadvance(2);
+      i0.ɵɵproperty("ngIf", ctx.timezone && ctx.tz && !ctx.tz_date_same);
+      i0.ɵɵadvance(6);
       i0.ɵɵtextInterpolate(ctx.period);
       i0.ɵɵadvance();
       i0.ɵɵproperty("ngIf", ctx.timezone && ctx.tz);
