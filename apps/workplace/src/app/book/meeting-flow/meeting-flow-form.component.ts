@@ -151,7 +151,8 @@ import { PlaceMetadata, showMetadata } from '@placeos/ts-client';
                             >
                                 <mat-option
                                     *ngFor="
-                                        let option of filtered_entities | async
+                                        let option of filtered_visitor_entities
+                                            | async
                                     "
                                     [value]="option"
                                 >
