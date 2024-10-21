@@ -4740,7 +4740,7 @@ function MeetingFlowFormComponent_form_5_section_14_Template(rf, ctx) {
     _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵadvance"](4);
     _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵproperty"]("matAutocomplete", auto_r5);
     _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵadvance"](3);
-    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵproperty"]("ngForOf", _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵpipeBind1"](23, 12, ctx_r1.filtered_entities));
+    _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵproperty"]("ngForOf", _angular_core__WEBPACK_IMPORTED_MODULE_17__["ɵɵpipeBind1"](23, 12, ctx_r1.filtered_visitor_entities));
   }
 }
 function MeetingFlowFormComponent_form_5_div_27_Template(rf, ctx) {
