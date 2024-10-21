@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1729483896034,
+  "timestamp": 1729484665887,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -253,7 +253,7 @@
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
     "./default-apps_concierge_src_app_desks_desks-state_service_ts.js": "b8282f94e35a77e87f53f1bb3312b4f45547798a",
     "./default-apps_concierge_src_app_parking_parking-state_service_ts.js": "6ac14cae9dac790bebdf35104f50e90eddad5759",
-    "./default-libs_bookings_src_lib_bookings_module_ts.js": "157ff36ad4468e2412f250a2e3ed8eadc4d19c1d",
+    "./default-libs_bookings_src_lib_bookings_module_ts.js": "9e1e7d044b7c226ac6b72961e13d370d59094dcd",
     "./default-libs_catering_src_index_ts.js": "695454c95692380eeef45cba37662817ec921c79",
     "./default-libs_explore_src_index_ts.js": "bb94b9637d04124ce35e63f795b57feed481c85d",
     "./default-libs_users_src_lib_users_module_ts.js": "2113457ebfb2ff1abe7ee8bd27fbf74e4b972909",
@@ -262,7 +262,7 @@
     "./default-node_modules_angular_material_fesm2022_tabs_mjs.js": "e940c2d18145992fa91bfeb49918c9a16de14395",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "1a80ddb80e702fdd1408baa4103fb2e36a03faef",
-    "./main.js": "56c446b59a58e701419378bd469a6c2fef9ed5b3",
+    "./main.js": "fc909f9d139a5b35562f7d1a927306f4fda0554c",
     "./manifest.webmanifest": "d04bbed3c845e540889389abee7383200d83ab8b",
     "./material-icons-outlined.woff2": "2f9e28ab559782402f27332633c843c40209d95a",
     "./material-icons-round.woff2": "abe05e0641f1050fbe00ef0dbb10c5ea72c26cff",
