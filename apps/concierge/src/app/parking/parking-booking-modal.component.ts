@@ -88,7 +88,7 @@ import { addDays, endOfDay } from 'date-fns';
                             [ngModel]="form.value.date"
                             (ngModelChange)="form.patchValue({ date: $event })"
                             [ngModelOptions]="{ standalone: true }"
-                            [disabled]="!allow_time_changes"
+                            [disabled]="form.controls.date.disabled"
                             [use_24hr]="use_24hr"
                         ></a-time-field>
                     </div>
@@ -215,8 +215,10 @@ export class ParkingBookingModalComponent extends AsyncHandler {
             }),
         );
         this.form.patchValue({
-            all_day: true,
             booking_type: 'parking',
+            all_day: this._data.booking
+                ? this._data.booking.duration > 12 * 60
+                : true,
         });
         if (!this.form.value.user) {
             this.form.patchValue({
