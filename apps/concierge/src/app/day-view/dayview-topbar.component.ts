@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { first } from 'rxjs/operators';
+import { debounceTime, first } from 'rxjs/operators';
 
 import { AsyncHandler, Identity, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
@@ -114,7 +114,6 @@ export class DayviewTopbarComponent extends AsyncHandler {
             relativeTo: this._route,
             queryParams: { zone_ids: z.join(',') },
         });
-        this._state.setZones(z);
     };
     /** List of levels for the active building */
     public readonly updateTypes = (types) =>
@@ -138,7 +137,7 @@ export class DayviewTopbarComponent extends AsyncHandler {
         private _org: OrganisationService,
         private _route: ActivatedRoute,
         private _router: Router,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         super();
     }
@@ -155,23 +154,11 @@ export class DayviewTopbarComponent extends AsyncHandler {
                         const level = this._org.levelWithID(zones);
                         if (!level) return;
                         this._org.building = this._org.buildings.find(
-                            (bld) => bld.id === level.parent_id
+                            (bld) => bld.id === level.parent_id,
                         );
                     }
                 }
-            })
-        );
-        this.subscription(
-            'levels',
-            this._org.active_levels.subscribe((levels) => {
-                this.zones = this.zones.filter((zone) =>
-                    levels.find((lvl) => lvl.id === zone)
-                );
-                if (!this.zones.length && levels.length) {
-                    this.zones.push(levels[0].id);
-                }
-                this.updateZones(this.zones);
-            })
+            }),
         );
         this.updateTypes(this.type_list);
     }

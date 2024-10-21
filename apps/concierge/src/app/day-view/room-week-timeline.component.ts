@@ -6,11 +6,13 @@ import {
     startOfMinute,
     startOfWeek,
     format,
+    setHours,
 } from 'date-fns';
 import { EventsStateService } from './events-state.service';
 import { MatDialog } from '@angular/material/dialog';
 import {
     AsyncHandler,
+    getTimezoneOffsetInMinutes,
     getTimezoneOffsetString,
     notifyError,
     notifySuccess,
@@ -182,7 +184,15 @@ export class RoomWeekBookingsTimelineComponent extends AsyncHandler {
         map((d) =>
             new Array(7)
                 .fill(0)
-                .map((_, idx) => addDays(startOfWeek(d), idx).valueOf()),
+                .map((_, idx) =>
+                    addDays(
+                        setHours(
+                            startOfWeek(d),
+                            12 - Math.floor(this.timezone_offset / 60),
+                        ),
+                        idx,
+                    ).valueOf(),
+                ),
         ),
     );
     public readonly this_week = this.date.pipe(
@@ -252,6 +262,12 @@ export class RoomWeekBookingsTimelineComponent extends AsyncHandler {
         if (!tz) return '';
         const tz_offset = getTimezoneOffsetString(tz);
         return tz_offset === this._local_tz ? '' : tz_offset;
+    }
+
+    public get timezone_offset() {
+        return getTimezoneOffsetInMinutes(
+            this.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
+        );
     }
 
     public get now() {

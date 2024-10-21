@@ -308,6 +308,16 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                     <div i18n>Delete booking</div>
                 </div>
             </button>
+            <button
+                mat-menu-item
+                *ngIf="booking.instance && booking.booking_type !== 'parking'"
+                (click)="remove.emit(true)"
+            >
+                <div class="flex items-center space-x-2 text-base">
+                    <app-icon class="text-error">delete</app-icon>
+                    <div i18n>Delete Series</div>
+                </div>
+            </button>
             <button mat-menu-item *ngIf="is_in_progress" (click)="end.emit()">
                 <div class="flex items-center space-x-2 text-base">
                     <app-icon class="text-error">delete</app-icon>
@@ -321,7 +331,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
 })
 export class BookingDetailsModalComponent {
     @Output() public edit = new EventEmitter();
-    @Output() public remove = new EventEmitter();
+    @Output() public remove = new EventEmitter<boolean>();
     @Output() public end = new EventEmitter();
     public readonly booking = this._booking;
     public hide_map = false;

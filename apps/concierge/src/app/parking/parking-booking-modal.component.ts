@@ -5,8 +5,6 @@ import { Booking, BookingFormService, ParkingSpace } from '@placeos/bookings';
 import {
     AsyncHandler,
     currentUser,
-    getInvalidFields,
-    notify,
     notifyError,
     notifySuccess,
     SettingsService,
@@ -90,6 +88,7 @@ import { addDays, endOfDay } from 'date-fns';
                             [ngModel]="form.value.date"
                             (ngModelChange)="form.patchValue({ date: $event })"
                             [ngModelOptions]="{ standalone: true }"
+                            [disabled]="form.controls.date.disabled"
                             [use_24hr]="use_24hr"
                         ></a-time-field>
                     </div>
@@ -100,7 +99,7 @@ import { addDays, endOfDay } from 'date-fns';
                         <a-duration-field
                             name="end-time"
                             formControlName="duration"
-                            [time]="form?.value?.date"
+                            [time]="form?.getRawValue()?.date"
                             [max]="max_duration"
                             [use_24hr]="use_24hr"
                         >
@@ -153,6 +152,7 @@ export class ParkingBookingModalComponent extends AsyncHandler {
     public loading: boolean = false;
     public readonly user = this._data.user;
     public readonly date = this._data.date;
+    public readonly allow_time_changes = this._data.allow_time_changes;
 
     public form = this._booking_form.form;
 
@@ -215,8 +215,10 @@ export class ParkingBookingModalComponent extends AsyncHandler {
             }),
         );
         this.form.patchValue({
-            all_day: true,
             booking_type: 'parking',
+            all_day: this._data.booking
+                ? this._data.booking.duration > 12 * 60
+                : true,
         });
         if (!this.form.value.user) {
             this.form.patchValue({
@@ -252,6 +254,7 @@ export class ParkingBookingModalComponent extends AsyncHandler {
                     this.form.patchValue({ date: this._data.date });
                     if (!this._data.allow_time_changes) {
                         this.form.get('date').disable();
+                        this.form.get('duration').disable();
                     }
                 },
                 300,
@@ -262,10 +265,14 @@ export class ParkingBookingModalComponent extends AsyncHandler {
                     this.form.valueChanges.subscribe((v) => {
                         this.timeout(
                             'disable_date',
-                            () =>
+                            () => {
                                 this.form
                                     .get('date')
-                                    .disable({ emitEvent: false }),
+                                    .disable({ emitEvent: false });
+                                this.form
+                                    .get('duration')
+                                    .disable({ emitEvent: false });
+                            },
                             50,
                         );
                     }),
