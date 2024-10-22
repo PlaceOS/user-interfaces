@@ -32596,15 +32596,15 @@ exports.VERSION = void 0;
 /* tslint:disable */
 exports.VERSION = {
   "dirty": false,
-  "raw": "9153579",
-  "hash": "9153579",
+  "raw": "bfe21ee",
+  "hash": "bfe21ee",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "9153579",
+  "suffix": "bfe21ee",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1729567601480
+  "time": 1729640608132
 };
 /* tslint:enable */
 
@@ -53887,7 +53887,7 @@ _ExploreSpaceInfoComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
       var MSG_EXTERNAL_3658078071800974217$$LIBS_EXPLORE_SRC_LIB_EXPLORE_SPACE_INFO_COMPONENT_TS_0 = goog.getMsg("{VAR_SELECT, select, free {Free } busy {Busy } pending {Pending } reserved {Reserved } other {Not Bookable }}");
       i18n_0 = MSG_EXTERNAL_3658078071800974217$$LIBS_EXPLORE_SRC_LIB_EXPLORE_SPACE_INFO_COMPONENT_TS_0;
     } else {
-      i18n_0 = $localize(_templateObject || (_templateObject = _taggedTemplateLiteral([":\u241F86e6b3a473ea3e05830d2aef91c81199de1b9d33\u241F3658078071800974217:{VAR_SELECT, select, free {Free } busy {Busy } pending {Pending } reserved {Reserved } other {Not Bookable }}"])));
+      i18n_0 = $localize(_templateObject || (_templateObject = _taggedTemplateLiteral([":\u241F23bdd658d8004ba281d4620a1080cd9c4691618b\u241F3658078071800974217:{VAR_SELECT, select, free {Free } busy {Busy } pending {Pending } reserved {Reserved } other {Not Bookable }}"])));
     }
     i18n_0 = i0.ɵɵi18nPostprocess(i18n_0, {
       "VAR_SELECT": "\uFFFD0\uFFFD"
@@ -53902,7 +53902,7 @@ _ExploreSpaceInfoComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
     } else {
       i18n_1 = $localize(_templateObject2 || (_templateObject2 = _taggedTemplateLiteral([":\u241F36c2a5db33c6cfc9e239e589f975f5492bbb0550\u241F2292396409867038415:Capacity: "])));
     }
-    return [["tooltip", ""], ["space_tooltip", ""], i18n_0, i18n_1, ["customTooltip", "", 1, "h-full", "w-full", "pointer-events-auto", "relative", "hidden", "sm:block", "cursor-pointer", 3, "mouseenter", "content", "backdrop", "xPosition", "yPosition", "hover", "delay"], ["name", "space-info", 1, "absolute", "rounded", "bg-base-100", "top-0", "left-0", "transform", "shadow", "pointer-events-none", "overflow-hidden", 3, "id"], [1, "arrow"], [1, "relative"], [1, "w-full", "overflow-hidden", "flex", "items-center", "justify-center", "relative", "bg-opacity-20"], ["auth", "", "class", "object-cover min-h-full min-w-full", 3, "source", 4, "ngIf"], ["class", "absolute inset-0 bg-neutral", 4, "ngIf"], [1, "absolute", "top-2", "left-2", "flex", "flex-wrap", "text-sm"], ["status", ""], ["available-until", "", 4, "ngIf"], [1, "flex", "flex-col", "py-4", "px-2"], [1, "font-medium", "text-xl", "mb-2", "px-2"], ["capacity", "", "class", "text-base px-2 mb-2", 4, "ngIf"], ["class", "flex flex-wrap", 4, "ngIf"], ["auth", "", 1, "object-cover", "min-h-full", "min-w-full", 3, "source"], [1, "absolute", "inset-0", "bg-neutral"], ["available-until", ""], ["capacity", "", 1, "text-base", "px-2", "mb-2"], [1, "flex", "flex-wrap"], ["class", "text-xs px-2 py-1 m-1 rounded-2xl bg-base-200 font-medium", 4, "ngFor", "ngForOf"], [1, "text-xs", "px-2", "py-1", "m-1", "rounded-2xl", "bg-base-200", "font-medium"]];
+    return [["tooltip", ""], ["space_tooltip", ""], i18n_0, i18n_1, ["customTooltip", "", 1, "h-full", "w-full", "pointer-events-auto", "relative", "hidden", "sm:block", "cursor-pointer", 3, "mouseenter", "content", "backdrop", "xPosition", "yPosition", "hover", "delay"], ["name", "space-info", 1, "absolute", "rounded", "bg-base-100", "top-0", "left-0", "transform", "shadow", "pointer-events-none", "overflow-hidden", 3, "id"], [1, "arrow"], [1, "relative"], [1, "w-full", "overflow-hidden", "flex", "items-center", "justify-center", "relative", "bg-opacity-20"], ["auth", "", "class", "object-cover min-h-full min-w-full", 3, "source", 4, "ngIf"], ["class", "absolute inset-0 bg-neutral opacity-30", 4, "ngIf"], [1, "absolute", "top-2", "left-2", "flex", "flex-wrap", "text-sm"], ["status", ""], ["available-until", "", 4, "ngIf"], [1, "flex", "flex-col", "py-4", "px-2"], [1, "font-medium", "text-xl", "mb-2", "px-2"], ["capacity", "", "class", "text-base px-2 mb-2", 4, "ngIf"], ["class", "flex flex-wrap", 4, "ngIf"], ["auth", "", 1, "object-cover", "min-h-full", "min-w-full", 3, "source"], [1, "absolute", "inset-0", "bg-neutral", "opacity-30"], ["available-until", ""], ["capacity", "", 1, "text-base", "px-2", "mb-2"], [1, "flex", "flex-wrap"], ["class", "text-xs px-2 py-1 m-1 rounded-2xl bg-base-200 font-medium", 4, "ngFor", "ngForOf"], [1, "text-xs", "px-2", "py-1", "m-1", "rounded-2xl", "bg-base-200", "font-medium"]];
   },
   template: function ExploreSpaceInfoComponent_Template(rf, ctx) {
     if (rf & 1) {
