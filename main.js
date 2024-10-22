@@ -32596,15 +32596,15 @@ exports.VERSION = void 0;
 /* tslint:disable */
 exports.VERSION = {
   "dirty": false,
-  "raw": "3ee0493",
-  "hash": "3ee0493",
+  "raw": "9153579",
+  "hash": "9153579",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "3ee0493",
+  "suffix": "9153579",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1729564086718
+  "time": 1729567601480
 };
 /* tslint:enable */
 
@@ -67132,7 +67132,8 @@ var OrganisationService = /*#__PURE__*/function () {
     key: "loadSettings",
     value: function () {
       var _loadSettings = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee10() {
-        var load_metadata, _yield$toPromise2, _this$_organisation4, _yield$toPromise3, _this$_organisation5, app_settings, global_settings;
+        var _yield$toPromise2, _this$_organisation4, _yield$toPromise3, _this$_organisation5;
+        var app_settings, global_settings;
         return _regeneratorRuntime().wrap(function _callee10$(_context10) {
           while (1) switch (_context10.prev = _context10.next) {
             case 0:
@@ -67142,63 +67143,57 @@ var OrganisationService = /*#__PURE__*/function () {
               }
               return _context10.abrupt("return");
             case 2:
-              load_metadata = !this._service.get('dont_load_metadata');
-              if (!load_metadata) {
-                _context10.next = 29;
-                break;
-              }
-              _context10.next = 6;
+              _context10.next = 4;
               return (0, ts_client_1.showMetadata)((_this$_organisation4 = this._organisation) === null || _this$_organisation4 === void 0 ? void 0 : _this$_organisation4.id, this.app_key).toPromise();
-            case 6:
+            case 4:
               _context10.t1 = _yield$toPromise2 = _context10.sent;
               _context10.t0 = _context10.t1 === null;
               if (_context10.t0) {
-                _context10.next = 10;
+                _context10.next = 8;
                 break;
               }
               _context10.t0 = _yield$toPromise2 === void 0;
-            case 10:
+            case 8:
               if (!_context10.t0) {
-                _context10.next = 14;
+                _context10.next = 12;
                 break;
               }
               _context10.t2 = void 0;
-              _context10.next = 15;
+              _context10.next = 13;
               break;
-            case 14:
+            case 12:
               _context10.t2 = _yield$toPromise2.details;
-            case 15:
+            case 13:
               app_settings = _context10.t2;
-              _context10.next = 18;
+              _context10.next = 16;
               return (0, ts_client_1.showMetadata)((_this$_organisation5 = this._organisation) === null || _this$_organisation5 === void 0 ? void 0 : _this$_organisation5.id, 'settings').toPromise();
-            case 18:
+            case 16:
               _context10.t4 = _yield$toPromise3 = _context10.sent;
               _context10.t3 = _context10.t4 === null;
               if (_context10.t3) {
-                _context10.next = 22;
+                _context10.next = 20;
                 break;
               }
               _context10.t3 = _yield$toPromise3 === void 0;
-            case 22:
+            case 20:
               if (!_context10.t3) {
-                _context10.next = 26;
+                _context10.next = 24;
                 break;
               }
               _context10.t5 = void 0;
-              _context10.next = 27;
+              _context10.next = 25;
               break;
-            case 26:
+            case 24:
               _context10.t5 = _yield$toPromise3.details;
-            case 27:
+            case 25:
               global_settings = _context10.t5;
               this._settings = [global_settings, app_settings];
-            case 29:
               this._service.overrides = _toConsumableArray(this._settings);
-              _context10.next = 32;
+              _context10.next = 30;
               return this._initialiseActiveBuilding();
-            case 32:
+            case 30:
               this._updateSettingOverrides();
-            case 33:
+            case 31:
             case "end":
               return _context10.stop();
           }
