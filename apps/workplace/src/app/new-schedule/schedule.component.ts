@@ -71,7 +71,7 @@ import { combineLatest } from 'rxjs';
                             <booking-card
                                 [booking]="item"
                                 (edit)="editBooking(item)"
-                                (remove)="remove(item)"
+                                (remove)="remove(item, $event)"
                                 (end)="end(item)"
                             ></booking-card>
                         </ng-template>
@@ -189,7 +189,11 @@ export class ScheduleComponent extends AsyncHandler {
             remove_series ? 'recurring series of ' : ''
         }booking for ${resource_name} at ${time}`;
         const resp = await openConfirmModal(
-            { title: `Delete booking`, content, icon: { content: 'delete' } },
+            {
+                title: `Delete booking ${remove_series ? 'series' : ''}`,
+                content,
+                icon: { content: 'delete' },
+            },
             this._dialog,
         );
         if (item instanceof CalendarEvent && item.creator !== item.mailbox) {
@@ -205,7 +209,9 @@ export class ScheduleComponent extends AsyncHandler {
         if (resp.reason !== 'done') return;
         resp.loading('Requesting booking deletion...');
         await (item instanceof CalendarEvent ? removeEvent : removeBooking)(
-            remove_series ? (item as any).recurring_event_id : item.id,
+            remove_series
+                ? (item as any).recurring_event_id || item.id
+                : item.id,
             {
                 calendar: this._settings.get('app.no_user_calendar')
                     ? null
