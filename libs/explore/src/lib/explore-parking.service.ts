@@ -2,10 +2,12 @@ import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
     AsyncHandler,
+    BookingRuleset,
     currentUser,
     flatten,
     notifyError,
     notifySuccess,
+    rulesForResource,
     SettingsService,
 } from '@placeos/common';
 import { StaffUser } from '@placeos/users';
@@ -22,7 +24,9 @@ import {
 } from 'date-fns';
 import { BehaviorSubject, combineLatest, forkJoin, Observable, of } from 'rxjs';
 import {
+    catchError,
     debounceTime,
+    filter,
     map,
     shareReplay,
     switchMap,
@@ -72,6 +76,18 @@ export class ExploreParkingService extends AsyncHandler {
     public readonly levels = this._org.active_levels.pipe(
         map((l) => l.filter((_) => _.tags.includes('parking'))),
     );
+
+    public readonly booking_rules: Observable<BookingRuleset[]> =
+        this._org.active_building.pipe(
+            filter((bld) => !!bld),
+            switchMap((bld) =>
+                showMetadata(bld.id, `parking_booking_rules`).pipe(
+                    catchError(() => of({ details: [] })),
+                ),
+            ),
+            map((_) => (_?.details instanceof Array ? _.details : [])),
+            shareReplay(1),
+        );
 
     /** List of current bookings for the current building */
     public readonly events = combineLatest([
@@ -147,24 +163,40 @@ export class ExploreParkingService extends AsyncHandler {
         this.events,
         this.active_spaces,
         this._parking.users,
+        this.booking_rules,
+        this._options,
     ]).pipe(
-        map(([events, spaces, users]) => {
-            const available = spaces.filter((_) => {
+        map(([events, spaces, users, rules, { date }]) => {
+            const available = spaces.filter((space) => {
+                console.log('Space:', space);
                 const event = events.find(
-                    (e) => e.asset_id === _.id && !e.rejected,
+                    (e) => e.asset_id === space.id && !e.rejected,
                 );
+                const level = this._org.levelWithID([space.zone_id]);
                 const assigned = `${
-                    event?.user_email || _.assigned_to || ''
+                    event?.user_email || space.assigned_to || ''
                 }`.toLowerCase();
                 const user = users.find(
                     (u) => u.email.toLowerCase() === assigned.toLowerCase(),
                 );
-                this._users[_.id] = assigned;
-                this._plate_numbers[_.id] =
+                const is_restricted = rulesForResource(
+                    {
+                        date: date || Date.now(),
+                        duration: 60,
+                        host: currentUser(),
+                        resource: {
+                            id: space.id,
+                            zones: [level.parent_id, level.id],
+                        },
+                    },
+                    rules,
+                )?.hidden;
+                this._users[space.id] = assigned;
+                this._plate_numbers[space.id] =
                     event?.extension_data?.plate_number ||
                     user?.plate_number ||
                     undefined;
-                return !event;
+                return !event && !is_restricted;
             });
             this._updateParkingSpaces(spaces, available);
             return available;
@@ -306,7 +338,6 @@ export class ExploreParkingService extends AsyncHandler {
                     !options.date || isSameDay(options.date, Date.now())
                         ? startOfMinute(Date.now()).valueOf()
                         : setHours(options.date, 8).valueOf();
-                debugger;
                 this._bookings.form.patchValue({
                     resources: [space],
                     asset_id: space.id,
