@@ -5,7 +5,6 @@ import {
     PlaceMetadata,
     PlaceZone,
     authority,
-    isFixedDevice,
     isMock,
     onlineState,
     querySettings,
@@ -522,22 +521,13 @@ export class OrganisationService {
 
     public async loadSettings() {
         if (!this._organisation) return;
-        const load_metadata = !this._service.get('dont_load_metadata');
-        if (load_metadata) {
-            const app_settings = (
-                await showMetadata(
-                    this._organisation?.id,
-                    this.app_key,
-                ).toPromise()
-            )?.details;
-            const global_settings = (
-                await showMetadata(
-                    this._organisation?.id,
-                    'settings',
-                ).toPromise()
-            )?.details;
-            this._settings = [global_settings, app_settings];
-        }
+        const app_settings = (
+            await showMetadata(this._organisation?.id, this.app_key).toPromise()
+        )?.details;
+        const global_settings = (
+            await showMetadata(this._organisation?.id, 'settings').toPromise()
+        )?.details;
+        this._settings = [global_settings, app_settings];
         this._service.overrides = [...this._settings];
         await this._initialiseActiveBuilding();
         this._updateSettingOverrides();
