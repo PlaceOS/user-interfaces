@@ -50,11 +50,10 @@ import { combineLatest } from 'rxjs';
                 (ngModelChange)="setDate($event)"
                 [offset_weekday]="offset_weekday"
             ></date-calendar>
-            <div class="px-4 w-full">
+            <div class="px-4 w-full" *ngIf="period === 'week'">
                 <mat-form-field
                     appearance="outline"
                     class="no-subscript w-full"
-                    *ngIf="period === 'week'"
                 >
                     <mat-select
                         [ngModel]="week_date | async"
@@ -248,47 +247,8 @@ export class ScheduleSidebarComponent {
     public readonly toggleType = (t) => this._state.toggleType(t);
     public readonly setDate = (d) => this._state.setDate(d);
 
-    public readonly week_date = combineLatest([
-        this._org.active_building,
-        this.date,
-    ]).pipe(
-        map(([_, date]) =>
-            startOfWeek(date, {
-                weekStartsOn: this.offset_weekday as any,
-            }).valueOf(),
-        ),
-    );
-
-    public readonly week_options = combineLatest([
-        this._org.active_building,
-        this.date,
-    ]).pipe(
-        filter(([bld]) => !!bld),
-        map(([bld]) => {
-            const options = [];
-            let date = startOfDay(Date.now());
-            for (let i = -4; i < 48; i++) {
-                let day = addWeeks(date, i);
-                const week_s_date = startOfWeek(day, {
-                    weekStartsOn: this.offset_weekday as any,
-                });
-                const week_e_date = endOfWeek(day, {
-                    weekStartsOn: this.offset_weekday as any,
-                });
-                const this_week =
-                    isAfter(Date.now(), week_s_date) &&
-                    isBefore(Date.now(), week_e_date);
-                const week_start = format(week_s_date, 'dd MMM');
-                const week_end = format(week_e_date, 'dd MMM');
-                options.push({
-                    id: day.valueOf(),
-                    name: `${week_start} - ${week_end}`,
-                    this_week,
-                });
-            }
-            return options;
-        }),
-    );
+    public readonly week_date = this._state.week_date;
+    public readonly week_options = this._state.week_options;
 
     public get period() {
         return this._state.getOptions().period;

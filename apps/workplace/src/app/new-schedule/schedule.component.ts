@@ -23,9 +23,20 @@ import {
     queryEvents,
     removeEvent,
 } from '@placeos/events';
-import { format, isSameDay, parse } from 'date-fns';
-import { map } from 'rxjs/operators';
-import { ScheduleStateService } from './schedule-state.service';
+import {
+    addWeeks,
+    endOfWeek,
+    format,
+    isSameDay,
+    parse,
+    startOfDay,
+    startOfWeek,
+} from 'date-fns';
+import { filter, map } from 'rxjs/operators';
+import {
+    ScheduleOptions,
+    ScheduleStateService,
+} from './schedule-state.service';
 import { combineLatest } from 'rxjs';
 
 @Component({
@@ -39,10 +50,57 @@ import { combineLatest } from 'rxjs';
                 class="hidden sm:block bg-base-100"
             ></schedule-sidebar>
             <div class="w-full bg-base-100 border-b border-neutral sm:hidden">
+                <div class="flex items-center space-x-2 px-2 pt-2">
+                    <button
+                        btn
+                        matRipple
+                        class="flex-1"
+                        [class.inverse]="period !== 'day'"
+                        (click)="setOptions({ period: 'day' })"
+                    >
+                        Day
+                    </button>
+                    <button
+                        btn
+                        matRipple
+                        class="flex-1"
+                        [class.inverse]="period !== 'week'"
+                        (click)="setOptions({ period: 'week' })"
+                    >
+                        Week
+                    </button>
+                </div>
                 <schedule-mobile-calendar
                     [ngModel]="date | async"
                     (ngModelChange)="setDate($event)"
+                    *ngIf="period === 'day'"
                 ></schedule-mobile-calendar>
+                <div class="px-2 w-full my-2" *ngIf="period === 'week'">
+                    <mat-form-field
+                        appearance="outline"
+                        class="no-subscript w-full"
+                    >
+                        <mat-select
+                            [ngModel]="week_date | async"
+                            (ngModelChange)="setDate($event)"
+                            placeholder="Select Week..."
+                        >
+                            <mat-option
+                                *ngFor="let option of week_options | async"
+                                [value]="option.id"
+                                class="leading-tight"
+                            >
+                                {{ option.name }}
+                                <span
+                                    class="text-xs text-info px-1"
+                                    *ngIf="option.this_week"
+                                    matTooltip="This Week"
+                                    >(C)</span
+                                >
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
             </div>
             <div class="flex-1 h-full p-4 overflow-auto space-y-2">
                 <schedule-filters></schedule-filters>
@@ -144,6 +202,13 @@ export class ScheduleComponent extends AsyncHandler {
     public readonly loading = this._state.loading;
     public readonly setDate = (d) => this._state.setDate(d);
 
+    public readonly week_date = this._state.week_date;
+    public readonly week_options = this._state.week_options;
+
+    public get period() {
+        return this._state.getOptions().period;
+    }
+
     public isEvent(item: any) {
         return item instanceof CalendarEvent;
     }
@@ -170,6 +235,10 @@ export class ScheduleComponent extends AsyncHandler {
 
     public trackByFn(index: number, item: any) {
         return item?.id;
+    }
+
+    public setOptions(options: ScheduleOptions) {
+        this._state.setOptions(options);
     }
 
     public async edit(event: CalendarEvent) {
