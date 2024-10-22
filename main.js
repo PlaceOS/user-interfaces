@@ -5060,8 +5060,12 @@ var ScheduleStateService = /*#__PURE__*/function (_common_1$AsyncHandle) {
         date = _ref9$[0],
         period = _ref9[1].period;
       var query = {
-        period_start: (0, date_fns_1.getUnixTime)(period === 'day' ? (0, date_fns_1.startOfDay)(date) : (0, date_fns_1.startOfWeek)(date)),
-        period_end: (0, date_fns_1.getUnixTime)(period === 'day' ? (0, date_fns_1.endOfDay)(date) : (0, date_fns_1.endOfWeek)(date))
+        period_start: (0, date_fns_1.getUnixTime)(period === 'day' ? (0, date_fns_1.startOfDay)(date) : (0, date_fns_1.startOfWeek)(date, {
+          weekStartsOn: _this.offset_weekday
+        })),
+        period_end: (0, date_fns_1.getUnixTime)(period === 'day' ? (0, date_fns_1.endOfDay)(date) : (0, date_fns_1.endOfWeek)(date, {
+          weekStartsOn: _this.offset_weekday
+        }))
       };
       return _this._settings.get('app.events.use_bookings') ? (0, bookings_1.queryBookings)(_objectSpread(_objectSpread({}, query), {}, {
         type: 'room'
@@ -5420,6 +5424,11 @@ var ScheduleStateService = /*#__PURE__*/function (_common_1$AsyncHandle) {
     key: "getOptions",
     value: function getOptions() {
       return this._options.getValue();
+    }
+  }, {
+    key: "offset_weekday",
+    get: function get() {
+      return this._settings.get('app.week_start') || 0;
     }
   }, {
     key: "triggerPoll",
@@ -32613,15 +32622,15 @@ exports.VERSION = void 0;
 /* tslint:disable */
 exports.VERSION = {
   "dirty": false,
-  "raw": "d53196f",
-  "hash": "d53196f",
+  "raw": "1c22ad5",
+  "hash": "1c22ad5",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "d53196f",
+  "suffix": "1c22ad5",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1729564375931
+  "time": 1729566404364
 };
 /* tslint:enable */
 
