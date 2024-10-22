@@ -34,7 +34,7 @@ function formatAllDay(date: Date | number) {
 }
 
 function escapeText(text: string): string {
-    return text.replace(/\\|;|,|\n/g, (match) => {
+    return (text || '').replace(/\\|;|,|\n/g, (match) => {
         switch (match) {
             case '\\':
                 return '\\\\';
@@ -51,6 +51,7 @@ function escapeText(text: string): string {
 }
 
 export function generateCalendarFileLink(event: CalEvent): string {
+    if (!event) return 'data:text/calendar;charset=utf8,';
     const chunks: [string, string][] = [];
 
     const description = escapeText(
