@@ -1328,11 +1328,11 @@ function ScheduleComponent_ng_container_14_ng_container_1_ng_template_2_Template
       const item_r3 = _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵnextContext"]().$implicit;
       const ctx_r3 = _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵnextContext"](2);
       return _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵresetView"](ctx_r3.editBooking(item_r3));
-    })("remove", function ScheduleComponent_ng_container_14_ng_container_1_ng_template_2_Template_booking_card_remove_0_listener() {
+    })("remove", function ScheduleComponent_ng_container_14_ng_container_1_ng_template_2_Template_booking_card_remove_0_listener($event) {
       _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵrestoreView"](_r5);
       const item_r3 = _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵnextContext"]().$implicit;
       const ctx_r3 = _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵnextContext"](2);
-      return _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵresetView"](ctx_r3.remove(item_r3));
+      return _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵresetView"](ctx_r3.remove(item_r3, $event));
     })("end", function ScheduleComponent_ng_container_14_ng_container_1_ng_template_2_Template_booking_card_end_0_listener() {
       _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵrestoreView"](_r5);
       const item_r3 = _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵnextContext"]().$implicit;
@@ -1462,7 +1462,7 @@ class ScheduleComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_2__.Asy
       const resource_name = item instanceof _placeos_events__WEBPACK_IMPORTED_MODULE_3__.CalendarEvent ? item.space?.display_name : item.asset_name || item.asset_id;
       const content = `Delete the ${remove_series ? 'recurring series of ' : ''}booking for ${resource_name} at ${time}`;
       const resp = yield (0,_placeos_common__WEBPACK_IMPORTED_MODULE_2__.openConfirmModal)({
-        title: `Delete booking`,
+        title: `Delete booking ${remove_series ? 'series' : ''}`,
         content,
         icon: {
           content: 'delete'
@@ -1477,7 +1477,7 @@ class ScheduleComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_2__.Asy
       }
       if (resp.reason !== 'done') return;
       resp.loading('Requesting booking deletion...');
-      yield (item instanceof _placeos_events__WEBPACK_IMPORTED_MODULE_3__.CalendarEvent ? _placeos_events__WEBPACK_IMPORTED_MODULE_3__.removeEvent : _placeos_bookings__WEBPACK_IMPORTED_MODULE_1__.removeBooking)(remove_series ? item.recurring_event_id : item.id, {
+      yield (item instanceof _placeos_events__WEBPACK_IMPORTED_MODULE_3__.CalendarEvent ? _placeos_events__WEBPACK_IMPORTED_MODULE_3__.removeEvent : _placeos_bookings__WEBPACK_IMPORTED_MODULE_1__.removeBooking)(remove_series ? item.recurring_event_id || item.id : item.id, {
         calendar: _this2._settings.get('app.no_user_calendar') ? null : item.calendar || (0,_placeos_common__WEBPACK_IMPORTED_MODULE_2__.currentUser)()?.email,
         system_id: item.system?.id,
         instance: remove_series ? undefined : !!item.instance,
