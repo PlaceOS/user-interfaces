@@ -169,10 +169,18 @@ export class ScheduleStateService extends AsyncHandler {
         switchMap(([[date], { period }]) => {
             const query = {
                 period_start: getUnixTime(
-                    period === 'day' ? startOfDay(date) : startOfWeek(date),
+                    period === 'day'
+                        ? startOfDay(date)
+                        : startOfWeek(date, {
+                              weekStartsOn: this.offset_weekday as any,
+                          }),
                 ),
                 period_end: getUnixTime(
-                    period === 'day' ? endOfDay(date) : endOfWeek(date),
+                    period === 'day'
+                        ? endOfDay(date)
+                        : endOfWeek(date, {
+                              weekStartsOn: this.offset_weekday as any,
+                          }),
                 ),
             };
             return this._settings.get('app.events.use_bookings')
@@ -368,6 +376,10 @@ export class ScheduleStateService extends AsyncHandler {
     public readonly date = this._date.asObservable();
     /** Whether events and bookings are loading */
     public readonly loading = this._loading.asObservable();
+
+    public get offset_weekday() {
+        return this._settings.get('app.week_start') || 0;
+    }
 
     private _ignore_cancel: string[] = [];
     private _checkCancel = combineLatest([

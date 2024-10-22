@@ -23,7 +23,7 @@ import {
     queryEvents,
     removeEvent,
 } from '@placeos/events';
-import { format, isSameDay } from 'date-fns';
+import { format, isSameDay, parse } from 'date-fns';
 import { map } from 'rxjs/operators';
 import { ScheduleStateService } from './schedule-state.service';
 import { combineLatest } from 'rxjs';
@@ -46,35 +46,39 @@ import { combineLatest } from 'rxjs';
             </div>
             <div class="flex-1 h-full p-4 overflow-auto space-y-2">
                 <schedule-filters></schedule-filters>
-                <h3 class="font-medium my-2">
-                    {{ date | async | date: 'EEE dd LLL yyyy' }}
-                    <span *ngIf="is_today | async"
-                        >({{ 'COMMON.TODAY' | translate }})</span
-                    >
-                </h3>
                 <ng-container
-                    *ngIf="(bookings | async)?.length; else empty_state"
+                    *ngIf="(booking_dates | async)?.length; else empty_state"
                 >
                     <ng-container
-                        *ngFor="
-                            let item of bookings | async;
-                            trackBy: trackByFn
-                        "
+                        *ngFor="let date_block of booking_dates | async"
                     >
-                        <event-card
-                            *ngIf="isEvent(item); else booking_card"
-                            [event]="item"
-                            (edit)="edit(item)"
-                            (remove)="remove(item, $event)"
-                        ></event-card>
-                        <ng-template #booking_card>
-                            <booking-card
-                                [booking]="item"
-                                (edit)="editBooking(item)"
+                        <h3 class="font-medium my-2">
+                            {{ date_block.date | date: 'EEE dd LLL yyyy' }}
+                            <span *ngIf="date_block.is_today"
+                                >({{ 'COMMON.TODAY' | translate }})</span
+                            >
+                        </h3>
+                        <ng-container
+                            *ngFor="
+                                let item of date_block.bookings;
+                                trackBy: trackByFn
+                            "
+                        >
+                            <event-card
+                                *ngIf="isEvent(item); else booking_card"
+                                [event]="item"
+                                (edit)="edit(item)"
                                 (remove)="remove(item, $event)"
-                                (end)="end(item)"
-                            ></booking-card>
-                        </ng-template>
+                            ></event-card>
+                            <ng-template #booking_card>
+                                <booking-card
+                                    [booking]="item"
+                                    (edit)="editBooking(item)"
+                                    (remove)="remove(item, $event)"
+                                    (end)="end(item)"
+                                ></booking-card>
+                            </ng-template>
+                        </ng-container>
                     </ng-container>
                 </ng-container>
             </div>
@@ -109,15 +113,35 @@ import { combineLatest } from 'rxjs';
     ],
 })
 export class ScheduleComponent extends AsyncHandler {
-    public readonly bookings = combineLatest([
+    public readonly booking_dates = combineLatest([
         this._state.filtered_bookings,
         this._state.loading,
-    ]).pipe(map(([bookings, loading]) => (loading ? [] : bookings)));
+    ]).pipe(
+        map(([bookings, loading]) => (loading ? [] : bookings)),
+        map((bookings) => {
+            const sorted = bookings.sort((a, b) => a.date - b.date);
+            const dates = new Set<string>();
+            for (const booking of sorted) {
+                const date = format(booking.date, 'yyyy-MM-dd');
+                if (!dates.has(date)) dates.add(date);
+            }
+            const list = [];
+            for (const date of dates) {
+                const day = parse(date, 'yyyy-MM-dd', new Date());
+                list.push({
+                    id: date,
+                    date: day.valueOf(),
+                    bookings: sorted.filter((booking) =>
+                        isSameDay(booking.date, day),
+                    ),
+                    is_today: isSameDay(day, Date.now()),
+                });
+            }
+            return list;
+        }),
+    );
     public readonly date = this._state.date;
     public readonly loading = this._state.loading;
-    public readonly is_today = this.date.pipe(
-        map((_) => isSameDay(_, Date.now())),
-    );
     public readonly setDate = (d) => this._state.setDate(d);
 
     public isEvent(item: any) {
