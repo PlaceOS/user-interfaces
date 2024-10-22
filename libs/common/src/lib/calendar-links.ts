@@ -1,9 +1,10 @@
 import { User } from 'libs/users/src/lib/user.class';
-import { addMinutes, format, set, startOfMinute } from 'date-fns';
+import { addDays, addMinutes, format, set, startOfMinute } from 'date-fns';
 import { toQueryString } from './api';
 import { localToTimezone } from './timezone-helpers';
 import { unique } from './general';
 import { PlaceSystem } from '@placeos/ts-client';
+import { USER_DOMAIN } from '@placeos/users';
 
 export interface CalEvent {
     id?: string;
@@ -32,49 +33,73 @@ function formatAllDay(date: Date | number) {
     return `${format(date, 'yyyyMMdd')}`;
 }
 
+function escapeText(text: string): string {
+    return (text || '').replace(/\\|;|,|\n/g, (match) => {
+        switch (match) {
+            case '\\':
+                return '\\\\';
+            case ';':
+                return '\\;';
+            case ',':
+                return '\\,';
+            case '\n':
+                return '\\n';
+            default:
+                return match;
+        }
+    });
+}
+
 export function generateCalendarFileLink(event: CalEvent): string {
-    const chunks: [string, any][] = [];
-    const description = formatCalFileText(
-        `${event.body || ''}${event.id ? '\n\n[ID|' + event.id + ']' : ''}`
+    if (!event) return 'data:text/calendar;charset=utf8,';
+    const chunks: [string, string][] = [];
+
+    const description = escapeText(
+        `${event.body || ''}${event.id ? '\n\n[ID|' + event.id + ']' : ''}`,
     );
-    const location = formatCalFileText(`${event.location}`);
+    const location = escapeText(`${event.location}`);
+
     chunks.push(['BEGIN', 'VCALENDAR']);
     chunks.push(['VERSION', '2.0']);
     chunks.push(['BEGIN', 'VEVENT']);
-    chunks.push(['URL', `${event.meeting_url}`]);
-    chunks.push([
-        'DTSTART',
-        `${new Date(
-            event.all_day
-                ? startOfMinute(set(event.date, { hours: 6, minutes: 0 }))
-                : event.date
-        ).toISOString()}`,
-    ]);
-    chunks.push([
-        'DTEND',
-        `${
-            event.all_day
-                ? startOfMinute(
-                      set(event.date, { hours: 18, minutes: 0 })
-                  ).toISOString()
-                : addMinutes(event.date, event.duration ?? 60).toISOString()
-        }`,
-    ]);
-    chunks.push(['SUMMARY', `${event.title}`]);
+    chunks.push(['UID', `${event.id || 'uid-' + Date.now()}`]);
+    chunks.push(['DTSTAMP', formatUTC(new Date())]);
+
+    if (event.meeting_url) {
+        chunks.push(['URL', `${event.meeting_url}`]);
+    }
+
+    if (event.all_day) {
+        chunks.push(['DTSTART;VALUE=DATE', formatAllDay(event.date)]);
+        chunks.push(['DTEND;VALUE=DATE', formatAllDay(addDays(event.date, 1))]);
+    } else {
+        chunks.push(['DTSTART', formatUTC(event.date)]);
+        chunks.push([
+            'DTEND',
+            formatUTC(addMinutes(event.date, event.duration || 60)),
+        ]);
+    }
+
+    chunks.push(['SUMMARY', escapeText(event.title)]);
     chunks.push(['DESCRIPTION', description]);
     chunks.push(['LOCATION', location]);
-    const host =
-        event.organiser?.name ||
-        event.host?.split('@') ||
-        event.user_name ||
-        'User';
+
+    const hostEmail = event.host || event.user_email || `no-reply@place.tech`;
+    const hostName =
+        event.organiser?.name || hostEmail.split('@')[0] || 'Staff';
     chunks.push([
         'ORGANIZER',
-        `CN=${host}:MAILTO:${event.host || event.user_email}`,
+        `CN=${escapeText(hostName)}:mailto:${hostEmail}`,
     ]);
-    const url_data = chunks
-        .map(([key, value]) => `${key}:${encodeURIComponent(value)}`)
-        .join('\n');
+
+    chunks.push(['END', 'VEVENT']);
+    chunks.push(['END', 'VCALENDAR']);
+
+    const content = chunks
+        .map(([key, value]) => `${key}:${value}`)
+        .join('\r\n');
+    const url_data = encodeURIComponent(content);
+
     return `data:text/calendar;charset=utf8,${url_data}`;
 }
 
@@ -89,7 +114,7 @@ export function generateGoogleCalendarLink(event: CalEvent): string {
         location: event.location,
         trp: false,
         dates: `${fmt(event.date)}/${fmt(
-            addMinutes(event.date, event.duration ?? 60)
+            addMinutes(event.date, event.duration ?? 60),
         )}`,
     };
     const emails = (event.attendees || []).map((_: any) => _.email || _);
@@ -99,13 +124,13 @@ export function generateGoogleCalendarLink(event: CalEvent): string {
     if (emails.length || resources.length)
         details.add = unique([...emails, ...resources]).join();
     return `https://calendar.google.com/calendar/render?${toQueryString(
-        details
+        details,
     )}`;
 }
 
 export function generateMicrosoftCalendarLink(
     event: CalEvent,
-    type: 'outlook' | 'office' = 'office'
+    type: 'outlook' | 'office' = 'office',
 ): string {
     if (!event.date) event.date = Date.now();
     const data: any = {
@@ -129,18 +154,9 @@ export function generateMicrosoftCalendarLink(
         data.to = unique([...emails, ...resources]).join();
     return type === 'office'
         ? `https://outlook.office.com/calendar/0/action/compose?${toQueryString(
-              data
+              data,
           )}`
         : `https://outlook.live.com/calendar/0/action/compose?${toQueryString(
-              data
+              data,
           )}`;
-}
-
-function formatCalFileText(str: string) {
-    return str
-        .replace(/,/gm, ',')
-        .replace(/;/gm, ';')
-        .replace(/\r\n/gm, '\n')
-        .replace(/\n/gm, '\\n')
-        .replace(/(\\n)[\s\t]+/gm, '\\n');
 }
