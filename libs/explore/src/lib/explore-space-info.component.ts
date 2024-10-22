@@ -58,7 +58,7 @@ export interface SpaceInfoData {
                             class="object-cover min-h-full min-w-full"
                         />
                         <div
-                            class="absolute inset-0 bg-neutral"
+                            class="absolute inset-0 bg-neutral opacity-30"
                             *ngIf="space.images[0]"
                         ></div>
                     </div>
@@ -70,9 +70,13 @@ export interface SpaceInfoData {
                                 status
                             "
                         >
-                            { status, select, free { Free } busy { Busy }
-                            pending { Pending } reserved { Reserved } other {
-                            Not Bookable } }
+                            {status, select,
+                                free {Free }
+                                busy {Busy }
+                                pending {Pending }
+                                reserved {Reserved }
+                                other {Not Bookable }
+                            }
                         </div>
                         <div available-until *ngIf="status !== 'not-bookable'">
                             {{ available_until }}
@@ -150,7 +154,7 @@ export class ExploreSpaceInfoComponent implements OnInit {
     constructor(
         @Inject(MAP_FEATURE_DATA) private _details: SpaceInfoData,
         private _settings: SettingsService,
-        private _element: ElementRef<HTMLElement>
+        private _element: ElementRef<HTMLElement>,
     ) {}
 
     public ngOnInit() {

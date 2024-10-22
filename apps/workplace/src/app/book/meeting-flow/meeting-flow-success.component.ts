@@ -111,7 +111,6 @@ export class MeetingFlowSuccessComponent {
                 booking_type: 'desk',
                 user: currentUser(),
             });
-            console.log('Space:', space);
             const resources = await this._booking_form.available_resources
                 .pipe(take(1))
                 .toPromise();
