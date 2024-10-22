@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { BookingFormService, findNearbyFeature } from '@placeos/bookings';
-import { notifyError, SettingsService } from '@placeos/common';
+import { currentUser, notifyError, SettingsService } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
 import { SpacePipe } from '@placeos/spaces';
@@ -109,8 +109,8 @@ export class MeetingFlowSuccessComponent {
                 duration: 10 * 60,
                 all_day: this.last_event.all_day,
                 booking_type: 'desk',
+                user: currentUser(),
             });
-            console.log('Space:', space);
             const resources = await this._booking_form.available_resources
                 .pipe(take(1))
                 .toPromise();
