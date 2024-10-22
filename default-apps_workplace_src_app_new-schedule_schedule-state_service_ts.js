@@ -18,21 +18,24 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _placeos_organisation__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @placeos/organisation */ 2510);
 /* harmony import */ var _placeos_spaces__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @placeos/spaces */ 44855);
 /* harmony import */ var _placeos_ts_client__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @placeos/ts-client */ 35713);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! date-fns */ 31257);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! date-fns */ 99908);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! date-fns */ 33240);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! date-fns */ 90610);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! date-fns */ 56441);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! date-fns */ 60665);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! date-fns */ 23206);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! date-fns */ 49675);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! date-fns */ 1874);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! date-fns */ 15213);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! date-fns */ 45726);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! date-fns */ 90610);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! date-fns */ 33240);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! date-fns */ 6243);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! date-fns */ 60665);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! date-fns */ 91543);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! date-fns */ 55882);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! date-fns */ 45726);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! date-fns */ 31257);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! date-fns */ 99908);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! date-fns */ 56441);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! date-fns */ 23206);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! date-fns */ 49675);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! date-fns */ 1874);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_34__ = __webpack_require__(/*! date-fns */ 15213);
 /* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! rxjs */ 90521);
 /* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! rxjs */ 68824);
 /* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! rxjs */ 71536);
-/* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! rxjs */ 86020);
+/* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! rxjs */ 86020);
 /* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! rxjs/operators */ 19803);
 /* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! rxjs/operators */ 66000);
 /* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! rxjs/operators */ 8627);
@@ -42,9 +45,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! rxjs/operators */ 35443);
 /* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! rxjs/operators */ 29314);
 /* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! rxjs/operators */ 7841);
-/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! rxjs/operators */ 89273);
-/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! @angular/core */ 37580);
-/* harmony import */ var _angular_material_dialog__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! @angular/material/dialog */ 12587);
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! rxjs/operators */ 89273);
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_35__ = __webpack_require__(/*! @angular/core */ 37580);
+/* harmony import */ var _angular_material_dialog__WEBPACK_IMPORTED_MODULE_36__ = __webpack_require__(/*! @angular/material/dialog */ 12587);
 
 
 
@@ -115,19 +118,50 @@ class ScheduleStateService extends _placeos_common__WEBPACK_IMPORTED_MODULE_2__.
       }));
     }), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_15__.map)(_ => (0,_placeos_common__WEBPACK_IMPORTED_MODULE_2__.flatten)(_)), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_18__.shareReplay)(1));
     this.options = this._options.asObservable();
+    /** Currently selected date */
+    this.filters = this._filters.asObservable();
+    /** Currently selected date */
+    this.date = this._date.asObservable();
+    /** Whether events and bookings are loading */
+    this.loading = this._loading.asObservable();
+    this.week_date = (0,rxjs__WEBPACK_IMPORTED_MODULE_8__.combineLatest)([this._org.active_building, this.date]).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_15__.map)(([_, date]) => (0,date_fns__WEBPACK_IMPORTED_MODULE_19__.startOfWeek)(date, {
+      weekStartsOn: this.offset_weekday
+    }).valueOf()));
+    this.week_options = (0,rxjs__WEBPACK_IMPORTED_MODULE_8__.combineLatest)([this._org.active_building, this.date]).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_11__.filter)(([bld]) => !!bld), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_15__.map)(([bld]) => {
+      const options = [];
+      let date = (0,date_fns__WEBPACK_IMPORTED_MODULE_20__.startOfDay)(Date.now());
+      for (let i = -4; i < 48; i++) {
+        let day = (0,date_fns__WEBPACK_IMPORTED_MODULE_21__.addWeeks)(date, i);
+        const week_s_date = (0,date_fns__WEBPACK_IMPORTED_MODULE_19__.startOfWeek)(day, {
+          weekStartsOn: this.offset_weekday
+        });
+        const week_e_date = (0,date_fns__WEBPACK_IMPORTED_MODULE_22__.endOfWeek)(day, {
+          weekStartsOn: this.offset_weekday
+        });
+        const this_week = (0,date_fns__WEBPACK_IMPORTED_MODULE_23__.isAfter)(Date.now(), week_s_date) && (0,date_fns__WEBPACK_IMPORTED_MODULE_24__.isBefore)(Date.now(), week_e_date);
+        const week_start = (0,date_fns__WEBPACK_IMPORTED_MODULE_25__.format)(week_s_date, 'dd MMM');
+        const week_end = (0,date_fns__WEBPACK_IMPORTED_MODULE_25__.format)(week_e_date, 'dd MMM');
+        options.push({
+          id: day.valueOf(),
+          name: `${week_start} - ${week_end}`,
+          this_week
+        });
+      }
+      return options;
+    }));
     this.ws_events = (0,rxjs__WEBPACK_IMPORTED_MODULE_8__.combineLatest)([this._space_bookings, this._update]).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_15__.map)(([_, [date]]) => {
       const user = (0,_placeos_common__WEBPACK_IMPORTED_MODULE_2__.currentUser)();
-      return _.filter(_ => (0,date_fns__WEBPACK_IMPORTED_MODULE_19__.isSameDay)(_.date, date) && (_.host.toLowerCase() === user.email.toLowerCase() || _.attendees.find(a => a.email.toLowerCase() === user.email.toLowerCase())) && !_.linked_bookings?.find(b => b.booking_type === 'group-event'));
+      return _.filter(_ => (0,date_fns__WEBPACK_IMPORTED_MODULE_26__.isSameDay)(_.date, date) && (_.host.toLowerCase() === user.email.toLowerCase() || _.attendees.find(a => a.email.toLowerCase() === user.email.toLowerCase())) && !_.linked_bookings?.find(b => b.booking_type === 'group-event'));
     }));
     /** List of calendar events for the selected date */
     this.api_events = (0,rxjs__WEBPACK_IMPORTED_MODULE_8__.combineLatest)([this._update, this._options]).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_13__.switchMap)(([[date], {
       period
     }]) => {
       const query = {
-        period_start: (0,date_fns__WEBPACK_IMPORTED_MODULE_20__.getUnixTime)(period === 'day' ? (0,date_fns__WEBPACK_IMPORTED_MODULE_21__.startOfDay)(date) : (0,date_fns__WEBPACK_IMPORTED_MODULE_22__.startOfWeek)(date, {
+        period_start: (0,date_fns__WEBPACK_IMPORTED_MODULE_27__.getUnixTime)(period === 'day' ? (0,date_fns__WEBPACK_IMPORTED_MODULE_20__.startOfDay)(date) : (0,date_fns__WEBPACK_IMPORTED_MODULE_19__.startOfWeek)(date, {
           weekStartsOn: this.offset_weekday
         })),
-        period_end: (0,date_fns__WEBPACK_IMPORTED_MODULE_20__.getUnixTime)(period === 'day' ? (0,date_fns__WEBPACK_IMPORTED_MODULE_23__.endOfDay)(date) : (0,date_fns__WEBPACK_IMPORTED_MODULE_24__.endOfWeek)(date, {
+        period_end: (0,date_fns__WEBPACK_IMPORTED_MODULE_27__.getUnixTime)(period === 'day' ? (0,date_fns__WEBPACK_IMPORTED_MODULE_28__.endOfDay)(date) : (0,date_fns__WEBPACK_IMPORTED_MODULE_22__.endOfWeek)(date, {
           weekStartsOn: this.offset_weekday
         }))
       };
@@ -146,21 +180,21 @@ class ScheduleStateService extends _placeos_common__WEBPACK_IMPORTED_MODULE_2__.
     this.events = this.raw_events.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_15__.map)(_ => _.filter(_ => !_.extension_data?.shared_event)));
     /** List of desk bookings for the selected date */
     this.visitors = this._update.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_13__.switchMap)(([date]) => (0,_placeos_bookings__WEBPACK_IMPORTED_MODULE_1__.queryBookings)({
-      period_start: (0,date_fns__WEBPACK_IMPORTED_MODULE_20__.getUnixTime)((0,date_fns__WEBPACK_IMPORTED_MODULE_21__.startOfDay)(date)),
-      period_end: (0,date_fns__WEBPACK_IMPORTED_MODULE_20__.getUnixTime)((0,date_fns__WEBPACK_IMPORTED_MODULE_23__.endOfDay)(date)),
+      period_start: (0,date_fns__WEBPACK_IMPORTED_MODULE_27__.getUnixTime)((0,date_fns__WEBPACK_IMPORTED_MODULE_20__.startOfDay)(date)),
+      period_end: (0,date_fns__WEBPACK_IMPORTED_MODULE_27__.getUnixTime)((0,date_fns__WEBPACK_IMPORTED_MODULE_28__.endOfDay)(date)),
       type: 'visitor'
     }).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_16__.catchError)(_ => (0,rxjs__WEBPACK_IMPORTED_MODULE_17__.of)([])))), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_15__.map)(_ => _.filter(_ => !_.parent_id && !_.linked_event)), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_10__.tap)(() => this.timeout('end_loading', () => this._loading.next(false))), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_18__.shareReplay)(1));
     /** List of desk bookings for the selected date */
     this.desks = this._update.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_13__.switchMap)(([date]) => (0,_placeos_bookings__WEBPACK_IMPORTED_MODULE_1__.queryBookings)({
-      period_start: (0,date_fns__WEBPACK_IMPORTED_MODULE_20__.getUnixTime)((0,date_fns__WEBPACK_IMPORTED_MODULE_21__.startOfDay)(date)),
-      period_end: (0,date_fns__WEBPACK_IMPORTED_MODULE_20__.getUnixTime)((0,date_fns__WEBPACK_IMPORTED_MODULE_23__.endOfDay)(date)),
+      period_start: (0,date_fns__WEBPACK_IMPORTED_MODULE_27__.getUnixTime)((0,date_fns__WEBPACK_IMPORTED_MODULE_20__.startOfDay)(date)),
+      period_end: (0,date_fns__WEBPACK_IMPORTED_MODULE_27__.getUnixTime)((0,date_fns__WEBPACK_IMPORTED_MODULE_28__.endOfDay)(date)),
       include_checked_out: true,
       type: 'desk'
     }).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_16__.catchError)(_ => (0,rxjs__WEBPACK_IMPORTED_MODULE_17__.of)([])))), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_10__.tap)(() => this.timeout('end_loading', () => this._loading.next(false))), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_18__.shareReplay)(1));
     /** List of parking bookings for the selected date */
     this.parking = this._update.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_13__.switchMap)(([date]) => (0,_placeos_bookings__WEBPACK_IMPORTED_MODULE_1__.queryBookings)({
-      period_start: (0,date_fns__WEBPACK_IMPORTED_MODULE_20__.getUnixTime)((0,date_fns__WEBPACK_IMPORTED_MODULE_21__.startOfDay)(date)),
-      period_end: (0,date_fns__WEBPACK_IMPORTED_MODULE_20__.getUnixTime)((0,date_fns__WEBPACK_IMPORTED_MODULE_23__.endOfDay)(date)),
+      period_start: (0,date_fns__WEBPACK_IMPORTED_MODULE_27__.getUnixTime)((0,date_fns__WEBPACK_IMPORTED_MODULE_20__.startOfDay)(date)),
+      period_end: (0,date_fns__WEBPACK_IMPORTED_MODULE_27__.getUnixTime)((0,date_fns__WEBPACK_IMPORTED_MODULE_28__.endOfDay)(date)),
       type: 'parking',
       include_deleted: 'recurring'
     }).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_16__.catchError)(_ => (0,rxjs__WEBPACK_IMPORTED_MODULE_17__.of)([])))), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_10__.tap)(() => this.timeout('end_loading', () => this._loading.next(false))), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_18__.shareReplay)(1));
@@ -185,7 +219,7 @@ class ScheduleStateService extends _placeos_common__WEBPACK_IMPORTED_MODULE_2__.
         i.level = i.level || locker?.level_id;
         i.building = i.building || this._org.levelWithID([locker?.level_id])?.parent_id;
         return new _placeos_bookings__WEBPACK_IMPORTED_MODULE_1__.Booking({
-          date: (0,date_fns__WEBPACK_IMPORTED_MODULE_21__.startOfDay)(Date.now()).valueOf(),
+          date: (0,date_fns__WEBPACK_IMPORTED_MODULE_20__.startOfDay)(Date.now()).valueOf(),
           duration: 24 * 60 - 1,
           title: 'Locker Booking',
           description: i.locker_name,
@@ -219,14 +253,8 @@ class ScheduleStateService extends _placeos_common__WEBPACK_IMPORTED_MODULE_2__.
       } else if (_ instanceof _placeos_events__WEBPACK_IMPORTED_MODULE_3__.CalendarEvent) return true;
       return filters?.shown_types?.includes(_.booking_type);
     })));
-    /** Currently selected date */
-    this.filters = this._filters.asObservable();
-    /** Currently selected date */
-    this.date = this._date.asObservable();
-    /** Whether events and bookings are loading */
-    this.loading = this._loading.asObservable();
     this._ignore_cancel = [];
-    this._checkCancel = (0,rxjs__WEBPACK_IMPORTED_MODULE_8__.combineLatest)([_placeos_common__WEBPACK_IMPORTED_MODULE_2__.current_user, (0,rxjs__WEBPACK_IMPORTED_MODULE_25__.interval)(60 * 1000).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_26__.startWith)(0))]).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_11__.filter)(([u]) => !!u), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_15__.map)( /*#__PURE__*/function () {
+    this._checkCancel = (0,rxjs__WEBPACK_IMPORTED_MODULE_8__.combineLatest)([_placeos_common__WEBPACK_IMPORTED_MODULE_2__.current_user, (0,rxjs__WEBPACK_IMPORTED_MODULE_29__.interval)(60 * 1000).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_30__.startWith)(0))]).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_11__.filter)(([u]) => !!u), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_15__.map)( /*#__PURE__*/function () {
       var _ref2 = (0,_home_runner_work_user_interfaces_user_interfaces_node_modules_babel_runtime_helpers_esm_asyncToGenerator_js__WEBPACK_IMPORTED_MODULE_0__["default"])(function* ([user]) {
         const is_home = user.location !== 'wfo';
         const auto_release = _this._settings.get('app.auto_release');
@@ -234,8 +262,8 @@ class ScheduleStateService extends _placeos_common__WEBPACK_IMPORTED_MODULE_2__.
           const time_before = Math.min(60, auto_release.time_before || 0);
           for (const type of auto_release.resources) {
             const bookings = yield (0,_placeos_bookings__WEBPACK_IMPORTED_MODULE_1__.queryBookings)({
-              period_start: (0,date_fns__WEBPACK_IMPORTED_MODULE_20__.getUnixTime)((0,date_fns__WEBPACK_IMPORTED_MODULE_27__.startOfMinute)(Date.now())),
-              period_end: (0,date_fns__WEBPACK_IMPORTED_MODULE_20__.getUnixTime)((0,date_fns__WEBPACK_IMPORTED_MODULE_28__.addMinutes)(Date.now(), (auto_release.time_after || 5) + time_before)),
+              period_start: (0,date_fns__WEBPACK_IMPORTED_MODULE_27__.getUnixTime)((0,date_fns__WEBPACK_IMPORTED_MODULE_31__.startOfMinute)(Date.now())),
+              period_end: (0,date_fns__WEBPACK_IMPORTED_MODULE_27__.getUnixTime)((0,date_fns__WEBPACK_IMPORTED_MODULE_32__.addMinutes)(Date.now(), (auto_release.time_after || 5) + time_before)),
               type
             }).toPromise();
             const check_block = (auto_release.time_after || 0) + time_before;
@@ -244,15 +272,15 @@ class ScheduleStateService extends _placeos_common__WEBPACK_IMPORTED_MODULE_2__.
                 continue;
               }
               _this._dialog.closeAll();
-              const diff = (0,date_fns__WEBPACK_IMPORTED_MODULE_29__.differenceInMinutes)((0,date_fns__WEBPACK_IMPORTED_MODULE_28__.addMinutes)(booking.date, auto_release.time_after || 0), Date.now());
+              const diff = (0,date_fns__WEBPACK_IMPORTED_MODULE_33__.differenceInMinutes)((0,date_fns__WEBPACK_IMPORTED_MODULE_32__.addMinutes)(booking.date, auto_release.time_after || 0), Date.now());
               if (diff > check_block || diff < 0) continue;
-              const time = (0,date_fns__WEBPACK_IMPORTED_MODULE_28__.addMinutes)(booking.date, auto_release.time_after || 0);
-              const close_after = (0,date_fns__WEBPACK_IMPORTED_MODULE_30__.differenceInMilliseconds)(time.getTime() + 60 * 1000, Date.now());
+              const time = (0,date_fns__WEBPACK_IMPORTED_MODULE_32__.addMinutes)(booking.date, auto_release.time_after || 0);
+              const close_after = (0,date_fns__WEBPACK_IMPORTED_MODULE_34__.differenceInMilliseconds)(time.getTime() + 60 * 1000, Date.now());
               const wording = type === 'parking' ? 'reservation' : 'booking';
               const result = yield (0,_placeos_common__WEBPACK_IMPORTED_MODULE_2__.openConfirmModal)({
                 title: `Keep ${type} ${wording}`,
                 content: `You have indicated you are not in the office. 
-                                Your  ${wording} for "<i>${booking.asset_name || booking.title}</i>" at ${(0,date_fns__WEBPACK_IMPORTED_MODULE_31__.format)(booking.date, _this._settings.time_format)} will be cancelled at ${(0,date_fns__WEBPACK_IMPORTED_MODULE_31__.format)(time, _this._settings.time_format)}.<br/><br/>
+                                Your  ${wording} for "<i>${booking.asset_name || booking.title}</i>" at ${(0,date_fns__WEBPACK_IMPORTED_MODULE_25__.format)(booking.date, _this._settings.time_format)} will be cancelled at ${(0,date_fns__WEBPACK_IMPORTED_MODULE_25__.format)(time, _this._settings.time_format)}.<br/><br/>
                                 Do you wish to keep this ${wording}?`,
                 icon: {
                   content: 'event_busy'
@@ -325,9 +353,9 @@ class ScheduleStateService extends _placeos_common__WEBPACK_IMPORTED_MODULE_2__.
     })();
   }
   static #_ = this.ɵfac = function ScheduleStateService_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || ScheduleStateService)(_angular_core__WEBPACK_IMPORTED_MODULE_32__["ɵɵinject"](_placeos_common__WEBPACK_IMPORTED_MODULE_2__.SettingsService), _angular_core__WEBPACK_IMPORTED_MODULE_32__["ɵɵinject"](_placeos_organisation__WEBPACK_IMPORTED_MODULE_4__.OrganisationService), _angular_core__WEBPACK_IMPORTED_MODULE_32__["ɵɵinject"](_placeos_bookings__WEBPACK_IMPORTED_MODULE_1__.LockersService), _angular_core__WEBPACK_IMPORTED_MODULE_32__["ɵɵinject"](_angular_material_dialog__WEBPACK_IMPORTED_MODULE_33__.MatDialog), _angular_core__WEBPACK_IMPORTED_MODULE_32__["ɵɵinject"](_placeos_bookings__WEBPACK_IMPORTED_MODULE_1__.ParkingService));
+    return new (__ngFactoryType__ || ScheduleStateService)(_angular_core__WEBPACK_IMPORTED_MODULE_35__["ɵɵinject"](_placeos_common__WEBPACK_IMPORTED_MODULE_2__.SettingsService), _angular_core__WEBPACK_IMPORTED_MODULE_35__["ɵɵinject"](_placeos_organisation__WEBPACK_IMPORTED_MODULE_4__.OrganisationService), _angular_core__WEBPACK_IMPORTED_MODULE_35__["ɵɵinject"](_placeos_bookings__WEBPACK_IMPORTED_MODULE_1__.LockersService), _angular_core__WEBPACK_IMPORTED_MODULE_35__["ɵɵinject"](_angular_material_dialog__WEBPACK_IMPORTED_MODULE_36__.MatDialog), _angular_core__WEBPACK_IMPORTED_MODULE_35__["ɵɵinject"](_placeos_bookings__WEBPACK_IMPORTED_MODULE_1__.ParkingService));
   };
-  static #_2 = this.ɵprov = /*@__PURE__*/_angular_core__WEBPACK_IMPORTED_MODULE_32__["ɵɵdefineInjectable"]({
+  static #_2 = this.ɵprov = /*@__PURE__*/_angular_core__WEBPACK_IMPORTED_MODULE_35__["ɵɵdefineInjectable"]({
     token: ScheduleStateService,
     factory: ScheduleStateService.ɵfac,
     providedIn: 'root'
