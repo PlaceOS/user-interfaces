@@ -5038,11 +5038,53 @@ var ScheduleStateService = /*#__PURE__*/function (_common_1$AsyncHandle) {
       return (0, common_1.flatten)(_);
     }), (0, operators_1.shareReplay)(1));
     _this.options = _this._options.asObservable();
-    _this.ws_events = (0, rxjs_1.combineLatest)([_this._space_bookings, _this._update]).pipe((0, operators_1.map)(function (_ref6) {
+    /** Currently selected date */
+    _this.filters = _this._filters.asObservable();
+    /** Currently selected date */
+    _this.date = _this._date.asObservable();
+    /** Whether events and bookings are loading */
+    _this.loading = _this._loading.asObservable();
+    _this.week_date = (0, rxjs_1.combineLatest)([_this._org.active_building, _this.date]).pipe((0, operators_1.map)(function (_ref6) {
       var _ref7 = _slicedToArray(_ref6, 2),
         _ = _ref7[0],
-        _ref7$ = _slicedToArray(_ref7[1], 1),
-        date = _ref7$[0];
+        date = _ref7[1];
+      return (0, date_fns_1.startOfWeek)(date, {
+        weekStartsOn: _this.offset_weekday
+      }).valueOf();
+    }));
+    _this.week_options = (0, rxjs_1.combineLatest)([_this._org.active_building, _this.date]).pipe((0, operators_1.filter)(function (_ref8) {
+      var _ref9 = _slicedToArray(_ref8, 1),
+        bld = _ref9[0];
+      return !!bld;
+    }), (0, operators_1.map)(function (_ref10) {
+      var _ref11 = _slicedToArray(_ref10, 1),
+        bld = _ref11[0];
+      var options = [];
+      var date = (0, date_fns_1.startOfDay)(Date.now());
+      for (var i = -4; i < 48; i++) {
+        var day = (0, date_fns_1.addWeeks)(date, i);
+        var week_s_date = (0, date_fns_1.startOfWeek)(day, {
+          weekStartsOn: _this.offset_weekday
+        });
+        var week_e_date = (0, date_fns_1.endOfWeek)(day, {
+          weekStartsOn: _this.offset_weekday
+        });
+        var this_week = (0, date_fns_1.isAfter)(Date.now(), week_s_date) && (0, date_fns_1.isBefore)(Date.now(), week_e_date);
+        var week_start = (0, date_fns_1.format)(week_s_date, 'dd MMM');
+        var week_end = (0, date_fns_1.format)(week_e_date, 'dd MMM');
+        options.push({
+          id: day.valueOf(),
+          name: "".concat(week_start, " - ").concat(week_end),
+          this_week: this_week
+        });
+      }
+      return options;
+    }));
+    _this.ws_events = (0, rxjs_1.combineLatest)([_this._space_bookings, _this._update]).pipe((0, operators_1.map)(function (_ref12) {
+      var _ref13 = _slicedToArray(_ref12, 2),
+        _ = _ref13[0],
+        _ref13$ = _slicedToArray(_ref13[1], 1),
+        date = _ref13$[0];
       var user = (0, common_1.currentUser)();
       return _.filter(function (_) {
         var _$linked_bookings;
@@ -5054,11 +5096,11 @@ var ScheduleStateService = /*#__PURE__*/function (_common_1$AsyncHandle) {
       });
     }));
     /** List of calendar events for the selected date */
-    _this.api_events = (0, rxjs_1.combineLatest)([_this._update, _this._options]).pipe((0, operators_1.switchMap)(function (_ref8) {
-      var _ref9 = _slicedToArray(_ref8, 2),
-        _ref9$ = _slicedToArray(_ref9[0], 1),
-        date = _ref9$[0],
-        period = _ref9[1].period;
+    _this.api_events = (0, rxjs_1.combineLatest)([_this._update, _this._options]).pipe((0, operators_1.switchMap)(function (_ref14) {
+      var _ref15 = _slicedToArray(_ref14, 2),
+        _ref15$ = _slicedToArray(_ref15[0], 1),
+        date = _ref15$[0],
+        period = _ref15[1].period;
       var query = {
         period_start: (0, date_fns_1.getUnixTime)(period === 'day' ? (0, date_fns_1.startOfDay)(date) : (0, date_fns_1.startOfWeek)(date, {
           weekStartsOn: _this.offset_weekday
@@ -5080,10 +5122,10 @@ var ScheduleStateService = /*#__PURE__*/function (_common_1$AsyncHandle) {
       }));
     }), (0, operators_1.shareReplay)(1));
     /** List of calendar events for the selected date */
-    _this.raw_events = (0, rxjs_1.combineLatest)([_this._poll_type, _this._options]).pipe((0, operators_1.switchMap)(function (_ref10) {
-      var _ref11 = _slicedToArray(_ref10, 2),
-        t = _ref11[0],
-        period = _ref11[1].period;
+    _this.raw_events = (0, rxjs_1.combineLatest)([_this._poll_type, _this._options]).pipe((0, operators_1.switchMap)(function (_ref16) {
+      var _ref17 = _slicedToArray(_ref16, 2),
+        t = _ref17[0],
+        period = _ref17[1].period;
       return t === 'api' || period !== 'week' ? _this.api_events : _this.ws_events;
     }), (0, operators_1.tap)(function () {
       return _this.timeout('end_loading', function () {
@@ -5098,9 +5140,9 @@ var ScheduleStateService = /*#__PURE__*/function (_common_1$AsyncHandle) {
       });
     }));
     /** List of desk bookings for the selected date */
-    _this.visitors = _this._update.pipe((0, operators_1.switchMap)(function (_ref12) {
-      var _ref13 = _slicedToArray(_ref12, 1),
-        date = _ref13[0];
+    _this.visitors = _this._update.pipe((0, operators_1.switchMap)(function (_ref18) {
+      var _ref19 = _slicedToArray(_ref18, 1),
+        date = _ref19[0];
       return (0, bookings_1.queryBookings)({
         period_start: (0, date_fns_1.getUnixTime)((0, date_fns_1.startOfDay)(date)),
         period_end: (0, date_fns_1.getUnixTime)((0, date_fns_1.endOfDay)(date)),
@@ -5118,9 +5160,9 @@ var ScheduleStateService = /*#__PURE__*/function (_common_1$AsyncHandle) {
       });
     }), (0, operators_1.shareReplay)(1));
     /** List of desk bookings for the selected date */
-    _this.desks = _this._update.pipe((0, operators_1.switchMap)(function (_ref14) {
-      var _ref15 = _slicedToArray(_ref14, 1),
-        date = _ref15[0];
+    _this.desks = _this._update.pipe((0, operators_1.switchMap)(function (_ref20) {
+      var _ref21 = _slicedToArray(_ref20, 1),
+        date = _ref21[0];
       return (0, bookings_1.queryBookings)({
         period_start: (0, date_fns_1.getUnixTime)((0, date_fns_1.startOfDay)(date)),
         period_end: (0, date_fns_1.getUnixTime)((0, date_fns_1.endOfDay)(date)),
@@ -5135,9 +5177,9 @@ var ScheduleStateService = /*#__PURE__*/function (_common_1$AsyncHandle) {
       });
     }), (0, operators_1.shareReplay)(1));
     /** List of parking bookings for the selected date */
-    _this.parking = _this._update.pipe((0, operators_1.switchMap)(function (_ref16) {
-      var _ref17 = _slicedToArray(_ref16, 1),
-        date = _ref17[0];
+    _this.parking = _this._update.pipe((0, operators_1.switchMap)(function (_ref22) {
+      var _ref23 = _slicedToArray(_ref22, 1),
+        date = _ref23[0];
       return (0, bookings_1.queryBookings)({
         period_start: (0, date_fns_1.getUnixTime)((0, date_fns_1.startOfDay)(date)),
         period_end: (0, date_fns_1.getUnixTime)((0, date_fns_1.endOfDay)(date)),
@@ -5162,10 +5204,10 @@ var ScheduleStateService = /*#__PURE__*/function (_common_1$AsyncHandle) {
     _this.lockers = (0, rxjs_1.combineLatest)([_this._org.active_building.pipe((0, operators_1.filter)(function (_) {
       return !!_;
     }), (0, operators_1.distinctUntilKeyChanged)('id')), _this._lockers.lockers$]).pipe((0, operators_1.debounceTime)(300), (0, operators_1.switchMap)( /*#__PURE__*/function () {
-      var _ref18 = _asyncToGenerator(function (_ref19) {
-        var _ref20 = _slicedToArray(_ref19, 2),
-          _ = _ref20[0],
-          lockers = _ref20[1];
+      var _ref24 = _asyncToGenerator(function (_ref25) {
+        var _ref26 = _slicedToArray(_ref25, 2),
+          _ = _ref26[0],
+          lockers = _ref26[1];
         return /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
           var system_id, mod, my_lockers;
           return _regeneratorRuntime().wrap(function _callee$(_context) {
@@ -5194,12 +5236,12 @@ var ScheduleStateService = /*#__PURE__*/function (_common_1$AsyncHandle) {
         })();
       });
       return function (_x) {
-        return _ref18.apply(this, arguments);
+        return _ref24.apply(this, arguments);
       };
-    }()), (0, operators_1.map)(function (_ref21) {
-      var _ref22 = _slicedToArray(_ref21, 2),
-        my_lockers = _ref22[0],
-        lockers = _ref22[1];
+    }()), (0, operators_1.map)(function (_ref27) {
+      var _ref28 = _slicedToArray(_ref27, 2),
+        my_lockers = _ref28[0],
+        lockers = _ref28[1];
       return my_lockers.map(function (i) {
         var _this$_org$levelWithI;
         var locker = lockers.find(function (lkr) {
@@ -5234,14 +5276,14 @@ var ScheduleStateService = /*#__PURE__*/function (_common_1$AsyncHandle) {
       });
     }), (0, operators_1.shareReplay)(1));
     /** List of events and bookings for the selected date */
-    _this.bookings = (0, rxjs_1.combineLatest)([_this.events, _this.visitors, _this.desks, _this.parking, _this.lockers, _this.group_events]).pipe((0, operators_1.map)(function (_ref23) {
-      var _ref24 = _slicedToArray(_ref23, 6),
-        events = _ref24[0],
-        visitors = _ref24[1],
-        desks = _ref24[2],
-        parking = _ref24[3],
-        lockers = _ref24[4],
-        group_events = _ref24[5];
+    _this.bookings = (0, rxjs_1.combineLatest)([_this.events, _this.visitors, _this.desks, _this.parking, _this.lockers, _this.group_events]).pipe((0, operators_1.map)(function (_ref29) {
+      var _ref30 = _slicedToArray(_ref29, 6),
+        events = _ref30[0],
+        visitors = _ref30[1],
+        desks = _ref30[2],
+        parking = _ref30[3],
+        lockers = _ref30[4],
+        group_events = _ref30[5];
       var filtered_events = events.filter(function (ev) {
         var _ev$linked_bookings$;
         return !desks.find(function (bkn) {
@@ -5253,10 +5295,10 @@ var ScheduleStateService = /*#__PURE__*/function (_common_1$AsyncHandle) {
       });
     }));
     /** Filtered list of events and bookings for the selected date */
-    _this.filtered_bookings = (0, rxjs_1.combineLatest)([_this.bookings, _this._filters]).pipe((0, operators_1.map)(function (_ref25) {
-      var _ref26 = _slicedToArray(_ref25, 2),
-        bkns = _ref26[0],
-        filters = _ref26[1];
+    _this.filtered_bookings = (0, rxjs_1.combineLatest)([_this.bookings, _this._filters]).pipe((0, operators_1.map)(function (_ref31) {
+      var _ref32 = _slicedToArray(_ref31, 2),
+        bkns = _ref32[0],
+        filters = _ref32[1];
       return bkns.filter(function (_) {
         var _$extension_data3, _filters$shown_types, _$extension_data4, _filters$shown_types2, _filters$shown_types3;
         if (_this._deleted.includes(_.instance ? "".concat(_.id, "|").concat(_.instance) : _.id)) return false;
@@ -5269,21 +5311,15 @@ var ScheduleStateService = /*#__PURE__*/function (_common_1$AsyncHandle) {
         return filters === null || filters === void 0 || (_filters$shown_types3 = filters.shown_types) === null || _filters$shown_types3 === void 0 ? void 0 : _filters$shown_types3.includes(_.booking_type);
       });
     }));
-    /** Currently selected date */
-    _this.filters = _this._filters.asObservable();
-    /** Currently selected date */
-    _this.date = _this._date.asObservable();
-    /** Whether events and bookings are loading */
-    _this.loading = _this._loading.asObservable();
     _this._ignore_cancel = [];
-    _this._checkCancel = (0, rxjs_1.combineLatest)([common_1.current_user, (0, rxjs_1.interval)(60 * 1000).pipe((0, operators_1.startWith)(0))]).pipe((0, operators_1.filter)(function (_ref27) {
-      var _ref28 = _slicedToArray(_ref27, 1),
-        u = _ref28[0];
+    _this._checkCancel = (0, rxjs_1.combineLatest)([common_1.current_user, (0, rxjs_1.interval)(60 * 1000).pipe((0, operators_1.startWith)(0))]).pipe((0, operators_1.filter)(function (_ref33) {
+      var _ref34 = _slicedToArray(_ref33, 1),
+        u = _ref34[0];
       return !!u;
     }), (0, operators_1.map)( /*#__PURE__*/function () {
-      var _ref29 = _asyncToGenerator(function (_ref30) {
-        var _ref31 = _slicedToArray(_ref30, 1),
-          user = _ref31[0];
+      var _ref35 = _asyncToGenerator(function (_ref36) {
+        var _ref37 = _slicedToArray(_ref36, 1),
+          user = _ref37[0];
         return /*#__PURE__*/_regeneratorRuntime().mark(function _callee2(_auto_release$resourc) {
           var is_home, auto_release, time_before, _iterator, _step, type, bookings, check_block, _iterator2, _step2, booking, diff, time, close_after, wording, result;
           return _regeneratorRuntime().wrap(function _callee2$(_context2) {
@@ -5401,7 +5437,7 @@ var ScheduleStateService = /*#__PURE__*/function (_common_1$AsyncHandle) {
         })();
       });
       return function (_x2) {
-        return _ref29.apply(this, arguments);
+        return _ref35.apply(this, arguments);
       };
     }()));
     _this.subscription('poll_type', _this._org.active_building.subscribe(function () {
@@ -32622,15 +32658,15 @@ exports.VERSION = void 0;
 /* tslint:disable */
 exports.VERSION = {
   "dirty": false,
-  "raw": "1c22ad5",
-  "hash": "1c22ad5",
+  "raw": "3a995be",
+  "hash": "3a995be",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "1c22ad5",
+  "suffix": "3a995be",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1729566404364
+  "time": 1729567465002
 };
 /* tslint:enable */
 
