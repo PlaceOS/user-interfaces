@@ -276,7 +276,7 @@ class BookingCardComponent extends libs_common_src_lib_async_handler_class__WEBP
         data
       });
       this.subscription('edit', ref.componentInstance.edit?.subscribe(() => this.edit.emit()));
-      this.subscription('remove', ref.componentInstance.remove?.subscribe(() => this.remove.emit()));
+      this.subscription('remove', ref.componentInstance.remove?.subscribe(_ => this.remove.emit(_)));
       this.subscription('end', ref.componentInstance.end?.subscribe(() => this.end.emit()));
     });
   }
