@@ -1281,6 +1281,9 @@ class VisitorsStateService extends _placeos_common__WEBPACK_IMPORTED_MODULE_1__.
   get time_format() {
     return this._settings.time_format;
   }
+  get is_induction_enabled() {
+    return this._settings.get('app.induction_enabled') && this._settings.get('app.induction_details');
+  }
   constructor(_dialog, _org, _settings) {
     super();
     this._dialog = _dialog;
@@ -1391,6 +1394,7 @@ class VisitorsStateService extends _placeos_common__WEBPACK_IMPORTED_MODULE_1__.
   requestInduction(item) {
     var _this4 = this;
     return (0,_home_runner_work_user_interfaces_user_interfaces_node_modules_babel_runtime_helpers_esm_asyncToGenerator_js__WEBPACK_IMPORTED_MODULE_0__["default"])(function* () {
+      if (!_this4.is_induction_enabled) return true;
       const ref = _this4._dialog.open(_visitor_induction_modal_component__WEBPACK_IMPORTED_MODULE_4__.VisitorInductionModalComponent, {
         data: {
           item
