@@ -68,6 +68,9 @@ class ScheduleStateService extends _placeos_common__WEBPACK_IMPORTED_MODULE_2__.
   getOptions() {
     return this._options.getValue();
   }
+  get offset_weekday() {
+    return this._settings.get('app.week_start') || 0;
+  }
   constructor(_settings, _org, _lockers, _dialog, _parking) {
     var _this;
     super();
@@ -121,8 +124,12 @@ class ScheduleStateService extends _placeos_common__WEBPACK_IMPORTED_MODULE_2__.
       period
     }]) => {
       const query = {
-        period_start: (0,date_fns__WEBPACK_IMPORTED_MODULE_20__.getUnixTime)(period === 'day' ? (0,date_fns__WEBPACK_IMPORTED_MODULE_21__.startOfDay)(date) : (0,date_fns__WEBPACK_IMPORTED_MODULE_22__.startOfWeek)(date)),
-        period_end: (0,date_fns__WEBPACK_IMPORTED_MODULE_20__.getUnixTime)(period === 'day' ? (0,date_fns__WEBPACK_IMPORTED_MODULE_23__.endOfDay)(date) : (0,date_fns__WEBPACK_IMPORTED_MODULE_24__.endOfWeek)(date))
+        period_start: (0,date_fns__WEBPACK_IMPORTED_MODULE_20__.getUnixTime)(period === 'day' ? (0,date_fns__WEBPACK_IMPORTED_MODULE_21__.startOfDay)(date) : (0,date_fns__WEBPACK_IMPORTED_MODULE_22__.startOfWeek)(date, {
+          weekStartsOn: this.offset_weekday
+        })),
+        period_end: (0,date_fns__WEBPACK_IMPORTED_MODULE_20__.getUnixTime)(period === 'day' ? (0,date_fns__WEBPACK_IMPORTED_MODULE_23__.endOfDay)(date) : (0,date_fns__WEBPACK_IMPORTED_MODULE_24__.endOfWeek)(date, {
+          weekStartsOn: this.offset_weekday
+        }))
       };
       return this._settings.get('app.events.use_bookings') ? (0,_placeos_bookings__WEBPACK_IMPORTED_MODULE_1__.queryBookings)({
         ...query,

@@ -21351,15 +21351,15 @@ __webpack_require__.r(__webpack_exports__);
 /* tslint:disable */
 const VERSION = {
   "dirty": false,
-  "raw": "d53196f",
-  "hash": "d53196f",
+  "raw": "1c22ad5",
+  "hash": "1c22ad5",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "d53196f",
+  "suffix": "1c22ad5",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1729564394106
+  "time": 1729566410330
 };
 /* tslint:enable */
 
