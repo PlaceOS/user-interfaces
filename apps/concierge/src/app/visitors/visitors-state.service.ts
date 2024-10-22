@@ -111,6 +111,13 @@ export class VisitorsStateService extends AsyncHandler {
         return this._settings.time_format;
     }
 
+    public get is_induction_enabled() {
+        return (
+            this._settings.get('app.induction_enabled') &&
+            this._settings.get('app.induction_details')
+        );
+    }
+
     constructor(
         private _dialog: MatDialog,
         private _org: OrganisationService,
@@ -202,6 +209,7 @@ export class VisitorsStateService extends AsyncHandler {
     }
 
     public async requestInduction(item: Booking) {
+        if (!this.is_induction_enabled) return true;
         const ref = this._dialog.open(VisitorInductionModalComponent, {
             data: { item },
         });
