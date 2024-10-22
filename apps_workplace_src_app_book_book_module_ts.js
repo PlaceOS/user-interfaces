@@ -5472,9 +5472,9 @@ class MeetingFlowSuccessComponent {
         }).valueOf(),
         duration: 10 * 60,
         all_day: _this.last_event.all_day,
-        booking_type: 'desk'
+        booking_type: 'desk',
+        user: (0,_placeos_common__WEBPACK_IMPORTED_MODULE_2__.currentUser)()
       });
-      console.log('Space:', space);
       const resources = yield _this._booking_form.available_resources.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_8__.take)(1)).toPromise();
       const bookable_desks = resources.map(_ => _.map_id || _.id).filter(i => i);
       const nearby = yield (0,_placeos_bookings__WEBPACK_IMPORTED_MODULE_1__.findNearbyFeature)(level.map_id, space?.map_id, bookable_desks);
