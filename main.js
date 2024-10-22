@@ -24039,15 +24039,15 @@ __webpack_require__.r(__webpack_exports__);
 /* tslint:disable */
 const VERSION = {
   "dirty": false,
-  "raw": "3ee0493",
-  "hash": "3ee0493",
+  "raw": "9153579",
+  "hash": "9153579",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "3ee0493",
+  "suffix": "9153579",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1729564035860
+  "time": 1729567600283
 };
 /* tslint:enable */
 
@@ -53455,12 +53455,9 @@ class OrganisationService {
     var _this9 = this;
     return (0,_home_runner_work_user_interfaces_user_interfaces_node_modules_babel_runtime_helpers_esm_asyncToGenerator_js__WEBPACK_IMPORTED_MODULE_0__["default"])(function* () {
       if (!_this9._organisation) return;
-      const load_metadata = !_this9._service.get('dont_load_metadata');
-      if (load_metadata) {
-        const app_settings = (yield (0,_placeos_ts_client__WEBPACK_IMPORTED_MODULE_1__.showMetadata)(_this9._organisation?.id, _this9.app_key).toPromise())?.details;
-        const global_settings = (yield (0,_placeos_ts_client__WEBPACK_IMPORTED_MODULE_1__.showMetadata)(_this9._organisation?.id, 'settings').toPromise())?.details;
-        _this9._settings = [global_settings, app_settings];
-      }
+      const app_settings = (yield (0,_placeos_ts_client__WEBPACK_IMPORTED_MODULE_1__.showMetadata)(_this9._organisation?.id, _this9.app_key).toPromise())?.details;
+      const global_settings = (yield (0,_placeos_ts_client__WEBPACK_IMPORTED_MODULE_1__.showMetadata)(_this9._organisation?.id, 'settings').toPromise())?.details;
+      _this9._settings = [global_settings, app_settings];
       _this9._service.overrides = [..._this9._settings];
       yield _this9._initialiseActiveBuilding();
       _this9._updateSettingOverrides();
