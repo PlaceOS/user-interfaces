@@ -4332,7 +4332,7 @@ class BookingCardComponent extends libs_common_src_lib_async_handler_class__WEBP
         data
       });
       this.subscription('edit', ref.componentInstance.edit?.subscribe(() => this.edit.emit()));
-      this.subscription('remove', ref.componentInstance.remove?.subscribe(() => this.remove.emit()));
+      this.subscription('remove', ref.componentInstance.remove?.subscribe(_ => this.remove.emit(_)));
       this.subscription('end', ref.componentInstance.end?.subscribe(() => this.end.emit()));
     });
   }
@@ -16175,9 +16175,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   generateMicrosoftCalendarLink: () => (/* binding */ generateMicrosoftCalendarLink)
 /* harmony export */ });
 /* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! date-fns */ 45726);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! date-fns */ 23206);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! date-fns */ 77177);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! date-fns */ 49675);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! date-fns */ 28797);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! date-fns */ 49675);
 /* harmony import */ var _api__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./api */ 38385);
 /* harmony import */ var _timezone_helpers__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./timezone-helpers */ 35774);
 /* harmony import */ var _general__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./general */ 64217);
@@ -16192,28 +16191,52 @@ function formatUTC(date) {
 function formatAllDay(date) {
   return `${(0,date_fns__WEBPACK_IMPORTED_MODULE_3__.format)(date, 'yyyyMMdd')}`;
 }
+function escapeText(text) {
+  return (text || '').replace(/\\|;|,|\n/g, match => {
+    switch (match) {
+      case '\\':
+        return '\\\\';
+      case ';':
+        return '\\;';
+      case ',':
+        return '\\,';
+      case '\n':
+        return '\\n';
+      default:
+        return match;
+    }
+  });
+}
 function generateCalendarFileLink(event) {
+  if (!event) return 'data:text/calendar;charset=utf8,';
   const chunks = [];
-  const description = formatCalFileText(`${event.body || ''}${event.id ? '\n\n[ID|' + event.id + ']' : ''}`);
-  const location = formatCalFileText(`${event.location}`);
+  const description = escapeText(`${event.body || ''}${event.id ? '\n\n[ID|' + event.id + ']' : ''}`);
+  const location = escapeText(`${event.location}`);
   chunks.push(['BEGIN', 'VCALENDAR']);
   chunks.push(['VERSION', '2.0']);
   chunks.push(['BEGIN', 'VEVENT']);
-  chunks.push(['URL', `${event.meeting_url}`]);
-  chunks.push(['DTSTART', `${new Date(event.all_day ? (0,date_fns__WEBPACK_IMPORTED_MODULE_4__.startOfMinute)((0,date_fns__WEBPACK_IMPORTED_MODULE_5__.set)(event.date, {
-    hours: 6,
-    minutes: 0
-  })) : event.date).toISOString()}`]);
-  chunks.push(['DTEND', `${event.all_day ? (0,date_fns__WEBPACK_IMPORTED_MODULE_4__.startOfMinute)((0,date_fns__WEBPACK_IMPORTED_MODULE_5__.set)(event.date, {
-    hours: 18,
-    minutes: 0
-  })).toISOString() : (0,date_fns__WEBPACK_IMPORTED_MODULE_6__.addMinutes)(event.date, event.duration ?? 60).toISOString()}`]);
-  chunks.push(['SUMMARY', `${event.title}`]);
+  chunks.push(['UID', `${event.id || 'uid-' + Date.now()}`]);
+  chunks.push(['DTSTAMP', formatUTC(new Date())]);
+  if (event.meeting_url) {
+    chunks.push(['URL', `${event.meeting_url}`]);
+  }
+  if (event.all_day) {
+    chunks.push(['DTSTART;VALUE=DATE', formatAllDay(event.date)]);
+    chunks.push(['DTEND;VALUE=DATE', formatAllDay((0,date_fns__WEBPACK_IMPORTED_MODULE_4__.addDays)(event.date, 1))]);
+  } else {
+    chunks.push(['DTSTART', formatUTC(event.date)]);
+    chunks.push(['DTEND', formatUTC((0,date_fns__WEBPACK_IMPORTED_MODULE_5__.addMinutes)(event.date, event.duration || 60))]);
+  }
+  chunks.push(['SUMMARY', escapeText(event.title)]);
   chunks.push(['DESCRIPTION', description]);
   chunks.push(['LOCATION', location]);
-  const host = event.organiser?.name || event.host?.split('@') || event.user_name || 'User';
-  chunks.push(['ORGANIZER', `CN=${host}:MAILTO:${event.host || event.user_email}`]);
-  const url_data = chunks.map(([key, value]) => `${key}:${encodeURIComponent(value)}`).join('\n');
+  const hostEmail = event.host || event.user_email || `no-reply@place.tech`;
+  const hostName = event.organiser?.name || hostEmail.split('@')[0] || 'Staff';
+  chunks.push(['ORGANIZER', `CN=${escapeText(hostName)}:mailto:${hostEmail}`]);
+  chunks.push(['END', 'VEVENT']);
+  chunks.push(['END', 'VCALENDAR']);
+  const content = chunks.map(([key, value]) => `${key}:${value}`).join('\r\n');
+  const url_data = encodeURIComponent(content);
   return `data:text/calendar;charset=utf8,${url_data}`;
 }
 function generateGoogleCalendarLink(event) {
@@ -16224,7 +16247,7 @@ function generateGoogleCalendarLink(event) {
     details: `${event.body || ''}${event.id ? '\n\n[ID|' + event.id + ']' : ''}`,
     location: event.location,
     trp: false,
-    dates: `${fmt(event.date)}/${fmt((0,date_fns__WEBPACK_IMPORTED_MODULE_6__.addMinutes)(event.date, event.duration ?? 60))}`
+    dates: `${fmt(event.date)}/${fmt((0,date_fns__WEBPACK_IMPORTED_MODULE_5__.addMinutes)(event.date, event.duration ?? 60))}`
   };
   const emails = (event.attendees || []).map(_ => _.email || _);
   const resources = ((event.resources?.length ? event.resources : null) || [event.system]).map(_ => _?.email || _);
@@ -16237,7 +16260,7 @@ function generateMicrosoftCalendarLink(event, type = 'office') {
     path: '/calendar/action/compose',
     rru: 'addevent',
     startdt: new Date(event.date).toISOString(),
-    enddt: (0,date_fns__WEBPACK_IMPORTED_MODULE_6__.addMinutes)(event.date, event.duration ?? 60).toISOString(),
+    enddt: (0,date_fns__WEBPACK_IMPORTED_MODULE_5__.addMinutes)(event.date, event.duration ?? 60).toISOString(),
     subject: event.title,
     body: `${event.body || ''}${event.id ? '\n\n[ID|' + event.id + ']' : ''}`,
     location: event.location,
@@ -16248,9 +16271,6 @@ function generateMicrosoftCalendarLink(event, type = 'office') {
   const resources = ((event.resources?.length ? event.resources : null) || [event.system]).map(_ => _?.email || _);
   if (emails.length || resources.length) data.to = (0,_general__WEBPACK_IMPORTED_MODULE_2__.unique)([...emails, ...resources]).join();
   return type === 'office' ? `https://outlook.office.com/calendar/0/action/compose?${(0,_api__WEBPACK_IMPORTED_MODULE_0__.toQueryString)(data)}` : `https://outlook.live.com/calendar/0/action/compose?${(0,_api__WEBPACK_IMPORTED_MODULE_0__.toQueryString)(data)}`;
-}
-function formatCalFileText(str) {
-  return str.replace(/,/gm, ',').replace(/;/gm, ';').replace(/\r\n/gm, '\n').replace(/\n/gm, '\\n').replace(/(\\n)[\s\t]+/gm, '\\n');
 }
 
 /***/ }),
@@ -19625,15 +19645,15 @@ __webpack_require__.r(__webpack_exports__);
 /* tslint:disable */
 const VERSION = {
   "dirty": false,
-  "raw": "beefb51",
-  "hash": "beefb51",
+  "raw": "3ee0493",
+  "hash": "3ee0493",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "beefb51",
+  "suffix": "3ee0493",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1729496131771
+  "time": 1729564106892
 };
 /* tslint:enable */
 
