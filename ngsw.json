@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1729559830713,
+  "timestamp": 1729560159436,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -191,7 +191,7 @@
     "./apps_workplace_src_app_events_group-events_module_ts.js": "cc88479b25fa5e103e9b07ee4f9046fe57ff36ad",
     "./apps_workplace_src_app_explore_explore_module_ts.js": "18f9f83ba15bae23be7a6429d8497164dad65fe6",
     "./apps_workplace_src_app_landing_landing_module_ts.js": "da31ca81be2248ec1382b80558e16d05fde5e114",
-    "./apps_workplace_src_app_new-schedule_schedule_module_ts.js": "6f67810246761375da41c0045bb75546d039de26",
+    "./apps_workplace_src_app_new-schedule_schedule_module_ts.js": "306c1f8908736d5a016793b42215d5c1ac0eb151",
     "./apps_workplace_src_app_schedule_schedule_module_ts.js": "1e505baa94edf3074ee03800fec4440b14e7f93f",
     "./assets/icons/amex.svg": "3530eff717af33317b79bdd1d0ec96abfa884287",
     "./assets/icons/asset-placeholder.svg": "57d3c780a925b7434aadbe716a991457666eb450",
@@ -325,7 +325,7 @@
     "./common.js": "1b774eceea92c59e9afce51f12fefa29a28840b9",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "9a37fd580c23539ca0d18b8e63d922e34b44a451",
-    "./main.js": "91b62ef90aa12f66e91dc6f0bc5cdbffd3beb463",
+    "./main.js": "cbb6ec6ef616610f3cf62b489419d26ca36047a2",
     "./manifest.webmanifest": "c49610ac8cbb68f39e210180febab6cc58859527",
     "./material-icons-outlined.woff2": "2f9e28ab559782402f27332633c843c40209d95a",
     "./material-icons-round.woff2": "abe05e0641f1050fbe00ef0dbb10c5ea72c26cff",
