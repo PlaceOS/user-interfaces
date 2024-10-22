@@ -9602,7 +9602,7 @@ class BookingCardComponent extends libs_common_src_lib_async_handler_class__WEBP
         data
       });
       this.subscription('edit', ref.componentInstance.edit?.subscribe(() => this.edit.emit()));
-      this.subscription('remove', ref.componentInstance.remove?.subscribe(() => this.remove.emit()));
+      this.subscription('remove', ref.componentInstance.remove?.subscribe(_ => this.remove.emit(_)));
       this.subscription('end', ref.componentInstance.end?.subscribe(() => this.end.emit()));
     });
   }
@@ -21474,9 +21474,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   generateMicrosoftCalendarLink: () => (/* binding */ generateMicrosoftCalendarLink)
 /* harmony export */ });
 /* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! date-fns */ 45726);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! date-fns */ 23206);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! date-fns */ 77177);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! date-fns */ 49675);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! date-fns */ 28797);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! date-fns */ 49675);
 /* harmony import */ var _api__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./api */ 38385);
 /* harmony import */ var _timezone_helpers__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./timezone-helpers */ 35774);
 /* harmony import */ var _general__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./general */ 64217);
@@ -21491,28 +21490,52 @@ function formatUTC(date) {
 function formatAllDay(date) {
   return `${(0,date_fns__WEBPACK_IMPORTED_MODULE_3__.format)(date, 'yyyyMMdd')}`;
 }
+function escapeText(text) {
+  return (text || '').replace(/\\|;|,|\n/g, match => {
+    switch (match) {
+      case '\\':
+        return '\\\\';
+      case ';':
+        return '\\;';
+      case ',':
+        return '\\,';
+      case '\n':
+        return '\\n';
+      default:
+        return match;
+    }
+  });
+}
 function generateCalendarFileLink(event) {
+  if (!event) return 'data:text/calendar;charset=utf8,';
   const chunks = [];
-  const description = formatCalFileText(`${event.body || ''}${event.id ? '\n\n[ID|' + event.id + ']' : ''}`);
-  const location = formatCalFileText(`${event.location}`);
+  const description = escapeText(`${event.body || ''}${event.id ? '\n\n[ID|' + event.id + ']' : ''}`);
+  const location = escapeText(`${event.location}`);
   chunks.push(['BEGIN', 'VCALENDAR']);
   chunks.push(['VERSION', '2.0']);
   chunks.push(['BEGIN', 'VEVENT']);
-  chunks.push(['URL', `${event.meeting_url}`]);
-  chunks.push(['DTSTART', `${new Date(event.all_day ? (0,date_fns__WEBPACK_IMPORTED_MODULE_4__.startOfMinute)((0,date_fns__WEBPACK_IMPORTED_MODULE_5__.set)(event.date, {
-    hours: 6,
-    minutes: 0
-  })) : event.date).toISOString()}`]);
-  chunks.push(['DTEND', `${event.all_day ? (0,date_fns__WEBPACK_IMPORTED_MODULE_4__.startOfMinute)((0,date_fns__WEBPACK_IMPORTED_MODULE_5__.set)(event.date, {
-    hours: 18,
-    minutes: 0
-  })).toISOString() : (0,date_fns__WEBPACK_IMPORTED_MODULE_6__.addMinutes)(event.date, event.duration ?? 60).toISOString()}`]);
-  chunks.push(['SUMMARY', `${event.title}`]);
+  chunks.push(['UID', `${event.id || 'uid-' + Date.now()}`]);
+  chunks.push(['DTSTAMP', formatUTC(new Date())]);
+  if (event.meeting_url) {
+    chunks.push(['URL', `${event.meeting_url}`]);
+  }
+  if (event.all_day) {
+    chunks.push(['DTSTART;VALUE=DATE', formatAllDay(event.date)]);
+    chunks.push(['DTEND;VALUE=DATE', formatAllDay((0,date_fns__WEBPACK_IMPORTED_MODULE_4__.addDays)(event.date, 1))]);
+  } else {
+    chunks.push(['DTSTART', formatUTC(event.date)]);
+    chunks.push(['DTEND', formatUTC((0,date_fns__WEBPACK_IMPORTED_MODULE_5__.addMinutes)(event.date, event.duration || 60))]);
+  }
+  chunks.push(['SUMMARY', escapeText(event.title)]);
   chunks.push(['DESCRIPTION', description]);
   chunks.push(['LOCATION', location]);
-  const host = event.organiser?.name || event.host?.split('@') || event.user_name || 'User';
-  chunks.push(['ORGANIZER', `CN=${host}:MAILTO:${event.host || event.user_email}`]);
-  const url_data = chunks.map(([key, value]) => `${key}:${encodeURIComponent(value)}`).join('\n');
+  const hostEmail = event.host || event.user_email || `no-reply@place.tech`;
+  const hostName = event.organiser?.name || hostEmail.split('@')[0] || 'Staff';
+  chunks.push(['ORGANIZER', `CN=${escapeText(hostName)}:mailto:${hostEmail}`]);
+  chunks.push(['END', 'VEVENT']);
+  chunks.push(['END', 'VCALENDAR']);
+  const content = chunks.map(([key, value]) => `${key}:${value}`).join('\r\n');
+  const url_data = encodeURIComponent(content);
   return `data:text/calendar;charset=utf8,${url_data}`;
 }
 function generateGoogleCalendarLink(event) {
@@ -21523,7 +21546,7 @@ function generateGoogleCalendarLink(event) {
     details: `${event.body || ''}${event.id ? '\n\n[ID|' + event.id + ']' : ''}`,
     location: event.location,
     trp: false,
-    dates: `${fmt(event.date)}/${fmt((0,date_fns__WEBPACK_IMPORTED_MODULE_6__.addMinutes)(event.date, event.duration ?? 60))}`
+    dates: `${fmt(event.date)}/${fmt((0,date_fns__WEBPACK_IMPORTED_MODULE_5__.addMinutes)(event.date, event.duration ?? 60))}`
   };
   const emails = (event.attendees || []).map(_ => _.email || _);
   const resources = ((event.resources?.length ? event.resources : null) || [event.system]).map(_ => _?.email || _);
@@ -21536,7 +21559,7 @@ function generateMicrosoftCalendarLink(event, type = 'office') {
     path: '/calendar/action/compose',
     rru: 'addevent',
     startdt: new Date(event.date).toISOString(),
-    enddt: (0,date_fns__WEBPACK_IMPORTED_MODULE_6__.addMinutes)(event.date, event.duration ?? 60).toISOString(),
+    enddt: (0,date_fns__WEBPACK_IMPORTED_MODULE_5__.addMinutes)(event.date, event.duration ?? 60).toISOString(),
     subject: event.title,
     body: `${event.body || ''}${event.id ? '\n\n[ID|' + event.id + ']' : ''}`,
     location: event.location,
@@ -21547,9 +21570,6 @@ function generateMicrosoftCalendarLink(event, type = 'office') {
   const resources = ((event.resources?.length ? event.resources : null) || [event.system]).map(_ => _?.email || _);
   if (emails.length || resources.length) data.to = (0,_general__WEBPACK_IMPORTED_MODULE_2__.unique)([...emails, ...resources]).join();
   return type === 'office' ? `https://outlook.office.com/calendar/0/action/compose?${(0,_api__WEBPACK_IMPORTED_MODULE_0__.toQueryString)(data)}` : `https://outlook.live.com/calendar/0/action/compose?${(0,_api__WEBPACK_IMPORTED_MODULE_0__.toQueryString)(data)}`;
-}
-function formatCalFileText(str) {
-  return str.replace(/,/gm, ',').replace(/;/gm, ';').replace(/\r\n/gm, '\n').replace(/\n/gm, '\\n').replace(/(\\n)[\s\t]+/gm, '\\n');
 }
 
 /***/ }),
@@ -24846,15 +24866,15 @@ __webpack_require__.r(__webpack_exports__);
 /* tslint:disable */
 const VERSION = {
   "dirty": false,
-  "raw": "beefb51",
-  "hash": "beefb51",
+  "raw": "3ee0493",
+  "hash": "3ee0493",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "beefb51",
+  "suffix": "3ee0493",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1729496101791
+  "time": 1729564036396
 };
 /* tslint:enable */
 
@@ -41836,23 +41856,25 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _home_runner_work_user_interfaces_user_interfaces_node_modules_babel_runtime_helpers_esm_asyncToGenerator_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js */ 89204);
 /* harmony import */ var _placeos_common__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @placeos/common */ 22797);
 /* harmony import */ var _placeos_ts_client__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @placeos/ts-client */ 35713);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! date-fns */ 99908);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! date-fns */ 23206);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! date-fns */ 5469);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! date-fns */ 33240);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! date-fns */ 56441);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! date-fns */ 31257);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! date-fns */ 3330);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! date-fns */ 28797);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! date-fns */ 99908);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! date-fns */ 23206);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! date-fns */ 5469);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! date-fns */ 33240);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! date-fns */ 56441);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! date-fns */ 31257);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! date-fns */ 3330);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! date-fns */ 28797);
 /* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! rxjs */ 90521);
-/* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! rxjs */ 68824);
 /* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! rxjs */ 71536);
-/* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! rxjs */ 68757);
+/* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! rxjs */ 68824);
+/* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! rxjs */ 68757);
 /* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! rxjs/operators */ 35443);
-/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! rxjs/operators */ 19803);
-/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! rxjs/operators */ 71963);
-/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! rxjs/operators */ 7841);
-/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! rxjs/operators */ 33602);
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! rxjs/operators */ 8627);
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! rxjs/operators */ 71963);
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! rxjs/operators */ 29314);
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! rxjs/operators */ 7841);
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! rxjs/operators */ 19803);
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! rxjs/operators */ 33602);
 /* harmony import */ var libs_organisation_src_lib_organisation_service__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! libs/organisation/src/lib/organisation.service */ 19863);
 /* harmony import */ var libs_bookings_src_lib_bookings_fn__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! libs/bookings/src/lib/bookings.fn */ 18026);
 /* harmony import */ var _explore_state_service__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./explore-state.service */ 12455);
@@ -41861,8 +41883,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _set_datetime_modal_component__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./set-datetime-modal.component */ 27146);
 /* harmony import */ var _explore_parking_info_component__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./explore-parking-info.component */ 17889);
 /* harmony import */ var libs_bookings_src_lib_parking_service__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! libs/bookings/src/lib/parking.service */ 1593);
-/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! @angular/core */ 37580);
-/* harmony import */ var _angular_material_dialog__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! @angular/material/dialog */ 12587);
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! @angular/core */ 37580);
+/* harmony import */ var _angular_material_dialog__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! @angular/material/dialog */ 12587);
 
 
 
@@ -41900,40 +41922,56 @@ class ExploreParkingService extends _placeos_common__WEBPACK_IMPORTED_MODULE_1__
     this.on_book = null;
     /** List of available parking levels for the active building */
     this.levels = this._org.active_levels.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_12__.map)(l => l.filter(_ => _.tags.includes('parking'))));
+    this.booking_rules = this._org.active_building.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_13__.filter)(bld => !!bld), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_14__.switchMap)(bld => (0,_placeos_ts_client__WEBPACK_IMPORTED_MODULE_2__.showMetadata)(bld.id, `parking_booking_rules`).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_15__.catchError)(() => (0,rxjs__WEBPACK_IMPORTED_MODULE_16__.of)({
+      details: []
+    })))), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_12__.map)(_ => _?.details instanceof Array ? _.details : []), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_17__.shareReplay)(1));
     /** List of current bookings for the current building */
-    this.events = (0,rxjs__WEBPACK_IMPORTED_MODULE_13__.combineLatest)([this._org.active_building, this._options, this._poll, this._state.options]).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_14__.debounceTime)(300), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_15__.switchMap)(([bld, _, __, {
+    this.events = (0,rxjs__WEBPACK_IMPORTED_MODULE_18__.combineLatest)([this._org.active_building, this._options, this._poll, this._state.options]).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_19__.debounceTime)(300), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_14__.switchMap)(([bld, _, __, {
       is_public
     }]) => is_public ? (0,rxjs__WEBPACK_IMPORTED_MODULE_16__.of)([]) : (0,libs_bookings_src_lib_bookings_fn__WEBPACK_IMPORTED_MODULE_4__.queryBookings)({
-      period_start: (0,date_fns__WEBPACK_IMPORTED_MODULE_17__.getUnixTime)((0,date_fns__WEBPACK_IMPORTED_MODULE_18__.startOfMinute)(_.date || Date.now())),
-      period_end: (0,date_fns__WEBPACK_IMPORTED_MODULE_17__.getUnixTime)((0,date_fns__WEBPACK_IMPORTED_MODULE_19__.endOfMinute)(_.date || Date.now())),
+      period_start: (0,date_fns__WEBPACK_IMPORTED_MODULE_20__.getUnixTime)((0,date_fns__WEBPACK_IMPORTED_MODULE_21__.startOfMinute)(_.date || Date.now())),
+      period_end: (0,date_fns__WEBPACK_IMPORTED_MODULE_20__.getUnixTime)((0,date_fns__WEBPACK_IMPORTED_MODULE_22__.endOfMinute)(_.date || Date.now())),
       type: 'parking',
       zones: this._settings.get('app.use_region') ? bld?.parent_id : bld?.id,
       rejected: false
-    })), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_20__.shareReplay)(1));
+    })), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_17__.shareReplay)(1));
     /** Any event that the selected user has for the current date */
-    this.user_events = (0,rxjs__WEBPACK_IMPORTED_MODULE_13__.combineLatest)([this._options]).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_15__.switchMap)(([_]) => (0,libs_bookings_src_lib_bookings_fn__WEBPACK_IMPORTED_MODULE_4__.queryBookings)({
-      period_start: (0,date_fns__WEBPACK_IMPORTED_MODULE_17__.getUnixTime)((0,date_fns__WEBPACK_IMPORTED_MODULE_21__.startOfDay)(_.date || Date.now())),
-      period_end: (0,date_fns__WEBPACK_IMPORTED_MODULE_17__.getUnixTime)((0,date_fns__WEBPACK_IMPORTED_MODULE_22__.endOfDay)(_.date || Date.now())),
+    this.user_events = (0,rxjs__WEBPACK_IMPORTED_MODULE_18__.combineLatest)([this._options]).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_14__.switchMap)(([_]) => (0,libs_bookings_src_lib_bookings_fn__WEBPACK_IMPORTED_MODULE_4__.queryBookings)({
+      period_start: (0,date_fns__WEBPACK_IMPORTED_MODULE_20__.getUnixTime)((0,date_fns__WEBPACK_IMPORTED_MODULE_23__.startOfDay)(_.date || Date.now())),
+      period_end: (0,date_fns__WEBPACK_IMPORTED_MODULE_20__.getUnixTime)((0,date_fns__WEBPACK_IMPORTED_MODULE_24__.endOfDay)(_.date || Date.now())),
       type: 'parking',
       email: _?.user || (0,_placeos_common__WEBPACK_IMPORTED_MODULE_1__.currentUser)()?.email
-    })), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_20__.shareReplay)(1));
+    })), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_17__.shareReplay)(1));
     /** List of parking spaces for the active building */
-    this.spaces = this.levels.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_15__.switchMap)(_ => (0,rxjs__WEBPACK_IMPORTED_MODULE_23__.forkJoin)(_.map(l => (0,_placeos_ts_client__WEBPACK_IMPORTED_MODULE_2__.showMetadata)(l.id, 'parking-spaces').pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_12__.map)(d => (d.details instanceof Array ? d.details : []).map(s => ({
+    this.spaces = this.levels.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_14__.switchMap)(_ => (0,rxjs__WEBPACK_IMPORTED_MODULE_25__.forkJoin)(_.map(l => (0,_placeos_ts_client__WEBPACK_IMPORTED_MODULE_2__.showMetadata)(l.id, 'parking-spaces').pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_12__.map)(d => (d.details instanceof Array ? d.details : []).map(s => ({
       ...s,
       zone_id: l.id
-    }))))))), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_12__.map)(_ => (0,_placeos_common__WEBPACK_IMPORTED_MODULE_1__.flatten)(_)), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_20__.shareReplay)(1));
-    this.active_spaces = (0,rxjs__WEBPACK_IMPORTED_MODULE_13__.combineLatest)([this.spaces, this._state.level]).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_12__.map)(([spaces, level]) => spaces.filter(_ => _.zone_id === level.id)));
+    }))))))), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_12__.map)(_ => (0,_placeos_common__WEBPACK_IMPORTED_MODULE_1__.flatten)(_)), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_17__.shareReplay)(1));
+    this.active_spaces = (0,rxjs__WEBPACK_IMPORTED_MODULE_18__.combineLatest)([this.spaces, this._state.level]).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_12__.map)(([spaces, level]) => spaces.filter(_ => _.zone_id === level.id)));
     this._users = {};
     this._plate_numbers = {};
     /** Available parking spaces for the current level and date */
-    this.available_spaces = (0,rxjs__WEBPACK_IMPORTED_MODULE_13__.combineLatest)([this.events, this.active_spaces, this._parking.users]).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_12__.map)(([events, spaces, users]) => {
-      const available = spaces.filter(_ => {
-        const event = events.find(e => e.asset_id === _.id && !e.rejected);
-        const assigned = `${event?.user_email || _.assigned_to || ''}`.toLowerCase();
+    this.available_spaces = (0,rxjs__WEBPACK_IMPORTED_MODULE_18__.combineLatest)([this.events, this.active_spaces, this._parking.users, this.booking_rules, this._options]).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_12__.map)(([events, spaces, users, rules, {
+      date
+    }]) => {
+      const available = spaces.filter(space => {
+        console.log('Space:', space);
+        const event = events.find(e => e.asset_id === space.id && !e.rejected);
+        const level = this._org.levelWithID([space.zone_id]);
+        const assigned = `${event?.user_email || space.assigned_to || ''}`.toLowerCase();
         const user = users.find(u => u.email.toLowerCase() === assigned.toLowerCase());
-        this._users[_.id] = assigned;
-        this._plate_numbers[_.id] = event?.extension_data?.plate_number || user?.plate_number || undefined;
-        return !event;
+        const is_restricted = (0,_placeos_common__WEBPACK_IMPORTED_MODULE_1__.rulesForResource)({
+          date: date || Date.now(),
+          duration: 60,
+          host: (0,_placeos_common__WEBPACK_IMPORTED_MODULE_1__.currentUser)(),
+          resource: {
+            id: space.id,
+            zones: [level.parent_id, level.id]
+          }
+        }, rules)?.hidden;
+        this._users[space.id] = assigned;
+        this._plate_numbers[space.id] = event?.extension_data?.plate_number || user?.plate_number || undefined;
+        return !event && !is_restricted;
       });
       this._updateParkingSpaces(spaces, available);
       return available;
@@ -41965,9 +42003,9 @@ class ExploreParkingService extends _placeos_common__WEBPACK_IMPORTED_MODULE_1__
       const actions = [];
       const colours = _this._settings.get('app.explore.colors') || {};
       let options = _this._options.getValue();
-      const assigned_space = yield _this._parking.assigned_space.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_24__.take)(1)).toPromise();
-      const deny_parking_access = yield _this._parking.deny_parking_access.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_24__.take)(1)).toPromise();
-      const booked_space = yield _this._parking.booked_space.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_24__.take)(1)).toPromise();
+      const assigned_space = yield _this._parking.assigned_space.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_26__.take)(1)).toPromise();
+      const deny_parking_access = yield _this._parking.deny_parking_access.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_26__.take)(1)).toPromise();
+      const booked_space = yield _this._parking.booked_space.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_26__.take)(1)).toPromise();
       for (const space of spaces) {
         const can_book = !!available.find(_ => _.id === space.id);
         const is_assigned = !!space.assigned_to;
@@ -42020,8 +42058,7 @@ class ExploreParkingService extends _placeos_common__WEBPACK_IMPORTED_MODULE_1__
             let user = options.host || (0,_placeos_common__WEBPACK_IMPORTED_MODULE_1__.currentUser)();
             const user_email = user?.email;
             const zone = _this._org.levelWithID([space.zone_id || space.zone]) || _this._state.active_level;
-            const date = !options.date || (0,date_fns__WEBPACK_IMPORTED_MODULE_25__.isSameDay)(options.date, Date.now()) ? (0,date_fns__WEBPACK_IMPORTED_MODULE_18__.startOfMinute)(Date.now()).valueOf() : (0,date_fns__WEBPACK_IMPORTED_MODULE_26__.setHours)(options.date, 8).valueOf();
-            debugger;
+            const date = !options.date || (0,date_fns__WEBPACK_IMPORTED_MODULE_27__.isSameDay)(options.date, Date.now()) ? (0,date_fns__WEBPACK_IMPORTED_MODULE_21__.startOfMinute)(Date.now()).valueOf() : (0,date_fns__WEBPACK_IMPORTED_MODULE_28__.setHours)(options.date, 8).valueOf();
             _this._bookings.form.patchValue({
               resources: [space],
               asset_id: space.id,
@@ -42065,7 +42102,7 @@ class ExploreParkingService extends _placeos_common__WEBPACK_IMPORTED_MODULE_1__
     return (0,_home_runner_work_user_interfaces_user_interfaces_node_modules_babel_runtime_helpers_esm_asyncToGenerator_js__WEBPACK_IMPORTED_MODULE_0__["default"])(function* () {
       let user = null;
       if (!!_this2._settings.get('app.parking.allow_time_changes')) {
-        const until = (0,date_fns__WEBPACK_IMPORTED_MODULE_22__.endOfDay)((0,date_fns__WEBPACK_IMPORTED_MODULE_27__.addDays)(Date.now(), _this2._settings.get('app.parking.available_period') || 90));
+        const until = (0,date_fns__WEBPACK_IMPORTED_MODULE_24__.endOfDay)((0,date_fns__WEBPACK_IMPORTED_MODULE_29__.addDays)(Date.now(), _this2._settings.get('app.parking.available_period') || 90));
         const ref = _this2._dialog.open(_set_datetime_modal_component__WEBPACK_IMPORTED_MODULE_8__.SetDatetimeModalComponent, {
           data: {
             date,
@@ -42089,9 +42126,9 @@ class ExploreParkingService extends _placeos_common__WEBPACK_IMPORTED_MODULE_1__
     })();
   }
   static #_ = this.ɵfac = function ExploreParkingService_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || ExploreParkingService)(_angular_core__WEBPACK_IMPORTED_MODULE_28__["ɵɵinject"](libs_organisation_src_lib_organisation_service__WEBPACK_IMPORTED_MODULE_3__.OrganisationService), _angular_core__WEBPACK_IMPORTED_MODULE_28__["ɵɵinject"](_explore_state_service__WEBPACK_IMPORTED_MODULE_5__.ExploreStateService), _angular_core__WEBPACK_IMPORTED_MODULE_28__["ɵɵinject"](_placeos_common__WEBPACK_IMPORTED_MODULE_1__.SettingsService), _angular_core__WEBPACK_IMPORTED_MODULE_28__["ɵɵinject"](libs_bookings_src_lib_booking_form_service__WEBPACK_IMPORTED_MODULE_7__.BookingFormService), _angular_core__WEBPACK_IMPORTED_MODULE_28__["ɵɵinject"](libs_bookings_src_lib_parking_service__WEBPACK_IMPORTED_MODULE_10__.ParkingService), _angular_core__WEBPACK_IMPORTED_MODULE_28__["ɵɵinject"](_angular_material_dialog__WEBPACK_IMPORTED_MODULE_29__.MatDialog));
+    return new (__ngFactoryType__ || ExploreParkingService)(_angular_core__WEBPACK_IMPORTED_MODULE_30__["ɵɵinject"](libs_organisation_src_lib_organisation_service__WEBPACK_IMPORTED_MODULE_3__.OrganisationService), _angular_core__WEBPACK_IMPORTED_MODULE_30__["ɵɵinject"](_explore_state_service__WEBPACK_IMPORTED_MODULE_5__.ExploreStateService), _angular_core__WEBPACK_IMPORTED_MODULE_30__["ɵɵinject"](_placeos_common__WEBPACK_IMPORTED_MODULE_1__.SettingsService), _angular_core__WEBPACK_IMPORTED_MODULE_30__["ɵɵinject"](libs_bookings_src_lib_booking_form_service__WEBPACK_IMPORTED_MODULE_7__.BookingFormService), _angular_core__WEBPACK_IMPORTED_MODULE_30__["ɵɵinject"](libs_bookings_src_lib_parking_service__WEBPACK_IMPORTED_MODULE_10__.ParkingService), _angular_core__WEBPACK_IMPORTED_MODULE_30__["ɵɵinject"](_angular_material_dialog__WEBPACK_IMPORTED_MODULE_31__.MatDialog));
   };
-  static #_2 = this.ɵprov = /*@__PURE__*/_angular_core__WEBPACK_IMPORTED_MODULE_28__["ɵɵdefineInjectable"]({
+  static #_2 = this.ɵprov = /*@__PURE__*/_angular_core__WEBPACK_IMPORTED_MODULE_30__["ɵɵdefineInjectable"]({
     token: ExploreParkingService,
     factory: ExploreParkingService.ɵfac
   });
