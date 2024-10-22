@@ -8700,8 +8700,8 @@ var BookingCardComponent = /*#__PURE__*/function (_async_handler_class_) {
         _this3.subscription('edit', (_ref$componentInstanc = ref.componentInstance.edit) === null || _ref$componentInstanc === void 0 ? void 0 : _ref$componentInstanc.subscribe(function () {
           return _this3.edit.emit();
         }));
-        _this3.subscription('remove', (_ref$componentInstanc2 = ref.componentInstance.remove) === null || _ref$componentInstanc2 === void 0 ? void 0 : _ref$componentInstanc2.subscribe(function () {
-          return _this3.remove.emit();
+        _this3.subscription('remove', (_ref$componentInstanc2 = ref.componentInstance.remove) === null || _ref$componentInstanc2 === void 0 ? void 0 : _ref$componentInstanc2.subscribe(function (_) {
+          return _this3.remove.emit(_);
         }));
         _this3.subscription('end', (_ref$componentInstanc3 = ref.componentInstance.end) === null || _ref$componentInstanc3 === void 0 ? void 0 : _ref$componentInstanc3.subscribe(function () {
           return _this3.end.emit();
@@ -28428,38 +28428,62 @@ function formatUTC(date) {
 function formatAllDay(date) {
   return "".concat((0, date_fns_1.format)(date, 'yyyyMMdd'));
 }
+function escapeText(text) {
+  return (text || '').replace(/\\|;|,|\n/g, function (match) {
+    switch (match) {
+      case '\\':
+        return '\\\\';
+      case ';':
+        return '\\;';
+      case ',':
+        return '\\,';
+      case '\n':
+        return '\\n';
+      default:
+        return match;
+    }
+  });
+}
 function generateCalendarFileLink(event) {
-  var _event$duration, _event$organiser, _event$host;
+  var _event$organiser;
+  if (!event) return 'data:text/calendar;charset=utf8,';
   var chunks = [];
-  var description = formatCalFileText("".concat(event.body || '').concat(event.id ? '\n\n[ID|' + event.id + ']' : ''));
-  var location = formatCalFileText("".concat(event.location));
+  var description = escapeText("".concat(event.body || '').concat(event.id ? '\n\n[ID|' + event.id + ']' : ''));
+  var location = escapeText("".concat(event.location));
   chunks.push(['BEGIN', 'VCALENDAR']);
   chunks.push(['VERSION', '2.0']);
   chunks.push(['BEGIN', 'VEVENT']);
-  chunks.push(['URL', "".concat(event.meeting_url)]);
-  chunks.push(['DTSTART', "".concat(new Date(event.all_day ? (0, date_fns_1.startOfMinute)((0, date_fns_1.set)(event.date, {
-    hours: 6,
-    minutes: 0
-  })) : event.date).toISOString())]);
-  chunks.push(['DTEND', "".concat(event.all_day ? (0, date_fns_1.startOfMinute)((0, date_fns_1.set)(event.date, {
-    hours: 18,
-    minutes: 0
-  })).toISOString() : (0, date_fns_1.addMinutes)(event.date, (_event$duration = event.duration) !== null && _event$duration !== void 0 ? _event$duration : 60).toISOString())]);
-  chunks.push(['SUMMARY', "".concat(event.title)]);
+  chunks.push(['UID', "".concat(event.id || 'uid-' + Date.now())]);
+  chunks.push(['DTSTAMP', formatUTC(new Date())]);
+  if (event.meeting_url) {
+    chunks.push(['URL', "".concat(event.meeting_url)]);
+  }
+  if (event.all_day) {
+    chunks.push(['DTSTART;VALUE=DATE', formatAllDay(event.date)]);
+    chunks.push(['DTEND;VALUE=DATE', formatAllDay((0, date_fns_1.addDays)(event.date, 1))]);
+  } else {
+    chunks.push(['DTSTART', formatUTC(event.date)]);
+    chunks.push(['DTEND', formatUTC((0, date_fns_1.addMinutes)(event.date, event.duration || 60))]);
+  }
+  chunks.push(['SUMMARY', escapeText(event.title)]);
   chunks.push(['DESCRIPTION', description]);
   chunks.push(['LOCATION', location]);
-  var host = ((_event$organiser = event.organiser) === null || _event$organiser === void 0 ? void 0 : _event$organiser.name) || ((_event$host = event.host) === null || _event$host === void 0 ? void 0 : _event$host.split('@')) || event.user_name || 'User';
-  chunks.push(['ORGANIZER', "CN=".concat(host, ":MAILTO:").concat(event.host || event.user_email)]);
-  var url_data = chunks.map(function (_ref) {
+  var hostEmail = event.host || event.user_email || "no-reply@place.tech";
+  var hostName = ((_event$organiser = event.organiser) === null || _event$organiser === void 0 ? void 0 : _event$organiser.name) || hostEmail.split('@')[0] || 'Staff';
+  chunks.push(['ORGANIZER', "CN=".concat(escapeText(hostName), ":mailto:").concat(hostEmail)]);
+  chunks.push(['END', 'VEVENT']);
+  chunks.push(['END', 'VCALENDAR']);
+  var content = chunks.map(function (_ref) {
     var _ref2 = _slicedToArray(_ref, 2),
       key = _ref2[0],
       value = _ref2[1];
-    return "".concat(key, ":").concat(encodeURIComponent(value));
-  }).join('\n');
+    return "".concat(key, ":").concat(value);
+  }).join('\r\n');
+  var url_data = encodeURIComponent(content);
   return "data:text/calendar;charset=utf8,".concat(url_data);
 }
 function generateGoogleCalendarLink(event) {
-  var _event$duration2, _event$resources;
+  var _event$duration, _event$resources;
   var fmt = event.all_day ? formatAllDay : formatUTC;
   var details = {
     action: 'TEMPLATE',
@@ -28467,7 +28491,7 @@ function generateGoogleCalendarLink(event) {
     details: "".concat(event.body || '').concat(event.id ? '\n\n[ID|' + event.id + ']' : ''),
     location: event.location,
     trp: false,
-    dates: "".concat(fmt(event.date), "/").concat(fmt((0, date_fns_1.addMinutes)(event.date, (_event$duration2 = event.duration) !== null && _event$duration2 !== void 0 ? _event$duration2 : 60)))
+    dates: "".concat(fmt(event.date), "/").concat(fmt((0, date_fns_1.addMinutes)(event.date, (_event$duration = event.duration) !== null && _event$duration !== void 0 ? _event$duration : 60)))
   };
   var emails = (event.attendees || []).map(function (_) {
     return _.email || _;
@@ -28479,14 +28503,14 @@ function generateGoogleCalendarLink(event) {
   return "https://calendar.google.com/calendar/render?".concat((0, api_1.toQueryString)(details));
 }
 function generateMicrosoftCalendarLink(event) {
-  var _event$duration3, _event$all_day, _event$resources2;
+  var _event$duration2, _event$all_day, _event$resources2;
   var type = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'office';
   if (!event.date) event.date = Date.now();
   var data = {
     path: '/calendar/action/compose',
     rru: 'addevent',
     startdt: new Date(event.date).toISOString(),
-    enddt: (0, date_fns_1.addMinutes)(event.date, (_event$duration3 = event.duration) !== null && _event$duration3 !== void 0 ? _event$duration3 : 60).toISOString(),
+    enddt: (0, date_fns_1.addMinutes)(event.date, (_event$duration2 = event.duration) !== null && _event$duration2 !== void 0 ? _event$duration2 : 60).toISOString(),
     subject: event.title,
     body: "".concat(event.body || '').concat(event.id ? '\n\n[ID|' + event.id + ']' : ''),
     location: event.location,
@@ -28501,9 +28525,6 @@ function generateMicrosoftCalendarLink(event) {
   });
   if (emails.length || resources.length) data.to = (0, general_1.unique)([].concat(_toConsumableArray(emails), _toConsumableArray(resources))).join();
   return type === 'office' ? "https://outlook.office.com/calendar/0/action/compose?".concat((0, api_1.toQueryString)(data)) : "https://outlook.live.com/calendar/0/action/compose?".concat((0, api_1.toQueryString)(data));
-}
-function formatCalFileText(str) {
-  return str.replace(/,/gm, ',').replace(/;/gm, ';').replace(/\r\n/gm, '\n').replace(/\n/gm, '\\n').replace(/(\\n)[\s\t]+/gm, '\\n');
 }
 
 /***/ }),
@@ -32575,15 +32596,15 @@ exports.VERSION = void 0;
 /* tslint:disable */
 exports.VERSION = {
   "dirty": false,
-  "raw": "beefb51",
-  "hash": "beefb51",
+  "raw": "3ee0493",
+  "hash": "3ee0493",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "beefb51",
+  "suffix": "3ee0493",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1729496123304
+  "time": 1729564086718
 };
 /* tslint:enable */
 
@@ -52492,6 +52513,17 @@ var ExploreParkingService = /*#__PURE__*/function (_common_1$AsyncHandle) {
         return _.tags.includes('parking');
       });
     }));
+    _this.booking_rules = _this._org.active_building.pipe((0, operators_1.filter)(function (bld) {
+      return !!bld;
+    }), (0, operators_1.switchMap)(function (bld) {
+      return (0, ts_client_1.showMetadata)(bld.id, "parking_booking_rules").pipe((0, operators_1.catchError)(function () {
+        return (0, rxjs_1.of)({
+          details: []
+        });
+      }));
+    }), (0, operators_1.map)(function (_) {
+      return (_ === null || _ === void 0 ? void 0 : _.details) instanceof Array ? _.details : [];
+    }), (0, operators_1.shareReplay)(1));
     /** List of current bookings for the current building */
     _this.events = (0, rxjs_1.combineLatest)([_this._org.active_building, _this._options, _this._poll, _this._state.options]).pipe((0, operators_1.debounceTime)(300), (0, operators_1.switchMap)(function (_ref) {
       var _ref2 = _slicedToArray(_ref, 4),
@@ -52544,23 +52576,36 @@ var ExploreParkingService = /*#__PURE__*/function (_common_1$AsyncHandle) {
     _this._users = {};
     _this._plate_numbers = {};
     /** Available parking spaces for the current level and date */
-    _this.available_spaces = (0, rxjs_1.combineLatest)([_this.events, _this.active_spaces, _this._parking.users]).pipe((0, operators_1.map)(function (_ref8) {
-      var _ref9 = _slicedToArray(_ref8, 3),
+    _this.available_spaces = (0, rxjs_1.combineLatest)([_this.events, _this.active_spaces, _this._parking.users, _this.booking_rules, _this._options]).pipe((0, operators_1.map)(function (_ref8) {
+      var _ref9 = _slicedToArray(_ref8, 5),
         events = _ref9[0],
         spaces = _ref9[1],
-        users = _ref9[2];
-      var available = spaces.filter(function (_) {
-        var _event$extension_data;
+        users = _ref9[2],
+        rules = _ref9[3],
+        date = _ref9[4].date;
+      var available = spaces.filter(function (space) {
+        var _ref10, _event$extension_data;
+        console.log('Space:', space);
         var event = events.find(function (e) {
-          return e.asset_id === _.id && !e.rejected;
+          return e.asset_id === space.id && !e.rejected;
         });
-        var assigned = "".concat((event === null || event === void 0 ? void 0 : event.user_email) || _.assigned_to || '').toLowerCase();
+        var level = _this._org.levelWithID([space.zone_id]);
+        var assigned = "".concat((event === null || event === void 0 ? void 0 : event.user_email) || space.assigned_to || '').toLowerCase();
         var user = users.find(function (u) {
           return u.email.toLowerCase() === assigned.toLowerCase();
         });
-        _this._users[_.id] = assigned;
-        _this._plate_numbers[_.id] = (event === null || event === void 0 || (_event$extension_data = event.extension_data) === null || _event$extension_data === void 0 ? void 0 : _event$extension_data.plate_number) || (user === null || user === void 0 ? void 0 : user.plate_number) || undefined;
-        return !event;
+        var is_restricted = (_ref10 = (0, common_1.rulesForResource)({
+          date: date || Date.now(),
+          duration: 60,
+          host: (0, common_1.currentUser)(),
+          resource: {
+            id: space.id,
+            zones: [level.parent_id, level.id]
+          }
+        }, rules)) === null || _ref10 === void 0 ? void 0 : _ref10.hidden;
+        _this._users[space.id] = assigned;
+        _this._plate_numbers[space.id] = (event === null || event === void 0 || (_event$extension_data = event.extension_data) === null || _event$extension_data === void 0 ? void 0 : _event$extension_data.plate_number) || (user === null || user === void 0 ? void 0 : user.plate_number) || undefined;
+        return !event && !is_restricted;
       });
       _this._updateParkingSpaces(spaces, available);
       return available;
@@ -52656,7 +52701,7 @@ var ExploreParkingService = /*#__PURE__*/function (_common_1$AsyncHandle) {
                       return _context2.abrupt("return", 1);
                     case 9:
                       book_fn = /*#__PURE__*/function () {
-                        var _ref10 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
+                        var _ref11 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
                           var _space$groups, _this3$_org$region;
                           var _space$zone, _space$zone2, user, user_email, zone, date;
                           return _regeneratorRuntime().wrap(function _callee$(_context) {
@@ -52715,7 +52760,6 @@ var ExploreParkingService = /*#__PURE__*/function (_common_1$AsyncHandle) {
                                 user_email = user === null || user === void 0 ? void 0 : user.email;
                                 zone = _this3._org.levelWithID([space.zone_id || space.zone]) || _this3._state.active_level;
                                 date = !options.date || (0, date_fns_1.isSameDay)(options.date, Date.now()) ? (0, date_fns_1.startOfMinute)(Date.now()).valueOf() : (0, date_fns_1.setHours)(options.date, 8).valueOf();
-                                debugger;
                                 _this3._bookings.form.patchValue({
                                   resources: [space],
                                   asset_id: space.id,
@@ -52730,25 +52774,25 @@ var ExploreParkingService = /*#__PURE__*/function (_common_1$AsyncHandle) {
                                   booking_type: 'parking',
                                   zones: [_this3._org.organisation.id, (_this3$_org$region = _this3._org.region) === null || _this3$_org$region === void 0 ? void 0 : _this3$_org$region.id, zone.parent_id, zone.id]
                                 });
-                                _context.next = 26;
+                                _context.next = 25;
                                 return _this3._bookings.confirmPost()["catch"](function (e) {
                                   if (e === 'User cancelled') throw e;
                                   (0, common_1.notifyError)("Failed to book parking space ".concat(space.name || space.id, ". ").concat(e.message || e.error || e));
                                   throw e;
                                 });
-                              case 26:
+                              case 25:
                                 (0, common_1.notifySuccess)("Successfully booked parking space ".concat(space.name || space.id));
                                 _this3.timeout('poll', function () {
                                   return _this3._poll.next(Date.now());
                                 }, 1000);
-                              case 28:
+                              case 27:
                               case "end":
                                 return _context.stop();
                             }
                           }, _callee);
                         }));
                         return function book_fn() {
-                          return _ref10.apply(this, arguments);
+                          return _ref11.apply(this, arguments);
                         };
                       }();
                       actions.push({
