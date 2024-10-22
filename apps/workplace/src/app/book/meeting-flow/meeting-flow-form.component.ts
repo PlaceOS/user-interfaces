@@ -583,6 +583,10 @@ export class MeetingFlowFormComponent extends AsyncHandler {
 
     public readonly clearForm = () => this._state.resetForm();
 
+    public get allow_daily_allday_recurrence() {
+        return this._settings.get('app.events.allow_daily_allday_recurrence');
+    }
+
     public readonly viewConfirm = () => {
         if (!this.form.value.host)
             this.form.patchValue({ host: currentUser()?.email });
@@ -592,6 +596,15 @@ export class MeetingFlowFormComponent extends AsyncHandler {
         ) {
             return notifyError(
                 'Attendee count is greater than the capacity of the selected rooms',
+            );
+        }
+        if (
+            !this.allow_daily_allday_recurrence &&
+            this.form.value.all_day &&
+            this.form.value.recurrence?.pattern === 'daily'
+        ) {
+            return notifyError(
+                'Daily recurrence for all day meetings are not allowed.',
             );
         }
         this.form.markAllAsTouched();

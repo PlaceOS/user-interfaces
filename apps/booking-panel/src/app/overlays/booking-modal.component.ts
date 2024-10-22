@@ -2,7 +2,12 @@ import { Component, EventEmitter, Output, Inject } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 
-import { DialogEvent, HashMap, AsyncHandler } from '@placeos/common';
+import {
+    DialogEvent,
+    HashMap,
+    AsyncHandler,
+    currentUser,
+} from '@placeos/common';
 import { Space } from '@placeos/spaces';
 import { first, shareReplay, switchMap } from 'rxjs/operators';
 import { User } from '@placeos/users';
@@ -151,8 +156,11 @@ export class BookingModalComponent extends AsyncHandler {
         if (this._data.disable_book_now_host) {
             this.form.controls.organiser.setValidators([]);
             this.hide_host = true;
+        } else {
+            this.form.patchValue({
+                organiser: this._data.user || currentUser(),
+            });
         }
-        console.log('Data:', this._data);
     }
 
     public searchStaff = (q: string) =>

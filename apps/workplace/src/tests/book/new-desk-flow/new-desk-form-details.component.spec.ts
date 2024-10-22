@@ -24,6 +24,7 @@ import { DeskListFieldComponent } from 'libs/bookings/src/lib/desk-list-field.co
 import { AssetListFieldComponent } from 'libs/assets/src/lib/asset-list-field.component';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 import { BehaviorSubject, of } from 'rxjs';
+import { RecurrenceFieldComponent } from 'libs/form-fields/src/lib/recurrence-field.component';
 
 describe('NewDeskFormDetailsComponent', () => {
     let spectator: Spectator<NewDeskFormDetailsComponent>;
@@ -60,6 +61,7 @@ describe('NewDeskFormDetailsComponent', () => {
             MockComponent(DeskListFieldComponent),
             MockComponent(UserListFieldComponent),
             MockComponent(UserSearchFieldComponent),
+            MockComponent(RecurrenceFieldComponent),
         ],
         imports: [
             MockModule(MatCheckboxModule),

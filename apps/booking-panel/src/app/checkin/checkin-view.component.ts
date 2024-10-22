@@ -15,6 +15,7 @@ import { PanelStateService } from '../panel-state.service';
         <div class="bg-black relative text-white p-4 h-32">
             <div
                 class="bg-cover bg-center absolute inset-0"
+                *ngIf="room_image"
                 [style.background-image]="'url(' + room_image + ')'"
             ></div>
             <div class="absolute inset-0 bg-black opacity-50"></div>

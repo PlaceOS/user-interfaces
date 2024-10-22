@@ -79,16 +79,17 @@ export class DateOptionsComponent {
     @Input() public week_start: number = 0;
     /** Currently selected date */
     @Input() public date: number | string = new Date().valueOf();
+    @Input() public step = 1;
     /** Emitter for changes to the date */
     @Output() public dateChange = new EventEmitter<number | string>();
     /** Change date to the previous date */
     public readonly previousDay = () => {
-        this.date = subDays(new Date(this.date), 1).valueOf();
+        this.date = subDays(new Date(this.date), this.step).valueOf();
         this.dateChange.emit(this.date);
     };
     /** Change date to the next date */
     public readonly nextDay = () => {
-        this.date = addDays(new Date(this.date), 1).valueOf();
+        this.date = addDays(new Date(this.date), this.step).valueOf();
         this.dateChange.emit(this.date);
     };
 

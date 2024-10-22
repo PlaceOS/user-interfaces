@@ -204,7 +204,11 @@ export const saveBooking = (
     if (q) delete (q as any).instance;
     return id
         ? instance
-            ? updateBookingInstance(id, data.instance, data)
+            ? updateBookingInstance(
+                  id,
+                  data.instance || data.booking_start,
+                  data,
+              )
             : updateBooking(id, data)
         : createBooking(data, q);
 };

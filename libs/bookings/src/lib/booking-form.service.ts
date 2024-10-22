@@ -551,14 +551,17 @@ export class BookingFormService extends AsyncHandler {
         delete value.event_id;
         delete value.parent_id;
         const resources = value.resources || [];
-        const zones = resources[0]?.zone
-            ? unique([
-                  this._org.organisation.id,
-                  this._org.region?.id,
-                  resources[0]?.zone?.parent_id,
-                  resources[0]?.zone?.id,
-              ])
-            : [this._org.organisation.id, this._org.region?.id];
+        const zone =
+            this._org.levelWithID(resources[0]?.zone_id) || resources[0]?.zone;
+        const zones =
+            zone && zone instanceof Object
+                ? unique([
+                      this._org.organisation.id,
+                      this._org.region?.id,
+                      zone.parent_id,
+                      zone.id,
+                  ])
+                : [this._org.organisation.id, this._org.region?.id];
         const q: any = event_id
             ? { ical_uid: value.ical_uid, event_id: event_id }
             : parent_id

@@ -432,7 +432,10 @@ export class ParkingStateService extends AsyncHandler {
                     external_user,
                 },
             });
-            ref.afterClosed().subscribe((id) => resolve(id));
+            ref.afterClosed().subscribe((id) => {
+                resolve(id);
+                this._poll.next(Date.now());
+            });
         });
     }
 

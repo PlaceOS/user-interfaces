@@ -135,8 +135,19 @@ const EMPTY_ACTIONS = [];
                     </h3>
                     <div class="flex items-center px-2 space-x-2">
                         <app-icon>event</app-icon>
-                        <div>
-                            {{ event.date | date: 'EEEE, dd LLLL y' }}
+                        <div class="flex flex-col leading-tight">
+                            <div>
+                                {{ event.date | date: 'EEEE, dd LLLL y' }}
+                            </div>
+                            <div
+                                class="opacity-30 text-xs"
+                                *ngIf="timezone && tz && !tz_date_same"
+                            >
+                                {{
+                                    event.date
+                                        | date: 'EEEE, dd LLLL y (z)' : tz
+                                }}
+                            </div>
                         </div>
                     </div>
                     <div class="flex items-center px-2 space-x-2">
@@ -637,6 +648,12 @@ export class EventDetailsModalComponent {
         if (!tz) return '';
         const tz_offset = getTimezoneOffsetString(tz);
         return tz_offset === this._local_tz ? '' : tz_offset;
+    }
+
+    public get tz_date_same() {
+        return !this._date
+            .transform(this.event.date, 'yyyy-MM-dd', this.tz)
+            .localeCompare(this._date.transform(this.event.date, 'yyyy-MM-dd'));
     }
 
     public accept_count = this._event.attendees.reduce(

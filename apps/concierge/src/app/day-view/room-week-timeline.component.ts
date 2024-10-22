@@ -6,11 +6,14 @@ import {
     startOfMinute,
     startOfWeek,
     format,
+    setHours,
 } from 'date-fns';
 import { EventsStateService } from './events-state.service';
 import { MatDialog } from '@angular/material/dialog';
 import {
     AsyncHandler,
+    getTimezoneOffsetInMinutes,
+    getTimezoneOffsetString,
     notifyError,
     notifySuccess,
     openConfirmModal,
@@ -24,15 +27,25 @@ import {
     EventDetailsModalComponent,
     SetupBreakdownModalComponent,
 } from '@placeos/events';
+import { OrganisationService } from '@placeos/organisation';
+import { DatePipe } from '@angular/common';
 
 @Component({
     selector: 'room-week-bookings-timeline',
     template: `
         <div
+            class="mx-2 mt-2 p-2 w-[calc(100%-1rem)] bg-info text-info-content rounded-lg text-center text-xs"
+            *ngIf="timezone && tz"
+        >
+            Timezone of the building is displayed and is different from your
+            local timezone.
+        </div>
+        <div
             class="relative flex items-center justify-center p-2 space-x-2 border-b border-base-200 z-20"
         >
             <date-options
                 [date]="date | async"
+                [step]="7"
                 (dateChange)="setDate($event)"
                 [is_new]="true"
             ></date-options>
@@ -54,7 +67,7 @@ import {
                 class="sticky top-0 left-0 z-30 bg-base-100 flex items-center justify-center"
             >
                 <div class="text-xs opacity-30">
-                    {{ date | async | date: 'z' }}
+                    {{ date | async | date: 'z' : tz }}
                 </div>
                 <div
                     class="absolute h-2 w-px right-0 bottom-0 bg-base-300"
@@ -73,9 +86,12 @@ import {
                     class="relative flex-1 h-full min-w-48 flex flex-col items-center justify-center leading-tight"
                 >
                     <div class="truncate">
-                        {{ date | date: 'EEE, MMM d' }}
+                        {{ date | date: 'EEE, MMM d' : tz }}
                     </div>
-                    <div class="text-info text-xs" *ngIf="isToday(date)">
+                    <div
+                        class="text-info text-xs absolute bottom-1 left-1/2 -translate-x-1/2"
+                        *ngIf="isToday(date)"
+                    >
                         Today
                     </div>
                     <div
@@ -119,9 +135,12 @@ import {
                                 {{ event.title }}
                             </div>
                             <div class="text-xs opacity-60 flex-1">
-                                {{ event.date | date: time_format }}
+                                {{ event.date | date: time_format : tz }}
                                 &ndash;
-                                {{ event.date_end | date: time_format }}
+                                {{ event.date_end | date: time_format : tz }}
+                                <span *ngIf="tz">{{
+                                    event.date_end | date: 'z' : tz
+                                }}</span>
                             </div>
                             <div class="text-xs truncate opacity-30">
                                 {{ event.system?.display_name }}
@@ -165,12 +184,22 @@ export class RoomWeekBookingsTimelineComponent extends AsyncHandler {
         map((d) =>
             new Array(7)
                 .fill(0)
-                .map((_, idx) => addDays(startOfWeek(d), idx).valueOf()),
+                .map((_, idx) =>
+                    addDays(
+                        setHours(
+                            startOfWeek(d),
+                            12 - Math.floor(this.timezone_offset / 60),
+                        ),
+                        idx,
+                    ).valueOf(),
+                ),
         ),
     );
     public readonly this_week = this.date.pipe(
         map((d) => isSameWeek(d, Date.now())),
     );
+
+    private _data_pipe = new DatePipe('en');
 
     public readonly events = combineLatest([
         this.days,
@@ -183,12 +212,25 @@ export class RoomWeekBookingsTimelineComponent extends AsyncHandler {
                     _.system?.zones.find((_) => zones.includes(_)),
                 );
             }
+
             const map: Record<string, CalendarEvent[]> = {};
             for (const date of day_list) {
-                map[date] = events.filter(
-                    (event) =>
-                        isSameDay(date, event.date) && !event.is_system_event,
+                const date_value = this._data_pipe.transform(
+                    date,
+                    'yyyy-MM-dd',
+                    this.tz,
                 );
+                map[date] = events.filter((event) => {
+                    const event_date_value = this._data_pipe.transform(
+                        event.date,
+                        'yyyy-MM-dd',
+                        this.tz,
+                    );
+                    return (
+                        date_value === event_date_value &&
+                        !event.is_system_event
+                    );
+                });
             }
             return map;
         }),
@@ -204,6 +246,29 @@ export class RoomWeekBookingsTimelineComponent extends AsyncHandler {
             return length;
         }),
     );
+
+    private _local_tz = getTimezoneOffsetString(
+        Intl.DateTimeFormat().resolvedOptions().timeZone,
+    );
+
+    public get timezone() {
+        return this._settings.get('app.events.use_building_timezone')
+            ? this._org.building.timezone
+            : '';
+    }
+
+    public get tz() {
+        const tz = this.timezone;
+        if (!tz) return '';
+        const tz_offset = getTimezoneOffsetString(tz);
+        return tz_offset === this._local_tz ? '' : tz_offset;
+    }
+
+    public get timezone_offset() {
+        return getTimezoneOffsetInMinutes(
+            this.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
+        );
+    }
 
     public get now() {
         return startOfMinute(Date.now()).valueOf();
@@ -224,6 +289,7 @@ export class RoomWeekBookingsTimelineComponent extends AsyncHandler {
         private _state: EventsStateService,
         private _dialog: MatDialog,
         private _settings: SettingsService,
+        private _org: OrganisationService,
     ) {
         super();
     }

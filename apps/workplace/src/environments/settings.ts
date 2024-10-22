@@ -76,6 +76,7 @@ const events: any = {
     booking_unavailable: false,
     allow_externals: true,
     allow_recurrence: false,
+    allow_daily_allday_recurrence: false,
 };
 /*===========================*\
 ||  SPACE LISTING SETTINGS   ||
@@ -197,6 +198,7 @@ const app: any = {
         allow_all_day: true,
         auto_allocation: false,
         show_calendar_links: true,
+        allow_recurrence: true,
         hide_map: false,
     },
     parking: {

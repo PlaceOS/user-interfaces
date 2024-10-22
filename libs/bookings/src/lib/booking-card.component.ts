@@ -109,7 +109,7 @@ export class BookingCardComponent extends AsyncHandler {
     @Input() public booking: Booking;
     @Input() public show_day: boolean = false;
     @Output() public edit = new EventEmitter();
-    @Output() public remove = new EventEmitter();
+    @Output() public remove = new EventEmitter<boolean>();
     @Output() public end = new EventEmitter();
 
     public raw_description = '';
@@ -231,8 +231,8 @@ export class BookingCardComponent extends AsyncHandler {
             );
             this.subscription(
                 'remove',
-                ref.componentInstance.remove?.subscribe(() =>
-                    this.remove.emit(),
+                ref.componentInstance.remove?.subscribe((_) =>
+                    this.remove.emit(_),
                 ),
             );
             this.subscription(
