@@ -48,7 +48,7 @@ export enum ZoomDirection {
                                 btn
                                 matRipple
                                 class="w-48"
-                                [class.inverse]="preset === name"
+                                [class.inverse]="preset !== name"
                                 (click)="recallPreset(name)"
                             >
                                 {{ name }}
@@ -57,7 +57,7 @@ export enum ZoomDirection {
                                 icon
                                 matRipple
                                 *ngIf="presets?.length > 1"
-                                class="rounded bg-error text-white"
+                                class="rounded border-error bg-base-100 text-error h-12 w-12"
                                 (click)="removePreset(name)"
                             >
                                 <app-icon>delete</app-icon>
@@ -200,7 +200,7 @@ export class CameraTooltipComponent extends AsyncHandler {
     constructor(
         private _state: ControlStateService,
         private _tooltip: CustomTooltipData,
-        private _renderer: Renderer2
+        private _renderer: Renderer2,
     ) {
         super();
     }
@@ -215,7 +215,7 @@ export class CameraTooltipComponent extends AsyncHandler {
                 if (!l?.length) return;
                 this.active_camera =
                     l.find((_) => _.id === cam) || this.active_camera || l[0];
-            })
+            }),
         );
     }
 
@@ -255,15 +255,15 @@ export class CameraTooltipComponent extends AsyncHandler {
                 if (this.tilt !== JoystickTilt.Stop)
                     await mod.execute(
                         'tilt',
-                        index ? [this.tilt, index] : [this.tilt]
+                        index ? [this.tilt, index] : [this.tilt],
                     );
                 if (this.pan !== JoystickPan.Stop)
                     await mod.execute(
                         'pan',
-                        index ? [this.pan, index] : [this.pan]
+                        index ? [this.pan, index] : [this.pan],
                     );
             },
-            50
+            50,
         );
     }
 
@@ -281,7 +281,7 @@ export class CameraTooltipComponent extends AsyncHandler {
                 this.unsub('on_end');
                 this.zoom = ZoomDirection.Stop;
                 mod.execute('zoom', index ? [this.zoom, index] : [this.zoom]);
-            })
+            }),
         );
     }
 }
