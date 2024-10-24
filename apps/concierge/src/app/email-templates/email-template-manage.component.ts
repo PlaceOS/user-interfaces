@@ -258,7 +258,7 @@ export class EmailTemplateManageComponent extends AsyncHandler {
     }
 
     public copyField(field: string) {
-        this._clipboard.copy(`%{field}`);
+        this._clipboard.copy(`%{${field}}`);
         notifySuccess(`Copied field "${field}" to clipboard.`);
     }
 
