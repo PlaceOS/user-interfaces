@@ -156,8 +156,14 @@ export class EventsStateService extends AsyncHandler {
                     : period === 'week'
                       ? endOfWeek
                       : endOfDay;
-            const start = addMinutes(start_fn(date), this.tz_offset * 60);
-            const end = addMinutes(end_fn(date), this.tz_offset * 60);
+            const start = addMinutes(
+                start_fn(date, { weekStartsOn: this._week_start }),
+                this.tz_offset * 60,
+            );
+            const end = addMinutes(
+                end_fn(date, { weekStartsOn: this._week_start }),
+                this.tz_offset * 60,
+            );
             return this.filterEvents(events, start, end, filters, zones);
         }),
         shareReplay(1),
@@ -280,6 +286,10 @@ export class EventsStateService extends AsyncHandler {
             : '';
         const current_tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
         return !tz ? 0 : getTimezoneDifferenceInHours(current_tz, tz);
+    }
+
+    private get _week_start() {
+        return this._settings.get('app.week_start');
     }
 
     public getDate() {
