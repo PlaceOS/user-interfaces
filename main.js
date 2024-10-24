@@ -3083,7 +3083,7 @@ function CameraTooltipComponent_div_0_ng_container_9_div_1_Template(rf, ctx) {
     const name_r5 = ctx.$implicit;
     const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵnextContext"](3);
     _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵclassProp"]("inverse", ctx_r1.preset === name_r5);
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵclassProp"]("inverse", ctx_r1.preset !== name_r5);
     _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtextInterpolate1"](" ", name_r5, " ");
     _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"]();
@@ -3370,7 +3370,7 @@ class CameraTooltipComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_1_
     features: [_angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵInheritDefinitionFeature"]],
     decls: 5,
     vars: 5,
-    consts: [["empty_state", ""], ["no_presets", ""], ["menu", "matMenu"], ["class", "my-2 bg-base-100 shadow rounded flex flex-col", 4, "ngIf", "ngIfElse"], ["hidden", "", 4, "ngIf"], [1, "my-2", "bg-base-100", "shadow", "rounded", "flex", "flex-col"], ["appearance", "outline", 1, "m-4", "h-12"], ["placeholder", "Select Camera", 3, "ngModelChange", "ngModel"], [3, "value", 4, "ngFor", "ngForOf"], [1, "flex", "relative", "border-t", "border-base-200", "mt-1"], [1, "flex", "flex-col", "items-center", "border-r", "border-base-200", "p-4", "space-y-2", "relative"], [1, "mb-2", "text-xl", "font-medium", "pr-12"], [4, "ngIf", "ngIfElse"], ["icon", "", "matRipple", "", 1, "absolute", "top-1", "right-4", 3, "matMenuTriggerFor"], [1, "px-2", "w-full", "flex", "flex-col"], ["appearance", "outline", 1, "w-full", "h-[3.5rem]", 3, "click"], ["matInput", "", "placeholder", "New preset name", 3, "ngModelChange", "ngModel"], ["btn", "", "matRipple", "", 1, "w-full", 3, "click", "disabled"], [1, "p-4"], [1, "mb-2", "text-xl", "font-medium"], [1, "flex", "items-center", "space-x-2"], [3, "panChange", "tiltChange", "pan", "tilt"], ["zoom", "", 1, "flex", "flex-col", "items-center", "border", "border-base-200", "rounded"], ["zoom-in", "", "icon", "", "matRipple", "", 1, "rounded", 3, "mousedown", "touchstart", "contextmenu"], [1, "text-xs", "h-10", "w-10", "flex", "items-center", "justify-center", "border-t", "border-b", "border-base-200"], ["zoom-out", "", "icon", "", "matRipple", "", 1, "rounded", 3, "mousedown", "touchstart", "contextmenu"], ["class", "absolute inset-0 bg-base-100 bg-opacity-75 flex items-center justify-center", 4, "ngIf"], [3, "value"], ["class", "flex items-center space-x-2", 4, "ngFor", "ngForOf"], ["preset", "", "btn", "", "matRipple", "", 1, "w-48", 3, "click"], ["icon", "", "matRipple", "", "class", "rounded bg-error text-white", 3, "click", 4, "ngIf"], ["icon", "", "matRipple", "", 1, "rounded", "bg-error", "text-white", 3, "click"], [1, "absolute", "inset-0", "bg-base-100", "bg-opacity-75", "flex", "items-center", "justify-center"], ["hidden", ""], ["binding", "", 3, "modelChange", "sys", "mod", "bind"], [1, "my-2", "bg-base-100", "shadow", "rounded", "flex", "flex-col", "p-8", "text-center"]],
+    consts: [["empty_state", ""], ["no_presets", ""], ["menu", "matMenu"], ["class", "my-2 bg-base-100 shadow rounded flex flex-col", 4, "ngIf", "ngIfElse"], ["hidden", "", 4, "ngIf"], [1, "my-2", "bg-base-100", "shadow", "rounded", "flex", "flex-col"], ["appearance", "outline", 1, "m-4", "h-12"], ["placeholder", "Select Camera", 3, "ngModelChange", "ngModel"], [3, "value", 4, "ngFor", "ngForOf"], [1, "flex", "relative", "border-t", "border-base-200", "mt-1"], [1, "flex", "flex-col", "items-center", "border-r", "border-base-200", "p-4", "space-y-2", "relative"], [1, "mb-2", "text-xl", "font-medium", "pr-12"], [4, "ngIf", "ngIfElse"], ["icon", "", "matRipple", "", 1, "absolute", "top-1", "right-4", 3, "matMenuTriggerFor"], [1, "px-2", "w-full", "flex", "flex-col"], ["appearance", "outline", 1, "w-full", "h-[3.5rem]", 3, "click"], ["matInput", "", "placeholder", "New preset name", 3, "ngModelChange", "ngModel"], ["btn", "", "matRipple", "", 1, "w-full", 3, "click", "disabled"], [1, "p-4"], [1, "mb-2", "text-xl", "font-medium"], [1, "flex", "items-center", "space-x-2"], [3, "panChange", "tiltChange", "pan", "tilt"], ["zoom", "", 1, "flex", "flex-col", "items-center", "border", "border-base-200", "rounded"], ["zoom-in", "", "icon", "", "matRipple", "", 1, "rounded", 3, "mousedown", "touchstart", "contextmenu"], [1, "text-xs", "h-10", "w-10", "flex", "items-center", "justify-center", "border-t", "border-b", "border-base-200"], ["zoom-out", "", "icon", "", "matRipple", "", 1, "rounded", 3, "mousedown", "touchstart", "contextmenu"], ["class", "absolute inset-0 bg-base-100 bg-opacity-75 flex items-center justify-center", 4, "ngIf"], [3, "value"], ["class", "flex items-center space-x-2", 4, "ngFor", "ngForOf"], ["preset", "", "btn", "", "matRipple", "", 1, "w-48", 3, "click"], ["icon", "", "matRipple", "", "class", "rounded border border-error bg-base-100 text-error h-12 w-12", 3, "click", 4, "ngIf"], ["icon", "", "matRipple", "", 1, "rounded", "border", "border-error", "bg-base-100", "text-error", "h-12", "w-12", 3, "click"], [1, "absolute", "inset-0", "bg-base-100", "bg-opacity-75", "flex", "items-center", "justify-center"], ["hidden", ""], ["binding", "", 3, "modelChange", "sys", "mod", "bind"], [1, "my-2", "bg-base-100", "shadow", "rounded", "flex", "flex-col", "p-8", "text-center"]],
     template: function CameraTooltipComponent_Template(rf, ctx) {
       if (rf & 1) {
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtemplate"](0, CameraTooltipComponent_div_0_Template, 37, 12, "div", 3);
@@ -24866,15 +24866,15 @@ __webpack_require__.r(__webpack_exports__);
 /* tslint:disable */
 const VERSION = {
   "dirty": false,
-  "raw": "bfe21ee",
-  "hash": "bfe21ee",
+  "raw": "2c16b3a",
+  "hash": "2c16b3a",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "bfe21ee",
+  "suffix": "2c16b3a",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1729640607372
+  "time": 1729731949635
 };
 /* tslint:enable */
 
