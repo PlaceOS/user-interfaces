@@ -35,7 +35,7 @@ import { endOfDay, startOfDay } from 'date-fns';
                     </mat-option>
                 </mat-select>
             </mat-form-field>
-            <date-range-field>
+            <date-range-field [week_start]="week_start">
                 <input
                     #startDate
                     [ngModel]="start"
@@ -158,6 +158,10 @@ export class ReportsOptionsComponent extends AsyncHandler {
 
     public get use_region() {
         return !!this._settings.get('app.use_region');
+    }
+
+    public get week_start() {
+        return this._settings.get('app.week_start');
     }
 
     constructor(

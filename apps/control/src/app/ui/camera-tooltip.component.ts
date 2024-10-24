@@ -57,7 +57,7 @@ export enum ZoomDirection {
                                 icon
                                 matRipple
                                 *ngIf="presets?.length > 1"
-                                class="rounded border-error bg-base-100 text-error h-12 w-12"
+                                class="rounded border border-error bg-base-100 text-error h-12 w-12"
                                 (click)="removePreset(name)"
                             >
                                 <app-icon>delete</app-icon>

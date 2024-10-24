@@ -180,14 +180,17 @@ export class RoomWeekBookingsTimelineComponent extends AsyncHandler {
         { id: 'cancelled', name: 'Cancelled', color: '#eeeeee' },
     ];
 
-    public readonly days = this.date.pipe(
-        map((d) =>
+    public readonly days = combineLatest([
+        this.date,
+        this._org.active_building,
+    ]).pipe(
+        map(([d]) =>
             new Array(7)
                 .fill(0)
                 .map((_, idx) =>
                     addDays(
                         setHours(
-                            startOfWeek(d),
+                            startOfWeek(d, { weekStartsOn: this._week_start }),
                             12 - Math.floor(this.timezone_offset / 60),
                         ),
                         idx,
@@ -246,6 +249,10 @@ export class RoomWeekBookingsTimelineComponent extends AsyncHandler {
             return length;
         }),
     );
+
+    private get _week_start() {
+        return this._settings.get('app.week_start');
+    }
 
     private _local_tz = getTimezoneOffsetString(
         Intl.DateTimeFormat().resolvedOptions().timeZone,
