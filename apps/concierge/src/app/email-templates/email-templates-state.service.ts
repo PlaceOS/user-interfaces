@@ -15,6 +15,7 @@ import {
     shareReplay,
     switchMap,
     take,
+    tap,
 } from 'rxjs/operators';
 
 export interface EmailTemplate {
@@ -68,6 +69,8 @@ export class EmailTemplatesStateService {
                                 ({
                                     id: key,
                                     name: definitions[key].name,
+                                    name_details:
+                                        definitions[key].name.split(':'),
                                     description:
                                         definitions[key].description || '',
                                     fields: definitions[key].fields.map(
@@ -83,6 +86,7 @@ export class EmailTemplatesStateService {
                 )
                 .pipe(catchError(() => of([] as EmailTemplateDefinition[]))),
         ),
+        tap((_) => console.log('Templates:', _)),
         shareReplay(1),
     );
 

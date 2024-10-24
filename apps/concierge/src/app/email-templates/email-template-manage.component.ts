@@ -54,6 +54,7 @@ import { Clipboard } from '@angular/cdk/clipboard';
                                 placeholder="Select Building"
                                 formControlName="zone_id"
                             >
+                                <mat-option value=""> No Building </mat-option>
                                 <mat-option
                                     *ngFor="let bld of buildings | async"
                                     [value]="bld.id"
@@ -95,7 +96,17 @@ import { Clipboard } from '@angular/cdk/clipboard';
                                     *ngFor="let template of definitions | async"
                                     [value]="template.id"
                                 >
-                                    {{ template.name }}
+                                    <div
+                                        class="flex flex-col-reverse leading-tight my-2"
+                                    >
+                                        <div class="text-xs opacity-30">
+                                            {{ template.name_details[0] }}
+                                        </div>
+                                        <div class="text-sm">
+                                            {{ template.name_details[1] }}
+                                            <span class="opacity-0">:</span>
+                                        </div>
+                                    </div>
                                 </mat-option>
                             </mat-select>
                             <mat-error>A trigger is required</mat-error>
@@ -107,21 +118,31 @@ import { Clipboard } from '@angular/cdk/clipboard';
                         class="flex-1 mt-2"
                         matTooltip="Values that get replaced in the email template when sent"
                         [disabled]="!form.value.trigger"
+                        [matMenuTriggerFor]="tracking_menu"
                     >
                         Placeholders
                     </button>
-                    <mat-menu #tracking_menu="matMenu">
+                    <mat-menu #tracking_menu="matMenu" class="max-h-[24rem]">
                         <button
                             mat-menu-item
                             *ngFor="let field of active_trigger?.fields || []"
                             (click)="copyField(field.name)"
                         >
                             <div class="flex flex-col leading-tight">
-                                <div>{{ field.name }}</div>
+                                <div class="font-mono text-sm">
+                                    {{ field.name }}
+                                </div>
                                 <div class="text-xs opacity-30">
                                     {{ field.description }}
                                 </div>
                             </div>
+                        </button>
+                        <button
+                            mat-menu-item
+                            *ngIf="!(active_trigger?.fields || []).length"
+                            [disabled]="true"
+                        >
+                            No placeholders available
                         </button>
                     </mat-menu>
                 </div>
@@ -237,7 +258,7 @@ export class EmailTemplateManageComponent extends AsyncHandler {
     }
 
     public copyField(field: string) {
-        this._clipboard.copy(field);
+        this._clipboard.copy(`%{field}`);
         notifySuccess(`Copied field "${field}" to clipboard.`);
     }
 
