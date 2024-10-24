@@ -905,6 +905,9 @@ class EventsStateService extends _placeos_common__WEBPACK_IMPORTED_MODULE_1__.As
     const current_tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
     return !tz ? 0 : (0,_placeos_common__WEBPACK_IMPORTED_MODULE_1__.getTimezoneDifferenceInHours)(current_tz, tz);
   }
+  get _week_start() {
+    return this._settings.get('app.week_start');
+  }
   getDate() {
     return this._date.getValue();
   }
@@ -954,8 +957,12 @@ class EventsStateService extends _placeos_common__WEBPACK_IMPORTED_MODULE_1__.As
     this.filtered = (0,rxjs__WEBPACK_IMPORTED_MODULE_8__.combineLatest)([this._bookings, this._filters, this._date, this._period, this._zones]).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_15__.map)(([events, filters, date, period, zones]) => {
       const start_fn = period === 'month' ? date_fns__WEBPACK_IMPORTED_MODULE_17__.startOfMonth : period === 'week' ? date_fns__WEBPACK_IMPORTED_MODULE_18__.startOfWeek : date_fns__WEBPACK_IMPORTED_MODULE_19__.startOfDay;
       const end_fn = period === 'month' ? date_fns__WEBPACK_IMPORTED_MODULE_20__.endOfMonth : period === 'week' ? date_fns__WEBPACK_IMPORTED_MODULE_21__.endOfWeek : date_fns__WEBPACK_IMPORTED_MODULE_22__.endOfDay;
-      const start = (0,date_fns__WEBPACK_IMPORTED_MODULE_23__.addMinutes)(start_fn(date), this.tz_offset * 60);
-      const end = (0,date_fns__WEBPACK_IMPORTED_MODULE_23__.addMinutes)(end_fn(date), this.tz_offset * 60);
+      const start = (0,date_fns__WEBPACK_IMPORTED_MODULE_23__.addMinutes)(start_fn(date, {
+        weekStartsOn: this._week_start
+      }), this.tz_offset * 60);
+      const end = (0,date_fns__WEBPACK_IMPORTED_MODULE_23__.addMinutes)(end_fn(date, {
+        weekStartsOn: this._week_start
+      }), this.tz_offset * 60);
       return this.filterEvents(events, start, end, filters, zones);
     }), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_16__.shareReplay)(1));
     this.pending = (0,rxjs__WEBPACK_IMPORTED_MODULE_24__.of)(1).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_13__.switchMap)(() => {
@@ -13882,15 +13889,15 @@ __webpack_require__.r(__webpack_exports__);
 /* tslint:disable */
 const VERSION = {
   "dirty": false,
-  "raw": "bfe21ee",
-  "hash": "bfe21ee",
+  "raw": "2c16b3a",
+  "hash": "2c16b3a",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "bfe21ee",
+  "suffix": "2c16b3a",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1729640601796
+  "time": 1729731942884
 };
 /* tslint:enable */
 

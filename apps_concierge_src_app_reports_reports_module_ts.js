@@ -1608,15 +1608,18 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   ContactTracingOptionsComponent: () => (/* binding */ ContactTracingOptionsComponent)
 /* harmony export */ });
-/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @angular/core */ 37580);
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @angular/core */ 37580);
 /* harmony import */ var _contact_tracing_state_service__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./contact-tracing-state.service */ 90003);
-/* harmony import */ var _angular_forms__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @angular/forms */ 34456);
-/* harmony import */ var _angular_material_tooltip__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @angular/material/tooltip */ 80640);
-/* harmony import */ var _angular_material_core__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! @angular/material/core */ 74646);
-/* harmony import */ var _libs_form_fields_src_lib_date_range_field_component__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../../../../../libs/form-fields/src/lib/date-range-field.component */ 5472);
-/* harmony import */ var _libs_form_fields_src_lib_user_search_field_component__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../../../../libs/form-fields/src/lib/user-search-field.component */ 18000);
-/* harmony import */ var _libs_components_src_lib_icon_component__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../../../../../libs/components/src/lib/icon.component */ 69434);
-/* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! @angular/common */ 60316);
+/* harmony import */ var _placeos_common__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @placeos/common */ 22797);
+/* harmony import */ var _angular_forms__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @angular/forms */ 34456);
+/* harmony import */ var _angular_material_tooltip__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! @angular/material/tooltip */ 80640);
+/* harmony import */ var _angular_material_core__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! @angular/material/core */ 74646);
+/* harmony import */ var _libs_form_fields_src_lib_date_range_field_component__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../../../../libs/form-fields/src/lib/date-range-field.component */ 5472);
+/* harmony import */ var _libs_form_fields_src_lib_user_search_field_component__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../../../../../libs/form-fields/src/lib/user-search-field.component */ 18000);
+/* harmony import */ var _libs_components_src_lib_icon_component__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../../../../../libs/components/src/lib/icon.component */ 69434);
+/* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! @angular/common */ 60316);
+
+
 
 
 
@@ -1629,10 +1632,14 @@ __webpack_require__.r(__webpack_exports__);
 
 
 class ContactTracingOptionsComponent {
-  constructor(_state) {
+  get week_start() {
+    return this._settings.get('app.week_start');
+  }
+  constructor(_state, _settings) {
     this._state = _state;
-    this.printing = new _angular_core__WEBPACK_IMPORTED_MODULE_4__.EventEmitter();
-    this.download = new _angular_core__WEBPACK_IMPORTED_MODULE_4__.EventEmitter();
+    this._settings = _settings;
+    this.printing = new _angular_core__WEBPACK_IMPORTED_MODULE_5__.EventEmitter();
+    this.download = new _angular_core__WEBPACK_IMPORTED_MODULE_5__.EventEmitter();
     this.options = this._state.options;
     this.setOptions = _ => this._state.setOptions(_);
     this.generate = () => this._state.generateReport();
@@ -1645,9 +1652,9 @@ class ContactTracingOptionsComponent {
     }, 300);
   }
   static #_ = this.ɵfac = function ContactTracingOptionsComponent_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || ContactTracingOptionsComponent)(_angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵdirectiveInject"](_contact_tracing_state_service__WEBPACK_IMPORTED_MODULE_0__.ContactTracingStateService));
+    return new (__ngFactoryType__ || ContactTracingOptionsComponent)(_angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵdirectiveInject"](_contact_tracing_state_service__WEBPACK_IMPORTED_MODULE_0__.ContactTracingStateService), _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵdirectiveInject"](_placeos_common__WEBPACK_IMPORTED_MODULE_1__.SettingsService));
   };
-  static #_2 = this.ɵcmp = /*@__PURE__*/_angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵdefineComponent"]({
+  static #_2 = this.ɵcmp = /*@__PURE__*/_angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵdefineComponent"]({
     type: ContactTracingOptionsComponent,
     selectors: [["contact-tracing-options"]],
     outputs: {
@@ -1655,79 +1662,81 @@ class ContactTracingOptionsComponent {
       download: "download"
     },
     decls: 19,
-    vars: 15,
-    consts: [["startDate", ""], ["endDate", ""], [1, "flex", "items-center", "space-x-2", "w-full", "p-4", "bg-base-100", "shadow"], [3, "ngModelChange", "ngModel"], ["placeholder", "Search for user to trace...", 1, "w-64", 3, "ngModelChange", "ngModel"], [1, "flex-1"], ["icon", "", "matRipple", "", "matTooltip", "Download Report", 1, "h-12", "w-12", "rounded", "bg-secondary", "text-secondary-content", 3, "click", "disabled"], ["icon", "", "matRipple", "", "matTooltip", "Print Report", 1, "h-12", "w-12", "rounded", "bg-secondary", "text-secondary-content", 3, "click", "disabled"]],
+    vars: 16,
+    consts: [["startDate", ""], ["endDate", ""], [1, "flex", "items-center", "space-x-2", "w-full", "p-4", "bg-base-100", "shadow"], [3, "week_start"], [3, "ngModelChange", "ngModel"], ["placeholder", "Search for user to trace...", 1, "w-64", 3, "ngModelChange", "ngModel"], [1, "flex-1"], ["icon", "", "matRipple", "", "matTooltip", "Download Report", 1, "h-12", "w-12", "rounded", "bg-secondary", "text-secondary-content", 3, "click", "disabled"], ["icon", "", "matRipple", "", "matTooltip", "Print Report", 1, "h-12", "w-12", "rounded", "bg-secondary", "text-secondary-content", 3, "click", "disabled"]],
     template: function ContactTracingOptionsComponent_Template(rf, ctx) {
       if (rf & 1) {
-        const _r1 = _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵgetCurrentView"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementStart"](0, "div", 2)(1, "date-range-field")(2, "input", 3, 0);
-        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵpipe"](4, "async");
-        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵlistener"]("ngModelChange", function ContactTracingOptionsComponent_Template_input_ngModelChange_2_listener($event) {
-          _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵrestoreView"](_r1);
-          return _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵresetView"]($event ? ctx.setOptions({
+        const _r1 = _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵgetCurrentView"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementStart"](0, "div", 2)(1, "date-range-field", 3)(2, "input", 4, 0);
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpipe"](4, "async");
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵlistener"]("ngModelChange", function ContactTracingOptionsComponent_Template_input_ngModelChange_2_listener($event) {
+          _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵrestoreView"](_r1);
+          return _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵresetView"]($event ? ctx.setOptions({
             start: $event,
             user: null
           }) : "");
         });
-        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementEnd"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementStart"](5, "input", 3, 1);
-        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵpipe"](7, "async");
-        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵlistener"]("ngModelChange", function ContactTracingOptionsComponent_Template_input_ngModelChange_5_listener($event) {
-          _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵrestoreView"](_r1);
-          return _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵresetView"]($event ? ctx.setOptions({
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementStart"](5, "input", 4, 1);
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpipe"](7, "async");
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵlistener"]("ngModelChange", function ContactTracingOptionsComponent_Template_input_ngModelChange_5_listener($event) {
+          _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵrestoreView"](_r1);
+          return _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵresetView"]($event ? ctx.setOptions({
             end: $event,
             user: null
           }) : "");
         });
-        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementEnd"]()();
-        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementStart"](8, "a-user-search-field", 4);
-        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵpipe"](9, "async");
-        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵlistener"]("ngModelChange", function ContactTracingOptionsComponent_Template_a_user_search_field_ngModelChange_8_listener($event) {
-          _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵrestoreView"](_r1);
-          return _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵresetView"](ctx.setOptions({
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementEnd"]()();
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementStart"](8, "a-user-search-field", 5);
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpipe"](9, "async");
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵlistener"]("ngModelChange", function ContactTracingOptionsComponent_Template_a_user_search_field_ngModelChange_8_listener($event) {
+          _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵrestoreView"](_r1);
+          return _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵresetView"](ctx.setOptions({
             user: $event
           }));
         });
-        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementEnd"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelement"](10, "div", 5);
-        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementStart"](11, "button", 6);
-        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵpipe"](12, "async");
-        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵlistener"]("click", function ContactTracingOptionsComponent_Template_button_click_11_listener() {
-          _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵrestoreView"](_r1);
-          return _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵresetView"](ctx.download.emit());
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelement"](10, "div", 6);
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementStart"](11, "button", 7);
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpipe"](12, "async");
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵlistener"]("click", function ContactTracingOptionsComponent_Template_button_click_11_listener() {
+          _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵrestoreView"](_r1);
+          return _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵresetView"](ctx.download.emit());
         });
-        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementStart"](13, "app-icon");
-        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵtext"](14, "download");
-        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementEnd"]()();
-        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementStart"](15, "button", 7);
-        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵpipe"](16, "async");
-        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵlistener"]("click", function ContactTracingOptionsComponent_Template_button_click_15_listener() {
-          _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵrestoreView"](_r1);
-          return _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵresetView"](ctx.print());
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementStart"](13, "app-icon");
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵtext"](14, "download");
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementEnd"]()();
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementStart"](15, "button", 8);
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpipe"](16, "async");
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵlistener"]("click", function ContactTracingOptionsComponent_Template_button_click_15_listener() {
+          _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵrestoreView"](_r1);
+          return _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵresetView"](ctx.print());
         });
-        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementStart"](17, "app-icon");
-        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵtext"](18, "print");
-        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementEnd"]()()();
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementStart"](17, "app-icon");
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵtext"](18, "print");
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementEnd"]()()();
       }
       if (rf & 2) {
-        let tmp_2_0;
         let tmp_3_0;
         let tmp_4_0;
         let tmp_5_0;
         let tmp_6_0;
-        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵadvance"](2);
-        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵproperty"]("ngModel", (tmp_2_0 = _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵpipeBind1"](4, 5, ctx.options)) == null ? null : tmp_2_0.start);
-        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵadvance"](3);
-        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵproperty"]("ngModel", (tmp_3_0 = _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵpipeBind1"](7, 7, ctx.options)) == null ? null : tmp_3_0.end);
-        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵadvance"](3);
-        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵproperty"]("ngModel", (tmp_4_0 = _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵpipeBind1"](9, 9, ctx.options)) == null ? null : tmp_4_0.user);
-        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵadvance"](3);
-        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵproperty"]("disabled", !((tmp_5_0 = _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵpipeBind1"](12, 11, ctx.options)) == null ? null : tmp_5_0.user));
-        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵadvance"](4);
-        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵproperty"]("disabled", !((tmp_6_0 = _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵpipeBind1"](16, 13, ctx.options)) == null ? null : tmp_6_0.user));
+        let tmp_7_0;
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵadvance"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵproperty"]("week_start", ctx.week_start);
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵadvance"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵproperty"]("ngModel", (tmp_3_0 = _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpipeBind1"](4, 6, ctx.options)) == null ? null : tmp_3_0.start);
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵadvance"](3);
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵproperty"]("ngModel", (tmp_4_0 = _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpipeBind1"](7, 8, ctx.options)) == null ? null : tmp_4_0.end);
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵadvance"](3);
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵproperty"]("ngModel", (tmp_5_0 = _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpipeBind1"](9, 10, ctx.options)) == null ? null : tmp_5_0.user);
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵadvance"](3);
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵproperty"]("disabled", !((tmp_6_0 = _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpipeBind1"](12, 12, ctx.options)) == null ? null : tmp_6_0.user));
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵadvance"](4);
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵproperty"]("disabled", !((tmp_7_0 = _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpipeBind1"](16, 14, ctx.options)) == null ? null : tmp_7_0.user));
       }
     },
-    dependencies: [_angular_forms__WEBPACK_IMPORTED_MODULE_5__.DefaultValueAccessor, _angular_forms__WEBPACK_IMPORTED_MODULE_5__.NgControlStatus, _angular_forms__WEBPACK_IMPORTED_MODULE_5__.NgModel, _angular_material_tooltip__WEBPACK_IMPORTED_MODULE_6__.MatTooltip, _angular_material_core__WEBPACK_IMPORTED_MODULE_7__.MatRipple, _libs_form_fields_src_lib_date_range_field_component__WEBPACK_IMPORTED_MODULE_1__.DateRangeFieldComponent, _libs_form_fields_src_lib_user_search_field_component__WEBPACK_IMPORTED_MODULE_2__.UserSearchFieldComponent, _libs_components_src_lib_icon_component__WEBPACK_IMPORTED_MODULE_3__.IconComponent, _angular_common__WEBPACK_IMPORTED_MODULE_8__.AsyncPipe],
+    dependencies: [_angular_forms__WEBPACK_IMPORTED_MODULE_6__.DefaultValueAccessor, _angular_forms__WEBPACK_IMPORTED_MODULE_6__.NgControlStatus, _angular_forms__WEBPACK_IMPORTED_MODULE_6__.NgModel, _angular_material_tooltip__WEBPACK_IMPORTED_MODULE_7__.MatTooltip, _angular_material_core__WEBPACK_IMPORTED_MODULE_8__.MatRipple, _libs_form_fields_src_lib_date_range_field_component__WEBPACK_IMPORTED_MODULE_2__.DateRangeFieldComponent, _libs_form_fields_src_lib_user_search_field_component__WEBPACK_IMPORTED_MODULE_3__.UserSearchFieldComponent, _libs_components_src_lib_icon_component__WEBPACK_IMPORTED_MODULE_4__.IconComponent, _angular_common__WEBPACK_IMPORTED_MODULE_9__.AsyncPipe],
     styles: ["mat-form-field[_ngcontent-%COMP%] {\n                height: 3.25rem;\n            }\n\n            button[icon][disabled][_ngcontent-%COMP%] {\n                background-color: var(--n) !important;\n            }\n        \n/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImNvbnRhY3QtdHJhY2luZy1vcHRpb25zLmNvbXBvbmVudC50cyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiO1lBQ1k7Z0JBQ0ksZUFBZTtZQUNuQjs7WUFFQTtnQkFDSSxxQ0FBcUM7WUFDekMiLCJmaWxlIjoiY29udGFjdC10cmFjaW5nLW9wdGlvbnMuY29tcG9uZW50LnRzIiwic291cmNlc0NvbnRlbnQiOlsiXG4gICAgICAgICAgICBtYXQtZm9ybS1maWVsZCB7XG4gICAgICAgICAgICAgICAgaGVpZ2h0OiAzLjI1cmVtO1xuICAgICAgICAgICAgfVxuXG4gICAgICAgICAgICBidXR0b25baWNvbl1bZGlzYWJsZWRdIHtcbiAgICAgICAgICAgICAgICBiYWNrZ3JvdW5kLWNvbG9yOiB2YXIoLS1uKSAhaW1wb3J0YW50O1xuICAgICAgICAgICAgfVxuICAgICAgICAiXX0= */\n/*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIndlYnBhY2s6Ly8uL2FwcHMvY29uY2llcmdlL3NyYy9hcHAvcmVwb3J0cy9jb250YWN0LXRyYWNpbmcvY29udGFjdC10cmFjaW5nLW9wdGlvbnMuY29tcG9uZW50LnRzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiI7WUFDWTtnQkFDSSxlQUFlO1lBQ25COztZQUVBO2dCQUNJLHFDQUFxQztZQUN6Qzs7QUFFWixnbEJBQWdsQiIsInNvdXJjZXNDb250ZW50IjpbIlxuICAgICAgICAgICAgbWF0LWZvcm0tZmllbGQge1xuICAgICAgICAgICAgICAgIGhlaWdodDogMy4yNXJlbTtcbiAgICAgICAgICAgIH1cblxuICAgICAgICAgICAgYnV0dG9uW2ljb25dW2Rpc2FibGVkXSB7XG4gICAgICAgICAgICAgICAgYmFja2dyb3VuZC1jb2xvcjogdmFyKC0tbikgIWltcG9ydGFudDtcbiAgICAgICAgICAgIH1cbiAgICAgICAgIl0sInNvdXJjZVJvb3QiOiIifQ== */"]
   });
 }
@@ -3160,10 +3169,10 @@ __webpack_require__.r(__webpack_exports__);
 
 function ReportsOptionsComponent_mat_option_3_div_2_Template(rf, ctx) {
   if (rf & 1) {
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](0, "div", 16);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](0, "div", 17);
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtext"](1);
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵpipe"](2, "building");
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](3, "span", 17);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](3, "span", 18);
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtext"](4, " - ");
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]()();
   }
@@ -3176,8 +3185,8 @@ function ReportsOptionsComponent_mat_option_3_div_2_Template(rf, ctx) {
 }
 function ReportsOptionsComponent_mat_option_3_Template(rf, ctx) {
   if (rf & 1) {
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](0, "mat-option", 13)(1, "div", 14);
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtemplate"](2, ReportsOptionsComponent_mat_option_3_div_2_Template, 5, 3, "div", 15);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](0, "mat-option", 14)(1, "div", 15);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtemplate"](2, ReportsOptionsComponent_mat_option_3_div_2_Template, 5, 3, "div", 16);
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](3, "div");
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtext"](4);
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]()()();
@@ -3194,7 +3203,7 @@ function ReportsOptionsComponent_mat_option_3_Template(rf, ctx) {
 }
 function ReportsOptionsComponent_mat_spinner_11_Template(rf, ctx) {
   if (rf & 1) {
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelement"](0, "mat-spinner", 18);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelement"](0, "mat-spinner", 19);
   }
   if (rf & 2) {
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵproperty"]("diameter", 32);
@@ -3210,6 +3219,9 @@ function ReportsOptionsComponent_p_12_Template(rf, ctx) {
 class ReportsOptionsComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_1__.AsyncHandler {
   get use_region() {
     return !!this._settings.get('app.use_region');
+  }
+  get week_start() {
+    return this._settings.get('app.week_start');
   }
   constructor(_org, _settings, _route, _router) {
     super();
@@ -3319,8 +3331,8 @@ class ReportsOptionsComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_1
     },
     features: [_angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵInheritDefinitionFeature"]],
     decls: 20,
-    vars: 11,
-    consts: [["startDate", ""], ["endDate", ""], [1, "bg-base-100", "h-20", "w-full", "flex", "items-center", "space-x-2", "p-4", "z-20", "border-b", "border-base-200", "print:hidden"], ["appearance", "outline", 1, "w-60", "no-subscript"], ["placeholder", "All Levels", "multiple", "", 3, "ngModelChange", "ngModel"], [3, "value", 4, "ngFor", "ngForOf"], [3, "ngModelChange", "ngModel"], ["btn", "", "matRipple", "", 3, "click", "disabled"], [3, "diameter", 4, "ngIf"], [4, "ngIf"], [1, "flex-1"], ["icon", "", "matRipple", "", "matTooltip", "Download Report Data", 1, "h-12", "w-12", "rounded", "bg-secondary", "text-secondary-content", 3, "click", "disabled"], ["icon", "", "matRipple", "", "matTooltip", "Print Report", 1, "h-12", "w-12", "rounded", "bg-secondary", "text-secondary-content", 3, "click", "disabled"], [3, "value"], [1, "flex", "flex-col-reverse"], ["class", "text-xs opacity-30", 4, "ngIf"], [1, "text-xs", "opacity-30"], [1, "opacity-0"], [3, "diameter"]],
+    vars: 12,
+    consts: [["startDate", ""], ["endDate", ""], [1, "bg-base-100", "h-20", "w-full", "flex", "items-center", "space-x-2", "p-4", "z-20", "border-b", "border-base-200", "print:hidden"], ["appearance", "outline", 1, "w-60", "no-subscript"], ["placeholder", "All Levels", "multiple", "", 3, "ngModelChange", "ngModel"], [3, "value", 4, "ngFor", "ngForOf"], [3, "week_start"], [3, "ngModelChange", "ngModel"], ["btn", "", "matRipple", "", 3, "click", "disabled"], [3, "diameter", 4, "ngIf"], [4, "ngIf"], [1, "flex-1"], ["icon", "", "matRipple", "", "matTooltip", "Download Report Data", 1, "h-12", "w-12", "rounded", "bg-secondary", "text-secondary-content", 3, "click", "disabled"], ["icon", "", "matRipple", "", "matTooltip", "Print Report", 1, "h-12", "w-12", "rounded", "bg-secondary", "text-secondary-content", 3, "click", "disabled"], [3, "value"], [1, "flex", "flex-col-reverse"], ["class", "text-xs opacity-30", 4, "ngIf"], [1, "text-xs", "opacity-30"], [1, "opacity-0"], [3, "diameter"]],
     template: function ReportsOptionsComponent_Template(rf, ctx) {
       if (rf & 1) {
         const _r1 = _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵgetCurrentView"]();
@@ -3337,27 +3349,27 @@ class ReportsOptionsComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_1
         _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtemplate"](3, ReportsOptionsComponent_mat_option_3_Template, 5, 3, "mat-option", 5);
         _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵpipe"](4, "async");
         _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]()();
-        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](5, "date-range-field")(6, "input", 6, 0);
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](5, "date-range-field", 6)(6, "input", 7, 0);
         _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵlistener"]("ngModelChange", function ReportsOptionsComponent_Template_input_ngModelChange_6_listener($event) {
           _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵrestoreView"](_r1);
           return _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵresetView"]($event ? ctx.setStartDate($event) : "");
         });
         _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](8, "input", 6, 1);
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](8, "input", 7, 1);
         _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵlistener"]("ngModelChange", function ReportsOptionsComponent_Template_input_ngModelChange_8_listener($event) {
           _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵrestoreView"](_r1);
           return _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵresetView"]($event ? ctx.setEndDate($event) : "");
         });
         _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]()();
-        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](10, "button", 7);
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](10, "button", 8);
         _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵlistener"]("click", function ReportsOptionsComponent_Template_button_click_10_listener() {
           _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵrestoreView"](_r1);
           return _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵresetView"](ctx.generate.emit());
         });
-        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtemplate"](11, ReportsOptionsComponent_mat_spinner_11_Template, 1, 1, "mat-spinner", 8)(12, ReportsOptionsComponent_p_12_Template, 2, 0, "p", 9);
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtemplate"](11, ReportsOptionsComponent_mat_spinner_11_Template, 1, 1, "mat-spinner", 9)(12, ReportsOptionsComponent_p_12_Template, 2, 0, "p", 10);
         _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelement"](13, "div", 10);
-        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](14, "button", 11);
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelement"](13, "div", 11);
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](14, "button", 12);
         _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵlistener"]("click", function ReportsOptionsComponent_Template_button_click_14_listener() {
           _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵrestoreView"](_r1);
           return _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵresetView"](ctx.download.emit());
@@ -3365,7 +3377,7 @@ class ReportsOptionsComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_1
         _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](15, "app-icon");
         _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtext"](16, "download");
         _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]()();
-        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](17, "button", 12);
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](17, "button", 13);
         _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵlistener"]("click", function ReportsOptionsComponent_Template_button_click_17_listener() {
           _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵrestoreView"](_r1);
           return _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵresetView"](ctx.print());
@@ -3378,8 +3390,10 @@ class ReportsOptionsComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_1
         _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵadvance"](2);
         _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtwoWayProperty"]("ngModel", ctx.zones);
         _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵadvance"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵproperty"]("ngForOf", _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵpipeBind1"](4, 9, ctx.levels));
-        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵadvance"](3);
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵproperty"]("ngForOf", _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵpipeBind1"](4, 10, ctx.levels));
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵadvance"](2);
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵproperty"]("week_start", ctx.week_start);
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵadvance"]();
         _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵproperty"]("ngModel", ctx.start);
         _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵadvance"](2);
         _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵproperty"]("ngModel", ctx.end);

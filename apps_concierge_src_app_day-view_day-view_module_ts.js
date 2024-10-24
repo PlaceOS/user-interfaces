@@ -2928,19 +2928,19 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _home_runner_work_user_interfaces_user_interfaces_node_modules_babel_runtime_helpers_esm_asyncToGenerator_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js */ 89204);
 /* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! date-fns */ 23206);
 /* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! date-fns */ 31257);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! date-fns */ 28797);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! date-fns */ 3330);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! date-fns */ 90610);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! date-fns */ 77753);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! date-fns */ 28797);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! date-fns */ 3330);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! date-fns */ 90610);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! date-fns */ 77753);
 /* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! date-fns */ 45726);
 /* harmony import */ var _events_state_service__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./events-state.service */ 88288);
 /* harmony import */ var _placeos_common__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @placeos/common */ 22797);
-/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! rxjs/operators */ 35443);
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! rxjs/operators */ 35443);
 /* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! rxjs/operators */ 7841);
-/* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! rxjs */ 68824);
+/* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! rxjs */ 68824);
 /* harmony import */ var _placeos_events__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @placeos/events */ 40569);
 /* harmony import */ var _placeos_organisation__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @placeos/organisation */ 2510);
-/* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! @angular/common */ 60316);
+/* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! @angular/common */ 60316);
 /* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! @angular/core */ 37580);
 /* harmony import */ var _angular_material_dialog__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! @angular/material/dialog */ 12587);
 /* harmony import */ var _ui_date_options_component__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../ui/date-options.component */ 94584);
@@ -3084,6 +3084,9 @@ function RoomWeekBookingsTimelineComponent_div_25_Template(rf, ctx) {
   }
 }
 class RoomWeekBookingsTimelineComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_2__.AsyncHandler {
+  get _week_start() {
+    return this._settings.get('app.week_start');
+  }
   get timezone() {
     return this._settings.get('app.events.use_building_timezone') ? this._org.building.timezone : '';
   }
@@ -3129,10 +3132,12 @@ class RoomWeekBookingsTimelineComponent extends _placeos_common__WEBPACK_IMPORTE
       name: 'Cancelled',
       color: '#eeeeee'
     }];
-    this.days = this.date.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_11__.map)(d => new Array(7).fill(0).map((_, idx) => (0,date_fns__WEBPACK_IMPORTED_MODULE_12__.addDays)((0,date_fns__WEBPACK_IMPORTED_MODULE_13__.setHours)((0,date_fns__WEBPACK_IMPORTED_MODULE_14__.startOfWeek)(d), 12 - Math.floor(this.timezone_offset / 60)), idx).valueOf())));
-    this.this_week = this.date.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_11__.map)(d => (0,date_fns__WEBPACK_IMPORTED_MODULE_15__.isSameWeek)(d, Date.now())));
-    this._data_pipe = new _angular_common__WEBPACK_IMPORTED_MODULE_16__.DatePipe('en');
-    this.events = (0,rxjs__WEBPACK_IMPORTED_MODULE_17__.combineLatest)([this.days, this._state.filtered, this._state.zones]).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_11__.map)(([day_list, events, zones]) => {
+    this.days = (0,rxjs__WEBPACK_IMPORTED_MODULE_11__.combineLatest)([this.date, this._org.active_building]).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_12__.map)(([d]) => new Array(7).fill(0).map((_, idx) => (0,date_fns__WEBPACK_IMPORTED_MODULE_13__.addDays)((0,date_fns__WEBPACK_IMPORTED_MODULE_14__.setHours)((0,date_fns__WEBPACK_IMPORTED_MODULE_15__.startOfWeek)(d, {
+      weekStartsOn: this._week_start
+    }), 12 - Math.floor(this.timezone_offset / 60)), idx).valueOf())));
+    this.this_week = this.date.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_12__.map)(d => (0,date_fns__WEBPACK_IMPORTED_MODULE_16__.isSameWeek)(d, Date.now())));
+    this._data_pipe = new _angular_common__WEBPACK_IMPORTED_MODULE_17__.DatePipe('en');
+    this.events = (0,rxjs__WEBPACK_IMPORTED_MODULE_11__.combineLatest)([this.days, this._state.filtered, this._state.zones]).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_12__.map)(([day_list, events, zones]) => {
       if (zones.length) {
         events = events.filter(_ => _.system?.zones.find(_ => zones.includes(_)));
       }
@@ -3146,7 +3151,7 @@ class RoomWeekBookingsTimelineComponent extends _placeos_common__WEBPACK_IMPORTE
       }
       return map;
     }), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_18__.shareReplay)(1));
-    this.event_max_count = this.events.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_11__.map)(e => {
+    this.event_max_count = this.events.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_12__.map)(e => {
       let length = 0;
       for (const date in e) {
         if (e[date].length > length) length = e[date].length;
@@ -3282,7 +3287,7 @@ class RoomWeekBookingsTimelineComponent extends _placeos_common__WEBPACK_IMPORTE
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngForOf", _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](26, 34, ctx.days));
       }
     },
-    dependencies: [_angular_common__WEBPACK_IMPORTED_MODULE_16__.NgForOf, _angular_common__WEBPACK_IMPORTED_MODULE_16__.NgIf, _ui_date_options_component__WEBPACK_IMPORTED_MODULE_5__.DateOptionsComponent, _angular_material_core__WEBPACK_IMPORTED_MODULE_21__.MatRipple, _room_booking_search_component__WEBPACK_IMPORTED_MODULE_6__.RoomBookingSearchComponent, _angular_common__WEBPACK_IMPORTED_MODULE_16__.AsyncPipe, _angular_common__WEBPACK_IMPORTED_MODULE_16__.DatePipe, _libs_users_src_lib_user_pipe__WEBPACK_IMPORTED_MODULE_7__.UserPipe],
+    dependencies: [_angular_common__WEBPACK_IMPORTED_MODULE_17__.NgForOf, _angular_common__WEBPACK_IMPORTED_MODULE_17__.NgIf, _ui_date_options_component__WEBPACK_IMPORTED_MODULE_5__.DateOptionsComponent, _angular_material_core__WEBPACK_IMPORTED_MODULE_21__.MatRipple, _room_booking_search_component__WEBPACK_IMPORTED_MODULE_6__.RoomBookingSearchComponent, _angular_common__WEBPACK_IMPORTED_MODULE_17__.AsyncPipe, _angular_common__WEBPACK_IMPORTED_MODULE_17__.DatePipe, _libs_users_src_lib_user_pipe__WEBPACK_IMPORTED_MODULE_7__.UserPipe],
     styles: ["[_nghost-%COMP%] {\n                display: flex;\n                flex-direction: column;\n                max-width: 100%;\n            }\n\n            [timeline][_ngcontent-%COMP%] {\n                grid-template-columns: 4rem auto;\n                grid-template-rows: 3.5rem auto;\n            }\n        \n/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbInJvb20td2Vlay10aW1lbGluZS5jb21wb25lbnQudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IjtZQUNZO2dCQUNJLGFBQWE7Z0JBQ2Isc0JBQXNCO2dCQUN0QixlQUFlO1lBQ25COztZQUVBO2dCQUNJLGdDQUFnQztnQkFDaEMsK0JBQStCO1lBQ25DIiwiZmlsZSI6InJvb20td2Vlay10aW1lbGluZS5jb21wb25lbnQudHMiLCJzb3VyY2VzQ29udGVudCI6WyJcbiAgICAgICAgICAgIDpob3N0IHtcbiAgICAgICAgICAgICAgICBkaXNwbGF5OiBmbGV4O1xuICAgICAgICAgICAgICAgIGZsZXgtZGlyZWN0aW9uOiBjb2x1bW47XG4gICAgICAgICAgICAgICAgbWF4LXdpZHRoOiAxMDAlO1xuICAgICAgICAgICAgfVxuXG4gICAgICAgICAgICBbdGltZWxpbmVdIHtcbiAgICAgICAgICAgICAgICBncmlkLXRlbXBsYXRlLWNvbHVtbnM6IDRyZW0gYXV0bztcbiAgICAgICAgICAgICAgICBncmlkLXRlbXBsYXRlLXJvd3M6IDMuNXJlbSBhdXRvO1xuICAgICAgICAgICAgfVxuICAgICAgICAiXX0= */\n/*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIndlYnBhY2s6Ly8uL2FwcHMvY29uY2llcmdlL3NyYy9hcHAvZGF5LXZpZXcvcm9vbS13ZWVrLXRpbWVsaW5lLmNvbXBvbmVudC50cyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiO1lBQ1k7Z0JBQ0ksYUFBYTtnQkFDYixzQkFBc0I7Z0JBQ3RCLGVBQWU7WUFDbkI7O1lBRUE7Z0JBQ0ksZ0NBQWdDO2dCQUNoQywrQkFBK0I7WUFDbkM7O0FBRVosd3ZCQUF3dkIiLCJzb3VyY2VzQ29udGVudCI6WyJcbiAgICAgICAgICAgIDpob3N0IHtcbiAgICAgICAgICAgICAgICBkaXNwbGF5OiBmbGV4O1xuICAgICAgICAgICAgICAgIGZsZXgtZGlyZWN0aW9uOiBjb2x1bW47XG4gICAgICAgICAgICAgICAgbWF4LXdpZHRoOiAxMDAlO1xuICAgICAgICAgICAgfVxuXG4gICAgICAgICAgICBbdGltZWxpbmVdIHtcbiAgICAgICAgICAgICAgICBncmlkLXRlbXBsYXRlLWNvbHVtbnM6IDRyZW0gYXV0bztcbiAgICAgICAgICAgICAgICBncmlkLXRlbXBsYXRlLXJvd3M6IDMuNXJlbSBhdXRvO1xuICAgICAgICAgICAgfVxuICAgICAgICAiXSwic291cmNlUm9vdCI6IiJ9 */"]
   });
 }
