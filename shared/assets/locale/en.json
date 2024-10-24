@@ -35,6 +35,7 @@
         "LOCKER": "Locker",
         "LOCKERS": "Lockers",
         "GROUP_EVENT": "Event",
+        "GROUP_EVENTS": "Events",
         "CREATE_MEETING": "Create Meeting",
         "REMOVE_COLLEAGUE": "Remove Colleague",
         "ADD": "Add",

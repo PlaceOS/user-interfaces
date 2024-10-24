@@ -23,9 +23,20 @@ import {
     queryEvents,
     removeEvent,
 } from '@placeos/events';
-import { format, isSameDay } from 'date-fns';
-import { map } from 'rxjs/operators';
-import { ScheduleStateService } from './schedule-state.service';
+import {
+    addWeeks,
+    endOfWeek,
+    format,
+    isSameDay,
+    parse,
+    startOfDay,
+    startOfWeek,
+} from 'date-fns';
+import { filter, map } from 'rxjs/operators';
+import {
+    ScheduleOptions,
+    ScheduleStateService,
+} from './schedule-state.service';
 import { combineLatest } from 'rxjs';
 
 @Component({
@@ -39,42 +50,93 @@ import { combineLatest } from 'rxjs';
                 class="hidden sm:block bg-base-100"
             ></schedule-sidebar>
             <div class="w-full bg-base-100 border-b border-neutral sm:hidden">
+                <div class="flex items-center space-x-2 px-2 pt-2">
+                    <button
+                        btn
+                        matRipple
+                        class="flex-1"
+                        [class.inverse]="period !== 'day'"
+                        (click)="setOptions({ period: 'day' })"
+                    >
+                        Day
+                    </button>
+                    <button
+                        btn
+                        matRipple
+                        class="flex-1"
+                        [class.inverse]="period !== 'week'"
+                        (click)="setOptions({ period: 'week' })"
+                    >
+                        Week
+                    </button>
+                </div>
                 <schedule-mobile-calendar
                     [ngModel]="date | async"
                     (ngModelChange)="setDate($event)"
+                    *ngIf="period === 'day'"
                 ></schedule-mobile-calendar>
+                <div class="px-2 w-full my-2" *ngIf="period === 'week'">
+                    <mat-form-field
+                        appearance="outline"
+                        class="no-subscript w-full"
+                    >
+                        <mat-select
+                            [ngModel]="week_date | async"
+                            (ngModelChange)="setDate($event)"
+                            placeholder="Select Week..."
+                        >
+                            <mat-option
+                                *ngFor="let option of week_options | async"
+                                [value]="option.id"
+                                class="leading-tight"
+                            >
+                                {{ option.name }}
+                                <span
+                                    class="text-xs text-info px-1"
+                                    *ngIf="option.this_week"
+                                    matTooltip="This Week"
+                                    >(C)</span
+                                >
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
             </div>
             <div class="flex-1 h-full p-4 overflow-auto space-y-2">
                 <schedule-filters></schedule-filters>
-                <h3 class="font-medium my-2">
-                    {{ date | async | date: 'EEE dd LLL yyyy' }}
-                    <span *ngIf="is_today | async"
-                        >({{ 'COMMON.TODAY' | translate }})</span
-                    >
-                </h3>
                 <ng-container
-                    *ngIf="(bookings | async)?.length; else empty_state"
+                    *ngIf="(booking_dates | async)?.length; else empty_state"
                 >
                     <ng-container
-                        *ngFor="
-                            let item of bookings | async;
-                            trackBy: trackByFn
-                        "
+                        *ngFor="let date_block of booking_dates | async"
                     >
-                        <event-card
-                            *ngIf="isEvent(item); else booking_card"
-                            [event]="item"
-                            (edit)="edit(item)"
-                            (remove)="remove(item, $event)"
-                        ></event-card>
-                        <ng-template #booking_card>
-                            <booking-card
-                                [booking]="item"
-                                (edit)="editBooking(item)"
+                        <h3 class="font-medium my-2">
+                            {{ date_block.date | date: 'EEE dd LLL yyyy' }}
+                            <span *ngIf="date_block.is_today"
+                                >({{ 'COMMON.TODAY' | translate }})</span
+                            >
+                        </h3>
+                        <ng-container
+                            *ngFor="
+                                let item of date_block.bookings;
+                                trackBy: trackByFn
+                            "
+                        >
+                            <event-card
+                                *ngIf="isEvent(item); else booking_card"
+                                [event]="item"
+                                (edit)="edit(item)"
                                 (remove)="remove(item, $event)"
-                                (end)="end(item)"
-                            ></booking-card>
-                        </ng-template>
+                            ></event-card>
+                            <ng-template #booking_card>
+                                <booking-card
+                                    [booking]="item"
+                                    (edit)="editBooking(item)"
+                                    (remove)="remove(item, $event)"
+                                    (end)="end(item)"
+                                ></booking-card>
+                            </ng-template>
+                        </ng-container>
                     </ng-container>
                 </ng-container>
             </div>
@@ -109,16 +171,43 @@ import { combineLatest } from 'rxjs';
     ],
 })
 export class ScheduleComponent extends AsyncHandler {
-    public readonly bookings = combineLatest([
+    public readonly booking_dates = combineLatest([
         this._state.filtered_bookings,
         this._state.loading,
-    ]).pipe(map(([bookings, loading]) => (loading ? [] : bookings)));
+    ]).pipe(
+        map(([bookings, loading]) => (loading ? [] : bookings)),
+        map((bookings) => {
+            const sorted = bookings.sort((a, b) => a.date - b.date);
+            const dates = new Set<string>();
+            for (const booking of sorted) {
+                const date = format(booking.date, 'yyyy-MM-dd');
+                if (!dates.has(date)) dates.add(date);
+            }
+            const list = [];
+            for (const date of dates) {
+                const day = parse(date, 'yyyy-MM-dd', new Date());
+                list.push({
+                    id: date,
+                    date: day.valueOf(),
+                    bookings: sorted.filter((booking) =>
+                        isSameDay(booking.date, day),
+                    ),
+                    is_today: isSameDay(day, Date.now()),
+                });
+            }
+            return list;
+        }),
+    );
     public readonly date = this._state.date;
     public readonly loading = this._state.loading;
-    public readonly is_today = this.date.pipe(
-        map((_) => isSameDay(_, Date.now())),
-    );
     public readonly setDate = (d) => this._state.setDate(d);
+
+    public readonly week_date = this._state.week_date;
+    public readonly week_options = this._state.week_options;
+
+    public get period() {
+        return this._state.getOptions().period;
+    }
 
     public isEvent(item: any) {
         return item instanceof CalendarEvent;
@@ -146,6 +235,10 @@ export class ScheduleComponent extends AsyncHandler {
 
     public trackByFn(index: number, item: any) {
         return item?.id;
+    }
+
+    public setOptions(options: ScheduleOptions) {
+        this._state.setOptions(options);
     }
 
     public async edit(event: CalendarEvent) {

@@ -26,14 +26,19 @@ import { requestSpacesForZone } from '@placeos/spaces';
 import { getModule } from '@placeos/ts-client';
 import {
     addMinutes,
+    addWeeks,
     differenceInMilliseconds,
     differenceInMinutes,
     endOfDay,
+    endOfWeek,
     format,
     getUnixTime,
+    isAfter,
+    isBefore,
     isSameDay,
     startOfDay,
     startOfMinute,
+    startOfWeek,
 } from 'date-fns';
 import { BehaviorSubject, combineLatest, interval, Observable, of } from 'rxjs';
 import {
@@ -49,6 +54,10 @@ import {
     tap,
 } from 'rxjs/operators';
 
+export interface ScheduleOptions {
+    period: 'day' | 'week' | 'month';
+}
+
 @Injectable({
     providedIn: 'root',
 })
@@ -56,6 +65,7 @@ export class ScheduleStateService extends AsyncHandler {
     private _poll = new BehaviorSubject(0);
     private _poll_type = new BehaviorSubject<'api' | 'ws'>('api');
     private _loading = new BehaviorSubject(false);
+    private _options = new BehaviorSubject<ScheduleOptions>({ period: 'day' });
     private _filters = new BehaviorSubject({
         shown_types: [
             'event',
@@ -123,6 +133,63 @@ export class ScheduleStateService extends AsyncHandler {
             shareReplay(1),
         );
 
+    public readonly options = this._options.asObservable();
+    /** Currently selected date */
+    public readonly filters = this._filters.asObservable();
+    /** Currently selected date */
+    public readonly date = this._date.asObservable();
+    /** Whether events and bookings are loading */
+    public readonly loading = this._loading.asObservable();
+
+    public setOptions(options: ScheduleOptions) {
+        this._options.next(options);
+    }
+
+    public getOptions() {
+        return this._options.getValue();
+    }
+    public readonly week_date = combineLatest([
+        this._org.active_building,
+        this.date,
+    ]).pipe(
+        map(([_, date]) =>
+            startOfWeek(date, {
+                weekStartsOn: this.offset_weekday as any,
+            }).valueOf(),
+        ),
+    );
+
+    public readonly week_options = combineLatest([
+        this._org.active_building,
+        this.date,
+    ]).pipe(
+        filter(([bld]) => !!bld),
+        map(([bld]) => {
+            const options = [];
+            let date = startOfDay(Date.now());
+            for (let i = -4; i < 48; i++) {
+                let day = addWeeks(date, i);
+                const week_s_date = startOfWeek(day, {
+                    weekStartsOn: this.offset_weekday as any,
+                });
+                const week_e_date = endOfWeek(day, {
+                    weekStartsOn: this.offset_weekday as any,
+                });
+                const this_week =
+                    isAfter(Date.now(), week_s_date) &&
+                    isBefore(Date.now(), week_e_date);
+                const week_start = format(week_s_date, 'dd MMM');
+                const week_end = format(week_e_date, 'dd MMM');
+                options.push({
+                    id: day.valueOf(),
+                    name: `${week_start} - ${week_end}`,
+                    this_week,
+                });
+            }
+            return options;
+        }),
+    );
+
     public readonly ws_events = combineLatest([
         this._space_bookings,
         this._update,
@@ -145,11 +212,26 @@ export class ScheduleStateService extends AsyncHandler {
         }),
     );
     /** List of calendar events for the selected date */
-    public readonly api_events: Observable<CalendarEvent[]> = this._update.pipe(
-        switchMap(([date]) => {
+    public readonly api_events: Observable<CalendarEvent[]> = combineLatest([
+        this._update,
+        this._options,
+    ]).pipe(
+        switchMap(([[date], { period }]) => {
             const query = {
-                period_start: getUnixTime(startOfDay(date)),
-                period_end: getUnixTime(endOfDay(date)),
+                period_start: getUnixTime(
+                    period === 'day'
+                        ? startOfDay(date)
+                        : startOfWeek(date, {
+                              weekStartsOn: this.offset_weekday as any,
+                          }),
+                ),
+                period_end: getUnixTime(
+                    period === 'day'
+                        ? endOfDay(date)
+                        : endOfWeek(date, {
+                              weekStartsOn: this.offset_weekday as any,
+                          }),
+                ),
             };
             return this._settings.get('app.events.use_bookings')
                 ? queryBookings({ ...query, type: 'room' }).pipe(
@@ -161,8 +243,13 @@ export class ScheduleStateService extends AsyncHandler {
         shareReplay(1),
     );
     /** List of calendar events for the selected date */
-    public readonly raw_events = combineLatest([this._poll_type]).pipe(
-        switchMap(([t]) => (t === 'api' ? this.api_events : this.ws_events)),
+    public readonly raw_events = combineLatest([
+        this._poll_type,
+        this._options,
+    ]).pipe(
+        switchMap(([t, { period }]) =>
+            t === 'api' || period !== 'week' ? this.api_events : this.ws_events,
+        ),
         tap(() => this.timeout('end_loading', () => this._loading.next(false))),
         shareReplay(1),
     );
@@ -333,12 +420,10 @@ export class ScheduleStateService extends AsyncHandler {
             }),
         ),
     );
-    /** Currently selected date */
-    public readonly filters = this._filters.asObservable();
-    /** Currently selected date */
-    public readonly date = this._date.asObservable();
-    /** Whether events and bookings are loading */
-    public readonly loading = this._loading.asObservable();
+
+    public get offset_weekday() {
+        return this._settings.get('app.week_start') || 0;
+    }
 
     private _ignore_cancel: string[] = [];
     private _checkCancel = combineLatest([
