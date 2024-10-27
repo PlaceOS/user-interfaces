@@ -87,14 +87,18 @@ import { generateQRCode } from 'libs/common/src/lib/qr-code';
                     [sys]="system_id"
                     mod="Bookings"
                     bind="current_booking"
-                    (modelChange)="current = asCalendarEvent($event)"
+                    (modelChange)="
+                        current = $event ? asCalendarEvent($event) : null
+                    "
                 ></i>
                 <i
                     binding
                     [sys]="system_id"
                     mod="Bookings"
                     bind="next_booking"
-                    (modelChange)="next = asCalendarEvent($event)"
+                    (modelChange)="
+                        next = $event ? asCalendarEvent($event) : null
+                    "
                 ></i>
             </div>
             <div
