@@ -135,7 +135,9 @@ import { PlaceMetadata, showMetadata } from '@placeos/ts-client';
                                 [time]="form.value.date"
                                 [guests]="allow_externals"
                             ></a-user-list-field>
-                            <label for="visitor_entity">Vistor's Entity:</label>
+                            <label for="visitor_entity"
+                                >Vistor's Entity<span>*</span>:</label
+                            >
                             <mat-form-field appearance="outline" class="w-full">
                                 <input
                                     matInput
@@ -144,6 +146,9 @@ import { PlaceMetadata, showMetadata } from '@placeos/ts-client';
                                     placeholder="Organisational Entity of the Host"
                                     [matAutocomplete]="auto"
                                 />
+                                <mat-error>
+                                    A valid visitor entity is required
+                                </mat-error>
                             </mat-form-field>
                             <mat-autocomplete
                                 #auto="matAutocomplete"

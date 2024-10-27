@@ -196,7 +196,9 @@ import { OrganisationService } from '@placeos/organisation';
                     class="mb-4"
                 ></a-user-search-field>
                 <div class="flex flex-col flex-1">
-                    <label for="host_entity">Host's Entity:</label>
+                    <label for="host_entity"
+                        >Host's Entity<span>*</span>:</label
+                    >
                     <mat-form-field appearance="outline" class="w-full">
                         <input
                             matInput
@@ -205,6 +207,7 @@ import { OrganisationService } from '@placeos/organisation';
                             placeholder="Organisational Entity of the Host"
                             [matAutocomplete]="auto"
                         />
+                        <mat-error> A valid host entity is required </mat-error>
                     </mat-form-field>
                     <mat-autocomplete #auto="matAutocomplete" class="w-full">
                         <mat-option
