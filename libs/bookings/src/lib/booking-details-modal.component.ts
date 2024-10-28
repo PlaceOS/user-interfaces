@@ -278,7 +278,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
             <button
                 mat-menu-item
                 mat-dialog-close
-                *ngIf="can_edit"
+                *ngIf="can_edit && !booking.instance"
                 (click)="edit.emit()"
             >
                 <div class="flex items-center space-x-2 text-base">
