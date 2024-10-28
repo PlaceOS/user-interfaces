@@ -5,6 +5,7 @@ import { Booking, BookingFormService, ParkingSpace } from '@placeos/bookings';
 import {
     AsyncHandler,
     currentUser,
+    getInvalidFields,
     notifyError,
     notifySuccess,
     SettingsService,
@@ -68,7 +69,9 @@ import { addDays, endOfDay } from 'date-fns';
                     <a-date-field formControlName="date"></a-date-field>
                     <mat-checkbox
                         formControlName="all_day"
-                        *ngIf="allow_all_day"
+                        *ngIf="
+                            allow_all_day && !form.controls.duration.disabled
+                        "
                         class="absolute -top-2 right-0"
                         i18n
                     >
@@ -302,7 +305,11 @@ export class ParkingBookingModalComponent extends AsyncHandler {
         }
         this.form.markAllAsTouched();
         this.form.updateValueAndValidity();
-        if (!this.form.valid) return;
+        if (!this.form.valid) {
+            return notifyError(
+                `Some fields are invalid. [${getInvalidFields(this.form).join(', ')}]`,
+            );
+        }
         this.loading = true;
         const id = this.form.value.id;
         this.form.patchValue({ user_id: undefined, booking_type: 'parking' });
