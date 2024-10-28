@@ -47,6 +47,7 @@ import { OrganisationService } from '@placeos/organisation';
                 [date]="date | async"
                 (dateChange)="setDate($event)"
                 [is_new]="true"
+                [hide_today]="true"
             ></date-options>
             <div
                 class="absolute top-1/2 -translate-y-1/2 left-4 text-info text-sm"
