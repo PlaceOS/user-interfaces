@@ -287,6 +287,12 @@ export class ParkingBookingModalComponent extends AsyncHandler {
     }
 
     public async postForm() {
+        if (
+            !this.form.value.all_day &&
+            this.form.value.duration > this.max_duration
+        ) {
+            this.form.patchValue({ duration: 30 });
+        }
         this.form.markAllAsTouched();
         this.form.updateValueAndValidity();
         if (!this.form.valid) return;
@@ -303,6 +309,12 @@ export class ParkingBookingModalComponent extends AsyncHandler {
         notifySuccess(
             `Successfully ${id ? 'updated' : 'created'} parking reservation`,
         );
+
+        this.form.get('date').enable();
+        this.form.get('duration').enable();
+        this.form.controls.user.disable();
+        this.form.controls.user_name.disable();
+        this.form.controls.user_email.disable();
         this._dialog_ref.close(result.id);
     }
 }
