@@ -1,4 +1,10 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import {
+    Component,
+    EventEmitter,
+    Input,
+    Output,
+    SimpleChanges,
+} from '@angular/core';
 import { Validators } from '@angular/forms';
 import { first } from 'rxjs/operators';
 
@@ -305,6 +311,7 @@ import { User } from 'libs/users/src/lib/user.class';
     styles: [``],
 })
 export class InviteVisitorFormComponent extends AsyncHandler {
+    @Input() public date: number;
     @Output() public done = new EventEmitter<void>();
 
     public sent = false;
@@ -378,6 +385,12 @@ export class InviteVisitorFormComponent extends AsyncHandler {
         );
         if (this.multiple)
             this.form.patchValue({ asset_id: 'multiple@place.tech' });
+    }
+
+    public ngOnChanges(changes: SimpleChanges) {
+        if (changes.date && this.date) {
+            this.form.patchValue({ date: this.date });
+        }
     }
 
     public setVisitor(item) {
