@@ -192,6 +192,7 @@ export class ParkingBookingModalComponent extends AsyncHandler {
             space?: ParkingSpace;
             allow_time_changes?: boolean;
             external_user?: boolean;
+            parent_id?: string;
         },
         private _booking_form: BookingFormService,
         private _dialog_ref: MatDialogRef<ParkingBookingModalComponent>,
@@ -224,6 +225,11 @@ export class ParkingBookingModalComponent extends AsyncHandler {
             this.form.patchValue({
                 user:
                     (this._data.booking?.attendees[0] as any) || currentUser(),
+            });
+        }
+        if (this._data.parent_id) {
+            this.form.patchValue({
+                parent_id: this._data.parent_id,
             });
         }
         if (this._data.user) {

@@ -399,6 +399,7 @@ export class ParkingStateService extends AsyncHandler {
     public editReservation(
         reservation?: Booking,
         {
+            parent_id,
             user,
             link_id,
             date,
@@ -406,6 +407,7 @@ export class ParkingStateService extends AsyncHandler {
             allow_time_changes,
             external_user,
         }: {
+            parent_id?: string;
             user?: User;
             link_id?: string;
             date?: number;
@@ -422,6 +424,7 @@ export class ParkingStateService extends AsyncHandler {
             }
             const ref = this._dialog.open(ParkingBookingModalComponent, {
                 data: {
+                    parent_id,
                     booking: reservation,
                     user,
                     link_id,
