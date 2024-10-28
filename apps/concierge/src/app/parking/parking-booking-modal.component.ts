@@ -238,6 +238,11 @@ export class ParkingBookingModalComponent extends AsyncHandler {
             this.form.controls.user_name.disable();
             this.form.controls.user_email.disable();
         }
+        if (this._data.booking?.id) {
+            this.form.controls.user.disable();
+            this.form.controls.user_name.disable();
+            this.form.controls.user_email.disable();
+        }
         if (this._data.level) {
             this._booking_form.setOptions({ zone_id: this._data.level.id });
         }
