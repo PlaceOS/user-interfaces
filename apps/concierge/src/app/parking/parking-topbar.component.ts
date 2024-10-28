@@ -137,6 +137,7 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
         this._router.navigate([], {
             relativeTo: this._route,
             queryParams: { zone_ids: z.join(',') },
+            queryParamsHandling: 'merge',
         });
         this._state.setOptions({ zones: z });
     };

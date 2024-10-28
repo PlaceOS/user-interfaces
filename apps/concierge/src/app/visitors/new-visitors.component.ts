@@ -112,6 +112,7 @@ export class NewVisitorsComponent implements OnInit, OnDestroy {
         this._router.navigate([], {
             relativeTo: this._route,
             queryParams: { zone_ids: zones.join(',') },
+            queryParamsHandling: 'merge',
         });
         this._state.setFilters({ zones });
     };

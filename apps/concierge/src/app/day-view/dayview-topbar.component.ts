@@ -113,6 +113,7 @@ export class DayviewTopbarComponent extends AsyncHandler {
         this._router.navigate([], {
             relativeTo: this._route,
             queryParams: { zone_ids: z.join(',') },
+            queryParamsHandling: 'merge',
         });
     };
     /** List of levels for the active building */

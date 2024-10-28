@@ -71,8 +71,8 @@ export class RoomManagerTopbarComponent extends AsyncHandler {
         map(([bld, region]) =>
             this.use_region
                 ? this._org.levelsForRegion(region)
-                : this._org.levelsForBuilding(bld)
-        )
+                : this._org.levelsForBuilding(bld),
+        ),
     );
 
     public readonly filters = this._manager.options;
@@ -85,6 +85,7 @@ export class RoomManagerTopbarComponent extends AsyncHandler {
         this._router.navigate([], {
             relativeTo: this._route,
             queryParams: { zone_ids: zones.join(',') },
+            queryParamsHandling: 'merge',
         });
     };
 
@@ -111,7 +112,7 @@ export class RoomManagerTopbarComponent extends AsyncHandler {
         private _route: ActivatedRoute,
         private _router: Router,
         private _dialog: MatDialog,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         super();
     }
@@ -132,7 +133,7 @@ export class RoomManagerTopbarComponent extends AsyncHandler {
                     const zones = zone_list.filter((z) => z);
                     this._manager.setFilters({ zones });
                 }
-            })
+            }),
         );
         this.setSearch('');
     }
