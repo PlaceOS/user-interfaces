@@ -166,7 +166,9 @@ import { OrganisationService } from '@placeos/organisation';
                     formControlName="organiser"
                 ></host-select-field>
                 <div class="flex flex-col flex-1">
-                    <label for="host_entity">Host's Entity:</label>
+                    <label for="host_entity"
+                        >Host's Entity<span>*</span>:</label
+                    >
                     <mat-form-field appearance="outline" class="w-full">
                         <input
                             matInput
