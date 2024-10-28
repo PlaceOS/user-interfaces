@@ -4,7 +4,7 @@ import { AsyncHandler, SettingsService } from '@placeos/common';
 import { CalendarEvent } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
 import { startOfMinute } from 'date-fns';
-import { first, map } from 'rxjs/operators';
+import { first, map, tap } from 'rxjs/operators';
 import { PanelStateService } from './panel-state.service';
 import { generateQRCode } from 'libs/common/src/lib/qr-code';
 
@@ -34,17 +34,25 @@ import { generateQRCode } from 'libs/common/src/lib/qr-code';
                 "
             >
                 <div class="overflow-hidden">
-                    <ng-container *ngIf="current; else current_empty_state">
+                    <ng-container
+                        *ngIf="current | async; else current_empty_state"
+                    >
                         <h2 class="text-2xl font-medium">
-                            {{ current?.title }}
+                            {{ (current | async)?.title }}
                         </h2>
                         <p class="text-2xl mb-4 lowercase">
                             ending &#64;
-                            {{ current?.event_end * 1000 | date: 'h:mma' }}
+                            {{
+                                (current | async)?.event_end * 1000
+                                    | date: 'h:mma'
+                            }}
                         </p>
-                        <p class="text-base line-clamp-6 portrait:line-clamp-8">
-                            {{ current?.body }}
-                        </p>
+                        <p
+                            class="text-base line-clamp-6 portrait:line-clamp-8"
+                            [innerHTML]="
+                                (current | async)?.body | sanitize: 'html'
+                            "
+                        ></p>
                     </ng-container>
                     <ng-template #current_empty_state>
                         <p class="opacity-60 text-2xl font-medium">
@@ -55,11 +63,16 @@ import { generateQRCode } from 'libs/common/src/lib/qr-code';
                 <div class="min-w-[40%]">
                     <h2 class="text-2xl font-medium uppercase">Next</h2>
                     <hr class="mb-8" />
-                    <ng-container *ngIf="next; else next_empty_state">
-                        <h2 class="text-2xl font-medium">{{ next?.title }}</h2>
+                    <ng-container *ngIf="next | async; else next_empty_state">
+                        <h2 class="text-2xl font-medium">
+                            {{ (next | async)?.title }}
+                        </h2>
                         <p class="text-2xl lowercase">
                             starting &#64;
-                            {{ next?.event_start * 1000 | date: 'h:mma' }}
+                            {{
+                                (next | async)?.event_start * 1000
+                                    | date: 'h:mma'
+                            }}
                         </p>
                     </ng-container>
                     <ng-template #next_empty_state>
@@ -81,26 +94,6 @@ import { generateQRCode } from 'libs/common/src/lib/qr-code';
                     {{ time | date: 'shortTime' }}
                 </p>
             </footer>
-            <div hidden bindings>
-                <i
-                    binding
-                    [sys]="system_id"
-                    mod="Bookings"
-                    bind="current_booking"
-                    (modelChange)="
-                        current = $event ? asCalendarEvent($event) : null
-                    "
-                ></i>
-                <i
-                    binding
-                    [sys]="system_id"
-                    mod="Bookings"
-                    bind="next_booking"
-                    (modelChange)="
-                        next = $event ? asCalendarEvent($event) : null
-                    "
-                ></i>
-            </div>
             <div
                 class="absolute top-1/2 -right-[2px] -translate-y-1/2"
                 *ngIf="!hide_qr && checkin"
@@ -143,8 +136,8 @@ export class EventPanelComponent extends AsyncHandler {
     public system_id = '';
     public show_qr = false;
     public room_name: string | null = '';
-    public current: CalendarEvent | null = null;
-    public next: CalendarEvent | null = null;
+    public current = this._state.current;
+    public next = this._state.next;
     public qr_code: any;
     public hide_qr = false;
     public readonly space_name = this._state.space.pipe(
