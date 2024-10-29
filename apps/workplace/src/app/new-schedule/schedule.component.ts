@@ -6,7 +6,6 @@ import {
     BookingFormService,
     checkinBooking,
     checkinBookingInstance,
-    queryBookings,
     removeBooking,
 } from '@placeos/bookings';
 import {
@@ -23,16 +22,8 @@ import {
     queryEvents,
     removeEvent,
 } from '@placeos/events';
-import {
-    addWeeks,
-    endOfWeek,
-    format,
-    isSameDay,
-    parse,
-    startOfDay,
-    startOfWeek,
-} from 'date-fns';
-import { filter, map } from 'rxjs/operators';
+import { format, isSameDay, parse } from 'date-fns';
+import { map } from 'rxjs/operators';
 import {
     ScheduleOptions,
     ScheduleStateService,
