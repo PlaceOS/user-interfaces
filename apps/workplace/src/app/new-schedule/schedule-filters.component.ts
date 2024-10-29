@@ -114,12 +114,12 @@ import { ScheduleStateService } from './schedule-state.service';
                 </div>
             </div>
         </div>
-        <div class="sm:hidden flex items-center space-x-2">
+        <div class="sm:hidden flex items-center space-x-2 overflow-auto">
             <button
                 btn
                 matRipple
                 name="schedule-open-filter-edit"
-                class="min-w-0 sm:w-24"
+                class="min-w-12 sm:w-24"
                 (click)="openFilters()"
             >
                 <div class="flex items-center justify-center space-x-2">
@@ -236,7 +236,7 @@ export class ScheduleFiltersComponent {
     constructor(
         private _sheet: MatBottomSheet,
         private _state: ScheduleStateService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {}
 
     public openFilters() {

@@ -40,15 +40,13 @@ import {
                     </button>
                 </div>
             </div>
-            <div class="flex items-center justify-center text-sm mb-2">
+            <div class="grid grid-cols-7 gap-2 mb-2">
                 <div
                     class="opacity-60 text-center w-10 mx-2"
                     *ngFor="let day of date_list | slice: 0 : 7"
                 >
                     {{ day.id | date: 'EE' }}
                 </div>
-            </div>
-            <div class="flex items-center justify-between flex-wrap">
                 <button
                     icon
                     matRipple
