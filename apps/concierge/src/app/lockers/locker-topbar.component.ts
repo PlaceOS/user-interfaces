@@ -128,6 +128,7 @@ export class LockersTopbarComponent extends AsyncHandler implements OnInit {
         this._router.navigate([], {
             relativeTo: this._route,
             queryParams: { zone_ids: z.join(',') },
+            queryParamsHandling: 'merge',
         });
         this._lockers.setFilters({ zones: z });
     };
@@ -142,7 +143,7 @@ export class LockersTopbarComponent extends AsyncHandler implements OnInit {
         private _route: ActivatedRoute,
         private _router: Router,
         private _dialog: MatDialog,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         super();
     }
@@ -159,7 +160,7 @@ export class LockersTopbarComponent extends AsyncHandler implements OnInit {
                         const level = this._org.levelWithID(zones);
                         if (!level) return;
                         this._org.building = this._org.buildings.find(
-                            (bld) => bld.id === level.parent_id
+                            (bld) => bld.id === level.parent_id,
                         );
                     }
                 }
@@ -173,14 +174,14 @@ export class LockersTopbarComponent extends AsyncHandler implements OnInit {
                 }
                 this.manage = this._router.url?.includes('manage');
                 this.is_map = this._router.url?.includes('map');
-            })
+            }),
         );
         this.subscription(
             'router.events',
             this._router.events.subscribe(() => {
                 this.manage = this._router.url?.includes('manage');
                 this.is_map = this._router.url?.includes('map');
-            })
+            }),
         );
         this.manage = this._router.url?.includes('manage');
         this.is_map = this._router.url?.includes('map');

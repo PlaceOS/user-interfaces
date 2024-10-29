@@ -5,6 +5,7 @@ import { Booking, BookingFormService, ParkingSpace } from '@placeos/bookings';
 import {
     AsyncHandler,
     currentUser,
+    getInvalidFields,
     notifyError,
     notifySuccess,
     SettingsService,
@@ -68,7 +69,9 @@ import { addDays, endOfDay } from 'date-fns';
                     <a-date-field formControlName="date"></a-date-field>
                     <mat-checkbox
                         formControlName="all_day"
-                        *ngIf="allow_all_day"
+                        *ngIf="
+                            allow_all_day && !form.controls.duration.disabled
+                        "
                         class="absolute -top-2 right-0"
                         i18n
                     >
@@ -192,6 +195,7 @@ export class ParkingBookingModalComponent extends AsyncHandler {
             space?: ParkingSpace;
             allow_time_changes?: boolean;
             external_user?: boolean;
+            parent_id?: string;
         },
         private _booking_form: BookingFormService,
         private _dialog_ref: MatDialogRef<ParkingBookingModalComponent>,
@@ -226,8 +230,14 @@ export class ParkingBookingModalComponent extends AsyncHandler {
                     (this._data.booking?.attendees[0] as any) || currentUser(),
             });
         }
+        if (this._data.parent_id) {
+            this.form.patchValue({
+                parent_id: this._data.parent_id,
+            });
+        }
         if (this._data.user) {
             this.form.patchValue({
+                user: this._data.user as any,
                 user_email: this._data.user.email,
                 user_name: this._data.user.name,
                 attendees: [this._data.user],
@@ -235,6 +245,11 @@ export class ParkingBookingModalComponent extends AsyncHandler {
             this.form.controls.plate_number.setValidators([
                 Validators.required,
             ]);
+            this.form.controls.user_name.disable();
+            this.form.controls.user_email.disable();
+        }
+        if (this._data.booking?.id) {
+            this.form.controls.user.disable();
             this.form.controls.user_name.disable();
             this.form.controls.user_email.disable();
         }
@@ -282,12 +297,22 @@ export class ParkingBookingModalComponent extends AsyncHandler {
     }
 
     public async postForm() {
+        if (
+            !this.form.value.all_day &&
+            this.form.value.duration > this.max_duration
+        ) {
+            this.form.patchValue({ duration: 30 });
+        }
         this.form.markAllAsTouched();
         this.form.updateValueAndValidity();
-        if (!this.form.valid) return;
+        if (!this.form.valid) {
+            return notifyError(
+                `Some fields are invalid. [${getInvalidFields(this.form).join(', ')}]`,
+            );
+        }
         this.loading = true;
         const id = this.form.value.id;
-        this.form.patchValue({ user_id: undefined });
+        this.form.patchValue({ user_id: undefined, booking_type: 'parking' });
         const result = await this._booking_form.postForm().catch((e) => {
             this.loading = false;
             this.form.controls.plate_number.setValidators([]);
@@ -298,6 +323,12 @@ export class ParkingBookingModalComponent extends AsyncHandler {
         notifySuccess(
             `Successfully ${id ? 'updated' : 'created'} parking reservation`,
         );
+
+        this.form.get('date').enable();
+        this.form.get('duration').enable();
+        this.form.controls.user.disable();
+        this.form.controls.user_name.disable();
+        this.form.controls.user_email.disable();
         this._dialog_ref.close(result.id);
     }
 }

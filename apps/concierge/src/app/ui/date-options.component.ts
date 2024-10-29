@@ -5,7 +5,16 @@ import {
     Output,
     SimpleChanges,
 } from '@angular/core';
-import { addDays, subDays } from 'date-fns';
+import { ActivatedRoute, Router } from '@angular/router';
+import { AsyncHandler } from '@placeos/common';
+import {
+    addDays,
+    startOfMinute,
+    subDays,
+    format,
+    parse,
+    isSameDay,
+} from 'date-fns';
 
 @Component({
     selector: 'date-options',
@@ -29,8 +38,18 @@ import { addDays, subDays } from 'date-fns';
         <button icon matRipple (click)="nextDay()" *ngIf="!is_new">
             <app-icon>keyboard_arrow_right</app-icon>
         </button>
-        <div class="display m-4 text-center" style="width: 7em;">
-            {{ date | date: 'mediumDate' }}
+        <div
+            class="display mx-4 flex items-center justify-center leading-none h-12 w-28 relative"
+        >
+            <div
+                class="text-xs text-info absolute top-0 left-1/2 -translate-x-1/2"
+                *ngIf="is_today"
+            >
+                Today
+            </div>
+            <div class="relative" [class.top-1]="is_today">
+                {{ date | date: 'mediumDate' }}
+            </div>
         </div>
         <button icon matRipple (click)="nextDay()" *ngIf="is_new">
             <app-icon>keyboard_arrow_right</app-icon>
@@ -53,7 +72,7 @@ import { addDays, subDays } from 'date-fns';
                 <date-calendar
                     [ngModel]="date"
                     [offset_weekday]="week_start"
-                    (ngModelChange)="date = $event; dateChange.emit($event)"
+                    (ngModelChange)="setDate($event)"
                 ></date-calendar>
             </div>
         </ng-template>
@@ -72,30 +91,72 @@ import { addDays, subDays } from 'date-fns';
         `,
     ],
 })
-export class DateOptionsComponent {
+export class DateOptionsComponent extends AsyncHandler {
     @Input() public is_new = false;
     @Input() public disabled = false;
     /** Index of the day to start the week on when displaying the calendar */
     @Input() public week_start: number = 0;
     /** Currently selected date */
-    @Input() public date: number | string = new Date().valueOf();
+    @Input() public date: number = Date.now();
     @Input() public step = 1;
+    @Input() public hide_today = false;
     /** Emitter for changes to the date */
     @Output() public dateChange = new EventEmitter<number | string>();
     /** Change date to the previous date */
-    public readonly previousDay = () => {
-        this.date = subDays(new Date(this.date), this.step).valueOf();
-        this.dateChange.emit(this.date);
-    };
+    public readonly previousDay = () =>
+        this.setDate(subDays(this.date, this.step).valueOf());
     /** Change date to the next date */
-    public readonly nextDay = () => {
-        this.date = addDays(new Date(this.date), this.step).valueOf();
-        this.dateChange.emit(this.date);
-    };
+    public readonly nextDay = () =>
+        this.setDate(addDays(this.date, this.step).valueOf());
+
+    public get is_today() {
+        return isSameDay(this.date, Date.now()) && !this.hide_today;
+    }
+
+    constructor(
+        private _router: Router,
+        private _route: ActivatedRoute,
+    ) {
+        super();
+    }
+
+    public ngOnInit() {
+        this.subscription(
+            'route.query',
+            this._route.queryParamMap.subscribe((params) => {
+                if (params.has('date')) {
+                    this.timeout('set-date', () => {
+                        this.date = parse(
+                            params.get('date'),
+                            'yyyy-MM-dd',
+                            0,
+                        ).valueOf();
+                        this.dateChange.emit(this.date);
+                    });
+                }
+            }),
+        );
+    }
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.date) {
-            this.date = this.date || Date.now();
+            this.setDate(this.date || Date.now(), false);
         }
+    }
+
+    public setDate(date: number, emit: boolean = true) {
+        date = startOfMinute(date).valueOf();
+        this.date = date;
+        this._router.navigate([], {
+            relativeTo: this._route,
+            queryParams: { date: format(date, 'yyyy-MM-dd') },
+            queryParamsHandling: 'merge',
+        });
+        if (emit) this.dateChange.emit(this.date);
+        this.timeout(
+            'clear-set-date',
+            () => this.clearTimeout('set-date'),
+            100,
+        );
     }
 }

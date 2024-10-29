@@ -549,7 +549,6 @@ export class BookingFormService extends AsyncHandler {
         }
         const { event_id, parent_id } = value;
         delete value.event_id;
-        delete value.parent_id;
         const resources = value.resources || [];
         const zone =
             this._org.levelWithID(resources[0]?.zone_id) || resources[0]?.zone;

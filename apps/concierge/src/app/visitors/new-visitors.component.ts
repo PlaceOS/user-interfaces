@@ -5,7 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { InviteVisitorModalComponent } from './invite-visitor-modal.component';
 import { combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, take } from 'rxjs/operators';
 import { SettingsService } from '@placeos/common';
 
 @Component({
@@ -98,8 +98,8 @@ export class NewVisitorsComponent implements OnInit, OnDestroy {
         map(([bld, region]) =>
             this._settings.get('app.use_region')
                 ? this._org.levelsForRegion(region)
-                : this._org.levelsForBuilding(bld)
-        )
+                : this._org.levelsForBuilding(bld),
+        ),
     );
     /** Set filtered date */
     public readonly setDate = (date) => this._state.setFilters({ date });
@@ -112,6 +112,7 @@ export class NewVisitorsComponent implements OnInit, OnDestroy {
         this._router.navigate([], {
             relativeTo: this._route,
             queryParams: { zone_ids: zones.join(',') },
+            queryParamsHandling: 'merge',
         });
         this._state.setFilters({ zones });
     };
@@ -126,11 +127,20 @@ export class NewVisitorsComponent implements OnInit, OnDestroy {
         private _router: Router,
         private _route: ActivatedRoute,
         private _dialog: MatDialog,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {}
 
-    public inviteVisitor() {
-        this._dialog.open(InviteVisitorModalComponent);
+    public async inviteVisitor() {
+        this._dialog.open(InviteVisitorModalComponent, {
+            data: {
+                date: await this._state.filters
+                    .pipe(
+                        take(1),
+                        map((f) => f.date || Date.now()),
+                    )
+                    .toPromise(),
+            },
+        });
     }
 
     public ngOnInit() {

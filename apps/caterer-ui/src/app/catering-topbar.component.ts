@@ -149,8 +149,8 @@ export class CateringTopbarComponent extends AsyncHandler implements OnInit {
         map(([bld, region]) =>
             this._settings.get('app.use_region')
                 ? this._org.levelsForRegion(region)
-                : this._org.levelsForBuilding(bld)
-        )
+                : this._org.levelsForBuilding(bld),
+        ),
     );
     /** Set filtered date */
     public readonly setDate = (date) =>
@@ -162,6 +162,7 @@ export class CateringTopbarComponent extends AsyncHandler implements OnInit {
         this._router.navigate([], {
             relativeTo: this._route,
             queryParams: { zone_ids: z.join(',') },
+            queryParamsHandling: 'merge',
         });
         this._orders.filters = { ...this._orders.filters, zones: [z] };
         this._catering.zone = z[0];
@@ -186,7 +187,7 @@ export class CateringTopbarComponent extends AsyncHandler implements OnInit {
         private _route: ActivatedRoute,
         private _router: Router,
         private _dialog: MatDialog,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         super();
     }
@@ -205,22 +206,22 @@ export class CateringTopbarComponent extends AsyncHandler implements OnInit {
                     this.zones = zones;
                     if (!level) return;
                     this._org.building = this._org.buildings.find(
-                        (bld) => bld.id === level.parent_id
+                        (bld) => bld.id === level.parent_id,
                     );
                 }
                 if (params.has('building_id')) {
                     this._org.building = this._org.buildings.find(
-                        (bld) => bld.id === params.get('building_id')
+                        (bld) => bld.id === params.get('building_id'),
                     );
                 }
-            })
+            }),
         );
         this.subscription(
             'route.params',
             this._route.paramMap.subscribe(
                 (params) =>
-                    (this.page = params.has('view') ? params.get('view') : '')
-            )
+                    (this.page = params.has('view') ? params.get('view') : ''),
+            ),
         );
     }
 
@@ -240,7 +241,7 @@ export class CateringTopbarComponent extends AsyncHandler implements OnInit {
                     .saveSettings({ disabled_rooms: list })
                     .catch();
                 ref.componentInstance.loading = false;
-            })
+            }),
         );
     }
 

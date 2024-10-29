@@ -48,6 +48,7 @@ import { DatePipe } from '@angular/common';
                 [step]="7"
                 (dateChange)="setDate($event)"
                 [is_new]="true"
+                [hide_today]="true"
             ></date-options>
             <div
                 class="absolute top-1/2 -translate-y-1/2 left-4 text-info text-sm"
