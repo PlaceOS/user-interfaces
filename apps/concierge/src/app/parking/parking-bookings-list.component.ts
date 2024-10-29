@@ -185,7 +185,8 @@ import { SettingsService } from '@placeos/common';
                     [disabled]="
                         row.checked_in ||
                         row.state === 'in_progress' ||
-                        row.status === 'ended'
+                        row.status === 'ended' ||
+                        row.instance
                     "
                     (click)="editReservation(row)"
                 >
