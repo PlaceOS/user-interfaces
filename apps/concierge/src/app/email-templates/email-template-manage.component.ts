@@ -83,34 +83,81 @@ import { Clipboard } from '@angular/cdk/clipboard';
                             <mat-error>A category is required</mat-error>
                         </mat-form-field>
                     </div>
-                    <div class="flex-1 space-y-2 w-1/4">
+                    <div class="flex-1 space-y-2 w-1/4 pb-6">
                         <label for="trigger">Trigger</label>
-                        <mat-form-field appearance="outline" class="w-full">
-                            <mat-select
-                                name="trigger"
-                                placeholder="Select Trigger"
-                                formControlName="trigger"
+                        <button
+                            duration-field
+                            class="flex items-center justify-between border border-neutral rounded h-12 w-full px-2"
+                            matRipple
+                            [matMenuTriggerFor]="trigger_menu"
+                            (click)="form.controls.trigger.markAsTouched()"
+                        >
+                            <div
+                                class="flex flex-col leading-tight px-2 text-left flex-1 w-1/2"
                             >
-                                <mat-option value="">None</mat-option>
-                                <mat-option
-                                    *ngFor="let template of definitions | async"
-                                    [value]="template.id"
+                                <div class="truncate">
+                                    {{
+                                        active_trigger?.name ||
+                                            active_trigger?.module_name
+                                    }}
+                                </div>
+                                <div
+                                    class="opacity-30 truncate"
+                                    *ngIf="!active_trigger"
+                                >
+                                    Select a trigger
+                                </div>
+                            </div>
+                            <app-icon class="text-2xl">
+                                arrow_drop_down
+                            </app-icon>
+                        </button>
+                        <mat-menu #trigger_menu="matMenu" class="max-h-[24rem]">
+                            <button
+                                mat-menu-item
+                                (click)="form.patchValue({ trigger: '' })"
+                            >
+                                None
+                            </button>
+                            <ng-container
+                                *ngFor="let group of definitions | async"
+                            >
+                                <label class="p-4">{{ group.name }}</label>
+                                <button
+                                    mat-menu-item
+                                    *ngFor="let tmpl of group.items"
+                                    (click)="
+                                        form.patchValue({ trigger: tmpl.id })
+                                    "
                                 >
                                     <div
-                                        class="flex flex-col-reverse leading-tight my-2"
+                                        class="flex items-center space-x-2 pl-2"
                                     >
-                                        <div class="text-xs opacity-30">
-                                            {{ template.name_details[0] }}
+                                        <div
+                                            class="flex flex-col-reverse leading-tight my-2 flex-1"
+                                        >
+                                            <div class="text-xs opacity-30">
+                                                {{ tmpl.description }}
+                                            </div>
+                                            <div class="text-sm">
+                                                {{
+                                                    tmpl.name ||
+                                                        tmpl.module_name
+                                                }}
+                                                <span class="opacity-0">:</span>
+                                            </div>
                                         </div>
-                                        <div class="text-sm">
-                                            {{ template.name_details[1] }}
-                                            <span class="opacity-0">:</span>
-                                        </div>
+                                        <app-icon
+                                            class="text-2xl"
+                                            *ngIf="
+                                                form.value.trigger === tmpl.id
+                                            "
+                                            >done</app-icon
+                                        >
                                     </div>
-                                </mat-option>
-                            </mat-select>
-                            <mat-error>A trigger is required</mat-error>
-                        </mat-form-field>
+                                </button>
+                            </ng-container>
+                        </mat-menu>
                     </div>
                     <button
                         btn
@@ -199,7 +246,7 @@ import { Clipboard } from '@angular/cdk/clipboard';
 export class EmailTemplateManageComponent extends AsyncHandler {
     public loading = '';
     public template: EmailTemplate;
-    public readonly definitions = this._state.template_definitions;
+    public readonly definitions = this._state.template_groups;
     public readonly buildings = this._org.building_list;
     public readonly form = new FormGroup({
         id: new FormControl(''),
@@ -246,7 +293,7 @@ export class EmailTemplateManageComponent extends AsyncHandler {
             'trigger',
             this.form.valueChanges.subscribe(async (value) => {
                 if (value.trigger) {
-                    const trigger_list = await this.definitions
+                    const trigger_list = await this._state.template_definitions
                         .pipe(take(1))
                         .toPromise();
                     this.active_trigger = trigger_list.find(

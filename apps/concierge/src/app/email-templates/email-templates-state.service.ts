@@ -1,5 +1,10 @@
 import { Injectable } from '@angular/core';
-import { notifySuccess, randomString, SettingsService } from '@placeos/common';
+import {
+    notifySuccess,
+    randomString,
+    SettingsService,
+    unique,
+} from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import {
     PlaceMetadata,
@@ -35,6 +40,7 @@ export interface EmailTemplate {
 
 export interface EmailTemplateDefinition {
     id: string;
+    module_name: string;
     name: string;
     description: string;
     fields: { name: string; description: string }[];
@@ -69,6 +75,7 @@ export class EmailTemplatesStateService {
                                 ({
                                     id: key,
                                     name: definitions[key].name,
+                                    module_name: definitions[key].module_name,
                                     name_details:
                                         definitions[key].name.split(':'),
                                     description:
@@ -88,6 +95,17 @@ export class EmailTemplatesStateService {
         ),
         tap((_) => console.log('Templates:', _)),
         shareReplay(1),
+    );
+
+    public readonly template_groups = this.template_definitions.pipe(
+        map((defs) => {
+            const groups = unique(defs.map((_) => _.module_name));
+            if (!groups.length) return [{ name: '', items: defs }];
+            return groups.map((name) => ({
+                name,
+                items: defs.filter((_) => _.module_name === name),
+            }));
+        }),
     );
 
     private _processTemplates(metadata: PlaceMetadata, zone_id: string) {
