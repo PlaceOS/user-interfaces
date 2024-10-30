@@ -258,11 +258,26 @@ export class ScheduleStateService extends AsyncHandler {
         map((_) => _.filter((_) => !_.extension_data?.shared_event)),
     );
     /** List of desk bookings for the selected date */
-    public readonly visitors: Observable<Booking[]> = this._update.pipe(
-        switchMap(([date]) =>
+    public readonly visitors: Observable<Booking[]> = combineLatest([
+        this._update,
+        this.options,
+    ]).pipe(
+        switchMap(([[date], { period }]) =>
             queryBookings({
-                period_start: getUnixTime(startOfDay(date)),
-                period_end: getUnixTime(endOfDay(date)),
+                period_start: getUnixTime(
+                    period === 'day'
+                        ? startOfDay(date)
+                        : startOfWeek(date, {
+                              weekStartsOn: this.offset_weekday as any,
+                          }),
+                ),
+                period_end: getUnixTime(
+                    period === 'day'
+                        ? endOfDay(date)
+                        : endOfWeek(date, {
+                              weekStartsOn: this.offset_weekday as any,
+                          }),
+                ),
                 type: 'visitor',
             }).pipe(catchError((_) => of([] as Booking[]))),
         ),
@@ -271,11 +286,26 @@ export class ScheduleStateService extends AsyncHandler {
         shareReplay(1),
     );
     /** List of desk bookings for the selected date */
-    public readonly desks: Observable<Booking[]> = this._update.pipe(
-        switchMap(([date]) =>
+    public readonly desks: Observable<Booking[]> = combineLatest([
+        this._update,
+        this.options,
+    ]).pipe(
+        switchMap(([[date], { period }]) =>
             queryBookings({
-                period_start: getUnixTime(startOfDay(date)),
-                period_end: getUnixTime(endOfDay(date)),
+                period_start: getUnixTime(
+                    period === 'day'
+                        ? startOfDay(date)
+                        : startOfWeek(date, {
+                              weekStartsOn: this.offset_weekday as any,
+                          }),
+                ),
+                period_end: getUnixTime(
+                    period === 'day'
+                        ? endOfDay(date)
+                        : endOfWeek(date, {
+                              weekStartsOn: this.offset_weekday as any,
+                          }),
+                ),
                 include_checked_out: true,
                 type: 'desk',
             }).pipe(catchError((_) => of([]))),
@@ -284,11 +314,26 @@ export class ScheduleStateService extends AsyncHandler {
         shareReplay(1),
     );
     /** List of parking bookings for the selected date */
-    public readonly parking: Observable<Booking[]> = this._update.pipe(
-        switchMap(([date]) =>
+    public readonly parking: Observable<Booking[]> = combineLatest([
+        this._update,
+        this.options,
+    ]).pipe(
+        switchMap(([[date], { period }]) =>
             queryBookings({
-                period_start: getUnixTime(startOfDay(date)),
-                period_end: getUnixTime(endOfDay(date)),
+                period_start: getUnixTime(
+                    period === 'day'
+                        ? startOfDay(date)
+                        : startOfWeek(date, {
+                              weekStartsOn: this.offset_weekday as any,
+                          }),
+                ),
+                period_end: getUnixTime(
+                    period === 'day'
+                        ? endOfDay(date)
+                        : endOfWeek(date, {
+                              weekStartsOn: this.offset_weekday as any,
+                          }),
+                ),
                 type: 'parking',
                 include_deleted: 'recurring',
             }).pipe(catchError((_) => of([]))),
