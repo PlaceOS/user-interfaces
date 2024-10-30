@@ -181,7 +181,7 @@ export class ScheduleStateService extends AsyncHandler {
                 const week_start = format(week_s_date, 'dd MMM');
                 const week_end = format(week_e_date, 'dd MMM');
                 options.push({
-                    id: day.valueOf(),
+                    id: week_s_date.valueOf(),
                     name: `${week_start} - ${week_end}`,
                     this_week,
                 });

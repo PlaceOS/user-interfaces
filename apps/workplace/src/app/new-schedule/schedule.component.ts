@@ -176,7 +176,7 @@ export class ScheduleComponent extends AsyncHandler {
             }
             const list = [];
             for (const date of dates) {
-                const day = parse(date, 'yyyy-MM-dd', new Date());
+                const day = parse(date, 'yyyy-MM-dd', 0);
                 list.push({
                     id: date,
                     date: day.valueOf(),
