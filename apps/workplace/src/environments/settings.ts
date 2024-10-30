@@ -200,6 +200,7 @@ const app: any = {
         show_calendar_links: true,
         allow_recurrence: true,
         hide_map: false,
+        default_select_as_map: false,
     },
     parking: {
         allow_all_day: true,
