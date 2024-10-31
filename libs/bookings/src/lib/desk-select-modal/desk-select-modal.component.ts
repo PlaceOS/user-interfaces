@@ -184,6 +184,9 @@ export class DeskSelectModalComponent {
     ) {
         this.selected = [...(_data.items || [])];
         this._event_form.setOptions(_data.options);
+        this.view = this._settings.get('app.desks.default_select_as_map')
+            ? 'map'
+            : 'list';
     }
 
     public isSelected(id: string) {
