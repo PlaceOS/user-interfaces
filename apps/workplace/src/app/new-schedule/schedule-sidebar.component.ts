@@ -251,7 +251,7 @@ export class ScheduleSidebarComponent {
     public readonly week_options = this._state.week_options;
 
     public get period() {
-        return this._state.getOptions().period;
+        return this._state.getOptions()?.period;
     }
 
     public setOptions(options: ScheduleOptions) {
