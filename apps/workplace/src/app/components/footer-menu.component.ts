@@ -129,6 +129,27 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
                     </div>
                     <div class="text-xs" i18n>Your Bookings</div>
                 </a>
+                <a
+                    matRipple
+                    name="footer-nav-my-day"
+                    [routerLink]="['/group-events']"
+                    *ngIf="features.includes('events')"
+                    routerLinkActive="active"
+                    class="flex flex-col items-center justify-center space-y-2 text-base w-1/3  m-2"
+                >
+                    <div
+                        class="bg-base-100 text-base-content rounded-full h-12 w-12 text-2xl flex items-center justify-center"
+                    >
+                        <app-icon filled>local_activity</app-icon>
+                        <app-icon
+                            outline
+                            class="text-neutral"
+                            className="material-icons-outlined"
+                            >local_activity</app-icon
+                        >
+                    </div>
+                    <div class="text-xs" i18n>Events</div>
+                </a>
             </div>
         </div>
         <div

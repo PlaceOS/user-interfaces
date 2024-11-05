@@ -15,7 +15,7 @@ import { take } from 'rxjs/operators';
 @Component({
     selector: `group-events-sidebar`,
     template: `
-        <div class="flex flex-col bg-base-100 w-[18rem] h-full">
+        <div class="flex flex-col bg-base-100 sm:w-[18rem] sm:h-full">
             <div class="flex items-center space-x-2 p-2">
                 <button
                     btn
@@ -55,31 +55,37 @@ import { take } from 'rxjs/operators';
                     </mat-select>
                 </mat-form-field>
             </div>
-            <hr class="border-base-200 w-[calc(100%-1rem)] mx-auto" />
-            <date-calendar
-                [ngModel]="(options | async).date"
-                (ngModelChange)="setPeriodFromDate($event)"
-            ></date-calendar>
-            <hr class="border-base-200 w-[calc(100%-1rem)] mx-auto" />
-            <div class="flex flex-col flex-1 overflow-auto">
-                <h2 class="text-lg font-medium p-4">Filters</h2>
-                <div
-                    class="flex flex-col space-y-2 px-4"
-                    *ngIf="(tags | async)?.length"
-                >
-                    <h3>Tags</h3>
-                    <button
-                        matRipple
-                        class="flex items-center rounded w-full text-left"
-                        *ngFor="let tag of tags | async"
-                        (click)="toggleTag(tag)"
+            <hr
+                class="border-base-200 w-[calc(100%-1rem)] mx-auto hidden sm:block"
+            />
+            <div class="flex-col flex-1 overflow-auto hidden sm:flex">
+                <date-calendar
+                    [ngModel]="(options | async).date"
+                    (ngModelChange)="setPeriodFromDate($event)"
+                ></date-calendar>
+                <hr class="border-base-200 w-[calc(100%-1rem)] mx-auto" />
+                <div class="flex flex-col flex-1 overflow-auto">
+                    <h2 class="text-lg font-medium p-4">Filters</h2>
+                    <div
+                        class="flex flex-col space-y-2 px-4"
+                        *ngIf="(tags | async)?.length"
                     >
-                        <mat-checkbox
-                            [ngModel]="(filters | async)?.tags?.includes(tag)"
+                        <h3>Tags</h3>
+                        <button
+                            matRipple
+                            class="flex items-center rounded w-full text-left"
+                            *ngFor="let tag of tags | async"
+                            (click)="toggleTag(tag)"
                         >
-                            {{ tag }}
-                        </mat-checkbox>
-                    </button>
+                            <mat-checkbox
+                                [ngModel]="
+                                    (filters | async)?.tags?.includes(tag)
+                                "
+                            >
+                                {{ tag }}
+                            </mat-checkbox>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -96,7 +102,7 @@ export class GroupEventsSidebarComponent extends AsyncHandler {
 
     constructor(
         private _settings: SettingsService,
-        private _state: GroupEventsStateService
+        private _state: GroupEventsStateService,
     ) {
         super();
     }
@@ -110,7 +116,7 @@ export class GroupEventsSidebarComponent extends AsyncHandler {
                     this.setPeriod(this.period_list[0].id);
                     this.selected_range = this.period_list[0].id;
                 }
-            })
+            }),
         );
         this._generatePeriods();
         if (this.period_list.length) {
@@ -163,7 +169,7 @@ export class GroupEventsSidebarComponent extends AsyncHandler {
                     end,
                     display: `${format(
                         Math.max(Date.now(), date),
-                        'EEE, do MMM'
+                        'EEE, do MMM',
                     )} – ${format(end, 'do MMM')}`,
                 });
                 date = addDays(date, 7).valueOf();

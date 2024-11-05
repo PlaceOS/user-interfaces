@@ -2,16 +2,15 @@ import { Component } from '@angular/core';
 import { GroupEventsStateService } from './group-events-state.service';
 import { combineLatest } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
-import { addDays, endOfDay, startOfDay } from 'date-fns';
-import { AsyncHandler, SettingsService } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 
 @Component({
     selector: '[group-events]',
     template: `
         <topbar></topbar>
-        <main class="flex flex-1 h-1/2 bg-base-200">
+        <main class="flex flex-col sm:flex-row flex-1 h-1/2 bg-base-200">
             <group-events-sidebar></group-events-sidebar>
-            <div class="w-1/2 flex-1 h-full overflow-auto p-4">
+            <div class="w-full sm:w-1/2 flex-1 h-full overflow-auto p-2 sm:p-4">
                 <group-events-filters-list></group-events-filters-list>
                 <group-event-card
                     *ngIf="featured | async"
@@ -77,15 +76,17 @@ import { AsyncHandler, SettingsService } from '@placeos/common';
 export class GroupEventsComponent extends AsyncHandler {
     public readonly event_list = this._state.filtered_events;
     public readonly featured = this.event_list.pipe(
-        map((_) => _.find((_: any) => _.extension_data?.featured || _.featured))
+        map((_) =>
+            _.find((_: any) => _.extension_data?.featured || _.featured),
+        ),
     );
     public readonly events_without_featured = combineLatest([
         this.event_list,
         this.featured,
     ]).pipe(
         map(([list, featured]) =>
-            list.filter((_: any) => _.id !== featured?.id)
-        )
+            list.filter((_: any) => _.id !== featured?.id),
+        ),
     );
 
     constructor(private _state: GroupEventsStateService) {
