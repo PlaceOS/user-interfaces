@@ -108,9 +108,14 @@ export class ReportsStateService {
             if (!options?.type && !options?.zones?.length) return of([]);
             const start = startOfDay(options.start || Date.now());
             const end = endOfDay(options.end || start);
-            const zones = options?.zones
+            let zones = options?.zones
                 ? options.zones.filter((z) => z !== 'All').join(',')
                 : '';
+            if (!zones) {
+                zones = this._settings.get('app.use_region')
+                    ? this._org.region.id
+                    : this._org.building.id;
+            }
             const query = {
                 period_start: getUnixTime(start),
                 period_end: getUnixTime(end),
