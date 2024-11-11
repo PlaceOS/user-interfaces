@@ -1,11 +1,11 @@
-import { Component } from '@angular/core';
-import { SettingsService } from '@placeos/common';
+import { Component, OnInit } from '@angular/core';
+import { AsyncHandler, SettingsService } from '@placeos/common';
 import {
     ScheduleOptions,
     ScheduleStateService,
 } from './schedule-state.service';
 import { OrganisationService } from '@placeos/organisation';
-import { filter, map } from 'rxjs/operators';
+import { debounceTime, filter, first, map } from 'rxjs/operators';
 import {
     addWeeks,
     endOfWeek,
@@ -241,7 +241,7 @@ import { combineLatest } from 'rxjs';
         `,
     ],
 })
-export class ScheduleSidebarComponent {
+export class ScheduleSidebarComponent extends AsyncHandler implements OnInit {
     public readonly filters = this._state.filters;
     public readonly date = this._state.date.pipe(map((_) => startOfDay(_)));
     public readonly toggleType = (t) => this._state.toggleType(t);
@@ -259,7 +259,7 @@ export class ScheduleSidebarComponent {
     }
 
     public hasFeature(feature: string) {
-        return this._settings.get('app.features')?.includes(feature);
+        return (this._settings.get('app.features') || []).includes(feature);
     }
 
     public get offset_weekday() {
@@ -270,5 +270,32 @@ export class ScheduleSidebarComponent {
         private _org: OrganisationService,
         private _state: ScheduleStateService,
         private _settings: SettingsService,
-    ) {}
+    ) {
+        super();
+    }
+
+    public ngOnInit() {
+        this.subscription(
+            'building',
+            this._org.active_building
+                .pipe(
+                    filter((_) => !!_),
+                    debounceTime(1000),
+                )
+                .subscribe((_) => {
+                    this._state.setType('event', this.hasFeature('spaces'));
+                    this._state.setType('desk', this.hasFeature('desks'));
+                    this._state.setType('parking', this.hasFeature('parking'));
+                    this._state.setType(
+                        'visitor',
+                        this.hasFeature('visitor-invite'),
+                    );
+                    this._state.setType('locker', this.hasFeature('lockers'));
+                    this._state.setType(
+                        'group-event',
+                        this.hasFeature('group-events'),
+                    );
+                }),
+        );
+    }
 }

@@ -16,7 +16,10 @@ import { ScheduleStateService } from './schedule-state.service';
             <div class="flex flex-wrap space-x-2">
                 <div
                     class="flex items-center rounded-3xl border border-base-200"
-                    *ngIf="(filters | async)?.shown_types?.includes('event')"
+                    *ngIf="
+                        (filters | async)?.shown_types?.includes('event') &&
+                        hasFeature('spaces')
+                    "
                 >
                     <div class=" px-2">{{ 'WPA.ROOMS' | translate }}</div>
                     <button
@@ -129,7 +132,10 @@ import { ScheduleStateService } from './schedule-state.service';
             </button>
             <div
                 class="flex items-center rounded-3xl border border-base-200 bg-base-100 text-sm pl-2"
-                *ngIf="(filters | async)?.shown_types?.includes('event')"
+                *ngIf="
+                    (filters | async)?.shown_types?.includes('event') &&
+                    hasFeature('spaces')
+                "
             >
                 <div>{{ 'WPA.ROOMS' | translate }}</div>
                 <button

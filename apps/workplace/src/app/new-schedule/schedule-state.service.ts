@@ -15,6 +15,7 @@ import {
     flatten,
     openConfirmModal,
     SettingsService,
+    unique,
 } from '@placeos/common';
 import {
     CalendarEvent,
@@ -620,6 +621,19 @@ export class ScheduleStateService extends AsyncHandler {
             'PLACEOS.events.deleted',
             JSON.stringify(this._deleted),
         );
+    }
+
+    public setType(name: string, state: boolean) {
+        const filters = this._filters.getValue() || { shown_types: [] };
+        const { shown_types } = filters;
+        if (shown_types.includes(name) === state) return;
+        const new_types = state
+            ? unique([...shown_types, name])
+            : shown_types.filter((_) => _ !== name);
+        this._filters.next({
+            ...filters,
+            shown_types: new_types,
+        });
     }
 
     public async toggleType(name: string, clear: boolean = false) {
