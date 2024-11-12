@@ -82,7 +82,7 @@ import { Clipboard } from '@angular/cdk/clipboard';
             >
                 <div class="">{{ data }}</div>
                 <div class="text-[0.625rem] opacity-30 font-mono">
-                    {{ row.id }}
+                    {{ row.map_id || row.id }}
                 </div>
             </button>
         </ng-template>

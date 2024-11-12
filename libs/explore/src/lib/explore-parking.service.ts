@@ -168,7 +168,6 @@ export class ExploreParkingService extends AsyncHandler {
     ]).pipe(
         map(([events, spaces, users, rules, { date }]) => {
             const available = spaces.filter((space) => {
-                console.log('Space:', space);
                 const event = events.find(
                     (e) => e.asset_id === space.id && !e.rejected,
                 );
@@ -253,7 +252,10 @@ export class ExploreParkingService extends AsyncHandler {
             .toPromise();
         for (const space of spaces) {
             const can_book = !!available.find((_) => _.id === space.id);
-            const is_assigned = !!space.assigned_to;
+            const is_workplace =
+                this._settings.app_name.toLowerCase().includes('workplace') ||
+                this._settings.app_name.toLowerCase().includes('staff');
+            const is_assigned = is_workplace ? false : !!space.assigned_to;
             const id = space.map_id || space.id;
             const status = is_assigned
                 ? can_book
@@ -298,14 +300,15 @@ export class ExploreParkingService extends AsyncHandler {
                         }.`,
                     );
                 }
-                if (assigned_space) {
+                console.log('Booked Space:', booked_space);
+                if (assigned_space && booked_space) {
                     return notifyError(
                         `You are already assigned to parking space "${
                             space.name || space.id
                         }".`,
                     );
                 }
-                if (booked_space?.find((_) => _.id === space.id)) {
+                if (booked_space) {
                     return notifyError(
                         `You already have a parking space booked for the selected time.`,
                     );
