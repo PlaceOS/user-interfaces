@@ -84,10 +84,10 @@ import { ActivatedRoute } from '@angular/router';
 export class ReportDesksComponent extends AsyncHandler {
     public printing = false;
     public readonly total_count = this._state.stats.pipe(
-        map((i) => i.count || 0)
+        map((i) => i.count || 0),
     );
     public readonly utilisation = this._state.stats.pipe(
-        map((i) => ((i.utilisation || 0) * 100).toFixed(1))
+        map((i) => ((i.utilisation || 0) * 100).toFixed(1)),
     );
     public readonly loading = this._state.loading;
 
@@ -101,7 +101,7 @@ export class ReportDesksComponent extends AsyncHandler {
     constructor(
         private _state: ReportsStateService,
         private _settings: SettingsService,
-        private _route: ActivatedRoute
+        private _route: ActivatedRoute,
     ) {
         super();
     }
@@ -125,11 +125,13 @@ export class ReportDesksComponent extends AsyncHandler {
                 if (params.has('end')) {
                     this._state.setOptions({ end: +params.get('end') });
                 }
-                if (params.has('zones')) {
-                    const zones = params.get('zones').split(',');
+                if (params.has('zones') || params.has('zone_ids')) {
+                    const id_list =
+                        params.get('zones') || params.get('zone_ids');
+                    const zones = id_list.split(',');
                     if (zones.length) this._state.setOptions({ zones });
                 }
-            })
+            }),
         );
     }
 }
