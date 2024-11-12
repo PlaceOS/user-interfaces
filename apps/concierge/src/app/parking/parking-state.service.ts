@@ -24,7 +24,14 @@ import {
 import { OrganisationService } from '@placeos/organisation';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
 import { randomInt } from '@placeos/common';
-import { endOfDay, format, getUnixTime, startOfDay } from 'date-fns';
+import {
+    addHours,
+    endOfDay,
+    format,
+    getUnixTime,
+    set,
+    startOfDay,
+} from 'date-fns';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import {
     debounceTime,
@@ -277,12 +284,13 @@ export class ParkingStateService extends AsyncHandler {
             space.assigned_to !== new_space.assigned_to &&
             new_space.assigned_to
         ) {
+            const date = set(Date.now(), { hours: 4, minutes: 0, seconds: 0 });
             await saveBooking(
                 new Booking({
                     user_id: new_space.assigned_to,
                     user_email: new_space.assigned_to,
-                    booking_start: getUnixTime(startOfDay(Date.now())),
-                    booking_end: getUnixTime(endOfDay(Date.now())),
+                    booking_start: getUnixTime(date),
+                    booking_end: getUnixTime(addHours(date, 16)),
                     type: 'parking',
                     booking_type: 'parking',
                     asset_id: new_space.id,
