@@ -201,6 +201,7 @@ const app: any = {
         allow_recurrence: true,
         hide_map: false,
         default_select_as_map: false,
+        default_duration: 60,
     },
     parking: {
         allow_all_day: true,
