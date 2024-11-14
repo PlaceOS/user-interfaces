@@ -266,19 +266,7 @@ export class ParkingStateService extends AsyncHandler {
         const spaces = await this.spaces.pipe(take(1)).toPromise();
         const idx = spaces.findIndex((_) => _.id === new_space.id);
         if (space.assigned_to && space.assigned_to !== new_space.assigned_to) {
-            const booking_list = await queryBookings({
-                period_start: getUnixTime(startOfDay(Date.now())),
-                period_end: getUnixTime(endOfDay(Date.now())),
-                type: 'parking',
-                email: new_space.assigned_to,
-                include_checked_out: true,
-            }).toPromise();
-            const filtered = booking_list.filter(
-                (_) => _.asset_id === space.id,
-            );
-            await Promise.all(
-                filtered.map((_) => removeBooking(_.id).toPromise()),
-            );
+            this._clearAssignedBooking(space);
         }
         if (
             space.assigned_to !== new_space.assigned_to &&
@@ -342,6 +330,7 @@ export class ParkingStateService extends AsyncHandler {
         state.loading('Removing parking space...');
         const zone = this._options.getValue().zones[0];
         const spaces = await this.spaces.pipe(take(1)).toPromise();
+        this._clearAssignedBooking(space);
         await updateMetadata(zone, {
             name: 'parking-spaces',
             details: spaces.filter((_) => _.id !== space.id),
@@ -508,5 +497,17 @@ export class ParkingStateService extends AsyncHandler {
                   } on ${format(booking.date, 'MMM dd')}.`,
               );
         if (success !== 'failed') this._change.next(Date.now());
+    }
+
+    private async _clearAssignedBooking(space: ParkingSpace) {
+        const booking_list = await queryBookings({
+            period_start: getUnixTime(startOfDay(Date.now())),
+            period_end: getUnixTime(endOfDay(Date.now())),
+            type: 'parking',
+            email: space.assigned_to,
+            include_checked_out: true,
+        }).toPromise();
+        const filtered = booking_list.filter((_) => _.asset_id === space.id);
+        await Promise.all(filtered.map((_) => removeBooking(_.id).toPromise()));
     }
 }
