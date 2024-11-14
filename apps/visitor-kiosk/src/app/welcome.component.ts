@@ -12,8 +12,11 @@ import { AsyncHandler, SettingsService } from '@placeos/common';
                 class="absolute min-h-[100%] min-w-[100%] top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2"
             />
             <div class="flex flex-col justify-center space-y-8 z-10 w-[60%]">
-                <h3 class="mb-4 text-white text-6xl space-y-2">
-                    <p>Welcome to Place<span class="text-primary">OS</span></p>
+                <h3 class="mb-4 text-white text-6xl space-y-4">
+                    <p>
+                        Welcome to
+                        <span [innerHTML]="org_name | sanitize: 'html'"></span>
+                    </p>
                     <p>Self Service Kiosk</p>
                 </h3>
                 <div class="flex items-center space-x-4 font-medium">
@@ -86,6 +89,13 @@ export class WelcomeComponent
 
     public get can_register() {
         return this._settings.get('app.allow_self_registration');
+    }
+
+    public get org_name() {
+        return (
+            this._settings.get('app.org_name') ||
+            'Place<span class="text-primary">OS</span>'
+        );
     }
 
     constructor(
