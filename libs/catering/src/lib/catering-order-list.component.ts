@@ -26,6 +26,12 @@ import { CATERING_STATUSES } from './catering.vars';
                         content: state_template,
                     },
                     {
+                        key: 'caterer',
+                        name: 'Caterer',
+                        show:
+                            !filters?.caterer && (caterers | async)?.length > 1,
+                    },
+                    {
                         key: 'deliver_at',
                         name: 'Time',
                         content: time_template,
@@ -221,6 +227,12 @@ export class CateringOrderListComponent extends AsyncHandler {
     public readonly order_list = this._orders.filtered;
     /** Whether order list is loading */
     public readonly loading = this._orders.loading;
+
+    public get filters() {
+        return this._orders.filters;
+    }
+
+    public caterers = this._orders.caterers;
 
     public readonly statuses = CATERING_STATUSES;
     public readonly show_children: Record<string, boolean> = {};

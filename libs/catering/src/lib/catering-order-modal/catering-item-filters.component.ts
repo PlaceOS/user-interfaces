@@ -75,6 +75,27 @@ const ICONS = {
                 />
             </mat-form-field>
         </div>
+        <div
+            *ngIf="!search && (caterers | async)?.length > 1"
+            class="hidden sm:block px-2 py-2"
+        >
+            <label>Caterer:</label>
+            <mat-form-field appearance="outline" class="w-full h-14">
+                <mat-select
+                    [ngModel]="
+                        (filters | async)?.caterer || (caterers | async)[0]
+                    "
+                    (ngModelChange)="setFilters({ caterer: $event })"
+                >
+                    <mat-option
+                        *ngFor="let caterer of caterers | async"
+                        [value]="caterer"
+                    >
+                        {{ caterer }}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
         <h3 class="hidden sm:block font-medium px-2 py-2" *ngIf="!search" i18n>
             Options
         </h3>
@@ -167,13 +188,14 @@ export class CateringItemFiltersComponent
     public readonly setFilters = (f) => this._state.setFilters(f);
 
     public readonly categories = this._state.categories;
+    public readonly caterers = this._state.caterers;
 
     public readonly exact_tooltip =
         'Deliver at exactly specified time. \nNote that changes to the booking will not be \nreflected in the order if this is set.';
 
     public get start_of_date() {
         return startOfDay(
-            addDays(this._state.getFilters().date, this.offset_day)
+            addDays(this._state.getFilters().date, this.offset_day),
         ).valueOf();
     }
 
@@ -188,12 +210,12 @@ export class CateringItemFiltersComponent
     public get max_offset() {
         const end = Math.min(
             endOfDay(
-                addDays(this._state.getFilters().date, this.offset_day)
+                addDays(this._state.getFilters().date, this.offset_day),
             ).valueOf(),
             addMinutes(
                 this._state.getFilters().date,
-                this._state.getFilters().duration
-            ).valueOf()
+                this._state.getFilters().duration,
+            ).valueOf(),
         );
         const diff = differenceInMinutes(end, this._state.getFilters().date);
         return Math.min(diff, Math.min(24 * 60 - 1, this._max_offset));
@@ -207,7 +229,7 @@ export class CateringItemFiltersComponent
 
     constructor(
         private _state: CateringOrderStateService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         super();
     }
@@ -215,7 +237,7 @@ export class CateringItemFiltersComponent
     public ngOnInit() {
         this._min_offset = Math.max(
             this._settings.get('app.catering.min_offset'),
-            0
+            0,
         );
         this.subscription(
             'filters',
@@ -223,10 +245,10 @@ export class CateringItemFiltersComponent
                 this._max_offset = Math.max(
                     15,
                     (this._state.getFilters().duration || 60) -
-                        this._settings.get('app.catering.end_offset')
+                        this._settings.get('app.catering.end_offset'),
                 );
                 this._updateDayOptions();
-            })
+            }),
         );
         this._updateDayOptions();
     }

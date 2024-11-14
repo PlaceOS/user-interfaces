@@ -10,7 +10,7 @@ import {
 } from 'rxjs/operators';
 import { startOfDay, endOfDay, getUnixTime, format } from 'date-fns';
 
-import { AsyncHandler, currentUser, flatten } from '@placeos/common';
+import { AsyncHandler, currentUser, flatten, unique } from '@placeos/common';
 import {
     queryEvents,
     saveEvent,
@@ -28,19 +28,21 @@ export interface CateringOrderFilters {
     zones?: string[];
     /** Search string to filter orders on */
     search?: string;
+    /** Caterer to filter orders on */
+    caterer?: string;
 }
 
 function checkOrder(
     order: CateringOrder,
-    filters: CateringOrderFilters
+    filters: CateringOrderFilters,
 ): boolean {
     const s = (filters.search || '').toLowerCase();
     return !!order.items.find(
         (item) =>
             item.name.toLowerCase().includes(s) ||
             !!item.options.find((option) =>
-                option.name.toLowerCase().includes(s)
-            )
+                option.name.toLowerCase().includes(s),
+            ),
     );
 }
 
@@ -50,7 +52,9 @@ function checkOrder(
 export class CateringOrdersService extends AsyncHandler {
     private _poll = new BehaviorSubject<number>(0);
     private _loading = new BehaviorSubject<boolean>(false);
-    private _filters = new BehaviorSubject<CateringOrderFilters>({});
+    private _filters = new BehaviorSubject<CateringOrderFilters>({
+        caterer: '',
+    });
 
     /** Observable for list of orders */
     public readonly orders: Observable<CateringOrder[]> = combineLatest([
@@ -72,25 +76,32 @@ export class CateringOrdersService extends AsyncHandler {
                     flatten(
                         events.map((event) =>
                             event.valid_catering.map(
-                                (o) => new CateringOrder({ ...o, event })
-                            )
-                        )
-                    )
+                                (o) => new CateringOrder({ ...o, event }),
+                            ),
+                        ),
+                    ),
                 ),
                 map((orders) =>
                     orders.filter(
                         (o) =>
                             format(o.deliver_at, 'yyyy-MM-dd') ===
-                            format(start * 1000, 'yyyy-MM-dd')
-                    )
-                )
+                            format(start * 1000, 'yyyy-MM-dd'),
+                    ),
+                ),
             );
         }),
         tap(() => this._loading.next(false)),
-        shareReplay(1)
+        shareReplay(1),
     );
     /** Observable for loading status of orders */
     public readonly loading = this._loading.asObservable();
+
+    public readonly order_filters = this._filters.asObservable();
+
+    public readonly caterers = this.orders.pipe(
+        map((_) => unique(_.map((i) => i.caterer))),
+        shareReplay(1),
+    );
     /** Order filters */
     public get filters() {
         return this._filters.getValue();
@@ -104,8 +115,8 @@ export class CateringOrdersService extends AsyncHandler {
         map((list) =>
             list
                 .filter((order) => checkOrder(order, this._filters.getValue()))
-                .sort((a, b) => a.deliver_at - b.deliver_at)
-        )
+                .sort((a, b) => a.deliver_at - b.deliver_at),
+        ),
     );
 
     constructor() {
@@ -118,7 +129,7 @@ export class CateringOrdersService extends AsyncHandler {
         this.interval(
             'polling',
             () => this._poll.next(new Date().valueOf()),
-            delay
+            delay,
         );
     }
 
@@ -134,7 +145,7 @@ export class CateringOrdersService extends AsyncHandler {
      */
     public async updateStatus(
         order: CateringOrder,
-        status: CateringOrderStatus
+        status: CateringOrderStatus,
     ) {
         order.status = status;
         const updated_order = new CateringOrder({
@@ -144,7 +155,7 @@ export class CateringOrdersService extends AsyncHandler {
         });
         const catering = [
             ...(order.event.extension_data.catering || []).filter(
-                (o) => o.id !== order.id
+                (o) => o.id !== order.id,
             ),
             updated_order,
         ].map((i) => new CateringOrder({ ...i }));
@@ -156,7 +167,7 @@ export class CateringOrdersService extends AsyncHandler {
         const booking = await updateEventMetadata(
             event.id,
             system_id,
-            event.extension_data
+            event.extension_data,
         ).toPromise();
         this.timeout('refresh-list', () => this._poll.next(Date.now()), 1000);
         (order as any).status = status;

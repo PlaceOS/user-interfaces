@@ -9,6 +9,7 @@ import { CateringItem } from './catering-item.class';
 export interface CateringItemModalData {
     item: CateringItem;
     categories?: string[];
+    caterers?: string[];
 }
 
 @Component({
@@ -25,8 +26,8 @@ export interface CateringItemModalData {
             *ngIf="form && !loading; else load_state"
             [formGroup]="form"
         >
-            <div class="flex items-center space-x-2">
-                <div class="flex flex-col" *ngIf="form.controls.name">
+            <div class="flex items-center space-x-2 w-full">
+                <div class="flex flex-col flex-1" *ngIf="form.controls.name">
                     <label
                         for="title"
                         [class.error]="
@@ -46,7 +47,12 @@ export interface CateringItemModalData {
                         <mat-error>Name is required</mat-error>
                     </mat-form-field>
                 </div>
-                <div class="flex flex-col" *ngIf="form.controls.category">
+            </div>
+            <div class="flex items-center space-x-2 w-full">
+                <div
+                    class="flex flex-col flex-1"
+                    *ngIf="form.controls.category"
+                >
                     <label
                         for="category"
                         [class.error]="
@@ -65,6 +71,27 @@ export interface CateringItemModalData {
                             [matAutocomplete]="auto"
                         />
                         <mat-error>Category is required</mat-error>
+                    </mat-form-field>
+                </div>
+                <div class="flex flex-col flex-1" *ngIf="form.controls.caterer">
+                    <label
+                        for="caterer"
+                        [class.error]="
+                            form.controls.caterer.invalid &&
+                            form.controls.caterer.touched
+                        "
+                    >
+                        Caterer<span>*</span>:
+                    </label>
+                    <mat-form-field appearance="outline">
+                        <input
+                            matInput
+                            name="caterer"
+                            placeholder="Caterer"
+                            formControlName="caterer"
+                            [matAutocomplete]="caterer_auto"
+                        />
+                        <mat-error>Caterer is required</mat-error>
                     </mat-form-field>
                 </div>
             </div>
@@ -240,6 +267,11 @@ export interface CateringItemModalData {
                 {{ option }}
             </mat-option>
         </mat-autocomplete>
+        <mat-autocomplete #caterer_auto="matAutocomplete">
+            <mat-option *ngFor="let option of caterers" [value]="option">
+                {{ option }}
+            </mat-option>
+        </mat-autocomplete>
     `,
     styles: [
         `
@@ -257,6 +289,9 @@ export class CateringItemModalComponent {
         name: new FormControl(this.item.name || '', [Validators.required]),
         description: new FormControl(this.item.description || ''),
         category: new FormControl(this.item.category || '', [
+            Validators.required,
+        ]),
+        caterer: new FormControl(this.item.caterer || 'Internal', [
             Validators.required,
         ]),
         unit_price: new FormControl(this.item.unit_price, [
@@ -282,6 +317,11 @@ export class CateringItemModalComponent {
         return this._data.categories || [];
     }
 
+    /** List of available caterers */
+    public get caterers(): string[] {
+        return this._data.caterers || [];
+    }
+
     public get tag_list(): string[] {
         return this.form.controls.tags.value;
     }
@@ -295,7 +335,7 @@ export class CateringItemModalComponent {
     }
 
     constructor(
-        @Inject(MAT_DIALOG_DATA) private _data: CateringItemModalData
+        @Inject(MAT_DIALOG_DATA) private _data: CateringItemModalData,
     ) {}
 
     /**

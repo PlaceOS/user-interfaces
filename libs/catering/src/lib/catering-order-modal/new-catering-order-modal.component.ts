@@ -177,18 +177,22 @@ export class NewCateringOrderModalComponent {
             exact_time?: boolean;
             offset?: number;
             offset_day?: number;
-        }
+            caterer?: string;
+        },
     ) {
         const { duration } = this._data.details;
         this._order.setFilters(this._data.details);
         this.offset = Math.min(
             Math.max(
                 this._settings.get('app.catering.min_offset'),
-                this._data.offset || 0
+                this._data.offset || 0,
             ),
-            (duration || 60) - this._settings.get('app.catering.end_offset')
+            (duration || 60) - this._settings.get('app.catering.end_offset'),
         );
         this.offset_day = this._data.offset_day || 0;
+        if (this._data.caterer) {
+            this._order.setFilters({ caterer: this._data.caterer });
+        }
     }
 
     public isSelected(id: string) {
@@ -197,7 +201,9 @@ export class NewCateringOrderModalComponent {
 
     public setSelected(item: CateringItem, state: boolean) {
         const list = this.selected.filter(
-            (_) => _.custom_id !== item.custom_id
+            (_) =>
+                _.custom_id !== item.custom_id &&
+                (!item.caterer || item.caterer === _.caterer),
         );
         if (state) {
             const new_item = new CateringItem({ ...item, in_order: true });
@@ -218,7 +224,7 @@ export class NewCateringOrderModalComponent {
         } else {
             this._settings.saveUserSetting(
                 'favourite_menu_items',
-                fav_list.filter((_) => _ !== item.id)
+                fav_list.filter((_) => _ !== item.id),
             );
         }
     }
