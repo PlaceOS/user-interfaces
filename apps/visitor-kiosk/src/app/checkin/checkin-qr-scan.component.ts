@@ -189,6 +189,11 @@ export class CheckinQRScanComponent
             throw err;
         });
         const event = await this._checkin.event.pipe(take(1)).toPromise();
+        if (event.checked_out_at) {
+            this.handleError('Your meeting has already finished.');
+            this.checking_code = false;
+            return;
+        }
         if (
             event.induction !== 'accepted' &&
             this.is_induction_enabled &&
