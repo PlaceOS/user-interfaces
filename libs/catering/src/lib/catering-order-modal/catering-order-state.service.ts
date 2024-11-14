@@ -89,11 +89,17 @@ export class CateringOrderStateService {
         }),
         tap((items) => {
             this._loading.next(this._loading.getValue().replace('[MENU]', ''));
-            const caterer_list = unique(
-                items.map((i) => i.caterer).filter((_) => !!_),
-            );
-            if (caterer_list.length <= 1) return;
-            this.setFilters({ caterer: caterer_list[0] || '' });
+            if (this._settings.get('app.catering_provider')) {
+                this.setFilters({
+                    caterer: this._settings.get('app.catering_provider'),
+                });
+            } else {
+                const caterer_list = unique(
+                    items.map((i) => i.caterer).filter((_) => !!_),
+                );
+                if (caterer_list.length <= 1) return;
+                this.setFilters({ caterer: caterer_list[0] || '' });
+            }
         }),
         shareReplay(1),
     );
@@ -103,7 +109,11 @@ export class CateringOrderStateService {
     );
 
     public readonly caterers = this.available_menu.pipe(
-        map((_) => unique(_.map((i) => i.caterer))),
+        map((_) => {
+            return this._settings.get('app.catering_provider')
+                ? []
+                : unique(_.map((i) => i.caterer));
+        }),
     );
 
     public readonly filtered_menu = combineLatest([
