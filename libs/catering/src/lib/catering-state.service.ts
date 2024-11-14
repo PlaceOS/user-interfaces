@@ -19,6 +19,7 @@ import {
 
 import {
     AsyncHandler,
+    currentUser,
     flatten,
     notifyError,
     notifySuccess,
@@ -53,6 +54,7 @@ import {
     CateringOrderOptionsModalData,
 } from './catering-order-options-modal.component';
 import { CateringImportMenuModalComponent } from './catering-import-menu-modal.component';
+import { CateringOrdersService } from './catering-orders.service';
 
 export interface CateringSettings {
     require_notes?: boolean;
@@ -104,8 +106,24 @@ export class CateringStateService extends AsyncHandler {
         map((_) => _.disabled_rooms || []),
     );
 
-    public readonly caterers = this._menu.pipe(
-        map((_) => unique(_.map((i) => i.caterer))),
+    public readonly caterers = combineLatest([
+        this._menu,
+        this._orders.caterers,
+    ]).pipe(
+        map(([menu_items]) => {
+            const provider_groups =
+                this._settings.get('app.catering_provider_groups') || {};
+            let provider_list = Object.keys(provider_groups);
+            if (!provider_list.length) {
+                return unique(menu_items.map((i) => i.caterer));
+            }
+            provider_list = provider_list.filter((caterer) =>
+                provider_groups[caterer].find((group) =>
+                    currentUser().groups.includes(group),
+                ),
+            );
+            return unique(provider_list);
+        }),
         shareReplay(1),
     );
 
@@ -129,21 +147,26 @@ export class CateringStateService extends AsyncHandler {
         private _org: OrganisationService,
         private _dialog: MatDialog,
         private _settings: SettingsService,
+        private _orders: CateringOrdersService,
     ) {
         super();
         this.subscription(
             'building',
             this._org.active_building.subscribe(async (bld: Building) => {
                 if (bld) {
-                    const menu = (await this.getCateringForZone(bld.id)).map(
-                        (i) => new CateringItem(i),
-                    );
+                    this._loading.next(true);
+                    this._menu.next([]);
+                    const menu = (
+                        await this.getCateringForZone(bld.id).catch((_) => [])
+                    ).map((i) => new CateringItem(i));
                     this._currency.next(
                         this._settings.get('app.currency') ||
                             bld.currency ||
                             'USD',
                     );
-                    this._menu.next(menu);
+                    this._loading.next(false);
+
+                    this.timeout('loaded', () => this._menu.next(menu), 1000);
                 }
             }),
         );

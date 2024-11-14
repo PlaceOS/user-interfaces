@@ -10,7 +10,13 @@ import {
 } from 'rxjs/operators';
 import { startOfDay, endOfDay, getUnixTime, format } from 'date-fns';
 
-import { AsyncHandler, currentUser, flatten, unique } from '@placeos/common';
+import {
+    AsyncHandler,
+    currentUser,
+    flatten,
+    SettingsService,
+    unique,
+} from '@placeos/common';
 import {
     queryEvents,
     saveEvent,
@@ -61,7 +67,7 @@ export class CateringOrdersService extends AsyncHandler {
         this._filters,
         this._poll,
     ]).pipe(
-        debounceTime(1000),
+        debounceTime(300),
         switchMap(([{ date, zones }]) => {
             this._loading.next(true);
             const start = getUnixTime(startOfDay(date || Date.now()));
@@ -99,7 +105,31 @@ export class CateringOrdersService extends AsyncHandler {
     public readonly order_filters = this._filters.asObservable();
 
     public readonly caterers = this.orders.pipe(
-        map((_) => unique(_.map((i) => i.caterer))),
+        map((_) => {
+            const provider_groups =
+                this._settings.get('app.catering_provider_groups') || {};
+            let provider_list = Object.keys(provider_groups);
+            const is_admin =
+                currentUser().groups.includes('placeos_admin') ||
+                currentUser().groups.includes('placeos_support');
+            if (!provider_list.length || is_admin)
+                return unique(_.map((i) => i.caterer));
+            provider_list = provider_list.filter((caterer) =>
+                provider_groups[caterer].find((group) =>
+                    currentUser().groups.includes(group),
+                ),
+            );
+            if (
+                provider_list.length <= 1 &&
+                this._filters.getValue()?.caterer !== provider_list[0]
+            ) {
+                this._filters.next({
+                    ...this._filters.getValue(),
+                    caterer: provider_list[0],
+                });
+            }
+            return unique(provider_list);
+        }),
         shareReplay(1),
     );
     /** Order filters */
@@ -119,7 +149,7 @@ export class CateringOrdersService extends AsyncHandler {
         ),
     );
 
-    constructor() {
+    constructor(private _settings: SettingsService) {
         super();
         this.subscription('changes', this.orders.subscribe());
     }

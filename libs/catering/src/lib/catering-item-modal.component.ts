@@ -291,7 +291,7 @@ export class CateringItemModalComponent {
         category: new FormControl(this.item.category || '', [
             Validators.required,
         ]),
-        caterer: new FormControl(this.item.caterer || 'Internal', [
+        caterer: new FormControl(this.item.caterer || '', [
             Validators.required,
         ]),
         unit_price: new FormControl(this.item.unit_price, [

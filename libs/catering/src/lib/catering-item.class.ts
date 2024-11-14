@@ -47,7 +47,7 @@ export class CateringItem {
         this.id = data.id || '';
         this.name = data.name || data.id || '';
         this.category = data.category || '';
-        this.caterer = data.caterer || 'Internal';
+        this.caterer = data.caterer || '';
         this.unit_price = data.unit_price || 0;
         this.description = data.description || '';
         this.quantity = data.quantity || 0;
