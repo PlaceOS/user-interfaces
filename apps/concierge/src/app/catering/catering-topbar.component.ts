@@ -51,6 +51,25 @@ import { combineLatest } from 'rxjs';
                     </mat-option>
                 </mat-select>
             </mat-form-field>
+            <mat-form-field
+                appearance="outline"
+                class="no-subscript w-60"
+                *ngIf="(caterers | async)?.length > 1"
+            >
+                <mat-select
+                    [ngModel]="filters?.caterer"
+                    (ngModelChange)="setCaterer($event)"
+                    placeholder="All Caterers"
+                >
+                    <mat-option value="">All Caterers</mat-option>
+                    <mat-option
+                        *ngFor="let caterer of caterers | async"
+                        [value]="caterer"
+                    >
+                        {{ caterer }}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
             <div *ngIf="page === 'menu'" class="flex-1 w-2"></div>
             <button
                 *ngIf="
@@ -127,6 +146,7 @@ export class CateringTopbarComponent extends AsyncHandler implements OnInit {
     /** Currently active page */
     public page: string;
     public readonly filters = this._orders.filters;
+    public readonly caterers = this._catering.caterers;
     /** List of levels for the active building */
     public readonly levels = combineLatest([
         this._org.active_building,
@@ -141,6 +161,8 @@ export class CateringTopbarComponent extends AsyncHandler implements OnInit {
     /** Set filtered date */
     public readonly setDate = (date) =>
         (this._orders.filters = { ...this._orders.filters, date });
+    public readonly setCaterer = (caterer) =>
+        (this._orders.filters = { ...this._orders.filters, caterer });
     public readonly setSearch = (str) =>
         (this._orders.filters = { ...this._orders.filters, search: str });
     /** List of levels for the active building */

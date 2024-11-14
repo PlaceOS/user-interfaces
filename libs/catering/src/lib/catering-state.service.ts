@@ -19,6 +19,7 @@ import {
 
 import {
     AsyncHandler,
+    currentUser,
     flatten,
     notifyError,
     notifySuccess,
@@ -53,6 +54,7 @@ import {
     CateringOrderOptionsModalData,
 } from './catering-order-options-modal.component';
 import { CateringImportMenuModalComponent } from './catering-import-menu-modal.component';
+import { CateringOrdersService } from './catering-orders.service';
 
 export interface CateringSettings {
     require_notes?: boolean;
@@ -87,21 +89,42 @@ export class CateringStateService extends AsyncHandler {
         filter(([_]) => !!_),
         switchMap(([_]) =>
             showMetadata(_.id, 'catering-settings').pipe(
-                catchError((_) => of({} as PlaceMetadata))
-            )
+                catchError((_) => of({} as PlaceMetadata)),
+            ),
         ),
         map((_) => (_.details as CateringSettings) || {}),
         tap((_) =>
-            this._settings.post('require_catering_notes', !!_?.require_notes)
+            this._settings.post('require_catering_notes', !!_?.require_notes),
         ),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     public readonly charge_codes = this.settings.pipe(
-        map((_) => _.charge_codes || [])
+        map((_) => _.charge_codes || []),
     );
     public readonly availability = this.settings.pipe(
-        map((_) => _.disabled_rooms || [])
+        map((_) => _.disabled_rooms || []),
+    );
+
+    public readonly caterers = combineLatest([
+        this._menu,
+        this._orders.caterers,
+    ]).pipe(
+        map(([menu_items]) => {
+            const provider_groups =
+                this._settings.get('app.catering_provider_groups') || {};
+            let provider_list = Object.keys(provider_groups);
+            if (!provider_list.length) {
+                return unique(menu_items.map((i) => i.caterer));
+            }
+            provider_list = provider_list.filter((caterer) =>
+                provider_groups[caterer].find((group) =>
+                    currentUser().groups.includes(group),
+                ),
+            );
+            return unique(provider_list);
+        }),
+        shareReplay(1),
     );
 
     public zone = '';
@@ -115,27 +138,37 @@ export class CateringStateService extends AsyncHandler {
         return unique(menu.map((i) => i.category));
     }
 
+    public get caterer_list() {
+        const menu = this._menu.getValue();
+        return unique(menu.map((i) => i.caterer));
+    }
+
     constructor(
         private _org: OrganisationService,
         private _dialog: MatDialog,
-        private _settings: SettingsService
+        private _settings: SettingsService,
+        private _orders: CateringOrdersService,
     ) {
         super();
         this.subscription(
             'building',
             this._org.active_building.subscribe(async (bld: Building) => {
                 if (bld) {
-                    const menu = (await this.getCateringForZone(bld.id)).map(
-                        (i) => new CateringItem(i)
-                    );
+                    this._loading.next(true);
+                    this._menu.next([]);
+                    const menu = (
+                        await this.getCateringForZone(bld.id).catch((_) => [])
+                    ).map((i) => new CateringItem(i));
                     this._currency.next(
                         this._settings.get('app.currency') ||
                             bld.currency ||
-                            'USD'
+                            'USD',
                     );
-                    this._menu.next(menu);
+                    this._loading.next(false);
+
+                    this.timeout('loaded', () => this._menu.next(menu), 1000);
                 }
-            })
+            }),
         );
     }
 
@@ -175,6 +208,7 @@ export class CateringStateService extends AsyncHandler {
             data: {
                 item,
                 categories: this.categories,
+                caterers: this.caterer_list,
             },
         });
         const details = await Promise.race([
@@ -196,7 +230,7 @@ export class CateringStateService extends AsyncHandler {
                 this._menu.next([...menu]);
                 ref.close();
             },
-            () => (ref.componentInstance.loading = false)
+            () => (ref.componentInstance.loading = false),
         );
     }
 
@@ -206,13 +240,13 @@ export class CateringStateService extends AsyncHandler {
         if (index >= 0) menu.splice(index, 1, item);
         else menu.push(item);
         this.updateMenu(this._org.building.id, menu).then(() =>
-            this._menu.next([...menu])
+            this._menu.next([...menu]),
         );
     }
 
     public async addOption(
         item: CateringItem,
-        option: CateringOption = {} as any
+        option: CateringOption = {} as any,
     ) {
         const types = unique(item.options.map((i) => i.group));
         const ref = this._dialog.open<
@@ -244,7 +278,7 @@ export class CateringStateService extends AsyncHandler {
                 this._menu.next([...menu]);
                 ref.close();
             },
-            () => (ref.componentInstance.loading = false)
+            () => (ref.componentInstance.loading = false),
         );
     }
 
@@ -280,7 +314,7 @@ export class CateringStateService extends AsyncHandler {
                     content: 'delete',
                 },
             },
-            this._dialog
+            this._dialog,
         );
         if (details.reason !== 'done') return;
         details.loading('Removing catering item...');
@@ -290,7 +324,7 @@ export class CateringStateService extends AsyncHandler {
                 this._menu.next([...menu]);
                 details.close();
             },
-            () => details.loading('')
+            () => details.loading(''),
         );
     }
 
@@ -305,7 +339,7 @@ export class CateringStateService extends AsyncHandler {
                     content: 'delete',
                 },
             },
-            this._dialog
+            this._dialog,
         );
         if (details.reason !== 'done') return;
         details.loading('Removing catering item option...');
@@ -316,14 +350,14 @@ export class CateringStateService extends AsyncHandler {
             new CateringItem({
                 ...item,
                 options: item.options.filter((opt) => opt.id !== option.id),
-            })
+            }),
         );
         this.updateMenu(this._org.building.id, menu).then(
             () => {
                 this._menu.next([...menu]);
                 details.close();
             },
-            () => details.loading('')
+            () => details.loading(''),
         );
     }
 
@@ -352,7 +386,7 @@ export class CateringStateService extends AsyncHandler {
         if (details?.reason !== 'done') return;
         this.updateConfig(this._org.building.id, details.metadata).then(
             () => ref.close(),
-            () => (ref.componentInstance.loading = false)
+            () => (ref.componentInstance.loading = false),
         );
     }
 
@@ -375,7 +409,7 @@ export class CateringStateService extends AsyncHandler {
             throw _;
         });
         notifySuccess(
-            `Successfully imported catering menu. ${details.metadata.length} item(s) added.`
+            `Successfully imported catering menu. ${details.metadata.length} item(s) added.`,
         );
         ref.close();
     }
@@ -408,7 +442,7 @@ export class CateringStateService extends AsyncHandler {
     }
 
     public async getCateringConfig(
-        zone_id: string = this._org.building.id
+        zone_id: string = this._org.building.id,
     ): Promise<AttachedResourceRuleset[]> {
         const rules = (
             await showMetadata(zone_id, 'catering_config').toPromise()
@@ -437,8 +471,8 @@ export class CateringStateService extends AsyncHandler {
                             (new_item.options.find((opt) => o.id === opt.id)
                                 ? 1
                                 : 0),
-                        0
-                    )
+                        0,
+                    ),
         );
         match
             ? ((match as any).quantity += 1)

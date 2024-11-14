@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
-import { map } from 'rxjs/operators';
 
 import { CateringStateService } from './catering-state.service';
 import { CateringItem } from './catering-item.class';
 import { unique } from '@placeos/common';
 import { CateringOrdersService } from './catering-orders.service';
+import { combineLatest } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 @Component({
     selector: 'catering-menu',
@@ -19,23 +19,28 @@ import { CateringOrdersService } from './catering-orders.service';
                     name: ' ',
                     content: active_template,
                     size: '3.5rem',
-                    sortable: false
+                    sortable: false,
                 },
                 { key: 'name', name: 'Name' },
                 { key: 'category', name: 'Category' },
                 {
+                    key: 'caterer',
+                    name: 'Caterer',
+                    show: !filters?.caterer && caterers.length > 1,
+                },
+                {
                     key: 'unit_price',
                     name: 'Price',
                     content: price_template,
-                    size: '6rem'
+                    size: '6rem',
                 },
                 {
                     key: 'actions',
                     name: ' ',
                     content: actions_template,
                     size: '6.5rem',
-                    sortable: false
-                }
+                    sortable: false,
+                },
             ]"
             [filter]="filters?.search"
             [show_children]="show_children"
@@ -174,7 +179,16 @@ import { CateringOrdersService } from './catering-orders.service';
 export class CateringMenuComponent {
     public show_children: Record<string, boolean> = {};
     /** Observable for the currently active menu */
-    public readonly menu = this._catering.menu;
+    public readonly menu = combineLatest([
+        this._catering.menu,
+        this._orders.order_filters,
+    ]).pipe(
+        map(([menu, filters]) =>
+            menu.filter(
+                (item) => !filters?.caterer || item.caterer === filters.caterer,
+            ),
+        ),
+    );
 
     public readonly addOption = (item) => this._catering.addOption(item);
 
@@ -195,13 +209,18 @@ export class CateringMenuComponent {
     public get can_edit() {
         return this._catering.is_editable;
     }
+
     public get categories() {
         return this._catering.categories;
     }
 
+    public get caterers() {
+        return this._catering.caterer_list;
+    }
+
     constructor(
         private _catering: CateringStateService,
-        private _orders: CateringOrdersService
+        private _orders: CateringOrdersService,
     ) {}
 
     public isEnabled(item: CateringItem) {
@@ -213,7 +232,7 @@ export class CateringMenuComponent {
         if (!state) list = unique([...list, this._catering.zone]);
         else list = list.filter((_) => _ !== this._catering.zone);
         this._catering.updateItem(
-            new CateringItem({ ...item, hide_for_zones: list })
+            new CateringItem({ ...item, hide_for_zones: list }),
         );
     }
 }

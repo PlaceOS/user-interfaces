@@ -227,7 +227,7 @@ export class CateringListFieldComponent implements ControlValueAccessor {
     constructor(
         private _settings: SettingsService,
         private _org: OrganisationService,
-        private _dialog: MatDialog
+        private _dialog: MatDialog,
     ) {}
 
     /**
@@ -242,7 +242,7 @@ export class CateringListFieldComponent implements ControlValueAccessor {
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.options) {
             this.orders = (this.orders || []).map(
-                (_) => new CateringOrder({ ..._, event: this.options as any })
+                (_) => new CateringOrder({ ..._, event: this.options as any }),
             );
         }
     }
@@ -253,7 +253,7 @@ export class CateringListFieldComponent implements ControlValueAccessor {
      */
     public writeValue(value: CateringOrder[]) {
         this.orders = (value || []).map(
-            (_) => new CateringOrder({ ..._, event: this.options as any })
+            (_) => new CateringOrder({ ..._, event: this.options as any }),
         );
     }
 
@@ -290,6 +290,7 @@ export class CateringListFieldComponent implements ControlValueAccessor {
     public editOrder(order: CateringOrder = new CateringOrder()) {
         const ref = this._dialog.open(NewCateringOrderModalComponent, {
             data: {
+                caterer: order.items[0]?.caterer,
                 items: order.items,
                 details: {
                     ...this.options,
@@ -315,7 +316,7 @@ export class CateringListFieldComponent implements ControlValueAccessor {
                 ];
                 for (const option of item.options) {
                     const opt = item.option_list.find(
-                        (_) => _.id === option.id
+                        (_) => _.id === option.id,
                     );
                     option.active = !!opt;
                 }
@@ -323,6 +324,7 @@ export class CateringListFieldComponent implements ControlValueAccessor {
             const new_order = new CateringOrder({
                 ...order,
                 items,
+                caterer: items[0].caterer,
                 event: this.options as any,
                 deliver_offset: ref.componentInstance.offset,
                 deliver_time: ref.componentInstance.exact_time
@@ -350,7 +352,7 @@ export class CateringListFieldComponent implements ControlValueAccessor {
         } else {
             this._settings.saveUserSetting(
                 'favourite_menu_items',
-                fav_list.filter((_) => _ !== cateringitem.id)
+                fav_list.filter((_) => _ !== cateringitem.id),
             );
         }
     }
