@@ -166,6 +166,11 @@ export class CheckinQRScanComponent
                 this.checking_code = false;
                 return;
             }
+            if (event.checked_out_at) {
+                this.handleError('Your meeting has already finished.');
+                this.checking_code = false;
+                return;
+            }
             if (this.is_induction_enabled && event?.induction !== 'accepted') {
                 this._router.navigate(['/checkin', 'induction']);
             } else {
