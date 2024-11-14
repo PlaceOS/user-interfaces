@@ -21,12 +21,23 @@ import { Space } from '../space.class';
                     *ngFor="let space of available_spaces | async"
                     [class.!border-info]="active === space.id"
                     class="relative p-2 rounded-lg w-full shadow border bg-base-100 border-base-200"
+                    [class.!bg-error-light]="
+                        (room_alerts | async)[space.id]
+                            ? (room_alerts | async)[space.id][0] === 'closed'
+                            : false
+                    "
                 >
                     <button
                         matRipple
                         name="select-space"
-                        class="w-full h-full flex items-center"
+                        class="w-full h-full flex items-center rounded"
                         (click)="selectSpace(space)"
+                        [class.pointer-events-none]="
+                            (room_alerts | async)[space.id]
+                                ? (room_alerts | async)[space.id][0] ===
+                                  'closed'
+                                : false
+                        "
                     >
                         <div
                             class="relative min-w-[5rem] w-20 h-20 rounded-xl bg-base-200 mr-4 overflow-hidden flex items-center justify-center"
@@ -52,6 +63,48 @@ import { Space } from '../space.class';
                                     src="assets/icons/room-placeholder.svg"
                                 />
                             </ng-template>
+                            <div
+                                class="absolute bottom-1 left-1 rounded-full h-6 w-6 rotate-12 pointer-events-auto flex items-center justify-center"
+                                *ngIf="(room_alerts | async)[space.id]"
+                                [matTooltip]="
+                                    (room_alerts | async)[space.id][1]
+                                "
+                                [class.bg-error]="
+                                    (room_alerts | async)[space.id][0] ===
+                                    'closed'
+                                "
+                                [class.bg-info]="
+                                    (room_alerts | async)[space.id][0] ===
+                                    'info'
+                                "
+                                [class.bg-warning]="
+                                    (room_alerts | async)[space.id][0] ===
+                                    'warn'
+                                "
+                                [class.text-error-content]="
+                                    (room_alerts | async)[space.id][0] ===
+                                    'closed'
+                                "
+                                [class.text-info-content]="
+                                    (room_alerts | async)[space.id][0] ===
+                                    'info'
+                                "
+                                [class.text-warning-content]="
+                                    (room_alerts | async)[space.id][0] ===
+                                    'warn'
+                                "
+                                (click)="$event.stopPropagation()"
+                            >
+                                <app-icon>{{
+                                    (room_alerts | async)[space.id][0] ===
+                                    'warn'
+                                        ? 'warning'
+                                        : (room_alerts | async)[space.id][0] ===
+                                            'info'
+                                          ? 'info'
+                                          : 'close'
+                                }}</app-icon>
+                            </div>
                         </div>
                         <div class="space-y-2">
                             <div class="font-medium truncate mr-10">
@@ -139,10 +192,11 @@ export class SpaceListComponent {
     public readonly loading = this._event_form.loading;
 
     public readonly available_spaces = this._event_form.available_spaces;
+    public readonly room_alerts = this._event_form.room_alerts;
 
     constructor(
         private _event_form: EventFormService,
-        private _org: OrganisationService
+        private _org: OrganisationService,
     ) {}
 
     public level(zones: string[]) {

@@ -69,7 +69,8 @@ import { Space } from '../space.class';
                 </div>
                 <space-details
                     [space]="displayed"
-                    class="h-full w-full sm:h-[65vh] absolute sm:relative flex sm:flex-col sm:max-w-[20rem] z-20 bg-base-100"
+                    [alert]="(room_alerts | async)[displayed?.id]"
+                    class="h-full w-full min-w-[20rem] sm:h-[65vh] absolute sm:relative flex sm:flex-col sm:max-w-[20rem] z-20 bg-base-100"
                     [class.hidden]="!displayed"
                     [class.inset-0]="displayed"
                     [hide_map]="view === 'map'"
@@ -165,6 +166,7 @@ export class NewSpaceSelectModalComponent {
     public selected: Space[] = [];
     public view = 'list';
     public readonly multiday = !!this._data.multiday;
+    public readonly room_alerts = this._event_form.room_alerts;
 
     public get selected_ids() {
         return this.selected.map((_) => _.id).join(',');
@@ -183,7 +185,7 @@ export class NewSpaceSelectModalComponent {
             spaces: Space[];
             options: Partial<EventFlowOptions>;
             multiday?: boolean;
-        }
+        },
     ) {
         this.selected = [...(_data.spaces || [])];
         this._event_form.setOptions(_data.options);
@@ -214,7 +216,7 @@ export class NewSpaceSelectModalComponent {
         } else {
             this._settings.saveUserSetting(
                 'favourite_spaces',
-                fav_list.filter((_) => _ !== item.id)
+                fav_list.filter((_) => _ !== item.id),
             );
         }
     }
