@@ -46,7 +46,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 import { requestSpacesForZone } from '@placeos/spaces';
 
 export interface ReportOptions {
-    type?: 'desks' | 'events';
+    type?: 'desks' | 'events' | 'parking';
     start?: number | Date;
     end?: number | Date;
     zones?: string[];
@@ -120,43 +120,53 @@ export class ReportsStateService {
                 period_start: getUnixTime(start),
                 period_end: getUnixTime(end),
             };
-            return options.type === 'desks'
-                ? queryAllBookings({
-                      ...query,
-                      zones: zones,
-                      type: 'desk',
-                      limit: 1000,
-                  })
-                : queryAllEvents({
-                      ...query,
-                      zone_ids: zones,
-                      limit: 1000,
-                  }).pipe(
-                      switchMap(async (l) =>
-                          Promise.all(
-                              l.map(
-                                  async (_: CalendarEvent) =>
-                                      new CalendarEvent({
-                                          ..._,
-                                          resources: (
-                                              await Promise.all(
-                                                  _.resources.map((r) =>
-                                                      this._space_pipe.transform(
-                                                          r.id || r.email,
-                                                      ),
-                                                  ),
-                                              )
-                                          ).filter((s) =>
-                                              options.zones?.find((z) =>
-                                                  s.zones.includes(z),
-                                              ),
-                                          ),
-                                      } as any),
-                              ),
-                          ),
-                      ),
-                      catchError((_) => of([])),
-                  );
+            switch (options.type) {
+                case 'desks':
+                    return queryAllBookings({
+                        ...query,
+                        zones: zones,
+                        type: 'desk',
+                        limit: 1000,
+                    });
+                case 'parking':
+                    return queryAllBookings({
+                        ...query,
+                        zones: zones,
+                        type: 'parking',
+                        limit: 1000,
+                    });
+                case 'events':
+                    return queryAllEvents({
+                        ...query,
+                        zone_ids: zones,
+                        limit: 1000,
+                    }).pipe(
+                        switchMap(async (l) =>
+                            Promise.all(
+                                l.map(
+                                    async (_: CalendarEvent) =>
+                                        new CalendarEvent({
+                                            ..._,
+                                            resources: (
+                                                await Promise.all(
+                                                    _.resources.map((r) =>
+                                                        this._space_pipe.transform(
+                                                            r.id || r.email,
+                                                        ),
+                                                    ),
+                                                )
+                                            ).filter((s) =>
+                                                options.zones?.find((z) =>
+                                                    s.zones.includes(z),
+                                                ),
+                                            ),
+                                        } as any),
+                                ),
+                            ),
+                        ),
+                        catchError((_) => of([])),
+                    );
+            }
         }),
         map((list) => {
             this._loading.next('');
