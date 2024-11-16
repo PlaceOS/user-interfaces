@@ -1,6 +1,4 @@
-const home = {
-    background: 'assets/img/skyline.png',
-};
+const home = {};
 
 /*===========================*\
 ||    EXPLORE MAP SETTINGS   ||
@@ -73,12 +71,13 @@ const app = {
     allow_self_registration: true,
     explore,
     home,
+    welcome_background: 'assets/img/skyline.png',
 };
 
 /**
  * ROOT SETTIGNS
  */
-export const DEFAULT_SETTINGS = {
+export const DEFAULT_SETTINGS: any = {
     debug: true,
     composer: {
         domain: '',

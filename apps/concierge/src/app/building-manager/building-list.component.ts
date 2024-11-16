@@ -4,9 +4,10 @@ import { notifySuccess } from '@placeos/common';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { MatDialog } from '@angular/material/dialog';
 
-import { BookingPanelSettingsModalComponent } from '../ui/booking-panel-settings-modal.component';
-import { WorkplaceSettingsFormModalComponent } from '../ui/app-settings/workplace-settings-form.modal.component';
-import { ConciergeSettingsFormModalComponent } from '../ui/app-settings/concierge-settings-form.modal.component';
+import { BookingPanelSettingsModalComponent } from '../ui/app-settings/booking-panel-settings-modal.component';
+import { WorkplaceSettingsFormModalComponent } from '../ui/app-settings/workplace-settings-form-modal.component';
+import { ConciergeSettingsFormModalComponent } from '../ui/app-settings/concierge-settings-form-modal.component';
+import { VisitorKioskSettingsFormModalComponent } from '../ui/app-settings/visitor-kiosk-settings-form-modal.component';
 
 @Component({
     selector: 'building-list',
@@ -121,6 +122,24 @@ import { ConciergeSettingsFormModalComponent } from '../ui/app-settings/concierg
                                 <span>Concierge Settings</span>
                             </div>
                         </button>
+                        <button
+                            mat-menu-item
+                            (click)="editBookingPanelSettings(row)"
+                        >
+                            <div class="flex items-center space-x-2">
+                                <app-icon class="text-xl">event_busy</app-icon>
+                                <span>Booking Panel Settings</span>
+                            </div>
+                        </button>
+                        <button
+                            mat-menu-item
+                            (click)="editVisitorKioskSettings(row)"
+                        >
+                            <div class="flex items-center space-x-2">
+                                <app-icon class="text-xl">qr_code</app-icon>
+                                <span>Visitor Kiosk Settings</span>
+                            </div>
+                        </button>
                     </mat-menu>
                     <button mat-menu-item (click)="editBuilding(row)">
                         <div class="flex items-center space-x-2">
@@ -137,20 +156,6 @@ import { ConciergeSettingsFormModalComponent } from '../ui/app-settings/concierg
                                 release_alert
                             </app-icon>
                             <span>Auto-release Settings</span>
-                        </div>
-                    </button>
-                    <button
-                        mat-menu-item
-                        (click)="editBookingPanelSettings(row)"
-                    >
-                        <div class="flex items-center space-x-2">
-                            <app-icon
-                                className="material-symbols-rounded"
-                                class="text-xl"
-                            >
-                                top_panel_open
-                            </app-icon>
-                            <span>Edit Booking Panel Settings</span>
                         </div>
                     </button>
                     <button mat-menu-item (click)="setInduction(row)">
@@ -216,12 +221,6 @@ export class BuildingListComponent {
         if (success) notifySuccess('Building ID copied to clipboard.');
     };
 
-    public editBookingPanelSettings(building) {
-        this._dialog.open(BookingPanelSettingsModalComponent, {
-            data: { zone: building },
-        });
-    }
-
     public editWorkplaceSettings(building) {
         this._dialog.open(WorkplaceSettingsFormModalComponent, {
             data: { zone: building },
@@ -230,6 +229,18 @@ export class BuildingListComponent {
 
     public editConciergeSettings(building) {
         this._dialog.open(ConciergeSettingsFormModalComponent, {
+            data: { zone: building },
+        });
+    }
+
+    public editBookingPanelSettings(building) {
+        this._dialog.open(BookingPanelSettingsModalComponent, {
+            data: { zone: building },
+        });
+    }
+
+    public editVisitorKioskSettings(building) {
+        this._dialog.open(VisitorKioskSettingsFormModalComponent, {
             data: { zone: building },
         });
     }

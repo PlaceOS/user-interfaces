@@ -39,7 +39,7 @@ export class CheckinComponent {
     }
 
     public get background() {
-        return this._settings.get('app.home.background');
+        return this._settings.get('app.welcome_background');
     }
 
     constructor(private _settings: SettingsService) {}

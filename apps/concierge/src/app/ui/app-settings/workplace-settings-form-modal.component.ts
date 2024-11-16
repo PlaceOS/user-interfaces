@@ -25,9 +25,13 @@ import { validateURL } from '@placeos/spaces';
                 </button>
             </header>
             <main
-                class="min-h-1/2 p-4 space-y-8 z-0 max-w-[640px] w-full mx-auto"
+                class="h-1/2 flex-1 p-4 space-y-8 z-0 max-w-[640px] w-full mx-auto"
             >
-                <form [formGroup]="form" class="flex flex-col space-y-8">
+                <form
+                    [formGroup]="form"
+                    class="flex flex-col space-y-8"
+                    *ngIf="!loading; else load_state"
+                >
                     <section general class="bg-base-100 rounded space-y-2">
                         <div>
                             <label for="logo_light">Light Mode Logo</label>
@@ -180,146 +184,65 @@ import { validateURL } from '@placeos/spaces';
                             </mat-form-field>
                         </div>
                         <div class="flex items-center flex-wrap -mx-2">
-                            <ng-container
-                                *ngTemplateOutlet="
-                                    check_btn;
-                                    context: {
-                                        form: form,
-                                        field: 'use_24_hour_time',
-                                        name: 'Use 24 hour time',
-                                    }
-                                "
-                            ></ng-container>
-                            <ng-container
-                                *ngTemplateOutlet="
-                                    check_btn;
-                                    context: {
-                                        form: form,
-                                        field: 'use_region',
-                                        name: 'Use Region',
-                                    }
-                                "
-                            ></ng-container>
-                            <ng-container
+                            <settings-toggle
+                                name="Use 24 hour time"
+                                formControlName="use_24_hour_time"
+                            ></settings-toggle>
+                            <settings-toggle
+                                name="Use region over building"
+                                formControlName="use_region"
+                            ></settings-toggle>
+                            <settings-toggle
                                 *ngIf="
                                     form.value.features.includes(
                                         'support-ticket'
                                     )
                                 "
-                            >
-                                <ng-container
-                                    *ngTemplateOutlet="
-                                        check_btn;
-                                        context: {
-                                            form: form,
-                                            field: 'allow_support_ticket_images',
-                                            name: 'Allow images in support tickets',
-                                        }
-                                    "
-                                ></ng-container>
-                            </ng-container>
-                            <ng-container
-                                *ngTemplateOutlet="
-                                    check_btn;
-                                    context: {
-                                        form: form,
-                                        field: 'basic_user_search',
-                                        name: 'Use local user search',
-                                    }
-                                "
-                            ></ng-container>
-                            <ng-container
-                                *ngTemplateOutlet="
-                                    check_btn;
-                                    context: {
-                                        form: form,
-                                        field: 'no_user_calendar',
-                                        name: 'No User Calendar access',
-                                    }
-                                "
-                            ></ng-container>
-                            <ng-container
-                                *ngTemplateOutlet="
-                                    check_btn;
-                                    context: {
-                                        form: form,
-                                        field: 'colleagues_require_auth',
-                                        name: 'Only authenticated colleagues',
-                                        info: 'Will limit the available users to add as colleagues to only
- those who have authenticated with the application',
-                                    }
-                                "
-                            ></ng-container>
-                            <ng-container
-                                *ngTemplateOutlet="
-                                    check_btn;
-                                    context: {
-                                        form: form,
-                                        field: 'hide_landing_sidebar',
-                                        name: 'Hide landing sidebar',
-                                    }
-                                "
-                            ></ng-container>
-                            <ng-container
-                                *ngTemplateOutlet="
-                                    check_btn;
-                                    context: {
-                                        form: form,
-                                        field: 'hide_landing_spaces',
-                                        name: 'Hide landing spaces',
-                                    }
-                                "
-                            ></ng-container>
-                            <ng-container
-                                *ngTemplateOutlet="
-                                    check_btn;
-                                    context: {
-                                        form: form,
-                                        field: 'hide_landing_rooms',
-                                        name: 'Hide landing rooms',
-                                    }
-                                "
-                            ></ng-container>
-                            <ng-container
-                                *ngTemplateOutlet="
-                                    check_btn;
-                                    context: {
-                                        form: form,
-                                        field: 'hide_colleagues',
-                                        name: 'Hide colleagues',
-                                    }
-                                "
-                            ></ng-container>
-                            <ng-container
-                                *ngTemplateOutlet="
-                                    check_btn;
-                                    context: {
-                                        form: form,
-                                        field: 'show_quick_links',
-                                        name: 'Show landing quick links',
-                                    }
-                                "
-                            ></ng-container>
-                            <ng-container
-                                *ngTemplateOutlet="
-                                    check_btn;
-                                    context: {
-                                        form: form,
-                                        field: 'allow_dark_mode',
-                                        name: 'Allow dark mode',
-                                    }
-                                "
-                            ></ng-container>
-                            <ng-container
-                                *ngTemplateOutlet="
-                                    check_btn;
-                                    context: {
-                                        form: form,
-                                        field: 'global_search',
-                                        name: 'Show global search',
-                                    }
-                                "
-                            ></ng-container>
+                                name="Allow images in support tickets"
+                                formControlName="allow_support_ticket_images"
+                            ></settings-toggle>
+                            <settings-toggle
+                                name="Search only authenticated users"
+                                formControlName="basic_user_search"
+                            ></settings-toggle>
+                            <settings-toggle
+                                name="No User Calendar access"
+                                formControlName="no_user_calendar"
+                            ></settings-toggle>
+                            <settings-toggle
+                                name="Only authenticated colleagues"
+                                info="Will limit the available users to add as colleagues to only
+ those who have authenticated with the application"
+                                formControlName="colleagues_require_auth"
+                            ></settings-toggle>
+                            <settings-toggle
+                                name="Hide landing sidebar"
+                                formControlName="hide_landing_sidebar"
+                            ></settings-toggle>
+                            <settings-toggle
+                                name="Hide landing spaces"
+                                formControlName="hide_landing_spaces"
+                            ></settings-toggle>
+                            <settings-toggle
+                                name="Hide landing rooms"
+                                formControlName="hide_landing_rooms"
+                            ></settings-toggle>
+                            <settings-toggle
+                                name="Hide colleagues"
+                                formControlName="hide_colleagues"
+                            ></settings-toggle>
+                            <settings-toggle
+                                name="Show landing quick links"
+                                formControlName="show_quick_links"
+                            ></settings-toggle>
+                            <settings-toggle
+                                name="Allow dark mode"
+                                formControlName="allow_dark_mode"
+                            ></settings-toggle>
+                            <settings-toggle
+                                name="Show global search"
+                                formControlName="global_search"
+                            ></settings-toggle>
                         </div>
                     </section>
                     <section
@@ -608,167 +531,71 @@ import { validateURL } from '@placeos/spaces';
                             </mat-form-field>
                         </div>
                         <div class="flex items-center flex-wrap -mx-2">
-                            <ng-container
-                                *ngTemplateOutlet="
-                                    check_btn;
-                                    context: {
-                                        form: form.get('events'),
-                                        field: 'allow_all_day',
-                                        name: 'Allow all day bookings',
-                                    }
-                                "
-                            ></ng-container>
-                            <ng-container
-                                *ngTemplateOutlet="
-                                    check_btn;
-                                    context: {
-                                        form: form.get('events'),
-                                        field: 'booking_unavailable',
-                                        name: 'Disable booking requests',
-                                        info: 'Prevent making backend requests for bookings and give users links to create the booking in their own calendars',
-                                    }
-                                "
-                            ></ng-container>
-                            <ng-container
-                                *ngTemplateOutlet="
-                                    check_btn;
-                                    context: {
-                                        form: form.get('events'),
-                                        field: 'can_book_for_others',
-                                        name: 'Allow booking for other users',
-                                    }
-                                "
-                            ></ng-container>
-                            <ng-container
-                                *ngTemplateOutlet="
-                                    check_btn;
-                                    context: {
-                                        form: form.get('events'),
-                                        field: 'has_assets',
-                                        name: 'Allow booking with assets',
-                                    }
-                                "
-                            ></ng-container>
-                            <ng-container
-                                *ngTemplateOutlet="
-                                    check_btn;
-                                    context: {
-                                        form: form.get('events'),
-                                        field: 'hide_user_actions',
-                                        name: 'Hide attendee actions',
-                                    }
-                                "
-                            ></ng-container>
-                            <ng-container
-                                *ngTemplateOutlet="
-                                    check_btn;
-                                    context: {
-                                        form: form.get('events'),
-                                        field: 'multiple_spaces',
-                                        name: 'Allow booking multiple spaces',
-                                    }
-                                "
-                            ></ng-container>
-                            <ng-container
-                                *ngTemplateOutlet="
-                                    check_btn;
-                                    context: {
-                                        form: form.get('events'),
-                                        field: 'room_as_host',
-                                        name: 'Force room as host',
-                                    }
-                                "
-                            ></ng-container>
-                            <ng-container
-                                *ngTemplateOutlet="
-                                    check_btn;
-                                    context: {
-                                        form: form.get('events'),
-                                        field: 'allow_externals',
-                                        name: 'Allow external attendees',
-                                    }
-                                "
-                            ></ng-container>
-                            <ng-container
-                                *ngTemplateOutlet="
-                                    check_btn;
-                                    context: {
-                                        form: form.get('events'),
-                                        field: 'hide_notes',
-                                        name: 'Disable notes',
-                                    }
-                                "
-                            ></ng-container>
-                            <ng-container
-                                *ngTemplateOutlet="
-                                    check_btn;
-                                    context: {
-                                        form: form.get('events'),
-                                        field: 'hide_attendees',
-                                        name: 'Disable attendees',
-                                    }
-                                "
-                            ></ng-container>
-                            <ng-container
-                                *ngTemplateOutlet="
-                                    check_btn;
-                                    context: {
-                                        form: form.get('events'),
-                                        field: 'allow_recurrence',
-                                        name: 'Allow Recurring Meeting',
-                                    }
-                                "
-                            ></ng-container>
-                            <ng-container
-                                *ngTemplateOutlet="
-                                    check_btn;
-                                    context: {
-                                        form: form.get('events'),
-                                        field: 'all_day_default',
-                                        name: 'Default to all day',
-                                    }
-                                "
-                            ></ng-container>
-                            <ng-container
-                                *ngTemplateOutlet="
-                                    check_btn;
-                                    context: {
-                                        form: form.get('events'),
-                                        field: 'allow_multiday',
-                                        name: 'Allow multi-day bookings',
-                                    }
-                                "
-                            ></ng-container>
-                            <ng-container
-                                *ngTemplateOutlet="
-                                    check_btn;
-                                    context: {
-                                        form: form.get('events'),
-                                        field: 'use_bookings',
-                                        name: 'Use PlaceOS bookings',
-                                    }
-                                "
-                            ></ng-container>
-                            <ng-container
-                                *ngTemplateOutlet="
-                                    check_btn;
-                                    context: {
-                                        form: form.get('events'),
-                                        field: 'use_building_timezone',
-                                        name: 'Display times with building timezone',
-                                    }
-                                "
-                            ></ng-container>
-                            <ng-container
-                                *ngTemplateOutlet="
-                                    check_btn;
-                                    context: {
-                                        form: form.get('events'),
-                                        field: 'allow_daily_allday_recurrence',
-                                        name: 'Allow daily all-day recurrence',
-                                    }
-                                "
-                            ></ng-container>
+                            <settings-toggle
+                                name="Allow all day bookings"
+                                formControlName="allow_all_day"
+                            ></settings-toggle>
+                            <settings-toggle
+                                name="Disable booking requests"
+                                formControlName="booking_unavailable"
+                                info="Prevent making backend requests for bookings and give users links to create the booking in their own calendars"
+                            ></settings-toggle>
+                            <settings-toggle
+                                name="Allow booking for other users"
+                                formControlName="can_book_for_others"
+                            ></settings-toggle>
+                            <settings-toggle
+                                name="Allow booking with assets"
+                                formControlName="has_assets"
+                            ></settings-toggle>
+                            <settings-toggle
+                                name="Hide attendee actions"
+                                formControlName="hide_user_actions"
+                            ></settings-toggle>
+                            <settings-toggle
+                                name="Allow booking multiple spaces"
+                                formControlName="multiple_spaces"
+                            ></settings-toggle>
+                            <settings-toggle
+                                name="Force room as host"
+                                formControlName="room_as_host"
+                            ></settings-toggle>
+                            <settings-toggle
+                                name="Allow external attendees"
+                                formControlName="allow_externals"
+                            ></settings-toggle>
+                            <settings-toggle
+                                name="Disable notes field"
+                                formControlName="hide_notes"
+                            ></settings-toggle>
+                            <settings-toggle
+                                name="Hide attendees field"
+                                formControlName="hide_attendees"
+                            ></settings-toggle>
+                            <settings-toggle
+                                name="Allow recurring meetings"
+                                formControlName="allow_recurrence"
+                            ></settings-toggle>
+                            <settings-toggle
+                                name="Default bookings to all day"
+                                formControlName="all_day_default"
+                            ></settings-toggle>
+                            <settings-toggle
+                                name="Allow multi-day bookings"
+                                formControlName="allow_multiday"
+                            ></settings-toggle>
+                            <settings-toggle
+                                name="Use PlaceOS bookings"
+                                formControlName="use_bookings"
+                            ></settings-toggle>
+                            <settings-toggle
+                                name="Display times with building timezone"
+                                formControlName="use_building_timezone"
+                            ></settings-toggle>
+                            <settings-toggle
+                                name="Allow daily all-day recurrence"
+                                formControlName="allow_daily_allday_recurrence"
+                            ></settings-toggle>
                         </div>
                     </section>
                     <section
@@ -844,126 +671,54 @@ import { validateURL } from '@placeos/spaces';
                             </mat-form-field>
                         </div>
                         <div class="flex items-center flex-wrap -mx-2">
-                            <ng-container
-                                *ngTemplateOutlet="
-                                    check_btn;
-                                    context: {
-                                        form: form.get('desks'),
-                                        field: 'allow_all_day',
-                                        name: 'Allow all day bookings',
-                                    }
-                                "
-                            ></ng-container>
-                            <ng-container
-                                *ngTemplateOutlet="
-                                    check_btn;
-                                    context: {
-                                        form: form.get('desks'),
-                                        field: 'allow_groups',
-                                        name: 'Allow group bookings',
-                                    }
-                                "
-                            ></ng-container>
-                            <ng-container
-                                *ngTemplateOutlet="
-                                    check_btn;
-                                    context: {
-                                        form: form.get('desks'),
-                                        field: 'allow_time_changes',
-                                        name: 'Allow user selecting booking time',
-                                    }
-                                "
-                            ></ng-container>
-                            <ng-container
-                                *ngTemplateOutlet="
-                                    check_btn;
-                                    context: {
-                                        form: form.get('desks'),
-                                        field: 'auto_allocation',
-                                        name: 'Auto-allocate desks',
-                                    }
-                                "
-                            ></ng-container>
-                            <ng-container
-                                *ngTemplateOutlet="
-                                    check_btn;
-                                    context: {
-                                        form: form.get('desks'),
-                                        field: 'can_book_for_others',
-                                        name: 'Allow booking for other users',
-                                    }
-                                "
-                            ></ng-container>
-                            <ng-container
-                                *ngTemplateOutlet="
-                                    check_btn;
-                                    context: {
-                                        form: form.get('desks'),
-                                        field: 'can_book_lockers',
-                                        name: 'Allow booking with lockers',
-                                    }
-                                "
-                            ></ng-container>
-                            <ng-container
-                                *ngTemplateOutlet="
-                                    check_btn;
-                                    context: {
-                                        form: form.get('desks'),
-                                        field: 'has_assets',
-                                        name: 'Allow booking with assets',
-                                    }
-                                "
-                            ></ng-container>
-                            <ng-container
-                                *ngTemplateOutlet="
-                                    check_btn;
-                                    context: {
-                                        form: form.get('desks'),
-                                        field: 'hide_reason',
-                                        name: 'Disable reason field for desk booking',
-                                    }
-                                "
-                            ></ng-container>
-                            <ng-container
-                                *ngTemplateOutlet="
-                                    check_btn;
-                                    context: {
-                                        form: form.get('desks'),
-                                        field: 'needs_reason',
-                                        name: 'Require a reason for desk booking',
-                                    }
-                                "
-                            ></ng-container>
-                            <ng-container
-                                *ngTemplateOutlet="
-                                    check_btn;
-                                    context: {
-                                        form: form.get('desks'),
-                                        field: 'allow_recurrence',
-                                        name: 'Allow Recurring Desk bookings',
-                                    }
-                                "
-                            ></ng-container>
-                            <ng-container
-                                *ngTemplateOutlet="
-                                    check_btn;
-                                    context: {
-                                        form: form.get('desks'),
-                                        field: 'default_select_as_map',
-                                        name: 'Default to desk select modal to map view',
-                                    }
-                                "
-                            ></ng-container>
-                            <ng-container
-                                *ngTemplateOutlet="
-                                    check_btn;
-                                    context: {
-                                        form: form.get('desks'),
-                                        field: 'auto_checkin',
-                                        name: 'Auto-checkin map bookings',
-                                    }
-                                "
-                            ></ng-container>
+                            <settings-toggle
+                                name="Allow all day bookings"
+                                formControlName="allow_all_day"
+                            ></settings-toggle>
+                            <settings-toggle
+                                name="Allow group bookings"
+                                formControlName="allow_groups"
+                            ></settings-toggle>
+                            <settings-toggle
+                                name="Allow time changes"
+                                formControlName="allow_time_changes"
+                            ></settings-toggle>
+                            <settings-toggle
+                                name="Auto-allocation"
+                                formControlName="auto_allocation"
+                            ></settings-toggle>
+                            <settings-toggle
+                                name="Allow desk booking"
+                                formControlName="can_book_for_others"
+                            ></settings-toggle>
+                            <settings-toggle
+                                name="Allow also booking a locker"
+                                formControlName="can_book_lockers"
+                            ></settings-toggle>
+                            <settings-toggle
+                                name="Allow requesting assets with booking"
+                                formControlName="has_assets"
+                            ></settings-toggle>
+                            <settings-toggle
+                                name="Disable reason field for desk booking"
+                                formControlName="hide_reason"
+                            ></settings-toggle>
+                            <settings-toggle
+                                name="Require a reason for desk booking"
+                                formControlName="needs_reason"
+                            ></settings-toggle>
+                            <settings-toggle
+                                name="Allow Recurring Desk bookings"
+                                formControlName="allow_recurrence"
+                            ></settings-toggle>
+                            <settings-toggle
+                                name="Auto-checkin map bookingss"
+                                formControlName="auto_checkin"
+                            ></settings-toggle>
+                            <settings-toggle
+                                name="Default to desk select modal to map view"
+                                formControlName="default_select_as_map"
+                            ></settings-toggle>
                         </div>
                     </section>
                     <section
@@ -983,76 +738,34 @@ import { validateURL } from '@placeos/spaces';
                             PlaceOS Bookings
                         </h3>
                         <div class="flex items-center flex-wrap -mx-2">
-                            <ng-container
-                                *ngTemplateOutlet="
-                                    check_btn;
-                                    context: {
-                                        form: form.get('bookings'),
-                                        field: 'allow_all_day',
-                                        name: 'Allow all day bookings',
-                                    }
-                                "
-                            ></ng-container>
-                            <ng-container
-                                *ngTemplateOutlet="
-                                    check_btn;
-                                    context: {
-                                        form: form.get('bookings'),
-                                        field: 'use_building_timezone',
-                                        name: 'Display times with building timezone',
-                                    }
-                                "
-                            ></ng-container>
-                            <ng-container
-                                *ngTemplateOutlet="
-                                    check_btn;
-                                    context: {
-                                        form: form.get('bookings'),
-                                        field: 'can_book_for_others',
-                                        name: 'Allow booking for other users',
-                                    }
-                                "
-                            ></ng-container>
-                            <ng-container
-                                *ngTemplateOutlet="
-                                    check_btn;
-                                    context: {
-                                        form: form.get('bookings'),
-                                        field: 'multiple_visitors',
-                                        name: 'Allow booking multiple visitors',
-                                    }
-                                "
-                            ></ng-container>
-                            <ng-container
-                                *ngTemplateOutlet="
-                                    check_btn;
-                                    context: {
-                                        form: form.get('bookings'),
-                                        field: 'all_day_default',
-                                        name: 'Default to all day',
-                                    }
-                                "
-                            ></ng-container>
-                            <ng-container
-                                *ngTemplateOutlet="
-                                    check_btn;
-                                    context: {
-                                        form: form.get('bookings'),
-                                        field: 'no_approval',
-                                        name: 'Auto-approve bookings',
-                                    }
-                                "
-                            ></ng-container>
-                            <ng-container
-                                *ngTemplateOutlet="
-                                    check_btn;
-                                    context: {
-                                        form: form.get('bookings'),
-                                        field: 'allow_assets',
-                                        name: 'Allow booking with assets',
-                                    }
-                                "
-                            ></ng-container>
+                            <settings-toggle
+                                name="Allow all day bookings"
+                                formControlName="allow_all_day"
+                            ></settings-toggle>
+                            <settings-toggle
+                                name="Display times with building timezone"
+                                formControlName="use_building_timezone"
+                            ></settings-toggle>
+                            <settings-toggle
+                                name="Allow booking for other users"
+                                formControlName="can_book_for_others"
+                            ></settings-toggle>
+                            <settings-toggle
+                                name="Allow booking multiple visitors"
+                                formControlName="multiple_visitors"
+                            ></settings-toggle>
+                            <settings-toggle
+                                name="Default to all day"
+                                formControlName="all_day_default"
+                            ></settings-toggle>
+                            <settings-toggle
+                                name="Auto-approve bookings"
+                                formControlName="no_approval"
+                            ></settings-toggle>
+                            <settings-toggle
+                                name="Allow booking with assets"
+                                formControlName="allow_assets"
+                            ></settings-toggle>
                         </div>
                     </section>
                     <section
@@ -1128,86 +841,54 @@ import { validateURL } from '@placeos/spaces';
                             </mat-form-field>
                         </div>
                         <div class="flex items-center flex-wrap -mx-2">
-                            <ng-container
-                                *ngTemplateOutlet="
-                                    check_btn;
-                                    context: {
-                                        form: form.get('parking'),
-                                        field: 'allow_time_changes',
-                                        name: 'Allow user selecting booking time',
-                                    }
-                                "
-                            ></ng-container>
-                            <ng-container
-                                *ngTemplateOutlet="
-                                    check_btn;
-                                    context: {
-                                        form: form.get('parking'),
-                                        field: 'auto_allocation',
-                                        name: 'Auto-allocate parking spaces',
-                                    }
-                                "
-                            ></ng-container>
-                            <ng-container
-                                *ngTemplateOutlet="
-                                    check_btn;
-                                    context: {
-                                        form: form.get('parking'),
-                                        field: 'can_book_for_others',
-                                        name: 'Allow booking for other users',
-                                    }
-                                "
-                            ></ng-container>
-                            <ng-container
-                                *ngTemplateOutlet="
-                                    check_btn;
-                                    context: {
-                                        form: form.get('parking'),
-                                        field: 'allow_recurrence',
-                                        name: 'Allow recurring parking bookings',
-                                    }
-                                "
-                            ></ng-container>
+                            <settings-toggle
+                                name="Allow user selecting booking time"
+                                formControlName="allow_time_changes"
+                            ></settings-toggle>
+                            <settings-toggle
+                                name="Auto-allocate parking spaces"
+                                formControlName="auto_allocation"
+                            ></settings-toggle>
+                            <settings-toggle
+                                name="Allow booking for other users"
+                                formControlName="can_book_for_others"
+                            ></settings-toggle>
+                            <settings-toggle
+                                name="Allow recurring parking bookings"
+                                formControlName="allow_recurrence"
+                            ></settings-toggle>
                         </div>
                     </section>
                 </form>
+                <div class="h-16 w-full"></div>
             </main>
             <footer
-                class="sticky bottom-0 px-4 py-2 mx-auto my-2 max-w-[640px] w-full border-none z-10 bg-base-200 rounded flex items-center justify-end"
+                class="fixed bottom-0 left-1/2 -translate-x-1/2 px-4 py-2 mx-auto my-2 max-w-[640px] w-full border-none z-10 bg-base-200 rounded flex items-center justify-end"
+                *ngIf="!loading"
             >
                 <button btn matRipple class="w-32" (click)="save()">
                     Save
                 </button>
             </footer>
         </div>
-        <ng-template
-            #check_btn
-            let-form="form"
-            let-field="field"
-            let-name="name"
-            let-info="info"
-        >
-            <button
-                matRipple
-                [formGroup]="form"
-                class="flex items-center space-x-2 m-2 p-2 border border-base-300 w-[calc(50%-1rem)] rounded"
-                (click)="form.get(field).setValue(!form.get(field).value)"
+        <ng-template #load_state>
+            <div
+                class="w-full flex-1 h-1/2 flex flex-col items-center justify-center p-12"
             >
-                <div class="ml-2 flex-1 text-left flex items-center space-x-2">
-                    <div>{{ name }}</div>
-                    <app-icon *ngIf="info" [matTooltip]="info">info</app-icon>
-                </div>
-                <mat-checkbox
-                    [formControlName]="field"
-                    class="pointer-events-none"
-                ></mat-checkbox>
-            </button>
+                <mat-spinner [diameter]="32"></mat-spinner>
+                <p class="text-center">{{ loading }}</p>
+            </div>
         </ng-template>
     `,
     styles: [
         `
             section {
                 background-color: hsla(217, 91%, 60%, 0.04);
+            }
+
+            settings-toggle {
+                width: calc(50% - 1rem);
+                margin: 0.5rem;
             }
         `,
     ],
@@ -1257,6 +938,7 @@ export class WorkplaceSettingsFormModalComponent {
             allow_multiday: new FormControl(false),
             use_bookings: new FormControl(false),
             use_building_timezone: new FormControl(false),
+            force_host: new FormControl(false),
             allow_daily_allday_recurrence: new FormControl(false),
             allowed_future_days: new FormControl(45),
             setup: new FormControl(0),
@@ -1322,13 +1004,6 @@ export class WorkplaceSettingsFormModalComponent {
             ...org_metadata,
             ...parent_metadata,
         };
-        console.log(
-            'Metadata:',
-            DEFAULT_SETTINGS.app,
-            org_metadata,
-            parent_metadata,
-            metadata,
-        );
         this.form.patchValue(org_metadata || {});
         this.form.patchValue(parent_metadata || {});
         this.form.patchValue(metadata || {});

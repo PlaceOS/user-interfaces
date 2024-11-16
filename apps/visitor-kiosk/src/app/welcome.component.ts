@@ -12,13 +12,10 @@ import { AsyncHandler, SettingsService } from '@placeos/common';
                 class="absolute min-h-[100%] min-w-[100%] top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2"
             />
             <div class="flex flex-col justify-center space-y-8 z-10 w-[60%]">
-                <h3 class="mb-4 text-white text-6xl space-y-4">
-                    <p>
-                        Welcome to
-                        <span [innerHTML]="org_name | sanitize: 'html'"></span>
-                    </p>
-                    <p>Self Service Kiosk</p>
-                </h3>
+                <h3
+                    class="mb-4 text-white text-6xl space-y-4"
+                    [innerHTML]="welcome_message | sanitize: 'html'"
+                ></h3>
                 <div class="flex items-center space-x-4 font-medium">
                     <a
                         btn
@@ -84,17 +81,22 @@ export class WelcomeComponent
     public level = '';
 
     public get background() {
-        return this._settings.get('app.home.background');
+        return this._settings.get('app.welcome_background');
     }
 
     public get can_register() {
         return this._settings.get('app.allow_self_registration');
     }
 
-    public get org_name() {
+    public get welcome_message() {
         return (
-            this._settings.get('app.org_name') ||
-            'Place<span class="text-primary">OS</span>'
+            this._settings.get('app.welcome_message') ||
+            `
+<p>
+    Welcome to Place<span class="text-primary">OS</span>
+</p>
+<p>Self Service Kiosk</p>
+`
         );
     }
 
