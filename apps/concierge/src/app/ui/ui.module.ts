@@ -34,6 +34,8 @@ import { ApplicationSidebarComponent } from './app-sidebar.component';
 import { AppSettingsModalComponent } from './app-settings-modal.component';
 import { BookingRulesModalComponent } from './booking-rules-modal.component';
 import { BookingPanelSettingsModalComponent } from './booking-panel-settings-modal.component';
+import { WorkplaceSettingsFormModalComponent } from './app-settings/workplace-settings-form.modal.component';
+import { ConciergeSettingsFormModalComponent } from './app-settings/concierge-settings-form.modal.component';
 
 const COMPONENTS: Type<any>[] = [
     AppSettingsModalComponent,
@@ -45,6 +47,9 @@ const COMPONENTS: Type<any>[] = [
     ApplicationSidebarComponent,
     BookingRulesModalComponent,
     BookingPanelSettingsModalComponent,
+
+    WorkplaceSettingsFormModalComponent,
+    ConciergeSettingsFormModalComponent,
 ];
 
 const MAT_MODULES: any[] = [
