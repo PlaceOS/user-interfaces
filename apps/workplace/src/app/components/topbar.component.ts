@@ -20,7 +20,7 @@ const EMPTY = [];
                     class="h-10 sm:block"
                     [class.hidden]="title"
                     *ngIf="logo"
-                    [src]="logo.src"
+                    [src]="logo?.src || logo"
                 />
                 <span *ngIf="title">{{ title }}</span>
             </a>
@@ -58,7 +58,7 @@ export class TopbarComponent {
     public readonly user_controls = UserControlsComponent;
 
     /** Application logo to display */
-    public get logo(): ApplicationIcon {
+    public get logo(): string {
         return this._settings.get('theme') === 'dark'
             ? this._settings.get('app.logo_dark')
             : this._settings.get('app.logo_light');

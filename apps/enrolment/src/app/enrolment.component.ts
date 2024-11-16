@@ -8,7 +8,7 @@ import { EnrolmentStateService } from './enrolment-state.service';
     template: `
         <div class="absolute inset-0 flex flex-col bg-[#424242]">
             <div class="w-full h-16 p-2 bg-secondary shadow z-20">
-                <img [src]="logo.src" class="h-12" />
+                <img [src]="logo?.src || logo" class="h-12" />
             </div>
             <div
                 class="w-full h-1/2 flex-1 relative z-10 flex flex-col items-center overflow-auto"
@@ -62,7 +62,7 @@ export class EnrolmentComponent extends AsyncHandler {
     constructor(
         private _state: EnrolmentStateService,
         private _settings: SettingsService,
-        private _route: ActivatedRoute
+        private _route: ActivatedRoute,
     ) {
         super();
     }
@@ -74,7 +74,7 @@ export class EnrolmentComponent extends AsyncHandler {
                 if (params.has('view')) {
                     this._state.setView(params.get('view') as any);
                 }
-            })
+            }),
         );
         this.subscription(
             'route.query',
@@ -84,7 +84,7 @@ export class EnrolmentComponent extends AsyncHandler {
                     this._state.handleUserToken(token);
                     this.clearTimeout('check');
                 }
-            })
+            }),
         );
         this.timeout('check', () => this._state.setError('guest'), 5000);
     }

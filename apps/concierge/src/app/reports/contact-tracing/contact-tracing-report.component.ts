@@ -18,7 +18,7 @@ import { SettingsService } from '@placeos/common';
                 <div
                     class="flex items-center m-4 p-4 rounded bg-base-200 overflow-hidden"
                 >
-                    <img [src]="logo.src" class="h-12" />
+                    <img [src]="logo?.src || logo" class="h-12" />
                     <div class="flex-1"></div>
                     <h2 class="text-2xl font-medium px-2">
                         Contact Tracing Report
@@ -44,23 +44,23 @@ import { SettingsService } from '@placeos/common';
                                 {
                                     key: 'date',
                                     name: 'Time of Contact',
-                                    content: date_template
+                                    content: date_template,
                                 },
                                 {
                                     key: 'user_id',
                                     name: 'Person',
-                                    content: user_template
+                                    content: user_template,
                                 },
                                 {
                                     key: 'contact_id',
                                     name: 'Close Contact',
-                                    content: user_template
+                                    content: user_template,
                                 },
                                 {
                                     key: 'duration',
                                     name: 'Duration',
-                                    content: duration_template
-                                }
+                                    content: duration_template,
+                                },
                             ]"
                             [sortable]="true"
                             [page_size]="print ? 0 : 30"
@@ -146,6 +146,6 @@ export class ContactTracingReportComponent {
 
     constructor(
         private _state: ContactTracingStateService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {}
 }

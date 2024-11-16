@@ -28,7 +28,10 @@ export class DayViewComponent implements OnInit {
         return this._settings.get('app.general.menu') || [];
     }
 
-    constructor(private _settings: SettingsService, private _router: Router) {}
+    constructor(
+        private _settings: SettingsService,
+        private _router: Router,
+    ) {}
 
     public ngOnInit() {
         if (!this.links.find((_) => _.route.includes('day-view'))) {

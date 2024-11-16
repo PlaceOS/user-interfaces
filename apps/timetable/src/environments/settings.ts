@@ -1,4 +1,3 @@
-
 /**
  * ROOT APPLICATION SETTINGS
  */
@@ -7,19 +6,13 @@ const app: any = {
     title: 'Timetable Application',
     description: 'PlaceOS Timetable UI written with Angular Framework',
     short_name: 'TIMETABLE',
-    logo_light: {
-        type: 'img',
-        src: 'assets/logo-light.svg',
-    },
-    logo_dark: {
-        type: 'img',
-        src: 'assets/logo-dark.svg',
-    },
+    logo_light: 'assets/logo-light.svg',
+    logo_dark: 'assets/logo-dark.svg',
     features: ['spaces', 'desks', 'explore', 'help', 'schedule'],
     can_deliver: true,
     desks: {
         can_book_for_others: true,
-        allow_groups: true
+        allow_groups: true,
     },
     analytics: {
         enabled: true,
