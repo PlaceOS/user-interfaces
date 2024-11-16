@@ -1,5 +1,3 @@
-import { block } from 'marked';
-
 const general = {
     menu: [
         {
@@ -124,7 +122,7 @@ const app = {
 /**
  * ROOT SETTIGNS
  */
-export const DEFAULT_SETTINGS = {
+export const DEFAULT_SETTINGS: any = {
     debug: true,
     composer: {
         domain: '',

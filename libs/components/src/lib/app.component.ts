@@ -193,7 +193,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
         this.clearTimeout('wait_for_user');
         this._initLocale();
         setInternalUserDomain(
-            this._settings.get('app.general.internal_user_domain') ||
+            this._settings.get('app.internal_user_domain') ||
                 `@${currentUser()?.email?.split('@')[1]}`,
         );
         this._initAnalytics();

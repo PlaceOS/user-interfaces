@@ -70,7 +70,7 @@ export class TopbarComponent {
 
     /** Text to display for page title */
     public get search(): boolean {
-        return this._settings.get('app.general.search') !== false;
+        return this._settings.get('app.global_search') !== false;
     }
 
     public get new_features(): boolean {

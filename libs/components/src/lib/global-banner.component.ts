@@ -44,7 +44,7 @@ export class GlobalBannerComponent {
     }
 
     public get banner(): BannerDetails {
-        return this._settings.get('app.general.banner');
+        return this._settings.get('app.banner');
     }
 
     constructor(private _settings: SettingsService) {}

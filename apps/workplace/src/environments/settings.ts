@@ -1,7 +1,7 @@
 /**
  * GENERAL APPLICATION SETTINGS
  */
-const general: any = {
+const general = {
     banner: {
         id: '2',
         type: 'info',
@@ -13,7 +13,7 @@ const general: any = {
 /**
  * HELP/SUPPORT SETTINGS
  */
-const help: any = [
+const help = [
     {
         name: 'About PlaceOS',
         link: 'https://place.technology/resources',
@@ -61,7 +61,7 @@ const help: any = [
 /**
  * BOOKING FLOW SETTINGS
  */
-const events: any = {
+const events = {
     multiple_spaces: false,
     desk_start: 9,
     can_book_for_others: false,
@@ -81,13 +81,13 @@ const events: any = {
 /*===========================*\
 ||  SPACE LISTING SETTINGS   ||
 \*===========================*/
-const space_display: any = {
+const space_display = {
     show_images: false,
 };
 /*===========================*\
 ||  USER DIRECTORY SETTINGS  ||
 \*===========================*/
-const directory: any = {
+const directory = {
     show_avatars: true,
     min_search_length: 3,
 };
@@ -105,7 +105,7 @@ const schedule = {
 /*===========================*\
 ||    EXPLORE MAP SETTINGS   ||
 \*===========================*/
-const explore: any = {
+const explore = {
     colors: {
         'space-free': '#43a047',
         'space-pending': '#ffb300',
@@ -141,7 +141,7 @@ const explore: any = {
 /**
  * ROOT APPLICATION SETTINGS
  */
-const app: any = {
+const app = {
     name: 'Workplace',
     title: 'Workplace Application',
     description: 'PlaceOS Workplace UI written with Angular Framework',

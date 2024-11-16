@@ -130,7 +130,11 @@ export class ParkingFormDetailsComponent extends AsyncHandler {
     }
 
     public get max_duration() {
-        return this._settings.get('app.bookings.max_duration') || 480;
+        return (
+            this._settings.get('app.parking.max_duration') ||
+            this._settings.get('app.bookings.max_duration') ||
+            480
+        );
     }
 
     public get allow_all_day() {
@@ -142,7 +146,7 @@ export class ParkingFormDetailsComponent extends AsyncHandler {
     }
 
     public get can_book_for_others() {
-        return this._settings.get('app.bookings.can_book_for_others');
+        return this._settings.get('app.parking.can_book_for_others');
     }
 
     public readonly setBuilding = (bld) => (this._org.building = bld);
