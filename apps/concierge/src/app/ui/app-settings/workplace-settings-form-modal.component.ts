@@ -183,6 +183,34 @@ import { validateURL } from '@placeos/spaces';
                                 </mat-hint>
                             </mat-form-field>
                         </div>
+                        <div>
+                            <label for="week-start">Week Start</label>
+                            <mat-form-field appearance="outline" class="w-full">
+                                <mat-select
+                                    name="week-start"
+                                    formControlName="week_start"
+                                    placeholder="Sunday"
+                                >
+                                    <mat-option [value]="0">Sunday</mat-option>
+                                    <mat-option [value]="1">Monday</mat-option>
+                                    <mat-option [value]="2">Tuesday</mat-option>
+                                    <mat-option [value]="3"
+                                        >Wednesday</mat-option
+                                    >
+                                    <mat-option [value]="4"
+                                        >Thursday</mat-option
+                                    >
+                                    <mat-option [value]="5">Friday</mat-option>
+                                    <mat-option [value]="6"
+                                        >Saturday</mat-option
+                                    >
+                                </mat-select>
+                                <mat-hint>
+                                    Day of the week to show initially on various
+                                    calendars
+                                </mat-hint>
+                            </mat-form-field>
+                        </div>
                         <div class="flex items-center flex-wrap -mx-2">
                             <settings-toggle
                                 name="Use 24 hour time"
