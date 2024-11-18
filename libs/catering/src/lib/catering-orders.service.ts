@@ -45,10 +45,13 @@ function checkOrder(
     const s = (filters.search || '').toLowerCase();
     return !!order.items.find(
         (item) =>
-            item.name.toLowerCase().includes(s) ||
-            !!item.options.find((option) =>
-                option.name.toLowerCase().includes(s),
-            ),
+            (!filters?.caterer ||
+                (filters.caterer === '<empty>' && !item.caterer) ||
+                item.caterer === filters.caterer) &&
+            (item.name.toLowerCase().includes(s) ||
+                !!item.options.find((option) =>
+                    option.name.toLowerCase().includes(s),
+                )),
     );
 }
 
