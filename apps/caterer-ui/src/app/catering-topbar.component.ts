@@ -80,7 +80,7 @@ import { combineLatest } from 'rxjs';
                         *ngFor="let caterer of caterers | async"
                         [value]="caterer"
                     >
-                        {{ caterer }}
+                        {{ caterer || '== No Caterer ==' }}
                     </mat-option>
                 </mat-select>
             </mat-form-field>

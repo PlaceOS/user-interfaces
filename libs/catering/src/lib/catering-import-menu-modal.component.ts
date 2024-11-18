@@ -5,9 +5,9 @@ import { CateringItem } from './catering-item.class';
 @Component({
     selector: 'catering-import-menu-modal',
     template: `
-        <header class="h-12 bg-primary flex items-center justify-between px-4">
-            <h2>Import Catering Menu</h2>
-            <button icon mat-dialog-close *ngIf="!loading">
+        <header class="h-16 flex items-center justify-between px-4">
+            <h2 class="text-xl font-medium">Import Catering Menu</h2>
+            <button icon matRipple mat-dialog-close *ngIf="!loading">
                 <app-icon>close</app-icon>
             </button>
         </header>
@@ -73,7 +73,7 @@ export class CateringImportMenuModalComponent {
                                     .filter(
                                         (_) =>
                                             (_.type || '').toLowerCase() ===
-                                                'option' && _.tags === i.id
+                                                'option' && _.tags === i.id,
                                     )
                                     .map((_) => ({
                                         id: _.id,
@@ -82,7 +82,7 @@ export class CateringImportMenuModalComponent {
                                         multiple: _.multiple,
                                         unit_price: _.unit_price,
                                     })),
-                            })
+                            }),
                     ),
             });
         });
@@ -90,8 +90,8 @@ export class CateringImportMenuModalComponent {
     }
 
     public downloadTemplate() {
-        const template = `ID,Type,Name,Unit Price,Category,Description,Tags,Multiple
-item-1,item,Coffee,200,Drink,Wake Up,,
+        const template = `ID,Type,Name,Unit Price,Category,Caterer,Description,Tags,Multiple
+item-1,item,Coffee,200,Drink,Wake Up Cafe,Wake Up,,
 option-1,option,1 Sugar,20,Sugars,,item-1,false`;
         downloadFile('import-menu-template.csv', template);
     }
