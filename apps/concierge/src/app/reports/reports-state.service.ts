@@ -37,6 +37,7 @@ import {
     map,
     shareReplay,
     switchMap,
+    tap,
 } from 'rxjs/operators';
 import {
     generateReportForBookings,
@@ -131,32 +132,7 @@ export class ReportsStateService {
                       ...query,
                       zone_ids: zones,
                       limit: 1000,
-                  }).pipe(
-                      switchMap(async (l) =>
-                          Promise.all(
-                              l.map(
-                                  async (_: CalendarEvent) =>
-                                      new CalendarEvent({
-                                          ..._,
-                                          resources: (
-                                              await Promise.all(
-                                                  _.resources.map((r) =>
-                                                      this._space_pipe.transform(
-                                                          r.id || r.email,
-                                                      ),
-                                                  ),
-                                              )
-                                          ).filter((s) =>
-                                              options.zones?.find((z) =>
-                                                  s.zones.includes(z),
-                                              ),
-                                          ),
-                                      } as any),
-                              ),
-                          ),
-                      ),
-                      catchError((_) => of([])),
-                  );
+                  }).pipe(catchError((_) => of([])));
         }),
         map((list) => {
             this._loading.next('');
@@ -234,7 +210,6 @@ export class ReportsStateService {
             );
         }),
         map((list: [string, number][]) => {
-            console.log('Counts:', list);
             const map: HashMap<number> = {};
             this._active_bookings.next([]);
             list.forEach(([id, count]) => (map[id] = count));
@@ -247,8 +222,8 @@ export class ReportsStateService {
         this.counts,
         this.bookings,
     ]).pipe(
+        debounceTime(300),
         switchMap(async ([counts, list]) => {
-            console.log('Details:', counts, list);
             if (list[0] instanceof CalendarEvent) {
                 return generateReportForBookings(
                     list as CalendarEvent[],
@@ -262,6 +237,7 @@ export class ReportsStateService {
                 counts,
             );
         }),
+        shareReplay(1),
     );
 
     public readonly day_list = combineLatest([this.options, this.stats]).pipe(
