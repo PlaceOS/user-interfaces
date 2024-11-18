@@ -33,10 +33,16 @@ import { notifySuccess, SettingsService } from '@placeos/common';
                         sortable: false,
                     },
                     {
+                        key: 'alert',
+                        name: 'Alert',
+                        size: '5.5rem',
+                        content: alert_template,
+                    },
+                    {
                         key: 'actions',
                         name: ' ',
                         content: action_template,
-                        size: '6.5rem',
+                        size: '3.5rem',
                         sortable: false,
                     },
                 ]"
@@ -69,22 +75,52 @@ import { notifySuccess, SettingsService } from '@placeos/common';
                 <app-icon>{{ data ? 'done' : 'close' }}</app-icon>
             </div>
         </ng-template>
+        <ng-template #alert_template let-data="data">
+            <div
+                [class.bg-warning]="data.status === 'warn'"
+                [class.bg-error]="data.status === 'closed'"
+                [class.bg-info]="data.status === 'info'"
+                *ngIf="data"
+                [matTooltip]="data.message"
+                class="rounded h-8 w-8 flex items-center justify-center text-2xl text-white mx-auto"
+            >
+                <app-icon>{{
+                    data.status === 'warn'
+                        ? 'warning'
+                        : data.status === 'info'
+                          ? 'info'
+                          : 'close'
+                }}</app-icon>
+            </div>
+        </ng-template>
         <ng-template #action_template let-row="row">
-            <div class="flex items-center space-x-2 p-2 mx-auto">
+            <div class="mx-auto">
                 <button
                     icon
                     matRipple
-                    matTooltip="Edit Room"
-                    (click)="editRoom(row)"
+                    class="h-12 w-12 rounded"
+                    [matMenuTriggerFor]="menu"
                 >
-                    <app-icon>edit</app-icon>
+                    <app-icon>more_vert</app-icon>
                 </button>
             </div>
-            <div class="flex items-center space-x-2 p-2 mx-auto">
+            <mat-menu #menu="matMenu">
+                <button mat-menu-item (click)="editRoom(row)">
+                    <div class="flex items-center space-x-2">
+                        <app-icon class="text-xl">edit</app-icon>
+                        <span>Edit Room</span>
+                    </div>
+                </button>
+                <button mat-menu-item (click)="setRoomAlert(row)">
+                    <div class="flex items-center space-x-2">
+                        <app-icon class="text-xl"
+                            >notification_important</app-icon
+                        >
+                        <span>Set Alert</span>
+                    </div>
+                </button>
                 <a
-                    icon
-                    matRipple
-                    matTooltip="View AV Control Panel"
+                    mat-menu-item
                     [href]="
                         row.support_url || control_path + row.id
                             | sanitize: 'url'
@@ -92,11 +128,16 @@ import { notifySuccess, SettingsService } from '@placeos/common';
                     target="_blank"
                     ref="noopener noreferrer"
                 >
-                    <app-icon className="material-symbols-rounded">
-                        tv_remote
-                    </app-icon>
+                    <div class="flex items-center space-x-2">
+                        <app-icon
+                            class="text-xl"
+                            className="material-symbols-rounded"
+                            >tv_remote</app-icon
+                        >
+                        <span>View Control Panel</span>
+                    </div>
                 </a>
-            </div>
+            </mat-menu>
         </ng-template>
     `,
     styles: [``],
@@ -105,6 +146,7 @@ export class RoomListComponent {
     public readonly rooms = this._manager.filtered_rooms;
 
     public readonly editRoom = (room) => this._manager.editRoom(room);
+    public readonly setRoomAlert = (room) => this._manager.setRoomAlert(room);
 
     public readonly copyToClipboard = (id: string) => {
         const success = this._clipboard.copy(id);

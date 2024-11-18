@@ -305,7 +305,7 @@ export class ParkingBookingModalComponent extends AsyncHandler {
         }
         this.form.markAllAsTouched();
         this.form.updateValueAndValidity();
-        if (!this.form.valid) {
+        if (this.form.invalid) {
             return notifyError(
                 `Some fields are invalid. [${getInvalidFields(this.form).join(', ')}]`,
             );

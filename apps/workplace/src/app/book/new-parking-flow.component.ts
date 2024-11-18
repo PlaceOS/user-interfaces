@@ -8,7 +8,10 @@ import { AsyncHandler } from '@placeos/common';
     template: `
         <ng-container *ngIf="!(deny_parking_access | async); else deny_state">
             <ng-container
-                *ngIf="!(assigned_space | async); else assigned_state"
+                *ngIf="
+                    !(assigned_space | async) || !(has_booking | async);
+                    else assigned_state
+                "
             >
                 <div class="bg-base-100 h-full w-full z-50" [ngSwitch]="view">
                     <parking-flow-success *ngSwitchCase="'success'">
@@ -58,6 +61,7 @@ import { AsyncHandler } from '@placeos/common';
 export class NewParkingFlowComponent extends AsyncHandler implements OnInit {
     public readonly deny_parking_access = this._parking.deny_parking_access;
     public readonly assigned_space = this._parking.assigned_space;
+    public readonly has_booking = this._parking.has_booking;
 
     public get view() {
         return this._state.view;
@@ -69,7 +73,7 @@ export class NewParkingFlowComponent extends AsyncHandler implements OnInit {
     constructor(
         private _state: BookingFormService,
         private _route: ActivatedRoute,
-        private _parking: ParkingService
+        private _parking: ParkingService,
     ) {
         super();
     }
@@ -84,13 +88,13 @@ export class NewParkingFlowComponent extends AsyncHandler implements OnInit {
             this._route.paramMap.subscribe((param) => {
                 if (param.has('step'))
                     this._state.setView(param.get('step') as any);
-            })
+            }),
         );
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((param) => {
                 if (param.has('success')) this._state.setView('success');
-            })
+            }),
         );
     }
 }

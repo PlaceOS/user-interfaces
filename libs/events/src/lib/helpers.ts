@@ -29,13 +29,13 @@ const DAYS_OF_WEEK = [
 ];
 
 export function eventStatus(
-    details: HashMap
+    details: HashMap,
 ): 'approved' | 'tentative' | 'declined' {
     if (details.status === 'cancelled') return 'declined';
     if (details.resources?.length) {
         if (
             details.resources.every(
-                (i) => i.response_status === 'accepted' || details.approved
+                (i) => i.response_status === 'accepted' || details.approved,
             )
         ) {
             return 'approved';
@@ -43,7 +43,7 @@ export function eventStatus(
             details.resources.some(
                 (i) =>
                     i.response_status === 'tentative' ||
-                    i.response_status === 'needsAction'
+                    i.response_status === 'needsAction',
             )
         ) {
             return 'tentative';
@@ -61,27 +61,27 @@ export function parseRecurrence(data: RecurrenceDetails) {
             case 'daily':
                 end = addDays(
                     start || Date.now(),
-                    (data.occurrences - 1) * data.interval
+                    (data.occurrences - 1) * data.interval,
                 ).valueOf();
                 break;
             case 'weekly':
                 end = addWeeks(
                     start || Date.now(),
-                    (data.occurrences - 1) * data.interval
+                    (data.occurrences - 1) * data.interval,
                 ).valueOf();
                 break;
             case 'month_day':
             case 'monthly':
                 end = addMonths(
                     start || Date.now(),
-                    (data.occurrences - 1) * data.interval
+                    (data.occurrences - 1) * data.interval,
                 ).valueOf();
                 end = addDays(end, 7).valueOf();
                 break;
             case 'yearly':
                 end = addYears(
                     start || Date.now(),
-                    (data.occurrences - 1) * data.interval
+                    (data.occurrences - 1) * data.interval,
                 ).valueOf();
                 break;
         }
@@ -93,7 +93,7 @@ export function parseRecurrence(data: RecurrenceDetails) {
         pattern: data.pattern,
         days_of_week:
             data.days_of_week?.map((_) =>
-                typeof _ === 'number' ? DAYS_OF_WEEK[_] : _
+                typeof _ === 'number' ? DAYS_OF_WEEK[_] : _,
             ) || [],
     };
 }
@@ -111,43 +111,43 @@ export function formatRecurrence({
         switch (pattern) {
             case 'daily':
                 details = details.concat(
-                    interval > 1 ? `Every ${interval} days` : 'Daily'
+                    interval > 1 ? `Every ${interval} days` : 'Daily',
                 );
                 if (occurrences > 1)
                     end = addDays(
                         start || Date.now(),
-                        (occurrences - 1) * interval
+                        (occurrences - 1) * interval,
                     ).valueOf();
                 break;
             case 'weekly':
                 details = details.concat(
-                    interval > 1 ? `Every ${interval} weeks` : 'Weekly'
+                    interval > 1 ? `Every ${interval} weeks` : 'Weekly',
                 );
                 if (occurrences > 1)
                     end = addWeeks(
                         start || Date.now(),
-                        (occurrences - 1) * interval
+                        (occurrences - 1) * interval,
                     ).valueOf();
                 break;
             case 'month_day':
             case 'monthly':
                 details = details.concat(
-                    interval > 1 ? `Every ${interval} months` : 'Monthly'
+                    interval > 1 ? `Every ${interval} months` : 'Monthly',
                 );
                 if (occurrences > 1)
                     end = addMonths(
                         start || Date.now(),
-                        (occurrences - 1) * interval
+                        (occurrences - 1) * interval,
                     ).valueOf();
                 break;
             case 'yearly':
                 details = details.concat(
-                    interval > 1 ? `Every ${interval} yeats` : 'Yearly'
+                    interval > 1 ? `Every ${interval} yeats` : 'Yearly',
                 );
                 if (occurrences > 1)
                     end = addYears(
                         start || Date.now(),
-                        (occurrences - 1) * interval
+                        (occurrences - 1) * interval,
                     ).valueOf();
                 break;
         }
@@ -165,18 +165,18 @@ export function formatRecurrence({
  */
 export function getFreeTimeSlots(
     list: TimePeriod[],
-    min_size: number = 29
+    min_size: number = 29,
 ): TimeBlock[] {
     let start = new Date(0);
     const slots: TimeBlock[] = [];
     list.sort((a, b) => a.date - b.date);
     for (const booking of list) {
         const bkn_start = new Date(
-            addMinutes(booking.date, -booking.extension_data?.setup_time || 0)
+            addMinutes(booking.date, -booking.extension_data?.setup_time || 0),
         );
         const bkn_end = addMinutes(
             booking.date,
-            booking.duration + (booking.extension_data?.breakdown_time || 0)
+            booking.duration + (booking.extension_data?.breakdown_time || 0),
         );
         if (isAfter(booking.date, start)) {
             const diff = Math.abs(differenceInMinutes(bkn_start, start));
@@ -203,7 +203,7 @@ export function periodInFreeTimeSlot(
     start: number,
     end: number,
     list: TimePeriod[],
-    min_size: number = 29
+    min_size: number = 29,
 ) {
     const blocks = getFreeTimeSlots(list, min_size);
     for (const blk of blocks) {
@@ -228,7 +228,7 @@ export function periodInFreeTimeSlot(
 export function getNextFreeTimeSlot(
     list: TimePeriod[],
     date: number = new Date().valueOf(),
-    min_size: number = 29
+    min_size: number = 29,
 ): TimeBlock {
     const slots = getFreeTimeSlots(list, min_size);
     const time = addSeconds(startOfMinute(date), 1);

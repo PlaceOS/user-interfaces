@@ -72,8 +72,8 @@ export class NewDeskFlowFormComponent implements OnInit {
         if (!this.form.valid)
             return notifyError(
                 `Some fields are invalid. [${getInvalidFields(this.form).join(
-                    ', '
-                )}]`
+                    ', ',
+                )}]`,
             );
         this.sheet_ref = this._bottom_sheet.open(NewDeskFlowConfirmComponent);
         this.sheet_ref.instance.show_close = true;
@@ -90,7 +90,7 @@ export class NewDeskFlowFormComponent implements OnInit {
         private _router: Router,
         private _org: OrganisationService,
         private _bottom_sheet: MatBottomSheet,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {}
 
     public async ngOnInit() {
@@ -104,6 +104,12 @@ export class NewDeskFlowFormComponent implements OnInit {
         ];
         if (isBefore(this.form.value.date, Date.now())) {
             this.form.patchValue({ date: startOfMinute(Date.now()).valueOf() });
+        }
+        if (!this.form.value.id) {
+            this.form.patchValue({
+                duration:
+                    this._settings.get('app.desks.default_duration') || 60,
+            });
         }
     }
 }

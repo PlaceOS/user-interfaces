@@ -158,6 +158,7 @@ export class LockerBankListComponent {
                     ).length,
                     lockers: bank.lockers.map((_) => ({
                         ..._,
+                        map_id: bank.map_id || bank.id,
                         zone: bank.zone,
                     })),
                 }));

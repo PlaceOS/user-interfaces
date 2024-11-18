@@ -23,6 +23,8 @@ describe('ScheduleSidebarComponent', () => {
                 date: new BehaviorSubject(0),
                 toggleType: jest.fn(),
                 setDate: jest.fn(),
+                options: new BehaviorSubject({ period: 'day' }),
+                getOptions: jest.fn(() => ({ period: 'day' })),
             } as any),
             MockProvider(SettingsService, { get: jest.fn() }),
         ],

@@ -31,7 +31,9 @@ import { Region } from '@placeos/organisation';
                     <app-icon>keyboard_arrow_left</app-icon>
                 </button>
             </div>
-            <h3 class="font-medium flex-2 text-center" i18n>Space Filters</h3>
+            <h3 class="font-medium flex-2 text-center text-xl" i18n>
+                Space Filters
+            </h3>
             <div class="flex-1"></div>
         </div>
         <form

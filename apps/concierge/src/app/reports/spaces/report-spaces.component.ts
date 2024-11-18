@@ -102,8 +102,10 @@ export class ReportSpacesComponent extends AsyncHandler {
                 if (params.has('end')) {
                     this._state.setOptions({ end: +params.get('end') });
                 }
-                if (params.has('zones')) {
-                    const zones = params.get('zones').split(',');
+                if (params.has('zones') || params.has('zone_ids')) {
+                    const id_list =
+                        params.get('zones') || params.get('zone_ids');
+                    const zones = id_list.split(',');
                     if (zones.length) this._state.setOptions({ zones });
                 }
             }),

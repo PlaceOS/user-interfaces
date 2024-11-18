@@ -124,6 +124,12 @@ export class ParkingService extends AsyncHandler {
         shareReplay(1),
     );
 
+    public readonly has_booking = queryBookings({
+        period_start: getUnixTime(startOfDay(Date.now())),
+        period_end: getUnixTime(endOfDay(Date.now())),
+        type: 'parking',
+    }).pipe(map((_) => _.length > 0));
+
     public readonly assigned_space = this.spaces.pipe(
         map((list) =>
             list.find(

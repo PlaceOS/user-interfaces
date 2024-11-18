@@ -154,7 +154,7 @@ export class LockerListFieldComponent implements ControlValueAccessor {
 
     constructor(
         private _settings: SettingsService,
-        private _dialog: MatDialog
+        private _dialog: MatDialog,
     ) {}
 
     /** Add or edit selected items */
@@ -213,7 +213,7 @@ export class LockerListFieldComponent implements ControlValueAccessor {
         } else {
             this._settings.saveUserSetting(
                 FAV_LOCKER_KEY,
-                fav_list.filter((_) => _ !== space.id)
+                fav_list.filter((_) => _ !== space.id),
             );
         }
     }

@@ -138,7 +138,7 @@ export class LockerFormDetailsComponent extends AsyncHandler {
     constructor(
         private _state: BookingFormService,
         private _org: OrganisationService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         super();
     }
@@ -150,16 +150,16 @@ export class LockerFormDetailsComponent extends AsyncHandler {
                 this.form
                     .get('resources')
                     ?.valueChanges?.subscribe((list) =>
-                        list?.length ? this.setBookingAsset(list[0]) : ''
-                    )
+                        list?.length ? this.setBookingAsset(list[0]) : '',
+                    ),
             );
             this.subscription(
                 'date',
                 this.form
                     .get('date')
                     ?.valueChanges?.subscribe((d) =>
-                        this._setCustomDateOptions()
-                    )
+                        this._setCustomDateOptions(),
+                    ),
             );
             this._setCustomDateOptions();
         }
@@ -178,7 +178,7 @@ export class LockerFormDetailsComponent extends AsyncHandler {
         this._state.form.patchValue({
             asset_id: locker?.id,
             asset_name: locker.name,
-            map_id: locker?.bank_id || locker?.id,
+            map_id: locker.map_id || locker?.bank_id || locker?.id,
             description: locker.name,
             booking_type: 'locker',
             zones: [this.building.id],

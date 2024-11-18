@@ -62,6 +62,17 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
             shareReplay(1),
         );
 
+    public readonly room_alerts = this._org.active_building.pipe(
+        filter((bld) => !!bld),
+        switchMap(() =>
+            showMetadata(this._org.organisation.id, `room_alerts`).pipe(
+                catchError(() => of({ details: {} })),
+            ),
+        ),
+        map((_) => _.details || {}),
+        shareReplay(1),
+    );
+
     private _bind = combineLatest([
         this._state.spaces,
         this._state.options,
@@ -127,6 +138,7 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
         const booking_rules = await this.booking_rules
             .pipe(take(1))
             .toPromise();
+        const room_alerts = await this.room_alerts.pipe(take(1)).toPromise();
         const { hidden } =
             rulesForResource(
                 {
@@ -157,6 +169,9 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
             host: currentUser()?.email,
             resources: [space],
         });
+        if (room_alerts[space.id]?.[0] === 'closed') {
+            return notifyError(`${room_alerts[space.id][1]}`);
+        }
         if (this._settings.get('app.events.booking_unavailable')) {
             return this._event_form.openEventLinkModal();
         }
@@ -165,7 +180,7 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
                 ? ExploreBookQrComponent
                 : ExploreBookingModalComponent) as any,
             {
-                data: { space },
+                data: { space, alert: room_alerts[space.id] },
             },
         );
     }

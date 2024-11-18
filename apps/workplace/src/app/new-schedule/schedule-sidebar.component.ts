@@ -1,6 +1,21 @@
-import { Component } from '@angular/core';
-import { SettingsService } from '@placeos/common';
-import { ScheduleStateService } from './schedule-state.service';
+import { Component, OnInit } from '@angular/core';
+import { AsyncHandler, SettingsService } from '@placeos/common';
+import {
+    ScheduleOptions,
+    ScheduleStateService,
+} from './schedule-state.service';
+import { OrganisationService } from '@placeos/organisation';
+import { debounceTime, filter, first, map } from 'rxjs/operators';
+import {
+    addWeeks,
+    endOfWeek,
+    format,
+    isAfter,
+    isBefore,
+    startOfDay,
+    startOfWeek,
+} from 'date-fns';
+import { combineLatest } from 'rxjs';
 
 @Component({
     selector: 'schedule-sidebar',
@@ -8,11 +23,59 @@ import { ScheduleStateService } from './schedule-state.service';
         <div
             class="flex flex-col w-[18rem] h-full overflow-hidden bg-base-100[#1F2021] border-r border-base-200"
         >
+            <div class="flex items-center space-x-4 p-4">
+                <button
+                    btn
+                    matRipple
+                    class="flex-1"
+                    [class.inverse]="period !== 'day'"
+                    (click)="setOptions({ period: 'day' })"
+                >
+                    Day
+                </button>
+                <button
+                    btn
+                    matRipple
+                    class="flex-1"
+                    [class.inverse]="period !== 'week'"
+                    (click)="setOptions({ period: 'week' })"
+                >
+                    Week
+                </button>
+            </div>
             <date-calendar
                 class="border-b border-base-200"
+                *ngIf="period === 'day'"
                 [ngModel]="date | async"
                 (ngModelChange)="setDate($event)"
+                [offset_weekday]="offset_weekday"
             ></date-calendar>
+            <div class="px-4 w-full" *ngIf="period === 'week'">
+                <mat-form-field
+                    appearance="outline"
+                    class="no-subscript w-full"
+                >
+                    <mat-select
+                        [ngModel]="week_date | async"
+                        (ngModelChange)="setDate($event)"
+                        placeholder="Select Week..."
+                    >
+                        <mat-option
+                            *ngFor="let option of week_options | async"
+                            [value]="option.id"
+                            class="leading-tight"
+                        >
+                            {{ option.name }}
+                            <span
+                                class="text-xs text-info px-1"
+                                *ngIf="option.this_week"
+                                matTooltip="This Week"
+                                >(C)</span
+                            >
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
             <h3 class="mx-4 mt-4 font-medium" i18n>Filters</h3>
             <div class="p-4 space-y-4 flex-1 h-1/2 overflow-auto">
                 <button
@@ -178,18 +241,61 @@ import { ScheduleStateService } from './schedule-state.service';
         `,
     ],
 })
-export class ScheduleSidebarComponent {
+export class ScheduleSidebarComponent extends AsyncHandler implements OnInit {
     public readonly filters = this._state.filters;
-    public readonly date = this._state.date;
+    public readonly date = this._state.date.pipe(map((_) => startOfDay(_)));
     public readonly toggleType = (t) => this._state.toggleType(t);
     public readonly setDate = (d) => this._state.setDate(d);
 
+    public readonly week_date = this._state.week_date;
+    public readonly week_options = this._state.week_options;
+
+    public get period() {
+        return this._state.getOptions()?.period;
+    }
+
+    public setOptions(options: ScheduleOptions) {
+        this._state.setOptions(options);
+    }
+
     public hasFeature(feature: string) {
-        return this._settings.get('app.features')?.includes(feature);
+        return (this._settings.get('app.features') || []).includes(feature);
+    }
+
+    public get offset_weekday() {
+        return this._settings.get('app.week_start') || 0;
     }
 
     constructor(
+        private _org: OrganisationService,
         private _state: ScheduleStateService,
-        private _settings: SettingsService
-    ) {}
+        private _settings: SettingsService,
+    ) {
+        super();
+    }
+
+    public ngOnInit() {
+        this.subscription(
+            'building',
+            this._org.active_building
+                .pipe(
+                    filter((_) => !!_),
+                    debounceTime(1000),
+                )
+                .subscribe((_) => {
+                    this._state.setType('event', this.hasFeature('spaces'));
+                    this._state.setType('desk', this.hasFeature('desks'));
+                    this._state.setType('parking', this.hasFeature('parking'));
+                    this._state.setType(
+                        'visitor',
+                        this.hasFeature('visitor-invite'),
+                    );
+                    this._state.setType('locker', this.hasFeature('lockers'));
+                    this._state.setType(
+                        'group-event',
+                        this.hasFeature('group-events'),
+                    );
+                }),
+        );
+    }
 }

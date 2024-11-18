@@ -732,9 +732,7 @@ export class EventDetailsModalComponent {
             'text/html',
         );
         this.raw_body = (doc.body.textContent || '').trim();
-        console.log('Body:', this.raw_body);
         this._load().then();
-        console.log('Timezone:', this.timezone);
     }
 
     public get period() {

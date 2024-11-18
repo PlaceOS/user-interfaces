@@ -1,7 +1,12 @@
 import { Component, Output, EventEmitter } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { BookingFormService } from '@placeos/bookings';
-import { DialogEvent, notifyError, notifySuccess } from '@placeos/common';
+import {
+    DialogEvent,
+    notifyError,
+    notifySuccess,
+    SettingsService,
+} from '@placeos/common';
 import { BehaviorSubject } from 'rxjs';
 
 @Component({
@@ -48,8 +53,16 @@ export class DeskBookModalComponent {
 
     constructor(
         private _booking_form: BookingFormService,
-        private _dialog_ref: MatDialogRef<DeskBookModalComponent>
-    ) {}
+        private _dialog_ref: MatDialogRef<DeskBookModalComponent>,
+        private _settings: SettingsService,
+    ) {
+        if (!this.form.value.id) {
+            this.form.patchValue({
+                duration:
+                    this._settings.get('app.desks.default_duration') || 60,
+            });
+        }
+    }
 
     public async save() {
         this.loading.next(true);

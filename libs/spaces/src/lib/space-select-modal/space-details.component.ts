@@ -57,6 +57,18 @@ import { Space } from '../space.class';
                         {{ space.display_name || space.name }}
                     </h2>
                 </section>
+                <div
+                    class="my-2 px-2 py-1 text-xs rounded"
+                    *ngIf="alert"
+                    [class.bg-info]="alert[0] === 'info'"
+                    [class.text-info-content]="alert[0] === 'info'"
+                    [class.bg-warning]="alert[0] === 'warn'"
+                    [class.text-warning-content]="alert[0] === 'warn'"
+                    [class.bg-error]="alert[0] === 'closed'"
+                    [class.text-error-content]="alert[0] === 'closed'"
+                >
+                    {{ alert[1] }}
+                </div>
                 <hr />
                 <section details class="space-y-2">
                     <h2 class="text-xl font-medium" i18n>Details</h2>
@@ -162,6 +174,7 @@ export class SpaceDetailsComponent {
     @Input() public fav: boolean = false;
     @Input() public active: boolean = false;
     @Input() public hide_map: boolean = false;
+    @Input() public alert?: [string, string];
 
     @Output() public activeChange = new EventEmitter<boolean>();
     @Output() public close = new EventEmitter<void>();
@@ -176,7 +189,7 @@ export class SpaceDetailsComponent {
 
     public get building() {
         return this._org.buildings.find((_) =>
-            this.space?.zones.includes(_.id)
+            this.space?.zones.includes(_.id),
         );
     }
 

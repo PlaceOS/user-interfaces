@@ -313,7 +313,7 @@ export class Booking {
         this.linked_bookings = data.linked_bookings || [];
         this.images = data.images || [];
         this.status =
-            this.checked_out_at > 0
+            this.checked_out_at > 0 || isAfter(Date.now(), this.date_end)
                 ? 'ended'
                 : this.rejected || this.deleted
                   ? 'declined'

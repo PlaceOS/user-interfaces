@@ -178,6 +178,15 @@ export class EventFormService extends AsyncHandler {
         map((l) => unique(flatten(l.map((_) => _.features)))),
     );
 
+    public readonly room_alerts = this._changed.pipe(
+        switchMap((_) =>
+            showMetadata(this._org.organisation.id, 'room_alerts'),
+        ),
+        map((r) => r.details as Record<string, [string, string]>),
+        startWith({}),
+        shareReplay(1),
+    );
+
     public readonly filtered_spaces = combineLatest([
         this.spaces,
         this.options,

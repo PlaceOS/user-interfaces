@@ -391,7 +391,7 @@ export function getInvalidFields(form: FormGroup, prefix: string = '') {
                 ...invalid,
                 ...getInvalidFields(form.controls[key] as FormGroup, `${key}.`),
             ];
-        } else if (!form.controls[key].valid) {
+        } else if (form.controls[key].invalid) {
             invalid.push(`${prefix}${key}`);
         }
     }

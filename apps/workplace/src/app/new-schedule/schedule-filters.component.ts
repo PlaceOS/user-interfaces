@@ -16,7 +16,10 @@ import { ScheduleStateService } from './schedule-state.service';
             <div class="flex flex-wrap space-x-2">
                 <div
                     class="flex items-center rounded-3xl border border-base-200"
-                    *ngIf="(filters | async)?.shown_types?.includes('event')"
+                    *ngIf="
+                        (filters | async)?.shown_types?.includes('event') &&
+                        hasFeature('spaces')
+                    "
                 >
                     <div class=" px-2">{{ 'WPA.ROOMS' | translate }}</div>
                     <button
@@ -114,12 +117,12 @@ import { ScheduleStateService } from './schedule-state.service';
                 </div>
             </div>
         </div>
-        <div class="sm:hidden flex items-center space-x-2">
+        <div class="sm:hidden flex items-center space-x-2 overflow-auto">
             <button
                 btn
                 matRipple
                 name="schedule-open-filter-edit"
-                class="min-w-0 sm:w-24"
+                class="min-w-12 sm:w-24"
                 (click)="openFilters()"
             >
                 <div class="flex items-center justify-center space-x-2">
@@ -129,7 +132,10 @@ import { ScheduleStateService } from './schedule-state.service';
             </button>
             <div
                 class="flex items-center rounded-3xl border border-base-200 bg-base-100 text-sm pl-2"
-                *ngIf="(filters | async)?.shown_types?.includes('event')"
+                *ngIf="
+                    (filters | async)?.shown_types?.includes('event') &&
+                    hasFeature('spaces')
+                "
             >
                 <div>{{ 'WPA.ROOMS' | translate }}</div>
                 <button
@@ -236,7 +242,7 @@ export class ScheduleFiltersComponent {
     constructor(
         private _sheet: MatBottomSheet,
         private _state: ScheduleStateService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {}
 
     public openFilters() {
