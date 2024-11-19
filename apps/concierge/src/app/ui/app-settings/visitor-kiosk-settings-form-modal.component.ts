@@ -167,10 +167,6 @@ import { DEFAULT_SETTINGS } from 'apps/visitor-kiosk/src/environments/settings';
     `,
     styles: [
         `
-            section {
-                background-color: hsla(217, 91%, 60%, 0.04);
-            }
-
             settings-toggle {
                 width: calc(50% - 1rem);
                 margin: 0.5rem;
