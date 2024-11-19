@@ -268,6 +268,7 @@ export class SimpleTableComponent<T extends {} = any> extends AsyncHandler {
     @Input() public empty_message = 'No data to list';
     @Input() public child_template: TemplateRef<any> = null;
     @Input() public show_children: Record<string, boolean> = {};
+    @Input() public filter_on: string[] = [];
     @Output() public selectedChange = new EventEmitter<number[]>();
     @Output() public rowClicked = new EventEmitter<number>();
 
@@ -321,13 +322,18 @@ export class SimpleTableComponent<T extends {} = any> extends AsyncHandler {
                 map(([data, filter, sort]) => {
                     data = [...data];
                     if (filter) {
-                        data = data.filter((_) =>
-                            Object.values(_).some((i) =>
-                                JSON.stringify(i)
-                                    ?.toLowerCase()
-                                    .includes((filter || '').toLowerCase()),
-                            ),
-                        );
+                        const filter_str = (filter || '').toLowerCase();
+                        data = data.filter((v) => {
+                            const keys = this.filter_on.length
+                                ? this.filter_on
+                                : Object.keys(v);
+                            return keys.some((key) => {
+                                const value = v[key];
+                                const cmp_str =
+                                    JSON.stringify(value).toLowerCase();
+                                return cmp_str.includes(filter_str);
+                            });
+                        });
                     }
                     if (sort && data.length) {
                         const type = typeof data[0][sort.key];

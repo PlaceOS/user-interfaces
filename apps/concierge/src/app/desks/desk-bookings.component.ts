@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 
 import { DesksStateService } from './desks-state.service';
-import { map } from 'rxjs/operators';
 import { SettingsService } from '@placeos/common';
 
 @Component({
@@ -12,24 +11,32 @@ import { SettingsService } from '@placeos/common';
                 class="min-w-[72rem] block text-sm"
                 [data]="bookings"
                 [filter]="(filters | async)?.search"
+                [filter_on]="[
+                    'user_name',
+                    'asset_name',
+                    'user_email',
+                    'asset_id',
+                    'status',
+                    'group',
+                ]"
                 [columns]="[
                     {
                         key: 'date',
                         name: 'Date',
                         content: date_template,
                         size: '4rem',
-                        sortable: false
+                        sortable: false,
                     },
                     {
                         key: 'period',
                         name: 'Period',
                         content: period_template,
-                        size: '9rem'
+                        size: '9rem',
                     },
                     {
                         key: 'user_name',
                         name: 'Person',
-                        content: user_template
+                        content: user_template,
                     },
                     { key: 'group', name: 'Group', content: group_template },
                     { key: 'asset_name', name: 'Desk' },
@@ -39,15 +46,15 @@ import { SettingsService } from '@placeos/common';
                         name: 'Status',
                         content: status_template,
                         size: '8.5rem',
-                        sortable: false
+                        sortable: false,
                     },
                     {
                         key: 'checked_in',
                         name: 'Checked In',
                         content: option_template,
                         size: '7rem',
-                        sortable: false
-                    }
+                        sortable: false,
+                    },
                 ]"
                 [empty_message]="
                     (filters | async)?.search
@@ -154,10 +161,10 @@ import { SettingsService } from '@placeos/common';
                                     row?.status === 'ended'
                                         ? 'Ended'
                                         : row?.status === 'approved'
-                                        ? 'Approved'
-                                        : row?.status === 'declined'
-                                        ? 'Declined'
-                                        : 'Pending'
+                                          ? 'Approved'
+                                          : row?.status === 'declined'
+                                            ? 'Declined'
+                                            : 'Pending'
                                 }}
                             </div>
                             <app-icon class="text-2xl"
@@ -299,7 +306,7 @@ export class DeskBookingsComponent {
 
     constructor(
         private _state: DesksStateService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {}
 
     private async runMethod(name: string, fn: () => Promise<any>) {

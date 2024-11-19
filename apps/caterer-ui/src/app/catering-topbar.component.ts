@@ -78,7 +78,7 @@ import { combineLatest } from 'rxjs';
                     <mat-option value="">All Caterers</mat-option>
                     <mat-option
                         *ngFor="let caterer of caterers | async"
-                        [value]="caterer"
+                        [value]="caterer || '<empty>'"
                     >
                         {{ caterer || '== No Caterer ==' }}
                     </mat-option>
