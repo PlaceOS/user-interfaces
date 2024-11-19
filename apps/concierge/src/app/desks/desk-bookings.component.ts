@@ -18,7 +18,6 @@ import { SettingsService } from '@placeos/common';
                     'asset_id',
                     'status',
                     'group',
-                    'extension_data',
                 ]"
                 [columns]="[
                     {
