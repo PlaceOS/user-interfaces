@@ -826,6 +826,19 @@ export class EventFormService extends AsyncHandler {
         query: Record<string, any>,
     ) {
         this._updateVisitorList(event.attendees);
+        const old_system =
+            event.old_system?.id ||
+            event.old_system?.email ||
+            event.resources[0]?.email;
+        const system_id =
+            event.system?.id ||
+            event.system?.email ||
+            event.resources[0]?.email;
+        if (old_system !== system_id) {
+            (event as any).attendees = event.attendees.filter(
+                (_) => _.email !== old_system || _.id !== old_system,
+            );
+        }
         return (
             !this.has_calendar
                 ? saveBooking(
