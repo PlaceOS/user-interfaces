@@ -16,7 +16,6 @@ import { HelpTooltipComponent } from './help-tooltip.component';
 import { LanguageSelectComponent } from './language-tooltip.component';
 import { RegionSelectComponent } from './region-select.component';
 import { SupportTicketModalComponent } from 'libs/form-fields/src/lib/support-ticket-modal.component';
-import { first } from 'rxjs/operators';
 import { WorkLocationTooltipComponent } from './work-location-tooltip.component';
 
 export interface AppLocale {
@@ -173,7 +172,7 @@ export interface AppLocale {
             <div
                 customTooltip
                 [content]="language_tooltip"
-                *ngIf="locales?.length"
+                *ngIf="locales?.length > 1"
                 class="!border-b"
             >
                 <button btn matRipple class="clear w-full text-left h-[3.5rem]">
