@@ -38,6 +38,7 @@ import { VisitorKioskSettingsFormModalComponent } from './app-settings/visitor-k
 import { ConciergeSettingsFormModalComponent } from './app-settings/concierge-settings-form-modal.component';
 import { WorkplaceSettingsFormModalComponent } from './app-settings/workplace-settings-form-modal.component';
 import { SettingsToggleComponent } from './app-settings/settings-toggle.component';
+import { UploadButtonComponent } from './app-settings/upload-button.component';
 
 const COMPONENTS: Type<any>[] = [
     AppSettingsModalComponent,
@@ -55,6 +56,7 @@ const COMPONENTS: Type<any>[] = [
     VisitorKioskSettingsFormModalComponent,
 
     SettingsToggleComponent,
+    UploadButtonComponent,
 ];
 
 const MAT_MODULES: any[] = [

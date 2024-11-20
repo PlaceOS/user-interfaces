@@ -44,13 +44,13 @@ import { DEFAULT_SETTINGS } from 'apps/concierge/src/environments/settings';
                                         formControlName="logo_light"
                                     />
                                 </mat-form-field>
-                                <button
-                                    icon
-                                    matRipple
-                                    class="rounded bg-secondary text-secondary-content h-12 w-12"
-                                >
-                                    <app-icon>cloud_upload</app-icon>
-                                </button>
+                                <upload-button
+                                    ngModel
+                                    (ngModelChange)="
+                                        form.patchValue({ logo_light: $event })
+                                    "
+                                    [ngModelOptions]="{ standalone: true }"
+                                ></upload-button>
                             </div>
                         </div>
                         <div>
@@ -66,13 +66,13 @@ import { DEFAULT_SETTINGS } from 'apps/concierge/src/environments/settings';
                                         formControlName="logo_dark"
                                     />
                                 </mat-form-field>
-                                <button
-                                    icon
-                                    matRipple
-                                    class="rounded bg-secondary text-secondary-content h-12 w-12"
-                                >
-                                    <app-icon>cloud_upload</app-icon>
-                                </button>
+                                <upload-button
+                                    ngModel
+                                    (ngModelChange)="
+                                        form.patchValue({ logo_dark: $event })
+                                    "
+                                    [ngModelOptions]="{ standalone: true }"
+                                ></upload-button>
                             </div>
                         </div>
                         <div>

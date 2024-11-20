@@ -46,13 +46,13 @@ import { validateURL } from '@placeos/spaces';
                                         formControlName="logo_light"
                                     />
                                 </mat-form-field>
-                                <button
-                                    icon
-                                    matRipple
-                                    class="rounded bg-secondary text-secondary-content h-12 w-12"
-                                >
-                                    <app-icon>cloud_upload</app-icon>
-                                </button>
+                                <upload-button
+                                    ngModel
+                                    (ngModelChange)="
+                                        form.patchValue({ logo_light: $event })
+                                    "
+                                    [ngModelOptions]="{ standalone: true }"
+                                ></upload-button>
                             </div>
                         </div>
                         <div>
@@ -68,13 +68,13 @@ import { validateURL } from '@placeos/spaces';
                                         formControlName="logo_dark"
                                     />
                                 </mat-form-field>
-                                <button
-                                    icon
-                                    matRipple
-                                    class="rounded bg-secondary text-secondary-content h-12 w-12"
-                                >
-                                    <app-icon>cloud_upload</app-icon>
-                                </button>
+                                <upload-button
+                                    ngModel
+                                    (ngModelChange)="
+                                        form.patchValue({ logo_dark: $event })
+                                    "
+                                    [ngModelOptions]="{ standalone: true }"
+                                ></upload-button>
                             </div>
                         </div>
                         <div>
@@ -805,7 +805,7 @@ import { validateURL } from '@placeos/spaces';
                         </div>
                     </section>
                     <section
-                        bookings
+                        explore
                         class="relative border border-base-300 rounded px-4 pb-2 pt-4"
                         *ngIf="form.value.features.includes('explore')"
                         formGroupName="explore"

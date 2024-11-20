@@ -44,13 +44,13 @@ import { DEFAULT_SETTINGS } from 'apps/visitor-kiosk/src/environments/settings';
                                         formControlName="logo_light"
                                     />
                                 </mat-form-field>
-                                <button
-                                    icon
-                                    matRipple
-                                    class="rounded bg-secondary text-secondary-content h-12 w-12"
-                                >
-                                    <app-icon>cloud_upload</app-icon>
-                                </button>
+                                <upload-button
+                                    ngModel
+                                    (ngModelChange)="
+                                        form.patchValue({ logo_light: $event })
+                                    "
+                                    [ngModelOptions]="{ standalone: true }"
+                                ></upload-button>
                             </div>
                         </div>
                         <div>
@@ -66,13 +66,13 @@ import { DEFAULT_SETTINGS } from 'apps/visitor-kiosk/src/environments/settings';
                                         formControlName="logo_dark"
                                     />
                                 </mat-form-field>
-                                <button
-                                    icon
-                                    matRipple
-                                    class="rounded bg-secondary text-secondary-content h-12 w-12"
-                                >
-                                    <app-icon>cloud_upload</app-icon>
-                                </button>
+                                <upload-button
+                                    ngModel
+                                    (ngModelChange)="
+                                        form.patchValue({ logo_dark: $event })
+                                    "
+                                    [ngModelOptions]="{ standalone: true }"
+                                ></upload-button>
                             </div>
                         </div>
                         <div>
@@ -90,13 +90,15 @@ import { DEFAULT_SETTINGS } from 'apps/visitor-kiosk/src/environments/settings';
                                         formControlName="welcome_background"
                                     />
                                 </mat-form-field>
-                                <button
-                                    icon
-                                    matRipple
-                                    class="rounded bg-secondary text-secondary-content h-12 w-12"
-                                >
-                                    <app-icon>cloud_upload</app-icon>
-                                </button>
+                                <upload-button
+                                    ngModel
+                                    (ngModelChange)="
+                                        form.patchValue({
+                                            welcome_background: $event,
+                                        })
+                                    "
+                                    [ngModelOptions]="{ standalone: true }"
+                                ></upload-button>
                             </div>
                         </div>
                         <div>
@@ -141,6 +143,293 @@ import { DEFAULT_SETTINGS } from 'apps/visitor-kiosk/src/environments/settings';
                             <settings-toggle
                                 name="Allow Printing Label"
                                 formControlName="allow_printing_label"
+                            ></settings-toggle>
+                        </div>
+                    </section>
+                    <section
+                        explore
+                        class="relative border border-base-300 rounded px-4 pb-2 pt-4"
+                        formGroupName="explore"
+                    >
+                        <h3
+                            class="absolute top-0 left-4 -translate-y-1/2 rounded px-2 py-1 font-medium bg-base-100"
+                        >
+                            PlaceOS Maps
+                        </h3>
+                        <div>
+                            <label for="disable"> Disabled Features </label>
+                            <mat-form-field appearance="outline" class="w-full">
+                                <mat-select
+                                    name="disable"
+                                    formControlName="disable"
+                                    placeholder="No disabled features"
+                                    multiple
+                                >
+                                    <mat-option value="devices"
+                                        >Devices</mat-option
+                                    >
+                                    <mat-option value="desks">Desks</mat-option>
+                                    <mat-option value="lockers">
+                                        Lockers
+                                    </mat-option>
+                                    <mat-option value="parking">
+                                        parking
+                                    </mat-option>
+                                    <mat-option value="spaces">
+                                        Rooms
+                                    </mat-option>
+                                    <mat-option value="spaces-presence">
+                                        Room Presence
+                                    </mat-option>
+                                    <mat-option value="zones">Zones</mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <div class="flex-1">
+                                <label for="disable-actions">
+                                    Disabled Feature Actions
+                                </label>
+                                <mat-form-field
+                                    appearance="outline"
+                                    class="w-full"
+                                >
+                                    <mat-select
+                                        name="disable-actions"
+                                        formControlName="disable_actions"
+                                        placeholder="No disabled actions"
+                                        multiple
+                                    >
+                                        <mat-option value="devices"
+                                            >Devices</mat-option
+                                        >
+                                        <mat-option value="desks"
+                                            >Desks</mat-option
+                                        >
+                                        <mat-option value="lockers">
+                                            Lockers
+                                        </mat-option>
+                                        <mat-option value="parking">
+                                            parking
+                                        </mat-option>
+                                        <mat-option value="spaces">
+                                            Rooms
+                                        </mat-option>
+                                        <mat-option value="spaces-presence">
+                                            Room Presence
+                                        </mat-option>
+                                        <mat-option value="zones"
+                                            >Zones</mat-option
+                                        >
+                                    </mat-select>
+                                </mat-form-field>
+                            </div>
+                            <div class="flex-1">
+                                <label for="available-period">
+                                    Disabled Feature Labels
+                                </label>
+                                <mat-form-field
+                                    appearance="outline"
+                                    class="w-full"
+                                >
+                                    <mat-select
+                                        name="disable-labels"
+                                        formControlName="disable_labels"
+                                        placeholder="No disabled labels"
+                                        multiple
+                                    >
+                                        <mat-option value="devices"
+                                            >Devices</mat-option
+                                        >
+                                        <mat-option value="desks"
+                                            >Desks</mat-option
+                                        >
+                                        <mat-option value="lockers">
+                                            Lockers
+                                        </mat-option>
+                                        <mat-option value="parking">
+                                            parking
+                                        </mat-option>
+                                        <mat-option value="spaces">
+                                            Rooms
+                                        </mat-option>
+                                        <mat-option value="spaces-presence">
+                                            Room Presence
+                                        </mat-option>
+                                        <mat-option value="zones"
+                                            >Zones</mat-option
+                                        >
+                                    </mat-select>
+                                </mat-form-field>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <div class="flex-1">
+                                <label for="disable-features">
+                                    Disabled Feature Displays
+                                </label>
+                                <mat-form-field
+                                    appearance="outline"
+                                    class="w-full"
+                                >
+                                    <mat-select
+                                        name="disable-features"
+                                        formControlName="disable_features"
+                                        placeholder="No disabled displays"
+                                        multiple
+                                    >
+                                        <mat-option value="devices"
+                                            >Devices</mat-option
+                                        >
+                                        <mat-option value="desks"
+                                            >Desks</mat-option
+                                        >
+                                        <mat-option value="lockers">
+                                            Lockers
+                                        </mat-option>
+                                        <mat-option value="parking">
+                                            parking
+                                        </mat-option>
+                                        <mat-option value="spaces">
+                                            Rooms
+                                        </mat-option>
+                                        <mat-option value="spaces-presence">
+                                            Room Presence
+                                        </mat-option>
+                                        <mat-option value="zones"
+                                            >Zones</mat-option
+                                        >
+                                    </mat-select>
+                                </mat-form-field>
+                            </div>
+                            <div class="flex-1">
+                                <label for="disable-styles">
+                                    Disabled Feature Styles
+                                </label>
+                                <mat-form-field
+                                    appearance="outline"
+                                    class="w-full"
+                                >
+                                    <mat-select
+                                        name="disable-styles"
+                                        formControlName="disable_styles"
+                                        placeholder="No disabled styles"
+                                        multiple
+                                    >
+                                        <mat-option value="devices"
+                                            >Devices</mat-option
+                                        >
+                                        <mat-option value="desks"
+                                            >Desks</mat-option
+                                        >
+                                        <mat-option value="lockers">
+                                            Lockers
+                                        </mat-option>
+                                        <mat-option value="parking">
+                                            parking
+                                        </mat-option>
+                                        <mat-option value="spaces">
+                                            Rooms
+                                        </mat-option>
+                                        <mat-option value="spaces-presence">
+                                            Room Presence
+                                        </mat-option>
+                                        <mat-option value="zones"
+                                            >Zones</mat-option
+                                        >
+                                    </mat-select>
+                                </mat-form-field>
+                            </div>
+                        </div>
+                        <div
+                            class="relative border border-base-300 rounded p-4"
+                            *ngIf="form.value.explore?.show_legend"
+                        >
+                            <h3
+                                class="absolute top-0 left-4 -translate-y-1/2 rounded px-2 py-1 font-medium bg-base-100"
+                            >
+                                Legend
+                            </h3>
+                            <div
+                                class="flex items-center space-x-4 mb-4"
+                                *ngFor="
+                                    let item of form.value.explore.legend || [];
+                                    let i = index
+                                "
+                            >
+                                <div class="w-3/4 flex-1">
+                                    <mat-form-field
+                                        appearance="outline"
+                                        class="w-full no-subscript"
+                                    >
+                                        <input
+                                            matInput
+                                            placeholder="Legend Key"
+                                            [(ngModel)]="item[0]"
+                                            [ngModelOptions]="{
+                                                standalone: true,
+                                            }"
+                                        />
+                                    </mat-form-field>
+                                </div>
+                                <div
+                                    class="w-12 flex items-center justify-center"
+                                    matTooltip="Legend Color"
+                                >
+                                    <input
+                                        type="color"
+                                        class="h-11 rounded-lg border border-base-content"
+                                        [(ngModel)]="item[1]"
+                                        [ngModelOptions]="{ standalone: true }"
+                                    />
+                                </div>
+                                <button
+                                    icon
+                                    matRipple
+                                    class="border border-error text-error rounded h-12 w-12"
+                                    (click)="removeLegend(i)"
+                                >
+                                    <app-icon>delete</app-icon>
+                                </button>
+                            </div>
+                            <button
+                                btn
+                                matRipple
+                                class="w-full"
+                                (click)="addLegend()"
+                            >
+                                Add Legend Item
+                            </button>
+                        </div>
+                        <div class="flex items-center flex-wrap -mx-2">
+                            <settings-toggle
+                                name="Hide device fields"
+                                formControlName="hide_device_fields"
+                                info="Hides the MAC address, manufacturer, OS and SSID fields from device info tooltips"
+                            ></settings-toggle>
+                            <settings-toggle
+                                name="Show Legend"
+                                formControlName="show_legend"
+                            ></settings-toggle>
+                            <settings-toggle
+                                name="Hide Zones"
+                                formControlName="hide_zones"
+                            ></settings-toggle>
+                            <settings-toggle
+                                name="Show Booking QR Code"
+                                formControlName="show_booking_qr"
+                            ></settings-toggle>
+                            <settings-toggle
+                                name="Use defined polygons for zones"
+                                formControlName="use_zone_polygons"
+                            ></settings-toggle>
+                            <settings-toggle
+                                name="Show labels for zones"
+                                formControlName="show_zone_labels"
+                            ></settings-toggle>
+                            <settings-toggle
+                                name="Show zone sensor info"
+                                formControlName="show_zone_sensor_info"
                             ></settings-toggle>
                         </div>
                     </section>
@@ -192,6 +481,23 @@ export class VisitorKioskSettingsFormModalComponent {
         induction_after_details: new FormControl(false),
         allow_self_registration: new FormControl(false),
         allow_printing_label: new FormControl(false),
+        explore: new FormGroup({
+            hide_device_fields: new FormControl(false),
+            show_legend: new FormControl(false),
+            hide_zones: new FormControl(false),
+            legend: new FormControl<[string, string][]>([]),
+            colors: new FormControl<Record<string, string>>({}),
+            show_booking_qr: new FormControl(false),
+            disable: new FormControl<string[]>([]),
+            disable_actions: new FormControl<string[]>([]),
+            disable_labels: new FormControl<string[]>([]),
+            disable_features: new FormControl<string[]>([]),
+            disable_styles: new FormControl<string[]>([]),
+            use_zone_polygons: new FormControl(false),
+            area_count_key: new FormControl('count'),
+            show_zone_labels: new FormControl(false),
+            show_zone_sensor_info: new FormControl(false),
+        }),
     });
 
     constructor(
