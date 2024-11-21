@@ -61,7 +61,7 @@ export class AccessibilityControlsComponent extends AsyncHandler {
     }
 
     public get can_change_dark_mode() {
-        return !!this._settings.get('app.general.dark_mode');
+        return !!this._settings.get('app.allow_dark_mode');
     }
 
     public get accessible() {
@@ -76,7 +76,7 @@ export class AccessibilityControlsComponent extends AsyncHandler {
         this.timeout(
             'apply_setting',
             () => this._settings.saveUserSetting(n, v),
-            1000
+            1000,
         );
 
     public setDarkMode(state: boolean) {
@@ -88,7 +88,7 @@ export class AccessibilityControlsComponent extends AsyncHandler {
                 else if (!state && theme === 'dark')
                     this._settings.setTheme('light');
             },
-            100
+            100,
         );
     }
 }

@@ -108,7 +108,7 @@ export class VisitorRegistrationComponent {
     }
 
     public get background() {
-        return this._settings.get('app.home.background');
+        return this._settings.get('app.welcome_background');
     }
 
     public get is_induction_enabled() {

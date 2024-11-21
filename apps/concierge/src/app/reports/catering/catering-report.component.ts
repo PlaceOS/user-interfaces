@@ -21,7 +21,7 @@ import { ActivatedRoute } from '@angular/router';
                 <div
                     class="flex items-center m-4 p-4 rounded bg-base-200 overflow-hidden"
                 >
-                    <img [src]="logo.src" class="h-12" />
+                    <img [src]="logo?.src || logo" class="h-12" />
                     <div class="flex-1"></div>
                     <h2 class="text-2xl font-medium px-2">Catering Report</h2>
                 </div>

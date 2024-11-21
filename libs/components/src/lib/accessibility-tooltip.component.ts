@@ -86,7 +86,7 @@ export class AccessibilityTooltipComponent extends AsyncHandler {
     }
 
     public get can_change_dark_mode() {
-        return !!this._settings.get('app.general.dark_mode');
+        return !!this._settings.get('app.allow_dark_mode');
     }
 
     public get accessible() {
@@ -101,14 +101,14 @@ export class AccessibilityTooltipComponent extends AsyncHandler {
         this.timeout(
             'apply_setting',
             () => this._settings.saveUserSetting(n, v),
-            1000
+            1000,
         );
 
     public readonly close = () => this._data?.close();
 
     constructor(
         @Inject(CustomTooltipData) private _data: any,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         super();
     }

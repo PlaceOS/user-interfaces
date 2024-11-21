@@ -167,17 +167,23 @@ export class ParkingBookingModalComponent extends AsyncHandler {
         return endOfDay(
             addDays(
                 Date.now(),
-                this._settings.get('app.parking.available_period') || 7,
+                this._settings.get('app.parking.available_period') ||
+                    this._settings.get('app.bookings.available_period') ||
+                    7,
             ),
         );
     }
 
     public get max_duration() {
-        return this._settings.get('app.bookings.max_duration') || 480;
+        return (
+            this._settings.get('app.parking.max_duration') ||
+            this._settings.get('app.bookings.max_duration') ||
+            480
+        );
     }
 
     public get allow_all_day() {
-        return this._settings.get('app.parking.allow_all_day') || true;
+        return this._settings.get('app.parking.allow_all_day') ?? true;
     }
 
     public get use_24hr() {

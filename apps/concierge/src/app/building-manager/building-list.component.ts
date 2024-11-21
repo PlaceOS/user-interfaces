@@ -3,7 +3,11 @@ import { BuildingManagementService } from './building-management.service';
 import { notifySuccess } from '@placeos/common';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { MatDialog } from '@angular/material/dialog';
-import { BookingPanelSettingsModalComponent } from '../ui/booking-panel-settings-modal.component';
+
+import { BookingPanelSettingsModalComponent } from '../ui/app-settings/booking-panel-settings-modal.component';
+import { WorkplaceSettingsFormModalComponent } from '../ui/app-settings/workplace-settings-form-modal.component';
+import { ConciergeSettingsFormModalComponent } from '../ui/app-settings/concierge-settings-form-modal.component';
+import { VisitorKioskSettingsFormModalComponent } from '../ui/app-settings/visitor-kiosk-settings-form-modal.component';
 
 @Component({
     selector: 'building-list',
@@ -86,12 +90,57 @@ import { BookingPanelSettingsModalComponent } from '../ui/booking-panel-settings
                     <app-icon>more_vert</app-icon>
                 </button>
                 <mat-menu #menu="matMenu">
-                    <button mat-menu-item (click)="editBuildingMetadata(row)">
+                    <button
+                        mat-menu-item
+                        [matMenuTriggerFor]="app_settings_menu"
+                    >
                         <div class="flex items-center space-x-2">
                             <app-icon class="text-xl">edit_square</app-icon>
-                            <span>App Configuration</span>
+                            <span>Application Settings</span>
                         </div>
                     </button>
+                    <mat-menu #app_settings_menu="matMenu">
+                        <button
+                            mat-menu-item
+                            (click)="editWorkplaceSettings(row)"
+                        >
+                            <div class="flex items-center space-x-2">
+                                <app-icon class="text-xl"
+                                    >meeting_room</app-icon
+                                >
+                                <span>Workplace Settings</span>
+                            </div>
+                        </button>
+                        <button
+                            mat-menu-item
+                            (click)="editConciergeSettings(row)"
+                        >
+                            <div class="flex items-center space-x-2">
+                                <app-icon class="text-xl"
+                                    >support_agent</app-icon
+                                >
+                                <span>Concierge Settings</span>
+                            </div>
+                        </button>
+                        <button
+                            mat-menu-item
+                            (click)="editBookingPanelSettings(row)"
+                        >
+                            <div class="flex items-center space-x-2">
+                                <app-icon class="text-xl">event_busy</app-icon>
+                                <span>Booking Panel Settings</span>
+                            </div>
+                        </button>
+                        <button
+                            mat-menu-item
+                            (click)="editVisitorKioskSettings(row)"
+                        >
+                            <div class="flex items-center space-x-2">
+                                <app-icon class="text-xl">qr_code</app-icon>
+                                <span>Visitor Kiosk Settings</span>
+                            </div>
+                        </button>
+                    </mat-menu>
                     <button mat-menu-item (click)="editBuilding(row)">
                         <div class="flex items-center space-x-2">
                             <app-icon class="text-xl">edit</app-icon>
@@ -107,20 +156,6 @@ import { BookingPanelSettingsModalComponent } from '../ui/booking-panel-settings
                                 release_alert
                             </app-icon>
                             <span>Auto-release Settings</span>
-                        </div>
-                    </button>
-                    <button
-                        mat-menu-item
-                        (click)="editBookingPanelSettings(row)"
-                    >
-                        <div class="flex items-center space-x-2">
-                            <app-icon
-                                className="material-symbols-rounded"
-                                class="text-xl"
-                            >
-                                top_panel_open
-                            </app-icon>
-                            <span>Edit Booking Panel Settings</span>
                         </div>
                     </button>
                     <button mat-menu-item (click)="setInduction(row)">
@@ -186,8 +221,26 @@ export class BuildingListComponent {
         if (success) notifySuccess('Building ID copied to clipboard.');
     };
 
+    public editWorkplaceSettings(building) {
+        this._dialog.open(WorkplaceSettingsFormModalComponent, {
+            data: { zone: building },
+        });
+    }
+
+    public editConciergeSettings(building) {
+        this._dialog.open(ConciergeSettingsFormModalComponent, {
+            data: { zone: building },
+        });
+    }
+
     public editBookingPanelSettings(building) {
         this._dialog.open(BookingPanelSettingsModalComponent, {
+            data: { zone: building },
+        });
+    }
+
+    public editVisitorKioskSettings(building) {
+        this._dialog.open(VisitorKioskSettingsFormModalComponent, {
             data: { zone: building },
         });
     }

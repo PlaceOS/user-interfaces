@@ -19,7 +19,7 @@ import { first } from 'rxjs/operators';
                     </i>
                     <img
                         *ngIf="logo?.type === 'img'"
-                        [src]="logo.src | safe: 'resource'"
+                        [src]="logo?.src || logo | safe: 'resource'"
                     />
                 </div>
                 <div class="w-full relative h-1/3 flex-1">

@@ -79,7 +79,7 @@ import { Desk } from '@placeos/organisation';
                             [ngModel]="!!form.value.secondary_resource"
                             (ngModelChange)="
                                 form.patchValue({
-                                    secondary_resource: $event ? 'locker' : ''
+                                    secondary_resource: $event ? 'locker' : '',
                                 })
                             "
                             [ngModelOptions]="{ standalone: true }"
@@ -124,12 +124,12 @@ export class DeskBookingFormComponent extends AsyncHandler {
     public readonly form = this._service.form;
 
     public get allow_assets() {
-        return this._settings.get('app.bookings.allow_assets');
+        return this._settings.get('app.desks.allow_assets');
     }
 
     constructor(
         private _service: BookingFormService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         super();
     }
@@ -141,8 +141,8 @@ export class DeskBookingFormComponent extends AsyncHandler {
             this._service.form
                 .get('resources')
                 ?.valueChanges?.subscribe((list) =>
-                    list.length ? this.setBookingAsset(list[0]) : ''
-                )
+                    list.length ? this.setBookingAsset(list[0]) : '',
+                ),
         );
     }
 
