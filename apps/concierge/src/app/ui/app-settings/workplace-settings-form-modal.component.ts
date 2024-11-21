@@ -211,6 +211,72 @@ import { validateURL } from '@placeos/spaces';
                                 </mat-hint>
                             </mat-form-field>
                         </div>
+                        <div>
+                            <label for="locales">Locales</label>
+                            <mat-form-field appearance="outline" class="w-full">
+                                <mat-select
+                                    name="locales"
+                                    formControlName="locales"
+                                    multiple
+                                    placeholder="Select locales"
+                                >
+                                    <mat-option
+                                        [value]="{
+                                            id: 'en-GB',
+                                            name: 'English',
+                                            flag: '🇬🇧',
+                                        }"
+                                    >
+                                        English (British)
+                                    </mat-option>
+                                    <mat-option
+                                        [value]="{
+                                            id: 'en-US',
+                                            name: 'English',
+                                            flag: '🇺🇸',
+                                        }"
+                                    >
+                                        English (US)
+                                    </mat-option>
+                                    <mat-option
+                                        [value]="{
+                                            id: 'fr',
+                                            name: 'French',
+                                            flag: '🇫🇷',
+                                        }"
+                                    >
+                                        French
+                                    </mat-option>
+                                    <mat-option
+                                        [value]="{
+                                            id: 'es',
+                                            name: 'Spanish',
+                                            flag: '🇪🇸',
+                                        }"
+                                    >
+                                        Spanish
+                                    </mat-option>
+                                    <mat-option
+                                        [value]="{
+                                            id: 'pt',
+                                            name: 'Portuguese',
+                                            flag: '🇵🇹',
+                                        }"
+                                    >
+                                        Portuguese
+                                    </mat-option>
+                                    <mat-option
+                                        [value]="{
+                                            id: 'ar',
+                                            name: 'Arabic',
+                                            flag: '',
+                                        }"
+                                    >
+                                        Arabic
+                                    </mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                        </div>
                         <div class="flex items-center flex-wrap -mx-2">
                             <settings-toggle
                                 name="Use 24 hour time"
@@ -755,6 +821,10 @@ import { validateURL } from '@placeos/spaces';
                                 name="Show calendar links after booking"
                                 formControlName="show_calendar_links"
                             ></settings-toggle>
+                            <settings-toggle
+                                name="Enabled desk height"
+                                formControlName="height_enabled"
+                            ></settings-toggle>
                         </div>
                     </section>
                     <section
@@ -1245,6 +1315,7 @@ export class WorkplaceSettingsFormModalComponent {
         catering_provider: new FormControl(''),
         departments: new FormGroup<Record<string, any>>({}),
         week_start: new FormControl(0),
+        locales: new FormControl([]),
         events: new FormGroup({
             allow_all_day: new FormControl(false),
             booking_unavailable: new FormControl(false),
@@ -1287,6 +1358,7 @@ export class WorkplaceSettingsFormModalComponent {
             auto_checkin: new FormControl(false),
             available_period: new FormControl(14),
             hide_map: new FormControl(false),
+            height_enabled: new FormControl(false),
         }),
         parking: new FormGroup({
             allow_all_day: new FormControl(false),
