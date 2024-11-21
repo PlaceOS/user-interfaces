@@ -89,9 +89,9 @@ const ICONS = {
                 >
                     <mat-option
                         *ngFor="let caterer of caterers | async"
-                        [value]="caterer"
+                        [value]="caterer || '<empty>'"
                     >
-                        {{ caterer }}
+                        {{ caterer || '[No caterer]' }}
                     </mat-option>
                 </mat-select>
             </mat-form-field>

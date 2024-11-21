@@ -185,7 +185,10 @@ export class CateringMenuComponent {
     ]).pipe(
         map(([menu, filters]) =>
             menu.filter(
-                (item) => !filters?.caterer || item.caterer === filters.caterer,
+                (item) =>
+                    !filters?.caterer ||
+                    (filters.caterer === '<empty>' && !item.caterer) ||
+                    item.caterer === filters.caterer,
             ),
         ),
     );

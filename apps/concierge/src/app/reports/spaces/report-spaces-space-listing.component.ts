@@ -1,9 +1,9 @@
 import { Component, Input } from '@angular/core';
 import { downloadFile, jsonToCsv, unique } from '@placeos/common';
-import { Space } from '@placeos/spaces';
+import { Space, SpacePipe } from '@placeos/spaces';
 import { differenceInDays } from 'date-fns';
 import { combineLatest } from 'rxjs';
-import { debounceTime, map, take } from 'rxjs/operators';
+import { debounceTime, map, switchMap, take } from 'rxjs/operators';
 import { ReportsStateService } from '../reports-state.service';
 
 @Component({
@@ -65,19 +65,28 @@ import { ReportsStateService } from '../reports-state.service';
 export class ReportSpacesSpaceListing {
     @Input() public print: boolean = false;
 
+    private _space_pipe = new SpacePipe();
+
     public readonly space_list = combineLatest([
         this._reports.stats,
         this._reports.options,
     ]).pipe(
         debounceTime(300),
-        map(([stats, { start, end }]) => {
+        switchMap(async ([stats, { start, end }]) => {
             let list = [];
             let has_attendance = false;
             for (const booking of stats.events) {
-                const resources: Space[] = unique(
+                let space_list: Space[] = unique(
                     booking.resources,
                     'email',
                 ) || [booking.system];
+                let resources = [];
+                for (const space of space_list) {
+                    const details = await this._space_pipe.transform(
+                        space.email || space.id,
+                    );
+                    resources.push(details);
+                }
                 for (const space of resources) {
                     let details = list.find(
                         (_) =>

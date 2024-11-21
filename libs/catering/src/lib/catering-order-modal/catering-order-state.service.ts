@@ -148,7 +148,11 @@ export class CateringOrderStateService {
                     ? list.filter((_) => categories.includes(_.category))
                     : list;
                 list = caterer
-                    ? list.filter((_) => _.caterer === caterer)
+                    ? list.filter(
+                          (_) =>
+                              (caterer === '<empty>' && !_.caterer) ||
+                              _.caterer === caterer,
+                      )
                     : list;
                 list = list.filter((_) =>
                     cateringItemAvailable(_, rules, {

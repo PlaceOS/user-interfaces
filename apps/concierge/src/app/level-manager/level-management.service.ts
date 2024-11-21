@@ -3,9 +3,10 @@ import { MatDialog } from '@angular/material/dialog';
 import { BuildingLevel, OrganisationService } from '@placeos/organisation';
 import { PlaceZone, removeZone } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, shareReplay, switchMap } from 'rxjs/operators';
 import { LevelModalComponent } from './level-modal.component';
 import { notifySuccess, openConfirmModal } from '@placeos/common';
+import { requestSpacesForZone } from '@placeos/spaces';
 
 export interface LevelListOptions {
     zone?: string;
@@ -28,7 +29,7 @@ export class LevelManagementService {
         this.level_list,
         this._options,
     ]).pipe(
-        map(([buildings, list, options]) => {
+        switchMap(async ([buildings, list, options]) => {
             list = list.filter((_) =>
                 buildings.find((bld) => bld.id === _.parent_id),
             );
@@ -48,9 +49,13 @@ export class LevelManagementService {
                     (level as any).building =
                         parent.display_name || parent.name;
                 }
+                (level as any).room_count = await requestSpacesForZone(level.id)
+                    .toPromise()
+                    .then((spaces) => spaces.length);
             }
             return list;
         }),
+        shareReplay(1),
     );
 
     constructor(

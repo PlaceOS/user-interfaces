@@ -290,12 +290,24 @@ const EMPTY_ACTIONS = [];
                                                               time_format
                                             }}
                                         </div>
-                                        <div class="text-xs opacity-60">
-                                            {{ order.item_count }} item(s) for
-                                            {{
-                                                order.total_cost / 100
-                                                    | currency: currency_code
-                                            }}
+                                        <div
+                                            class="flex items-center space-x-2"
+                                        >
+                                            <div class="text-xs opacity-60">
+                                                {{ order.item_count }} item(s)
+                                                for
+                                                {{
+                                                    order.total_cost / 100
+                                                        | currency
+                                                            : currency_code
+                                                }}
+                                            </div>
+                                            <div
+                                                *ngIf="order.caterer"
+                                                class="text-xs px-2 py-1 rounded bg-base-200"
+                                            >
+                                                {{ order.caterer }}
+                                            </div>
                                         </div>
                                     </div>
                                     <button

@@ -13,6 +13,7 @@ import { Router } from '@angular/router';
 
 export interface ExploreBookingModalData {
     space: Space;
+    alert?: [string, string];
 }
 
 @Component({
@@ -58,6 +59,18 @@ export interface ExploreBookingModalData {
                             form.controls.resources?.value[0]?.display_name ||
                                 form.controls.resources?.value[0]?.name
                         }}
+                    </div>
+                    <div
+                        class="mb-4 -mt-2 px-2 py-1 text-xs rounded"
+                        *ngIf="alert"
+                        [class.bg-info]="alert[0] === 'info'"
+                        [class.text-info-content]="alert[0] === 'info'"
+                        [class.bg-warning]="alert[0] === 'warn'"
+                        [class.text-warning-content]="alert[0] === 'warn'"
+                        [class.bg-error]="alert[0] === 'closed'"
+                        [class.text-error-content]="alert[0] === 'closed'"
+                    >
+                        {{ alert[1] }}
                     </div>
                 </div>
                 <div class="flex sm:space-x-4 flex-wrap">
@@ -116,6 +129,7 @@ export interface ExploreBookingModalData {
 })
 export class ExploreBookingModalComponent implements OnInit {
     public readonly loading = this._event_form.loading;
+    public readonly alert = this._data.alert;
 
     public get form() {
         return this._event_form.form;
@@ -142,7 +156,7 @@ export class ExploreBookingModalComponent implements OnInit {
         private _settings: SettingsService,
         private _event_form: EventFormService,
         private _dialog_ref: MatDialogRef<ExploreBookingModalComponent>,
-        private _router: Router
+        private _router: Router,
     ) {}
 
     public ngOnInit() {

@@ -22,22 +22,26 @@ import { CateringReportStateService } from './catering-report-state.service';
                     {
                         key: 'options',
                         name: 'Options',
-                        content: option_template
+                        content: option_template,
+                    },
+                    {
+                        key: 'caterer',
+                        name: 'Caterer',
                     },
                     {
                         key: 'quantity',
-                        name: 'Quantity'
+                        name: 'Quantity',
                     },
                     {
                         key: 'unit_price',
                         name: 'Unit Price',
-                        content: cost_template
+                        content: cost_template,
                     },
                     {
                         key: 'total_cost',
                         name: 'Total Cost',
-                        content: cost_template
-                    }
+                        content: cost_template,
+                    },
                 ]"
                 [page_size]="print ? 0 : 10"
                 empty_message="No orders for selected period"
@@ -50,7 +54,7 @@ import { CateringReportStateService } from './catering-report-state.service';
                         *ngIf="data.length"
                         [matTooltip]="options(data)"
                     >
-                        {{ data.length }} option(s)
+                        {{ data?.length || 0 }} option(s)
                     </span>
                 </div>
             </ng-template>
@@ -71,7 +75,7 @@ export class CateringReportItemsComponent {
 
     constructor(
         private _report: CateringReportStateService,
-        private _org: OrganisationService
+        private _org: OrganisationService,
     ) {}
 
     public options(opts: CateringOption[]) {

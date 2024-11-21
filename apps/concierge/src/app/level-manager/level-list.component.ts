@@ -27,6 +27,7 @@ import { BookingPanelSettingsModalComponent } from '../ui/booking-panel-settings
                         size: '5rem',
                         sortable: false,
                     },
+                    { key: 'room_count', name: 'Rooms', size: '6rem' },
                     {
                         key: 'actions',
                         name: ' ',
