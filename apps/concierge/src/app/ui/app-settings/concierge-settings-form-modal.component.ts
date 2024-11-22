@@ -169,6 +169,88 @@ import { DEFAULT_SETTINGS } from 'apps/concierge/src/environments/settings';
                                 </mat-select>
                             </mat-form-field>
                         </div>
+                        <div
+                            class="relative border border-base-300 rounded px-4 pb-2 pt-4"
+                        >
+                            <h3
+                                class="absolute top-0 left-4 -translate-y-1/2 rounded px-2 py-1 font-medium bg-base-100"
+                            >
+                                Banner
+                            </h3>
+                            <div class="flex items-center space-x-4">
+                                <div class="flex-1">
+                                    <label for="banner-type">Type</label>
+                                    <mat-form-field
+                                        appearance="outline"
+                                        class="w-full"
+                                    >
+                                        <mat-select
+                                            name="banner-type"
+                                            [ngModel]="
+                                                form.value.banner?.type || ''
+                                            "
+                                            (ngModelChange)="
+                                                form.patchValue({
+                                                    banner: {
+                                                        id: date_string,
+                                                        message:
+                                                            form.value.banner
+                                                                ?.message || '',
+                                                        type: $event,
+                                                    },
+                                                })
+                                            "
+                                            [ngModelOptions]="{
+                                                standalone: true,
+                                            }"
+                                        >
+                                            <mat-option value=""
+                                                >None</mat-option
+                                            >
+                                            <mat-option value="info">
+                                                Info
+                                            </mat-option>
+                                            <mat-option value="warn">
+                                                Warning
+                                            </mat-option>
+                                            <mat-option value="error">
+                                                Error
+                                            </mat-option>
+                                        </mat-select>
+                                    </mat-form-field>
+                                </div>
+                                <div class="flex-1">
+                                    <label for="banner-type">Type</label>
+                                    <mat-form-field
+                                        appearance="outline"
+                                        class="w-full"
+                                    >
+                                        <input
+                                            matInput
+                                            name="banner-message"
+                                            placeholder="Banner Message"
+                                            [ngModel]="
+                                                form.value.banner?.message || ''
+                                            "
+                                            (ngModelChange)="
+                                                form.patchValue({
+                                                    banner: {
+                                                        id: date_string,
+                                                        type:
+                                                            form.value.banner
+                                                                ?.type || '',
+                                                        message: $event,
+                                                    },
+                                                })
+                                            "
+                                            [ngModelOptions]="{
+                                                standalone: true,
+                                            }"
+                                        />
+                                    </mat-form-field>
+                                </div>
+                            </div>
+                        </div>
                         <div>
                             <label for="default-route">Default Route</label>
                             <mat-form-field appearance="outline" class="w-full">
@@ -922,6 +1004,7 @@ export class ConciergeSettingsFormModalComponent {
         logo_light: new FormControl(''),
         logo_dark: new FormControl(''),
         features: new FormControl([]),
+        banner: new FormControl({}),
         default_route: new FormControl(''),
         use_24_hour_time: new FormControl(false),
         delegated: new FormControl(false),

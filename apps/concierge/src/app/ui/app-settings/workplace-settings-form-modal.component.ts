@@ -9,6 +9,7 @@ import { OrganisationService } from '@placeos/organisation';
 
 import { DEFAULT_SETTINGS } from 'apps/workplace/src/environments/settings';
 import { validateURL } from '@placeos/spaces';
+import { format } from 'date-fns';
 
 @Component({
     selector: 'workplace-settings-form-modal',
@@ -118,6 +119,88 @@ import { validateURL } from '@placeos/spaces';
                                     >
                                 </mat-select>
                             </mat-form-field>
+                        </div>
+                        <div
+                            class="relative border border-base-300 rounded px-4 pb-2 pt-4"
+                        >
+                            <h3
+                                class="absolute top-0 left-4 -translate-y-1/2 rounded px-2 py-1 font-medium bg-base-100"
+                            >
+                                Banner
+                            </h3>
+                            <div class="flex items-center space-x-4">
+                                <div class="flex-1">
+                                    <label for="banner-type">Type</label>
+                                    <mat-form-field
+                                        appearance="outline"
+                                        class="w-full"
+                                    >
+                                        <mat-select
+                                            name="banner-type"
+                                            [ngModel]="
+                                                form.value.banner?.type || ''
+                                            "
+                                            (ngModelChange)="
+                                                form.patchValue({
+                                                    banner: {
+                                                        id: date_string,
+                                                        message:
+                                                            form.value.banner
+                                                                ?.message || '',
+                                                        type: $event,
+                                                    },
+                                                })
+                                            "
+                                            [ngModelOptions]="{
+                                                standalone: true,
+                                            }"
+                                        >
+                                            <mat-option value=""
+                                                >None</mat-option
+                                            >
+                                            <mat-option value="info">
+                                                Info
+                                            </mat-option>
+                                            <mat-option value="warn">
+                                                Warning
+                                            </mat-option>
+                                            <mat-option value="error">
+                                                Error
+                                            </mat-option>
+                                        </mat-select>
+                                    </mat-form-field>
+                                </div>
+                                <div class="flex-1">
+                                    <label for="banner-type">Type</label>
+                                    <mat-form-field
+                                        appearance="outline"
+                                        class="w-full"
+                                    >
+                                        <input
+                                            matInput
+                                            name="banner-message"
+                                            placeholder="Banner Message"
+                                            [ngModel]="
+                                                form.value.banner?.message || ''
+                                            "
+                                            (ngModelChange)="
+                                                form.patchValue({
+                                                    banner: {
+                                                        id: date_string,
+                                                        type:
+                                                            form.value.banner
+                                                                ?.type || '',
+                                                        message: $event,
+                                                    },
+                                                })
+                                            "
+                                            [ngModelOptions]="{
+                                                standalone: true,
+                                            }"
+                                        />
+                                    </mat-form-field>
+                                </div>
+                            </div>
                         </div>
                         <div>
                             <label for="external-support-url">
@@ -1293,6 +1376,7 @@ export class WorkplaceSettingsFormModalComponent {
     public readonly form = new FormGroup({
         logo_light: new FormControl(''),
         logo_dark: new FormControl(''),
+        banner: new FormControl({}),
         features: new FormControl([]),
         feature_groups: new FormControl<Record<string, string[]>>({}),
         use_24_hour_time: new FormControl(false),
@@ -1401,6 +1485,10 @@ export class WorkplaceSettingsFormModalComponent {
             show_zone_sensor_info: new FormControl(false),
         }),
     });
+
+    public get date_string() {
+        return format(Date.now(), 'yyyy-MM-dd+HH');
+    }
 
     constructor(
         @Inject(MAT_DIALOG_DATA) private _data: { zone: PlaceZone },
