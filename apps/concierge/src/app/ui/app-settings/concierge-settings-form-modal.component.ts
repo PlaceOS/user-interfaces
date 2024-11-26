@@ -3,7 +3,7 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
 import { map } from 'rxjs/operators';
-import { SettingsService } from '@placeos/common';
+import { notifySuccess, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 
 import { DEFAULT_SETTINGS } from 'apps/concierge/src/environments/settings';
@@ -1089,7 +1089,10 @@ export class ConciergeSettingsFormModalComponent {
                 !this._isValid(new_settings[key], this.existing_settings[key])
             ) {
                 delete new_settings[key];
-            } else if (typeof new_settings[key] === 'object') {
+            } else if (
+                typeof new_settings[key] === 'object' &&
+                this.existing_settings[key]
+            ) {
                 for (const sub_key in new_settings[key]) {
                     if (
                         !this._isValid(
@@ -1114,6 +1117,7 @@ export class ConciergeSettingsFormModalComponent {
                 throw e;
             });
         this.loading = '';
+        notifySuccess('Sucessfully saved concierge app settings');
         this._dialog_ref.close();
     }
 

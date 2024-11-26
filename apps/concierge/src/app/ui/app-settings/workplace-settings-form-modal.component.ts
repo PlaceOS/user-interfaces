@@ -4,7 +4,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
 import { map } from 'rxjs/operators';
 
-import { SettingsService } from '@placeos/common';
+import { notifySuccess, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 
 import { DEFAULT_SETTINGS } from 'apps/workplace/src/environments/settings';
@@ -1523,12 +1523,21 @@ export class WorkplaceSettingsFormModalComponent {
         this.loading = 'Saving settings...';
         const zone = this._data.zone;
         const new_settings = { ...this.existing_settings, ...this.form.value };
+        console.log(
+            'Update metadata:',
+            this.settings_key,
+            this.existing_settings,
+        );
+        debugger;
         for (const key in new_settings) {
             if (
                 !this._isValid(new_settings[key], this.existing_settings[key])
             ) {
                 delete new_settings[key];
-            } else if (typeof new_settings[key] === 'object') {
+            } else if (
+                typeof new_settings[key] === 'object' &&
+                this.existing_settings[key]
+            ) {
                 for (const sub_key in new_settings[key]) {
                     if (
                         !this._isValid(
@@ -1553,6 +1562,7 @@ export class WorkplaceSettingsFormModalComponent {
                 throw e;
             });
         this.loading = '';
+        notifySuccess('Sucessfully saved workplace app settings');
         this._dialog_ref.close();
     }
 
