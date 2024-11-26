@@ -370,6 +370,10 @@ import { format } from 'date-fns';
                                 formControlName="use_region"
                             ></settings-toggle>
                             <settings-toggle
+                                name="Use imperial units for measurements"
+                                formControlName="use_imperial_units"
+                            ></settings-toggle>
+                            <settings-toggle
                                 *ngIf="
                                     form.value.features.includes(
                                         'support-ticket'
@@ -1394,6 +1398,7 @@ export class WorkplaceSettingsFormModalComponent {
         show_quick_links: new FormControl(false),
         allow_dark_mode: new FormControl(true),
         global_search: new FormControl(true),
+        use_imperial_units: new FormControl(false),
         external_support_url: new FormControl('', [validateURL]),
         support_email: new FormControl('', [Validators.email]),
         catering_provider: new FormControl(''),
@@ -1523,12 +1528,6 @@ export class WorkplaceSettingsFormModalComponent {
         this.loading = 'Saving settings...';
         const zone = this._data.zone;
         const new_settings = { ...this.existing_settings, ...this.form.value };
-        console.log(
-            'Update metadata:',
-            this.settings_key,
-            this.existing_settings,
-        );
-        debugger;
         for (const key in new_settings) {
             if (
                 !this._isValid(new_settings[key], this.existing_settings[key])
