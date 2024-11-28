@@ -112,20 +112,6 @@ import { DEFAULT_SETTINGS } from 'apps/visitor-kiosk/src/environments/settings';
                                 ></textarea>
                             </mat-form-field>
                         </div>
-                        <div>
-                            <label for="default-route">Default Route</label>
-                            <mat-form-field appearance="outline" class="w-full">
-                                <input
-                                    matInput
-                                    name="default-route"
-                                    formControlName="default_route"
-                                    placeholder="/welcome"
-                                />
-                                <mat-hint>
-                                    Main page of the application
-                                </mat-hint>
-                            </mat-form-field>
-                        </div>
                         <div class="flex items-center flex-wrap -mx-2">
                             <settings-toggle
                                 name="Enable Induction"
