@@ -174,7 +174,7 @@ import { OrganisationService } from '@placeos/organisation';
                             matInput
                             name="host_entity"
                             formControlName="host_entity"
-                            placeholder="Organisational Entity of the Host"
+                            placeholder="Organizational Entity of the Host"
                             [matAutocomplete]="auto"
                         />
                     </mat-form-field>
@@ -206,7 +206,7 @@ import { OrganisationService } from '@placeos/organisation';
                             matInput
                             name="host_entity"
                             formControlName="host_entity"
-                            placeholder="Organisational Entity of the Host"
+                            placeholder="Organizational Entity of the Host"
                             [matAutocomplete]="auto"
                         />
                         <mat-error> A valid host entity is required </mat-error>

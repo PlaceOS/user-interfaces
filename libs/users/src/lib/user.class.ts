@@ -58,7 +58,7 @@ export class User {
     public visit_expected: boolean;
     /** Whether user has been checked in */
     public readonly checked_in: boolean;
-    /** Organisational groups that the user belongs */
+    /** Organizational groups that the user belongs */
     public readonly groups: string[];
     /** Extra metadata associated with the user */
     public readonly extension_data: Record<string, any>;

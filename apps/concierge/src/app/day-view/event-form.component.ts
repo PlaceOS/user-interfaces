@@ -69,7 +69,7 @@ import { map, tap } from 'rxjs/operators';
                         matInput
                         name="host_entity"
                         formControlName="host_entity"
-                        placeholder="Organisational Entity of the Host"
+                        placeholder="Organizational Entity of the Host"
                     />
                 </mat-form-field>
             </div>
@@ -89,7 +89,7 @@ import { map, tap } from 'rxjs/operators';
                         matInput
                         name="visitor_entity"
                         formControlName="visitor_entity"
-                        placeholder="Organisational Entity of the Visior"
+                        placeholder="Organizational Entity of the Visior"
                     />
                 </mat-form-field>
             </div>

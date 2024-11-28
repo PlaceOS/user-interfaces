@@ -36,7 +36,7 @@ export interface EventExtensionData {
     online_meeting_provider: string;
     /** Email to override the host of the event with */
     host_override: string;
-    /** Name of the organisational department of the host */
+    /** Name of the Organizational department of the host */
     department: string;
     event_type?: string;
     /** Event category */
@@ -55,9 +55,9 @@ export interface EventExtensionData {
     shared_event?: boolean;
     /** Access level of the event */
     view_access: 'PRIVATE' | 'OPEN' | 'PUBLIC';
-    /** Host's organisational entity */
+    /** Host's Organizational entity */
     host_entity?: string;
-    /** Visitor's organisational entity */
+    /** Visitor's Organizational entity */
     visitor_entity?: string;
 }
 
