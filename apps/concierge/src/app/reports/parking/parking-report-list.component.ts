@@ -21,7 +21,7 @@ import { ParkingReportService } from './parking-report.service';
                 [columns]="[
                     { key: 'parking_name', name: 'Parking Name' },
                     { key: 'date', name: 'Date', content: date_template },
-                    { key: 'host', name: 'Host' },
+                    { key: 'host', name: 'Booked For' },
                     { key: 'checked_in', name: 'Checked In' },
                     { key: 'self_registered', name: 'Self Registered' },
                 ]"
