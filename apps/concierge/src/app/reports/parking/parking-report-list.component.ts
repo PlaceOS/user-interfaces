@@ -23,7 +23,6 @@ import { ParkingReportService } from './parking-report.service';
                     { key: 'date', name: 'Date', content: date_template },
                     { key: 'host', name: 'Booked For' },
                     { key: 'checked_in', name: 'Checked In' },
-                    { key: 'self_registered', name: 'Self Registered' },
                 ]"
                 [sortable]="true"
                 [page_size]="print ? 0 : 10"
