@@ -108,6 +108,10 @@ export class CheckinInductionComponent {
             throw err;
         });
         notifySuccess('Induction completed successfully');
-        this._router.navigate(['/checkin', 'details']);
+        if (this.induction_after_details) {
+            this._router.navigate(['/checkin', 'results']);
+        } else {
+            this._router.navigate(['/checkin', 'details']);
+        }
     }
 }
