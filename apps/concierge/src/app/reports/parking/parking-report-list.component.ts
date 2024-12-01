@@ -21,6 +21,11 @@ import { ParkingReportService } from './parking-report.service';
                 [columns]="[
                     { key: 'parking_name', name: 'Parking Name' },
                     { key: 'date', name: 'Date', content: date_template },
+                    {
+                        key: 'duration',
+                        name: 'Duration',
+                        content: duration_template,
+                    },
                     { key: 'host', name: 'Booked For' },
                     { key: 'checked_in', name: 'Checked In' },
                 ]"
@@ -31,6 +36,15 @@ import { ParkingReportService } from './parking-report.service';
             <ng-template #date_template let-row="row">
                 <div class="p-4">
                     {{ row.date | date: 'mediumDate' }}
+                </div>
+            </ng-template>
+            <ng-template #duration_template let-row="row">
+                <div class="p-4">
+                    {{
+                        row.duration > 12 * 60 || row.all_day
+                            ? 'All Day'
+                            : (row.duration | duration: true)
+                    }}
                 </div>
             </ng-template>
         </div>
@@ -51,6 +65,8 @@ export class ParkingReportListComponent {
                         booking.description ||
                         booking.asset_id,
                     date: booking.date,
+                    duration: booking.duration,
+                    all_day: booking.all_day,
                     host: booking.user_name || booking.user_email,
                     checked_in: booking.checked_in ? 'Yes' : 'No',
                     self_registered: booking.extension_data?.self_registered
