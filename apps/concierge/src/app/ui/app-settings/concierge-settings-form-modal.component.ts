@@ -7,6 +7,7 @@ import { notifySuccess, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 
 import { DEFAULT_SETTINGS } from 'apps/concierge/src/environments/settings';
+import { format } from 'date-fns';
 
 @Component({
     selector: 'concierge-settings-form-modal',
@@ -193,9 +194,9 @@ import { DEFAULT_SETTINGS } from 'apps/concierge/src/environments/settings';
                                                 form.patchValue({
                                                     banner: {
                                                         id: date_string,
-                                                        message:
+                                                        content:
                                                             form.value.banner
-                                                                ?.message || '',
+                                                                ?.content || '',
                                                         type: $event,
                                                     },
                                                 })
@@ -1050,6 +1051,10 @@ export class ConciergeSettingsFormModalComponent {
             max_duration: new FormControl(480),
         }),
     });
+
+    public get date_string() {
+        return format(Date.now(), 'yyyy-MM-dd+HH');
+    }
 
     constructor(
         @Inject(MAT_DIALOG_DATA) private _data: { zone: PlaceZone },

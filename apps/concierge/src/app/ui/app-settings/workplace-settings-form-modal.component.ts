@@ -144,9 +144,9 @@ import { format } from 'date-fns';
                                                 form.patchValue({
                                                     banner: {
                                                         id: date_string,
-                                                        message:
+                                                        content:
                                                             form.value.banner
-                                                                ?.message || '',
+                                                                ?.content || '',
                                                         type: $event,
                                                     },
                                                 })
@@ -181,7 +181,7 @@ import { format } from 'date-fns';
                                             name="banner-message"
                                             placeholder="Banner Message"
                                             [ngModel]="
-                                                form.value.banner?.message || ''
+                                                form.value.banner?.content || ''
                                             "
                                             (ngModelChange)="
                                                 form.patchValue({
@@ -190,7 +190,7 @@ import { format } from 'date-fns';
                                                         type:
                                                             form.value.banner
                                                                 ?.type || '',
-                                                        message: $event,
+                                                        content: $event,
                                                     },
                                                 })
                                             "
