@@ -8,7 +8,8 @@ import { AsyncHandler, SettingsService } from '@placeos/common';
     template: `
         <div class="absolute inset-0 p-8 flex items-center">
             <img
-                [src]="background"
+                auth
+                [source]="background"
                 class="absolute min-h-[100%] min-w-[100%] top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2"
             />
             <div class="flex flex-col justify-center space-y-8 z-10 w-[60%]">
