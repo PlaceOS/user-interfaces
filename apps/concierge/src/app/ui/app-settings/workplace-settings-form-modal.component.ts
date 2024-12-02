@@ -1421,7 +1421,7 @@ export class WorkplaceSettingsFormModalComponent {
             allow_multiday: new FormControl(false),
             use_bookings: new FormControl(false),
             use_building_timezone: new FormControl(false),
-            force_host: new FormControl(false),
+            force_host: new FormControl('', Validators.email),
             allow_daily_allday_recurrence: new FormControl(false),
             no_standalone: new FormControl(false),
             allowed_future_days: new FormControl(45),

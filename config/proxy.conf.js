@@ -5,7 +5,7 @@ const secure = true;
 /** Whether the SSL certificate used is valid on the internet */
 const valid_ssl = true;
 
-const NEW_PROXY_CONFIG = {};
+const PROXY_CONFIG = {};
 
 const context = [
     '/control',
@@ -19,7 +19,7 @@ const context = [
 const ws_context = ['/control/websocket', '/api'];
 
 function add(endpoint, extras = {}) {
-    NEW_PROXY_CONFIG[`${endpoint}/**`] = {
+    PROXY_CONFIG[`${endpoint}/**`] = {
         target: `http${secure ? 's' : ''}://${domain}`,
         secure: valid_ssl,
         changeOrigin: true,
@@ -30,4 +30,4 @@ function add(endpoint, extras = {}) {
 context.forEach((e) => add(e));
 ws_context.forEach((e) => add(e, { ws: true }));
 
-module.exports = NEW_PROXY_CONFIG;
+module.exports = PROXY_CONFIG;
