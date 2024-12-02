@@ -53,6 +53,7 @@ export class ParkingReportService {
                 period_start: getUnixTime(startOfDay(start || Date.now())),
                 period_end: getUnixTime(endOfDay(end || start || Date.now())),
                 type: 'parking',
+                include_checked_out: true,
                 zones:
                     (zones || [])?.join(',') ||
                     (this._settings.get('app.use_region')
