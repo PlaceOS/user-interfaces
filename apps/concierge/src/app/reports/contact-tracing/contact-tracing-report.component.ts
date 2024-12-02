@@ -2,6 +2,8 @@ import { Component } from '@angular/core';
 import { formatDuration } from 'date-fns';
 import { ContactTracingStateService } from './contact-tracing-state.service';
 import { SettingsService } from '@placeos/common';
+import { OrganisationService } from '@placeos/organisation';
+import { debounceTime, map } from 'rxjs/operators';
 
 @Component({
     selector: 'app-contact-tracing-report',
@@ -18,7 +20,11 @@ import { SettingsService } from '@placeos/common';
                 <div
                     class="flex items-center m-4 p-4 rounded bg-base-200 overflow-hidden"
                 >
-                    <img [src]="logo?.src || logo" class="h-12" />
+                    <img
+                        auth
+                        class="h-12"
+                        [source]="(logo | async)?.src || (logo | async)"
+                    />
                     <div class="flex-1"></div>
                     <h2 class="text-2xl font-medium px-2">
                         Contact Tracing Report
@@ -140,12 +146,19 @@ export class ContactTracingReportComponent {
         return this._settings.time_format;
     }
 
-    public get logo() {
-        return this._settings.get('app.logo_light') || {};
-    }
+    public readonly logo = this._org.active_building.pipe(
+        debounceTime(500),
+        map(
+            () =>
+                (this._settings.get('theme') === 'dark'
+                    ? this._settings.get('app.logo_dark')
+                    : this._settings.get('app.logo_light')) || {},
+        ),
+    );
 
     constructor(
         private _state: ContactTracingStateService,
         private _settings: SettingsService,
+        private _org: OrganisationService,
     ) {}
 }

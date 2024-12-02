@@ -2,7 +2,8 @@ import { Component } from '@angular/core';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { ParkingReportService } from './parking-report.service';
 import { ActivatedRoute } from '@angular/router';
-import { map } from 'rxjs/operators';
+import { debounceTime, map } from 'rxjs/operators';
+import { OrganisationService } from '@placeos/organisation';
 
 @Component({
     selector: '[parking-report]',
@@ -19,7 +20,11 @@ import { map } from 'rxjs/operators';
         >
             <div class="w-full">
                 <div class="flex items-center m-4 p-4 rounded bg-base-200">
-                    <img [src]="logo.src" class="h-12" />
+                    <img
+                        auth
+                        class="h-12"
+                        [source]="(logo | async)?.src || (logo | async)"
+                    />
                     <div class="flex-1"></div>
                     <h2 class="text-2xl font-medium px-2">Parking Report</h2>
                 </div>
@@ -71,14 +76,21 @@ export class ParkingReportComponent extends AsyncHandler {
     public readonly downloadReport = () => this._state.downloadReport();
     public readonly generateReport = () => this._state.generateReport();
 
-    public get logo() {
-        return this._settings.get('app.logo_light') || {};
-    }
+    public readonly logo = this._org.active_building.pipe(
+        debounceTime(500),
+        map(
+            () =>
+                (this._settings.get('theme') === 'dark'
+                    ? this._settings.get('app.logo_dark')
+                    : this._settings.get('app.logo_light')) || {},
+        ),
+    );
 
     constructor(
         private _state: ParkingReportService,
         private _settings: SettingsService,
         private _route: ActivatedRoute,
+        private _org: OrganisationService,
     ) {
         super();
     }

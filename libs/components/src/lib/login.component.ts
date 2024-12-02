@@ -1,7 +1,8 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ApplicationIcon, SettingsService } from '@placeos/common';
-import { first } from 'rxjs/operators';
+import { OrganisationService } from '@placeos/organisation';
+import { debounceTime, first, map } from 'rxjs/operators';
 
 @Component({
     selector: 'app-login',
@@ -10,16 +11,12 @@ import { first } from 'rxjs/operators';
             <form
                 class="flex flex-col items-center overflow-hidden mx-auto my-4 bg-base-100 rounded shadow p-4"
             >
-                <div
-                    class="flex items-center justify-center"
-                    [style.background-color]="logo?.background"
-                >
-                    <i *ngIf="logo?.type === 'icon'" [class]="logo.class">
-                        {{ logo.content }}
-                    </i>
+                <div class="flex items-center justify-center">
                     <img
-                        *ngIf="logo?.type === 'img'"
-                        [src]="logo?.src || logo | safe: 'resource'"
+                        auth
+                        class="h-12"
+                        alt="Logo"
+                        [source]="(logo | async)?.src || (logo | async)"
                     />
                 </div>
                 <div class="w-full relative h-1/3 flex-1">
@@ -108,12 +105,20 @@ export class LoginComponent implements OnInit {
     @ViewChild('pass_field', { static: true })
     private pwd_field: ElementRef<HTMLInputElement>;
 
-    /** Logo of the application organisation */
-    public get logo(): ApplicationIcon {
-        return this._settings.get('app.logo_dark') || { type: 'icon' };
-    }
+    public readonly logo = this._org.active_building.pipe(
+        debounceTime(500),
+        map(
+            () =>
+                (this._settings.get('theme') === 'dark'
+                    ? this._settings.get('app.logo_dark')
+                    : this._settings.get('app.logo_light')) || {},
+        ),
+    );
 
-    constructor(private _settings: SettingsService) {}
+    constructor(
+        private _settings: SettingsService,
+        private _org: OrganisationService,
+    ) {}
 
     public async ngOnInit() {
         this.loading = true;

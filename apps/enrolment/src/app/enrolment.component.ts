@@ -2,13 +2,20 @@ import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { EnrolmentStateService } from './enrolment-state.service';
+import { debounceTime, map } from 'rxjs/operators';
+import { OrganisationService } from '@placeos/organisation';
 
 @Component({
     selector: 'app-enrolment',
     template: `
         <div class="absolute inset-0 flex flex-col bg-[#424242]">
             <div class="w-full h-16 p-2 bg-secondary shadow z-20">
-                <img [src]="logo?.src || logo" class="h-12" />
+                <img
+                    auth
+                    class="h-10"
+                    alt="Logo"
+                    [source]="(logo | async)?.src || (logo | async)"
+                />
             </div>
             <div
                 class="w-full h-1/2 flex-1 relative z-10 flex flex-col items-center overflow-auto"
@@ -55,14 +62,21 @@ export class EnrolmentComponent extends AsyncHandler {
     public loading = this._state.loading;
     public view = this._state.view;
 
-    public get logo() {
-        return this._settings.get('app.logo_dark') || {};
-    }
+    public readonly logo = this._org.active_building.pipe(
+        debounceTime(500),
+        map(
+            () =>
+                (this._settings.get('theme') === 'dark'
+                    ? this._settings.get('app.logo_dark')
+                    : this._settings.get('app.logo_light')) || {},
+        ),
+    );
 
     constructor(
         private _state: EnrolmentStateService,
         private _settings: SettingsService,
         private _route: ActivatedRoute,
+        private _org: OrganisationService,
     ) {
         super();
     }

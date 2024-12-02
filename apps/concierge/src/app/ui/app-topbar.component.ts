@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import { ApplicationIcon, SettingsService, currentUser } from '@placeos/common';
 import { UserControlsComponent } from '@placeos/components';
+import { OrganisationService } from '@placeos/organisation';
+import { debounceTime, first, map } from 'rxjs/operators';
 
 @Component({
     selector: 'app-topbar',
@@ -8,7 +10,11 @@ import { UserControlsComponent } from '@placeos/components';
         <div class="flex items-center border-b border-base-200 p-2">
             <div class="w-64">
                 <a [routerLink]="['/']">
-                    <img class="h-12" [src]="logo?.src || logo" />
+                    <img
+                        auth
+                        class="h-12"
+                        [source]="(logo | async)?.src || (logo | async)"
+                    />
                 </a>
             </div>
             <!-- <mat-form-field
@@ -51,17 +57,22 @@ import { UserControlsComponent } from '@placeos/components';
 export class ApplicationTopbarComponent {
     public readonly user_controls = UserControlsComponent;
 
-    public get logo(): ApplicationIcon {
-        return (
-            (this._settings.get('theme') === 'dark'
-                ? this._settings.get('app.logo_dark')
-                : this._settings.get('app.logo_light')) || {}
-        );
-    }
+    public readonly logo = this._org.active_building.pipe(
+        debounceTime(500),
+        map(
+            () =>
+                (this._settings.get('theme') === 'dark'
+                    ? this._settings.get('app.logo_dark')
+                    : this._settings.get('app.logo_light')) || {},
+        ),
+    );
 
     public get user() {
         return currentUser();
     }
 
-    constructor(private _settings: SettingsService) {}
+    constructor(
+        private _settings: SettingsService,
+        private _org: OrganisationService,
+    ) {}
 }
