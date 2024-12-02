@@ -20,7 +20,7 @@ import { ParkingReportService } from './parking-report.service';
                 [data]="daily_stats"
                 [columns]="[
                     { key: 'date', name: 'Date', content: date_template },
-                    { key: 'booking_count', name: 'Unique Parking' },
+                    { key: 'booking_count', name: 'Unique Spaces Reserved' },
                     { key: 'host_count', name: 'Reservee Count' },
                     { key: 'booked_count', name: 'Booking Count' },
                 ]"
