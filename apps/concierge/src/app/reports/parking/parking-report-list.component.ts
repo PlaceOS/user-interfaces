@@ -74,6 +74,7 @@ export class ParkingReportListComponent {
                         : 'No',
                 });
             }
+            list.sort((a, b) => a.date - b.date);
             return list;
         }),
     );

@@ -53,6 +53,7 @@ export class ParkingReportDailyUsageComponent {
                     booked_count: days[date].bookings.length,
                 });
             }
+            list.sort((a, b) => a.date.localeCompare(b.date));
             return list;
         }),
     );
