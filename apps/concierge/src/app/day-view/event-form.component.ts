@@ -55,7 +55,7 @@ import { map, tap } from 'rxjs/operators';
                 </div>
             </div>
             <div class="flex flex-col flex-1">
-                <label for="organiser">Host<span>*</span>:</label>
+                <label for="organiser">Handler<span>*</span>:</label>
                 <a-user-search-field
                     name="organiser"
                     formControlName="organiser"
