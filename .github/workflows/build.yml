@@ -172,7 +172,7 @@ jobs:
               env:
                   REPO: self
                   BRANCH: build/${{ matrix.package }}/${{ env.deploy_branch }} # The branch name where you want to push the assets
-                  FOLDER: dist/apps/${{ matrix.package }} # The directory where your assets are generated
+                  FOLDER: dist/apps/${{ matrix.package }}/browser # The directory where your assets are generated
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # GitHub will automatically add this - you don't need to bother getting a token
                   MESSAGE: 'build(${{ matrix.package }}): CI build from {sha}' # The commit message
 

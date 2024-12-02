@@ -4,15 +4,18 @@
     "projectType": "application",
     "sourceRoot": "apps/map-kiosk/src",
     "prefix": "placeos",
+    "tags": [],
     "targets": {
         "build": {
-            "executor": "@angular-devkit/build-angular:browser",
+            "executor": "@angular-devkit/build-angular:application",
             "options": {
-                "baseHref": ".",
+                "baseHref": "./",
                 "outputPath": "dist/apps/map-kiosk",
                 "index": "apps/map-kiosk/src/index.html",
-                "main": "apps/map-kiosk/src/main.ts",
-                "polyfills": "apps/map-kiosk/src/polyfills.ts",
+                "polyfills": [
+                    "apps/map-kiosk/src/polyfills.ts",
+                    "@angular/localize/init"
+                ],
                 "tsConfig": "apps/map-kiosk/tsconfig.app.json",
                 "fileReplacements": [
                     {
@@ -44,17 +47,15 @@
                     "shared/styles/utility.scss"
                 ],
                 "scripts": [],
-                "vendorChunk": true,
                 "extractLicenses": false,
-                "buildOptimizer": false,
                 "sourceMap": true,
                 "optimization": false,
-                "namedChunks": true
+                "namedChunks": true,
+                "browser": "apps/map-kiosk/src/main.ts"
             },
             "configurations": {
                 "staging": {
                     "optimization": true,
-                    "buildOptimizer": true,
                     "fileReplacements": [
                         {
                             "replace": "apps/map-kiosk/src/environments/environment.ts",
@@ -65,8 +66,7 @@
                             "with": "apps/map-kiosk/src/environments/settings.ts"
                         }
                     ],
-                    "serviceWorker": true,
-                    "ngswConfigPath": "apps/map-kiosk/ngsw-config.json"
+                    "serviceWorker": "apps/map-kiosk/ngsw-config.json"
                 },
                 "production": {
                     "fileReplacements": [
@@ -88,8 +88,6 @@
                     "sourceMap": false,
                     "namedChunks": false,
                     "extractLicenses": true,
-                    "vendorChunk": false,
-                    "buildOptimizer": true,
                     "budgets": [
                         {
                             "type": "initial",
@@ -102,8 +100,7 @@
                             "maximumError": "10kb"
                         }
                     ],
-                    "serviceWorker": true,
-                    "ngswConfigPath": "apps/map-kiosk/ngsw-config.json"
+                    "serviceWorker": "apps/map-kiosk/ngsw-config.json"
                 }
             }
         },
@@ -136,6 +133,5 @@
                 "jestConfig": "apps/map-kiosk/jest.config.ts"
             }
         }
-    },
-    "tags": []
+    }
 }

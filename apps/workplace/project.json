@@ -16,15 +16,18 @@
             }
         }
     },
+    "tags": [],
     "targets": {
         "build": {
-            "executor": "@angular-devkit/build-angular:browser",
+            "executor": "@angular-devkit/build-angular:application",
             "options": {
-                "baseHref": ".",
+                "baseHref": "./",
                 "outputPath": "dist/apps/workplace",
                 "index": "apps/workplace/src/index.html",
-                "main": "apps/workplace/src/main.ts",
-                "polyfills": "apps/workplace/src/polyfills.ts",
+                "polyfills": [
+                    "apps/workplace/src/polyfills.ts",
+                    "@angular/localize/init"
+                ],
                 "tsConfig": "apps/workplace/tsconfig.app.json",
                 "fileReplacements": [
                     {
@@ -56,17 +59,15 @@
                     "shared/styles/utility.scss"
                 ],
                 "scripts": [],
-                "vendorChunk": true,
                 "extractLicenses": false,
-                "buildOptimizer": false,
                 "sourceMap": true,
                 "optimization": false,
-                "namedChunks": true
+                "namedChunks": true,
+                "browser": "apps/workplace/src/main.ts"
             },
             "configurations": {
                 "staging": {
                     "optimization": true,
-                    "buildOptimizer": true,
                     "fileReplacements": [
                         {
                             "replace": "apps/workplace/src/environments/environment.ts",
@@ -77,8 +78,7 @@
                             "with": "apps/workplace/src/environments/settings.ts"
                         }
                     ],
-                    "serviceWorker": true,
-                    "ngswConfigPath": "apps/workplace/ngsw-config.json"
+                    "serviceWorker": "apps/workplace/ngsw-config.json"
                 },
                 "production": {
                     "fileReplacements": [
@@ -100,8 +100,6 @@
                     "sourceMap": false,
                     "namedChunks": false,
                     "extractLicenses": true,
-                    "vendorChunk": false,
-                    "buildOptimizer": true,
                     "budgets": [
                         {
                             "type": "initial",
@@ -114,8 +112,7 @@
                             "maximumError": "10kb"
                         }
                     ],
-                    "serviceWorker": true,
-                    "ngswConfigPath": "apps/workplace/ngsw-config.json"
+                    "serviceWorker": "apps/workplace/ngsw-config.json"
                 }
             }
         },
@@ -148,6 +145,5 @@
                 "jestConfig": "apps/workplace/jest.config.ts"
             }
         }
-    },
-    "tags": []
+    }
 }
