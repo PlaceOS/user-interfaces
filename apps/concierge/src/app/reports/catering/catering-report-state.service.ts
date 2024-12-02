@@ -41,14 +41,11 @@ export class CateringReportStateService {
             const items: CateringItem[] = [];
             for (const order of orders) {
                 for (const item of order?.items || []) {
-                    const index = items.findIndex(
+                    const existing = items.find(
                         (_) => item.custom_id === _.custom_id,
                     );
-                    if (index >= 0) {
-                        item[index] = new CateringItem({
-                            ...item,
-                            quantity: item?.quantity + item[index]?.quantity,
-                        });
+                    if (existing) {
+                        (existing as any).quantity += item.quantity;
                     } else {
                         items.push(item);
                     }
@@ -56,6 +53,7 @@ export class CateringReportStateService {
             }
             return items.sort((a, b) => b.quantity - a.quantity);
         }),
+        shareReplay(1),
     );
 
     public readonly stats = combineLatest([
