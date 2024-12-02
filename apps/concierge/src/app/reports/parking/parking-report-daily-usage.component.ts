@@ -21,7 +21,7 @@ import { ParkingReportService } from './parking-report.service';
                 [columns]="[
                     { key: 'date', name: 'Date', content: date_template },
                     { key: 'booking_count', name: 'Unique Parking' },
-                    { key: 'host_count', name: 'Host Count' },
+                    { key: 'host_count', name: 'Reservee Count' },
                     { key: 'booked_count', name: 'Booking Count' },
                 ]"
                 [sortable]="true"
