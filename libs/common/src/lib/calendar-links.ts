@@ -144,7 +144,8 @@ export function generateMicrosoftCalendarLink(
         }`,
         location: event.location,
         allday: event.all_day ?? false,
-        freebusy: 'busy',
+        availability: 'free',
+        freebusy: 'free',
     };
     if (event.all_day) delete data.enddt;
     const emails = (event.attendees || []).map((_: any) => _.email || _);
