@@ -7,9 +7,11 @@ import {
     SettingsService,
 } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
+import { showMetadata } from '@placeos/ts-client';
 import { endOfDay, format, getUnixTime, isSameDay, startOfDay } from 'date-fns';
-import { BehaviorSubject, combineLatest } from 'rxjs';
+import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import {
+    catchError,
     debounceTime,
     filter,
     map,
@@ -86,6 +88,39 @@ export class ParkingReportService {
                 days[date].bookings.push(booking);
             }
             return days;
+        }),
+        shareReplay(1),
+    );
+
+    public readonly counts$ = this._options.pipe(
+        debounceTime(500),
+        switchMap((filters) => {
+            let zones = (filters.zones || []).filter(
+                (z: any) => z !== -1 && z !== 'All',
+            );
+            if (!zones.length) {
+                zones = (
+                    this._settings.get('app.use_region')
+                        ? this._org.levelsForRegion()
+                        : this._org.levelsForBuilding()
+                )
+                    .filter((_) => _.tags.includes('parking'))
+                    .map((_) => _.id);
+            }
+            return Promise.all(
+                zones.map((z) =>
+                    showMetadata(z, 'parking_spaces')
+                        .pipe(
+                            catchError(() => of({ details: [] })),
+                            map((m) => [z, m.details.length]),
+                        )
+                        .toPromise(),
+                ),
+            );
+        }),
+        map((list: [string, number][]) => {
+            list.forEach(([id, count]) => (map[id] = count));
+            return map;
         }),
         shareReplay(1),
     );

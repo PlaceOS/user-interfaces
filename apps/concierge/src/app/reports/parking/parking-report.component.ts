@@ -27,6 +27,7 @@ import { map } from 'rxjs/operators';
             <ng-container *ngIf="!(loading | async); else load_state">
                 <ng-container *ngIf="total_count | async; else empty_state">
                     <parking-report-overall></parking-report-overall>
+                    <!-- <parking-report-charts></parking-report-charts> -->
                     <parking-report-daily-usage
                         [print]="printing"
                     ></parking-report-daily-usage>
