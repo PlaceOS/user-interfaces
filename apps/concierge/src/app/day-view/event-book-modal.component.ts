@@ -126,7 +126,7 @@ import {
                                 matInput
                                 name="visitor_entity"
                                 formControlName="visitor_entity"
-                                placeholder="Organizational Entity of the Host"
+                                placeholder="Organizational Entity of the Visitor"
                                 [matAutocomplete]="auto"
                             />
                             <mat-error>
