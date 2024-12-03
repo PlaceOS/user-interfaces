@@ -96,8 +96,9 @@ export class UploadButtonComponent {
                 this.uploading = false;
             },
             () => {
+                const id = (status as any).upload._request.upload_id;
                 this.setValue(
-                    `/api/engine/v2/uploads/${(status as any).upload._request.upload_id}`,
+                    `/api/engine/v2/uploads/${encodeURIComponent(id)}/url`,
                 );
                 this.uploading = false;
             },
