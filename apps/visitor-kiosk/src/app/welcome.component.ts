@@ -15,7 +15,11 @@ import { AsyncHandler, SettingsService } from '@placeos/common';
             <div class="flex flex-col justify-center space-y-8 z-10 w-[60%]">
                 <h3
                     class="mb-4 text-white text-6xl space-y-4"
-                    [innerHTML]="welcome_message | sanitize: 'html'"
+                    [innerHTML]="
+                        welcome_message ||
+                            ('VISITOR_KIOSK.WELCOME_MESSAGE' | translate)
+                            | sanitize: 'html'
+                    "
                 ></h3>
                 <div class="flex items-center space-x-4 font-medium">
                     <a
@@ -25,7 +29,9 @@ import { AsyncHandler, SettingsService } from '@placeos/common';
                         class="base w-40"
                     >
                         <div class="flex items-center space-x-2">
-                            <div class="ml-2">Check-in</div>
+                            <div class="ml-2">
+                                {{ 'VISITOR_KIOSK.CHECK_IN' | translate }}
+                            </div>
                             <app-icon class="text-2xl">chevron_right</app-icon>
                         </div>
                     </a>
@@ -37,7 +43,9 @@ import { AsyncHandler, SettingsService } from '@placeos/common';
                         *ngIf="can_register"
                     >
                         <div class="flex items-center space-x-2">
-                            <div class="ml-2">Register</div>
+                            <div class="ml-2">
+                                {{ 'VISITOR_KIOSK.REGISTER' | translate }}
+                            </div>
                             <app-icon class="text-2xl">chevron_right</app-icon>
                         </div>
                     </a>
@@ -49,7 +57,9 @@ import { AsyncHandler, SettingsService } from '@placeos/common';
                         class="base w-40"
                     >
                         <div class="flex items-center space-x-2">
-                            <div class="ml-2">Explore</div>
+                            <div class="ml-2">
+                                {{ 'VISITOR_KIOSK.EXPLORE' | translate }}
+                            </div>
                             <app-icon class="text-2xl">place</app-icon>
                         </div>
                     </a>
@@ -90,15 +100,7 @@ export class WelcomeComponent
     }
 
     public get welcome_message() {
-        return (
-            this._settings.get('app.welcome_message') ||
-            `
-<p>
-    Welcome to Place<span class="text-primary">OS</span>
-</p>
-<p>Self Service Kiosk</p>
-`
-        );
+        return this._settings.get('app.welcome_message');
     }
 
     constructor(

@@ -20,7 +20,7 @@ import { take } from 'rxjs/operators';
             [class.hidden]="checking_code"
         >
             <p class="my-4">
-                Please enter your email address or scan your QR code
+                {{ 'VISITOR_KIOSK.QR_CODE_MSG' | translate }}
             </p>
             <div class="flex items-center space-x-2 w-full">
                 <mat-form-field
@@ -36,10 +36,12 @@ import { take } from 'rxjs/operators';
                         (blur)="checkEmail(email)"
                         (keyup.enter)="checkEmail(email)"
                     />
-                    <mat-error>Invalid email format</mat-error>
+                    <mat-error>{{
+                        'VISITOR_KIOSK.INVALID_EMAIL' | translate
+                    }}</mat-error>
                 </mat-form-field>
                 <button btn matRipple (click)="checkEmail(email)">
-                    Find Details
+                    {{ 'VISITOR_KIOSK.FIND_DETAILS' | translate }}
                 </button>
             </div>
             <div
@@ -50,7 +52,7 @@ import { take } from 'rxjs/operators';
                 >
                     <app-icon class="text-6xl">videocam_off</app-icon>
                     <p class="text-center">
-                        Camera feed loading or is not available
+                        {{ 'VISITOR_KIOSK.CAMERA_UNAVAILABLE' | translate }}
                     </p>
                 </div>
                 <video
@@ -77,7 +79,9 @@ import { take } from 'rxjs/operators';
             [class.hidden]="!checking_code"
         >
             <mat-spinner diameter="32"></mat-spinner>
-            <p class="my-4">Loading visitor information...</p>
+            <p class="my-4">
+                {{ 'VISITOR_KIOSK.LOADING_DETAILS' | translate }}
+            </p>
         </div>
     `,
     styles: [

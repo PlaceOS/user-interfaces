@@ -10,7 +10,9 @@ import { CheckinStateService } from './checkin-state.service';
             class="bg-base-100 rounded shadow overflow-hidden relative flex flex-col items-center p-4"
             *ngIf="!loading; else load_state"
         >
-            <h3 class="text-xl mb-4">Take a photo to continue</h3>
+            <h3 class="text-xl mb-4">
+                {{ 'VISITOR_KIOSK.TAKE_PHOTO' | translate }}
+            </h3>
             <a-take-photo (photoAccepted)="handlePhoto($event)"></a-take-photo>
             <a
                 icon
@@ -25,7 +27,7 @@ import { CheckinStateService } from './checkin-state.service';
             <div class="flex flex-col items-center m-auto">
                 <mat-spinner [diameter]="48"></mat-spinner>
                 <div class="my-4 text-lg text-white">
-                    Printing guest pass...
+                    {{ 'VISITOR_KIOSK.PRINT_LOADING' | translate }}
                 </div>
             </div>
         </ng-template>
@@ -56,7 +58,7 @@ export class CheckinPhotoComponent {
 
     constructor(
         private _checkin: CheckinStateService,
-        private _router: Router
+        private _router: Router,
     ) {}
 
     public async handlePhoto(event: any) {

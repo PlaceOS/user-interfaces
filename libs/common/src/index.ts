@@ -9,3 +9,4 @@ export * from './lib/keep-alive.service';
 export * from './lib/uploads.service';
 export * from './lib/shorten.fn';
 export * from './lib/fixed-device-helpers';
+export * from './lib/translate';
