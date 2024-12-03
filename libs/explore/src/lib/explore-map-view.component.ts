@@ -53,7 +53,7 @@ const EMPTY = [];
                     [ngModel]="!(options | async)?.disable?.includes('zones')"
                     (ngModelChange)="toggleZones($event)"
                 ></mat-slide-toggle>
-                <label for="zones" class="mb-0" i18n>Zones</label>
+                <label for="zones" class="mb-0" i18n>Areas</label>
             </div>
         </div>
         <div
@@ -122,7 +122,7 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
         const disable = !enabled
             ? unique([...(options.disable || []), 'zones', 'devices'])
             : options.disable?.filter(
-                  (_) => _ !== 'zones' && _ !== 'devices'
+                  (_) => _ !== 'zones' && _ !== 'devices',
               ) || [];
         this.setOptions({ disable });
     }
@@ -155,7 +155,7 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
         private _org: OrganisationService,
         private _settings: SettingsService,
         private _space_pipe: SpacePipe,
-        private _maps: MapsPeopleService
+        private _maps: MapsPeopleService,
     ) {
         super();
     }
@@ -170,7 +170,7 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
             this._route.queryParamMap.subscribe(async (params) => {
                 if (params.has('level') || params.has('zone')) {
                     this._state.setLevel(
-                        params.get('level') || params.get('zone')
+                        params.get('level') || params.get('zone'),
                     );
                 }
                 this._state.setFeatures('_located', []);
@@ -184,10 +184,10 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
                     }
                     if (!user)
                         return notifyError(
-                            `Unable to user details for ${params.get('user')}`
+                            `Unable to user details for ${params.get('user')}`,
                         );
                     this.locateUser(
-                        user instanceof Array ? user[0] : user
+                        user instanceof Array ? user[0] : user,
                     ).catch((_) => {
                         notifyError(`Unable to locate ${params.get('user')}`);
                         this._router.navigate([], {
@@ -198,14 +198,14 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
                 } else if (params.has('locate')) {
                     this._locateFeature(
                         params.get('locate'),
-                        params.get('name')
+                        params.get('name'),
                     );
                 } else {
                     this.timeout('update_location', () => {
                         this._state.setFeatures('_located', []);
                     });
                 }
-            })
+            }),
         );
     }
 
@@ -231,7 +231,7 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
         };
         this.locate = id;
         this.timeout('update_location', () =>
-            this._state.setFeatures('_located', [feature])
+            this._state.setFeatures('_located', [feature]),
         );
     }
 
@@ -249,7 +249,7 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
             },
         };
         this.timeout('update_location', () =>
-            this._state.setFeatures('_located', [feature])
+            this._state.setFeatures('_located', [feature]),
         );
     }
 
@@ -274,7 +274,7 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
         locations.sort(
             (a, b) =>
                 locate_details.priority.indexOf(a.type) -
-                locate_details.priority.indexOf(b.type)
+                locate_details.priority.indexOf(b.type),
         );
         if (!locations?.length) {
             throw 'No locations for the given user';
