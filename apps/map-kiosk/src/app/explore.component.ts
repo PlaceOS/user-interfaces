@@ -31,7 +31,7 @@ import { MapLocation, showStaff, User } from '@placeos/users';
 import { startOfMinute } from 'date-fns';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 import { combineLatest } from 'rxjs';
-import { first, map, take, tap } from 'rxjs/operators';
+import { debounceTime, first, map, take, tap } from 'rxjs/operators';
 
 @Component({
     selector: '[app-explore]',
@@ -41,7 +41,12 @@ import { first, map, take, tap } from 'rxjs/operators';
             class="relative flex items-center justify-between px-4 py-2 border-b border-base-300 bg-base-100 text-base-content"
         >
             <a matRipple routerLink="/" class="text-2xl rounded p-2">
-                Place<span class="text-primary">OS</span>
+                <img
+                    auth
+                    class="h-12"
+                    alt="Logo"
+                    [source]="(logo | async)?.src || (logo | async)"
+                />
             </a>
             <div
                 class="absolute top-1/2 -translate-y-1/2 right-2 flex items-center"
@@ -297,6 +302,16 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
         }),
     );
     public readonly level = this._state.level;
+
+    public readonly logo = this._org.active_building.pipe(
+        debounceTime(500),
+        map(
+            () =>
+                (this._settings.get('theme') === 'dark'
+                    ? this._settings.get('app.logo_dark')
+                    : this._settings.get('app.logo_light')) || {},
+        ),
+    );
 
     public get time() {
         return startOfMinute(Date.now());
