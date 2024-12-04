@@ -247,10 +247,7 @@ export class LockerFiltersComponent {
             const level_list = this.use_region
                 ? this._org.levelsForRegion(region)
                 : this._org.levelsForBuilding(bld);
-            const viewable_levels = level_list.filter(
-                (lvl) => !lvl.tags.includes('parking'),
-            );
-            return viewable_levels.sort(
+            return level_list.sort(
                 (a, b) =>
                     a.parent_id.localeCompare(b.parent_id) ||
                     (a.display_name || '').localeCompare(b.display_name || ''),
