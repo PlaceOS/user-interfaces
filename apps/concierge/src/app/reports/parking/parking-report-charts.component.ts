@@ -3,7 +3,7 @@ import { ReportsStateService } from '../reports-state.service';
 
 import { LineChart, PieChart } from 'chartist';
 import { AsyncHandler, SettingsService, unique } from '@placeos/common';
-import { format } from 'date-fns';
+import { format, parse } from 'date-fns';
 import { OrganisationService } from '@placeos/organisation';
 import { combineLatest } from 'rxjs';
 import { map, take } from 'rxjs/operators';
@@ -55,9 +55,16 @@ import { ParkingReportService } from './parking-report.service';
 })
 export class ParkingReportChartsComponent extends AsyncHandler {
     @Input() public print: boolean = false;
-    public readonly day_list = this._state.daily_stats$.pipe(
-        map((days) => {
+    public readonly day_list = combineLatest([
+        this._state.daily_stats$,
+        this._state.counts$,
+    ]).pipe(
+        map(([days, counts]) => {
             let list = [];
+            const total_spaces = Object.values(counts).reduce(
+                (c, v) => c + (v || 0),
+                0,
+            );
             for (const date in days) {
                 list.push({
                     date,
@@ -66,6 +73,11 @@ export class ParkingReportChartsComponent extends AsyncHandler {
                     host_count: unique(days[date].bookings, 'user_email')
                         .length,
                     booked_count: days[date].bookings.length,
+                    utilisation:
+                        days[date].bookings.reduce(
+                            (c, v) => c + v.duration,
+                            0,
+                        ) / total_spaces,
                 });
             }
             return list;
@@ -126,14 +138,18 @@ export class ParkingReportChartsComponent extends AsyncHandler {
     }
 
     public updateDailyChart(list) {
+        console.log('Daily Chart:', list);
         const data = {
-            labels: list.map((_) => format(_.date, 'dd MMM')),
+            labels: list.map((_) =>
+                format(parse(_.date, 'yyyy-MM-dd', Date.now()), 'dd MMM'),
+            ),
             series: [list.map((_) => +_.utilisation)],
         };
         this._day_chart = new LineChart('#daily-chart', data);
     }
 
     public updateLevelChart(mapping, count) {
+        console.log('Level Chart:', mapping, count);
         let { zones } = mapping || { zones: [] };
         if (!zones.length) {
             zones = (

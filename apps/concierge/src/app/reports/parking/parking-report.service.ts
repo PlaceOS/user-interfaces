@@ -110,7 +110,7 @@ export class ParkingReportService {
             }
             return Promise.all(
                 zones.map((z) =>
-                    showMetadata(z, 'parking_spaces')
+                    showMetadata(z, 'parking-spaces')
                         .pipe(
                             catchError(() => of({ details: [] })),
                             map((m) => [z, m.details.length]),
@@ -120,8 +120,11 @@ export class ParkingReportService {
             );
         }),
         map((list: [string, number][]) => {
-            list.forEach(([id, count]) => (map[id] = count));
-            return map;
+            let mapping: Record<string, number> = {};
+            list.forEach(
+                ([id, count]) => (mapping[id] = Math.max(count || 0, 1)),
+            );
+            return mapping;
         }),
         shareReplay(1),
     );
