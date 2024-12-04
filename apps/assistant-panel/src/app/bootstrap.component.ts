@@ -15,21 +15,21 @@ const SYS_ID_KEY = 'PLACEOS.ASSISTANT.system';
         <div class="absolute inset-0 bg-base-200 z-0"></div>
         <div
             class="relative bg-base-100 mx-auto my-8 border border-base-300 rounded-lg w-[28rem] z-10 overflow-hidden"
-        >     
+        >
             <header
                 class="px-4 py-3 bg-secondary text-secondary-content text-xl font-medium flex items-center justify-between w-full"
             >
                 <div>Assistant Panel</div>
                 <div class="px-2 py-1 rounded text-sm font-mono">SETUP</div>
             </header>
-            <main class="p-4 w-full flex flex-col space-y-2" *ngIf="!loading; else load_state">
-                <label for="system-id" i18n="@@systemLabel">
+            <main
+                class="p-4 w-full flex flex-col space-y-2"
+                *ngIf="!loading; else load_state"
+            >
+                <label for="system-id">
                     {{ 'PANEL.BOOTSTRAP_LABEL' | translate }}
                 </label>
-                <mat-form-field
-                    appearance="outline"
-                    class="w-full"
-                >
+                <mat-form-field appearance="outline" class="w-full">
                     <input
                         matInput
                         [ngModel]="system_id$ | async"
@@ -66,13 +66,14 @@ const SYS_ID_KEY = 'PLACEOS.ASSISTANT.system';
                             !(space_list | async)?.length
                         "
                     >
-                        {{
-                            'PANEL.BOOTSTRAP_INPUT_PLACEHOLDER' | translate
-                        }}
+                        {{ 'PANEL.BOOTSTRAP_INPUT_PLACEHOLDER' | translate }}
                     </mat-option>
                 </mat-autocomplete>
             </main>
-            <footer class="w-full px-4 py-2 flex items-center justify-end border-t border-base-300" *ngIf="!loading">
+            <footer
+                class="w-full px-4 py-2 flex items-center justify-end border-t border-base-300"
+                *ngIf="!loading"
+            >
                 <button
                     btn
                     matRipple
@@ -114,13 +115,13 @@ export class BootstrapComponent extends AsyncHandler {
                   });
         }),
         map((_) => _.data.map((_) => new Space(_ as any))),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     constructor(
         private _org: OrganisationService,
         private _router: Router,
-        private _route: ActivatedRoute
+        private _route: ActivatedRoute,
     ) {
         super();
     }
@@ -134,11 +135,11 @@ export class BootstrapComponent extends AsyncHandler {
                 }
                 if (params.has('system_id') || params.has('sys_id')) {
                     this.system_id$.next(
-                        params.get('system_id') || params.get('sys_id')
+                        params.get('system_id') || params.get('sys_id'),
                     );
                     this.bootstrap();
                 }
-            })
+            }),
         );
         this.checkBootstrapped();
     }

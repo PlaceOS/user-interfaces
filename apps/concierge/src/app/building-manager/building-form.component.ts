@@ -30,9 +30,7 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
                     class="flex flex-col"
                     *ngIf="(region_list | async)?.length"
                 >
-                    <label for="region" i18n="@@displayNameLabel">
-                        Region:
-                    </label>
+                    <label for="region"> Region: </label>
                     <mat-form-field appearance="outline">
                         <mat-select
                             name="region"
@@ -52,9 +50,7 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
                     </mat-form-field>
                 </div>
                 <div class="flex flex-col">
-                    <label for="display-name" i18n="@@displayNameLabel">
-                        Display Name:
-                    </label>
+                    <label for="display-name"> Display Name: </label>
                     <mat-form-field appearance="outline">
                         <input
                             matInput
@@ -65,9 +61,7 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
                     </mat-form-field>
                 </div>
                 <div class="flex flex-col">
-                    <label for="display-name" i18n="@@displayNameLabel">
-                        Timezone:
-                    </label>
+                    <label for="display-name"> Timezone: </label>
                     <mat-form-field appearance="outline">
                         <app-icon matPrefix class="text-2xl">search</app-icon>
                         <input
@@ -89,9 +83,7 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
                     </mat-autocomplete>
                 </div>
                 <div class="flex flex-col">
-                    <label for="address" i18n="@@displayNameLabel">
-                        Location:
-                    </label>
+                    <label for="address"> Location: </label>
                     <mat-form-field appearance="outline">
                         <input
                             matInput
@@ -130,7 +122,7 @@ export class BuildingFormComponent extends AsyncHandler {
         ]),
         display_name: new FormControl('', [Validators.required]),
         timezone: new FormControl(
-            Intl?.DateTimeFormat()?.resolvedOptions()?.timeZone || ''
+            Intl?.DateTimeFormat()?.resolvedOptions()?.timeZone || '',
         ),
         location: new FormControl(''),
     });
@@ -147,7 +139,7 @@ export class BuildingFormComponent extends AsyncHandler {
         this._updateTimezoneList();
         this.subscription(
             'tz-change',
-            this.form.valueChanges.subscribe(() => this._updateTimezoneList())
+            this.form.valueChanges.subscribe(() => this._updateTimezoneList()),
         );
         if (this.building) this.form.patchValue(this.building);
     }
@@ -166,8 +158,8 @@ export class BuildingFormComponent extends AsyncHandler {
         if (!this.form.valid) {
             return notifyError(
                 `Some form fields are invalid. [${getInvalidFields(
-                    this.form
-                ).join(', ')}]`
+                    this.form,
+                ).join(', ')}]`,
             );
         }
         const data = this.form.getRawValue();
@@ -178,14 +170,13 @@ export class BuildingFormComponent extends AsyncHandler {
             tags: ['building'],
             name: `BLD ${authority().description} ${data.display_name}`,
         };
-        const building = await (data.id
-            ? updateZone(data.id, body)
-            : addZone(body)
+        const building = await (
+            data.id ? updateZone(data.id, body) : addZone(body)
         )
             .toPromise()
             .catch((e) => {
                 notifyError(
-                    `Error saving building: ${e.message || e.error || e}`
+                    `Error saving building: ${e.message || e.error || e}`,
                 );
                 this.loading = false;
                 this.loadingChange.emit(false);
@@ -201,7 +192,7 @@ export class BuildingFormComponent extends AsyncHandler {
         const timezone = this.form?.value?.timezone || '';
         this.timezones = TIMEZONES_IANA;
         this.filtered_timezones = this.timezones.filter((_) =>
-            _.toLowerCase().includes(timezone.toLowerCase())
+            _.toLowerCase().includes(timezone.toLowerCase()),
         );
     }
 }

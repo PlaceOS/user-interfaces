@@ -99,11 +99,7 @@ import { ParkingUser } from './parking-state.service';
                     ></textarea>
                 </mat-form-field>
                 <div class="px-2 pb-2">
-                    <mat-checkbox
-                        name="deny"
-                        formControlName="deny"
-                        i18n="@@deny"
-                    >
+                    <mat-checkbox name="deny" formControlName="deny">
                         Deny User Parking Access
                     </mat-checkbox>
                 </div>

@@ -34,9 +34,7 @@ import { take } from 'rxjs/operators';
                 [formGroup]="form"
             >
                 <div class="flex flex-col" *ngIf="form.controls.name">
-                    <label for="name" i18n="@@nameLabel">
-                        Name<span>*</span>:
-                    </label>
+                    <label for="name"> Name<span>*</span>: </label>
                     <mat-form-field appearance="outline">
                         <input
                             matInput
@@ -51,18 +49,14 @@ import { take } from 'rxjs/operators';
                     class="flex flex-col pb-4"
                     *ngIf="form.controls.description"
                 >
-                    <label for="description" i18n="@@nameLabel">
-                        Description:
-                    </label>
+                    <label for="description"> Description: </label>
                     <rich-text-input
                         name="description"
                         formControlName="description"
                     ></rich-text-input>
                 </div>
                 <div class="flex flex-col" *ngIf="form.controls.uri">
-                    <label for="uri" i18n="@@nameLabel">
-                        URI<span>*</span>:
-                    </label>
+                    <label for="uri"> URI<span>*</span>: </label>
                     <mat-form-field appearance="outline">
                         <input
                             matInput
@@ -79,11 +73,11 @@ import { take } from 'rxjs/operators';
                     </mat-checkbox>
                 </div>
                 <!-- <div class="flex flex-col" *ngIf="form.controls.valid_from">
-                    <label for="uri" i18n="@@nameLabel"> Valid From: </label>
+                    <label for="uri" > Valid From: </label>
                     <a-date-field formControlName="valid_from"></a-date-field>
                 </div>
                 <div class="flex flex-col" *ngIf="form.controls.valid_to">
-                    <label for="uri" i18n="@@nameLabel">
+                    <label for="uri" >
                         Valid Until<span>*</span>:
                     </label>
                     <a-date-field

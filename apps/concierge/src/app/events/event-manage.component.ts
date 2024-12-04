@@ -204,9 +204,7 @@ const EMPTY = [];
                             </div>
                         </div>
                         <div class="flex flex-col">
-                            <label for="display-name" i18n="@@displayNameLabel">
-                                Timezone:
-                            </label>
+                            <label for="display-name"> Timezone: </label>
                             <mat-form-field appearance="outline">
                                 <app-icon matPrefix class="text-2xl">
                                     search
