@@ -164,7 +164,7 @@ import { debounceTime, first, map, take, tap } from 'rxjs/operators';
                     </div>
                     <hr class="w-[calc(100%-4rem)] mx-auto" />
                 </ng-container>
-                <ng-container *ngIf="legend.length">
+                <ng-container *ngIf="legend.length && legend_visible">
                     <button
                         btn
                         matRipple
@@ -316,9 +316,12 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
     public get time() {
         return startOfMinute(Date.now());
     }
+    public get legend_visible() {
+        return this._settings.get('app.explore.show_legend') !== false;
+    }
 
     public get hide_zones() {
-        return this._settings.get('app.hide_zones');
+        return this._settings.get('app.explore.hide_zones');
     }
     /** Observable for the active map */
     public readonly url = this._state.map_url;
