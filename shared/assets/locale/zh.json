@@ -7,7 +7,7 @@
         "CONTINUE": "Continue",
         "ORGANISATION": "Organization",
         "FAVOURITES": "Favourites",
-        "INVALID_FIELDS": "Some fields are invalid. [{{ field_list }}]"
+        "INVALID_FIELDS": "有些字段无效。 [{{ field_list }}]"
     },
     "DESKS": {
         "SHOW_FAVOURITES": "Only show favourite desks"
@@ -158,14 +158,14 @@
         "CONFIRM": "完成",
         "PRINT_LABEL": "打印标签",
         "PRINT_LOADING": "打印访客通行证",
-        "ARRIVED_MSG": "Your visitor \"{{ name }}\" has arrived and is waiting at reception",
-        "INDUCTION_MSG": "Please read the induction information below before proceeding",
+        "ARRIVED_MSG": "您的访客 访客已到达，并在前台等候您",
+        "INDUCTION_MSG": "继续之前，请阅读以下入门信息",
         "ACCEPT_TERMS": "我同意",
         "ACCEPT": "接受",
         "DECLINE": "拒绝",
         "CHECKIN_LOADING": "保存信息并签到中",
         "CONTINUE": "下一步",
-        "SAVE": "Save",
+        "SAVE": "节省",
         "BEVERAGE_MSG": "您需要饮料吗？",
         "ERROR_PRINT": "打印访客通行证出错",
         "ERROR_CHECKIN": "为{{ host }}的会议签到{{ guest }}时出错",

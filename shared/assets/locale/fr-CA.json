@@ -4,7 +4,7 @@
         "LANGUAGE": "Français",
         "LANGUAGE_SELECT": "Sélectionnez une langue",
         "LANGUAGE_LABEL": "Langue",
-        "INVALID_FIELDS": "Some fields are invalid. [{{ field_list }}]"
+        "INVALID_FIELDS": "Certains champs ne sont pas valides. [{{ field_list }}]"
     },
     "WPA": {
         "COLLEAGUES": "Colleagues",
@@ -119,14 +119,14 @@
         "CONFIRM": "Done",
         "PRINT_LABEL": "Print Label",
         "PRINT_LOADING": "Impression du badge visiteur",
-        "ARRIVED_MSG": "Your visitor \"{{ name }}\" has arrived and is waiting at reception",
-        "INDUCTION_MSG": "Please read the induction information below before proceeding",
+        "ARRIVED_MSG": "Votre visiteur est arrivé et vous attend à la réception",
+        "INDUCTION_MSG": "Veuillez lire les informations d'intronisation ci-dessous avant de continuer",
         "ACCEPT_TERMS": "Je suis d'accord",
         "ACCEPT": "Accepter",
         "DECLINE": "Refuser",
         "CHECKIN_LOADING": "Enregistrement des détails et vérification en cours",
         "CONTINUE": "Suivant",
-        "SAVE": "Save",
+        "SAVE": "Sauver",
         "BEVERAGE_MSG": "Souhaitez-vous une boisson?",
         "ERROR_PRINT": "Erreur lors de l'impression du badge visiteur",
         "ERROR_CHECKIN": "Erreur lors de l'enregistrement de {{ guest }} pour la réunion de {{ host }}",

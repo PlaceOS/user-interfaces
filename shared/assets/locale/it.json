@@ -7,7 +7,7 @@
         "CONTINUE": "Continue",
         "ORGANISATION": "Organization",
         "FAVOURITES": "Favourites",
-        "INVALID_FIELDS": "Some fields are invalid. [{{ field_list }}]"
+        "INVALID_FIELDS": "Alcuni campi non sono validi. [{{ field_list }}]"
     },
     "DESKS": {
         "SHOW_FAVOURITES": "Only show favourite desks"
@@ -158,14 +158,14 @@
         "CONFIRM": "Fatto",
         "PRINT_LABEL": "Print Label",
         "PRINT_LOADING": "Stampa del pass ospite",
-        "ARRIVED_MSG": "Your visitor \"{{ name }}\" has arrived and is waiting at reception",
-        "INDUCTION_MSG": "Please read the induction information below before proceeding",
+        "ARRIVED_MSG": "Il tuo visitatore È arrivato e ti aspetta alla reception",
+        "INDUCTION_MSG": "Si prega di leggere le informazioni di induzione di seguito prima di procedere",
         "ACCEPT_TERMS": "Sono d'accordo",
         "ACCEPT": "Accettare",
         "DECLINE": "Declino",
         "CHECKIN_LOADING": "Salvataggio dei dettagli e check-in",
         "CONTINUE": "Prossimo",
-        "SAVE": "Save",
+        "SAVE": "Salva",
         "BEVERAGE_MSG": "Vuoi da bere?",
         "ERROR_PRINT": "Errore durante la stampa del pass visitatore",
         "ERROR_CHECKIN": "Errore durante il check-in di {{ guest }} per la riunione di {{ host }}",
