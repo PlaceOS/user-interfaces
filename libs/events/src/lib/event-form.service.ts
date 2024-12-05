@@ -617,6 +617,7 @@ export class EventFormService extends AsyncHandler {
                 });
             }
             spaces = form.get('resources')?.value || [];
+            const is_host = host === currentUser()?.email;
             const is_owner =
                 host === currentUser()?.email ||
                 creator === currentUser()?.email;
@@ -649,7 +650,10 @@ export class EventFormService extends AsyncHandler {
                           space_id,
                   }
                 : {};
-            // if (is_owner && !ignore_owner) query.calendar = host || creator;
+            if (is_owner && !ignore_owner) {
+                // query.calendar = host || creator;
+            }
+            if (is_host && 'system_id' in query) delete query.system_id;
             if (this._payments.payment_module && spaces.length) {
                 const receipt = await this._payments.makePayment({
                     type: 'space',
