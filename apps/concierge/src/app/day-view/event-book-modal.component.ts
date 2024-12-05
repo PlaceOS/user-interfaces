@@ -517,11 +517,13 @@ export class EventBookModalComponent extends AsyncHandler {
 
     public async save() {
         this.loading.next(true);
-        const event = await this._event_form.postForm().catch((_) => {
-            notifyError(_);
-            this.loading.next(false);
-            throw _;
-        });
+        const event = await this._event_form
+            .postForm(undefined, undefined, true)
+            .catch((_) => {
+                notifyError(_);
+                this.loading.next(false);
+                throw _;
+            });
         this.event.emit({ reason: 'done', metadata: event });
         notifySuccess('Successfully created event');
         this._dialog_ref.close();

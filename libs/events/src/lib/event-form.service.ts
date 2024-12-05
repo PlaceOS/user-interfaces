@@ -651,7 +651,7 @@ export class EventFormService extends AsyncHandler {
                   }
                 : {};
             if (is_owner && !ignore_owner) {
-                // query.calendar = host || creator;
+                query.calendar = host || creator;
             }
             if (is_host && 'system_id' in query) delete query.system_id;
             if (this._payments.payment_module && spaces.length) {
