@@ -777,7 +777,7 @@ export class EventFormService extends AsyncHandler {
                     result,
                     'visitor',
                     visitors as any,
-                ).catch(on_error);
+                ).catch(() => null);
             }
 
             if (assets?.length || event.extension_data.assets?.length) {
