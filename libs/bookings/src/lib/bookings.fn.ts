@@ -61,7 +61,7 @@ export function queryBookings(q: BookingsQueryParams): Observable<Booking[]> {
 export function bookedResourceList(
     q: BookingsQueryParams,
 ): Observable<string[]> {
-    const query = toQueryString(q);
+    const query = toQueryString({ ...q, limit: 10000 });
     return get(`${BOOKINGS_ENDPOINT}/booked${query ? '?' + query : ''}`).pipe(
         map((list) => list as string[]),
         catchError((_) => of([])),
