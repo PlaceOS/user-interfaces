@@ -18,18 +18,18 @@ import { ParkingReportService } from './parking-report.service';
             (window:resize)="updateCharts()"
         >
             <div
-                class="bg-base-100 border border-base-200 rounded flex-1 h-[18rem]"
+                class="bg-base-100 border border-base-200 rounded flex-1 w-1/2 h-[18rem]"
             >
                 <div class="border-b border-base-200 p-4 text-xl font-bold">
                     Daily Utilisation
                 </div>
                 <div
                     id="daily-chart"
-                    class="ct-chart ct-octave max-w-full w-full h-56 mx-auto"
+                    class="ct-chart ct-octave max-w-full w-full h-56 mx-auto relative top-2 -left-2"
                 ></div>
             </div>
             <div
-                class="bg-base-100 border border-base-200 rounded flex-1 h-[18rem]"
+                class="bg-base-100 border border-base-200 rounded flex-1 w-1/2 h-[18rem]"
             >
                 <div class="border-b border-base-200 p-4 text-xl font-bold">
                     Level Utilisation
@@ -80,7 +80,7 @@ export class ParkingReportChartsComponent extends AsyncHandler {
                         ) / total_spaces,
                 });
             }
-            return list;
+            return list.sort((a, b) => a.date.localeCompare(b.date));
         }),
     );
     public readonly stats = combineLatest([

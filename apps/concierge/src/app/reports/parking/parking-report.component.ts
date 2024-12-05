@@ -36,7 +36,9 @@ import { OrganisationService } from '@placeos/organisation';
                     <parking-report-daily-usage
                         [print]="printing"
                     ></parking-report-daily-usage>
-                    <parking-report-list></parking-report-list>
+                    <parking-report-list
+                        [print]="printing"
+                    ></parking-report-list>
                 </ng-container>
             </ng-container>
         </div>
