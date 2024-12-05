@@ -6,7 +6,7 @@ import { SettingsService } from '@placeos/common';
 @Component({
     selector: 'desk-bookings',
     template: `
-        <div class="overflow-auto h-full w-full pb-4">
+        <div class="overflow-auto h-full w-full pb-16">
             <simple-table
                 class="min-w-[72rem] block text-sm"
                 [data]="bookings"
@@ -234,27 +234,15 @@ import { SettingsService } from '@placeos/common';
                 </mat-menu>
             </ng-template>
         </div>
-
         <button
             btn
             matRipple
-            class="absolute bottom-2 left-2 w-32 mx-auto my-4"
+            class="absolute bottom-2 left-4 w-32 z-20"
             *ngIf="!loading && (has_more_pages | async)"
             (click)="loadMore()"
         >
             Load More
         </button>
-        <button
-            icon
-            matRipple
-            class="absolute bottom-2 right-2 bg-base-100 shadow"
-            [matMenuTriggerFor]="menu"
-        >
-            <app-icon>more_vert</app-icon>
-        </button>
-        <mat-menu #menu="matMenu">
-            <button mat-menu-item (click)="rejectAll()">Reject All</button>
-        </mat-menu>
     `,
     styles: [
         `
