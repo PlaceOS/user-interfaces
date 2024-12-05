@@ -1,5 +1,4 @@
 import { Component, Input, SimpleChanges } from '@angular/core';
-import { ReportsStateService } from '../reports-state.service';
 
 import { LineChart, PieChart } from 'chartist';
 import { AsyncHandler, SettingsService, unique } from '@placeos/common';
@@ -48,7 +47,7 @@ import { ParkingReportService } from './parking-report.service';
             }
 
             .is-print .ct-chart {
-                width: 8cm !important;
+                width: 20rem !important;
             }
         `,
     ],
@@ -113,7 +112,7 @@ export class ParkingReportChartsComponent extends AsyncHandler {
             changes.print &&
             changes.print.currentValue !== changes.print.previousValue
         ) {
-            this.updateCharts();
+            this.timeout('update', () => this.updateCharts(), 50);
         }
     }
 
