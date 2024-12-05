@@ -652,8 +652,8 @@ export class EventFormService extends AsyncHandler {
                 : {};
             if (is_owner && !ignore_owner) {
                 query.calendar = host || creator;
+                delete query.system_id;
             }
-            if (is_host && 'system_id' in query) delete query.system_id;
             if (this._payments.payment_module && spaces.length) {
                 const receipt = await this._payments.makePayment({
                     type: 'space',
