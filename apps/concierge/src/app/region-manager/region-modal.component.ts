@@ -30,9 +30,7 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
                 [formGroup]="form"
             >
                 <div class="flex flex-col" *ngIf="form.controls.display_name">
-                    <label for="display-name" i18n="@@displayNameLabel">
-                        Display Name:
-                    </label>
+                    <label for="display-name"> Display Name: </label>
                     <mat-form-field appearance="outline">
                         <input
                             matInput
@@ -44,9 +42,7 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
                     </mat-form-field>
                 </div>
                 <div class="flex flex-col">
-                    <label for="display-name" i18n="@@displayNameLabel">
-                        Timezone:
-                    </label>
+                    <label for="display-name"> Timezone: </label>
                     <mat-form-field appearance="outline">
                         <app-icon matPrefix class="text-2xl">search</app-icon>
                         <input
@@ -97,7 +93,7 @@ export class RegionModalComponent extends AsyncHandler {
             Validators.required,
         ]),
         timezone: new FormControl(
-            Intl?.DateTimeFormat()?.resolvedOptions()?.timeZone || ''
+            Intl?.DateTimeFormat()?.resolvedOptions()?.timeZone || '',
         ),
         parent_id: new FormControl(this._org.organisation.id),
     });
@@ -105,7 +101,7 @@ export class RegionModalComponent extends AsyncHandler {
     constructor(
         private _org: OrganisationService,
         @Inject(MAT_DIALOG_DATA) private _data: Region | undefined,
-        private _dialog_ref: MatDialogRef<RegionModalComponent>
+        private _dialog_ref: MatDialogRef<RegionModalComponent>,
     ) {
         super();
     }
@@ -117,9 +113,9 @@ export class RegionModalComponent extends AsyncHandler {
             this.form.valueChanges.subscribe(
                 ({ timezone }) =>
                     (this.filtered_timezones = this.timezones.filter((_) =>
-                        _.toLowerCase().includes(timezone.toLowerCase())
-                    ))
-            )
+                        _.toLowerCase().includes(timezone.toLowerCase()),
+                    )),
+            ),
         );
     }
 
@@ -127,26 +123,27 @@ export class RegionModalComponent extends AsyncHandler {
         if (!this.form.valid) {
             return notifyError(
                 `Some form fields are invalid. [${getInvalidFields(
-                    this.form
-                ).join(', ')}]`
+                    this.form,
+                ).join(', ')}]`,
             );
         }
         const data: any = this.form.getRawValue();
         data.tags = ['region'];
         this.loading = true;
-        const resp = await (data.id
-            ? updateZone(data.id, {
-                  ...data,
-                  name: `REGION ${authority().description} ${
-                      data.display_name
-                  }`,
-              })
-            : addZone({
-                  ...data,
-                  name: `REGION ${authority().description} ${
-                      data.display_name
-                  }`,
-              })
+        const resp = await (
+            data.id
+                ? updateZone(data.id, {
+                      ...data,
+                      name: `REGION ${authority().description} ${
+                          data.display_name
+                      }`,
+                  })
+                : addZone({
+                      ...data,
+                      name: `REGION ${authority().description} ${
+                          data.display_name
+                      }`,
+                  })
         )
             .toPromise()
             .catch();
@@ -158,7 +155,7 @@ export class RegionModalComponent extends AsyncHandler {
         const timezone = this.form?.value?.timezone || '';
         this.timezones = TIMEZONES_IANA;
         this.filtered_timezones = this.timezones.filter((_) =>
-            _.toLowerCase().includes(timezone.toLowerCase())
+            _.toLowerCase().includes(timezone.toLowerCase()),
         );
     }
 }

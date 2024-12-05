@@ -31,7 +31,6 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
                             form.controls.parent_id.invalid &&
                             form.controls.parent_id.touched
                         "
-                        i18n="@@zoneLabel"
                     >
                         Building<span>*</span>:
                     </label>
@@ -51,9 +50,7 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
                     </mat-form-field>
                 </div>
                 <div class="flex flex-col" *ngIf="form.controls.display_name">
-                    <label for="display-name" i18n="@@displayNameLabel">
-                        Display Name:
-                    </label>
+                    <label for="display-name"> Display Name: </label>
                     <mat-form-field appearance="outline">
                         <input
                             matInput
@@ -65,7 +62,7 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
                     </mat-form-field>
                 </div>
                 <div class="flex flex-col" *ngIf="form.controls.map_id">
-                    <label for="map-id" i18n="@@mapIdLabel"> Map URL: </label>
+                    <label for="map-id"> Map URL: </label>
                     <mat-form-field appearance="outline">
                         <input
                             matInput
@@ -114,36 +111,37 @@ export class LevelModalComponent {
             Validators.required,
         ]),
         parking: new FormControl(
-            this._data?.tags?.includes('parking') || false
+            this._data?.tags?.includes('parking') || false,
         ),
     });
 
     constructor(
         private _org: OrganisationService,
         @Inject(MAT_DIALOG_DATA) private _data: BuildingLevel | undefined,
-        private _dialog_ref: MatDialogRef<LevelModalComponent>
+        private _dialog_ref: MatDialogRef<LevelModalComponent>,
     ) {}
 
     public async save() {
         if (!this.form.valid) {
             return notifyError(
                 `Some form fields are invalid. [${getInvalidFields(
-                    this.form
-                ).join(', ')}]`
+                    this.form,
+                ).join(', ')}]`,
             );
         }
         this.loading = true;
         const data: any = this.form.getRawValue();
         data.tags = data.parking ? ['level', 'parking'] : ['level'];
-        const resp = await (data.id
-            ? updateZone(data.id, {
-                  ...data,
-                  name: `LEVEL ${authority().description} ${data.display_name}`,
-              })
-            : addZone({
-                  ...data,
-                  name: `LEVEL ${authority().description} ${data.display_name}`,
-              })
+        const resp = await (
+            data.id
+                ? updateZone(data.id, {
+                      ...data,
+                      name: `LEVEL ${authority().description} ${data.display_name}`,
+                  })
+                : addZone({
+                      ...data,
+                      name: `LEVEL ${authority().description} ${data.display_name}`,
+                  })
         )
             .toPromise()
             .catch();

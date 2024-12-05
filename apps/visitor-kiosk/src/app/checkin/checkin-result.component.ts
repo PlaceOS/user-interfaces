@@ -23,7 +23,9 @@ const DEFAULT_TEMPLATE = `
             class="bg-base-100 rounded shadow overflow-hidden relative flex flex-col items-center w-[36rem] p-4 space-y-4"
             *ngIf="event | async"
         >
-            <h3 class="text-xl">You are checked in!</h3>
+            <h3 class="text-xl">
+                {{ 'VISITOR_KIOSK.CHECKED_IN_MSG' | translate }}
+            </h3>
             <div
                 class=""
                 [innerHTML]="result_template | async | sanitize: 'html'"
@@ -53,7 +55,7 @@ const DEFAULT_TEMPLATE = `
                     <div
                         class="rounded-lg bg-black text-white px-2 py-1 text-sm mt-2 w-32 text-center"
                     >
-                        Visitor
+                        {{ 'VISITOR_KIOSK.VISITOR' | translate }}
                     </div>
                 </div>
                 <div class="absolute top-4 right-4 flex flex-col items-end">
@@ -101,10 +103,10 @@ const DEFAULT_TEMPLATE = `
                     *ngIf="allow_printing_label"
                     (click)="print()"
                 >
-                    Print Label
+                    {{ 'VISITOR_KIOSK.PRINT_LABEL' | translate }}
                 </button>
                 <button btn matRipple class="w-32" (click)="next()">
-                    Done
+                    {{ 'VISITOR_KIOSK.CONFIRM' | translate }}
                 </button>
             </div>
         </div>

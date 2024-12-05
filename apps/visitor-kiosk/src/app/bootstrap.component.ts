@@ -22,22 +22,33 @@ import { first } from 'rxjs/operators';
             <header
                 class="px-4 py-3 bg-secondary text-secondary-content w-full text-xl font-medium flex items-center justify-between"
             >
-                <div>Visitor Kiosk</div>
-                <div class="px-2 py-1 rounded text-sm font-mono">SETUP</div>
+                <div>{{ 'VISITOR_KIOSK.APP' | translate }}</div>
+                <div class="px-2 py-1 rounded  relative overflow-hidden">
+                    <div
+                        class="absolute inset-0 bg-base-100 opacity-10 z-0"
+                    ></div>
+                    <div class="relative text-sm font-mono uppercase z-10">
+                        {{ 'VISITOR_KIOSK.SETUP' | translate }}
+                    </div>
+                </div>
             </header>
             <div
                 class="px-4 flex flex-col space-y-2"
                 *ngIf="!loading; else load_state"
             >
                 <ng-container *ngIf="(regions | async)?.length > 1">
-                    <label>Select a region from the dropdown below</label>
+                    <label>
+                        {{ 'VISITOR_KIOSK.SELECT_REGION_MSG' | translate }}
+                    </label>
                     <mat-form-field appearance="outline" class="no-subscript">
                         <mat-select
                             #select
                             building
                             [(ngModel)]="active_region"
                             (ngModelChange)="setRegion($event)"
-                            placeholder="Select region"
+                            [placeholder]="
+                                'VISITOR_KIOSK.SELECT_REGION_MSG' | translate
+                            "
                         >
                             <mat-select-trigger>
                                 <div class="flex items-center space-x-4">
@@ -75,14 +86,18 @@ import { first } from 'rxjs/operators';
                     </mat-form-field>
                 </ng-container>
                 <ng-container *ngIf="(buildings | async)?.length">
-                    <label>Select a building from the dropdown below</label>
+                    <label>
+                        {{ 'VISITOR_KIOSK.SELECT_BUILDING_MSG' | translate }}
+                    </label>
                     <mat-form-field appearance="outline" class="no-subscript">
                         <mat-select
                             #select
                             building
                             [(ngModel)]="active_building"
                             (ngModelChange)="setBuilding($event)"
-                            placeholder="Select building"
+                            [placeholder]="
+                                'VISITOR_KIOSK.SELECT_BUILDING' | translate
+                            "
                         >
                             <mat-select-trigger>
                                 <div class="flex items-center space-x-4">
@@ -123,13 +138,17 @@ import { first } from 'rxjs/operators';
                     *ngIf="(levels | async)?.length && active_building"
                 >
                     <div></div>
-                    <label>Select a level from the dropdown below</label>
+                    <label>
+                        {{ 'VISITOR_KIOSK.SELECT_LEVEL_MSG' | translate }}
+                    </label>
                     <mat-form-field appearance="outline" class="no-subscript">
                         <mat-select
                             #select
                             level
                             [(ngModel)]="active_level"
-                            placeholder="Select level"
+                            [placeholder]="
+                                'VISITOR_KIOSK.SELECT_LEVEL' | translate
+                            "
                         >
                             <mat-select-trigger>
                                 <div class="flex items-center space-x-4">
@@ -169,13 +188,16 @@ import { first } from 'rxjs/operators';
                 <ng-container *ngIf="rotations && rotations.length">
                     <div></div>
                     <label>
+                        {{ 'VISITOR_KIOSK.SELECT_ORIENTATION_MSG' | translate }}
                         Please select an orientation from the dropdown below
                     </label>
                     <mat-form-field appearance="outline" class="no-subscript">
                         <mat-select
                             #select
                             [(value)]="active_rotation"
-                            placeholder="Select orientation"
+                            [placeholder]="
+                                'VISITOR_KIOSK.SELECT_ORIENTATION' | translate
+                            "
                         >
                             <mat-option
                                 *ngFor="let option of rotations"
@@ -200,13 +222,16 @@ import { first } from 'rxjs/operators';
                 <ng-container *ngIf="locations && locations.length">
                     <div></div>
                     <label>
+                        {{ 'VISITOR_KIOSK.SELECT_LOCATION_MSG' | translate }}
                         Please select an fixed location from the dropdown below
                     </label>
                     <mat-form-field appearance="outline" class="no-subscript">
                         <mat-select
                             #select
                             [(value)]="active_location"
-                            placeholder="Select location"
+                            [placeholder]="
+                                'VISITOR_KIOSK.SELECT_LOCATION' | translate
+                            "
                         >
                             <mat-option
                                 *ngFor="let option of locations"
@@ -308,7 +333,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
         private _org: OrganisationService,
         private _settings: SettingsService,
         private _route: ActivatedRoute,
-        private _router: Router
+        private _router: Router,
     ) {
         super();
     }
@@ -335,7 +360,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
                         this.bootstrapKiosk();
                     }
                 }
-            })
+            }),
         );
         this.checkBootstrap();
     }
@@ -369,19 +394,19 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
             if (localStorage) {
                 localStorage.setItem(
                     'KIOSK.building',
-                    this.active_building?.id || this.active_level.parent_id
+                    this.active_building?.id || this.active_level.parent_id,
                 );
                 localStorage.setItem('KIOSK.level', this.active_level.id);
                 if (this.active_rotation) {
                     localStorage.setItem(
                         'KIOSK.orientation',
-                        `${this.active_rotation.id}`
+                        `${this.active_rotation.id}`,
                     );
                 }
                 if (this.active_location) {
                     localStorage.setItem(
                         'KIOSK.location',
-                        `${this.active_location.id}`
+                        `${this.active_location.id}`,
                     );
                 }
             }

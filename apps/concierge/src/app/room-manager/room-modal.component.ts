@@ -52,7 +52,6 @@ import { FormControl, FormGroup } from '@angular/forms';
                             form.controls.zone.invalid &&
                             form.controls.zone.touched
                         "
-                        i18n="@@zoneLabel"
                     >
                         Level<span>*</span>:
                     </label>
@@ -82,7 +81,6 @@ import { FormControl, FormGroup } from '@angular/forms';
                                 form.controls.name.invalid &&
                                 form.controls.name.touched
                             "
-                            i18n="@@nameLabel"
                         >
                             Name<span>*</span>:
                         </label>
@@ -95,9 +93,7 @@ import { FormControl, FormGroup } from '@angular/forms';
                                 formControlName="name"
                                 required
                             />
-                            <mat-error
-                                *ngIf="form.controls.name.invalid"
-                                i18n="@@systemNameError"
+                            <mat-error *ngIf="form.controls.name.invalid"
                                 >Room name is required</mat-error
                             >
                         </mat-form-field>
@@ -112,7 +108,6 @@ import { FormControl, FormGroup } from '@angular/forms';
                                 form.controls.email.invalid &&
                                 form.controls.email.touched
                             "
-                            i18n="@@emailLabel"
                         >
                             Email:
                         </label>
@@ -124,9 +119,7 @@ import { FormControl, FormGroup } from '@angular/forms';
                                 i18n-placeholder="@@systemEmailPlaceholder"
                                 formControlName="email"
                             />
-                            <mat-error
-                                *ngIf="form.controls.email.invalid"
-                                i18n="@@emailError"
+                            <mat-error *ngIf="form.controls.email.invalid"
                                 >A valid email is required</mat-error
                             >
                         </mat-form-field>
@@ -137,9 +130,7 @@ import { FormControl, FormGroup } from '@angular/forms';
                         class="flex flex-col flex-1"
                         *ngIf="form.controls.display_name"
                     >
-                        <label for="display-name" i18n="@@displayNameLabel"
-                            >Display Name:
-                        </label>
+                        <label for="display-name">Display Name: </label>
                         <mat-form-field appearance="outline">
                             <input
                                 matInput
@@ -154,9 +145,7 @@ import { FormControl, FormGroup } from '@angular/forms';
                         class="flex flex-col flex-1"
                         *ngIf="form.controls.display_name"
                     >
-                        <label for="code-name" i18n="@@codeNameLabel"
-                            >Code:
-                        </label>
+                        <label for="code-name">Code: </label>
                         <mat-form-field appearance="outline">
                             <input
                                 matInput
@@ -213,7 +202,6 @@ import { FormControl, FormGroup } from '@angular/forms';
                                 form.controls.capacity.invalid &&
                                 form.controls.capacity.touched
                             "
-                            i18n="@@capacityLabel"
                         >
                             Capacity:
                         </label>
@@ -226,10 +214,7 @@ import { FormControl, FormGroup } from '@angular/forms';
                                 i18n-placeholder="@@capacityPlaceholder"
                                 formControlName="capacity"
                             />
-                            <mat-error
-                                *ngIf="form.controls.capacity.invalid"
-                                i18n="@@capacityError"
-                            >
+                            <mat-error *ngIf="form.controls.capacity.invalid">
                                 A valid positive number is required
                             </mat-error>
                         </mat-form-field>
@@ -238,22 +223,18 @@ import { FormControl, FormGroup } from '@angular/forms';
                         <mat-checkbox
                             name="bookable"
                             formControlName="bookable"
-                            i18n="@@bookableLabel"
                         >
                             Bookable
                         </mat-checkbox>
                     </div>
                 </div>
                 <div class="flex flex-col" *ngIf="form.controls.description">
-                    <label for="description" i18n="@@descriptionLabel"
-                        >Description:</label
-                    >
+                    <label for="description">Description:</label>
                     <mat-form-field appearance="outline">
                         <textarea
                             matInput
                             name="description"
                             placeholder="Description"
-                            i18n="@@descriptionPlaceholder"
                             formControlName="description"
                         ></textarea>
                     </mat-form-field>
@@ -264,7 +245,6 @@ import { FormControl, FormGroup } from '@angular/forms';
                             form.controls.features.invalid &&
                             form.controls.features.touched
                         "
-                        i18n="@@featuresLabel"
                     >
                         Features:
                     </label>
@@ -290,7 +270,7 @@ import { FormControl, FormGroup } from '@angular/forms';
                     </mat-form-field>
                 </div>
                 <div class="flex flex-col" *ngIf="form.controls.map_id">
-                    <label for="map_id" i18n="@@mapIdLabel">Map ID:</label>
+                    <label for="map_id">Map ID:</label>
                     <mat-form-field appearance="outline">
                         <input
                             matInput
@@ -324,7 +304,7 @@ import { FormControl, FormGroup } from '@angular/forms';
                     </mat-autocomplete>
                 </div>
                 <div class="flex flex-col" *ngIf="form.controls.images">
-                    <label for="images" i18n="@@imagesLabel">Images:</label>
+                    <label for="images">Images:</label>
                     <image-list-field
                         name="images"
                         formControlName="images"
@@ -392,7 +372,7 @@ export class RoomModalComponent extends AsyncHandler {
     constructor(
         @Inject(MAT_DIALOG_DATA) private _data: { room: Space },
         private _dialog_ref: MatDialogRef<RoomModalComponent>,
-        private _org: OrganisationService
+        private _org: OrganisationService,
     ) {
         super();
     }
@@ -400,7 +380,7 @@ export class RoomModalComponent extends AsyncHandler {
     public async ngOnInit() {
         const { details } = await showMetadata(
             this._org.organisation.id,
-            'settings'
+            'settings',
         ).toPromise();
         const overflow = getItemWithKeys(['events', 'overflow'], details) || {};
         if (this._data.room.id && overflow[this._data.room.id]) {
@@ -416,9 +396,9 @@ export class RoomModalComponent extends AsyncHandler {
                 this.form.valueChanges.subscribe(
                     ({ timezone }) =>
                         (this.filtered_timezones = this.timezones.filter((_) =>
-                            _.toLowerCase().includes(timezone.toLowerCase())
-                        ))
-                )
+                            _.toLowerCase().includes(timezone.toLowerCase()),
+                        )),
+                ),
             );
         }
     }
@@ -462,7 +442,7 @@ export class RoomModalComponent extends AsyncHandler {
         const timezone = this.form?.value?.timezone || '';
         this.timezones = TIMEZONES_IANA;
         this.filtered_timezones = this.timezones.filter((_) =>
-            _.toLowerCase().includes(timezone.toLowerCase())
+            _.toLowerCase().includes(timezone.toLowerCase()),
         );
     }
 
@@ -470,8 +450,8 @@ export class RoomModalComponent extends AsyncHandler {
         if (!this.form.valid)
             return notifyError(
                 `Some form fields are invalid. [${getInvalidFields(
-                    this.form
-                ).join(', ')}]`
+                    this.form,
+                ).join(', ')}]`,
             );
         if (!this.form.value.id) {
             this.form.patchValue({
@@ -490,7 +470,7 @@ export class RoomModalComponent extends AsyncHandler {
         const data = this.form.getRawValue();
         const { details } = (await showMetadata(
             this._org.organisation.id,
-            'settings'
+            'settings',
         ).toPromise()) as any;
         const overflow = getItemWithKeys(['events', 'overflow'], details) || {};
         overflow[data.id] = this.settings_form.value;
@@ -504,11 +484,10 @@ export class RoomModalComponent extends AsyncHandler {
         })
             .toPromise()
             .catch((e) =>
-                notifyWarn('Unable to save room setup and breakdown times')
+                notifyWarn('Unable to save room setup and breakdown times'),
             );
-        await (data.id
-            ? updateSystem(data.id, data)
-            : addSystem(data)
+        await (
+            data.id ? updateSystem(data.id, data) : addSystem(data)
         ).toPromise();
         this._dialog_ref.disableClose = false;
         this._dialog_ref.close(true);
