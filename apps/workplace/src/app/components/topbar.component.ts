@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import { ApplicationIcon, currentUser, SettingsService } from '@placeos/common';
 import { UserControlsComponent } from '@placeos/components';
+import { OrganisationService } from '@placeos/organisation';
+import { debounceTime, map } from 'rxjs/operators';
 
 const EMPTY = [];
 
@@ -17,10 +19,11 @@ const EMPTY = [];
                 [routerLink]="['/-']"
             >
                 <img
+                    auth
                     class="h-10 sm:block"
                     [class.hidden]="title"
-                    *ngIf="logo"
-                    [src]="logo.src"
+                    alt="Logo"
+                    [source]="(logo | async)?.src || (logo | async)"
                 />
                 <span *ngIf="title">{{ title }}</span>
             </a>
@@ -57,12 +60,15 @@ export class TopbarComponent {
     public show_menu: boolean;
     public readonly user_controls = UserControlsComponent;
 
-    /** Application logo to display */
-    public get logo(): ApplicationIcon {
-        return this._settings.get('theme') === 'dark'
-            ? this._settings.get('app.logo_dark')
-            : this._settings.get('app.logo_light');
-    }
+    public readonly logo = this._org.active_building.pipe(
+        debounceTime(500),
+        map(
+            () =>
+                (this._settings.get('theme') === 'dark'
+                    ? this._settings.get('app.logo_dark')
+                    : this._settings.get('app.logo_light')) || {},
+        ),
+    );
     /** Text to display for page title */
     public get title(): string {
         return this._settings.value('page_title');
@@ -70,7 +76,7 @@ export class TopbarComponent {
 
     /** Text to display for page title */
     public get search(): boolean {
-        return this._settings.get('app.general.search') !== false;
+        return this._settings.get('app.global_search') !== false;
     }
 
     public get new_features(): boolean {
@@ -85,5 +91,8 @@ export class TopbarComponent {
         return this._settings.get('app.features') || EMPTY;
     }
 
-    constructor(private _settings: SettingsService) {}
+    constructor(
+        private _settings: SettingsService,
+        private _org: OrganisationService,
+    ) {}
 }

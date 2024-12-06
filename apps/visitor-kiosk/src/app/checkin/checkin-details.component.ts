@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { first } from 'rxjs/operators';
 import { CheckinStateService } from './checkin-state.service';
-import { SettingsService, notifyError } from '@placeos/common';
+import { SettingsService } from '@placeos/common';
 
 @Component({
     selector: '[checkin-details]',
@@ -14,67 +14,81 @@ import { SettingsService, notifyError } from '@placeos/common';
         >
             <h3 class="text-2xl m-4">Confirm Details</h3>
             <div field class="flex flex-col">
-                <label form="host">Host</label>
+                <label form="host">{{
+                    'VISITOR_KIOSK.HOST' | translate
+                }}</label>
                 <mat-form-field appearance="outline">
                     <input
                         matInput
                         name="host"
                         formControlName="host"
-                        placeholder="Host's Email Address"
+                        [placeholder]="'VISITOR_KIOSK.HOST' | translate"
                     />
                     <mat-error>
-                        The email address of your host is required
+                        {{ 'VISITOR_KIOSK.EMAIL_REQUIRED' | translate }}
                     </mat-error>
                 </mat-form-field>
             </div>
             <div field class="flex flex-col">
-                <label form="name">Name</label>
+                <label form="name">{{
+                    'VISITOR_KIOSK.NAME' | translate
+                }}</label>
                 <mat-form-field appearance="outline">
                     <input
                         matInput
                         name="name"
                         formControlName="name"
-                        placeholder="Full Name"
+                        [placeholder]="'VISITOR_KIOSK.NAME' | translate"
                     />
                     <mat-error>Please enter your full name</mat-error>
                 </mat-form-field>
             </div>
             <div field class="flex flex-col">
-                <label form="email">Email</label>
+                <label form="email">{{
+                    'VISITOR_KIOSK.NAME' | translate
+                }}</label>
                 <mat-form-field appearance="outline">
                     <input
                         matInput
                         name="email"
                         formControlName="email"
-                        placeholder="Email Address"
+                        [placeholder]="'VISITOR_KIOSK.EMAIL' | translate"
                     />
-                    <mat-error>A valid email address is required</mat-error>
+                    <mat-error>{{
+                        'VISITOR_KIOSK.EMAIL_REQUIRED' | translate
+                    }}</mat-error>
                 </mat-form-field>
             </div>
             <div field class="flex flex-col">
-                <label form="email">Phone Number</label>
+                <label form="email">{{
+                    'VISITOR_KIOSK.PHONE' | translate
+                }}</label>
                 <mat-form-field appearance="outline">
                     <input
                         matInput
                         name="phone"
                         type="tel"
                         formControlName="phone"
-                        placeholder="Phone Number"
+                        [placeholder]="'VISITOR_KIOSK.PHONE' | translate"
                     />
                 </mat-form-field>
             </div>
             <div field class="flex flex-col">
-                <label form="org">Organisation / Company</label>
+                <label form="org">{{
+                    'VISITOR_KIOSK.ORGANISATION' | translate
+                }}</label>
                 <mat-form-field appearance="outline">
                     <input
                         matInput
                         name="org"
                         formControlName="organisation"
-                        placeholder="Organisation / Company"
+                        [placeholder]="'VISITOR_KIOSK.ORGANISATION' | translate"
                     />
                 </mat-form-field>
             </div>
-            <button next btn matRipple (click)="updateGuest()">Next</button>
+            <button next btn matRipple (click)="updateGuest()">
+                {{ 'VISITOR_KIOSK.CONTINUE' | translate }}
+            </button>
             <a
                 icon
                 matRipple
@@ -93,7 +107,7 @@ import { SettingsService, notifyError } from '@placeos/common';
                 >
                     <mat-spinner [diameter]="48"></mat-spinner>
                     <div class="my-4 text-lg">
-                        Updating data and checking in...
+                        {{ 'VISITOR_KIOSK.CHECKIN_LOADING' | translate }}
                     </div>
                 </div>
             </div>

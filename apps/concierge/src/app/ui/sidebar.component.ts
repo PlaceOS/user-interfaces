@@ -8,14 +8,18 @@ import {
 } from '@placeos/common';
 import { ChangelogModalComponent } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
-import { map } from 'rxjs/operators';
+import { debounceTime, map } from 'rxjs/operators';
 
 @Component({
     selector: 'sidebar',
     template: `
         <div class="flex flex-col bg-secondary w-48 text-white h-full">
             <div class="logo w-full flex items-center justify-center p-3 mb-4">
-                <img class="w-full" [src]="logo.src" />
+                <img
+                    auth
+                    class="w-full"
+                    [source]="(logo | async)?.src || (logo | async)"
+                />
             </div>
             <div class="flex-1 overflow-auto space-y-2">
                 <ng-container *ngFor="let tile of links">
@@ -124,19 +128,26 @@ export class SidebarComponent {
     public get links(): ApplicationLinkInternal[] {
         return this._settings.get('app.general.menu') || [];
     }
-    public get logo(): ApplicationIcon {
-        return this._settings.get('app.logo_dark') || {};
-    }
+
+    public readonly logo = this._org.active_building.pipe(
+        debounceTime(500),
+        map(
+            () =>
+                (this._settings.get('theme') === 'dark'
+                    ? this._settings.get('app.logo_dark')
+                    : this._settings.get('app.logo_light')) || {},
+        ),
+    );
 
     public readonly regions = this._org.region_list.pipe(
         map((l) =>
-            l.sort((a, b) => a.display_name?.localeCompare(b.display_name))
-        )
+            l.sort((a, b) => a.display_name?.localeCompare(b.display_name)),
+        ),
     );
     public readonly buildings = this._org.building_list.pipe(
         map((l) =>
-            l.sort((a, b) => a.display_name?.localeCompare(b.display_name))
-        )
+            l.sort((a, b) => a.display_name?.localeCompare(b.display_name)),
+        ),
     );
     public readonly active_region = this._org.active_region;
     public readonly active_building = this._org.active_building;
@@ -150,7 +161,7 @@ export class SidebarComponent {
     public async viewChangelog() {
         const changelog = await (
             await fetch(
-                'https://raw.githubusercontent.com/PlaceOS/user-interfaces/develop/CHANGELOG.md'
+                'https://raw.githubusercontent.com/PlaceOS/user-interfaces/develop/CHANGELOG.md',
             )
         ).text();
         this._dialog.open(ChangelogModalComponent, { data: { changelog } });
@@ -163,6 +174,6 @@ export class SidebarComponent {
     constructor(
         private _settings: SettingsService,
         private _org: OrganisationService,
-        private _dialog: MatDialog
+        private _dialog: MatDialog,
     ) {}
 }

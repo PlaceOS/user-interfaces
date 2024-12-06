@@ -40,9 +40,7 @@ import { SelectPOIMapModalComponent } from './select-poi-map-modal.component';
                 [formGroup]="form"
             >
                 <div class="flex flex-col" *ngIf="form.controls.name">
-                    <label for="name" i18n="@@nameLabel">
-                        Name<span>*</span>:
-                    </label>
+                    <label for="name"> Name<span>*</span>: </label>
                     <mat-form-field appearance="outline">
                         <input
                             matInput
@@ -57,9 +55,7 @@ import { SelectPOIMapModalComponent } from './select-poi-map-modal.component';
                     class="flex flex-col"
                     *ngIf="(building_list | async)?.length > 1"
                 >
-                    <label for="name" i18n="@@nameLabel">
-                        Building<span>*</span>:
-                    </label>
+                    <label for="name"> Building<span>*</span>: </label>
                     <mat-form-field appearance="outline">
                         <mat-select
                             [(ngModel)]="building"
@@ -76,9 +72,7 @@ import { SelectPOIMapModalComponent } from './select-poi-map-modal.component';
                     </mat-form-field>
                 </div>
                 <div class="flex flex-col" *ngIf="form.controls.level_id">
-                    <label for="name" i18n="@@nameLabel">
-                        Level<span>*</span>:
-                    </label>
+                    <label for="name"> Level<span>*</span>: </label>
                     <mat-form-field appearance="outline">
                         <mat-select
                             formControlName="level_id"
@@ -94,9 +88,7 @@ import { SelectPOIMapModalComponent } from './select-poi-map-modal.component';
                     </mat-form-field>
                 </div>
                 <div class="flex flex-col">
-                    <label for="name" i18n="@@nameLabel">
-                        Location<span>*</span>:
-                    </label>
+                    <label for="name"> Location<span>*</span>: </label>
                     <mat-form-field appearance="outline">
                         <mat-select
                             [(ngModel)]="location_type"

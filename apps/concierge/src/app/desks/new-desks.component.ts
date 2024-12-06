@@ -145,6 +145,17 @@ import { DeskQrCodeModalComponent } from './desk-qr-code-modal.component';
                         >
                             <app-icon>refresh</app-icon>
                         </button>
+                        <button
+                            btn
+                            icon
+                            matRipple
+                            matTooltip="Reject All"
+                            class="ml-2 rounded border border-base-200"
+                            (click)="rejectAll()"
+                            [disabled]="loading | async"
+                        >
+                            <app-icon>event_busy</app-icon>
+                        </button>
                     </ng-container>
                     <ng-container *ngIf="path === 'manage'">
                         <button
@@ -238,6 +249,7 @@ export class NewDesksComponent
     public readonly setDate = (date) => this._state.setFilters({ date });
     public readonly setFilters = (o) => this._state.setFilters(o);
     public readonly refresh = () => this._state.refresh();
+    public readonly rejectAll = () => this._state.rejectAllDesks();
     public readonly editDesk = () => this._state.editDesk();
     /** Update active zones for desks */
     public readonly updateZones = (zones: string[]) => {

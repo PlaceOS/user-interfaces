@@ -206,6 +206,9 @@ export class ExploreZonesService extends AsyncHandler {
                     data: {
                         id,
                         temp: zone.temperature || 10,
+                        temp_unit: this._settings.get('app.use_imperial_units')
+                            ? 'F'
+                            : 'C',
                         humidity: zone.humidity || 10,
                     },
                     z_index: 98,

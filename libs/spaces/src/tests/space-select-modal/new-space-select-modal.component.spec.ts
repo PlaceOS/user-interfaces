@@ -13,6 +13,8 @@ import { SpaceFiltersDisplayComponent } from '../../lib/space-select-modal/space
 import { SpaceFiltersComponent } from '../../lib/space-select-modal/space-filters.component';
 import { SpaceListComponent } from '../../lib/space-select-modal/space-list.component';
 import { Space } from '../../lib/spaces';
+import { EventFormService } from '@placeos/events';
+import { BehaviorSubject } from 'rxjs';
 
 describe('NewSpaceSelectModalComponent', () => {
     let spectator: Spectator<NewSpaceSelectModalComponent>;
@@ -25,6 +27,9 @@ describe('NewSpaceSelectModalComponent', () => {
             }),
             MockProvider(MAT_DIALOG_DATA, []),
             MockProvider(MatDialogRef, { close: jest.fn() }),
+            MockProvider(EventFormService, {
+                room_alerts: new BehaviorSubject({}),
+            }),
         ],
         declarations: [
             MockComponent(IconComponent),
@@ -71,17 +76,17 @@ describe('NewSpaceSelectModalComponent', () => {
     it('should allow favouriting a space', () => {
         spectator.component.toggleFavourite(new Space({ id: '1' }));
         expect(
-            spectator.inject(SettingsService).saveUserSetting
+            spectator.inject(SettingsService).saveUserSetting,
         ).toBeCalledWith('favourite_spaces', ['1']);
     });
 
     it('should allow un-favouriting a space', () => {
         (spectator.inject(SettingsService).get as any).mockImplementation(
-            () => ['1']
+            () => ['1'],
         );
         spectator.component.toggleFavourite(new Space({ id: '1' }));
         expect(
-            spectator.inject(SettingsService).saveUserSetting
+            spectator.inject(SettingsService).saveUserSetting,
         ).toBeCalledWith('favourite_spaces', []);
     });
 });

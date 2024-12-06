@@ -65,7 +65,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
         private _spaces: SpacesService, // For init
         private _cache: SwUpdate,
         private _snackbar: MatSnackBar,
-        private _clipboard: Clipboard
+        private _clipboard: Clipboard,
     ) {
         super();
     }
@@ -87,8 +87,8 @@ export class AppComponent extends AsyncHandler implements OnInit {
         await setupPlace(settings);
         setupCache(this._cache);
         setInternalUserDomain(
-            this._settings.get('app.general.internal_user_domain') ||
-                `@${currentUser()?.email?.split('@')[1]}`
+            this._settings.get('app.internal_user_domain') ||
+                `@${currentUser()?.email?.split('@')[1]}`,
         );
         this._settings.overrides = [authority.config?.enrolment || {}];
         this.timeout('init_uploads', () => {

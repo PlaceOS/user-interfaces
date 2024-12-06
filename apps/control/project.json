@@ -4,15 +4,18 @@
     "projectType": "application",
     "sourceRoot": "apps/control/src",
     "prefix": "placeos",
+    "tags": [],
     "targets": {
         "build": {
-            "executor": "@angular-devkit/build-angular:browser",
+            "executor": "@angular-devkit/build-angular:application",
             "options": {
-                "baseHref": ".",
+                "baseHref": "./",
                 "outputPath": "dist/apps/control",
                 "index": "apps/control/src/index.html",
-                "main": "apps/control/src/main.ts",
-                "polyfills": "apps/control/src/polyfills.ts",
+                "polyfills": [
+                    "apps/control/src/polyfills.ts",
+                    "@angular/localize/init"
+                ],
                 "tsConfig": "apps/control/tsconfig.app.json",
                 "fileReplacements": [
                     {
@@ -44,17 +47,15 @@
                     "shared/styles/utility.scss"
                 ],
                 "scripts": [],
-                "vendorChunk": true,
                 "extractLicenses": false,
-                "buildOptimizer": false,
                 "sourceMap": true,
                 "optimization": false,
-                "namedChunks": true
+                "namedChunks": true,
+                "browser": "apps/control/src/main.ts"
             },
             "configurations": {
                 "staging": {
                     "optimization": true,
-                    "buildOptimizer": true,
                     "fileReplacements": [
                         {
                             "replace": "apps/control/src/environments/environment.ts",
@@ -65,8 +66,7 @@
                             "with": "apps/control/src/environments/settings.ts"
                         }
                     ],
-                    "serviceWorker": true,
-                    "ngswConfigPath": "apps/control/ngsw-config.json"
+                    "serviceWorker": "apps/control/ngsw-config.json"
                 },
                 "production": {
                     "fileReplacements": [
@@ -88,8 +88,6 @@
                     "sourceMap": false,
                     "namedChunks": false,
                     "extractLicenses": true,
-                    "vendorChunk": false,
-                    "buildOptimizer": true,
                     "budgets": [
                         {
                             "type": "initial",
@@ -102,8 +100,7 @@
                             "maximumError": "10kb"
                         }
                     ],
-                    "serviceWorker": true,
-                    "ngswConfigPath": "apps/control/ngsw-config.json"
+                    "serviceWorker": "apps/control/ngsw-config.json"
                 }
             }
         },
@@ -136,6 +133,5 @@
                 "jestConfig": "apps/control/jest.config.ts"
             }
         }
-    },
-    "tags": []
+    }
 }

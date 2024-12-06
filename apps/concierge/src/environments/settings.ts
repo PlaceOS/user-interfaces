@@ -1,5 +1,3 @@
-import { block } from 'marked';
-
 const general = {
     menu: [
         {
@@ -68,14 +66,8 @@ const app = {
     title: 'PlaceOS',
     description: 'Concierge UI',
     short_name: 'PlaceOS',
-    logo_light: {
-        type: 'img',
-        src: 'assets/logo-light.svg',
-    },
-    logo_dark: {
-        type: 'img',
-        src: 'assets/logo-dark.svg',
-    },
+    logo_light: 'assets/logo-light.svg',
+    logo_dark: 'assets/logo-dark.svg',
     default_route: '/book/rooms/new',
     use_24_hour_time: false,
     admin_group: 'concierge_admins',
@@ -125,7 +117,7 @@ const app = {
 /**
  * ROOT SETTIGNS
  */
-export const DEFAULT_SETTINGS = {
+export const DEFAULT_SETTINGS: any = {
     debug: true,
     composer: {
         domain: '',

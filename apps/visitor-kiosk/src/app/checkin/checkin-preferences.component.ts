@@ -12,7 +12,9 @@ import { CheckinStateService } from './checkin-state.service';
         <div
             class="bg-base-100 rounded shadow overflow-hidden relative flex flex-col items-center w-[36rem] p-4"
         >
-            <h3 class="text-xl mb-2 w-full">Would you like a drink?</h3>
+            <h3 class="text-xl mb-2 w-full">
+                {{ 'VISITOR_KIOSK.BEVERAGE_MSG' | translate }}
+            </h3>
             <div class="w-full">
                 <mat-form-field appearance="outline" class="w-full">
                     <mat-select
@@ -29,7 +31,10 @@ import { CheckinStateService } from './checkin-state.service';
                 </mat-form-field>
             </div>
             <button btn matRipple class="w-32" (click)="update()">
-                {{ beverage ? 'Update' : 'Continue' }}
+                {{
+                    (beverage ? 'VISITOR_KIOSK.SAVE' : 'VISITOR_KIOSK.CONTINUE')
+                        | translate
+                }}
             </button>
             <a
                 icon
@@ -59,16 +64,16 @@ export class CheckinPreferencesComponent {
                     (_) =>
                         _.toLowerCase() === 'drink' ||
                         _.toLowerCase() === 'drinks' ||
-                        _.toLowerCase() === 'beverage'
-                )
+                        _.toLowerCase() === 'beverage',
+                ),
             );
-        })
+        }),
     );
 
     constructor(
         private _router: Router,
         private _checkin: CheckinStateService,
-        private _catering: CateringStateService
+        private _catering: CateringStateService,
     ) {}
 
     public async update() {

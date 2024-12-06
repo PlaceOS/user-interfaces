@@ -88,6 +88,7 @@ import { LimitInputDirective } from './limit-input.directive';
 import { DeskHeightPresetsComponent } from './desk-height-presets.component';
 import { WorkLocationTooltipComponent } from './work-location-tooltip.component';
 import { ZonePipe } from './zone.pipe';
+import { LoginComponent } from './login.component';
 
 const MAT_MODULES: any[] = [
     MatAutocompleteModule,
@@ -171,6 +172,7 @@ const COMPONENTS: Type<any>[] = [
     AttachedResourceConfigModalComponent,
     AvailableRoomsStateModalComponent,
     DeskHeightPresetsComponent,
+    LoginComponent,
 ];
 
 const DIRECTIVES: Type<any>[] = [

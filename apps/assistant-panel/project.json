@@ -4,15 +4,18 @@
     "projectType": "application",
     "sourceRoot": "apps/assistant-panel/src",
     "prefix": "placeos",
+    "tags": [],
     "targets": {
         "build": {
-            "executor": "@angular-devkit/build-angular:browser",
+            "executor": "@angular-devkit/build-angular:application",
             "options": {
-                "baseHref": ".",
+                "baseHref": "./",
                 "outputPath": "dist/apps/assistant-panel",
                 "index": "apps/assistant-panel/src/index.html",
-                "main": "apps/assistant-panel/src/main.ts",
-                "polyfills": "apps/assistant-panel/src/polyfills.ts",
+                "polyfills": [
+                    "apps/assistant-panel/src/polyfills.ts",
+                    "@angular/localize/init"
+                ],
                 "tsConfig": "apps/assistant-panel/tsconfig.app.json",
                 "fileReplacements": [
                     {
@@ -49,17 +52,15 @@
                     "shared/styles/utility.scss"
                 ],
                 "scripts": [],
-                "vendorChunk": true,
                 "extractLicenses": false,
-                "buildOptimizer": false,
                 "sourceMap": true,
                 "optimization": false,
-                "namedChunks": true
+                "namedChunks": true,
+                "browser": "apps/assistant-panel/src/main.ts"
             },
             "configurations": {
                 "staging": {
                     "optimization": true,
-                    "buildOptimizer": true,
                     "fileReplacements": [
                         {
                             "replace": "apps/assistant-panel/src/environments/environment.ts",
@@ -70,8 +71,7 @@
                             "with": "apps/assistant-panel/src/environments/settings.ts"
                         }
                     ],
-                    "serviceWorker": true,
-                    "ngswConfigPath": "apps/assistant-panel/ngsw-config.json"
+                    "serviceWorker": "apps/assistant-panel/ngsw-config.json"
                 },
                 "production": {
                     "fileReplacements": [
@@ -93,8 +93,6 @@
                     "sourceMap": false,
                     "namedChunks": false,
                     "extractLicenses": true,
-                    "vendorChunk": false,
-                    "buildOptimizer": true,
                     "budgets": [
                         {
                             "type": "initial",
@@ -107,8 +105,7 @@
                             "maximumError": "10kb"
                         }
                     ],
-                    "serviceWorker": true,
-                    "ngswConfigPath": "apps/assistant-panel/ngsw-config.json"
+                    "serviceWorker": "apps/assistant-panel/ngsw-config.json"
                 }
             }
         },
@@ -145,6 +142,5 @@
                 "jestConfig": "apps/assistant-panel/jest.config.ts"
             }
         }
-    },
-    "tags": []
+    }
 }

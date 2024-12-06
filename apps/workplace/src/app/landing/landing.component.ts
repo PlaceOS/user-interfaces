@@ -131,19 +131,19 @@ export class LandingComponent {
     }
 
     public get hide_landing_sidebar() {
-        return this._settings.get('app.general.hide_landing_sidebar');
+        return this._settings.get('app.hide_landing_sidebar');
     }
 
     public get hide_colleagues() {
-        return this._settings.get('app.general.hide_colleagues');
+        return this._settings.get('app.hide_colleagues');
     }
 
     public get show_quick_links() {
-        return this._settings.get('app.general.show_quick_links');
+        return this._settings.get('app.show_quick_links');
     }
 
     constructor(
         private _org: OrganisationService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {}
 }

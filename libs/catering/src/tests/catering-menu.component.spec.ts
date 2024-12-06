@@ -7,6 +7,7 @@ import { CateringStateService } from '../lib/catering-state.service';
 import { MatTabsModule } from '@angular/material/tabs';
 import { IconComponent } from '@placeos/components';
 import { SimpleTableComponent } from 'libs/components/src/lib/simple-table.component';
+import { CateringOrdersService } from '../lib/catering-orders.service';
 
 describe('CateringMenuComponent', () => {
     let spectator: Spectator<CateringMenuComponent>;
@@ -20,6 +21,11 @@ describe('CateringMenuComponent', () => {
             MockProvider(CateringStateService, {
                 menu: new BehaviorSubject([]),
                 categories: [],
+                caterer_list: [],
+            }),
+            MockProvider(CateringOrdersService, {
+                filters: {},
+                order_filters: new BehaviorSubject({}),
             }),
         ],
         imports: [MockModule(MatTabsModule)],

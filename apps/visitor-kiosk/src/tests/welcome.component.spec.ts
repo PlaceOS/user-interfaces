@@ -1,11 +1,12 @@
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { SettingsService } from '@placeos/common';
 import { of } from 'rxjs';
-import { MockComponent, MockProvider } from 'ng-mocks';
+import { MockComponent, MockDirective, MockPipe, MockProvider } from 'ng-mocks';
 
 import { TopbarHeaderComponent } from '../app/components/topbar-header.component';
 import { WelcomeComponent } from '../app/welcome.component';
-import { IconComponent } from '@placeos/components';
+import { IconComponent, SanitizePipe } from '@placeos/components';
+import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 
 describe('WelcomeComponent', () => {
     let spectator: SpectatorRouting<WelcomeComponent>;
@@ -20,6 +21,8 @@ describe('WelcomeComponent', () => {
         declarations: [
             MockComponent(TopbarHeaderComponent),
             MockComponent(IconComponent),
+            MockPipe(SanitizePipe),
+            MockDirective(AuthenticatedImageDirective),
         ],
     });
 

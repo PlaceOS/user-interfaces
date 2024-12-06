@@ -1,8 +1,10 @@
 import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { SettingsService } from '@placeos/common';
+import { OrganisationService } from '@placeos/organisation';
 
 import { marked } from 'marked';
+import { debounceTime, map } from 'rxjs/operators';
 
 @Component({
     selector: 'help-modal',
@@ -11,7 +13,11 @@ import { marked } from 'marked';
             class="flex flex-col sm:flex-row items-center bg-base-100 rounded overflow-hidden sm:h-[80vh] sm:w-[80vw] sm:relative absolute inset-0 sm:inset-auto"
         >
             <div sidebar class="bg-base-300 sm:h-full w-full sm:w-64">
-                <img [src]="logo?.src" class="w-32 mx-auto mt-6 sm:mb-8" />
+                <img
+                    auth
+                    class="w-32 mx-auto mt-6 sm:mb-8"
+                    [source]="(logo | async)?.src || (logo | async)"
+                />
                 <ul class="list-none p-0 pl-4 space-y-2 hidden sm:block">
                     <li
                         class="flex items-center rounded-l-3xl pl-4 py-2 relative"
@@ -83,12 +89,15 @@ export class HelpModalComponent {
     public active_item = { id: '', content: `` };
     public readonly items = this._data.items;
 
-    /** Application logo to display */
-    public get logo() {
-        return this._settings.get('theme') === 'dark'
-            ? this._settings.get('app.logo_dark')
-            : this._settings.get('app.logo_light');
-    }
+    public readonly logo = this._org.active_building.pipe(
+        debounceTime(500),
+        map(
+            () =>
+                (this._settings.get('theme') === 'dark'
+                    ? this._settings.get('app.logo_dark')
+                    : this._settings.get('app.logo_light')) || {},
+        ),
+    );
 
     public get content() {
         return this.active_item?.content
@@ -102,7 +111,8 @@ export class HelpModalComponent {
             items: { id: string; title: string; content: string }[];
             active_id?: string;
         },
-        private _settings: SettingsService
+        private _settings: SettingsService,
+        private _org: OrganisationService,
     ) {
         this.active_item =
             this.items?.find((_) => _.id === this._data.active_id) ||

@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
 import {
     getInvalidFields,
+    i18n,
     notifyError,
     SettingsService,
     unique,
@@ -33,30 +34,34 @@ import { OrganisationService } from '@placeos/organisation';
                     class="flex items-center justify-between space-x-4 px-4 py-2 border-b border-base-300"
                 >
                     <h3 class="text-lg font-medium py-2">
-                        Visitor Registration
+                        {{ 'VISITOR_KIOSK.REGISTRATION' | translate }}
                     </h3>
                     <a icon matRipple [routerLink]="['/welcome']">
                         <app-icon>close</app-icon>
                     </a>
                 </div>
                 <div class="p-4">
-                    <label for="name" i18n>Name</label>
+                    <label for="name" i18n>
+                        {{ 'VISITOR_KIOSK.NAME' | translate }}</label
+                    >
                     <mat-form-field appearance="outline" class="w-full">
                         <input
                             matInput
                             name="name"
                             formControlName="asset_name"
-                            placeholder="Name"
+                            [placeholder]="'VISITOR_KIOSK.NAME' | translate"
                         />
                         <mat-error>A valid email is required</mat-error>
                     </mat-form-field>
-                    <label for="email" i18n>Email</label>
+                    <label for="email" i18n>
+                        {{ 'VISITOR_KIOSK.EMAIL' | translate }}</label
+                    >
                     <mat-form-field appearance="outline" class="w-full">
                         <input
                             matInput
                             name="email"
                             formControlName="asset_id"
-                            placeholder="Email"
+                            [placeholder]="'VISITOR_KIOSK.EMAIL' | translate"
                         />
                         <mat-error>A valid email is required</mat-error>
                     </mat-form-field>
@@ -65,23 +70,29 @@ import { OrganisationService } from '@placeos/organisation';
                         formControlName="user"
                         class="mb-4"
                     ></a-user-search-field>
-                    <label form="phone">Phone Number</label>
+                    <label form="phone">
+                        {{ 'VISITOR_KIOSK.PHONE' | translate }}</label
+                    >
                     <mat-form-field appearance="outline" class="w-full">
                         <input
                             matInput
                             name="phone"
                             type="tel"
                             formControlName="phone"
-                            placeholder="Phone Number"
+                            [placeholder]="'VISITOR_KIOSK.PHONE' | translate"
                         />
                     </mat-form-field>
-                    <label form="org">Organisation / Company</label>
+                    <label form="org">
+                        {{ 'VISITOR_KIOSK.ORGANISATION' | translate }}</label
+                    >
                     <mat-form-field appearance="outline" class="w-full">
                         <input
                             matInput
                             name="org"
                             formControlName="company"
-                            placeholder="Organisation / Company"
+                            [placeholder]="
+                                'VISITOR_KIOSK.ORGANISATION' | translate
+                            "
                         />
                     </mat-form-field>
                 </div>
@@ -89,7 +100,7 @@ import { OrganisationService } from '@placeos/organisation';
                     class="flex justify-end px-4 py-2 space-x-4 border-t border-base-300"
                 >
                     <button btn matRipple class="w-40" (click)="register()">
-                        Register
+                        {{ 'VISITOR_KIOSK.REGISTER' | translate }}
                     </button>
                 </div>
             </div>
@@ -108,7 +119,7 @@ export class VisitorRegistrationComponent {
     }
 
     public get background() {
-        return this._settings.get('app.home.background');
+        return this._settings.get('app.welcome_background');
     }
 
     public get is_induction_enabled() {
@@ -150,7 +161,9 @@ export class VisitorRegistrationComponent {
         this.form.markAllAsTouched();
         if (!this.form.valid) {
             return notifyError(
-                `Some fields are invalid. [${getInvalidFields(this.form).join(', ')}]`,
+                i18n('COMMON.INVALID_FIELDS', {
+                    field_list: getInvalidFields(this.form).join(', '),
+                }),
             );
         }
         const value = this.form.value;

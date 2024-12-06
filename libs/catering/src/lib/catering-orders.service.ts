@@ -26,6 +26,7 @@ import { CalendarEvent } from 'libs/events/src/lib/event.class';
 
 import { CateringOrder } from './catering-order.class';
 import { CateringOrderStatus } from './catering.interfaces';
+import { OrganisationService } from '@placeos/organisation';
 
 export interface CateringOrderFilters {
     /** UTC epoch of the date to get catering orders for */
@@ -75,6 +76,11 @@ export class CateringOrdersService extends AsyncHandler {
             this._loading.next(true);
             const start = getUnixTime(startOfDay(date || Date.now()));
             const end = getUnixTime(endOfDay(date || Date.now()));
+            if (!zones?.length) {
+                zones = this._settings.get('app.use_region')
+                    ? [this._org.region.id]
+                    : [this._org.building.id];
+            }
             return queryEvents({
                 zone_ids: (zones || []).join(','),
                 period_start: start,
@@ -152,7 +158,10 @@ export class CateringOrdersService extends AsyncHandler {
         ),
     );
 
-    constructor(private _settings: SettingsService) {
+    constructor(
+        private _settings: SettingsService,
+        private _org: OrganisationService,
+    ) {
         super();
         this.subscription('changes', this.orders.subscribe());
     }

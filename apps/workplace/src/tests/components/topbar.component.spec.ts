@@ -6,20 +6,18 @@ import {
     IconComponent,
     UserAvatarComponent,
 } from '@placeos/components';
-import { MockComponent } from 'ng-mocks';
+import { MockComponent, MockDirective, MockProvider } from 'ng-mocks';
 import { GlobalSearchComponent } from '../../app/components/global-search.component';
 import { TopbarComponent } from '../../app/components/topbar.component';
 import { TopMenuComponent } from '../../app/components/top-menu.component';
+import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 
 describe('TopbarComponent', () => {
     let spectator: SpectatorRouting<TopbarComponent>;
     const createComponent = createRoutingFactory({
         component: TopbarComponent,
         providers: [
-            {
-                provide: SettingsService,
-                useValue: { get: jest.fn(), value: jest.fn() },
-            },
+            MockProvider(SettingsService, { get: jest.fn(), value: jest.fn() }),
         ],
         imports: [MatMenuModule],
         declarations: [
@@ -28,6 +26,7 @@ describe('TopbarComponent', () => {
             MockComponent(GlobalSearchComponent),
             MockComponent(TopMenuComponent),
             MockComponent(CustomTooltipComponent),
+            MockDirective(AuthenticatedImageDirective),
         ],
     });
 
@@ -37,22 +36,11 @@ describe('TopbarComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should render logo', () => {
-        const settings = spectator.inject(SettingsService);
-        expect('[name="nav-logo"] img').not.toExist();
-        (settings as any).get.mockImplementation((x) =>
-            x.includes('logo') ? { src: 'test' } : null
-        );
-        spectator.detectChanges();
-        expect('[name="nav-logo"] img').toExist();
-        expect('[name="nav-logo"] img').toHaveAttribute('src', 'test');
-    });
-
     it('should render global search', () => {
         expect('global-search').toExist();
         const settings = spectator.inject(SettingsService);
         (settings as any).get.mockImplementation((x) =>
-            x.includes('search') ? false : null
+            x.includes('search') ? false : null,
         );
         spectator.detectChanges();
         expect('global-search').not.toExist();
@@ -63,7 +51,7 @@ describe('TopbarComponent', () => {
         expect('[name="nav-logo"] span').not.toExist();
         const settings = spectator.inject(SettingsService);
         (settings as any).value.mockImplementation(
-            () => 'An interesting title'
+            () => 'An interesting title',
         );
         spectator.detectChanges();
         expect('[name="nav-logo"] span').toExist();

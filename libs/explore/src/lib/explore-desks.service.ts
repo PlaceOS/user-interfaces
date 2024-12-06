@@ -172,7 +172,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
                     const is_checked_in =
                         checked_in.some((i) => id === i) ||
                         (is_used &&
-                            this._settings.get(`app.desk.auto_checkin`));
+                            this._settings.get(`app.desks.auto_checkin`));
                     const is_restricted = rulesForResource(
                         {
                             date: Date.now(),

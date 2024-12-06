@@ -1,18 +1,17 @@
 import { Injectable } from '@angular/core';
-import { HashMap, notifyError, notifySuccess } from '@placeos/common';
+import { HashMap, i18n, notifyError, notifySuccess } from '@placeos/common';
 import { GuestUser, generateGuestForm, showGuest } from '@placeos/users';
-import { addMinutes, getUnixTime, isSameDay, startOfHour } from 'date-fns';
+import { addMinutes, getUnixTime, isSameDay } from 'date-fns';
 import { BehaviorSubject } from 'rxjs';
 import {
     Booking,
     checkinBooking,
     queryAllBookings,
-    setBookingState,
     showBooking,
-    updateBooking,
     updateBookingInductionStatus,
 } from '@placeos/bookings';
 import { SpacePipe } from '@placeos/spaces';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Injectable({
     providedIn: 'root',
@@ -94,7 +93,7 @@ export class CheckinStateService {
         );
         todays_events.sort((a, b) => a.date - b.date);
         if (todays_events.length <= 0) {
-            throw new Error(`No meetings for guest "${email}" today`);
+            throw new Error(i18n('VISITOR_KIOSK.NOT_FOUND', { email }));
         }
         this._guest.next(guest);
         this._booking.next(todays_events[0]);
@@ -132,20 +131,16 @@ export class CheckinStateService {
         const event = this._booking.getValue() || guest.extension_data.event;
         if (!guest || !event) return;
         const checkin_fn = checkinBooking(event.id, true).toPromise();
+        const vars = {
+            guest: guest.name,
+            host: event.user_name || event.user_email,
+        };
         const result = await checkin_fn.catch(async (e) => {
-            notifyError(
-                e ||
-                    `Error checking in ${guest.name} for ${
-                        event.user_name || event.user_email
-                    }'s meeting.`,
-            );
+            notifyError(e || i18n('VISITOR_KIOSK.ERROR_CHECKIN', vars));
         });
         if (!result) return;
-        notifySuccess(
-            `Successfully checked in ${guest.name} for ${
-                event.user_name || event.user_email
-            }'s meeting`,
-        );
+
+        notifySuccess(i18n('VISITOR_KIOSK.SUCCESS_CHECKIN', vars));
         this.metadata = '';
     }
 
@@ -154,7 +149,7 @@ export class CheckinStateService {
             // TODO: actually trigger print visitor pass
             return new Promise((res) => setTimeout(() => res(''), 5000));
         } catch (err) {
-            notifyError('Error printing visitor pass');
+            notifyError(i18n('VISITOR_KIOSK.ERROR_PRINT'));
         }
         return Promise.reject();
     }

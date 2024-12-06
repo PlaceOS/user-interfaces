@@ -33,7 +33,12 @@ import { ApplicationTopbarComponent } from './app-topbar.component';
 import { ApplicationSidebarComponent } from './app-sidebar.component';
 import { AppSettingsModalComponent } from './app-settings-modal.component';
 import { BookingRulesModalComponent } from './booking-rules-modal.component';
-import { BookingPanelSettingsModalComponent } from './booking-panel-settings-modal.component';
+import { BookingPanelSettingsModalComponent } from './app-settings/booking-panel-settings-modal.component';
+import { VisitorKioskSettingsFormModalComponent } from './app-settings/visitor-kiosk-settings-form-modal.component';
+import { ConciergeSettingsFormModalComponent } from './app-settings/concierge-settings-form-modal.component';
+import { WorkplaceSettingsFormModalComponent } from './app-settings/workplace-settings-form-modal.component';
+import { SettingsToggleComponent } from './app-settings/settings-toggle.component';
+import { UploadButtonComponent } from './app-settings/upload-button.component';
 
 const COMPONENTS: Type<any>[] = [
     AppSettingsModalComponent,
@@ -44,7 +49,14 @@ const COMPONENTS: Type<any>[] = [
     ApplicationTopbarComponent,
     ApplicationSidebarComponent,
     BookingRulesModalComponent,
+
     BookingPanelSettingsModalComponent,
+    WorkplaceSettingsFormModalComponent,
+    ConciergeSettingsFormModalComponent,
+    VisitorKioskSettingsFormModalComponent,
+
+    SettingsToggleComponent,
+    UploadButtonComponent,
 ];
 
 const MAT_MODULES: any[] = [

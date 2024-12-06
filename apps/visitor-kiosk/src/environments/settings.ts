@@ -1,6 +1,4 @@
-const home = {
-    background: 'assets/img/skyline.png',
-};
+const home = {};
 
 /*===========================*\
 ||    EXPLORE MAP SETTINGS   ||
@@ -68,23 +66,18 @@ const app = {
     title: 'Visitor Kiosk',
     description: 'Kiosk UI written with Angular Framework',
     short_name: 'KIOSK',
-    logo_light: {
-        type: 'img',
-        src: 'assets/logo-light.svg',
-    },
-    logo_dark: {
-        type: 'img',
-        src: 'assets/logo-dark.svg',
-    },
+    logo_light: 'assets/logo-light.svg',
+    logo_dark: 'assets/logo-dark.svg',
     allow_self_registration: true,
     explore,
     home,
+    welcome_background: 'assets/img/skyline.png',
 };
 
 /**
  * ROOT SETTIGNS
  */
-export const DEFAULT_SETTINGS = {
+export const DEFAULT_SETTINGS: any = {
     debug: true,
     composer: {
         domain: '',

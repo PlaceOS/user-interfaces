@@ -6,6 +6,8 @@ import { AsyncHandler, SettingsService, VERSION } from '@placeos/common';
 import { ChangelogModalComponent } from '@placeos/components';
 
 import { ControlStateService } from '../control-state.service';
+import { debounceTime, map } from 'rxjs/operators';
+import { OrganisationService } from '@placeos/organisation';
 
 @Component({
     selector: 'app-control-tabbed-view',
@@ -25,7 +27,12 @@ import { ControlStateService } from '../control-state.service';
                 class="absolute inset-0 flex flex-col items-center justify-center space-y-2 p-16 bg-base-100"
             >
                 <div class="absolute top-4 left-4 z-0">
-                    <img logo class="h-10" [src]="logo?.src" alt="Logo" />
+                    <img
+                        auth
+                        class="h-10"
+                        alt="Logo"
+                        [source]="(logo | async)?.src || (logo | async)"
+                    />
                 </div>
                 <app-icon class="relative text-8xl text-base-content z-10"
                     >lock</app-icon
@@ -121,18 +128,22 @@ export class ControlTabbedViewComponent extends AsyncHandler implements OnInit {
         this._dialog.open(ChangelogModalComponent, { data: { changelog } });
     }
 
-    /** Application logo to display */
-    public get logo() {
-        return this._settings.get('theme') === 'dark'
-            ? this._settings.get('app.logo_dark')
-            : this._settings.get('app.logo_light');
-    }
+    public readonly logo = this._org.active_building.pipe(
+        debounceTime(500),
+        map(
+            () =>
+                (this._settings.get('theme') === 'dark'
+                    ? this._settings.get('app.logo_dark')
+                    : this._settings.get('app.logo_light')) || {},
+        ),
+    );
 
     constructor(
         private _route: ActivatedRoute,
         private _state: ControlStateService,
         private _dialog: MatDialog,
         private _settings: SettingsService,
+        private _org: OrganisationService,
     ) {
         super();
     }

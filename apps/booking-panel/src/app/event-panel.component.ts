@@ -4,7 +4,7 @@ import { AsyncHandler, SettingsService } from '@placeos/common';
 import { CalendarEvent } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
 import { startOfMinute } from 'date-fns';
-import { first, map, tap } from 'rxjs/operators';
+import { debounceTime, first, map, tap } from 'rxjs/operators';
 import { PanelStateService } from './panel-state.service';
 import { generateQRCode } from 'libs/common/src/lib/qr-code';
 
@@ -19,9 +19,10 @@ import { generateQRCode } from 'libs/common/src/lib/qr-code';
                         {{ time | date: 'shortTime' }}
                     </p>
                     <img
-                        [src]="logo?.src | safe: 'resource'"
-                        [alt]="logo?.alt"
+                        auth
                         class="h-10"
+                        alt="Logo"
+                        [source]="(logo | async)?.src || (logo | async)"
                     />
                 </div>
             </header>
@@ -86,9 +87,10 @@ import { generateQRCode } from 'libs/common/src/lib/qr-code';
                 class="w-full landscape:hidden bg-base-100 px-8 py-3 flex justify-between items-center"
             >
                 <img
-                    [src]="logo?.src | safe: 'resource'"
-                    [alt]="logo?.alt"
+                    auth
                     class="h-10"
+                    alt="Logo"
+                    [source]="(logo | async)?.src || (logo | async)"
                 />
                 <p class="text-2xl">
                     {{ time | date: 'shortTime' }}
@@ -160,12 +162,15 @@ export class EventPanelComponent extends AsyncHandler {
         return this._settings.get('app.background_image');
     }
 
-    public get logo() {
-        return (
-            this._settings.get('app.logo_light') ||
-            this._settings.get('app.logo')
-        );
-    }
+    public readonly logo = this._org.active_building.pipe(
+        debounceTime(500),
+        map(
+            () =>
+                (this._settings.get('theme') === 'dark'
+                    ? this._settings.get('app.logo_dark')
+                    : this._settings.get('app.logo_light')) || {},
+        ),
+    );
 
     public get checkin() {
         return this._state.setting('show_qr_code') !== false;

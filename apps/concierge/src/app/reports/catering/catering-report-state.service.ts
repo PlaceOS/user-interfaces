@@ -5,7 +5,7 @@ import { CalendarEvent } from '@placeos/events';
 import { combineLatest } from 'rxjs';
 import { map, shareReplay, take } from 'rxjs/operators';
 import { ReportsStateService } from '../reports-state.service';
-import { endOfDay, format, startOfDay } from 'date-fns';
+import { endOfDay, startOfDay } from 'date-fns';
 
 @Injectable({
     providedIn: 'root',
@@ -20,19 +20,19 @@ export class CateringReportStateService {
             const start_date = startOfDay(start).valueOf();
             const end_date = endOfDay(end).valueOf();
             const orders: CateringOrder[] = flatten(
-                list.map((_) => _.valid_catering || [])
+                list.map((_) => _.valid_catering || []),
             );
             const out = orders
                 .filter(
                     (_) =>
                         _.deliver_at_time >= start_date &&
                         _.deliver_at_time < end_date &&
-                        _.status !== 'cancelled'
+                        _.status !== 'cancelled',
                 )
                 .sort((a, b) => a.event?.date - b.event?.date);
             return out;
         }),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     /** List of catering items for the selected period and levels */
@@ -41,21 +41,19 @@ export class CateringReportStateService {
             const items: CateringItem[] = [];
             for (const order of orders) {
                 for (const item of order?.items || []) {
-                    const index = items.findIndex(
-                        (_) => item.options_string === _.options_string
+                    const existing = items.find(
+                        (_) => item.custom_id === _.custom_id,
                     );
-                    if (index >= 0) {
-                        item[index] = new CateringItem({
-                            ...item,
-                            quantity: item?.quantity + item[index]?.quantity,
-                        });
+                    if (existing) {
+                        (existing as any).quantity += item.quantity;
                     } else {
                         items.push(item);
                     }
                 }
             }
             return items.sort((a, b) => b.quantity - a.quantity);
-        })
+        }),
+        shareReplay(1),
     );
 
     public readonly stats = combineLatest([
@@ -71,7 +69,7 @@ export class CateringReportStateService {
                 total_cost,
                 avg_cost: total_cost / orders.length,
             };
-        })
+        }),
     );
 
     constructor(private _reports: ReportsStateService) {}

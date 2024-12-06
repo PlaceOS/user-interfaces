@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { filter, first, map, startWith } from 'rxjs/operators';
+import { debounceTime, filter, first, map, startWith } from 'rxjs/operators';
 import { CheckinStateService } from './checkin-state.service';
 import { SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
@@ -23,7 +23,9 @@ const DEFAULT_TEMPLATE = `
             class="bg-base-100 rounded shadow overflow-hidden relative flex flex-col items-center w-[36rem] p-4 space-y-4"
             *ngIf="event | async"
         >
-            <h3 class="text-xl">You are checked in!</h3>
+            <h3 class="text-xl">
+                {{ 'VISITOR_KIOSK.CHECKED_IN_MSG' | translate }}
+            </h3>
             <div
                 class=""
                 [innerHTML]="result_template | async | sanitize: 'html'"
@@ -53,11 +55,16 @@ const DEFAULT_TEMPLATE = `
                     <div
                         class="rounded-lg bg-black text-white px-2 py-1 text-sm mt-2 w-32 text-center"
                     >
-                        Visitor
+                        {{ 'VISITOR_KIOSK.VISITOR' | translate }}
                     </div>
                 </div>
                 <div class="absolute top-4 right-4 flex flex-col items-end">
-                    <img logo class="h-10" [src]="logo?.src" alt="Logo" />
+                    <img
+                        auth
+                        class="h-10"
+                        alt="Logo"
+                        [source]="(logo | async)?.src || (logo | async)"
+                    />
                     <div class="text-xs text-right" *ngIf="level | async">
                         Cleared for
                         {{
@@ -96,10 +103,10 @@ const DEFAULT_TEMPLATE = `
                     *ngIf="allow_printing_label"
                     (click)="print()"
                 >
-                    Print Label
+                    {{ 'VISITOR_KIOSK.PRINT_LABEL' | translate }}
                 </button>
                 <button btn matRipple class="w-32" (click)="next()">
-                    Done
+                    {{ 'VISITOR_KIOSK.CONFIRM' | translate }}
                 </button>
             </div>
         </div>
@@ -133,7 +140,7 @@ export class CheckinResultsComponent implements OnInit {
                 .replace(/{{ title }}/g, event?.title || '')
                 .replace(
                     /{{ room_name }}/g,
-                    event.extension_data?.location_id || ''
+                    event.extension_data?.location_id || '',
                 )
                 .replace(/{{ host_name }}/g, event?.user_name || '')
                 .replace(/{{ host_email }}/g, event?.user_email || '')
@@ -143,7 +150,7 @@ export class CheckinResultsComponent implements OnInit {
                     /{{ can_use_lift }}/g,
                     event.extension_data.can_use_lift
                         ? `Please use the vistor access lift over there`
-                        : `Please wait in the lobby.`
+                        : `Please wait in the lobby.`,
                 );
             try {
                 const date =
@@ -154,16 +161,16 @@ export class CheckinResultsComponent implements OnInit {
                 updated_template = updated_template
                     .replace(
                         /{{ date }}/g,
-                        this._date.transform(date, 'mediumDate')
+                        this._date.transform(date, 'mediumDate'),
                     )
                     .replace(
                         /{{ time }}/g,
-                        this._date.transform(date, this.time_format)
+                        this._date.transform(date, this.time_format),
                     );
             } catch {}
             return updated_template;
         }),
-        startWith(DEFAULT_TEMPLATE)
+        startWith(DEFAULT_TEMPLATE),
     );
 
     public readonly print = () => window.print();
@@ -174,14 +181,20 @@ export class CheckinResultsComponent implements OnInit {
 
     public get now() {
         return startOfMinute(
-            roundToNearestMinutes(Date.now(), { nearestTo: 5 })
+            roundToNearestMinutes(Date.now(), { nearestTo: 5 }),
         );
     }
 
-    /** Application logo to display */
-    public get logo() {
-        return this._settings.get('app.logo_light');
-    }
+    public readonly logo = this._org.active_building.pipe(
+        debounceTime(500),
+        map(
+            () =>
+                (this._settings.get('theme') === 'dark'
+                    ? this._settings.get('app.logo_dark')
+                    : this._settings.get('app.logo_light')) || {},
+        ),
+    );
+
     public get allow_printing_label() {
         return this._settings.get('app.allow_printing_label') !== false;
     }
@@ -191,7 +204,7 @@ export class CheckinResultsComponent implements OnInit {
         private _checkin: CheckinStateService,
         private _settings: SettingsService,
         private _router: Router,
-        private _date: DatePipe
+        private _date: DatePipe,
     ) {}
 
     public ngOnInit(): void {

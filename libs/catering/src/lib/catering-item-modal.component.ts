@@ -101,7 +101,6 @@ export interface CateringItemModalData {
                     [class.error]="
                         form.controls.tags.invalid && form.controls.tags.touched
                     "
-                    i18n="@@tagsLabel"
                 >
                     Tags:
                 </label>
@@ -236,7 +235,7 @@ export interface CateringItemModalData {
                 ></a-counter>
             </div>
             <div class="flex flex-col" *ngIf="form.controls.images">
-                <label for="images" i18n="@@imagesLabel">Images:</label>
+                <label for="images">Images:</label>
                 <image-list-field
                     name="images"
                     formControlName="images"

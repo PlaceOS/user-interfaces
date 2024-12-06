@@ -6,6 +6,7 @@ import { BehaviorSubject } from 'rxjs';
 import { CateringOrderListComponent } from '../lib/catering-order-list.component';
 import { CateringOrdersService } from '../lib/catering-orders.service';
 import { SimpleTableComponent } from 'libs/components/src/lib/simple-table.component';
+import { SettingsService } from '@placeos/common';
 
 describe('CateringOrderListComponent', () => {
     let spectator: Spectator<CateringOrderListComponent>;
@@ -19,6 +20,7 @@ describe('CateringOrderListComponent', () => {
                 startPolling: jest.fn(),
                 stopPolling: jest.fn(),
             }),
+            MockProvider(SettingsService, { get: jest.fn() }),
         ],
         imports: [MockModule(MatProgressBarModule)],
     });

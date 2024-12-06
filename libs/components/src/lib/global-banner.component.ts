@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
-import { SettingsService } from '@placeos/common';
+import { AsyncHandler, SettingsService } from '@placeos/common';
+import { OrganisationService } from '@placeos/organisation';
+import { debounceTime, map, shareReplay, take, tap } from 'rxjs/operators';
 
 export interface BannerDetails {
     id: string;
@@ -11,16 +13,22 @@ export interface BannerDetails {
     selector: 'global-banner',
     template: `
         <div
-            class="flex items-center w-full p-4 space-x-4"
-            [class.bg-info]="banner.type === 'info' || !banner.type"
-            [class.text-info-content]="banner.type === 'info' || !banner.type"
-            [class.bg-warning]="banner.type === 'warn'"
-            [class.text-warning-content]="banner.type === 'warn'"
-            [class.bg-error]="banner.type === 'error'"
-            [class.text-error-content]="banner.type === 'error'"
-            *ngIf="!has_viewed"
+            class="flex items-center w-full p-4 space-x-4 print:hidden"
+            [class.bg-info]="
+                (banner | async).type === 'info' || !(banner | async).type
+            "
+            [class.text-info-content]="
+                (banner | async).type === 'info' || !(banner | async).type
+            "
+            [class.bg-warning]="(banner | async).type === 'warn'"
+            [class.text-warning-content]="(banner | async).type === 'warn'"
+            [class.bg-error]="(banner | async).type === 'error'"
+            [class.text-error-content]="(banner | async).type === 'error'"
+            *ngIf="!(has_been_closed | async) && (banner | async)"
         >
-            <div class="flex-1">{{ banner?.content }}</div>
+            <div class="flex-1">
+                {{ (banner | async)?.content || (banner | async)?.message }}
+            </div>
             <button icon (click)="close()">
                 <app-icon>close</app-icon>
             </button>
@@ -36,20 +44,29 @@ export interface BannerDetails {
     ],
 })
 export class GlobalBannerComponent {
-    public get has_viewed() {
-        return (
-            !this.banner?.content ||
-            localStorage.getItem('PLACE.last_banner') === this.banner.id
-        );
-    }
+    public readonly banner = this._org.active_building.pipe(
+        debounceTime(500),
+        map(() => this._settings.get('app.banner')),
+        shareReplay(1),
+    );
+    public readonly has_been_closed = this.banner.pipe(
+        debounceTime(500),
+        map((banner) => {
+            return (
+                (!banner?.content && !banner?.message) ||
+                localStorage.getItem('PLACE.last_banner') === banner.id
+            );
+        }),
+        shareReplay(1),
+    );
 
-    public get banner(): BannerDetails {
-        return this._settings.get('app.general.banner');
-    }
+    constructor(
+        private _settings: SettingsService,
+        private _org: OrganisationService,
+    ) {}
 
-    constructor(private _settings: SettingsService) {}
-
-    public close() {
-        localStorage.setItem('PLACE.last_banner', this.banner?.id || '');
+    public async close() {
+        const banner = await this.banner.pipe(take(1)).toPromise();
+        localStorage.setItem('PLACE.last_banner', banner?.id || '');
     }
 }

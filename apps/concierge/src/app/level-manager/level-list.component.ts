@@ -3,7 +3,7 @@ import { LevelManagementService } from './level-management.service';
 import { notifySuccess } from '@placeos/common';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { MatDialog } from '@angular/material/dialog';
-import { BookingPanelSettingsModalComponent } from '../ui/booking-panel-settings-modal.component';
+import { BookingPanelSettingsModalComponent } from '../ui/app-settings/booking-panel-settings-modal.component';
 
 @Component({
     selector: 'level-list',

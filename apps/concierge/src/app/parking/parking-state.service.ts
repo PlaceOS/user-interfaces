@@ -180,7 +180,7 @@ export class ParkingStateService extends AsyncHandler {
     ]).pipe(
         debounceTime(500),
         switchMap(([bld, options, users]) => {
-            this._loading.next([...this._loading.getValue(), 'bookings']);
+            this._loading.next([...this._loading.getValue(), '[BOOKINGS]']);
             return queryBookings({
                 period_start: getUnixTime(startOfDay(options.date)),
                 period_end: getUnixTime(endOfDay(options.date)),
@@ -211,7 +211,7 @@ export class ParkingStateService extends AsyncHandler {
         }),
         tap(() =>
             this._loading.next(
-                this._loading.getValue().filter((_) => _ !== 'bookings'),
+                this._loading.getValue().filter((_) => _ !== '[BOOKINGS]'),
             ),
         ),
         shareReplay(1),

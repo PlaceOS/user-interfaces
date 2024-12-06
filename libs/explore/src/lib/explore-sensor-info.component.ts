@@ -5,6 +5,7 @@ import { MAP_FEATURE_DATA } from '@placeos/components';
 export interface SensorInfoData {
     id: string;
     temp: number;
+    temp_unit: string;
     humidity: number;
 }
 
@@ -33,7 +34,7 @@ let shown_id = '';
                     *ngIf="temp"
                 >
                     <app-icon>thermostat</app-icon>
-                    <div class="">{{ temp }}˚F</div>
+                    <div class="">{{ temp }}˚{{ temp_unit }}</div>
                 </div>
                 <div
                     class="flex items-center space-x-2 whitespace-nowrap pr-2"
@@ -55,6 +56,7 @@ let shown_id = '';
 })
 export class ExploreSensorInfoComponent extends AsyncHandler {
     public readonly temp = this._details.temp || 0;
+    public readonly temp_unit = this._details.temp_unit || 'C';
     public readonly humidity = this._details.humidity || 0;
 
     public get show() {

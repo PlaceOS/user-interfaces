@@ -40,11 +40,17 @@ import { VisitorsReportComponent } from './visitors/visitors-report.component';
 import { VisitorReportOverallComponent } from './visitors/visitor-report-overall.component';
 import { VisitorReportListComponent } from './visitors/visitor-report-list.component';
 import { VisitorReportDailyUsageComponent } from './visitors/visitor-report-daily-usage.component';
+import { ParkingReportComponent } from './parking/parking-report.component';
+import { ParkingReportDailyUsageComponent } from './parking/parking-report-daily-usage.component';
+import { ParkingReportOverallComponent } from './parking/parking-report-overall.component';
+import { ParkingReportListComponent } from './parking/parking-report-list.component';
+import { ParkingReportChartsComponent } from './parking/parking-report-charts.component';
 
 const children: Route[] = [
     { path: '', component: ReportsOptionsComponent },
     { path: 'bookings', component: ReportSpacesComponent },
     { path: 'desks', component: ReportDesksComponent },
+    { path: 'parking', component: ParkingReportComponent },
     { path: 'catering', component: CateringReportComponent },
     {
         path: 'contact-tracing',
@@ -79,6 +85,12 @@ const ROUTES: Route[] = [
         ReportDesksLevelListComponent,
         ReportDesksChartsComponent,
         ReportsMenuComponent,
+
+        ParkingReportComponent,
+        ParkingReportDailyUsageComponent,
+        ParkingReportOverallComponent,
+        ParkingReportListComponent,
+        ParkingReportChartsComponent,
 
         CateringReportComponent,
         CateringReportOverallComponent,

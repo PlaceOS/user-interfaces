@@ -13,6 +13,8 @@ import { PhoneDiallingTooltipComponent } from './ui/phone-dialling-tooltip.compo
 import { PowerTooltipComponent } from './ui/power-tooltip.component';
 import { VideoConferenceTooltipComponent } from './ui/video-conf-tooltip.component';
 import { VideoCallStateService } from './video-call/video-call-state.service';
+import { OrganisationService } from '@placeos/organisation';
+import { debounceTime, map } from 'rxjs/operators';
 
 enum TOOLTIP {
     PHONE,
@@ -32,7 +34,12 @@ enum TOOLTIP {
     selector: 'topbar-header',
     template: `
         <div class="flex-1 px-4">
-            <img logo class="h-10" [src]="logo?.src" alt="Logo" />
+            <img
+                auth
+                class="h-12"
+                alt="Logo"
+                [source]="(logo | async)?.src || (logo | async)"
+            />
         </div>
         <div class="p-4 text-lg text-base-content">
             {{ (system | async).name }}
@@ -183,12 +190,15 @@ export class TopbarHeaderComponent extends AsyncHandler {
     public readonly viewHelp = () => this._state.viewHelp();
     public readonly powerOff = () => this._state.powerOff();
 
-    /** Application logo to display */
-    public get logo() {
-        return this._settings.get('theme') === 'dark'
-            ? this._settings.get('app.logo_dark')
-            : this._settings.get('app.logo_light');
-    }
+    public readonly logo = this._org.active_building.pipe(
+        debounceTime(500),
+        map(
+            () =>
+                (this._settings.get('theme') === 'dark'
+                    ? this._settings.get('app.logo_dark')
+                    : this._settings.get('app.logo_light')) || {},
+        ),
+    );
 
     public get is_trusted() {
         return isTrusted();
@@ -197,7 +207,8 @@ export class TopbarHeaderComponent extends AsyncHandler {
     constructor(
         private _settings: SettingsService,
         private _state: ControlStateService,
-        private _call: VideoCallStateService
+        private _call: VideoCallStateService,
+        private _org: OrganisationService,
     ) {
         super();
     }
@@ -268,8 +279,8 @@ export class TopbarHeaderComponent extends AsyncHandler {
                     this.action_list = [...this.action_list];
                     this.action_list[TOOLTIP.LIGHT_SCENES].show =
                         l_scenes != null;
-                }
-            )
+                },
+            ),
         );
     }
 }

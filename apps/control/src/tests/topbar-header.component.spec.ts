@@ -2,12 +2,13 @@ import { MatMenuModule } from '@angular/material/menu';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { SettingsService } from '@placeos/common';
 import { CustomTooltipComponent, IconComponent } from '@placeos/components';
-import { MockComponent, MockProvider } from 'ng-mocks';
+import { MockComponent, MockDirective, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 import { ControlStateService } from '../app/control-state.service';
 
 import { TopbarHeaderComponent } from '../app/topbar-header.component';
 import { VideoCallStateService } from '../app/video-call/video-call-state.service';
+import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 
 describe('TopbarHeaderComponent', () => {
     let spectator: Spectator<TopbarHeaderComponent>;
@@ -16,6 +17,7 @@ describe('TopbarHeaderComponent', () => {
         declarations: [
             MockComponent(IconComponent),
             MockComponent(CustomTooltipComponent),
+            MockDirective(AuthenticatedImageDirective),
         ],
         providers: [
             MockProvider(SettingsService, { get: jest.fn() }),
@@ -51,6 +53,6 @@ describe('TopbarHeaderComponent', () => {
     });
 
     it('should show the logo', () => {
-        expect('[logo]').toExist();
+        expect('img[auth]').toExist();
     });
 });

@@ -33,6 +33,7 @@ import {
     isMobileSafari,
     hasNewVersion,
     requestScreenWakeLock,
+    setTranslationService,
 } from '@placeos/common';
 import { MapsPeopleService } from 'libs/common/src/lib/mapspeople.service';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
@@ -167,6 +168,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
             }
         });
         setNotifyOutlet(this._snackbar);
+        setTranslationService(this._translate);
         /** Wait for settings to initialise */
         await this._settings.initialised.pipe(first((_) => _)).toPromise();
         setAppName(this._settings.get('app.short_name'));
@@ -193,7 +195,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
         this.clearTimeout('wait_for_user');
         this._initLocale();
         setInternalUserDomain(
-            this._settings.get('app.general.internal_user_domain') ||
+            this._settings.get('app.internal_user_domain') ||
                 `@${currentUser()?.email?.split('@')[1]}`,
         );
         this._initAnalytics();

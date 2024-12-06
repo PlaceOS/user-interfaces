@@ -10,7 +10,9 @@ import { CheckinStateService } from './checkin-state.service';
             <h3 class="text-2xl pb-2">Please see reception.</h3>
             <p *ngIf="error | async">{{ error | async }}</p>
             <p>Our staff at reception will assist you.</p>
-            <a btn matRipple class="w-32" [routerLink]="['/welcome']"> Back </a>
+            <a btn matRipple class="w-32" [routerLink]="['/welcome']">
+                {{ 'VISITOR_KIOSK.CONFIRM' | translate }}
+            </a>
         </div>
     `,
     styles: [

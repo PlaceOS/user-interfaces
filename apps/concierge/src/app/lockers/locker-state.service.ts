@@ -161,20 +161,21 @@ export class LockersStateService extends AsyncHandler {
             (acc, { data, total, next, reset }) => {
                 const list = data;
                 this._next_page.next(next); // Set the next page function
-                if (reset) return { list, total }; // Reset the items array
+                if (reset) return { list, total, has_next: !!next }; // Reset the items array
                 return {
                     list: [...acc.list, ...list],
+                    has_next: !!next,
                     total,
                 };
             },
-            { list: [], total: 0 },
+            { list: [], total: 0, has_next: false },
         ),
         tap((_) => this._loading.next(false)),
         shareReplay(1),
     );
 
     public readonly has_more_pages = this.paged_bookings.pipe(
-        map((_) => _.list.length < _.total),
+        map((_) => _.has_next),
     );
     public readonly bookings = this.paged_bookings.pipe(map((i) => i.list));
 

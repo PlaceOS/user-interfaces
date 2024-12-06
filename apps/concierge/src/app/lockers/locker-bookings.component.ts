@@ -8,37 +8,48 @@ import { SettingsService } from '@placeos/common';
     selector: 'locker-bookings',
     template: `
         <div class="w-full h-4"></div>
-        <div class="overflow-auto h-full w-full px-4 pb-4">
+        <div class="overflow-auto h-full w-full px-4 pb-16">
             <simple-table
                 class="min-w-[76rem] block text-sm w-full"
                 [data]="bookings"
                 [columns]="[
-                    { key: 'date', name: 'Date', content: date_template },
-                    { key: 'period', name: 'Period', content: period_template },
+                    {
+                        key: 'date',
+                        name: 'Date',
+                        content: date_template,
+                        size: '4rem',
+                    },
+                    {
+                        key: 'period',
+                        name: 'Period',
+                        content: period_template,
+                        size: '9rem',
+                    },
                     {
                         key: 'user_name',
                         name: 'Person',
-                        content: user_template
+                        content: user_template,
                     },
                     { key: 'group', name: 'Group' },
                     {
                         key: 'asset_name',
                         name: 'Locker',
-                        content: locker_template
+                        content: locker_template,
                     },
                     { key: 'approver_name', name: 'Approver' },
                     {
                         key: 'status',
                         name: 'Status',
                         content: status_template,
-                        size: '11rem'
+                        size: '11rem',
                     },
                     {
                         key: 'checked_in',
                         name: 'Checked In',
                         content: option_template,
-                        size: '5.5rem'
-                    }
+                        size: '7rem',
+                        sortable: false,
+                    },
                 ]"
                 [sortable]="true"
                 [empty_message]="
@@ -49,27 +60,49 @@ import { SettingsService } from '@placeos/common';
             ></simple-table>
             <ng-template #date_template let-date="data">
                 <div
-                    class="flex flex-col items-center justify-center w-full px-4 py-2"
+                    class="flex flex-col items-center justify-center w-full py-2"
                 >
                     <div class="opacity-60">{{ date | date: 'MMM' }}</div>
                     <div class="text-xl">{{ date | date: 'dd' }}</div>
                 </div>
             </ng-template>
             <ng-template #period_template let-row="row">
-                <ng-container *ngIf="row.status !== 'declined' && !row.deleted">
-                    <ng-container *ngIf="!row.all_day">
-                        {{ row.date | date: time_format }} &ndash;
-                        {{ row.end | date: time_format }}
-                    </ng-container>
-                    <ng-container *ngIf="row.all_day">All Day</ng-container>
-                </ng-container>
-                <ng-container *ngIf="row.status === 'declined' || row.deleted">
-                    <div
-                        class="text-xs py-1 px-2 bg-error rounded-2xl text-white"
+                <div class="p-2">
+                    <ng-container
+                        *ngIf="
+                            row.status !== 'declined' &&
+                            !row.deleted &&
+                            row.status !== 'ended'
+                        "
                     >
-                        Expired
-                    </div>
-                </ng-container>
+                        <div class="p-2">
+                            <ng-container *ngIf="!row.all_day">
+                                {{ row.date | date: time_format }} &ndash;
+                                {{ row.date_end | date: time_format }}
+                            </ng-container>
+                            <ng-container *ngIf="row.all_day"
+                                >All Day</ng-container
+                            >
+                        </div>
+                    </ng-container>
+                    <ng-container
+                        *ngIf="
+                            row.status === 'declined' ||
+                            row.deleted ||
+                            row.status === 'ended'
+                        "
+                    >
+                        <div
+                            class="text-xs py-2 px-4 bg-error rounded-3xl text-white"
+                        >
+                            {{
+                                row.status === 'ended'
+                                    ? 'Manually Ended'
+                                    : 'Expired'
+                            }}
+                        </div>
+                    </ng-container>
+                </div>
             </ng-template>
             <ng-template #locker_template let-row="row">
                 <div class="p-4">
@@ -95,62 +128,85 @@ import { SettingsService } from '@placeos/common';
                 </div>
             </ng-template>
             <ng-template #status_template let-row="row">
-                <button
-                    matRipple
-                    [matMenuTriggerFor]="statusMenu"
-                    class="rounded-3xl px-2 py-1 flex items-center space-x-2 capitalize"
-                    [class.bg-success]="row.approved"
-                    [class.text-white]="row.approved || row.rejected"
-                    [class.bg-warning]="!row.approved && !row.rejected"
-                    [class.text-black]="!row.approved && !row.rejected"
-                    [class.bg-error]="row.rejected"
-                >
-                    <div class="ml-2">
-                        {{
-                            row.approved
-                                ? 'Approved'
-                                : row.rejected
-                                ? 'Declined'
-                                : 'Tentative'
-                        }}
-                    </div>
-                    <app-icon class="text-xl">arrow_drop_down</app-icon>
-                </button>
-                <mat-menu #statusMenu="matMenu">
+                <div class="px-2">
+                    <button
+                        matRipple
+                        class="rounded-3xl bg-warning text-warning-content border-none w-[7.5rem] h-10"
+                        [class.!text-success-content]="
+                            row?.status === 'approved'
+                        "
+                        [class.!bg-success]="row?.status === 'approved'"
+                        [class.!text-error-content]="row?.status === 'declined'"
+                        [class.!bg-error]="row?.status === 'declined'"
+                        [class.!text-neutral-content]="row?.status === 'ended'"
+                        [class.!bg-neutral]="row?.status === 'ended'"
+                        [class.opacity-30]="row?.status === 'ended'"
+                        [matMenuTriggerFor]="menu"
+                        [disabled]="row?.status === 'ended'"
+                    >
+                        <div class="flex items-center pl-4 pr-2 space-x-2">
+                            <div class="flex-1 text-left">
+                                {{
+                                    row?.status === 'ended'
+                                        ? 'Ended'
+                                        : row?.status === 'approved'
+                                          ? 'Approved'
+                                          : row?.status === 'declined'
+                                            ? 'Declined'
+                                            : 'Pending'
+                                }}
+                            </div>
+                            <app-icon class="text-2xl"
+                                >arrow_drop_down</app-icon
+                            >
+                        </div>
+                    </button>
+                </div>
+                <mat-menu #menu="matMenu">
                     <button mat-menu-item (click)="approve(row)">
                         <div class="flex items-center space-x-2">
                             <app-icon class="text-2xl"
                                 >event_available</app-icon
                             >
-                            <div>Approve Locker</div>
+                            <div class="pr-2">Approve Locker</div>
                         </div>
                     </button>
                     <button mat-menu-item (click)="reject(row)">
                         <div class="flex items-center space-x-2">
                             <app-icon class="text-2xl">event_busy</app-icon>
-                            <div>Decline Locker</div>
+                            <div class="pr-2">Decline Locker</div>
                         </div>
                     </button>
                 </mat-menu>
             </ng-template>
             <ng-template #option_template let-data="data" let-row="row">
-                <button
-                    matRipple
-                    class="rounded-3xl px-2 py-1 text-white flex items-center space-x-2"
-                    [matMenuTriggerFor]="checkinMenu"
-                    [class.bg-neutral-600]="!data"
-                    [class.bg-success]="data"
-                    [class.opacity-30]="row.status === 'ended'"
-                    [disabled]="row.status === 'ended'"
-                    [matTooltip]="
-                        row.status === 'ended'
-                            ? 'Locker booking has ended'
-                            : 'Check-in or check-out locker'
-                    "
-                >
-                    <div class="ml-2">{{ data ? 'Yes' : 'No' }}</div>
-                    <app-icon class="text-xl">arrow_drop_down</app-icon>
-                </button>
+                <div class="px-2">
+                    <button
+                        matRipple
+                        class="rounded-3xl bg-warning text-warning-content border-none w-[4.5rem] h-10"
+                        [matMenuTriggerFor]="checkinMenu"
+                        [class.!bg-neutral]="!data"
+                        [class.!text-neutral-content]="!data"
+                        [class.!bg-success]="data"
+                        [class.!text-success-content]="data"
+                        [class.opacity-30]="row.status === 'ended'"
+                        [disabled]="row.status === 'ended'"
+                        [matTooltip]="
+                            row.status === 'ended'
+                                ? 'Locker booking has ended'
+                                : 'Check-in or check-out locker'
+                        "
+                    >
+                        <div class="flex items-center pl-4 pr-2 space-x-2">
+                            <div class="flex-1 text-left">
+                                {{ data ? 'Yes' : 'No' }}
+                            </div>
+                            <app-icon class="text-2xl">
+                                arrow_drop_down
+                            </app-icon>
+                        </div>
+                    </button>
+                </div>
                 <mat-menu #checkinMenu="matMenu">
                     <button mat-menu-item (click)="checkin(row, true)">
                         <div class="flex items-center space-x-2">
@@ -167,27 +223,15 @@ import { SettingsService } from '@placeos/common';
                 </mat-menu>
             </ng-template>
         </div>
-
         <button
             btn
             matRipple
-            class="absolute bottom-2 left-2 w-32 mx-auto my-4"
+            class="absolute bottom-2 left-4 w-32 z-20"
             *ngIf="!loading && (has_more_pages | async)"
             (click)="loadMore()"
         >
             Load More
         </button>
-        <button
-            icon
-            matRipple
-            class="absolute bottom-2 right-2 bg-base-100 shadow"
-            [matMenuTriggerFor]="menu"
-        >
-            <app-icon>more_vert</app-icon>
-        </button>
-        <mat-menu #menu="matMenu">
-            <button mat-menu-item (click)="rejectAll()">Reject All</button>
-        </mat-menu>
     `,
     styles: [
         `
@@ -210,11 +254,10 @@ export class LockerBookingsComponent {
             i.map((booking) => ({
                 ...booking,
                 end: booking.date + booking.duration * 60 * 1000,
-            }))
-        )
+            })),
+        ),
     );
 
-    public readonly rejectAll = () => this._state.rejectAllLockers();
     public readonly loadMore = () => this._state.nextPage();
 
     public readonly checkin = (d, s?) =>
@@ -233,7 +276,7 @@ export class LockerBookingsComponent {
 
     constructor(
         private _state: LockersStateService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {}
 
     private async runMethod(name: string, fn: () => Promise<any>) {

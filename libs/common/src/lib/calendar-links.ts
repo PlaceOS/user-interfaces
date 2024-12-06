@@ -131,6 +131,7 @@ export function generateGoogleCalendarLink(event: CalEvent): string {
 export function generateMicrosoftCalendarLink(
     event: CalEvent,
     type: 'outlook' | 'office' = 'office',
+    status: 'free' | 'busy' | 'tentative' | 'oof' = 'free',
 ): string {
     if (!event.date) event.date = Date.now();
     const data: any = {
@@ -144,6 +145,8 @@ export function generateMicrosoftCalendarLink(
         }`,
         location: event.location,
         allday: event.all_day ?? false,
+        availability: status,
+        freebusy: status,
     };
     if (event.all_day) delete data.enddt;
     const emails = (event.attendees || []).map((_: any) => _.email || _);

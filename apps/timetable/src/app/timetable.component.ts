@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { AsyncHandler, SettingsService } from '@placeos/common';
+import { OrganisationService } from '@placeos/organisation';
 import { Space, SpacesService } from '@placeos/spaces';
 import { getHours, getMinutes, startOfSecond } from 'date-fns';
-import { first } from 'rxjs/operators';
+import { debounceTime, first, map } from 'rxjs/operators';
 
 @Component({
     selector: 'app-timetable',
@@ -13,7 +14,12 @@ import { first } from 'rxjs/operators';
                 topbar
                 class="bg-secondary w-full shadow z-20 p-2 h-16 flex items-center relative"
             >
-                <img [src]="logo?.src" class="h-12" />
+                <img
+                    auth
+                    class="h-10"
+                    alt="Logo"
+                    [source]="(logo | async)?.src || (logo | async)"
+                />
                 <div class="flex-1"></div>
                 <div class="text-white p-2 text-xl">
                     <span>{{ time | date: 'mediumDate' }}</span>
@@ -105,14 +111,21 @@ export class AppTimetableComponent extends AsyncHandler {
         return ((getHours(this.date) + getMinutes(this.date) / 60) / 24) * 100;
     }
 
-    public get logo() {
-        return this._settings.get('app.logo_dark');
-    }
+    public readonly logo = this._org.active_building.pipe(
+        debounceTime(500),
+        map(
+            () =>
+                (this._settings.get('theme') === 'dark'
+                    ? this._settings.get('app.logo_dark')
+                    : this._settings.get('app.logo_light')) || {},
+        ),
+    );
 
     constructor(
         private _settings: SettingsService,
         private _route: ActivatedRoute,
-        private _spaces: SpacesService
+        private _spaces: SpacesService,
+        private _org: OrganisationService,
     ) {
         super();
     }
@@ -127,7 +140,7 @@ export class AppTimetableComponent extends AsyncHandler {
                     const id_list = params.get('sys_ids').split(',');
                     this.spaces = id_list.map((_) => this._spaces.find(_));
                 }
-            })
+            }),
         );
     }
 }

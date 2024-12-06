@@ -81,6 +81,17 @@ import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component'
                         >
                             <app-icon>refresh</app-icon>
                         </button>
+                        <button
+                            btn
+                            icon
+                            matRipple
+                            matTooltip="Reject All"
+                            class="ml-2 rounded border border-base-200"
+                            (click)="rejectAll()"
+                            [disabled]="loading | async"
+                        >
+                            <app-icon>event_busy</app-icon>
+                        </button>
                     </ng-container>
                     <ng-container *ngIf="path === 'manage'">
                         <!-- <button
@@ -165,6 +176,7 @@ export class NewLockersComponent
     public readonly setDate = (date) => this._state.setFilters({ date });
     public readonly setFilters = (o) => this._state.setFilters(o);
     public readonly refresh = () => this._state.refresh();
+    public readonly rejectAll = () => this._state.rejectAllLockers();
     /** Update active zones for lockers */
     public readonly updateZones = (zones: string[]) => {
         this._router.navigate([], {
@@ -184,7 +196,7 @@ export class NewLockersComponent
         private _router: Router,
         private _route: ActivatedRoute,
         private _dialog: MatDialog,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         super();
     }
@@ -198,7 +210,7 @@ export class NewLockersComponent
                     const url_parts = this._router.url?.split('/') || [''];
                     this.path = url_parts[parts.length - 1].split('?')[0];
                 }
-            })
+            }),
         );
         const parts = this._router.url?.split('/') || [''];
         this.path = parts[parts.length - 1].split('?')[0];

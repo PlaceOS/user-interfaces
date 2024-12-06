@@ -168,17 +168,17 @@ export class LandingAvailabilityComponent {
     }
 
     public get hide_spaces() {
-        return this._settings.get('app.general.hide_spaces');
+        return this._settings.get('app.hide_landing_spaces');
     }
 
     public get hide_rooms() {
-        return this._settings.get('app.general.hide_rooms');
+        return this._settings.get('app.hide_landing_rooms');
     }
 
     constructor(
         private _state: LandingStateService,
         private _org: OrganisationService,
         private _settings: SettingsService,
-        private _explore: ExploreSpacesService
+        private _explore: ExploreSpacesService,
     ) {}
 }

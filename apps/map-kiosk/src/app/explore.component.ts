@@ -31,7 +31,7 @@ import { MapLocation, showStaff, User } from '@placeos/users';
 import { startOfMinute } from 'date-fns';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 import { combineLatest } from 'rxjs';
-import { first, map, take, tap } from 'rxjs/operators';
+import { debounceTime, first, map, take, tap } from 'rxjs/operators';
 
 @Component({
     selector: '[app-explore]',
@@ -41,7 +41,12 @@ import { first, map, take, tap } from 'rxjs/operators';
             class="relative flex items-center justify-between px-4 py-2 border-b border-base-300 bg-base-100 text-base-content"
         >
             <a matRipple routerLink="/" class="text-2xl rounded p-2">
-                Place<span class="text-primary">OS</span>
+                <img
+                    auth
+                    class="h-12"
+                    alt="Logo"
+                    [source]="(logo | async)?.src || (logo | async)"
+                />
             </a>
             <div
                 class="absolute top-1/2 -translate-y-1/2 right-2 flex items-center"
@@ -159,7 +164,7 @@ import { first, map, take, tap } from 'rxjs/operators';
                     </div>
                     <hr class="w-[calc(100%-4rem)] mx-auto" />
                 </ng-container>
-                <ng-container *ngIf="legend.length">
+                <ng-container *ngIf="legend.length && legend_visible">
                     <button
                         btn
                         matRipple
@@ -298,19 +303,25 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
     );
     public readonly level = this._state.level;
 
-    /** Application logo to display */
-    public get logo() {
-        return this._settings.get('theme') === 'dark'
-            ? this._settings.get('app.logo_dark')
-            : this._settings.get('app.logo_light');
-    }
+    public readonly logo = this._org.active_building.pipe(
+        debounceTime(500),
+        map(
+            () =>
+                (this._settings.get('theme') === 'dark'
+                    ? this._settings.get('app.logo_dark')
+                    : this._settings.get('app.logo_light')) || {},
+        ),
+    );
 
     public get time() {
         return startOfMinute(Date.now());
     }
+    public get legend_visible() {
+        return this._settings.get('app.explore.show_legend') !== false;
+    }
 
     public get hide_zones() {
-        return this._settings.get('app.hide_zones');
+        return this._settings.get('app.explore.hide_zones');
     }
     /** Observable for the active map */
     public readonly url = this._state.map_url;

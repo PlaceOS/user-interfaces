@@ -10,6 +10,7 @@ import { AsyncHandler, SettingsService } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
 import { Space } from '@placeos/spaces';
+import { showMetadata } from '@placeos/ts-client';
 import { FAV_DESK_KEY } from 'libs/bookings/src/lib/desk-select-modal/desk-select-modal.component';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 import { combineLatest } from 'rxjs';
@@ -115,6 +116,7 @@ const EMPTY = [];
                         name="book-favourite"
                         matRipple
                         class="w-full inverse"
+                        [disabled]="isClosed(item)"
                         (click)="newSpaceMeeting(item)"
                     >
                         {{ 'WPA.BOOK' | translate }}
@@ -267,6 +269,7 @@ const EMPTY = [];
     providers: [SpacePipe],
 })
 export class LandingFavouritesComponent extends AsyncHandler {
+    private _room_alerts: Record<string, [string, string]>;
     public readonly assets = combineLatest([
         this._booking_form.loadResourceList('desks' as any),
         this._booking_form.loadResourceList('parking-spaces' as any),
@@ -300,6 +303,13 @@ export class LandingFavouritesComponent extends AsyncHandler {
         return this._org.levelWithID(space?.zones || []);
     }
 
+    public isClosed(id: string) {
+        if (!this._room_alerts) return false;
+        return this._room_alerts[id]
+            ? this._room_alerts[id][0] === 'closed'
+            : false;
+    }
+
     constructor(
         private _org: OrganisationService,
         private _settings: SettingsService,
@@ -311,7 +321,16 @@ export class LandingFavouritesComponent extends AsyncHandler {
         super();
     }
 
-    public ngOnInit() {}
+    public async ngOnInit() {
+        this._room_alerts = await showMetadata(
+            this._org.organisation.id,
+            'room_alerts',
+        )
+            .pipe(map((v) => v.details as any))
+            .toPromise();
+        console.log('Room Alerts:', this._room_alerts);
+        console.log('Spaces:', this.spaces);
+    }
 
     public toggleFavourite(type: 'space' | 'desk' | 'parking', id: string) {
         let fav_list = this.spaces;

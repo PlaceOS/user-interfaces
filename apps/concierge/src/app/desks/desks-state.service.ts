@@ -50,8 +50,8 @@ function addQRCodeToBooking(booking: Booking): Booking {
             ...booking.extension_data,
             checkin_qr_code: generateQRCode(
                 `/workplace/#/book/code?asset_id=${encodeURIComponent(
-                    booking.asset_id
-                )}`
+                    booking.asset_id,
+                )}`,
             ),
         },
     });
@@ -87,7 +87,7 @@ export class DesksStateService extends AsyncHandler {
             return zones && !zones.includes('All')
                 ? showMetadata(zones[0], 'desks').pipe(
                       map((m) => (m.details instanceof Array ? m.details : [])),
-                      catchError((_) => of([]))
+                      catchError((_) => of([])),
                   )
                 : listChildMetadata(this._org.building?.id, {
                       name: 'desks',
@@ -95,9 +95,9 @@ export class DesksStateService extends AsyncHandler {
                       map((m) =>
                           m
                               .map((i) => i.metadata?.desks?.details || [])
-                              .reduce((c: any[], i: any[]) => [...c, ...i], [])
+                              .reduce((c: any[], i: any[]) => [...c, ...i], []),
                       ),
-                      catchError((_) => of([]))
+                      catchError((_) => of([])),
                   );
         }),
         map((list) => {
@@ -105,7 +105,7 @@ export class DesksStateService extends AsyncHandler {
             list.sort((a, b) => a.name?.localeCompare(b.name));
             return list.map((i) => new Desk({ ...i, qr_code: '' }));
         }),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     private _next_page = new Subject<() => QueryResponse<Booking>>();
@@ -134,14 +134,14 @@ export class DesksStateService extends AsyncHandler {
                     zones: zones.join(','),
                     include_checked_out: true,
                 }).pipe(
-                    catchError((_) => of({ data: [], total: 0, next: null }))
-                )
+                    catchError((_) => of({ data: [], total: 0, next: null })),
+                ),
             );
             this._call_next_page.next(`RESET_${Date.now()}`);
-        })
+        }),
     );
 
-    public readonly paged_bookings = combineLatest([
+    public readonly paged_bookings: Observable<any> = combineLatest([
         this._next_page,
         this._call_next_page,
     ]).pipe(
@@ -160,32 +160,33 @@ export class DesksStateService extends AsyncHandler {
             if (action.includes('RESET')) {
                 return next_page().pipe(
                     map((data: any) => ({ ...data, reset: true })),
-                    catchError((_) => of({ data: [], total: 0, next: null }))
+                    catchError((_) => of({ data: [], total: 0, next: null })),
                 );
             }
             return next_page().pipe(
                 map((data: any) => ({ ...data, reset: false })),
-                catchError((_) => of({ data: [], total: 0, next: null }))
+                catchError((_) => of({ data: [], total: 0, next: null })),
             );
         }),
         scan(
             (acc, { data, total, next, reset }) => {
                 const list = data;
                 this._next_page.next(next); // Set the next page function
-                if (reset) return { list, total }; // Reset the items array
+                if (reset) return { list, total, has_next: !!next }; // Reset the items array
                 return {
                     list: [...acc.list, ...list],
+                    has_next: !!next,
                     total,
                 };
             },
-            { list: [], total: 0 }
+            { list: [], total: 0, has_next: false },
         ),
         tap((_) => this._loading.next(false)),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     public readonly has_more_pages = this.paged_bookings.pipe(
-        map((_) => _.list.length < _.total)
+        map((_) => _.has_next),
     );
     public readonly bookings = this.paged_bookings.pipe(map((i) => i.list));
 
@@ -196,7 +197,7 @@ export class DesksStateService extends AsyncHandler {
     constructor(
         private _org: OrganisationService,
         private _dialog: MatDialog,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         super();
         this.setup_paging.subscribe();
@@ -275,7 +276,7 @@ export class DesksStateService extends AsyncHandler {
             notifyError(
                 status.error
                     ? `Error: ${status.error}`
-                    : `Error checking ${state ? 'in' : 'out'} desk booking`
+                    : `Error checking ${state ? 'in' : 'out'} desk booking`,
             );
             throw status.error;
         }
@@ -292,8 +293,8 @@ export class DesksStateService extends AsyncHandler {
         notifySuccess(
             `Approved desk booking for ${desk.user_name} on ${format(
                 desk.date,
-                'MMM do'
-            )}.`
+                'MMM do',
+            )}.`,
         );
         (desk as any).approved = true;
         (desk as any).rejected = false;
@@ -309,8 +310,8 @@ export class DesksStateService extends AsyncHandler {
         notifySuccess(
             `Rejected desk booking for ${desk.user_name} on ${format(
                 desk.date,
-                'MMM do'
-            )}.`
+                'MMM do',
+            )}.`,
         );
         (desk as any).approved = false;
         (desk as any).rejected = true;
@@ -318,14 +319,14 @@ export class DesksStateService extends AsyncHandler {
 
     public async giveAccess(desk: Booking) {
         const success = await saveBooking(
-            new Booking({ ...desk, access: true })
+            new Booking({ ...desk, access: true }),
         )
             .toPromise()
             .catch((_) => 'failed');
         if (success === 'failed')
             return notifyError('Error giving building access booking host');
         notifySuccess(
-            `Successfully gave building access to ${desk.user_name} for desk booking.`
+            `Successfully gave building access to ${desk.user_name} for desk booking.`,
         );
         this._desk_bookings = [...this._desk_bookings, success] as any;
     }
@@ -345,15 +346,15 @@ export class DesksStateService extends AsyncHandler {
                     content: 'delete',
                 },
             },
-            this._dialog
+            this._dialog,
         );
         if (resp.reason !== 'done') return;
         resp.loading('Rejecting all desks for selected date...');
         await Promise.all(
-            list.map((desk) => rejectBooking(desk.id).toPromise())
+            list.map((desk) => rejectBooking(desk.id).toPromise()),
         );
         notifySuccess(
-            'Successfully rejected all desk bookings for selected date.'
+            'Successfully rejected all desk bookings for selected date.',
         );
         resp.close();
     }

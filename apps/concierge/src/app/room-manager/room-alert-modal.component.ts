@@ -19,7 +19,7 @@ import { PlaceSystem, showMetadata, updateMetadata } from '@placeos/ts-client';
             *ngIf="!loading; else load_state"
             [formGroup]="form"
         >
-            <label for="status" i18n="@@statusLabel">Status</label>
+            <label for="status">Status</label>
             <mat-form-field appearance="outline">
                 <mat-select name="status" formControlName="status">
                     <mat-option value="">None</mat-option>
@@ -28,7 +28,7 @@ import { PlaceSystem, showMetadata, updateMetadata } from '@placeos/ts-client';
                     <mat-option value="closed">Closed</mat-option>
                 </mat-select>
             </mat-form-field>
-            <label for="message" i18n="@@messageLabel">Message</label>
+            <label for="message">Message</label>
             <mat-form-field appearance="outline">
                 <textarea
                     matInput
