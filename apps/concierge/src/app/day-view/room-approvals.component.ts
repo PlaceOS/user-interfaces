@@ -21,25 +21,25 @@ import { getTimezoneOffsetString, SettingsService } from '@placeos/common';
                     btn
                     icon
                     matRipple
-                    class="absolute top-4 left-2 bg-base-200"
+                    class="absolute top-3 left-2 bg-base-200"
                     matTooltip="Hide Pending Approvals"
                     matTooltipPosition="left"
                     (click)="show = !show"
                 >
                     <app-icon>chevron_right</app-icon>
                 </button>
-                <h3 class="flex-1 py-4 text-center">
+                <h3 class="flex-1 py-3 text-center">
                     Pending Approval ({{
                         (filtered_pending | async)?.length || '0'
                     }}
                     of {{ (pending | async)?.length || '0' }})
                 </h3>
             </div>
-            <div class="border-b border-base-200 relative">
+            <div class="border-b border-base-200 relative -mt-px">
                 <input
                     type="text"
                     placeholder="Search..."
-                    class="w-full py-3 pr-4 pl-10"
+                    class="w-full py-4 pr-4 pl-10"
                     [ngModel]="search | async"
                     (ngModelChange)="search.next($event)"
                 />
@@ -157,7 +157,7 @@ import { getTimezoneOffsetString, SettingsService } from '@placeos/common';
             btn
             icon
             matRipple
-            class="bg-warning absolute top-2 -left-8 shadow text-warning-content"
+            class="bg-warning absolute top-3 -left-8 shadow text-warning-content"
             *ngIf="!show"
             (click)="show = !show"
             matTooltip="Show Pending Approvals"
