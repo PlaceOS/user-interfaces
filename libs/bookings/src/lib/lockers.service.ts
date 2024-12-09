@@ -33,6 +33,7 @@ export interface Locker {
     bank_id: string;
     level_id?: string;
     map_id?: string;
+    assigned_to?: string;
     name: string;
     accessible: boolean;
     bookable: boolean;
@@ -53,8 +54,8 @@ export class LockersService {
         filter(([bld]) => !!bld),
         switchMap(([bld]) =>
             listChildMetadata(bld.id, { name: 'lockers' }).pipe(
-                catchError(() => of(new PlaceMetadata()))
-            )
+                catchError(() => of(new PlaceMetadata())),
+            ),
         ),
         map((_: PlaceZoneMetadata[]) =>
             flatten(
@@ -64,11 +65,11 @@ export class LockersService {
                               ...bank,
                               zone: _.zone,
                           }))
-                        : []
-                )
-            )
+                        : [],
+                ),
+            ),
         ),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     public readonly lockers$ = this.lockers_banks$.pipe(
@@ -83,12 +84,12 @@ export class LockersService {
                                 bank_id: bank.id,
                                 map_id: bank.map_id,
                                 level_id: bank.zone.id,
-                            } as Locker)
-                    )
+                            }) as Locker,
+                    ),
                 );
             }
             return lockers;
-        })
+        }),
     );
 
     public readonly filtered_lockers$ = combineLatest([
@@ -97,9 +98,9 @@ export class LockersService {
     ]).pipe(
         map(([level, lockers]) =>
             lockers.filter(
-                (_) => (!level || _.level_id === level) && _.bookable
-            )
-        )
+                (_) => (!level || _.level_id === level) && _.bookable,
+            ),
+        ),
     );
 
     public setLevel(level: string) {

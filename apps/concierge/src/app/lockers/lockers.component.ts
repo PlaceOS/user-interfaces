@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
-import { LockersStateService } from './locker-state.service';
+import { LockerStateService } from './locker-state.service';
 
 @Component({
     selector: '[app-lockers]',
@@ -66,7 +66,10 @@ export class LockersComponent
     public readonly loading = this._state.loading;
     public path: string;
 
-    constructor(private _state: LockersStateService, private _router: Router) {
+    constructor(
+        private _state: LockerStateService,
+        private _router: Router,
+    ) {
         super();
     }
 
@@ -79,7 +82,7 @@ export class LockersComponent
                     const url_parts = this._router.url?.split('/') || [''];
                     this.path = url_parts[parts.length - 1].split('?')[0];
                 }
-            })
+            }),
         );
         const parts = this._router.url?.split('/') || [''];
         this.path = parts[parts.length - 1].split('?')[0];

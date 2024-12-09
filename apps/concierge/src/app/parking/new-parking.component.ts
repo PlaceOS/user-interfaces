@@ -27,7 +27,7 @@ import { ParkingStateService } from './parking-state.service';
                                 'parking',
                                 'new',
                                 'manage',
-                                'users'
+                                'users',
                             ]"
                             [active]="path === 'users'"
                         >
@@ -40,7 +40,7 @@ import { ParkingStateService } from './parking-state.service';
                                 'parking',
                                 'new',
                                 'manage',
-                                'map'
+                                'map',
                             ]"
                             [active]="path === 'map'"
                         >
@@ -98,17 +98,20 @@ export class NewParkingComponent extends AsyncHandler {
 
     public path = '';
 
-    constructor(private _state: ParkingStateService, private _router: Router) {
+    constructor(
+        private _state: ParkingStateService,
+        private _router: Router,
+    ) {
         super();
     }
 
     public ngOnInit() {
-        this._state.startPolling();
+        this.subscription('poll_bookings', () => this._state.startPolling());
         this.subscription(
             'router.events',
             this._router.events.subscribe((e) => {
                 if (e instanceof NavigationEnd) this._updatePath();
-            })
+            }),
         );
         this._updatePath();
     }
@@ -120,7 +123,7 @@ export class NewParkingComponent extends AsyncHandler {
                 const parts = this._router.url?.split('/') || [''];
                 this.path = parts[parts.length - 1].split('?')[0];
             },
-            50
+            50,
         );
     }
 }

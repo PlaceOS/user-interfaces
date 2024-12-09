@@ -19,6 +19,8 @@ import { MatInputModule } from '@angular/material/input';
 import { SharedBookingsModule } from '@placeos/bookings';
 import { FormFieldsModule } from '@placeos/form-fields';
 import { NewLockersComponent } from './new-lockers.component';
+import { LockerListComponent } from './locker-list.component';
+import { LockerModalComponent } from './locker-modal.component';
 
 const ROUTES: Route[] = [
     {
@@ -26,6 +28,7 @@ const ROUTES: Route[] = [
         component: NewLockersComponent,
         children: [
             { path: 'events', component: LockerBookingsComponent },
+            { path: 'manage', component: LockerListComponent },
             { path: '**', redirectTo: 'events' },
         ],
     },
@@ -34,6 +37,7 @@ const ROUTES: Route[] = [
         component: LockersComponent,
         children: [
             { path: 'events', component: LockerBookingsComponent },
+            { path: 'manage', component: LockerListComponent },
             { path: '**', redirectTo: 'events' },
         ],
     },
@@ -45,6 +49,8 @@ const ROUTES: Route[] = [
         LockersComponent,
         LockerBookingsComponent,
         LockersTopbarComponent,
+        LockerListComponent,
+        LockerModalComponent,
     ],
     imports: [
         CommonModule,

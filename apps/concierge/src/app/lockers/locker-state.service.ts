@@ -1,7 +1,15 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { BehaviorSubject, combineLatest, of, Subject } from 'rxjs';
 import {
+    BehaviorSubject,
+    combineLatest,
+    forkJoin,
+    Observable,
+    of,
+    Subject,
+} from 'rxjs';
+import {
+    catchError,
     debounceTime,
     distinctUntilChanged,
     map,
@@ -16,12 +24,15 @@ import {
     approveBooking,
     Booking,
     checkinBooking,
+    Locker,
+    LockerBank,
     queryPagedBookings,
     rejectBooking,
     saveBooking,
 } from '@placeos/bookings';
 import {
     AsyncHandler,
+    flatten,
     notifyError,
     notifyInfo,
     notifySuccess,
@@ -31,6 +42,12 @@ import {
 import { OrganisationService } from '@placeos/organisation';
 
 import { QueryResponse } from '@placeos/ts-client/dist/esm/resources/functions';
+import {
+    listChildMetadata,
+    PlaceMetadata,
+    PlaceZoneMetadata,
+    showMetadata,
+} from '@placeos/ts-client';
 
 export interface LockerFilters {
     date?: number;
@@ -39,15 +56,18 @@ export interface LockerFilters {
     search?: string;
 }
 
+const addToken = (l: string, t: string) => l.replace(t, '') + t;
+const removeToken = (l: string, t: string) => l.replace(t, '');
+
 @Injectable({
     providedIn: 'root',
 })
-export class LockersStateService extends AsyncHandler {
+export class LockerStateService extends AsyncHandler {
     private _filters = new BehaviorSubject<LockerFilters>({});
     // private _new_lockers = new BehaviorSubject<Locker[]>([]);
     private _locker_bookings: Booking[] = [];
-    private _loading = new BehaviorSubject<boolean>(false);
-    /** List of available parking levels for the current building */
+    private _loading = new BehaviorSubject<string>('');
+    /** List of available locker levels for the current building */
     public levels = this._org.level_list.pipe(
         map((_) => {
             if (!this._settings.get('app.use_region')) {
@@ -66,40 +86,58 @@ export class LockersStateService extends AsyncHandler {
         }),
     );
 
-    // public readonly new_lockers = this._new_lockers.asObservable();
-
-    // public get new_locker_count() {
-    //     return this._new_lockers.getValue()?.length || 0;
-    // }
-
     public readonly loading = this._loading.asObservable();
 
     public readonly filters = this._filters.asObservable();
 
-    // public readonly lockers: Observable<Locker[]> = this._filters.pipe(
-    //     debounceTime(500),
-    //     switchMap((filters) => {
-    //         const zones = filters.zones || [];
-    //         return zones && !zones.includes('All')
-    //             ? showMetadata(zones[0], 'lockers').pipe(map((m) => m.details))
-    //             : listChildMetadata(this._org.building?.id, {
-    //                   name: 'lockers',
-    //               }).pipe(
-    //                   map((m) =>
-    //                       m
-    //                           .map((i) => i.metadata.lockers.details)
-    //                           .reduce((c: any[], i: any[]) => [...c, ...i], [])
-    //                   )
-    //               );
-    //     }),
-    //     catchError((_) => []),
-    //     map((list) => {
-    //         if (!(list instanceof Array)) list = [];
-    //         list.sort((a, b) => a.name?.localeCompare(b.name));
-    //         return list.map((i) => new Locker({ ...i, qr_code: '' }));
-    //     }),
-    //     shareReplay(1)
-    // );
+    public readonly locker_banks: Observable<LockerBank[]> = combineLatest([
+        this._filters,
+    ]).pipe(
+        switchMap(([{ zones }]) => {
+            let zone_list = zones?.length
+                ? zones
+                : this._settings.get('app.use_region')
+                  ? this._org.levelsForRegion()
+                  : this._org.levelsForBuilding();
+            return forkJoin(
+                zone_list.map((id) =>
+                    showMetadata(id, 'lockers').pipe(
+                        catchError(() => of({ details: [] as any })),
+                        map((_) => ((_ as any).zone = id)),
+                    ),
+                ),
+            );
+        }),
+        map((_: PlaceMetadata[]) =>
+            flatten(
+                _.map((_) =>
+                    _.details instanceof Array
+                        ? _.details.map((bank) => ({
+                              ...bank,
+                              zone: (_ as any).zone,
+                          }))
+                        : [],
+                ),
+            ),
+        ),
+        shareReplay(1),
+    );
+
+    public readonly lockers = this.locker_banks.pipe(
+        map((bank_list) => {
+            const lockers = [];
+            for (const bank of bank_list) {
+                for (const locker of bank.lockers) {
+                    lockers.push({
+                        ...locker,
+                        bank_id: bank.id,
+                    } as Locker);
+                }
+            }
+            return lockers;
+        }),
+        shareReplay(1),
+    );
 
     private _next_page = new Subject<() => QueryResponse<Booking>>();
     private _call_next_page = new Subject<string>();
@@ -139,7 +177,9 @@ export class LockersStateService extends AsyncHandler {
     ]).pipe(
         distinctUntilChanged((a, b) => a[1] === b[1]),
         switchMap(([next_page, action]) => {
-            this._loading.next(true);
+            this._loading.next(
+                addToken(this._loading.getValue(), '[BOOKINGS]'),
+            );
             if (!next_page) {
                 return of({
                     data: [],
@@ -171,7 +211,11 @@ export class LockersStateService extends AsyncHandler {
             },
             { list: [], total: 0, has_next: false },
         ),
-        tap((_) => this._loading.next(false)),
+        tap((_) =>
+            this._loading.next(
+                removeToken(this._loading.getValue(), '[BOOKINGS]'),
+            ),
+        ),
         shareReplay(1),
     );
 
@@ -211,18 +255,15 @@ export class LockersStateService extends AsyncHandler {
     }
 
     public refresh() {
-        this._loading.next(true);
+        this._loading.next(addToken(this._loading.getValue(), '[BOOKINGS]'));
         this.timeout('poll', () => this.setFilters(this._filters.getValue()));
     }
 
-    // public addLockers(list: Locker[]) {
-    //     this._new_lockers.next(this._new_lockers.getValue().concat(list));
-    // }
+    public editLocker(locker: Locker = {} as any) {}
 
-    // public clearNewLockers() {
-    //     this._filters.next(this._filters.getValue());
-    //     this._new_lockers.next([]);
-    // }
+    public removeLocker(locker: Locker) {}
+
+    public editBooking(booking: Booking = new Booking(), options: any) {}
 
     public async checkinLocker(locker: Booking, state: boolean = true) {
         const status: any = await checkinBooking(locker.id, state ?? true)

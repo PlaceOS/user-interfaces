@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 
-import { LockersStateService } from './locker-state.service';
+import { LockerStateService } from './locker-state.service';
 import { map } from 'rxjs/operators';
 import { SettingsService } from '@placeos/common';
 
@@ -8,7 +8,7 @@ import { SettingsService } from '@placeos/common';
     selector: 'locker-bookings',
     template: `
         <div class="w-full h-4"></div>
-        <div class="overflow-auto h-full w-full px-4 pb-16">
+        <div class="overflow-auto h-full w-full pb-16">
             <simple-table
                 class="min-w-[76rem] block text-sm w-full"
                 [data]="bookings"
@@ -275,7 +275,7 @@ export class LockerBookingsComponent {
     }
 
     constructor(
-        private _state: LockersStateService,
+        private _state: LockerStateService,
         private _settings: SettingsService,
     ) {}
 
