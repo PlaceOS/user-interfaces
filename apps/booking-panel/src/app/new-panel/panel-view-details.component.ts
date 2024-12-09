@@ -117,7 +117,10 @@ export class PanelViewDetailsComponent {
             ({ custom_qr_url, custom_qr_color, disable_book_now_host }) => {
                 if (custom_qr_url) {
                     this.qr_code = generateQRCode(
-                        custom_qr_url,
+                        custom_qr_url.replace(
+                            '{system_id}',
+                            this._state.system,
+                        ),
                         '#fff0',
                         custom_qr_color || '#fff',
                     );
