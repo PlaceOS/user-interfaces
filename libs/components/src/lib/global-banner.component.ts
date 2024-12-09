@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
+import { BehaviorSubject, combineLatest } from 'rxjs';
 import { debounceTime, map, shareReplay, take, tap } from 'rxjs/operators';
 
 export interface BannerDetails {
@@ -29,7 +30,7 @@ export interface BannerDetails {
             <div class="flex-1">
                 {{ (banner | async)?.content || (banner | async)?.message }}
             </div>
-            <button icon (click)="close()">
+            <button icon matRipple (click)="close()">
                 <app-icon>close</app-icon>
             </button>
         </div>
@@ -44,14 +45,18 @@ export interface BannerDetails {
     ],
 })
 export class GlobalBannerComponent {
+    private _change = new BehaviorSubject(0);
     public readonly banner = this._org.active_building.pipe(
         debounceTime(500),
         map(() => this._settings.get('app.banner')),
         shareReplay(1),
     );
-    public readonly has_been_closed = this.banner.pipe(
+    public readonly has_been_closed = combineLatest([
+        this.banner,
+        this._change,
+    ]).pipe(
         debounceTime(500),
-        map((banner) => {
+        map(([banner]) => {
             return (
                 (!banner?.content && !banner?.message) ||
                 localStorage.getItem('PLACE.last_banner') === banner.id
@@ -68,5 +73,6 @@ export class GlobalBannerComponent {
     public async close() {
         const banner = await this.banner.pipe(take(1)).toPromise();
         localStorage.setItem('PLACE.last_banner', banner?.id || '');
+        this._change.next(Date.now());
     }
 }
