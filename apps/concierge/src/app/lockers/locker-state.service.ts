@@ -126,6 +126,7 @@ export class LockersStateService extends AsyncHandler {
                     type: 'locker',
                     zones: zones.join(','),
                     include_checked_out: true,
+                    limit: 500,
                 }),
             );
             this._call_next_page.next(`RESET_${Date.now()}`);
