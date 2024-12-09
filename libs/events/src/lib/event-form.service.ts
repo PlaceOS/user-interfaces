@@ -204,6 +204,17 @@ export class EventFormService extends AsyncHandler {
                     const zone_limit = s.zones.find((_) =>
                         limited_zones.includes(_),
                     );
+                    console.log(
+                        'Space:',
+                        s.display_name || s.name,
+                        s.bookable &&
+                            (!zone || s.zones.includes(zone)) &&
+                            (!zone_limit || limit_map[zone_limit] === domain) &&
+                            (!show_fav ||
+                                this.favorite_spaces.includes(s.id)) &&
+                            features.every((f) => s.features.includes(f)) &&
+                            s.capacity >= Math.max(0, capacity || 0),
+                    );
                     return (
                         s.bookable &&
                         (!zone || s.zones.includes(zone)) &&
