@@ -259,6 +259,7 @@ export class EventFormService extends AsyncHandler {
     ]).pipe(
         debounceTime(300),
         map(([list, bookings, booking_rules]) => {
+            console.log('Current Space Availability');
             this._loading.next('Updating available spaces...');
             let { ical_uid, date, duration, all_day } =
                 this._form.getRawValue();
@@ -299,6 +300,7 @@ export class EventFormService extends AsyncHandler {
             filter(() => !this._loading.getValue()),
             debounceTime(500),
             switchMap(([spaces, booking_rules]) => {
+                console.log('Future Space Availability');
                 if (!spaces.length) return of([]);
                 this._loading.next('Retrieving available spaces...');
                 let { date, duration, all_day } = this._form.getRawValue();
@@ -346,7 +348,8 @@ export class EventFormService extends AsyncHandler {
         switchMap((d) => {
             const diff = Math.abs(differenceInDays(d, Date.now()));
             const cache_length =
-                this._settings.get('app.events.cache_duration_in_days') || 14;
+                this._settings.get('app.events.cache_duration_in_days') ?? 14;
+            console.log('Available spaces:', diff, cache_length);
             return diff < cache_length
                 ? this.current_available_spaces
                 : this.future_available_spaces;
