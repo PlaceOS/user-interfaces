@@ -71,6 +71,24 @@ export interface BookingUIOptions {
     show_weekends?: boolean;
 }
 
+function periodFor(period, date, tz_offset) {
+    const start_fn =
+        period === 'month'
+            ? startOfMonth
+            : period === 'week'
+              ? startOfWeek
+              : startOfDay;
+    const end_fn =
+        period === 'month'
+            ? endOfMonth
+            : period === 'week'
+              ? endOfWeek
+              : endOfDay;
+    const start = addMinutes(start_fn(date), tz_offset * 60);
+    const end = addMinutes(end_fn(date), tz_offset * 60);
+    return { start, end };
+}
+
 @Injectable({
     providedIn: 'root',
 })
@@ -79,10 +97,12 @@ export class EventsStateService extends AsyncHandler {
     private _poll = new BehaviorSubject<number>(0);
     /** Period to list bookings for */
     private _period = new BehaviorSubject<'month' | 'week' | 'day'>('day');
-    /** List of bookings */
-    private _bookings = new BehaviorSubject<CalendarEvent[]>([]);
     /** Event to display */
     private _event = new BehaviorSubject<CalendarEvent>(null);
+    /** Event to display */
+    private _removed_events = new BehaviorSubject<CalendarEvent[]>([]);
+    /** Event to display */
+    private _added_events = new BehaviorSubject<CalendarEvent[]>([]);
     /** Filter details for bookings */
     private _filters = new BehaviorSubject<BookingFilters>({});
     /** Filter details for bookings */
@@ -135,36 +155,59 @@ export class EventsStateService extends AsyncHandler {
         tap((_) => this._loading.next(false)),
         shareReplay(1),
     );
+    /** Observable for list of bookings */
+    public readonly event_list: Observable<CalendarEvent[]> = combineLatest([
+        this._period,
+        this._zones,
+        this._date,
+        this._poll,
+    ]).pipe(
+        filter(([period]) => !!period),
+        debounceTime(300),
+        switchMap(([period, zones, date]) => {
+            if (!zones?.length) return of([]);
+            if (zones[0] === this._org.region?.id) {
+                zones = (this._settings.get('app.use_region')
+                    ? this._org
+                          .buildingsForRegion(this._org.region)
+                          .map((_) => _.id)
+                    : null) || [this._org.building?.id];
+            }
+            this._loading.next(true);
+            const { start, end } = periodFor(period, date, this.tz_offset);
+            this._removed_events.next([]);
+            this._added_events.next([]);
+            return queryEvents({
+                strict: 'limit',
+                zone_ids: zones.join(','),
+                period_start: getUnixTime(start),
+                period_end: getUnixTime(end),
+            }).pipe(catchError(() => of([])));
+        }),
+        tap(() => this._loading.next(false)),
+        shareReplay(1),
+    );
     /** Obsevable for filtered list of bookings */
     public readonly filtered = combineLatest([
-        this._bookings,
+        this.event_list,
+        this._removed_events,
+        this._added_events,
         this._filters,
         this._date,
         this._period,
         this._zones,
     ]).pipe(
-        map(([events, filters, date, period, zones]) => {
-            const start_fn =
-                period === 'month'
-                    ? startOfMonth
-                    : period === 'week'
-                      ? startOfWeek
-                      : startOfDay;
-            const end_fn =
-                period === 'month'
-                    ? endOfMonth
-                    : period === 'week'
-                      ? endOfWeek
-                      : endOfDay;
-            const start = addMinutes(
-                start_fn(date, { weekStartsOn: this._week_start }),
-                this.tz_offset * 60,
+        map(([events, removed, added, filters, date, period, zones]: any) => {
+            let event_list = [...events];
+            event_list.filter(
+                (_) =>
+                    !removed.find(
+                        (e) => _.id === e.id || _.ical_uid === e.ical_uid,
+                    ),
             );
-            const end = addMinutes(
-                end_fn(date, { weekStartsOn: this._week_start }),
-                this.tz_offset * 60,
-            );
-            return this.filterEvents(events, start, end, filters, zones);
+            event_list = event_list.concat(added);
+            const { start, end } = periodFor(period, date, this.tz_offset);
+            return this.filterEvents(event_list, start, end, filters, zones);
         }),
         shareReplay(1),
     );
@@ -188,86 +231,6 @@ export class EventsStateService extends AsyncHandler {
                     ),
                 );
         }),
-        shareReplay(1),
-    );
-    private _retries = 0;
-    /** Observable for list of bookings */
-    public readonly events = combineLatest([
-        this._period,
-        this._zones,
-        this._date,
-        this._poll,
-    ]).pipe(
-        filter(([period]) => !!period),
-        debounceTime(300),
-        switchMap(([period, zones, date]) => {
-            if (!zones?.length) return of([]);
-            if (zones[0] === this._org.region?.id) {
-                zones = (this._settings.get('app.use_region')
-                    ? this._org
-                          .buildingsForRegion(this._org.region)
-                          .map((_) => _.id)
-                    : null) || [this._org.building?.id];
-            }
-            this._loading.next(true);
-            const start_fn =
-                period === 'month'
-                    ? startOfMonth
-                    : period === 'week'
-                      ? startOfWeek
-                      : startOfDay;
-            const end_fn =
-                period === 'month'
-                    ? endOfMonth
-                    : period === 'week'
-                      ? endOfWeek
-                      : endOfDay;
-            const start = addMinutes(start_fn(date), this.tz_offset * 60);
-            const end = addMinutes(end_fn(date), this.tz_offset * 60);
-            return queryEvents({
-                strict: 'limit',
-                zone_ids: zones.join(','),
-                period_start: getUnixTime(start),
-                period_end: getUnixTime(end),
-            }).pipe(
-                map((_) => {
-                    this._retries = 0;
-                    return [_, start, end, true];
-                }),
-                catchError((e) => {
-                    if (e?.status === 429) {
-                        this._retries += 1;
-                        const timeout_base = Math.min(
-                            8000,
-                            1000 * this._retries,
-                        );
-                        this.timeout(
-                            'retry',
-                            () => this._poll.next(Date.now()),
-                            randomInt(timeout_base + 1000, timeout_base),
-                        );
-                    }
-                    return of([
-                        [] as CalendarEvent[],
-                        undefined,
-                        undefined,
-                        false,
-                    ]);
-                }),
-            );
-        }),
-        tap(([events, start, end, clear]) => {
-            if (!clear && !events?.length) {
-                return this._loading.next(false);
-            }
-            this.processBookings(
-                events || [],
-                start?.valueOf(),
-                end?.valueOf(),
-            );
-            this._loading.next(false);
-        }),
-        map(([events]) => events),
         shareReplay(1),
     );
 
@@ -302,58 +265,22 @@ export class EventsStateService extends AsyncHandler {
         private _settings: SettingsService,
     ) {
         super();
-        this.events.subscribe();
     }
 
-    /**
-     * Update the booking filters
-     * @param details
-     */
-    public setFilters(details: BookingFilters) {
+    public readonly setFilters = (details: BookingFilters) =>
         this._filters.next(details);
-    }
-
-    /**
-     * Update the booking date
-     * @param details
-     */
-    public setDate(date: number) {
-        this._date.next(date);
-    }
-
-    public setPeriod(period: 'day' | 'week' | 'month'): void {
+    public readonly setDate = (date: number) => this._date.next(date);
+    public readonly setPeriod = (period: 'day' | 'week' | 'month') =>
         this._period.next(period);
-    }
-
-    /**
-     * Update the booking's zone
-     * @param details
-     */
-    public setZones(zones: string[]) {
-        this._zones.next(zones);
-    }
-
-    /**
-     * Update the booking's zone
-     * @param details
-     */
-    public setEvent(event: CalendarEvent) {
+    public readonly setZones = (zones: string[]) => this._zones.next(zones);
+    public readonly setEvent = (event: CalendarEvent) =>
         this._event.next(event);
-    }
 
-    /**
-     * Update the booking's zone
-     * @param details
-     */
     public setUIOptions(options: BookingUIOptions) {
         const old_options = this._options.getValue();
         this._options.next({ ...old_options, ...options });
     }
 
-    /**
-     * Start polling to update bookings
-     * @param delay Duration between polling events in milliseconds
-     */
     public startPolling(
         period: 'day' | 'week' | 'month' = 'day',
         delay: number = 30 * 1000,
@@ -368,9 +295,6 @@ export class EventsStateService extends AsyncHandler {
         return () => this.stopPolling();
     }
 
-    /**
-     * Stop polling to update bookings;
-     */
     public stopPolling() {
         this._poll.next(0);
         this.clearInterval('polling');
@@ -417,11 +341,8 @@ export class EventsStateService extends AsyncHandler {
      * @param booking
      */
     public replace(booking: CalendarEvent) {
-        const bookings = this._bookings.getValue();
-        const new_bookings = bookings
-            .filter((bkn) => bkn.id !== booking.id)
-            .concat([booking]);
-        this._bookings.next(new_bookings);
+        this._removed_events.next([...this._added_events.getValue(), booking]);
+        this._added_events.next([...this._added_events.getValue(), booking]);
     }
 
     /**
@@ -429,35 +350,10 @@ export class EventsStateService extends AsyncHandler {
      * @param booking
      */
     public remove(booking: CalendarEvent) {
-        const bookings = this._bookings.getValue();
-        const new_bookings = bookings.filter((bkn) => bkn.id !== booking.id);
-        this._bookings.next(new_bookings);
-    }
-
-    private processBookings(
-        events: CalendarEvent[],
-        start: number = startOfDay(Date.now()).valueOf(),
-        end: number = endOfDay(Date.now()).valueOf(),
-    ) {
-        let bookings = this._bookings.getValue() || [];
-        const space_list = unique(
-            flatten(events.map((event) => event.resources)),
-            'email',
-        );
-        space_list.forEach((space) => {
-            bookings = replaceBookings(
-                bookings,
-                events.filter((bkn) =>
-                    bkn.resources.find((s) => s.email === space.email),
-                ),
-                {
-                    space: space.email,
-                    from: start.valueOf(),
-                    to: end.valueOf(),
-                },
-            );
-        });
-        this._bookings.next(bookings);
+        this._removed_events.next([
+            ...this._removed_events.getValue(),
+            booking,
+        ]);
     }
 
     private filterEvents(
