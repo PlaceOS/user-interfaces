@@ -154,6 +154,7 @@ export class EventFormService extends AsyncHandler {
         debounceTime(300),
         tap((_) => this.unsubWith('bind:')),
         switchMap(([{ zone_ids }]) => {
+            console.log('Load Spaces:', zone_ids);
             this._loading.next('Loading space list for location...');
             const use_region = this._settings.get('app.use_region');
             if (!zone_ids?.length) {
@@ -170,7 +171,10 @@ export class EventFormService extends AsyncHandler {
             );
         }),
         map((l) => flatten(l)),
-        tap((_) => this._loading.next('')),
+        tap((_) => {
+            this._loading.next('');
+            console.log('Spaces:', _);
+        }),
         shareReplay(1),
     );
 
@@ -203,17 +207,6 @@ export class EventFormService extends AsyncHandler {
                     const limited_zones = Object.keys(limit_map);
                     const zone_limit = s.zones.find((_) =>
                         limited_zones.includes(_),
-                    );
-                    console.log(
-                        'Space:',
-                        s.display_name || s.name,
-                        s.bookable &&
-                            (!zone || s.zones.includes(zone)) &&
-                            (!zone_limit || limit_map[zone_limit] === domain) &&
-                            (!show_fav ||
-                                this.favorite_spaces.includes(s.id)) &&
-                            features.every((f) => s.features.includes(f)) &&
-                            s.capacity >= Math.max(0, capacity || 0),
                     );
                     return (
                         s.bookable &&
