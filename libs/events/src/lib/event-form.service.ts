@@ -349,7 +349,12 @@ export class EventFormService extends AsyncHandler {
             const diff = Math.abs(differenceInDays(d, Date.now()));
             const cache_length =
                 this._settings.get('app.events.cache_duration_in_days') ?? 14;
-            console.log('Available spaces:', diff, cache_length);
+            console.log(
+                'Available spaces:',
+                diff,
+                cache_length,
+                this._loading.getValue(),
+            );
             return diff < cache_length
                 ? this.current_available_spaces
                 : this.future_available_spaces;
