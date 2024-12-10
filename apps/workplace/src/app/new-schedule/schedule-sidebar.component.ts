@@ -14,7 +14,7 @@ import { startOfDay } from 'date-fns';
         <div
             class="flex flex-col w-[18rem] h-full overflow-hidden bg-base-100[#1F2021] border-r border-base-200"
         >
-            <div class="flex items-center space-x-4 p-4">
+            <div class="flex items-center space-x-2 p-2">
                 <button
                     btn
                     matRipple
