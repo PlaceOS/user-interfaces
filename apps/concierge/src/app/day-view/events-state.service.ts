@@ -131,10 +131,7 @@ export class EventsStateService extends AsyncHandler {
 
     public readonly spaces: Observable<Space[]> = combineLatest([
         this._zones,
-        this._org.active_region.pipe(
-            filter((_) => !!_),
-            distinctUntilKeyChanged('id'),
-        ),
+        this._org.active_region.pipe(distinctUntilKeyChanged('id')),
         this._org.active_building.pipe(
             filter((_) => !!_),
             distinctUntilKeyChanged('id'),
