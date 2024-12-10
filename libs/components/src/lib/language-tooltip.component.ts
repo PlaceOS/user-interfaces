@@ -32,6 +32,7 @@ export class LanguageSelectComponent {
     public readonly setLocale = (code: string) => {
         this._translation.use(code);
         localStorage.setItem('PLACEOS.locale', code);
+        setTimeout(() => location.reload(), 300);
     };
 
     public get locales() {
@@ -43,6 +44,6 @@ export class LanguageSelectComponent {
     constructor(
         @Inject(CustomTooltipData) private _data: any,
         private _settings: SettingsService,
-        private _translation: TranslateService
+        private _translation: TranslateService,
     ) {}
 }

@@ -67,7 +67,7 @@ const EMPTY_FAVS: string[] = [];
                             class="clear"
                             (click)="changeResources(item)"
                         >
-                            <div class="flex items-center space-x-2" i18n>
+                            <div class="flex items-center space-x-2">
                                 <app-icon>edit</app-icon>
                                 Change
                             </div>
@@ -79,7 +79,7 @@ const EMPTY_FAVS: string[] = [];
                             class="clear"
                             (click)="removeResource(item)"
                         >
-                            <div class="flex items-center space-x-2" i18n>
+                            <div class="flex items-center space-x-2">
                                 <app-icon>close</app-icon>
                                 Remove
                             </div>
@@ -111,7 +111,7 @@ const EMPTY_FAVS: string[] = [];
         >
             <div class="flex items-center justify-center space-x-2">
                 <app-icon>search</app-icon>
-                <span i18n>Add Desk</span>
+                <span>Add Desk</span>
             </div>
         </button>
         <div class="flex items-center flex-wrap sm:space-x-2 mb-2">
@@ -143,7 +143,7 @@ export class DeskListFieldComponent implements ControlValueAccessor {
 
     constructor(
         private _settings: SettingsService,
-        private _dialog: MatDialog
+        private _dialog: MatDialog,
     ) {}
 
     /** Add or edit selected items */
@@ -203,7 +203,7 @@ export class DeskListFieldComponent implements ControlValueAccessor {
         } else {
             this._settings.saveUserSetting(
                 FAV_DESK_KEY,
-                fav_list.filter((_) => _ !== space.id)
+                fav_list.filter((_) => _ !== space.id),
             );
         }
     }

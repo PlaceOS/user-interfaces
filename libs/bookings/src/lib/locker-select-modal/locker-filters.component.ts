@@ -36,7 +36,7 @@ import { map } from 'rxjs/operators';
                     <app-icon>keyboard_arrow_left</app-icon>
                 </button>
             </div>
-            <h3 class="font-medium flex-2 text-center" i18n>Locker Filters</h3>
+            <h3 class="font-medium flex-2 text-center">Locker Filters</h3>
             <div class="flex-1"></div>
         </div>
         <form
@@ -44,9 +44,9 @@ import { map } from 'rxjs/operators';
             [formGroup]="form"
         >
             <section details>
-                <h2 class="text-lg font-medium mb-1" i18n>Details</h2>
+                <h2 class="text-lg font-medium mb-1">Details</h2>
                 <div class="flex-1 min-w-[8rem] flex flex-col">
-                    <label for="location" i18n>Location</label>
+                    <label for="location">Location</label>
                     <mat-form-field
                         appearance="outline"
                         class="w-full"
@@ -58,7 +58,6 @@ import { map } from 'rxjs/operators';
                             (ngModelChange)="setRegion($event)"
                             [ngModelOptions]="{ standalone: true }"
                             placeholder="Any Region"
-                            i18n-placeholder
                         >
                             <mat-option
                                 *ngFor="let reg of regions | async"
@@ -102,7 +101,6 @@ import { map } from 'rxjs/operators';
                             (ngModelChange)="setOptions({ zone_id: $event })"
                             [ngModelOptions]="{ standalone: true }"
                             placeholder="Any Level"
-                            i18n-placeholder
                         >
                             <mat-option
                                 *ngFor="let lvl of levels | async"
@@ -130,7 +128,7 @@ import { map } from 'rxjs/operators';
 
                 <!-- Date -->
                 <div class="flex-1 min-w-[256px]">
-                    <label i18n>Date</label>
+                    <label>Date</label>
                     <a-date-field
                         name="date"
                         formControlName="date"
@@ -141,7 +139,7 @@ import { map } from 'rxjs/operators';
                 </div>
                 <!-- All Day -->
                 <div *ngIf="allow_all_day" class="flex justify-end -mt-2 mb-2">
-                    <mat-checkbox formControlName="all_day" i18n>
+                    <mat-checkbox formControlName="all_day">
                         All Day
                     </mat-checkbox>
                 </div>
@@ -151,7 +149,7 @@ import { map } from 'rxjs/operators';
                     *ngIf="!form.value.all_day"
                 >
                     <div class="flex-1 w-1/3">
-                        <label i18n>Start Time</label>
+                        <label>Start Time</label>
                         <a-time-field
                             name="start-time"
                             [ngModel]="form.value.date"
@@ -161,7 +159,7 @@ import { map } from 'rxjs/operators';
                         ></a-time-field>
                     </div>
                     <div class="flex-1 w-1/3">
-                        <label i18n>End Time</label>
+                        <label>End Time</label>
                         <a-duration-field
                             formControlName="duration"
                             [time]="form.get('date')?.value"
@@ -175,11 +173,11 @@ import { map } from 'rxjs/operators';
                 </div>
             </section>
             <section favs class="space-y-2 pb-4">
-                <h2 class="text-lg font-medium" i18n>
+                <h2 class="text-lg font-medium">
                     {{ 'COMMON.FAVOURITES' | translate }}
                 </h2>
                 <div class="flex items-center">
-                    <div for="fav" class="flex-1 w-1/2" i18n>
+                    <div for="fav" class="flex-1 w-1/2">
                         {{ 'LOCKERS.SHOW_FAVOURITES' | translate }}
                     </div>
                     <mat-checkbox
@@ -196,7 +194,7 @@ import { map } from 'rxjs/operators';
                 features
                 *ngIf="(features | async)?.length"
             >
-                <h2 class="text-lg font-medium" i18n>Type</h2>
+                <h2 class="text-lg font-medium">Type</h2>
                 <div
                     *ngFor="let feat of features | async"
                     class="flex items-center flex-wrap space-x-2"
@@ -222,7 +220,6 @@ import { map } from 'rxjs/operators';
                 name="apply-locker-filters"
                 class="w-full"
                 (click)="close()"
-                i18n
             >
                 Apply Filters
             </button>

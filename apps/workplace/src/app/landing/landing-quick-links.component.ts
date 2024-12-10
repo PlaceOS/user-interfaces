@@ -18,11 +18,11 @@ import { SettingsService } from '@placeos/common';
                     class="min-w-[4rem] h-16 rounded bg-base-200 flex items-center justify-center"
                 >
                     <img
-                        class="m-auto"
+                        class="h-1/2 w-1/2 object-contain object-center"
                         src="assets/icons/room-placeholder.svg"
                     />
                 </div>
-                <div class="text-xl">Book a Room</div>
+                <div class="text-xl">Book a room</div>
             </a>
             <a
                 matRipple
@@ -34,11 +34,11 @@ import { SettingsService } from '@placeos/common';
                     class="min-w-[4rem] h-16 rounded bg-base-200 flex items-center justify-center"
                 >
                     <img
-                        class="m-auto"
+                        class="h-1/2 w-1/2 object-contain object-center"
                         src="assets/icons/desk-placeholder.svg"
                     />
                 </div>
-                <div class="text-xl">Book a Desk</div>
+                <div class="text-xl">Book a desk</div>
             </a>
             <a
                 matRipple
@@ -50,11 +50,11 @@ import { SettingsService } from '@placeos/common';
                     class="min-w-[4rem] h-16 rounded bg-base-200 flex items-center justify-center"
                 >
                     <img
-                        class="m-auto"
+                        class="h-1/2 w-1/2 object-contain object-center"
                         src="assets/icons/car-placeholder.svg"
                     />
                 </div>
-                <div class="text-xl">Book a Parking Space</div>
+                <div class="text-xl">Book parking space</div>
             </a>
         </div>
     `,

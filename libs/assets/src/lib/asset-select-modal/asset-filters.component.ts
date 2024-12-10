@@ -23,7 +23,7 @@ import {
                 />
             </mat-form-field>
         </div>
-        <h3 class="hidden sm:block font-medium px-2 py-2" *ngIf="!search" i18n>
+        <h3 class="hidden sm:block font-medium px-2 py-2" *ngIf="!search">
             Options
         </h3>
         <div class="flex flex-col px-2" *ngIf="!search">
@@ -66,7 +66,7 @@ import {
                 [use_24hr]="use_24hr"
             ></a-duration-field>
         </div>
-        <h3 class="hidden sm:block font-medium px-2 py-4" *ngIf="!search" i18n>
+        <h3 class="hidden sm:block font-medium px-2 py-4" *ngIf="!search">
             Catergories
         </h3>
         <div
@@ -117,7 +117,7 @@ export class AssetFiltersComponent extends AsyncHandler {
 
     public get start_of_date() {
         return startOfDay(
-            addDays(this._state.getOptions().date, this.offset_day)
+            addDays(this._state.getOptions().date, this.offset_day),
         ).valueOf();
     }
 
@@ -132,12 +132,12 @@ export class AssetFiltersComponent extends AsyncHandler {
     public get max_offset() {
         const end = Math.min(
             endOfDay(
-                addDays(this._state.getOptions().date, this.offset_day)
+                addDays(this._state.getOptions().date, this.offset_day),
             ).valueOf(),
             addMinutes(
                 this._state.getOptions().date,
-                this._state.getOptions().duration
-            ).valueOf()
+                this._state.getOptions().duration,
+            ).valueOf(),
         );
         const diff = differenceInMinutes(end, this._state.getOptions().date);
         return Math.min(diff, Math.min(24 * 60 - 1, this._max_offset));
@@ -154,7 +154,7 @@ export class AssetFiltersComponent extends AsyncHandler {
 
     constructor(
         private _state: AssetStateService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         super();
     }
@@ -162,7 +162,7 @@ export class AssetFiltersComponent extends AsyncHandler {
     public ngOnInit() {
         this._min_offset = Math.max(
             this._settings.get('app.assets.min_offset'),
-            0
+            0,
         );
         this.subscription(
             'filters',
@@ -170,10 +170,10 @@ export class AssetFiltersComponent extends AsyncHandler {
                 this._max_offset = Math.max(
                     15,
                     (this._state.getOptions().duration || 60) -
-                        this._settings.get('app.assets.end_offset')
+                        this._settings.get('app.assets.end_offset'),
                 );
                 this._updateDayOptions();
-            })
+            }),
         );
         this._updateDayOptions();
     }

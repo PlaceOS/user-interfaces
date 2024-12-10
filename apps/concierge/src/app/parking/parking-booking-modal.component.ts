@@ -73,7 +73,6 @@ import { addDays, endOfDay } from 'date-fns';
                             allow_all_day && !form.controls.duration.disabled
                         "
                         class="absolute -top-2 right-0"
-                        i18n
                     >
                         All Day
                     </mat-checkbox>
@@ -83,9 +82,7 @@ import { addDays, endOfDay } from 'date-fns';
                     *ngIf="!form.value.all_day"
                 >
                     <div class="flex-1 w-1/3">
-                        <label for="start-time" i18n
-                            >Start Time<span>*</span></label
-                        >
+                        <label for="start-time">Start Time<span>*</span></label>
                         <a-time-field
                             name="start-time"
                             [ngModel]="form.value.date"
@@ -96,9 +93,7 @@ import { addDays, endOfDay } from 'date-fns';
                         ></a-time-field>
                     </div>
                     <div class="flex-1 w-1/3 relative">
-                        <label for="end-time" i18n
-                            >End Time<span>*</span></label
-                        >
+                        <label for="end-time">End Time<span>*</span></label>
                         <a-duration-field
                             name="end-time"
                             formControlName="duration"

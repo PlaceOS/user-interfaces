@@ -12,10 +12,7 @@
                 "baseHref": "./",
                 "outputPath": "dist/apps/concierge",
                 "index": "apps/concierge/src/index.html",
-                "polyfills": [
-                    "apps/concierge/src/polyfills.ts",
-                    "@angular/localize/init"
-                ],
+                "polyfills": ["apps/concierge/src/polyfills.ts"],
                 "tsConfig": "apps/concierge/tsconfig.app.json",
                 "fileReplacements": [
                     {
@@ -120,12 +117,6 @@
                 "production": {
                     "buildTarget": "concierge:build:production"
                 }
-            }
-        },
-        "extract-i18n": {
-            "executor": "@angular-devkit/build-angular:extract-i18n",
-            "options": {
-                "buildTarget": "concierge:build"
             }
         },
         "lint": {

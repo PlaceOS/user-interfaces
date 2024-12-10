@@ -42,7 +42,6 @@ import { endOfDay } from 'date-fns';
                 name="edit-locker-filters"
                 class="flex-1 w-1/2"
                 (click)="editFilter()"
-                i18n
             >
                 Filters
             </button>
@@ -54,7 +53,6 @@ import { endOfDay } from 'date-fns';
                     class="rounded-l rounded-r-none"
                     [class.inverse]="view !== 'map'"
                     (click)="view = 'map'; viewChange.emit(view)"
-                    i18n
                 >
                     Map
                 </button>
@@ -65,7 +63,6 @@ import { endOfDay } from 'date-fns';
                     class="rounded-r rounded-l-none"
                     [class.inverse]="view !== 'list'"
                     (click)="view = 'list'; viewChange.emit(view)"
-                    i18n
                 >
                     List
                 </button>
@@ -98,7 +95,7 @@ import { endOfDay } from 'date-fns';
                 </button>
             </div>
             <div filter-item *ngIf="(options | async)?.show_fav">
-                <span i18n>Favourites Only</span>
+                <span>Favourites Only</span>
                 <button
                     icon
                     matRipple
@@ -139,7 +136,7 @@ export class LockerFiltersDisplayComponent extends AsyncHandler {
     constructor(
         private _bsheet: MatBottomSheet,
         private _state: BookingFormService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         super();
     }

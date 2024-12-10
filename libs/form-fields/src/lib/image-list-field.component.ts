@@ -51,7 +51,7 @@ export interface UploadDetails {
                 [style.transform]="'translate(-' + offset + '00%)'"
             >
                 <app-icon class="text-4xl opacity-60">add</app-icon>
-                <p class="opacity-60" i18n>Upload Image(s)</p>
+                <p class="opacity-60">Upload Image(s)</p>
                 <input
                     #file_input
                     type="file"
@@ -148,7 +148,6 @@ export interface UploadDetails {
             </mat-chip-grid>
             <input
                 placeholder="Add image via URL"
-                i18n-placeholder
                 [matChipInputFor]="chipList"
                 [matChipInputSeparatorKeyCodes]="separators"
                 [matChipInputAddOnBlur]="true"
@@ -221,7 +220,7 @@ export class ImageListFieldComponent extends AsyncHandler {
     constructor(
         private _clipboard: Clipboard,
         private _uploads: UploadsService,
-        private _dialog: MatDialog
+        private _dialog: MatDialog,
     ) {
         super();
     }
@@ -238,7 +237,7 @@ export class ImageListFieldComponent extends AsyncHandler {
                 const box = this._list_el.nativeElement.getBoundingClientRect();
                 this.view_space = Math.floor(box.width / 152);
             },
-            100
+            100,
         );
         this.subscription(
             'upload_changes',
@@ -249,11 +248,11 @@ export class ImageListFieldComponent extends AsyncHandler {
                     if (item && item.progress >= 100) {
                         this.addImageUrl(item.link);
                         this.upload_ids.next(
-                            this.upload_ids.getValue().filter((_) => _ !== id)
+                            this.upload_ids.getValue().filter((_) => _ !== id),
                         );
                     }
                 }
-            })
+            }),
         );
     }
 
@@ -295,11 +294,11 @@ export class ImageListFieldComponent extends AsyncHandler {
             /* istanbul ignore else */
             if (files.length) {
                 this.interval('update_status', () =>
-                    this._updateUploadHistory()
+                    this._updateUploadHistory(),
                 );
                 for (let i = 0; i < files.length; i++) {
                     const id = await this._uploads.uploadFileWithPermissions(
-                        files[i]
+                        files[i],
                     );
                     this.upload_ids.next([...this.upload_ids.getValue(), id]);
                     this._file_input.nativeElement.value = '';
@@ -333,7 +332,7 @@ export class ImageListFieldComponent extends AsyncHandler {
             .pipe(take(1))
             .toPromise();
         const new_list = global_list.filter((_) =>
-            list.find((i) => i === _.id)
+            list.find((i) => i === _.id),
         );
         const done_list = new_list.filter((file) => file.progress >= 100);
         this._upload_list.next(new_list);

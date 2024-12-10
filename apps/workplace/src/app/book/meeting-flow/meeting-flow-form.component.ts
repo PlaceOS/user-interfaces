@@ -369,10 +369,7 @@ import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
                             class="inverse w-full sm:w-auto"
                             (click)="clearForm()"
                         >
-                            {!!form.value.id, select,
-                                true {Reset }
-                                false {Clear }
-                            }
+                            {{ !!form.value.id ? 'Reset' : 'Clear' }}
                             {{ 'WPA.CLEAR_FORM' | translate }}
                         </button>
                     </section>

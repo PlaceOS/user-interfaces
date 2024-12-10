@@ -17,8 +17,8 @@ import { BookingFormService, BookingAsset } from '../booking-form.service';
         `,
     ],
     template: `
-        <h3 class="font-bold" i18n>Results</h3>
-        <p count class="text-sm opacity-60 mb-4" i18n>
+        <h3 class="font-bold">Results</h3>
+        <p count class="text-sm opacity-60 mb-4">
             {{ (desks | async)?.length || 0 }} result(s) found
         </p>
         <ng-container *ngIf="!(loading | async)?.length; else load_state">
@@ -126,8 +126,8 @@ export class DeskListComponent {
         this._state.available_resources,
     ]).pipe(
         map(([{ show_fav }, _]) =>
-            _.filter((i) => !show_fav || this.isFavourite(i.id))
-        )
+            _.filter((i) => !show_fav || this.isFavourite(i.id)),
+        ),
     );
     public readonly loading = this._state.loading;
 

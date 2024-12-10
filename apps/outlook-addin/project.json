@@ -12,10 +12,7 @@
                 "baseHref": "./",
                 "outputPath": "dist/apps/outlook-addin",
                 "index": "apps/outlook-addin/src/index.html",
-                "polyfills": [
-                    "apps/outlook-addin/src/polyfills.ts",
-                    "@angular/localize/init"
-                ],
+                "polyfills": ["apps/outlook-addin/src/polyfills.ts"],
                 "tsConfig": "apps/outlook-addin/tsconfig.app.json",
                 "fileReplacements": [
                     {
@@ -133,12 +130,6 @@
                 "development": {
                     "buildTarget": "outlook-addin:build:development"
                 }
-            }
-        },
-        "extract-i18n": {
-            "executor": "@angular-devkit/build-angular:extract-i18n",
-            "options": {
-                "buildTarget": "outlook-addin:build"
             }
         },
         "lint": {

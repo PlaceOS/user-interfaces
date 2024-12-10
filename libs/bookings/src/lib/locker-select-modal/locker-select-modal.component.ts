@@ -21,7 +21,7 @@ export const FAV_LOCKER_KEY = 'favourite_lockers';
                 <button icon mat-dialog-close class="bg-base-200">
                     <app-icon>close</app-icon>
                 </button>
-                <h3 i18n>Find Locker</h3>
+                <h3>Find Locker</h3>
                 <div class="hidden sm:flex items-center justify-end flex-1">
                     <button
                         btn
@@ -82,7 +82,6 @@ export const FAV_LOCKER_KEY = 'favourite_lockers';
                     class="inverse sm:hidden w-full"
                     *ngIf="displayed"
                     (click)="displayed = null"
-                    i18n
                 >
                     Back
                 </button>
@@ -93,7 +92,6 @@ export const FAV_LOCKER_KEY = 'favourite_lockers';
                     [mat-dialog-close]="selected"
                     [class.mb-2]="displayed"
                     class="w-full sm:w-32 sm:mb-0"
-                    i18n
                 >
                     View List
                 </button>
@@ -110,10 +108,10 @@ export const FAV_LOCKER_KEY = 'favourite_lockers';
                 >
                     <div class="flex items-center">
                         <app-icon class="text-xl">arrow_back</app-icon>
-                        <div class="mr-1 underline" i18n>Back to form</div>
+                        <div class="mr-1 underline">Back to form</div>
                     </div>
                 </button>
-                <p class="opacity-60 text-sm text-center" i18n>
+                <p class="opacity-60 text-sm text-center">
                     {{ selected.length }} locker(s) added
                 </p>
                 <div class="flex items-center">
@@ -141,7 +139,7 @@ export const FAV_LOCKER_KEY = 'favourite_lockers';
                             <app-icon class="text-xl">{{
                                 isSelected(displayed?.id) ? 'remove' : 'add'
                             }}</app-icon>
-                            <div class="mr-1" i18n>
+                            <div class="mr-1">
                                 {{
                                     isSelected(displayed?.id)
                                         ? 'Remove from Booking'

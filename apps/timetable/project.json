@@ -12,10 +12,7 @@
             "options": {
                 "outputPath": "dist/apps/timetable",
                 "index": "apps/timetable/src/index.html",
-                "polyfills": [
-                    "apps/timetable/src/polyfills.ts",
-                    "@angular/localize/init"
-                ],
+                "polyfills": ["apps/timetable/src/polyfills.ts"],
                 "tsConfig": "apps/timetable/tsconfig.app.json",
                 "baseHref": "./",
                 "assets": [
@@ -112,12 +109,6 @@
                 }
             },
             "defaultConfiguration": "development"
-        },
-        "extract-i18n": {
-            "executor": "@angular-devkit/build-angular:extract-i18n",
-            "options": {
-                "buildTarget": "timetable:build"
-            }
         },
         "lint": {
             "executor": "@nx/eslint:lint"

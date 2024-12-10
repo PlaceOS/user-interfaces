@@ -19,7 +19,7 @@ export const FAV_PARKING_KEY = 'favourite_parking_spaces';
                 <button icon matRipple mat-dialog-close class="bg-base-200">
                     <app-icon>close</app-icon>
                 </button>
-                <h3 i18n>Find Parking Space</h3>
+                <h3>Find Parking Space</h3>
             </header>
             <main
                 class="flex-1 flex items-center divide-x divide-base-200 min-h-[65vh] h-[65vh] sm:max-h-[65vh] sm:max-w-[95vw] w-full overflow-hidden"
@@ -67,7 +67,6 @@ export const FAV_PARKING_KEY = 'favourite_parking_spaces';
                     class="inverse sm:hidden w-full"
                     *ngIf="displayed"
                     (click)="displayed = null"
-                    i18n
                 >
                     Back
                 </button>
@@ -78,7 +77,6 @@ export const FAV_PARKING_KEY = 'favourite_parking_spaces';
                     [mat-dialog-close]="selected"
                     [class.mb-2]="displayed"
                     class="w-full sm:w-32 sm:mb-0"
-                    i18n
                 >
                     View List
                 </button>
@@ -94,10 +92,10 @@ export const FAV_PARKING_KEY = 'favourite_parking_spaces';
                 >
                     <div class="flex items-center">
                         <app-icon class="text-xl">arrow_back</app-icon>
-                        <div class="mr-1 underline" i18n>Back to form</div>
+                        <div class="mr-1 underline">Back to form</div>
                     </div>
                 </button>
-                <p class="opacity-60 text-sm" i18n>
+                <p class="opacity-60 text-sm">
                     {{ selected.length }} bay(s) added
                 </p>
                 <button
@@ -155,7 +153,7 @@ export class ParkingSpaceSelectModalComponent {
         private _data: {
             spaces: BookingAsset[];
             options: Partial<BookingFlowOptions>;
-        }
+        },
     ) {
         this.selected = [...(_data.spaces || [])];
         this._event_form.setOptions(_data.options);
@@ -183,7 +181,7 @@ export class ParkingSpaceSelectModalComponent {
         } else {
             this._settings.saveUserSetting(
                 FAV_PARKING_KEY,
-                fav_list.filter((_) => _ !== item.id)
+                fav_list.filter((_) => _ !== item.id),
             );
         }
     }

@@ -18,8 +18,8 @@ import { LockersService } from '../lockers.service';
         `,
     ],
     template: `
-        <h3 class="font-bold" i18n>Results</h3>
-        <p count class="text-sm opacity-60 mb-4" i18n>
+        <h3 class="font-bold">Results</h3>
+        <p count class="text-sm opacity-60 mb-4">
             {{ (locker_banks | async)?.length || 0 }} result(s) found
         </p>
         <ng-container *ngIf="!(loading | async)?.length; else load_state">

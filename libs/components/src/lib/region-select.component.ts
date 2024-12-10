@@ -17,7 +17,7 @@ import { OrganisationService } from '@placeos/organisation';
                     }}
                 </div>
             </div>
-            <div class="text-xs opacity-60 mb-4 px-2" i18n>Select a region</div>
+            <div class="text-xs opacity-60 mb-4 px-2">Select a region</div>
             <mat-radio-group
                 [ngModel]="(region | async)?.id"
                 class="flex flex-col space-y-2 px-2"
@@ -48,6 +48,6 @@ export class RegionSelectComponent {
 
     constructor(
         @Inject(CustomTooltipData) private _data: any,
-        private _org: OrganisationService
+        private _org: OrganisationService,
     ) {}
 }

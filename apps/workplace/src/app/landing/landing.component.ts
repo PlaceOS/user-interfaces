@@ -12,33 +12,34 @@ import { startOfMinute } from 'date-fns';
                 class="relative hidden sm:flex flex-col w-[18rem] h-full overflow-hidden bg-base-100 border-r border-base-300"
                 *ngIf="!hide_landing_sidebar"
             >
-                <div class="flex items-center divide-x divide-base-200">
+                <div class="flex items-center space-x-2 p-2">
                     <button
+                        btn
                         matRipple
-                        class="flex-1 font-medium p-2 flex items-center justify-center space-x-2"
-                        [class.border-b]="tab !== 'people'"
-                        [class.border-base-200]="tab !== 'people'"
-                        [class.bg-base-200]="tab !== 'people'"
-                        [class.bg-opacity-5]="tab !== 'people'"
+                        class="flex-1"
+                        [class.inverse]="tab !== 'people'"
                         (click)="tab = 'people'"
-                        *ngIf="!hide_colleagues"
                     >
-                        <app-icon>people</app-icon>
-                        <div>
-                            {{ 'WPA.COLLEAGUES' | uppercase | translate }}
+                        <div class="flex items-center space-x-2 capitalize">
+                            <app-icon>people</app-icon>
+                            <div class="pr-2">
+                                {{ 'WPA.COLLEAGUES' | translate }}
+                            </div>
                         </div>
                     </button>
                     <button
+                        btn
                         matRipple
-                        class="flex-1 font-medium p-2 flex items-center justify-center space-x-2"
-                        [class.border-b]="tab !== 'fav'"
-                        [class.border-base-200]="tab !== 'fav'"
-                        [class.bg-base-200]="tab !== 'fav'"
-                        [class.bg-opacity-5]="tab !== 'fav'"
+                        class="flex-1"
+                        [class.inverse]="tab !== 'fav'"
                         (click)="tab = 'fav'"
                     >
-                        <app-icon>favorite</app-icon>
-                        <div>{{ 'WPA.FAVOURITES' | translate }}</div>
+                        <div class="flex items-center space-x-2 capitalize">
+                            <app-icon>favorite</app-icon>
+                            <div class="pr-2">
+                                {{ 'WPA.FAVOURITES' | translate }}
+                            </div>
+                        </div>
                     </button>
                 </div>
                 <div class="flex-1 w-full h-1/2">
@@ -52,7 +53,7 @@ import { startOfMinute } from 'date-fns';
             </div>
             <div class="flex-1 h-full w-1/2 sm:px-4 overflow-auto z-0">
                 <header
-                    class="sticky top-0 z-50 bg-ternary px-4 sm:rounded-b flex items-center justify-between overflow-hidden"
+                    class="sticky top-0 z-50 bg-ternary px-4 mb-4 sm:rounded-b flex items-center justify-between overflow-hidden"
                 >
                     <div class="">
                         <div class="sm:text-xl font-medium">

@@ -10,7 +10,7 @@ import { addDays, endOfDay } from 'date-fns';
         <div *ngIf="form" [formGroup]="form">
             <div class="flex items-center flex-wrap sm:space-x-2">
                 <div class="flex-1 min-w-[256px]">
-                    <label for="title" i18n>Building<span>*</span></label>
+                    <label for="title">Building<span>*</span></label>
                     <mat-form-field appearance="outline" class="w-full">
                         <mat-select
                             [ngModel]="building | async"
@@ -24,13 +24,13 @@ import { addDays, endOfDay } from 'date-fns';
                                 {{ bld.display_name || bld.name }}
                             </mat-option>
                         </mat-select>
-                        <mat-error i18n>Building is required</mat-error>
+                        <mat-error>Building is required</mat-error>
                     </mat-form-field>
                 </div>
             </div>
             <div class="flex items-center flex-wrap sm:space-x-2">
                 <div class="flex-1 min-w-[256px]">
-                    <label for="title" i18n>Add Title<span>*</span></label>
+                    <label for="title">Add Title<span>*</span></label>
                     <mat-form-field appearance="outline" class="w-full">
                         <input
                             matInput
@@ -38,16 +38,15 @@ import { addDays, endOfDay } from 'date-fns';
                             formControlName="title"
                             placeholder="e.g. Team Meeting"
                         />
-                        <mat-error i18n>Meeting title is required.</mat-error>
+                        <mat-error>Meeting title is required.</mat-error>
                     </mat-form-field>
                 </div>
                 <div class="flex-1 min-w-[256px] relative">
-                    <label for="date" i18n>Date<span>*</span></label>
+                    <label for="date">Date<span>*</span></label>
                     <a-date-field
                         name="date"
                         formControlName="date"
                         [to]="end_date"
-                        i18n
                     >
                         Date and time must be in the future
                     </a-date-field>
@@ -55,7 +54,6 @@ import { addDays, endOfDay } from 'date-fns';
                         formControlName="all_day"
                         *ngIf="allow_all_day"
                         class="absolute -top-2 right-0"
-                        i18n
                     >
                         All Day
                     </mat-checkbox>
@@ -66,9 +64,7 @@ import { addDays, endOfDay } from 'date-fns';
                 *ngIf="!form.value.all_day"
             >
                 <div class="flex-1 w-1/3">
-                    <label for="start-time" i18n
-                        >Start Time<span>*</span></label
-                    >
+                    <label for="start-time">Start Time<span>*</span></label>
                     <a-time-field
                         name="start-time"
                         [ngModel]="form.value.date"
@@ -78,7 +74,7 @@ import { addDays, endOfDay } from 'date-fns';
                     ></a-time-field>
                 </div>
                 <div class="flex-1 w-1/3 relative">
-                    <label for="end-time" i18n>End Time<span>*</span></label>
+                    <label for="end-time">End Time<span>*</span></label>
                     <a-duration-field
                         name="end-time"
                         formControlName="duration"
@@ -99,7 +95,7 @@ import { addDays, endOfDay } from 'date-fns';
                 ></host-select-field>
             </div>
             <div class="flex flex-col">
-                <label for="plate-number" i18n>Plate Number</label>
+                <label for="plate-number">Plate Number</label>
                 <mat-form-field appearance="outline" class="w-full">
                     <input
                         matInput
@@ -107,7 +103,7 @@ import { addDays, endOfDay } from 'date-fns';
                         formControlName="plate_number"
                         placeholder="e.g. ABC123"
                     />
-                    <mat-error i18n>A plate number is required</mat-error>
+                    <mat-error>A plate number is required</mat-error>
                 </mat-form-field>
             </div>
         </div>

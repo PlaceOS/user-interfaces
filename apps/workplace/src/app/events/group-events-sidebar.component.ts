@@ -20,7 +20,7 @@ import { take } from 'rxjs/operators';
                 <button
                     btn
                     matRipple
-                    class="flex-1 rounded-3xl"
+                    class="flex-1"
                     [class.inverse]="(period | async) !== 'week'"
                     (click)="period.next('week')"
                 >
@@ -29,7 +29,7 @@ import { take } from 'rxjs/operators';
                 <button
                     btn
                     matRipple
-                    class="flex-1 rounded-3xl"
+                    class="flex-1"
                     [class.inverse]="(period | async) !== 'month'"
                     (click)="period.next('month')"
                 >

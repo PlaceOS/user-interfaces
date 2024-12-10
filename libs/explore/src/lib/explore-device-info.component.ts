@@ -62,10 +62,10 @@ const EMPTY = [];
                         class="break-words"
                         *ngIf="mac && !hide_fields.includes('mac')"
                     >
-                        <label i18n>MAC:</label> {{ mac }}
+                        <label>MAC:</label> {{ mac }}
                     </p>
-                    <p><label i18n>Accuracy:</label> {{ variance }}m</p>
-                    <p><label i18n>Last Seen:</label> {{ last_seen }}</p>
+                    <p><label>Accuracy:</label> {{ variance }}m</p>
+                    <p><label>Last Seen:</label> {{ last_seen }}</p>
                     <p
                         type
                         *ngIf="
@@ -73,23 +73,23 @@ const EMPTY = [];
                             !hide_fields.includes('manufacturer')
                         "
                     >
-                        <label i18n>Manufacturer:</label> {{ manufacturer }}
+                        <label>Manufacturer:</label> {{ manufacturer }}
                     </p>
                     <p os *ngIf="os && !hide_fields.includes('os')">
-                        <label i18n>OS:</label> {{ os }}
+                        <label>OS:</label> {{ os }}
                     </p>
                     <p ssid *ngIf="ssid && !hide_fields.includes('ssid')">
-                        <label i18n>SSID:</label> {{ ssid }}
+                        <label>SSID:</label> {{ ssid }}
                     </p>
                     <p
                         username
                         *ngIf="username && !hide_fields.includes('username')"
                     >
-                        <label i18n>Username:</label>
+                        <label>Username:</label>
                         {{ user?.name || user?.username || username }}
                     </p>
                     <p user *ngIf="user && !hide_fields.includes('user')">
-                        <label i18n>Type:</label> {{ user.type }}
+                        <label>Type:</label> {{ user.type }}
                     </p>
                 </div>
             </div>
@@ -160,8 +160,8 @@ export class ExploreDeviceInfoComponent extends AsyncHandler implements OnInit {
         return Math.abs(
             differenceInMinutes(
                 (this._details.last_seen || 0) * 1000,
-                new Date()
-            )
+                new Date(),
+            ),
         );
     }
 
@@ -169,14 +169,14 @@ export class ExploreDeviceInfoComponent extends AsyncHandler implements OnInit {
         return this.distance < 10
             ? '#43a047'
             : this.distance < 20
-            ? '#ffb300'
-            : '#e53935';
+              ? '#ffb300'
+              : '#e53935';
     }
 
     constructor(
         @Inject(MAP_FEATURE_DATA) private _details: DeviceInfoData,
         private _settings: SettingsService,
-        private _element: ElementRef<HTMLElement>
+        private _element: ElementRef<HTMLElement>,
     ) {
         super();
     }
@@ -195,7 +195,7 @@ export class ExploreDeviceInfoComponent extends AsyncHandler implements OnInit {
             this.x_pos = position.x >= 0.5 ? 'end' : 'start';
             this.subscription(
                 'zoom',
-                this._details.zoom$.subscribe((_) => (this.zoom = _))
+                this._details.zoom$.subscribe((_) => (this.zoom = _)),
             );
         }, 200);
     }

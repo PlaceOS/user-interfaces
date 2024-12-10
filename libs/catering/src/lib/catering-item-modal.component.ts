@@ -122,7 +122,6 @@ export interface CateringItemModalData {
                     <input
                         name="tags"
                         placeholder="Item tags e.g. Gluten Free, Vegan etc."
-                        i18n-placeholder="@@zoneTagsPlaceholder"
                         [matChipInputFor]="chipList"
                         [matChipInputSeparatorKeyCodes]="separators"
                         [matChipInputAddOnBlur]="true"

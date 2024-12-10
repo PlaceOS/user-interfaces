@@ -12,10 +12,7 @@
                 "baseHref": "./",
                 "outputPath": "dist/apps/booking-panel",
                 "index": "apps/booking-panel/src/index.html",
-                "polyfills": [
-                    "apps/booking-panel/src/polyfills.ts",
-                    "@angular/localize/init"
-                ],
+                "polyfills": ["apps/booking-panel/src/polyfills.ts"],
                 "tsConfig": "apps/booking-panel/tsconfig.app.json",
                 "fileReplacements": [
                     {
@@ -114,12 +111,6 @@
                 "production": {
                     "buildTarget": "booking-panel:build:production"
                 }
-            }
-        },
-        "extract-i18n": {
-            "executor": "@angular-devkit/build-angular:extract-i18n",
-            "options": {
-                "buildTarget": "booking-panel:build"
             }
         },
         "lint": {

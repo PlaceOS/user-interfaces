@@ -71,21 +71,23 @@ export interface BookingUIOptions {
     show_weekends?: boolean;
 }
 
-function periodFor(period, date, tz_offset) {
-    const start_fn =
+type DayOfWeek = 0 | 1 | 2 | 3 | 4 | 5 | 6;
+
+function periodFor(period, date, tz_offset = 0, week_start: DayOfWeek = 0) {
+    const start_result =
         period === 'month'
-            ? startOfMonth
+            ? startOfMonth(date)
             : period === 'week'
-              ? startOfWeek
-              : startOfDay;
-    const end_fn =
+              ? startOfWeek(date)
+              : startOfDay(date);
+    const end_result =
         period === 'month'
-            ? endOfMonth
+            ? endOfMonth(date)
             : period === 'week'
-              ? endOfWeek
-              : endOfDay;
-    const start = addMinutes(start_fn(date), tz_offset * 60);
-    const end = addMinutes(end_fn(date), tz_offset * 60);
+              ? endOfWeek(date, { weekStartsOn: week_start })
+              : endOfDay(date);
+    const start = addMinutes(start_result, tz_offset * 60);
+    const end = addMinutes(end_result, tz_offset * 60);
     return { start, end };
 }
 
@@ -129,10 +131,7 @@ export class EventsStateService extends AsyncHandler {
 
     public readonly spaces: Observable<Space[]> = combineLatest([
         this._zones,
-        this._org.active_region.pipe(
-            filter((_) => !!_),
-            distinctUntilKeyChanged('id'),
-        ),
+        this._org.active_region.pipe(distinctUntilKeyChanged('id')),
         this._org.active_building.pipe(
             filter((_) => !!_),
             distinctUntilKeyChanged('id'),
@@ -142,7 +141,7 @@ export class EventsStateService extends AsyncHandler {
         tap((_) => this.unsubWith('bind:')),
         switchMap(([zone_ids]) => {
             this._loading.next(true);
-            if (!zone_ids?.length || zone_ids[0] === this._org.region.id) {
+            if (!zone_ids?.length || zone_ids[0] === this._org.region?.id) {
                 zone_ids = (this._settings.get('app.use_region')
                     ? this._org
                           .buildingsForRegion(this._org.region)
@@ -174,7 +173,12 @@ export class EventsStateService extends AsyncHandler {
                     : null) || [this._org.building?.id];
             }
             this._loading.next(true);
-            const { start, end } = periodFor(period, date, this.tz_offset);
+            const { start, end } = periodFor(
+                period,
+                date,
+                this.tz_offset,
+                this._week_start,
+            );
             this._removed_events.next([]);
             this._added_events.next([]);
             return queryEvents({
@@ -206,7 +210,12 @@ export class EventsStateService extends AsyncHandler {
                     ),
             );
             event_list = event_list.concat(added);
-            const { start, end } = periodFor(period, date, this.tz_offset);
+            const { start, end } = periodFor(
+                period,
+                date,
+                this.tz_offset,
+                this._week_start,
+            );
             return this.filterEvents(event_list, start, end, filters, zones);
         }),
         shareReplay(1),

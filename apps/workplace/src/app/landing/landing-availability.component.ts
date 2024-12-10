@@ -22,35 +22,36 @@ import { LandingStateService } from './landing-state.service';
                 <div>{{ 'WPA.SPACES' | translate }}</div>
             </div>
             <div
-                class="w-full overflow-auto flex items-center space-x-4 px-4 py-2"
+                class="w-[calc(100%-2rem)] overflow-auto flex items-center space-x-2 mx-4 py-2 snap-x"
+                [class.mb-4]="!hide_rooms"
                 *ngIf="!hide_spaces"
             >
                 <button
                     name="landing-view-space"
                     matRipple
                     *ngFor="let lvl of levels_free | async"
-                    class="flex items-center h-24 min-w-[12.5rem] rounded-lg bg-base-100 shadow p-4 space-x-2"
+                    class="w-64 p-2 rounded shadow border border-base-200 flex items-center space-x-4 bg-base-100 snap-start"
                     [routerLink]="['/explore']"
                     [queryParams]="{ level: lvl.id }"
                 >
                     <div
-                        class="w-[4.5rem] h-[4.5rem] rounded bg-base-300 overflow-hidden flex items-center justify-center"
+                        class="min-w-[4rem] w-16 h-16 rounded bg-base-200 flex items-center justify-center overflow-hidden"
                     >
                         <img
                             auth
                             *ngIf="lvl?.images?.length; else placeholder"
                             [source]="lvl?.images[0]"
-                            class="min-h-full object-cover"
+                            class="h-full w-full object-cover object-center"
                         />
                         <ng-template #placeholder>
                             <img
-                                class="m-auto"
+                                class="h-1/2 w-1/2 object-contain object-center"
                                 src="assets/icons/desk-placeholder.svg"
                             />
                         </ng-template>
                     </div>
                     <div class="text-left">
-                        <div class="max-w-full truncate px-1.5">
+                        <div class="max-w-full truncate px-1.5 font-medium">
                             {{ lvl.display_name || lvl.name }}
                         </div>
                         <div
@@ -84,7 +85,7 @@ import { LandingStateService } from './landing-state.service';
                 ></mat-spinner>
             </div>
             <div
-                class="w-full overflow-auto flex items-center space-x-4 px-4 py-2"
+                class="w-[calc(100%-2rem)] overflow-auto flex items-center space-x-2 mx-4 py-2 snap-x"
                 *ngIf="!hide_rooms"
             >
                 <button
@@ -94,11 +95,11 @@ import { LandingStateService } from './landing-state.service';
                         let space of space_list | async;
                         trackBy: trackBySpaceId
                     "
-                    class="flex items-center h-24 min-w-[12.5rem] rounded-lg bg-base-100 shadow p-4 space-x-2"
+                    class="w-64 p-2 rounded shadow border border-base-200 flex items-center space-x-4 bg-base-100 snap-start"
                     (click)="book(space)"
                 >
                     <div
-                        class="w-[4.5rem] h-[4.5rem] rounded bg-base-300 overflow-hidden flex items-center justify-center"
+                        class="min-w-[4rem] w-16 h-16 rounded bg-base-200 flex items-center justify-center overflow-hidden"
                     >
                         <img
                             auth
@@ -107,11 +108,11 @@ import { LandingStateService } from './landing-state.service';
                                 else space_placeholder
                             "
                             [source]="(space.id | space | async)?.images[0]"
-                            class="min-h-full object-cover"
+                            class="h-full w-full object-cover object-center"
                         />
                     </div>
                     <div class="text-left">
-                        <div class="max-w-full truncate px-1.5">
+                        <div class="max-w-full truncate px-1.5 font-medium">
                             {{ space.display_name || space.name }}
                         </div>
                         <div
@@ -136,7 +137,10 @@ import { LandingStateService } from './landing-state.service';
             </div>
         </div>
         <ng-template #space_placeholder>
-            <img class="m-auto" src="assets/icons/room-placeholder.svg" />
+            <img
+                class="h-1/2 w-1/2 object-contain object-center"
+                src="assets/icons/room-placeholder.svg"
+            />
         </ng-template>
     `,
     styles: [

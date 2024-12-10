@@ -22,24 +22,9 @@ const EMPTY = [];
     selector: 'landing-favourites',
     template: `
         <div
-            class="flex items-center justify-between py-2 mx-2 border-b border-base-200"
+            class="flex items-center justify-between p-2 mx-2 bg-base-200 text-sm rounded"
         >
-            <h2 class="mx-2" i18n>
-                {{ spaces?.length || 0 }}
-                {spaces?.length, plural, =1 {Resource } other {Resources }}
-            </h2>
-            <!-- <div class="flex items-center space-x-2 text-primary">
-                <button icon
-                    class="!border !border-solid !border-primary"
-                >
-                    <app-icon>search</app-icon>
-                </button>
-                <button icon
-                    class="!border !border-solid !border-primary"
-                >
-                    <app-icon>filter_list</app-icon>
-                </button>
-            </div> -->
+            <h2>{{ spaces?.length || 0 }} Favourite(s)</h2>
         </div>
         <div
             class="flex-1 h-1/2 w-full space-y-2 overflow-auto pt-4 divide-y divide-base-200"
@@ -101,12 +86,9 @@ const EMPTY = [];
                                 <app-icon class="text-blue-500"
                                     >people</app-icon
                                 >
-                                <div i18n>
+                                <div>
+                                    Capacity
                                     {{ (item | space | async)?.capacity || 2 }}
-                                    {(item | space | async)?.capacity || 2, plural,
-                                        =1 {Person }
-                                        other {People }
-                                    }
                                 </div>
                             </div>
                         </div>
@@ -125,7 +107,7 @@ const EMPTY = [];
                         icon
                         name="favourite-more"
                         [matMenuTriggerFor]="menu"
-                        class="absolute top-2 right-0 bg-base-200 !rounded !m-0 h-12 w-12"
+                        class="absolute top-2 right-0 bg-base-200 !rounded !m-0"
                     >
                         <app-icon>more_horiz</app-icon>
                     </button>
@@ -201,7 +183,6 @@ const EMPTY = [];
                         matRipple
                         class="w-full inverse"
                         (click)="newBooking(item.type, item)"
-                        i18n
                     >
                         {{ 'WPA.BOOK' | translate }}
                     </button>

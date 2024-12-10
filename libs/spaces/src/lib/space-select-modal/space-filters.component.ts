@@ -31,7 +31,7 @@ import { Region } from '@placeos/organisation';
                     <app-icon>keyboard_arrow_left</app-icon>
                 </button>
             </div>
-            <h3 class="font-medium flex-2 text-center text-xl" i18n>
+            <h3 class="font-medium flex-2 text-center text-xl">
                 Space Filters
             </h3>
             <div class="flex-1"></div>
@@ -41,9 +41,9 @@ import { Region } from '@placeos/organisation';
             [formGroup]="form"
         >
             <section details>
-                <h2 class="text-lg font-medium mb-1" i18n>Details</h2>
+                <h2 class="text-lg font-medium mb-1">Details</h2>
                 <div class="flex-1 min-w-[8rem] flex flex-col">
-                    <label for="location" i18n>Location</label>
+                    <label for="location">Location</label>
                     <mat-form-field
                         appearance="outline"
                         class="w-full"
@@ -55,7 +55,6 @@ import { Region } from '@placeos/organisation';
                             (ngModelChange)="setRegion($event)"
                             [ngModelOptions]="{ standalone: true }"
                             placeholder="Any Region"
-                            i18n-placeholder
                         >
                             <mat-option
                                 *ngFor="let reg of regions | async"
@@ -99,7 +98,6 @@ import { Region } from '@placeos/organisation';
                             (ngModelChange)="setOptions({ zone_ids: $event })"
                             [ngModelOptions]="{ standalone: true }"
                             placeholder="Any Level"
-                            i18n-placeholder
                             [multiple]="true"
                         >
                             <mat-option
@@ -127,13 +125,12 @@ import { Region } from '@placeos/organisation';
                 </div>
                 <div class="flex items-center flex-wrap sm:space-x-2">
                     <div class="flex-1 min-w-[8rem]">
-                        <label for="date" i18n>Date<span>*</span></label>
+                        <label for="date">Date<span>*</span></label>
                         <a-date-field
                             name="date"
                             [ngModel]="form.getRawValue().date"
                             (ngModelChange)="form.patchValue({ date: $event })"
                             [ngModelOptions]="{ standalone: true }"
-                            i18n
                             [to]="end_date"
                             [short]="true"
                             [timezone]="timezone"
@@ -165,7 +162,7 @@ import { Region } from '@placeos/organisation';
                 </div>
                 <!-- All Day -->
                 <div *ngIf="allow_all_day" class="flex justify-end -mt-2 mb-2">
-                    <mat-checkbox formControlName="all_day" i18n>
+                    <mat-checkbox formControlName="all_day">
                         All Day
                     </mat-checkbox>
                 </div>
@@ -174,7 +171,7 @@ import { Region } from '@placeos/organisation';
                     *ngIf="!form.value.all_day"
                 >
                     <div class="flex-1 w-1/3">
-                        <label for="start-time" i18n>
+                        <label for="start-time">
                             Start Time<span>*</span>
                         </label>
                         <a-time-field
@@ -222,11 +219,11 @@ import { Region } from '@placeos/organisation';
                 class="space-y-2 pb-4"
                 *ngIf="!viewing_map || !(using_mapspeople | async)"
             >
-                <h2 class="text-lg font-medium" i18n>
+                <h2 class="text-lg font-medium">
                     {{ 'COMMON.FAVOURITES' | translate }}
                 </h2>
                 <div class="flex items-center">
-                    <div for="fav" class="flex-1 w-1/2" i18n>
+                    <div for="fav" class="flex-1 w-1/2">
                         {{ 'ROOMS.SHOW_FAVOURITES' | translate }}
                     </div>
                     <mat-checkbox
@@ -246,7 +243,7 @@ import { Region } from '@placeos/organisation';
                     (!viewing_map || !(using_mapspeople | async))
                 "
             >
-                <h2 class="text-lg font-medium" i18n>Facilities</h2>
+                <h2 class="text-lg font-medium">Facilities</h2>
                 <ng-container *ngFor="let feat of features | async">
                     <div
                         class="flex items-center"
@@ -277,7 +274,6 @@ import { Region } from '@placeos/organisation';
                 class="w-full"
                 name="apply-space-filters"
                 (click)="close()"
-                i18n
             >
                 Apply Filters
             </button>

@@ -10,7 +10,7 @@ import { COMMA, ENTER } from '@angular/cdk/keycodes';
  */
 export function addChipItem<T = string>(
     control: FormControl<T[]>,
-    event: MatChipInputEvent
+    event: MatChipInputEvent,
 ): void {
     if (!control) return;
     const input = event.input;
@@ -43,7 +43,7 @@ export function addChipItem<T = string>(
  */
 export function removeChipItem<T = string>(
     control: FormControl<T[]>,
-    item: T
+    item: T,
 ): void {
     if (!control) {
         return;
@@ -74,7 +74,6 @@ export function removeChipItem<T = string>(
             </mat-chip-grid>
             <input
                 [placeholder]="placeholder || 'User groups...'"
-                i18n-placeholder="@@userGroupsPlaceholder"
                 [matChipInputFor]="chipList"
                 [matChipInputSeparatorKeyCodes]="separators"
                 [matChipInputAddOnBlur]="true"
@@ -110,14 +109,14 @@ export class ItemListFieldComponent<T = any> implements ControlValueAccessor {
     public readonly add = (e: MatChipInputEvent) =>
         addChipItem(
             { value: this.value, setValue: (i) => this.setValue(i) } as any,
-            e
+            e,
         );
 
     /** Remove the `step` from the current value */
     public readonly remove = (item: T) =>
         removeChipItem(
             { value: this.value, setValue: (i) => this.setValue(i) } as any,
-            item
+            item,
         );
 
     /**

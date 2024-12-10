@@ -80,7 +80,6 @@ const SYS_ID_KEY = 'PLACEOS.ASSISTANT.system';
                     class="w-32"
                     [disabled]="!system_id$.getValue()"
                     (click)="bootstrap()"
-                    i18n
                 >
                     {{ 'COMMON.CONTINUE' | translate }}
                 </button>

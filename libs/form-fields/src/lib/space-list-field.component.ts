@@ -17,7 +17,7 @@ const EMPTY_FAVS: string[] = [];
         <div>
             <div class="flex items-center flex-wrap sm:space-x-2 mb-2">
                 <div class="flex-1 min-w-[256px] space-y-2">
-                    <label i18n>Select Room Size<span>*</span></label>
+                    <label>Select Room Size<span>*</span></label>
                     <div class="flex items-center">
                         <mat-radio-group
                             aria-label="Select Room Size"
@@ -25,13 +25,13 @@ const EMPTY_FAVS: string[] = [];
                             [(ngModel)]="room_size"
                             [ngModelOptions]="{ standalone: true }"
                         >
-                            <mat-radio-button [value]="1" i18n>
+                            <mat-radio-button [value]="1">
                                 Min. 2 People
                             </mat-radio-button>
-                            <mat-radio-button [value]="4" i18n>
+                            <mat-radio-button [value]="4">
                                 Min. 4 People
                             </mat-radio-button>
-                            <mat-radio-button [value]="10" i18n>
+                            <mat-radio-button [value]="10">
                                 Min. 10 People
                             </mat-radio-button>
                         </mat-radio-group>
@@ -79,10 +79,9 @@ const EMPTY_FAVS: string[] = [];
                     </div>
                     <div class="flex items-center text-sm space-x-2">
                         <app-icon class="text-blue-500">people</app-icon>
-                        <p i18n>
-                            {{ space.capacity < 1 ? 2 : space.capacity }} {
-                            space.capacity, plural, =1 { Person } other { People
-                            } }
+                        <p>
+                            {{ space.capacity < 1 ? 2 : space.capacity }}
+                            Person(s)
                         </p>
                     </div>
                     <div
@@ -95,7 +94,7 @@ const EMPTY_FAVS: string[] = [];
                             class="clear"
                             (click)="changeSpaces(space)"
                         >
-                            <div class="flex items-center space-x-2" i18n>
+                            <div class="flex items-center space-x-2">
                                 <app-icon>edit</app-icon>
                                 Change
                             </div>
@@ -107,7 +106,7 @@ const EMPTY_FAVS: string[] = [];
                             class="clear"
                             (click)="removeSpace(space)"
                         >
-                            <div class="flex items-center space-x-2" i18n>
+                            <div class="flex items-center space-x-2">
                                 <app-icon>close</app-icon>
                                 Remove
                             </div>
@@ -139,7 +138,7 @@ const EMPTY_FAVS: string[] = [];
         >
             <div class="flex items-center justify-center space-x-2">
                 <app-icon>search</app-icon>
-                <span i18n>Add Space</span>
+                <span>Add Space</span>
             </div>
         </button>
     `,
@@ -170,7 +169,7 @@ export class SpaceListFieldComponent implements ControlValueAccessor {
     constructor(
         private _settings: SettingsService,
         private _org: OrganisationService,
-        private _dialog: MatDialog
+        private _dialog: MatDialog,
     ) {}
 
     public ngOnDestroy() {
@@ -239,7 +238,7 @@ export class SpaceListFieldComponent implements ControlValueAccessor {
         } else {
             this._settings.saveUserSetting(
                 'favourite_spaces',
-                fav_list.filter((_) => _ !== space.id)
+                fav_list.filter((_) => _ !== space.id),
             );
         }
     }

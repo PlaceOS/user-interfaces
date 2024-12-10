@@ -125,15 +125,23 @@ export class EventFormService extends AsyncHandler {
         switchMap((list) =>
             Promise.all(
                 list.map((bld) =>
-                    showMetadata(bld.id, 'room_booking_rules').toPromise(),
+                    showMetadata(bld.id, 'room_booking_rules')
+                        .pipe(
+                            catchError(() => of({ details: [] })),
+                            map((_) => ({
+                                id: bld.id,
+                                details:
+                                    _.details instanceof Array ? _.details : [],
+                            })),
+                        )
+                        .toPromise(),
                 ),
             ),
         ),
         map((building_rules) => {
             const mapping = {};
             for (const rules of building_rules) {
-                mapping[rules.id] =
-                    rules.details instanceof Array ? rules.details : [];
+                mapping[rules.id] = rules.details;
             }
             return mapping;
         }),
@@ -142,10 +150,7 @@ export class EventFormService extends AsyncHandler {
 
     public readonly spaces: Observable<Space[]> = combineLatest([
         this._options.pipe(distinctUntilKeyChanged('zone_ids')),
-        this._org.active_region.pipe(
-            filter((_) => !!_),
-            distinctUntilKeyChanged('id'),
-        ),
+        this._org.active_region.pipe(distinctUntilKeyChanged('id')),
         this._org.active_building.pipe(
             filter((_) => !!_),
             distinctUntilKeyChanged('id'),

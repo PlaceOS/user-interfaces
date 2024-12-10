@@ -25,7 +25,6 @@ import { BookLockerFlowConfirmComponent } from './locker-flow-confirm.component'
             >
                 <h2
                     class="w-full p-4 sm:py-4 sm:px-16 text-2xl font-medium border-b border-base-200"
-                    i18n
                 >
                     Book Locker
                 </h2>
@@ -43,7 +42,6 @@ import { BookLockerFlowConfirmComponent } from './locker-flow-confirm.component'
                         confirm
                         class="w-full sm:w-auto"
                         (click)="viewConfirm()"
-                        i18n
                     >
                         Confirm Locker
                     </button>
@@ -70,11 +68,11 @@ export class BookLockerFlowFormComponent implements OnInit {
         if (!this.form.valid)
             return notifyError(
                 `Some fields are invalid. [${getInvalidFields(this.form).join(
-                    ', '
-                )}]`
+                    ', ',
+                )}]`,
             );
         this.sheet_ref = this._bottom_sheet.open(
-            BookLockerFlowConfirmComponent
+            BookLockerFlowConfirmComponent,
         );
         this.sheet_ref.instance.show_close = true;
         this.sheet_ref.afterDismissed().subscribe((value) => {
@@ -90,7 +88,7 @@ export class BookLockerFlowFormComponent implements OnInit {
         private _router: Router,
         private _org: OrganisationService,
         private _bottom_sheet: MatBottomSheet,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {}
 
     public async ngOnInit() {

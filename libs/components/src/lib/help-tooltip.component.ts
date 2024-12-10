@@ -11,7 +11,7 @@ import { CustomTooltipData } from '@placeos/components';
         >
             <div class="flex items-center space-x-2 p-2 border-b">
                 <app-icon class="text-2xl">arrow_back</app-icon>
-                <div class="" i18n>Help & Support</div>
+                <div class="">Help & Support</div>
             </div>
             <a
                 btn
@@ -55,6 +55,6 @@ export class HelpTooltipComponent {
 
     constructor(
         @Inject(CustomTooltipData) private _data: any,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {}
 }

@@ -36,7 +36,7 @@ import { map } from 'rxjs/operators';
             >
                 <app-icon>close</app-icon>
             </button>
-            <h2 class="text-xl font-medium" i18n>Confirm Meeting booking</h2>
+            <h2 class="text-xl font-medium">Confirm Meeting booking</h2>
             <mat-spinner
                 diameter="32"
                 class="absolute right-2 top-1/2 -translate-y-1/2"
@@ -86,7 +86,7 @@ import { map } from 'rxjs/operators';
                     >
                         <app-icon>done</app-icon>
                     </div>
-                    <h3 class="text-xl !mt-0" i18n>Booked Room</h3>
+                    <h3 class="text-xl !mt-0">Booked Room</h3>
                     <ng-container *ngFor="let s of event.resources">
                         <div class="flex items-center space-x-2">
                             <app-icon class="text-2xl">layers</app-icon>
@@ -111,12 +111,8 @@ import { map } from 'rxjs/operators';
                 >
                     <app-icon>done</app-icon>
                 </div>
-                <h3 class="text-xl !mt-0" i18n>
-                    {{ event.attendees.length }}
-                    {event.attendees.length, plural,
-                        =1 {Attendee }
-                        other {Attendees }
-                    }
+                <h3 class="text-xl !mt-0">
+                    {{ event.attendees.length }} Attendee(s)
                 </h3>
                 <div attendee-list>
                     <mat-chip-list #chipList aria-label="User selection">
@@ -142,7 +138,7 @@ import { map } from 'rxjs/operators';
                     >
                         <app-icon>done</app-icon>
                     </div>
-                    <h3 class="text-xl !mt-0" i18n>Catering</h3>
+                    <h3 class="text-xl !mt-0">Catering</h3>
                     <div class="flex flex-col space-y-2">
                         <div
                             order
@@ -248,7 +244,7 @@ import { map } from 'rxjs/operators';
                             has_conflict ? 'close' : 'done'
                         }}</app-icon>
                     </div>
-                    <h3 class="text-xl !mt-0" i18n>Assets</h3>
+                    <h3 class="text-xl !mt-0">Assets</h3>
                     <div
                         request
                         *ngFor="let request of assets"
@@ -311,7 +307,7 @@ import { map } from 'rxjs/operators';
                 >
                     <app-icon>done</app-icon>
                 </div>
-                <h3 class="text-xl !mt-0" i18n>Notes</h3>
+                <h3 class="text-xl !mt-0">Notes</h3>
                 <div [innerHTML]="event.body | sanitize"></div>
             </div>
         </main>
@@ -325,7 +321,6 @@ import { map } from 'rxjs/operators';
                 matRipple
                 class="w-32"
                 (click)="postForm()"
-                i18n
             >
                 Confirm
             </button>
@@ -335,7 +330,7 @@ import { map } from 'rxjs/operators';
                 class="inverse w-32"
                 *ngIf="loading | async"
                 (click)="cancelPost()"
-                i18n
+               
             >
                 Undo
             </button> -->

@@ -41,7 +41,7 @@ import { OrganisationService } from '@placeos/organisation';
                     </a>
                 </div>
                 <div class="p-4">
-                    <label for="name" i18n>
+                    <label for="name">
                         {{ 'VISITOR_KIOSK.NAME' | translate }}</label
                     >
                     <mat-form-field appearance="outline" class="w-full">
@@ -53,7 +53,7 @@ import { OrganisationService } from '@placeos/organisation';
                         />
                         <mat-error>A valid email is required</mat-error>
                     </mat-form-field>
-                    <label for="email" i18n>
+                    <label for="email">
                         {{ 'VISITOR_KIOSK.EMAIL' | translate }}</label
                     >
                     <mat-form-field appearance="outline" class="w-full">
@@ -65,7 +65,7 @@ import { OrganisationService } from '@placeos/organisation';
                         />
                         <mat-error>A valid email is required</mat-error>
                     </mat-form-field>
-                    <label for="user" i18n>Host</label>
+                    <label for="user">Host</label>
                     <a-user-search-field
                         formControlName="user"
                         class="mb-4"

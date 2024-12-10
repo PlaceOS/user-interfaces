@@ -105,7 +105,7 @@ const EMPTY_ACTIONS = [];
                                         ? 'arrow_back'
                                         : 'done'
                                 }}</app-icon>
-                                <div class="pr-4" i18n>
+                                <div class="pr-4">
                                     {{
                                         room_status === 'pending'
                                             ? 'Check in'
@@ -130,9 +130,7 @@ const EMPTY_ACTIONS = [];
                 <div
                     class="sm:p-4 sm:bg-base-100 rounded sm:m-2 sm:border border-base-200 flex-grow-[3] min-w-1/3 sm:w-[16rem] space-y-2"
                 >
-                    <h3 class="px-3 mt-2 text-lg font-medium mb-2" i18n>
-                        Details
-                    </h3>
+                    <h3 class="px-3 mt-2 text-lg font-medium mb-2">Details</h3>
                     <div class="flex items-center px-2 space-x-2">
                         <app-icon>event</app-icon>
                         <div class="flex flex-col leading-tight">
@@ -192,13 +190,12 @@ const EMPTY_ACTIONS = [];
                     <div
                         class="mx-3 border-t border-base-200 sm:border-none flex items-center justify-between"
                     >
-                        <h3 class="text-lg font-medium" i18n>Attendees</h3>
+                        <h3 class="text-lg font-medium">Attendees</h3>
                         <button
                             matRipple
                             show-attendees
                             class="clear text-xs underline print:hidden"
                             (click)="show_attendees = true"
-                            i18n
                         >
                             See All
                         </button>
@@ -208,19 +205,19 @@ const EMPTY_ACTIONS = [];
                             class="flex flex-col flex-1 items-center justify-center space-y-1"
                         >
                             <div class="text-lg">{{ accept_count || 0 }}</div>
-                            <div class="text-sm uppercase" i18n>Yes</div>
+                            <div class="text-sm uppercase">Yes</div>
                         </div>
                         <div
                             class="flex flex-col flex-1 items-center justify-center space-y-1"
                         >
                             <div class="text-lg">{{ declined_count || 0 }}</div>
-                            <div class="text-sm uppercase" i18n>No</div>
+                            <div class="text-sm uppercase">No</div>
                         </div>
                         <div
                             class="flex flex-col flex-1 items-center justify-center space-y-1"
                         >
                             <div class="text-lg">{{ pending_count || 0 }}</div>
-                            <div class="text-sm uppercase" i18n>Pending</div>
+                            <div class="text-sm uppercase">Pending</div>
                         </div>
                     </div>
                     <div class="hidden print:block">
@@ -247,7 +244,6 @@ const EMPTY_ACTIONS = [];
                     </div>
                     <h3
                         class="mx-3 mt-2 pt-2 text-lg font-medium border-t border-base-200"
-                        i18n
                     >
                         Host
                     </h3>
@@ -270,9 +266,7 @@ const EMPTY_ACTIONS = [];
                     <div
                         class="mt-4 sm:p-4 sm:bg-base-100 rounded sm:m-2 sm:border border-base-200 flex-grow-[3] min-w-1/3 sm:w-[16rem]"
                     >
-                        <h3 class="mx-3 my-2 text-lg font-medium" i18n>
-                            Catering
-                        </h3>
+                        <h3 class="mx-3 my-2 text-lg font-medium">Catering</h3>
                         <div class="flex flex-col space-y-2">
                             <div
                                 order
@@ -405,7 +399,6 @@ const EMPTY_ACTIONS = [];
                 >
                     <h3
                         class="mx-3 text-lg font-medium border-t sm:border-none border-base-200"
-                        i18n
                     >
                         Notes
                     </h3>
@@ -423,7 +416,7 @@ const EMPTY_ACTIONS = [];
                     <div
                         class="mt-4 sm:p-4 sm:bg-base-100 rounded sm:m-2 sm:border border-base-200 flex-grow-[3] min-w-1/3 sm:w-[16rem]"
                     >
-                        <h3 class="mx-3 pt-2 text-lg font-medium" i18n>
+                        <h3 class="mx-3 pt-2 text-lg font-medium">
                             Assets ({{ event.valid_assets?.length || 0 }})
                         </h3>
                         <div class="flex flex-col space-y-2">
@@ -555,13 +548,13 @@ const EMPTY_ACTIONS = [];
                 >
                     <div class="flex items-center space-x-2 text-base pr-2">
                         <app-icon class="text-2xl">edit</app-icon>
-                        <div i18n>Edit event</div>
+                        <div>Edit event</div>
                     </div>
                 </button>
                 <button mat-menu-item (click)="remove.emit()">
                     <div class="flex items-center space-x-2 text-base pr-2">
                         <app-icon class="text-2xl text-error">delete</app-icon>
-                        <div i18n>Delete event</div>
+                        <div>Delete event</div>
                     </div>
                 </button>
                 <button
@@ -571,7 +564,7 @@ const EMPTY_ACTIONS = [];
                 >
                     <div class="flex items-center space-x-2 text-base pr-2">
                         <app-icon class="text-2xl">print</app-icon>
-                        <div i18n>Print event</div>
+                        <div>Print event</div>
                     </div>
                 </button>
                 <button
@@ -581,7 +574,7 @@ const EMPTY_ACTIONS = [];
                 >
                     <div class="flex items-center space-x-2 text-base pr-2">
                         <app-icon class="text-2xl text-error">delete</app-icon>
-                        <div i18n>Delete Series</div>
+                        <div>Delete Series</div>
                     </div>
                 </button>
                 <button
@@ -591,7 +584,7 @@ const EMPTY_ACTIONS = [];
                 >
                     <div class="flex items-center space-x-2 text-base pr-2">
                         <app-icon class="text-2xl">{{ act.icon }}</app-icon>
-                        <div i18n>{{ act.name }}</div>
+                        <div>{{ act.name }}</div>
                     </div>
                 </button>
             </mat-menu>

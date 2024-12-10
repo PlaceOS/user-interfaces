@@ -20,7 +20,7 @@ export interface DeskConfirmModalData {
     selector: 'desk-flow-confirm-modal-component',
     template: `
         <header>
-            <h2 i18n>Confirm Booking</h2>
+            <h2>Confirm Booking</h2>
             <div class="flex-1"></div>
             <button icon mat-dialog-close *ngIf="!loading">
                 <i class="material-icons">close</i>
@@ -29,14 +29,14 @@ export interface DeskConfirmModalData {
         <ng-container *ngIf="!loading; else load_state">
             <main class="p-4">
                 <div host class="flex flex-col" *ngIf="can_set_host">
-                    <label i18n>Host</label>
+                    <label>Host</label>
                     <a-user-search-field
                         [(ngModel)]="host"
                         class="mb-4"
                     ></a-user-search-field>
                 </div>
                 <div date class="mb-4">
-                    <label i18n>Date</label>
+                    <label>Date</label>
                     <div *ngIf="!can_set_date">
                         {{ date | date: 'mediumDate' }}
                     </div>
@@ -46,7 +46,7 @@ export interface DeskConfirmModalData {
                     ></a-date-field>
                 </div>
                 <div reason class="flex flex-col mb-4" *ngIf="!hide_reason">
-                    <label i18n>Reason</label>
+                    <label>Reason</label>
                     <mat-form-field appearance="outline">
                         <input
                             matInput
@@ -55,14 +55,14 @@ export interface DeskConfirmModalData {
                         />
                     </mat-form-field>
                 </div>
-                <p i18n>
+                <p>
                     Your desk{{ desks.length === 1 ? '' : 's' }} will be
                     {{ desk_list }} on
                     {{ level?.display_name || level?.name }}
                 </p>
             </main>
             <footer class="flex items-center justify-center p-2">
-                <button btn matRipple (click)="confirm()" i18n>Confirm</button>
+                <button btn matRipple (click)="confirm()">Confirm</button>
             </footer>
         </ng-container>
         <ng-template #load_state>
@@ -111,7 +111,7 @@ export class DeskConfirmModalComponent {
 
     constructor(
         @Inject(MAT_DIALOG_DATA) private _data: DeskConfirmModalData,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {}
 
     public confirm() {

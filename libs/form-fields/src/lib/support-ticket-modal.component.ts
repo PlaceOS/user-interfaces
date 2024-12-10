@@ -19,7 +19,7 @@ export interface SupportRequestType {
     selector: 'support-ticket-modal',
     template: `
         <header class="flex items-center justify-between">
-            <h2 i18n>Raise a support ticket</h2>
+            <h2>Raise a support ticket</h2>
             <button icon mat-dialog-close>
                 <app-icon>close</app-icon>
             </button>
@@ -28,30 +28,30 @@ export interface SupportRequestType {
             <form class="p-2" [formGroup]="form">
                 <div class="flex items-center sm:space-x-2 flex-wrap">
                     <div class="flex flex-col flex-1">
-                        <label i18n>Name<span>*</span></label>
+                        <label>Name<span>*</span></label>
                         <mat-form-field appearance="outline">
                             <input
                                 matInput
                                 placeholder="Name"
                                 formControlName="name"
                             />
-                            <mat-error i18n>Name is required</mat-error>
+                            <mat-error>Name is required</mat-error>
                         </mat-form-field>
                     </div>
                     <div class="flex flex-col flex-1">
-                        <label i18n>Email<span>*</span></label>
+                        <label>Email<span>*</span></label>
                         <mat-form-field appearance="outline">
                             <input
                                 matInput
                                 placeholder="Email"
                                 formControlName="email"
                             />
-                            <mat-error i18n>Email is required</mat-error>
+                            <mat-error>Email is required</mat-error>
                         </mat-form-field>
                     </div>
                 </div>
                 <div class="flex flex-col">
-                    <label i18n>Location</label>
+                    <label>Location</label>
                     <mat-form-field appearance="outline" class="w-full">
                         <mat-select
                             placeholder="Location"
@@ -70,7 +70,7 @@ export interface SupportRequestType {
                     class="flex flex-col"
                     *ngIf="support_request_types?.length"
                 >
-                    <label i18n>Issue Type</label>
+                    <label>Issue Type</label>
                     <mat-form-field appearance="outline" class="w-full">
                         <mat-select
                             placeholder="Issue Type"
@@ -86,25 +86,25 @@ export interface SupportRequestType {
                     </mat-form-field>
                 </div>
                 <div>
-                    <label class="mb-4" i18n>
+                    <label class="mb-4">
                         Issue Description<span>*</span>
                     </label>
                     <rich-text-input
                         placeholder="Issue Description"
                         formControlName="description"
                     ></rich-text-input>
-                    <mat-error class="text-xs my-2" *ngIf="desc_error" i18n>
+                    <mat-error class="text-xs my-2" *ngIf="desc_error">
                         Description is required
                     </mat-error>
                 </div>
                 <div *ngIf="allow_images">
-                    <label class="mb-4" i18n>Images</label>
+                    <label class="mb-4">Images</label>
                     <image-list-field
                         formControlName="images"
                     ></image-list-field>
                 </div>
             </form>
-            <div class="italic text-center text-xs mb-2" i18n>
+            <div class="italic text-center text-xs mb-2">
                 Completing this form will raise an incident in your support
                 management platform
             </div>
@@ -113,7 +113,7 @@ export interface SupportRequestType {
             class="p-2 border-t border-base-200 flex items-center justify-center"
             *ngIf="!loading"
         >
-            <button btn matRipple class="w-32" (click)="submit()" i18n>
+            <button btn matRipple class="w-32" (click)="submit()">
                 Submit
             </button>
         </footer>

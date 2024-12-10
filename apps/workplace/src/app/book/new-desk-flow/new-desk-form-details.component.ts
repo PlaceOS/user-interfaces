@@ -37,7 +37,7 @@ import { addDays, endOfDay, getUnixTime, set } from 'date-fns';
                     (click)="setOptions({ group: false, members: [] })"
                 >
                     <app-icon class="text-2xl">person</app-icon>
-                    <div class="" i18n>Single</div>
+                    <div class="">Single</div>
                     <div
                         class="absolute h-1 inset-x-0 bottom-0 !m-0"
                         [class.bg-base-200]="(options | async)?.group"
@@ -51,7 +51,7 @@ import { addDays, endOfDay, getUnixTime, set } from 'date-fns';
                     (click)="setOptions({ group: true })"
                 >
                     <app-icon class="text-2xl">group_add</app-icon>
-                    <div class="" i18n>Group</div>
+                    <div class="">Group</div>
                     <div
                         class="absolute h-1 inset-x-0 bottom-0 !m-0"
                         [class.bg-base-200]="!(options | async)?.group"
@@ -66,7 +66,7 @@ import { addDays, endOfDay, getUnixTime, set } from 'date-fns';
                     >
                         1
                     </div>
-                    <div class="text-xl" i18n>Details</div>
+                    <div class="text-xl">Details</div>
                 </h3>
                 <div
                     class="w-full"
@@ -88,19 +88,16 @@ import { addDays, endOfDay, getUnixTime, set } from 'date-fns';
                                 formControlName="title"
                                 placeholder="e.g. Focus Time"
                             />
-                            <mat-error i18n
-                                >Booking title is required.</mat-error
-                            >
+                            <mat-error>Booking title is required.</mat-error>
                         </mat-form-field>
                     </div>
                     <div class="flex-1 min-w-[256px] relative">
-                        <label for="date" i18n>Date<span>*</span></label>
+                        <label for="date">Date<span>*</span></label>
                         <a-date-field
                             name="date"
                             formControlName="date"
                             [to]="end_date"
                             [timezone]="timezone"
-                            i18n
                         >
                             Date and time must be in the future
                         </a-date-field>
@@ -108,7 +105,6 @@ import { addDays, endOfDay, getUnixTime, set } from 'date-fns';
                             formControlName="all_day"
                             *ngIf="allow_all_day"
                             class="absolute -top-2 right-0"
-                            i18n
                         >
                             All Day
                         </mat-checkbox>
@@ -119,7 +115,7 @@ import { addDays, endOfDay, getUnixTime, set } from 'date-fns';
                     *ngIf="!form.value.all_day"
                 >
                     <div class="flex-1 w-1/3">
-                        <label for="start-time" i18n>
+                        <label for="start-time">
                             Start Time<span>*</span>
                         </label>
                         <a-time-field
@@ -132,9 +128,7 @@ import { addDays, endOfDay, getUnixTime, set } from 'date-fns';
                         ></a-time-field>
                     </div>
                     <div class="flex-1 w-1/3">
-                        <label for="end-time" i18n>
-                            End Time<span>*</span>
-                        </label>
+                        <label for="end-time"> End Time<span>*</span> </label>
                         <a-duration-field
                             name="end-time"
                             formControlName="duration"
@@ -179,7 +173,6 @@ import { addDays, endOfDay, getUnixTime, set } from 'date-fns';
                                 })
                             "
                             [ngModelOptions]="{ standalone: true }"
-                            i18n
                         >
                             Require locker
                         </mat-checkbox>
@@ -193,7 +186,7 @@ import { addDays, endOfDay, getUnixTime, set } from 'date-fns';
                     >
                         2
                     </div>
-                    <div class="text-xl" i18n>Group Members</div>
+                    <div class="text-xl">Group Members</div>
                     <div class="flex-1 w-px"></div>
                 </h3>
                 <div class="overflow-hidden">
@@ -212,7 +205,7 @@ import { addDays, endOfDay, getUnixTime, set } from 'date-fns';
                     >
                         {{ (options | async)?.group ? 3 : 2 }}
                     </div>
-                    <div class="text-xl" i18n>Desk</div>
+                    <div class="text-xl">Desk</div>
                 </h3>
                 <desk-list-field formControlName="resources"></desk-list-field>
                 <p
@@ -230,7 +223,7 @@ import { addDays, endOfDay, getUnixTime, set } from 'date-fns';
                     >
                         {{ (options | async)?.group ? 4 : 3 }}
                     </div>
-                    <div class="text-xl" i18n>Request Asset</div>
+                    <div class="text-xl">Request Asset</div>
                 </h3>
                 <asset-list-field
                     [options]="{

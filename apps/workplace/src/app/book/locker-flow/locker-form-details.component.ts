@@ -26,11 +26,11 @@ import { OrganisationService } from '@placeos/organisation';
                     >
                         1
                     </div>
-                    <div class="text-xl" i18n>Details</div>
+                    <div class="text-xl">Details</div>
                 </h3>
                 <div class="flex items-center flex-wrap sm:space-x-2">
                     <div class="flex-1 min-w-[256px]">
-                        <label for="date" i18n>Building<span>*</span></label>
+                        <label for="date">Building<span>*</span></label>
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
                                 [(ngModel)]="building"
@@ -47,15 +47,15 @@ import { OrganisationService } from '@placeos/organisation';
                         </mat-form-field>
                     </div>
                     <div class="flex-1 min-w-[256px]">
-                        <label for="date" i18n>Date<span>*</span></label>
-                        <a-date-field name="date" formControlName="date" i18n>
+                        <label for="date">Date<span>*</span></label>
+                        <a-date-field name="date" formControlName="date">
                             Date and time must be in the future
                         </a-date-field>
                     </div>
                 </div>
                 <div class="flex items-center space-x-2">
                     <div class="flex-1 w-1/3">
-                        <label for="start-time" i18n>
+                        <label for="start-time">
                             Start Time<span>*</span>
                         </label>
                         <a-time-field
@@ -68,9 +68,7 @@ import { OrganisationService } from '@placeos/organisation';
                         ></a-time-field>
                     </div>
                     <div class="flex-1 w-1/3 relative">
-                        <label for="end-time" i18n>
-                            End Time<span>*</span>
-                        </label>
+                        <label for="end-time"> End Time<span>*</span> </label>
                         <a-duration-field
                             name="end-time"
                             formControlName="duration"
@@ -92,7 +90,7 @@ import { OrganisationService } from '@placeos/organisation';
                     >
                         {{ (options | async)?.group ? 3 : 2 }}
                     </div>
-                    <div class="text-xl" i18n>Locker</div>
+                    <div class="text-xl">Locker</div>
                 </h3>
                 <locker-list-field
                     formControlName="resources"

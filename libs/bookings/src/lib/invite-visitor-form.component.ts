@@ -25,7 +25,7 @@ import { User } from 'libs/users/src/lib/user.class';
                 *ngIf="!(loading | async) && !loading_many; else load_state"
             >
                 <div class="w-full border-b border-base-200 sm:px-16 px-4 py-4">
-                    <h2 class="text-2xl font-medium" i18n>Invite Visitor</h2>
+                    <h2 class="text-2xl font-medium">Invite Visitor</h2>
                 </div>
                 <form
                     *ngIf="form"
@@ -33,9 +33,7 @@ import { User } from 'libs/users/src/lib/user.class';
                     class="sm:px-16 px-4 py-4"
                 >
                     <div class="flex flex-col" *ngIf="buildings?.length > 1">
-                        <label for="building" i18n>
-                            Building<span>*</span>
-                        </label>
+                        <label for="building"> Building<span>*</span> </label>
                         <mat-form-field appearance="outline">
                             <mat-select
                                 [ngModel]="form.value.zones[0]"
@@ -45,7 +43,6 @@ import { User } from 'libs/users/src/lib/user.class';
                                 [ngModelOptions]="{ standalone: true }"
                                 name="building"
                                 placeholder="Select building"
-                                i18n-placeholder
                             >
                                 <mat-option
                                     *ngFor="let bld of buildings | async"
@@ -57,7 +54,7 @@ import { User } from 'libs/users/src/lib/user.class';
                         </mat-form-field>
                     </div>
                     <div class="flex flex-col">
-                        <label for="date" i18n>Date<span>*</span></label>
+                        <label for="date">Date<span>*</span></label>
                         <a-date-field
                             name="date"
                             formControlName="date"
@@ -65,7 +62,7 @@ import { User } from 'libs/users/src/lib/user.class';
                     </div>
                     <div class="flex items-center space-x-2">
                         <div class="flex-1 flex flex-col w-1/3">
-                            <label for="start-time" i18n>
+                            <label for="start-time">
                                 Start Time<span>*</span>
                             </label>
                             <a-time-field
@@ -80,9 +77,7 @@ import { User } from 'libs/users/src/lib/user.class';
                             ></a-time-field>
                         </div>
                         <div class="flex-1 flex flex-col w-1/3">
-                            <label for="end-time" i18n
-                                >End Time<span>*</span></label
-                            >
+                            <label for="end-time">End Time<span>*</span></label>
                             <a-duration-field
                                 name="end-time"
                                 formControlName="duration"
@@ -106,7 +101,7 @@ import { User } from 'libs/users/src/lib/user.class';
                     </div>
                     <ng-container *ngIf="!multiple; else multi_state">
                         <div class="flex flex-col">
-                            <label for="visitor-name" i18n
+                            <label for="visitor-name"
                                 >Visitor Name<span>*</span></label
                             >
                             <mat-form-field appearance="outline">
@@ -142,7 +137,7 @@ import { User } from 'libs/users/src/lib/user.class';
                             </mat-autocomplete>
                         </div>
                         <div class="flex flex-col">
-                            <label for="visitor-email" i18n>
+                            <label for="visitor-email">
                                 Visitor Email<span>*</span>
                             </label>
                             <mat-form-field appearance="outline">
@@ -157,7 +152,7 @@ import { User } from 'libs/users/src/lib/user.class';
                                     "
                                     [matAutocomplete]="email_auto"
                                 />
-                                <mat-error i18n>
+                                <mat-error>
                                     A valid email is required
                                 </mat-error>
                             </mat-form-field>
@@ -182,7 +177,7 @@ import { User } from 'libs/users/src/lib/user.class';
                             </mat-autocomplete>
                         </div>
                         <div class="flex flex-col">
-                            <label for="visitor-name" i18n>Company</label>
+                            <label for="visitor-name">Company</label>
                             <mat-form-field appearance="outline">
                                 <input
                                     matInput
@@ -194,7 +189,7 @@ import { User } from 'libs/users/src/lib/user.class';
                         </div>
                     </ng-container>
                     <div class="flex flex-col">
-                        <label for="reason" i18n>Reason for visit</label>
+                        <label for="reason">Reason for visit</label>
                         <mat-form-field appearance="outline">
                             <input
                                 name="reason"
@@ -214,7 +209,6 @@ import { User } from 'libs/users/src/lib/user.class';
                         send
                         class="w-full sm:w-auto"
                         (click)="sendInvite()"
-                        i18n
                     >
                         Send Visitor Invite
                     </button>
@@ -227,7 +221,7 @@ import { User } from 'libs/users/src/lib/user.class';
                 class="absolute inset-0 bg-base-100 flex flex-col items-center justify-center text-center"
             >
                 <div class="w-full max-w-[32rem] flex-1 h-1/2 space-y-2 m-8">
-                    <h2 class="text-3xl" i18n>
+                    <h2 class="text-3xl">
                         Visitor invite sent to
                         <ng-container *ngIf="!multiple">
                             {{
@@ -242,7 +236,7 @@ import { User } from 'libs/users/src/lib/user.class';
                         </ng-container>
                     </h2>
                     <img class="mx-auto" src="assets/icons/sent.svg" />
-                    <p i18n>
+                    <p>
                         Invite has been sent to
                         <i>
                             <ng-container *ngIf="!multiple">
@@ -267,13 +261,7 @@ import { User } from 'libs/users/src/lib/user.class';
                     <div
                         class="mx-auto flex items-center space-x-2 w-full max-w-[32rem]"
                     >
-                        <button
-                            btn
-                            matRipple
-                            class="flex-1"
-                            (click)="onDone()"
-                            i18n
-                        >
+                        <button btn matRipple class="flex-1" (click)="onDone()">
                             Great, thanks
                         </button>
                         <button
@@ -281,7 +269,6 @@ import { User } from 'libs/users/src/lib/user.class';
                             matRipple
                             class="flex-1"
                             (click)="sent = false"
-                            i18n
                         >
                             Book Another Visitor
                         </button>
@@ -295,12 +282,12 @@ import { User } from 'libs/users/src/lib/user.class';
                 class="relative flex flex-col items-center justify-center rounded overflow-hidden w-full h-full min-h-[18rem]"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
-                <p i18n>Sending invitation...</p>
+                <p>Sending invitation...</p>
             </div>
         </ng-template>
         <ng-template #multi_state>
             <div class="flex flex-col" [formGroup]="form">
-                <label for="visitor-name" i18n>Visitors<span>*</span></label>
+                <label for="visitor-name">Visitors<span>*</span></label>
                 <a-user-list-field
                     formControlName="assets"
                     [guests_only]="true"

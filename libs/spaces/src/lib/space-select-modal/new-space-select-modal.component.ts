@@ -17,7 +17,7 @@ import { Space } from '../space.class';
                 <button icon matRipple mat-dialog-close class="bg-base-200">
                     <app-icon>close</app-icon>
                 </button>
-                <h3 i18n>Find Space</h3>
+                <h3>Find Space</h3>
                 <div class="hidden sm:flex items-center justify-end flex-1">
                     <button
                         btn
@@ -91,7 +91,6 @@ import { Space } from '../space.class';
                     class="inverse sm:hidden w-full"
                     *ngIf="displayed"
                     (click)="displayed = null"
-                    i18n
                 >
                     Back
                 </button>
@@ -102,7 +101,6 @@ import { Space } from '../space.class';
                     [mat-dialog-close]="selected"
                     [class.mb-2]="displayed"
                     class="w-full sm:w-32 sm:mb-0"
-                    i18n
                 >
                     View List
                 </button>
@@ -119,10 +117,10 @@ import { Space } from '../space.class';
                 >
                     <div class="flex items-center">
                         <app-icon class="text-xl">arrow_back</app-icon>
-                        <div class="mr-1 underline" i18n>Back to form</div>
+                        <div class="mr-1 underline">Back to form</div>
                     </div>
                 </button>
-                <p class="opacity-60 text-sm" i18n>
+                <p class="opacity-60 text-sm">
                     {{ selected.length }} room(s) added
                 </p>
                 <button

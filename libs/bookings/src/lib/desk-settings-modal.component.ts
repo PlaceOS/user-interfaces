@@ -11,8 +11,8 @@ import { getModule } from '@placeos/ts-client';
             class="relative p-4 bg-base-100 rounded shadow w-[20rem]"
             *ngIf="!edit_presets; else desk_height_tooltip"
         >
-            <div class="text-lg" i18n>Desk Height</div>
-            <div class="text-xs opacity-60 mb-4" i18n>
+            <div class="text-lg">Desk Height</div>
+            <div class="text-xs opacity-60 mb-4">
                 Set your desk height for the best experience
             </div>
             <div class="flex flex-col mt-2 mb-4">

@@ -17,12 +17,12 @@ import {
             <main
                 class="flex-1 flex flex-col items-center justify-center space-y-2 p-8"
             >
-                <h2 class="text-2xl font-medium text-center" i18n>
+                <h2 class="text-2xl font-medium text-center">
                     {{ last_event.asset_name || last_event.asset_id
                     }}{{ location }} Booked!
                 </h2>
                 <img src="assets/icons/locker-success.svg" />
-                <p class="text-center" i18n>
+                <p class="text-center">
                     Your
                     <span group *ngIf="last_event?.attendees?.length">
                         group of
@@ -59,7 +59,7 @@ import {
                         rel="noopener noreferer"
                     >
                         <img src="assets/icons/outlook.svg" class="w-6" />
-                        <span i18n>Add to Outlook</span>
+                        <span>Add to Outlook</span>
                     </a>
                     <a
                         btn
@@ -71,7 +71,7 @@ import {
                         rel="noopener noreferer"
                     >
                         <img src="assets/icons/gcal.svg" class="w-6" />
-                        <span i18n>Add to Google Calendar</span>
+                        <span>Add to Google Calendar</span>
                     </a>
                     <a
                         btn
@@ -83,7 +83,7 @@ import {
                         rel="noopener noreferer"
                     >
                         <app-icon class="text-xl">download</app-icon>
-                        <span i18n>Download iCal File</span>
+                        <span>Download iCal File</span>
                     </a>
                 </div>
             </main>
@@ -96,7 +96,6 @@ import {
                     matRipple
                     class="w-full max-w-[32rem] mx-auto"
                     [routerLink]="['/']"
-                    i18n
                 >
                     Great, thanks!
                 </a>
@@ -135,12 +134,12 @@ export class BookLockerFlowSuccessComponent {
 
     constructor(
         private _state: BookingFormService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {}
 
     public ngOnInit() {
         this.outlook_link = generateMicrosoftCalendarLink(
-            this.last_event as any
+            this.last_event as any,
         );
         this.google_link = generateGoogleCalendarLink(this.last_event as any);
         this.ical_link = generateCalendarFileLink(this.last_event as any);

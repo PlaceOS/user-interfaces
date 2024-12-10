@@ -25,7 +25,6 @@ import { NewDeskFlowConfirmComponent } from './new-desk-flow-confirm.component';
             >
                 <h2
                     class="w-full p-4 sm:py-4 sm:px-16 text-2xl font-medium border-b border-base-200"
-                    i18n
                 >
                     Book Desk
                 </h2>
@@ -41,7 +40,6 @@ import { NewDeskFlowConfirmComponent } from './new-desk-flow-confirm.component';
                         confirm
                         class="w-full sm:w-auto"
                         (click)="viewConfirm()"
-                        i18n
                     >
                         Confirm Desk
                     </button>

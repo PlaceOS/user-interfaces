@@ -89,7 +89,6 @@ import { FormControl, FormGroup } from '@angular/forms';
                                 matInput
                                 name="system-name"
                                 placeholder="Room Name"
-                                i18n-placeholder="@@systemNamePlaceholder"
                                 formControlName="name"
                                 required
                             />
@@ -116,7 +115,6 @@ import { FormControl, FormGroup } from '@angular/forms';
                                 matInput
                                 name="system-email"
                                 placeholder="Room Email"
-                                i18n-placeholder="@@systemEmailPlaceholder"
                                 formControlName="email"
                             />
                             <mat-error *ngIf="form.controls.email.invalid"
@@ -136,7 +134,6 @@ import { FormControl, FormGroup } from '@angular/forms';
                                 matInput
                                 name="display-name"
                                 placeholder="Display Name"
-                                i18n-placeholder="@@displayNamePlaceholder"
                                 formControlName="display_name"
                             />
                         </mat-form-field>
@@ -151,7 +148,6 @@ import { FormControl, FormGroup } from '@angular/forms';
                                 matInput
                                 name="code-name"
                                 placeholder="Code"
-                                i18n-placeholder="@@codeNamePlaceholder"
                                 formControlName="code"
                             />
                         </mat-form-field>
@@ -211,7 +207,6 @@ import { FormControl, FormGroup } from '@angular/forms';
                                 name="capacity"
                                 type="number"
                                 placeholder="Capacity"
-                                i18n-placeholder="@@capacityPlaceholder"
                                 formControlName="capacity"
                             />
                             <mat-error *ngIf="form.controls.capacity.invalid">
@@ -275,7 +270,6 @@ import { FormControl, FormGroup } from '@angular/forms';
                         <input
                             matInput
                             name="map_id"
-                            i18n-placeholder="@@mapIdPlaceholder"
                             placeholder="Map SVG ID selector e.g. area-01.10-status"
                             formControlName="map_id"
                         />

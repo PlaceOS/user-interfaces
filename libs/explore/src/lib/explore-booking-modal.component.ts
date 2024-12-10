@@ -20,7 +20,7 @@ export interface ExploreBookingModalData {
     selector: 'explore-booking-modal',
     template: `
         <header>
-            <h2 i18n>New Booking</h2>
+            <h2>New Booking</h2>
             <div class="flex-1"></div>
             <button *ngIf="!(loading | async)" icon matRipple mat-dialog-close>
                 <app-icon>close</app-icon>
@@ -36,9 +36,8 @@ export interface ExploreBookingModalData {
                             name="title"
                             formControlName="title"
                             placeholder="Booking Title"
-                            i18n-placeholder
                         />
-                        <mat-error i18n>Booking title is required</mat-error>
+                        <mat-error>Booking title is required</mat-error>
                     </mat-form-field>
                 </div>
                 <div class="flex flex-col" *ngIf="can_book_for_others">
@@ -50,7 +49,7 @@ export interface ExploreBookingModalData {
                     ></a-user-search-field>
                 </div>
                 <div class="flex flex-col">
-                    <label i18n>Space:</label>
+                    <label>Space:</label>
                     <div
                         name="space"
                         class="px-4 py-3 border border-base-200 rounded w-full mb-4"
@@ -78,7 +77,7 @@ export interface ExploreBookingModalData {
                         class="flex flex-col flex-1 w-full sm:w-auto"
                         *ngIf="form.controls.date"
                     >
-                        <label i18n>Date:</label>
+                        <label>Date:</label>
                         <div
                             class="px-4 py-3 border border-base-200 rounded w-full mb-4"
                         >
@@ -90,7 +89,7 @@ export interface ExploreBookingModalData {
                         class="flex flex-col w-full sm:w-auto"
                         *ngIf="form.controls.duration"
                     >
-                        <label i18n>Duration:</label>
+                        <label>Duration:</label>
                         <a-duration-field
                             formControlName="duration"
                             [time]="form.value.date"
@@ -102,7 +101,7 @@ export interface ExploreBookingModalData {
                 </div>
             </main>
             <footer class="flex justify-center p-2 border-t border-base-200">
-                <button btn matRipple class="w-32" (click)="save()" i18n>
+                <button btn matRipple class="w-32" (click)="save()">
                     Save
                 </button>
             </footer>

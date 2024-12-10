@@ -31,7 +31,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
             <app-icon>close</app-icon>
         </button>
         <header class="flex items-center justify-between px-2">
-            <h2 i18n>Confirm Meeting booking</h2>
+            <h2>Confirm Meeting booking</h2>
             <mat-spinner diameter="32" *ngIf="loading | async"></mat-spinner>
         </header>
         <section period class="flex space-x-1 px-2">
@@ -67,13 +67,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
         >
             <app-icon class="text-success mt-1">done</app-icon>
             <div details class="leading-6">
-                <h3 i18n>
-                    {{ event.attendees.length }}
-                    {event.attendees.length, plural,
-                        =1 {attendee }
-                        other {attendees }
-                    }
-                </h3>
+                <h3>{{ event.attendees.length }} Attendee(s)</h3>
                 <div attendee-list>
                     <mat-chip-list #chipList aria-label="User selection">
                         <mat-chip *ngFor="let user of event.attendees">
@@ -89,7 +83,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
         <section spaces class="flex space-x-1 px-2" *ngIf="space?.id">
             <app-icon class="text-success mt-1">done</app-icon>
             <div details class="leading-6">
-                <h3 i18n>Booked Room</h3>
+                <h3>Booked Room</h3>
                 <ng-container *ngFor="let s of event.resources">
                     <div class="flex items-center space-x-2">
                         <app-icon class="text-2xl">meeting_room</app-icon>
@@ -113,7 +107,6 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                 class="w-full"
                 *ngIf="!(loading | async)"
                 (click)="postForm()"
-                i18n
             >
                 Confirm
             </button>
@@ -123,7 +116,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                 class="inverse w-full"
                 *ngIf="loading | async"
                 (click)="cancelPost()"
-                i18n
+               
             >
                 Undo
             </button> -->

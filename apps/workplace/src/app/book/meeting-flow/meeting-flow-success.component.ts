@@ -21,7 +21,7 @@ import { take } from 'rxjs/operators';
                     {{ 'WPA.BOOKING_CONFIRMED' | translate }}
                 </h2>
                 <img src="assets/icons/success.svg" />
-                <p class="text-center max-w-[32rem]" i18n>
+                <p class="text-center max-w-[32rem]">
                     Your
                     <span *ngIf="space">
                         room booking for

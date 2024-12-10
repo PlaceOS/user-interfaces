@@ -54,10 +54,11 @@ const EMPTY_FAVS: string[] = [];
                     </div>
                     <div class="flex items-center text-sm space-x-2">
                         <app-icon class="text-blue-500">people</app-icon>
-                        <p i18n>
-                            {{ space.capacity < 1 ? 2 : space.capacity || 1 }} {
-                            (space.capacity < 1 ? 2 : space.capacity || 1),
-                            plural, =1 { Person } other { People } }
+                        <p>
+                            {{
+                                space.capacity < 1 ? 2 : space.capacity || 1
+                            }}
+                            Person(s)
                         </p>
                     </div>
                     <div
@@ -70,7 +71,7 @@ const EMPTY_FAVS: string[] = [];
                             class="clear"
                             (click)="changeResources(space)"
                         >
-                            <div class="flex items-center space-x-2" i18n>
+                            <div class="flex items-center space-x-2">
                                 <app-icon class="text-2xl">edit</app-icon>
                                 <div>Change</div>
                             </div>
@@ -82,7 +83,7 @@ const EMPTY_FAVS: string[] = [];
                             class="clear"
                             (click)="removeResource(space)"
                         >
-                            <div class="flex items-center space-x-2" i18n>
+                            <div class="flex items-center space-x-2">
                                 <app-icon class="text-2xl">close</app-icon>
                                 <div>Remove</div>
                             </div>
@@ -114,7 +115,7 @@ const EMPTY_FAVS: string[] = [];
         >
             <div class="flex items-center justify-center space-x-2">
                 <app-icon class="text-2xl">search</app-icon>
-                <span i18n>Add Parking Resource</span>
+                <span>Add Parking Resource</span>
             </div>
         </button>
         <div class="flex items-center flex-wrap sm:space-x-2 mb-2">
@@ -145,7 +146,7 @@ export class ParkingSpaceListFieldComponent implements ControlValueAccessor {
 
     constructor(
         private _settings: SettingsService,
-        private _dialog: MatDialog
+        private _dialog: MatDialog,
     ) {}
 
     /** Add or edit selected spaces */
@@ -207,7 +208,7 @@ export class ParkingSpaceListFieldComponent implements ControlValueAccessor {
         } else {
             this._settings.saveUserSetting(
                 FAV_PARKING_KEY,
-                fav_list.filter((_) => _ !== space.id)
+                fav_list.filter((_) => _ !== space.id),
             );
         }
     }

@@ -11,7 +11,6 @@ import {
     updateBookingInductionStatus,
 } from '@placeos/bookings';
 import { SpacePipe } from '@placeos/spaces';
-import { TranslatePipe } from '@ngx-translate/core';
 
 @Injectable({
     providedIn: 'root',

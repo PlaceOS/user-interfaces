@@ -7,10 +7,15 @@ import { SettingsService } from '@placeos/common';
 @Component({
     selector: 'locker-bookings',
     template: `
+        @let more_pages = has_more_pages | async;
         <div class="w-full h-4"></div>
-        <div class="overflow-auto h-full w-full pb-16">
+        <div
+            class="flex flex-col h-full w-full px-4 pt-4"
+            [class.pb-16]="!loading && more_pages"
+            [class.pb-4]="!(!loading && more_pages)"
+        >
             <simple-table
-                class="min-w-[76rem] block text-sm w-full"
+                class="min-w-[76rem] block text-sm w-full flex-1 overflow-auto mr-4"
                 [data]="bookings"
                 [columns]="[
                     {
@@ -52,6 +57,7 @@ import { SettingsService } from '@placeos/common';
                     },
                 ]"
                 [sortable]="true"
+                [page_size]="100"
                 [empty_message]="
                     (filters | async)?.search
                         ? 'No matching locker bookings'
@@ -227,7 +233,7 @@ import { SettingsService } from '@placeos/common';
             btn
             matRipple
             class="absolute bottom-2 left-4 w-32 z-20"
-            *ngIf="!loading && (has_more_pages | async)"
+            *ngIf="!loading && more_pages"
             (click)="loadMore()"
         >
             Load More

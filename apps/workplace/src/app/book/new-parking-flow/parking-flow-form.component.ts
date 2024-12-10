@@ -22,7 +22,6 @@ import { take } from 'rxjs/operators';
             >
                 <h2
                     class="w-full p-4 sm:py-4 sm:px-16 text-2xl font-medium border-b border-base-200"
-                    i18n
                 >
                     {{ form.value.id ? 'Edit' : 'Book' }} Parking Reservation
                 </h2>
@@ -37,7 +36,7 @@ import { take } from 'rxjs/operators';
                             >
                                 1
                             </div>
-                            <div class="text-xl" i18n>Details</div>
+                            <div class="text-xl">Details</div>
                             <div class="flex-1 w-px"></div>
                             <button
                                 icon
@@ -70,7 +69,7 @@ import { take } from 'rxjs/operators';
                             >
                                 2
                             </div>
-                            <div class="text-xl" i18n>Space</div>
+                            <div class="text-xl">Space</div>
                             <div class="flex-1 w-px"></div>
                             <button
                                 icon
@@ -102,7 +101,6 @@ import { take } from 'rxjs/operators';
                             confirm
                             class="mb-2 sm:mb-0 w-full sm:w-auto"
                             (click)="viewConfirm()"
-                            i18n
                         >
                             Confirm Reservation
                         </button>
@@ -112,7 +110,6 @@ import { take } from 'rxjs/operators';
                             clear-form
                             class="inverse w-full sm:w-auto"
                             (click)="clearForm()"
-                            i18n
                         >
                             {{ form.value.id ? 'Reset' : 'Clear' }} Form
                         </button>

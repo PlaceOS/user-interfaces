@@ -73,7 +73,6 @@ declare let mapsindoors: any;
                             placeholder="Search"
                             [ngModel]="search | async"
                             (ngModelChange)="search.next($event)"
-                            i18n-placeholder="@@searchPlaceholder"
                         />
                         <app-icon matPrefix class="text-2xl">search</app-icon>
                     </mat-form-field>

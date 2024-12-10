@@ -18,7 +18,7 @@ import { OrganisationService } from '@placeos/organisation';
                     }}
                 </div>
             </div>
-            <div class="text-xs opacity-60 mb-4 px-2" i18n>
+            <div class="text-xs opacity-60 mb-4 px-2">
                 Select a building location
             </div>
             <mat-radio-group
@@ -51,6 +51,6 @@ export class BuildingSelectComponent {
 
     constructor(
         @Inject(CustomTooltipData) private _data: any,
-        private _org: OrganisationService
+        private _org: OrganisationService,
     ) {}
 }

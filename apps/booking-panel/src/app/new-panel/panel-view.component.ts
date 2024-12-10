@@ -41,7 +41,7 @@ import { PanelStateService } from '../panel-state.service';
             </div>
             <div class="absolute bottom-0 right-0 p-2">
                 <div class="text-xs opacity-40 w-full">
-                    <ng-container i18n>Version: </ng-container>
+                    <ng-container>Version: </ng-container>
                     {{ version.hash }}
                 </div>
                 <div class="text-xs opacity-40 w-full">
@@ -94,7 +94,7 @@ export class PanelViewComponent extends AsyncHandler {
     public readonly book = () =>
         this._state.newBooking(
             Date.now(),
-            this._state.setting('disable_book_now_host') === false
+            this._state.setting('disable_book_now_host') === false,
         );
     public readonly checkin = () => this._state.checkin();
     public readonly endMeeting = () => this._state.confirmEnd();
@@ -115,7 +115,7 @@ export class PanelViewComponent extends AsyncHandler {
     constructor(
         private _state: PanelStateService,
         private _route: ActivatedRoute,
-        private _logger: RemoteLoggingService
+        private _logger: RemoteLoggingService,
     ) {
         super();
     }
@@ -129,7 +129,7 @@ export class PanelViewComponent extends AsyncHandler {
                     this._state.system = params.get('system_id');
                     this._logger.setMetadata(params.get('system_id'));
                 }
-            })
+            }),
         );
         document.body.parentElement.classList.add('showing-panel');
     }

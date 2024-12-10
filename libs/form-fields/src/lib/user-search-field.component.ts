@@ -77,7 +77,7 @@ import { authority, queryUsers } from '@placeos/ts-client';
                         $event.preventDefault()
                     "
                 >
-                    <div class="pointer-events-none" i18n>
+                    <div class="pointer-events-none">
                         Add external attendee "{{ search_str }}"
                     </div>
                 </div>
@@ -134,7 +134,7 @@ export class UserSearchFieldComponent
     @Input() public query_fn: (_: string) => Observable<User[]> = (q) =>
         this._settings.get('app.basic_user_search')
             ? queryUsers({ q, authority_id: authority()?.id }).pipe(
-                  map((_) => _.data.map((_) => new User(_)))
+                  map((_) => _.data.map((_) => new User(_))),
               )
             : searchStaff(q);
     /** Currently selected user */
@@ -156,10 +156,10 @@ export class UserSearchFieldComponent
             return this.options && this.options.length > 0
                 ? of(this.options)
                 : query.length >= 3
-                ? !this.guests
-                    ? this.query_fn(query)
-                    : forkJoin([searchStaff(query), searchGuests(query)])
-                : of([]);
+                  ? !this.guests
+                      ? this.query_fn(query)
+                      : forkJoin([searchStaff(query), searchGuests(query)])
+                  : of([]);
         }),
         catchError((_) => of([])),
         map((list: User[]) => {
@@ -167,9 +167,9 @@ export class UserSearchFieldComponent
             list = flatten(list);
             const search = (this.search_str || '').toLowerCase();
             return list.filter(
-                (item) => !this.filter || this.filter(item, search)
+                (item) => !this.filter || this.filter(item, search),
             );
-        })
+        }),
     );
 
     constructor(private _settings: SettingsService) {
@@ -194,7 +194,7 @@ export class UserSearchFieldComponent
         // Process API results
         this.subscription(
             'search_results',
-            this.search_results$.subscribe((list) => (this.user_list = list))
+            this.search_results$.subscribe((list) => (this.user_list = list)),
         );
         this.resetSearchString();
     }
@@ -206,7 +206,7 @@ export class UserSearchFieldComponent
         this.timeout(
             'reset',
             () => (this.search_str = this.active_user?.name || ''),
-            100
+            100,
         );
     }
 

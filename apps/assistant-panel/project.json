@@ -12,10 +12,7 @@
                 "baseHref": "./",
                 "outputPath": "dist/apps/assistant-panel",
                 "index": "apps/assistant-panel/src/index.html",
-                "polyfills": [
-                    "apps/assistant-panel/src/polyfills.ts",
-                    "@angular/localize/init"
-                ],
+                "polyfills": ["apps/assistant-panel/src/polyfills.ts"],
                 "tsConfig": "apps/assistant-panel/tsconfig.app.json",
                 "fileReplacements": [
                     {
@@ -123,12 +120,6 @@
                 "production": {
                     "buildTarget": "assistant-panel:build:production"
                 }
-            }
-        },
-        "extract-i18n": {
-            "executor": "@angular-devkit/build-angular:extract-i18n",
-            "options": {
-                "buildTarget": "assistant-panel:build"
             }
         },
         "lint": {

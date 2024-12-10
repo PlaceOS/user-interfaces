@@ -22,7 +22,7 @@ import { Booking } from './booking.class';
                 rel="noopener noreferer"
             >
                 <img src="assets/icons/outlook.svg" class="w-6" />
-                <span i18n>Create in Outlook</span>
+                <span>Create in Outlook</span>
             </a>
             <a
                 btn
@@ -33,7 +33,7 @@ import { Booking } from './booking.class';
                 rel="noopener noreferer"
             >
                 <img src="assets/icons/gcal.svg" class="w-6" />
-                <span i18n>Create in Google Calendar</span>
+                <span>Create in Google Calendar</span>
             </a>
             <a
                 btn
@@ -44,7 +44,7 @@ import { Booking } from './booking.class';
                 rel="noopener noreferer"
             >
                 <app-icon class="text-xl">download</app-icon>
-                <span i18n>Download iCal File</span>
+                <span>Download iCal File</span>
             </a>
         </div>
         <button icon mat-dialog-close class="absolute top-2 right-0">
@@ -61,15 +61,15 @@ import { Booking } from './booking.class';
 })
 export class BookingLinkModalComponent {
     public readonly outlook_link = generateMicrosoftCalendarLink(
-        this._event as any
+        this._event as any,
     );
     public readonly google_link = generateGoogleCalendarLink(
-        this._event as any
+        this._event as any,
     );
     public readonly ical_link = generateCalendarFileLink(this._event as any);
 
     constructor(
         @Inject(MAT_DIALOG_DATA) private _event: Booking,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {}
 }

@@ -56,7 +56,6 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
                             matInput
                             name="display-name"
                             placeholder="Display Name"
-                            i18n-placeholder="@@displayNamePlaceholder"
                             formControlName="display_name"
                         />
                     </mat-form-field>
@@ -68,7 +67,6 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
                             matInput
                             name="map-id"
                             placeholder="URL of the Map SVG file"
-                            i18n-placeholder="@@mapIdPlaceholder"
                             formControlName="map_id"
                         />
                     </mat-form-field>
