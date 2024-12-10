@@ -22,21 +22,9 @@ const EMPTY = [];
     selector: 'landing-favourites',
     template: `
         <div
-            class="flex items-center justify-between py-2 mx-2 border-b border-base-200"
+            class="flex items-center justify-between p-2 mx-2 bg-base-200 text-sm rounded"
         >
-            <h2 class="mx-2">{{ spaces?.length || 0 }} Resource(s)</h2>
-            <!-- <div class="flex items-center space-x-2 text-primary">
-                <button icon
-                    class="!border !border-solid !border-primary"
-                >
-                    <app-icon>search</app-icon>
-                </button>
-                <button icon
-                    class="!border !border-solid !border-primary"
-                >
-                    <app-icon>filter_list</app-icon>
-                </button>
-            </div> -->
+            <h2>{{ spaces?.length || 0 }} Favourite(s)</h2>
         </div>
         <div
             class="flex-1 h-1/2 w-full space-y-2 overflow-auto pt-4 divide-y divide-base-200"
@@ -119,7 +107,7 @@ const EMPTY = [];
                         icon
                         name="favourite-more"
                         [matMenuTriggerFor]="menu"
-                        class="absolute top-2 right-0 bg-base-200 !rounded !m-0 h-12 w-12"
+                        class="absolute top-2 right-0 bg-base-200 !rounded !m-0"
                     >
                         <app-icon>more_horiz</app-icon>
                     </button>

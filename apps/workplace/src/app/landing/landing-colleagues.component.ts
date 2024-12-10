@@ -11,23 +11,9 @@ import { LandingStateService } from './landing-state.service';
     selector: 'landing-colleagues',
     template: `
         <div
-            class="flex items-center justify-between py-2 mx-2 border-b border-base-200"
+            class="flex items-center justify-between p-2 mx-2 bg-base-200 text-sm rounded"
         >
-            <h2 class="mx-2">
-                {{ (contacts | async)?.length || 0 }} Colleague(s)
-            </h2>
-            <!-- <div class="flex items-center space-x-2 text-primary">
-                <button icon
-                    class="!border !border-solid !border-primary"
-                >
-                    <app-icon>search</app-icon>
-                </button>
-                <button icon
-                    class="!border !border-solid !border-primary"
-                >
-                    <app-icon>filter_list</app-icon>
-                </button>
-            </div> -->
+            <h2>{{ (contacts | async)?.length || 0 }} Colleague(s)</h2>
         </div>
         <div class="flex-1 h-1/2 w-full space-y-4 overflow-auto pt-4">
             <ng-container *ngIf="(contacts | async)?.length; else empty_state">
@@ -114,14 +100,14 @@ import { LandingStateService } from './landing-state.service';
         <div
             search
             [class.hidden]="!show_search"
-            class="absolute inset-x-2 top-2 bottom-[3.5rem] rounded-lg overflow-hidden flex flex-col bg-base-100 shadow border border-base-200"
+            class="absolute inset-x-2 top-2 bottom-16 rounded overflow-hidden flex flex-col bg-base-100 border border-base-200"
         >
             <input
                 #search_input
                 [ngModel]="(options | async)?.search"
                 (ngModelChange)="updateSearch($event)"
                 placeholder="Search for users..."
-                class="w-full border-b border-base-200 p-2 rounded-t-lg"
+                class="w-full border-b border-base-200 p-2"
             />
             <button
                 icon
