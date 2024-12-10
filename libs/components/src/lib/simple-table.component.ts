@@ -47,49 +47,51 @@ export interface TableColumn {
                     (change)="selectAll($event.checked)"
                 ></mat-checkbox>
             </div>
-            <button
-                header
-                matRipple
-                *ngFor="let column of active_columns; let i = index"
-                [id]="'column-' + column.key"
-                class="sticky top-0 flex items-center justify-between p-4 border-b border-base-200 bg-base-300 min-h-full z-20"
-                [style.gridColumn]="
-                    1 +
-                    i +
-                    (selectable ? 1 : 0) +
-                    ' / ' +
-                    (2 + i + (selectable ? 1 : 0))
-                "
-                [class.pointer-events-none]="
-                    !sortable || column.sortable === false
-                "
-                (click)="setSort(column.key)"
-                [class.active]="sort?.key === column.key"
-                [class.border-r]="i !== active_columns.length - 1"
-                [class.width]="column.size"
-            >
-                <div class="font-medium">{{ column.name || column.key }}</div>
-                <app-icon
-                    class="text-[1.25em]"
-                    *ngIf="sortable && column.sortable !== false"
+            @for (column of active_columns; track column; let i = $index) {
+                <button
+                    header
+                    matRipple
+                    [id]="'column-' + column.key"
+                    class="sticky top-0 flex items-center justify-between p-4 border-b border-base-200 bg-base-300 min-h-full z-20"
+                    [style.gridColumn]="
+                        1 +
+                        i +
+                        (selectable ? 1 : 0) +
+                        ' / ' +
+                        (2 + i + (selectable ? 1 : 0))
+                    "
+                    [class.pointer-events-none]="
+                        !sortable || column.sortable === false
+                    "
+                    (click)="setSort(column.key)"
+                    [class.active]="sort?.key === column.key"
+                    [class.border-r]="i !== active_columns.length - 1"
+                    [class.width]="column.size"
                 >
-                    {{
-                        sort?.key === column.key && sort?.reverse
-                            ? 'arrow_upward'
-                            : 'arrow_downward'
-                    }}
-                </app-icon>
-            </button>
-            <ng-container
-                *ngFor="
-                    let row of data_view$
-                        | async
-                        | slice
-                            : page * (page_size || 9999)
-                            : (page + 1) * (page_size || 9999);
-                    let i = index
-                "
-            >
+                    <div class="font-medium">
+                        {{ column.name || column.key }}
+                    </div>
+                    <app-icon
+                        class="text-[1.25em]"
+                        *ngIf="sortable && column.sortable !== false"
+                    >
+                        {{
+                            sort?.key === column.key && sort?.reverse
+                                ? 'arrow_upward'
+                                : 'arrow_downward'
+                        }}
+                    </app-icon>
+                </button>
+            }
+            @for (
+                row of data_view$
+                    | async
+                    | slice
+                        : page * (page_size || 9999)
+                        : (page + 1) * (page_size || 9999);
+                track row;
+                let idx = $index
+            ) {
                 <div
                     *ngIf="selectable"
                     id="column-selector"
@@ -183,7 +185,7 @@ export interface TableColumn {
                         "
                     ></ng-container>
                 </div>
-            </ng-container>
+            }
             <div
                 *ngIf="!(data_view$ | async)?.length"
                 [style.gridColumnStart]="'span ' + active_columns.length"
@@ -195,7 +197,7 @@ export interface TableColumn {
         </div>
         <div
             *ngIf="page_size"
-            class="sticky bottom-0 w-full flex items-center justify-end space-x-2 p-2 bg-base-200"
+            class="sticky bottom-0 w-full flex items-center justify-end space-x-2 p-2 bg-base-200 z-30"
         >
             <div class="px-4 py-2">
                 {{ page * (page_size || 9999) + 1 }} &ndash;

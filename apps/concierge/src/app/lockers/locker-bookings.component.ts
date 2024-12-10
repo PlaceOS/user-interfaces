@@ -8,9 +8,13 @@ import { SettingsService } from '@placeos/common';
     selector: 'locker-bookings',
     template: `
         <div class="w-full h-4"></div>
-        <div class="overflow-auto h-full w-full px-4 pb-16">
+        <div
+            class="flex flex-col h-full w-full px-4 pt-4"
+            [class.pb-16]="!loading && (has_more_pages | async)"
+            [class.pb-4]="!(!loading && (has_more_pages | async))"
+        >
             <simple-table
-                class="min-w-[76rem] block text-sm w-full"
+                class="min-w-[76rem] block text-sm w-full flex-1 overflow-auto mr-4"
                 [data]="bookings"
                 [columns]="[
                     {
@@ -52,6 +56,7 @@ import { SettingsService } from '@placeos/common';
                     },
                 ]"
                 [sortable]="true"
+                [page_size]="100"
                 [empty_message]="
                     (filters | async)?.search
                         ? 'No matching locker bookings'
