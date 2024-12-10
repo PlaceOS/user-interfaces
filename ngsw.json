@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1731026110334,
+  "timestamp": 1733809042898,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -13,11 +13,10 @@
       "urls": [
         "./favicon.ico",
         "./index.html",
-        "./main.9d9de530c4341ee3.js",
+        "./main-GBILQK44.js",
         "./manifest.webmanifest",
-        "./polyfills.22e29b47c2b58674.js",
-        "./runtime.84096e4f7d1be712.js",
-        "./styles.a686807815abd796.css"
+        "./polyfills-EONH2QZO.js",
+        "./styles-LOU4ZA5Y.css"
       ],
       "patterns": []
     },
@@ -83,8 +82,11 @@
         "./assets/locale/en-US.json",
         "./assets/locale/en.json",
         "./assets/locale/es.json",
+        "./assets/locale/fr-CA.json",
         "./assets/locale/fr.json",
+        "./assets/locale/it.json",
         "./assets/locale/pt.json",
+        "./assets/locale/zh.json",
         "./assets/logo-dark.svg",
         "./assets/logo-light.svg",
         "./assets/maps/level_1.svg",
@@ -101,15 +103,7 @@
         "./assets/support/edge-logo.svg",
         "./assets/support/firefox-logo.svg",
         "./assets/support/opera-logo.svg",
-        "./assets/support/safari-logo.svg",
-        "./material-icons-outlined.f86cb7b0aa53f0fe.woff2",
-        "./material-icons-round.b10ec9db5b7fbc74.woff2",
-        "./material-icons-sharp.3885863ee4746422.woff2",
-        "./material-icons-two-tone.675bd578bd14533e.woff2",
-        "./material-icons.59322316b3fd6063.woff2",
-        "./material-symbols-outlined.bcc6ea8cf49c6826.woff2",
-        "./material-symbols-rounded.d51d7c7913e7f9fc.woff2",
-        "./material-symbols-sharp.50f198bbcba918df.woff2"
+        "./assets/support/safari-logo.svg"
       ],
       "patterns": []
     }
@@ -165,13 +159,16 @@
     "./assets/icons/today-filled.svg": "1410738877666c872263634fc33cfe9b2c3ac6f1",
     "./assets/icons/today-outline.svg": "40fc045c0b90aa2313cc5385260781ba5b55b8ad",
     "./assets/icons/visa.svg": "11187e2ea86894625af0aeb5b85c17bcbf8fe192",
-    "./assets/locale/ar.json": "9d39f81ce08112ff2e2c8c9d392e763f1c48083b",
-    "./assets/locale/en-GB.json": "491c369f93bc8167a5edbb3c532d4c8a4789add9",
-    "./assets/locale/en-US.json": "81523fe248ffc6bc7a03223e607ced1757bc0b34",
-    "./assets/locale/en.json": "3735bb509d8dfe7f782a144a12559511460ab401",
-    "./assets/locale/es.json": "12fcaef177f45954851f4dbfddb85122b91b0207",
-    "./assets/locale/fr.json": "7beffd170a366f52b07f51eb5dc99984816391f7",
-    "./assets/locale/pt.json": "0015e70d7d1cae1bfa3b79623656d0d33a6e26de",
+    "./assets/locale/ar.json": "e35b2842b2eaf6393e27913cecd0ab8f3223102d",
+    "./assets/locale/en-GB.json": "05ba863613a406f0530613f16bd011bf221c23c5",
+    "./assets/locale/en-US.json": "f9e6170b158d3c57fc5d5eb3d21f77ccdb0ca2eb",
+    "./assets/locale/en.json": "04e6b457256b6a6228ccc255fa98207515488737",
+    "./assets/locale/es.json": "0b19ed0eb0ba7375f3e3a57739e1492b40f2f995",
+    "./assets/locale/fr-CA.json": "e7c7d4146005a15dbe0e6f1cfecfd09227010f82",
+    "./assets/locale/fr.json": "b72b91f6ea6b3f7070317062f81c7aa0a3c05110",
+    "./assets/locale/it.json": "fa337088311dd9e83461266395b8a1699f3a0afe",
+    "./assets/locale/pt.json": "0d093fa89ceb3887e7757c787ccc34509ac1d781",
+    "./assets/locale/zh.json": "da00631642f59f04ed1f58e5ad239e19f764e50e",
     "./assets/logo-dark.svg": "3c5dbbd620a781a0d1e3680cb697982dd44a1613",
     "./assets/logo-light.svg": "29908fafefe60c105f06b2f8d69f7c1eed436c17",
     "./assets/maps/level_1.svg": "ba165a2e4b967619f71aa625855113950c4cde53",
@@ -190,20 +187,11 @@
     "./assets/support/opera-logo.svg": "23f8e25409598ac843eefe81ea3c09b4f460844d",
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
     "./favicon.ico": "4e23d0f9b6ddaf3c9ddef90dbaed2342941297b5",
-    "./index.html": "0a4cbdcf89093c9c673ff97d20954e609cbcfdd1",
-    "./main.9d9de530c4341ee3.js": "d4e9ba14aa3f015bf6c230608139bf057095f92b",
+    "./index.html": "139d0a371cf775aad77b5d5307fa2da0389ac725",
+    "./main-GBILQK44.js": "50602c9395112b1d527e64d630fce18116c33ae8",
     "./manifest.webmanifest": "82971c858291f0ddb5d37cc8e43d81fce9a88bc5",
-    "./material-icons-outlined.f86cb7b0aa53f0fe.woff2": "2f9e28ab559782402f27332633c843c40209d95a",
-    "./material-icons-round.b10ec9db5b7fbc74.woff2": "abe05e0641f1050fbe00ef0dbb10c5ea72c26cff",
-    "./material-icons-sharp.3885863ee4746422.woff2": "cf1c7b4d066d18af44cf7bc664dd2e46652a3a30",
-    "./material-icons-two-tone.675bd578bd14533e.woff2": "296ff0bff395a77c2e33e7e31fffe73980bd93cf",
-    "./material-icons.59322316b3fd6063.woff2": "0bc0c675480d94ec7e8609dda6227f88c5d08d2c",
-    "./material-symbols-outlined.bcc6ea8cf49c6826.woff2": "8eabd6dbf6426bf2cb725b3d0c68ec5ce0c55227",
-    "./material-symbols-rounded.d51d7c7913e7f9fc.woff2": "1b5557d408be7a0280f189251a25719a114dfb5e",
-    "./material-symbols-sharp.50f198bbcba918df.woff2": "3ca7850e8f453acc7afc0a9f3afa7c83140d3608",
-    "./polyfills.22e29b47c2b58674.js": "58fa2e0e4e13530af701c1716a8cd6fe16c39dfc",
-    "./runtime.84096e4f7d1be712.js": "5d502063bcaa81a7dd8d6d3e2e00c2867f6db959",
-    "./styles.a686807815abd796.css": "ddcd064972fe96f9e4aefab8cb780d84e977359a"
+    "./polyfills-EONH2QZO.js": "e61db933651ae257d0c246b446cd1f470be08f78",
+    "./styles-LOU4ZA5Y.css": "effde1dc401efd98580779facee57a5857f20ab0"
   },
   "navigationUrls": [
     {
