@@ -66,7 +66,7 @@ import { debounceTime, map } from 'rxjs/operators';
             </button>
             <div class="p-2 border-t border-base-200-500">
                 <div class="text-xs opacity-60 w-full">
-                    <ng-container i18n>Version: </ng-container>
+                    <ng-container>Version: </ng-container>
                     <button
                         class="underline p-0 m-0 bg-none border-none text-xs"
                         (click)="viewChangelog()"

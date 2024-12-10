@@ -110,9 +110,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                 <div
                     class="sm:p-4 sm:bg-base-100 rounded sm:m-2 sm:border border-base-200 flex-grow-[4] min-w-1/3 sm:w-[16rem]"
                 >
-                    <h3 class="px-3 mt-2 text-lg font-medium mb-2" i18n>
-                        Details
-                    </h3>
+                    <h3 class="px-3 mt-2 text-lg font-medium mb-2">Details</h3>
                     <div class="flex items-center px-2 space-x-2">
                         <app-icon>event</app-icon>
                         <div>{{ booking.date | date: 'EEEE, dd LLLL y' }}</div>
@@ -142,7 +140,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                     <div
                         class="mt-4 sm:p-4 sm:bg-base-100 rounded sm:m-2 sm:border border-base-200 flex-grow-[3] min-w-1/3 sm:w-[16rem]"
                     >
-                        <h3 class="mx-3 py-2 text-lg font-medium" i18n>
+                        <h3 class="mx-3 py-2 text-lg font-medium">
                             Assets ({{ booking.valid_assets?.length || 0 }})
                         </h3>
                         <div class="flex flex-col space-y-2">
@@ -283,7 +281,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
             >
                 <div class="flex items-center space-x-2 text-base">
                     <app-icon>edit</app-icon>
-                    <div i18n>Edit booking</div>
+                    <div>Edit booking</div>
                 </div>
             </button>
             <button
@@ -295,7 +293,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                     <app-icon className="material-symbols-rounded">
                         height
                     </app-icon>
-                    <div i18n>Set Desk Height</div>
+                    <div>Set Desk Height</div>
                 </div>
             </button>
             <button
@@ -305,7 +303,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
             >
                 <div class="flex items-center space-x-2 text-base">
                     <app-icon class="text-error">delete</app-icon>
-                    <div i18n>Delete booking</div>
+                    <div>Delete booking</div>
                 </div>
             </button>
             <button
@@ -315,13 +313,13 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
             >
                 <div class="flex items-center space-x-2 text-base">
                     <app-icon class="text-error">delete</app-icon>
-                    <div i18n>Delete Series</div>
+                    <div>Delete Series</div>
                 </div>
             </button>
             <button mat-menu-item *ngIf="is_in_progress" (click)="end.emit()">
                 <div class="flex items-center space-x-2 text-base">
                     <app-icon class="text-error">delete</app-icon>
-                    <div i18n>End booking</div>
+                    <div>End booking</div>
                 </div>
             </button>
         </mat-menu>

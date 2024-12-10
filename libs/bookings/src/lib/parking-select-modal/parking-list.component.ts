@@ -7,8 +7,8 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
 @Component({
     selector: `parking-space-list`,
     template: `
-        <h3 class="font-bold" i18n>Results</h3>
-        <p count class="text-sm opacity-60 mb-4" i18n>
+        <h3 class="font-bold">Results</h3>
+        <p count class="text-sm opacity-60 mb-4">
             {{ (assets | async)?.length || 0 }} result(s) found
         </p>
         <ng-container *ngIf="!(loading | async); else load_state">
@@ -68,7 +68,7 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
                             </div>
                             <div class="flex items-center text-sm space-x-2">
                                 <app-icon class="text-info">people</app-icon>
-                                <p i18n>
+                                <p>
                                     {{
                                         space.capacity < 1 ? 2 : space.capacity
                                     }}
@@ -99,7 +99,7 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
                 empty
                 class="p-16 flex flex-col items-center justify-center space-y-2"
             >
-                <p class="opacity-30 text-center" i18n>
+                <p class="opacity-30 text-center">
                     No available spaces for selected time and/or filters
                 </p>
             </div>
@@ -110,7 +110,7 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
                 class="p-16 flex flex-col items-center justify-center space-y-2"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
-                <p class="opacity-30" i18n>Finding available spaces...</p>
+                <p class="opacity-30">Finding available spaces...</p>
             </div>
         </ng-template>
     `,
@@ -137,8 +137,8 @@ export class ParkingSpaceListComponent {
         this._form.available_resources,
     ]).pipe(
         map(([{ show_fav }, _]) =>
-            _.filter((i) => !show_fav || this.isFavourite(i.id))
-        )
+            _.filter((i) => !show_fav || this.isFavourite(i.id)),
+        ),
     );
     public readonly loading = this._form.loading;
 

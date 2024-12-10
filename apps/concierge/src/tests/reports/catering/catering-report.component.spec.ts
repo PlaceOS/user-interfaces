@@ -1,5 +1,5 @@
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
-import { MockComponent, MockProvider } from 'ng-mocks';
+import { MockComponent, MockDirective, MockProvider } from 'ng-mocks';
 
 import { CateringReportItemsComponent } from 'apps/concierge/src/app/reports/catering/catering-report-items.component';
 import { CateringReportOrdersComponent } from 'apps/concierge/src/app/reports/catering/catering-report-orders.component';
@@ -11,6 +11,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router } from '@angular/router';
 import { ReportsOptionsComponent } from 'apps/concierge/src/app/reports/reports-options.component';
 import { SettingsService } from '@placeos/common';
+import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 
 describe('CateringReportComponent', () => {
     let spectator: SpectatorRouting<CateringReportComponent>;
@@ -21,6 +22,7 @@ describe('CateringReportComponent', () => {
             MockComponent(CateringReportItemsComponent),
             MockComponent(CateringReportOrdersComponent),
             MockComponent(ReportsOptionsComponent),
+            MockDirective(AuthenticatedImageDirective),
         ],
         providers: [
             MockProvider(ReportsStateService, {

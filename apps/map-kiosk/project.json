@@ -12,10 +12,7 @@
                 "baseHref": "./",
                 "outputPath": "dist/apps/map-kiosk",
                 "index": "apps/map-kiosk/src/index.html",
-                "polyfills": [
-                    "apps/map-kiosk/src/polyfills.ts",
-                    "@angular/localize/init"
-                ],
+                "polyfills": ["apps/map-kiosk/src/polyfills.ts"],
                 "tsConfig": "apps/map-kiosk/tsconfig.app.json",
                 "fileReplacements": [
                     {
@@ -114,12 +111,6 @@
                 "production": {
                     "buildTarget": "map-kiosk:build:production"
                 }
-            }
-        },
-        "extract-i18n": {
-            "executor": "@angular-devkit/build-angular:extract-i18n",
-            "options": {
-                "buildTarget": "map-kiosk:build"
             }
         },
         "lint": {

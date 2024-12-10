@@ -12,10 +12,7 @@
                 "baseHref": "./",
                 "outputPath": "dist/apps/caterer-ui",
                 "index": "apps/caterer-ui/src/index.html",
-                "polyfills": [
-                    "apps/caterer-ui/src/polyfills.ts",
-                    "@angular/localize/init"
-                ],
+                "polyfills": ["apps/caterer-ui/src/polyfills.ts"],
                 "tsConfig": "apps/caterer-ui/tsconfig.app.json",
                 "fileReplacements": [
                     {
@@ -114,12 +111,6 @@
                 "production": {
                     "buildTarget": "caterer-ui:build:production"
                 }
-            }
-        },
-        "extract-i18n": {
-            "executor": "@angular-devkit/build-angular:extract-i18n",
-            "options": {
-                "buildTarget": "caterer-ui:build"
             }
         },
         "lint": {

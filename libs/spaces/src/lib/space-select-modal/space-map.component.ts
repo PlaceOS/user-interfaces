@@ -25,7 +25,6 @@ import { Space } from '../space.class';
                     (ngModelChange)="setOptions({ zone_ids: [$event.id] })"
                     [ngModelOptions]="{ standalone: true }"
                     placeholder="Any Level"
-                    i18n-placeholder
                 >
                     <mat-option
                         *ngFor="let lvl of levels | async"

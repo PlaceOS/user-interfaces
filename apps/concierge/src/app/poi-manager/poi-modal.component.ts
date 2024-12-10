@@ -46,7 +46,6 @@ import { SelectPOIMapModalComponent } from './select-poi-map-modal.component';
                             matInput
                             name="name"
                             placeholder="Name"
-                            i18n-placeholder="@@namePlaceholder"
                             formControlName="name"
                         />
                     </mat-form-field>
@@ -113,7 +112,6 @@ import { SelectPOIMapModalComponent } from './select-poi-map-modal.component';
                                 matInput
                                 name="location"
                                 placeholder="Location"
-                                i18n-placeholder="@@locationPlaceholder"
                                 formControlName="location"
                             />
                         </mat-form-field>

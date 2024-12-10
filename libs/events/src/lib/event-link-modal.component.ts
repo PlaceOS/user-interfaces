@@ -12,7 +12,7 @@ import { notifyError } from '@placeos/common';
 @Component({
     selector: 'event-link-modal',
     template: `
-        <div class="p-4 w-full pb-2" i18n>Add event to your calendar</div>
+        <div class="p-4 w-full pb-2">Add event to your calendar</div>
         <div class="flex flex-col items-center space-y-4 p-4 relative">
             <a
                 btn
@@ -24,7 +24,7 @@ import { notifyError } from '@placeos/common';
                 (click)="has_actioned = true"
             >
                 <img src="assets/icons/outlook.svg" class="w-6" />
-                <span i18n>Create in Outlook</span>
+                <span>Create in Outlook</span>
             </a>
             <a
                 btn
@@ -36,7 +36,7 @@ import { notifyError } from '@placeos/common';
                 (click)="has_actioned = true"
             >
                 <img src="assets/icons/gcal.svg" class="w-6" />
-                <span i18n>Create in Google Calendar</span>
+                <span>Create in Google Calendar</span>
             </a>
             <a
                 btn
@@ -48,11 +48,9 @@ import { notifyError } from '@placeos/common';
                 (click)="has_actioned = true"
             >
                 <app-icon class="text-xl">download</app-icon>
-                <span i18n>Download iCal File</span>
+                <span>Download iCal File</span>
             </a>
-            <button class="w-64" btn matRipple (click)="close()" i18n>
-                Close
-            </button>
+            <button class="w-64" btn matRipple (click)="close()">Close</button>
         </div>
         <button
             icon
@@ -73,10 +71,10 @@ import { notifyError } from '@placeos/common';
 })
 export class EventLinkModalComponent {
     public readonly outlook_link = generateMicrosoftCalendarLink(
-        this._event as any
+        this._event as any,
     );
     public readonly google_link = generateGoogleCalendarLink(
-        this._event as any
+        this._event as any,
     );
     public readonly ical_link = generateCalendarFileLink(this._event as any);
 
@@ -84,13 +82,13 @@ export class EventLinkModalComponent {
 
     constructor(
         @Inject(MAT_DIALOG_DATA) private _event: CalendarEvent,
-        private _dialog: MatDialogRef<EventLinkModalComponent>
+        private _dialog: MatDialogRef<EventLinkModalComponent>,
     ) {}
 
     public close() {
         if (!this.has_actioned) {
             return notifyError(
-                'You need to select a calendar option to finish creating this booking'
+                'You need to select a calendar option to finish creating this booking',
             );
         }
         this._dialog.close(true);

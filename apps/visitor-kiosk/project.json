@@ -12,10 +12,7 @@
                 "baseHref": "./",
                 "outputPath": "dist/apps/visitor-kiosk",
                 "index": "apps/visitor-kiosk/src/index.html",
-                "polyfills": [
-                    "apps/visitor-kiosk/src/polyfills.ts",
-                    "@angular/localize/init"
-                ],
+                "polyfills": ["apps/visitor-kiosk/src/polyfills.ts"],
                 "tsConfig": "apps/visitor-kiosk/tsconfig.app.json",
                 "fileReplacements": [
                     {
@@ -114,12 +111,6 @@
                 "production": {
                     "buildTarget": "visitor-kiosk:build:production"
                 }
-            }
-        },
-        "extract-i18n": {
-            "executor": "@angular-devkit/build-angular:extract-i18n",
-            "options": {
-                "buildTarget": "visitor-kiosk:build"
             }
         },
         "lint": {

@@ -22,7 +22,7 @@ const EMPTY_FAVS: string[] = [];
                 >
                     <app-icon>close</app-icon>
                 </button>
-                <h3 i18n>Add Catering</h3>
+                <h3>Add Catering</h3>
             </header>
             <main
                 class="flex-1 flex items-center divide-x divide-base-200 min-h-[65vh] h-[65vh] sm:max-h-[65vh] sm:max-w-[95vw] w-full overflow-hidden"
@@ -76,7 +76,6 @@ const EMPTY_FAVS: string[] = [];
                     class="inverse sm:hidden w-full sm:w-auto"
                     *ngIf="displayed"
                     (click)="displayed = null"
-                    i18n
                 >
                     Back
                 </button>
@@ -87,7 +86,6 @@ const EMPTY_FAVS: string[] = [];
                     [mat-dialog-close]="selected"
                     [class.mb-2]="displayed"
                     class="w-full sm:w-auto sm:mb-0"
-                    i18n
                 >
                     View List
                 </button>
@@ -104,12 +102,10 @@ const EMPTY_FAVS: string[] = [];
                 >
                     <div class="flex items-center">
                         <app-icon class="text-xl">arrow_back</app-icon>
-                        <div class="mr-1 underline" i18n>Back to form</div>
+                        <div class="mr-1 underline">Back to form</div>
                     </div>
                 </button>
-                <p class="opacity-60 text-sm" i18n>
-                    {{ count }} items(s) added
-                </p>
+                <p class="opacity-60 text-sm">{{ count }} items(s) added</p>
                 <button
                     btn
                     matRipple

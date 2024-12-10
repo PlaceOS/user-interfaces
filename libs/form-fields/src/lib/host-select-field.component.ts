@@ -19,7 +19,6 @@ import { catchError, map, shareReplay, switchMap, take } from 'rxjs/operators';
                 [placeholder]="
                     item?.email ? item.name || item.email : 'Select host'
                 "
-                i18n-placeholder
             >
                 <mat-option
                     *ngFor="let user of users | async"
@@ -33,7 +32,7 @@ import { catchError, map, shareReplay, switchMap, take } from 'rxjs/operators';
                     </div>
                 </mat-option>
             </mat-select>
-            <mat-error i18n>Host is required</mat-error>
+            <mat-error>Host is required</mat-error>
         </mat-form-field>
         <ng-container *ngIf="users | async"></ng-container>
     `,
@@ -50,17 +49,17 @@ export class HostSelectFieldComponent implements ControlValueAccessor {
     public item?: User;
     public readonly users = of(1).pipe(
         switchMap(() =>
-            queryCalendars().pipe(catchError((_) => of([] as Calendar[])))
+            queryCalendars().pipe(catchError((_) => of([] as Calendar[]))),
         ),
         switchMap((list) =>
             zip(
                 ...list.map((_) =>
-                    showStaff(_.id).pipe(catchError((_) => of(null)))
-                )
-            )
+                    showStaff(_.id).pipe(catchError((_) => of(null))),
+                ),
+            ),
         ),
         map((_) => unique([currentUser(), ..._], 'email')),
-        shareReplay(1)
+        shareReplay(1),
     );
     public disabled = false;
 

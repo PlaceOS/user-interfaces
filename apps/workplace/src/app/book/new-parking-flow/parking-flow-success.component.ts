@@ -16,10 +16,8 @@ import {
             <main
                 class="flex-1 flex flex-col items-center justify-center space-y-2 p-8"
             >
-                <h2 class="text-2xl font-medium" i18n>
-                    Parking Space Confirmed!
-                </h2>
-                <p class="text-center max-w-[32rem]" i18n>
+                <h2 class="text-2xl font-medium">Parking Space Confirmed!</h2>
+                <p class="text-center max-w-[32rem]">
                     Your
                     <span>
                         parking space reservation for
@@ -46,7 +44,7 @@ import {
                         rel="noopener noreferer"
                     >
                         <img src="assets/icons/outlook.svg" class="w-6" />
-                        <span i18n>Add to Outlook</span>
+                        <span>Add to Outlook</span>
                     </a>
                     <a
                         btn
@@ -58,7 +56,7 @@ import {
                         rel="noopener noreferer"
                     >
                         <img src="assets/icons/gcal.svg" class="w-6" />
-                        <span i18n>Add to Google Calendar</span>
+                        <span>Add to Google Calendar</span>
                     </a>
                     <a
                         btn
@@ -70,7 +68,7 @@ import {
                         rel="noopener noreferer"
                     >
                         <app-icon class="text-xl">download</app-icon>
-                        <span i18n>Download iCal File</span>
+                        <span>Download iCal File</span>
                     </a>
                 </div>
             </main>
@@ -82,7 +80,6 @@ import {
                     matRipple
                     class="w-full max-w-[32rem]"
                     [routerLink]="['/']"
-                    i18n
                 >
                     Great, thanks!
                 </a>

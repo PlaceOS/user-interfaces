@@ -67,7 +67,6 @@ import { OrganisationService } from '@placeos/organisation';
                     matRipple
                     [disabled]="!system_id$.getValue()"
                     (click)="bootstrap()"
-                    i18n
                 >
                     {{ 'COMMON.CONTINUE' | translate }}
                 </button>
@@ -76,7 +75,7 @@ import { OrganisationService } from '@placeos/organisation';
         <ng-template #load_state>
             <div load class="my-16 flex flex-col items-center">
                 <mat-spinner [diameter]="32"></mat-spinner>
-                <div class="m-4" i18n>
+                <div class="m-4">
                     {{ 'PANEL.LOADING_SYSTEM' | translate }} {{ loading }}
                 </div>
             </div>

@@ -96,7 +96,7 @@ const ICONS = {
                 </mat-select>
             </mat-form-field>
         </div>
-        <h3 class="hidden sm:block font-medium px-2 py-2" *ngIf="!search" i18n>
+        <h3 class="hidden sm:block font-medium px-2 py-2" *ngIf="!search">
             Options
         </h3>
         <div class="flex flex-col px-2" *ngIf="!search">
@@ -139,7 +139,7 @@ const ICONS = {
                 [use_24hr]="use_24hr"
             ></a-duration-field>
         </div>
-        <h3 class="hidden sm:block font-medium px-2 py-4" *ngIf="!search" i18n>
+        <h3 class="hidden sm:block font-medium px-2 py-4" *ngIf="!search">
             Catergories
         </h3>
         <div

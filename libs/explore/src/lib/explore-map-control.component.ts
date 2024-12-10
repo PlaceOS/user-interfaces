@@ -20,7 +20,6 @@ import { ExploreStateService } from './explore-state.service';
             >
                 <mat-select
                     placeholder="Select Building..."
-                    i18n-placeholder
                     [ngModel]="building | async"
                     (ngModelChange)="setBuilding($event)"
                 >
@@ -42,7 +41,6 @@ import { ExploreStateService } from './explore-state.service';
             >
                 <mat-select
                     placeholder="Select Level..."
-                    i18n-placeholder
                     [ngModel]="level | async"
                     (ngModelChange)="setLevel($event)"
                 >
@@ -87,7 +85,7 @@ export class ExploreMapControlComponent extends AsyncHandler implements OnInit {
                     relativeTo: this._route,
                     queryParams: { zone: lvl.id },
                 }),
-            201
+            201,
         );
     };
     /** Set the currenly active building */
@@ -97,7 +95,7 @@ export class ExploreMapControlComponent extends AsyncHandler implements OnInit {
         private _org: OrganisationService,
         private _state: ExploreStateService,
         private _router: Router,
-        private _route: ActivatedRoute
+        private _route: ActivatedRoute,
     ) {
         super();
     }
@@ -109,8 +107,8 @@ export class ExploreMapControlComponent extends AsyncHandler implements OnInit {
             this._route.queryParamMap.subscribe((params) =>
                 params.has('zone')
                     ? this._state.setLevel(params.get('zone'))
-                    : ''
-            )
+                    : '',
+            ),
         );
     }
 }

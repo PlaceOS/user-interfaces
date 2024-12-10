@@ -41,7 +41,7 @@ import { map, take } from 'rxjs/operators';
             <app-icon>close</app-icon>
         </button>
         <header class="flex items-center justify-between px-4 pt-4">
-            <h2 class="text-2xl font-medium mb-2" i18n>Confirm Desk Booking</h2>
+            <h2 class="text-2xl font-medium mb-2">Confirm Desk Booking</h2>
             <mat-spinner diameter="32" *ngIf="loading | async"></mat-spinner>
         </header>
         <section period class="flex space-x-1 py-4 px-2">
@@ -85,7 +85,7 @@ import { map, take } from 'rxjs/operators';
                 </h3>
                 <div class="flex items-center space-x-2">
                     <app-icon>person</app-icon>
-                    <span i18n>{{
+                    <span>{{
                         (is_group | async) ? 'Multiple Desks' : 'Single desk'
                     }}</span>
                 </div>
@@ -108,7 +108,7 @@ import { map, take } from 'rxjs/operators';
         >
             <app-icon class="text-success">done</app-icon>
             <div details class="flex-1 leading-6 w-1/2 pr-2">
-                <h3 i18n>Asset Requests</h3>
+                <h3>Asset Requests</h3>
                 <div
                     request
                     *ngFor="let request of assets"
@@ -169,7 +169,7 @@ import { map, take } from 'rxjs/operators';
         >
             <app-icon class="text-success">done</app-icon>
             <div details class="leading-6">
-                <h3 i18n>Requested Locker</h3>
+                <h3>Requested Locker</h3>
                 <div class="flex space-x-2">
                     <span>Locker E-043</span>
                 </div>
@@ -183,7 +183,6 @@ import { map, take } from 'rxjs/operators';
                 class="w-full"
                 *ngIf="!(loading | async)"
                 (click)="postForm()"
-                i18n
             >
                 Confirm
             </button>

@@ -1,30 +1,29 @@
-import { FormsModule } from "@angular/forms";
-import { MatBottomSheetRef } from "@angular/material/bottom-sheet";
-import { MatCheckboxModule } from "@angular/material/checkbox";
-import { createComponentFactory, Spectator } from "@ngneat/spectator/jest";
-import { IconComponent } from "@placeos/components";
-import { MockComponent } from "ng-mocks";
-import { BehaviorSubject } from "rxjs";
-import { ScheduleFilterCardComponent } from "../../app/new-schedule/schedule-filter-card.component";
-import { ScheduleStateService } from "../../app/new-schedule/schedule-state.service";
+import { FormsModule } from '@angular/forms';
+import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { IconComponent } from '@placeos/components';
+import { MockComponent, MockProvider } from 'ng-mocks';
+import { BehaviorSubject } from 'rxjs';
+import { ScheduleFilterCardComponent } from '../../app/new-schedule/schedule-filter-card.component';
+import { ScheduleStateService } from '../../app/new-schedule/schedule-state.service';
+import { SettingsService } from '@placeos/common';
 
 describe('ScheduleFilterCardComponent', () => {
     let spectator: Spectator<ScheduleFilterCardComponent>;
     const createComponent = createComponentFactory({
         component: ScheduleFilterCardComponent,
         providers: [
-            {
-                provide: ScheduleStateService,
-                useValue: {
-                    filters: new BehaviorSubject({}),
-                    toggleType: jest.fn(),
-                    setDate: jest.fn(),
-                },
-            },
-            { provide: MatBottomSheetRef, useValue: { dismiss: jest.fn() } }
+            MockProvider(ScheduleStateService, {
+                filters: new BehaviorSubject({}),
+                toggleType: jest.fn(),
+                setDate: jest.fn(),
+            } as any),
+            MockProvider(MatBottomSheetRef, { dismiss: jest.fn() }),
+            MockProvider(SettingsService, { get: jest.fn() }),
         ],
         declarations: [MockComponent(IconComponent)],
-        imports: [MatCheckboxModule, FormsModule]
+        imports: [MatCheckboxModule, FormsModule],
     });
 
     beforeEach(() => (spectator = createComponent()));

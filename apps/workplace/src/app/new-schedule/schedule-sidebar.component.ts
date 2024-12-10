@@ -5,17 +5,8 @@ import {
     ScheduleStateService,
 } from './schedule-state.service';
 import { OrganisationService } from '@placeos/organisation';
-import { debounceTime, filter, first, map } from 'rxjs/operators';
-import {
-    addWeeks,
-    endOfWeek,
-    format,
-    isAfter,
-    isBefore,
-    startOfDay,
-    startOfWeek,
-} from 'date-fns';
-import { combineLatest } from 'rxjs';
+import { debounceTime, filter, map } from 'rxjs/operators';
+import { startOfDay } from 'date-fns';
 
 @Component({
     selector: 'schedule-sidebar',
@@ -76,7 +67,7 @@ import { combineLatest } from 'rxjs';
                     </mat-select>
                 </mat-form-field>
             </div>
-            <h3 class="mx-4 mt-4 font-medium" i18n>Filters</h3>
+            <h3 class="mx-4 mt-4 font-medium">Filters</h3>
             <div class="p-4 space-y-4 flex-1 h-1/2 overflow-auto">
                 <button
                     matRipple
@@ -163,10 +154,10 @@ import { combineLatest } from 'rxjs';
                         <app-icon>people</app-icon>
                     </div>
                     <div class="flex-1">
-                        <div class="" i18n>
+                        <div class="">
                             {{ 'WPA.VISITORS' | translate }}
                         </div>
-                        <div class="text-sm opacity-60" i18n>
+                        <div class="text-sm opacity-60">
                             {{ 'WPA.SCHEDULE_VISITOR_FILTER' | translate }}
                         </div>
                     </div>
@@ -189,10 +180,10 @@ import { combineLatest } from 'rxjs';
                         <app-icon>door_back</app-icon>
                     </div>
                     <div class="flex-1">
-                        <div class="" i18n>
+                        <div class="">
                             {{ 'WPA.LOCKERS' | translate }}
                         </div>
-                        <div class="text-sm opacity-60" i18n>
+                        <div class="text-sm opacity-60">
                             {{ 'WPA.SCHEDULE_LOCKER_FILTER' | translate }}
                         </div>
                     </div>
@@ -215,10 +206,10 @@ import { combineLatest } from 'rxjs';
                         <app-icon>door_back</app-icon>
                     </div>
                     <div class="flex-1">
-                        <div class="" i18n>
+                        <div class="">
                             {{ 'WPA.GROUP_EVENT' | translate }}
                         </div>
-                        <div class="text-sm opacity-60" i18n>
+                        <div class="text-sm opacity-60">
                             {{ 'WPA.SCHEDULE_GROUP_EVENT_FILTER' | translate }}
                         </div>
                     </div>

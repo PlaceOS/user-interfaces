@@ -13,13 +13,8 @@ import { LandingStateService } from './landing-state.service';
         <div
             class="flex items-center justify-between py-2 mx-2 border-b border-base-200"
         >
-            <h2 class="mx-2" i18n>
-                {{ (contacts | async)?.length || 0 }}
-                {(contacts |
-                async)?.length, plural,
-                    =1 {Person }
-                    other {People }
-                }
+            <h2 class="mx-2">
+                {{ (contacts | async)?.length || 0 }} Colleague(s)
             </h2>
             <!-- <div class="flex items-center space-x-2 text-primary">
                 <button icon
@@ -173,7 +168,7 @@ import { LandingStateService } from './landing-state.service';
                 class="w-full h-full flex flex-col items-center justify-center space-y-2 p-8"
             >
                 <img src="assets/icons/no-contacts.svg" />
-                <p class="opacity-60 text-sm text-center" i18n>
+                <p class="opacity-60 text-sm text-center">
                     {{ 'WPA.COLLEAGUES_EMPTY' | translate }}
                 </p>
             </div>

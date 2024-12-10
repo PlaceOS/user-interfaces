@@ -12,10 +12,7 @@
             "options": {
                 "outputPath": "dist/apps/enrolment",
                 "index": "apps/enrolment/src/index.html",
-                "polyfills": [
-                    "apps/enrolment/src/polyfills.ts",
-                    "@angular/localize/init"
-                ],
+                "polyfills": ["apps/enrolment/src/polyfills.ts"],
                 "tsConfig": "apps/enrolment/tsconfig.app.json",
                 "baseHref": "./",
                 "assets": [
@@ -115,12 +112,6 @@
                 }
             },
             "defaultConfiguration": "development"
-        },
-        "extract-i18n": {
-            "executor": "@angular-devkit/build-angular:extract-i18n",
-            "options": {
-                "buildTarget": "enrolment:build"
-            }
         },
         "lint": {
             "executor": "@nx/eslint:lint"

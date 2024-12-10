@@ -29,9 +29,9 @@ export interface PaymentData {
                 <main
                     class="px-4 pt-8 w-[24rem] space-y-2 flex flex-col items-center relative"
                 >
-                    <h2 class="text-2xl font-medium" i18n>Booking Payment</h2>
+                    <h2 class="text-2xl font-medium">Booking Payment</h2>
                     <img src="assets/icons/cost.svg" class="w-1/2" />
-                    <p class="text-sm text-center pb-2" i18n>
+                    <p class="text-sm text-center pb-2">
                         You are requesting a {{ details.type }} booking in
                         {{ details.resource_name }} for
                         {{ details.date | date: 'mediumDate' }}
@@ -43,7 +43,7 @@ export interface PaymentData {
                             }}
                         </ng-container>
                     </p>
-                    <p class="text-sm" i18n>You booking will cost:</p>
+                    <p class="text-sm">You booking will cost:</p>
                     <p class="text-lg font-medium text-center">
                         <strong>{{
                             details.amount / 100 | currency: code
@@ -55,12 +55,7 @@ export interface PaymentData {
                     ></card-input-field>
                 </main>
                 <footer class="p-4">
-                    <button
-                        matRipple
-                        class="w-full"
-                        (click)="processPayment()"
-                        i18n
-                    >
+                    <button matRipple class="w-full" (click)="processPayment()">
                         Make Payment
                     </button>
                 </footer>
@@ -84,14 +79,14 @@ export interface PaymentData {
         </ng-template>
         <ng-template #success_state>
             <main class="px-8 pt-8 w-[24rem] flex flex-col relative">
-                <h2 class="text-2xl font-medium" i18n>Payment Successful</h2>
+                <h2 class="text-2xl font-medium">Payment Successful</h2>
                 <h3 class="text-xl font-medium mb-2">
                     Ref #{{ transaction_id }}
                 </h3>
-                <p i18n>{{ details.amount / 100 | currency: code }} paid.</p>
-                <p i18n>{{ details.resource_name }} booked.</p>
+                <p>{{ details.amount / 100 | currency: code }} paid.</p>
+                <p>{{ details.resource_name }} booked.</p>
                 <p>{{ details.date | date: 'mediumDate' }}</p>
-                <p i18n>
+                <p>
                     {{ details.date | date: 'shortTime' }} and
                     {{
                         details.date + details.duration * 60 * 1000
@@ -101,7 +96,7 @@ export interface PaymentData {
             </main>
             <img src="assets/icons/payment-confirmed.svg" class="w-full" />
             <footer class="p-4 border-t border-base-200">
-                <button btn matRipple mat-dialog-close class="w-full" i18n>
+                <button btn matRipple mat-dialog-close class="w-full">
                     Great, thanks.
                 </button>
             </footer>
@@ -123,7 +118,7 @@ export class PaymentModalComponent {
 
     constructor(
         @Inject(MAT_DIALOG_DATA) private _data: PaymentData,
-        private _org: OrganisationService
+        private _org: OrganisationService,
     ) {}
 
     public async processPayment() {

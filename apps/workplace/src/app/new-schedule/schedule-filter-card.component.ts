@@ -101,10 +101,10 @@ import { SettingsService } from '@placeos/common';
                     <app-icon>people</app-icon>
                 </div>
                 <div class="flex-1">
-                    <div class="" i18n>
+                    <div class="">
                         {{ 'WPA.VISITORS' | translate }}
                     </div>
-                    <div class="text-sm opacity-60" i18n>
+                    <div class="text-sm opacity-60">
                         {{ 'WPA.SCHEDULE_VISITOR_FILTER' | translate }}
                     </div>
                 </div>
@@ -127,10 +127,10 @@ import { SettingsService } from '@placeos/common';
                     <app-icon>door_back</app-icon>
                 </div>
                 <div class="flex-1">
-                    <div class="" i18n>
+                    <div class="">
                         {{ 'WPA.LOCKERS' | translate }}
                     </div>
-                    <div class="text-sm opacity-60" i18n>
+                    <div class="text-sm opacity-60">
                         {{ 'WPA.SCHEDULE_LOCKER_FILTER' | translate }}
                     </div>
                 </div>
@@ -153,10 +153,10 @@ import { SettingsService } from '@placeos/common';
                     <app-icon>door_back</app-icon>
                 </div>
                 <div class="flex-1">
-                    <div class="" i18n>
+                    <div class="">
                         {{ 'WPA.GROUP_EVENT' | translate }}
                     </div>
-                    <div class="text-sm opacity-60" i18n>
+                    <div class="text-sm opacity-60">
                         {{ 'WPA.SCHEDULE_GROUP_EVENT_FILTER' | translate }}
                     </div>
                 </div>

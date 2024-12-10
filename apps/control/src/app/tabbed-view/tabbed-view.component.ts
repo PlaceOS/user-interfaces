@@ -54,7 +54,7 @@ import { OrganisationService } from '@placeos/organisation';
                 <p class="text-lg">{{ (system | async).name }}</p>
                 <div class="absolute bottom-0 left-0 p-2">
                     <div class="text-xs opacity-60 w-full">
-                        <ng-container i18n>Version: </ng-container>
+                        <ng-container>Version: </ng-container>
                         <button
                             class="underline p-0 m-0 bg-none border-none text-xs"
                             (click)="viewChangelog()"

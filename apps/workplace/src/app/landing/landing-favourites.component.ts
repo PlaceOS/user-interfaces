@@ -24,10 +24,7 @@ const EMPTY = [];
         <div
             class="flex items-center justify-between py-2 mx-2 border-b border-base-200"
         >
-            <h2 class="mx-2" i18n>
-                {{ spaces?.length || 0 }}
-                {spaces?.length, plural, =1 {Resource } other {Resources }}
-            </h2>
+            <h2 class="mx-2">{{ spaces?.length || 0 }} Resource(s)</h2>
             <!-- <div class="flex items-center space-x-2 text-primary">
                 <button icon
                     class="!border !border-solid !border-primary"
@@ -101,12 +98,9 @@ const EMPTY = [];
                                 <app-icon class="text-blue-500"
                                     >people</app-icon
                                 >
-                                <div i18n>
+                                <div>
+                                    Capacity
                                     {{ (item | space | async)?.capacity || 2 }}
-                                    {(item | space | async)?.capacity || 2, plural,
-                                        =1 {Person }
-                                        other {People }
-                                    }
                                 </div>
                             </div>
                         </div>
@@ -201,7 +195,6 @@ const EMPTY = [];
                         matRipple
                         class="w-full inverse"
                         (click)="newBooking(item.type, item)"
-                        i18n
                     >
                         {{ 'WPA.BOOK' | translate }}
                     </button>

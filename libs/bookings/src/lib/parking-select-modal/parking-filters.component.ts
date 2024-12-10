@@ -21,7 +21,7 @@ import { addDays, endOfDay } from 'date-fns';
                     <app-icon>keyboard_arrow_left</app-icon>
                 </button>
             </div>
-            <h3 class="font-medium flex-2 text-center" i18n>Space Filters</h3>
+            <h3 class="font-medium flex-2 text-center">Space Filters</h3>
             <div class="flex-1"></div>
         </div>
         <form
@@ -29,9 +29,9 @@ import { addDays, endOfDay } from 'date-fns';
             [formGroup]="form"
         >
             <section details>
-                <h2 class="text-lg font-medium" i18n>Details</h2>
+                <h2 class="text-lg font-medium">Details</h2>
                 <div class="flex-1 min-w-[256px] flex flex-col">
-                    <label for="location" i18n>Location</label>
+                    <label for="location">Location</label>
                     <ng-container *ngIf="!use_region">
                         <mat-form-field
                             appearance="outline"
@@ -69,7 +69,6 @@ import { addDays, endOfDay } from 'date-fns';
                                 "
                                 [ngModelOptions]="{ standalone: true }"
                                 placeholder="Any Level"
-                                i18n-placeholder
                             >
                                 <mat-option
                                     *ngFor="let lvl of levels | async"
@@ -92,7 +91,6 @@ import { addDays, endOfDay } from 'date-fns';
                                 (ngModelChange)="setRegion($event)"
                                 [ngModelOptions]="{ standalone: true }"
                                 placeholder="Any Region"
-                                i18n-placeholder
                             >
                                 <mat-option
                                     *ngFor="let reg of regions | async"
@@ -115,7 +113,6 @@ import { addDays, endOfDay } from 'date-fns';
                                 "
                                 [ngModelOptions]="{ standalone: true }"
                                 placeholder="Any Level"
-                                i18n-placeholder
                             >
                                 <mat-option [value]="">Any Level</mat-option>
                                 <mat-optgroup
@@ -134,7 +131,7 @@ import { addDays, endOfDay } from 'date-fns';
                     </ng-container>
                 </div>
                 <div class="flex-1 min-w-[256px]">
-                    <label for="date" i18n>Date<span>*</span></label>
+                    <label for="date">Date<span>*</span></label>
                     <a-date-field
                         name="date"
                         [ngModel]="form.value.date"
@@ -147,9 +144,7 @@ import { addDays, endOfDay } from 'date-fns';
                 </div>
                 <div class="flex items-center space-x-2" *ngIf="false">
                     <div class="flex-1 w-1/3">
-                        <label for="start-time" i18n
-                            >Start Time<span>*</span></label
-                        >
+                        <label for="start-time">Start Time<span>*</span></label>
                         <a-time-field
                             name="start-time"
                             [ngModel]="form.value.date"
@@ -159,9 +154,7 @@ import { addDays, endOfDay } from 'date-fns';
                         ></a-time-field>
                     </div>
                     <div class="flex-1 w-1/3">
-                        <label for="end-time" i18n
-                            >End Time<span>*</span></label
-                        >
+                        <label for="end-time">End Time<span>*</span></label>
                         <a-duration-field
                             name="end-time"
                             formControlName="duration"
@@ -174,9 +167,9 @@ import { addDays, endOfDay } from 'date-fns';
                 </div>
             </section>
             <section favs class="space-y-2 pb-4">
-                <h2 class="text-lg font-medium" i18n>Favourites</h2>
+                <h2 class="text-lg font-medium">Favourites</h2>
                 <div class="flex items-center">
-                    <div for="fav" class="flex-1 w-1/2" i18n>
+                    <div for="fav" class="flex-1 w-1/2">
                         Only show favourite spaces
                     </div>
                     <mat-checkbox
@@ -193,7 +186,7 @@ import { addDays, endOfDay } from 'date-fns';
                 class="space-y-2"
                 *ngIf="(features | async)?.length"
             >
-                <h2 class="text-lg font-medium" i18n>Facilities</h2>
+                <h2 class="text-lg font-medium">Facilities</h2>
                 <div
                     class="flex items-center"
                     *ngFor="let feat of features | async"
@@ -212,7 +205,7 @@ import { addDays, endOfDay } from 'date-fns';
             class="px-2 pt-2 w-full border-t border-base-200"
             *ngIf="can_close"
         >
-            <button btn matRipple close class="w-full" (click)="close()" i18n>
+            <button btn matRipple close class="w-full" (click)="close()">
                 Apply Filters
             </button>
         </div>

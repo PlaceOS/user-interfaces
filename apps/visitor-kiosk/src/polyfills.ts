@@ -1,5 +1,5 @@
 /***************************************************************************************************
- * Load `$localize` onto the global scope - used if i18n tags appear in Angular templates.
+ * Load `$localize` onto the global scope - used if tags appear in Angular templates.
  */
 
 /**

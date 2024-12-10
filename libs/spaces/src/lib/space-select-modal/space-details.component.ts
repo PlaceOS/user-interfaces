@@ -71,10 +71,10 @@ import { Space } from '../space.class';
                 </div>
                 <hr />
                 <section details class="space-y-2">
-                    <h2 class="text-xl font-medium" i18n>Details</h2>
+                    <h2 class="text-xl font-medium">Details</h2>
                     <div class="flex items-center space-x-2">
                         <app-icon>people</app-icon>
-                        <p i18n>{{ space.capacity }} People</p>
+                        <p>{{ space.capacity }} People</p>
                     </div>
                     <div class="flex items-center space-x-2">
                         <app-icon>meeting_room</app-icon>
@@ -99,13 +99,13 @@ import { Space } from '../space.class';
                     class="space-y-2"
                     *ngIf="space.features?.length"
                 >
-                    <h2 class="text-xl font-medium" i18n>Room Facilities</h2>
+                    <h2 class="text-xl font-medium">Room Facilities</h2>
                     <div
                         class="flex items-center space-x-2"
                         *ngFor="let feature of space.features"
                     >
                         <!-- <app-icon>people</app-icon> -->
-                        <p i18n>{{ feature }}</p>
+                        <p>{{ feature }}</p>
                     </div>
                 </section>
                 <section
@@ -149,7 +149,7 @@ import { Space } from '../space.class';
                 empty
                 class="p-16 flex flex-col items-center justify-center space-y-2"
             >
-                <p class="opacity-30 text-center" i18n>
+                <p class="opacity-30 text-center">
                     Select a room to view it's details
                 </p>
             </div>

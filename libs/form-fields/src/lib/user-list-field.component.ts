@@ -101,7 +101,6 @@ const DENIED_FILE_TYPES = [
                     <input
                         #search_field
                         placeholder="Type a name or email"
-                        i18n-placeholder
                         name="user_email"
                         [ngModel]="search$ | async"
                         (ngModelChange)="updateSearch($event)"
@@ -120,7 +119,6 @@ const DENIED_FILE_TYPES = [
                     <mat-option
                         *ngIf="search_valid_email"
                         (click)="addUserFromEmail()"
-                        i18n
                     >
                         Add external user with email "{{ search$.getValue() }}"
                     </mat-option>
@@ -146,7 +144,6 @@ const DENIED_FILE_TYPES = [
                     name="new-contact"
                     class="inverse flex-1 sm:flex-none"
                     (click)="openNewUserModal()"
-                    i18n="Add new external attendee"
                 >
                     <div class="flex items-center justify-center">
                         Add&nbsp;<span class="hidden sm:inline">External</span>
@@ -158,7 +155,6 @@ const DENIED_FILE_TYPES = [
                     type="button"
                     name="upload-csv"
                     class="relative inverse flex-1 sm:flex-none"
-                    i18n="Upload attendee list from CSV file"
                 >
                     <div class="flex items-center justify-center">
                         Upload&nbsp;<span class="hidden sm:inline">CSV</span>
@@ -176,7 +172,6 @@ const DENIED_FILE_TYPES = [
                     name="download-template"
                     class="inverse flex-1 sm:flex-none"
                     (click)="downloadCSVTemplate(); download.emit()"
-                    i18n="Download template CSV file"
                 >
                     <div class="flex items-center justify-center">
                         <span class="hidden sm:inline">CSV</span>&nbsp;Template
@@ -234,7 +229,7 @@ export class UserListFieldComponent
     private searchStaff(q: string) {
         return this._settings.get('app.basic_user_search')
             ? queryUsers({ q, authority_id: authority()?.id }).pipe(
-                  map((_) => _.data.map((u) => new User(u)))
+                  map((_) => _.data.map((u) => new User(u))),
               )
             : searchStaff(q);
     }
@@ -270,15 +265,15 @@ export class UserListFieldComponent
                                       (staff as any)
                                           .concat(guests)
                                           .concat(visitors_list),
-                                      'email'
+                                      'email',
                                   );
-                              })
+                              }),
                           )
                         : this.searchStaff(_)
                     : of([])
             ).pipe(catchError((_) => of([])));
         }),
-        tap((_) => (this.loading = false))
+        tap((_) => (this.loading = false)),
     );
     /** List of active selected users on the list */
     public active_list: User[] = [];
@@ -297,7 +292,7 @@ export class UserListFieldComponent
 
     constructor(
         private _dialog: MatDialog,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         super();
     }
@@ -324,7 +319,7 @@ export class UserListFieldComponent
                 this.search$.next('');
                 this._search_el.nativeElement.value = '';
             },
-            100
+            100,
         );
     }
 
@@ -351,7 +346,7 @@ export class UserListFieldComponent
                 this.search$.next('');
                 this._search_el.nativeElement.value = '';
             },
-            100
+            100,
         );
     }
 
@@ -388,7 +383,7 @@ export class UserListFieldComponent
                     event.target.value = '';
                 });
                 reader.addEventListener('error', (_) =>
-                    notifyError('Error reading file.')
+                    notifyError('Error reading file.'),
                 );
             }
         }
@@ -414,7 +409,7 @@ export class UserListFieldComponent
                 el.email = `${display}+${id}@guest.${USER_DOMAIN}`;
             }
             const internal_emails = this._settings.get(
-                'app.bookings.internal_emails'
+                'app.bookings.internal_emails',
             ) || ['place.tech'];
             el.visit_expected =
                 el.visit_expected ??
@@ -491,7 +486,7 @@ export class UserListFieldComponent
                 width: 'auto',
                 height: 'auto',
                 data: { user },
-            }
+            },
         );
         ref.componentInstance?.event
             .pipe(first((_) => _.reason === 'done'))

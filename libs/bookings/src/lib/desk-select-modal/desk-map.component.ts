@@ -32,7 +32,6 @@ import { OrganisationService } from '@placeos/organisation';
                     (ngModelChange)="setOptions({ zone_ids: [$event.id] })"
                     [ngModelOptions]="{ standalone: true }"
                     placeholder="Any Level"
-                    i18n-placeholder
                 >
                     <mat-option
                         *ngFor="let lvl of levels | async"
@@ -102,14 +101,14 @@ export class DeskMapComponent extends AsyncHandler implements OnInit {
                 ? this._org.levelsForRegion(region)
                 : this._org.levelsForBuilding(bld);
             const viewable_levels = level_list.filter(
-                (lvl) => !lvl.tags.includes('parking')
+                (lvl) => !lvl.tags.includes('parking'),
             );
             return viewable_levels.sort(
                 (a, b) =>
                     a.parent_id.localeCompare(b.parent_id) ||
-                    (a.display_name || '').localeCompare(b.display_name || '')
+                    (a.display_name || '').localeCompare(b.display_name || ''),
             );
-        })
+        }),
     );
 
     public readonly setOptions = (o) => this._state.setOptions(o);
@@ -124,8 +123,8 @@ export class DeskMapComponent extends AsyncHandler implements OnInit {
                 id: desk.map_id || desk.id,
                 action: ['touchend', 'mouseup'],
                 callback: () => this.selectDesk(desk as any),
-            }))
-        )
+            })),
+        ),
     );
 
     public readonly features = combineLatest([
@@ -148,7 +147,7 @@ export class DeskMapComponent extends AsyncHandler implements OnInit {
                       },
                       z_index: 20,
                   }));
-        })
+        }),
     );
 
     public readonly styles = combineLatest([
@@ -163,10 +162,10 @@ export class DeskMapComponent extends AsyncHandler implements OnInit {
                     this.active === desk.id
                         ? 'active'
                         : free_desks.find((_) => _.id === desk.id)
-                        ? 'free'
-                        : this._state.resourceUserName(desk.id)
-                        ? 'busy'
-                        : 'not-bookable';
+                          ? 'free'
+                          : this._state.resourceUserName(desk.id)
+                            ? 'busy'
+                            : 'not-bookable';
                 styles[`#${desk.map_id || desk.id}`] = {
                     fill:
                         status === 'active'
@@ -176,8 +175,8 @@ export class DeskMapComponent extends AsyncHandler implements OnInit {
                               DEFAULT_COLOURS[`${status}`],
                 };
                 return styles;
-            }, {})
-        )
+            }, {}),
+        ),
     );
 
     public get use_region() {
@@ -187,7 +186,7 @@ export class DeskMapComponent extends AsyncHandler implements OnInit {
     constructor(
         private _state: BookingFormService,
         private _settings: SettingsService,
-        private _org: OrganisationService
+        private _org: OrganisationService,
     ) {
         super();
     }
@@ -198,7 +197,7 @@ export class DeskMapComponent extends AsyncHandler implements OnInit {
             this._state.options.subscribe(({ zone_id }) => {
                 const level = this._org.levelWithID([zone_id]);
                 if (level) this.level = level;
-            })
+            }),
         );
     }
 

@@ -9,7 +9,7 @@ import { AsyncHandler } from '@placeos/common';
         <div class="booking-form" [formGroup]="form">
             <div *ngIf="first_form">
                 <div>
-                    <label i18n>
+                    <label>
                         <strong>Meeting Subject:<span>*</span></strong>
                     </label>
                     <mat-form-field appearance="outline">
@@ -22,7 +22,7 @@ import { AsyncHandler } from '@placeos/common';
                     </mat-form-field>
                 </div>
                 <div *ngIf="form.controls.organiser">
-                    <label for="organiser" i18n>
+                    <label for="organiser">
                         <strong>Host:<span>*</span></strong>
                     </label>
                     <a-user-search-field
@@ -32,7 +32,7 @@ import { AsyncHandler } from '@placeos/common';
                     ></a-user-search-field>
                 </div>
                 <div>
-                    <label for="start-time" i18n>
+                    <label for="start-time">
                         <strong>Time:<span>*</span></strong>
                     </label>
                     <a-time-field
@@ -41,7 +41,7 @@ import { AsyncHandler } from '@placeos/common';
                     ></a-time-field>
                 </div>
                 <div style="margin-top: 1.5em;">
-                    <label for="duration" i18n>
+                    <label for="duration">
                         <strong>Duration:<span>*</span></strong>
                     </label>
                     <a-duration-field
@@ -60,7 +60,7 @@ import { AsyncHandler } from '@placeos/common';
                     formControlName="notes"
                 />
                 <div *ngIf="form.controls.head_count">
-                    <label for="organiser" i18n>
+                    <label for="organiser">
                         <strong>Estimated Headcount:<span>*</span></strong>
                     </label>
                     <mat-form-field appearance="outline">

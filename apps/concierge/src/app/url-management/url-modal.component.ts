@@ -40,7 +40,6 @@ import { take } from 'rxjs/operators';
                             matInput
                             name="name"
                             placeholder="Name"
-                            i18n-placeholder="@@namePlaceholder"
                             formControlName="name"
                         />
                     </mat-form-field>
@@ -62,7 +61,6 @@ import { take } from 'rxjs/operators';
                             matInput
                             name="uri"
                             placeholder="URI"
-                            i18n-placeholder="@@uriPlaceholder"
                             formControlName="uri"
                         />
                     </mat-form-field>

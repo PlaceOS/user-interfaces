@@ -32,9 +32,7 @@ import { take } from 'rxjs/operators';
             <app-icon>close</app-icon>
         </button>
         <header class="flex items-center justify-between px-2">
-            <h2 class="text-2xl font-medium mb-2" i18n>
-                Confirm Locker Booking
-            </h2>
+            <h2 class="text-2xl font-medium mb-2">Confirm Locker Booking</h2>
             <mat-spinner diameter="32" *ngIf="loading | async"></mat-spinner>
         </header>
         <section period class="flex space-x-1 py-4 px-2">
@@ -89,7 +87,7 @@ import { take } from 'rxjs/operators';
         >
             <app-icon class="text-success">done</app-icon>
             <div details class="leading-6">
-                <h3 i18n>{{ assets_count }} Asset(s)</h3>
+                <h3>{{ assets_count }} Asset(s)</h3>
                 <div class="flex space-x-2" *ngFor="let asset of assets">
                     <div class="h-5 w-5 bg-base-200 rounded-full">
                         {{ asset.amount }}
@@ -106,7 +104,6 @@ import { take } from 'rxjs/operators';
                 class="w-full"
                 *ngIf="!(loading | async)"
                 (click)="postForm()"
-                i18n
             >
                 Confirm
             </button>
@@ -156,10 +153,10 @@ export class BookLockerFlowConfirmComponent extends AsyncHandler {
 
     public get location() {
         const building = this._org.buildings.find(
-            (b) => b.id === this.booking_asset?.zone?.parent_id
+            (b) => b.id === this.booking_asset?.zone?.parent_id,
         );
         const level = this._org.levels.find(
-            (l) => l.id === this.booking_asset?.zone?.id
+            (l) => l.id === this.booking_asset?.zone?.id,
         );
         return `${level?.display_name || level?.name}${building ? ',' : ''} ${
             building?.address || building?.display_name || building?.name || ''
@@ -170,7 +167,7 @@ export class BookLockerFlowConfirmComponent extends AsyncHandler {
         private _state: BookingFormService,
         private _org: OrganisationService,
         @Optional() private _sheet_ref: MatBottomSheetRef,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         super();
     }

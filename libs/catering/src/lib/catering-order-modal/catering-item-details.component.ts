@@ -99,7 +99,7 @@ interface CateringOptionGroup {
                                         [disabled]="item?.in_order"
                                     >
                                         <mat-radio-button class="m-0" value="">
-                                            <span class="font-medium p-2" i18n
+                                            <span class="font-medium p-2"
                                                 >None</span
                                             >
                                         </mat-radio-button>
@@ -190,7 +190,7 @@ interface CateringOptionGroup {
                 empty
                 class="p-16 flex flex-col items-center justify-center space-y-2"
             >
-                <p class="opacity-30 text-center" i18n>
+                <p class="opacity-30 text-center">
                     Select an item to view it's details
                 </p>
             </div>
@@ -268,7 +268,7 @@ export class CateringItemDetailsComponent {
                     this.option_state[opt.id] = true;
                     this.updateGroupOption(
                         this.groups.find((g) => g.name === option.group),
-                        option.id
+                        option.id,
                     );
                 }
             }

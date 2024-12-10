@@ -17,7 +17,7 @@ import { User } from 'libs/users/src/lib/user.class';
                 >
                     <app-icon>arrow_back</app-icon>
                 </button>
-                <div class="flex-1 text-center font-medium" i18n>
+                <div class="flex-1 text-center font-medium">
                     {{ list.length }}
                     {{
                         custom_title
