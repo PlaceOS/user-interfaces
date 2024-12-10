@@ -1,6 +1,7 @@
 {
     "COMMON": {
-        "TODAY": "Today"
+        "TODAY": "Today",
+        "INVALID_FIELDS": "Some fields are invalid. [{{ field_list }}]"
     },
     "WPA": {
         "COLLEAGUES": "Colleagues",
@@ -93,5 +94,54 @@
         "TITLE_ERROR": "Meeting title is required.",
         "ATTENDEES": "Attendees",
         "NOTES": "Notes"
+    },
+    "VISITOR_KIOSK": {
+        "APP": "Visitor Kiosk",
+        "SETUP": "Setup",
+        "SELECT_REGION_MSG": "Select a region from the dropdown below",
+        "SELECT_REGION": "Select region",
+        "SELECT_BUILDING_MSG": "Select a building from the dropdown below",
+        "SELECT_BUILDING": "Select building",
+        "SELECT_LEVEL_MSG": "Select a level from the dropdown below",
+        "SELECT_LEVEL": "Select level",
+        "SELECT_ORIENTATION_MSG": "Select an orientation from the dropdown below",
+        "SELECT_ORIENTATION": "Select orientation",
+        "SELECT_LOCATION_MSG": "Select a fixed location from the dropdown below",
+        "SELECT_LOCATION": "Select location",
+        "WELCOME_MESSAGE": "<p>Welcome to Place<span class=\"text-primary\">OS</span></p><p>Self Service Kiosk</p>",
+        "CHECK_IN": "Check-in",
+        "VISITOR": "Visitor",
+        "REGISTER": "Register",
+        "REGISTRATION": "Visitor Registration",
+        "EXPLORE": "Explore",
+        "QR_CODE_MSG": "Please enter your email address or scan your QR code",
+        "NAME": "Name",
+        "EMAIL": "Email",
+        "INVALID_EMAIL": "Invalid email address",
+        "EMAIL_REQUIRED": "A valid email address is required",
+        "FIND_DETAILS": "Find Details",
+        "LOADING_DETAILS": "Loading visitor information...",
+        "CAMERA_UNAVAILABLE": "Camera feed loading...",
+        "HOST": "Host",
+        "PHONE": "Phone",
+        "ORGANISATION": "Organization",
+        "CHECKED_IN_MSG": "You are checked in!",
+        "TAKE_PHOTO": "Take a photo to continue",
+        "CONFIRM": "Done",
+        "PRINT_LABEL": "Print Label",
+        "PRINT_LOADING": "Printing guest pass...",
+        "ARRIVED_MSG": "Your visitor \"{{ name }}\" has arrived and is waiting at reception",
+        "INDUCTION_MSG": "Please read the induction information below before proceeding",
+        "ACCEPT_TERMS": "I agree",
+        "ACCEPT": "Accept",
+        "DECLINE": "Decline",
+        "CHECKIN_LOADING": "Saving details and checking in...",
+        "CONTINUE": "Next",
+        "SAVE": "Save",
+        "BEVERAGE_MSG": "Would you like a drink?",
+        "ERROR_PRINT": "Error printing visitor pass",
+        "ERROR_CHECKIN": "Error checking in {{ guest }} for {{ host }}'s meeting.",
+        "SUCCESS_CHECKIN": "Successfully checked in {{ guest }} for {{ host }}'s meeting",
+        "NOT_FOUND": "No meetings for guest \"{{ email }}\" today"
     }
 }
