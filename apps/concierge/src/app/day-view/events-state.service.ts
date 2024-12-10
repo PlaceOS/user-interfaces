@@ -141,7 +141,7 @@ export class EventsStateService extends AsyncHandler {
         tap((_) => this.unsubWith('bind:')),
         switchMap(([zone_ids]) => {
             this._loading.next(true);
-            if (!zone_ids?.length || zone_ids[0] === this._org.region.id) {
+            if (!zone_ids?.length || zone_ids[0] === this._org.region?.id) {
                 zone_ids = (this._settings.get('app.use_region')
                     ? this._org
                           .buildingsForRegion(this._org.region)
