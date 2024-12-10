@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1731026147941,
+  "timestamp": 1733809045852,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -13,10 +13,9 @@
       "urls": [
         "./favicon.ico",
         "./index.html",
-        "./main.f4de9da4757fb5b7.js",
-        "./polyfills.4227380e057d8cc3.js",
-        "./runtime.e8421102b1145d79.js",
-        "./styles.a7fd4d6741ca31ad.css"
+        "./main-4BKAHUH2.js",
+        "./polyfills-EONH2QZO.js",
+        "./styles-US7Z5ERW.css"
       ],
       "patterns": []
     },
@@ -76,8 +75,11 @@
         "./assets/locale/en-US.json",
         "./assets/locale/en.json",
         "./assets/locale/es.json",
+        "./assets/locale/fr-CA.json",
         "./assets/locale/fr.json",
+        "./assets/locale/it.json",
         "./assets/locale/pt.json",
+        "./assets/locale/zh.json",
         "./assets/logo-dark.svg",
         "./assets/logo-light.svg",
         "./assets/maps/level_1.svg",
@@ -102,15 +104,7 @@
         "./assets/yolov8x_web_model/group1-shard3of4.bin",
         "./assets/yolov8x_web_model/group1-shard4of4.bin",
         "./assets/yolov8x_web_model/metadata.yaml",
-        "./assets/yolov8x_web_model/model.json",
-        "./material-icons-outlined.f86cb7b0aa53f0fe.woff2",
-        "./material-icons-round.b10ec9db5b7fbc74.woff2",
-        "./material-icons-sharp.3885863ee4746422.woff2",
-        "./material-icons-two-tone.675bd578bd14533e.woff2",
-        "./material-icons.59322316b3fd6063.woff2",
-        "./material-symbols-outlined.bcc6ea8cf49c6826.woff2",
-        "./material-symbols-rounded.d51d7c7913e7f9fc.woff2",
-        "./material-symbols-sharp.50f198bbcba918df.woff2"
+        "./assets/yolov8x_web_model/model.json"
       ],
       "patterns": []
     }
@@ -160,13 +154,16 @@
     "./assets/icons/today-outline.svg": "40fc045c0b90aa2313cc5385260781ba5b55b8ad",
     "./assets/icons/user-avatar.jpg": "f757773a550a69b954c833376a6f1eed8ad4683c",
     "./assets/icons/visa.svg": "11187e2ea86894625af0aeb5b85c17bcbf8fe192",
-    "./assets/locale/ar.json": "9d39f81ce08112ff2e2c8c9d392e763f1c48083b",
-    "./assets/locale/en-GB.json": "491c369f93bc8167a5edbb3c532d4c8a4789add9",
-    "./assets/locale/en-US.json": "81523fe248ffc6bc7a03223e607ced1757bc0b34",
-    "./assets/locale/en.json": "3735bb509d8dfe7f782a144a12559511460ab401",
-    "./assets/locale/es.json": "12fcaef177f45954851f4dbfddb85122b91b0207",
-    "./assets/locale/fr.json": "7beffd170a366f52b07f51eb5dc99984816391f7",
-    "./assets/locale/pt.json": "0015e70d7d1cae1bfa3b79623656d0d33a6e26de",
+    "./assets/locale/ar.json": "e35b2842b2eaf6393e27913cecd0ab8f3223102d",
+    "./assets/locale/en-GB.json": "05ba863613a406f0530613f16bd011bf221c23c5",
+    "./assets/locale/en-US.json": "f9e6170b158d3c57fc5d5eb3d21f77ccdb0ca2eb",
+    "./assets/locale/en.json": "04e6b457256b6a6228ccc255fa98207515488737",
+    "./assets/locale/es.json": "0b19ed0eb0ba7375f3e3a57739e1492b40f2f995",
+    "./assets/locale/fr-CA.json": "e7c7d4146005a15dbe0e6f1cfecfd09227010f82",
+    "./assets/locale/fr.json": "b72b91f6ea6b3f7070317062f81c7aa0a3c05110",
+    "./assets/locale/it.json": "fa337088311dd9e83461266395b8a1699f3a0afe",
+    "./assets/locale/pt.json": "0d093fa89ceb3887e7757c787ccc34509ac1d781",
+    "./assets/locale/zh.json": "da00631642f59f04ed1f58e5ad239e19f764e50e",
     "./assets/logo-dark.svg": "3c5dbbd620a781a0d1e3680cb697982dd44a1613",
     "./assets/logo-light.svg": "29908fafefe60c105f06b2f8d69f7c1eed436c17",
     "./assets/maps/level_1.svg": "ba165a2e4b967619f71aa625855113950c4cde53",
@@ -193,19 +190,10 @@
     "./assets/yolov8x_web_model/metadata.yaml": "b1a29dc18ee0c4b5f0f7240d2d92cd8b2fa03318",
     "./assets/yolov8x_web_model/model.json": "51607c6c0f465d41cdca4d65a17cfbf9c9f99c62",
     "./favicon.ico": "4e23d0f9b6ddaf3c9ddef90dbaed2342941297b5",
-    "./index.html": "c169f9e341eccf0327590b78cc378be3214db0cc",
-    "./main.f4de9da4757fb5b7.js": "5558d68376ac8a5aad0381f64be7282ca7d5eaa4",
-    "./material-icons-outlined.f86cb7b0aa53f0fe.woff2": "2f9e28ab559782402f27332633c843c40209d95a",
-    "./material-icons-round.b10ec9db5b7fbc74.woff2": "abe05e0641f1050fbe00ef0dbb10c5ea72c26cff",
-    "./material-icons-sharp.3885863ee4746422.woff2": "cf1c7b4d066d18af44cf7bc664dd2e46652a3a30",
-    "./material-icons-two-tone.675bd578bd14533e.woff2": "296ff0bff395a77c2e33e7e31fffe73980bd93cf",
-    "./material-icons.59322316b3fd6063.woff2": "0bc0c675480d94ec7e8609dda6227f88c5d08d2c",
-    "./material-symbols-outlined.bcc6ea8cf49c6826.woff2": "8eabd6dbf6426bf2cb725b3d0c68ec5ce0c55227",
-    "./material-symbols-rounded.d51d7c7913e7f9fc.woff2": "1b5557d408be7a0280f189251a25719a114dfb5e",
-    "./material-symbols-sharp.50f198bbcba918df.woff2": "3ca7850e8f453acc7afc0a9f3afa7c83140d3608",
-    "./polyfills.4227380e057d8cc3.js": "68b17f3f9f481b891687147522eb642a3c7565db",
-    "./runtime.e8421102b1145d79.js": "f858c5f7f19e0da4ab48b3198c5b142f7a3a1adf",
-    "./styles.a7fd4d6741ca31ad.css": "a3c201ac5ac7d19bbb3ac648d4e8a2198cb62e3f"
+    "./index.html": "2fe51d0b719ed721593b0eed4adfabe1ed96e4e3",
+    "./main-4BKAHUH2.js": "f9bab28e6222e7c4788c5a24ef9f9e869a69048f",
+    "./polyfills-EONH2QZO.js": "e61db933651ae257d0c246b446cd1f470be08f78",
+    "./styles-US7Z5ERW.css": "8c7c789a7dc47c50e4afdc8d8eb838525921d6b0"
   },
   "navigationUrls": [
     {
