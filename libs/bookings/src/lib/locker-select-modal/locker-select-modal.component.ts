@@ -6,7 +6,7 @@ import {
     BookingFlowOptions,
     BookingFormService,
 } from '../booking-form.service';
-import { LockerBank } from '../lockers.service';
+import { LockerBank } from '../locker.class';
 
 export const FAV_LOCKER_KEY = 'favourite_lockers';
 

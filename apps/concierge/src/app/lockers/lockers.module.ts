@@ -21,6 +21,8 @@ import { FormFieldsModule } from '@placeos/form-fields';
 import { NewLockersComponent } from './new-lockers.component';
 import { LockerListComponent } from './locker-list.component';
 import { LockerModalComponent } from './locker-modal.component';
+import { LockerBookingModalComponent } from './locker-booking-modal.component';
+import { LockerBankModalComponent } from './locker-bank-modal.component';
 
 const ROUTES: Route[] = [
     {
@@ -51,6 +53,8 @@ const ROUTES: Route[] = [
         LockersTopbarComponent,
         LockerListComponent,
         LockerModalComponent,
+        LockerBookingModalComponent,
+        LockerBankModalComponent,
     ],
     imports: [
         CommonModule,

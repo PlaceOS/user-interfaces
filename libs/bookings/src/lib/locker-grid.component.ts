@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { Locker, LockerBank } from './lockers.service';
 import { SettingsService } from '@placeos/common';
 import { DEFAULT_COLOURS } from 'libs/explore/src/lib/explore-spaces.service';
+import { Locker, LockerBank } from './locker.class';
 
 @Component({
     selector: 'locker-grid',

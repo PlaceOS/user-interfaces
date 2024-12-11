@@ -111,7 +111,7 @@ export class ApplicationSidebarComponent extends AsyncHandler {
                 {
                     id: 'lockers',
                     name: 'Lockers',
-                    route: ['/book/lockers/new'],
+                    route: ['/book/lockers/new/events'],
                 },
                 {
                     id: 'assets',

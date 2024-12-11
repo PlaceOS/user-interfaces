@@ -12,13 +12,23 @@ import {
     catchError,
     debounceTime,
     distinctUntilChanged,
+    filter,
+    first,
     map,
     scan,
     shareReplay,
     switchMap,
+    take,
     tap,
 } from 'rxjs/operators';
-import { endOfDay, format, getUnixTime, startOfDay } from 'date-fns';
+import {
+    addHours,
+    endOfDay,
+    format,
+    getUnixTime,
+    set,
+    startOfDay,
+} from 'date-fns';
 
 import {
     approveBooking,
@@ -26,8 +36,11 @@ import {
     checkinBooking,
     Locker,
     LockerBank,
+    queryBookings,
     queryPagedBookings,
+    RecurrenceDays,
     rejectBooking,
+    removeBooking,
     saveBooking,
 } from '@placeos/bookings';
 import {
@@ -37,17 +50,22 @@ import {
     notifyInfo,
     notifySuccess,
     openConfirmModal,
+    randomInt,
     SettingsService,
+    unique,
 } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 
 import { QueryResponse } from '@placeos/ts-client/dist/esm/resources/functions';
 import {
-    listChildMetadata,
     PlaceMetadata,
-    PlaceZoneMetadata,
     showMetadata,
+    updateMetadata,
 } from '@placeos/ts-client';
+import { LockerModalComponent } from './locker-modal.component';
+import { User } from '@sentry/angular';
+import { LockerBookingModalComponent } from './locker-booking-modal.component';
+import { LockerBankModalComponent } from './locker-bank-modal.component';
 
 export interface LockerFilters {
     date?: number;
@@ -67,6 +85,7 @@ export class LockerStateService extends AsyncHandler {
     // private _new_lockers = new BehaviorSubject<Locker[]>([]);
     private _locker_bookings: Booking[] = [];
     private _loading = new BehaviorSubject<string>('');
+    private _change = new BehaviorSubject(0);
     /** List of available locker levels for the current building */
     public levels = this._org.level_list.pipe(
         map((_) => {
@@ -90,53 +109,122 @@ export class LockerStateService extends AsyncHandler {
 
     public readonly filters = this._filters.asObservable();
 
-    public readonly locker_banks: Observable<LockerBank[]> = combineLatest([
-        this._filters,
+    public readonly lockers_banks$: Observable<LockerBank[]> = combineLatest([
+        this._org.active_building,
+        this._org.active_region,
+        this._change,
     ]).pipe(
-        switchMap(([{ zones }]) => {
-            let zone_list = zones?.length
-                ? zones
-                : this._settings.get('app.use_region')
-                  ? this._org.levelsForRegion()
-                  : this._org.levelsForBuilding();
-            return forkJoin(
-                zone_list.map((id) =>
-                    showMetadata(id, 'lockers').pipe(
-                        catchError(() => of({ details: [] as any })),
-                        map((_) => ((_ as any).zone = id)),
-                    ),
-                ),
-            );
-        }),
-        map((_: PlaceMetadata[]) =>
-            flatten(
-                _.map((_) =>
-                    _.details instanceof Array
-                        ? _.details.map((bank) => ({
-                              ...bank,
-                              zone: (_ as any).zone,
-                          }))
-                        : [],
-                ),
-            ),
+        filter(([bld]) => !!bld),
+        switchMap(([bld]) =>
+            this._settings.get('app.use_region')
+                ? forkJoin(
+                      this._org.buildingsForRegion().map((building) =>
+                          showMetadata(building.id, 'locker_banks').pipe(
+                              catchError(() => of(new PlaceMetadata())),
+                              map((_) =>
+                                  _.details instanceof Array ? _.details : [],
+                              ),
+                          ),
+                      ),
+                  ).pipe(map((_: LockerBank[][]) => flatten(_)))
+                : showMetadata(bld.id, 'locker_banks').pipe(
+                      catchError(() => of(new PlaceMetadata())),
+                      map((_) => (_.details instanceof Array ? _.details : [])),
+                  ),
         ),
         shareReplay(1),
     );
 
-    public readonly lockers = this.locker_banks.pipe(
-        map((bank_list) => {
-            const lockers = [];
-            for (const bank of bank_list) {
-                for (const locker of bank.lockers) {
-                    lockers.push({
-                        ...locker,
-                        bank_id: bank.id,
-                    } as Locker);
-                }
+    public readonly lockers$: Observable<Locker[]> = combineLatest([
+        this._org.active_building,
+        this._org.active_region,
+        this._change,
+    ]).pipe(
+        filter(([bld]) => !!bld),
+        switchMap(([bld]) =>
+            combineLatest([
+                this._settings.get('app.use_region')
+                    ? forkJoin(
+                          this._org.buildingsForRegion().map((building) =>
+                              showMetadata(building.id, 'lockers').pipe(
+                                  catchError(() => of(new PlaceMetadata())),
+                                  map((_) =>
+                                      _.details instanceof Array
+                                          ? _.details
+                                          : [],
+                                  ),
+                              ),
+                          ),
+                      ).pipe(map((_: Locker[][]) => flatten(_)))
+                    : showMetadata(bld.id, 'lockers').pipe(
+                          catchError(() => of(new PlaceMetadata())),
+                          map((_) =>
+                              _.details instanceof Array ? _.details : [],
+                          ),
+                      ),
+                this.lockers_banks$,
+            ]),
+        ),
+        map(([lockers, banks]: any) => {
+            const locker_list = lockers;
+            for (const bank of banks) {
+                bank.lockers = lockers
+                    .filter((_) => _.bank_id === bank.id)
+                    .map((_) => ({ ..._ }));
             }
-            return lockers;
+            for (const locker of locker_list) {
+                const bank = banks.find((b) => b.id === locker.bank_id);
+                locker.bank = bank;
+                locker.zone = bank.zone;
+            }
+            return lockers.filter((_) => _.bank);
         }),
         shareReplay(1),
+    );
+
+    public filtered_lockers = combineLatest([this.filters, this.lockers$]).pipe(
+        map(([{ zones, search }, list]) => {
+            search = (search || '').toLowerCase();
+            return list.filter((item) => {
+                if (!zones?.length && !search) return;
+                let match = true;
+                if (search) {
+                    match =
+                        item.name.toLowerCase().includes(search) ||
+                        item.bank.name.toLowerCase().includes(search);
+                }
+                if (zones?.length) {
+                    match = !!zones.find((zone) =>
+                        ((item as any).zones || item.bank.zones || []).includes(
+                            zone,
+                        ),
+                    );
+                }
+                return match;
+            });
+        }),
+    );
+
+    public filtered_banks = combineLatest([
+        this.filters,
+        this.lockers_banks$,
+    ]).pipe(
+        map(([{ zones, search }, list]) => {
+            search = (search || '').toLowerCase();
+            return list.filter((item) => {
+                if (!zones?.length && !search) return;
+                let match = true;
+                if (search) {
+                    match = item.name.toLowerCase().includes(search);
+                }
+                if (zones?.length) {
+                    match = !!zones.find((zone) =>
+                        (item.zones || []).includes(zone),
+                    );
+                }
+                return match;
+            });
+        }),
     );
 
     private _next_page = new Subject<() => QueryResponse<Booking>>();
@@ -264,11 +352,163 @@ export class LockerStateService extends AsyncHandler {
         this.timeout('poll', () => this.setFilters(this._filters.getValue()));
     }
 
-    public editLocker(locker: Locker = {} as any) {}
+    /** Add or update a space in the available list */
+    public async editLockerBank(bank: LockerBank = {} as any) {
+        const ref = this._dialog.open(LockerBankModalComponent, {
+            data: bank,
+        });
+        const state = await Promise.race([
+            ref.afterClosed().toPromise(),
+            ref.componentInstance.event
+                .pipe(first((_) => _.reason === 'done'))
+                .toPromise(),
+        ]);
+        if (state?.reason !== 'done') return;
+        const zone = this._org.building.id;
+        const new_bank = {
+            ...state.metadata,
+            zone,
+            id: bank.id || `locker-bank-${randomInt(999_999)}`,
+        };
+        const banks = await this.lockers_banks$.pipe(take(1)).toPromise();
+        const idx = banks.findIndex((_) => _.id === new_bank.id);
+        if (idx >= 0) banks[idx] = new_bank;
+        else banks.push(new_bank);
+        const new_locker_list = banks.map((_) => ({ ..._ }));
+        for (const bank of new_locker_list) {
+            delete bank.lockers;
+        }
+        await updateMetadata(zone, {
+            name: 'locker_banks',
+            details: new_locker_list,
+            description: 'List of available locker banks',
+        }).toPromise();
+        this._change.next(Date.now());
+        ref.close();
+    }
+
+    /** Add or update a space in the available list */
+    public async editLocker(bank_id: string, locker: Locker = {} as any) {
+        const ref = this._dialog.open(LockerModalComponent, {
+            data: locker,
+        });
+        const state = await Promise.race([
+            ref.afterClosed().toPromise(),
+            ref.componentInstance.event
+                .pipe(first((_) => _.reason === 'done'))
+                .toPromise(),
+        ]);
+        if (state?.reason !== 'done') return;
+        const zone = this._org.building.id;
+        const new_locker = {
+            ...state.metadata,
+            bank_id,
+            zone,
+            id: locker.id || `locker-${zone}.${randomInt(999_999)}`,
+        };
+        const lockers = await this.lockers$.pipe(take(1)).toPromise();
+        const idx = lockers.findIndex((_) => _.id === new_locker.id);
+        if (
+            locker.assigned_to &&
+            locker.assigned_to !== new_locker.assigned_to
+        ) {
+            this._clearAssignedBooking(locker);
+        }
+        if (
+            locker.assigned_to !== new_locker.assigned_to &&
+            new_locker.assigned_to
+        ) {
+            const date = set(Date.now(), { hours: 4, minutes: 0, seconds: 0 });
+            await saveBooking(
+                new Booking({
+                    user_id: new_locker.assigned_to,
+                    user_email: new_locker.assigned_to,
+                    booking_start: getUnixTime(date),
+                    booking_end: getUnixTime(addHours(date, 16)),
+                    type: 'locker',
+                    booking_type: 'locker',
+                    asset_id: new_locker.id,
+                    asset_name: new_locker.name,
+                    recurrence_type: 'daily',
+                    recurrence_days:
+                        RecurrenceDays.MONDAY |
+                        RecurrenceDays.TUESDAY |
+                        RecurrenceDays.WEDNESDAY |
+                        RecurrenceDays.THURSDAY |
+                        RecurrenceDays.FRIDAY,
+                    zones: unique([
+                        this._org.organisation.id,
+                        this._org.region?.id,
+                        this._org.building?.id,
+                        new_locker.zone_id ||
+                            new_locker.zone?.id ||
+                            new_locker.zone,
+                    ]),
+                    extension_data: {
+                        asset_name: new_locker.name,
+                    },
+                }),
+            ).toPromise();
+        }
+        if (idx >= 0) lockers[idx] = new_locker;
+        else lockers.push(new_locker);
+        const new_locker_list = lockers;
+        await updateMetadata(zone, {
+            name: 'lockers',
+            details: new_locker_list,
+            description: 'List of available lockers',
+        }).toPromise();
+        this._change.next(Date.now());
+        ref.close();
+    }
 
     public removeLocker(locker: Locker) {}
 
-    public editBooking(booking: Booking = new Booking(), options: any) {}
+    public editBooking(
+        booking?: Booking,
+        {
+            parent_id,
+            user,
+            link_id,
+            date,
+            space,
+            allow_time_changes,
+            external_user,
+        }: {
+            parent_id?: string;
+            user?: User;
+            link_id?: string;
+            date?: number;
+            space?: Locker;
+            allow_time_changes?: boolean;
+            external_user?: boolean;
+        } = {},
+    ) {
+        return new Promise<string>(async (resolve) => {
+            const levels = await this.levels.pipe(take(1)).toPromise();
+            const spaces = await this.lockers$.pipe(take(1)).toPromise();
+            if (!space && booking?.asset_id) {
+                space = spaces.find((_) => _.id === booking.asset_id);
+            }
+            const ref = this._dialog.open(LockerBookingModalComponent, {
+                data: {
+                    parent_id,
+                    booking: booking,
+                    user,
+                    link_id,
+                    date,
+                    level: levels[0],
+                    space,
+                    allow_time_changes,
+                    external_user,
+                },
+            });
+            ref.afterClosed().subscribe((id) => {
+                resolve(id);
+                this._change.next(Date.now());
+            });
+        });
+    }
 
     public async checkinLocker(locker: Booking, state: boolean = true) {
         const status: any = await checkinBooking(locker.id, state ?? true)
@@ -359,5 +599,17 @@ export class LockerStateService extends AsyncHandler {
             'Successfully rejected all locker bookings for selected date.',
         );
         resp.close();
+    }
+
+    private async _clearAssignedBooking(locker: Locker) {
+        const booking_list = await queryBookings({
+            period_start: getUnixTime(startOfDay(Date.now())),
+            period_end: getUnixTime(endOfDay(Date.now())),
+            type: 'locker',
+            email: locker.assigned_to,
+            include_checked_out: true,
+        }).toPromise();
+        const filtered = booking_list.filter((_) => _.asset_id === locker.id);
+        await Promise.all(filtered.map((_) => removeBooking(_.id).toPromise()));
     }
 }

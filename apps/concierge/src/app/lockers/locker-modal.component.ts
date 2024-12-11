@@ -7,12 +7,166 @@ import { showStaff, User } from '@placeos/users';
 
 @Component({
     selector: 'locker-modal',
-    template: ``,
+    template: `
+        <div class="w-[28rem]">
+            <header class="flex items-center justify-between px-2 w-full">
+                <h2 class="px-2">{{ id ? 'Edit' : 'New' }} Locker</h2>
+                <button *ngIf="!loading" icon matRipple mat-dialog-close>
+                    <app-icon>close</app-icon>
+                </button>
+            </header>
+            <main
+                *ngIf="!loading; else load_state"
+                class="p-4 flex flex-col"
+                [formGroup]="form"
+            >
+                <label for="name">Locker Name</label>
+                <mat-form-field appearance="outline">
+                    <input
+                        matInput
+                        name="name"
+                        formControlName="name"
+                        placeholder="Name"
+                    />
+                    <mat-error>A name is required for a locker</mat-error>
+                </mat-form-field>
+                <label for="user">Assigned User</label>
+                <div class="flex items-center space-x-2 mb-4">
+                    <a-user-search-field
+                        name="user"
+                        formControlName="assigned_user"
+                        class="flex-1"
+                    ></a-user-search-field>
+                    <button
+                        icon
+                        matRipple
+                        class="h-12 w-12 min-w-12 rounded bg-secondary text-secondary-content"
+                        matTooltip="Clear Assigned User"
+                        (click)="
+                            form.patchValue({
+                                assigned_user: null,
+                                assigned_to: null,
+                                assigned_name: null,
+                            })
+                        "
+                    >
+                        <app-icon className="material-symbols-outlined">
+                            person_cancel
+                        </app-icon>
+                    </button>
+                </div>
+                <div class="flex space-x-4 mb-4">
+                    <settings-toggle
+                        class="flex-1"
+                        name="Accessible"
+                        formControlName="accessible"
+                    ></settings-toggle>
+                    <settings-toggle
+                        class="flex-1"
+                        name="Bookable"
+                        formControlName="bookable"
+                    ></settings-toggle>
+                </div>
+                <div class="flex space-x-4 mb-4">
+                    <div class="flex-1">
+                        <label for="row">Start Row</label>
+                        <a-counter
+                            [ngModel]="form.value.position[0] + 1"
+                            (ngModelChange)="
+                                form.patchValue({
+                                    position: [
+                                        $event - 1,
+                                        form.value.position[1],
+                                    ],
+                                })
+                            "
+                            [ngModelOptions]="{ standalone: true }"
+                            [min]="1"
+                        ></a-counter>
+                    </div>
+                    <div class="flex-1">
+                        <label for="column">Start Column</label>
+                        <a-counter
+                            [ngModel]="form.value.position[1] + 1"
+                            (ngModelChange)="
+                                form.patchValue({
+                                    position: [
+                                        form.value.position[0],
+                                        $event - 1,
+                                    ],
+                                })
+                            "
+                            [ngModelOptions]="{ standalone: true }"
+                            [min]="1"
+                        ></a-counter>
+                    </div>
+                </div>
+                <div class="flex space-x-4 mb-4">
+                    <div class="flex-1">
+                        <label for="row">Width</label>
+                        <a-counter
+                            [ngModel]="form.value.size[0]"
+                            (ngModelChange)="
+                                form.patchValue({
+                                    size: [$event, form.value.size[1]],
+                                })
+                            "
+                            [ngModelOptions]="{ standalone: true }"
+                            [min]="1"
+                            [render_fn]="render_fn"
+                        ></a-counter>
+                    </div>
+                    <div class="flex-1">
+                        <label for="column">Height</label>
+                        <a-counter
+                            [ngModel]="form.value.size[1]"
+                            (ngModelChange)="
+                                form.patchValue({
+                                    size: [form.value.size[0], $event],
+                                })
+                            "
+                            [ngModelOptions]="{ standalone: true }"
+                            [min]="1"
+                            [max]="10"
+                            [render_fn]="render_fn"
+                        ></a-counter>
+                    </div>
+                </div>
+                <label for="notes">Notes</label>
+                <mat-form-field appearance="outline">
+                    <textarea
+                        matInput
+                        name="notes"
+                        formControlName="notes"
+                        placeholder="Locker Notes"
+                    ></textarea>
+                </mat-form-field>
+                <div class="flex items-center justify-center space-x-2">
+                    <button btn matRipple class="w-32 inverse" mat-dialog-close>
+                        Cancel
+                    </button>
+                    <button btn matRipple class="w-32" (click)="postForm()">
+                        Save
+                    </button>
+                </div>
+            </main>
+        </div>
+        <ng-template #load_state>
+            <main
+                class="p-8 flex flex-col items-center justify-center space-y-2"
+            >
+                <mat-spinner diameter="32"></mat-spinner>
+                <p>Saving parking space details...</p>
+            </main>
+        </ng-template>
+    `,
     styles: [``],
 })
 export class LockerModalComponent {
     @Output() public readonly event = new EventEmitter<DialogEvent>();
     public loading: boolean;
+
+    public readonly render_fn = (v) => `${v}u`;
 
     public get id() {
         return this._data?.id || '';
@@ -21,12 +175,14 @@ export class LockerModalComponent {
     public readonly form = new FormGroup({
         id: new FormControl(''),
         name: new FormControl('', [Validators.required]),
-        map_id: new FormControl('', [Validators.required]),
         assigned_user: new FormControl<User>(null),
         assigned_to: new FormControl(''),
         assigned_name: new FormControl(''),
+        position: new FormControl([0, 0]),
+        size: new FormControl([1, 1]),
         notes: new FormControl(''),
-        map_rotation: new FormControl(0),
+        accessible: new FormControl(false),
+        bookable: new FormControl(false),
     });
 
     constructor(

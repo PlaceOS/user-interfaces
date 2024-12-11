@@ -32,56 +32,60 @@ export interface TableColumn {
             (touchend)="active_row = -1"
             (mouseleave)="active_row = -1"
         >
-            <div
-                *ngIf="selectable"
-                id="column-selector"
-                class="sticky top-0 flex items-center justify-between px-2 border-r border-b border-base-200 bg-base-300 min-h-full z-20"
-                [style.gridColumn]="'1 / 2'"
-            >
-                <mat-checkbox
-                    [checked]="selected.length === (data_view$ | async)?.length"
-                    [indeterminate]="
-                        selected.length > 0 &&
-                        selected.length < (data_view$ | async)?.length
-                    "
-                    (change)="selectAll($event.checked)"
-                ></mat-checkbox>
-            </div>
-            @for (column of active_columns; track column; let i = $index) {
-                <button
-                    header
-                    matRipple
-                    [id]="'column-' + column.key"
-                    class="sticky top-0 flex items-center justify-between p-4 border-b border-base-200 bg-base-300 min-h-full z-20"
-                    [style.gridColumn]="
-                        1 +
-                        i +
-                        (selectable ? 1 : 0) +
-                        ' / ' +
-                        (2 + i + (selectable ? 1 : 0))
-                    "
-                    [class.pointer-events-none]="
-                        !sortable || column.sortable === false
-                    "
-                    (click)="setSort(column.key)"
-                    [class.active]="sort?.key === column.key"
-                    [class.border-r]="i !== active_columns.length - 1"
-                    [class.width]="column.size"
+            @if (show_header) {
+                <div
+                    *ngIf="selectable"
+                    id="column-selector"
+                    class="sticky top-0 flex items-center justify-between px-2 border-r border-b border-base-200 bg-base-300 min-h-full z-20"
+                    [style.gridColumn]="'1 / 2'"
                 >
-                    <div class="font-medium">
-                        {{ column.name || column.key }}
-                    </div>
-                    <app-icon
-                        class="text-[1.25em]"
-                        *ngIf="sortable && column.sortable !== false"
+                    <mat-checkbox
+                        [checked]="
+                            selected.length === (data_view$ | async)?.length
+                        "
+                        [indeterminate]="
+                            selected.length > 0 &&
+                            selected.length < (data_view$ | async)?.length
+                        "
+                        (change)="selectAll($event.checked)"
+                    ></mat-checkbox>
+                </div>
+                @for (column of active_columns; track column; let i = $index) {
+                    <button
+                        header
+                        matRipple
+                        [id]="'column-' + column.key"
+                        class="sticky top-0 flex items-center justify-between p-4 border-b border-base-200 bg-base-300 min-h-full z-20"
+                        [style.gridColumn]="
+                            1 +
+                            i +
+                            (selectable ? 1 : 0) +
+                            ' / ' +
+                            (2 + i + (selectable ? 1 : 0))
+                        "
+                        [class.pointer-events-none]="
+                            !sortable || column.sortable === false
+                        "
+                        (click)="setSort(column.key)"
+                        [class.active]="sort?.key === column.key"
+                        [class.border-r]="i !== active_columns.length - 1"
+                        [class.width]="column.size"
                     >
-                        {{
-                            sort?.key === column.key && sort?.reverse
-                                ? 'arrow_upward'
-                                : 'arrow_downward'
-                        }}
-                    </app-icon>
-                </button>
+                        <div class="font-medium">
+                            {{ column.name || column.key }}
+                        </div>
+                        <app-icon
+                            class="text-[1.25em]"
+                            *ngIf="sortable && column.sortable !== false"
+                        >
+                            {{
+                                sort?.key === column.key && sort?.reverse
+                                    ? 'arrow_upward'
+                                    : 'arrow_downward'
+                            }}
+                        </app-icon>
+                    </button>
+                }
             }
             @for (
                 row of data_view$
@@ -265,6 +269,7 @@ export class SimpleTableComponent<T extends {} = any> extends AsyncHandler {
     @Input() public selectable = false;
     @Input() public filter: string = '';
     @Input() public sortable = false;
+    @Input() public show_header = true;
     @Input() public selected: number[] = [];
     @Input() public page_size = 0;
     @Input() public empty_message = 'No data to list';
@@ -315,6 +320,7 @@ export class SimpleTableComponent<T extends {} = any> extends AsyncHandler {
             this.active_columns = this.columns.filter((_) => _.show !== false);
         }
         if (changes.data) {
+            if (this.data instanceof Array) this._data$.next(this.data);
             this.data_view$ = combineLatest([
                 this.data$,
                 this._filter$,

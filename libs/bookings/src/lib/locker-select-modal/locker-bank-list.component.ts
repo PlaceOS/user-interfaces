@@ -1,8 +1,17 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { combineLatest, forkJoin, Observable, of } from 'rxjs';
+import {
+    catchError,
+    filter,
+    map,
+    shareReplay,
+    switchMap,
+} from 'rxjs/operators';
 import { BookingFormService, BookingAsset } from '../booking-form.service';
-import { LockersService } from '../lockers.service';
+import { Locker, LockerBank } from '../locker.class';
+import { OrganisationService } from '@placeos/organisation';
+import { flatten, SettingsService } from '@placeos/common';
+import { PlaceMetadata, showMetadata } from '@placeos/ts-client';
 
 @Component({
     selector: 'locker-bank-list',
@@ -139,10 +148,82 @@ export class LockerBankListComponent {
     @Output() public onSelect = new EventEmitter<BookingAsset>();
     @Output() public toggleFav = new EventEmitter<BookingAsset>();
 
+    public readonly lockers_banks$: Observable<LockerBank[]> = combineLatest([
+        this._org.active_building,
+        this._org.active_region,
+    ]).pipe(
+        filter(([bld]) => !!bld),
+        switchMap(([bld]) =>
+            this._settings.get('app.use_region')
+                ? forkJoin(
+                      this._org.buildingsForRegion().map((building) =>
+                          showMetadata(building.id, 'locker_banks').pipe(
+                              catchError(() => of(new PlaceMetadata())),
+                              map((_) =>
+                                  _.details instanceof Array ? _.details : [],
+                              ),
+                          ),
+                      ),
+                  ).pipe(map((_: LockerBank[][]) => flatten(_)))
+                : showMetadata(bld.id, 'locker_banks').pipe(
+                      catchError(() => of(new PlaceMetadata())),
+                      map((_) => (_.details instanceof Array ? _.details : [])),
+                  ),
+        ),
+        shareReplay(1),
+    );
+
+    public readonly lockers$: Observable<Locker[]> = combineLatest([
+        this._org.active_building,
+        this._org.active_region,
+    ]).pipe(
+        filter(([bld]) => !!bld),
+        switchMap(([bld]) =>
+            combineLatest([
+                this._settings.get('app.use_region')
+                    ? forkJoin(
+                          this._org.buildingsForRegion().map((building) =>
+                              showMetadata(building.id, 'lockers').pipe(
+                                  catchError(() => of(new PlaceMetadata())),
+                                  map((_) =>
+                                      _.details instanceof Array
+                                          ? _.details
+                                          : [],
+                                  ),
+                              ),
+                          ),
+                      ).pipe(map((_: Locker[][]) => flatten(_)))
+                    : showMetadata(bld.id, 'lockers').pipe(
+                          catchError(() => of(new PlaceMetadata())),
+                          map((_) =>
+                              _.details instanceof Array ? _.details : [],
+                          ),
+                      ),
+                this.lockers_banks$,
+            ]),
+        ),
+        map(([lockers, banks]: any) => {
+            const locker_list = lockers;
+            for (const bank of banks) {
+                bank.lockers = lockers
+                    .filter((_) => _.bank_id === bank.id)
+                    .map((_) => ({ ..._ }));
+            }
+            for (const locker of locker_list) {
+                const bank = banks.find((b) => b.id === locker.bank_id);
+                locker.bank = bank;
+                locker.zone = bank.zone;
+            }
+            return lockers.filter((_) => _.bank);
+        }),
+        shareReplay(1),
+    );
+
     public readonly locker_banks = combineLatest([
         this._state.options,
         this._state.available_resources,
-        this._lockers.lockers_banks$,
+        this.lockers_banks$,
+        this.lockers$,
     ]).pipe(
         map(([{ show_fav }, resources, banks]) => {
             return banks
@@ -168,7 +249,8 @@ export class LockerBankListComponent {
 
     constructor(
         private _state: BookingFormService,
-        private _lockers: LockersService,
+        private _org: OrganisationService,
+        private _settings: SettingsService,
     ) {}
 
     public isFavourite(locker_bank_id: string) {

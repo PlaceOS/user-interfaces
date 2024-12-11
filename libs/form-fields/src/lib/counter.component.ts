@@ -6,7 +6,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
     template: `
         <div
             counter
-            class="flex items-center text-base space-x-2 p-2"
+            class="flex items-center text-base"
             (window:keydown.shift)="shift_key = true"
             (window:keydown.control)="ctrl_key = true"
             (window:keydown.meta)="ctrl_key = true"
@@ -19,7 +19,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
                 icon
                 matRipple
                 type="button"
-                class="border border-error text-error rounded h-10 w-10"
+                class="border border-secondary text-secondary rounded-r-none rounded-l h-12 w-12 z-10"
                 [disabled]="!value || value === min"
                 (click)="remove()"
             >
@@ -27,14 +27,14 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
             </button>
             <div
                 value
-                class="relative p-1 flex items-center justify-center w-16 h-10 rounded border border-base-300"
+                class="relative p-1 flex items-center justify-center min-w-16 flex-1 h-12 rounded-none border border-secondary z-0 focus-within:z-20 -mx-px"
             >
                 <span *ngIf="!focused">
                     {{ (render_fn ? render_fn(value) : value) || '0' }}
                 </span>
                 <input
                     type="text"
-                    class="absolute inset-0 opacity-0 focus:opacity-100 p-2"
+                    class="absolute inset-0 opacity-0 focus:opacity-100 p-2  rounded-none"
                     [(ngModel)]="value"
                     (focus)="focused = true"
                     (blur)="setValue(+value); focused = false"
@@ -46,7 +46,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
                 icon
                 matRipple
                 type="button"
-                class="border border-success text-success rounded h-10 w-10"
+                class="border border-secondary text-secondary rounded-l-none rounded-r h-12 w-12 z-10"
                 [disabled]="value === max"
                 (click)="add()"
             >
@@ -96,8 +96,8 @@ export class CounterComponent implements ControlValueAccessor {
         const step = this.ctrl_key
             ? 100 * this.step
             : this.shift_key
-            ? 10 * this.step
-            : this.step || 1;
+              ? 10 * this.step
+              : this.step || 1;
         this.value += step;
         if (this.value > this.max) {
             this.value = this.max || 10;
@@ -113,8 +113,8 @@ export class CounterComponent implements ControlValueAccessor {
         const step = this.ctrl_key
             ? 100 * this.step
             : this.shift_key
-            ? 10 * this.step
-            : this.step || 1;
+              ? 10 * this.step
+              : this.step || 1;
         this.value -= step;
         if (this.value < this.min) {
             this.value = this.min || 0;

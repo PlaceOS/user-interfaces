@@ -10,7 +10,7 @@ import { SettingsService } from '@placeos/common';
         @let more_pages = has_more_pages | async;
         <div class="w-full h-4"></div>
         <div
-            class="flex flex-col h-full w-full px-4 pt-4"
+            class="flex flex-col h-full w-full pt-4"
             [class.pb-16]="!loading && more_pages"
             [class.pb-4]="!(!loading && more_pages)"
         >
@@ -86,9 +86,9 @@ import { SettingsService } from '@placeos/common';
                                 {{ row.date | date: time_format }} &ndash;
                                 {{ row.date_end | date: time_format }}
                             </ng-container>
-                            <ng-container *ngIf="row.all_day"
-                                >All Day</ng-container
-                            >
+                            <ng-container *ngIf="row.all_day">
+                                All Day
+                            </ng-container>
                         </div>
                     </ng-container>
                     <ng-container

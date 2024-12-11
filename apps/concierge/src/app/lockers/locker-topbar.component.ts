@@ -35,12 +35,12 @@ import { LockerStateService } from './locker-state.service';
                     btn
                     matRipple
                     *ngIf="path === 'manage'"
-                    class="space-x-2 w-40"
-                    (click)="newLocker()"
+                    class="space-x-2 w-48"
+                    (click)="newLockerBank()"
                     [disabled]="!(options | async)?.zones?.length"
                 >
-                    <div class="pl-2">New Locker</div>
-                    <app-icon>add</app-icon>
+                    <div class="pl-2">New Locker Bank</div>
+                    <app-icon class="text-2xl">add</app-icon>
                 </button>
             </div>
             <button
@@ -51,7 +51,7 @@ import { LockerStateService } from './locker-state.service';
                 (click)="newBooking()"
             >
                 <div class="pl-2">New Booking</div>
-                <app-icon>add</app-icon>
+                <app-icon class="text-2xl">add</app-icon>
             </button>
         </div>
         <div class="flex items-center bg-base-100 px-8 mb-2 h-14">
@@ -120,6 +120,7 @@ export class LockersTopbarComponent extends AsyncHandler implements OnInit {
     /** Set filter string */
     public readonly setSearch = (str) =>
         this._state.setFilters({ search: str });
+    public readonly newLockerBank = () => this._state.editLockerBank();
     /** List of levels for the active building */
     public readonly updateZones = (z) => {
         this._router.navigate([], {
@@ -193,10 +194,6 @@ export class LockersTopbarComponent extends AsyncHandler implements OnInit {
             }),
         );
         this._updatePath();
-    }
-
-    public newLockerSpace() {
-        this._state.editLocker();
     }
 
     public async newBooking() {
