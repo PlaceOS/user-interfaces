@@ -77,6 +77,14 @@ import { map } from 'rxjs/operators';
                         A map ID is required for a locker bank
                     </mat-error>
                 </mat-form-field>
+                <label for="row">Height</label>
+                <a-counter
+                    formControlName="height"
+                    class="mb-4"
+                    [min]="1"
+                    [max]="16"
+                    [render_fn]="render_fn"
+                ></a-counter>
                 <label for="notes">Notes</label>
                 <mat-form-field appearance="outline">
                     <textarea
@@ -134,6 +142,7 @@ import { map } from 'rxjs/operators';
 export class LockerBankModalComponent {
     @Output() public readonly event = new EventEmitter<DialogEvent>();
     public loading: boolean;
+    public readonly render_fn = (v) => `${v}u`;
     /** List of separator characters for tags */
     public readonly separators: number[] = [ENTER, COMMA, SPACE];
     /** List of available locker levels for the current building */

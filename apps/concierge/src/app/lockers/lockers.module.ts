@@ -23,6 +23,7 @@ import { LockerListComponent } from './locker-list.component';
 import { LockerModalComponent } from './locker-modal.component';
 import { LockerBookingModalComponent } from './locker-booking-modal.component';
 import { LockerBankModalComponent } from './locker-bank-modal.component';
+import { ViewLockerBankModalComponent } from './view-locker-bank-modal.component';
 
 const ROUTES: Route[] = [
     {
@@ -55,6 +56,7 @@ const ROUTES: Route[] = [
         LockerModalComponent,
         LockerBookingModalComponent,
         LockerBankModalComponent,
+        ViewLockerBankModalComponent,
     ],
     imports: [
         CommonModule,

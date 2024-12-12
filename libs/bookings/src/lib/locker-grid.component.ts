@@ -6,7 +6,7 @@ import { Locker, LockerBank } from './locker.class';
 @Component({
     selector: 'locker-grid',
     template: `
-        <div class="p-4 text-xl font-medium">
+        <div class="p-4 text-xl font-medium" *ngIf="show_name">
             {{ bank?.name }}
         </div>
         <div
@@ -75,6 +75,7 @@ import { Locker, LockerBank } from './locker.class';
     ],
 })
 export class LockerGridComponent {
+    @Input() public show_name = true;
     @Input() public bank: LockerBank;
     @Input() public bank_status: Record<string, string> = {
         '10': 'busy',

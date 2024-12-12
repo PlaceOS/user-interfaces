@@ -18,7 +18,12 @@ import { Clipboard } from '@angular/cdk/clipboard';
             [columns]="[
                 { key: 'name', name: 'Locker Bank', content: name_template },
                 { key: 'map_id', name: 'Map ID', content: id_template },
-                { key: 'height', name: 'Height', size: '6rem' },
+                {
+                    key: 'height',
+                    name: 'Height',
+                    size: '6rem',
+                    content: height_template,
+                },
                 { key: 'tags', name: 'Tags', size: '8rem' },
                 {
                     key: 'actions',
@@ -35,6 +40,9 @@ import { Clipboard } from '@angular/cdk/clipboard';
             empty_message="No lockers for selected zone"
         ></simple-table>
         <div class="w-full h-20"></div>
+        <ng-template #height_template let-data="data">
+            <div class="px-4 font-mono">{{ data || 1 }}u</div>
+        </ng-template>
         <ng-template #id_template let-row="row" let-data="data">
             <button
                 class="px-4 py-2 text-left leading-tight font-mono"
@@ -70,7 +78,7 @@ import { Clipboard } from '@angular/cdk/clipboard';
                             <span>Add Locker</span>
                         </div>
                     </button>
-                    <button mat-menu-item>
+                    <button mat-menu-item (click)="viewBank(row)">
                         <div class="flex items-center space-x-2">
                             <app-icon class="text-xl">visibility</app-icon>
                             <span>View Locker Bank Layout</span>
@@ -266,6 +274,7 @@ export class LockerListComponent extends AsyncHandler {
 
     public readonly locker_status: Record<string, string> = {};
 
+    public readonly viewBank = (b) => this._state.viewLockerBank(b);
     public readonly editLocker = (bid, s?) => this._state.editLocker(bid, s);
     public readonly editLockerBank = (b?) => this._state.editLockerBank(b);
     public readonly removeLocker = (s) => this._state.removeLocker(s);

@@ -54,6 +54,7 @@ import { LockerModalComponent } from './locker-modal.component';
 import { User } from '@sentry/angular';
 import { LockerBookingModalComponent } from './locker-booking-modal.component';
 import { LockerBankModalComponent } from './locker-bank-modal.component';
+import { ViewLockerBankModalComponent } from './view-locker-bank-modal.component';
 
 export interface LockerFilters {
     date?: number;
@@ -285,6 +286,12 @@ export class LockerStateService extends AsyncHandler {
     public refresh() {
         this._loading.next(addToken(this._loading.getValue(), '[BOOKINGS]'));
         this.timeout('poll', () => this.setFilters(this._filters.getValue()));
+    }
+
+    public viewLockerBank(bank: LockerBank) {
+        this._dialog.open(ViewLockerBankModalComponent, {
+            data: { bank },
+        });
     }
 
     /** Add or update a space in the available list */
