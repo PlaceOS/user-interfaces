@@ -15,7 +15,7 @@ import {
     SettingsService,
     unique,
 } from '@placeos/common';
-import { LockerBank, Locker } from '@placeos/bookings';
+import { LockerBank, Locker, loadLockerBanks, loadLockers } from '@placeos/bookings';
 import { OrganisationService } from '@placeos/organisation';
 
 import { ExploreLockerBankInfoComponent } from './explore-locker-bank-info.component';
@@ -29,77 +29,17 @@ export class ExploreLockersService extends AsyncHandler {
     private _status = new BehaviorSubject([]);
     private _change = new BehaviorSubject(0);
 
-    public readonly lockers_banks$: Observable<LockerBank[]> = combineLatest([
-        this._org.active_building,
-        this._org.active_region,
-        this._change,
-    ]).pipe(
-        filter(([bld]) => !!bld),
-        switchMap(([bld]) =>
-            this._settings.get('app.use_region')
-                ? forkJoin(
-                      this._org.buildingsForRegion().map((building) =>
-                          showMetadata(building.id, 'locker_banks').pipe(
-                              catchError(() => of(new PlaceMetadata())),
-                              map((_) =>
-                                  _.details instanceof Array ? _.details : [],
-                              ),
-                          ),
-                      ),
-                  ).pipe(map((_: LockerBank[][]) => flatten(_)))
-                : showMetadata(bld.id, 'locker_banks').pipe(
-                      catchError(() => of(new PlaceMetadata())),
-                      map((_) => (_.details instanceof Array ? _.details : [])),
-                  ),
-        ),
-        shareReplay(1),
+    public readonly lockers_banks$: Observable<LockerBank[]> = loadLockerBanks(
+        this._org,
+        combineLatest([this._org.active_building, this._org.active_region, this._change]),
+        () => this._settings.get('app.use_region'),
     );
 
-    public readonly lockers$: Observable<Locker[]> = combineLatest([
-        this._org.active_building,
-        this._org.active_region,
-        this._change,
-    ]).pipe(
-        filter(([bld]) => !!bld),
-        switchMap(([bld]) =>
-            combineLatest([
-                this._settings.get('app.use_region')
-                    ? forkJoin(
-                          this._org.buildingsForRegion().map((building) =>
-                              showMetadata(building.id, 'lockers').pipe(
-                                  catchError(() => of(new PlaceMetadata())),
-                                  map((_) =>
-                                      _.details instanceof Array
-                                          ? _.details
-                                          : [],
-                                  ),
-                              ),
-                          ),
-                      ).pipe(map((_: Locker[][]) => flatten(_)))
-                    : showMetadata(bld.id, 'lockers').pipe(
-                          catchError(() => of(new PlaceMetadata())),
-                          map((_) =>
-                              _.details instanceof Array ? _.details : [],
-                          ),
-                      ),
-                this.lockers_banks$,
-            ]),
-        ),
-        map(([lockers, banks]: any) => {
-            const locker_list = lockers;
-            for (const bank of banks) {
-                bank.lockers = lockers
-                    .filter((_) => _.bank_id === bank.id)
-                    .map((_) => ({ ..._ }));
-            }
-            for (const locker of locker_list) {
-                const bank = banks.find((b) => b.id === locker.bank_id);
-                locker.bank = bank;
-                locker.zone = bank.zone;
-            }
-            return lockers.filter((_) => _.bank);
-        }),
-        shareReplay(1),
+    public readonly lockers$: Observable<Locker[]> = loadLockers(
+        this._org,
+        combineLatest([this._org.active_building, this._org.active_region, this._change]),
+        this.lockers_banks$,
+        () => this._settings.get('app.use_region'),
     );
 
     public filtered_lockers = combineLatest([

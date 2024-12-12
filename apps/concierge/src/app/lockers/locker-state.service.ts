@@ -1,18 +1,9 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { BehaviorSubject, combineLatest, Observable, of, Subject } from 'rxjs';
 import {
-    BehaviorSubject,
-    combineLatest,
-    forkJoin,
-    Observable,
-    of,
-    Subject,
-} from 'rxjs';
-import {
-    catchError,
     debounceTime,
     distinctUntilChanged,
-    filter,
     first,
     map,
     scan,
@@ -34,6 +25,8 @@ import {
     approveBooking,
     Booking,
     checkinBooking,
+    loadLockerBanks,
+    loadLockers,
     Locker,
     LockerBank,
     queryBookings,
@@ -45,7 +38,6 @@ import {
 } from '@placeos/bookings';
 import {
     AsyncHandler,
-    flatten,
     notifyError,
     notifyInfo,
     notifySuccess,
@@ -57,11 +49,7 @@ import {
 import { OrganisationService } from '@placeos/organisation';
 
 import { QueryResponse } from '@placeos/ts-client/dist/esm/resources/functions';
-import {
-    PlaceMetadata,
-    showMetadata,
-    updateMetadata,
-} from '@placeos/ts-client';
+import { updateMetadata } from '@placeos/ts-client';
 import { LockerModalComponent } from './locker-modal.component';
 import { User } from '@sentry/angular';
 import { LockerBookingModalComponent } from './locker-booking-modal.component';
@@ -109,77 +97,24 @@ export class LockerStateService extends AsyncHandler {
 
     public readonly filters = this._filters.asObservable();
 
-    public readonly lockers_banks$: Observable<LockerBank[]> = combineLatest([
-        this._org.active_building,
-        this._org.active_region,
-        this._change,
-    ]).pipe(
-        filter(([bld]) => !!bld),
-        switchMap(([bld]) =>
-            this._settings.get('app.use_region')
-                ? forkJoin(
-                      this._org.buildingsForRegion().map((building) =>
-                          showMetadata(building.id, 'locker_banks').pipe(
-                              catchError(() => of(new PlaceMetadata())),
-                              map((_) =>
-                                  _.details instanceof Array ? _.details : [],
-                              ),
-                          ),
-                      ),
-                  ).pipe(map((_: LockerBank[][]) => flatten(_)))
-                : showMetadata(bld.id, 'locker_banks').pipe(
-                      catchError(() => of(new PlaceMetadata())),
-                      map((_) => (_.details instanceof Array ? _.details : [])),
-                  ),
-        ),
-        shareReplay(1),
+    public readonly lockers_banks$: Observable<LockerBank[]> = loadLockerBanks(
+        this._org,
+        combineLatest([
+            this._org.active_building,
+            this._org.active_region,
+            this._change,
+        ]),
+        () => this._settings.get('app.use_region'),
     );
-
-    public readonly lockers$: Observable<Locker[]> = combineLatest([
-        this._org.active_building,
-        this._org.active_region,
-        this._change,
-    ]).pipe(
-        filter(([bld]) => !!bld),
-        switchMap(([bld]) =>
-            combineLatest([
-                this._settings.get('app.use_region')
-                    ? forkJoin(
-                          this._org.buildingsForRegion().map((building) =>
-                              showMetadata(building.id, 'lockers').pipe(
-                                  catchError(() => of(new PlaceMetadata())),
-                                  map((_) =>
-                                      _.details instanceof Array
-                                          ? _.details
-                                          : [],
-                                  ),
-                              ),
-                          ),
-                      ).pipe(map((_: Locker[][]) => flatten(_)))
-                    : showMetadata(bld.id, 'lockers').pipe(
-                          catchError(() => of(new PlaceMetadata())),
-                          map((_) =>
-                              _.details instanceof Array ? _.details : [],
-                          ),
-                      ),
-                this.lockers_banks$,
-            ]),
-        ),
-        map(([lockers, banks]: any) => {
-            const locker_list = lockers;
-            for (const bank of banks) {
-                bank.lockers = lockers
-                    .filter((_) => _.bank_id === bank.id)
-                    .map((_) => ({ ..._ }));
-            }
-            for (const locker of locker_list) {
-                const bank = banks.find((b) => b.id === locker.bank_id);
-                locker.bank = bank;
-                locker.zone = bank.zone;
-            }
-            return lockers.filter((_) => _.bank);
-        }),
-        shareReplay(1),
+    public readonly lockers$: Observable<Locker[]> = loadLockers(
+        this._org,
+        combineLatest([
+            this._org.active_building,
+            this._org.active_region,
+            this._change,
+        ]),
+        this.lockers_banks$,
+        () => this._settings.get('app.use_region'),
     );
 
     public filtered_lockers = combineLatest([this.filters, this.lockers$]).pipe(
@@ -462,7 +397,50 @@ export class LockerStateService extends AsyncHandler {
         ref.close();
     }
 
-    public removeLocker(locker: Locker) {}
+    public async removeLockerBank(bank: LockerBank) {
+        const state = await openConfirmModal(
+            {
+                title: 'Remove Locker Bank',
+                content: `Are you sure you wish to remove the locker bank "${bank.name}"?`,
+                icon: { content: 'delete' },
+            },
+            this._dialog,
+        );
+        if (state?.reason !== 'done') return;
+        state.loading('Removing parking space...');
+        const zone = this._org.building.id;
+        const banks = await this.lockers_banks$.pipe(take(1)).toPromise();
+        await updateMetadata(zone, {
+            name: 'locker_banks',
+            details: banks.filter((_) => _.id !== bank.id),
+            description: 'List of available locker banks',
+        }).toPromise();
+        state.close();
+        this._change.next(Date.now());
+    }
+
+    public async removeLocker(locker: Locker) {
+        const state = await openConfirmModal(
+            {
+                title: 'Remove Locker',
+                content: `Are you sure you wish to remove the locker "${locker.name}"?`,
+                icon: { content: 'delete' },
+            },
+            this._dialog,
+        );
+        if (state?.reason !== 'done') return;
+        state.loading('Removing parking space...');
+        const zone = this._org.building.id;
+        const lockers = await this.lockers$.pipe(take(1)).toPromise();
+        this._clearAssignedBooking(locker);
+        await updateMetadata(zone, {
+            name: 'lockers',
+            details: lockers.filter((_) => _.id !== locker.id),
+            description: 'List of available lockers',
+        }).toPromise();
+        state.close();
+        this._change.next(Date.now());
+    }
 
     public editBooking(
         booking?: Booking,
@@ -510,7 +488,7 @@ export class LockerStateService extends AsyncHandler {
         });
     }
 
-    public async checkinLocker(locker: Booking, state: boolean = true) {
+    public async checkinLocker(locker: Booking, state = true) {
         const status: any = await checkinBooking(locker.id, state ?? true)
             .toPromise()
             .catch((_) => ({ failed: true, error: _ }));
