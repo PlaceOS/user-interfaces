@@ -49,12 +49,13 @@ import {
 import { OrganisationService } from '@placeos/organisation';
 
 import { QueryResponse } from '@placeos/ts-client/dist/esm/resources/functions';
-import { updateMetadata } from '@placeos/ts-client';
+import { getModule, updateMetadata } from '@placeos/ts-client';
 import { LockerModalComponent } from './locker-modal.component';
 import { User } from '@sentry/angular';
 import { LockerBookingModalComponent } from './locker-booking-modal.component';
 import { LockerBankModalComponent } from './locker-bank-modal.component';
 import { ViewLockerBankModalComponent } from './view-locker-bank-modal.component';
+import { StaffUser } from '@placeos/users';
 
 export interface LockerFilters {
     date?: number;
@@ -235,7 +236,7 @@ export class LockerStateService extends AsyncHandler {
             },
             { list: [], total: 0, has_next: false },
         ),
-        tap((_) =>
+        tap(() =>
             this.timeout(
                 'stop-loading',
                 () =>
@@ -294,8 +295,87 @@ export class LockerStateService extends AsyncHandler {
         });
     }
 
+    public async allocateLocker(locker: Locker) {
+        const system_id = this._org.binding('lockers');
+        if (!system_id) return notifyError('Driver not setup for lockers');
+        const mod = getModule(system_id, 'Locker');
+        await mod
+            .execute('locker_allocate_me', [locker.bank_id, locker.id])
+            .catch((e) => {
+                notifyError(e);
+                throw e;
+            });
+        notifySuccess(`Successfully allocated locker "${locker.name}"`);
+    }
+
+    public get has_driver() {
+        return !!this._org.binding('lockers');
+    }
+
+    public async shareLocker(locker: Locker, user?: StaffUser) {
+        if (!user) {
+            // TODO: Ask to select user
+            return;
+        }
+        const system_id = this._org.binding('lockers');
+        if (!system_id) return notifyError('Driver not setup for lockers');
+        const mod = getModule(system_id, 'Locker');
+        await mod
+            .execute('locker_share_mine', [locker.bank_id, locker.id, user.id])
+            .catch((e) => {
+                notifyError(e);
+                throw e;
+            });
+        notifySuccess(
+            `Successfully shared locker "${locker.name}" with ${user.name}`,
+        );
+    }
+
+    public async releaseLocker(locker: Locker, confirm = false) {
+        let close: () => void;
+        if (confirm) {
+            const result = await openConfirmModal(
+                {
+                    title: 'Release Locker',
+                    content:
+                        'Are you sure you wish to release this locker? This will cancel any bookings in the room at this time.',
+                    icon: { content: 'event_busy' },
+                },
+                this._dialog,
+            );
+            if (result.reason !== 'done') return;
+            result.loading('Releasing locker...');
+            close = result.close;
+        }
+        const system_id = this._org.binding('lockers');
+        if (!system_id) return notifyError('Driver not setup for lockers');
+        const mod = getModule(system_id, 'Locker');
+        await mod
+            .execute('locker_release', [locker.bank_id, locker.id])
+            .catch((e) => {
+                notifyError(e);
+                if (close) close();
+                throw e;
+            });
+        notifySuccess(`Successfully released locker "${locker.name}"`);
+        if (close) close();
+    }
+
+    public async openLocker(locker: Locker) {
+        const system_id = this._org.binding('lockers');
+        if (!system_id) return notifyError('Driver not setup for lockers');
+        const mod = getModule(system_id, 'Locker');
+        await mod
+            .execute('locker_unlock_mine', [locker.bank_id, locker.id])
+            .catch((e) => {
+                notifyError(e);
+                throw e;
+            });
+        notifySuccess(`Successfully opened locker "${locker.name}"`);
+    }
+
     /** Add or update a space in the available list */
-    public async editLockerBank(bank: LockerBank = {} as any) {
+    public async editLockerBank(bank: LockerBank = {} as LockerBank) {
         const ref = this._dialog.open(LockerBankModalComponent, {
             data: bank,
         });
@@ -330,7 +410,7 @@ export class LockerStateService extends AsyncHandler {
     }
 
     /** Add or update a space in the available list */
-    public async editLocker(bank_id: string, locker: Locker = {} as any) {
+    public async editLocker(bank_id: string, locker: Locker = {} as Locker) {
         const ref = this._dialog.open(LockerModalComponent, {
             data: locker,
         });
@@ -452,7 +532,7 @@ export class LockerStateService extends AsyncHandler {
         this._change.next(Date.now());
     }
 
-    public editBooking(
+    public async editBooking(
         booking?: Booking,
         {
             parent_id,
@@ -472,30 +552,27 @@ export class LockerStateService extends AsyncHandler {
             external_user?: boolean;
         } = {},
     ) {
-        return new Promise<string>(async (resolve) => {
-            const levels = await this.levels.pipe(take(1)).toPromise();
-            const spaces = await this.lockers$.pipe(take(1)).toPromise();
-            if (!space && booking?.asset_id) {
-                space = spaces.find((_) => _.id === booking.asset_id);
-            }
-            const ref = this._dialog.open(LockerBookingModalComponent, {
-                data: {
-                    parent_id,
-                    booking: booking,
-                    user,
-                    link_id,
-                    date,
-                    level: levels[0],
-                    space,
-                    allow_time_changes,
-                    external_user,
-                },
-            });
-            ref.afterClosed().subscribe((id) => {
-                resolve(id);
-                this._change.next(Date.now());
-            });
+        const levels = await this.levels.pipe(take(1)).toPromise();
+        const spaces = await this.lockers$.pipe(take(1)).toPromise();
+        if (!space && booking?.asset_id) {
+            space = spaces.find((_) => _.id === booking.asset_id);
+        }
+        const ref = this._dialog.open(LockerBookingModalComponent, {
+            data: {
+                parent_id,
+                booking: booking,
+                user,
+                link_id,
+                date,
+                level: levels[0],
+                space,
+                allow_time_changes,
+                external_user,
+            },
         });
+        const id = await ref.afterClosed().toPromise();
+        if (id) this._change.next(Date.now());
+        return id;
     }
 
     public async checkinLocker(locker: Booking, state = true) {

@@ -156,7 +156,7 @@ import { Clipboard } from '@angular/cdk/clipboard';
                         name: ' ',
                         content: locker_action_template,
                         sortable: false,
-                        size: '6rem',
+                        size: '5.9rem',
                     },
                 ]"
                 empty_message="No lockers for this bank"
@@ -241,24 +241,40 @@ import { Clipboard } from '@angular/cdk/clipboard';
                 <div
                     class="flex items-center justify-end space-x-2 w-full px-2"
                 >
-                    <button
-                        icon
-                        matRipple
-                        matTooltip="Edit Locker"
-                        (click)="editLocker(bank.id, row)"
-                    >
-                        <app-icon class="text-2xl">edit</app-icon>
-                    </button>
-                    <button
-                        icon
-                        matRipple
-                        class="text-error"
-                        matTooltip="Remove Locker"
-                        (click)="removeLocker(row)"
-                    >
-                        <app-icon class="text-2xl">delete</app-icon>
+                    <button icon matRipple [matMenuTriggerFor]="locker_menu">
+                        <app-icon>more_vert</app-icon>
                     </button>
                 </div>
+                <mat-menu #locker_menu="matMenu">
+                    <button mat-menu-item (click)="editLocker(bank.id, row)">
+                        <div class="flex items-center space-x-2">
+                            <app-icon class="text-xl">edit</app-icon>
+                            <span>Edit Locker</span>
+                        </div>
+                    </button>
+                    @if (has_driver) {
+                        <button mat-menu-item (click)="shareLocker(row)">
+                            <div class="flex items-center space-x-2">
+                                <app-icon class="text-xl">edit</app-icon>
+                                <span>Share Locker</span>
+                            </div>
+                        </button>
+                        <button mat-menu-item (click)="releaseLocker(row)">
+                            <div class="flex items-center space-x-2">
+                                <app-icon class="text-xl">event_busy</app-icon>
+                                <span>Release Locker</span>
+                            </div>
+                        </button>
+                    }
+                    <button mat-menu-item (click)="removeLocker(row)">
+                        <div class="flex items-center space-x-2">
+                            <app-icon class="text-xl text-error"
+                                >delete</app-icon
+                            >
+                            <span>Remove Locker</span>
+                        </div>
+                    </button>
+                </mat-menu>
             </ng-template>
         </ng-template>
     `,
@@ -279,6 +295,12 @@ export class LockerListComponent extends AsyncHandler {
     public readonly editLockerBank = (b?) => this._state.editLockerBank(b);
     public readonly removeLocker = (s) => this._state.removeLocker(s);
     public readonly removeLockerBank = (b) => this._state.removeLockerBank(b);
+    public readonly shareLocker = (l) => this._state.shareLocker(l);
+    public readonly releaseLocker = (l) => this._state.releaseLocker(l, true);
+
+    public get has_driver() {
+        return this._state.has_driver;
+    }
 
     constructor(
         private _state: LockerStateService,
