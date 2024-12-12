@@ -77,12 +77,15 @@ export class ParkingComponent extends AsyncHandler {
 
     public path = '';
 
-    constructor(private _state: ParkingStateService, private _router: Router) {
+    constructor(
+        private _state: ParkingStateService,
+        private _router: Router,
+    ) {
         super();
     }
 
     public ngOnInit() {
-        this._state.startPolling();
+        this.subscription('poll_bookings', () => this._state.startPolling());
         this.subscription(
             'router.events',
             this._router.events.subscribe((e) => {
@@ -90,7 +93,7 @@ export class ParkingComponent extends AsyncHandler {
                     const url_parts = this._router.url?.split('/') || [''];
                     this.path = url_parts[parts.length - 1].split('?')[0];
                 }
-            })
+            }),
         );
         const parts = this._router.url?.split('/') || [''];
         this.path = parts[parts.length - 1].split('?')[0];

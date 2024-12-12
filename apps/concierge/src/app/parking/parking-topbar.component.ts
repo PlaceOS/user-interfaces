@@ -168,7 +168,10 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {
-                if (params.has('zone_ids')) {
+                if (
+                    params.has('zone_ids') &&
+                    this._router.url.includes('parking')
+                ) {
                     const zones = params.get('zone_ids').split(',');
                     if (zones.length) {
                         const level = this._org.levelWithID(zones);

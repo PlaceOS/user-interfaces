@@ -37,7 +37,6 @@ import { BookingPanelSettingsModalComponent } from './app-settings/booking-panel
 import { VisitorKioskSettingsFormModalComponent } from './app-settings/visitor-kiosk-settings-form-modal.component';
 import { ConciergeSettingsFormModalComponent } from './app-settings/concierge-settings-form-modal.component';
 import { WorkplaceSettingsFormModalComponent } from './app-settings/workplace-settings-form-modal.component';
-import { SettingsToggleComponent } from './app-settings/settings-toggle.component';
 import { UploadButtonComponent } from './app-settings/upload-button.component';
 
 const COMPONENTS: Type<any>[] = [
@@ -55,7 +54,6 @@ const COMPONENTS: Type<any>[] = [
     ConciergeSettingsFormModalComponent,
     VisitorKioskSettingsFormModalComponent,
 
-    SettingsToggleComponent,
     UploadButtonComponent,
 ];
 

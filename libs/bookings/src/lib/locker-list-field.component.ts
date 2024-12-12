@@ -57,7 +57,12 @@ const EMPTY_FAVS: string[] = [];
                         <app-icon class="text-blue-500 text-base"
                             >place</app-icon
                         >
-                        <p>{{ item.zone?.display_name || item.zone?.name }}</p>
+                        <p>
+                            {{
+                                (item.bank?.zones | level)?.display_name ||
+                                    (item.bank?.zones | level)?.name
+                            }}
+                        </p>
                     </div>
                     <div
                         class="flex items-center text-sm space-x-2"

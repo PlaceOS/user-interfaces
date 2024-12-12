@@ -1,8 +1,18 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { combineLatest, forkJoin, Observable, of } from 'rxjs';
+import {
+    catchError,
+    filter,
+    map,
+    shareReplay,
+    switchMap,
+} from 'rxjs/operators';
 import { BookingFormService, BookingAsset } from '../booking-form.service';
-import { LockersService } from '../lockers.service';
+import { Locker, LockerBank } from '../locker.class';
+import { OrganisationService } from '@placeos/organisation';
+import { flatten, SettingsService } from '@placeos/common';
+import { PlaceMetadata, showMetadata } from '@placeos/ts-client';
+import { loadLockerBanks, loadLockers } from '../booking.utilities';
 
 @Component({
     selector: 'locker-bank-list',
@@ -76,9 +86,11 @@ import { LockersService } from '../lockers.service';
                                 <app-icon class="text-blue-500">place</app-icon>
                                 <p class="text-xs">
                                     {{
-                                        locker_bank.zone?.display_name ||
-                                            locker_bank.zone?.name ||
-                                            '&lt;No Level&gt;'
+                                        (locker_bank.zones | level)
+                                            ? (locker_bank.zones | level)
+                                                  ?.display_name ||
+                                              (locker_bank.zones | level)?.name
+                                            : ''
                                     }}
                                 </p>
                             </div>
@@ -108,6 +120,12 @@ import { LockersService } from '../lockers.service';
                                 : 'favorite_border'
                         }}</app-icon>
                     </button>
+                    <div
+                        class="absolute bottom-2 right-2 bg-base-200 rounded text-xs px-2 py-1 font-mono"
+                        *ngIf="locker_bank.tags?.length"
+                    >
+                        {{ locker_bank.tags[0] }}
+                    </div>
                 </li>
             </ul>
         </ng-container>
@@ -133,22 +151,38 @@ import { LockersService } from '../lockers.service';
     `,
 })
 export class LockerBankListComponent {
-    @Input() public active: string = '';
-    @Input() public selected: string = '';
+    @Input() public active = '';
+    @Input() public selected = '';
     @Input() public favorites: string[] = [];
     @Output() public onSelect = new EventEmitter<BookingAsset>();
     @Output() public toggleFav = new EventEmitter<BookingAsset>();
 
+    public readonly lockers_banks$: Observable<LockerBank[]> = loadLockerBanks(
+        this._org,
+        combineLatest([this._org.active_building, this._org.active_region]),
+        () => this._settings.get('app.use_region'),
+    );
+
+    public readonly lockers$: Observable<Locker[]> = loadLockers(
+        this._org,
+        combineLatest([this._org.active_building, this._org.active_region]),
+        this.lockers_banks$,
+        () => this._settings.get('app.use_region'),
+    );
+
     public readonly locker_banks = combineLatest([
         this._state.options,
         this._state.available_resources,
-        this._lockers.lockers_banks$,
+        this.lockers_banks$,
+        this.lockers$,
     ]).pipe(
-        map(([{ show_fav }, resources, banks]) => {
+        map(([{ show_fav, show_accessible }, resources, banks]) => {
             return banks
                 .filter(
                     (i) =>
                         (!show_fav || this.isFavourite(i.id)) &&
+                        (!show_accessible ||
+                            i.lockers.find((_) => _.accessible)) &&
                         resources.find((_: any) => _.bank_id === i.id),
                 )
                 .map((bank) => ({
@@ -168,7 +202,8 @@ export class LockerBankListComponent {
 
     constructor(
         private _state: BookingFormService,
-        private _lockers: LockersService,
+        private _org: OrganisationService,
+        private _settings: SettingsService,
     ) {}
 
     public isFavourite(locker_bank_id: string) {

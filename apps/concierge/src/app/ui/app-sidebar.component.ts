@@ -111,7 +111,7 @@ export class ApplicationSidebarComponent extends AsyncHandler {
                 {
                     id: 'lockers',
                     name: 'Lockers',
-                    route: ['/book/lockers/new'],
+                    route: ['/book/lockers/new/events'],
                 },
                 {
                     id: 'assets',
@@ -180,6 +180,11 @@ export class ApplicationSidebarComponent extends AsyncHandler {
                     id: 'parking',
                     name: 'Parking Management',
                     route: ['/book/parking/new/manage'],
+                },
+                {
+                    id: 'lockers',
+                    name: 'Locker Management',
+                    route: ['/book/lockers/new/manage'],
                 },
                 {
                     id: 'catering',

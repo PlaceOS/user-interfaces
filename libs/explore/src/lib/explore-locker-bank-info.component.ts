@@ -1,8 +1,8 @@
 import { Component, ElementRef, Inject } from '@angular/core';
 import { MAP_FEATURE_DATA } from '@placeos/components';
-import { Locker, LockerBank } from 'libs/bookings/src/lib/lockers.service';
 import { ExploreLockerBankModalComponent } from './explore-locker-bank-modal.component';
 import { MatDialog } from '@angular/material/dialog';
+import { Locker, LockerBank } from '@placeos/bookings';
 
 export interface LockerBankInfoData {
     bank: LockerBank;
@@ -59,7 +59,7 @@ export class ExploreLockerBankInfoComponent {
     constructor(
         @Inject(MAP_FEATURE_DATA) private _details: LockerBankInfoData,
         private _element: ElementRef<HTMLElement>,
-        private _dialog: MatDialog
+        private _dialog: MatDialog,
     ) {}
 
     public ngOnInit(tries: number = 0) {

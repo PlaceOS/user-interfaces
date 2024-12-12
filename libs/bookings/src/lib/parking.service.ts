@@ -128,7 +128,10 @@ export class ParkingService extends AsyncHandler {
         period_start: getUnixTime(startOfDay(Date.now())),
         period_end: getUnixTime(endOfDay(Date.now())),
         type: 'parking',
-    }).pipe(map((_) => _.length > 0));
+    }).pipe(
+        map((_) => _.length > 0),
+        shareReplay(1),
+    );
 
     public readonly assigned_space = this.spaces.pipe(
         map((list) =>

@@ -46,7 +46,11 @@ import {
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { User } from 'libs/users/src/lib/user.class';
 import { Booking, BookingType } from './booking.class';
-import { generateBookingForm } from './booking.utilities';
+import {
+    generateBookingForm,
+    loadLockerBanks,
+    loadLockers,
+} from './booking.utilities';
 import { bookedResourceList, queryBookings, saveBooking } from './bookings.fn';
 import { DeskQuestionsModalComponent } from './desk-questions-modal.component';
 import { findNearbyFeature } from './booking.utilities';
@@ -78,6 +82,8 @@ export interface BookingFlowOptions {
     show_fav?: boolean;
     /** Whether to group bookings */
     disable_date?: boolean;
+    /** Whether resource has accessibility options */
+    show_accessible?: boolean;
 }
 
 export interface BookingAsset {
@@ -119,6 +125,7 @@ export class BookingFormService extends AsyncHandler {
         debounceTime(300),
         switchMap(([bld, { type }]) => {
             if (!bld) return of([]);
+            const useRegion = () => this._settings.get('app.use_region');
             switch (type) {
                 case 'desk':
                     this._loading.next(`Loading desks...`);
@@ -128,7 +135,12 @@ export class BookingFormService extends AsyncHandler {
                     return this.loadResourceList('parking-spaces' as any);
                 case 'locker':
                     this._loading.next(`Loading lockers...`);
-                    return this.loadResourceList('lockers' as any);
+                    return loadLockers(
+                        this._org,
+                        of([bld]),
+                        loadLockerBanks(this._org, of([bld]), useRegion),
+                        useRegion,
+                    );
             }
             return of([]);
         }),
@@ -187,7 +199,7 @@ export class BookingFormService extends AsyncHandler {
             this._loading.next(`Checking ${type} availability...`),
         ),
         switchMap(([options, resources, restrictions]) => {
-            var { all_day, date, duration, user } = this.form.getRawValue();
+            let { all_day, date, duration, user } = this.form.getRawValue();
             if (all_day) {
                 date = startOfDay(date).valueOf();
                 duration = 24 * 60 - 1;
@@ -248,11 +260,11 @@ export class BookingFormService extends AsyncHandler {
                         console.log('Resources:', resources, available);
                         return available;
                     },
-                    catchError((_) => of([])),
+                    catchError(() => of([])),
                 ),
             );
         }),
-        tap((_) => this._loading.next('')),
+        tap(() => this._loading.next('')),
         shareReplay(1),
     );
 
@@ -789,21 +801,13 @@ export class BookingFormService extends AsyncHandler {
         const use_region = this._settings.get('app.use_region');
         const map_metadata = (_) =>
             (_?.metadata[type]?.details instanceof Array
-                ? _.metadata[type]?.details
+                ? _.metadata[type]!.details
                 : []
-            ).map((d) =>
-                (type as any) !== 'lockers'
-                    ? {
-                          ...d,
-                          id: d.id || d.map_id,
-                          zone: _.zone,
-                      }
-                    : d.lockers?.map((locker) => ({
-                          ...locker,
-                          bank_id: d.id,
-                          zone: _.zone,
-                      })) || [],
-            );
+            ).map((d) => ({
+                ...d,
+                id: d.id || d.map_id,
+                zone: _.zone,
+            }));
         const id = use_region
             ? this._org.building.parent_id
             : this._org.building.id;

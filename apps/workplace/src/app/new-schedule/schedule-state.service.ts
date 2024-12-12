@@ -4,9 +4,11 @@ import {
     Booking,
     BookingType,
     Locker,
-    LockersService,
+    LockerBank,
     ParkingService,
     checkinBooking,
+    loadLockerBanks,
+    loadLockers,
     queryBookings,
 } from '@placeos/bookings';
 import {
@@ -166,16 +168,16 @@ export class ScheduleStateService extends AsyncHandler {
         this.date,
     ]).pipe(
         filter(([bld]) => !!bld),
-        map(([bld]) => {
+        map(() => {
             const options = [];
-            let date = startOfDay(Date.now());
+            const date = startOfDay(Date.now());
             for (let i = -4; i < 48; i++) {
-                let day = addWeeks(date, i);
+                const day = addWeeks(date, i);
                 const week_s_date = startOfWeek(day, {
-                    weekStartsOn: this.offset_weekday as any,
+                    weekStartsOn: this.offset_weekday,
                 });
                 const week_e_date = endOfWeek(day, {
-                    weekStartsOn: this.offset_weekday as any,
+                    weekStartsOn: this.offset_weekday,
                 });
                 const this_week =
                     isAfter(Date.now(), week_s_date) &&
@@ -307,22 +309,33 @@ export class ScheduleStateService extends AsyncHandler {
         tap(() => this.timeout('end_loading', () => this._loading.next(false))),
         shareReplay(1),
     );
+    private _lockers_banks: Observable<LockerBank[]> = loadLockerBanks(
+        this._org,
+        combineLatest([this._org.active_building, this._org.active_region]),
+        () => this._settings.get('app.use_region'),
+    );
+    private _lockers: Observable<Locker[]> = loadLockers(
+        this._org,
+        combineLatest([this._org.active_building, this._org.active_region]),
+        this._lockers_banks,
+        () => this._settings.get('app.use_region'),
+    );
     /** List of parking bookings for the selected date */
     public readonly lockers: Observable<Booking[]> = combineLatest([
+        this._lockers,
         this._org.active_building.pipe(
             filter((_) => !!_),
             distinctUntilKeyChanged('id'),
         ),
-        this._lockers.lockers$,
     ]).pipe(
         debounceTime(300),
-        switchMap(async ([_, lockers]) => {
+        switchMap(async ([lockers]) => {
             const system_id = this._org.binding('lockers');
             if (!system_id) return [[], lockers];
             const mod = getModule(system_id, 'LockerLocations');
             const my_lockers = await mod
                 .execute('lockers_allocated_to_me')
-                .catch((_) => []);
+                .catch(() => []);
             return [my_lockers, lockers];
         }),
         map(([my_lockers, lockers]) => {
@@ -332,10 +345,6 @@ export class ScheduleStateService extends AsyncHandler {
                         (lkr) => lkr.id === i.locker_id,
                     );
                     if (!locker && (!i.level || !i.building)) return null;
-                    i.level = i.level || locker?.level_id;
-                    i.building =
-                        i.building ||
-                        this._org.levelWithID([locker?.level_id])?.parent_id;
                     return new Booking({
                         date: startOfDay(Date.now()).valueOf(),
                         duration: 24 * 60 - 1,
@@ -345,7 +354,7 @@ export class ScheduleStateService extends AsyncHandler {
                         all_day: true,
                         asset_id: locker.map_id,
                         asset_name: i.locker_name,
-                        zones: [i.building, i.level],
+                        zones: [...(locker.bank?.zones || [])],
                         extension_data: {
                             // map_id: i.locker_id || locker.map_id,
                         },
@@ -431,7 +440,7 @@ export class ScheduleStateService extends AsyncHandler {
         ),
     );
 
-    public get offset_weekday() {
+    public get offset_weekday(): 0 | 1 | 2 | 3 | 4 | 5 | 6 {
         return this._settings.get('app.week_start') || 0;
     }
 
@@ -528,7 +537,6 @@ export class ScheduleStateService extends AsyncHandler {
     constructor(
         private _settings: SettingsService,
         private _org: OrganisationService,
-        private _lockers: LockersService,
         private _dialog: MatDialog,
         private _parking: ParkingService,
     ) {
@@ -600,7 +608,7 @@ export class ScheduleStateService extends AsyncHandler {
         });
     }
 
-    public async toggleType(name: string, clear: boolean = false) {
+    public async toggleType(name: string, clear = false) {
         const filters = this._filters.getValue() || { shown_types: [] };
         const { shown_types } = filters;
         if (shown_types && (shown_types.includes(name) || clear)) {
@@ -626,19 +634,19 @@ export class ScheduleStateService extends AsyncHandler {
                 period === 'day'
                     ? startOfDay(date)
                     : startOfWeek(date, {
-                          weekStartsOn: this.offset_weekday as any,
+                          weekStartsOn: this.offset_weekday,
                       }),
             ),
             period_end: getUnixTime(
                 period === 'day'
                     ? endOfDay(date)
                     : endOfWeek(date, {
-                          weekStartsOn: this.offset_weekday as any,
+                          weekStartsOn: this.offset_weekday,
                       }),
             ),
             type,
             include_checked_out: true,
             include_deleted: 'recurring',
-        }).pipe(catchError((_) => of([])));
+        }).pipe(catchError(() => of([])));
     }
 }

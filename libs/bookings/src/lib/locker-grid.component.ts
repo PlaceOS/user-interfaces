@@ -1,12 +1,12 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { Locker, LockerBank } from './lockers.service';
 import { SettingsService } from '@placeos/common';
 import { DEFAULT_COLOURS } from 'libs/explore/src/lib/explore-spaces.service';
+import { Locker, LockerBank } from './locker.class';
 
 @Component({
     selector: 'locker-grid',
     template: `
-        <div class="p-4 text-xl font-medium">
+        <div class="p-4 text-xl font-medium" *ngIf="show_name">
             {{ bank?.name }}
         </div>
         <div
@@ -53,7 +53,9 @@ import { DEFAULT_COLOURS } from 'libs/explore/src/lib/explore-spaces.service';
                     {{ locker.name }}
                 </div>
 
-                <div class="absolute inset-0 hover:bg-neutral"></div>
+                <div
+                    class="absolute inset-0 hover:bg-base-content opacity-10"
+                ></div>
             </button>
         </div>
     `,
@@ -73,6 +75,7 @@ import { DEFAULT_COLOURS } from 'libs/explore/src/lib/explore-spaces.service';
     ],
 })
 export class LockerGridComponent {
+    @Input() public show_name = true;
     @Input() public bank: LockerBank;
     @Input() public bank_status: Record<string, string> = {
         '10': 'busy',
