@@ -4,6 +4,10 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Locker } from '@placeos/bookings';
 import { DialogEvent } from '@placeos/common';
 import { showStaff, User } from '@placeos/users';
+import {
+    addChipItem,
+    removeChipItem,
+} from 'libs/form-fields/src/lib/item-list-field.component';
 
 @Component({
     selector: 'locker-modal',
@@ -141,6 +145,34 @@ import { showStaff, User } from '@placeos/users';
                         placeholder="Locker Notes"
                     ></textarea>
                 </mat-form-field>
+                <label for="features"> Features </label>
+                <mat-form-field appearance="outline" class="w-full">
+                    <mat-chip-grid
+                        name="features"
+                        #chipList
+                        aria-label="Tag List"
+                    >
+                        <mat-chip-row
+                            *ngFor="let item of tag_list"
+                            (removed)="removeTag(item)"
+                        >
+                            <div class="truncate max-w-md">{{ item }}</div>
+                            <button
+                                matChipRemove
+                                [attr.aria-label]="'Remove item'"
+                            >
+                                <app-icon>cancel</app-icon>
+                            </button>
+                        </mat-chip-row>
+                    </mat-chip-grid>
+                    <input
+                        placeholder="Features..."
+                        [matChipInputFor]="chipList"
+                        [matChipInputSeparatorKeyCodes]="separators"
+                        [matChipInputAddOnBlur]="true"
+                        (matChipInputTokenEnd)="addTag($event)"
+                    />
+                </mat-form-field>
                 <div class="flex items-center justify-center space-x-2">
                     <button btn matRipple class="w-32 inverse" mat-dialog-close>
                         Cancel
@@ -172,6 +204,15 @@ export class LockerModalComponent {
         return this._data?.id || '';
     }
 
+    public readonly addTag = (e) =>
+        addChipItem(this.form.controls.features as any, e);
+    public readonly removeTag = (i) =>
+        removeChipItem(this.form.controls.features as any, i);
+
+    public get tag_list(): string[] {
+        return this.form.controls.features.value;
+    }
+
     public readonly form = new FormGroup({
         id: new FormControl(''),
         name: new FormControl('', [Validators.required]),
@@ -183,6 +224,7 @@ export class LockerModalComponent {
         notes: new FormControl(''),
         accessible: new FormControl(false),
         bookable: new FormControl(false),
+        features: new FormControl([]),
     });
 
     constructor(

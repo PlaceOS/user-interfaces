@@ -9,6 +9,7 @@ export interface LockerBank {
     lockers?: Locker[];
     zone?: PlaceZone;
     zones: string[];
+    tags: string[];
 }
 
 export interface Locker {
@@ -23,4 +24,5 @@ export interface Locker {
     size: [number, number];
     bank?: LockerBank;
     zone?: PlaceZone;
+    features: string[];
 }
