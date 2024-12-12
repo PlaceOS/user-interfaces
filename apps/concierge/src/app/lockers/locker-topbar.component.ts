@@ -35,11 +35,11 @@ import { LockerStateService } from './locker-state.service';
                     btn
                     matRipple
                     *ngIf="path === 'manage'"
-                    class="space-x-2 w-48"
+                    class="space-x-2 w-40"
                     (click)="newLockerBank()"
                     [disabled]="!(options | async)?.zones?.length"
                 >
-                    <div class="pl-2">New Locker Bank</div>
+                    <div class="pl-4">New Bank</div>
                     <app-icon class="text-2xl">add</app-icon>
                 </button>
             </div>

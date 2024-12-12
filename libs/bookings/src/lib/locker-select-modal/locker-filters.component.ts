@@ -40,12 +40,19 @@ import { map } from 'rxjs/operators';
             <div class="flex-1"></div>
         </div>
         <form
-            class="max-h-[65vh] p-2 overflow-y-auto overflow-x-hidden divide-y divide-base-200 w-full max-w-[100vw] sm:max-w-[30vw]"
+            class="max-h-[65vh] p-2 overflow-y-auto overflow-x-hidden divide-y divide-base-200 w-full"
             [formGroup]="form"
         >
             <section details>
                 <h2 class="text-lg font-medium mb-1">Details</h2>
-                <div class="flex-1 min-w-[8rem] flex flex-col">
+                <div
+                    class="flex-1 min-w-[8rem] flex flex-col"
+                    *ngIf="
+                        !hide_levels &&
+                        (!(use_region && (regions | async)?.length) ||
+                            !(!use_region && (buildings | async)?.length > 1))
+                    "
+                >
                     <label for="location">Location</label>
                     <mat-form-field
                         appearance="outline"
@@ -172,22 +179,19 @@ import { map } from 'rxjs/operators';
                     </div>
                 </div>
             </section>
-            <section favs class="space-y-2 pb-4">
-                <h2 class="text-lg font-medium">
-                    {{ 'COMMON.FAVOURITES' | translate }}
-                </h2>
-                <div class="flex items-center">
-                    <div for="fav" class="flex-1 w-1/2">
-                        {{ 'LOCKERS.SHOW_FAVOURITES' | translate }}
-                    </div>
-                    <mat-checkbox
-                        name="fav"
-                        [ngModel]="(options | async)?.show_fav"
-                        (ngModelChange)="setOptions({ show_fav: $event })"
-                        [ngModelOptions]="{ standalone: true }"
-                    >
-                    </mat-checkbox>
-                </div>
+            <section favs class="space-y-4 pb-4">
+                <settings-toggle
+                    [name]="'LOCKERS.SHOW_FAVOURITES' | translate"
+                    [ngModel]="(options | async)?.show_fav"
+                    (ngModelChange)="setOptions({ show_fav: $event })"
+                    [ngModelOptions]="{ standalone: true }"
+                ></settings-toggle>
+                <settings-toggle
+                    name="Show Accessible Lockers"
+                    [ngModel]="(options | async)?.show_accessible"
+                    (ngModelChange)="setOptions({ show_accessible: $event })"
+                    [ngModelOptions]="{ standalone: true }"
+                ></settings-toggle>
             </section>
             <section
                 class="space-y-2"

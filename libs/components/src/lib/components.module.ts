@@ -89,6 +89,7 @@ import { DeskHeightPresetsComponent } from './desk-height-presets.component';
 import { WorkLocationTooltipComponent } from './work-location-tooltip.component';
 import { ZonePipe } from './zone.pipe';
 import { LoginComponent } from './login.component';
+import { SettingsToggleComponent } from './settings-toggle.component';
 
 const MAT_MODULES: any[] = [
     MatAutocompleteModule,
@@ -148,6 +149,7 @@ const COMPONENTS: Type<any>[] = [
     ImageViewerComponent,
     SimpleTableComponent,
     WorkLocationTooltipComponent,
+    SettingsToggleComponent,
 
     FixedPipe,
     SafePipe,

@@ -106,6 +106,18 @@ import { endOfDay } from 'date-fns';
                     <app-icon>close</app-icon>
                 </button>
             </div>
+            <div filter-item *ngIf="(options | async)?.show_accessible">
+                <span>Accessible Only</span>
+                <button
+                    icon
+                    matRipple
+                    name="remove-locker-accessible-filter"
+                    class="-mr-4"
+                    (click)="setOptions({ show_accessible: false })"
+                >
+                    <app-icon>close</app-icon>
+                </button>
+            </div>
         </section>
     `,
 })

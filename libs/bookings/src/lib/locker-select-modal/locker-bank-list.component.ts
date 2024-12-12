@@ -176,11 +176,13 @@ export class LockerBankListComponent {
         this.lockers_banks$,
         this.lockers$,
     ]).pipe(
-        map(([{ show_fav }, resources, banks]) => {
+        map(([{ show_fav, show_accessible }, resources, banks]) => {
             return banks
                 .filter(
                     (i) =>
                         (!show_fav || this.isFavourite(i.id)) &&
+                        (!show_accessible ||
+                            i.lockers.find((_) => _.accessible)) &&
                         resources.find((_: any) => _.bank_id === i.id),
                 )
                 .map((bank) => ({

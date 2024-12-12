@@ -253,7 +253,7 @@ export function loadLockerBanks(
     org: OrganisationService,
     obs: Observable<any>,
     useRegion: () => boolean,
-) {
+): Observable<LockerBank[]> {
     return obs.pipe(
         filter(([bld]) => !!bld),
         switchMap(([bld]) =>
@@ -282,7 +282,7 @@ export function loadLockers(
     obs: Observable<any>,
     banks$: Observable<LockerBank[]>,
     useRegion: () => boolean,
-) {
+): Observable<Locker[]> {
     return obs.pipe(
         filter(([bld]) => !!bld),
         switchMap(([bld]) =>
@@ -319,7 +319,7 @@ export function loadLockers(
             for (const locker of locker_list) {
                 const bank = banks.find((b) => b.id === locker.bank_id);
                 locker.bank = bank;
-                locker.zone = bank.zone;
+                locker.zone = org.levelWithID(bank.zones);
             }
             return lockers.filter((_) => _.bank);
         }),

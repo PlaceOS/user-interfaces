@@ -155,7 +155,7 @@ export const FAV_LOCKER_KEY = 'favourite_lockers';
             <locker-map
                 class="flex-1 h-1/2 w-full"
                 [is_displayed]="!!displayed"
-                (onSelect)="displayed = $event"
+                (onSelect)="bank = $event"
             >
             </locker-map>
         </ng-template>

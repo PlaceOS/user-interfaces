@@ -82,6 +82,8 @@ export interface BookingFlowOptions {
     show_fav?: boolean;
     /** Whether to group bookings */
     disable_date?: boolean;
+    /** Whether resource has accessibility options */
+    show_accessible?: boolean;
 }
 
 export interface BookingAsset {
@@ -197,7 +199,7 @@ export class BookingFormService extends AsyncHandler {
             this._loading.next(`Checking ${type} availability...`),
         ),
         switchMap(([options, resources, restrictions]) => {
-            var { all_day, date, duration, user } = this.form.getRawValue();
+            let { all_day, date, duration, user } = this.form.getRawValue();
             if (all_day) {
                 date = startOfDay(date).valueOf();
                 duration = 24 * 60 - 1;
@@ -258,11 +260,11 @@ export class BookingFormService extends AsyncHandler {
                         console.log('Resources:', resources, available);
                         return available;
                     },
-                    catchError((_) => of([])),
+                    catchError(() => of([])),
                 ),
             );
         }),
-        tap((_) => this._loading.next('')),
+        tap(() => this._loading.next('')),
         shareReplay(1),
     );
 
@@ -799,21 +801,13 @@ export class BookingFormService extends AsyncHandler {
         const use_region = this._settings.get('app.use_region');
         const map_metadata = (_) =>
             (_?.metadata[type]?.details instanceof Array
-                ? _.metadata[type]?.details
+                ? _.metadata[type]!.details
                 : []
-            ).map((d) =>
-                (type as any) !== 'lockers'
-                    ? {
-                          ...d,
-                          id: d.id || d.map_id,
-                          zone: _.zone,
-                      }
-                    : d.lockers?.map((locker) => ({
-                          ...locker,
-                          bank_id: d.id,
-                          zone: _.zone,
-                      })) || [],
-            );
+            ).map((d) => ({
+                ...d,
+                id: d.id || d.map_id,
+                zone: _.zone,
+            }));
         const id = use_region
             ? this._org.building.parent_id
             : this._org.building.id;
