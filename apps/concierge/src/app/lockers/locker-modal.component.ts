@@ -69,7 +69,7 @@ import { showStaff, User } from '@placeos/users';
                 </div>
                 <div class="flex space-x-4 mb-4">
                     <div class="flex-1">
-                        <label for="row">Start Row</label>
+                        <label for="row">Start Column</label>
                         <a-counter
                             [ngModel]="form.value.position[0] + 1"
                             (ngModelChange)="
@@ -85,7 +85,7 @@ import { showStaff, User } from '@placeos/users';
                         ></a-counter>
                     </div>
                     <div class="flex-1">
-                        <label for="column">Start Column</label>
+                        <label for="column">Start Row</label>
                         <a-counter
                             [ngModel]="form.value.position[1] + 1"
                             (ngModelChange)="
@@ -213,6 +213,9 @@ export class LockerModalComponent {
             value.assigned_to = value.assigned_user.email;
             value.assigned_name = value.assigned_user.name;
             delete value.assigned_user;
+        } else {
+            delete value.assigned_to;
+            delete value.assigned_name;
         }
         this._dialog_ref.disableClose = true;
         this.event.emit({ reason: 'done', metadata: value });

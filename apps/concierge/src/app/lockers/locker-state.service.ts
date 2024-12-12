@@ -388,6 +388,9 @@ export class LockerStateService extends AsyncHandler {
         if (idx >= 0) lockers[idx] = new_locker;
         else lockers.push(new_locker);
         const new_locker_list = lockers;
+        for (const locker of new_locker_list) {
+            if (locker.bank) delete locker.bank;
+        }
         await updateMetadata(zone, {
             name: 'lockers',
             details: new_locker_list,

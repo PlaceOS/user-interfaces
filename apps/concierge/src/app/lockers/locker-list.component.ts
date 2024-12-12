@@ -18,7 +18,8 @@ import { Clipboard } from '@angular/cdk/clipboard';
             [columns]="[
                 { key: 'name', name: 'Locker Bank', content: name_template },
                 { key: 'map_id', name: 'Map ID', content: id_template },
-                { key: 'height', name: 'Height', size: '8rem' },
+                { key: 'height', name: 'Height', size: '6rem' },
+                { key: 'tags', name: 'Tags', size: '8rem' },
                 {
                     key: 'actions',
                     name: ' ',
@@ -171,7 +172,7 @@ import { Clipboard } from '@angular/cdk/clipboard';
             <ng-template #pos_template let-data="data">
                 <div class="w-full flex space-x-2 p-2">
                     <div class="flex flex-col">
-                        <div class="opacity-30 text-xs">Row</div>
+                        <div class="opacity-30 text-xs">Column</div>
                         <div
                             class="bg-base-200 rounded px-2 py-1 w-12 text-center"
                         >
@@ -179,7 +180,7 @@ import { Clipboard } from '@angular/cdk/clipboard';
                         </div>
                     </div>
                     <div class="flex flex-col">
-                        <div class="opacity-30 text-xs">Column</div>
+                        <div class="opacity-30 text-xs">Row</div>
                         <div
                             class="bg-base-200 rounded px-2 py-1 w-12 text-center"
                         >

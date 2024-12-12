@@ -53,7 +53,9 @@ import { Locker, LockerBank } from './locker.class';
                     {{ locker.name }}
                 </div>
 
-                <div class="absolute inset-0 hover:bg-neutral"></div>
+                <div
+                    class="absolute inset-0 hover:bg-base-content opacity-10"
+                ></div>
             </button>
         </div>
     `,
