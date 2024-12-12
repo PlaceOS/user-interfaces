@@ -1,9 +1,14 @@
+import { COMMA, ENTER, SPACE } from '@angular/cdk/keycodes';
 import { Component, EventEmitter, Inject, Output } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { LockerBank } from '@placeos/bookings';
-import { DialogEvent, SettingsService } from '@placeos/common';
+import { DialogEvent, SettingsService, unique } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
+import {
+    addChipItem,
+    removeChipItem,
+} from 'libs/form-fields/src/lib/item-list-field.component';
 import { map } from 'rxjs/operators';
 
 @Component({
@@ -81,6 +86,30 @@ import { map } from 'rxjs/operators';
                         formControlName="notes"
                     ></textarea>
                 </mat-form-field>
+                <label for="tags"> Tags </label>
+                <mat-form-field appearance="outline" class="w-full">
+                    <mat-chip-grid name="tags" #chipList aria-label="Tag List">
+                        <mat-chip-row
+                            *ngFor="let item of tag_list"
+                            (removed)="removeTag(item)"
+                        >
+                            <div class="truncate max-w-md">{{ item }}</div>
+                            <button
+                                matChipRemove
+                                [attr.aria-label]="'Remove item'"
+                            >
+                                <app-icon>cancel</app-icon>
+                            </button>
+                        </mat-chip-row>
+                    </mat-chip-grid>
+                    <input
+                        placeholder="Tags..."
+                        [matChipInputFor]="chipList"
+                        [matChipInputSeparatorKeyCodes]="separators"
+                        [matChipInputAddOnBlur]="true"
+                        (matChipInputTokenEnd)="addTag($event)"
+                    />
+                </mat-form-field>
                 <div class="flex items-center justify-center space-x-2">
                     <button btn matRipple class="w-32 inverse" mat-dialog-close>
                         Cancel
@@ -105,6 +134,8 @@ import { map } from 'rxjs/operators';
 export class LockerBankModalComponent {
     @Output() public readonly event = new EventEmitter<DialogEvent>();
     public loading: boolean;
+    /** List of separator characters for tags */
+    public readonly separators: number[] = [ENTER, COMMA, SPACE];
     /** List of available locker levels for the current building */
     public levels = this._org.level_list.pipe(
         map((_) => {
@@ -127,6 +158,15 @@ export class LockerBankModalComponent {
         }),
     );
 
+    public readonly addTag = (e) =>
+        addChipItem(this.form.controls.tags as any, e);
+    public readonly removeTag = (i) =>
+        removeChipItem(this.form.controls.tags as any, i);
+
+    public get tag_list(): string[] {
+        return this.form.controls.tags.value;
+    }
+
     public get id() {
         return this._data?.id || '';
     }
@@ -138,6 +178,7 @@ export class LockerBankModalComponent {
         notes: new FormControl(''),
         height: new FormControl(3),
         zones: new FormControl([]),
+        tags: new FormControl([]),
     });
 
     constructor(
@@ -153,6 +194,15 @@ export class LockerBankModalComponent {
         if (!this.form.valid) return;
         this.loading = true;
         const value = { ...this.form.getRawValue() };
+        const level = this._org.levelWithID(value.zones);
+        value.zones = unique(
+            [
+                level.id,
+                this._org.organisation.id,
+                this._org.region.id,
+                level.parent_id,
+            ].filter((_) => _),
+        );
         this._dialog_ref.disableClose = true;
         this.event.emit({ reason: 'done', metadata: value });
     }

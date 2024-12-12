@@ -75,7 +75,7 @@ import { Clipboard } from '@angular/cdk/clipboard';
                             <span>View Locker Bank Layout</span>
                         </div>
                     </button>
-                    <button mat-menu-item>
+                    <button mat-menu-item (click)="editLockerBank(row)">
                         <div class="flex items-center space-x-2">
                             <app-icon class="text-xl">edit</app-icon>
                             <span>Edit Locker Bank</span>
@@ -266,7 +266,9 @@ export class LockerListComponent extends AsyncHandler {
     public readonly locker_status: Record<string, string> = {};
 
     public readonly editLocker = (bid, s?) => this._state.editLocker(bid, s);
+    public readonly editLockerBank = (b?) => this._state.editLockerBank(b);
     public readonly removeLocker = (s) => this._state.removeLocker(s);
+    public readonly removeLockerBank = (b) => this._state.removeLockerBank(b);
 
     constructor(
         private _state: LockerStateService,

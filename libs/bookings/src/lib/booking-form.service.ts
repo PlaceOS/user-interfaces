@@ -46,7 +46,11 @@ import {
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { User } from 'libs/users/src/lib/user.class';
 import { Booking, BookingType } from './booking.class';
-import { generateBookingForm } from './booking.utilities';
+import {
+    generateBookingForm,
+    loadLockerBanks,
+    loadLockers,
+} from './booking.utilities';
 import { bookedResourceList, queryBookings, saveBooking } from './bookings.fn';
 import { DeskQuestionsModalComponent } from './desk-questions-modal.component';
 import { findNearbyFeature } from './booking.utilities';
@@ -119,6 +123,7 @@ export class BookingFormService extends AsyncHandler {
         debounceTime(300),
         switchMap(([bld, { type }]) => {
             if (!bld) return of([]);
+            const useRegion = () => this._settings.get('app.use_region');
             switch (type) {
                 case 'desk':
                     this._loading.next(`Loading desks...`);
@@ -128,7 +133,12 @@ export class BookingFormService extends AsyncHandler {
                     return this.loadResourceList('parking-spaces' as any);
                 case 'locker':
                     this._loading.next(`Loading lockers...`);
-                    return this.loadResourceList('lockers' as any);
+                    return loadLockers(
+                        this._org,
+                        of([bld]),
+                        loadLockerBanks(this._org, of([bld]), useRegion),
+                        useRegion,
+                    );
             }
             return of([]);
         }),

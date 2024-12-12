@@ -12,6 +12,7 @@ import { Locker, LockerBank } from '../locker.class';
 import { OrganisationService } from '@placeos/organisation';
 import { flatten, SettingsService } from '@placeos/common';
 import { PlaceMetadata, showMetadata } from '@placeos/ts-client';
+import { loadLockerBanks, loadLockers } from '../booking.utilities';
 
 @Component({
     selector: 'locker-bank-list',
@@ -85,9 +86,11 @@ import { PlaceMetadata, showMetadata } from '@placeos/ts-client';
                                 <app-icon class="text-blue-500">place</app-icon>
                                 <p class="text-xs">
                                     {{
-                                        locker_bank.zone?.display_name ||
-                                            locker_bank.zone?.name ||
-                                            '&lt;No Level&gt;'
+                                        (locker_bank.zones | level)
+                                            ? (locker_bank.zones | level)
+                                                  ?.display_name ||
+                                              (locker_bank.zones | level)?.name
+                                            : ''
                                     }}
                                 </p>
                             </div>
@@ -117,6 +120,12 @@ import { PlaceMetadata, showMetadata } from '@placeos/ts-client';
                                 : 'favorite_border'
                         }}</app-icon>
                     </button>
+                    <div
+                        class="absolute bottom-2 right-2 bg-base-200 rounded text-xs px-2 py-1 font-mono"
+                        *ngIf="locker_bank.tags?.length"
+                    >
+                        {{ locker_bank.tags[0] }}
+                    </div>
                 </li>
             </ul>
         </ng-container>
@@ -142,81 +151,23 @@ import { PlaceMetadata, showMetadata } from '@placeos/ts-client';
     `,
 })
 export class LockerBankListComponent {
-    @Input() public active: string = '';
-    @Input() public selected: string = '';
+    @Input() public active = '';
+    @Input() public selected = '';
     @Input() public favorites: string[] = [];
     @Output() public onSelect = new EventEmitter<BookingAsset>();
     @Output() public toggleFav = new EventEmitter<BookingAsset>();
 
-    public readonly lockers_banks$: Observable<LockerBank[]> = combineLatest([
-        this._org.active_building,
-        this._org.active_region,
-    ]).pipe(
-        filter(([bld]) => !!bld),
-        switchMap(([bld]) =>
-            this._settings.get('app.use_region')
-                ? forkJoin(
-                      this._org.buildingsForRegion().map((building) =>
-                          showMetadata(building.id, 'locker_banks').pipe(
-                              catchError(() => of(new PlaceMetadata())),
-                              map((_) =>
-                                  _.details instanceof Array ? _.details : [],
-                              ),
-                          ),
-                      ),
-                  ).pipe(map((_: LockerBank[][]) => flatten(_)))
-                : showMetadata(bld.id, 'locker_banks').pipe(
-                      catchError(() => of(new PlaceMetadata())),
-                      map((_) => (_.details instanceof Array ? _.details : [])),
-                  ),
-        ),
-        shareReplay(1),
+    public readonly lockers_banks$: Observable<LockerBank[]> = loadLockerBanks(
+        this._org,
+        combineLatest([this._org.active_building, this._org.active_region]),
+        () => this._settings.get('app.use_region'),
     );
 
-    public readonly lockers$: Observable<Locker[]> = combineLatest([
-        this._org.active_building,
-        this._org.active_region,
-    ]).pipe(
-        filter(([bld]) => !!bld),
-        switchMap(([bld]) =>
-            combineLatest([
-                this._settings.get('app.use_region')
-                    ? forkJoin(
-                          this._org.buildingsForRegion().map((building) =>
-                              showMetadata(building.id, 'lockers').pipe(
-                                  catchError(() => of(new PlaceMetadata())),
-                                  map((_) =>
-                                      _.details instanceof Array
-                                          ? _.details
-                                          : [],
-                                  ),
-                              ),
-                          ),
-                      ).pipe(map((_: Locker[][]) => flatten(_)))
-                    : showMetadata(bld.id, 'lockers').pipe(
-                          catchError(() => of(new PlaceMetadata())),
-                          map((_) =>
-                              _.details instanceof Array ? _.details : [],
-                          ),
-                      ),
-                this.lockers_banks$,
-            ]),
-        ),
-        map(([lockers, banks]: any) => {
-            const locker_list = lockers;
-            for (const bank of banks) {
-                bank.lockers = lockers
-                    .filter((_) => _.bank_id === bank.id)
-                    .map((_) => ({ ..._ }));
-            }
-            for (const locker of locker_list) {
-                const bank = banks.find((b) => b.id === locker.bank_id);
-                locker.bank = bank;
-                locker.zone = bank.zone;
-            }
-            return lockers.filter((_) => _.bank);
-        }),
-        shareReplay(1),
+    public readonly lockers$: Observable<Locker[]> = loadLockers(
+        this._org,
+        combineLatest([this._org.active_building, this._org.active_region]),
+        this.lockers_banks$,
+        () => this._settings.get('app.use_region'),
     );
 
     public readonly locker_banks = combineLatest([
