@@ -20,7 +20,7 @@ export const FAV_DESK_KEY = 'favourite_desks';
                 <button icon mat-dialog-close class="bg-base-200">
                     <app-icon>close</app-icon>
                 </button>
-                <h3>Find Desk</h3>
+                <h3>{{ 'BOOKINGS.DESK_FIND' | translate }}</h3>
                 <div class="hidden sm:flex items-center justify-end flex-1">
                     <button
                         btn
@@ -30,7 +30,7 @@ export const FAV_DESK_KEY = 'favourite_desks';
                         [class.inverse]="view !== 'map'"
                         (click)="view = 'map'"
                     >
-                        Map
+                        {{ 'COMMON.MAP' | translate }}
                     </button>
                     <button
                         btn
@@ -40,7 +40,7 @@ export const FAV_DESK_KEY = 'favourite_desks';
                         [class.inverse]="view !== 'list'"
                         (click)="view = 'list'"
                     >
-                        List
+                        {{ 'COMMON.LIST' | translate }}
                     </button>
                 </div>
             </header>
@@ -92,7 +92,7 @@ export const FAV_DESK_KEY = 'favourite_desks';
                     *ngIf="displayed"
                     (click)="displayed = null"
                 >
-                    Back
+                    {{ 'COMMON.BACK' | translate }}
                 </button>
                 <button
                     btn
@@ -102,7 +102,7 @@ export const FAV_DESK_KEY = 'favourite_desks';
                     [class.mb-2]="displayed"
                     class="w-full sm:w-32 sm:mb-0"
                 >
-                    View List
+                    {{ 'COMMON.VIEW_LIST' | translate }}
                 </button>
             </footer>
             <footer
@@ -117,11 +117,16 @@ export const FAV_DESK_KEY = 'favourite_desks';
                 >
                     <div class="flex items-center">
                         <app-icon class="text-xl">arrow_back</app-icon>
-                        <div class="mr-1 underline">Back to form</div>
+                        <div class="mr-1 underline">
+                            {{ 'COMMON.BACK_TO_FORM' | translate }}
+                        </div>
                     </div>
                 </button>
                 <p class="opacity-60 text-sm">
-                    {{ selected.length }} desk(s) added
+                    {{
+                        'BOOKINGS.DESK_ADDED_COUNT'
+                            | translate: { count: selected.length }
+                    }}
                 </p>
                 <button
                     btn
@@ -137,9 +142,10 @@ export const FAV_DESK_KEY = 'favourite_desks';
                         }}</app-icon>
                         <div class="mr-1">
                             {{
-                                isSelected(displayed?.id)
-                                    ? 'Remove from Booking'
-                                    : 'Add to booking'
+                                (isSelected(displayed?.id)
+                                    ? 'COMMON.REMOVE_FROM'
+                                    : 'COMMON.ADD_TO'
+                                ) | translate
                             }}
                         </div>
                     </div>

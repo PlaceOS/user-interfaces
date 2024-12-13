@@ -16,7 +16,7 @@ import { BookingFormService } from '../booking-form.service';
                 class="flex-1 w-1/2"
                 (click)="editFilters()"
             >
-                Filters
+                {{ 'COMMON.FILTERS' | translate }}
             </button>
             <div class="flex items-center">
                 <button
@@ -26,7 +26,7 @@ import { BookingFormService } from '../booking-form.service';
                     [class.inverse]="view !== 'map'"
                     (click)="view = 'map'; viewChange.emit(view)"
                 >
-                    Map
+                    {{ 'COMMON.MAP' | translate }}
                 </button>
                 <button
                     matRipple
@@ -35,7 +35,7 @@ import { BookingFormService } from '../booking-form.service';
                     [class.inverse]="view !== 'list'"
                     (click)="view = 'list'; viewChange.emit(view)"
                 >
-                    List
+                    {{ 'COMMON.LIST' | translate }}
                 </button>
             </div>
         </section>
@@ -54,7 +54,10 @@ import { BookingFormService } from '../booking-form.service';
                 {{ end | date: time_format }}
             </div>
             <div filter-item count>
-                Min. {{ (options | async)?.capcaity || 2 }} People
+                {{
+                    'CALENDAR_EVENT.SPACE_SELECT_SIZE_X'
+                        | translate: { count: (options | async)?.capcaity || 2 }
+                }}
             </div>
             <div filter-item *ngFor="let feat of (options | async)?.features">
                 <p>{{ feat }}</p>

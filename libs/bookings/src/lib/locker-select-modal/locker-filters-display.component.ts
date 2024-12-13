@@ -43,7 +43,7 @@ import { endOfDay } from 'date-fns';
                 class="flex-1 w-1/2"
                 (click)="editFilter()"
             >
-                Filters
+                {{ 'COMMON.FILTERS' | translate }}
             </button>
             <div class="flex items-center">
                 <button
@@ -54,7 +54,7 @@ import { endOfDay } from 'date-fns';
                     [class.inverse]="view !== 'map'"
                     (click)="view = 'map'; viewChange.emit(view)"
                 >
-                    Map
+                    {{ 'COMMON.MAP' | translate }}
                 </button>
                 <button
                     btn
@@ -64,7 +64,7 @@ import { endOfDay } from 'date-fns';
                     [class.inverse]="view !== 'list'"
                     (click)="view = 'list'; viewChange.emit(view)"
                 >
-                    List
+                    {{ 'COMMON.LIST' | translate }}
                 </button>
             </div>
         </section>
@@ -95,7 +95,7 @@ import { endOfDay } from 'date-fns';
                 </button>
             </div>
             <div filter-item *ngIf="(options | async)?.show_fav">
-                <span>Favourites Only</span>
+                <span>{{ 'COMMON.FAVOURITES_ONLY' | translate }}</span>
                 <button
                     icon
                     matRipple
@@ -107,7 +107,7 @@ import { endOfDay } from 'date-fns';
                 </button>
             </div>
             <div filter-item *ngIf="(options | async)?.show_accessible">
-                <span>Accessible Only</span>
+                <span>{{ 'COMMON.ACCESSIBLE_ONLY' | translate }}</span>
                 <button
                     icon
                     matRipple

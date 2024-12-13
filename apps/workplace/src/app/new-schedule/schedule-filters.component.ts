@@ -15,9 +15,9 @@ import { ScheduleStateService } from './schedule-state.service';
                     'APP.WORKPLACE.SCHEDULE_FILTERS_DISPLAY_HEADER' | translate
                 }}
             </h3>
-            <div class="flex flex-wrap space-x-2">
+            <div class="flex flex-wrap">
                 <div
-                    class="flex items-center rounded-3xl border border-base-200"
+                    class="flex items-center rounded-3xl border border-base-200 m-1"
                     *ngIf="
                         (filters | async)?.shown_types?.includes('event') &&
                         hasFeature('spaces')
@@ -33,7 +33,7 @@ import { ScheduleStateService } from './schedule-state.service';
                     </button>
                 </div>
                 <div
-                    class="flex items-center rounded-3xl border border-base-200"
+                    class="flex items-center rounded-3xl border border-base-200 m-1"
                     *ngIf="
                         (filters | async)?.shown_types?.includes('desk') &&
                         hasFeature('desks')
@@ -49,7 +49,7 @@ import { ScheduleStateService } from './schedule-state.service';
                     </button>
                 </div>
                 <div
-                    class="flex items-center rounded-3xl border border-base-200"
+                    class="flex items-center rounded-3xl border border-base-200 m-1"
                     *ngIf="
                         (filters | async)?.shown_types?.includes('parking') &&
                         hasFeature('parking')
@@ -68,7 +68,7 @@ import { ScheduleStateService } from './schedule-state.service';
                     </button>
                 </div>
                 <div
-                    class="flex items-center rounded-3xl border border-base-200"
+                    class="flex items-center rounded-3xl border border-base-200 m-1"
                     *ngIf="
                         (filters | async)?.shown_types?.includes('visitor') &&
                         hasFeature('visitor-invite')
@@ -87,7 +87,7 @@ import { ScheduleStateService } from './schedule-state.service';
                     </button>
                 </div>
                 <div
-                    class="flex items-center rounded-3xl border border-base-200"
+                    class="flex items-center rounded-3xl border border-base-200 m-1"
                     *ngIf="
                         (filters | async)?.shown_types?.includes('locker') &&
                         hasFeature('lockers')
@@ -106,7 +106,7 @@ import { ScheduleStateService } from './schedule-state.service';
                     </button>
                 </div>
                 <div
-                    class="flex items-center rounded-3xl border border-base-200"
+                    class="flex items-center rounded-3xl border border-base-200 m-1"
                     *ngIf="
                         (filters | async)?.shown_types?.includes(
                             'group-event'

@@ -17,9 +17,12 @@ import { BookingFormService, BookingAsset } from '../booking-form.service';
         `,
     ],
     template: `
-        <h3 class="font-bold">Results</h3>
+        <h3 class="font-bold">{{ 'COMMON.RESULTS' | translate }}</h3>
         <p count class="text-sm opacity-60 mb-4">
-            {{ (desks | async)?.length || 0 }} result(s) found
+            {{
+                'COMMON.RESULTS_COUNT'
+                    | translate: { count: (desks | async)?.length || 0 }
+            }}
         </p>
         <ng-container *ngIf="!(loading | async)?.length; else load_state">
             <ul
@@ -99,7 +102,9 @@ import { BookingFormService, BookingAsset } from '../booking-form.service';
                 class="p-16 flex flex-col items-center justify-center space-y-2"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
-                <p class="opacity-30">Finding available desks...</p>
+                <p class="opacity-30">
+                    {{ 'BOOKINGS.DESK_LIST_LOADING' | translate }}
+                </p>
             </div>
         </ng-template>
         <ng-template #empty_state>
@@ -108,15 +113,15 @@ import { BookingFormService, BookingAsset } from '../booking-form.service';
                 class="p-16 flex flex-col items-center justify-center space-y-2"
             >
                 <p class="opacity-30 text-center">
-                    No available desk for selected time and/or filters
+                    {{ 'BOOKINGS.DESK_LIST_EMPTY' | translate }}
                 </p>
             </div>
         </ng-template>
     `,
 })
 export class DeskListComponent {
-    @Input() public active: string = '';
-    @Input() public selected: string = '';
+    @Input() public active = '';
+    @Input() public selected = '';
     @Input() public favorites: string[] = [];
     @Output() public onSelect = new EventEmitter<BookingAsset>();
     @Output() public toggleFav = new EventEmitter<BookingAsset>();

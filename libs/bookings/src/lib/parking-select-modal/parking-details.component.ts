@@ -59,11 +59,9 @@ import { BookingAsset } from '../booking-form.service';
                 </section>
                 <hr />
                 <section details class="space-y-2">
-                    <h2 class="text-xl font-medium">Details</h2>
-                    <div class="flex items-center space-x-2">
-                        <app-icon>people</app-icon>
-                        <p>{{ space.capacity }} People</p>
-                    </div>
+                    <h2 class="text-xl font-medium">
+                        {{ 'BOOKINGS.DETAILS' | translate }}
+                    </h2>
                     <div class="flex items-center space-x-2">
                         <app-icon>meeting_room</app-icon>
                         <p>
@@ -108,7 +106,12 @@ import { BookingAsset } from '../booking-form.service';
                             active ? 'remove' : 'add'
                         }}</app-icon>
                         <p>
-                            {{ active ? 'Remove this room' : 'Add this room' }}
+                            {{
+                                (active
+                                    ? 'BOOKINGS.SPACE_REMOVE'
+                                    : 'BOOKINGS.SPACE_ADD_TO'
+                                ) | translate
+                            }}
                         </p>
                     </div>
                 </button>
@@ -120,7 +123,7 @@ import { BookingAsset } from '../booking-form.service';
                 class="p-16 flex flex-col items-center justify-center space-y-2"
             >
                 <p class="opacity-30 text-center">
-                    Select a space to view it's details
+                    {{ 'BOOKINGS.PARKING_SELECT_MSG' | translate }}
                 </p>
             </div>
         </ng-template>

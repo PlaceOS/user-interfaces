@@ -41,7 +41,7 @@ import { startOfDay } from 'date-fns';
                 (ngModelChange)="setDate($event)"
                 [offset_weekday]="offset_weekday"
             ></date-calendar>
-            <div class="px-4 w-full" *ngIf="period === 'week'">
+            <div class="px-2 w-full" *ngIf="period === 'week'">
                 <mat-form-field
                     appearance="outline"
                     class="no-subscript w-full"

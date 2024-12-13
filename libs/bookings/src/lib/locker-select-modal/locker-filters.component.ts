@@ -36,7 +36,9 @@ import { map } from 'rxjs/operators';
                     <app-icon>keyboard_arrow_left</app-icon>
                 </button>
             </div>
-            <h3 class="font-medium flex-2 text-center">Locker Filters</h3>
+            <h3 class="font-medium flex-2 text-center">
+                {{ 'COMMON.FILTERS' | translate }}
+            </h3>
             <div class="flex-1"></div>
         </div>
         <form
@@ -44,7 +46,9 @@ import { map } from 'rxjs/operators';
             [formGroup]="form"
         >
             <section details>
-                <h2 class="text-lg font-medium mb-1">Details</h2>
+                <h2 class="text-lg font-medium mb-1">
+                    {{ 'BOOKINGS.DETAILS' | translate }}
+                </h2>
                 <div
                     class="flex-1 min-w-[8rem] flex flex-col"
                     *ngIf="
@@ -53,7 +57,9 @@ import { map } from 'rxjs/operators';
                             !(!use_region && (buildings | async)?.length > 1))
                     "
                 >
-                    <label for="location">Location</label>
+                    <label for="location">
+                        {{ 'BOOKINGS.LOCATION' | translate }}
+                    </label>
                     <mat-form-field
                         appearance="outline"
                         class="w-full"
@@ -64,7 +70,7 @@ import { map } from 'rxjs/operators';
                             [ngModel]="region"
                             (ngModelChange)="setRegion($event)"
                             [ngModelOptions]="{ standalone: true }"
-                            placeholder="Any Region"
+                            [placeholder]="'COMMON.REGION_ANY' | translate"
                         >
                             <mat-option
                                 *ngFor="let reg of regions | async"
@@ -107,7 +113,7 @@ import { map } from 'rxjs/operators';
                             [ngModel]="(options | async)?.zone_id"
                             (ngModelChange)="setOptions({ zone_id: $event })"
                             [ngModelOptions]="{ standalone: true }"
-                            placeholder="Any Level"
+                            [placeholder]="'COMMON.LEVEL_ANY' | translate"
                         >
                             <mat-option
                                 *ngFor="let lvl of levels | async"
@@ -135,7 +141,7 @@ import { map } from 'rxjs/operators';
 
                 <!-- Date -->
                 <div class="flex-1 min-w-[256px]">
-                    <label>Date</label>
+                    <label>{{ 'FORM.DATE' | translate }}</label>
                     <a-date-field
                         name="date"
                         formControlName="date"
@@ -147,7 +153,7 @@ import { map } from 'rxjs/operators';
                 <!-- All Day -->
                 <div *ngIf="allow_all_day" class="flex justify-end -mt-2 mb-2">
                     <mat-checkbox formControlName="all_day">
-                        All Day
+                        {{ 'COMMON.ALL_DAY' | translate }}
                     </mat-checkbox>
                 </div>
                 <!-- Start End -->
@@ -156,7 +162,7 @@ import { map } from 'rxjs/operators';
                     *ngIf="!form.value.all_day"
                 >
                     <div class="flex-1 w-1/3">
-                        <label>Start Time</label>
+                        <label>{{ 'FORM.TIME_START' | translate }}</label>
                         <a-time-field
                             name="start-time"
                             [ngModel]="form.value.date"
@@ -166,7 +172,7 @@ import { map } from 'rxjs/operators';
                         ></a-time-field>
                     </div>
                     <div class="flex-1 w-1/3">
-                        <label>End Time</label>
+                        <label>{{ 'FORM.TIME_END' | translate }}</label>
                         <a-duration-field
                             formControlName="duration"
                             [time]="form.get('date')?.value"
@@ -187,7 +193,7 @@ import { map } from 'rxjs/operators';
                     [ngModelOptions]="{ standalone: true }"
                 ></settings-toggle>
                 <settings-toggle
-                    name="Show Accessible Lockers"
+                    [name]="'BOOKINGS.LOCKER_ACCESSIBLE_SHOW' | translate"
                     [ngModel]="(options | async)?.show_accessible"
                     (ngModelChange)="setOptions({ show_accessible: $event })"
                     [ngModelOptions]="{ standalone: true }"
@@ -198,7 +204,9 @@ import { map } from 'rxjs/operators';
                 features
                 *ngIf="(features | async)?.length"
             >
-                <h2 class="text-lg font-medium">Type</h2>
+                <h2 class="text-lg font-medium">
+                    {{ 'COMMON.TYPE' | translate }}
+                </h2>
                 <div
                     *ngFor="let feat of features | async"
                     class="flex items-center flex-wrap space-x-2"
@@ -225,7 +233,7 @@ import { map } from 'rxjs/operators';
                 class="w-full"
                 (click)="close()"
             >
-                Apply Filters
+                {{ 'COMMON.APPLY' | translate }}
             </button>
         </div>
     `,

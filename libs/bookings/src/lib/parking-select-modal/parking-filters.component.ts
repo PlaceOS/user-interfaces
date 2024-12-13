@@ -21,7 +21,9 @@ import { addDays, endOfDay } from 'date-fns';
                     <app-icon>keyboard_arrow_left</app-icon>
                 </button>
             </div>
-            <h3 class="font-medium flex-2 text-center">Space Filters</h3>
+            <h3 class="font-medium flex-2 text-center">
+                {{ 'COMMON.FILTERS' | translate }}
+            </h3>
             <div class="flex-1"></div>
         </div>
         <form
@@ -29,7 +31,9 @@ import { addDays, endOfDay } from 'date-fns';
             [formGroup]="form"
         >
             <section details>
-                <h2 class="text-lg font-medium">Details</h2>
+                <h2 class="text-lg font-medium">
+                    {{ 'BOOKINGS.DETAILS' | translate }}
+                </h2>
                 <div class="flex-1 min-w-[256px] flex flex-col">
                     <label for="location">Location</label>
                     <ng-container *ngIf="!use_region">
@@ -68,7 +72,7 @@ import { addDays, endOfDay } from 'date-fns';
                                     setOptions({ zone_id: $event })
                                 "
                                 [ngModelOptions]="{ standalone: true }"
-                                placeholder="Any Level"
+                                [placeholder]="'COMMON.LEVEL_ANY' | translate"
                             >
                                 <mat-option
                                     *ngFor="let lvl of levels | async"
@@ -90,7 +94,7 @@ import { addDays, endOfDay } from 'date-fns';
                                 [ngModel]="region"
                                 (ngModelChange)="setRegion($event)"
                                 [ngModelOptions]="{ standalone: true }"
-                                placeholder="Any Region"
+                                [placeholder]="'COMMON.REGION_ANY' | translate"
                             >
                                 <mat-option
                                     *ngFor="let reg of regions | async"
@@ -112,9 +116,11 @@ import { addDays, endOfDay } from 'date-fns';
                                     setOptions({ zone_id: $event })
                                 "
                                 [ngModelOptions]="{ standalone: true }"
-                                placeholder="Any Level"
+                                [placeholder]="'COMMON.LEVEL_ANY' | translate"
                             >
-                                <mat-option [value]="">Any Level</mat-option>
+                                <mat-option [value]="">
+                                    {{ 'COMMON.LEVEL_ANY' | translate }}
+                                </mat-option>
                                 <mat-optgroup
                                     *ngFor="let bld of region_levels | async"
                                     [label]="bld.name"
@@ -131,7 +137,9 @@ import { addDays, endOfDay } from 'date-fns';
                     </ng-container>
                 </div>
                 <div class="flex-1 min-w-[256px]">
-                    <label for="date">Date<span>*</span></label>
+                    <label for="date"
+                        >{{ 'FORM.DATE' | translate }}<span>*</span></label
+                    >
                     <a-date-field
                         name="date"
                         [ngModel]="form.value.date"
@@ -139,12 +147,15 @@ import { addDays, endOfDay } from 'date-fns';
                         [ngModelOptions]="{ standalone: true }"
                         [to]="end_date"
                     >
-                        Date and time must be in the future
+                        {{ 'FORM.DATE_REQUIRED' | translate }}
                     </a-date-field>
                 </div>
                 <div class="flex items-center space-x-2" *ngIf="false">
                     <div class="flex-1 w-1/3">
-                        <label for="start-time">Start Time<span>*</span></label>
+                        <label for="start-time"
+                            >{{ 'FORM.TIME_START' | translate
+                            }}<span>*</span></label
+                        >
                         <a-time-field
                             name="start-time"
                             [ngModel]="form.value.date"
@@ -154,7 +165,10 @@ import { addDays, endOfDay } from 'date-fns';
                         ></a-time-field>
                     </div>
                     <div class="flex-1 w-1/3">
-                        <label for="end-time">End Time<span>*</span></label>
+                        <label for="end-time"
+                            >{{ 'FORM.TIME_END' | translate
+                            }}<span>*</span></label
+                        >
                         <a-duration-field
                             name="end-time"
                             formControlName="duration"
@@ -167,10 +181,12 @@ import { addDays, endOfDay } from 'date-fns';
                 </div>
             </section>
             <section favs class="space-y-2 pb-4">
-                <h2 class="text-lg font-medium">Favourites</h2>
+                <h2 class="text-lg font-medium">
+                    {{ 'COMMON.FAVOURITES' | translate }}
+                </h2>
                 <div class="flex items-center">
                     <div for="fav" class="flex-1 w-1/2">
-                        Only show favourite spaces
+                        {{ 'COMMON.FAVOURITES_ONLY' | translate }}
                     </div>
                     <mat-checkbox
                         name="fav"
@@ -186,7 +202,9 @@ import { addDays, endOfDay } from 'date-fns';
                 class="space-y-2"
                 *ngIf="(features | async)?.length"
             >
-                <h2 class="text-lg font-medium">Facilities</h2>
+                <h2 class="text-lg font-medium">
+                    {{ 'COMMON.FEATURES' | translate }}
+                </h2>
                 <div
                     class="flex items-center"
                     *ngFor="let feat of features | async"
@@ -206,7 +224,7 @@ import { addDays, endOfDay } from 'date-fns';
             *ngIf="can_close"
         >
             <button btn matRipple close class="w-full" (click)="close()">
-                Apply Filters
+                {{ 'COMMON.APPLY' | translate }}
             </button>
         </div>
     `,

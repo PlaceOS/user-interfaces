@@ -28,9 +28,12 @@ import { loadLockerBanks, loadLockers } from '../booking.utilities';
         `,
     ],
     template: `
-        <h3 class="font-bold">Results</h3>
+        <h3 class="font-bold">{{ 'COMMON.RESULTS' | translate }}</h3>
         <p count class="text-sm opacity-60 mb-4">
-            {{ (locker_banks | async)?.length || 0 }} result(s) found
+            {{
+                'COMMON.RESULTS_COUNT'
+                    | translate: { count: (locker_banks | async)?.length || 0 }
+            }}
         </p>
         <ng-container *ngIf="!(loading | async)?.length; else load_state">
             <ul
@@ -99,9 +102,18 @@ import { loadLockerBanks, loadLockers } from '../booking.utilities';
                                     >people</app-icon
                                 >
                                 <p class="text-xs">
-                                    {{ locker_bank.available || 0 }} /
-                                    {{ locker_bank.lockers.length || 1 }}
-                                    Available
+                                    {{
+                                        'COMMON.AVAILABLE_COUNT'
+                                            | translate
+                                                : {
+                                                      count:
+                                                          locker_bank.available ||
+                                                          0,
+                                                      total:
+                                                          locker_bank.lockers
+                                                              .length || 1,
+                                                  }
+                                    }}
                                 </p>
                             </div>
                         </div>
@@ -135,7 +147,9 @@ import { loadLockerBanks, loadLockers } from '../booking.utilities';
                 class="p-16 flex flex-col items-center justify-center space-y-2"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
-                <p class="opacity-30">Finding available locker banks...</p>
+                <p class="opacity-30">
+                    {{ 'BOOKINGS.LOCKER_LIST_LOADING' | translate }}
+                </p>
             </div>
         </ng-template>
         <ng-template #empty_state>
@@ -144,7 +158,7 @@ import { loadLockerBanks, loadLockers } from '../booking.utilities';
                 class="p-16 flex flex-col items-center justify-center space-y-2"
             >
                 <p class="opacity-30 text-center">
-                    No available locker banks for selected time and/or filters
+                    {{ 'BOOKINGS.LOCKER_LIST_EMPTY' | translate }}
                 </p>
             </div>
         </ng-template>

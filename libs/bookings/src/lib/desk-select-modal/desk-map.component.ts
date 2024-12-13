@@ -31,7 +31,7 @@ import { OrganisationService } from '@placeos/organisation';
                     [(ngModel)]="level"
                     (ngModelChange)="setOptions({ zone_ids: [$event.id] })"
                     [ngModelOptions]="{ standalone: true }"
-                    placeholder="Any Level"
+                    [placeholder]="'COMMON.LEVEL_ANY' | translate"
                 >
                     <mat-option
                         *ngFor="let lvl of levels | async"

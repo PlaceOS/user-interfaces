@@ -76,7 +76,7 @@ import { BookingAsset } from '../booking-form.service';
                     <h2 class="text-xl font-medium">Details</h2>
                     <div class="flex items-center space-x-2">
                         <app-icon>person</app-icon>
-                        <p>Single desk</p>
+                        <p>{{ 'BOOKINGS.DESK_COUNT_LONE' | translate }}</p>
                     </div>
                     <div class="flex items-center space-x-2">
                         <app-icon>desk</app-icon>
@@ -94,7 +94,9 @@ import { BookingAsset } from '../booking-form.service';
                     *ngIf="desk.features?.length"
                     class="space-y-2 pb-2 border-b"
                 >
-                    <h2 class="text-xl font-medium">Facilities</h2>
+                    <h2 class="text-xl font-medium">
+                        {{ 'COMMON.FEATURES' | translate }}
+                    </h2>
                     <div
                         *ngFor="let feat of desk.features || []"
                         class="flex items-center flex-wrap space-x-2"
@@ -133,9 +135,10 @@ import { BookingAsset } from '../booking-form.service';
                         }}</app-icon>
                         <p>
                             {{
-                                active
-                                    ? 'Remove from booking'
-                                    : 'Add to booking'
+                                (active
+                                    ? 'COMMON.REMOVE_FROM'
+                                    : 'COMMON.ADD_TO'
+                                ) | translate
                             }}
                         </p>
                     </div>
@@ -148,7 +151,7 @@ import { BookingAsset } from '../booking-form.service';
                 class="p-16 flex flex-col items-center justify-center space-y-2"
             >
                 <p class="opacity-30 text-center">
-                    Select a desk to view it's details
+                    {{ 'BOOKINGS.DESK_SELECT_MSG' | translate }}
                 </p>
             </div>
         </ng-template>
@@ -156,9 +159,9 @@ import { BookingAsset } from '../booking-form.service';
 })
 export class DeskDetailsComponent {
     @Input() public desk?: BookingAsset;
-    @Input() public fav: boolean = false;
-    @Input() public active: boolean = false;
-    @Input() public hide_map: boolean = false;
+    @Input() public fav = false;
+    @Input() public active = false;
+    @Input() public hide_map = false;
 
     @Output() public close = new EventEmitter<void>();
     @Output() public toggleFav = new EventEmitter<void>();

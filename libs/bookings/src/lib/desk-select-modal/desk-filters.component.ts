@@ -37,7 +37,9 @@ import { Region } from '@placeos/organisation';
                     <app-icon>keyboard_arrow_left</app-icon>
                 </button>
             </div>
-            <h3 class="font-medium flex-2 text-center">Desk Filters</h3>
+            <h3 class="font-medium flex-2 text-center">
+                {{ 'COMMON.FILTERS' | translate }}
+            </h3>
             <div class="flex-1"></div>
         </div>
         <form
@@ -45,9 +47,13 @@ import { Region } from '@placeos/organisation';
             [formGroup]="form"
         >
             <section details>
-                <h2 class="text-lg font-medium mb-1">Details</h2>
+                <h2 class="text-lg font-medium mb-1">
+                    {{ 'BOOKINGS.DETAILS' | translate }}
+                </h2>
                 <div class="flex-1 min-w-[8rem] flex flex-col">
-                    <label for="location">Location</label>
+                    <label for="location">
+                        {{ 'BOOKINGS.LOCATION' | translate }}
+                    </label>
                     <mat-form-field
                         appearance="outline"
                         class="w-full"
@@ -58,7 +64,7 @@ import { Region } from '@placeos/organisation';
                             [ngModel]="region"
                             (ngModelChange)="setRegion($event)"
                             [ngModelOptions]="{ standalone: true }"
-                            placeholder="Any Region"
+                            [placeholder]="'COMMON.REGION_ANY' | translate"
                         >
                             <mat-option
                                 *ngFor="let reg of regions | async"
@@ -101,7 +107,7 @@ import { Region } from '@placeos/organisation';
                             [ngModel]="(options | async)?.zone_id"
                             (ngModelChange)="setOptions({ zone_id: $event })"
                             [ngModelOptions]="{ standalone: true }"
-                            placeholder="Any Level"
+                            [placeholder]="'COMMON.LEVEL_ANY' | translate"
                         >
                             <mat-option
                                 *ngFor="let lvl of levels | async"
@@ -129,7 +135,7 @@ import { Region } from '@placeos/organisation';
 
                 <!-- Date -->
                 <div class="flex-1 min-w-[256px]">
-                    <label>Date</label>
+                    <label>{{ 'FORM.DATE' | translate }}</label>
                     <a-date-field
                         name="date"
                         [ngModel]="form.value.date"
@@ -144,7 +150,7 @@ import { Region } from '@placeos/organisation';
                 <!-- All Day -->
                 <div *ngIf="allow_all_day" class="flex justify-end -mt-2 mb-2">
                     <mat-checkbox formControlName="all_day">
-                        All Day
+                        {{ 'COMMON.ALL_DAY' | translate }}
                     </mat-checkbox>
                 </div>
                 <!-- Start End -->
@@ -153,7 +159,7 @@ import { Region } from '@placeos/organisation';
                     *ngIf="!form.value.all_day"
                 >
                     <div class="flex-1 w-1/3">
-                        <label>Start Time</label>
+                        <label>{{ 'FORM.TIME_START' | translate }}</label>
                         <a-time-field
                             name="start-time"
                             [ngModel]="form.value.date"
@@ -164,7 +170,7 @@ import { Region } from '@placeos/organisation';
                         ></a-time-field>
                     </div>
                     <div class="flex-1 w-1/3">
-                        <label>End Time</label>
+                        <label>{{ 'FORM.TIME_END' | translate }}</label>
                         <a-duration-field
                             formControlName="duration"
                             [time]="form.get('date')?.value"
@@ -184,7 +190,7 @@ import { Region } from '@placeos/organisation';
                 </h2>
                 <div class="flex items-center">
                     <div for="fav" class="flex-1 w-1/2">
-                        {{ 'DESKS.SHOW_FAVOURITES' | translate }}
+                        {{ 'COMMON.FAVOURITES_ONLY' | translate }}
                     </div>
                     <mat-checkbox
                         name="fav"
@@ -200,7 +206,9 @@ import { Region } from '@placeos/organisation';
                 features
                 *ngIf="(features | async)?.length"
             >
-                <h2 class="text-lg font-medium">Type</h2>
+                <h2 class="text-lg font-medium">
+                    {{ 'COMMON.TYPE' | translate }}
+                </h2>
                 <div
                     *ngFor="let feat of features | async"
                     class="flex items-center flex-wrap space-x-2"
@@ -227,7 +235,7 @@ import { Region } from '@placeos/organisation';
                 class="w-full"
                 (click)="close()"
             >
-                Apply Filters
+                {{ 'COMMON.APPLY' | translate }}
             </button>
         </div>
     `,

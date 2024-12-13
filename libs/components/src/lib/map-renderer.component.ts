@@ -102,7 +102,9 @@ function isSamePoint(p1: Point, p2: Point): boolean {
         </div>
         <ng-template #empty_state>
             <div class="absolute inset-0 flex items-center justify-center">
-                <div class="opacity-30">{{ 'EXPLORE.MAP_EMPTY' }}</div>
+                <div class="opacity-30">
+                    {{ 'EXPLORE.MAP_EMPTY' | translate }}
+                </div>
             </div>
         </ng-template>
     `,

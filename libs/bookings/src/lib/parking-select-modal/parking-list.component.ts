@@ -1,15 +1,18 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { EventFormService } from '@placeos/events';
 import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
+
 import { BookingAsset, BookingFormService } from '../booking-form.service';
 
 @Component({
     selector: `parking-space-list`,
     template: `
-        <h3 class="font-bold">Results</h3>
+        <h3 class="font-bold">{{ 'COMMON.RESULTS' | translate }}</h3>
         <p count class="text-sm opacity-60 mb-4">
-            {{ (assets | async)?.length || 0 }} result(s) found
+            {{
+                'COMMON.RESULTS_COUNT'
+                    | translate: { count: (assets | async)?.length || 0 }
+            }}
         </p>
         <ng-container *ngIf="!(loading | async); else load_state">
             <ul
@@ -66,15 +69,6 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
                                     }}
                                 </p>
                             </div>
-                            <div class="flex items-center text-sm space-x-2">
-                                <app-icon class="text-info">people</app-icon>
-                                <p>
-                                    {{
-                                        space.capacity < 1 ? 2 : space.capacity
-                                    }}
-                                    People
-                                </p>
-                            </div>
                         </div>
                     </button>
                     <button
@@ -100,7 +94,7 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
                 class="p-16 flex flex-col items-center justify-center space-y-2"
             >
                 <p class="opacity-30 text-center">
-                    No available spaces for selected time and/or filters
+                    {{ 'BOOKINGS.PARKING_LIST_EMPTY' | translate }}
                 </p>
             </div>
         </ng-template>
@@ -110,7 +104,9 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
                 class="p-16 flex flex-col items-center justify-center space-y-2"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
-                <p class="opacity-30">Finding available spaces...</p>
+                <p class="opacity-30">
+                    {{ 'BOOKINGS.PARKING_LIST_LOADING' | translate }}
+                </p>
             </div>
         </ng-template>
     `,

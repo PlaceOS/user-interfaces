@@ -2,6 +2,7 @@ import {
     Component,
     EventEmitter,
     Input,
+    OnChanges,
     OnInit,
     Output,
     SimpleChanges,
@@ -32,7 +33,7 @@ import { loadLockerBanks, loadLockers } from '../booking.utilities';
                     [(ngModel)]="level"
                     (ngModelChange)="setOptions({ zone_ids: [$event.id] })"
                     [ngModelOptions]="{ standalone: true }"
-                    placeholder="Any Level"
+                    [placeholder]="'COMMON.LEVEL_ANY' | translate"
                 >
                     <mat-option
                         *ngFor="let lvl of levels | async"
@@ -78,7 +79,10 @@ import { loadLockerBanks, loadLockers } from '../booking.utilities';
         `,
     ],
 })
-export class LockerMapComponent extends AsyncHandler implements OnInit {
+export class LockerMapComponent
+    extends AsyncHandler
+    implements OnInit, OnChanges
+{
     @Input() public is_displayed = false;
     @Input() public active = '';
     @Output() public onSelect = new EventEmitter<BookingAsset>();
