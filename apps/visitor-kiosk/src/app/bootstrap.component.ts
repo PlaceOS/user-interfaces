@@ -22,13 +22,13 @@ import { first } from 'rxjs/operators';
             <header
                 class="px-4 py-3 bg-secondary text-secondary-content w-full text-xl font-medium flex items-center justify-between"
             >
-                <div>{{ 'VISITOR_KIOSK.APP' | translate }}</div>
+                <div>{{ 'APP.VISITOR_KIOSK.APP' | translate }}</div>
                 <div class="px-2 py-1 rounded  relative overflow-hidden">
                     <div
                         class="absolute inset-0 bg-base-100 opacity-10 z-0"
                     ></div>
                     <div class="relative text-sm font-mono uppercase z-10">
-                        {{ 'VISITOR_KIOSK.SETUP' | translate }}
+                        {{ 'APP.VISITOR_KIOSK.SETUP' | translate }}
                     </div>
                 </div>
             </header>
@@ -38,7 +38,7 @@ import { first } from 'rxjs/operators';
             >
                 <ng-container *ngIf="(regions | async)?.length > 1">
                     <label>
-                        {{ 'VISITOR_KIOSK.SELECT_REGION_MSG' | translate }}
+                        {{ 'APP.VISITOR_KIOSK.SELECT_REGION_MSG' | translate }}
                     </label>
                     <mat-form-field appearance="outline" class="no-subscript">
                         <mat-select
@@ -47,7 +47,8 @@ import { first } from 'rxjs/operators';
                             [(ngModel)]="active_region"
                             (ngModelChange)="setRegion($event)"
                             [placeholder]="
-                                'VISITOR_KIOSK.SELECT_REGION_MSG' | translate
+                                'APP.VISITOR_KIOSK.SELECT_REGION_MSG'
+                                    | translate
                             "
                         >
                             <mat-select-trigger>
@@ -87,7 +88,9 @@ import { first } from 'rxjs/operators';
                 </ng-container>
                 <ng-container *ngIf="(buildings | async)?.length">
                     <label>
-                        {{ 'VISITOR_KIOSK.SELECT_BUILDING_MSG' | translate }}
+                        {{
+                            'APP.VISITOR_KIOSK.SELECT_BUILDING_MSG' | translate
+                        }}
                     </label>
                     <mat-form-field appearance="outline" class="no-subscript">
                         <mat-select
@@ -96,7 +99,7 @@ import { first } from 'rxjs/operators';
                             [(ngModel)]="active_building"
                             (ngModelChange)="setBuilding($event)"
                             [placeholder]="
-                                'VISITOR_KIOSK.SELECT_BUILDING' | translate
+                                'APP.VISITOR_KIOSK.SELECT_BUILDING' | translate
                             "
                         >
                             <mat-select-trigger>
@@ -139,7 +142,7 @@ import { first } from 'rxjs/operators';
                 >
                     <div></div>
                     <label>
-                        {{ 'VISITOR_KIOSK.SELECT_LEVEL_MSG' | translate }}
+                        {{ 'APP.VISITOR_KIOSK.SELECT_LEVEL_MSG' | translate }}
                     </label>
                     <mat-form-field appearance="outline" class="no-subscript">
                         <mat-select
@@ -147,7 +150,7 @@ import { first } from 'rxjs/operators';
                             level
                             [(ngModel)]="active_level"
                             [placeholder]="
-                                'VISITOR_KIOSK.SELECT_LEVEL' | translate
+                                'APP.VISITOR_KIOSK.SELECT_LEVEL' | translate
                             "
                         >
                             <mat-select-trigger>
@@ -188,7 +191,10 @@ import { first } from 'rxjs/operators';
                 <ng-container *ngIf="rotations && rotations.length">
                     <div></div>
                     <label>
-                        {{ 'VISITOR_KIOSK.SELECT_ORIENTATION_MSG' | translate }}
+                        {{
+                            'APP.VISITOR_KIOSK.SELECT_ORIENTATION_MSG'
+                                | translate
+                        }}
                         Please select an orientation from the dropdown below
                     </label>
                     <mat-form-field appearance="outline" class="no-subscript">
@@ -196,7 +202,8 @@ import { first } from 'rxjs/operators';
                             #select
                             [(value)]="active_rotation"
                             [placeholder]="
-                                'VISITOR_KIOSK.SELECT_ORIENTATION' | translate
+                                'APP.VISITOR_KIOSK.SELECT_ORIENTATION'
+                                    | translate
                             "
                         >
                             <mat-option
@@ -222,7 +229,9 @@ import { first } from 'rxjs/operators';
                 <ng-container *ngIf="locations && locations.length">
                     <div></div>
                     <label>
-                        {{ 'VISITOR_KIOSK.SELECT_LOCATION_MSG' | translate }}
+                        {{
+                            'APP.VISITOR_KIOSK.SELECT_LOCATION_MSG' | translate
+                        }}
                         Please select an fixed location from the dropdown below
                     </label>
                     <mat-form-field appearance="outline" class="no-subscript">
@@ -230,7 +239,7 @@ import { first } from 'rxjs/operators';
                             #select
                             [(value)]="active_location"
                             [placeholder]="
-                                'VISITOR_KIOSK.SELECT_LOCATION' | translate
+                                'APP.VISITOR_KIOSK.SELECT_LOCATION' | translate
                             "
                         >
                             <mat-option

@@ -17,7 +17,7 @@ import { OrganisationService } from '@placeos/organisation';
             class="relative bg-base-100 rounded shadow overflow-hidden flex flex-col items-center w-[32rem] p-4"
         >
             <p class="my-4">
-                {{ 'VISITOR_KIOSK.INDUCTION_MSG' | translate }}
+                {{ 'APP.VISITOR_KIOSK.INDUCTION_MSG' | translate }}
             </p>
             <div
                 class="rounded border border-base-300 w-full p-4 opacity-60 text-sm overflow-y-auto overflow-x-hidden max-h-[50vh] whitespace-pre-wrap"
@@ -25,7 +25,7 @@ import { OrganisationService } from '@placeos/organisation';
                 {{ induction_details }}
             </div>
             <mat-checkbox [(ngModel)]="agree" class="my-4">
-                {{ 'VISITOR_KIOSK.ACCEPT_TERMS' | translate }}
+                {{ 'APP.VISITOR_KIOSK.ACCEPT_TERMS' | translate }}
             </mat-checkbox>
             <div class="flex items-center justify-center space-x-2">
                 <button
@@ -34,7 +34,7 @@ import { OrganisationService } from '@placeos/organisation';
                     class="w-32 clear underline"
                     (click)="decline()"
                 >
-                    {{ 'VISITOR_KIOSK.DECLINE' | translate }}
+                    {{ 'APP.VISITOR_KIOSK.DECLINE' | translate }}
                 </button>
                 <button
                     btn
@@ -43,7 +43,7 @@ import { OrganisationService } from '@placeos/organisation';
                     [disabled]="!agree"
                     (click)="continue()"
                 >
-                    {{ 'VISITOR_KIOSK.ACCEPT' | translate }}
+                    {{ 'APP.VISITOR_KIOSK.ACCEPT' | translate }}
                 </button>
             </div>
         </div>

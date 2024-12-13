@@ -34,7 +34,6 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
 import { GlobalSearchComponent } from './global-search.component';
 import { TopbarComponent } from './topbar.component';
-import { BookingFormModalComponent } from './booking-form-modal.component';
 import { EventTimelineComponent } from './event-timeline/event-timeline.component';
 import { VerticalTimelineComponent } from './vertical-timeline/vertical-timeline.component';
 import { TopMenuComponent } from './top-menu.component';
@@ -43,7 +42,6 @@ import { FooterMenuComponent } from './footer-menu.component';
 const COMPONENTS: Type<any>[] = [
     TopbarComponent,
     GlobalSearchComponent,
-    BookingFormModalComponent,
     VerticalTimelineComponent,
     EventTimelineComponent,
     TopMenuComponent,

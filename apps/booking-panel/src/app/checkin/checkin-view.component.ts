@@ -31,7 +31,7 @@ import { PanelStateService } from '../panel-state.service';
             </div>
         </div>
         <h3 class="p-4 text-xl font-medium">
-            {{ 'PANEL.UPCOMING' | translate }}
+            {{ 'APP.BOOKING_PANEL.UPCOMING' | translate }}
         </h3>
         <div class="bg-base-100 divide-y divide-base-200">
             <div class="flex items-center p-2">
@@ -43,7 +43,7 @@ import { PanelStateService } from '../panel-state.service';
                 ></div>
                 <div class="text-sm  flex-1 px-2">
                     <div class="font-medium uppercase">
-                        {{ 'PANEL.NOW' | translate }}
+                        {{ 'APP.BOOKING_PANEL.NOW' | translate }}
                     </div>
                     <div class="">
                         <ng-container
@@ -64,7 +64,7 @@ import { PanelStateService } from '../panel-state.service';
                                     "
                                 >
                                     {{
-                                        'PANEL.FREE_IN_HOURS_AND_MINUTES'
+                                        'APP.BOOKING_PANEL.FREE_IN_HOURS_AND_MINUTES'
                                             | translate
                                                 : {
                                                       hour: (
@@ -82,7 +82,7 @@ import { PanelStateService } from '../panel-state.service';
                                     "
                                 >
                                     {{
-                                        'PANEL.FREE_IN_MINUTES'
+                                        'APP.BOOKING_PANEL.FREE_IN_MINUTES'
                                             | translate
                                                 : {
                                                       minute: (
@@ -99,7 +99,7 @@ import { PanelStateService } from '../panel-state.service';
                                     "
                                 >
                                     {{
-                                        'PANEL.FREE_IN_LESS_THAN_MINUTE'
+                                        'APP.BOOKING_PANEL.FREE_IN_LESS_THAN_MINUTE'
                                             | translate
                                     }}
                                 </ng-container>
@@ -109,7 +109,7 @@ import { PanelStateService } from '../panel-state.service';
                                     *ngIf="(event_state | async)?.current[1]"
                                 >
                                     {{
-                                        'PANEL.FREE_FOR_HOURS_AND_MINUTES'
+                                        'APP.BOOKING_PANEL.FREE_FOR_HOURS_AND_MINUTES'
                                             | translate
                                                 : {
                                                       hour: (
@@ -125,7 +125,7 @@ import { PanelStateService } from '../panel-state.service';
                                     *ngIf="!(event_state | async)?.current[1]"
                                 >
                                     {{
-                                        'PANEL.FREE_FOR_MINUTES'
+                                        'APP.BOOKING_PANEL.FREE_FOR_MINUTES'
                                             | translate
                                                 : {
                                                       minute: (
@@ -141,14 +141,14 @@ import { PanelStateService } from '../panel-state.service';
                                     "
                                 >
                                     {{
-                                        'PANEL.FREE_FOR_LESS_THAN_MINUTE'
+                                        'APP.BOOKING_PANEL.FREE_FOR_LESS_THAN_MINUTE'
                                             | translate
                                     }}
                                 </ng-container>
                             </ng-template>
                         </ng-container>
                         <ng-template #no_current_state>
-                            {{ 'PANEL.NO_CURRENT' | translate }}
+                            {{ 'APP.BOOKING_PANEL.NO_CURRENT' | translate }}
                         </ng-template>
                     </div>
                 </div>
@@ -159,7 +159,7 @@ import { PanelStateService } from '../panel-state.service';
                     *ngIf="(state | async) === 'pending'"
                     (click)="checkInCurrent()"
                 >
-                    {{ 'PANEL.CHECKIN' | translate }}
+                    {{ 'APP.BOOKING_PANEL.CHECKIN' | translate }}
                 </button>
                 <button
                     btn
@@ -168,7 +168,7 @@ import { PanelStateService } from '../panel-state.service';
                     *ngIf="(state | async) === 'free'"
                     (click)="newBooking()"
                 >
-                    {{ 'PANEL.BOOK' | translate }}
+                    {{ 'APP.BOOKING_PANEL.BOOK' | translate }}
                 </button>
             </div>
             <div class="flex items-center p-2">
@@ -179,7 +179,7 @@ import { PanelStateService } from '../panel-state.service';
                 ></div>
                 <div class="text-sm flex-1 px-2">
                     <div class="font-medium uppercase">
-                        {{ 'PANEL.NEXT' | translate }}
+                        {{ 'APP.BOOKING_PANEL.NEXT' | translate }}
                     </div>
                     <div class="">
                         {{ (event_state | async)?.next || 'No upcoming event' }}
@@ -192,12 +192,12 @@ import { PanelStateService } from '../panel-state.service';
                     *ngIf="!(event_state | async)?.next"
                     (click)="newBooking(start, true)"
                 >
-                    {{ 'PANEL.BOOK' | translate }}
+                    {{ 'APP.BOOKING_PANEL.BOOK' | translate }}
                 </button>
             </div>
         </div>
         <h3 class="p-4 text-xl font-medium">
-            {{ 'PANEL.SCHEDULE' | translate }}
+            {{ 'APP.BOOKING_PANEL.SCHEDULE' | translate }}
         </h3>
         <div class="bg-base-100 overflow-auto">
             <checkin-timetable
@@ -206,7 +206,7 @@ import { PanelStateService } from '../panel-state.service';
             ></checkin-timetable>
         </div>
         <h3 class="p-4 text-xl font-medium" *ngIf="false">
-            {{ 'PANEL.FEATURES' | translate }}
+            {{ 'APP.BOOKING_PANEL.FEATURES' | translate }}
         </h3>
         <div
             class="bg-base-100 overflow-auto flex-1 h-px divide-y divide-base-200"
@@ -217,7 +217,7 @@ import { PanelStateService } from '../panel-state.service';
                     <app-icon>lightbulb</app-icon>
                 </div>
                 <div class="flex-1 px-4 font-medium text-left">
-                    {{ 'PANEL.LIGHTS_BLINDS' | translate }}
+                    {{ 'APP.BOOKING_PANEL.LIGHTS_BLINDS' | translate }}
                 </div>
                 <app-icon class="text-2xl opacity-40">chevron_right</app-icon>
             </button>
@@ -226,7 +226,7 @@ import { PanelStateService } from '../panel-state.service';
                     <app-icon>add_to_queue</app-icon>
                 </div>
                 <div class="flex-1 px-4 font-medium text-left">
-                    {{ 'PANEL.TV' | translate }}
+                    {{ 'APP.BOOKING_PANEL.TV' | translate }}
                 </div>
                 <app-icon class="text-2xl opacity-40">chevron_right</app-icon>
             </button>
@@ -235,7 +235,7 @@ import { PanelStateService } from '../panel-state.service';
                     <app-icon>restaurant</app-icon>
                 </div>
                 <div class="flex-1 px-4 font-medium text-left">
-                    {{ 'PANEL.CATERING' | translate }}
+                    {{ 'APP.BOOKING_PANEL.CATERING' | translate }}
                 </div>
                 <app-icon class="text-2xl opacity-40">chevron_right</app-icon>
             </button>
@@ -244,7 +244,7 @@ import { PanelStateService } from '../panel-state.service';
                     <app-icon>help</app-icon>
                 </div>
                 <div class="flex-1 px-4 font-medium text-left">
-                    {{ 'PANEL.HELP' | translate }}
+                    {{ 'APP.BOOKING_PANEL.HELP' | translate }}
                 </div>
                 <app-icon class="text-2xl opacity-40">chevron_right</app-icon>
             </button>

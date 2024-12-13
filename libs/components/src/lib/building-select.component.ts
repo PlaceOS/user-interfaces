@@ -19,7 +19,7 @@ import { OrganisationService } from '@placeos/organisation';
                 </div>
             </div>
             <div class="text-xs opacity-60 mb-4 px-2">
-                Select a building location
+                {{ 'COMMON.BUILDING_SELECT' | translate }}
             </div>
             <mat-radio-group
                 [ngModel]="(building | async)?.id"

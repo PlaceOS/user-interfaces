@@ -34,7 +34,7 @@ import { OrganisationService } from '@placeos/organisation';
                     class="flex items-center justify-between space-x-4 px-4 py-2 border-b border-base-300"
                 >
                     <h3 class="text-lg font-medium py-2">
-                        {{ 'VISITOR_KIOSK.REGISTRATION' | translate }}
+                        {{ 'APP.VISITOR_KIOSK.REGISTRATION' | translate }}
                     </h3>
                     <a icon matRipple [routerLink]="['/welcome']">
                         <app-icon>close</app-icon>
@@ -42,26 +42,28 @@ import { OrganisationService } from '@placeos/organisation';
                 </div>
                 <div class="p-4">
                     <label for="name">
-                        {{ 'VISITOR_KIOSK.NAME' | translate }}</label
+                        {{ 'APP.VISITOR_KIOSK.NAME' | translate }}</label
                     >
                     <mat-form-field appearance="outline" class="w-full">
                         <input
                             matInput
                             name="name"
                             formControlName="asset_name"
-                            [placeholder]="'VISITOR_KIOSK.NAME' | translate"
+                            [placeholder]="'APP.VISITOR_KIOSK.NAME' | translate"
                         />
                         <mat-error>A valid email is required</mat-error>
                     </mat-form-field>
                     <label for="email">
-                        {{ 'VISITOR_KIOSK.EMAIL' | translate }}</label
+                        {{ 'APP.VISITOR_KIOSK.EMAIL' | translate }}</label
                     >
                     <mat-form-field appearance="outline" class="w-full">
                         <input
                             matInput
                             name="email"
                             formControlName="asset_id"
-                            [placeholder]="'VISITOR_KIOSK.EMAIL' | translate"
+                            [placeholder]="
+                                'APP.VISITOR_KIOSK.EMAIL' | translate
+                            "
                         />
                         <mat-error>A valid email is required</mat-error>
                     </mat-form-field>
@@ -71,7 +73,7 @@ import { OrganisationService } from '@placeos/organisation';
                         class="mb-4"
                     ></a-user-search-field>
                     <label form="phone">
-                        {{ 'VISITOR_KIOSK.PHONE' | translate }}</label
+                        {{ 'APP.VISITOR_KIOSK.PHONE' | translate }}</label
                     >
                     <mat-form-field appearance="outline" class="w-full">
                         <input
@@ -79,11 +81,15 @@ import { OrganisationService } from '@placeos/organisation';
                             name="phone"
                             type="tel"
                             formControlName="phone"
-                            [placeholder]="'VISITOR_KIOSK.PHONE' | translate"
+                            [placeholder]="
+                                'APP.VISITOR_KIOSK.PHONE' | translate
+                            "
                         />
                     </mat-form-field>
                     <label form="org">
-                        {{ 'VISITOR_KIOSK.ORGANISATION' | translate }}</label
+                        {{
+                            'APP.VISITOR_KIOSK.ORGANISATION' | translate
+                        }}</label
                     >
                     <mat-form-field appearance="outline" class="w-full">
                         <input
@@ -91,7 +97,7 @@ import { OrganisationService } from '@placeos/organisation';
                             name="org"
                             formControlName="company"
                             [placeholder]="
-                                'VISITOR_KIOSK.ORGANISATION' | translate
+                                'APP.VISITOR_KIOSK.ORGANISATION' | translate
                             "
                         />
                     </mat-form-field>
@@ -100,7 +106,7 @@ import { OrganisationService } from '@placeos/organisation';
                     class="flex justify-end px-4 py-2 space-x-4 border-t border-base-300"
                 >
                     <button btn matRipple class="w-40" (click)="register()">
-                        {{ 'VISITOR_KIOSK.REGISTER' | translate }}
+                        {{ 'APP.VISITOR_KIOSK.REGISTER' | translate }}
                     </button>
                 </div>
             </div>

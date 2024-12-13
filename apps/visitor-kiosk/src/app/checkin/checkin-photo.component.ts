@@ -11,7 +11,7 @@ import { CheckinStateService } from './checkin-state.service';
             *ngIf="!loading; else load_state"
         >
             <h3 class="text-xl mb-4">
-                {{ 'VISITOR_KIOSK.TAKE_PHOTO' | translate }}
+                {{ 'APP.VISITOR_KIOSK.TAKE_PHOTO' | translate }}
             </h3>
             <a-take-photo (photoAccepted)="handlePhoto($event)"></a-take-photo>
             <a
@@ -27,7 +27,7 @@ import { CheckinStateService } from './checkin-state.service';
             <div class="flex flex-col items-center m-auto">
                 <mat-spinner [diameter]="48"></mat-spinner>
                 <div class="my-4 text-lg text-white">
-                    {{ 'VISITOR_KIOSK.PRINT_LOADING' | translate }}
+                    {{ 'APP.VISITOR_KIOSK.PRINT_LOADING' | translate }}
                 </div>
             </div>
         </ng-template>

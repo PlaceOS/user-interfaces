@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import {
     addDays,
@@ -24,7 +24,7 @@ import { take } from 'rxjs/operators';
                     [class.inverse]="(period | async) !== 'week'"
                     (click)="period.next('week')"
                 >
-                    Week
+                    {{ 'COMMON.WEEK' | translate }}
                 </button>
                 <button
                     btn
@@ -33,7 +33,7 @@ import { take } from 'rxjs/operators';
                     [class.inverse]="(period | async) !== 'month'"
                     (click)="period.next('month')"
                 >
-                    Month
+                    {{ 'COMMON.MONTH' | translate }}
                 </button>
             </div>
             <div class="flex flex-col items-center space-y-2 pb-2 px-2">
@@ -65,12 +65,14 @@ import { take } from 'rxjs/operators';
                 ></date-calendar>
                 <hr class="border-base-200 w-[calc(100%-1rem)] mx-auto" />
                 <div class="flex flex-col flex-1 overflow-auto">
-                    <h2 class="text-lg font-medium p-4">Filters</h2>
+                    <h2 class="text-lg font-medium p-4">
+                        {{ 'COMMON.FILTERS' | translate }}
+                    </h2>
                     <div
                         class="flex flex-col space-y-2 px-4"
                         *ngIf="(tags | async)?.length"
                     >
-                        <h3>Tags</h3>
+                        <h3>{{ 'COMMON.TAGS' | translate }}</h3>
                         <button
                             matRipple
                             class="flex items-center rounded w-full text-left"
@@ -92,7 +94,10 @@ import { take } from 'rxjs/operators';
     `,
     styles: [``],
 })
-export class GroupEventsSidebarComponent extends AsyncHandler {
+export class GroupEventsSidebarComponent
+    extends AsyncHandler
+    implements OnInit
+{
     public period = new BehaviorSubject<'week' | 'month'>('week');
     public period_list = [];
     public selected_range: number;

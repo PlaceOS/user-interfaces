@@ -24,7 +24,7 @@ const DEFAULT_TEMPLATE = `
             *ngIf="event | async"
         >
             <h3 class="text-xl">
-                {{ 'VISITOR_KIOSK.CHECKED_IN_MSG' | translate }}
+                {{ 'APP.VISITOR_KIOSK.CHECKED_IN_MSG' | translate }}
             </h3>
             <div
                 class=""
@@ -55,7 +55,7 @@ const DEFAULT_TEMPLATE = `
                     <div
                         class="rounded-lg bg-black text-white px-2 py-1 text-sm mt-2 w-32 text-center"
                     >
-                        {{ 'VISITOR_KIOSK.VISITOR' | translate }}
+                        {{ 'APP.VISITOR_KIOSK.VISITOR' | translate }}
                     </div>
                 </div>
                 <div class="absolute top-4 right-4 flex flex-col items-end">
@@ -103,10 +103,10 @@ const DEFAULT_TEMPLATE = `
                     *ngIf="allow_printing_label"
                     (click)="print()"
                 >
-                    {{ 'VISITOR_KIOSK.PRINT_LABEL' | translate }}
+                    {{ 'APP.VISITOR_KIOSK.PRINT_LABEL' | translate }}
                 </button>
                 <button btn matRipple class="w-32" (click)="next()">
-                    {{ 'VISITOR_KIOSK.CONFIRM' | translate }}
+                    {{ 'APP.VISITOR_KIOSK.CONFIRM' | translate }}
                 </button>
             </div>
         </div>

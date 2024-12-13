@@ -6,6 +6,7 @@ import {
     AsyncHandler,
     SettingsService,
     getTimezoneOffsetString,
+    i18n,
     notifyError,
 } from '@placeos/common';
 import { formatRecurrence } from '@placeos/events';
@@ -15,41 +16,35 @@ import { map, take } from 'rxjs/operators';
 
 @Component({
     selector: 'new-desk-flow-confirm',
-    styles: [
-        `
-            section > app-icon {
-                font-size: 1.5rem;
-                margin-top: 0.3rem;
-            }
-
-            h3 {
-                font-size: 1.25rem;
-                font-weight: medium;
-                margin: 0.5rem 0;
-            }
-        `,
-    ],
     template: `
-        <button
-            icon
-            name="close-desk-confirm"
-            matRipple
-            class="absolute right-2 top-2 bg-base-200"
-            *ngIf="show_close"
-            (click)="dismiss()"
+        <header
+            class="flex items-center justify-between p-2 h-12 m-2 rounded bg-base-200"
         >
-            <app-icon>close</app-icon>
-        </button>
-        <header class="flex items-center justify-between px-4 pt-4">
-            <h2 class="text-2xl font-medium mb-2">Confirm Desk Booking</h2>
-            <mat-spinner diameter="32" *ngIf="loading | async"></mat-spinner>
+            <h2 class="text-xl font-medium px-2">
+                {{ 'APP.WORKPLACE.DESK_CONFIRM_TITLE' | translate }}
+            </h2>
+            <div class="">
+                <mat-spinner
+                    diameter="32"
+                    *ngIf="loading | async"
+                ></mat-spinner>
+                <button
+                    icon
+                    name="close-locker-confirm"
+                    matRipple
+                    *ngIf="show_close"
+                    (click)="dismiss()"
+                >
+                    <app-icon class="text-2xl">close</app-icon>
+                </button>
+            </div>
         </header>
-        <section period class="flex space-x-1 py-4 px-2">
-            <app-icon class="text-success">done</app-icon>
-            <div details class="leading-6">
-                <h3>{{ booking.title || '~Untitled~' }}</h3>
+        <section period class="flex space-x-1 py-4 px-2 text-base">
+            <app-icon class="text-success text-2xl">done</app-icon>
+            <div details class="space-y-2">
+                <h3 class="text-xl">{{ booking.title || '~Untitled~' }}</h3>
                 <div class="flex items-center space-x-2">
-                    <app-icon class="text-2xl">calendar_today</app-icon>
+                    <app-icon class="text-xl">calendar_today</app-icon>
                     <div date>{{ booking.date | date: 'fullDate' }}</div>
                 </div>
                 <div
@@ -59,12 +54,12 @@ import { map, take } from 'rxjs/operators';
                         booking.recurrence_type !== 'none'
                     "
                 >
-                    <app-icon class="text-2xl">update</app-icon>
+                    <app-icon class="text-xl">update</app-icon>
                     <div date>{{ formatted_recurrence }}</div>
                 </div>
                 <div class="flex items-center space-x-2">
-                    <app-icon class="text-2xl">schedule</app-icon>
-                    <div class="flex flex-col leading-tight">
+                    <app-icon class="text-xl">schedule</app-icon>
+                    <div time>
                         <div time>{{ formattedTime() }}</div>
                         <div class="text-xs opacity-30" *ngIf="timezone">
                             {{ formattedTime(tz) }}
@@ -75,19 +70,24 @@ import { map, take } from 'rxjs/operators';
         </section>
         <section
             desk
-            class="flex space-x-1 py-4 px-2 border-t border-neutral"
+            class="text-base flex space-x-1 py-4 px-2 border-t border-neutral"
             *ngIf="booking_asset?.id"
         >
-            <app-icon class="text-success">done</app-icon>
-            <div details class="leading-6">
-                <h3 name>
+            <app-icon class="text-success text-2xl">done</app-icon>
+            <div details class="space-y-2">
+                <h3 class="text-xl">
                     {{ booking_asset?.name || booking_asset?.id || '' }}
                 </h3>
                 <div class="flex items-center space-x-2">
                     <app-icon>person</app-icon>
-                    <span>{{
-                        (is_group | async) ? 'Multiple Desks' : 'Single desk'
-                    }}</span>
+                    <span>
+                        {{
+                            ((is_group | async)
+                                ? 'BOOKINGS.DESK_COUNT_GROUP'
+                                : 'BOOKINGS.DESK_COUNT_LONE'
+                            ) | translate
+                        }}
+                    </span>
                 </div>
                 <div class="flex items-center space-x-2">
                     <app-icon>place</app-icon>
@@ -108,7 +108,7 @@ import { map, take } from 'rxjs/operators';
         >
             <app-icon class="text-success">done</app-icon>
             <div details class="flex-1 leading-6 w-1/2 pr-2">
-                <h3>Asset Requests</h3>
+                <h3>{{ 'BOOKINGS.DESK_ASSETS_REQUESTED' | translate }}</h3>
                 <div
                     request
                     *ngFor="let request of assets"
@@ -119,10 +119,16 @@ import { map, take } from 'rxjs/operators';
                     <div class="flex items-center space-x-2 p-3">
                         <div class="flex-1 flex items-center space-x-2">
                             <div class="text-sm">
-                                Requested for
                                 {{
-                                    request.deliver_at_time
-                                        | date: 'MMM d, ' + time_format
+                                    'FORM.ASSETS_REQUESTED_FOR'
+                                        | translate
+                                            : {
+                                                  time:
+                                                      request.deliver_at_time
+                                                      | date
+                                                          : 'MMM d, ' +
+                                                                time_format,
+                                              }
                                 }}
                             </div>
                             <div
@@ -136,7 +142,11 @@ import { map, take } from 'rxjs/operators';
                             <div
                                 class="text-xs bg-success text-success-content px-2 py-1 rounded"
                             >
-                                {{ request.item_count }} item(s)
+                                {{
+                                    'COMMON.ITEM_COUNT'
+                                        | translate
+                                            : { count: request.item_count }
+                                }}
                             </div>
                         </div>
                     </div>
@@ -169,7 +179,7 @@ import { map, take } from 'rxjs/operators';
         >
             <app-icon class="text-success">done</app-icon>
             <div details class="leading-6">
-                <h3>Requested Locker</h3>
+                <h3>{{ 'BOOKINGS.DESK_LOCKER_REQUESTED' | translate }}</h3>
                 <div class="flex space-x-2">
                     <span>Locker E-043</span>
                 </div>
@@ -184,13 +194,14 @@ import { map, take } from 'rxjs/operators';
                 *ngIf="!(loading | async)"
                 (click)="postForm()"
             >
-                Confirm
+                {{ 'COMMON.CONFIRM' | translate }}
             </button>
         </footer>
     `,
+    styles: [``],
 })
 export class NewDeskFlowConfirmComponent extends AsyncHandler {
-    @Input() public show_close: boolean = false;
+    @Input() public show_close = false;
 
     private _date: DatePipe = new DatePipe('en');
 
@@ -209,7 +220,7 @@ export class NewDeskFlowConfirmComponent extends AsyncHandler {
             notifyError(
                 typeof e === 'string'
                     ? e
-                    : `Desk unavailable at the selected time`,
+                    : i18n(`BOOKINGS.DESK_AVAILABLE_ERROR`),
             );
         }
     };
@@ -228,7 +239,7 @@ export class NewDeskFlowConfirmComponent extends AsyncHandler {
         if (this.is_multiday) {
             return `${start_date}${all_day ? '' : ', ' + start_time} - ${end_date}${all_day ? '' : ', ' + end_time}`;
         } else if (all_day) {
-            return 'All Day';
+            return i18n('COMMON.ALL_DAY');
         }
         return `${start_time} - ${end_time} ${'(' + tz_format + ')'}`;
     }

@@ -10,7 +10,9 @@ import { addDays, endOfDay } from 'date-fns';
         <div *ngIf="form" [formGroup]="form">
             <div class="flex items-center flex-wrap sm:space-x-2">
                 <div class="flex-1 min-w-[256px]">
-                    <label for="title">Building<span>*</span></label>
+                    <label for="title">
+                        {{ 'RESOURCE.BUILDING' | translate }}<span>*</span>
+                    </label>
                     <mat-form-field appearance="outline" class="w-full">
                         <mat-select
                             [ngModel]="building | async"
@@ -30,7 +32,9 @@ import { addDays, endOfDay } from 'date-fns';
             </div>
             <div class="flex items-center flex-wrap sm:space-x-2">
                 <div class="flex-1 min-w-[256px]">
-                    <label for="title">Add Title<span>*</span></label>
+                    <label for="title">
+                        {{ 'FORM.TITLE' | translate }}<span>*</span>
+                    </label>
                     <mat-form-field appearance="outline" class="w-full">
                         <input
                             matInput
@@ -38,24 +42,28 @@ import { addDays, endOfDay } from 'date-fns';
                             formControlName="title"
                             placeholder="e.g. Team Meeting"
                         />
-                        <mat-error>Meeting title is required.</mat-error>
+                        <mat-error>{{
+                            'FORM.TITLE_REQUIRED' | translate
+                        }}</mat-error>
                     </mat-form-field>
                 </div>
                 <div class="flex-1 min-w-[256px] relative">
-                    <label for="date">Date<span>*</span></label>
+                    <label for="date">
+                        {{ 'FORM.DATE' | translate }}<span>*</span>
+                    </label>
                     <a-date-field
                         name="date"
                         formControlName="date"
                         [to]="end_date"
                     >
-                        Date and time must be in the future
+                        {{ 'FORM.DATE_REQUIRED' | translate }}
                     </a-date-field>
                     <mat-checkbox
                         formControlName="all_day"
                         *ngIf="allow_all_day"
                         class="absolute -top-2 right-0"
                     >
-                        All Day
+                        {{ 'COMMON.ALL_DAY' | translate }}
                     </mat-checkbox>
                 </div>
             </div>
@@ -64,7 +72,10 @@ import { addDays, endOfDay } from 'date-fns';
                 *ngIf="!form.value.all_day"
             >
                 <div class="flex-1 w-1/3">
-                    <label for="start-time">Start Time<span>*</span></label>
+                    <label for="start-time"
+                        >{{ 'FORM.TIME_START' | translate
+                        }}<span>*</span></label
+                    >
                     <a-time-field
                         name="start-time"
                         [ngModel]="form.value.date"
@@ -74,7 +85,9 @@ import { addDays, endOfDay } from 'date-fns';
                     ></a-time-field>
                 </div>
                 <div class="flex-1 w-1/3 relative">
-                    <label for="end-time">End Time<span>*</span></label>
+                    <label for="end-time">
+                        {{ 'FORM.TIME_START' | translate }}<span>*</span>
+                    </label>
                     <a-duration-field
                         name="end-time"
                         formControlName="duration"
@@ -95,15 +108,24 @@ import { addDays, endOfDay } from 'date-fns';
                 ></host-select-field>
             </div>
             <div class="flex flex-col">
-                <label for="plate-number">Plate Number</label>
+                <label for="plate-number">
+                    {{ 'BOOKINGS.PARKING_PLATE_NUMBER' | translate }}
+                </label>
                 <mat-form-field appearance="outline" class="w-full">
                     <input
                         matInput
                         name="plate-number"
                         formControlName="plate_number"
-                        placeholder="e.g. ABC123"
+                        [placeholder]="
+                            'BOOKINGS.PARKING_PLATE_NUMBER_PLACEHOLDER'
+                                | translate
+                        "
                     />
-                    <mat-error>A plate number is required</mat-error>
+                    <mat-error>
+                        {{
+                            'BOOKINGS.PARKING_PLATE_NUMBER_REQUIRED' | translate
+                        }}
+                    </mat-error>
                 </mat-form-field>
             </div>
         </div>

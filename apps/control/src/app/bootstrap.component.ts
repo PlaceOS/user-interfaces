@@ -24,21 +24,23 @@ const STORE_KEY = 'PLACEOS.CONTROL.system';
             class="rounded shadow m-4 bg-base-100 border border-base-200 overflow-hidden mx-auto text-center flex flex-col items-center"
         >
             <h2 class="bg-error text-white py-2 px-4 m-0 w-full text-2xl">
-                Control Panel Setup
+                {{ 'APP.CONTROL.BOOTSTRAP_TITLE' | translate }}
             </h2>
             <ng-container
                 *ngIf="!loading || loading === 'search'; else load_state"
             >
                 <p class="description py-4">
-                    Input the PlaceOS <em>System ID</em> to bootstrap
+                    {{ 'COMMON.BOOTSTRAP_DESCRIPTION' | translate }}
                 </p>
                 <mat-form-field appearance="outline">
-                    <mat-label>System ID</mat-label>
+                    <mat-label>{{
+                        'COMMON.BOOTSTRAP_LABEL' | translate
+                    }}</mat-label>
                     <input
                         matInput
                         [ngModel]="system_id$ | async"
                         [matAutocomplete]="auto"
-                        placeholder="System ID"
+                        [placeholder]="'COMMON.BOOTSTRAP_LABEL' | translate"
                         (ngModelChange)="system_id$.next($event)"
                     />
                     <mat-spinner
@@ -66,7 +68,7 @@ const STORE_KEY = 'PLACEOS.CONTROL.system';
                             !(space_list | async)?.length
                         "
                     >
-                        Start typing to search for a room
+                        {{ 'COMMON.BOOTSTRAP_INPUT_PLACEHOLDER' | translate }}
                     </mat-option>
                 </mat-autocomplete>
                 <button
@@ -75,14 +77,16 @@ const STORE_KEY = 'PLACEOS.CONTROL.system';
                     [disabled]="!system_id$.getValue()"
                     (click)="bootstrap()"
                 >
-                    Submit
+                    {{ 'COMMON.SUBMIT' | translate }}
                 </button>
             </ng-container>
         </div>
         <ng-template #load_state>
             <div load class="my-16 flex flex-col items-center">
                 <mat-spinner [diameter]="32"></mat-spinner>
-                <div class="m-4">Loading system data... {{ loading }}</div>
+                <div class="m-4">
+                    {{ 'COMMON.BOOTSTRAP_LOADING' | translate }}
+                </div>
             </div>
         </ng-template>
     `,
@@ -143,13 +147,13 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
         }),
         map((_) => _.data.map((_) => new Space(_ as any))),
         tap((_) => (this.loading = '')),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     constructor(
         private route: ActivatedRoute,
         private _router: Router,
-        private _org: OrganisationService
+        private _org: OrganisationService,
     ) {
         super();
     }
@@ -163,11 +167,11 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
                 }
                 if (params.has('system_id') || params.has('sys_id')) {
                     this.system_id$.next(
-                        params.get('system_id') || params.get('sys_id')
+                        params.get('system_id') || params.get('sys_id'),
                     );
                     this.bootstrap();
                 }
-            })
+            }),
         );
         this.checkBootstrapped();
     }

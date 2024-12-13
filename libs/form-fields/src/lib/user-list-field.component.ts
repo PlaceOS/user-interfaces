@@ -91,7 +91,9 @@ const DENIED_FILE_TYPES = [
                                 matChipRemove
                                 remove
                                 [attr.aria-label]="
-                                    'Remove ' + (item.name || item.email)
+                                    'COMMON.REMOVE_ITEM'
+                                        | translate
+                                            : { name: item.name || item.email }
                                 "
                             >
                                 <app-icon>cancel</app-icon>
@@ -100,7 +102,7 @@ const DENIED_FILE_TYPES = [
                     </mat-chip-grid>
                     <input
                         #search_field
-                        placeholder="Type a name or email"
+                        [placeholder]="'FORM.USER_LIST_PLACEHOLDER' | translate"
                         name="user_email"
                         [ngModel]="search$ | async"
                         (ngModelChange)="updateSearch($event)"
@@ -120,7 +122,10 @@ const DENIED_FILE_TYPES = [
                         *ngIf="search_valid_email"
                         (click)="addUserFromEmail()"
                     >
-                        Add external user with email "{{ search$.getValue() }}"
+                        {{
+                            'FORM.USER_LIST_ADD_EXTERNAL'
+                                | translate: { email: search$.getValue() }
+                        }}
                     </mat-option>
                     <mat-option
                         *ngFor="let user of user_list$ | async"

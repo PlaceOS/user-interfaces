@@ -181,7 +181,7 @@ import { map } from 'rxjs/operators';
             </section>
             <section favs class="space-y-4 pb-4">
                 <settings-toggle
-                    [name]="'LOCKERS.SHOW_FAVOURITES' | translate"
+                    [name]="'APP.WORKPLACE.FAVOURITES_SHOW' | translate"
                     [ngModel]="(options | async)?.show_fav"
                     (ngModelChange)="setOptions({ show_fav: $event })"
                     [ngModelOptions]="{ standalone: true }"

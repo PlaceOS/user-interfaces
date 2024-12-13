@@ -5,23 +5,23 @@ import { SettingsService } from '@placeos/common';
     selector: 'desk-height-presets',
     template: `
         <div class="relative p-4 bg-base-100 rounded shadow w-[20rem]">
-            <div class="text-lg mb-2">Desk Height Presets</div>
+            <div class="text-lg mb-2">
+                {{ 'COMMON.DESK_HEIGHT_TITLE' | translate }}
+            </div>
             <div class="text-xs opacity-60 mb-4">
-                Desk height presets allow you to store and recall your preferred
-                desk height when checking into a booked desk that supports
-                height adjustment.
+                {{ 'COMMON.DESK_HEIGHT_MSG' | translate }}
             </div>
             <div
                 class="text-xs mb-4 -mx-2 p-2 rounded bg-warning text-warning-content"
                 *ngIf="not_set && show_close"
             >
-                Before you can set a desk height, presets must be set
+                {{ 'COMMON.DESK_HEIGHT_NOT_SET' | translate }}
             </div>
             <div class="text-xs opacity-60 mb-4">
-                Set your desk height for the best experience.
+                {{ 'COMMON.DESK_HEIGHT_INFO' | translate }}
             </div>
             <div class="flex flex-col mt-2">
-                <label>Sitting Height</label>
+                <label>{{ 'COMMON.DESK_HEIGHT_SITTING' | translate }}</label>
                 <div class="flex items-center space-x-2">
                     <mat-slider
                         min="60"
@@ -43,7 +43,7 @@ import { SettingsService } from '@placeos/common';
                         {{ desk_sitting_height.toFixed(1) }}cm
                     </div>
                 </div>
-                <label>Standing Height</label>
+                <label>{{ 'COMMON.DESK_HEIGHT_STANDING' | translate }}t</label>
                 <div class="flex items-center space-x-2  mr-2">
                     <mat-slider
                         min="90"
@@ -73,7 +73,7 @@ import { SettingsService } from '@placeos/common';
                 class="w-full mt-2"
                 *ngIf="show_close"
             >
-                Save Presets
+                {{ 'COMMON.SAVE' | translate }}
             </button>
         </div>
     `,

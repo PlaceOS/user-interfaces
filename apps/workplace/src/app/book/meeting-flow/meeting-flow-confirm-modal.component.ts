@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, Input, Optional } from '@angular/core';
+import { Component, Input, OnInit, Optional } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { validateAssetRequestsForResource } from '@placeos/assets';
 import { CateringItem, CateringOrder } from '@placeos/catering';
@@ -7,6 +7,7 @@ import {
     AsyncHandler,
     SettingsService,
     getTimezoneOffsetString,
+    i18n,
     notifyError,
     openConfirmModal,
 } from '@placeos/common';
@@ -36,7 +37,9 @@ import { map } from 'rxjs/operators';
             >
                 <app-icon>close</app-icon>
             </button>
-            <h2 class="text-xl font-medium">Confirm Meeting booking</h2>
+            <h2 class="text-xl font-medium">
+                {{ 'APP.WORKPLACE.MEETING_CONFIRM' | translate }}
+            </h2>
             <mat-spinner
                 diameter="32"
                 class="absolute right-2 top-1/2 -translate-y-1/2"
@@ -86,7 +89,9 @@ import { map } from 'rxjs/operators';
                     >
                         <app-icon>done</app-icon>
                     </div>
-                    <h3 class="text-xl !mt-0">Booked Room</h3>
+                    <h3 class="text-xl !mt-0">
+                        {{ 'APP.WORKPLACE.MEETING_BOOKED_ROOM' | translate }}
+                    </h3>
                     <ng-container *ngFor="let s of event.resources">
                         <div class="flex items-center space-x-2">
                             <app-icon class="text-2xl">layers</app-icon>
@@ -112,7 +117,10 @@ import { map } from 'rxjs/operators';
                     <app-icon>done</app-icon>
                 </div>
                 <h3 class="text-xl !mt-0">
-                    {{ event.attendees.length }} Attendee(s)
+                    {{
+                        'CALENDAR_EVENT.ATTENDEE_COUNT'
+                            | translate: { count: event.attendees.length }
+                    }}
                 </h3>
                 <div attendee-list>
                     <mat-chip-list #chipList aria-label="User selection">
@@ -138,7 +146,9 @@ import { map } from 'rxjs/operators';
                     >
                         <app-icon>done</app-icon>
                     </div>
-                    <h3 class="text-xl !mt-0">Catering</h3>
+                    <h3 class="text-xl !mt-0">
+                        {{ 'RESOURCE.CATERING' | translate }}
+                    </h3>
                     <div class="flex flex-col space-y-2">
                         <div
                             order
@@ -152,10 +162,16 @@ import { map } from 'rxjs/operators';
                             <div class="flex items-center space-x-2 p-3">
                                 <div class="flex-1 flex items-center space-x-2">
                                     <div class="text-sm">
-                                        Order at
                                         {{
-                                            order.deliver_at
-                                                | date: 'MMM d, ' + time_format
+                                            'CALENDAR_EVENT.CATERING_ORDER_AT'
+                                                | translate
+                                                    : {
+                                                          time:
+                                                              order.deliver_at
+                                                              | date
+                                                                  : 'MMM d, ' +
+                                                                        time_format,
+                                                      }
                                         }}
                                     </div>
                                     <div
@@ -169,7 +185,13 @@ import { map } from 'rxjs/operators';
                                     <div
                                         class="text-xs bg-success text-success-content px-2 py-1 rounded"
                                     >
-                                        {{ order.item_count }} item(s)
+                                        {{
+                                            'COMMON.ITEM_COUNT'
+                                                | translate
+                                                    : {
+                                                          count: order.item_count,
+                                                      }
+                                        }}
                                     </div>
                                     <div
                                         class="text-xs bg-info text-info-content px-2 py-1 rounded"
@@ -199,9 +221,16 @@ import { map } from 'rxjs/operators';
                                             [matTooltip]="optionList(item)"
                                         >
                                             {{
-                                                item.option_list?.length || '0'
+                                                'CALENDAR_EVENT.CATERING_ORDER_OPTION_COUNT'
+                                                    | translate
+                                                        : {
+                                                              count:
+                                                                  item
+                                                                      .option_list
+                                                                      ?.length ||
+                                                                  '0',
+                                                          }
                                             }}
-                                            option(s)
                                         </span>
                                     </div>
                                     <div
@@ -244,7 +273,7 @@ import { map } from 'rxjs/operators';
                             has_conflict ? 'close' : 'done'
                         }}</app-icon>
                     </div>
-                    <h3 class="text-xl !mt-0">Assets</h3>
+                    <h3 class="text-xl !mt-0">{{ 'RESOURCE.ASSETS' }}</h3>
                     <div
                         request
                         *ngFor="let request of assets"
@@ -255,10 +284,16 @@ import { map } from 'rxjs/operators';
                         <div class="flex items-center space-x-2 p-3">
                             <div class="flex-1 flex items-center space-x-2">
                                 <div class="text-sm">
-                                    Requested for
                                     {{
-                                        request.deliver_at_time
-                                            | date: 'MMM d, ' + time_format
+                                        'CALENDAR_EVENT.ASSETS_REQUESTED_FOR'
+                                            | translate
+                                                : {
+                                                      time:
+                                                          request.deliver_at_time
+                                                          | date
+                                                              : 'MMM d, ' +
+                                                                    time_format,
+                                                  }
                                     }}
                                 </div>
                                 <div
@@ -275,7 +310,11 @@ import { map } from 'rxjs/operators';
                                 <div
                                     class="text-xs bg-success text-success-content px-2 py-1 rounded"
                                 >
-                                    {{ request.item_count }} item(s)
+                                    {{
+                                        'COMMON.ITEM_COUNT'
+                                            | translate
+                                                : { count: request.item_count }
+                                    }}
                                 </div>
                             </div>
                         </div>
@@ -307,7 +346,9 @@ import { map } from 'rxjs/operators';
                 >
                     <app-icon>done</app-icon>
                 </div>
-                <h3 class="text-xl !mt-0">Notes</h3>
+                <h3 class="text-xl !mt-0">
+                    {{ 'CALENDAR_EVENTS.NOTES_HEADER' | translate }}
+                </h3>
                 <div [innerHTML]="event.body | sanitize"></div>
             </div>
         </main>
@@ -322,25 +363,18 @@ import { map } from 'rxjs/operators';
                 class="w-32"
                 (click)="postForm()"
             >
-                Confirm
+                {{ 'COMMON.CONFIRM' | translate }}
             </button>
-            <!-- <button
-                btn
-                matRipple
-                class="inverse w-32"
-                *ngIf="loading | async"
-                (click)="cancelPost()"
-               
-            >
-                Undo
-            </button> -->
         </footer>
     `,
     styles: [``],
     providers: [SpacePipe],
 })
-export class MeetingFlowConfirmModalComponent extends AsyncHandler {
-    @Input() public show_close: boolean = false;
+export class MeetingFlowConfirmModalComponent
+    extends AsyncHandler
+    implements OnInit
+{
+    @Input() public show_close = false;
 
     private _loading = new BehaviorSubject(false);
 
@@ -354,8 +388,8 @@ export class MeetingFlowConfirmModalComponent extends AsyncHandler {
     public readonly assets;
     public err_tooltip(request: AssetRequest) {
         return request.conflict
-            ? 'Some of the items are not available for the selected date and time.'
-            : 'Delivery time is outside of the event time.\nThis order will be ignored.';
+            ? i18n('FORM.ASSETS_CLASH_ERROR')
+            : i18n('FORM.ASSETS_TIME_ERROR');
     }
 
     public get has_conflict() {
@@ -384,9 +418,8 @@ export class MeetingFlowConfirmModalComponent extends AsyncHandler {
         if (!this.space) {
             const result = await openConfirmModal(
                 {
-                    title: 'Make Booking without a Room',
-                    content:
-                        'You are creating a booking without a room, are you sure?',
+                    title: i18n('APP.WORKPLACE.MEETING_WITHOUT_ROOM_TITLE'),
+                    content: i18n('APP.WORKPLACE.MEETING_WITHOUT_ROOM_MSG'),
                     icon: { content: 'event_available' },
                 },
                 this._dialog,

@@ -52,15 +52,6 @@ const EMPTY_FAVS: string[] = [];
                             }}
                         </p>
                     </div>
-                    <div class="flex items-center text-sm space-x-2">
-                        <app-icon class="text-blue-500">people</app-icon>
-                        <p>
-                            {{
-                                space.capacity < 1 ? 2 : space.capacity || 1
-                            }}
-                            Person(s)
-                        </p>
-                    </div>
                     <div
                         class="absolute bottom-0 right-0 flex items-center justify-end text-xs"
                     >
@@ -73,7 +64,7 @@ const EMPTY_FAVS: string[] = [];
                         >
                             <div class="flex items-center space-x-2">
                                 <app-icon class="text-2xl">edit</app-icon>
-                                <div>Change</div>
+                                <div>{{ 'COMMON.CHANGE' | translate }}</div>
                             </div>
                         </button>
                         <button
@@ -85,7 +76,7 @@ const EMPTY_FAVS: string[] = [];
                         >
                             <div class="flex items-center space-x-2">
                                 <app-icon class="text-2xl">close</app-icon>
-                                <div>Remove</div>
+                                <div>{{ 'COMMON.REMOVE' | translate }}</div>
                             </div>
                         </button>
                     </div>
@@ -115,7 +106,7 @@ const EMPTY_FAVS: string[] = [];
         >
             <div class="flex items-center justify-center space-x-2">
                 <app-icon class="text-2xl">search</app-icon>
-                <span>Add Parking Resource</span>
+                <span>{{ 'BOOKINGS.PARKING_ADD' | translate }}</span>
             </div>
         </button>
         <div class="flex items-center flex-wrap sm:space-x-2 mb-2">
@@ -189,12 +180,8 @@ export class ParkingSpaceListFieldComponent implements ControlValueAccessor {
         this.spaces = value || [];
     }
 
-    /* istanbul ignore next */
-    public readonly registerOnChange = (fn: (_: BookingAsset[]) => void) =>
-        (this._onChange = fn);
-    /* istanbul ignore next */
-    public readonly registerOnTouched = (fn: (_: BookingAsset[]) => void) =>
-        (this._onTouch = fn);
+    public readonly registerOnChange = (fn) => (this._onChange = fn);
+    public readonly registerOnTouched = (fn) => (this._onTouch = fn);
     public readonly setDisabledState = (s: boolean) => (this.disabled = s);
 
     public toggleFavourite(space: BookingAsset) {

@@ -22,7 +22,7 @@ import { Component, Input } from '@angular/core';
                 *ngIf="!images?.length"
             >
                 <app-icon class="text-5xl">image_not_supported</app-icon>
-                <p>No images</p>
+                <p>{{ 'COMMON.IMAGES_EMPTY' | translate }}</p>
             </div>
             <button
                 matRipple

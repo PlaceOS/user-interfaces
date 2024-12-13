@@ -37,7 +37,6 @@ import { apiKey, authority, token } from '@placeos/ts-client';
 import { BehaviorSubject } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { MAP_FEATURE_DATA } from './interactive-map.component';
-import { get } from 'http';
 
 function isSamePoint(p1: Point, p2: Point): boolean {
     return p1.x === p2.x && p1.y === p2.y;
@@ -103,7 +102,7 @@ function isSamePoint(p1: Point, p2: Point): boolean {
         </div>
         <ng-template #empty_state>
             <div class="absolute inset-0 flex items-center justify-center">
-                <div class="opacity-30">No map</div>
+                <div class="opacity-30">{{ 'EXPLORE.MAP_EMPTY' }}</div>
             </div>
         </ng-template>
     `,

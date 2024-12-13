@@ -11,6 +11,7 @@ import {
 import {
     AsyncHandler,
     currentUser,
+    i18n,
     notifyError,
     notifySuccess,
     openConfirmModal,
@@ -49,7 +50,7 @@ import { combineLatest } from 'rxjs';
                         [class.inverse]="period !== 'day'"
                         (click)="setOptions({ period: 'day' })"
                     >
-                        Day
+                        {{ 'COMMON.DAY' | translate }}
                     </button>
                     <button
                         btn
@@ -58,7 +59,7 @@ import { combineLatest } from 'rxjs';
                         [class.inverse]="period !== 'week'"
                         (click)="setOptions({ period: 'week' })"
                     >
-                        Week
+                        {{ 'COMMON.WEEK' | translate }}
                     </button>
                 </div>
                 <schedule-mobile-calendar
@@ -74,7 +75,7 @@ import { combineLatest } from 'rxjs';
                         <mat-select
                             [ngModel]="week_date | async"
                             (ngModelChange)="setDate($event)"
-                            placeholder="Select Week..."
+                            [placeholder]="'COMMON.WEEK_SELECT' | translate"
                         >
                             <mat-option
                                 *ngFor="let option of week_options | async"
@@ -85,7 +86,9 @@ import { combineLatest } from 'rxjs';
                                 <span
                                     class="text-xs text-info px-1"
                                     *ngIf="option.this_week"
-                                    matTooltip="This Week"
+                                    [matTooltip]="
+                                        'COMMON.WEEK_THIS' | translate
+                                    "
                                     >(C)</span
                                 >
                             </mat-option>
@@ -103,9 +106,9 @@ import { combineLatest } from 'rxjs';
                     >
                         <h3 class="font-medium my-2">
                             {{ date_block.date | date: 'EEE dd LLL yyyy' }}
-                            <span *ngIf="date_block.is_today"
-                                >({{ 'COMMON.TODAY' | translate }})</span
-                            >
+                            <span *ngIf="date_block.is_today">
+                                ({{ 'COMMON.TODAY' | translate }})
+                            </span>
                         </h3>
                         <ng-container
                             *ngFor="
@@ -144,7 +147,7 @@ import { combineLatest } from 'rxjs';
             >
                 <img src="assets/img/no-events.svg" class="mr-4" />
                 <p class="opacity-30">
-                    {{ 'WPA.SCHEDULE_EMPTY' | translate }}
+                    {{ 'APP.WORKPLACE.SCHEDULE_EMPTY' | translate }}
                     {{ date | async | date: 'EEEE, dd LLL yyyy' }}
                 </p>
             </div>
@@ -224,7 +227,7 @@ export class ScheduleComponent extends AsyncHandler {
         this.subscription('poll', this._state.startPolling());
     }
 
-    public trackByFn(index: number, item: any) {
+    public trackByFn(index: number, item: { id: string }) {
         return item?.id;
     }
 
@@ -269,13 +272,20 @@ export class ScheduleComponent extends AsyncHandler {
             item instanceof CalendarEvent
                 ? item.space?.display_name
                 : item.asset_name || item.asset_id;
-        const content = `Delete the ${
-            remove_series ? 'recurring series of ' : ''
-        }booking for ${resource_name} at ${time}`;
         const resp = await openConfirmModal(
             {
-                title: `Delete booking ${remove_series ? 'series' : ''}`,
-                content,
+                title: i18n(
+                    remove_series
+                        ? 'APP.WORKPLACE.SCHEDULE_REMOVE_SERIES_TITLE'
+                        : 'APP.WORKPLACE.SCHEDULE_REMOVE_TITLE',
+                    { name: resource_name, time },
+                ),
+                content: i18n(
+                    remove_series
+                        ? 'APP.WORKPLACE.SCHEDULE_REMOVE_SERIES_MSG'
+                        : 'APP.WORKPLACE.SCHEDULE_REMOVE_MSG',
+                    { name: resource_name, time },
+                ),
                 icon: { content: 'delete' },
             },
             this._dialog,
@@ -288,10 +298,18 @@ export class ScheduleComponent extends AsyncHandler {
                         period_end: item.event_end,
                         ical_uid: item.ical_uid,
                     }).toPromise()
-                ).find((_) => _.ical_uid === (item as any).ical_uid) || item;
+                ).find(
+                    (_) => _.ical_uid === (item as CalendarEvent).ical_uid,
+                ) || item;
         }
         if (resp.reason !== 'done') return;
-        resp.loading('Requesting booking deletion...');
+        resp.loading(
+            i18n(
+                remove_series
+                    ? 'APP.WORKPLACE.SCHEDULE_REMOVE_SERIES_LOADING'
+                    : 'APP.WORKPLACE.SCHEDULE_REMOVE_LOADING',
+            ),
+        );
         await (item instanceof CalendarEvent ? removeEvent : removeBooking)(
             remove_series
                 ? (item as any).recurring_event_id || item.id
@@ -299,8 +317,8 @@ export class ScheduleComponent extends AsyncHandler {
             {
                 calendar: this._settings.get('app.no_user_calendar')
                     ? null
-                    : (item as any).calendar || currentUser()?.email,
-                system_id: (item as any).system?.id,
+                    : (item as CalendarEvent).calendar || currentUser()?.email,
+                system_id: (item as CalendarEvent).system?.id,
                 instance: remove_series ? undefined : !!(item as any).instance,
                 start_time: !!(item as any).instance
                     ? (item as any).instance
@@ -309,11 +327,24 @@ export class ScheduleComponent extends AsyncHandler {
         )
             .toPromise()
             .catch((e) => {
-                notifyError(`Unable to delete booking. ${e}`);
+                notifyError(
+                    i18n(
+                        remove_series
+                            ? 'APP.WORKPLACE.SCHEDULE_REMOVE_SERIES_ERROR'
+                            : 'APP.WORKPLACE.SCHEDULE_REMOVE_ERROR',
+                        { error: e },
+                    ),
+                );
                 resp.close();
                 throw e;
             });
-        notifySuccess('Successfully deleted booking.');
+        notifySuccess(
+            i18n(
+                remove_series
+                    ? 'APP.WORKPLACE.SCHEDULE_REMOVE_SERIES_SUCCESS'
+                    : 'APP.WORKPLACE.SCHEDULE_REMOVE_SUCCESS',
+            ),
+        );
         this._state.removeItem(item);
         this._dialog.closeAll();
     }
@@ -321,14 +352,20 @@ export class ScheduleComponent extends AsyncHandler {
     public async end(item: Booking) {
         const time = `${format(item.date, 'dd MMM yyyy h:mma')}`;
         const resource_name = item.asset_name || item.asset_id;
-        const content = `End the booking for ${resource_name} at ${time}`;
         const resp = await openConfirmModal(
-            { title: `End booking`, content, icon: { content: 'delete' } },
+            {
+                title: i18n('APP.WORKPLACE.SCHEDULE_END_TITLE'),
+                content: i18n('APP.WORKPLACE.SCHEDULE_END_MSG', {
+                    name: resource_name,
+                    time,
+                }),
+                icon: { content: 'event_busy' },
+            },
             this._dialog,
         );
 
         if (resp.reason !== 'done') return;
-        resp.loading('Ending booking...');
+        resp.loading(i18n('APP.WORKPLACE.SCHEDULE_END_LOADING'));
         const promise = (
             item.instance
                 ? checkinBookingInstance(item.id, item.instance, false)
@@ -336,12 +373,14 @@ export class ScheduleComponent extends AsyncHandler {
         )
             .toPromise()
             .catch((e) => {
-                notifyError(`Unable to end booking. ${e}`);
+                notifyError(
+                    i18n('APP.WORKPLACE.SCHEDULE_END_ERROR', { error: e }),
+                );
                 resp.close();
                 throw e;
             });
         await promise;
-        notifySuccess('Successfully ended booking.');
+        notifySuccess(i18n('APP.WORKPLACE.SCHEDULE_END_SUCCESS'));
         this._state.removeItem(item);
         this._dialog.closeAll();
     }

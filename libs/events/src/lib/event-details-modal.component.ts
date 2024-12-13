@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Inject, Output } from '@angular/core';
+import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
 import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { getUnixTime } from 'date-fns';
 
@@ -13,6 +13,7 @@ import {
     notifyError,
     SettingsService,
     getTimezoneOffsetString,
+    i18n,
 } from '@placeos/common';
 import { Space } from 'libs/spaces/src/lib/space.class';
 import { getModule } from '@placeos/ts-client';
@@ -107,9 +108,10 @@ const EMPTY_ACTIONS = [];
                                 }}</app-icon>
                                 <div class="pr-4">
                                     {{
-                                        room_status === 'pending'
-                                            ? 'Check in'
-                                            : 'Checked in'
+                                        (room_status === 'pending'
+                                            ? 'COMMON.CHECK_IN'
+                                            : 'COMMON.CHECKED_IN'
+                                        ) | translate
                                     }}
                                 </div>
                             </div>
@@ -130,7 +132,9 @@ const EMPTY_ACTIONS = [];
                 <div
                     class="sm:p-4 sm:bg-base-100 rounded sm:m-2 sm:border border-base-200 flex-grow-[3] min-w-1/3 sm:w-[16rem] space-y-2"
                 >
-                    <h3 class="px-3 mt-2 text-lg font-medium mb-2">Details</h3>
+                    <h3 class="px-3 mt-2 text-lg font-medium mb-2">
+                        {{ 'CALENDAR_EVENT.DETAILS' | translate }}
+                    </h3>
                     <div class="flex items-center px-2 space-x-2">
                         <app-icon>event</app-icon>
                         <div class="flex flex-col leading-tight">
@@ -190,14 +194,16 @@ const EMPTY_ACTIONS = [];
                     <div
                         class="mx-3 border-t border-base-200 sm:border-none flex items-center justify-between"
                     >
-                        <h3 class="text-lg font-medium">Attendees</h3>
+                        <h3 class="text-lg font-medium">
+                            {{ 'CALENDAR_EVENT.ATTENDEES' | translate }}
+                        </h3>
                         <button
                             matRipple
                             show-attendees
                             class="clear text-xs underline print:hidden"
                             (click)="show_attendees = true"
                         >
-                            See All
+                            {{ 'COMMON.VIEW_ALL' | translate }}
                         </button>
                     </div>
                     <div class="flex items-center p-1">
@@ -205,19 +211,25 @@ const EMPTY_ACTIONS = [];
                             class="flex flex-col flex-1 items-center justify-center space-y-1"
                         >
                             <div class="text-lg">{{ accept_count || 0 }}</div>
-                            <div class="text-sm uppercase">Yes</div>
+                            <div class="text-sm uppercase">
+                                {{ 'COMMON.TRUE' | translate }}
+                            </div>
                         </div>
                         <div
                             class="flex flex-col flex-1 items-center justify-center space-y-1"
                         >
                             <div class="text-lg">{{ declined_count || 0 }}</div>
-                            <div class="text-sm uppercase">No</div>
+                            <div class="text-sm uppercase">
+                                {{ 'COMMON.FALSE' | translate }}
+                            </div>
                         </div>
                         <div
                             class="flex flex-col flex-1 items-center justify-center space-y-1"
                         >
                             <div class="text-lg">{{ pending_count || 0 }}</div>
-                            <div class="text-sm uppercase">Pending</div>
+                            <div class="text-sm uppercase">
+                                {{ 'COMMON.PENDING' | translate }}
+                            </div>
                         </div>
                     </div>
                     <div class="hidden print:block">
@@ -245,7 +257,7 @@ const EMPTY_ACTIONS = [];
                     <h3
                         class="mx-3 mt-2 pt-2 text-lg font-medium border-t border-base-200"
                     >
-                        Host
+                        {{ 'FORM.HOST' | translate }}
                     </h3>
                     <div class="px-2 flex items-center space-x-2" host>
                         <a-user-avatar [user]="event.organiser"></a-user-avatar>
@@ -266,7 +278,9 @@ const EMPTY_ACTIONS = [];
                     <div
                         class="mt-4 sm:p-4 sm:bg-base-100 rounded sm:m-2 sm:border border-base-200 flex-grow-[3] min-w-1/3 sm:w-[16rem]"
                     >
-                        <h3 class="mx-3 my-2 text-lg font-medium">Catering</h3>
+                        <h3 class="mx-3 my-2 text-lg font-medium">
+                            {{ 'CALENDAR_EVENT.CATERING' | translate }}
+                        </h3>
                         <div class="flex flex-col space-y-2">
                             <div
                                 order
@@ -276,24 +290,33 @@ const EMPTY_ACTIONS = [];
                                 <div class="flex items-center space-x-2 p-3">
                                     <div class="flex-1">
                                         <div class="text-sm">
-                                            Order at
                                             {{
-                                                order.deliver_at
-                                                    | date
-                                                        : 'MMM d, ' +
-                                                              time_format
+                                                'CALENDAR_EVENT.CATERING_ORDER_AT'
+                                                    | translate
+                                                        : {
+                                                              time:
+                                                                  order.deliver_at
+                                                                  | date
+                                                                      : 'MMM d, ' +
+                                                                            time_format,
+                                                          }
                                             }}
                                         </div>
                                         <div
                                             class="flex items-center space-x-2"
                                         >
                                             <div class="text-xs opacity-60">
-                                                {{ order.item_count }} item(s)
-                                                for
                                                 {{
-                                                    order.total_cost / 100
-                                                        | currency
-                                                            : currency_code
+                                                    'CALENDAR_EVENT.CATERING_ORDER_DETAILS'
+                                                        | translate
+                                                            : {
+                                                                  count: order.item_count,
+                                                                  cost:
+                                                                      order.total_cost /
+                                                                          100
+                                                                      | currency
+                                                                          : currency_code,
+                                                              }
                                                 }}
                                             </div>
                                             <div
@@ -349,10 +372,16 @@ const EMPTY_ACTIONS = [];
                                                 [matTooltip]="optionList(item)"
                                             >
                                                 {{
-                                                    item.option_list?.length ||
-                                                        '0'
+                                                    'CALENDAR_EVENT.CATERING_ORDER_OPTION_COUNT'
+                                                        | translate
+                                                            : {
+                                                                  count:
+                                                                      item
+                                                                          .option_list
+                                                                          ?.length ||
+                                                                      '0',
+                                                              }
                                                 }}
-                                                option(s)
                                             </span>
                                         </div>
                                         <div
@@ -400,7 +429,7 @@ const EMPTY_ACTIONS = [];
                     <h3
                         class="mx-3 text-lg font-medium border-t sm:border-none border-base-200"
                     >
-                        Notes
+                        {{ 'CALENDAR_EVENT.NOTES_HEADER' | translate }}
                     </h3>
                     <div
                         notes
@@ -417,7 +446,9 @@ const EMPTY_ACTIONS = [];
                         class="mt-4 sm:p-4 sm:bg-base-100 rounded sm:m-2 sm:border border-base-200 flex-grow-[3] min-w-1/3 sm:w-[16rem]"
                     >
                         <h3 class="mx-3 pt-2 text-lg font-medium">
-                            Assets ({{ event.valid_assets?.length || 0 }})
+                            {{ 'CALENDAR_EVENT.ASSETS_HEADER' | translate }} ({{
+                                event.valid_assets?.length || 0
+                            }})
                         </h3>
                         <div class="flex flex-col space-y-2">
                             <div
@@ -435,12 +466,16 @@ const EMPTY_ACTIONS = [];
                                 >
                                     <div class="flex-1 text-left">
                                         <div class="text-sm">
-                                            Requested for
                                             {{
-                                                request.deliver_at
-                                                    | date
-                                                        : 'MMM d, ' +
-                                                              time_format
+                                                'CALENDAR_EVENT.ASSETS_REQUESTED_FOR'
+                                                    | translate
+                                                        : {
+                                                              time:
+                                                                  request.deliver_at
+                                                                  | date
+                                                                      : 'MMM d, ' +
+                                                                            time_format,
+                                                          }
                                             }}
                                         </div>
                                     </div>
@@ -548,13 +583,17 @@ const EMPTY_ACTIONS = [];
                 >
                     <div class="flex items-center space-x-2 text-base pr-2">
                         <app-icon class="text-2xl">edit</app-icon>
-                        <div>Edit event</div>
+                        <div>
+                            {{ 'CALENDAR_EVENT.ACTION_EDIT' | translate }}
+                        </div>
                     </div>
                 </button>
                 <button mat-menu-item (click)="remove.emit()">
                     <div class="flex items-center space-x-2 text-base pr-2">
                         <app-icon class="text-2xl text-error">delete</app-icon>
-                        <div>Delete event</div>
+                        <div>
+                            {{ 'CALENDAR_EVENT.ACTION_DELETE' | translate }}
+                        </div>
                     </div>
                 </button>
                 <button
@@ -564,7 +603,9 @@ const EMPTY_ACTIONS = [];
                 >
                     <div class="flex items-center space-x-2 text-base pr-2">
                         <app-icon class="text-2xl">print</app-icon>
-                        <div>Print event</div>
+                        <div>
+                            {{ 'CALENDAR_EVENT.ACTION_PRINT' | translate }}
+                        </div>
                     </div>
                 </button>
                 <button
@@ -574,7 +615,12 @@ const EMPTY_ACTIONS = [];
                 >
                     <div class="flex items-center space-x-2 text-base pr-2">
                         <app-icon class="text-2xl text-error">delete</app-icon>
-                        <div>Delete Series</div>
+                        <div>
+                            {{
+                                'CALENDAR_EVENT.ACTION_DELETE_SERIES'
+                                    | translate
+                            }}
+                        </div>
                     </div>
                 </button>
                 <button
@@ -594,7 +640,7 @@ const EMPTY_ACTIONS = [];
     animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
     providers: [SpacePipe],
 })
-export class EventDetailsModalComponent {
+export class EventDetailsModalComponent implements OnInit {
     @Output() public action = new EventEmitter();
     @Output() public edit = new EventEmitter();
     @Output() public remove = new EventEmitter();
@@ -606,9 +652,9 @@ export class EventDetailsModalComponent {
     public hide_edit = false;
     public raw_body = '';
     public print = false;
-    public show_attendees: boolean = false;
+    public show_attendees = false;
     public readonly event = this._event;
-    public readonly no_edit_message =
+    public no_edit_message =
         'Editing bookings long than \n a day is not available';
     public features = [
         {
@@ -716,6 +762,10 @@ export class EventDetailsModalComponent {
         );
         this.raw_body = (doc.body.textContent || '').trim();
         this._load().then();
+    }
+
+    public ngOnInit() {
+        this.no_edit_message = i18n('CALENDAR_EVENT.NO_LONG_EDIT_MSG');
     }
 
     public get period() {

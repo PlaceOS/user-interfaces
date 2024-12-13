@@ -10,7 +10,9 @@ import { CustomTooltipData } from '@placeos/components';
         >
             <div class="flex items-center space-x-2 p-2" (click)="close()">
                 <app-icon class="text-2xl">arrow_back</app-icon>
-                <div class="">Display & Accessibility</div>
+                <div class="">
+                    {{ 'COMMON.CONTROLS_ACCESSIBILITY' | translate }}
+                </div>
             </div>
             <div
                 action
@@ -22,7 +24,9 @@ import { CustomTooltipData } from '@placeos/components';
                 >
                     <app-icon class="text-xl">mode_night</app-icon>
                 </div>
-                <div class="flex-1 text-sm">Dark Mode</div>
+                <div class="flex-1 text-sm">
+                    {{ 'COMMON.DARK_MODE' | translate }}
+                </div>
                 <mat-slide-toggle
                     [ngModel]="dark_mode"
                     (ngModelChange)="setDarkMode($event)"
@@ -37,7 +41,9 @@ import { CustomTooltipData } from '@placeos/components';
                 >
                     <app-icon class="text-xl">playlist_add</app-icon>
                 </div>
-                <div class="flex-1 text-sm">Large Accessibility Sizes</div>
+                <div class="flex-1 text-sm">
+                    {{ 'COMMON.TEXT_SIZE' | translate }}
+                </div>
                 <mat-slide-toggle
                     [ngModel]="accessible"
                     (ngModelChange)="applySetting('accessible', $event)"
@@ -45,7 +51,7 @@ import { CustomTooltipData } from '@placeos/components';
             </div>
             <ng-container *ngIf="accessible">
                 <div class="px-8 py-4 bg-base-200 text-center">
-                    Adjust your preferred reading size below.
+                    {{ 'COMMON.TEXT_SIZE_MSG' | translate }}
                 </div>
                 <div class="flex items-center px-4 space-x-4">
                     <span class="text-sm">A</span>

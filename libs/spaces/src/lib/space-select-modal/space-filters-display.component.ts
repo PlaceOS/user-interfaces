@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { EventFormService } from 'libs/events/src/lib/event-form.service';
@@ -17,7 +17,7 @@ import { SpaceFiltersComponent } from './space-filters.component';
                 class="flex-1 w-1/2"
                 (click)="editFilters()"
             >
-                Filters
+                {{ 'COMMON.FILTERS' | translate }}
             </button>
             <div class="flex items-center">
                 <button
@@ -28,7 +28,7 @@ import { SpaceFiltersComponent } from './space-filters.component';
                     [class.inverse]="view !== 'map'"
                     (click)="view = 'map'; viewChange.emit(view)"
                 >
-                    Map
+                    {{ 'COMMON.MAP' | translate }}
                 </button>
                 <button
                     btn
@@ -38,7 +38,7 @@ import { SpaceFiltersComponent } from './space-filters.component';
                     [class.inverse]="view !== 'list'"
                     (click)="view = 'list'; viewChange.emit(view)"
                 >
-                    List
+                    {{ 'COMMON.LIST' | translate }}
                 </button>
             </div>
         </section>
@@ -54,7 +54,7 @@ import { SpaceFiltersComponent } from './space-filters.component';
                 *ngIf="(options | async)?.features?.length > 1"
                 (click)="removeAllFeatures()"
             >
-                Clear Filters
+                {{ 'COMMON.FILTERS_CLEAR' | translate }}
             </button>
             <div filter-item zone *ngIf="location">
                 {{ location }}
@@ -67,10 +67,15 @@ import { SpaceFiltersComponent } from './space-filters.component';
                     {{ start | date: time_format }} &mdash;
                     {{ end | date: time_format }}
                 </ng-container>
-                <ng-container *ngIf="all_day">All Day</ng-container>
+                <ng-container *ngIf="all_day">
+                    {{ 'COMMON.ALL_DAY' | translate }}
+                </ng-container>
             </div>
             <div filter-item count>
-                Min. {{ (options | async)?.capacity || 2 }} People
+                {{
+                    'CALENDAR_EVENT.SPACE_SELECT_SIZE_X'
+                        | translate: { count: (options | async)?.capacity || 2 }
+                }}
             </div>
             <div filter-item *ngFor="let feat of (options | async)?.features">
                 <p class="truncate">{{ feat }}</p>
@@ -112,11 +117,14 @@ import { SpaceFiltersComponent } from './space-filters.component';
         `,
     ],
 })
-export class SpaceFiltersDisplayComponent extends AsyncHandler {
+export class SpaceFiltersDisplayComponent
+    extends AsyncHandler
+    implements OnInit
+{
     @Input() public view: 'map' | 'list' = 'list';
     @Output() public viewChange = new EventEmitter<'map' | 'list'>();
     public readonly options = this._event_form.options;
-    public location: string = '';
+    public location = '';
 
     public get all_day() {
         return this._event_form.form.value.all_day;

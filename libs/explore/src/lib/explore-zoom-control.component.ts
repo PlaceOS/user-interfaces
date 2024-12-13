@@ -10,7 +10,7 @@ import { ExploreStateService } from './explore-state.service';
             matRipple
             class="bg-base-100"
             (click)="zoomIn()"
-            matTooltip="Zoom In"
+            [matTooltip]="'EXPLORE.ZOOM_IN' | translate"
         >
             <app-icon>add</app-icon>
         </button>
@@ -20,7 +20,7 @@ import { ExploreStateService } from './explore-state.service';
             matRipple
             class="bg-base-100"
             (click)="zoomOut()"
-            matTooltip="Zoom Out"
+            [matTooltip]="'EXPLORE.ZOOM_OUT' | translate"
         >
             <app-icon>remove</app-icon>
         </button>
@@ -30,7 +30,7 @@ import { ExploreStateService } from './explore-state.service';
             matRipple
             class="bg-base-100"
             (click)="reset()"
-            matTooltip="Reset Zoom & Center"
+            [matTooltip]="'EXPLORE.ZOOM_RESET' | translate"
         >
             <app-icon>autorenew</app-icon>
         </button>

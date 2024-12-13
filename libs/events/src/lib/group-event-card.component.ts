@@ -43,7 +43,7 @@ import { CalendarEvent } from './event.class';
                 >
                     <p class="line-clamp-4">{{ raw_description }}</p>
                     <p *ngIf="!raw_description.trim()" class="opacity-30">
-                        No description
+                        {{ 'CALENDAR_EVENT.GROUP_NO_DESCRIPTION' | translate }}
                     </p>
                 </div>
                 <div class="flex items-center space-x-2 text-sm">
@@ -52,16 +52,20 @@ import { CalendarEvent } from './event.class';
                         {{ space.display_name || space.name || '' }}
                     </div>
                     <div *ngIf="is_onsite && !has_space" class="opacity-30">
-                        Room to be confirmed
+                        {{ 'CALENDAR_EVENT.GROUP_UNCONFIRMED' | translate }}
                     </div>
                     <div class="opacity-30" *ngIf="!is_onsite">
-                        Remote event
+                        {{ 'CALENDAR_EVENT.GROUP_REMOTE' | translate }}
                     </div>
                 </div>
                 <div class="flex items-center space-x-2 text-sm">
                     <app-icon class="text-info">people</app-icon>
                     <div class="">
-                        {{ event.attendees?.length || '0' }} attending
+                        {{
+                            'CALENDAR_EVENT.GROUP_ATTENDING'
+                                | translate
+                                    : { count: event.attendees?.length || '0' }
+                        }}
                     </div>
                 </div>
             </div>
@@ -86,7 +90,9 @@ import { CalendarEvent } from './event.class';
                     class="absolute top-0 left-0 rounded-br-xl py-2 pl-2 pr-4 space-x-2 bg-info text-info-content flex items-center text-sm"
                 >
                     <app-icon class="text-base">star</app-icon>
-                    <div class="uppercase">Featured</div>
+                    <div class="uppercase">
+                        {{ 'CALEDAR_EVENT.GROUP_FEATURED' | translate }}
+                    </div>
                 </div>
                 <div details class="flex px-8 py-4 space-x-4">
                     <div class="flex flex-col items-center">
@@ -111,7 +117,10 @@ import { CalendarEvent } from './event.class';
                                 *ngIf="!raw_description.trim()"
                                 class="opacity-30"
                             >
-                                No description
+                                {{
+                                    'CALENDAR_EVENT.GROUP_NO_DESCRIPTION'
+                                        | translate
+                                }}
                             </p>
                         </div>
                         <div class="flex items-center space-x-2 text-sm">
@@ -123,16 +132,27 @@ import { CalendarEvent } from './event.class';
                                 *ngIf="is_onsite && !has_space"
                                 class="opacity-30"
                             >
-                                Room to be confirmed
+                                {{
+                                    'CALENDAR_EVENT.GROUP_UNCONFIRMED'
+                                        | translate
+                                }}
                             </div>
                             <div class="opacity-30" *ngIf="!is_onsite">
-                                Remote event
+                                {{ 'CALENDAR_EVENT.GROUP_REMOTE' | translate }}
                             </div>
                         </div>
                         <div class="flex items-center space-x-2 text-sm">
                             <app-icon class="text-info">people</app-icon>
                             <div class="">
-                                {{ event.attendees?.length || '0' }} attending
+                                {{
+                                    'CALENDAR_EVENT.GROUP_ATTENDING'
+                                        | translate
+                                            : {
+                                                  count:
+                                                      event.attendees?.length ||
+                                                      '0',
+                                              }
+                                }}
                             </div>
                         </div>
                     </div>
@@ -140,7 +160,7 @@ import { CalendarEvent } from './event.class';
                 <div
                     class="absolute top-4 right-4 bg-secondary text-secondary-content rounded px-4 py-2 w-32 text-center truncate"
                 >
-                    View Details
+                    {{ 'COMMON.VIEW_DETAILS' | translate }}
                 </div>
             </button>
         </ng-template>

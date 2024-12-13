@@ -29,7 +29,7 @@ import { PanelStateService } from '../panel-state.service';
             >
                 <img class="w-full" [src]="qr_code" />
                 <div class="w-full text-lg" *ngIf="!custom_qr">
-                    {{ 'PANEL.SCAN_QR_CODE' | translate }}
+                    {{ 'APP.BOOKING_PANEL.SCAN_QR_CODE' | translate }}
                 </div>
             </div>
             <div
@@ -44,7 +44,7 @@ import { PanelStateService } from '../panel-state.service';
                 <div class="relative">
                     {{ (current | async)?.title }}
                     <span class="font-light">{{
-                        'PANEL.MEETING_IN_PROGRESS' | translate
+                        'APP.BOOKING_PANEL.MEETING_IN_PROGRESS' | translate
                     }}</span>
                 </div>
             </div>
@@ -63,7 +63,7 @@ import { PanelStateService } from '../panel-state.service';
                     class="text-4xl"
                     *ngIf="(current | async) && !hide_meeting_details"
                 >
-                    {{ 'PANEL.HOST' | translate }}
+                    {{ 'APP.BOOKING_PANEL.HOST' | translate }}
                     {{
                         (current | async)?.organiser?.name ||
                             (current | async)?.host

@@ -1,4 +1,10 @@
-import { Component, ElementRef, HostListener, ViewChild } from '@angular/core';
+import {
+    Component,
+    ElementRef,
+    HostListener,
+    OnInit,
+    ViewChild,
+} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
 
@@ -37,7 +43,7 @@ import { ExploreSearchService, SearchResult } from './explore-search.service';
                 class="flex-1 text-base border-none outline-none"
                 [(ngModel)]="search_str"
                 (ngModelChange)="setFilter($event)"
-                placeholder="Search for..."
+                [placeholder]="'COMMON.SEARCH' | translate"
                 (focus)="cancelClear()"
                 (blur)="clear()"
                 [matAutocomplete]="auto"
@@ -57,7 +63,7 @@ import { ExploreSearchService, SearchResult } from './explore-search.service';
                     *ngIf="!(results | async)?.length"
                     class="pointer-events-none"
                 >
-                    No matches found
+                    {{ 'COMMON.SEARCH_EMPTY' | transition }}
                 </mat-option>
                 <mat-option
                     *ngFor="let option of results | async | slice: 0 : 5"
@@ -106,7 +112,7 @@ import { ExploreSearchService, SearchResult } from './explore-search.service';
         `,
     ],
 })
-export class ExploreSearchComponent extends AsyncHandler {
+export class ExploreSearchComponent extends AsyncHandler implements OnInit {
     public show = false;
     public search_str = '';
     public right_size = false;

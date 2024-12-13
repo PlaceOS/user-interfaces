@@ -27,7 +27,7 @@ const SYS_ID_KEY = 'PLACEOS.ASSISTANT.system';
                 *ngIf="!loading; else load_state"
             >
                 <label for="system-id">
-                    {{ 'PANEL.BOOTSTRAP_LABEL' | translate }}
+                    {{ 'APP.BOOKING_PANEL.BOOTSTRAP_LABEL' | translate }}
                 </label>
                 <mat-form-field appearance="outline" class="w-full">
                     <input
@@ -66,7 +66,10 @@ const SYS_ID_KEY = 'PLACEOS.ASSISTANT.system';
                             !(space_list | async)?.length
                         "
                     >
-                        {{ 'PANEL.BOOTSTRAP_INPUT_PLACEHOLDER' | translate }}
+                        {{
+                            'APP.BOOKING_PANEL.BOOTSTRAP_INPUT_PLACEHOLDER'
+                                | translate
+                        }}
                     </mat-option>
                 </mat-autocomplete>
             </main>

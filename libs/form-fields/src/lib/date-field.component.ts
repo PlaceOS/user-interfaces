@@ -42,7 +42,9 @@ export enum TimezoneDiffRange {
                     @if (date) {
                         {{ date | date: date_format }}
                     } @else {
-                        <span class="opacity-30">No Date Selected</span>
+                        <span class="opacity-30">{{
+                            'FORM.DATE_EMPTY' | translate
+                        }}</span>
                     }
                 </div>
                 <div class="text-xs opacity-30 truncate" *ngIf="timezone && tz">

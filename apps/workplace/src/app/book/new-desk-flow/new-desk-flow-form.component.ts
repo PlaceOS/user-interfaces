@@ -7,6 +7,7 @@ import { Router } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
 import {
     getInvalidFields,
+    i18n,
     notifyError,
     SettingsService,
 } from '@placeos/common';
@@ -26,7 +27,7 @@ import { NewDeskFlowConfirmComponent } from './new-desk-flow-confirm.component';
                 <h2
                     class="w-full p-4 sm:py-4 sm:px-16 text-2xl font-medium border-b border-base-200"
                 >
-                    Book Desk
+                    {{ 'BOOKINGS.DESK_TITLE' | translate }}
                 </h2>
                 <new-desk-form-details [form]="form"></new-desk-form-details>
                 <div class="sm:mb-2 border-b border-base-200 w-full"></div>
@@ -41,7 +42,7 @@ import { NewDeskFlowConfirmComponent } from './new-desk-flow-confirm.component';
                         class="w-full sm:w-auto"
                         (click)="viewConfirm()"
                     >
-                        Confirm Desk
+                        {{ 'BOOKINGS.DESK_CONFIRM' | translate }}
                     </button>
                 </section>
             </div>
@@ -49,7 +50,7 @@ import { NewDeskFlowConfirmComponent } from './new-desk-flow-confirm.component';
     `,
 })
 export class NewDeskFlowFormComponent implements OnInit {
-    public sheet_ref: MatBottomSheetRef<any>;
+    public sheet_ref: MatBottomSheetRef<NewDeskFlowConfirmComponent>;
     public level = '';
     public levels = [];
 
@@ -69,9 +70,9 @@ export class NewDeskFlowFormComponent implements OnInit {
         }
         if (!this.form.valid)
             return notifyError(
-                `Some fields are invalid. [${getInvalidFields(this.form).join(
-                    ', ',
-                )}]`,
+                i18n('FORM.INVALID_FIELDS', {
+                    field_list: getInvalidFields(this.form).join(', '),
+                }),
             );
         this.sheet_ref = this._bottom_sheet.open(NewDeskFlowConfirmComponent);
         this.sheet_ref.instance.show_close = true;

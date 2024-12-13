@@ -52,9 +52,9 @@ export class DateRangeFieldComponent extends AsyncHandler {
     /** Latest date available the user is allowed to pick */
     @Input('to') public to_date: number;
     /** Index of the day to start the week on when displaying the calendar */
-    @Input() public week_start: number = 0;
+    @Input() public week_start = 0;
     /** Whether form control is disabled */
-    @Input() public disabled: boolean = false;
+    @Input() public disabled = false;
     @Input() public short = false;
 
     public readonly now = Date.now();

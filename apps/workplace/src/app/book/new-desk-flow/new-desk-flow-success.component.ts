@@ -18,36 +18,69 @@ import {
                 class="flex-1 flex flex-col items-center justify-center space-y-2 p-8"
             >
                 <h2 class="text-2xl font-medium text-center">
-                    {{ last_event.asset_name || last_event.asset_id
-                    }}{{ location }} Booked!
+                    {{
+                        'BOOKINGS.ITEM_BOOKED'
+                            | translate
+                                : {
+                                      name:
+                                          (last_event.asset_name ||
+                                              last_event.asset_id) + location,
+                                  }
+                    }}
                 </h2>
                 <img src="assets/icons/success.svg" />
                 <p class="text-center">
-                    Your
-                    <span group *ngIf="last_event?.attendees?.length">
-                        group of
-                        {{ last_event?.attendees?.length + 1 }}
-                    </span>
-                    desk{{ last_event?.attendees?.length ? 's' : '' }} has been
-                    successfully booked
-                    <span
-                        assets
-                        *ngIf="last_event?.extension_data?.assets?.length"
-                    >
-                        including
-                        {{ last_event?.extension_data?.assets?.length }}
-                        asset(s)
-                    </span>
-                    for {{ last_event.date | date: 'mediumDate' }}
-                    <span *ngIf="!last_event?.all_day">
-                        at {{ last_event.date | date: time_format }}-{{
-                            last_event.date + last_event.duration * 60 * 1000
-                                | date: time_format
-                        }}</span
-                    >.
+                    @let details =
+                        {
+                            date: last_event.date | date: 'mediumDate',
+                            time:
+                                last_event.date
+                                | date
+                                    : time_format +
+                                          ' - ' +
+                                          last_event.date +
+                                          last_event.duration * 60 * 1000
+                                | date: time_format,
+                            size: group_size,
+                        };
+                    @if (is_group) {
+                        @if (last_event?.all_day) {
+                            {{
+                                'BOOKINGS.DESK_SUCCESS_GROUP_ALLDAY'
+                                    | translate: details
+                            }}
+                        } @else {
+                            {{
+                                'BOOKINGS.DESK_SUCCESS_GROUP'
+                                    | translate: details
+                            }}
+                        }
+                    } @else {
+                        @if (last_event?.all_day) {
+                            {{
+                                'BOOKINGS.DESK_SUCCESS_LONE_ALLDAY'
+                                    | translate: details
+                            }}
+                        } @else {
+                            {{
+                                'BOOKINGS.DESK_SUCCESS_LONE'
+                                    | translate: details
+                            }}
+                        }
+                    }
+                </p>
+                <p *ngIf="last_event?.extension_data?.assets?.length">
+                    {{
+                        'BOOKINGS.ASSETS_BOOKED'
+                            | translate
+                                : {
+                                      count: last_event?.extension_data?.assets
+                                          ?.length,
+                                  }
+                    }}
                 </p>
                 <p *ngIf="true">
-                    Please allow up to 5 minutes for you booking to be approved.
+                    {{ 'BOOKINGS.SUCCESS_WAIT_APPROVED' | translate }}
                 </p>
                 <div
                     class="flex flex-col items-center space-y-4 p-4 relative"
@@ -63,7 +96,7 @@ import {
                         rel="noopener noreferer"
                     >
                         <img src="assets/icons/outlook.svg" class="w-6" />
-                        <span>Add to Outlook</span>
+                        <span>{{ 'BOOKINGS.LINK_OUTLOOK' | translate }}</span>
                     </a>
                     <a
                         btn
@@ -75,7 +108,7 @@ import {
                         rel="noopener noreferer"
                     >
                         <img src="assets/icons/gcal.svg" class="w-6" />
-                        <span>Add to Google Calendar</span>
+                        <span>{{ 'BOOKINGS.LINK_GOOGLE' | translate }}</span>
                     </a>
                     <a
                         btn
@@ -87,7 +120,7 @@ import {
                         rel="noopener noreferer"
                     >
                         <app-icon class="text-xl">download</app-icon>
-                        <span>Download iCal File</span>
+                        <span>{{ 'BOOKINGS.LINK_ICAL' | translate }}</span>
                     </a>
                 </div>
             </main>
@@ -101,7 +134,7 @@ import {
                     class="w-full max-w-[32rem] mx-auto"
                     [routerLink]="['/']"
                 >
-                    Great, thanks!
+                    {{ 'BOOKINGS.FINISHED' | translate }}
                 </a>
             </footer>
         </div>
@@ -117,6 +150,14 @@ export class NewDeskFlowSuccessComponent {
         return desk.zone
             ? `, ${desk.zone.display_name || desk.zone.name || desk.zone.id}`
             : '';
+    }
+
+    public get is_group() {
+        return this.group_size > 1;
+    }
+
+    public get group_size() {
+        return (this.last_event?.attendees?.length || 0) + 1;
     }
 
     public get last_event() {

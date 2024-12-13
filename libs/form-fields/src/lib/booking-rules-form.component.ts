@@ -10,6 +10,7 @@ import {
     BookingRuleset,
     SettingsService,
     getInvalidFields,
+    i18n,
     notifyError,
     randomString,
 } from '@placeos/common';
@@ -31,10 +32,14 @@ import {
         <div class="flex flex-col space-y-2" [formGroup]="form">
             <div class="flex items-center space-x-2">
                 <div class="flex flex-col flex-1">
-                    <label for="zone">Zone<span>*</span>:</label>
+                    <label for="zone"
+                        >{{ 'COMMON.ZONE' | translate }}<span>*</span>:</label
+                    >
                     <mat-form-field appearance="outline">
                         <mat-select name="zone" formControlName="zone">
-                            <mat-option value="*">Any Zone</mat-option>
+                            <mat-option value="*">{{
+                                'COMMON.ZONE_ANY' | translate
+                            }}</mat-option>
                             <mat-option
                                 *ngFor="let zone of building_zones | async"
                                 [value]="zone.id"
@@ -42,11 +47,15 @@ import {
                                 {{ zone.display_name || zone.name }}
                             </mat-option>
                         </mat-select>
-                        <mat-error>A valid zone is required</mat-error>
+                        <mat-error>{{
+                            'COMMON.ZONE_REQUIRED' | translate
+                        }}</mat-error>
                     </mat-form-field>
                 </div>
                 <div class="flex flex-col flex-1">
-                    <label for="name">Name<span>*</span>:</label>
+                    <label for="name"
+                        >{{ 'FORM.NAME' | translate }}<span>*</span></label
+                    >
                     <mat-form-field appearance="outline">
                         <input
                             matInput
@@ -54,7 +63,9 @@ import {
                             formControlName="name"
                             placeholder="Ruleset Name"
                         />
-                        <mat-error>A valid name is required</mat-error>
+                        <mat-error>{{
+                            'FORM.NAME_REQUIRED' | translate
+                        }}</mat-error>
                     </mat-form-field>
                 </div>
             </div>
@@ -63,9 +74,9 @@ import {
                     <mat-checkbox
                         name="hidden"
                         formControlName="hidden"
-                        matTooltip="Prevent user from booking the resource if the conditions match"
+                        [matTooltip]="'BOOKINGS.PREVENT_INFO' | translate"
                     >
-                        Prevent Bookings
+                        {{ 'BOOKINGS.PREVENT' | translate }}
                     </mat-checkbox>
                 </div>
                 <div class="flex flex-col flex-1">
@@ -73,45 +84,54 @@ import {
                         name="auto_approve"
                         formControlName="auto_approve"
                         *ngIf="!form.value.rules.hidden"
-                        matTooltip="Whether resource should be auto-approved when booking if the conditions match"
+                        [matTooltip]="'BOOKINGS.AUTO_APPROVE_INFO' | translate"
                     >
-                        Auto Approve Bookings
+                        {{ 'BOOKINGS.AUTO_APPROVE' | translate }}
                     </mat-checkbox>
                 </div>
             </div>
             <div class="flex flex-col">
-                <label for="zone">Rule Conditions:</label>
+                <label for="zone">{{
+                    'BOOKINGS.CONDITIONS' | translate
+                }}</label>
                 <mat-form-field appearance="outline">
                     <mat-select
                         name="zone"
                         multiple
                         [(ngModel)]="available_conditions"
                         [ngModelOptions]="{ standalone: true }"
-                        placeholder="No Conditions. Match all resources in zone"
+                        [placeholder]="
+                            'BOOKINGS.CONDITIONS_PLACEHOLDER' | translate
+                        "
                     >
-                        <mat-option value="groups">Groups</mat-option>
-                        <mat-option value="locations">Locations</mat-option>
+                        <mat-option value="groups">
+                            {{ 'BOOKINGS.CONDITION_GROUPS' | translate }}
+                        </mat-option>
+                        <mat-option value="locations">
+                            {{ 'BOOKINGS.CONDITION_LOCATION' | translate }}
+                        </mat-option>
                         <mat-option value="min_length">
-                            Minimum Length
+                            {{ 'BOOKINGS.CONDITION_MIN_LENGTH' | translate }}
                         </mat-option>
                         <mat-option value="max_length">
-                            Maximum Length
+                            {{ 'BOOKINGS.CONDITION_MAX_LENGTH' | translate }}
                         </mat-option>
                         <mat-option value="is_before">
-                            Is Within Days
+                            {{ 'BOOKINGS.CONDITION_WITHIN' | translate }}
                         </mat-option>
                         <mat-option value="is_after">
-                            Is After Days
+                            {{ 'BOOKINGS.CONDITION_AFTER' | translate }}
                         </mat-option>
                         <mat-option value="is_between">
-                            Is Between Hours
+                            {{ 'BOOKINGS.CONDITION_BETWEEN_HOURS' | translate }}
                         </mat-option>
                         <mat-option value="is_period">
-                            Between Dates
+                            {{ 'BOOKINGS.CONDITION_BETWEEN_DATES' | translate }}
                         </mat-option>
-                        <mat-option value="resource_ids">Resources</mat-option>
+                        <mat-option value="resource_ids">
+                            {{ 'BOOKINGS.CONDITION_RESOURCES' | translate }}
+                        </mat-option>
                     </mat-select>
-                    <mat-error>A valid zone is required</mat-error>
                 </mat-form-field>
             </div>
             <div
@@ -119,14 +139,18 @@ import {
                 *ngIf="available_conditions.includes('groups')"
                 formGroupName="conditions"
             >
-                <label for="groups"
-                    >{{ form.value.rules.hidden ? 'Prevent' : 'Allow' }} Booking
-                    for Groups:</label
-                >
+                <label for="groups">
+                    {{
+                        (form.value.rules.hidden
+                            ? 'BOOKINGS.GROUPS_DENY'
+                            : 'BOOKINGS.GROUP_ALLOW'
+                        ) | translate
+                    }}
+                </label>
                 <item-list-field
                     name="groups"
                     formControlName="groups"
-                    placeholder="User groups"
+                    [placeholder]="'BOOKINGS.GROUPS' | translate"
                 ></item-list-field>
             </div>
             <div
@@ -134,11 +158,13 @@ import {
                 *ngIf="available_conditions.includes('locations')"
                 formGroupName="conditions"
             >
-                <label for="locations">Locations:</label>
+                <label for="locations">
+                    {{ 'BOOKINGS.CONDITION_LOCATION' | translate }}
+                </label>
                 <item-list-field
                     name="locations"
                     formControlName="locations"
-                    placeholder="Locations"
+                    [placeholder]="'BOOKINGS.CONDITION_LOCATION' | translate"
                 ></item-list-field>
             </div>
             <div
@@ -153,12 +179,14 @@ import {
                     class="flex flex-col flex-1"
                     *ngIf="available_conditions.includes('min_length')"
                 >
-                    <label for="min_length"
-                        >{{
-                            form.value.rules.hidden ? 'Prevent' : 'Allow'
+                    <label for="min_length">
+                        {{
+                            (form.value.rules.hidden
+                                ? 'BOOKINGS.MIN_LENGTH_DENY'
+                                : 'BOOKINGS.MIN_LENGTH_ALLOW'
+                            ) | translate
                         }}
-                        booking with a minimum length of:</label
-                    >
+                    </label>
                     <a-duration-field
                         name="min_length"
                         [min]="15"
@@ -171,12 +199,14 @@ import {
                     class="flex flex-col flex-1"
                     *ngIf="available_conditions.includes('max_length')"
                 >
-                    <label for="max_length"
-                        >{{
-                            form.value.rules.hidden ? 'Prevent' : 'Allow'
+                    <label for="max_length">
+                        {{
+                            (form.value.rules.hidden
+                                ? 'BOOKINGS.MAX_LENGTH_DENY'
+                                : 'BOOKINGS.MAX_LENGTH_ALLOW'
+                            ) | translate
                         }}
-                        booking with a maximum length up to:</label
-                    >
+                    </label>
                     <a-duration-field
                         name="max_length"
                         [min]="form.value.conditions.min_length || 15"
@@ -191,10 +221,14 @@ import {
                 *ngIf="available_conditions.includes('is_before')"
                 formGroupName="conditions"
             >
-                <label for="is-before"
-                    >{{ form.value.rules.hidden ? 'Prevent' : 'Allow' }} booking
-                    before:</label
-                >
+                <label for="is-before">
+                    {{
+                        (form.value.rules.hidden
+                            ? 'BOOKINGS.BEFORE_DENY'
+                            : 'BOOKINGS.BEFORE_ALLOW'
+                        ) | translate
+                    }}
+                </label>
                 <mat-form-field appearance="outline" class="flex-1">
                     <mat-select name="is-before" formControlName="is_before">
                         <mat-option
@@ -204,7 +238,9 @@ import {
                             {{ time }}
                         </mat-option>
                     </mat-select>
-                    <mat-error>A valid time is required</mat-error>
+                    <mat-error>{{
+                        'BOOKINGS.BEFORE_REQUIRED' | translate
+                    }}</mat-error>
                 </mat-form-field>
             </div>
             <div
@@ -212,10 +248,14 @@ import {
                 *ngIf="available_conditions.includes('is_after')"
                 formGroupName="conditions"
             >
-                <label for="is-after"
-                    >{{ form.value.rules.hidden ? 'Prevent' : 'Allow' }} booking
-                    after:</label
-                >
+                <label for="is-after">
+                    {{
+                        (form.value.rules.hidden
+                            ? 'BOOKINGS.AFTER_DENY'
+                            : 'BOOKINGS.AFTER_ALLOW'
+                        ) | translate
+                    }}
+                </label>
                 <mat-form-field appearance="outline" class="flex-1">
                     <mat-select name="is-after" formControlName="is_after">
                         <mat-option
@@ -225,7 +265,9 @@ import {
                             {{ time }}
                         </mat-option>
                     </mat-select>
-                    <mat-error>A valid time is required</mat-error>
+                    <mat-error>
+                        {{ 'BOOKINGS.AFTER_REQUIRED' | translate }}
+                    </mat-error>
                 </mat-form-field>
             </div>
             <div
@@ -233,10 +275,14 @@ import {
                 *ngIf="available_conditions.includes('is_period')"
                 formGroupName="conditions"
             >
-                <label for="is-after"
-                    >{{ form.value.rules.hidden ? 'Prevent' : 'Allow' }} booking
-                    between dates:</label
-                >
+                <label for="is-after">
+                    {{
+                        (form.value.rules.hidden
+                            ? 'BOOKINGS.BETWEEN_DATES_ALLOW'
+                            : 'BOOKINGS.BETWEEN_DATES_DENY'
+                        ) | translate
+                    }}
+                </label>
                 <div class="flex items-center space-x-2">
                     <a-date-field
                         class="flex-1"
@@ -270,10 +316,14 @@ import {
                 *ngIf="available_conditions.includes('is_between')"
                 formGroupName="conditions"
             >
-                <label for="is_between"
-                    >{{ form.value.rules.hidden ? 'Prevent' : 'Allow' }} booking
-                    between:</label
-                >
+                <label for="is_between">
+                    {{
+                        (form.value.rules.hidden
+                            ? 'BOOKINGS.BETWEEN_HOURS_ALLOW'
+                            : 'BOOKINGS.BETWEEN_HOURS_DENY'
+                        ) | translate
+                    }}
+                </label>
                 <div class="flex items-center space-x-2 w-full">
                     <mat-form-field appearance="outline" class="flex-1">
                         <mat-select
@@ -323,7 +373,9 @@ import {
                                 </mat-option>
                             </ng-container>
                         </mat-select>
-                        <mat-error>A valid end time is required</mat-error>
+                        <mat-error>{{
+                            'BOOKINGS.BETWEEN_HOURS_REQUIRED' | translate
+                        }}</mat-error>
                     </mat-form-field>
                 </div>
             </div>
@@ -333,13 +385,17 @@ import {
                 formGroupName="conditions"
             >
                 <label for="resource_ids">
-                    {{ form.value.rules.hidden ? 'Prevent' : 'Allow' }} booking
-                    these resources:
+                    {{
+                        (form.value.rules.hidden
+                            ? 'BOOKINGS.RESOURCES_ALLOW'
+                            : 'BOOKINGS.RESOURCES_DENY'
+                        ) | translate
+                    }}
                 </label>
                 <item-list-field
                     name="resource_ids"
                     formControlName="resource_ids"
-                    placeholder="Resource IDs"
+                    [placeholder]="'BOOKINGS.RESOURCES_PLACEHOLDER' | translate"
                 ></item-list-field>
             </div>
         </div>
@@ -364,11 +420,11 @@ export class BookingRulesFormComponent {
         filter((_) => !!_),
         switchMap((bld) =>
             queryZones({ parent_id: bld.id }).pipe(
-                catchError(() => of({ data: [] }))
-            )
+                catchError(() => of({ data: [] })),
+            ),
         ),
         map((res) => res.data),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     public readonly time_blocks = new Array(24 * 4).fill(0).map((_, idx) => {
@@ -386,10 +442,12 @@ export class BookingRulesFormComponent {
         '3 Days',
         '4 Days',
         '5 Days',
+        '6 Days',
         '1 Week',
         '2 Weeks',
         '3 Weeks',
         '4 Weeks',
+        '5 Weeks',
         '1 Month',
         '2 Months',
         '3 Months',
@@ -428,13 +486,13 @@ export class BookingRulesFormComponent {
 
     constructor(
         private _org: OrganisationService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {}
 
     public ngOnChanges(changes: SimpleChanges): void {
         if (changes.ruleset && this.ruleset) {
             this.available_conditions = Object.keys(
-                this.ruleset.conditions || {}
+                this.ruleset.conditions || {},
             );
             this.form.patchValue(this.ruleset);
         }
@@ -469,9 +527,9 @@ export class BookingRulesFormComponent {
     public post(): void {
         if (!this.form.valid) {
             return notifyError(
-                `Some form fields are invalid. [${getInvalidFields(
-                    this.form
-                ).join(', ')}]`
+                i18n('FORM.INVALID_FIELDS', {
+                    field_list: getInvalidFields(this.form).join(', '),
+                }),
             );
         }
         const value = this.form.getRawValue();

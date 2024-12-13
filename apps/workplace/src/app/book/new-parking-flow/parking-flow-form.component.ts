@@ -23,7 +23,12 @@ import { take } from 'rxjs/operators';
                 <h2
                     class="w-full p-4 sm:py-4 sm:px-16 text-2xl font-medium border-b border-base-200"
                 >
-                    {{ form.value.id ? 'Edit' : 'Book' }} Parking Reservation
+                    {{
+                        (form.value.id
+                            ? 'APP.WORKPLACE.PARKING_EDIT_HEADER'
+                            : 'APP.WORKPLACE.PARKING_NEW_HEADER'
+                        ) | translate
+                    }}
                 </h2>
                 <form
                     class="p-0 sm:py-4 sm:px-16 divide-y divide-base-200 space-y-2"
@@ -36,7 +41,9 @@ import { take } from 'rxjs/operators';
                             >
                                 1
                             </div>
-                            <div class="text-xl">Details</div>
+                            <div class="text-xl">
+                                {{ 'BOOKINGS.DETAILS' | translate }}
+                            </div>
                             <div class="flex-1 w-px"></div>
                             <button
                                 icon
@@ -69,7 +76,9 @@ import { take } from 'rxjs/operators';
                             >
                                 2
                             </div>
-                            <div class="text-xl">Space</div>
+                            <div class="text-xl">
+                                {{ 'RESOURCE.PARKING_SPACE' | translate }}
+                            </div>
                             <div class="flex-1 w-px"></div>
                             <button
                                 icon
@@ -102,7 +111,7 @@ import { take } from 'rxjs/operators';
                             class="mb-2 sm:mb-0 w-full sm:w-auto"
                             (click)="viewConfirm()"
                         >
-                            Confirm Reservation
+                            {{ 'BOOKINGS.PARKING_CONFIRM' | translate }}
                         </button>
                         <button
                             btn
@@ -111,7 +120,10 @@ import { take } from 'rxjs/operators';
                             class="inverse w-full sm:w-auto"
                             (click)="clearForm()"
                         >
-                            {{ form.value.id ? 'Reset' : 'Clear' }} Form
+                            {{
+                                (form.value.id ? 'FORM.RESET' : 'FORM.CLEAR')
+                                    | translate
+                            }}
                         </button>
                     </section>
                 </form>

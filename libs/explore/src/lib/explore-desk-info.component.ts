@@ -99,10 +99,10 @@ export class ExploreDeskInfoComponent implements OnInit {
 
     constructor(
         @Inject(MAP_FEATURE_DATA) private _details: DeskInfoData,
-        private _element: ElementRef<HTMLElement>
+        private _element: ElementRef<HTMLElement>,
     ) {}
 
-    public ngOnInit(tries: number = 0) {
+    public ngOnInit(tries = 0) {
         if (tries > 10) return;
         setTimeout(() => {
             const parent =

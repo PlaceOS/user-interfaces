@@ -23,7 +23,9 @@ import { map } from 'rxjs/operators';
                 <div
                     class="flex items-center justify-between bg-base-100 w-full p-2 border-b border-base-300"
                 >
-                    <h3 class="pl-4">Virtual Assistant</h3>
+                    <h3 class="pl-4">
+                        {{ 'APP.WORKPLACE.CHAT_TITLE' | translate }}
+                    </h3>
                     <button icon matRipple (click)="toggleChat()">
                         <app-icon>close</app-icon>
                     </button>
@@ -34,8 +36,12 @@ import { map } from 'rxjs/operators';
                     >
                         <app-icon class="text-8xl">forum</app-icon>
                         <p class="text-center text-xl">
-                            Hi {{ user.name }}. <br />
-                            Welcome to the virtual assistant.
+                            {{
+                                'APP.WORKPLACE.CHAT_HELLO'
+                                    | translate: { name: user.name }
+                            }}
+                            <br />
+                            {{ 'APP.WORKPLACE.CHAT_WELCOME' | translate }}
                         </p>
                     </div>
                     <div
@@ -59,7 +65,7 @@ import { map } from 'rxjs/operators';
                                 class="text-sm text-base-content opacity-60 px-2 py-1"
                                 *ngIf="message.user_id !== user.id"
                             >
-                                Assistant
+                                {{ 'APP.WORKPLACE.CHAT_ASSISTANT' | translate }}
                             </div>
                             <div
                                 class="text-xs  text-base-content opacity-40 px-2 py-1"
@@ -120,14 +126,18 @@ import { map } from 'rxjs/operators';
                     <div
                         class="h-2 w-2 bg-neutral rounded-full animate-bounce anim-delay-2"
                     ></div>
-                    <span class="sr-only">Waiting for reply...</span>
+                    <span class="sr-only">{{
+                        'APP.WORKPLACE.CHAT_WAITING' | translate
+                    }}</span>
                 </div>
                 <div
                     class="flex bg-base-100 focus-within:outline outline-info border-t border-base-300 max-h-[10rem] overflow-y-auto"
                 >
                     <textarea
                         #input
-                        placeholder="New message..."
+                        [placeholder]="
+                            'APP.WORKPLACE.CHAT_MESSAGE_PLACEHOLDER' | translate
+                        "
                         class="p-4 flex-1 w-1/2 focus:outline-none resize-none overflow-hidden"
                         [style.height]="height + 'px'"
                         [(ngModel)]="message"
@@ -180,7 +190,9 @@ export class ChatComponent extends AsyncHandler implements OnInit {
     public readonly messages = this._chat.messages;
     public readonly progress = this._chat.progress;
     public readonly waiting = this._chat.messages.pipe(
-        map((_) => _.length !== 0 && _[_.length - 1]?.user_id === this.user?.id)
+        map(
+            (_) => _.length !== 0 && _[_.length - 1]?.user_id === this.user?.id,
+        ),
     );
 
     public get can_show() {
@@ -197,7 +209,7 @@ export class ChatComponent extends AsyncHandler implements OnInit {
 
     constructor(
         private _settings: SettingsService,
-        private _chat: ChatService
+        private _chat: ChatService,
     ) {
         super();
     }
@@ -205,26 +217,26 @@ export class ChatComponent extends AsyncHandler implements OnInit {
     public ngOnInit(): void {
         this.subscription(
             'current_user',
-            current_user.subscribe((user) => (this.user = user))
+            current_user.subscribe((user) => (this.user = user)),
         );
         this.subscription(
             'hint',
-            this.hint.subscribe(() => this.scrollToBottom(500))
+            this.hint.subscribe(() => this.scrollToBottom(500)),
         );
         this.subscription(
             'messages',
-            this.messages.subscribe(() => this.scrollToBottom())
+            this.messages.subscribe(() => this.scrollToBottom()),
         );
         this.subscription(
             'progress',
             this.progress.subscribe((i) =>
-                i ? this.scrollToBottom() : (this.show_info = false)
-            )
+                i ? this.scrollToBottom() : (this.show_info = false),
+            ),
         );
         this.interval(
             'offset',
             () => (this.offset = this.offset ? 0 : 1),
-            20 * 1000
+            20 * 1000,
         );
     }
 
@@ -254,7 +266,7 @@ export class ChatComponent extends AsyncHandler implements OnInit {
                         this._container_el.nativeElement.scrollHeight;
                 }
             },
-            delay
+            delay,
         );
     }
 }

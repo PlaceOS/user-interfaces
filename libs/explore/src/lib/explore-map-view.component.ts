@@ -7,6 +7,7 @@ import { Observable } from 'rxjs';
 
 import {
     AsyncHandler,
+    i18n,
     notifyError,
     SettingsService,
     unique,
@@ -53,7 +54,9 @@ const EMPTY = [];
                     [ngModel]="!(options | async)?.disable?.includes('zones')"
                     (ngModelChange)="toggleZones($event)"
                 ></mat-slide-toggle>
-                <label for="zones" class="mb-0">Areas</label>
+                <label for="zones" class="mb-0">{{
+                    'EXPLORE.AREAS' | translate
+                }}</label>
             </div>
         </div>
         <div
@@ -61,7 +64,7 @@ const EMPTY = [];
             *ngIf="show_legend && legend.length"
             class="absolute bottom-2 left-2 p-2 rounded bg-base-100 border border-base-200"
         >
-            <h3 class="mb-2 font-medium">Legend</h3>
+            <h3 class="mb-2 font-medium">{{ 'EXPLORE.LEGEND' | translate }}</h3>
             <div
                 class="flex items-center space-x-2"
                 *ngFor="let pair of legend"
@@ -184,12 +187,18 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
                     }
                     if (!user)
                         return notifyError(
-                            `Unable to user details for ${params.get('user')}`,
+                            i18n('EXPLORE.LOCATE_USER_FAILED', {
+                                name: params.get('user'),
+                            }),
                         );
                     this.locateUser(
                         user instanceof Array ? user[0] : user,
                     ).catch((_) => {
-                        notifyError(`Unable to locate ${params.get('user')}`);
+                        notifyError(
+                            i18n('EXPLORE.LOCATE_USER_FAILED', {
+                                name: params.get('user'),
+                            }),
+                        );
                         this._router.navigate([], {
                             relativeTo: this._route,
                             queryParams: {},
@@ -237,7 +246,8 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
 
     private async locateSpace(id: string) {
         const space = await this._space_pipe.transform(id);
-        if (!space) return notifyError('Unable to load space details.');
+        if (!space)
+            return notifyError(i18n('EXPLORE.LOCATE_SPACE_DETAILS_FAILED'));
         this._state.setLevel(this._org.levelWithID(space.zones)?.id);
         const feature: any = {
             track_id: `locate-${space.id}`,
@@ -255,8 +265,7 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
 
     private async locateUser(user: User) {
         let locate_details: any = this._org.binding('location_services');
-        if (!locate_details)
-            throw 'Location services is not setup for this application.';
+        if (!locate_details) throw i18n('EXPLORE.LOCATE_SERVICE_UNAVAILABLE');
         if (typeof locate_details === 'string') {
             locate_details = {
                 system_id: locate_details,
@@ -277,7 +286,7 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
                 locate_details.priority.indexOf(b.type),
         );
         if (!locations?.length) {
-            throw 'No locations for the given user';
+            throw i18n('EXPLORE.LOCATE_USER_NOT_FOUND');
         }
         this._state.setLevel(this._org.levelWithID([locations[0]?.level])?.id);
         const pos: any = locations[0].position;
@@ -301,7 +310,7 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
                     : MapPinComponent,
             z_index: 99,
             data: {
-                message: `${user.name} is here`,
+                message: i18n('EXPLORE.LOCATE_USER', { name: user.name }),
                 radius: locations[0].variance,
                 last_seen: locations[0].last_seen,
             },

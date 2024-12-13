@@ -7,7 +7,7 @@ import { Space } from '../space.class';
 @Component({
     selector: `space-list`,
     template: `
-        <h3 class="font-bold">Results</h3>
+        <h3 class="font-bold">{{ 'COMMON.RESULTS' | translate }}</h3>
         <p count class="text-sm opacity-60 mb-4">
             {{ (available_spaces | async)?.length || 0 }} result(s) found
         </p>
@@ -128,9 +128,15 @@ import { Space } from '../space.class';
                                 <app-icon class="text-info">people</app-icon>
                                 <p>
                                     {{
-                                        space.capacity < 1 ? 2 : space.capacity
+                                        'CALENDAR_EVENT.CAPACITY_COUNT'
+                                            | translate
+                                                : {
+                                                      count:
+                                                          space.capacity < 1
+                                                              ? 2
+                                                              : space.capacity,
+                                                  }
                                     }}
-                                    People
                                 </p>
                             </div>
                         </div>
@@ -158,7 +164,7 @@ import { Space } from '../space.class';
                 class="p-16 flex flex-col items-center justify-center space-y-2"
             >
                 <p class="opacity-30 text-center">
-                    No available spaces for selected time and/or filters
+                    {{ 'CALENDAR_EVENT.SPACE_SELECT_EMPTY' | translate }}
                 </p>
             </div>
         </ng-template>
@@ -168,7 +174,9 @@ import { Space } from '../space.class';
                 class="p-16 flex flex-col items-center justify-center space-y-2"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
-                <p class="opacity-30">Finding available spaces...</p>
+                <p class="opacity-30">
+                    {{ 'CALENDAR_EVENT.SPACE_SELECT_LOADING' | translate }}
+                </p>
             </div>
         </ng-template>
     `,

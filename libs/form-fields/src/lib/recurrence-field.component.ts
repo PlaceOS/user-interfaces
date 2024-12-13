@@ -1,4 +1,10 @@
-import { Component, forwardRef, Input, SimpleChanges } from '@angular/core';
+import {
+    Component,
+    forwardRef,
+    Input,
+    OnChanges,
+    SimpleChanges,
+} from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 
@@ -15,15 +21,29 @@ import { SettingsService } from 'libs/common/src/lib/settings.service';
             <mat-select
                 [ngModel]="value._pattern"
                 (ngModelChange)="setSimple($event)"
-                placeholder="Doesn't repeat"
+                [placeholder]="'FORM.RECURRENCE_NONE' | translate"
             >
-                <mat-option value="none">Doesn't repeat</mat-option>
-                <mat-option value="daily">Daily</mat-option>
+                <mat-option value="none">{{
+                    'FORM.RECURRENCE_NONE' | translate
+                }}</mat-option>
+                <mat-option value="daily">{{
+                    'FORM.RECURRENCE_DAILY' | translate
+                }}</mat-option>
                 <mat-option value="weekly">
-                    Weekly on {{ date | date: 'EEEE' }}
+                    {{
+                        'FORM.RECURRENCE_WEEKLY_ON'
+                            | translate: { day: date | date: 'EEEE' }
+                    }}
                 </mat-option>
                 <mat-option value="monthly">
-                    {{ instance_of_month }} {{ date | date: 'EEEE' }} of Month
+                    {{
+                        'FORM.RECURRENCE_MONTH_INSTANCE'
+                            | translate
+                                : {
+                                      index: instance_of_month,
+                                      day: date | date: 'EEEE',
+                                  }
+                    }}
                 </mat-option>
                 <!-- <mat-option value="yearly">
                     Anually on {{ date | date: 'LLLL dd' }}
@@ -38,7 +58,7 @@ import { SettingsService } from 'libs/common/src/lib/settings.service';
                     value="custom"
                     (click)="openCustomRecurrenceModal()"
                 >
-                    Custom...
+                    {{ 'FORM.RECURRENCE_CUSTOM' | translate }}
                 </mat-option>
             </mat-select>
         </mat-form-field>
@@ -59,7 +79,9 @@ import { SettingsService } from 'libs/common/src/lib/settings.service';
         },
     ],
 })
-export class RecurrenceFieldComponent implements ControlValueAccessor {
+export class RecurrenceFieldComponent
+    implements ControlValueAccessor, OnChanges
+{
     /** Size of a single step */
     @Input() public date = Date.now();
     public instance_of_month: string;
@@ -73,7 +95,7 @@ export class RecurrenceFieldComponent implements ControlValueAccessor {
 
     constructor(
         private _dialog: MatDialog,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {}
 
     public ngOnChanges(changes: SimpleChanges) {

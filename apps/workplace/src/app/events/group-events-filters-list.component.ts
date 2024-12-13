@@ -11,8 +11,16 @@ import { map, take, tap } from 'rxjs/operators';
         >
             <div class="flex items-center justify-between space-x-2 mb-4">
                 <div>
-                    {{ (this_period | async) ? 'This' : 'Upcoming' }}
-                    {{ (period | async) === 'week' ? 'Week' : 'Month' }}
+                    {{
+                        ((this_period | async)
+                            ? (period | async) === 'week'
+                                ? 'COMMON.WEEK_THIS'
+                                : 'COMMON.MONTH_THIS'
+                            : (period | async) === 'week'
+                              ? 'COMMON.WEEK_UPCOMING'
+                              : 'COMMON.MONTH_UPCOMING'
+                        ) | translate
+                    }}
                 </div>
             </div>
             <div class="flex flex-wrap">
@@ -46,14 +54,14 @@ export class GroupEventsFiltersListComponent {
                 Date.now() >= startOfDay(date).valueOf() &&
                 Date.now() < endOfDay(end || date).valueOf()
             );
-        })
+        }),
     );
     public readonly period = this._state.options.pipe(
         map(({ date, end }) =>
             Math.abs(differenceInDays(date, end || Date.now())) > 7
                 ? 'month'
-                : 'week'
-        )
+                : 'week',
+        ),
     );
 
     constructor(private _state: GroupEventsStateService) {}

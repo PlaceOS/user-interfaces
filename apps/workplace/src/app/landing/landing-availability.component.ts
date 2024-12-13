@@ -13,13 +13,15 @@ import { LandingStateService } from './landing-state.service';
                 class="sm:text-lg font-medium mb-2 sm:mb-4 px-4"
                 *ngIf="!hide_rooms || !hide_spaces"
             >
-                {{ 'WPA.AVAILABLE_NOW' | translate }}
+                {{ 'APP.WORKPLACE.AVAILABLE_LIST_HEADER' | translate }}
             </div>
             <div
                 class="flex items-center text-sm sm:text-base px-4 space-x-2"
                 *ngIf="!hide_spaces"
             >
-                <div>{{ 'WPA.SPACES' | translate }}</div>
+                <div>
+                    {{ 'APP.WORKPLACE.AVAILABLE_LIST_SPACES' | translate }}
+                </div>
             </div>
             <div
                 class="w-[calc(100%-2rem)] overflow-auto flex items-center space-x-2 mx-4 py-2 snap-x"
@@ -71,14 +73,18 @@ import { LandingStateService } from './landing-state.service';
                     *ngIf="!(levels_free | async).length"
                     class="opacity-60 text-sm mb-2"
                 >
-                    {{ 'WPA.NO_FREE_SPACES' | translate }}
+                    {{
+                        'APP.WORKPLACE.AVAILABLE_LIST_SPACES_EMPTY' | translate
+                    }}
                 </span>
             </div>
             <div
                 class="flex items-center text-sm sm:text-base px-4 space-x-2"
                 *ngIf="!hide_rooms"
             >
-                <div>{{ 'WPA.ROOMS' | translate }}</div>
+                <div>
+                    {{ 'APP.WORKPLACE.AVAILABLE_LIST_ROOMS' | translate }}
+                </div>
                 <mat-spinner
                     diameter="24"
                     *ngIf="loading_spaces | async"
@@ -132,7 +138,7 @@ import { LandingStateService } from './landing-state.service';
                     *ngIf="!(space_list | async)?.length"
                     class="opacity-60 text-sm mb-2"
                 >
-                    {{ 'WPA.NO_FREE_ROOMS' | translate }}
+                    {{ 'APP.WORKPLACE.AVAILABLE_LIST_ROOMS_EMPTY' | translate }}
                 </span>
             </div>
         </div>

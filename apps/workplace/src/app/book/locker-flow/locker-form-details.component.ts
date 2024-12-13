@@ -2,6 +2,7 @@ import {
     Component,
     EventEmitter,
     Input,
+    OnChanges,
     Output,
     SimpleChanges,
 } from '@angular/core';
@@ -26,11 +27,16 @@ import { OrganisationService } from '@placeos/organisation';
                     >
                         1
                     </div>
-                    <div class="text-xl">Details</div>
+                    <div class="text-xl">
+                        {{ 'BOOKINGS.DETAILS' | translate }}
+                    </div>
                 </h3>
                 <div class="flex items-center flex-wrap sm:space-x-2">
                     <div class="flex-1 min-w-[256px]">
-                        <label for="date">Building<span>*</span></label>
+                        <label for="date"
+                            >{{ 'RESOURCE.BUILDING' | translate
+                            }}<span>*</span></label
+                        >
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
                                 [(ngModel)]="building"
@@ -47,16 +53,18 @@ import { OrganisationService } from '@placeos/organisation';
                         </mat-form-field>
                     </div>
                     <div class="flex-1 min-w-[256px]">
-                        <label for="date">Date<span>*</span></label>
+                        <label for="date">
+                            {{ 'FORM.DATE' | translate }}<span>*</span>
+                        </label>
                         <a-date-field name="date" formControlName="date">
-                            Date and time must be in the future
+                            {{ 'FORM.DATE_REQUIRED' | translate }}
                         </a-date-field>
                     </div>
                 </div>
                 <div class="flex items-center space-x-2">
                     <div class="flex-1 w-1/3">
                         <label for="start-time">
-                            Start Time<span>*</span>
+                            {{ 'FORM.TIME_START' | translate }}<span>*</span>
                         </label>
                         <a-time-field
                             name="start-time"
@@ -68,7 +76,9 @@ import { OrganisationService } from '@placeos/organisation';
                         ></a-time-field>
                     </div>
                     <div class="flex-1 w-1/3 relative">
-                        <label for="end-time"> End Time<span>*</span> </label>
+                        <label for="end-time">
+                            {{ 'FORM.TIME_END' | translate }}<span>*</span>
+                        </label>
                         <a-duration-field
                             name="end-time"
                             formControlName="duration"
@@ -90,7 +100,9 @@ import { OrganisationService } from '@placeos/organisation';
                     >
                         {{ (options | async)?.group ? 3 : 2 }}
                     </div>
-                    <div class="text-xl">Locker</div>
+                    <div class="text-xl">
+                        {{ 'RESOURCE.LOCKER' | translate }}
+                    </div>
                 </h3>
                 <locker-list-field
                     formControlName="resources"
@@ -99,7 +111,10 @@ import { OrganisationService } from '@placeos/organisation';
         </div>
     `,
 })
-export class LockerFormDetailsComponent extends AsyncHandler {
+export class LockerFormDetailsComponent
+    extends AsyncHandler
+    implements OnChanges
+{
     @Input() public form: FormGroup;
     @Output() public find = new EventEmitter<void>();
     /** List of available buildings to select */

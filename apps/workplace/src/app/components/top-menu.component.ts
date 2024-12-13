@@ -1,6 +1,17 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import {
+    AfterViewInit,
+    Component,
+    ElementRef,
+    OnInit,
+    ViewChild,
+} from '@angular/core';
 import { Router } from '@angular/router';
-import { AsyncHandler, currentUser, SettingsService } from '@placeos/common';
+import {
+    AsyncHandler,
+    currentUser,
+    i18n,
+    SettingsService,
+} from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 
 @Component({
@@ -112,7 +123,10 @@ import { OrganisationService } from '@placeos/organisation';
         `,
     ],
 })
-export class TopMenuComponent extends AsyncHandler {
+export class TopMenuComponent
+    extends AsyncHandler
+    implements OnInit, AfterViewInit
+{
     public readonly buildings = this._org.building_list;
     public readonly building = this._org.active_building;
     public previous_size = 9999;
@@ -122,52 +136,7 @@ export class TopMenuComponent extends AsyncHandler {
 
     public readonly setBuilding = (b) => (this._org.building = b);
 
-    public readonly routes = [
-        { id: 'home', route: this.default_page, icon: 'home', name: 'Home' },
-        {
-            id: 'spaces',
-            route: '/book/meeting',
-            icon: 'meeting_room',
-            name: 'Book Room',
-        },
-        {
-            id: 'desks',
-            route: '/book/new-desks',
-            icon: 'desk',
-            name: 'Book Desk',
-        },
-        {
-            id: 'lockers',
-            route: '/book/locker',
-            icon: 'lock',
-            name: 'Book Locker',
-        },
-        {
-            id: 'parking',
-            route: '/book/new-parking',
-            icon: 'directions_car',
-            name: 'Book Car Space',
-        },
-        {
-            id: 'visitor-invite',
-            route: '/book/visitor',
-            icon: 'person',
-            name: 'Invite Visitors',
-        },
-        { id: 'explore', route: '/explore', icon: 'place', name: 'Spaces' },
-        {
-            id: 'schedule',
-            route: '/your-bookings',
-            icon: 'event',
-            name: 'Your Bookings',
-        },
-        {
-            id: 'group-events',
-            route: '/group-events',
-            icon: 'local_activity',
-            name: 'Events',
-        },
-    ];
+    public routes = [];
 
     public get feature_list(): string[] {
         return this._settings.get('app.features') || [];
@@ -233,6 +202,62 @@ export class TopMenuComponent extends AsyncHandler {
                 this.timeout('check_route', () => this._checkRoute()),
             ),
         );
+        this.routes = [
+            {
+                id: 'home',
+                route: this.default_page,
+                icon: 'home',
+                name: i18n('APP.WORKPLACE.MENU_HOME'),
+            },
+            {
+                id: 'spaces',
+                route: '/book/meeting',
+                icon: 'meeting_room',
+                name: i18n('APP.WORKPLACE.MENU_ROOMS'),
+            },
+            {
+                id: 'desks',
+                route: '/book/new-desks',
+                icon: 'desk',
+                name: i18n('APP.WORKPLACE.MENU_DESKS'),
+            },
+            {
+                id: 'lockers',
+                route: '/book/locker',
+                icon: 'lock',
+                name: i18n('APP.WORKPLACE.MENU_LOCKERS'),
+            },
+            {
+                id: 'parking',
+                route: '/book/new-parking',
+                icon: 'directions_car',
+                name: i18n('APP.WORKPLACE.MENU_PARKING'),
+            },
+            {
+                id: 'visitor-invite',
+                route: '/book/visitor',
+                icon: 'person',
+                name: i18n('APP.WORKPLACE.MENU_VISITORS'),
+            },
+            {
+                id: 'explore',
+                route: '/explore',
+                icon: 'place',
+                name: i18n('APP.WORKPLACE.MENU_EXPLORE'),
+            },
+            {
+                id: 'schedule',
+                route: '/your-bookings',
+                icon: 'event',
+                name: i18n('APP.WORKPLACE.MENU_SCHEDULE'),
+            },
+            {
+                id: 'group-events',
+                route: '/group-events',
+                icon: 'local_activity',
+                name: i18n('APP.WORKPLACE.MENU_EVENTS'),
+            },
+        ];
     }
 
     public ngAfterViewInit() {
@@ -240,7 +265,6 @@ export class TopMenuComponent extends AsyncHandler {
     }
 
     private _checkRoute() {
-        const type = this.type;
         if (
             this.type &&
             this.type !== 'home' &&

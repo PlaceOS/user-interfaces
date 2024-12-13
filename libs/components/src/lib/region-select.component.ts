@@ -17,7 +17,9 @@ import { OrganisationService } from '@placeos/organisation';
                     }}
                 </div>
             </div>
-            <div class="text-xs opacity-60 mb-4 px-2">Select a region</div>
+            <div class="text-xs opacity-60 mb-4 px-2">
+                {{ 'COMMON.REGION_SELECT' | translate }}
+            </div>
             <mat-radio-group
                 [ngModel]="(region | async)?.id"
                 class="flex flex-col space-y-2 px-2"

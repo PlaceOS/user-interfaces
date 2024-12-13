@@ -2,6 +2,7 @@ import {
     Component,
     EventEmitter,
     Input,
+    OnChanges,
     Output,
     SimpleChanges,
 } from '@angular/core';
@@ -71,10 +72,17 @@ import { Space } from '../space.class';
                 </div>
                 <hr />
                 <section details class="space-y-2">
-                    <h2 class="text-xl font-medium">Details</h2>
+                    <h2 class="text-xl font-medium">
+                        {{ 'CALENDAR_EVENT.DETAILS' | translate }}
+                    </h2>
                     <div class="flex items-center space-x-2">
                         <app-icon>people</app-icon>
-                        <p>{{ space.capacity }} People</p>
+                        <p>
+                            {{
+                                'CALENDAR_EVENT.CAPACITY_COUNT'
+                                    | translate: { count: space.capacity }
+                            }}
+                        </p>
                     </div>
                     <div class="flex items-center space-x-2">
                         <app-icon>meeting_room</app-icon>
@@ -99,7 +107,9 @@ import { Space } from '../space.class';
                     class="space-y-2"
                     *ngIf="space.features?.length"
                 >
-                    <h2 class="text-xl font-medium">Room Facilities</h2>
+                    <h2 class="text-xl font-medium">
+                        {{ 'CALENDAR_EVENT.FACILITIES' | translate }}
+                    </h2>
                     <div
                         class="flex items-center space-x-2"
                         *ngFor="let feature of space.features"
@@ -138,7 +148,12 @@ import { Space } from '../space.class';
                             active ? 'remove' : 'add'
                         }}</app-icon>
                         <p>
-                            {{ active ? 'Remove this room' : 'Add this room' }}
+                            {{
+                                (active
+                                    ? 'CALENDAR_EVENT.SPACE_REMOVE'
+                                    : 'CALENDAR_EVENT.SPACE_ADD_TO'
+                                ) | translate
+                            }}
                         </p>
                     </div>
                 </button>
@@ -150,7 +165,7 @@ import { Space } from '../space.class';
                 class="p-16 flex flex-col items-center justify-center space-y-2"
             >
                 <p class="opacity-30 text-center">
-                    Select a room to view it's details
+                    {{ 'CALENDAR_EVENT.SPACE_LIST_INFO' | translate }}
                 </p>
             </div>
         </ng-template>
@@ -169,11 +184,11 @@ import { Space } from '../space.class';
         `,
     ],
 })
-export class SpaceDetailsComponent {
+export class SpaceDetailsComponent implements OnChanges {
     @Input() public space?: Space;
-    @Input() public fav: boolean = false;
-    @Input() public active: boolean = false;
-    @Input() public hide_map: boolean = false;
+    @Input() public fav = false;
+    @Input() public active = false;
+    @Input() public hide_map = false;
     @Input() public alert?: [string, string];
 
     @Output() public activeChange = new EventEmitter<boolean>();

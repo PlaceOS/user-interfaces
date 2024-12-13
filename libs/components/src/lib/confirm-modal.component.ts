@@ -1,4 +1,4 @@
-import { Component, Output, EventEmitter, Inject } from '@angular/core';
+import { Component, Output, EventEmitter, Inject, OnInit } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
@@ -30,7 +30,7 @@ export const CONFIRM_METADATA = {
     selector: 'confirm-modal',
     template: `
         <header class="px-4 py-3">
-            <h3 class="font-medium text-xl">{{ title }}</h3>
+            <h3 class="font-medium text-xl">{{ title | translate }}</h3>
         </header>
         <main
             *ngIf="!loading; else load_state"
@@ -44,7 +44,7 @@ export const CONFIRM_METADATA = {
             *ngIf="!loading"
         >
             <button btn matRipple class="inverse flex-1" mat-dialog-close>
-                {{ cancel_text }}
+                {{ cancel_text | translate }}
             </button>
             <button
                 btn
@@ -53,7 +53,7 @@ export const CONFIRM_METADATA = {
                 class="flex-1"
                 (click)="onConfirm()"
             >
-                {{ confirm_text }}
+                {{ confirm_text | translate }}
             </button>
         </footer>
         <ng-template #load_state>
@@ -69,19 +69,21 @@ export const CONFIRM_METADATA = {
     `,
     styles: [``],
 })
-export class ConfirmModalComponent extends AsyncHandler {
+export class ConfirmModalComponent extends AsyncHandler implements OnInit {
     /** Loading state */
     public loading: string;
     /** Emitter for user action on the modal */
     @Output() public event = new EventEmitter<DialogEvent>();
     /** Title of the confirm modal */
-    public readonly title: string = this._data.title || 'Confirm';
+    public readonly title: string = this._data.title || 'COMMON.CONFIRM';
     /** Body of the confirm modal */
     public readonly content: string = this._data.content || 'Are you sure?';
     /** Display text on the confirm button */
-    public readonly confirm_text: string = this._data.confirm_text || 'Accept';
+    public readonly confirm_text: string =
+        this._data.confirm_text || 'COMMON.ACCEPT';
     /** Display text on the cancel button */
-    public readonly cancel_text: string = this._data.cancel_text || 'Cancel';
+    public readonly cancel_text: string =
+        this._data.cancel_text || 'COMMON.CANCEL';
     /** Display icon properties */
     public readonly icon: ApplicationIcon = this._data.icon || {
         class: 'material-icons',

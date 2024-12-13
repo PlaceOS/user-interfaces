@@ -1,7 +1,7 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { AsyncHandler, SettingsService, unique } from '@placeos/common';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { AsyncHandler, SettingsService } from '@placeos/common';
 import { BehaviorSubject, combineLatest } from 'rxjs';
-import { debounceTime, map, tap } from 'rxjs/operators';
+import { debounceTime, map } from 'rxjs/operators';
 
 import { DEFAULT_COLOURS } from 'libs/explore/src/lib/explore-spaces.service';
 import { EventFormService } from 'libs/events/src/lib/event-form.service';
@@ -24,7 +24,7 @@ import { Space } from '../space.class';
                     [(ngModel)]="level"
                     (ngModelChange)="setOptions({ zone_ids: [$event.id] })"
                     [ngModelOptions]="{ standalone: true }"
-                    placeholder="Any Level"
+                    [placeholder]="'CALENDAR_EVENT.SPACE_LEVEL_ANY' | translate"
                 >
                     <mat-option
                         *ngFor="let lvl of levels | async"
@@ -70,10 +70,10 @@ import { Space } from '../space.class';
         `,
     ],
 })
-export class SpaceSelectMapComponent extends AsyncHandler {
+export class SpaceSelectMapComponent extends AsyncHandler implements OnInit {
     @Input() public selected: string[] = [];
     @Input() public active: string;
-    @Input() public is_displayed: boolean = false;
+    @Input() public is_displayed = false;
     @Output() public onSelect = new EventEmitter<Space>();
 
     public zoom = 1;

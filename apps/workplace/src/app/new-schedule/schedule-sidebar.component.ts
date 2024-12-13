@@ -22,7 +22,7 @@ import { startOfDay } from 'date-fns';
                     [class.inverse]="period !== 'day'"
                     (click)="setOptions({ period: 'day' })"
                 >
-                    Day
+                    {{ 'COMMON.DAY' | translate }}
                 </button>
                 <button
                     btn
@@ -31,7 +31,7 @@ import { startOfDay } from 'date-fns';
                     [class.inverse]="period !== 'week'"
                     (click)="setOptions({ period: 'week' })"
                 >
-                    Week
+                    {{ 'COMMON.WEEK' | translate }}
                 </button>
             </div>
             <date-calendar
@@ -60,14 +60,16 @@ import { startOfDay } from 'date-fns';
                             <span
                                 class="text-xs text-info px-1"
                                 *ngIf="option.this_week"
-                                matTooltip="This Week"
+                                [matTooltip]="'COMMON.WEEK_THIS' | translate"
                                 >(C)</span
                             >
                         </mat-option>
                     </mat-select>
                 </mat-form-field>
             </div>
-            <h3 class="mx-4 mt-4 font-medium">Filters</h3>
+            <h3 class="mx-4 mt-4 font-medium">
+                {{ 'APP.WORKPLACE.SCHEDULE_FILTERS' | translate }}
+            </h3>
             <div class="p-4 space-y-4 flex-1 h-1/2 overflow-auto">
                 <button
                     matRipple
@@ -82,9 +84,12 @@ import { startOfDay } from 'date-fns';
                         <app-icon>place</app-icon>
                     </div>
                     <div class="flex-1">
-                        <div class="">{{ 'WPA.ROOM' | translate }}</div>
+                        <div class="">{{ 'RESOURCE.ROOMS' | translate }}</div>
                         <div class="text-sm opacity-60">
-                            {{ 'WPA.SCHEDULE_ROOM_FILTER' | translate }}
+                            {{
+                                'APP.WORKPLACE.SCHEDULE_FILTER_ROOMS'
+                                    | translate
+                            }}
                         </div>
                     </div>
                     <mat-checkbox
@@ -106,9 +111,12 @@ import { startOfDay } from 'date-fns';
                         <img src="assets/icons/desk-outline.svg" class="w-6" />
                     </div>
                     <div class="flex-1">
-                        <div class="">{{ 'WPA.DESK' | translate }}</div>
+                        <div class="">{{ 'RESOURCE.DESKS' | translate }}</div>
                         <div class="text-sm opacity-60">
-                            {{ 'WPA.SCHEDULE_DESK_FILTER' | translate }}
+                            {{
+                                'APP.WORKPLACE.SCHEDULE_FILTER_DESKS'
+                                    | translate
+                            }}
                         </div>
                     </div>
                     <mat-checkbox
@@ -130,9 +138,12 @@ import { startOfDay } from 'date-fns';
                         <app-icon>drive_eta</app-icon>
                     </div>
                     <div class="flex-1">
-                        <div class="">{{ 'WPA.PARKING' | translate }}</div>
+                        <div class="">{{ 'RESOURCE.PARKING' | translate }}</div>
                         <div class="text-sm opacity-60">
-                            {{ 'WPA.SCHEDULE_PARKING_FILTER' | translate }}
+                            {{
+                                'APP.WORKPLACE.SCHEDULE_FILTER_PARKING'
+                                    | translate
+                            }}
                         </div>
                     </div>
                     <mat-checkbox
@@ -155,10 +166,13 @@ import { startOfDay } from 'date-fns';
                     </div>
                     <div class="flex-1">
                         <div class="">
-                            {{ 'WPA.VISITORS' | translate }}
+                            {{ 'RESOURCE.VISITORS' | translate }}
                         </div>
                         <div class="text-sm opacity-60">
-                            {{ 'WPA.SCHEDULE_VISITOR_FILTER' | translate }}
+                            {{
+                                'APP.WORKPLACE.SCHEDULE_FILTER_VISITORS'
+                                    | translate
+                            }}
                         </div>
                     </div>
                     <mat-checkbox
@@ -181,10 +195,13 @@ import { startOfDay } from 'date-fns';
                     </div>
                     <div class="flex-1">
                         <div class="">
-                            {{ 'WPA.LOCKERS' | translate }}
+                            {{ 'RESOURCE.LOCKERS' | translate }}
                         </div>
                         <div class="text-sm opacity-60">
-                            {{ 'WPA.SCHEDULE_LOCKER_FILTER' | translate }}
+                            {{
+                                'APP.WORKPLACE.SCHEDULE_FILTER_LOCKERS'
+                                    | translate
+                            }}
                         </div>
                     </div>
                     <mat-checkbox
@@ -207,10 +224,13 @@ import { startOfDay } from 'date-fns';
                     </div>
                     <div class="flex-1">
                         <div class="">
-                            {{ 'WPA.GROUP_EVENT' | translate }}
+                            {{ 'RESOURCE.EVENTS' | translate }}
                         </div>
                         <div class="text-sm opacity-60">
-                            {{ 'WPA.SCHEDULE_GROUP_EVENT_FILTER' | translate }}
+                            {{
+                                'APP.WORKPLACE.SCHEDULE_FILTER_EVENTS'
+                                    | translate
+                            }}
                         </div>
                     </div>
                     <mat-checkbox

@@ -17,6 +17,7 @@ import { LanguageSelectComponent } from './language-tooltip.component';
 import { RegionSelectComponent } from './region-select.component';
 import { SupportTicketModalComponent } from 'libs/form-fields/src/lib/support-ticket-modal.component';
 import { WorkLocationTooltipComponent } from './work-location-tooltip.component';
+import { TranslateService } from '@ngx-translate/core';
 
 export interface AppLocale {
     id: string;
@@ -101,10 +102,12 @@ export interface AppLocale {
                         >
                             <app-icon>help</app-icon>
                         </div>
-                        <div class="flex-1">Help & Support</div>
-                        <app-icon class="opacity-60 text-2xl"
-                            >chevron_right</app-icon
-                        >
+                        <div class="flex-1">
+                            {{ 'COMMON.CONTROLS_HELP' | translate }}
+                        </div>
+                        <app-icon class="opacity-60 text-2xl">
+                            chevron_right
+                        </app-icon>
                     </div>
                 </button>
             </div>
@@ -120,7 +123,9 @@ export interface AppLocale {
                         >
                             <app-icon>share_location</app-icon>
                         </div>
-                        <div class="flex-1">Work Location</div>
+                        <div class="flex-1">
+                            {{ 'COMMON.CONTROLS_WORK_LOCATION' | translate }}
+                        </div>
                         <app-icon class="opacity-60 text-2xl"
                             >chevron_right</app-icon
                         >
@@ -139,7 +144,9 @@ export interface AppLocale {
                         >
                             <app-icon>mode_night</app-icon>
                         </div>
-                        <div class="flex-1">Display & Accessibility</div>
+                        <div class="flex-1">
+                            {{ 'COMMON.CONTROLS_ACCESSIBILITY' | translate }}
+                        </div>
                         <app-icon class="opacity-60 text-2xl"
                             >chevron_right</app-icon
                         >
@@ -159,10 +166,12 @@ export interface AppLocale {
                         >
                             <app-icon>desk</app-icon>
                         </div>
-                        <div class="flex-1">Desk Settings</div>
-                        <app-icon class="opacity-60 text-2xl"
-                            >chevron_right</app-icon
-                        >
+                        <div class="flex-1">
+                            {{ 'COMMON.CONTROLS_DESKS' | translate }}
+                        </div>
+                        <app-icon class="opacity-60 text-2xl">
+                            chevron_right
+                        </app-icon>
                     </div>
                 </button>
             </div>
@@ -182,16 +191,24 @@ export interface AppLocale {
                         >
                             <app-icon>mode_night</app-icon>
                         </div>
-                        <div class="flex-1">
-                            {{ 'COMMON.LANGUAGE_LABEL' | translate }}:
-                            {{ 'COMMON.LANGUAGE' | translate }}
-                        </div>
-                        <app-icon class="opacity-60 text-2xl"
-                            >chevron_right</app-icon
+                        <div
+                            class="flex-1 flex items-center justify-between space-x-4"
                         >
+                            <div>{{ 'COMMON.LANGUAGE' | translate }}</div>
+                            <div
+                                class="text-sm px-2 py-1 rounded bg-base-200 max-w-24 truncate"
+                                [matTooltip]="active_locale | translate"
+                            >
+                                {{ active_locale | translate }}
+                            </div>
+                        </div>
+                        <app-icon class="opacity-60 text-2xl">
+                            chevron_right
+                        </app-icon>
                     </div>
                 </button>
             </div>
+
             <button
                 btn
                 matRipple
@@ -205,13 +222,15 @@ export interface AppLocale {
                     >
                         <app-icon>support_agent</app-icon>
                     </div>
-                    <div class="flex-1">Raise a support ticket</div>
+                    <div class="flex-1">
+                        {{ 'COMMON.CONTROLS_SUPPORT' | translate }}
+                    </div>
                 </div>
             </button>
             <div class="flex flex-col items-center p-4">
                 <div class="flex items-center justify-center space-x-2 mb-4">
                     <button btn matRipple class="inverse" (click)="logout()">
-                        Sign Out
+                        {{ 'COMMON.CONTROLS_SIGN_OUT' | translate }}
                     </button>
                     <button
                         btn
@@ -219,11 +238,13 @@ export interface AppLocale {
                         *ngIf="has_new_version"
                         (click)="reloadPage()"
                     >
-                        New Version
+                        {{ 'COMMON.CONTROLS_NEW_VERSION' | translate }}
                     </button>
                 </div>
                 <div class="text-xs opacity-60 w-full">
-                    <ng-container>Version: </ng-container>
+                    <ng-container>
+                        {{ 'COMMON.CONTROLS_VERSION' | translate }}:
+                    </ng-container>
                     <button
                         class="underline p-0 m-0 bg-none border-none text-xs"
                         (click)="viewChangelog()"
@@ -268,7 +289,16 @@ export class UserControlsComponent {
         return this._settings.get('app.features') || [];
     }
 
-    public get locales(): [] {
+    public get active_locale(): string {
+        const locale_list = this.locales;
+        const locale = this._translate.currentLang;
+        for (const item of locale_list) {
+            if (item.id === locale) return item.name;
+        }
+        return 'LANGUAGE.ENGLISH';
+    }
+
+    public get locales(): { id: string; name: string }[] {
         return this._settings.get('app.locales') || [];
     }
 
@@ -292,6 +322,7 @@ export class UserControlsComponent {
         private _settings: SettingsService,
         private _org: OrganisationService,
         private _dialog: MatDialog,
+        private _translate: TranslateService,
     ) {}
 
     public logout() {

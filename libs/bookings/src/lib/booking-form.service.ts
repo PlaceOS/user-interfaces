@@ -7,6 +7,7 @@ import {
     currentUser,
     flatten,
     getInvalidFields,
+    i18n,
     notifyError,
     notifyWarn,
     openConfirmModal,
@@ -128,13 +129,13 @@ export class BookingFormService extends AsyncHandler {
             const useRegion = () => this._settings.get('app.use_region');
             switch (type) {
                 case 'desk':
-                    this._loading.next(`Loading desks...`);
+                    this._loading.next(i18n('BOOKINGS.DESKS_LOADING'));
                     return this.loadResourceList('desks' as any);
                 case 'parking':
-                    this._loading.next(`Loading parking spaces...`);
+                    this._loading.next(i18n('BOOKINGS.PARKING_LOADING'));
                     return this.loadResourceList('parking-spaces' as any);
                 case 'locker':
-                    this._loading.next(`Loading lockers...`);
+                    this._loading.next(i18n('BOOKINGS.LOCKERS_LOADING'));
                     return loadLockers(
                         this._org,
                         of([bld]),
@@ -196,7 +197,7 @@ export class BookingFormService extends AsyncHandler {
         ),
         debounceTime(500),
         tap(([{ type }]) =>
-            this._loading.next(`Checking ${type} availability...`),
+            this._loading.next(i18n('BOOKINGS.LOADING_AVAILABILITY', { type })),
         ),
         switchMap(([options, resources, restrictions]) => {
             let { all_day, date, duration, user } = this.form.getRawValue();
@@ -335,12 +336,12 @@ export class BookingFormService extends AsyncHandler {
                 this.storeForm();
             }),
         );
-        this.timeout('date', () => {
+        this.timeout('date', () =>
             this.form.patchValue({
                 date: booking.date,
                 duration: booking.duration,
-            });
-        });
+            }),
+        );
         this._booking.next(new Booking(booking));
         this._options.next({ type: this._options.getValue().type });
     }
@@ -461,7 +462,7 @@ export class BookingFormService extends AsyncHandler {
         this.last_success = new Booking();
     }
 
-    public openBookingLinkModal(force: boolean = false) {
+    public openBookingLinkModal(force = false) {
         this.form.markAllAsTouched();
         if (!this.form.valid && !force) return;
         const event = new Booking({
@@ -475,26 +476,31 @@ export class BookingFormService extends AsyncHandler {
         await this.checkQuestions();
         const options = this._options.getValue();
         const value = this.form.getRawValue();
-        let content = `Would you like to book the ${options.type} ${
-            value.asset_name
-        } for ${format(value.date, 'dd MMM yyyy')}${
-            value.duration < 12 * 60
-                ? ' at ' + format(value.date, 'h:mm a')
-                : ''
-        }`;
-        if (options.group) {
-            content = `${content}.<br>You group members will be assigned desks nearby your selected desk.`;
-        }
+
+        const content = i18n(
+            options.group
+                ? 'BOOKINGS.CONFIRM_MSG_GROUP'
+                : 'BOOKINGS.CONFIRM_MSG',
+            {
+                type: options.type,
+                date:
+                    format(value.date, 'dd MMM yyyy') +
+                    (value.duration < 12 * 60
+                        ? ' at ' + format(value.date, 'h:mm a')
+                        : ''),
+            },
+        );
+
         const details = await openConfirmModal(
             {
-                title: `Book ${options.type}`,
+                title: i18n('BOOKINGS.CONFIRM_TITLE', { type: options.type }),
                 content,
                 icon: { content: 'event_available' },
             },
             this._dialog,
         );
         if (details?.reason !== 'done') throw 'User cancelled';
-        details.loading('Performing booking request...');
+        details.loading(i18n('BOOKINGS.CONFIRM_LOADING'));
         if (options.group) {
             await this.postFormForGroup().catch((_) => {
                 notifyError(JSON.stringify(_));
@@ -521,8 +527,8 @@ export class BookingFormService extends AsyncHandler {
                 this.form.getRawValue().booking_type ||
                 this._options.getValue().type,
         });
-        let value = this.form.getRawValue();
-        let booking = this._booking.getValue() || new Booking();
+        const value = this.form.getRawValue();
+        const booking = this._booking.getValue() || new Booking();
         if (!ignore_check) {
             await this.checkResourceAvailable(
                 {
@@ -625,14 +631,12 @@ export class BookingFormService extends AsyncHandler {
             ).catch((e) => {
                 console.error("Couldn't update asset requests", e);
                 if (e?.status === 409) {
-                    notifyError(
-                        'Some assets are already booked for the selected time',
-                    );
+                    notifyError(i18n('BOOKINGS.ASSETS_CLASH_ERROR'));
                 }
                 this._loading.next('');
                 throw e?.error || e;
             });
-            if (!requests) throw 'Unable to validate asset requests';
+            if (!requests) throw i18n('BOOKINGS.ASSETS_INVALID_ERROR');
             await requests();
         }
         this._loading.next('');
@@ -650,12 +654,11 @@ export class BookingFormService extends AsyncHandler {
 
     public async postFormForGroup() {
         const { members, group, type } = this._options.getValue();
-        if (!group) throw 'No group available to book for';
+        if (!group) throw i18n('BOOKINGS.GROUP_NOT_SET');
         const extra_members = members.filter(
             (_) => _.email !== currentUser().email,
         );
-        if (extra_members.length <= 0)
-            throw 'No members in your group to book for.';
+        if (extra_members.length <= 0) throw i18n('BOOKINGS.GROUP_NO_MEMBERS');
         const form = this.form.getRawValue();
         const asset_list = await this.available_resources
             .pipe(take(1))
@@ -725,9 +728,11 @@ export class BookingFormService extends AsyncHandler {
         }
         if (unavailable.length) {
             notifyWarn(
-                `Some members of your group already have a desk booking. [${unavailable
-                    .map((_) => _.name || _.email)
-                    ?.join(', ')}]`,
+                i18n('BOOKINGS.GROUP_SOME_HAVE_BOOKINGS', {
+                    members: unavailable
+                        .map((_) => _.name || _.email)
+                        ?.join(', '),
+                }),
             );
         }
     }
@@ -754,7 +759,7 @@ export class BookingFormService extends AsyncHandler {
         { id, asset_id, date, duration, user_email }: Partial<Booking>,
         type: BookingType,
     ) {
-        if (!user_email) throw 'No user was selected to book for';
+        if (!user_email) throw i18n('BOOKINGS.NO_USER');
         if (type === 'group-event') return true;
         const bookings = await queryBookings({
             period_start: getUnixTime(date),
@@ -763,7 +768,7 @@ export class BookingFormService extends AsyncHandler {
             email: user_email,
             limit: 1000,
         }).toPromise();
-        let active_bookings = bookings.filter(
+        const active_bookings = bookings.filter(
             (_) =>
                 _.status !== 'declined' &&
                 _.status !== 'cancelled' &&
@@ -772,11 +777,12 @@ export class BookingFormService extends AsyncHandler {
         if (
             active_bookings.find((_) => _.asset_id === asset_id && id !== _.id)
         ) {
-            if (asset_id.includes('@')) {
-                throw `${asset_id} already has an invite for the selected time`;
-            } else {
-                throw `${asset_id} is not available at the selected time`;
-            }
+            throw i18n(
+                asset_id.includes('@')
+                    ? 'BOOKINGS.VISITOR_BOOKED'
+                    : 'BOOKINGS.RESOURCE_BOOKED',
+                { name: asset_id },
+            );
         }
         const allowed_bookings =
             this._settings.get(`app.bookings.allowed_daily_${type}_count`) ?? 1;
@@ -785,14 +791,20 @@ export class BookingFormService extends AsyncHandler {
             active_bookings.filter(
                 (_) =>
                     _.user_email.toLowerCase() ===
-                        (user_email || currentUser()?.email).toLowerCase() &&
-                    _.id !== id,
+                        (
+                            user_email ||
+                            currentUser()?.email ||
+                            ''
+                        ).toLowerCase() && _.id !== id,
             ).length >= allowed_bookings
         ) {
             const current = user_email === currentUser()?.email;
-            throw `${current ? 'You' : user_email} already ${
-                current ? 'have' : 'has'
-            } a booking at the selected time`;
+            throw i18n(
+                current
+                    ? 'BOOKINGS.CLASH_CURRENT_USER'
+                    : 'BOOKINGS.CLASH_OTHER_USER',
+                { name: user_email },
+            );
         }
         return true;
     }

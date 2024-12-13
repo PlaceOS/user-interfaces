@@ -23,7 +23,7 @@ import { startOfMinute } from 'date-fns';
                         <div class="flex items-center space-x-2 capitalize">
                             <app-icon>people</app-icon>
                             <div class="pr-2">
-                                {{ 'WPA.COLLEAGUES' | translate }}
+                                {{ 'APP.WORKPLACE.COLLEAGUES' | translate }}
                             </div>
                         </div>
                     </button>
@@ -37,7 +37,7 @@ import { startOfMinute } from 'date-fns';
                         <div class="flex items-center space-x-2 capitalize">
                             <app-icon>favorite</app-icon>
                             <div class="pr-2">
-                                {{ 'WPA.FAVOURITES' | translate }}
+                                {{ 'COMMON.FAVOURITES' | translate }}
                             </div>
                         </div>
                     </button>
@@ -58,7 +58,7 @@ import { startOfMinute } from 'date-fns';
                     <div class="">
                         <div class="sm:text-xl font-medium">
                             {{
-                                'WPA.WELCOME_MESSAGE'
+                                'APP.WORKPLACE.WELCOME_MESSAGE'
                                     | translate: { name: user?.name }
                             }}
                         </div>

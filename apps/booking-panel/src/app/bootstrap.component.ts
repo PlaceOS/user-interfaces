@@ -15,23 +15,23 @@ import { OrganisationService } from '@placeos/organisation';
             class="rounded shadow m-4 bg-base-100 border border-base-200 overflow-hidden mx-auto text-center flex flex-col items-center"
         >
             <h2 class="bg-error text-white py-2 px-4 m-0 w-full text-2xl">
-                {{ 'PANEL.BOOTSTRAP_TITLE' | translate }}
+                {{ 'APP.BOOKING_PANEL.BOOTSTRAP_TITLE' | translate }}
             </h2>
             <ng-container
                 *ngIf="!loading || loading === 'search'; else load_state"
             >
                 <p class="description py-4">
-                    {{ 'PANEL.BOOTSTRAP_DESCRIPTION' | translate }}
+                    {{ 'COMMON.BOOTSTRAP_DESCRIPTION' | translate }}
                 </p>
                 <mat-form-field appearance="outline">
                     <mat-label>{{
-                        'PANEL.BOOTSTRAP_LABEL' | translate
+                        'COMMON.BOOTSTRAP_LABEL' | translate
                     }}</mat-label>
                     <input
                         matInput
                         [ngModel]="system_id$ | async"
                         [matAutocomplete]="auto"
-                        placeholder="System ID"
+                        [placeholder]="'COMMON.BOOTSTRAP_LABEL' | translate"
                         (ngModelChange)="system_id$.next($event)"
                     />
                     <mat-spinner
@@ -59,7 +59,7 @@ import { OrganisationService } from '@placeos/organisation';
                             !(space_list | async)?.length
                         "
                     >
-                        {{ 'PANEL.BOOTSTRAP_INPUT_PLACEHOLDER' | translate }}
+                        {{ 'COMMON.BOOTSTRAP_INPUT_PLACEHOLDER' | translate }}
                     </mat-option>
                 </mat-autocomplete>
                 <button
@@ -68,7 +68,7 @@ import { OrganisationService } from '@placeos/organisation';
                     [disabled]="!system_id$.getValue()"
                     (click)="bootstrap()"
                 >
-                    {{ 'COMMON.CONTINUE' | translate }}
+                    {{ 'COMMON.BOOTSTRAP_SUBMIT' | translate }}
                 </button>
             </ng-container>
         </div>
@@ -76,7 +76,7 @@ import { OrganisationService } from '@placeos/organisation';
             <div load class="my-16 flex flex-col items-center">
                 <mat-spinner [diameter]="32"></mat-spinner>
                 <div class="m-4">
-                    {{ 'PANEL.LOADING_SYSTEM' | translate }} {{ loading }}
+                    {{ 'COMMON.BOOTSTRAP_LOADING' | translate }}
                 </div>
             </div>
         </ng-template>
@@ -140,7 +140,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
                   });
         }),
         map((_) => _.data.map((_) => new Space(_ as any))),
-        tap((_) => (this.loading = '')),
+        tap(() => (this.loading = '')),
         shareReplay(1),
     );
 

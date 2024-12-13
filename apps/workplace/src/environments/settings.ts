@@ -149,8 +149,16 @@ const app = {
     logo_light: 'assets/logo-light.svg',
     logo_dark: 'assets/logo-dark.svg',
     locales: [
-        { id: 'en', name: 'English', flag: '🇦🇺' },
-        // { id: 'fr', name: 'French', flag: '🇫🇷' },
+        { id: 'en', name: 'LANGUAGE.ENGLISH', flag: '🇦🇺' },
+        { id: 'en-US', name: 'LANGUAGE.ENGLISH_US', flag: '🇺🇸' },
+        { id: 'fr', name: 'LANGUAGE.FRENCH', flag: '🇫🇷' },
+        { id: 'fr-CA', name: 'LANGUAGE.FRENCH_CA', flag: '🇨🇦' },
+        { id: 'es', name: 'LANGUAGE.SPANISH', flag: '🇪🇸' },
+        { id: 'pt', name: 'LANGUAGE.PORTUGESE', flag: '🇵🇹' },
+        { id: 'it', name: 'LANGUAGE.ITALIAN', flag: '🇮🇹' },
+        { id: 'zh', name: 'LANGUAGE.CHINESE', flag: '🇨🇳' },
+        { id: 'jp', name: 'LANGUAGE.JAPANESE', flag: '🇯🇵' },
+        { id: 'ar', name: 'LANGUAGE.ARABIC', flag: '' },
     ],
     features: [
         'spaces',

@@ -32,7 +32,7 @@ export interface MapRadiusData {
             >
                 {{ message }}
                 <span *ngIf="last_seen" class="text-xs">
-                    Last updated: {{ last_seen_at }}
+                    {{ 'COMMON.LAST_UPDATE' | translate }}: {{ last_seen_at }}
                 </span>
             </div>
         </ng-container>
@@ -85,10 +85,10 @@ export class MapRadiusComponent implements OnInit {
 
     constructor(
         @Inject(MAP_FEATURE_DATA) private _details: MapRadiusData,
-        private _el: ElementRef<HTMLElement>
+        private _el: ElementRef<HTMLElement>,
     ) {
         this._details.zoom$?.subscribe((v) =>
-            Math.max(0.5, (this.zoom = v || 1))
+            Math.max(0.5, (this.zoom = v || 1)),
         );
     }
 
@@ -106,7 +106,7 @@ export class MapRadiusComponent implements OnInit {
         if (!box.width) return setTimeout(() => this.updateRadius(), 300);
         this.radius = Math.max(
             64,
-            (this._details.radius || 10) * (box.width || 10)
+            (this._details.radius || 10) * (box.width || 10),
         );
     }
 }

@@ -6,25 +6,32 @@ import { OrganisationService } from '@placeos/organisation';
 
 @Component({
     selector: 'new-parking-flow-confirm',
-    template: ` <button
-            close
-            icon
-            matRipple
-            *ngIf="show_close"
-            (click)="dismiss()"
+    template: ` <header
+            class="flex items-center justify-between p-2 h-12 m-2 rounded bg-base-200"
         >
-            <app-icon>close</app-icon>
-        </button>
-        <header class="flex items-center justify-between px-2">
-            <h2 class="text-2xl font-medium mb-2">
-                Confirm Parking Reservation
+            <h2 class="text-xl font-medium px-2">
+                {{ 'APP.WORKPLACE.PARKING_CONFIRM_TITLE' | translate }}
             </h2>
-            <mat-spinner diameter="32" *ngIf="loading | async"></mat-spinner>
+            <div class="">
+                <mat-spinner
+                    diameter="32"
+                    *ngIf="loading | async"
+                ></mat-spinner>
+                <button
+                    icon
+                    name="close-locker-confirm"
+                    matRipple
+                    *ngIf="show_close"
+                    (click)="dismiss()"
+                >
+                    <app-icon class="text-2xl">close</app-icon>
+                </button>
+            </div>
         </header>
-        <section period class="flex space-x-1 py-4 px-2">
-            <app-icon class="text-success">done</app-icon>
-            <div details class="leading-6">
-                <h3>{{ booking.title || '~Untitled~' }}</h3>
+        <section period class="flex space-x-1 py-4 px-2 text-base">
+            <app-icon class="text-success text-2xl">done</app-icon>
+            <div details class="text-base space-y-2">
+                <h3 class="text-xl">{{ booking.title || '~Untitled~' }}</h3>
                 <div class="flex items-center space-x-2">
                     <app-icon>calendar_today</app-icon>
                     <div date>{{ booking.date | date: 'fullDate' }}</div>
@@ -34,7 +41,7 @@ import { OrganisationService } from '@placeos/organisation';
                     <div time>
                         {{
                             booking.all_day
-                                ? 'All Day'
+                                ? ('COMMON.ALL_DAY' | translate)
                                 : (booking.date | date: time_format) +
                                   ' - ' +
                                   (booking.date + booking.duration * 60 * 1000
@@ -46,17 +53,17 @@ import { OrganisationService } from '@placeos/organisation';
         </section>
         <section
             resource
-            class="flex space-x-1 py-4 px-2 border-t"
+            class="flex space-x-1 py-4 px-2 border-t text-base"
             *ngIf="booking_asset?.id"
         >
-            <app-icon class="text-success">done</app-icon>
-            <div details class="leading-6">
-                <h3 name>
+            <app-icon class="text-success text-2xl">done</app-icon>
+            <div details class="text-base space-y-2">
+                <h3 class="text-xl">
                     {{ booking_asset?.name || booking_asset?.id || '' }}
                 </h3>
                 <div class="flex items-center space-x-2">
                     <app-icon>person</app-icon>
-                    <span>Car Park</span>
+                    <span>{{ 'RESOURCE.PARKING_SPACE' | translate }}</span>
                 </div>
                 <div class="flex items-center space-x-2">
                     <app-icon>place</app-icon>
@@ -70,22 +77,6 @@ import { OrganisationService } from '@placeos/organisation';
                 </ng-container>
             </div>
         </section>
-        <section
-            assets
-            class="flex space-x-1 py-4 px-2 border-t"
-            *ngIf="assets?.length"
-        >
-            <app-icon class="text-success">done</app-icon>
-            <div details class="leading-6">
-                <h3>{{ assets_count }} Asset(s)</h3>
-                <div class="flex space-x-2" *ngFor="let asset of assets">
-                    <div class="h-5 w-5 bg-base-200 rounded-full">
-                        {{ asset.amount }}
-                    </div>
-                    <span>{{ asset.name }}</span>
-                </div>
-            </div>
-        </section>
         <footer class="p-2 w-full border-t border-base-200 mt-4">
             <button
                 confirm
@@ -95,7 +86,7 @@ import { OrganisationService } from '@placeos/organisation';
                 *ngIf="!(loading | async)"
                 (click)="postForm()"
             >
-                Confirm
+                {{ 'COMMON.CONFIRM' | translate }}
             </button>
         </footer>`,
     styles: [

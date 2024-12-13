@@ -2,6 +2,7 @@ import { Component, EventEmitter, Inject, Output } from '@angular/core';
 import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
+    i18n,
     notifyError,
     notifySuccess,
     SettingsService,
@@ -82,9 +83,10 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                                 }}</app-icon>
                                 <div class="mr-4">
                                     {{
-                                        booking.checked_in
-                                            ? 'Checked in'
-                                            : 'Check in'
+                                        (booking.checked_in
+                                            ? 'COMMON.CHECKED_IN'
+                                            : 'COMMON.CHECK_IN'
+                                        ) | translate
                                     }}
                                 </div>
                             </div>
@@ -110,7 +112,9 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                 <div
                     class="sm:p-4 sm:bg-base-100 rounded sm:m-2 sm:border border-base-200 flex-grow-[4] min-w-1/3 sm:w-[16rem]"
                 >
-                    <h3 class="px-3 mt-2 text-lg font-medium mb-2">Details</h3>
+                    <h3 class="px-3 mt-2 text-lg font-medium mb-2">
+                        {{ 'BOOKINGS.DETAILS' | translate }}
+                    </h3>
                     <div class="flex items-center px-2 space-x-2">
                         <app-icon>event</app-icon>
                         <div>{{ booking.date | date: 'EEEE, dd LLLL y' }}</div>
@@ -141,7 +145,9 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                         class="mt-4 sm:p-4 sm:bg-base-100 rounded sm:m-2 sm:border border-base-200 flex-grow-[3] min-w-1/3 sm:w-[16rem]"
                     >
                         <h3 class="mx-3 py-2 text-lg font-medium">
-                            Assets ({{ booking.valid_assets?.length || 0 }})
+                            {{ 'BOOKINGS.ASSETS' }} ({{
+                                booking.valid_assets?.length || 0
+                            }})
                         </h3>
                         <div class="flex flex-col space-y-2">
                             <div
@@ -159,12 +165,16 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                                 >
                                     <div class="flex-1 text-left">
                                         <div class="text-sm">
-                                            Requested for
                                             {{
-                                                request.deliver_at
-                                                    | date
-                                                        : 'MMM d, ' +
-                                                              time_format
+                                                'BOOKINGS.ASSETS_REQUESTED_FOR'
+                                                    | translate
+                                                        : {
+                                                              time:
+                                                                  request.deliver_at
+                                                                  | date
+                                                                      : 'MMM d, ' +
+                                                                            time_format,
+                                                          }
                                             }}
                                         </div>
                                     </div>
@@ -281,7 +291,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
             >
                 <div class="flex items-center space-x-2 text-base">
                     <app-icon>edit</app-icon>
-                    <div>Edit booking</div>
+                    <div>{{ 'BOOKINGS.ACTION_EDIT' | translate }}</div>
                 </div>
             </button>
             <button
@@ -293,7 +303,9 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                     <app-icon className="material-symbols-rounded">
                         height
                     </app-icon>
-                    <div>Set Desk Height</div>
+                    <div>
+                        {{ 'BOOKINGS.ACTION_SET_DESK_HEIGHT' | translate }}
+                    </div>
                 </div>
             </button>
             <button
@@ -303,7 +315,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
             >
                 <div class="flex items-center space-x-2 text-base">
                     <app-icon class="text-error">delete</app-icon>
-                    <div>Delete booking</div>
+                    <div>{{ 'BOOKINGS.ACTION_DELETE' | translate }}</div>
                 </div>
             </button>
             <button
@@ -313,13 +325,13 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
             >
                 <div class="flex items-center space-x-2 text-base">
                     <app-icon class="text-error">delete</app-icon>
-                    <div>Delete Series</div>
+                    <div>{{ 'BOOKINGS.ACTION_DELETE_SERIES' | translate }}</div>
                 </div>
             </button>
             <button mat-menu-item *ngIf="is_in_progress" (click)="end.emit()">
                 <div class="flex items-center space-x-2 text-base">
                     <app-icon class="text-error">delete</app-icon>
-                    <div>End booking</div>
+                    <div>{{ 'BOOKINGS.ACTION_END' | translate }}</div>
                 </div>
             </button>
         </mat-menu>
@@ -419,7 +431,7 @@ export class BookingDetailsModalComponent {
     }
 
     public get period() {
-        if (this.booking?.is_all_day) return 'All Day';
+        if (this.booking?.is_all_day) return i18n('COMMON.ALL_DAY');
         const start = this.booking?.date || Date.now();
         const duration = this.booking?.duration || 60;
         const end = addMinutes(start, duration);
@@ -449,7 +461,7 @@ export class BookingDetailsModalComponent {
         )
             .toPromise()
             .catch((_) => {
-                notifyError('Error checking in booking');
+                notifyError(i18n('BOOKINGS.CHECK_IN_ERROR'));
                 this.checking_in = false;
                 throw _;
             });
@@ -457,9 +469,11 @@ export class BookingDetailsModalComponent {
         (this.booking as any).checked_in = !this.booking.checked_in;
         this.checked_out = !this.booking.checked_in;
         notifySuccess(
-            `Successfully ${
-                this.booking.checked_in ? 'checked in' : 'ended booking'
-            }`,
+            i18n(
+                this.booking.checked_in
+                    ? 'BOOKINGS.CHECK_IN_SUCCESS'
+                    : 'BOOKINGS.CHECK_OUT_SUCCESS',
+            ),
         );
         this.checking_in = false;
     }

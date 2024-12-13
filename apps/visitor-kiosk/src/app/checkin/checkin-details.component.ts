@@ -15,53 +15,53 @@ import { SettingsService } from '@placeos/common';
             <h3 class="text-2xl m-4">Confirm Details</h3>
             <div field class="flex flex-col">
                 <label form="host">{{
-                    'VISITOR_KIOSK.HOST' | translate
+                    'APP.VISITOR_KIOSK.HOST' | translate
                 }}</label>
                 <mat-form-field appearance="outline">
                     <input
                         matInput
                         name="host"
                         formControlName="host"
-                        [placeholder]="'VISITOR_KIOSK.HOST' | translate"
+                        [placeholder]="'APP.VISITOR_KIOSK.HOST' | translate"
                     />
                     <mat-error>
-                        {{ 'VISITOR_KIOSK.EMAIL_REQUIRED' | translate }}
+                        {{ 'APP.VISITOR_KIOSK.EMAIL_REQUIRED' | translate }}
                     </mat-error>
                 </mat-form-field>
             </div>
             <div field class="flex flex-col">
                 <label form="name">{{
-                    'VISITOR_KIOSK.NAME' | translate
+                    'APP.VISITOR_KIOSK.NAME' | translate
                 }}</label>
                 <mat-form-field appearance="outline">
                     <input
                         matInput
                         name="name"
                         formControlName="name"
-                        [placeholder]="'VISITOR_KIOSK.NAME' | translate"
+                        [placeholder]="'APP.VISITOR_KIOSK.NAME' | translate"
                     />
                     <mat-error>Please enter your full name</mat-error>
                 </mat-form-field>
             </div>
             <div field class="flex flex-col">
                 <label form="email">{{
-                    'VISITOR_KIOSK.NAME' | translate
+                    'APP.VISITOR_KIOSK.NAME' | translate
                 }}</label>
                 <mat-form-field appearance="outline">
                     <input
                         matInput
                         name="email"
                         formControlName="email"
-                        [placeholder]="'VISITOR_KIOSK.EMAIL' | translate"
+                        [placeholder]="'APP.VISITOR_KIOSK.EMAIL' | translate"
                     />
                     <mat-error>{{
-                        'VISITOR_KIOSK.EMAIL_REQUIRED' | translate
+                        'APP.VISITOR_KIOSK.EMAIL_REQUIRED' | translate
                     }}</mat-error>
                 </mat-form-field>
             </div>
             <div field class="flex flex-col">
                 <label form="email">{{
-                    'VISITOR_KIOSK.PHONE' | translate
+                    'APP.VISITOR_KIOSK.PHONE' | translate
                 }}</label>
                 <mat-form-field appearance="outline">
                     <input
@@ -69,25 +69,27 @@ import { SettingsService } from '@placeos/common';
                         name="phone"
                         type="tel"
                         formControlName="phone"
-                        [placeholder]="'VISITOR_KIOSK.PHONE' | translate"
+                        [placeholder]="'APP.VISITOR_KIOSK.PHONE' | translate"
                     />
                 </mat-form-field>
             </div>
             <div field class="flex flex-col">
                 <label form="org">{{
-                    'VISITOR_KIOSK.ORGANISATION' | translate
+                    'APP.VISITOR_KIOSK.ORGANISATION' | translate
                 }}</label>
                 <mat-form-field appearance="outline">
                     <input
                         matInput
                         name="org"
                         formControlName="organisation"
-                        [placeholder]="'VISITOR_KIOSK.ORGANISATION' | translate"
+                        [placeholder]="
+                            'APP.VISITOR_KIOSK.ORGANISATION' | translate
+                        "
                     />
                 </mat-form-field>
             </div>
             <button next btn matRipple (click)="updateGuest()">
-                {{ 'VISITOR_KIOSK.CONTINUE' | translate }}
+                {{ 'APP.VISITOR_KIOSK.CONTINUE' | translate }}
             </button>
             <a
                 icon
@@ -107,7 +109,7 @@ import { SettingsService } from '@placeos/common';
                 >
                     <mat-spinner [diameter]="48"></mat-spinner>
                     <div class="my-4 text-lg">
-                        {{ 'VISITOR_KIOSK.CHECKIN_LOADING' | translate }}
+                        {{ 'APP.VISITOR_KIOSK.CHECKIN_LOADING' | translate }}
                     </div>
                 </div>
             </div>

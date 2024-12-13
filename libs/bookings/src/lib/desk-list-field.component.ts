@@ -69,7 +69,7 @@ const EMPTY_FAVS: string[] = [];
                         >
                             <div class="flex items-center space-x-2">
                                 <app-icon>edit</app-icon>
-                                Change
+                                {{ 'COMMON.CHANGE' | translate }}
                             </div>
                         </button>
                         <button
@@ -81,7 +81,7 @@ const EMPTY_FAVS: string[] = [];
                         >
                             <div class="flex items-center space-x-2">
                                 <app-icon>close</app-icon>
-                                Remove
+                                {{ 'COMMON.REMOVE' | translate }}
                             </div>
                         </button>
                     </div>
@@ -111,7 +111,7 @@ const EMPTY_FAVS: string[] = [];
         >
             <div class="flex items-center justify-center space-x-2">
                 <app-icon>search</app-icon>
-                <span>Add Desk</span>
+                <span>{{ 'BOOKINGS.DESK_ADD' | translate }}</span>
             </div>
         </button>
         <div class="flex items-center flex-wrap sm:space-x-2 mb-2">

@@ -13,7 +13,7 @@ import { SettingsService } from '@placeos/common';
                 <app-icon>chevron_left</app-icon>
             </button>
             <h2 class="flex-1 w-1/2 text-center">
-                {{ 'WPA.BOOKING_TYPES' | translate }}
+                {{ 'APP.WORKPLACE.SCHEDULE_FILTERS' | translate }}
             </h2>
             <app-icon></app-icon>
         </div>
@@ -31,9 +31,9 @@ import { SettingsService } from '@placeos/common';
                     <app-icon>place</app-icon>
                 </div>
                 <div class="flex-1">
-                    <div class="">{{ 'WPA.ROOM' | translate }}</div>
+                    <div class="">{{ 'RESOURCE.ROOMS' | translate }}</div>
                     <div class="text-sm opacity-60">
-                        {{ 'WPA.SCHEDULE_ROOM_FILTER' | translate }}
+                        {{ 'APP.WORKPLACE.SCHEDULE_FILTER_ROOMS' | translate }}
                     </div>
                 </div>
                 <mat-checkbox
@@ -55,9 +55,9 @@ import { SettingsService } from '@placeos/common';
                     <img src="assets/icons/desk-outline.svg" class="w-6" />
                 </div>
                 <div class="flex-1">
-                    <div class="">{{ 'WPA.DESK' | translate }}</div>
+                    <div class="">{{ 'RESOURCE.DESKS' | translate }}</div>
                     <div class="text-sm opacity-60">
-                        {{ 'WPA.SCHEDULE_DESK_FILTER' | translate }}
+                        {{ 'APP.WORKPLACE.SCHEDULE_FILTER_DESKS' | translate }}
                     </div>
                 </div>
                 <mat-checkbox
@@ -77,9 +77,11 @@ import { SettingsService } from '@placeos/common';
                     <app-icon>drive_eta</app-icon>
                 </div>
                 <div class="flex-1">
-                    <div class="">{{ 'WPA.PARKING' | translate }}</div>
+                    <div class="">{{ 'RESOURCE.PARKING' | translate }}</div>
                     <div class="text-sm opacity-60">
-                        {{ 'WPA.SCHEDULE_PARKING_FILTER' | translate }}
+                        {{
+                            'APP.WORKPLACE.SCHEDULE_FILTER_PARKING' | translate
+                        }}
                     </div>
                 </div>
                 <mat-checkbox
@@ -102,10 +104,12 @@ import { SettingsService } from '@placeos/common';
                 </div>
                 <div class="flex-1">
                     <div class="">
-                        {{ 'WPA.VISITORS' | translate }}
+                        {{ 'RESOURCE.VISITORS' | translate }}
                     </div>
                     <div class="text-sm opacity-60">
-                        {{ 'WPA.SCHEDULE_VISITOR_FILTER' | translate }}
+                        {{
+                            'APP.WORKPLACE.SCHEDULE_FILTER_VISITORS' | translate
+                        }}
                     </div>
                 </div>
                 <mat-checkbox
@@ -128,10 +132,12 @@ import { SettingsService } from '@placeos/common';
                 </div>
                 <div class="flex-1">
                     <div class="">
-                        {{ 'WPA.LOCKERS' | translate }}
+                        {{ 'RESOURCE.LOCKERS' | translate }}
                     </div>
                     <div class="text-sm opacity-60">
-                        {{ 'WPA.SCHEDULE_LOCKER_FILTER' | translate }}
+                        {{
+                            'APP.WORKPLACE.SCHEDULE_FILTER_LOCKERS' | translate
+                        }}
                     </div>
                 </div>
                 <mat-checkbox
@@ -154,10 +160,10 @@ import { SettingsService } from '@placeos/common';
                 </div>
                 <div class="flex-1">
                     <div class="">
-                        {{ 'WPA.GROUP_EVENT' | translate }}
+                        {{ 'RESOURCE.EVENTS' | translate }}
                     </div>
                     <div class="text-sm opacity-60">
-                        {{ 'WPA.SCHEDULE_GROUP_EVENT_FILTER' | translate }}
+                        {{ 'APP.WORKPLACE.SCHEDULE_FILTER_EVENTS' | translate }}
                     </div>
                 </div>
                 <mat-checkbox
@@ -175,7 +181,7 @@ import { SettingsService } from '@placeos/common';
                 class="w-full"
                 (click)="dismiss()"
             >
-                {{ 'WPA.FILTERS_APPLY' | translate }}
+                {{ 'COMMON.APPLY' | translate }}
             </button>
         </div>
     `,

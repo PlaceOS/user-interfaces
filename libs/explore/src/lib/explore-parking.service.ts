@@ -5,6 +5,7 @@ import {
     BookingRuleset,
     currentUser,
     flatten,
+    i18n,
     notifyError,
     notifySuccess,
     rulesForResource,
@@ -295,29 +296,27 @@ export class ExploreParkingService extends AsyncHandler {
                 }
                 if (deny_parking_access) {
                     return notifyError(
-                        `Your user account has been denied parking access to ${
-                            space.zone?.display_name || space.zone?.name
-                        }.`,
+                        i18n('EXPLORE.PARKING_PERMISSIONS_ERROR', {
+                            name: space.zone?.display_name || space.zone?.name,
+                        }),
                     );
                 }
                 console.log('Booked Space:', booked_space);
                 if (assigned_space && booked_space) {
                     return notifyError(
-                        `You are already assigned to parking space "${
-                            space.name || space.id
-                        }".`,
+                        i18n('EXPLORE.PARKING_ASSIGNED_ERROR', {
+                            name: space.name || space.id,
+                        }),
                     );
                 }
                 if (booked_space) {
-                    return notifyError(
-                        `You already have a parking space booked for the selected time.`,
-                    );
+                    return notifyError(i18n('EXPLORE.PARKING_EXISTING_ERROR'));
                 }
                 if (status !== 'free') {
                     return notifyError(
-                        `${
-                            space.name || 'Parking Space'
-                        } is unavailable at this time.`,
+                        i18n('EXPLORE.PARKING_AVAILABLE_ERROR', {
+                            name: space.name || 'Parking Space',
+                        }),
                     );
                 }
                 if (
@@ -325,7 +324,9 @@ export class ExploreParkingService extends AsyncHandler {
                     !space.groups.find((_) => currentUser().groups.includes(_))
                 ) {
                     return notifyError(
-                        `You are not allowed to book ${space.name}.`,
+                        i18n('EXPLORE.PARKING_GROUP_ERROR', {
+                            name: space.name,
+                        }),
                     );
                 }
                 this._bookings.newForm();
@@ -363,16 +364,17 @@ export class ExploreParkingService extends AsyncHandler {
                 await this._bookings.confirmPost().catch((e) => {
                     if (e === 'User cancelled') throw e;
                     notifyError(
-                        `Failed to book parking space ${
-                            space.name || space.id
-                        }. ${e.message || e.error || e}`,
+                        i18n('EXPLORE.PARKING_BOOKING_ERROR', {
+                            name: space.name || space.id,
+                            error: e.message || e.error || e,
+                        }),
                     );
                     throw e;
                 });
                 notifySuccess(
-                    `Successfully booked parking space ${
-                        space.name || space.id
-                    }`,
+                    i18n('EXPLORE.PARKING_BOOKING_SUCCESS', {
+                        name: space.name || space.id,
+                    }),
                 );
                 this.timeout('poll', () => this._poll.next(Date.now()), 1000);
             };

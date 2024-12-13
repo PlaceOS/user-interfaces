@@ -1,6 +1,11 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
-import { AsyncHandler, notifySuccess, SettingsService } from '@placeos/common';
+import {
+    AsyncHandler,
+    i18n,
+    notifySuccess,
+    SettingsService,
+} from '@placeos/common';
 import { EventFormService } from '@placeos/events';
 import { User } from '@placeos/users';
 import { combineLatest } from 'rxjs';
@@ -13,7 +18,12 @@ import { LandingStateService } from './landing-state.service';
         <div
             class="flex items-center justify-between p-2 mx-2 bg-base-200 text-sm rounded"
         >
-            <h2>{{ (contacts | async)?.length || 0 }} Colleague(s)</h2>
+            <h2>
+                {{
+                    'APP.WORKPLACE.COLLEAGUES_COUNT'
+                        | translate: { count: (contacts | async)?.length || 0 }
+                }}
+            </h2>
         </div>
         <div class="flex-1 h-1/2 w-full space-y-4 overflow-auto pt-4">
             <ng-container *ngIf="(contacts | async)?.length; else empty_state">
@@ -68,7 +78,10 @@ import { LandingStateService } from './landing-state.service';
                             <div class="flex items-center space-x-2">
                                 <app-icon class="text-2xl">today</app-icon>
                                 <div>
-                                    {{ 'WPA.CREATE_MEETING' | translate }}
+                                    {{
+                                        'APP.WORKPLACE.COLLEAGUE_NEW_MEETING'
+                                            | translate
+                                    }}
                                 </div>
                             </div>
                         </button>
@@ -80,7 +93,10 @@ import { LandingStateService } from './landing-state.service';
                             <div class="flex items-center space-x-2">
                                 <app-icon class="text-2xl">cancel</app-icon>
                                 <div>
-                                    {{ 'WPA.REMOVE_COLLEAGUE' | translate }}
+                                    {{
+                                        'APP.WORKPLACE.COLLEAGUE_REMOVE'
+                                            | translate
+                                    }}
                                 </div>
                             </div>
                         </button>
@@ -95,7 +111,7 @@ import { LandingStateService } from './landing-state.service';
             class="inverse w-[calc(100%-1rem)] m-2"
             (click)="openSearch()"
         >
-            {{ 'WPA.ADD' | translate }}
+            {{ 'APP.WORKPLACE.COLLEAGUE_ADD' | translate }}
         </button>
         <div
             search
@@ -106,7 +122,7 @@ import { LandingStateService } from './landing-state.service';
                 #search_input
                 [ngModel]="(options | async)?.search"
                 (ngModelChange)="updateSearch($event)"
-                placeholder="Search for users..."
+                [placeholder]="'FORM.USER_SEARCH' | translate"
                 class="w-full border-b border-base-200 p-2"
             />
             <button
@@ -155,7 +171,7 @@ import { LandingStateService } from './landing-state.service';
             >
                 <img src="assets/icons/no-contacts.svg" />
                 <p class="opacity-60 text-sm text-center">
-                    {{ 'WPA.COLLEAGUES_EMPTY' | translate }}
+                    {{ 'APP.WORKPLACE.COLLEAGUES_EMPTY' | translate }}
                 </p>
             </div>
         </ng-template>
@@ -166,10 +182,10 @@ import { LandingStateService } from './landing-state.service';
                 <p class="opacity-60 text-sm text-center">
                     {{
                         !(options | async)?.search
-                            ? 'Start typing to search for users.'
-                            : 'Unable for find any users matching "' +
-                              (options | async)?.search +
-                              '"'
+                            ? ('APP.WORKPLACE.COLLEAGUE_SEARCH_EMPTY'
+                              | translate)
+                            : ('APP.WORKPLACE.COLLEAGUE_SEARCH_EMPTY'
+                              | translate: { text: (options | async)?.search })
                     }}
                 </p>
             </div>
@@ -180,7 +196,7 @@ import { LandingStateService } from './landing-state.service';
             >
                 <mat-spinner diameter="32"></mat-spinner>
                 <p class="opacity-60 text-sm text-center">
-                    {{ 'WPA.COLLEAGUES_SEARCHING' | translate }}
+                    {{ 'APP.WORKPLACE.COLLEAGUE_SEARCH_LOADING' | translate }}
                 </p>
             </div>
         </ng-template>
@@ -224,13 +240,15 @@ export class LandingColleaguesComponent extends AsyncHandler {
 
     public readonly addUser = async (u) => {
         await this._state.addContact(u);
-        notifySuccess(`Successfully added "${u.name}" to contacts`);
+        notifySuccess(i18n('APP.WORKPLACE.COLLEAGUE_ADDED', { name: u.name }));
         this.show_search = false;
     };
 
     public readonly removeUser = async (u) => {
         await this._state.removeContact(u);
-        notifySuccess(`Successfully removed "${u.name}" from contacts`);
+        notifySuccess(
+            i18n('APP.WORKPLACE.COLLEAGUE_REMOVED', { name: u.name }),
+        );
     };
 
     public readonly updateSearch = (s) => this._state.setOptions({ search: s });

@@ -48,7 +48,9 @@ import {
                 *ngIf="featured"
             >
                 <app-icon class="text-base">star</app-icon>
-                <div class="uppercase">Featured</div>
+                <div class="uppercase">
+                    {{ 'CALENDAR_EVENT.GROUP_FEATURED' | translate }}
+                </div>
             </div>
             <button
                 icon
@@ -78,7 +80,12 @@ import {
                         >
                             <app-icon>star</app-icon>
                             <div class="pr-2">
-                                {{ is_interested ? '' : 'Not ' }}Interested
+                                {{
+                                    (is_interested
+                                        ? 'CALENDAR_EVENT.GROUP_INTERESTED'
+                                        : 'CALENDAR_EVENT.GROUP_NOT_INTERESTED'
+                                    ) | translate
+                                }}
                             </div>
                         </div>
                         <div
@@ -93,7 +100,12 @@ import {
                         >
                             <app-icon>help</app-icon>
                             <div class="pr-2">
-                                {{ is_going ? '' : 'Not ' }}Going
+                                {{
+                                    (is_going
+                                        ? 'CALENDAR_EVENT.GROUP_GOING'
+                                        : 'CALENDAR_EVENT.GROUP_NOT_GOING'
+                                    ) | translate
+                                }}
                             </div>
                         </div>
                     </ng-container>
@@ -112,7 +124,12 @@ import {
                                 <app-icon class="text-2xl">
                                     confirmation_number
                                 </app-icon>
-                                <div class="mr-2">Promote Event</div>
+                                <div class="mr-2">
+                                    {{
+                                        'CALENDAR_EVENT.GROUP_PREMOTE'
+                                            | translate
+                                    }}
+                                </div>
                             </div>
                         </button>
                         <button
@@ -122,7 +139,11 @@ import {
                         >
                             <div class="flex items-center space-x-2">
                                 <app-icon class="text-2xl">edit</app-icon>
-                                <div class="mr-2">Edit Event</div>
+                                <div class="mr-2">
+                                    {{
+                                        'CALENDAR_EVENT.GROUP_EDIT' | translate
+                                    }}
+                                </div>
                             </div>
                         </button>
                         <button mat-menu-item [disabled]="true">
@@ -130,7 +151,12 @@ import {
                                 <app-icon class="text-2xl"
                                     >content_copy</app-icon
                                 >
-                                <div class="mr-2">Copy URL</div>
+                                <div class="mr-2">
+                                    {{
+                                        'CALENDAR_EVENT.GROUP_COPY_URL'
+                                            | translate
+                                    }}
+                                </div>
                             </div>
                         </button>
                         <button mat-menu-item (click)="remove.emit()">
@@ -138,7 +164,12 @@ import {
                                 <app-icon class="text-2xl text-error">
                                     delete
                                 </app-icon>
-                                <div class="mr-2">Delete Event</div>
+                                <div class="mr-2">
+                                    {{
+                                        'CALENDAR_EVENT.GROUP_DELETE'
+                                            | translate
+                                    }}
+                                </div>
                             </div>
                         </button>
                     </mat-menu>
@@ -153,8 +184,12 @@ import {
                                     star
                                 </app-icon>
                                 <span>
-                                    {{ is_interested ? 'Revoke' : 'Indicate' }}
-                                    Interest
+                                    {{
+                                        (is_interested
+                                            ? 'CALENDAR_EVENT.GROUP_INTEREST_REMOVE'
+                                            : 'CALENDAR_EVENT.GROUP_INTEREST_ADD'
+                                        ) | translate
+                                    }}
                                 </span>
                             </div>
                         </button>
@@ -164,8 +199,12 @@ import {
                                     help
                                 </app-icon>
                                 <span>
-                                    {{ is_going ? 'Revoke' : 'Indicate' }}
-                                    Going
+                                    {{
+                                        (is_going
+                                            ? 'CALENDAR_EVENT.GROUP_GOING_REMOVE'
+                                            : 'CALENDAR_EVENT.GROUP_GOING_ADD'
+                                        ) | translate
+                                    }}
                                 </span>
                             </div>
                         </button>
@@ -183,11 +222,20 @@ import {
                             <app-icon>person</app-icon>
                         </div>
                         <div>
-                            Event by
-                            {{ event.organiser?.name || event.host }}
+                            {{
+                                'CALENDAR_EVENT.GROUP_HOST'
+                                    | translate
+                                        : {
+                                              name:
+                                                  event.organiser?.name ||
+                                                  event.host,
+                                          }
+                            }}
                         </div>
                     </div>
-                    <h3 class="font-medium pt-4">When and where</h3>
+                    <h3 class="font-medium pt-4">
+                        {{ 'CALENDAR_EVENT.GROUP_WHEN_WHERE' | translate }}
+                    </h3>
                     <div class="flex items-center space-x-4">
                         <div
                             class="flex items-center justify-center w-10 h-10 bg-base-200 rounded-full"
@@ -195,7 +243,11 @@ import {
                             <app-icon>calendar_today</app-icon>
                         </div>
                         <div class="flex flex-col">
-                            <div class="text-sm">Date and Time</div>
+                            <div class="text-sm">
+                                {{
+                                    'CALENDAR_EVENT.GROUP_DATE_TIME' | translate
+                                }}
+                            </div>
                             <div class="text-sm opacity-30">
                                 {{ event.date | date: 'EEEE, d MMMM, yyyy' }}
                                 . {{ event.date | date: time_format }} -
@@ -220,13 +272,17 @@ import {
                                 *ngIf="is_onsite && !has_space"
                                 class="opacity-30"
                             >
-                                Room to be confirmed
+                                {{
+                                    'CALENDAR_EVENT.GROUP_UNCONFIRMED'
+                                        | translate
+                                }}
                             </div>
                             <div *ngIf="is_online" class="opacity-30">
                                 {{
-                                    is_onsite
-                                        ? 'Can be attended online'
-                                        : 'Remote Event'
+                                    (is_onsite
+                                        ? 'CALENDAR_EVENT.GROUP_BOTH_LOCATIONS'
+                                        : 'CALENDAR_EVENT.GROUP_REMOTE'
+                                    ) | translate
                                 }}
                             </div>
                         </div>
@@ -242,12 +298,20 @@ import {
                             <app-icon>person</app-icon>
                         </div>
                         <div>
-                            {{ attendance }} going,
-                            {{ event.attendees?.length }}
-                            interested
+                            {{
+                                'CALENDAR_EVENT.GROUP_ATTENDEES'
+                                    | translate
+                                        : {
+                                              going: attendance,
+                                              interested:
+                                                  event.attendees?.length,
+                                          }
+                            }}
                         </div>
                     </button>
-                    <h3 class="font-medium pt-4">About this event</h3>
+                    <h3 class="font-medium pt-4">
+                        {{ 'CALENDAR_EVENT.GROUP_ABOUT' | translate }}
+                    </h3>
                     <div class="text-sm pb-4">
                         <span
                             event-details
@@ -257,7 +321,10 @@ import {
                             *ngIf="!raw_description.trim()"
                             class="opacity-30"
                         >
-                            No description
+                            {{
+                                'CALENDAR_EVENT.GROUP_NO_DESCRIPTION'
+                                    | translate
+                            }}
                         </span>
                     </div>
                 </div>
@@ -287,7 +354,10 @@ import {
                                     *ngIf="is_onsite && !has_space"
                                     class="opacity-30"
                                 >
-                                    Room to be confirmed
+                                    {{
+                                        'CALENDAR_EVENT.GROUP_UNCONFIRMED'
+                                            | translate
+                                    }}
                                 </div>
                                 <div class="opacity-30 text-sm !mt-0">
                                     <span *ngIf="building && level">
@@ -301,7 +371,10 @@ import {
                                         *ngIf="!building || !level"
                                         class="opacity-30"
                                     >
-                                        No location set for this event
+                                        {{
+                                            'CALENDAR_EVENT.GROUP_NO_LOCATION'
+                                                | translate
+                                        }}
                                     </span>
                                 </div>
                                 <a
@@ -313,9 +386,10 @@ import {
                                     rel="noopener noreferrer"
                                 >
                                     {{
-                                        is_onsite
-                                            ? 'Can be attended online'
-                                            : 'Remote Event'
+                                        (is_onsite
+                                            ? 'CALENDAR_EVENT.GROUP_BOTH_LOCATIONS'
+                                            : 'CALENDAR_EVENT.GROUP_REMOTE'
+                                        ) | translate
                                     }}
                                 </a>
                             </div>

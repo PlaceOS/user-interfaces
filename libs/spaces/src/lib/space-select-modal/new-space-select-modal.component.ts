@@ -17,7 +17,7 @@ import { Space } from '../space.class';
                 <button icon matRipple mat-dialog-close class="bg-base-200">
                     <app-icon>close</app-icon>
                 </button>
-                <h3>Find Space</h3>
+                <h3>{{ 'CALENDAR_EVENT.SPACE_SELECT_FIND' | translate }}</h3>
                 <div class="hidden sm:flex items-center justify-end flex-1">
                     <button
                         btn
@@ -27,7 +27,7 @@ import { Space } from '../space.class';
                         [class.inverse]="view !== 'map'"
                         (click)="view = 'map'"
                     >
-                        Map
+                        {{ 'COMMON.MAP' | translate }}
                     </button>
                     <button
                         btn
@@ -37,7 +37,7 @@ import { Space } from '../space.class';
                         [class.inverse]="view !== 'list'"
                         (click)="view = 'list'"
                     >
-                        List
+                        {{ 'COMMON.LIST' }}
                     </button>
                 </div>
             </header>
@@ -92,7 +92,7 @@ import { Space } from '../space.class';
                     *ngIf="displayed"
                     (click)="displayed = null"
                 >
-                    Back
+                    {{ 'COMMON.BACK' | translate }}
                 </button>
                 <button
                     btn
@@ -102,7 +102,7 @@ import { Space } from '../space.class';
                     [class.mb-2]="displayed"
                     class="w-full sm:w-32 sm:mb-0"
                 >
-                    View List
+                    {{ 'COMMON.VIEW_LIST' | translate }}
                 </button>
             </footer>
             <footer
@@ -117,11 +117,16 @@ import { Space } from '../space.class';
                 >
                     <div class="flex items-center">
                         <app-icon class="text-xl">arrow_back</app-icon>
-                        <div class="mr-1 underline">Back to form</div>
+                        <div class="mr-1 underline">
+                            {{ 'COMMON.BACK_TO_FORM' | translate }}
+                        </div>
                     </div>
                 </button>
                 <p class="opacity-60 text-sm">
-                    {{ selected.length }} room(s) added
+                    {{
+                        'CALENDAR_EVENT.SPACE_SELECT_COUNT'
+                            | translate: { count: selected.length }
+                    }}
                 </p>
                 <button
                     btn
@@ -137,9 +142,10 @@ import { Space } from '../space.class';
                         }}</app-icon>
                         <div class="mr-1">
                             {{
-                                isSelected(displayed?.id)
-                                    ? 'Remove from Booking'
-                                    : 'Add to booking'
+                                (isSelected(displayed?.id)
+                                    ? 'COMMON.REMOVE_FROM'
+                                    : 'COMMON.ADD_TO'
+                                ) | translate
                             }}
                         </div>
                     </div>

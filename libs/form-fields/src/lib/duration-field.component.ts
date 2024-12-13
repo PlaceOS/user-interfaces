@@ -130,7 +130,7 @@ export class DurationFieldComponent
     /** Whether to use 24 hour time when formatting displayed time */
     @Input() public use_24hr = false;
     /** Display extra information for displayed times for timezone */
-    @Input() public timezone: string = '';
+    @Input() public timezone = '';
 
     public duration = 60;
     /** List of available duration options */

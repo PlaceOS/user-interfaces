@@ -17,7 +17,7 @@ import {
 import { ExploreStateService } from 'libs/explore/src/lib/explore-state.service';
 
 export const MAP_FEATURE_DATA = new InjectionToken<any>(
-    'Data for Map Features'
+    'Data for Map Features',
 );
 
 export interface MapOptions {
@@ -75,7 +75,7 @@ export interface MapMetadata {
             <button
                 icon
                 matRipple
-                matTooltip="Zoom In"
+                [matTooltip]="'EXPLORE.ZOOM_IN' | translate"
                 matTooltipPosition="left"
                 class="rounded-none"
                 (click)="zoom = zoom * 1.1"
@@ -85,7 +85,7 @@ export interface MapMetadata {
             <button
                 icon
                 matRipple
-                matTooltip="Zoom Out"
+                [matTooltip]="'EXPLORE.ZOOM_OUT' | translate"
                 matTooltipPosition="left"
                 class="rounded-none"
                 (click)="zoom = zoom * (10 / 11)"
@@ -95,7 +95,7 @@ export interface MapMetadata {
             <button
                 icon
                 matRipple
-                matTooltip="Reset Zoom and Position"
+                [matTooltip]="'EXPLORE.ZOOM_RESET' | translate"
                 matTooltipPosition="left"
                 class="rounded-none"
                 (click)="reset = reset + 1"
@@ -131,7 +131,7 @@ export class InteractiveMapComponent extends AsyncHandler {
     constructor(
         private _mapspeople: MapsPeopleService,
         private _org: OrganisationService,
-        private _explore: ExploreStateService
+        private _explore: ExploreStateService,
     ) {
         super();
     }
@@ -156,7 +156,7 @@ export class InteractiveMapComponent extends AsyncHandler {
         log(
             'Map',
             'Level changed to:',
-            zone?.display_name || zone?.name || zone
+            zone?.display_name || zone?.name || zone,
         );
         this._explore.setLevel(zone.id);
     }

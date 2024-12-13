@@ -1,7 +1,12 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { BookingFormService, findNearbyFeature } from '@placeos/bookings';
-import { currentUser, notifyError, SettingsService } from '@placeos/common';
+import {
+    currentUser,
+    i18n,
+    notifyError,
+    SettingsService,
+} from '@placeos/common';
 import { EventFormService } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
 import { SpacePipe } from '@placeos/spaces';
@@ -22,24 +27,39 @@ import { take } from 'rxjs/operators';
                 </h2>
                 <img src="assets/icons/success.svg" />
                 <p class="text-center max-w-[32rem]">
-                    Your
-                    <span *ngIf="space">
-                        room booking for
-                        {{ level?.display_name || level?.name
-                        }}<span *ngIf="level">,</span>
-                        {{ space?.display_name || space?.name }}
-                    </span>
-                    <span *ngIf="!space">meeting</span> has been successfully
-                    booked for {{ last_event.date | date: 'mediumDate'
-                    }}<span *ngIf="!last_event?.all_day">
-                        at {{ last_event.date | date: time_format }}-{{
-                            last_event.date + last_event.duration * 60 * 1000
-                                | date: time_format
-                        }}</span
-                    >.
+                    @let details =
+                        {
+                            level: level?.display_name || level?.name,
+                            space: space?.display_name || space?.name,
+                            date: last_event.date | date: 'mediumDate',
+                            time:
+                                last_event.date
+                                | date
+                                    : time_format +
+                                          '-' +
+                                          last_event.date +
+                                          last_event.duration * 60 * 1000
+                                | date: time_format,
+                        };
+                    <ng-container *ngIf="last_event?.all_day">
+                        {{
+                            (space
+                                ? 'CALENDAR_EVENT.SUCCESS_WITH_SPACE_ALLDAY'
+                                : 'CALENDAR_EVENT.SUCCESS_WITHOUT_SPACE_ALLDAY'
+                            ) | translate: details
+                        }}
+                    </ng-container>
+                    <ng-container *ngIf="!last_event?.all_day">
+                        {{
+                            (space
+                                ? 'CALENDAR_EVENT.SUCCESS_WITH_SPACE'
+                                : 'CALENDAR_EVENT.SUCCESS_WITHOUT_SPACE'
+                            ) | translate: details
+                        }}
+                    </ng-container>
                 </p>
                 <p *ngIf="true">
-                    Please allow up to 5 minutes for you booking to be approved.
+                    {{ 'CALENDAR_EVENT.SUCCESS_WAIT_APPROVED' | translate }}
                 </p>
                 <div class="h-4"></div>
                 <button
@@ -49,7 +69,7 @@ import { take } from 'rxjs/operators';
                     *ngIf="space?.email && allow_desk_booking"
                     (click)="startDeskBooking()"
                 >
-                    Book nearby desk
+                    {{ 'CALENDAR_EVENT.BOOK_NEARBY_DESK' | translate }}
                 </button>
             </main>
             <footer
@@ -62,7 +82,7 @@ import { take } from 'rxjs/operators';
                     class="w-full max-w-[32rem]"
                     [routerLink]="['/']"
                 >
-                    {{ 'WPA.BOOKING_DONE_CONTINUE' | translate }}
+                    {{ 'APP.WORKPLACE.MEETING_FINISHED' | translate }}
                 </a>
             </footer>
         </div>
@@ -122,7 +142,8 @@ export class MeetingFlowSuccessComponent {
                 space?.map_id,
                 bookable_desks,
             );
-            if (!nearby) return notifyError('No available desks nearby');
+            if (!nearby)
+                return notifyError(i18n('APP.WORKPLACE.MEETING_DESK_ERROR'));
             const resource = resources.find((_) => _.map_id === nearby);
             this._booking_form.form.patchValue({
                 date: set(this.last_event.date, {

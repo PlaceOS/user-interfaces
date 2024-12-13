@@ -8,6 +8,7 @@ import { AssetStateService } from './asset-state.service';
 import { AssetItem, AssetRequest } from './asset-request.class';
 import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
+    i18n,
     notifyError,
     randomInt,
     randomString,
@@ -31,13 +32,17 @@ const EMPTY_FAVS: string[] = [];
                     <div class="flex-1">
                         <div class="flex items-center space-x-4">
                             <div>
-                                Request for
                                 {{
-                                    request.deliver_at_time | date: 'mediumDate'
-                                }}
-                                at
-                                {{
-                                    request.deliver_at_time | date: time_format
+                                    'FORM.ASSETS_REQUESTED_FOR_DATE'
+                                        | translate
+                                            : {
+                                                  date:
+                                                      request.deliver_at_time
+                                                      | date: 'mediumDate',
+                                                  time:
+                                                      request.deliver_at_time
+                                                      | date: time_format,
+                                              }
                                 }}
                             </div>
                             <div
@@ -56,7 +61,7 @@ const EMPTY_FAVS: string[] = [];
                     <button
                         icon
                         matRipple
-                        matTooltip="Duplicate Request"
+                        [matTooltip]="'FORM.ASSETS_DUPLICATE' | translate"
                         (click)="duplicateRequest(request)"
                     >
                         <app-icon>content_copy</app-icon>
@@ -64,7 +69,7 @@ const EMPTY_FAVS: string[] = [];
                     <button
                         icon
                         matRipple
-                        matTooltip="Edit Request"
+                        [matTooltip]="'FORM.ASSETS_EDIT' | translate"
                         (click)="editRequest(request)"
                     >
                         <app-icon>edit</app-icon>
@@ -72,7 +77,7 @@ const EMPTY_FAVS: string[] = [];
                     <button
                         icon
                         matRipple
-                        matTooltip="Remove Request"
+                        [matTooltip]="'FORM.ASSETS_REMOVE' | translate"
                         class="text-error"
                         (click)="removeRequest(request)"
                     >
@@ -82,9 +87,10 @@ const EMPTY_FAVS: string[] = [];
                         icon
                         matRipple
                         [matTooltip]="
-                            show_request[request.id]
-                                ? 'Hide order items'
-                                : 'Show order items'
+                            (show_request[request.id]
+                                ? 'FORM.ASSETS_HIDE'
+                                : 'FORM.ASSETS_SHOW'
+                            ) | translate
                         "
                         (click)="
                             show_request[request.id] = !show_request[request.id]
@@ -118,7 +124,7 @@ const EMPTY_FAVS: string[] = [];
                         <button
                             icon
                             matRipple
-                            matTooltip="Remove Request Item"
+                            [matTooltip]="'FORM.ASSETS_REMOVE_ITEM' | translate"
                             class="text-error"
                             (click)="removeRequestItem(request, item)"
                         >
@@ -129,9 +135,10 @@ const EMPTY_FAVS: string[] = [];
                             matRipple
                             name="toggle-catering-item-favourite"
                             [matTooltip]="
-                                favorites.includes(item.id)
-                                    ? 'Remove from favourites'
-                                    : 'Add to favourites'
+                                (favorites.includes(item.id)
+                                    ? 'COMMON.FAVOURITES_REMOVE'
+                                    : 'COMMON.FAVOURITES_ADD'
+                                ) | translate
                             "
                             [class.text-blue-400]="favorites.includes(item.id)"
                             (click)="toggleFavourite(item)"
@@ -156,7 +163,7 @@ const EMPTY_FAVS: string[] = [];
         >
             <div class="flex items-center justify-center space-x-2">
                 <app-icon>search</app-icon>
-                <span>Add Asset</span>
+                <span>{{ 'FORM.ASSETS_ADD' | translate }}</span>
             </div>
         </button>
     `,
@@ -184,8 +191,8 @@ export class AssetListFieldComponent implements ControlValueAccessor {
     public show_request: Record<string, boolean> = {};
     public err_tooltip(request: AssetRequest) {
         return this.rejected_ids.includes(request.id) || request.conflict
-            ? 'Some of the items are not available for the selected date and time.'
-            : 'Delivery time is outside of the event time.\nThis order will be ignored.';
+            ? i18n('FORM.ASSETS_CLASH_ERROR')
+            : i18n('FORM.ASSETS_TIME_ERROR');
     }
 
     private _onChange: (_: AssetRequest[]) => void;
@@ -335,8 +342,7 @@ export class AssetListFieldComponent implements ControlValueAccessor {
                 );
                 if (total + item.quantity > (item as any).assets.length) {
                     notifyError(
-                        `Not enough assets available to meet request [${item.name}].
-                        Another request for this asset has been made in this meeting.`,
+                        i18n('FORM.ASSETS_QUANTITY_ERROR', { name: item.name }),
                         undefined,
                         undefined,
                         { duration: 5000 },

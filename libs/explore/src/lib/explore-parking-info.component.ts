@@ -2,7 +2,6 @@ import { Component, ElementRef, Inject } from '@angular/core';
 import { SettingsService } from '@placeos/common';
 import { MAP_FEATURE_DATA } from '@placeos/components';
 import { ParkingSpace } from 'libs/bookings/src/lib/parking.service';
-import { User } from 'libs/users/src/lib/user.class';
 
 interface ParkingSpaceExtended extends ParkingSpace {
     user: string;
@@ -37,10 +36,10 @@ interface ParkingSpaceExtended extends ParkingSpace {
                     <div
                         class="text-[0.625rem] w-full text-center pt-1 whitespace-nowrap font-medium"
                     >
-                        Plate Number
+                        {{ 'EXPLORE.PARKING_PLATE_NUMBER' | translate }}
                     </div>
                     <div class="font-mono pb-1 w-full text-center uppercase">
-                        {{ plate_number || 'ABC3' }}
+                        {{ plate_number || 'PLATE NO 1' }}
                     </div>
                 </div>
             </div>

@@ -13,7 +13,7 @@ import { CheckinStateService } from './checkin-state.service';
             class="bg-base-100 rounded shadow overflow-hidden relative flex flex-col items-center w-[36rem] p-4"
         >
             <h3 class="text-xl mb-2 w-full">
-                {{ 'VISITOR_KIOSK.BEVERAGE_MSG' | translate }}
+                {{ 'APP.VISITOR_KIOSK.BEVERAGE_MSG' | translate }}
             </h3>
             <div class="w-full">
                 <mat-form-field appearance="outline" class="w-full">
@@ -32,8 +32,10 @@ import { CheckinStateService } from './checkin-state.service';
             </div>
             <button btn matRipple class="w-32" (click)="update()">
                 {{
-                    (beverage ? 'VISITOR_KIOSK.SAVE' : 'VISITOR_KIOSK.CONTINUE')
-                        | translate
+                    (beverage
+                        ? 'APP.VISITOR_KIOSK.SAVE'
+                        : 'APP.VISITOR_KIOSK.CONTINUE'
+                    ) | translate
                 }}
             </button>
             <a

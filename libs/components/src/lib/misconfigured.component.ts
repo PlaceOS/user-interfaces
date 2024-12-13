@@ -7,12 +7,13 @@ import { Component } from '@angular/core';
             content
             class="rounded m-4 text-center bg-base-100 text-black border border-base-200 p-4 shadow"
         >
-            <h3 class="text-2xl">Application Misconfigured.</h3>
+            <h3 class="text-2xl">
+                {{ 'COMMON.MISCONFIGURED_TITLE' | translate }}
+            </h3>
             <p class="py-4">
-                This application requires a zone of type org, building and level
-                to operate.
+                {{ 'COMMON.MISCONFIGURED_MSG' | translate }}
             </p>
-            <p>If this issue persists please contact your administrator.</p>
+            <p>{{ 'COMMON.MISCONFIGURED_CONTACT' | translate }}</p>
         </div>
     `,
     styles: [

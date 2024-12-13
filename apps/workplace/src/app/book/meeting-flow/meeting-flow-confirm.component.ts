@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, Input, Optional } from '@angular/core';
+import { Component, Input, OnInit, Optional } from '@angular/core';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { MatDialog } from '@angular/material/dialog';
 import { CateringItem } from '@placeos/catering';
@@ -7,6 +7,7 @@ import {
     AsyncHandler,
     SettingsService,
     getTimezoneOffsetString,
+    i18n,
     notifyError,
     openConfirmModal,
 } from '@placeos/common';
@@ -31,7 +32,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
             <app-icon>close</app-icon>
         </button>
         <header class="flex items-center justify-between px-2">
-            <h2>Confirm Meeting booking</h2>
+            <h2>{{ 'APP.WORKPLACE.MEETING_CONFIRM' | translate }}</h2>
             <mat-spinner diameter="32" *ngIf="loading | async"></mat-spinner>
         </header>
         <section period class="flex space-x-1 px-2">
@@ -67,7 +68,12 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
         >
             <app-icon class="text-success mt-1">done</app-icon>
             <div details class="leading-6">
-                <h3>{{ event.attendees.length }} Attendee(s)</h3>
+                <h3>
+                    {{
+                        'CALENDAR_EVENT.ATTENDEE_COUNT'
+                            | translate: { count: event.attendees.length }
+                    }}
+                </h3>
                 <div attendee-list>
                     <mat-chip-list #chipList aria-label="User selection">
                         <mat-chip *ngFor="let user of event.attendees">
@@ -83,7 +89,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
         <section spaces class="flex space-x-1 px-2" *ngIf="space?.id">
             <app-icon class="text-success mt-1">done</app-icon>
             <div details class="leading-6">
-                <h3>Booked Room</h3>
+                <h3>{{ 'APP.WORKPLACE.MEETING_BOOKED_ROOM' | translate }}</h3>
                 <ng-container *ngFor="let s of event.resources">
                     <div class="flex items-center space-x-2">
                         <app-icon class="text-2xl">meeting_room</app-icon>
@@ -108,7 +114,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                 *ngIf="!(loading | async)"
                 (click)="postForm()"
             >
-                Confirm
+                {{ 'COMMON.CONFIRM' | translate }}
             </button>
             <!-- <button
                 btn
@@ -143,8 +149,11 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
     ],
     providers: [SpacePipe],
 })
-export class MeetingFlowConfirmComponent extends AsyncHandler {
-    @Input() public show_close: boolean = false;
+export class MeetingFlowConfirmComponent
+    extends AsyncHandler
+    implements OnInit
+{
+    @Input() public show_close = false;
 
     private _date: DatePipe = new DatePipe('en');
 
@@ -154,9 +163,8 @@ export class MeetingFlowConfirmComponent extends AsyncHandler {
         if (!this.space) {
             const result = await openConfirmModal(
                 {
-                    title: 'Make Booking without a Room',
-                    content:
-                        'You are creating a booking without a room, are you sure?',
+                    title: i18n('APP.WORKPLACE.MEETING_WITHOUT_ROOM_TITLE'),
+                    content: i18n('APP.WORKPLACE.MEETING_WITHOUT_ROOM_MSG'),
                     icon: { content: 'event_available' },
                 },
                 this._dialog,
@@ -185,7 +193,7 @@ export class MeetingFlowConfirmComponent extends AsyncHandler {
         if (this.is_multiday) {
             return `${start_date}${all_day ? '' : ', ' + start_time} - ${end_date}${all_day ? '' : ', ' + end_time}`;
         } else if (all_day) {
-            return 'All Day';
+            return i18n('COMMON.ALL_DAY');
         }
         return `${start_time} - ${end_time} ${'(' + tz_format + ')'}`;
     }

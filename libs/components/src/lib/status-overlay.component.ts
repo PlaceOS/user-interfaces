@@ -46,9 +46,9 @@ import { ApplicationLink } from '@placeos/common';
 })
 export class StatusOverlayComponent {
     /** Whether overlay is loading */
-    @Input() public loading: string = '';
+    @Input() public loading = '';
     /** Details about any errors that have occurred */
-    @Input() public error: string = '';
+    @Input() public error = '';
     /** Links to display on success */
     @Input() public links: ApplicationLink[] = [];
 }

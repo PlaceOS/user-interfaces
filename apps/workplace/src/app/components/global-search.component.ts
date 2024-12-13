@@ -31,7 +31,7 @@ import { ExploreSearchService } from '@placeos/explore';
                 <app-icon class="text-2xl">search</app-icon>
                 <input
                     #input
-                    placeholder="Search for people or spaces..."
+                    [placeholder]="'APP.WORKPLACE.GLOBAL_SEARCH' | translate"
                     class="flex-1 w-1/2 py-2 outline-none"
                     [(ngModel)]="filter_str"
                     (ngModelChange)="setFilter($event)"
@@ -62,7 +62,7 @@ import { ExploreSearchService } from '@placeos/explore';
                         else empty_state
                     "
                 >
-                    No matches found.
+                    {{ 'APP.WORKPLACE.GLOBAL_SEARCH_EMPTY' | translate }}
                 </div>
                 <ng-container *ngIf="!(loading | async) && filter_str">
                     <a
@@ -105,7 +105,7 @@ import { ExploreSearchService } from '@placeos/explore';
                 *ngIf="!(results | async)?.length"
                 class="p-4 w-full text-center opacity-60"
             >
-                Start typing to search...
+                {{ 'APP.WORKPLACE.GLOBAL_SEARCH_START' | translate }}
             </div>
         </ng-template>
     `,

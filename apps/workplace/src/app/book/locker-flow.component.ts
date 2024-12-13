@@ -36,12 +36,14 @@ import { map, shareReplay } from 'rxjs/operators';
             >
                 <img src="assets/icons/parking-success.svg" class="w-64 h-64" />
                 <p>
-                    You are already assigned a locker "{{
-                        (assigned_space | async)?.name
-                    }}"
+                    {{
+                        'APP.WORKPLACE.LOCKER_ASSIGNED'
+                            | translate
+                                : { name: (assigned_space | async)?.name }
+                    }}
                 </p>
                 <a btn matRipple class="w-48" [routerLink]="['/your-bookings']">
-                    View Your Bookings
+                    {{ 'APP.WORKPLACE.VIEW_SCHEDULE' | translate }}
                 </a>
             </div>
         </ng-template>

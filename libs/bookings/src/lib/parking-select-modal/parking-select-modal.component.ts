@@ -19,7 +19,7 @@ export const FAV_PARKING_KEY = 'favourite_parking_spaces';
                 <button icon matRipple mat-dialog-close class="bg-base-200">
                     <app-icon>close</app-icon>
                 </button>
-                <h3>Find Parking Space</h3>
+                <h3>{{ 'BOOKINGS.PARKING_FIND' | translate }}</h3>
             </header>
             <main
                 class="flex-1 flex items-center divide-x divide-base-200 min-h-[65vh] h-[65vh] sm:max-h-[65vh] sm:max-w-[95vw] w-full overflow-hidden"
@@ -68,7 +68,7 @@ export const FAV_PARKING_KEY = 'favourite_parking_spaces';
                     *ngIf="displayed"
                     (click)="displayed = null"
                 >
-                    Back
+                    {{ 'COMMON.BACK' | translate }}
                 </button>
                 <button
                     btn
@@ -78,7 +78,7 @@ export const FAV_PARKING_KEY = 'favourite_parking_spaces';
                     [class.mb-2]="displayed"
                     class="w-full sm:w-32 sm:mb-0"
                 >
-                    View List
+                    {{ 'COMMON.VIEW_LIST' | translate }}
                 </button>
             </footer>
             <footer
@@ -92,11 +92,16 @@ export const FAV_PARKING_KEY = 'favourite_parking_spaces';
                 >
                     <div class="flex items-center">
                         <app-icon class="text-xl">arrow_back</app-icon>
-                        <div class="mr-1 underline">Back to form</div>
+                        <div class="mr-1 underline">
+                            {{ 'COMMON.BACK_TO_FORM' | translate }}
+                        </div>
                     </div>
                 </button>
                 <p class="opacity-60 text-sm">
-                    {{ selected.length }} bay(s) added
+                    {{
+                        'BOOKINGS.PARKING_ADDED_COUNT'
+                            | translate: { count: selected.length }
+                    }}
                 </p>
                 <button
                     btn
@@ -111,9 +116,10 @@ export const FAV_PARKING_KEY = 'favourite_parking_spaces';
                         }}</app-icon>
                         <div class="mr-1">
                             {{
-                                isSelected(displayed?.id)
-                                    ? 'Remove from Booking'
-                                    : 'Add to booking'
+                                (isSelected(displayed?.id)
+                                    ? 'COMMON.REMOVE_FROM'
+                                    : 'COMMON.ADD_TO'
+                                ) | translate
                             }}
                         </div>
                     </div>

@@ -2,7 +2,7 @@ import { Component, OnInit, Output, EventEmitter, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ViewerFeature, ViewerStyles } from '@placeos/svg-viewer';
 
-import { AsyncHandler, MapsPeopleService } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { BuildingLevel } from 'libs/organisation/src/lib/level.class';
 import { MapPinComponent } from './map-pin.component';
@@ -38,7 +38,7 @@ export interface Locatable {
                     [features]="features"
                     [options]="{
                         disable_pan: true,
-                        disable_zoom: true
+                        disable_zoom: true,
                     }"
                 >
                     <mat-spinner diameter="64"></mat-spinner
@@ -53,7 +53,7 @@ export interface Locatable {
                 class="w-full border-t border-base-200 flex items-center justify-center p-2"
             >
                 <button btn matRipple class="inverse w-32" mat-dialog-close>
-                    Close
+                    {{ 'COMMON.BACK' | translate }}
                 </button>
             </footer>
         </div>
@@ -82,7 +82,7 @@ export class MapLocateModalComponent extends AsyncHandler implements OnInit {
 
     constructor(
         @Inject(MAT_DIALOG_DATA) private _data: { item: Locatable },
-        private _org: OrganisationService
+        private _org: OrganisationService,
     ) {
         super();
         if (!this.item.level?.id) {
@@ -97,7 +97,7 @@ export class MapLocateModalComponent extends AsyncHandler implements OnInit {
                 this.processFeature();
                 this.processStyles();
             },
-            1000
+            1000,
         );
     }
 

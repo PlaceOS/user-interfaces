@@ -1,4 +1,10 @@
-import { Component, ElementRef, TemplateRef, ViewChild } from '@angular/core';
+import {
+    Component,
+    ElementRef,
+    OnInit,
+    TemplateRef,
+    ViewChild,
+} from '@angular/core';
 import {
     MatBottomSheet,
     MatBottomSheetRef,
@@ -10,6 +16,7 @@ import {
     AsyncHandler,
     currentUser,
     getInvalidFields,
+    i18n,
     notifyError,
     notifyWarn,
     openConfirmModal,
@@ -37,8 +44,12 @@ import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
                 <h2
                     class="w-full p-4 sm:py-4 sm:px-16 text-2xl font-medium border-b border-base-300"
                 >
-                    {{ !!form.value.id ? 'Edit' : 'Book' }}
-                    {{ 'WPA.BOOK_MEETING_HEADING' | translate }}
+                    {{
+                        (!!form.value.id
+                            ? 'APP.WORKPLACE.MEETING_BOOK_EDIT_HEADER'
+                            : 'APP.WORKPLACE.MEETING_BOOK_NEW_HEADER'
+                        ) | translate
+                    }}
                 </h2>
                 <form
                     class="p-0 sm:py-4 sm:px-16 divide-y divide-base-200 space-y-2"
@@ -53,7 +64,7 @@ import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
                                 1
                             </div>
                             <div class="text-xl">
-                                {{ 'WPA.DETAILS' | translate }}
+                                {{ 'CALENDAR_EVENT.DETAILS' | translate }}
                             </div>
                             <div class="flex-1 w-px"></div>
                             <button
@@ -89,7 +100,7 @@ import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
                                 2
                             </div>
                             <div class="text-xl">
-                                {{ 'FORM.ATTENDEES' | translate }}
+                                {{ 'CALENDAR_EVENT.ATTENDEES' | translate }}
                             </div>
                             <div class="flex-1 w-px"></div>
                             <button
@@ -98,7 +109,7 @@ import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
                                 class="bg-none underline text-xs text-info"
                                 (click)="findAvailableTime()"
                             >
-                                {{ 'WPA.AVAILABILITY' | translate }}
+                                {{ 'COMMON.AVAILABILITY' | translate }}
                             </button>
                             <button
                                 icon
@@ -135,7 +146,7 @@ import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
                                 3
                             </div>
                             <div class="text-xl">
-                                {{ 'WPA.ROOM' | translate }}
+                                {{ 'RESOURCE.ROOM' | translate }}
                             </div>
                             <div class="flex-1 w-px"></div>
                             <button
@@ -166,8 +177,10 @@ import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
                                 "
                                 class="bg-warning text-warning-content rounded shadow p-2 text-xs mx-auto my-2 inline-flex"
                             >
-                                The selected room has less capacity than the
-                                number of meeting attendees.
+                                {{
+                                    'CALENDAR_EVENT.CAPACITY_WARNING'
+                                        | translate
+                                }}
                             </div>
                             <space-list-field
                                 class="w-full"
@@ -184,7 +197,7 @@ import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
                                 4
                             </div>
                             <div class="text-xl">
-                                {{ 'WPA.CATERING' | translate }}
+                                {{ 'CALENDAR_EVENT.CATERING' | translate }}
                             </div>
                             <div class="flex-1 w-px"></div>
                             <button
@@ -229,7 +242,10 @@ import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
                             >
                                 <mat-select
                                     formControlName="catering_charge_code"
-                                    placeholder="Charge Code"
+                                    [placeholder]="
+                                        'CALENDAR_EVENT.CATERING_CHARGE_CODE'
+                                            | translate
+                                    "
                                 >
                                     <input
                                         #input
@@ -239,7 +255,10 @@ import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
                                             code_filter.next($event)
                                         "
                                         [ngModelOptions]="{ standalone: true }"
-                                        placeholder="Search charge codes..."
+                                        [placeholder]="
+                                            'CALENDAR_EVENT.CATERING_CHARGE_CODE_SEACH'
+                                                | translate
+                                        "
                                     />
                                     <mat-option class="hidden"></mat-option>
                                     <mat-option
@@ -252,7 +271,10 @@ import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
                                     </mat-option>
                                 </mat-select>
                                 <mat-error>
-                                    Catering charge code is required
+                                    {{
+                                        'CALENDAR_EVENT.CATERING_CHARGE_CODE_REQUIRED'
+                                            | translate
+                                    }}
                                 </mat-error>
                             </mat-form-field>
                             <mat-form-field
@@ -269,10 +291,16 @@ import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
                                 <textarea
                                     matInput
                                     formControlName="catering_notes"
-                                    placeholder="Extra catering details..."
+                                    [placeholder]="
+                                        'CALENDAR_EVENT.CATERING_NOTES'
+                                            | translate
+                                    "
                                 ></textarea>
                                 <mat-error>
-                                    Catering Order notes are required
+                                    {{
+                                        'CALENDAR_EVENT.CATERING_NOTES_REQUIRED'
+                                            | translate
+                                    }}
                                 </mat-error>
                             </mat-form-field>
                         </div>
@@ -285,7 +313,7 @@ import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
                                 {{ !(has_catering | async) ? '4' : '5' }}
                             </div>
                             <div class="text-xl">
-                                {{ 'WPA.ASSETS' | translate }}
+                                {{ 'RESOURCE.ASSETS' | translate }}
                             </div>
                             <div class="flex-1 w-px"></div>
                             <button
@@ -334,17 +362,19 @@ import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
                                 }}
                             </div>
                             <div class="text-xl">
-                                {{ 'FORM.NOTES' | translate }}
+                                {{ 'CALENDAR_EVENT.NOTES_HEADER' | translate }}
                             </div>
                         </h3>
                         <div class="w-full flex flex-col">
                             <label for="notes">
-                                {{ 'WPA.NOTES_INFO' | translate }}
+                                {{ 'CALENDAR_EVENT.NOTES_INFO' | translate }}
                             </label>
                             <rich-text-input
                                 name="notes"
                                 formControlName="body"
-                                placeholder="Notes..."
+                                [placeholder]="
+                                    'CALENDAR_EVENT.NOTES_INFO' | translate
+                                "
                             ></rich-text-input>
                         </div>
                     </section>
@@ -359,7 +389,7 @@ import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
                             class="mb-2 sm:mb-0 w-full sm:w-auto"
                             (click)="viewConfirm()"
                         >
-                            {{ 'WPA.CONFIRM_MEETING' | translate }}
+                            {{ 'CALENDAR_EVENT.CONFIRM_DETAILS' | translate }}
                         </button>
                         <button
                             btn
@@ -369,8 +399,11 @@ import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
                             class="inverse w-full sm:w-auto"
                             (click)="clearForm()"
                         >
-                            {{ !!form.value.id ? 'Reset' : 'Clear' }}
-                            {{ 'WPA.CLEAR_FORM' | translate }}
+                            {{
+                                !!form.value.id
+                                    ? 'FORM.RESET'
+                                    : ('FORM.CLEAR' | translate)
+                            }}
                         </button>
                     </section>
                 </form>
@@ -380,7 +413,7 @@ import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
     styles: [],
     animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
 })
-export class MeetingFlowFormComponent extends AsyncHandler {
+export class MeetingFlowFormComponent extends AsyncHandler implements OnInit {
     public sheet_ref: MatBottomSheetRef<any>;
     public dialog_ref: MatDialogRef<any>;
     public hide_block: Record<string, boolean> = {};
@@ -510,9 +543,7 @@ export class MeetingFlowFormComponent extends AsyncHandler {
                                 date_end !== event.date_end));
                     if (time_changed) {
                         this.form.patchValue({ assets: [] });
-                        notifyWarn(
-                            `Assets are unavailable for some of the selected spaces.`,
-                        );
+                        notifyWarn(i18n('CALENDAR_EVENT.ASSETS_UNAVAILABLE'));
                     }
                     return false;
                 }),
@@ -568,9 +599,7 @@ export class MeetingFlowFormComponent extends AsyncHandler {
                                 date_end !== event.date_end));
                     if (time_changed) {
                         this.form.patchValue({ catering: [] });
-                        notifyWarn(
-                            `Catering is unavailable for some of the selected spaces.`,
-                        );
+                        notifyWarn(i18n('CALENDAR_EVENT.CATERING_UNAVAILABLE'));
                     }
                     return false;
                 }),
@@ -591,31 +620,27 @@ export class MeetingFlowFormComponent extends AsyncHandler {
             this.strict_capacity_check &&
             this.attendee_count > this.total_capacity
         ) {
-            return notifyError(
-                'Attendee count is greater than the capacity of the selected rooms',
-            );
+            return notifyError(i18n('CALENDAR_EVENT.CAPACITY_ERROR'));
         }
         if (
             !this.allow_daily_allday_recurrence &&
             this.form.value.all_day &&
             this.form.value.recurrence?.pattern === 'daily'
         ) {
-            return notifyError(
-                'Daily recurrence for all day meetings are not allowed.',
-            );
+            return notifyError(i18n('CALENDAR_EVENT.DAILY_RECURR_ERROR'));
         }
         this.form.markAllAsTouched();
         if (!this.form.valid)
             return notifyError(
-                `Some fields are invalid. [${getInvalidFields(this.form).join(
-                    ', ',
-                )}]`,
+                i18n('FORM.INVALID_FIELDS', {
+                    field_list: getInvalidFields(this.form).join(', '),
+                }),
             );
         if (
             this._settings.get('app.events.no_standalone') &&
             !this.form.value.resources.length
         )
-            return notifyError('You need to select a room to make a booking');
+            return notifyError(i18n('CALENDAR_EVENT.ROOM_REQUIRED'));
         if (this._settings.get('app.events.booking_unavailable'))
             return this._state.openEventLinkModal();
         if (window.innerWidth >= 768) {
@@ -722,10 +747,10 @@ export class MeetingFlowFormComponent extends AsyncHandler {
                     this.unsub('idle');
                     await openConfirmModal(
                         {
-                            title: 'Idle Timeout',
-                            content: 'Your form data is out of date',
+                            title: i18n('APP.WORKPLACE.MEETING_IDLE_TITLE'),
+                            content: i18n('APP.WORKPLACE.MEETING_IDLE_MSG'),
                             icon: { content: 'update' },
-                            confirm_text: 'Refresh',
+                            confirm_text: i18n('COMMON.REFRESH'),
                         },
                         this._dialog,
                     );

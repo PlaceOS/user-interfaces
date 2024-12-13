@@ -17,6 +17,7 @@ import {
     BookingRuleset,
     currentUser,
     HashMap,
+    i18n,
     rulesForResource,
     SettingsService,
 } from '@placeos/common';
@@ -150,18 +151,16 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
                 booking_rules,
             ) || {};
         if (hidden) {
-            return notifyError(
-                'You do not have permission to book this space at this time.',
-            );
+            return notifyError(i18n('EXPLORE.SPACES_PERMISSIONS_ERROR'));
         }
         if (
             (this._statuses[space.id] !== 'free' && !force) ||
             !space.bookable
         ) {
             return notifyError(
-                `${
-                    space.display_name || space.name
-                } is unavailable for the selected time and duration`,
+                i18n('EXPLORE.SPACES_UNAVAILABLE_ERROR', {
+                    name: space.display_name || space.name,
+                }),
             );
         }
         this._event_form.newForm();
@@ -315,6 +314,7 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
                 });
             }
         }
+
         this.timeout(
             'set-actions',
             () => this._state.setActions('spaces', actions),

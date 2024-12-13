@@ -5,12 +5,14 @@ import { SettingsService } from '@placeos/common';
     selector: 'landing-quick-links',
     template: `
         <h3 class="sm:text-lg font-medium mb-2 sm:mb-4 px-4">
-            Make a Reservation
+            {{ 'APP.WORKPLACE.QUICK_LINKS_HEADER' | translate }}
         </h3>
-        <div class="flex w-full overflow-auto space-x-2 px-4 mb-4">
+        <div
+            class="flex w-[calc(100%-2rem)] overflow-auto space-x-2 mx-4 mb-4 snap-x"
+        >
             <a
                 matRipple
-                class="w-64 p-2 rounded shadow border border-base-200 flex items-center space-x-4 bg-base-100"
+                class="w-64 min-w-64 snap-start p-2 rounded shadow border border-base-200 flex items-center space-x-4 bg-base-100"
                 [routerLink]="['/book', 'meeting']"
                 *ngIf="features.includes('spaces')"
             >
@@ -22,11 +24,13 @@ import { SettingsService } from '@placeos/common';
                         src="assets/icons/room-placeholder.svg"
                     />
                 </div>
-                <div class="text-xl">Book a room</div>
+                <div class="text-xl">
+                    {{ 'APP.WORKPLACE.QUICK_LINK_ROOMS' | translate }}
+                </div>
             </a>
             <a
                 matRipple
-                class="w-64 p-2 rounded shadow border border-base-200 flex items-center space-x-4 bg-base-100"
+                class="w-64 min-w-64 snap-start p-2 rounded shadow border border-base-200 flex items-center space-x-4 bg-base-100"
                 [routerLink]="['/book', 'new-desk']"
                 *ngIf="features.includes('desks')"
             >
@@ -38,11 +42,13 @@ import { SettingsService } from '@placeos/common';
                         src="assets/icons/desk-placeholder.svg"
                     />
                 </div>
-                <div class="text-xl">Book a desk</div>
+                <div class="text-xl">
+                    {{ 'APP.WORKPLACE.QUICK_LINK_DESKS' | translate }}
+                </div>
             </a>
             <a
                 matRipple
-                class="w-64 p-2 rounded shadow border border-base-200 flex items-center space-x-4 bg-base-100"
+                class="w-64 min-w-64 snap-start p-2 rounded shadow border border-base-200 flex items-center space-x-4 bg-base-100"
                 [routerLink]="['/book', 'new-parking']"
                 *ngIf="features.includes('parking')"
             >
@@ -54,7 +60,27 @@ import { SettingsService } from '@placeos/common';
                         src="assets/icons/car-placeholder.svg"
                     />
                 </div>
-                <div class="text-xl">Book parking space</div>
+                <div class="text-xl">
+                    {{ 'APP.WORKPLACE.QUICK_LINK_PARKING' | translate }}
+                </div>
+            </a>
+            <a
+                matRipple
+                class="w-64 min-w-64 snap-start p-2 rounded shadow border border-base-200 flex items-center space-x-4 bg-base-100"
+                [routerLink]="['/book', 'locker']"
+                *ngIf="features.includes('parking')"
+            >
+                <div
+                    class="min-w-[4rem] h-16 rounded bg-base-200 flex items-center justify-center"
+                >
+                    <img
+                        class="h-1/2 w-1/2 object-contain object-center"
+                        src="assets/icons/locker-placeholder.svg"
+                    />
+                </div>
+                <div class="text-xl">
+                    {{ 'APP.WORKPLACE.QUICK_LINK_LOCKERS' | translate }}
+                </div>
             </a>
         </div>
     `,

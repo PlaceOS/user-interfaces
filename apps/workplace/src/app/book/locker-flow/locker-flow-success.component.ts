@@ -18,32 +18,38 @@ import {
                 class="flex-1 flex flex-col items-center justify-center space-y-2 p-8"
             >
                 <h2 class="text-2xl font-medium text-center">
-                    {{ last_event.asset_name || last_event.asset_id
-                    }}{{ location }} Booked!
+                    {{
+                        'BOOKINGS.ITEM_BOOKED'
+                            | translate
+                                : {
+                                      name:
+                                          (last_event.asset_name ||
+                                              last_event.asset_id) + location,
+                                  }
+                    }}
                 </h2>
                 <img src="assets/icons/locker-success.svg" />
                 <p class="text-center">
-                    Your
-                    <span group *ngIf="last_event?.attendees?.length">
-                        group of
-                        {{ last_event?.attendees?.length + 1 }}
-                    </span>
-                    locker{{ last_event?.attendees?.length ? 's' : '' }} has
-                    been successfully booked
-                    <span
-                        assets
-                        *ngIf="last_event?.extension_data?.assets?.length"
-                    >
-                        including
-                        {{ last_event?.extension_data?.assets?.length }}
-                        asset(s)
-                    </span>
-                    for the
-                    {{ last_event.date | date: 'mediumDate' }} at
-                    {{ last_event.date | date: time_format }}-{{
-                        last_event.date + last_event.duration * 60 * 1000
-                            | date: time_format
-                    }}.
+                    {{
+                        'APP.WORKPLACE.LOCKER_SUCCESS_MSG'
+                            | translate
+                                : {
+                                      name: last_event.asset_name,
+                                      place: location,
+                                      date:
+                                          last_event.date | date: 'mediumDate',
+                                      time:
+                                          last_event.date
+                                          | date
+                                              : time_format +
+                                                    ' - ' +
+                                                    last_event.date +
+                                                    last_event.duration *
+                                                        60 *
+                                                        1000
+                                          | date: time_format,
+                                  }
+                    }}
                 </p>
                 <div
                     class="flex flex-col items-center space-y-4 p-4 relative"
@@ -59,7 +65,7 @@ import {
                         rel="noopener noreferer"
                     >
                         <img src="assets/icons/outlook.svg" class="w-6" />
-                        <span>Add to Outlook</span>
+                        <span>{{ 'BOOKINGS.LINK_OUTLOOK' | translate }}</span>
                     </a>
                     <a
                         btn
@@ -71,7 +77,7 @@ import {
                         rel="noopener noreferer"
                     >
                         <img src="assets/icons/gcal.svg" class="w-6" />
-                        <span>Add to Google Calendar</span>
+                        <span>{{ 'BOOKINGS.LINK_GOOGLE' | translate }}</span>
                     </a>
                     <a
                         btn
@@ -83,7 +89,7 @@ import {
                         rel="noopener noreferer"
                     >
                         <app-icon class="text-xl">download</app-icon>
-                        <span>Download iCal File</span>
+                        <span>{{ 'BOOKINGS.LINK_ICAL' | translate }}</span>
                     </a>
                 </div>
             </main>
@@ -97,7 +103,7 @@ import {
                     class="w-full max-w-[32rem] mx-auto"
                     [routerLink]="['/']"
                 >
-                    Great, thanks!
+                    {{ 'APP.WORKPLACE.BOOKING_FINISHED' | translate }}
                 </a>
             </footer>
         </div>

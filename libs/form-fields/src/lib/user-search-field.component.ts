@@ -35,7 +35,7 @@ import { authority, queryUsers } from '@placeos/ts-client';
                 [(ngModel)]="search_str"
                 (ngModelChange)="search$.next($event || '')"
                 [disabled]="disabled"
-                [placeholder]="placeholder || 'Search for user...'"
+                [placeholder]="placeholder || ('FORM.USER_SEARCH' | translate)"
                 [matAutocomplete]="auto"
                 (keyup.enter)="
                     validate && validate(search_str) ? setValue(search_str) : ''
@@ -78,7 +78,10 @@ import { authority, queryUsers } from '@placeos/ts-client';
                     "
                 >
                     <div class="pointer-events-none">
-                        Add external attendee "{{ search_str }}"
+                        {{
+                            'FORM.USER_ADD_EXTERNAL'
+                                | translate: { name: search_str }
+                        }}
                     </div>
                 </div>
             </mat-option>
@@ -87,7 +90,8 @@ import { authority, queryUsers } from '@placeos/ts-client';
                 [disabled]="!empty_fn"
                 (click)="empty_fn()"
             >
-                {{ search_str ? 'No users found.' : '' }} {{ error }}
+                {{ (search_str ? 'FORM.USER_EMPTY' : '') | translate }}
+                {{ error }}
             </mat-option>
         </mat-autocomplete>
     `,
@@ -161,7 +165,7 @@ export class UserSearchFieldComponent
                       : forkJoin([searchStaff(query), searchGuests(query)])
                   : of([]);
         }),
-        catchError((_) => of([])),
+        catchError(() => of([])),
         map((list: User[]) => {
             this.loading = false;
             list = flatten(list);
@@ -176,10 +180,10 @@ export class UserSearchFieldComponent
         super();
     }
 
-    /** Form control on change handler */
     private _onChange: (_: User) => void;
-    /** Form control on touch handler */
     private _onTouch: (_: User) => void;
+    public readonly registerOnChange = (fn) => (this._onChange = fn);
+    public readonly registerOnTouched = (fn) => (this._onTouch = fn);
 
     @ViewChild('input', { read: ElementRef })
     private _input_el: ElementRef<HTMLInputElement>;
@@ -216,16 +220,13 @@ export class UserSearchFieldComponent
      */
     public setValue(new_value: User | string, email?: string): void {
         if (!new_value) return;
-        if (
-            typeof new_value === 'string' &&
-            (new_value as any) === this.search_str
-        ) {
+        if (typeof new_value === 'string' && new_value === this.search_str) {
             new_value = new User({
                 name: (this.search_str || email || '').split('@')[0],
                 email: this.search_str || email || '',
             });
         }
-        const user = new_value as any;
+        const user = new_value as User;
         if (!('name' in user) && !('email' in user)) return;
         this.active_user = user;
         if (this._onChange) this._onChange(user);
@@ -243,21 +244,5 @@ export class UserSearchFieldComponent
 
     public setDisabledState(disabled: boolean) {
         this.disabled = disabled;
-    }
-
-    /**
-     * Registers a callback function that is called when the control's value changes in the UI.
-     * @param fn The callback function to register
-     */
-    public registerOnChange(fn: (_: User) => void): void {
-        this._onChange = fn;
-    }
-
-    /**
-     * Registers a callback function is called by the forms API on initialization to update the form model on blur.
-     * @param fn The callback function to register
-     */
-    public registerOnTouched(fn: (_: User) => void): void {
-        this._onTouch = fn;
     }
 }

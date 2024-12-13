@@ -24,7 +24,12 @@ const EMPTY = [];
         <div
             class="flex items-center justify-between p-2 mx-2 bg-base-200 text-sm rounded"
         >
-            <h2>{{ spaces?.length || 0 }} Favourite(s)</h2>
+            <h2>
+                {{
+                    'APP.WORKPLACE.FAVOURITES_COUNT'
+                        | translate: { count: spaces?.length || 0 }
+                }}
+            </h2>
         </div>
         <div
             class="flex-1 h-1/2 w-full space-y-2 overflow-auto pt-4 divide-y divide-base-200"
@@ -83,12 +88,19 @@ const EMPTY = [];
                             <div
                                 class="flex items-center text-xs opacity-60 truncate space-x-2"
                             >
-                                <app-icon class="text-blue-500"
-                                    >people</app-icon
-                                >
+                                <app-icon class="text-blue-500">
+                                    people
+                                </app-icon>
                                 <div>
-                                    Capacity
-                                    {{ (item | space | async)?.capacity || 2 }}
+                                    {{
+                                        'APP.WORKPLACE.CAPACITY'
+                                            | translate
+                                                : {
+                                                      count:
+                                                          (item | space | async)
+                                                              ?.capacity || 2,
+                                                  }
+                                    }}
                                 </div>
                             </div>
                         </div>
@@ -101,7 +113,7 @@ const EMPTY = [];
                         [disabled]="isClosed(item)"
                         (click)="newSpaceMeeting(item)"
                     >
-                        {{ 'WPA.BOOK' | translate }}
+                        {{ 'COMMON.BOOK' | translate }}
                     </button>
                     <button
                         icon
@@ -126,7 +138,12 @@ const EMPTY = [];
                             class="flex items-center space-x-2"
                         >
                             <app-icon class="text-2xl">cancel</app-icon>
-                            <div>{{ 'WPA.FAVOURITES_REMOVE' | translate }}</div>
+                            <div>
+                                {{
+                                    'APP.WORKPLACE.FAVOURITES_REMOVE'
+                                        | translate
+                                }}
+                            </div>
                         </button>
                     </mat-menu>
                 </div>
@@ -184,7 +201,7 @@ const EMPTY = [];
                         class="w-full inverse"
                         (click)="newBooking(item.type, item)"
                     >
-                        {{ 'WPA.BOOK' | translate }}
+                        {{ 'COMMON.BOOK' | translate }}
                     </button>
                     <button
                         icon
@@ -214,7 +231,10 @@ const EMPTY = [];
                                     cancel
                                 </app-icon>
                                 <div class="pr-4">
-                                    {{ 'WPA.FAVOURITES_REMOVE' | translate }}
+                                    {{
+                                        'APP.WORKPLACE.FAVOURITES_REMOVE'
+                                            | translate
+                                    }}
                                 </div>
                             </div>
                         </button>
@@ -228,7 +248,7 @@ const EMPTY = [];
             >
                 <img src="assets/icons/no-favourites.svg" />
                 <p class="opacity-60 text-sm text-center">
-                    {{ 'WPA.FAVOURITES_EMPTY' | translate }}
+                    {{ 'APP.WORKPLACE.FAVOURITES_EMPTY' | translate }}
                 </p>
             </div>
         </ng-template>

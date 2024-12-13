@@ -2,6 +2,7 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import {
     currentUser,
+    i18n,
     notifyError,
     notifySuccess,
     SettingsService,
@@ -20,7 +21,7 @@ export interface ExploreBookingModalData {
     selector: 'explore-booking-modal',
     template: `
         <header>
-            <h2>New Booking</h2>
+            <h2>{{ 'EXPLORE.BOOKING_HEADER' | translate }}</h2>
             <div class="flex-1"></div>
             <button *ngIf="!(loading | async)" icon matRipple mat-dialog-close>
                 <app-icon>close</app-icon>
@@ -37,11 +38,15 @@ export interface ExploreBookingModalData {
                             formControlName="title"
                             placeholder="Booking Title"
                         />
-                        <mat-error>Booking title is required</mat-error>
+                        <mat-error>{{
+                            'EXPLORE.BOOKING_TITLE_REQUIRED' | translate
+                        }}</mat-error>
                     </mat-form-field>
                 </div>
                 <div class="flex flex-col" *ngIf="can_book_for_others">
-                    <label for="host">Host<span>*</span>:</label>
+                    <label for="host"
+                        >{{ 'FORM.HOST' | translate }}<span>*</span>:</label
+                    >
                     <a-user-search-field
                         name="host"
                         formControlName="organiser"
@@ -49,7 +54,7 @@ export interface ExploreBookingModalData {
                     ></a-user-search-field>
                 </div>
                 <div class="flex flex-col">
-                    <label>Space:</label>
+                    <label>{{ 'EXPLORE.BOOKING_SPACE' | translate }}:</label>
                     <div
                         name="space"
                         class="px-4 py-3 border border-base-200 rounded w-full mb-4"
@@ -77,7 +82,7 @@ export interface ExploreBookingModalData {
                         class="flex flex-col flex-1 w-full sm:w-auto"
                         *ngIf="form.controls.date"
                     >
-                        <label>Date:</label>
+                        <label>{{ 'FORM.DATE' | translate }}:</label>
                         <div
                             class="px-4 py-3 border border-base-200 rounded w-full mb-4"
                         >
@@ -89,7 +94,7 @@ export interface ExploreBookingModalData {
                         class="flex flex-col w-full sm:w-auto"
                         *ngIf="form.controls.duration"
                     >
-                        <label>Duration:</label>
+                        <label>{{ 'FORM.DURATION' | translate }}:</label>
                         <a-duration-field
                             formControlName="duration"
                             [time]="form.value.date"
@@ -102,7 +107,7 @@ export interface ExploreBookingModalData {
             </main>
             <footer class="flex justify-center p-2 border-t border-base-200">
                 <button btn matRipple class="w-32" (click)="save()">
-                    Save
+                    {{ 'COMMON.SAVE' | translate }}
                 </button>
             </footer>
         </ng-container>
@@ -175,7 +180,7 @@ export class ExploreBookingModalComponent implements OnInit {
         if (this._settings.app_name.toLowerCase().includes('workplace')) {
             this._router.navigate(['/book', 'meeting', 'success']);
         } else {
-            notifySuccess('Successfully booked room.');
+            notifySuccess(i18n('EXPLORE.BOOKING_SUCCESS'));
         }
         this._dialog_ref.close();
     }

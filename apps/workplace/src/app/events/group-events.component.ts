@@ -39,10 +39,10 @@ import { AsyncHandler } from '@placeos/common';
                     >
                         <img src="assets/icons/no-results.svg" class="w-32" />
                         <div class="font-medium">
-                            No events for the selected time period
+                            {{ 'APP.WORKPLACE.EVENTS_EMPTY' | translate }}
                         </div>
                         <div class="opacity-30">
-                            Expand you search or try again
+                            {{ 'APP.WORKPLACE.EVENTS_RETRY' | translate }}
                         </div>
                     </div>
                 </ng-template>

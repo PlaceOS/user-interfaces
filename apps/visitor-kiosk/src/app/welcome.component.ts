@@ -17,7 +17,7 @@ import { AsyncHandler, SettingsService } from '@placeos/common';
                     class="mb-4 text-white text-6xl space-y-4"
                     [innerHTML]="
                         welcome_message ||
-                            ('VISITOR_KIOSK.WELCOME_MESSAGE' | translate)
+                            ('APP.VISITOR_KIOSK.WELCOME_MESSAGE' | translate)
                             | sanitize: 'html'
                     "
                 ></h3>
@@ -30,7 +30,7 @@ import { AsyncHandler, SettingsService } from '@placeos/common';
                     >
                         <div class="flex items-center space-x-2">
                             <div class="ml-2">
-                                {{ 'VISITOR_KIOSK.CHECK_IN' | translate }}
+                                {{ 'APP.VISITOR_KIOSK.CHECK_IN' | translate }}
                             </div>
                             <app-icon class="text-2xl">chevron_right</app-icon>
                         </div>
@@ -44,7 +44,7 @@ import { AsyncHandler, SettingsService } from '@placeos/common';
                     >
                         <div class="flex items-center space-x-2">
                             <div class="ml-2">
-                                {{ 'VISITOR_KIOSK.REGISTER' | translate }}
+                                {{ 'APP.VISITOR_KIOSK.REGISTER' | translate }}
                             </div>
                             <app-icon class="text-2xl">chevron_right</app-icon>
                         </div>
@@ -58,7 +58,7 @@ import { AsyncHandler, SettingsService } from '@placeos/common';
                     >
                         <div class="flex items-center space-x-2">
                             <div class="ml-2">
-                                {{ 'VISITOR_KIOSK.EXPLORE' | translate }}
+                                {{ 'APP.VISITOR_KIOSK.EXPLORE' | translate }}
                             </div>
                             <app-icon class="text-2xl">place</app-icon>
                         </div>

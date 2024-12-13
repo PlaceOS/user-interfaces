@@ -3,6 +3,8 @@ import {
     ElementRef,
     EventEmitter,
     Input,
+    OnChanges,
+    OnInit,
     Output,
     SimpleChanges,
     ViewChild,
@@ -70,7 +72,7 @@ export type MediaPlayerState = 'PAUSED' | 'PLAYING';
                     matRipple
                     class="hover:bg-base-200"
                     (click)="previousItem()"
-                    matTooltip="Previous Media"
+                    [matTooltip]="'APP.SIGNAGE.PREVIOUS' | translate"
                 >
                     <app-icon>skip_previous</app-icon>
                 </button>
@@ -79,7 +81,12 @@ export type MediaPlayerState = 'PAUSED' | 'PLAYING';
                     matRipple
                     class="hover:bg-base-200"
                     (click)="togglePause()"
-                    [matTooltip]="state === 'PLAYING' ? 'Playing' : 'Paused'"
+                    [matTooltip]="
+                        (state === 'PLAYING'
+                            ? 'APP.SIGNAGE.PLAY'
+                            : 'APP.SIGNAGE.PAUSE'
+                        ) | translate
+                    "
                 >
                     <app-icon>{{
                         state === 'PLAYING' ? 'pause' : 'play_arrow'
@@ -90,7 +97,7 @@ export type MediaPlayerState = 'PAUSED' | 'PLAYING';
                     matRipple
                     class="hover:bg-base-200"
                     (click)="nextItem()"
-                    matTooltip="Next Media"
+                    [matTooltip]="'APP.SIGNAGE.NEXT' | translate"
                 >
                     <app-icon>skip_next</app-icon>
                 </button>
@@ -99,7 +106,15 @@ export type MediaPlayerState = 'PAUSED' | 'PLAYING';
                     matRipple
                     class="hover:bg-base-200"
                     (click)="toggleMuted()"
-                    [matTooltip]="'Volume [' + (muted ? 'Off' : 'On') + ']'"
+                    [matTooltip]="
+                        'APP.SIGNAGE.VOLUME'
+                            | translate
+                                : {
+                                      state:
+                                          (muted ? 'COMMON.OFF' : 'COMMON.ON')
+                                          | translate,
+                                  }
+                    "
                 >
                     <app-icon>{{
                         muted ? 'volume_off' : 'volume_up'
@@ -111,11 +126,12 @@ export type MediaPlayerState = 'PAUSED' | 'PLAYING';
                     class="hover:bg-base-200"
                     (click)="toggleLoop()"
                     [matTooltip]="
-                        loop === 'ALL'
-                            ? 'Loop [All]'
+                        (loop === 'ALL'
+                            ? 'APP.SIGNAGE.LOOP_ALL'
                             : loop === 'ONE'
-                              ? 'Loop [One]'
-                              : 'Loop [Off]'
+                              ? 'APP.SIGNAGE.LOOP_ONE'
+                              : 'APP.SIGNAGE.LOOP_OFF'
+                        ) | translate
                     "
                 >
                     <app-icon [class.opacity-30]="loop === 'NONE'">
@@ -133,7 +149,15 @@ export type MediaPlayerState = 'PAUSED' | 'PLAYING';
                     matRipple
                     class="hover:bg-base-200"
                     (click)="toggleShuffle()"
-                    [matTooltip]="shuffle ? 'Shuffle [On]' : 'Shuffle [Off]'"
+                    [matTooltip]="
+                        'APP.SIGNAGE.SHUFFLE'
+                            | translate
+                                : {
+                                      state:
+                                          (shuffle ? 'COMMON.ON' : 'COMMON.OFF')
+                                          | translate,
+                                  }
+                    "
                 >
                     <app-icon [class.opacity-30]="!shuffle"> shuffle </app-icon>
                 </button>
@@ -143,7 +167,7 @@ export type MediaPlayerState = 'PAUSED' | 'PLAYING';
                 *ngIf="show_playlist"
             >
                 <div class="flex items-center space-x-4 p-2">
-                    <h2>Media to play</h2>
+                    <h2>{{ 'APP.SIGNAGE.MEDIA_LIST' | translate }}</h2>
                     <div class="text-xs opacity-30">
                         ({{ playlist_items?.length || 0 }} items)
                     </div>
@@ -199,7 +223,7 @@ export type MediaPlayerState = 'PAUSED' | 'PLAYING';
                     <div
                         class="p-2 opacity-30 bg-base-300 text-xs rounded-lg text-center"
                     >
-                        End of Player Media
+                        {{ 'APP.SIGNAGE.MEDIA_LIST_END' | translate }}
                     </div>
                 </div>
             </div>
@@ -227,12 +251,15 @@ export type MediaPlayerState = 'PAUSED' | 'PLAYING';
         `,
     ],
 })
-export class MediaPlayerComponent extends AsyncHandler {
+export class MediaPlayerComponent
+    extends AsyncHandler
+    implements OnInit, OnChanges
+{
     @Input() public playlist: MediaPlayerItem[] = [];
-    @Input() public controls: boolean = false;
+    @Input() public controls = false;
     @Input() public loop: 'NONE' | 'ONE' | 'ALL' = 'ALL';
-    @Input() public shuffle: boolean = false;
-    @Input() public index: number = -1;
+    @Input() public shuffle = false;
+    @Input() public index = -1;
     @Input() public animation_time = 1000;
     @Input() public muted = false;
     @Input() public state: MediaPlayerState = 'PLAYING';
@@ -249,8 +276,8 @@ export class MediaPlayerComponent extends AsyncHandler {
     private _item_playlist: MediaPlayerItem[] = [];
 
     private _item_urls: Record<string, URL> = {};
-    private _item_start: number = 0;
-    private _item_progress: number = 0;
+    private _item_start = 0;
+    private _item_progress = 0;
 
     public get playlist_items() {
         return this._item_playlist;

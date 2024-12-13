@@ -14,6 +14,7 @@ import {
     AsyncHandler,
     MapsPeopleService,
     calculateDistance,
+    i18n,
     log,
     notifyError,
     notifyWarn,
@@ -168,7 +169,7 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
                 break;
         }
         if (!view_instance) {
-            notifyWarn('Failed to initialise map view.');
+            notifyWarn(i18n('EXPLORE.MAPSINDOORS_INIT_FAILED'));
             return;
         }
         const provider =
@@ -234,7 +235,7 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
         if (!this.focus) return;
         const items = await this._search(this.focus);
         if (!items?.length) {
-            notifyError(`Unable to find location "${this.focus}".`);
+            notifyError(i18n('EXPLORE.LOCATE_FAILED', { name: this.focus }));
             return;
         }
         this.loading_directions = true;
@@ -265,7 +266,7 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
                         },
                         { lat: d_lat, lng: d_lng },
                     );
-                } else notifyError('Failed to get your current location.');
+                } else notifyError(i18n('EXPLORE.LOCATE_CURRENT_FAILED'));
             },
             options,
         );
@@ -297,7 +298,11 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
                     e instanceof TypeError && e.message?.includes('origin');
                 this.loading_directions = false;
                 if (!origin_error) return;
-                notifyError('Error: Origin location is outside of map area.');
+                notifyError(
+                    i18n('EXPLORE.LOCATE_ROUTE_FAILED', {
+                        error: i18n('EXPLORE.LOCATE_ORIGIN_ERROR'),
+                    }),
+                );
             });
         if (!result) return;
         this._services.directions_renderer.setRoute(result);
@@ -420,7 +425,7 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
         const items = await this._search(this.focus);
         this.clearDirections();
         if (!items?.length) {
-            notifyError(`Unable to find location ${this.focus}.`);
+            notifyError(i18n('EXPLORE.LOCATE_FAILED', { name: this.focus }));
             return;
         }
         const item =
@@ -450,7 +455,7 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
                 (bld) => bld.id === this.zone.parent_id,
             );
             if (!bld) return;
-            const [lat, long] = bld?.location.split(',');
+            const [lat, long] = bld?.location.split(',') || ['0', '0'];
             if (!this.focus) {
                 this._services.map.setCenter({
                     lat: parseFloat(lat),
@@ -489,7 +494,7 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
         } else {
             this._services.map.addControl({
                 onAdd: () => element,
-                onRemove: () => {},
+                onRemove: () => null,
             });
         }
         this._added_floor_selector = true;

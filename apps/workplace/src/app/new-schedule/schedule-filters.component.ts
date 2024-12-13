@@ -11,7 +11,9 @@ import { ScheduleStateService } from './schedule-state.service';
             class="hidden sm:block bg-base-100 border border-base-200 rounded p-2"
         >
             <h3 class="font-medium mb-2">
-                {{ 'WPA.SCHEDULE_CAT_FILTERS' | translate }}
+                {{
+                    'APP.WORKPLACE.SCHEDULE_FILTERS_DISPLAY_HEADER' | translate
+                }}
             </h3>
             <div class="flex flex-wrap space-x-2">
                 <div
@@ -21,7 +23,7 @@ import { ScheduleStateService } from './schedule-state.service';
                         hasFeature('spaces')
                     "
                 >
-                    <div class=" px-2">{{ 'WPA.ROOMS' | translate }}</div>
+                    <div class=" px-2">{{ 'RESOURCE.ROOMS' | translate }}</div>
                     <button
                         icon
                         name="schedule-remove-event-filter"
@@ -37,7 +39,7 @@ import { ScheduleStateService } from './schedule-state.service';
                         hasFeature('desks')
                     "
                 >
-                    <div class="px-2">{{ 'WPA.DESKS' | translate }}</div>
+                    <div class="px-2">{{ 'RESOURCE.DESKS' | translate }}</div>
                     <button
                         icon
                         name="schedule-remove-desk-filter"
@@ -53,7 +55,9 @@ import { ScheduleStateService } from './schedule-state.service';
                         hasFeature('parking')
                     "
                 >
-                    <div class=" px-2">{{ 'WPA.PARKING' | translate }}</div>
+                    <div class=" px-2">
+                        {{ 'RESOURCE.PARKING' | translate }}
+                    </div>
                     <button
                         icon
                         matRipple
@@ -70,7 +74,9 @@ import { ScheduleStateService } from './schedule-state.service';
                         hasFeature('visitor-invite')
                     "
                 >
-                    <div class=" px-2">{{ 'WPA.VISITORS' | translate }}</div>
+                    <div class=" px-2">
+                        {{ 'RESOURCE.VISITORS' | translate }}
+                    </div>
                     <button
                         icon
                         matRipple
@@ -87,7 +93,9 @@ import { ScheduleStateService } from './schedule-state.service';
                         hasFeature('lockers')
                     "
                 >
-                    <div class=" px-2">{{ 'WPA.LOCKERS' | translate }}</div>
+                    <div class=" px-2">
+                        {{ 'RESOURCE.LOCKERS' | translate }}
+                    </div>
                     <button
                         icon
                         matRipple
@@ -101,11 +109,11 @@ import { ScheduleStateService } from './schedule-state.service';
                     class="flex items-center rounded-3xl border border-base-200"
                     *ngIf="
                         (filters | async)?.shown_types?.includes(
-                            'group-evnet'
+                            'group-event'
                         ) && hasFeature('group-events')
                     "
                 >
-                    <div class=" px-2">{{ 'WPA.GROUP_EVENT' | translate }}</div>
+                    <div class=" px-2">{{ 'RESOURCE.EVENTS' | translate }}</div>
                     <button
                         icon
                         matRipple
@@ -137,7 +145,7 @@ import { ScheduleStateService } from './schedule-state.service';
                     hasFeature('spaces')
                 "
             >
-                <div>{{ 'WPA.ROOMS' | translate }}</div>
+                <div>{{ 'RESOURCE.ROOMS' | translate }}</div>
                 <button
                     icon
                     name="schedule-remove-event-filter-mobile"
@@ -153,7 +161,7 @@ import { ScheduleStateService } from './schedule-state.service';
                     hasFeature('desks')
                 "
             >
-                <div>{{ 'WPA.DESKS' | translate }}</div>
+                <div>{{ 'RESOURCE.DESKS' | translate }}</div>
                 <button
                     icon
                     name="schedule-remove-desk-filter-mobile"
@@ -169,7 +177,7 @@ import { ScheduleStateService } from './schedule-state.service';
                     hasFeature('parking')
                 "
             >
-                <div>{{ 'WPA.PARKING' | translate }}</div>
+                <div>{{ 'RESOURCE.PARKING' | translate }}</div>
                 <button
                     icon
                     name="schedule-remove-parking-filter-mobile"
@@ -185,7 +193,7 @@ import { ScheduleStateService } from './schedule-state.service';
                     hasFeature('visitor-invite')
                 "
             >
-                <div>{{ 'WPA.VISITORS' | translate }}</div>
+                <div>{{ 'RESOURCE.VISITORS' | translate }}</div>
                 <button
                     icon
                     name="schedule-remove-visitor-filter-mobile"
@@ -201,7 +209,7 @@ import { ScheduleStateService } from './schedule-state.service';
                     hasFeature('lockers')
                 "
             >
-                <div>{{ 'WPA.LOCKERS' | translate }}</div>
+                <div>{{ 'RESOURCE.LOCKERS' | translate }}</div>
                 <button
                     icon
                     name="schedule-remove-locker-filter-mobile"
@@ -217,7 +225,7 @@ import { ScheduleStateService } from './schedule-state.service';
                     hasFeature('group-events')
                 "
             >
-                <div>{{ 'WPA.GROUP_EVENTS' | translate }}</div>
+                <div>{{ 'RESOURCE.EVENTS' | translate }}</div>
                 <button
                     icon
                     name="schedule-remove-locker-filter-mobile"

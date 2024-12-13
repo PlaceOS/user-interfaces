@@ -26,11 +26,13 @@ import {
                             matInput
                             name="title"
                             formControlName="title"
-                            placeholder="e.g. Team Meeting"
+                            [placeholder]="
+                                'CALENDAR_EVENT.TITLE_PLACEHOLDER' | translate
+                            "
                         />
-                        <mat-error>{{
-                            'FORM.TITLE_ERROR' | translate
-                        }}</mat-error>
+                        <mat-error>
+                            {{ 'FORM.TITLE_REQUIRED' | translate }}
+                        </mat-error>
                     </mat-form-field>
                 </div>
                 <div
@@ -54,7 +56,7 @@ import {
                         *ngIf="allow_all_day"
                         class="absolute -top-2 right-2"
                     >
-                        {{ 'FORM.ALL_DAY' | translate }}
+                        {{ 'COMMON.ALL_DAY' | translate }}
                     </mat-checkbox>
                 </div>
             </div>
@@ -81,12 +83,12 @@ import {
                         *ngIf="allow_all_day"
                         class="absolute -top-2 right-2"
                     >
-                        {{ 'FORM.ALL_DAY' | translate }}
+                        {{ 'COMMON.ALL_DAY' | translate }}
                     </mat-checkbox>
                 </div>
                 <div class="flex-1 min-w-[256px] relative">
                     <label for="date">
-                        {{ 'FORM.END_DATE' | translate }}<span>*</span>
+                        {{ 'FORM.DATE_END' | translate }}<span>*</span>
                     </label>
                     <a-date-field
                         name="date"
@@ -107,7 +109,7 @@ import {
             >
                 <div class="flex-1 w-1/3">
                     <label for="start-time">
-                        {{ 'FORM.START_TIME' | translate }}
+                        {{ 'FORM.TIME_START' | translate }}
                         <span>*</span>
                     </label>
                     <a-time-field
@@ -121,7 +123,7 @@ import {
                 </div>
                 <div class="flex-1 w-1/3" *ngIf="allow_multiday">
                     <label for="end-time">
-                        {{ 'FORM.END_TIME' | translate }}<span>*</span>
+                        {{ 'FORM.TIME_END' | translate }}<span>*</span>
                     </label>
                     <a-time-field
                         name="end-time"
@@ -136,7 +138,7 @@ import {
                 </div>
                 <div class="flex-1 w-1/3" *ngIf="!allow_multiday">
                     <label for="end-time">
-                        {{ 'FORM.END_TIME' | translate }}<span>*</span>
+                        {{ 'FORM.TIME_END' | translate }}<span>*</span>
                     </label>
                     <a-duration-field
                         name="end-time"
@@ -170,7 +172,7 @@ import {
                     *ngIf="form.value.id"
                     formControlName="update_master"
                 >
-                    Update all future events
+                    {{ 'FORM.UPDATE_FUTURE' | translate }}
                 </mat-checkbox>
             </div>
         </div>

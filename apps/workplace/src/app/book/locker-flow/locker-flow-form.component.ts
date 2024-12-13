@@ -7,6 +7,7 @@ import { Router } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
 import {
     getInvalidFields,
+    i18n,
     notifyError,
     SettingsService,
 } from '@placeos/common';
@@ -26,7 +27,7 @@ import { BookLockerFlowConfirmComponent } from './locker-flow-confirm.component'
                 <h2
                     class="w-full p-4 sm:py-4 sm:px-16 text-2xl font-medium border-b border-base-200"
                 >
-                    Book Locker
+                    {{ 'BOOKINGS.LOCKER_TITLE' | translate }}
                 </h2>
                 <new-locker-form-details
                     [form]="form"
@@ -43,7 +44,7 @@ import { BookLockerFlowConfirmComponent } from './locker-flow-confirm.component'
                         class="w-full sm:w-auto"
                         (click)="viewConfirm()"
                     >
-                        Confirm Locker
+                        {{ 'BOOKINGS.LOCKER_CONFIRM' | translate }}
                     </button>
                 </section>
             </div>
@@ -51,7 +52,7 @@ import { BookLockerFlowConfirmComponent } from './locker-flow-confirm.component'
     `,
 })
 export class BookLockerFlowFormComponent implements OnInit {
-    public sheet_ref: MatBottomSheetRef<any>;
+    public sheet_ref: MatBottomSheetRef<BookLockerFlowConfirmComponent>;
     public level = '';
     public levels = [];
 
@@ -67,9 +68,9 @@ export class BookLockerFlowFormComponent implements OnInit {
     public readonly viewConfirm = () => {
         if (!this.form.valid)
             return notifyError(
-                `Some fields are invalid. [${getInvalidFields(this.form).join(
-                    ', ',
-                )}]`,
+                i18n('FORM.INVALID_FIELDS', {
+                    field_list: getInvalidFields(this.form).join(', '),
+                }),
             );
         this.sheet_ref = this._bottom_sheet.open(
             BookLockerFlowConfirmComponent,
@@ -88,7 +89,6 @@ export class BookLockerFlowFormComponent implements OnInit {
         private _router: Router,
         private _org: OrganisationService,
         private _bottom_sheet: MatBottomSheet,
-        private _settings: SettingsService,
     ) {}
 
     public async ngOnInit() {

@@ -2,12 +2,14 @@ import {
     Component,
     EventEmitter,
     Input,
+    OnChanges,
+    OnInit,
     Output,
     SimpleChanges,
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
-import { SettingsService, currentUser } from '@placeos/common';
+import { SettingsService, currentUser, i18n } from '@placeos/common';
 import { addMinutes, format, formatDuration, isSameDay } from 'date-fns';
 import { map } from 'rxjs/operators';
 
@@ -73,20 +75,23 @@ import { GroupEventDetailsModalComponent } from '../../../events/src/lib/group-e
                         booking?.booking_type !== 'group-event'
                     "
                 >
-                    Associate
+                    {{ 'BOOKINGS.ASSOCIATE' | translate }}
                 </div>
                 <div
                     class="absolute top-2 right-2 bg-warning/50 rounded-xl px-2 py-1 text-xs"
                     *ngIf="booking?.booking_type === 'group-event'"
                 >
-                    Event
+                    {{ 'BOOKINGS.EVENT' | translate }}
                 </div>
                 <div
                     class="absolute top-2 right-2 bg-warning/50 rounded-xl px-2 py-1 text-xs"
                     *ngIf="is_reserved_parking_space | async"
                 >
                     {{
-                        booking.status !== 'declined' ? 'RESERVED' : 'RELEASED'
+                        (booking.status !== 'declined'
+                            ? 'BOOKINGS.RESERVED'
+                            : 'BOOKINGS.RELEASED'
+                        ) | translate
                     }}
                 </div>
             </div>
@@ -105,9 +110,12 @@ import { GroupEventDetailsModalComponent } from '../../../events/src/lib/group-e
         `,
     ],
 })
-export class BookingCardComponent extends AsyncHandler {
+export class BookingCardComponent
+    extends AsyncHandler
+    implements OnInit, OnChanges
+{
     @Input() public booking: Booking;
-    @Input() public show_day: boolean = false;
+    @Input() public show_day = false;
     @Output() public edit = new EventEmitter();
     @Output() public remove = new EventEmitter<boolean>();
     @Output() public end = new EventEmitter();
@@ -192,7 +200,7 @@ export class BookingCardComponent extends AsyncHandler {
     }
 
     public get period() {
-        if (this.booking?.is_all_day) return 'All Day';
+        if (this.booking?.is_all_day) return i18n('COMMON.ALL_DAY');
         const start = this.booking?.date || Date.now();
         const duration = this.booking?.duration || 60;
         const end = addMinutes(start, duration);

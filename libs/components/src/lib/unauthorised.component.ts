@@ -7,14 +7,12 @@ import { Component } from '@angular/core';
             class="unauthorised rounded m-4 text-center bg-base-100 text-black border border-base-200 p-4 shadow"
         >
             <h1 class="text-4xl">403</h1>
-            <h3 class="text-2xl">Access forbidden.</h3>
+            <h3>{{ 'COMMON.FORBIDDEN' | translate }}</h3>
             <p class="py-4">
-                You do not have permission to view this page and your access
-                attempt has been recorded.
+                {{ 'COMMON.INVALID_PAGE_PERMISSIONS' | translate }}
             </p>
             <p>
-                Contact your Administrator if you feel that you should have
-                access.
+                {{ 'COMMON.CONTACT_ADMIN' | translate }}
             </p>
         </div>
     `,

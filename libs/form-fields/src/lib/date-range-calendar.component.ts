@@ -2,6 +2,8 @@ import {
     Component,
     EventEmitter,
     Input,
+    OnChanges,
+    OnInit,
     Output,
     SimpleChanges,
 } from '@angular/core';
@@ -88,13 +90,13 @@ import {
     `,
     styles: [``],
 })
-export class DateRangeCalendarComponent {
+export class DateRangeCalendarComponent implements OnInit, OnChanges {
     /** Earliest date available the user is allowed to pick */
     @Input('from') public from_date: number = startOfDay(Date.now()).valueOf();
     /** Latest date available the user is allowed to pick */
     @Input('to') public to_date: number;
     /** Index of the day to start the week on when displaying the calendar */
-    @Input() public offset_weekday: number = 0;
+    @Input() public offset_weekday = 0;
     /** Start date of the selected range */
     @Input() public start: number;
     /** End date of the selected range */
@@ -156,7 +158,7 @@ export class DateRangeCalendarComponent {
         this._setMonthDays();
     }
 
-    public trackByFn(index: number, day: any) {
+    public trackByFn(index: number, day: { id: string }) {
         return day.id;
     }
 
@@ -198,7 +200,7 @@ export class DateRangeCalendarComponent {
             weekStartsOn: this.offset_weekday as any,
         });
         this.weekdays = Array.from(Array(7).keys()).map((i) =>
-            addDays(start, i)
+            addDays(start, i),
         );
     }
 }

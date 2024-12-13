@@ -62,10 +62,23 @@ const EMPTY = [];
                         class="break-words"
                         *ngIf="mac && !hide_fields.includes('mac')"
                     >
-                        <label>MAC:</label> {{ mac }}
+                        <label>{{ 'EXPLORE.DEVICE_MAC' | translate }}:</label>
+                        {{ mac }}
                     </p>
-                    <p><label>Accuracy:</label> {{ variance }}m</p>
-                    <p><label>Last Seen:</label> {{ last_seen }}</p>
+                    <p>
+                        <label
+                            >{{ 'EXPLORE.DEVICE_ACCURACY' | translate }}:</label
+                        >
+                        {{ variance }}m
+                    </p>
+                    <p>
+                        <label
+                            >{{
+                                'EXPLORE.DEVICE_LAST_SEEN' | translate
+                            }}:</label
+                        >
+                        {{ last_seen }}
+                    </p>
                     <p
                         type
                         *ngIf="
@@ -73,23 +86,33 @@ const EMPTY = [];
                             !hide_fields.includes('manufacturer')
                         "
                     >
-                        <label>Manufacturer:</label> {{ manufacturer }}
+                        <label
+                            >{{
+                                'EXPLORE.DEVICE_MANUFACTURER' | translate
+                            }}:</label
+                        >
+                        {{ manufacturer }}
                     </p>
                     <p os *ngIf="os && !hide_fields.includes('os')">
-                        <label>OS:</label> {{ os }}
+                        <label>{{ 'EXPLORE.DEVICE_OS' | translate }}:</label>
+                        {{ os }}
                     </p>
                     <p ssid *ngIf="ssid && !hide_fields.includes('ssid')">
-                        <label>SSID:</label> {{ ssid }}
+                        <label>{{ 'EXPLORE.DEVICE_SSID' | translate }}:</label>
+                        {{ ssid }}
                     </p>
                     <p
                         username
                         *ngIf="username && !hide_fields.includes('username')"
                     >
-                        <label>Username:</label>
+                        <label
+                            >{{ 'EXPLORE.DEVICE_USERNAME' | translate }}:</label
+                        >
                         {{ user?.name || user?.username || username }}
                     </p>
                     <p user *ngIf="user && !hide_fields.includes('user')">
-                        <label>Type:</label> {{ user.type }}
+                        <label>{{ 'EXPLORE.DEVICE_TYPE' | translate }}:</label>
+                        {{ user.type }}
                     </p>
                 </div>
             </div>
@@ -207,7 +230,7 @@ export class ExploreDeviceInfoComponent extends AsyncHandler implements OnInit {
         this.username = 'Loading...';
         const details = await mod
             .execute('check_ownership_of', [this.mac])
-            .catch((_) => null);
+            .catch(() => null);
         this.username =
             details && details.assigned_to ? details.assigned_to : '';
     }

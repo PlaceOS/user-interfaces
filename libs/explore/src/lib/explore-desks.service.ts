@@ -20,6 +20,7 @@ import {
     AsyncHandler,
     BookingRuleset,
     currentUser,
+    i18n,
     notifyError,
     notifySuccess,
     rulesForResource,
@@ -372,7 +373,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
     private async _setBookingTime(
         date: number,
         duration: number,
-        host: boolean = false,
+        host = false,
         resource: Desk = null,
     ) {
         let user = null;
@@ -398,14 +399,18 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
     private async _bookDesk(desk: Desk, options: DeskOptions) {
         if (this._statuses[desk.id] !== 'free') {
             return notifyError(
-                `${desk.name || 'Desk'} is unavailable at this time.`,
+                i18n('EXPLORE.DESK_AVAILABLE_ERROR', {
+                    name: desk.name || 'Desk',
+                }),
             );
         }
         if (
             desk.groups?.length &&
             !desk.groups.find((_) => currentUser().groups.includes(_))
         ) {
-            return notifyError(`You are not allowed to book ${desk.name}.`);
+            return notifyError(
+                i18n('EXPLORE.DESK_GROUP_ERROR', { name: desk.name || 'Desk' }),
+            );
         }
         this._bookings.newForm();
         this._bookings.setOptions({ type: 'desk' });
@@ -455,20 +460,25 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
 
         if (is_restricted) {
             return notifyError(
-                `You are not allowed to book ${desk.name} at this time.`,
+                i18n('EXPLORE.DESK_RESTRICTION_ERROR', {
+                    name: desk.name || 'Desk',
+                }),
             );
         }
 
         await this._bookings.confirmPost().catch((e) => {
             console.log(e);
             notifyError(
-                `Failed to book desk ${desk.name || desk.id}. ${
-                    e.message || e.error || e
-                }`,
+                i18n('EXPLORE.DESK_BOOKING_ERROR', {
+                    name: desk.name || 'Desk',
+                    error: e.message || e.error || e,
+                }),
             );
             throw e;
         });
         this._users[desk.map_id] = (options.host || currentUser())?.name;
-        notifySuccess(`Successfully booked desk ${desk.name || desk.id}`);
+        notifySuccess(
+            i18n('EXPLORE.DESK_BOOKING_SUCCESS', { name: desk.name || 'Desk' }),
+        );
     }
 }

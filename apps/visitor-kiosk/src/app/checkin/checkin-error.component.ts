@@ -11,7 +11,7 @@ import { CheckinStateService } from './checkin-state.service';
             <p *ngIf="error | async">{{ error | async }}</p>
             <p>Our staff at reception will assist you.</p>
             <a btn matRipple class="w-32" [routerLink]="['/welcome']">
-                {{ 'VISITOR_KIOSK.CONFIRM' | translate }}
+                {{ 'APP.VISITOR_KIOSK.CONFIRM' | translate }}
             </a>
         </div>
     `,

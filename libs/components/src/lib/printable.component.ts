@@ -6,6 +6,7 @@ import {
     OnDestroy,
     ViewChild,
     ElementRef,
+    AfterViewInit,
 } from '@angular/core';
 import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
 
@@ -25,14 +26,17 @@ import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
 })
 export class PrintableComponent
     extends AsyncHandler
-    implements OnInit, OnDestroy
+    implements OnInit, OnDestroy, AfterViewInit
 {
-    public content: string = '';
+    public content = '';
     private _overlay_ref: OverlayRef = null;
 
     @ViewChild(CdkPortal) private _portal: CdkPortal;
 
-    constructor(private _overlay: Overlay, private _elem: ElementRef<any>) {
+    constructor(
+        private _overlay: Overlay,
+        private _elem: ElementRef<any>,
+    ) {
         super();
     }
 
@@ -73,7 +77,7 @@ export class PrintableComponent
                 });
                 this._overlay_ref.attach(this._portal);
             },
-            50
+            50,
         );
     }
 

@@ -31,6 +31,7 @@ import {
     filterResourcesFromRules,
     flatten,
     getInvalidFields,
+    i18n,
     notifyError,
     unique,
 } from '@placeos/common';
@@ -159,7 +160,7 @@ export class EventFormService extends AsyncHandler {
         debounceTime(300),
         tap((_) => this.unsubWith('bind:')),
         switchMap(([{ zone_ids }]) => {
-            this._loading.next('Loading space list for location...');
+            this._loading.next(i18n('CALENDAR_EVENT.SPACE_LOADING'));
             const use_region = this._settings.get('app.use_region');
             if (!zone_ids?.length) {
                 zone_ids = [
@@ -260,7 +261,7 @@ export class EventFormService extends AsyncHandler {
     ]).pipe(
         debounceTime(300),
         map(([list, bookings, booking_rules]) => {
-            this._loading.next('Updating available spaces...');
+            this._loading.next(i18n('CALENDAR_EVENT.SPACE_STATUS_LOADING'));
             let { ical_uid, date, duration, all_day } =
                 this._form.getRawValue();
             list = filterResourcesFromRules(
@@ -301,7 +302,7 @@ export class EventFormService extends AsyncHandler {
             debounceTime(500),
             switchMap(([spaces, booking_rules]) => {
                 if (!spaces.length) return of([]);
-                this._loading.next('Retrieving available spaces...');
+                this._loading.next(i18n('CALENDAR_EVENT.SPACE_STATUS_LOADING'));
                 let { date, duration, all_day } = this._form.getRawValue();
                 const availability_method = this.has_calendar
                     ? querySpaceAvailability
@@ -438,7 +439,7 @@ export class EventFormService extends AsyncHandler {
         if (event.recurring_event_id) {
             const master = await showEvent(event.recurring_event_id)
                 .toPromise()
-                .catch((_) => null);
+                .catch(() => null);
             if (master) {
                 (this._event.getValue() as any).recurrence = {
                     ...master.recurrence,
@@ -559,9 +560,9 @@ export class EventFormService extends AsyncHandler {
     }
 
     public postForm(
-        force: boolean = false,
+        force = false,
         ignore_space_check: string[] = [],
-        ignore_owner: boolean = false,
+        ignore_owner = false,
     ) {
         return new Promise<CalendarEvent>(async (resolve, reject) => {
             this._loading.next('Creating event...');
@@ -640,8 +641,7 @@ export class EventFormService extends AsyncHandler {
             );
             if (!spaces.length && attendees.find((_) => _.is_external)) {
                 this._loading.next('');
-                const message =
-                    'External attendees require a space to be booked';
+                const message = i18n('CALENDAR_EVENT.SPACE_EXTERNALS_ERROR');
                 reject(message);
                 throw message;
             }
@@ -760,13 +760,13 @@ export class EventFormService extends AsyncHandler {
                     ).toPromise();
                     console.warn("Couldn't update asset requests", e);
                     if (e?.status === 409) {
-                        notifyError(
-                            'Some assets are already booked for the selected time',
-                        );
-                    } else notifyError('Unable to book the selected assets.');
+                        notifyError(i18n('CALENDAR_EVENT.ASSETS_CLASH_ERROR'));
+                    } else notifyError(i18n('CALENDAR_EVENT.ASSETS_ERROR'));
                 } else if (creating_assets) {
                     notifyError(
-                        `Unable to update all asset requests for event.\n${e}`,
+                        i18n('CALENDAR_EVENT.ASSETS_PARTIAL_ERROR', {
+                            error: e,
+                        }),
                     );
                     return;
                 }
@@ -797,14 +797,15 @@ export class EventFormService extends AsyncHandler {
                             this._org.organisation.id,
                             this._org.region?.id,
                             this._org.building?.id,
-                            ...spaces[0]?.zones,
+                            ...(spaces[0]?.zones || []),
                         ]).filter((_) => !!_),
                         reset_state: changed_times,
                     },
                     assets,
                     changed_spaces || changed_times,
                 ).catch(on_error);
-                if (!requests) throw 'Unable to validate asset requests';
+                if (!requests)
+                    throw i18n('CALENDAR_EVENT.ASSETS_INVALID_ERROR');
                 await requests();
                 creating_assets = false;
             }
@@ -873,11 +874,11 @@ export class EventFormService extends AsyncHandler {
                 [this.event?.date, this.event?.duration],
             ).toPromise();
             if (!response.every((_) => _)) {
-                throw `${
+                throw i18n(
                     spaces.length > 1
-                        ? 'The selected space'
-                        : 'Some of the selected spaces'
-                } is not available at the selected time`;
+                        ? 'CALENDAR_EVENT.SPACES_UNAVAILABLE'
+                        : 'CALENDAR_EVENT.SPACE_UNAVAILABLE',
+                );
             }
         } else {
             const availability = await queryResourceAvailability(
@@ -887,11 +888,11 @@ export class EventFormService extends AsyncHandler {
                 ignore,
             ).toPromise();
             if (!availability.every((_) => _))
-                throw `${
+                throw i18n(
                     spaces.length > 1
-                        ? 'The selected space'
-                        : 'Some of the selected spaces'
-                } are not available at the selected time`;
+                        ? 'CALENDAR_EVENT.SPACES_UNAVAILABLE'
+                        : 'CALENDAR_EVENT.SPACE_UNAVAILABLE',
+                );
         }
         return true;
     }

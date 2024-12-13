@@ -37,7 +37,7 @@ import { addDays, endOfDay, getUnixTime, set } from 'date-fns';
                     (click)="setOptions({ group: false, members: [] })"
                 >
                     <app-icon class="text-2xl">person</app-icon>
-                    <div class="">Single</div>
+                    <div class="">{{ 'BOOKINGS.DESK_LONE' | translate }}</div>
                     <div
                         class="absolute h-1 inset-x-0 bottom-0 !m-0"
                         [class.bg-base-200]="(options | async)?.group"
@@ -51,7 +51,7 @@ import { addDays, endOfDay, getUnixTime, set } from 'date-fns';
                     (click)="setOptions({ group: true })"
                 >
                     <app-icon class="text-2xl">group_add</app-icon>
-                    <div class="">Group</div>
+                    <div class="">{{ 'BOOKINGS.DESK_GROUP' | translate }}</div>
                     <div
                         class="absolute h-1 inset-x-0 bottom-0 !m-0"
                         [class.bg-base-200]="!(options | async)?.group"
@@ -66,13 +66,17 @@ import { addDays, endOfDay, getUnixTime, set } from 'date-fns';
                     >
                         1
                     </div>
-                    <div class="text-xl">Details</div>
+                    <div class="text-xl">
+                        {{ 'BOOKINGS.DETAILS' | translate }}
+                    </div>
                 </h3>
                 <div
                     class="w-full"
                     *ngIf="can_book_for_others && !(options | async)?.group"
                 >
-                    <label for="title">Host<span>*</span></label>
+                    <label for="title">
+                        {{ 'FORM.HOST' | translate }}<span>*</span>
+                    </label>
                     <a-user-search-field
                         formControlName="user"
                         class="mb-4"
@@ -80,33 +84,42 @@ import { addDays, endOfDay, getUnixTime, set } from 'date-fns';
                 </div>
                 <div class="flex items-center flex-wrap sm:space-x-2">
                     <div class="flex-1 min-w-[256px]">
-                        <label for="title">Add Title<span>*</span></label>
+                        <label for="title"
+                            >{{ 'FORM.TITLE' | translate }}<span>*</span></label
+                        >
                         <mat-form-field appearance="outline" class="w-full">
                             <input
                                 matInput
                                 name="title"
                                 formControlName="title"
-                                placeholder="e.g. Focus Time"
+                                [placeholder]="
+                                    'BOOKINGS.DESK_TITLE_PLACEHOLDER'
+                                        | translate
+                                "
                             />
-                            <mat-error>Booking title is required.</mat-error>
+                            <mat-error>{{
+                                'FORM.TITLE_REQUIRED' | translate
+                            }}</mat-error>
                         </mat-form-field>
                     </div>
                     <div class="flex-1 min-w-[256px] relative">
-                        <label for="date">Date<span>*</span></label>
+                        <label for="date">
+                            {{ 'FORM.DATE' | translate }}<span>*</span>
+                        </label>
                         <a-date-field
                             name="date"
                             formControlName="date"
                             [to]="end_date"
                             [timezone]="timezone"
                         >
-                            Date and time must be in the future
+                            {{ 'FORM.DATE_REQUIRED' | translate }}
                         </a-date-field>
                         <mat-checkbox
                             formControlName="all_day"
                             *ngIf="allow_all_day"
                             class="absolute -top-2 right-0"
                         >
-                            All Day
+                            {{ 'COMMON.ALL_DAY' | translate }}
                         </mat-checkbox>
                     </div>
                 </div>
@@ -116,7 +129,7 @@ import { addDays, endOfDay, getUnixTime, set } from 'date-fns';
                 >
                     <div class="flex-1 w-1/3">
                         <label for="start-time">
-                            Start Time<span>*</span>
+                            {{ 'FORM.TIME_START' | translate }}<span>*</span>
                         </label>
                         <a-time-field
                             name="start-time"
@@ -128,7 +141,9 @@ import { addDays, endOfDay, getUnixTime, set } from 'date-fns';
                         ></a-time-field>
                     </div>
                     <div class="flex-1 w-1/3">
-                        <label for="end-time"> End Time<span>*</span> </label>
+                        <label for="end-time">
+                            {{ 'FORM.TIME_END' | translate }}<span>*</span>
+                        </label>
                         <a-duration-field
                             name="end-time"
                             formControlName="duration"
@@ -157,7 +172,7 @@ import { addDays, endOfDay, getUnixTime, set } from 'date-fns';
                         *ngIf="form.value.id"
                         formControlName="update_master"
                     >
-                        Update all future events
+                        {{ 'FORM.UPDATE_FUTURE' | translate }}
                     </mat-checkbox>
                 </div>
                 <div
@@ -174,7 +189,7 @@ import { addDays, endOfDay, getUnixTime, set } from 'date-fns';
                             "
                             [ngModelOptions]="{ standalone: true }"
                         >
-                            Require locker
+                            {{ 'BOOKINGS.DESK_REQUIRE_LOCKER' | translate }}
                         </mat-checkbox>
                     </div>
                 </div>
@@ -186,7 +201,9 @@ import { addDays, endOfDay, getUnixTime, set } from 'date-fns';
                     >
                         2
                     </div>
-                    <div class="text-xl">Group Members</div>
+                    <div class="text-xl">
+                        {{ 'BOOKINGS.DESK_GROUP_MEMBERS' | translate }}
+                    </div>
                     <div class="flex-1 w-px"></div>
                 </h3>
                 <div class="overflow-hidden">
@@ -205,15 +222,14 @@ import { addDays, endOfDay, getUnixTime, set } from 'date-fns';
                     >
                         {{ (options | async)?.group ? 3 : 2 }}
                     </div>
-                    <div class="text-xl">Desk</div>
+                    <div class="text-xl">{{ 'RESOURCE.DESK' | translate }}</div>
                 </h3>
                 <desk-list-field formControlName="resources"></desk-list-field>
                 <p
                     *ngIf="(options | async)?.group"
                     class="text-center rounded px-2 py-1 bg-warning shadow text-xs"
                 >
-                    Desks nearby to the selected desk will booked for group
-                    members
+                    {{ 'BOOKINGS.DESK_GROUP_INFO' | translate }}
                 </p>
             </section>
             <section class="p-2" *ngIf="has_assets">
@@ -223,7 +239,9 @@ import { addDays, endOfDay, getUnixTime, set } from 'date-fns';
                     >
                         {{ (options | async)?.group ? 4 : 3 }}
                     </div>
-                    <div class="text-xl">Request Asset</div>
+                    <div class="text-xl">
+                        {{ 'RESOURCE.ASSETS' | translate }}
+                    </div>
                 </h3>
                 <asset-list-field
                     [options]="{

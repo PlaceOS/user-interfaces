@@ -3,7 +3,7 @@ import { getModule, showMetadata } from '@placeos/ts-client';
 import { Point, ViewerFeature } from '@placeos/svg-viewer';
 import { debounceTime, filter, first, map } from 'rxjs/operators';
 
-import { AsyncHandler, HashMap, SettingsService } from '@placeos/common';
+import { AsyncHandler, HashMap, i18n, SettingsService } from '@placeos/common';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 
 import { ExploreStateService } from './explore-state.service';
@@ -59,7 +59,7 @@ export class ExploreZonesService extends AsyncHandler {
         filter(([bld, lvl, { is_public }]) => !!bld && !!lvl && !is_public),
         map(([_, lvl]) => {
             this._statuses = {};
-            let system_id: any = this._org.binding('area_management');
+            const system_id = this._org.binding('area_management');
             if (!system_id) return;
             const bind_areas = getModule(system_id, 'AreaManagement').binding(
                 `${lvl.id}:areas`,
@@ -150,6 +150,9 @@ export class ExploreZonesService extends AsyncHandler {
     public parseData(value: ZoneData[] = []) {
         const labels = [];
         const features = [];
+        const temp_unit = this._settings.get('app.use_imperial_units')
+            ? 'F'
+            : 'C';
 
         for (const zone of value) {
             const id = zone.map_id || zone.area_id;
@@ -172,19 +175,29 @@ export class ExploreZonesService extends AsyncHandler {
             if (!this._location[id]) continue;
             let content = '';
             if (zone.count) {
-                content += `${zone.count || 0} User Device${
-                    zone.count === 1 ? '' : 's'
-                }\n`;
+                content +=
+                    i18n('EXPLORE.DEVICE_COUNT', { count: zone.count }) + '\n';
             }
             if (zone.temperature)
-                content += `Temperature: ${zone.temperature} ˚C\n`;
+                content += i18n('EXPLORE.SENSORS_TEMP', {
+                    value: `${zone.temperature} °${temp_unit}\n`,
+                });
             if (zone.people_count > 0)
-                content += `${zone.people_count_sum} ${
-                    zone.people_count_sum === 1 ? 'Person' : 'People'
-                }\n`;
-            if (zone.humidity) content += `Humidity: ${zone.humidity}%\n`;
-            if (zone.queue_size) content += `Queue Size: ${zone.queue_size}%\n`;
-            if (zone.counter) content += `Count: ${zone.counter}\n`;
+                content += i18n('EXPLORE.SENSORS_PEOPLE', {
+                    count: `${zone.people_count_sum}\n`,
+                });
+            if (zone.humidity)
+                content += i18n('EXPLORE.SENSORS_HUMIDITY', {
+                    value: `${zone.humidity}\n`,
+                });
+            if (zone.queue_size)
+                content += i18n('EXPLORE.SENSORS_QUEUE', {
+                    value: `${zone.humidity}\n`,
+                });
+            if (zone.counter)
+                content += i18n('EXPLORE.SENSORS_COUNT', {
+                    value: `${zone.humidity}\n`,
+                });
             if (
                 this._label_location[id] &&
                 !this._settings.get('app.explore.show_zone_labels')
@@ -206,9 +219,7 @@ export class ExploreZonesService extends AsyncHandler {
                     data: {
                         id,
                         temp: zone.temperature || 10,
-                        temp_unit: this._settings.get('app.use_imperial_units')
-                            ? 'F'
-                            : 'C',
+                        temp_unit,
                         humidity: zone.humidity || 10,
                     },
                     z_index: 98,

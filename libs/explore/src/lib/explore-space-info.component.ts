@@ -71,9 +71,10 @@ export interface SpaceInfoData {
                             "
                         >
                             {{
-                                status === 'not-bookable'
-                                    ? 'Not Bookable'
-                                    : status
+                                (status === 'not-bookable'
+                                    ? 'COMMON.STATUS_NOT_BOOKABLE'
+                                    : 'COMMON.STATUS_' + (status | uppercase)
+                                ) | translate
                             }}
                         </div>
                         <div available-until *ngIf="status !== 'not-bookable'">
@@ -89,7 +90,8 @@ export interface SpaceInfoData {
                             class="text-base px-2 mb-2"
                             *ngIf="space.capacity >= 0"
                         >
-                            <span>Capacity: </span>{{ space.capacity }}
+                            <span>{{ 'COMMON.CAPACITY' | translate }}: </span
+                            >{{ space.capacity }}
                             {{ space.capacity === 1 ? 'person' : 'people' }}
                         </div>
                         <ul

@@ -35,7 +35,7 @@ import { PanelStateService } from '../panel-state.service';
                 >
                     <div class="text-8xl">{{ capacity }}</div>
                     <div class="text-3xl">
-                        {{ 'PANEL.ROOM_CAPACITY' | translate }}
+                        {{ 'APP.BOOKING_PANEL.ROOM_CAPACITY' | translate }}
                     </div>
                 </div>
             </div>

@@ -32,7 +32,7 @@ import { Region } from '@placeos/organisation';
                 </button>
             </div>
             <h3 class="font-medium flex-2 text-center text-xl">
-                Space Filters
+                {{ 'COMMON.FILTERS' | translate }}
             </h3>
             <div class="flex-1"></div>
         </div>
@@ -41,9 +41,13 @@ import { Region } from '@placeos/organisation';
             [formGroup]="form"
         >
             <section details>
-                <h2 class="text-lg font-medium mb-1">Details</h2>
+                <h2 class="text-lg font-medium mb-1">
+                    {{ 'CALENDAR_EVENT.DETAILS' | translate }}
+                </h2>
                 <div class="flex-1 min-w-[8rem] flex flex-col">
-                    <label for="location">Location</label>
+                    <label for="location">
+                        {{ 'CALENDAR_EVENT.SPACE_LOCATION' | translate }}
+                    </label>
                     <mat-form-field
                         appearance="outline"
                         class="w-full"
@@ -54,7 +58,9 @@ import { Region } from '@placeos/organisation';
                             [ngModel]="region"
                             (ngModelChange)="setRegion($event)"
                             [ngModelOptions]="{ standalone: true }"
-                            placeholder="Any Region"
+                            [placeholder]="
+                                'CALENDAR_EVENT.SPACE_REGION_ANY' | translate
+                            "
                         >
                             <mat-option
                                 *ngFor="let reg of regions | async"
@@ -97,7 +103,9 @@ import { Region } from '@placeos/organisation';
                             [ngModel]="(options | async)?.zone_ids"
                             (ngModelChange)="setOptions({ zone_ids: $event })"
                             [ngModelOptions]="{ standalone: true }"
-                            placeholder="Any Level"
+                            [placeholder]="
+                                'CALENDAR_EVENT.SPACE_LEVEL_ANY' | translate
+                            "
                             [multiple]="true"
                         >
                             <mat-option
@@ -125,7 +133,9 @@ import { Region } from '@placeos/organisation';
                 </div>
                 <div class="flex items-center flex-wrap sm:space-x-2">
                     <div class="flex-1 min-w-[8rem]">
-                        <label for="date">Date<span>*</span></label>
+                        <label for="date">
+                            {{ 'FORM.DATE' | translate }}<span>*</span>
+                        </label>
                         <a-date-field
                             name="date"
                             [ngModel]="form.getRawValue().date"
@@ -141,7 +151,7 @@ import { Region } from '@placeos/organisation';
                     </div>
                     <div class="flex-1 min-w-[8rem] relative" *ngIf="multiday">
                         <label for="date">
-                            {{ 'FORM.END_DATE' | translate }}<span>*</span>
+                            {{ 'FORM.DATE_END' | translate }}<span>*</span>
                         </label>
                         <a-date-field
                             name="date"
@@ -163,7 +173,7 @@ import { Region } from '@placeos/organisation';
                 <!-- All Day -->
                 <div *ngIf="allow_all_day" class="flex justify-end -mt-2 mb-2">
                     <mat-checkbox formControlName="all_day">
-                        All Day
+                        {{ 'COMMON.ALL_DAY' | translate }}
                     </mat-checkbox>
                 </div>
                 <div
@@ -172,7 +182,7 @@ import { Region } from '@placeos/organisation';
                 >
                     <div class="flex-1 w-1/3">
                         <label for="start-time">
-                            Start Time<span>*</span>
+                            {{ 'FORM.TIME_START' }}<span>*</span>
                         </label>
                         <a-time-field
                             name="start-time"
@@ -185,7 +195,7 @@ import { Region } from '@placeos/organisation';
                     </div>
                     <div class="flex-1 w-1/3" *ngIf="multiday">
                         <label for="end-time">
-                            {{ 'FORM.END_TIME' | translate }}<span>*</span>
+                            {{ 'FORM.TIME_END' | translate }}<span>*</span>
                         </label>
                         <a-time-field
                             name="end-time"
@@ -201,7 +211,7 @@ import { Region } from '@placeos/organisation';
                     </div>
                     <div class="flex-1 w-1/3" *ngIf="!multiday">
                         <label for="end-time">
-                            {{ 'FORM.END_TIME' | translate }}<span>*</span>
+                            {{ 'FORM.TIME_END' | translate }}<span>*</span>
                         </label>
                         <a-duration-field
                             name="end-time"
@@ -224,7 +234,7 @@ import { Region } from '@placeos/organisation';
                 </h2>
                 <div class="flex items-center">
                     <div for="fav" class="flex-1 w-1/2">
-                        {{ 'ROOMS.SHOW_FAVOURITES' | translate }}
+                        {{ 'APP.WORKPLACE.FAVOURITES_SHOW' | translate }}
                     </div>
                     <mat-checkbox
                         name="fav"
@@ -275,7 +285,7 @@ import { Region } from '@placeos/organisation';
                 name="apply-space-filters"
                 (click)="close()"
             >
-                Apply Filters
+                {{ 'COMON.APPLY' | translate }}
             </button>
         </div>
     `,

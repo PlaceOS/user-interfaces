@@ -1,8 +1,9 @@
-import { Component, ElementRef, Inject } from '@angular/core';
+import { Component, ElementRef, Inject, OnInit } from '@angular/core';
 import { MAP_FEATURE_DATA } from '@placeos/components';
-import { ExploreLockerBankModalComponent } from './explore-locker-bank-modal.component';
 import { MatDialog } from '@angular/material/dialog';
-import { Locker, LockerBank } from '@placeos/bookings';
+
+import { ExploreLockerBankModalComponent } from './explore-locker-bank-modal.component';
+import { Locker, LockerBank } from 'libs/bookings/src/lib/locker.class';
 
 export interface LockerBankInfoData {
     bank: LockerBank;
@@ -42,15 +43,21 @@ export interface LockerBankInfoData {
             >
                 <h3 class="font-medium">{{ bank.name }}</h3>
                 <p class="whitespace-nowrap text-sm">
-                    {{ in_use_count }} lockers in use of
-                    {{ bank.lockers.length || 1 }}
+                    {{
+                        'EXPLORE.LOCKERS_USE'
+                            | translate
+                                : {
+                                      used: in_use_count,
+                                      count: bank.lockers.length || 1,
+                                  }
+                    }}
                 </p>
             </div></ng-template
         >
     `,
     styles: [``],
 })
-export class ExploreLockerBankInfoComponent {
+export class ExploreLockerBankInfoComponent implements OnInit {
     public bank: LockerBank = this._details.bank;
     public in_use_count: number = this._details.in_use_count;
     public y_pos: 'top' | 'bottom';
@@ -62,7 +69,7 @@ export class ExploreLockerBankInfoComponent {
         private _dialog: MatDialog,
     ) {}
 
-    public ngOnInit(tries: number = 0) {
+    public ngOnInit(tries = 0) {
         if (tries > 10) return;
         setTimeout(() => {
             const parent =

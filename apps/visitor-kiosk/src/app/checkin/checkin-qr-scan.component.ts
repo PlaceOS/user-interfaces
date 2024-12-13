@@ -20,7 +20,7 @@ import { take } from 'rxjs/operators';
             [class.hidden]="checking_code"
         >
             <p class="my-4">
-                {{ 'VISITOR_KIOSK.QR_CODE_MSG' | translate }}
+                {{ 'APP.VISITOR_KIOSK.QR_CODE_MSG' | translate }}
             </p>
             <div class="flex items-center space-x-2 w-full">
                 <mat-form-field
@@ -37,11 +37,11 @@ import { take } from 'rxjs/operators';
                         (keyup.enter)="checkEmail(email)"
                     />
                     <mat-error>{{
-                        'VISITOR_KIOSK.INVALID_EMAIL' | translate
+                        'APP.VISITOR_KIOSK.INVALID_EMAIL' | translate
                     }}</mat-error>
                 </mat-form-field>
                 <button btn matRipple (click)="checkEmail(email)">
-                    {{ 'VISITOR_KIOSK.FIND_DETAILS' | translate }}
+                    {{ 'APP.VISITOR_KIOSK.FIND_DETAILS' | translate }}
                 </button>
             </div>
             <div
@@ -52,7 +52,7 @@ import { take } from 'rxjs/operators';
                 >
                     <app-icon class="text-6xl">videocam_off</app-icon>
                     <p class="text-center">
-                        {{ 'VISITOR_KIOSK.CAMERA_UNAVAILABLE' | translate }}
+                        {{ 'APP.VISITOR_KIOSK.CAMERA_UNAVAILABLE' | translate }}
                     </p>
                 </div>
                 <video
@@ -80,7 +80,7 @@ import { take } from 'rxjs/operators';
         >
             <mat-spinner diameter="32"></mat-spinner>
             <p class="my-4">
-                {{ 'VISITOR_KIOSK.LOADING_DETAILS' | translate }}
+                {{ 'APP.VISITOR_KIOSK.LOADING_DETAILS' | translate }}
             </p>
         </div>
     `,

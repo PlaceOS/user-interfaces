@@ -92,7 +92,7 @@ export class CheckinStateService {
         );
         todays_events.sort((a, b) => a.date - b.date);
         if (todays_events.length <= 0) {
-            throw new Error(i18n('VISITOR_KIOSK.NOT_FOUND', { email }));
+            throw new Error(i18n('APP.VISITOR_KIOSK.NOT_FOUND', { email }));
         }
         this._guest.next(guest);
         this._booking.next(todays_events[0]);
@@ -135,11 +135,11 @@ export class CheckinStateService {
             host: event.user_name || event.user_email,
         };
         const result = await checkin_fn.catch(async (e) => {
-            notifyError(e || i18n('VISITOR_KIOSK.ERROR_CHECKIN', vars));
+            notifyError(e || i18n('APP.VISITOR_KIOSK.ERROR_CHECKIN', vars));
         });
         if (!result) return;
 
-        notifySuccess(i18n('VISITOR_KIOSK.SUCCESS_CHECKIN', vars));
+        notifySuccess(i18n('APP.VISITOR_KIOSK.SUCCESS_CHECKIN', vars));
         this.metadata = '';
     }
 
@@ -148,7 +148,7 @@ export class CheckinStateService {
             // TODO: actually trigger print visitor pass
             return new Promise((res) => setTimeout(() => res(''), 5000));
         } catch (err) {
-            notifyError(i18n('VISITOR_KIOSK.ERROR_PRINT'));
+            notifyError(i18n('APP.VISITOR_KIOSK.ERROR_PRINT'));
         }
         return Promise.reject();
     }

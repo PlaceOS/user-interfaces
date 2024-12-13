@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { first, map } from 'rxjs/operators';
 
@@ -44,7 +44,7 @@ const URL_STARTS = [
             <div
                 class="flex items-center justify-between bg-base-100 border-b border-base-300"
             >
-                <div class="p-2">Console</div>
+                <div class="p-2">{{ 'COMMON.CONSOLE' | translate }}</div>
                 <button icon matRipple (click)="show = false">
                     <app-icon>close</app-icon>
                 </button>
@@ -168,7 +168,7 @@ const URL_STARTS = [
     `,
     styles: [``],
 })
-export class DebugConsoleComponent extends AsyncHandler {
+export class DebugConsoleComponent extends AsyncHandler implements OnInit {
     @Input() public show = false;
     public readonly colors = COLOR_MAP;
     public readonly json_tooltip = JsonDisplayComponent;
@@ -216,7 +216,7 @@ export class DebugConsoleComponent extends AsyncHandler {
         this.subscription(
             'logs',
             this._logs.history.subscribe((event) => {
-                let logs = this.logs.getValue();
+                const logs = this.logs.getValue();
                 if (
                     logs.length >
                     (this._settings.get('app.log_limits') || 20000)

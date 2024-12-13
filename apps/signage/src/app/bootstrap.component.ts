@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 
-import { AsyncHandler, Identity } from '@placeos/common';
+import { AsyncHandler, i18n, Identity } from '@placeos/common';
 import { VirtualKeyboardComponent } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
 import { PlaceSystem, querySystems } from '@placeos/ts-client';
@@ -30,17 +30,17 @@ const STORE_BUILDING_KEY = `${STORE_PREFIX}.building`;
                 <header
                     class="px-4 py-3 bg-secondary text-secondary-content w-full text-lg font-medium mb-2"
                 >
-                    Signage Kiosk Setup
+                    {{ 'APP.SIGNAGE.BOOTSTRAP_TITLE' | translate }}
                 </header>
                 <main *ngIf="!loading; else load_state" class="px-4 py-2">
-                    <!-- <label>Select a Building from the dropdown below</label>
+                    <!-- <label for="building">{{'APP.SIGNAGE.BOOTSTRAP_BUILDING' | translate}}</label>
                     <mat-form-field appearance="outline">
                         <mat-select
                             #select
-                            building
+                            name="building"
                             [ngModel]="(active_building | async)?.id"
                             (ngModelChange)="setBuilding($event)"
-                            placeholder="Select Building"
+                            [placeholder]="'APP.SIGNAGE.BOOTSTRAP_BUILDING_SELECT' | translate"
                         >
                             <mat-option
                                 *ngFor="let option of buildings | async"
@@ -50,13 +50,18 @@ const STORE_BUILDING_KEY = `${STORE_PREFIX}.building`;
                             </mat-option>
                         </mat-select>
                     </mat-form-field> -->
-                    <label>Select a display from the dropdown below</label>
+                    <label for="display">
+                        {{ 'APP.SIGNAGE.BOOTSTRAP_DISPLAY' | translate }}
+                    </label>
                     <mat-form-field appearance="outline">
                         <mat-select
                             #select
-                            building
+                            name="display"
                             [(ngModel)]="active_display"
-                            placeholder="Select Display"
+                            [placeholder]="
+                                'APP.SIGNAGE.BOOTSTRAP_DISPLAY_SELECT'
+                                    | translate
+                            "
                             [disabled]="!(displays | async)?.length"
                         >
                             <mat-option
@@ -89,7 +94,7 @@ const STORE_BUILDING_KEY = `${STORE_PREFIX}.building`;
                         [disabled]="!active_building || !active_display"
                         (click)="bootstrapKiosk()"
                     >
-                        Finish Setup
+                        {{ 'COMMON.BOOTSTRAP_SUBMIT' | translate }}
                     </button>
                 </main>
             </div>
@@ -115,10 +120,10 @@ const STORE_BUILDING_KEY = `${STORE_PREFIX}.building`;
 })
 export class BootstrapComponent extends AsyncHandler implements OnInit {
     /** Loading state of the bootstrap */
-    public loading: string = '';
+    public loading = '';
     /** Actively selected building */
     public readonly active_building = this._org.active_building;
-    /** Actively selected building */
+    /** Actively selected display */
     public active_display: any;
 
     public rotations: Identity[] = [];
@@ -191,7 +196,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
      * Store bootstrapped values and navigate to the main page
      */
     public async bootstrapKiosk() {
-        this.loading = 'Bootstrapping application...';
+        this.loading = i18n('APP.SIGNAGE.BOOTSTRAP_LOADING');
         const bld = await this.active_building
             .pipe(first((_) => !!_))
             .toPromise();
@@ -209,7 +214,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
      * Check for any existing bootstrapped values
      */
     private checkBootstrap() {
-        this.loading = 'Checking for existing parameters...';
+        this.loading = i18n('APP.SIGNAGE.BOOTSTRAP_LOADING_CHECK');
         const bld_id = localStorage?.getItem(STORE_BUILDING_KEY);
         const display_id = localStorage?.getItem(STORE_DISPLAY_KEY);
         if (bld_id && display_id) {

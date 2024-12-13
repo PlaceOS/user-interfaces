@@ -2,6 +2,8 @@ import {
     Component,
     EventEmitter,
     Input,
+    OnChanges,
+    OnInit,
     Output,
     SimpleChanges,
 } from '@angular/core';
@@ -11,6 +13,7 @@ import { format, isSameDay } from 'date-fns';
 import {
     AsyncHandler,
     getTimezoneOffsetString,
+    i18n,
     SettingsService,
 } from '@placeos/common';
 
@@ -80,16 +83,20 @@ import { DatePipe } from '@angular/common';
                         *ngIf="event?.ext('catering')?.length"
                     >
                         <app-icon>restaurant</app-icon>
-                        <div class="mx-2">Catered</div>
+                        <div class="mx-2">
+                            {{ 'CALENDAR_EVENT.CATERED' | translate }}
+                        </div>
                     </div>
                     <div class="flex items-center px-4">
                         <app-icon>people</app-icon>
                         <div class="mx-2">
-                            {{ event?.attendees?.length }}
                             {{
-                                event?.attendees?.length === 1
-                                    ? 'Person'
-                                    : 'People'
+                                'CALENDAR_EVENT.ATTENDEE_COUNT'
+                                    | translate
+                                        : {
+                                              count:
+                                                  event?.attendees?.length || 0,
+                                          }
                             }}
                         </div>
                     </div>
@@ -135,9 +142,12 @@ import { DatePipe } from '@angular/common';
     ],
     providers: [SpacePipe],
 })
-export class EventCardComponent extends AsyncHandler {
+export class EventCardComponent
+    extends AsyncHandler
+    implements OnInit, OnChanges
+{
     @Input() public event: CalendarEvent;
-    @Input() public show_day: boolean = false;
+    @Input() public show_day = false;
     @Output() public edit = new EventEmitter();
     @Output() public remove = new EventEmitter();
 
@@ -165,7 +175,7 @@ export class EventCardComponent extends AsyncHandler {
     }
 
     public get period() {
-        if (this.event?.all_day) return 'All Day';
+        if (this.event?.all_day) return i18n('COMMON.ALL_DAY');
         return this.formattedTime();
     }
 
@@ -189,7 +199,7 @@ export class EventCardComponent extends AsyncHandler {
         if (is_multiday) {
             return `${start_date}${all_day ? '' : ', ' + start_time} - ${end_date}${all_day ? '' : ', ' + end_time}`;
         } else if (all_day) {
-            return 'All Day';
+            return i18n('COMMON.ALL_DAY');
         }
         return `${start_time} - ${end_time} ${'(' + tz_format + ')'}`;
     }
@@ -233,7 +243,7 @@ export class EventCardComponent extends AsyncHandler {
     public get day() {
         const date = this.event?.date || Date.now();
         const is_today = isSameDay(Date.now(), date);
-        return `${is_today ? 'Today' : format(date, 'EEEE')}`;
+        return `${is_today ? i18n('COMMON.TODAY') : format(date, 'EEEE')}`;
     }
 
     public async getLocationString() {

@@ -80,7 +80,7 @@ declare let loadVosklet: any;
                         src="assets/icons/no-pending.svg"
                     />
                     <p class="opacity-30">
-                        {{ 'PANEL.NO_MESSAGES' | translate }}
+                        {{ 'APP.BOOKING_PANEL.NO_MESSAGES' | translate }}
                     </p>
                 </div>
                 <div class="max-h-full overflow-auto w-full" #message_element>

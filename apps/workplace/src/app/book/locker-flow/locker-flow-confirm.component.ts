@@ -7,48 +7,43 @@ import { take } from 'rxjs/operators';
 
 @Component({
     selector: 'locker-flow-confirm',
-    styles: [
-        `
-            section > app-icon {
-                font-size: 1.5rem;
-                margin-top: 0.3rem;
-            }
-
-            h3 {
-                font-size: 1.25rem;
-                font-weight: medium;
-                margin: 0.5rem 0;
-            }
-        `,
-    ],
     template: `
-        <button
-            icon
-            name="close-locker-confirm"
-            matRipple
-            *ngIf="show_close"
-            (click)="dismiss()"
+        <header
+            class="flex items-center justify-between p-2 h-12 m-2 rounded bg-base-200"
         >
-            <app-icon>close</app-icon>
-        </button>
-        <header class="flex items-center justify-between px-2">
-            <h2 class="text-2xl font-medium mb-2">Confirm Locker Booking</h2>
-            <mat-spinner diameter="32" *ngIf="loading | async"></mat-spinner>
+            <h2 class="text-xl font-medium px-2">
+                {{ 'APP.WORKPLACE.PARKING_CONFIRM_TITLE' | translate }}
+            </h2>
+            <div class="">
+                <mat-spinner
+                    diameter="32"
+                    *ngIf="loading | async"
+                ></mat-spinner>
+                <button
+                    icon
+                    name="close-locker-confirm"
+                    matRipple
+                    *ngIf="show_close"
+                    (click)="dismiss()"
+                >
+                    <app-icon class="text-2xl">close</app-icon>
+                </button>
+            </div>
         </header>
         <section period class="flex space-x-1 py-4 px-2">
-            <app-icon class="text-success">done</app-icon>
-            <div details class="leading-6">
-                <h3>{{ booking.title || '~Untitled~' }}</h3>
+            <app-icon class="text-success text-2xl">done</app-icon>
+            <div details class="text-base space-y-2">
+                <h3 class="text-xl">{{ booking.title || '~Untitled~' }}</h3>
                 <div class="flex items-center space-x-2">
-                    <app-icon>calendar_today</app-icon>
+                    <app-icon class="text-xl">calendar_today</app-icon>
                     <div date>{{ booking.date | date: 'fullDate' }}</div>
                 </div>
                 <div class="flex items-center space-x-2">
-                    <app-icon>schedule</app-icon>
+                    <app-icon class="text-xl">schedule</app-icon>
                     <div time>
                         {{
                             booking.all_day
-                                ? 'All Day'
+                                ? ('COMMON.ALL_DAY' | translate)
                                 : (booking.date | date: time_format) +
                                   ' - ' +
                                   (booking.date + booking.duration * 60 * 1000
@@ -59,15 +54,19 @@ import { take } from 'rxjs/operators';
             </div>
         </section>
         <section
-            locker
-            class="flex space-x-1 py-4 px-2 border-t"
+            resource
+            class="flex space-x-1 py-4 px-2 border-t text-base"
             *ngIf="booking_asset?.id"
         >
-            <app-icon class="text-success">done</app-icon>
-            <div details class="leading-6">
-                <h3 name>
+            <app-icon class="text-success text-2xl">done</app-icon>
+            <div details class="text-base space-y-2">
+                <h3 class="text-xl">
                     {{ booking_asset?.name || booking_asset?.id || '' }}
                 </h3>
+                <div class="flex items-center space-x-2">
+                    <app-icon>person</app-icon>
+                    <span>{{ 'RESOURCE.LOCKER' | translate }}</span>
+                </div>
                 <div class="flex items-center space-x-2">
                     <app-icon>place</app-icon>
                     <div>{{ location }}</div>
@@ -80,22 +79,6 @@ import { take } from 'rxjs/operators';
                 </ng-container>
             </div>
         </section>
-        <section
-            assets
-            class="flex space-x-1 py-4 px-2 border-t"
-            *ngIf="assets?.length"
-        >
-            <app-icon class="text-success">done</app-icon>
-            <div details class="leading-6">
-                <h3>{{ assets_count }} Asset(s)</h3>
-                <div class="flex space-x-2" *ngFor="let asset of assets">
-                    <div class="h-5 w-5 bg-base-200 rounded-full">
-                        {{ asset.amount }}
-                    </div>
-                    <span>{{ asset.name }}</span>
-                </div>
-            </div>
-        </section>
         <footer class="p-2 w-full border-t border-base-200 mt-4">
             <button
                 name="confirm-locker"
@@ -105,13 +88,14 @@ import { take } from 'rxjs/operators';
                 *ngIf="!(loading | async)"
                 (click)="postForm()"
             >
-                Confirm
+                {{ 'COMMON.CONFIRM' | translate }}
             </button>
         </footer>
     `,
+    styles: [``],
 })
 export class BookLockerFlowConfirmComponent extends AsyncHandler {
-    @Input() public show_close: boolean = false;
+    @Input() public show_close = false;
 
     public readonly loading = this._state.loading;
 

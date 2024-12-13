@@ -21,7 +21,7 @@ const EMPTY_FAVS: string[] = [];
                 *ngFor="let item of items"
             >
                 <div *ngIf="features?.length" class="flex flex-col">
-                    <label for="title">Type</label>
+                    <label for="title">{{ 'COMMON.TYPE' | translate }}</label>
                     <div features class="flex items-center flex-wrap space-x-2">
                         <mat-checkbox
                             *ngFor="let opt of features"
@@ -71,7 +71,7 @@ const EMPTY_FAVS: string[] = [];
                         <app-icon class="text-blue-500 text-base"
                             >accessible</app-icon
                         >
-                        <p>Disability Accessible</p>
+                        <p>{{ 'BOOKINGS.LOCKER_ACCESSIBLE' | translate }}</p>
                     </div>
                     <div
                         class="absolute bottom-0 right-0 flex items-center justify-end text-xs"
@@ -85,7 +85,7 @@ const EMPTY_FAVS: string[] = [];
                         >
                             <div class="flex items-center space-x-2">
                                 <app-icon>edit</app-icon>
-                                Change
+                                {{ 'COMMON.CHANGE' | translate }}
                             </div>
                         </button>
                         <button
@@ -97,7 +97,7 @@ const EMPTY_FAVS: string[] = [];
                         >
                             <div class="flex items-center space-x-2">
                                 <app-icon>close</app-icon>
-                                Remove
+                                {{ 'COMMON.REMOVE' | translate }}
                             </div>
                         </button>
                     </div>
@@ -127,7 +127,7 @@ const EMPTY_FAVS: string[] = [];
         >
             <div class="flex items-center justify-center space-x-2">
                 <app-icon>search</app-icon>
-                <span>Add Locker</span>
+                <span>{{ 'BOOKINGS.LOCKER_ADD' | translate }}</span>
             </div>
         </button>
         <div class="flex items-center flex-wrap sm:space-x-2 mb-2">

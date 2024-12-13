@@ -14,15 +14,16 @@ import { CustomTooltipData } from '@placeos/components';
                 <app-icon class="text-2xl">arrow_back</app-icon>
                 <div class="">{{ 'COMMON.LANGUAGE' | translate }}</div>
             </div>
-            <div class="text-xs opacity-60 mb-4 px-2 p-4">
+            <div class="text-xs opacity-60 px-8">
                 {{ 'COMMON.LANGUAGE_SELECT' | translate }}
             </div>
             <button
                 *ngFor="let lang of locales"
-                class="w-full p-4 border-t border-base-200 text-left"
+                class="w-full p-4 border-t border-base-200 text-left flex items-center justify-between"
                 (click)="setLocale(lang.id)"
             >
-                {{ lang.name }} - {{ lang.flag }}
+                <div>{{ lang.name | translate }}</div>
+                <div>{{ lang.flag }}</div>
             </button>
         </div>
     `,
