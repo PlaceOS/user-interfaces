@@ -2,6 +2,7 @@ import {
     Component,
     EventEmitter,
     Input,
+    OnInit,
     Output,
     SimpleChanges,
 } from '@angular/core';
@@ -25,7 +26,9 @@ import { User } from 'libs/users/src/lib/user.class';
                 *ngIf="!(loading | async) && !loading_many; else load_state"
             >
                 <div class="w-full border-b border-base-200 sm:px-16 px-4 py-4">
-                    <h2 class="text-2xl font-medium">Invite Visitor</h2>
+                    <h2 class="text-2xl font-medium">
+                        {{ 'BOOKINGS.VISITOR_INVITE_TITLE' | translate }}
+                    </h2>
                 </div>
                 <form
                     *ngIf="form"
@@ -33,7 +36,9 @@ import { User } from 'libs/users/src/lib/user.class';
                     class="sm:px-16 px-4 py-4"
                 >
                     <div class="flex flex-col" *ngIf="buildings?.length > 1">
-                        <label for="building"> Building<span>*</span> </label>
+                        <label for="building">
+                            {{ 'RESOURCE.BUILDING' | translate }}<span>*</span>
+                        </label>
                         <mat-form-field appearance="outline">
                             <mat-select
                                 [ngModel]="form.value.zones[0]"
@@ -54,7 +59,9 @@ import { User } from 'libs/users/src/lib/user.class';
                         </mat-form-field>
                     </div>
                     <div class="flex flex-col">
-                        <label for="date">Date<span>*</span></label>
+                        <label for="date">
+                            {{ 'FORM.DATE' | translate }}<span>*</span>
+                        </label>
                         <a-date-field
                             name="date"
                             formControlName="date"
@@ -63,7 +70,8 @@ import { User } from 'libs/users/src/lib/user.class';
                     <div class="flex items-center space-x-2">
                         <div class="flex-1 flex flex-col w-1/3">
                             <label for="start-time">
-                                Start Time<span>*</span>
+                                {{ 'FORM.TIME_START' | translate }}
+                                <span>*</span>
                             </label>
                             <a-time-field
                                 name="start-time"
@@ -77,7 +85,10 @@ import { User } from 'libs/users/src/lib/user.class';
                             ></a-time-field>
                         </div>
                         <div class="flex-1 flex flex-col w-1/3">
-                            <label for="end-time">End Time<span>*</span></label>
+                            <label for="end-time">
+                                {{ 'FORM.TIME_END' | translate }}
+                                <span>*</span>
+                            </label>
                             <a-duration-field
                                 name="end-time"
                                 formControlName="duration"
@@ -101,15 +112,19 @@ import { User } from 'libs/users/src/lib/user.class';
                     </div>
                     <ng-container *ngIf="!multiple; else multi_state">
                         <div class="flex flex-col">
-                            <label for="visitor-name"
-                                >Visitor Name<span>*</span></label
-                            >
+                            <label for="visitor-name">
+                                {{ 'BOOKINGS.VISITOR_NAME' | translate }}
+                                <span>*</span>
+                            </label>
                             <mat-form-field appearance="outline">
                                 <input
                                     matInput
                                     name="visitor-name"
                                     formControlName="asset_name"
-                                    placeholder="Name of the visitor"
+                                    [placeholder]="
+                                        'BOOKINGS.VISITOR_NAME_PLACEHOLDER'
+                                            | translate
+                                    "
                                     (focus)="
                                         filterVisitors(form.value.asset_name)
                                     "
@@ -138,7 +153,8 @@ import { User } from 'libs/users/src/lib/user.class';
                         </div>
                         <div class="flex flex-col">
                             <label for="visitor-email">
-                                Visitor Email<span>*</span>
+                                {{ 'BOOKINGS.VISITOR_EMAIL' | translate }}
+                                <span>*</span>
                             </label>
                             <mat-form-field appearance="outline">
                                 <input
@@ -146,14 +162,17 @@ import { User } from 'libs/users/src/lib/user.class';
                                     name="visitor-email"
                                     type="email"
                                     formControlName="asset_id"
-                                    placeholder="Email of the visitor"
+                                    [placeholder]="
+                                        'BOOKINGS.VISITOR_EMAIL_PLACEHOLDER'
+                                            | translate
+                                    "
                                     (focus)="
                                         filterVisitors(form.value.asset_id)
                                     "
                                     [matAutocomplete]="email_auto"
                                 />
                                 <mat-error>
-                                    A valid email is required
+                                    {{ 'FORM.EMAIL_REQUIRED' | translate }}
                                 </mat-error>
                             </mat-form-field>
                             <mat-autocomplete #email_auto="matAutocomplete">
@@ -177,25 +196,34 @@ import { User } from 'libs/users/src/lib/user.class';
                             </mat-autocomplete>
                         </div>
                         <div class="flex flex-col">
-                            <label for="visitor-name">Company</label>
+                            <label for="visitor-name">{{
+                                'BOOKINGS.VISITOR_COMPANY' | translate
+                            }}</label>
                             <mat-form-field appearance="outline">
                                 <input
                                     matInput
                                     name="company"
                                     formControlName="company"
-                                    placeholder="Company of the visitor"
+                                    [placeholder]="
+                                        'BOOKINGS.VISITOR_COMPANY' | translate
+                                    "
                                 />
                             </mat-form-field>
                         </div>
                     </ng-container>
                     <div class="flex flex-col">
-                        <label for="reason">Reason for visit</label>
+                        <label for="reason">{{
+                            'BOOKINGS.VISITOR_REASON' | translate
+                        }}</label>
                         <mat-form-field appearance="outline">
                             <input
                                 name="reason"
                                 matInput
                                 formControlName="description"
-                                placeholder="e.g. Meeting Catchup"
+                                [placeholder]="
+                                    'BOOKINGS.VISITOR_REASON_PLACEHOLDER'
+                                        | translate
+                                "
                             />
                         </mat-form-field>
                     </div>
@@ -210,7 +238,7 @@ import { User } from 'libs/users/src/lib/user.class';
                         class="w-full sm:w-auto"
                         (click)="sendInvite()"
                     >
-                        Send Visitor Invite
+                        {{ 'BOOKINGS.VISITOR_SEND' | translate }}
                     </button>
                 </div>
             </div>
@@ -222,39 +250,37 @@ import { User } from 'libs/users/src/lib/user.class';
             >
                 <div class="w-full max-w-[32rem] flex-1 h-1/2 space-y-2 m-8">
                     <h2 class="text-3xl">
-                        Visitor invite sent to
-                        <ng-container *ngIf="!multiple">
-                            {{
-                                last_success?.asset_name ||
-                                    last_success?.asset_id
-                            }}
-                        </ng-container>
-                        <ng-container *ngIf="multiple">
-                            {{ last_count }} visitor{{
-                                last_count == 1 ? '' : 's'
-                            }}
-                        </ng-container>
+                        {{
+                            (multiple
+                                ? 'BOOKINGS.VISITOR_SENT_SINGLE'
+                                : 'BOOKINGS.VISITOR_SENT_MULTIPLE'
+                            )
+                                | translate
+                                    : {
+                                          name:
+                                              last_success?.asset_name ||
+                                              last_success?.asset_id,
+                                          count: last_count,
+                                      }
+                        }}
                     </h2>
                     <img class="mx-auto" src="assets/icons/sent.svg" />
                     <p>
-                        Invite has been sent to
-                        <i>
-                            <ng-container *ngIf="!multiple">
-                                {{
-                                    last_success?.asset_name ||
-                                        last_success?.asset_id
-                                }}
-                            </ng-container>
-                            <ng-container *ngIf="multiple">
-                                {{ last_count }} visitor{{
-                                    last_count == 1 ? '' : 's'
-                                }}
-                            </ng-container>
-                        </i>
-                        to attend
-                        {{ building?.display_name || building?.name }} from
-                        {{ last_success?.date | date: 'mediumDate' }} at
-                        {{ last_success?.date | date: time_format }}
+                        {{
+                            'BOOKINGS.VISITOR_SENT_MSG'
+                                | translate
+                                    : {
+                                          location:
+                                              building?.display_name ||
+                                              building?.name,
+                                          date:
+                                              last_success?.date
+                                              | date: 'mediumDate',
+                                          time:
+                                              last_success?.date
+                                              | date: time_format,
+                                      }
+                        }}
                     </p>
                 </div>
                 <div class="w-full p-2 border-t border-base-200">
@@ -262,7 +288,7 @@ import { User } from 'libs/users/src/lib/user.class';
                         class="mx-auto flex items-center space-x-2 w-full max-w-[32rem]"
                     >
                         <button btn matRipple class="flex-1" (click)="onDone()">
-                            Great, thanks
+                            {{ 'APP.WORKPLACE.BOOKING_FINISHED' | translate }}
                         </button>
                         <button
                             btn
@@ -270,7 +296,7 @@ import { User } from 'libs/users/src/lib/user.class';
                             class="flex-1"
                             (click)="sent = false"
                         >
-                            Book Another Visitor
+                            {{ 'BOOKINGS.VISITOR_BOOK_ANOTHER' | translate }}
                         </button>
                     </div>
                 </div>
@@ -282,12 +308,15 @@ import { User } from 'libs/users/src/lib/user.class';
                 class="relative flex flex-col items-center justify-center rounded overflow-hidden w-full h-full min-h-[18rem]"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
-                <p>Sending invitation...</p>
+                <p>{{ 'BOOKINGS.VISITOR_SENDING' | translate }}</p>
             </div>
         </ng-template>
         <ng-template #multi_state>
             <div class="flex flex-col" [formGroup]="form">
-                <label for="visitor-name">Visitors<span>*</span></label>
+                <label for="visitor-name">
+                    {{ 'BOOKINGS.VISITOR_LIST' | translate }}
+                    <span>*</span>
+                </label>
                 <a-user-list-field
                     formControlName="assets"
                     [guests_only]="true"
@@ -297,7 +326,7 @@ import { User } from 'libs/users/src/lib/user.class';
     `,
     styles: [``],
 })
-export class InviteVisitorFormComponent extends AsyncHandler {
+export class InviteVisitorFormComponent extends AsyncHandler implements OnInit {
     @Input() public date: number;
     @Output() public done = new EventEmitter<void>();
 

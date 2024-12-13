@@ -151,7 +151,14 @@ const DENIED_FILE_TYPES = [
                     (click)="openNewUserModal()"
                 >
                     <div class="flex items-center justify-center">
-                        Add&nbsp;<span class="hidden sm:inline">External</span>
+                        <span class="hidden sm:inline">
+                            {{ 'FORM.USER_BTN_ADD_EXTERNAL' | translate }}
+                        </span>
+                        <span class="sm:hidden inline">
+                            {{
+                                'FORM.USER_BTN_ADD_EXTERNAL_SIMPLE' | translate
+                            }}
+                        </span>
                     </div>
                 </button>
                 <button
@@ -162,7 +169,12 @@ const DENIED_FILE_TYPES = [
                     class="relative inverse flex-1 sm:flex-none"
                 >
                     <div class="flex items-center justify-center">
-                        Upload&nbsp;<span class="hidden sm:inline">CSV</span>
+                        <span class="hidden sm:inline">
+                            {{ 'FORM.USER_BTN_UPLOAD' | translate }}
+                        </span>
+                        <span class="sm:hidden inline">
+                            {{ 'FORM.USER_BTN_UPLOAD_SIMPLE' | translate }}
+                        </span>
                     </div>
                     <input
                         class="opacity-0 absolute inset-0"
@@ -179,7 +191,12 @@ const DENIED_FILE_TYPES = [
                     (click)="downloadCSVTemplate(); download.emit()"
                 >
                     <div class="flex items-center justify-center">
-                        <span class="hidden sm:inline">CSV</span>&nbsp;Template
+                        <span class="hidden sm:inline">
+                            {{ 'FORM.USER_BTN_TEMPLATE' | translate }}
+                        </span>
+                        <span class="sm:hidden inline">
+                            {{ 'FORM.USER_BTN_TEMPLATE_SIMPLE' | translate }}
+                        </span>
                     </div>
                 </button>
             </div>
