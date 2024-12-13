@@ -170,6 +170,17 @@ function csvToJson(csv, delimiter = ',') {
     return elements;
 }
 
+///////
+///
+/// Example usage:
+///     Extract all existing translations to locales.tsv
+///         node ./tools/i18n-tools.js to-csv
+///
+///     Import translations from locales.tsv
+///         node ./tools/i18n-tools.js from-csv
+///
+///////
+
 switch (process.argv[2]) {
     case 'to-csv':
         i18nFilesToCSV(process.argv[3]);
@@ -181,7 +192,7 @@ switch (process.argv[2]) {
         generate_i18nFiles(
             process.argv[3]
                 ? process.argv[3].split(',')
-                : ['es', 'fr', 'pt', 'fr-CA'],
+                : ['es', 'fr', 'pt', 'fr-CA', 'it', 'zh'],
         );
         break;
 }
