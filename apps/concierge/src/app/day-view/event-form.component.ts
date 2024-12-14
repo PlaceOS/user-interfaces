@@ -11,7 +11,9 @@ import { map, tap } from 'rxjs/operators';
     template: `
         <form *ngIf="form" [formGroup]="form">
             <div class="flex flex-col">
-                <label for="title">Title<span>*</span>:</label>
+                <label for="title"
+                    >{{ 'FORM.TITLE' | translate }}<span>*</span>:</label
+                >
                 <mat-form-field appearance="outline">
                     <input
                         matInput
@@ -19,11 +21,15 @@ import { map, tap } from 'rxjs/operators';
                         formControlName="title"
                         placeholder="Meeting Title"
                     />
-                    <mat-error>A valid title is required</mat-error>
+                    <mat-error>{{
+                        'FORM.TITLE_REQUIRED' | translate
+                    }}</mat-error>
                 </mat-form-field>
             </div>
             <div class="flex flex-col relative">
-                <label for="date">Date<span>*</span>:</label>
+                <label for="date"
+                    >{{ 'FORM.DATE' | translate }}<span>*</span>:</label
+                >
                 <a-date-field name="date" formControlName="date"></a-date-field>
                 <mat-checkbox
                     formControlName="all_day"
@@ -35,7 +41,10 @@ import { map, tap } from 'rxjs/operators';
             </div>
             <div class="flex space-x-2" *ngIf="!form.value.all_day">
                 <div class="flex flex-col flex-1">
-                    <label for="start-time">Start Time<span>*</span>:</label>
+                    <label for="start-time"
+                        >{{ 'FORM.TIME_START' | translate
+                        }}<span>*</span>:</label
+                    >
                     <a-time-field
                         name="start-time"
                         [ngModel]="form.get('date').value"
@@ -45,7 +54,9 @@ import { map, tap } from 'rxjs/operators';
                     ></a-time-field>
                 </div>
                 <div class="flex flex-col flex-1">
-                    <label for="duration">Duration<span>*</span>:</label>
+                    <label for="duration"
+                        >{{ 'FORM.DURATION' | translate }}<span>*</span>:</label
+                    >
                     <a-duration-field
                         name="duration"
                         [time]="form.controls?.date?.value"
@@ -55,7 +66,9 @@ import { map, tap } from 'rxjs/operators';
                 </div>
             </div>
             <div class="flex flex-col flex-1">
-                <label for="organiser">Host<span>*</span>:</label>
+                <label for="organiser"
+                    >{{ 'FORM.HOST' | translate }}<span>*</span>:</label
+                >
                 <a-user-search-field
                     name="organiser"
                     formControlName="organiser"
@@ -63,14 +76,19 @@ import { map, tap } from 'rxjs/operators';
                 ></a-user-search-field>
             </div>
             <div class="flex flex-col flex-1">
-                <label for="attendees">Attendees<span>*</span>:</label>
+                <label for="attendees">
+                    {{ 'CALENDAR_EVENT.ATTENDEES' | translate
+                    }}<span>*</span>:</label
+                >
                 <a-user-list-field
                     name="attendees"
                     formControlName="attendees"
                 ></a-user-list-field>
             </div>
             <div class="flex flex-col flex-1">
-                <label for="space">Space<span>*</span>:</label>
+                <label for="space">
+                    {{ 'RESOURCE.ROOM' | translate }}<span>*</span>
+                </label>
                 <space-list-field
                     class="w-full"
                     formControlName="resources"
@@ -88,7 +106,7 @@ import { map, tap } from 'rxjs/operators';
                         date: form.value.date,
                         duration: form.value.duration,
                         all_day: form.value.all_day,
-                        zone_id: form.value.resources[0]?.level?.parent_id
+                        zone_id: form.value.resources[0]?.level?.parent_id,
                     }"
                 ></catering-list-field>
                 <mat-form-field
@@ -173,7 +191,7 @@ export class EventFormComponent {
     public code_filter = new BehaviorSubject('');
 
     public readonly has_catering = this._catering.available_menu.pipe(
-        map((l) => l.length > 0)
+        map((l) => l.length > 0),
     );
 
     public readonly has_codes = this._catering.charge_codes.pipe(
@@ -183,7 +201,7 @@ export class EventFormComponent {
                 this.form.get('catering_charge_code').setValidators([]);
                 this.form.updateValueAndValidity();
             }
-        })
+        }),
     );
 
     public readonly filtered_codes = combineLatest([
@@ -191,8 +209,8 @@ export class EventFormComponent {
         this._catering.charge_codes,
     ]).pipe(
         map(([s, l]) =>
-            l.filter((_) => _.toLowerCase().includes(s.toLowerCase()))
-        )
+            l.filter((_) => _.toLowerCase().includes(s.toLowerCase())),
+        ),
     );
 
     public get allow_all_day() {
@@ -210,6 +228,6 @@ export class EventFormComponent {
     constructor(
         private _dialog: MatDialog,
         private _settings: SettingsService,
-        private _catering: CateringOrderStateService
+        private _catering: CateringOrderStateService,
     ) {}
 }

@@ -1,4 +1,5 @@
 import {
+    AfterViewInit,
     Component,
     ElementRef,
     Inject,
@@ -40,7 +41,9 @@ export interface FindAvailabilityData {
     selector: 'find-availability-modal',
     template: `
         <header class="relative flex items-center justify-center p-4">
-            <h2 class="text-center">Find Availability</h2>
+            <h2 class="text-center">
+                {{ 'CALENDAR_EVENT.FIND_AVAILABILITY' | translate }}
+            </h2>
             <button
                 icon
                 matRipple
@@ -218,7 +221,9 @@ export interface FindAvailabilityData {
             >
                 <div class="flex items-center">
                     <app-icon class="text-xl">arrow_back</app-icon>
-                    <div class="mr-1 underline">Back to form</div>
+                    <div class="mr-1 underline">
+                        {{ 'COMMON.BACK_TO_FORM' | translate }}
+                    </div>
                 </div>
             </button>
         </footer>
@@ -240,7 +245,10 @@ export interface FindAvailabilityData {
         `,
     ],
 })
-export class FindAvailabilityModalComponent extends AsyncHandler {
+export class FindAvailabilityModalComponent
+    extends AsyncHandler
+    implements AfterViewInit
+{
     public readonly users = new BehaviorSubject([]);
     public search = '';
     public date = this._data.date || Date.now();
@@ -277,7 +285,7 @@ export class FindAvailabilityModalComponent extends AsyncHandler {
                         const date = fromUnixTime(block.starts_at);
                         const duration = differenceInMinutes(
                             fromUnixTime(block.ends_at),
-                            fromUnixTime(block.starts_at)
+                            fromUnixTime(block.starts_at),
                         );
                         return {
                             date,
@@ -293,7 +301,7 @@ export class FindAvailabilityModalComponent extends AsyncHandler {
             return availability_map;
         }),
         defaultIfEmpty({}),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     @ViewChild('container', { static: true })
@@ -319,7 +327,7 @@ export class FindAvailabilityModalComponent extends AsyncHandler {
     constructor(
         @Inject(MAT_DIALOG_DATA) private _data: FindAvailabilityData,
         private _renderer: Renderer2,
-        private _dialog_ref: MatDialogRef<FindAvailabilityModalComponent>
+        private _dialog_ref: MatDialogRef<FindAvailabilityModalComponent>,
     ) {
         super();
         this.users.next([...this._data.users]);
@@ -335,7 +343,7 @@ export class FindAvailabilityModalComponent extends AsyncHandler {
 
     public removeUser(user: User) {
         this.users.next(
-            this.users.getValue().filter((u) => u.email !== user.email)
+            this.users.getValue().filter((u) => u.email !== user.email),
         );
         this.user = null;
     }
@@ -346,11 +354,12 @@ export class FindAvailabilityModalComponent extends AsyncHandler {
 
     public ngAfterViewInit() {
         const date = new Date(this.date);
+
         this.timeout(
             'init',
             () => {
                 const el = this._container_el.nativeElement.querySelector(
-                    `[hour="${date.getHours()}"]`
+                    `[hour="${date.getHours()}"]`,
                 );
                 if (el) {
                     const rect =
@@ -358,12 +367,12 @@ export class FindAvailabilityModalComponent extends AsyncHandler {
                     const el_rect = el.getBoundingClientRect();
                     this._container_el.nativeElement.scrollTo(
                         el_rect.left - 128 - rect.left,
-                        0
+                        0,
                     );
                 }
                 this.onScroll();
             },
-            300
+            300,
         );
     }
 
@@ -390,27 +399,27 @@ export class FindAvailabilityModalComponent extends AsyncHandler {
             ? this.subscription(
                   'on_move',
                   this._renderer.listen('window', 'mousemove', (e) =>
-                      this._onMovePeriod(e)
-                  )
+                      this._onMovePeriod(e),
+                  ),
               )
             : this.subscription(
                   'on_move',
                   this._renderer.listen('window', 'touchmove', (e) =>
-                      this._onMovePeriod(e)
-                  )
+                      this._onMovePeriod(e),
+                  ),
               );
         event instanceof MouseEvent
             ? this.subscription(
                   'on_move_end',
                   this._renderer.listen('window', 'mouseup', () =>
-                      this._onMoveEnd()
-                  )
+                      this._onMoveEnd(),
+                  ),
               )
             : this.subscription(
                   'on_move_end',
                   this._renderer.listen('window', 'touchend', () =>
-                      this._onMoveEnd()
-                  )
+                      this._onMoveEnd(),
+                  ),
               );
     }
 
@@ -426,27 +435,27 @@ export class FindAvailabilityModalComponent extends AsyncHandler {
             ? this.subscription(
                   'on_move',
                   this._renderer.listen('window', 'mousemove', (e) =>
-                      this._onMoveDuration(e)
-                  )
+                      this._onMoveDuration(e),
+                  ),
               )
             : this.subscription(
                   'on_move',
                   this._renderer.listen('window', 'touchmove', (e) =>
-                      this._onMoveDuration(e)
-                  )
+                      this._onMoveDuration(e),
+                  ),
               );
         event instanceof MouseEvent
             ? this.subscription(
                   'on_move_end',
                   this._renderer.listen('window', 'mouseup', () =>
-                      this._onMoveEnd()
-                  )
+                      this._onMoveEnd(),
+                  ),
               )
             : this.subscription(
                   'on_move_end',
                   this._renderer.listen('window', 'touchend', () =>
-                      this._onMoveEnd()
-                  )
+                      this._onMoveEnd(),
+                  ),
               );
     }
 

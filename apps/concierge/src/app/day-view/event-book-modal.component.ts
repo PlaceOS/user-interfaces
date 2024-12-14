@@ -1,5 +1,9 @@
 import { Component, Output, EventEmitter, Inject, OnInit } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import {
+    MAT_DIALOG_DATA,
+    MatDialog,
+    MatDialogRef,
+} from '@angular/material/dialog';
 import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
     DialogEvent,
@@ -10,6 +14,7 @@ import {
     notifySuccess,
 } from '@placeos/common';
 import { CalendarEvent, EventFormService } from '@placeos/events';
+import { FindAvailabilityModalComponent } from '@placeos/users';
 import { CateringOrderStateService } from 'libs/catering/src/lib/catering-order-modal/catering-order-state.service';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
@@ -260,7 +265,7 @@ import { map, tap } from 'rxjs/operators';
                         {{ !(has_catering | async) ? '4' : '5' }}
                     </div>
                     <div class="text-xl">
-                        {{ 'RESORUCE.ASSETS' | translate }}
+                        {{ 'RESOURCE.ASSETS' | translate }}
                     </div>
                     <div class="flex-1 w-px"></div>
                     <button
@@ -310,12 +315,12 @@ import { map, tap } from 'rxjs/operators';
                 </h3>
                 <div class="w-full flex flex-col">
                     <label for="notes">
-                        {{ 'CALENDAR_EVENTS.NOTES_INFO' | translate }}
+                        {{ 'CALENDAR_EVENT.NOTES_INFO' | translate }}
                     </label>
                     <rich-text-input
                         name="notes"
                         formControlName="body"
-                        [placeholder]="'CALENDAR_EVENTS.NOTES_INFO' | translate"
+                        [placeholder]="'CALENDAR_EVENT.NOTES_INFO' | translate"
                     ></rich-text-input>
                 </div>
             </section>
@@ -424,10 +429,30 @@ export class EventBookModalComponent implements OnInit {
         private _settings: SettingsService,
         private _catering: CateringOrderStateService,
         private _dialog_ref: MatDialogRef<EventBookModalComponent>,
+        private _dialog: MatDialog,
     ) {}
 
     public async ngOnInit() {
         await this._event_form.newForm(this._data.event);
+    }
+    public findAvailableTime() {
+        const { attendees, organiser, date, duration } = this.form.value;
+        const ref = this._dialog.open(FindAvailabilityModalComponent, {
+            data: {
+                users: attendees,
+                host: organiser || currentUser(),
+                date,
+                duration,
+            },
+        });
+        ref.afterClosed().subscribe((d) => {
+            if (!d) return;
+            this.form.patchValue({
+                date: ref.componentInstance.date,
+                attendees: ref.componentInstance.users.getValue(),
+                duration: ref.componentInstance.duration,
+            });
+        });
     }
 
     public async save() {

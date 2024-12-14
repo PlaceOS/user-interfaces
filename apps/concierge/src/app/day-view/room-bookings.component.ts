@@ -123,13 +123,15 @@ const EMPTY = [];
                                     class="h-4 w-4 m-2 rounded-full"
                                     [style.background-color]="type.color"
                                 ></div>
-                                <div>{{ type.name }}</div>
+                                <div class="truncate">
+                                    {{ type.name }}
+                                </div>
                                 <button
                                     icon
                                     matRipple
                                     (click)="setFilter(type.id, true)"
                                 >
-                                    <app-icon>close</app-icon>
+                                    <app-icon class="text-xl">close</app-icon>
                                 </button>
                             </div>
                         }

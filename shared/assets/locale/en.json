@@ -511,7 +511,8 @@
         "GROUP_WHEN_WHERE": "When and where",
         "GROUP_DATE_TIME": "Date and Time",
         "GROUP_ABOUT": "About this event",
-        "GROUP_ATTENDEES": "{{ going }} going, {{ interested }} interested"
+        "GROUP_ATTENDEES": "{{ going }} going, {{ interested }} interested",
+        "FIND_AVAILABILITY": "Find Availability"
     },
     "APP": {
         "WORKPLACE": {
