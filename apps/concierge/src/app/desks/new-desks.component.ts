@@ -45,7 +45,9 @@ import { DeskQrCodeModalComponent } from './desk-qr-code-modal.component';
                         class="space-x-2 w-44"
                         (click)="newDeskBooking()"
                     >
-                        <div class="pl-2">New Booking</div>
+                        <div class="pl-2">
+                            {{ 'APP.CONCIERGE.NEW_BOOKING' | translate }}
+                        </div>
                         <app-icon class="text-2xl">add</app-icon>
                     </button>
                     <button
@@ -55,7 +57,9 @@ import { DeskQrCodeModalComponent } from './desk-qr-code-modal.component';
                         class="space-x-2 w-44"
                         (click)="editDesk()"
                     >
-                        <div class="pl-2">New Desk</div>
+                        <div class="pl-2">
+                            {{ 'APP.CONCIERGE.DESKS_NEW' | translate }}
+                        </div>
                         <app-icon class="text-2xl">add</app-icon>
                     </button>
                 </div>
@@ -163,7 +167,10 @@ import { DeskQrCodeModalComponent } from './desk-qr-code-modal.component';
                             icon
                             matRipple
                             class="bg-secondary text-secondary-content rounded h-12 w-12"
-                            matTooltip="View Desk QR Codes"
+                            [matTooltip]="
+                                'APP.CONCIERGE.DESKS_VIEW_QR_CODE_LIST'
+                                    | translate
+                            "
                             (click)="viewQRCodes()"
                         >
                             <app-icon>qr_code</app-icon>
@@ -173,7 +180,9 @@ import { DeskQrCodeModalComponent } from './desk-qr-code-modal.component';
                             icon
                             matRipple
                             class="bg-secondary text-secondary-content rounded h-12 w-12"
-                            matTooltip="Upload Desks CSV"
+                            [matTooltip]="
+                                'APP.CONCIERGE.DESKS_LIST_UPLOAD' | translate
+                            "
                         >
                             <app-icon>cloud_upload</app-icon>
                             <input
@@ -188,7 +197,9 @@ import { DeskQrCodeModalComponent } from './desk-qr-code-modal.component';
                             matRipple
                             class="bg-secondary text-secondary-content rounded h-12 w-12"
                             (click)="downloadTemplate()"
-                            matTooltip="Download Template Desk CSV"
+                            [matTooltip]="
+                                'APP.CONCIERGE.DESKS_LIST_DOWNLOAD' | translate
+                            "
                         >
                             <app-icon>download</app-icon>
                         </button>
@@ -197,7 +208,9 @@ import { DeskQrCodeModalComponent } from './desk-qr-code-modal.component';
                             matRipple
                             class="bg-secondary text-secondary-content rounded h-12 w-12"
                             (click)="manageRestrictions()"
-                            matTooltip="Desk Restrictions"
+                            [matTooltip]="
+                                'APP.CONCIERGE.DESKS_BOOKING_RULES' | translate
+                            "
                         >
                             <app-icon>lock_open</app-icon>
                         </button>

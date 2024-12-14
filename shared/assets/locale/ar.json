@@ -652,7 +652,7 @@
             "TIMEZONE_DIFF": "يتم عرض توقيت المبنى وهو مختلف عن توقيتك المحلي.",
             "ROOM_BOOKINGS": "حجوزات الغرف",
             "SETUP_BREAKDOWN": "الإعداد/التفكيك",
-            "ROOMS_NEW_BOOKING": "حجز جديد",
+            "ROOMS_BOOKING": "حجز جديد",
             "BOOKING_REMOVE_TITLE": "حذف الحجز",
             "BOOKING_REMOVE_MSG": "حذف الحجز لـ {{ name }} في {{ time }}؟",
             "BOOKING_REMOVE_SUCCESS": "تم حذف الحجز بنجاح.",

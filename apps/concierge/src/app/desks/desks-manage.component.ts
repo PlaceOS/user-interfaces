@@ -4,6 +4,7 @@ import {
     AsyncHandler,
     SettingsService,
     csvToJson,
+    i18n,
     loadTextFileFromInputEvent,
     notifyError,
     notifySuccess,
@@ -34,24 +35,27 @@ const QR_CODES = {};
                 [columns]="[
                     {
                         key: 'id',
-                        name: 'Desk ID',
+                        name: 'APP.CONCIERGE.DESKS_ID' | translate,
                         content: name_template,
                         size: '10rem',
                     },
-                    { key: 'name', name: 'Desk Name' },
+                    {
+                        key: 'name',
+                        name: 'APP.CONCIERGE.DESKS_NAME' | translate,
+                    },
                     {
                         key: 'groups',
-                        name: 'Groups',
+                        name: 'COMMON.GROUPS' | translate,
                         content: item_list_template,
                     },
                     {
                         key: 'features',
-                        name: 'Features',
+                        name: 'COMMON.FEATURES' | translate,
                         content: item_list_template,
                     },
                     {
                         key: 'bookable',
-                        name: 'Bookable',
+                        name: 'COMMON.BOOKABLE' | translate,
                         content: bool_template,
                         size: '5.5rem',
                     },
@@ -65,9 +69,10 @@ const QR_CODES = {};
                 ]"
                 [sortable]="true"
                 [empty_message]="
-                    (filters | async)?.search
-                        ? 'No matching desks'
-                        : 'No desks for selected level'
+                    ((filters | async)?.search
+                        ? 'APP.CONCIERGE.DESKS_MANAGE_SEARCH_EMPTY'
+                        : 'APP.CONCIERGE.DESKS_MANAGE_EMPTY'
+                    ) | translate
                 "
             ></simple-table>
             <ng-template #name_template let-row="row">
@@ -110,7 +115,9 @@ const QR_CODES = {};
                         matRipple
                         customTooltip
                         [content]="qr_menu"
-                        matTooltip="Print QR Code"
+                        [matTooltip]="
+                            'APP.CONCIERGE.DESKS_ACTION_PRINT_QR' | translate
+                        "
                         (click)="loadQrCode(row)"
                     >
                         <app-icon>qr_code</app-icon>
@@ -118,7 +125,9 @@ const QR_CODES = {};
                     <button
                         icon
                         matRipple
-                        matTooltip="Edit Desk"
+                        [matTooltip]="
+                            'APP.CONCIERGE.DESKS_ACTION_EDIT' | translate
+                        "
                         (click)="editDesk(row)"
                     >
                         <app-icon>edit</app-icon>
@@ -126,7 +135,9 @@ const QR_CODES = {};
                     <button
                         icon
                         matRipple
-                        matTooltip="Remove Desk"
+                        [matTooltip]="
+                            'APP.CONCIERGE.DESKS_ACTION_REMOVE' | translate
+                        "
                         (click)="removeDesk(row)"
                     >
                         <app-icon class="text-error">delete</app-icon>
@@ -154,7 +165,10 @@ const QR_CODES = {};
                                 class="w-[calc(100%-2rem)] mx-4 my-2"
                                 (click)="print()"
                             >
-                                Print QR Code
+                                {{
+                                    'APP.CONCIERGE.DESKS_ACTION_PRINT_QR'
+                                        | translate
+                                }}
                             </button>
                         </div>
                     </ng-template>
@@ -175,7 +189,7 @@ const QR_CODES = {};
                     <div
                         class="border-4 border-base-200 border-dashed rounded flex flex-col items-center justify-center w-64 h-64"
                     >
-                        Drop CSV file to add desks
+                        {{ 'APP.CONCIERGE.DESKS_DROP_TEMPLATE' | translate }}
                     </div>
                 </div>
                 <input
@@ -209,14 +223,16 @@ export class DesksManageComponent extends AsyncHandler {
 
     public readonly copyToClipboard = (id: string) => {
         const success = this._clipboard.copy(id);
-        if (success) notifySuccess('Desk ID copied to clipboard.');
+        if (success) notifySuccess(i18n('APP.CONCIERGE.DESKS_ID_COPIED'));
     };
 
     public async removeDesk(desk: Desk) {
         const resp = await openConfirmModal(
             {
-                title: 'Remove desk',
-                content: `Remove desk ${desk.name}?`,
+                title: i18n('APP.CONCIERGE.DESKS_REMOVE_TITLE'),
+                content: i18n('APP.CONCIERGE.DESKS_REMOVE_MSG', {
+                    name: desk.name,
+                }),
                 icon: { content: 'delete' },
             },
             this._dialog,
@@ -227,7 +243,7 @@ export class DesksManageComponent extends AsyncHandler {
         const updated_desks = desks.filter((_) => _.id !== desk.id);
         const filters = await this.filters.pipe(take(1)).toPromise();
         const level = this._org.levelWithID(filters.zones);
-        this.loading = 'Removing desk...';
+        this.loading = i18n('APP.CONCIERGE.DESKS_REMOVE_LOADING');
         await updateMetadata(level.id, {
             name: 'desks',
             description: 'desks',
@@ -236,10 +252,14 @@ export class DesksManageComponent extends AsyncHandler {
             .toPromise()
             .catch((e) => {
                 this.loading = '';
-                notifyError(`Error saving desk data. Error: ${e.message || e}`);
+                notifyError(
+                    i18n('APP.CONCIERGE.DESKS_REMOVE_ERROR', {
+                        error: e.message || e,
+                    }),
+                );
                 throw e;
             });
-        notifySuccess('Successfully updated desks');
+        notifySuccess(i18n('APP.CONCIERGE.DESKS_REMOVE_SUCCESS'));
         this._state.setFilters({});
         this.loading = '';
     }
@@ -263,7 +283,7 @@ export class DesksManageComponent extends AsyncHandler {
     }
 
     public async loadCSVData(event: InputEvent) {
-        this.loading = 'Loading CSV file...';
+        this.loading = i18n('APP.CONCIERGE.DESKS_UPLOADING');
         this.dragging = false;
         const data = await loadTextFileFromInputEvent(event).catch(([m, e]) => {
             notifyError(m);

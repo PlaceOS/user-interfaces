@@ -30,6 +30,7 @@ import {
 } from '@placeos/bookings';
 import {
     AsyncHandler,
+    i18n,
     notifyError,
     notifyInfo,
     notifySuccess,
@@ -268,19 +269,28 @@ export class DesksStateService extends AsyncHandler {
         ref.close();
     }
 
-    public async checkinDesk(desk: Booking, state: boolean = true) {
+    public async checkinDesk(desk: Booking, state = true) {
         const status: any = await checkinBooking(desk.id, state ?? true)
             .toPromise()
             .catch((_) => ({ failed: true, error: _ }));
         if (status.failed) {
             notifyError(
-                status.error
-                    ? `Error: ${status.error}`
-                    : `Error checking ${state ? 'in' : 'out'} desk booking`,
+                i18n(
+                    state
+                        ? 'APP.CONCIERGE.DESKS_CHECKIN_ERROR'
+                        : 'APP.CONCIERGE.DESKS_CHECKOUT_ERROR',
+                    { error: status.error },
+                ),
             );
             throw status.error;
         }
-        notifySuccess(`Checked ${state ? 'in' : 'out'} ${desk.user_name}.`);
+        notifySuccess(
+            i18n(
+                state
+                    ? 'APP.CONCIERGE.DESKS_CHECKIN_SUCCESS'
+                    : 'APP.CONCIERGE.DESKS_CHECKOUT_SUCCESS',
+            ),
+        );
     }
 
     public async approveDesk(desk: Booking) {

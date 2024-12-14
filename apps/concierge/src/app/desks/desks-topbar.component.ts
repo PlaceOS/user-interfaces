@@ -54,7 +54,7 @@ import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component'
                 matTooltip="New Desk Booking"
                 (click)="newDeskBooking()"
             >
-                New Booking
+                {{ 'APP.CONCIERGE.NEW_BOOKING' | translate }}
             </button>
             <button
                 btn
@@ -63,7 +63,7 @@ import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component'
                 *ngIf="manage"
                 class="bg-primary mx-2 text-white rounded"
                 (click)="newDesk()"
-                matTooltip="New Desk"
+                [matTooltip]="'APP.CONCIERGE.DESKS_NEW' | translate"
             >
                 <app-icon>add</app-icon>
             </button>
@@ -73,7 +73,7 @@ import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component'
                 matRipple
                 *ngIf="manage"
                 class="bg-primary relative text-white rounded"
-                matTooltip="Upload Desks CSV"
+                [matTooltip]="'APP.CONCIERGE.DESKS_LIST_UPLOAD' | translate"
             >
                 <app-icon>cloud_upload</app-icon>
                 <input
@@ -89,7 +89,7 @@ import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component'
                 *ngIf="manage"
                 class="bg-primary mx-2 text-white rounded"
                 (click)="downloadTemplate()"
-                matTooltip="Download Template Desk CSV"
+                [matTooltip]="'APP.CONCIERGE.DESKS_LIST_DOWNLOAD' | translate"
             >
                 <app-icon>download</app-icon>
             </button>
@@ -100,7 +100,7 @@ import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component'
                 *ngIf="manage"
                 class="bg-primary mx-2 text-white rounded"
                 (click)="manageRestrictions()"
-                matTooltip="Desk Restrictions"
+                [matTooltip]="'APP.CONCIERGE.DESKS_BOOKING_RULES' | translate"
             >
                 <app-icon>lock_open</app-icon>
             </button>

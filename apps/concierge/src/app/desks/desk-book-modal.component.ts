@@ -3,6 +3,7 @@ import { MatDialogRef } from '@angular/material/dialog';
 import { BookingFormService } from '@placeos/bookings';
 import {
     DialogEvent,
+    i18n,
     notifyError,
     notifySuccess,
     SettingsService,
@@ -37,7 +38,7 @@ import { BehaviorSubject } from 'rxjs';
                 class="h-64 flex flex-col items-center justify-center"
             >
                 <mat-spinner [diameter]="48" class="mb-4"></mat-spinner>
-                <p>Making booking request...</p>
+                <p>{{ 'APP.CONCIERGE.DESKS_BOOKING_LOADING' | translate }}</p>
             </main>
         </ng-template>
     `,
@@ -73,7 +74,7 @@ export class DeskBookModalComponent {
             throw _;
         });
         this.event.emit({ reason: 'done', metadata: event });
-        notifySuccess('Successfully created booking');
+        notifySuccess(i18n('APP.CONCIERGE.DESKS_BOOKING_SUCCESS'));
         this._dialog_ref.close();
         this.loading.next(false);
     }

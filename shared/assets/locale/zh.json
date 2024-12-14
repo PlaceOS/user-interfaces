@@ -652,7 +652,7 @@
             "TIMEZONE_DIFF": "显示的建筑时区与您的本地时区不同。",
             "ROOM_BOOKINGS": "房间预订",
             "SETUP_BREAKDOWN": "设置/拆除",
-            "ROOMS_NEW_BOOKING": "新预订",
+            "ROOMS_BOOKING": "新预订",
             "BOOKING_REMOVE_TITLE": "删除预订",
             "BOOKING_REMOVE_MSG": "删除 {{ time }} 的 {{ name }} 预订？",
             "BOOKING_REMOVE_SUCCESS": "成功删除预订。",

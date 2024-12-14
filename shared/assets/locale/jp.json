@@ -653,7 +653,7 @@
             "TIMEZONE_DIFF": "建物のタイムゾーンはあなたのローカルタイムゾーンと異なります。",
             "ROOM_BOOKINGS": "部屋予約",
             "SETUP_BREAKDOWN": "セットアップ / 撤収",
-            "ROOMS_NEW_BOOKING": "新規予約",
+            "ROOMS_BOOKING": "新規予約",
             "BOOKING_REMOVE_TITLE": "予約削除",
             "BOOKING_REMOVE_MSG": "{{ time }}の{{ name }}予約を削除しますか？",
             "BOOKING_REMOVE_SUCCESS": "予約を正常に削除しました。",

@@ -652,7 +652,7 @@
             "TIMEZONE_DIFF": "O fuso horário do prédio é exibido e é diferente do seu fuso horário local.",
             "ROOM_BOOKINGS": "Reservas de Sala",
             "SETUP_BREAKDOWN": "Preparação / Desmontagem",
-            "ROOMS_NEW_BOOKING": "Nova Reserva",
+            "ROOMS_BOOKING": "Nova Reserva",
             "BOOKING_REMOVE_TITLE": "Excluir reserva",
             "BOOKING_REMOVE_MSG": "Excluir a reserva de {{ name }} às {{ time }}?",
             "BOOKING_REMOVE_SUCCESS": "Reserva excluída com sucesso.",

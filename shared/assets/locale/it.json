@@ -652,7 +652,7 @@
             "TIMEZONE_DIFF": "Il fuso orario dell'edificio è visualizzato ed è diverso dal tuo fuso orario locale.",
             "ROOM_BOOKINGS": "Prenotazioni Sale",
             "SETUP_BREAKDOWN": "Allestimento / Disallestimento",
-            "ROOMS_NEW_BOOKING": "Nuova Prenotazione",
+            "ROOMS_BOOKING": "Nuova Prenotazione",
             "BOOKING_REMOVE_TITLE": "Elimina prenotazione",
             "BOOKING_REMOVE_MSG": "Eliminare la prenotazione per {{ name }} alle {{ time }}?",
             "BOOKING_REMOVE_SUCCESS": "Prenotazione eliminata con successo.",

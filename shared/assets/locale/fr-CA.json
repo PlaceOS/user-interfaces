@@ -652,7 +652,7 @@
             "TIMEZONE_DIFF": "Le fuseau horaire de l'immeuble est affiché et diffère de votre fuseau horaire local.",
             "ROOM_BOOKINGS": "Réservations de salles",
             "SETUP_BREAKDOWN": "Montage / Démontage",
-            "ROOMS_NEW_BOOKING": "Nouvelle réservation",
+            "ROOMS_BOOKING": "Nouvelle réservation",
             "BOOKING_REMOVE_TITLE": "Supprimer la réservation",
             "BOOKING_REMOVE_MSG": "Supprimer la réservation pour {{ name }} à {{ time }} ?",
             "BOOKING_REMOVE_SUCCESS": "Réservation supprimée avec succès.",

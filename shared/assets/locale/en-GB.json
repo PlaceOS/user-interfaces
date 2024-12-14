@@ -653,7 +653,7 @@
             "TIMEZONE_DIFF": "Timezone of the building is displayed and is different from your local timezone.",
             "ROOM_BOOKINGS": "Room Bookings",
             "SETUP_BREAKDOWN": "Setup / Breakdown",
-            "ROOMS_NEW_BOOKING": "New Booking",
+            "ROOMS_BOOKING": "New Booking",
             "BOOKING_REMOVE_TITLE": "Delete booking",
             "BOOKING_REMOVE_MSG": "Delete the booking for {{ name }} at {{ time }}?",
             "BOOKING_REMOVE_SUCCESS": "Successfully deleted booking.",

@@ -8,9 +8,18 @@ import { Desk } from '@placeos/organisation';
     selector: 'desk-modal',
     template: `
         <div class="w-[28rem]">
-            <header class="flex items-center justify-between px-2 w-full">
-                <h2 class="px-2">{{ id ? 'Edit' : 'New' }} Desk</h2>
-                <button *ngIf="!loading" icon matRipple mat-dialog-close>
+            <header
+                class="sticky top-0 p-2 m-2 w-[calc(100%-1rem)] border-none z-10 bg-base-200 rounded"
+            >
+                <h2 class="text-xl font-medium px-2">
+                    {{
+                        (id
+                            ? 'APP.CONCIERGE.DESKS_EDIT'
+                            : 'APP.CONCIERGE.DESKS_NEW'
+                        ) | translate
+                    }}
+                </h2>
+                <button icon matRipple mat-dialog-close *ngIf="!loading">
                     <app-icon>close</app-icon>
                 </button>
             </header>
@@ -19,9 +28,12 @@ import { Desk } from '@placeos/organisation';
                 class="p-4 flex flex-col"
                 [formGroup]="form"
             >
-                <div class="flex space-x-2">
+                <div class="flex space-x-4">
                     <div class="flex-1 w-1/3">
-                        <label for="name">Desk Name<span>*</span></label>
+                        <label for="name">
+                            {{ 'APP.CONCIERGE.DESKS_NAME' | translate }}
+                            <span>*</span>
+                        </label>
                         <mat-form-field appearance="outline" class="w-full">
                             <input
                                 matInput
@@ -29,55 +41,63 @@ import { Desk } from '@placeos/organisation';
                                 formControlName="name"
                                 placeholder="e.g. Office Desk"
                             />
-                            <mat-error>A name is required for desks</mat-error>
+                            <mat-error>{{
+                                'FORM.NAME_REQUIRED' | translate
+                            }}</mat-error>
                         </mat-form-field>
                     </div>
                     <div class="flex-1 w-1/3">
-                        <label for="map-id">Map ID<span>*</span></label>
+                        <label for="map-id">
+                            {{ 'EXPLORE.MAP_ID' | translate }}<span>*</span>
+                        </label>
                         <mat-form-field appearance="outline" class="w-full">
                             <input
                                 matInput
                                 name="map-id"
                                 formControlName="map_id"
-                                placeholder="e.g. table-01.012"
+                                [placeholder]="
+                                    'APP.CONCIERGE.DESKS_MAP_ID_PLACEHOLDER'
+                                        | translate
+                                "
                             />
                             <mat-error>
-                                A Map ID is required for desks
+                                {{ 'EXPLORE.MAP_ID_REQUIRED' | translate }}
                             </mat-error>
                         </mat-form-field>
                     </div>
                 </div>
-                <label for="notes">Groups</label>
+                <div class="flex pb-4 space-x-4">
+                    <settings-toggle
+                        formControlName="bookable"
+                        class="flex-1"
+                        [name]="'COMMON.BOOKABLE' | translate"
+                    >
+                    </settings-toggle>
+                    <div class="flex-1"></div>
+                </div>
+                <label for="notes">{{ 'COMMON.GROUPS' | translate }}</label>
                 <item-list-field
                     class="w-full"
-                    placeholder="Add user groups..."
+                    [placeholder]="'BOOKINGS.GROUPS' | translate"
                     formControlName="groups"
                 ></item-list-field>
-                <label for="notes">Features</label>
+                <label for="notes">{{ 'COMMON.FEATURES' | translate }}</label>
                 <item-list-field
                     class="w-full"
-                    placeholder="Add features..."
+                    [placeholder]="'COMMON.FEATURES' | translate"
                     formControlName="features"
                 ></item-list-field>
-                <label for="notes">Notes</label>
-                <mat-form-field appearance="outline" class="no-subscript">
+                <label for="notes">{{ 'FORM.NOTES' | translate }}</label>
+                <mat-form-field appearance="outline">
                     <textarea
                         matInput
                         name="notes"
                         formControlName="notes"
                     ></textarea>
                 </mat-form-field>
-                <div class="flex py-4">
-                    <mat-checkbox formControlName="bookable">
-                        Bookable
-                    </mat-checkbox>
-                </div>
                 <div class="flex items-center justify-end space-x-2">
-                    <button btn matRipple class="w-32 inverse" mat-dialog-close>
-                        Cancel
-                    </button>
                     <button btn matRipple class="w-32" (click)="postForm()">
-                        Save
+                        {{ 'COMMON.SAVE' | translate }}
                     </button>
                 </div>
             </main>
@@ -87,7 +107,7 @@ import { Desk } from '@placeos/organisation';
                 class="p-8 flex flex-col items-center justify-center space-y-2"
             >
                 <mat-spinner diameter="32"></mat-spinner>
-                <p>Saving desk details...</p>
+                <p>{{ 'APP.CONCIERGE.DESKS_SAVING' | translate }}</p>
             </main>
         </ng-template>
     `,

@@ -22,35 +22,42 @@ import { SettingsService } from '@placeos/common';
                 [columns]="[
                     {
                         key: 'date',
-                        name: 'Date',
+                        name: 'FORM.DATE' | translate,
                         content: date_template,
                         size: '4rem',
                         sortable: false,
                     },
                     {
                         key: 'period',
-                        name: 'Period',
+                        name: 'FORM.PERIOD' | translate,
                         content: period_template,
                         size: '9rem',
                     },
                     {
                         key: 'user_name',
-                        name: 'Person',
+                        name: 'COMMON.PERSON' | translate,
                         content: user_template,
                     },
-                    { key: 'group', name: 'Group', content: group_template },
-                    { key: 'asset_name', name: 'Desk' },
-                    { key: 'approver', name: 'Approver' },
+                    {
+                        key: 'group',
+                        name: 'COMMON.GROUP' | translate,
+                        content: group_template,
+                    },
+                    { key: 'asset_name', name: 'RESOURCE.DESK' | translate },
+                    {
+                        key: 'approver',
+                        name: 'APP.CONCIERGE.APPROVER' | translate,
+                    },
                     {
                         key: 'status',
-                        name: 'Status',
+                        name: 'COMMON.STATUS' | translate,
                         content: status_template,
                         size: '8.5rem',
                         sortable: false,
                     },
                     {
                         key: 'checked_in',
-                        name: 'Checked In',
+                        name: 'COMMON.CHECKED_IN' | translate,
                         content: option_template,
                         size: '7rem',
                         sortable: false,
@@ -58,8 +65,8 @@ import { SettingsService } from '@placeos/common';
                 ]"
                 [empty_message]="
                     (filters | async)?.search
-                        ? 'No matching desk bookings'
-                        : 'There are no desk booking for the currently selected date.'
+                        ? 'APP.CONCIERGE.DESKS_BOOKINGS_SEARCH_EMPTY'
+                        : 'APP.CONCIERGE.DESKS_BOOKINGS_EMPTY'
                 "
                 [sortable]="true"
             ></simple-table>
@@ -78,7 +85,7 @@ import { SettingsService } from '@placeos/common';
                         class="opacity-30"
                         *ngIf="!(row.group || row.extension_data?.group)"
                     >
-                        No Group
+                        {{ 'APP.CONCIERGE.DESKS_GROUP_EMPTY' | translate }}
                     </span>
                 </div>
             </ng-template>
@@ -96,9 +103,9 @@ import { SettingsService } from '@placeos/common';
                                 {{ row.date | date: time_format }} &ndash;
                                 {{ row.date_end | date: time_format }}
                             </ng-container>
-                            <ng-container *ngIf="row.all_day"
-                                >All Day</ng-container
-                            >
+                            <ng-container *ngIf="row.all_day">
+                                {{ 'COMMON.ALL_DAY' | translate }}
+                            </ng-container>
                         </div>
                     </ng-container>
                     <ng-container
@@ -112,9 +119,10 @@ import { SettingsService } from '@placeos/common';
                             class="text-xs py-2 px-4 bg-error rounded-3xl text-white"
                         >
                             {{
-                                row.status === 'ended'
-                                    ? 'Manually Ended'
-                                    : 'Expired'
+                                (row.status === 'ended'
+                                    ? 'APP.CONCIERGE.BOOKING_ENDED'
+                                    : 'APP.CONCIERGE.BOOKING_EXPIRED'
+                                ) | translate
                             }}
                         </div>
                     </ng-container>
@@ -158,18 +166,19 @@ import { SettingsService } from '@placeos/common';
                         <div class="flex items-center pl-4 pr-2 space-x-2">
                             <div class="flex-1 text-left">
                                 {{
-                                    row?.status === 'ended'
-                                        ? 'Ended'
+                                    (row?.status === 'ended'
+                                        ? 'APP.CONCIERGE.BOOKING_STATUS_ENDED'
                                         : row?.status === 'approved'
-                                          ? 'Approved'
+                                          ? 'APP.CONCIERGE.BOOKING_STATUS_APPROVED'
                                           : row?.status === 'declined'
-                                            ? 'Declined'
-                                            : 'Pending'
+                                            ? 'APP.CONCIERGE.BOOKING_STATUS_DECLINED'
+                                            : 'APP.CONCIERGE.BOOKING_STATUS_PENDING'
+                                    ) | translate
                                 }}
                             </div>
-                            <app-icon class="text-2xl"
-                                >arrow_drop_down</app-icon
-                            >
+                            <app-icon class="text-2xl">
+                                arrow_drop_down
+                            </app-icon>
                         </div>
                     </button>
                 </div>
@@ -179,13 +188,23 @@ import { SettingsService } from '@placeos/common';
                             <app-icon class="text-2xl"
                                 >event_available</app-icon
                             >
-                            <div class="pr-2">Approve Desk</div>
+                            <div class="pr-2">
+                                {{
+                                    'APP.CONCIERGE.DESKS_ACTION_APPROVE'
+                                        | translate
+                                }}
+                            </div>
                         </div>
                     </button>
                     <button mat-menu-item (click)="reject(row)">
                         <div class="flex items-center space-x-2">
                             <app-icon class="text-2xl">event_busy</app-icon>
-                            <div class="pr-2">Decline Desk</div>
+                            <div class="pr-2">
+                                {{
+                                    'APP.CONCIERGE.DESKS_ACTION_DECLINE'
+                                        | translate
+                                }}
+                            </div>
                         </div>
                     </button>
                 </mat-menu>
@@ -210,7 +229,10 @@ import { SettingsService } from '@placeos/common';
                     >
                         <div class="flex items-center pl-4 pr-2 space-x-2">
                             <div class="flex-1 text-left">
-                                {{ data ? 'Yes' : 'No' }}
+                                {{
+                                    (data ? 'COMMON.TRUE' : 'COMMON.FALSE')
+                                        | translate
+                                }}
                             </div>
                             <app-icon class="text-2xl">
                                 arrow_drop_down
@@ -222,13 +244,13 @@ import { SettingsService } from '@placeos/common';
                     <button mat-menu-item (click)="checkin(row, true)">
                         <div class="flex items-center space-x-2">
                             <app-icon class="text-2xl">check</app-icon>
-                            <div>Check-in</div>
+                            <div>{{ 'COMMON.CHECK_IN' | translate }}</div>
                         </div>
                     </button>
                     <button mat-menu-item (click)="checkin(row, false)">
                         <div class="flex items-center space-x-2">
                             <app-icon class="text-2xl">cancel</app-icon>
-                            <div>Check-out</div>
+                            <div>{{ 'COMMON.CHECK_OUT' | translate }}t</div>
                         </div>
                     </button>
                 </mat-menu>
@@ -241,7 +263,7 @@ import { SettingsService } from '@placeos/common';
             *ngIf="!loading && (has_more_pages | async)"
             (click)="loadMore()"
         >
-            Load More
+            {{ 'COMMON.LOAD_MORE' | translate }}
         </button>
     `,
     styles: [
@@ -297,9 +319,9 @@ export class DeskBookingsComponent {
         private _settings: SettingsService,
     ) {}
 
-    private async runMethod(name: string, fn: () => Promise<any>) {
+    private async runMethod(name: string, fn: () => Promise<void>) {
         this.loading = name;
-        await fn().catch((i) => null);
+        await fn().catch(() => null);
         this.loading = '';
     }
 }
