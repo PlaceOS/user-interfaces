@@ -249,10 +249,10 @@ export class SpaceFlowFindComponent implements OnInit {
         map(([bld]) => [
             {
                 id: this._org.building.id,
-                name: 'All Levels',
+                name: i18n('COMMON.LEVEL_ALL'),
             },
             ...this._org.levelsForBuilding(bld),
-        ])
+        ]),
     );
 
     public readonly loading = this._state.loading;
@@ -285,7 +285,7 @@ export class SpaceFlowFindComponent implements OnInit {
         private _state: EventFormService,
         private _settings: SettingsService,
         private _router: Router,
-        private _space_pipe: SpacePipe
+        private _space_pipe: SpacePipe,
     ) {}
 
     public async ngOnInit() {
@@ -319,7 +319,7 @@ export class SpaceFlowFindComponent implements OnInit {
 
     private _getSpaceList() {
         const id_list = Object.keys(this.book_space).filter(
-            (k) => this.book_space[k]
+            (k) => this.book_space[k],
         );
         return id_list.length
             ? Promise.all(id_list.map((_) => this._space_pipe.transform(_)))

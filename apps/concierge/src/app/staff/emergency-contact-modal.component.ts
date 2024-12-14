@@ -66,9 +66,11 @@ import { CustomTooltipComponent } from '@placeos/components';
                     <mat-form-field appearance="outline">
                         <mat-select
                             formControlName="zone"
-                            placeholder="All Levels"
+                            [placeholder]="'COMMON.LEVEL_ALL' | translate"
                         >
-                            <mat-option value="">All Levels</mat-option>
+                            <mat-option value="">{{
+                                'COMMON.LEVEL_ALL' | translate
+                            }}</mat-option>
                             <mat-option
                                 *ngFor="let level of levels | async"
                                 [value]="level.id"
@@ -160,7 +162,7 @@ export class EmergencyContactModalComponent {
         filter(([bld]) => !!bld),
         switchMap(([bld]) => showMetadata(bld.id, 'emergency_contacts')),
         map(({ details }) => (details as any) || { roles: [], contacts: [] }),
-        shareReplay(1)
+        shareReplay(1),
     );
     public readonly form = new FormGroup({
         id: new FormControl(this._data?.id || `ecntct-${randomString(8)}`),
@@ -178,7 +180,7 @@ export class EmergencyContactModalComponent {
     constructor(
         @Inject(MAT_DIALOG_DATA) private _data: EmergencyContact | undefined,
         private _dialog_ref: MatDialogRef<EmergencyContactModalComponent>,
-        private _org: OrganisationService
+        private _org: OrganisationService,
     ) {}
 
     public async addRole() {
@@ -192,7 +194,7 @@ export class EmergencyContactModalComponent {
             description: 'Emergency Contacts',
             details: {
                 roles: [...(data.roles || []), this.role_name].filter(
-                    (_) => !!_
+                    (_) => !!_,
                 ),
                 contacts: data.contacts,
             },

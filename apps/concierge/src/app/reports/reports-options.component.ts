@@ -18,7 +18,7 @@ import { endOfDay, startOfDay } from 'date-fns';
                 <mat-select
                     [(ngModel)]="zones"
                     (ngModelChange)="setZones($event)"
-                    placeholder="All Levels"
+                    [placeholder]="'COMMON.LEVEL_ALL' | translate"
                     multiple
                 >
                     <mat-option
@@ -54,7 +54,9 @@ import { endOfDay, startOfDay } from 'date-fns';
                 (click)="generate.emit()"
             >
                 <mat-spinner *ngIf="loading" [diameter]="32"></mat-spinner>
-                <p *ngIf="!loading">Generate Report</p>
+                <p *ngIf="!loading">
+                    {{ 'APP.CONCIERGE.REPORTS_GENERATE' | translate }}
+                </p>
             </button>
             <div class="flex-1"></div>
             <button
@@ -62,7 +64,7 @@ import { endOfDay, startOfDay } from 'date-fns';
                 matRipple
                 class="h-12 w-12 rounded bg-secondary text-secondary-content"
                 [disabled]="!has_data"
-                matTooltip="Download Report Data"
+                [matTooltip]="'APP.CONCIERGE.REPORTS_DOWNLOAD' | translate"
                 (click)="download.emit()"
             >
                 <app-icon>download</app-icon>
@@ -72,7 +74,7 @@ import { endOfDay, startOfDay } from 'date-fns';
                 matRipple
                 class="h-12 w-12 rounded bg-secondary text-secondary-content"
                 [disabled]="!has_data"
-                matTooltip="Print Report"
+                [matTooltip]="'APP.CONCIERGE.REPORTS_PRINT' | translate"
                 (click)="print()"
             >
                 <app-icon>print</app-icon>

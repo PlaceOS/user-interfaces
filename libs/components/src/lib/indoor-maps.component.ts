@@ -5,10 +5,13 @@ import {
     OnInit,
     Input,
     SimpleChanges,
+    OnChanges,
+    AfterViewInit,
 } from '@angular/core';
 import {
     AsyncHandler,
     MapsPeopleService,
+    i18n,
     log,
     notifyError,
 } from '@placeos/common';
@@ -183,7 +186,10 @@ function degreesToRadians(degrees: number): number {
         `,
     ],
 })
-export class IndoorMapsComponent extends AsyncHandler implements OnInit {
+export class IndoorMapsComponent
+    extends AsyncHandler
+    implements OnInit, OnChanges, AfterViewInit
+{
     /** Custom CSS styles to apply to the map */
     @Input() public styles: ViewerStyles;
     /** List of available user actions for the map */
@@ -193,7 +199,7 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
     /** Mark location of a specific item */
     @Input() public locate: string;
     /** Default zoom level for the map */
-    @Input() public default_zoom: number = 19;
+    @Input() public default_zoom = 19;
 
     public view_instance: any;
     public maps_service: any;
@@ -229,7 +235,7 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
         map(([bld]) => [
             {
                 id: this._org.building.id,
-                name: 'All Levels',
+                name: i18n('COMMON.LEVEL_ALL'),
             },
             ...this._org.levelsForBuilding(bld),
         ]),

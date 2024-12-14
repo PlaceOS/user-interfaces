@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import {
     addHours,
     differenceInMinutes,
@@ -37,8 +37,7 @@ import { OrganisationService } from '@placeos/organisation';
             class="mx-2 mt-2 p-2 w-[calc(100%-1rem)] bg-info text-info-content rounded-lg text-center text-xs"
             *ngIf="timezone && tz"
         >
-            Timezone of the building is displayed and is different from your
-            local timezone.
+            {{ 'APP.CONCIERGE.TIMEZONE_DIFF' | translate }}
         </div>
         <div
             class="relative flex items-center justify-center p-2 space-x-2 border-b border-base-200 z-20"
@@ -53,7 +52,7 @@ import { OrganisationService } from '@placeos/organisation';
                 class="absolute top-1/2 -translate-y-1/2 left-4 text-info text-sm"
                 *ngIf="is_today | async"
             >
-                Today
+                {{ 'COMMON.TODAY' | translate }}
             </div>
             <div class="absolute top-1/2 -translate-y-1/2 right-8">
                 <room-booking-search
@@ -227,7 +226,10 @@ import { OrganisationService } from '@placeos/organisation';
         `,
     ],
 })
-export class RoomBookingsTimelineComponent extends AsyncHandler {
+export class RoomBookingsTimelineComponent
+    extends AsyncHandler
+    implements OnInit
+{
     public block_width = 14;
     public readonly ui_options = this._state.options;
     public readonly spaces = this._state.spaces;

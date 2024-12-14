@@ -27,7 +27,9 @@ import { debounceTime, map } from 'rxjs/operators';
                     />
                     <div class="flex-1"></div>
                     <h2 class="text-2xl font-medium px-2">
-                        Contact Tracing Report
+                        {{
+                            'APP.CONCIERGE.REPORTS_CONTACTS_HEADER' | translate
+                        }}
                     </h2>
                 </div>
             </div>

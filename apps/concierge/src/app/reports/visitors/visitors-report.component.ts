@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { VisitorsReportService } from './visitors-report.service';
 import { ActivatedRoute } from '@angular/router';
@@ -26,7 +26,11 @@ import { OrganisationService } from '@placeos/organisation';
                         [source]="(logo | async)?.src || (logo | async)"
                     />
                     <div class="flex-1"></div>
-                    <h2 class="text-2xl font-medium px-2">Visitors Report</h2>
+                    <h2 class="text-2xl font-medium px-2">
+                        {{
+                            'APP.CONCIERGE.REPORTS_VISITORS_HEADER' | translate
+                        }}
+                    </h2>
                 </div>
             </div>
             <ng-container *ngIf="!(loading | async); else load_state">
@@ -42,7 +46,9 @@ import { OrganisationService } from '@placeos/organisation';
         <ng-template #load_state>
             <div class="h-full w-full flex flex-col items-center p-8">
                 <mat-spinner [diameter]="32" class="mb-4"></mat-spinner>
-                <p class="opacity-30">Loading report data...</p>
+                <p class="opacity-30">
+                    {{ 'APP.CONCIERGE.REPORTS_LOADING' | translate }}
+                </p>
             </div>
         </ng-template>
         <ng-template #empty_state>
@@ -50,7 +56,7 @@ import { OrganisationService } from '@placeos/organisation';
                 class="h-full w-full flex flex-col items-center p-8 screen-only"
             >
                 <p class="opacity-30">
-                    Select levels and time period to generate a report.
+                    {{ 'APP.CONCIERGE.REPORTS_EMPTY' | translate }}
                 </p>
             </div>
         </ng-template>
@@ -65,7 +71,7 @@ import { OrganisationService } from '@placeos/organisation';
         `,
     ],
 })
-export class VisitorsReportComponent extends AsyncHandler {
+export class VisitorsReportComponent extends AsyncHandler implements OnInit {
     public printing = false;
     public readonly total_count = this._state.bookings$.pipe(
         map((i) => i.length || 0),

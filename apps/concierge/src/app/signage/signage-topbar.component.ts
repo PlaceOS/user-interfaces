@@ -17,7 +17,7 @@ import { SignageStateService } from './signage-state.service';
                     multiple
                     [(ngModel)]="zones"
                     (ngModelChange)="updateZones($event)"
-                    placeholder="All Levels"
+                    [placeholder]="'COMMON.LEVEL_ALL' | translate"
                 >
                     <mat-option
                         *ngFor="let level of levels | async"
@@ -75,7 +75,7 @@ export class SignageTopbarComponent extends AsyncHandler implements OnInit {
         private _state: SignageStateService,
         private _org: OrganisationService,
         private _route: ActivatedRoute,
-        private _router: Router
+        private _router: Router,
     ) {
         super();
     }
@@ -93,24 +93,24 @@ export class SignageTopbarComponent extends AsyncHandler implements OnInit {
                             return;
                         }
                         this._org.building = this._org.buildings.find(
-                            (bld) => bld.id === level.parent_id
+                            (bld) => bld.id === level.parent_id,
                         );
                         this.zones = zones;
                     }
                 }
-            })
+            }),
         );
         this.subscription(
             'levels',
             this._org.active_levels.subscribe((levels) => {
                 this.zones = this.zones.filter((zone) =>
-                    levels.find((lvl) => lvl.id === zone)
+                    levels.find((lvl) => lvl.id === zone),
                 );
                 if (!this.zones.length && levels.length) {
                     this.zones.push(levels[0].id);
                 }
                 // this.updateZones(this.zones);
-            })
+            }),
         );
         // this.setSearch('');
     }

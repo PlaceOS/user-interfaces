@@ -45,7 +45,7 @@ import {
                 class="text-xs text-info absolute top-0 left-1/2 -translate-x-1/2"
                 *ngIf="is_today"
             >
-                Today
+                {{ 'COMMON.TODAY' | translate }}
             </div>
             <div class="relative" [class.top-1]="is_today">
                 {{ date | date: 'mediumDate' }}

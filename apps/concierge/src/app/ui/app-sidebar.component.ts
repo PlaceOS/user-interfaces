@@ -1,9 +1,10 @@
-import { Component, ElementRef } from '@angular/core';
+import { Component, ElementRef, OnInit } from '@angular/core';
 import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
     AsyncHandler,
     SettingsService,
     currentUser,
+    i18n,
     unique,
 } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
@@ -86,216 +87,12 @@ import { OrganisationService } from '@placeos/organisation';
     ],
     animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
 })
-export class ApplicationSidebarComponent extends AsyncHandler {
+export class ApplicationSidebarComponent
+    extends AsyncHandler
+    implements OnInit
+{
     public show_block: Record<string, boolean> = {};
-    public readonly links = [
-        {
-            name: 'Bookings',
-            icon: 'add_circle',
-            children: [
-                {
-                    id: 'spaces',
-                    name: 'Rooms',
-                    route: ['/book/rooms/new'],
-                },
-                {
-                    id: 'desks',
-                    name: 'Desks',
-                    route: ['/book/desks/new/events'],
-                },
-                {
-                    id: 'parking',
-                    name: 'Parking',
-                    route: ['/book/parking/new/events'],
-                },
-                {
-                    id: 'lockers',
-                    name: 'Lockers',
-                    route: ['/book/lockers/new/events'],
-                },
-                {
-                    id: 'assets',
-                    name: 'Assets',
-                    route: ['/book/assets/new/list/requests'],
-                },
-                {
-                    id: 'catering',
-                    name: 'Catering',
-                    route: ['/book/catering/new/orders'],
-                },
-            ],
-        },
-        {
-            name: 'Visitor Management',
-            icon: 'badge',
-            children: [
-                {
-                    id: 'visitors',
-                    name: 'Visitor List',
-                    route: ['/book/visitors/new'],
-                },
-                {
-                    id: 'visitor-rules',
-                    name: 'External',
-                    route: ['/book/visitors/new/rules'],
-                },
-            ],
-        },
-        {
-            id: 'facilities',
-            name: 'Facilities',
-            icon: 'place',
-            children: [
-                // {
-                //     id: 'facilities',
-                //     name: 'Building Map',
-                //     route: ['/facilities/new'],
-                // },
-                {
-                    id: 'zones',
-                    name: 'Region Management',
-                    route: ['/region-management/new'],
-                },
-                {
-                    id: 'zones',
-                    name: 'Building Management',
-                    route: ['/building-management/new'],
-                },
-                {
-                    id: 'zones',
-                    name: 'Levels Management',
-                    route: ['/level-management/new'],
-                },
-                {
-                    id: 'spaces',
-                    name: 'Room Management',
-                    route: ['/room-management/new'],
-                },
-                {
-                    id: 'desks',
-                    name: 'Desk Management',
-                    route: ['/book/desks/new/manage'],
-                },
-                {
-                    id: 'parking',
-                    name: 'Parking Management',
-                    route: ['/book/parking/new/manage'],
-                },
-                {
-                    id: 'lockers',
-                    name: 'Locker Management',
-                    route: ['/book/lockers/new/manage'],
-                },
-                {
-                    id: 'catering',
-                    name: 'Catering Menu',
-                    route: ['/book/catering/new/menu'],
-                },
-                {
-                    id: 'points',
-                    name: 'Points',
-                    route: ['/points-management/new'],
-                },
-                {
-                    id: 'emergency-contacts',
-                    name: 'Emergency Contacts',
-                    icon: 'assignment_ind',
-                    route: ['/users/staff/emergency-contacts'],
-                },
-                {
-                    id: 'signage',
-                    name: 'Digital Signage',
-                    route: ['/signage'],
-                },
-                {
-                    id: 'points-of-interest',
-                    name: 'Points Of Interest',
-                    route: ['/points-of-interest'],
-                },
-                {
-                    id: 'url-management',
-                    name: 'URL Management',
-                    route: ['/url-management'],
-                },
-                {
-                    id: 'email-templates',
-                    name: 'Email Templates',
-                    route: ['/email-templates'],
-                },
-            ],
-        },
-        {
-            id: 'assets',
-            name: 'Asset Manager',
-            route: ['/book/assets/new/list/items'],
-            icon: 'vibration',
-        },
-        {
-            id: 'internal-users',
-            name: 'User Directory',
-            icon: 'assignment_ind',
-            route: ['/users/staff/new'],
-        },
-        {
-            id: 'events',
-            name: 'Events',
-            route: ['/entertainment/events'],
-            icon: 'confirmation_number',
-        },
-        {
-            id: 'surveys',
-            name: 'Surveys',
-            route: ['/surveys/new'],
-            icon: 'add_reaction',
-        },
-        {
-            _id: 'reports',
-            name: 'Reports',
-            icon: 'analytics',
-            children: [
-                {
-                    id: 'booking-report',
-                    name: 'Room Bookings',
-                    route: ['/reports/new/bookings'],
-                },
-                {
-                    id: 'desk-report',
-                    name: 'Desk Bookings',
-                    route: ['/reports/new/desks'],
-                },
-                {
-                    id: 'parking-report',
-                    name: 'Parking Bookings',
-                    route: ['/reports/new/parking'],
-                },
-                {
-                    id: 'lockers-report',
-                    name: 'Locker Bookings',
-                    route: ['/reports/new/lockers'],
-                },
-                {
-                    id: 'catering-report',
-                    name: 'Catering',
-                    route: ['/reports/new/catering'],
-                },
-                {
-                    id: 'contact-tracing-report',
-                    name: 'Contact Tracing',
-                    route: ['/reports/new/contact-tracing'],
-                },
-                {
-                    id: 'assets-report',
-                    name: 'Assets',
-                    route: ['/reports/new/assets'],
-                },
-                {
-                    id: 'visitors-report',
-                    name: 'Visitors',
-                    route: ['/reports/new/visitors'],
-                },
-            ],
-        },
-    ];
+    public links = [];
 
     public filtered_links = [];
 
@@ -326,6 +123,214 @@ export class ApplicationSidebarComponent extends AsyncHandler {
     }
 
     public ngOnInit() {
+        this.links = [
+            {
+                name: i18n('APP.CONCIERGE.MENU_BOOKINGS'),
+                icon: 'add_circle',
+                children: [
+                    {
+                        id: 'spaces',
+                        name: i18n('APP.CONCIERGE.MENU_ROOM_BOOKINGS'),
+                        route: ['/book/rooms/new'],
+                    },
+                    {
+                        id: 'desks',
+                        name: i18n('APP.CONCIERGE.MENU_DESK_BOOKINGS'),
+                        route: ['/book/desks/new/events'],
+                    },
+                    {
+                        id: 'parking',
+                        name: i18n('APP.CONCIERGE.MENU_PARKING_BOOKINGS'),
+                        route: ['/book/parking/new/events'],
+                    },
+                    {
+                        id: 'lockers',
+                        name: i18n('APP.CONCIERGE.MENU_LOCKER_BOOKINGS'),
+                        route: ['/book/lockers/new/events'],
+                    },
+                    {
+                        id: 'assets',
+                        name: i18n('APP.CONCIERGE.MENU_ASSET_BOOKINGS'),
+                        route: ['/book/assets/new/list/requests'],
+                    },
+                    {
+                        id: 'catering',
+                        name: i18n('APP.CONCIERGE.MENU_CATERING_BOOKINGS'),
+                        route: ['/book/catering/new/orders'],
+                    },
+                ],
+            },
+            {
+                name: i18n('APP.CONCIERGE.MENU_VISITORS'),
+                icon: 'badge',
+                children: [
+                    {
+                        id: 'visitors',
+                        name: i18n('APP.CONCIERGE.MENU_VISITOR_BOOKINGS'),
+                        route: ['/book/visitors/new'],
+                    },
+                    {
+                        id: 'visitor-rules',
+                        name: i18n('APP.CONCIERGE.MENU_VISITOR_RULES'),
+                        route: ['/book/visitors/new/rules'],
+                    },
+                ],
+            },
+            {
+                id: 'facilities',
+                name: i18n('APP.CONCIERGE.MENU_MANAGEMENT'),
+                icon: 'place',
+                children: [
+                    // {
+                    //     id: 'facilities',
+                    //     name: 'Building Map',
+                    //     route: ['/facilities/new'],
+                    // },
+                    {
+                        id: 'zones',
+                        name: i18n('APP.CONCIERGE.MENU_MANAGE_REGIONS'),
+                        route: ['/region-management/new'],
+                    },
+                    {
+                        id: 'zones',
+                        name: i18n('APP.CONCIERGE.MENU_MANAGE_BUILDINGS'),
+                        route: ['/building-management/new'],
+                    },
+                    {
+                        id: 'zones',
+                        name: i18n('APP.CONCIERGE.MENU_MANAGE_LEVELS'),
+                        route: ['/level-management/new'],
+                    },
+                    {
+                        id: 'spaces',
+                        name: i18n('APP.CONCIERGE.MENU_MANAGE_ROOMS'),
+                        route: ['/room-management/new'],
+                    },
+                    {
+                        id: 'desks',
+                        name: i18n('APP.CONCIERGE.MENU_MANAGE_DESKS'),
+                        route: ['/book/desks/new/manage'],
+                    },
+                    {
+                        id: 'parking',
+                        name: i18n('APP.CONCIERGE.MENU_MANAGE_PARKING'),
+                        route: ['/book/parking/new/manage'],
+                    },
+                    {
+                        id: 'lockers',
+                        name: i18n('APP.CONCIERGE.MENU_MANAGE_CATERING'),
+                        route: ['/book/lockers/new/manage'],
+                    },
+                    {
+                        id: 'catering',
+                        name: i18n('APP.CONCIERGE.MENU_BOOKINGS'),
+                        route: ['/book/catering/new/menu'],
+                    },
+                    {
+                        id: 'points',
+                        name: i18n('APP.CONCIERGE.MENU_MANAGE_POINTS'),
+                        route: ['/points-management/new'],
+                    },
+                    {
+                        id: 'emergency-contacts',
+                        name: i18n('APP.CONCIERGE.MENU_MANAGE_CONTACTS'),
+                        icon: 'assignment_ind',
+                        route: ['/users/staff/emergency-contacts'],
+                    },
+                    {
+                        id: 'signage',
+                        name: i18n('APP.CONCIERGE.MENU_MANAGE_SIGNAGE'),
+                        route: ['/signage'],
+                    },
+                    {
+                        id: 'points-of-interest',
+                        name: i18n('APP.CONCIERGE.MENU_MANAGE_MAP_FEATURES'),
+                        route: ['/points-of-interest'],
+                    },
+                    {
+                        id: 'url-management',
+                        name: i18n('APP.CONCIERGE.MENU_MANAGE_URLS'),
+                        route: ['/url-management'],
+                    },
+                    {
+                        id: 'email-templates',
+                        name: i18n('APP.CONCIERGE.MENU_MANAGE_EMAILS'),
+                        route: ['/email-templates'],
+                    },
+                ],
+            },
+            {
+                id: 'assets',
+                name: i18n('APP.CONCIERGE.MENU_ASSETS'),
+                route: ['/book/assets/new/list/items'],
+                icon: 'vibration',
+            },
+            {
+                id: 'internal-users',
+                name: i18n('APP.CONCIERGE.MENU_USER_LIST'),
+                icon: 'assignment_ind',
+                route: ['/users/staff/new'],
+            },
+            {
+                id: 'events',
+                name: i18n('APP.CONCIERGE.MENU_EVENTS'),
+                route: ['/entertainment/events'],
+                icon: 'confirmation_number',
+            },
+            {
+                id: 'surveys',
+                name: i18n('APP.CONCIERGE.MENU_SURVEYS'),
+                route: ['/surveys/new'],
+                icon: 'add_reaction',
+            },
+            {
+                _id: 'reports',
+                name: i18n('APP.CONCIERGE.MENU_REPORTS'),
+                icon: 'analytics',
+                children: [
+                    {
+                        id: 'booking-report',
+                        name: i18n('APP.CONCIERGE.MENU_REPORT_ROOMS'),
+                        route: ['/reports/new/bookings'],
+                    },
+                    {
+                        id: 'desk-report',
+                        name: i18n('APP.CONCIERGE.MENU_REPORT_DESKS'),
+                        route: ['/reports/new/desks'],
+                    },
+                    {
+                        id: 'parking-report',
+                        name: i18n('APP.CONCIERGE.MENU_REPORT_PARKING'),
+                        route: ['/reports/new/parking'],
+                    },
+                    {
+                        id: 'lockers-report',
+                        name: i18n('APP.CONCIERGE.MENU_REPORT_LOCKERS'),
+                        route: ['/reports/new/lockers'],
+                    },
+                    {
+                        id: 'catering-report',
+                        name: i18n('APP.CONCIERGE.MENU_REPORT_CATERING'),
+                        route: ['/reports/new/catering'],
+                    },
+                    {
+                        id: 'contact-tracing-report',
+                        name: i18n('APP.CONCIERGE.MENU_REPORT_CONTACT_TRACING'),
+                        route: ['/reports/new/contact-tracing'],
+                    },
+                    {
+                        id: 'assets-report',
+                        name: i18n('APP.CONCIERGE.MENU_REPORT_ASSETS'),
+                        route: ['/reports/new/assets'],
+                    },
+                    {
+                        id: 'visitors-report',
+                        name: i18n('APP.CONCIERGE.MENU_REPORT_VISITORS'),
+                        route: ['/reports/new/visitors'],
+                    },
+                ],
+            },
+        ];
         this.updateFilteredLinks();
         this.subscription(
             'building',

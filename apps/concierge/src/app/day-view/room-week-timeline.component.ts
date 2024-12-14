@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import {
     addDays,
     isSameDay,
@@ -14,6 +14,7 @@ import {
     AsyncHandler,
     getTimezoneOffsetInMinutes,
     getTimezoneOffsetString,
+    i18n,
     notifyError,
     notifySuccess,
     openConfirmModal,
@@ -37,8 +38,7 @@ import { DatePipe } from '@angular/common';
             class="mx-2 mt-2 p-2 w-[calc(100%-1rem)] bg-info text-info-content rounded-lg text-center text-xs"
             *ngIf="timezone && tz"
         >
-            Timezone of the building is displayed and is different from your
-            local timezone.
+            {{ 'APP.CONCIERGE.TIMEZONE_DIFF' | translate }}
         </div>
         <div
             class="relative flex items-center justify-center p-2 space-x-2 border-b border-base-200 z-20"
@@ -54,7 +54,7 @@ import { DatePipe } from '@angular/common';
                 class="absolute top-1/2 -translate-y-1/2 left-4 text-info text-sm"
                 *ngIf="this_week | async"
             >
-                This Week
+                {{ 'COMMON.WEEK_THIS' | translate }}
             </div>
             <div class="absolute top-1/2 -translate-y-1/2 right-8">
                 <room-booking-search
@@ -93,7 +93,7 @@ import { DatePipe } from '@angular/common';
                         class="text-info text-xs absolute bottom-1 left-1/2 -translate-x-1/2"
                         *ngIf="isToday(date)"
                     >
-                        Today
+                        {{ 'COMMON.TODAY' | translate }}
                     </div>
                     <div
                         class="absolute h-2 w-px -left-px bottom-0 bg-base-300"
@@ -170,12 +170,17 @@ import { DatePipe } from '@angular/common';
         `,
     ],
 })
-export class RoomWeekBookingsTimelineComponent extends AsyncHandler {
+export class RoomWeekBookingsTimelineComponent
+    extends AsyncHandler
+    implements OnInit
+{
     public hours = Array.from({ length: 24 }, (_, i) => i);
     public readonly ui_options = this._state.options;
     public readonly date = this._state.date;
 
-    public readonly types: any[] = [
+    public readonly remove = this._state.removeBooking;
+
+    public types = [
         { id: 'internal', name: 'Internal', color: '#D81B60' },
         { id: 'external', name: 'External', color: '#1E88E5' },
         { id: 'cancelled', name: 'Cancelled', color: '#eeeeee' },
@@ -304,6 +309,23 @@ export class RoomWeekBookingsTimelineComponent extends AsyncHandler {
 
     public ngOnInit() {
         this.subscription('poll', this._state.poll());
+        this.types = [
+            {
+                id: 'internal',
+                name: i18n('COMMON.TYPE_INTERNAL'),
+                color: '#D81B60',
+            },
+            {
+                id: 'external',
+                name: i18n('COMMON.TYPE_EXTERNAL'),
+                color: '#1E88E5',
+            },
+            {
+                id: 'cancelled',
+                name: i18n('COMMON.TYPE_CANCELLED'),
+                color: '#eeeeee',
+            },
+        ];
     }
 
     public typeColor(type: string) {
@@ -324,9 +346,7 @@ export class RoomWeekBookingsTimelineComponent extends AsyncHandler {
         );
         this.subscription(
             'remove',
-            ref.componentInstance.remove.subscribe(() =>
-                this.remove(event, space_id),
-            ),
+            ref.componentInstance.remove.subscribe(() => this.remove(event)),
         );
         this.subscription(
             'edit',
@@ -343,29 +363,5 @@ export class RoomWeekBookingsTimelineComponent extends AsyncHandler {
                 if (data) this._state.replace(data);
             }),
         );
-    }
-
-    public async remove(item: CalendarEvent, space_id: string) {
-        const time = `${format(item.date, 'dd MMM yyyy ' + this.time_format)}`;
-        const resource_name = item.space?.display_name;
-        const content = `Delete the booking for ${resource_name} at ${time}`;
-        const resp = await openConfirmModal(
-            { title: `Delete booking`, content, icon: { content: 'delete' } },
-            this._dialog,
-        );
-        if (resp.reason !== 'done') return;
-        resp.loading('Requesting booking deletion...');
-        await declineEvent(item.id, {
-            calendar: item.calendar || item.mailbox || item.host,
-            system_id: space_id,
-        })
-            .toPromise()
-            .catch((e) => {
-                notifyError(`Unable to delete booking. ${e}`);
-                resp.close();
-                throw e;
-            });
-        notifySuccess('Successfully deleted booking.');
-        this._dialog.closeAll();
     }
 }

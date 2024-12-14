@@ -3,7 +3,7 @@ import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { EventFormService } from '@placeos/events';
 import { Space, SpacesService } from '@placeos/spaces';
 import { OrganisationService } from '@placeos/organisation';
-import { HashMap } from '@placeos/common';
+import { HashMap, i18n } from '@placeos/common';
 import { Observable, combineLatest, of, BehaviorSubject } from 'rxjs';
 import { first, take, filter, map, tap } from 'rxjs/operators';
 import { FilterSpaceComponent } from '../filter-space/filter-space.component';
@@ -88,10 +88,10 @@ export class FindSpaceComponent extends AsyncHandler implements OnInit {
         map(([bld]) => [
             {
                 id: this._org.building.id,
-                name: 'All Levels',
+                name: i18n('COMMON.LEVEL_ALL'),
             },
             ...this._org.levelsForBuilding(bld),
-        ])
+        ]),
     );
 
     public readonly loading = this._state.loading;
@@ -111,7 +111,7 @@ export class FindSpaceComponent extends AsyncHandler implements OnInit {
         private _featuresFilterService: FeaturesFilterService,
         private _mapService: MapService,
         private _roomConfirmService: RoomConfirmService,
-        private _router: Router
+        private _router: Router,
     ) {
         super();
     }
@@ -133,8 +133,8 @@ export class FindSpaceComponent extends AsyncHandler implements OnInit {
         this.subscription(
             'features',
             this.selected_features$?.subscribe((v) =>
-                this.setOptions({ features: v || [] })
-            )
+                this.setOptions({ features: v || [] }),
+            ),
         );
 
         await this._mapService.locateSpaces(this.spaces$);
@@ -142,7 +142,7 @@ export class FindSpaceComponent extends AsyncHandler implements OnInit {
         this.locatable_spaces$ = this._mapService.locatable_spaces$;
 
         this.maps_list$ = this._mapService.maps_list$?.pipe(
-            tap((maps) => (this.selected_level = maps))
+            tap((maps) => (this.selected_level = maps)),
         );
 
         await this._mapService.features_loaded$
@@ -182,8 +182,8 @@ export class FindSpaceComponent extends AsyncHandler implements OnInit {
         this.start_time$ = of(
             new Date(this.form?.controls?.date?.value).toLocaleTimeString(
                 'en-US',
-                { hour: 'numeric', minute: 'numeric', hour12: true }
-            )
+                { hour: 'numeric', minute: 'numeric', hour12: true },
+            ),
         );
         this.duration_minutes = this.form?.controls?.duration?.value;
         const end =
@@ -194,7 +194,7 @@ export class FindSpaceComponent extends AsyncHandler implements OnInit {
                 hour: 'numeric',
                 minute: 'numeric',
                 hour12: true,
-            })
+            }),
         );
     }
 
@@ -212,7 +212,7 @@ export class FindSpaceComponent extends AsyncHandler implements OnInit {
                 this.processFeature();
                 this.processStyles();
             },
-            1500
+            1500,
         );
     }
 

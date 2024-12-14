@@ -32,7 +32,7 @@ import { BookingUIOptions, EventsStateService } from './events-state.service';
                     multiple
                     [(ngModel)]="zones"
                     (ngModelChange)="updateZones($event)"
-                    placeholder="All Levels"
+                    [placeholder]="'COMMON.LEVEL_ALL' | translate"
                 >
                     <mat-option
                         *ngFor="let level of levels | async"

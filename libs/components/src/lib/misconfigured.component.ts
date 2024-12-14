@@ -8,12 +8,12 @@ import { Component } from '@angular/core';
             class="rounded m-4 text-center bg-base-100 text-black border border-base-200 p-4 shadow"
         >
             <h3 class="text-2xl">
-                {{ 'COMMON.MISCONFIGURED_TITLE' | translate }}
+                {{ 'COMMON.MISCONFIGURED_TITLE' }}
             </h3>
             <p class="py-4">
-                {{ 'COMMON.MISCONFIGURED_MSG' | translate }}
+                {{ 'COMMON.MISCONFIGURED_MSG' }}
             </p>
-            <p>{{ 'COMMON.MISCONFIGURED_CONTACT' | translate }}</p>
+            <p>{{ 'COMMON.MISCONFIGURED_CONTACT' }}</p>
         </div>
     `,
     styles: [

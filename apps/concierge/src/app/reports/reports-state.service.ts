@@ -5,6 +5,7 @@ import {
     downloadFile,
     flatten,
     HashMap,
+    i18n,
     jsonToCsv,
     notifyError,
     SettingsService,
@@ -105,7 +106,7 @@ export class ReportsStateService {
         debounceTime(500),
         switchMap((_) => {
             const options = this._options.getValue();
-            this._loading.next('Loading report details...');
+            this._loading.next(i18n('APP.CONCIERGE.REPORTS_LOADING'));
             if (!options?.type && !options?.zones?.length) return of([]);
             const start = startOfDay(options.start || Date.now());
             const end = endOfDay(options.end || start);

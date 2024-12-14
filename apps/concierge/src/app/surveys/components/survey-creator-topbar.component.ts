@@ -49,7 +49,7 @@ import { SurveyOptions, SurveyService } from '../services/survey.service';
                             <mat-option
                                 [value]="(options$ | async).building_id"
                             >
-                                All Levels
+                                {{ 'COMMON.LEVEL_ALL' | translate }}
                             </mat-option>
                             <mat-option
                                 *ngFor="let level of levels$ | async"
@@ -108,7 +108,7 @@ export class SurveyCreatorTopbarComponent
             const { building_id } = options;
             if (!building_id?.length) return [];
             return levels.filter((l) => l.parent_id === building_id);
-        })
+        }),
     );
     public readonly triggerOptions = TriggerOptions;
 
@@ -119,7 +119,7 @@ export class SurveyCreatorTopbarComponent
     constructor(
         private _org: OrganisationService,
         private _actRoute: ActivatedRoute,
-        private _survey: SurveyService
+        private _survey: SurveyService,
     ) {
         super();
     }
@@ -130,7 +130,7 @@ export class SurveyCreatorTopbarComponent
             this._actRoute.queryParams.subscribe((qparams) => {
                 const id = qparams['building_id'];
                 if (id?.length) this.updateOptions({ building_id: id });
-            })
+            }),
         );
     }
 

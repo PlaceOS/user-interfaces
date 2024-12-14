@@ -22,17 +22,25 @@ import { getTimezoneOffsetString, SettingsService } from '@placeos/common';
                     icon
                     matRipple
                     class="absolute top-3 left-2 bg-base-200"
-                    matTooltip="Hide Pending Approvals"
+                    [matTooltip]="
+                        'APP.CONCIERGE.ROOMS_PENDING_HIDE' | translate
+                    "
                     matTooltipPosition="left"
                     (click)="show = !show"
                 >
                     <app-icon>chevron_right</app-icon>
                 </button>
                 <h3 class="flex-1 py-3 text-center">
-                    Pending Approval ({{
-                        (filtered_pending | async)?.length || '0'
+                    {{
+                        'APP.CONCIERGE.ROOMS_PENDING_HEADER'
+                            | translate
+                                : {
+                                      count:
+                                          (filtered_pending | async)?.length ||
+                                          '0',
+                                      total: (pending | async)?.length || '0',
+                                  }
                     }}
-                    of {{ (pending | async)?.length || '0' }})
                 </h3>
             </div>
             <div class="border-b border-base-200 relative -mt-px">
@@ -49,17 +57,17 @@ import { getTimezoneOffsetString, SettingsService } from '@placeos/common';
                     search
                 </app-icon>
             </div>
-            <div class="flex-1 overflow-auto p-2 space-y-2">
+            <div class="flex-1 overflow-auto p-3 space-y-2">
                 <div
                     *ngIf="!(filtered_pending | async)?.length"
                     class="w-full h-full flex flex-col items-center justify-center space-y-2"
                 >
                     <img src="assets/icons/no-pending.svg" />
-                    <p>No pending requests</p>
+                    <p>{{ 'APP.CONCIERGE.ROOMS_PENDING_EMPTY' | translate }}</p>
                 </div>
                 <div
                     *ngFor="let event of filtered_pending | async"
-                    class="relative border border-base-200 p-2 w-full rounded"
+                    class="relative border border-base-300 p-2 w-full rounded"
                 >
                     <h3>{{ event.title }}</h3>
                     <p class="opacity-30 text-xs mb-2">
@@ -118,9 +126,10 @@ import { getTimezoneOffsetString, SettingsService } from '@placeos/common';
                         >
                             <div>
                                 {{
-                                    status[event.id] === 'accept'
-                                        ? 'Approved'
-                                        : 'Approve'
+                                    (status[event.id] === 'accept'
+                                        ? 'COMMON.APPROVED'
+                                        : 'COMMON.APPROVE'
+                                    ) | translate
                                 }}
                             </div>
                             <app-icon class="text-success">done</app-icon>
@@ -134,9 +143,10 @@ import { getTimezoneOffsetString, SettingsService } from '@placeos/common';
                         >
                             <div>
                                 {{
-                                    status[event.id] === 'decline'
-                                        ? 'Declined'
-                                        : 'Decline'
+                                    (status[event.id] === 'decline'
+                                        ? 'COMMON.DECLINED'
+                                        : 'COMMON.DECLINE'
+                                    ) | translate
                                 }}
                             </div>
                             <app-icon class="text-error">close</app-icon>
@@ -150,7 +160,9 @@ import { getTimezoneOffsetString, SettingsService } from '@placeos/common';
             >
                 <div class="absolute inset-0 bg-base-100 opacity-80 z-0"></div>
                 <mat-spinner diameter="32"></mat-spinner>
-                <p class="relative z-10">Processing...</p>
+                <p class="relative z-10">
+                    {{ 'APP.CONCIERGE.ROOMS_PENDING_LOADING' | translate }}
+                </p>
             </div>
         </div>
         <button
@@ -160,7 +172,7 @@ import { getTimezoneOffsetString, SettingsService } from '@placeos/common';
             class="bg-warning absolute top-3 -left-8 shadow text-warning-content"
             *ngIf="!show"
             (click)="show = !show"
-            matTooltip="Show Pending Approvals"
+            [matTooltip]="'APP.CONCIERGE.ROOMS_PENDING_SHOW' | translate"
             matTooltipPosition="left"
         >
             <app-icon>chevron_left</app-icon>

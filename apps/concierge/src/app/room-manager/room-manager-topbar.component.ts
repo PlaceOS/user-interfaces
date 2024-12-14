@@ -22,7 +22,7 @@ import { combineLatest } from 'rxjs';
                 <mat-select
                     [ngModel]="(filters | async)?.zones"
                     (ngModelChange)="updateZones($event)"
-                    placeholder="All Levels"
+                    [placeholder]="'COMMON.LEVEL_ALL' | translate"
                     multiple
                 >
                     <mat-option

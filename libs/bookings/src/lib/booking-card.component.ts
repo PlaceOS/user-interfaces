@@ -191,7 +191,7 @@ export class BookingCardComponent
     public get day() {
         const date = this.booking?.date || Date.now();
         const is_today = isSameDay(Date.now(), date);
-        return `${is_today ? 'Today' : format(date, 'EEEE')}`;
+        return `${is_today ? i18n('COMMON.TODAY') : format(date, 'EEEE')}`;
     }
 
     public get location() {

@@ -2,13 +2,14 @@ import {
     Component,
     ElementRef,
     EventEmitter,
+    OnInit,
     Output,
     ViewChild,
 } from '@angular/core';
 import { EventsStateService } from './events-state.service';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { AsyncHandler, SettingsService } from '@placeos/common';
+import { AsyncHandler, i18n, SettingsService } from '@placeos/common';
 import { CalendarEvent } from '@placeos/events';
 
 @Component({
@@ -26,7 +27,7 @@ import { CalendarEvent } from '@placeos/events';
                 [ngModel]="search.getValue()"
                 (ngModelChange)="search.next($event)"
                 (blur)="hideSearch()"
-                placeholder="Search day's events..."
+                [placeholder]="'APP.CONCIERGE.ROOMS_SEARCH' | translate"
             />
             <app-icon
                 *ngIf="show"
@@ -40,8 +41,14 @@ import { CalendarEvent } from '@placeos/events';
             >
                 <div class="sticky top-0 p-4 bg-base-100 rounded z-10">
                     <div class="opacity-60 text-xs">
-                        {{ (filtered | async)?.length }} of
-                        {{ (events | async)?.length }} Event(s)
+                        {{
+                            'APP.CONCIERGE.ROOMS_SEARCH_COUNT'
+                                | translate
+                                    : {
+                                          count: (filtered | async)?.length,
+                                          total: (events | async)?.length,
+                                      }
+                        }}
                     </div>
                 </div>
                 <div
@@ -105,13 +112,13 @@ import { CalendarEvent } from '@placeos/events';
     `,
     styles: [``],
 })
-export class RoomBookingSearchComponent extends AsyncHandler {
+export class RoomBookingSearchComponent extends AsyncHandler implements OnInit {
     @Output() public selected = new EventEmitter<CalendarEvent>();
     public show = false;
     public readonly search = new BehaviorSubject('');
     public readonly events = this._state.filtered;
 
-    public readonly types: any[] = [
+    public types: any[] = [
         { id: 'internal', name: 'Internal', color: '#D81B60' },
         { id: 'external', name: 'External', color: '#1E88E5' },
         { id: 'cancelled', name: 'Cancelled', color: '#eeeeee' },
@@ -155,6 +162,26 @@ export class RoomBookingSearchComponent extends AsyncHandler {
         private _settings: SettingsService,
     ) {
         super();
+    }
+
+    public ngOnInit() {
+        this.types = [
+            {
+                id: 'internal',
+                name: i18n('COMMON.TYPE_INTERNAL'),
+                color: '#D81B60',
+            },
+            {
+                id: 'external',
+                name: i18n('COMMON.TYPE_EXTERNAL'),
+                color: '#1E88E5',
+            },
+            {
+                id: 'cancelled',
+                name: i18n('COMMON.TYPE_CANCELLED'),
+                color: '#eeeeee',
+            },
+        ];
     }
 
     public showSearch() {

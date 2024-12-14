@@ -33,10 +33,10 @@ import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component'
                             : 'All'
                     "
                     (ngModelChange)="updateZones([$event])"
-                    placeholder="All Levels"
+                    [placeholder]="'COMMON.LEVEL_ALL' | translate"
                 >
                     <mat-option value="All" *ngIf="!is_map">
-                        All Levels
+                        {{ 'COMMON.LEVEL_ALL' | translate }}
                     </mat-option>
                     <mat-option
                         *ngFor="let level of levels | async"

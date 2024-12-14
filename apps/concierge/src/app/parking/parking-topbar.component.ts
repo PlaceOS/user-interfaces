@@ -71,7 +71,7 @@ import { MatDialog } from '@angular/material/dialog';
                 <mat-select
                     [(ngModel)]="zones"
                     (ngModelChange)="updateZones($event)"
-                    placeholder="All Levels"
+                    [placeholder]="'COMMON.LEVEL_ALL' | translate"
                     multiple
                 >
                     <mat-option

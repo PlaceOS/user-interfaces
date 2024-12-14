@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { SettingsService, notifyError } from '@placeos/common';
+import { SettingsService, i18n, notifyError } from '@placeos/common';
 import { Building, OrganisationService } from '@placeos/organisation';
 import { querySurveys, Survey } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest } from 'rxjs';
@@ -36,22 +36,22 @@ export class SurveyListingsService {
         this.org.level_list,
     ]).pipe(
         map(([building, level_list]) => {
-            let map = {};
+            const map = {};
             if (!building) return map;
-            map[building.id] = 'All Levels';
+            map[building.id] = i18n('COMMON.LEVEL_ALL');
             const levels = level_list.filter(
-                (lvl) => lvl.parent_id === building?.id
+                (lvl) => lvl.parent_id === building?.id,
             );
             levels.forEach((e) => (map[e.id] = e.display_name || e.name));
             return map;
-        })
+        }),
     );
 
     constructor(
         private _settings: SettingsService,
         private router: Router,
         private org: OrganisationService,
-        private survey: SurveyService
+        private survey: SurveyService,
     ) {}
 
     public initBuilding(building_id: string) {
@@ -80,7 +80,7 @@ export class SurveyListingsService {
             ],
             {
                 queryParams: { survey_id: id },
-            }
+            },
         );
     }
 
@@ -95,7 +95,7 @@ export class SurveyListingsService {
             ],
             {
                 queryParams: { building_id: building?.id || '' },
-            }
+            },
         );
     }
 
@@ -117,11 +117,11 @@ export class SurveyListingsService {
                     notifyError(`Error loading surveys`);
                     return [];
                 }),
-                finalize(() => (this.loading = ''))
+                finalize(() => (this.loading = '')),
             )
             .toPromise();
         this.surveys = res.sort((a, b) =>
-            `${a.zone_id}`.localeCompare(b.zone_id)
+            `${a.zone_id}`.localeCompare(b.zone_id),
         );
     }
 }

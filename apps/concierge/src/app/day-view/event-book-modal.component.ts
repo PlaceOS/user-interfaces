@@ -1,10 +1,11 @@
-import { Component, Output, EventEmitter, Inject } from '@angular/core';
+import { Component, Output, EventEmitter, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
     DialogEvent,
     SettingsService,
     currentUser,
+    i18n,
     notifyError,
     notifySuccess,
 } from '@placeos/common';
@@ -17,7 +18,14 @@ import { map, tap } from 'rxjs/operators';
     selector: 'event-book-modal',
     template: `
         <header>
-            <h2>{{ form.value.id ? 'Edit' : 'New' }} Meeting Booking</h2>
+            <h2>
+                {{
+                    (form.value.id
+                        ? 'APP.CONCIERGE.ROOMS_BOOK_EDIT'
+                        : 'APP.CONCIERGE.ROOMS_BOOK_NEW'
+                    ) | translate
+                }}
+            </h2>
             <div class="flex-1 w-0"></div>
             <button icon mat-dialog-close>
                 <app-icon>close</app-icon>
@@ -36,7 +44,7 @@ import { map, tap } from 'rxjs/operators';
                         1
                     </div>
                     <div class="text-xl">
-                        {{ 'WPA.DETAILS' | translate }}
+                        {{ 'BOOKINGS.DETAILS' | translate }}
                     </div>
                     <div class="flex-1 w-px"></div>
                     <button
@@ -68,7 +76,7 @@ import { map, tap } from 'rxjs/operators';
                         2
                     </div>
                     <div class="text-xl">
-                        {{ 'FORM.ATTENDEES' | translate }}
+                        {{ 'CALENDAR_EVENT.ATTENDEES' | translate }}
                     </div>
                     <div class="flex-1 w-px"></div>
                     <button
@@ -77,7 +85,7 @@ import { map, tap } from 'rxjs/operators';
                         class="bg-none underline text-xs text-info"
                         (click)="findAvailableTime()"
                     >
-                        {{ 'WPA.AVAILABILITY' | translate }}
+                        {{ 'COMMON.AVAILABILITY' | translate }}
                     </button>
                     <button
                         icon
@@ -109,7 +117,7 @@ import { map, tap } from 'rxjs/operators';
                         3
                     </div>
                     <div class="text-xl">
-                        {{ 'WPA.ROOM' | translate }}
+                        {{ 'RESOURCE.ROOM' | translate }}
                     </div>
                     <div class="flex-1 w-px"></div>
                     <button
@@ -135,8 +143,7 @@ import { map, tap } from 'rxjs/operators';
                         "
                         class="bg-warning text-warning-content rounded shadow p-2 text-xs mx-auto my-2 inline-flex"
                     >
-                        The selected room has less capacity than the number of
-                        meeting attendees.
+                        {{ 'CALENDAR_EVENT.CAPACITY_WARNING' | translate }}
                     </div>
                     <space-list-field
                         class="w-full"
@@ -153,7 +160,7 @@ import { map, tap } from 'rxjs/operators';
                         4
                     </div>
                     <div class="text-xl">
-                        {{ 'WPA.CATERING' | translate }}
+                        {{ 'CALENDAR_EVENT.CATERING' | translate }}
                     </div>
                     <div class="flex-1 w-px"></div>
                     <button
@@ -190,7 +197,10 @@ import { map, tap } from 'rxjs/operators';
                     >
                         <mat-select
                             formControlName="catering_charge_code"
-                            placeholder="Charge Code"
+                            [placeholder]="
+                                'CALENDAR_EVENT.CATERING_CHARGE_CODE'
+                                    | translate
+                            "
                         >
                             <input
                                 #input
@@ -198,7 +208,10 @@ import { map, tap } from 'rxjs/operators';
                                 [ngModel]="code_filter.getValue()"
                                 (ngModelChange)="code_filter.next($event)"
                                 [ngModelOptions]="{ standalone: true }"
-                                placeholder="Search charge codes..."
+                                [placeholder]="
+                                    'CALENDAR_EVENT.CATERING_CHARGE_CODE_SEACH'
+                                        | translate
+                                "
                             />
                             <mat-option class="hidden"></mat-option>
                             <mat-option
@@ -209,7 +222,10 @@ import { map, tap } from 'rxjs/operators';
                             </mat-option>
                         </mat-select>
                         <mat-error>
-                            Catering charge code is required
+                            {{
+                                'CALENDAR_EVENT.CATERING_CHARGE_CODE_REQUIRED'
+                                    | translate
+                            }}
                         </mat-error>
                     </mat-form-field>
                     <mat-form-field
@@ -223,10 +239,15 @@ import { map, tap } from 'rxjs/operators';
                         <textarea
                             matInput
                             formControlName="catering_notes"
-                            placeholder="Extra catering details..."
+                            [placeholder]="
+                                'CALENDAR_EVENT.CATERING_NOTES' | translate
+                            "
                         ></textarea>
                         <mat-error>
-                            Catering Order notes are required
+                            {{
+                                'CALENDAR_EVENT.CATERING_NOTES_REQUIRED'
+                                    | translate
+                            }}
                         </mat-error>
                     </mat-form-field>
                 </div>
@@ -239,7 +260,7 @@ import { map, tap } from 'rxjs/operators';
                         {{ !(has_catering | async) ? '4' : '5' }}
                     </div>
                     <div class="text-xl">
-                        {{ 'WPA.ASSETS' | translate }}
+                        {{ 'RESORUCE.ASSETS' | translate }}
                     </div>
                     <div class="flex-1 w-px"></div>
                     <button
@@ -284,17 +305,17 @@ import { map, tap } from 'rxjs/operators';
                         }}
                     </div>
                     <div class="text-xl">
-                        {{ 'FORM.NOTES' | translate }}
+                        {{ 'CALENDAR_EVENT.NOTES_HEADER' | translate }}
                     </div>
                 </h3>
                 <div class="w-full flex flex-col">
                     <label for="notes">
-                        {{ 'WPA.NOTES_INFO' | translate }}
+                        {{ 'CALENDAR_EVENTS.NOTES_INFO' | translate }}
                     </label>
                     <rich-text-input
                         name="notes"
                         formControlName="body"
-                        placeholder="Notes..."
+                        [placeholder]="'CALENDAR_EVENTS.NOTES_INFO' | translate"
                     ></rich-text-input>
                 </div>
             </section>
@@ -311,14 +332,14 @@ import { map, tap } from 'rxjs/operators';
                 class="h-64 flex flex-col items-center justify-center"
             >
                 <mat-spinner [diameter]="48" class="mb-4"></mat-spinner>
-                <p>Making event request...</p>
+                <p>{{ 'CALENDAR_EVENT.LOADING' | translate }}</p>
             </main>
         </ng-template>
     `,
     styles: [``],
     animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
 })
-export class EventBookModalComponent {
+export class EventBookModalComponent implements OnInit {
     @Output() public event = new EventEmitter<DialogEvent>();
     public readonly loading = new BehaviorSubject(false);
     public hide_block: Record<string, boolean> = {};
@@ -417,7 +438,7 @@ export class EventBookModalComponent {
             throw _;
         });
         this.event.emit({ reason: 'done', metadata: event });
-        notifySuccess('Successfully created event');
+        notifySuccess(i18n('CALENDAR_EVENT.SUCCESS'));
         this._dialog_ref.close();
         this.loading.next(false);
     }

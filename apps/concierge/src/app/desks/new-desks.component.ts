@@ -68,7 +68,7 @@ import { DeskQrCodeModalComponent } from './desk-qr-code-modal.component';
                         <mat-select
                             [ngModel]="(filters | async)?.zones"
                             (ngModelChange)="updateZones($event)"
-                            placeholder="All Levels"
+                            [placeholder]="'COMMON.LEVEL_ALL' | translate"
                             multiple
                         >
                             <mat-option
@@ -105,7 +105,7 @@ import { DeskQrCodeModalComponent } from './desk-qr-code-modal.component';
                                     : ''
                             "
                             (ngModelChange)="updateZones([$event])"
-                            placeholder="All Levels"
+                            [placeholder]="'COMMON.LEVEL_ALL' | translate"
                         >
                             <mat-option
                                 *ngFor="let level of levels | async"

@@ -1,8 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { OrganisationService } from '@placeos/organisation';
 import { EventsStateService } from './events-state.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AsyncHandler, SettingsService } from '@placeos/common';
+import { AsyncHandler, i18n, SettingsService } from '@placeos/common';
 import { debounceTime, filter, map, take } from 'rxjs/operators';
 import { combineLatest } from 'rxjs';
 
@@ -12,20 +12,28 @@ const EMPTY = [];
     template: `
         <div class="absolute inset-0 flex flex-col overflow-hidden pl-8">
             <div class="flex items-center w-full py-4 pr-8 space-x-4">
-                <h2 class="text-2xl font-medium">Room Bookings</h2>
+                <h2 class="text-2xl font-medium">
+                    {{ 'APP.CONCIERGE.ROOM_BOOKINGS' | translate }}
+                </h2>
                 <div class="flex-1 w-px"></div>
                 <mat-form-field appearance="outline" class="no-subscript w-32">
                     <mat-select
                         [ngModel]="period | async"
                         (ngModelChange)="setPeriod($event)"
                     >
-                        <mat-option value="day">Day</mat-option>
-                        <mat-option value="week">Week</mat-option>
+                        <mat-option value="day">
+                            {{ 'COMMON.DAY' | translate }}
+                        </mat-option>
+                        <mat-option value="week">
+                            {{ 'COMMON.WEEK' | translate }}
+                        </mat-option>
                     </mat-select>
                 </mat-form-field>
                 <button btn matRipple class="space-x-2" (click)="newBooking()">
-                    <div>New Booking</div>
-                    <app-icon>add</app-icon>
+                    <div class="pl-2">
+                        {{ 'APP.CONCIERGE.ROOMS_NEW_BOOKING' | translate }}
+                    </div>
+                    <app-icon class="text-2xl">add</app-icon>
                 </button>
             </div>
             <div class="w-full flex items-center">
@@ -33,7 +41,7 @@ const EMPTY = [];
                     <mat-select
                         [ngModel]="zones | async"
                         (ngModelChange)="updateZones($event)"
-                        placeholder="All Levels"
+                        [placeholder]="'COMMON.LEVEL_ALL' | translate"
                         multiple
                     >
                         <mat-option
@@ -70,7 +78,9 @@ const EMPTY = [];
                             updateUIOptions({ show_overflow: $event })
                         "
                     >
-                        <div class="text-xs">Setup / Breakdown</div>
+                        <div class="text-xs">
+                            {{ 'APP.CONCIERGE.SETUP_BREAKDOWN' | translate }}
+                        </div>
                     </mat-slide-toggle>
                 </ng-container>
                 <div class="border-l h-full ml-8 mr-4"></div>
@@ -84,7 +94,9 @@ const EMPTY = [];
                         [matMenuTriggerFor]="menu"
                     >
                         <app-icon>filter_list</app-icon>
-                        <div class="mx-2">Filters</div>
+                        <div class="mx-2">
+                            {{ 'COMMON.FILTERS' | translate }}
+                        </div>
                     </button>
                     <mat-menu #menu="matMenu" class="">
                         <div
@@ -142,7 +154,7 @@ const EMPTY = [];
     `,
     styles: [``],
 })
-export class RoomBookingsComponent extends AsyncHandler {
+export class RoomBookingsComponent extends AsyncHandler implements OnInit {
     public readonly zones = this._state.zones;
     public readonly period = this._state.period;
     public readonly ui_options = this._state.options;
@@ -179,7 +191,7 @@ export class RoomBookingsComponent extends AsyncHandler {
     /**  */
     public readonly newBooking = (d?) => this._state.newBooking(d);
 
-    public readonly types: any[] = [
+    public types: any[] = [
         { id: 'internal', name: 'Internal', color: '#D81B60' },
         { id: 'external', name: 'External', color: '#1E88E5' },
         { id: 'cancelled', name: 'Cancelled', color: '#eeeeee' },
@@ -212,6 +224,23 @@ export class RoomBookingsComponent extends AsyncHandler {
     }
 
     public ngOnInit() {
+        this.types = [
+            {
+                id: 'internal',
+                name: i18n('COMMON.TYPE_INTERNAL'),
+                color: '#D81B60',
+            },
+            {
+                id: 'external',
+                name: i18n('COMMON.TYPE_EXTERNAL'),
+                color: '#1E88E5',
+            },
+            {
+                id: 'cancelled',
+                name: i18n('COMMON.TYPE_CANCELLED'),
+                color: '#eeeeee',
+            },
+        ];
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {

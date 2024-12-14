@@ -29,16 +29,17 @@ import {
     SettingsService,
     flatten,
     getTimezoneDifferenceInHours,
+    i18n,
+    notifyError,
+    notifySuccess,
     openConfirmModal,
-    randomInt,
     timePeriodsIntersect,
-    unique,
 } from '@placeos/common';
 import {
     CalendarEvent,
+    declineEvent,
     queryEvents,
     removeEvent,
-    replaceBookings,
 } from '@placeos/events';
 import { Space, requestSpacesForZone } from '@placeos/spaces';
 import { OrganisationService } from '@placeos/organisation';
@@ -138,7 +139,7 @@ export class EventsStateService extends AsyncHandler {
         ),
     ]).pipe(
         debounceTime(300),
-        tap((_) => this.unsubWith('bind:')),
+        tap(() => this.unsubWith('bind:')),
         switchMap(([zone_ids]) => {
             this._loading.next(true);
             if (!zone_ids?.length || zone_ids[0] === this._org.region?.id) {
@@ -151,7 +152,7 @@ export class EventsStateService extends AsyncHandler {
             return forkJoin(zone_ids.map((id) => requestSpacesForZone(id)));
         }),
         map((l) => flatten<Space>(l).filter((_) => _.bookable)),
-        tap((_) => this._loading.next(false)),
+        tap(() => this._loading.next(false)),
         shareReplay(1),
     );
     /** Observable for list of bookings */
@@ -324,24 +325,37 @@ export class EventsStateService extends AsyncHandler {
     }
 
     public async removeBooking(event: CalendarEvent) {
+        const time = `${format(event.date, 'dd MMM yyyy ' + this.time_format)}`;
+        const resource_name = event.space?.display_name || event.location;
         const details = await openConfirmModal(
             {
-                title: 'Delete meeting?',
-                content: `Are you sure you want to delete the meeting at ${format(
-                    new Date(event.date),
-                    'dd MMM yyyy, ' + this.time_format,
-                )}<br> in ${event.location}?`,
+                title: i18n('APP.CONCIERGE.BOOKING_REMOVE_TITLE'),
+                content: i18n('APP.CONCIERGE.BOOKING_REMOVE_MSG', {
+                    name: resource_name,
+                    time,
+                }),
+
                 icon: { class: 'material-icons', content: 'delete' },
             },
             this._dialog,
         );
         if (details.reason !== 'done') return false;
-        details.loading('Deleting booking...');
-        await removeEvent(event.id, {
+        details.loading(i18n('APP.CONCIERGE.BOOKING_REMOVE_LOADING'));
+        await declineEvent(event.id, {
+            calendar: event.calendar || event.mailbox || event.host,
             system_id: event.system?.id,
-        }).toPromise();
+        })
+            .toPromise()
+            .catch((e) => {
+                notifyError(
+                    i18n('APP.CONCIERGE.BOOKING_REMOVE_ERROR', { error: e }),
+                );
+                details.close();
+                throw e;
+            });
+        notifySuccess(i18n('APP.CONCIERGE.BOOKING_REMOVE_SUCCESS'));
         this.remove(event);
-        details.close();
+        this._dialog.closeAll();
         return true;
     }
 

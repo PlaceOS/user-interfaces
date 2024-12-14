@@ -27,7 +27,9 @@ import { OrganisationService } from '@placeos/organisation';
                         [source]="(logo | async)?.src || (logo | async)"
                     />
                     <div class="flex-1"></div>
-                    <h2 class="text-2xl font-medium px-2">Desks Report</h2>
+                    <h2 class="text-2xl font-medium px-2">
+                        {{ 'APP.CONCIERGE.REPORTS_DESKS_HEADER' | translate }}
+                    </h2>
                 </div>
             </div>
             <ng-container *ngIf="!(loading | async); else load_state">
@@ -58,7 +60,9 @@ import { OrganisationService } from '@placeos/organisation';
             <ng-template #load_state>
                 <div class="h-full w-full flex flex-col items-center p-8">
                     <mat-spinner [diameter]="32" class="mb-4"></mat-spinner>
-                    <p class="opacity-30">Loading report data...</p>
+                    <p class="opacity-30">
+                        {{ 'APP.CONCIERGE.REPORTS_LOADING' | translate }}
+                    </p>
                 </div>
             </ng-template>
             <ng-template #empty_state>
@@ -66,7 +70,7 @@ import { OrganisationService } from '@placeos/organisation';
                     class="h-full w-full flex flex-col items-center p-8 screen-only"
                 >
                     <p class="opacity-30">
-                        Select levels and time period to generate a report.
+                        {{ 'APP.CONCIERGE.REPORTS_EMPTY' | translate }}
                     </p>
                 </div>
             </ng-template>

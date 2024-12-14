@@ -59,7 +59,7 @@ import { LockerStateService } from './locker-state.service';
                 <mat-select
                     [(ngModel)]="zones"
                     (ngModelChange)="updateZones($event)"
-                    placeholder="All Levels"
+                    [placeholder]="'COMMON.LEVEL_ALL' | translate"
                     multiple
                 >
                     <mat-option
