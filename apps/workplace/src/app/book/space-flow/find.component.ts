@@ -1,6 +1,6 @@
 import { Component, OnInit, Optional } from '@angular/core';
 import { Router } from '@angular/router';
-import { HashMap, SettingsService } from '@placeos/common';
+import { HashMap, i18n, SettingsService } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
 import { Space } from '@placeos/spaces';

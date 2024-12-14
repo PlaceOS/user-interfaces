@@ -26,7 +26,7 @@ import { ExploreLockerBankModalComponent } from './explore-locker-bank-modal.com
 import { ExploreParkingInfoComponent } from './explore-parking-info.component';
 import { ExploreIconComponent } from './explore-icon.component';
 
-const COMPONENTS: Type<any>[] = [
+const COMPONENTS = [
     ExploreMapControlComponent,
     ExploreMapViewComponent,
     ExploreSearchComponent,

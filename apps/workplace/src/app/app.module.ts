@@ -7,14 +7,14 @@ import { ServiceWorkerModule } from '@angular/service-worker';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatNativeDateModule } from '@angular/material/core';
 
-import { HttpClient, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import {
+    HttpClient,
+    provideHttpClient,
+    withInterceptorsFromDi,
+} from '@angular/common/http';
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 
-import {
-    MisconfiguredComponent,
-    UnauthorisedComponent,
-} from '@placeos/components';
 import { AppComponent } from 'libs/components/src/lib/app.component';
 
 import { AppRoutingModule } from './app-routing.module';
@@ -31,8 +31,11 @@ export function HttpLoaderFactory(http: HttpClient) {
     return new TranslateHttpLoader(http, './assets/locale/', '.json');
 }
 
-@NgModule({ declarations: [AppComponent, UnauthorisedComponent, MisconfiguredComponent],
-    bootstrap: [AppComponent], imports: [BrowserModule,
+@NgModule({
+    declarations: [AppComponent],
+    bootstrap: [AppComponent],
+    imports: [
+        BrowserModule,
         BrowserAnimationsModule,
         AppRoutingModule,
         ServiceWorkerModule.register('ngsw-worker.js', {
@@ -51,7 +54,9 @@ export function HttpLoaderFactory(http: HttpClient) {
                 useFactory: HttpLoaderFactory,
                 deps: [HttpClient],
             },
-        })], providers: [
+        }),
+    ],
+    providers: [
         {
             provide: ErrorHandler,
             useValue: Sentry.createErrorHandler({
@@ -64,10 +69,11 @@ export function HttpLoaderFactory(http: HttpClient) {
         },
         {
             provide: APP_INITIALIZER,
-            useFactory: () => () => { },
+            useFactory: () => () => {},
             deps: [Sentry.TraceService],
             multi: true,
         },
         provideHttpClient(withInterceptorsFromDi()),
-    ] })
+    ],
+})
 export class AppModule {}

@@ -30,11 +30,20 @@ const routes: Routes = [
                 path: 'book',
                 children: [
                     { path: 'spaces', component: RoomBookingComponent },
-                    { path: 'spaces/success', component: BookingConfirmedComponent },
+                    {
+                        path: 'spaces/success',
+                        component: BookingConfirmedComponent,
+                    },
                     { path: 'meeting', component: MeetingBookingComponent },
-                    { path: 'meeting/success', component: MeetingBookingSuccessComponent },
+                    {
+                        path: 'meeting/success',
+                        component: MeetingBookingSuccessComponent,
+                    },
                     { path: 'desks', component: DeskBookingComponent },
-                    { path: 'desks/success', component: DeskBookingSuccessComponent },
+                    {
+                        path: 'desks/success',
+                        component: DeskBookingSuccessComponent,
+                    },
                 ],
             },
             {

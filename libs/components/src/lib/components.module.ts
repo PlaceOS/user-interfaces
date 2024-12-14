@@ -90,8 +90,10 @@ import { WorkLocationTooltipComponent } from './work-location-tooltip.component'
 import { ZonePipe } from './zone.pipe';
 import { LoginComponent } from './login.component';
 import { SettingsToggleComponent } from './settings-toggle.component';
+import { UnauthorisedComponent } from './unauthorised.component';
+import { MisconfiguredComponent } from './misconfigured.component';
 
-const MAT_MODULES: any[] = [
+const MAT_MODULES = [
     MatAutocompleteModule,
     MatMenuModule,
     MatFormFieldModule,
@@ -118,7 +120,7 @@ const MAT_MODULES: any[] = [
     MatButtonToggleModule,
 ];
 
-const COMPONENTS: Type<any>[] = [
+const COMPONENTS = [
     ActionIconComponent,
     IconComponent,
     PopoutMenuComponent,
@@ -175,9 +177,12 @@ const COMPONENTS: Type<any>[] = [
     AvailableRoomsStateModalComponent,
     DeskHeightPresetsComponent,
     LoginComponent,
+
+    UnauthorisedComponent,
+    MisconfiguredComponent,
 ];
 
-const DIRECTIVES: Type<any>[] = [
+const DIRECTIVES = [
     BindingDirective,
     AuthenticatedImageDirective,
     LimitInputDirective,

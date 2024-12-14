@@ -30,7 +30,7 @@ import { map, take } from 'rxjs/operators';
                 ></mat-spinner>
                 <button
                     icon
-                    name="close-locker-confirm"
+                    name="close-desk-confirm"
                     matRipple
                     *ngIf="show_close"
                     (click)="dismiss()"

@@ -63,7 +63,7 @@ import { ExploreSearchService, SearchResult } from './explore-search.service';
                     *ngIf="!(results | async)?.length"
                     class="pointer-events-none"
                 >
-                    {{ 'COMMON.SEARCH_EMPTY' | transition }}
+                    {{ 'COMMON.SEARCH_EMPTY' | translate }}
                 </mat-option>
                 <mat-option
                     *ngFor="let option of results | async | slice: 0 : 5"

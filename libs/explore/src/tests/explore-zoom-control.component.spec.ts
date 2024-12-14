@@ -1,10 +1,11 @@
 import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
-import { MockComponent } from 'ng-mocks';
+import { MockComponent, MockModule } from 'ng-mocks';
 
 import { IconComponent } from '@placeos/components';
 
 import { ExploreZoomControlComponent } from '../lib/explore-zoom-control.component';
 import { ExploreStateService } from '../lib/explore-state.service';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 describe('ExploreZoomControlComponent', () => {
     let spectator: Spectator<ExploreZoomControlComponent>;
@@ -20,6 +21,7 @@ describe('ExploreZoomControlComponent', () => {
                 },
             },
         ],
+        imports: [MockModule(MatTooltipModule)],
     });
 
     beforeEach(() => {

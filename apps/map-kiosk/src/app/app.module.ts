@@ -11,7 +11,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatRippleModule } from '@angular/material/core';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 
-import { ComponentsModule, UnauthorisedComponent } from '@placeos/components';
+import { ComponentsModule } from '@placeos/components';
 import { SharedExploreModule } from '@placeos/explore';
 import { FormFieldsModule } from '@placeos/form-fields';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
@@ -43,7 +43,6 @@ export function HttpLoaderFactory(http: HttpClient) {
 @NgModule({
     declarations: [
         AppComponent,
-        UnauthorisedComponent,
         BootstrapComponent,
         ExploreComponent,
         ExploreLevelSelectComponent,

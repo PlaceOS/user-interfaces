@@ -19,7 +19,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatRippleModule } from '@angular/material/core';
 
 import { ComponentsModule } from 'libs/components/src/lib/components.module';
-import { UnauthorisedComponent } from 'libs/components/src/lib/unauthorised.component';
 
 import * as Sentry from '@sentry/angular';
 
@@ -46,12 +45,7 @@ const MAT_MODULES: any[] = [
 ];
 
 @NgModule({
-    declarations: [
-        AppComponent,
-        UnauthorisedComponent,
-        BootstrapComponent,
-        PanelViewComponent,
-    ],
+    declarations: [AppComponent, BootstrapComponent, PanelViewComponent],
     bootstrap: [AppComponent],
     imports: [
         BrowserModule,

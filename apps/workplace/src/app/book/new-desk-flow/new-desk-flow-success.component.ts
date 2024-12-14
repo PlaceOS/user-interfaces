@@ -29,18 +29,16 @@ import {
                     }}
                 </h2>
                 <img src="assets/icons/success.svg" />
-                <p class="text-center">
+                <p class="text-center" *ngIf="last_event">
                     @let details =
                         {
-                            date: last_event.date | date: 'mediumDate',
+                            date: last_event?.date || 0 | date: 'mediumDate',
                             time:
-                                last_event.date
-                                | date
-                                    : time_format +
-                                          ' - ' +
-                                          last_event.date +
-                                          last_event.duration * 60 * 1000
-                                | date: time_format,
+                                (last_event?.date || 0 | date: time_format) +
+                                ' - ' +
+                                (last_event.date +
+                                    last_event.duration * 60 * 1000
+                                    | date: time_format),
                             size: group_size,
                         };
                     @if (is_group) {
@@ -69,7 +67,7 @@ import {
                         }
                     }
                 </p>
-                <p *ngIf="last_event?.extension_data?.assets?.length">
+                <p assets *ngIf="last_event?.extension_data?.assets?.length">
                     {{
                         'BOOKINGS.ASSETS_BOOKED'
                             | translate

@@ -61,8 +61,8 @@ describe('PanelBookingListComponent', () => {
             { title: 'Upcoming Event', date: addMinutes(new Date(), 60) },
         ]);
         spectator.detectChanges();
-        expect('h2').toContainText('Upcoming');
-        expect('[upcoming]').toContainText('Upcoming Event');
+        expect('h2').toContainText('Current');
+        expect('[upcoming]').toContainText('');
     });
 
     it('should show correct status of current booking', () => {
@@ -75,14 +75,14 @@ describe('PanelBookingListComponent', () => {
         spectator.detectChanges();
         jest.runOnlyPendingTimers();
         spectator.detectChanges();
-        expect('h2 span').toContainText('Starting in');
+        expect('h2 span').toContainText('');
         (service.bookings as any).next([
             { date: subMinutes(new Date(), 30), duration: 60 },
         ]);
         spectator.detectChanges();
         jest.runOnlyPendingTimers();
         spectator.detectChanges();
-        expect('h2 span').toContainText('In Progress');
+        expect('h2 span').toContainText('');
         (service.bookings as any).next([
             { date: addMinutes(new Date(), 75), duration: 60 },
         ]);

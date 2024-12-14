@@ -1,5 +1,8 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import {
+    provideHttpClient,
+    withInterceptorsFromDi,
+} from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { APP_INITIALIZER, ErrorHandler, NgModule } from '@angular/core';
@@ -13,8 +16,6 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MAT_CHIPS_DEFAULT_OPTIONS } from '@angular/material/chips';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 
-import { UnauthorisedComponent } from '@placeos/components';
-
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from '../../../../libs/components/src/lib/app.component';
 import { environment } from '../environments/environment';
@@ -27,8 +28,11 @@ export function HttpLoaderFactory(http: HttpClient) {
     return new TranslateHttpLoader(http, './assets/locale/', '.json');
 }
 
-@NgModule({ declarations: [AppComponent, UnauthorisedComponent],
-    bootstrap: [AppComponent], imports: [BrowserModule,
+@NgModule({
+    declarations: [AppComponent],
+    bootstrap: [AppComponent],
+    imports: [
+        BrowserModule,
         AppRoutingModule,
         MatSnackBarModule,
         BrowserAnimationsModule,
@@ -43,7 +47,9 @@ export function HttpLoaderFactory(http: HttpClient) {
         }),
         ServiceWorkerModule.register('ngsw-worker.js', {
             enabled: environment.production,
-        })], providers: [
+        }),
+    ],
+    providers: [
         {
             provide: MAT_CHIPS_DEFAULT_OPTIONS,
             useValue: {
@@ -62,10 +68,11 @@ export function HttpLoaderFactory(http: HttpClient) {
         },
         {
             provide: APP_INITIALIZER,
-            useFactory: () => () => { },
+            useFactory: () => () => {},
             deps: [Sentry.TraceService],
             multi: true,
         },
         provideHttpClient(withInterceptorsFromDi()),
-    ] })
+    ],
+})
 export class AppModule {}

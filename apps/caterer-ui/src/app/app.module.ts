@@ -14,7 +14,7 @@ import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 
 import { SharedCateringModule } from '@placeos/catering';
-import { ComponentsModule, UnauthorisedComponent } from '@placeos/components';
+import { ComponentsModule } from '@placeos/components';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from '../../../../libs/components/src/lib/app.component';
@@ -41,7 +41,6 @@ export function HttpLoaderFactory(http: HttpClient) {
 @NgModule({
     declarations: [
         AppComponent,
-        UnauthorisedComponent,
         CateringComponent,
         CateringTopbarComponent,
         DateOptionsComponent,

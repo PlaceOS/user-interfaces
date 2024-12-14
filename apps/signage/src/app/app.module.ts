@@ -11,7 +11,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatRippleModule } from '@angular/material/core';
 
-import { ComponentsModule, UnauthorisedComponent } from '@placeos/components';
+import { ComponentsModule } from '@placeos/components';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 
 import { AppRoutingModule } from './app-routing.module';
@@ -36,7 +36,6 @@ export function HttpLoaderFactory(http: HttpClient) {
 @NgModule({
     declarations: [
         AppComponent,
-        UnauthorisedComponent,
         BootstrapComponent,
         SignagePanelComponent,
         MediaPlayerComponent,
