@@ -6,19 +6,21 @@ import {
     ShortURL,
     getInvalidFields,
     notifyError,
-    randomString,
     saveShortURL,
 } from '@placeos/common';
-import { OrganisationService, Building } from '@placeos/organisation';
-import { showMetadata, updateMetadata } from '@placeos/ts-client';
-import { addYears, startOfDay } from 'date-fns';
-import { take } from 'rxjs/operators';
 
 @Component({
     selector: 'short-url-modal',
     template: `
         <header>
-            <h2>{{ form.value.id ? 'Edit' : 'Add' }} Short URL</h2>
+            <h2>
+                {{
+                    (form.value.id
+                        ? 'APP.CONCIERGE.URLS_EDIT'
+                        : 'APP.CONCIERGE.URLS_ADD'
+                    ) | translate
+                }}
+            </h2>
             <button btn icon mat-dialog-close *ngIf="!loading">
                 <app-icon>close</app-icon>
             </button>
@@ -29,12 +31,14 @@ import { take } from 'rxjs/operators';
         >
             <form
                 system
-                class="flex flex-col w-[28rem] max-w-[calc(100vw-4rem)]"
+                class="flex flex-col w-[32rem] max-w-[calc(100vw-4rem)]"
                 *ngIf="form"
                 [formGroup]="form"
             >
                 <div class="flex flex-col" *ngIf="form.controls.name">
-                    <label for="name"> Name<span>*</span>: </label>
+                    <label for="name">
+                        {{ 'FORM.NAME' | translate }}<span>*</span>
+                    </label>
                     <mat-form-field appearance="outline">
                         <input
                             matInput
@@ -44,31 +48,39 @@ import { take } from 'rxjs/operators';
                         />
                     </mat-form-field>
                 </div>
-                <div
-                    class="flex flex-col pb-4"
-                    *ngIf="form.controls.description"
-                >
-                    <label for="description"> Description: </label>
+                <div class="flex flex-col" *ngIf="form.controls.uri">
+                    <label for="uri">
+                        {{ 'APP.CONCIERGE.URLS_URI' | translate }}<span>*</span>
+                    </label>
+                    <mat-form-field appearance="outline">
+                        <input
+                            matInput
+                            name="uri"
+                            [placeholder]="'APP.CONCIERGE.URLS_URI' | translate"
+                            formControlName="uri"
+                        />
+                    </mat-form-field>
+                </div>
+                <div class="flex flex-col" *ngIf="form.controls.description">
+                    <label for="description">
+                        {{ 'COMMON.DESCRIPTION' | translate }}
+                    </label>
                     <rich-text-input
                         name="description"
                         formControlName="description"
                     ></rich-text-input>
                 </div>
-                <div class="flex flex-col" *ngIf="form.controls.uri">
-                    <label for="uri"> URI<span>*</span>: </label>
-                    <mat-form-field appearance="outline">
-                        <input
-                            matInput
-                            name="uri"
-                            placeholder="URI"
-                            formControlName="uri"
-                        />
-                    </mat-form-field>
-                </div>
-                <div class="flex flex-col pb-4" *ngIf="form.controls.enabled">
-                    <mat-checkbox formControlName="enabled">
-                        Enabled
-                    </mat-checkbox>
+                <div
+                    class="flex item-center space-x-4 pb-4"
+                    *ngIf="form.controls.enabled"
+                >
+                    <settings-toggle
+                        class="flex-1"
+                        [name]="'APP.CONCIERGE.URLS_ENABLED' | translate"
+                        formControlName="enabled"
+                    >
+                    </settings-toggle>
+                    <div class="flex-1"></div>
                 </div>
                 <!-- <div class="flex flex-col" *ngIf="form.controls.valid_from">
                     <label for="uri" > Valid From: </label>
@@ -89,12 +101,16 @@ import { take } from 'rxjs/operators';
             class="p-2 flex justify-end border-t border-base-200"
             *ngIf="!loading"
         >
-            <button btn class="w-32" (click)="save()">Save</button>
+            <button btn class="w-32" (click)="save()">
+                {{ 'COMMON.SAVE' | translate }}
+            </button>
         </footer>
         <ng-template #load_state>
             <div class="flex flex-col items-center justify-center w-64 h-64">
                 <mat-spinner diameter="32"></mat-spinner>
-                <p class="mt-4">Saving Short URL...</p>
+                <p class="mt-4">
+                    {{ 'APP.CONCIERGE.URLS_SAVING' | translate }}
+                </p>
             </div>
         </ng-template>
     `,

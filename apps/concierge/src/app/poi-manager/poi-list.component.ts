@@ -15,18 +15,22 @@ import { generateQRCode } from 'libs/common/src/lib/qr-code';
                 [data]="features"
                 empty_message="No Points of Interest found."
                 [columns]="[
-                    { key: 'name', name: 'Name' },
+                    { key: 'name', name: 'FORM.NAME' | translate },
                     {
                         key: 'level_id',
-                        name: 'Level',
+                        name: 'RESOURCE.LEVEL' | translate,
                         content: level_template,
                         size: '12rem',
                         sortable: false,
                     },
-                    { key: 'location', name: 'Location', size: '10rem' },
+                    {
+                        key: 'location',
+                        name: 'COMMON.LOCATION' | translate,
+                        size: '10rem',
+                    },
                     {
                         key: 'can_search',
-                        name: 'Searchable',
+                        name: 'APP.CONCIERGE.POI_SEARCHABLE' | translate,
                         size: '7rem',
                         content: bool_template,
                     },
@@ -57,7 +61,7 @@ import { generateQRCode } from 'libs/common/src/lib/qr-code';
         </ng-template>
         <ng-template #action_template let-row="row">
             <div class="w-full flex justify-end space-x-2 px-4 py-2 mx-auto">
-                <div matTooltip="Private QR Code">
+                <div [matTooltip]="'APP.CONCIERGE.POI_PRIVATE_QR' | translate">
                     <button
                         icon
                         matRipple
@@ -68,7 +72,7 @@ import { generateQRCode } from 'libs/common/src/lib/qr-code';
                         <app-icon>qr_code</app-icon>
                     </button>
                 </div>
-                <div matTooltip="Public QR Code">
+                <div [matTooltip]="'APP.CONCIERGE.POI_PUBLIC_QR' | translate">
                     <button
                         icon
                         matRipple
@@ -103,7 +107,7 @@ import { generateQRCode } from 'libs/common/src/lib/qr-code';
                             class="w-[calc(100%-2rem)] mx-4 my-2"
                             (click)="print()"
                         >
-                            Print QR Code
+                            {{ 'APP.CONCIERGE.POI_PRINT_QR' | translate }}
                         </button>
                     </div>
                 </ng-template>
@@ -114,13 +118,17 @@ import { generateQRCode } from 'libs/common/src/lib/qr-code';
                     <button mat-menu-item (click)="edit(row)">
                         <div class="flex items-center space-x-2">
                             <app-icon>edit</app-icon>
-                            <span>Edit Point of Interest</span>
+                            <span>{{
+                                'APP.CONCIERGE.POI_EDIT' | translate
+                            }}</span>
                         </div>
                     </button>
                     <button mat-menu-item (click)="remove(row)">
                         <div class="flex items-center space-x-2 text-red-500">
                             <app-icon class="text-error">delete</app-icon>
-                            <span>Delete Point of Interest</span>
+                            <span>{{
+                                'APP.CONCIERGE.POI_REMOVE' | translate
+                            }}</span>
                         </div>
                     </button>
                 </mat-menu>

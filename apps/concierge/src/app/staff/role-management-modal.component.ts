@@ -9,15 +9,44 @@ import { filter, map, shareReplay, switchMap, take } from 'rxjs/operators';
 @Component({
     selector: 'role-management-modal',
     template: `
-        <header>
-            <h2>Manage Roles</h2>
-            <button btn icon matRipple mat-dialog-close>
+        <header
+            class="sticky top-0 p-2 m-2 w-[calc(100%-1rem)] border-none z-10 bg-base-200 rounded"
+        >
+            <h2 class="text-xl font-medium px-2">
+                {{ 'APP.CONCIERGE.CONTACTS_ROLES_MANAGE' | translate }}
+            </h2>
+            <button icon matRipple mat-dialog-close *ngIf="!loading">
                 <app-icon>close</app-icon>
             </button>
         </header>
-        <main
-            class="overflow-y-auto min-w-[20rem] divide-y divide-base-200 max-h-[65vh]"
-        >
+        <main class="overflow-y-auto min-w-[28rem] max-h-[65vh] h-[32rem]">
+            <ng-container *ngFor="let role of roles | async">
+                <div
+                    class="flex items-center space-x-2 hover:bg-base-200:bg-base-300 p-2 m-2 rounded border border-base-200"
+                >
+                    <div class="flex-1 truncate px-2">{{ role }}</div>
+                    <button
+                        icon
+                        matRipple
+                        class="border border-secondary text-secondary rounded h-12 w-12"
+                        (click)="active = role; role_name = role"
+                        customTooltip
+                        [content]="role_form"
+                    >
+                        <app-icon>edit</app-icon>
+                    </button>
+                    <button
+                        icon
+                        matRipple
+                        class="text-error border border-error rounded h-12 w-12"
+                        (click)="removeRole(role)"
+                    >
+                        <app-icon>delete</app-icon>
+                    </button>
+                </div>
+            </ng-container>
+        </main>
+        <footer class="border-t border-base-200">
             <button
                 btn
                 matRipple
@@ -26,41 +55,25 @@ import { filter, map, shareReplay, switchMap, take } from 'rxjs/operators';
                 (click)="active = ''; role_name = ''"
                 [content]="role_form"
             >
-                <div class="truncate">New Role</div>
-                <app-icon>add</app-icon>
-            </button>
-            <ng-container *ngFor="let role of roles | async">
-                <div
-                    class="flex items-center space-x-2 hover:bg-base-200:bg-base-300 p-2"
-                >
-                    <div class="flex-1 truncate">{{ role }}</div>
-                    <button
-                        btn
-                        icon
-                        matRipple
-                        (click)="active = role; role_name = role"
-                        customTooltip
-                        [content]="role_form"
-                    >
-                        <app-icon>edit</app-icon>
-                    </button>
-                    <button btn icon matRipple (click)="removeRole(role)">
-                        <app-icon>delete</app-icon>
-                    </button>
+                <div class="truncate pl-2">
+                    {{ 'APP.CONCIERGE.CONTACTS_ROLES_ADD' | translate }}
                 </div>
-            </ng-container>
-        </main>
+                <app-icon class="text-2xl">add</app-icon>
+            </button>
+        </footer>
         <ng-template #role_form>
             <div class="bg-base-100 p-4 rounded ">
                 <mat-form-field appearance="outline">
                     <input
                         matInput
                         [(ngModel)]="role_name"
-                        placeholder="Role name"
+                        [placeholder]="
+                            'APP.CONCIERGE.CONTACTS_ROLES_NAME' | translate
+                        "
                     />
                 </mat-form-field>
                 <button btn matRipple class="w-full" (click)="updateRoles()">
-                    Save Role
+                    {{ 'APP.CONCIERGE.CONTACTS_ROLES_SAVE' | translate }}
                 </button>
             </div>
         </ng-template>
@@ -85,7 +98,7 @@ export class RoleManagementModalComponent {
             if (!value.contacts) value.contacts = [];
             return value;
         }),
-        shareReplay(1)
+        shareReplay(1),
     );
     public readonly roles = this.data.pipe(map((_) => _.roles));
 
@@ -142,6 +155,6 @@ export class RoleManagementModalComponent {
 
     constructor(
         private _org: OrganisationService,
-        private _dialog_ref: MatDialogRef<RoleManagementModalComponent>
+        private _dialog_ref: MatDialogRef<RoleManagementModalComponent>,
     ) {}
 }

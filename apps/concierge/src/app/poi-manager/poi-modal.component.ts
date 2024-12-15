@@ -24,7 +24,13 @@ import { SelectPOIMapModalComponent } from './select-poi-map-modal.component';
     selector: 'poi-modal',
     template: `
         <header>
-            <h2>{{ form.value.id ? 'Edit' : 'Add' }} Point Of Interest</h2>
+            <h2>
+                {{
+                    form.value.id
+                        ? 'APP.CONCIERGE.POI_EDIT'
+                        : ('APP.CONCIERGE.POI_NEW' | translate)
+                }}
+            </h2>
             <button btn icon mat-dialog-close *ngIf="!loading">
                 <app-icon>close</app-icon>
             </button>
@@ -40,12 +46,14 @@ import { SelectPOIMapModalComponent } from './select-poi-map-modal.component';
                 [formGroup]="form"
             >
                 <div class="flex flex-col" *ngIf="form.controls.name">
-                    <label for="name"> Name<span>*</span>: </label>
+                    <label for="name">
+                        {{ 'FORM.NAME' | translate }}<span>*</span>
+                    </label>
                     <mat-form-field appearance="outline">
                         <input
                             matInput
                             name="name"
-                            placeholder="Name"
+                            [placeholder]="'FORM.NAME' | translate"
                             formControlName="name"
                         />
                     </mat-form-field>
@@ -54,7 +62,9 @@ import { SelectPOIMapModalComponent } from './select-poi-map-modal.component';
                     class="flex flex-col"
                     *ngIf="(building_list | async)?.length > 1"
                 >
-                    <label for="name"> Building<span>*</span>: </label>
+                    <label for="building">
+                        {{ 'RESOURCE.BUILDING' | translate }}<span>*</span>
+                    </label>
                     <mat-form-field appearance="outline">
                         <mat-select
                             [(ngModel)]="building"
@@ -71,7 +81,9 @@ import { SelectPOIMapModalComponent } from './select-poi-map-modal.component';
                     </mat-form-field>
                 </div>
                 <div class="flex flex-col" *ngIf="form.controls.level_id">
-                    <label for="name"> Level<span>*</span>: </label>
+                    <label for="level">
+                        {{ 'RESOURCE.LEVEL' | translate }}<span>*</span>
+                    </label>
                     <mat-form-field appearance="outline">
                         <mat-select
                             formControlName="level_id"
@@ -87,21 +99,25 @@ import { SelectPOIMapModalComponent } from './select-poi-map-modal.component';
                     </mat-form-field>
                 </div>
                 <div class="flex flex-col">
-                    <label for="name"> Location<span>*</span>: </label>
+                    <label for="location">
+                        {{ 'COMMON.LOCATION' | translate }}<span>*</span>
+                    </label>
                     <mat-form-field appearance="outline">
                         <mat-select
                             [(ngModel)]="location_type"
                             [ngModelOptions]="{ standalone: true }"
                             placeholder="Location Type"
                         >
-                            <mat-option value="map_id">Map ID</mat-option>
-                            <mat-option value="coordinates"
-                                >Coordinates</mat-option
-                            >
+                            <mat-option value="map_id">{{
+                                'EXPLORE.MAP_ID' | translate
+                            }}</mat-option>
+                            <mat-option value="coordinates">
+                                {{ 'EXPLORE.COORDINATES' | translate }}
+                            </mat-option>
                         </mat-select>
                     </mat-form-field>
                     <div
-                        class="flex items-center space-x-2 pb-2"
+                        class="flex items-center space-x-4 pb-2"
                         *ngIf="location_type === 'map_id'"
                     >
                         <mat-form-field
@@ -118,7 +134,10 @@ import { SelectPOIMapModalComponent } from './select-poi-map-modal.component';
                         <button
                             icon
                             matRipple
-                            class="rounded border border-base-300 h-12 w-12"
+                            class="rounded border border-secondary text-secondary h-12 w-12"
+                            [matTooltip]="
+                                'APP.CONCIERGE.POI_MAP_SELECT' | translate
+                            "
                             (click)="selectPOIfromMap()"
                         >
                             <app-icon>place</app-icon>
@@ -161,10 +180,14 @@ import { SelectPOIMapModalComponent } from './select-poi-map-modal.component';
                             />
                         </mat-form-field>
                     </div>
-                    <div class="pt-2">
-                        <mat-checkbox formControlName="can_search">
-                            Is Searchable?
-                        </mat-checkbox>
+                    <div class="flex items-center space-x-4 pt-2">
+                        <settings-toggle
+                            class="flex-1"
+                            [name]="'APP.CONCIERGE.POI_SEARCHABLE' | translate"
+                            formControlName="can_search"
+                        >
+                        </settings-toggle>
+                        <div class="flex-1"></div>
                     </div>
                 </div>
             </form>

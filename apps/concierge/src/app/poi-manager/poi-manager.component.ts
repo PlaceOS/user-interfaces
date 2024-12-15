@@ -17,10 +17,10 @@ import { SettingsService } from '@placeos/common';
                     "
                 >
                     <h2 class="text-2xl font-medium">
-                        Point of Interest Management
+                        {{ 'APP.CONCIERGE.POI_HEADER' | translate }}
                     </h2>
                     <button btn matRipple (click)="new()">
-                        Add Point of Interest
+                        {{ 'APP.CONCIERGE.POI_ADD' | translate }}
                     </button>
                 </header>
                 <div
@@ -94,6 +94,6 @@ export class POIManagerComponent {
     constructor(
         private _org: OrganisationService,
         private _state: POIManagementService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {}
 }

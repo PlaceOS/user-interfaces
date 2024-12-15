@@ -11,8 +11,12 @@ import { UrlManagementService } from './url-management.service';
                 <header
                     class="flex items-center justify-between mb-2 px-8 py-4"
                 >
-                    <h2 class="text-2xl font-medium">Short URL Management</h2>
-                    <button btn matRipple (click)="new()">Add Short URL</button>
+                    <h2 class="text-2xl font-medium">
+                        {{ 'APP.CONCIERGE.URLS_HEADER' | translate }}
+                    </h2>
+                    <button btn matRipple (click)="new()">
+                        {{ 'APP.CONCIERGE.URLS_ADD' | translate }}
+                    </button>
                 </header>
                 <short-url-list
                     class="block w-full relative flex-1 h-1/2"

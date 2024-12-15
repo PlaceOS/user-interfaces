@@ -11,6 +11,7 @@ import {
     queryShortURLs,
     deleteShortURL,
     ShortURL,
+    i18n,
 } from '@placeos/common';
 
 export interface UrlListOptions {
@@ -31,7 +32,7 @@ export class UrlManagementService {
         this._change,
     ]).pipe(
         switchMap(([bld]) => queryShortURLs({})),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     public readonly filtered_urls = combineLatest([
@@ -42,14 +43,14 @@ export class UrlManagementService {
             list.filter(
                 (i) =>
                     !options.search ||
-                    i.name.toLowerCase().includes(options.search.toLowerCase())
-            )
-        )
+                    i.name.toLowerCase().includes(options.search.toLowerCase()),
+            ),
+        ),
     );
 
     constructor(
         private _org: OrganisationService,
-        private _dialog: MatDialog
+        private _dialog: MatDialog,
     ) {}
 
     public setFilters(options: Partial<UrlListOptions>) {
@@ -70,23 +71,29 @@ export class UrlManagementService {
     public async removeURL(url: ShortURL) {
         const ref = await openConfirmModal(
             {
-                title: 'Remove Short URL',
-                content: `Are you sure you want to remove the Short URL "${url.name}"?`,
+                title: i18n('APP.CONCIERGE.URLS_REMOVE_TITLE'),
+                content: i18n('APP.CONCIERGE.URLS_REMOVE_MSG', {
+                    name: url.name,
+                }),
                 icon: { content: 'delete_forever' },
-                confirm_text: 'Remove',
+                confirm_text: i18n('COMMON.REMOVE'),
             },
-            this._dialog
+            this._dialog,
         );
         if (ref.reason !== 'done') return ref.close();
-        ref.loading('Removing Short URL...');
+        ref.loading(i18n('APP.CONCIERGE.URLS_REMOVE_LOADING'));
         await deleteShortURL(url.id)
             .toPromise()
             .catch((e) => {
-                notifyError(`Error removing Short URL: ${e.message}`);
+                notifyError(
+                    i18n('APP.CONCIERGE.URLS_REMOVE_ERROR', {
+                        error: e.message || e,
+                    }),
+                );
                 ref.close();
                 throw e;
             });
-        notifySuccess('Successfully removed Short URL.');
+        notifySuccess(i18n('APP.CONCIERGE.URLS_REMOVE_SUCCESS'));
         ref.close();
         this._change.next(Date.now());
     }

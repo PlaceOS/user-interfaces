@@ -11,26 +11,50 @@ import { SettingsService, ShortURL, getShortUrlQRCode } from '@placeos/common';
                 [data]="features"
                 empty_message="No Points of Interest found."
                 [columns]="[
-                    { key: 'name', name: 'Name' },
-                    { key: 'uri', name: 'URI', content: url_template },
-                    { key: 'user_name', name: 'User Name' },
-                    { key: 'description', name: 'Description' },
+                    { key: 'name', name: 'FORM.NAME' | translate },
+                    {
+                        key: 'uri',
+                        name: 'APP.CONCIERGE.URLS_URI' | translate,
+                        content: url_template,
+                        size: '24rem',
+                    },
+                    {
+                        key: 'user_name',
+                        name: 'APP.CONCIERGE.URLS_USER_NAME' | translate,
+                    },
+                    {
+                        key: 'description',
+                        name: 'COMMON.DESCRIPTION' | translate,
+                        content: desc_template,
+                    },
                     {
                         key: 'actions',
                         name: ' ',
                         content: action_template,
                         size: '7rem',
-                        sortable: false
-                    }
+                        sortable: false,
+                    },
                 ]"
                 [sortable]="true"
             ></simple-table>
             <div class="w-full h-12"></div>
         </div>
         <ng-template #url_template let-data="data">
-            <a link [href]="data" class="p-4 truncate max-w-[32rem]">
+            <a
+                link
+                [href]="data"
+                class="p-4 break-words w-full overflow-hidden text-xs"
+            >
                 {{ data }}
             </a>
+        </ng-template>
+        <ng-template #desc_template let-data="data">
+            <div class="p-4 text-xs">
+                {{ data }}
+                <span class="opacity-30" *ngIf="!data">
+                    {{ 'COMMON.DESCRIPTION_EMPTY' | translate }}
+                </span>
+            </div>
         </ng-template>
         <ng-template #action_template let-row="row">
             <div class="w-full flex justify-end space-x-2 px-4 py-2 mx-auto">
@@ -66,7 +90,7 @@ import { SettingsService, ShortURL, getShortUrlQRCode } from '@placeos/common';
                             class="w-[calc(100%-2rem)] mx-4 my-2"
                             (click)="print()"
                         >
-                            Print QR Code
+                            {{ 'APP.CONCIERGE.URLS_PRINT_QR' | translate }}
                         </button>
                     </div>
                 </ng-template>
@@ -77,13 +101,17 @@ import { SettingsService, ShortURL, getShortUrlQRCode } from '@placeos/common';
                     <button mat-menu-item (click)="edit(row)">
                         <div class="flex items-center space-x-2">
                             <app-icon>edit</app-icon>
-                            <span>Edit Short URL</span>
+                            <span>{{
+                                'APP.CONCIERGE.URLS_EDIT' | translate
+                            }}</span>
                         </div>
                     </button>
                     <button mat-menu-item (click)="remove(row)">
                         <div class="flex items-center space-x-2 text-red-500">
                             <app-icon class="text-error">delete</app-icon>
-                            <span>Delete Short URL</span>
+                            <span>{{
+                                'APP.CONCIERGE.URLS_REMOVE' | translate
+                            }}</span>
                         </div>
                     </button>
                 </mat-menu>
@@ -109,6 +137,6 @@ export class UrlListComponent {
 
     constructor(
         private _manager: UrlManagementService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {}
 }

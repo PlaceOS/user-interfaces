@@ -31,7 +31,9 @@ import { StaffStateService } from './staff-state.service';
                 class="m-2"
                 [ngModel]="(filters | async)?.only_onsite"
                 (ngModelChange)="setFilters({ only_onsite: $event })"
-                ><div class="text-xs">Onsite Only</div></mat-slide-toggle
+                ><div class="text-xs">
+                    {{ 'APP.CONCIERGE.DIRECTORY_ONSITE_ONLY' | translate }}
+                </div></mat-slide-toggle
             >
             <div class="flex-1 w-2"></div>
             <searchbar

@@ -265,11 +265,11 @@ export interface TableColumn {
         `,
     ],
 })
-export class SimpleTableComponent<T extends {} = any> extends AsyncHandler {
+export class SimpleTableComponent<T extends object = any> extends AsyncHandler {
     @Input() public data: T[] | Observable<T[]>;
     @Input() public columns: TableColumn[] = [];
     @Input() public selectable = false;
-    @Input() public filter: string = '';
+    @Input() public filter = '';
     @Input() public sortable = false;
     @Input() public show_header = true;
     @Input() public selected: number[] = [];

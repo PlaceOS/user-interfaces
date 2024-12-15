@@ -6,21 +6,33 @@ import { OrganisationService } from '@placeos/organisation';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { filter, map, shareReplay, switchMap, take } from 'rxjs/operators';
-import { notifySuccess, randomString } from '@placeos/common';
+import {
+    i18n,
+    notifyError,
+    notifySuccess,
+    randomString,
+} from '@placeos/common';
 import { CustomTooltipComponent } from '@placeos/components';
 
 @Component({
     selector: 'emergency-contact-modal',
     template: `
         <header>
-            <h2>{{ contact ? 'Edit' : 'New' }} Emergency Contact</h2>
+            <h2>
+                {{
+                    (contact
+                        ? 'APP.CONCIERGE.CONTACTS_EDIT'
+                        : 'APP.CONCIERGE.CONTACTS_NEW'
+                    ) | translate
+                }}
+            </h2>
             <div class="flex-1 w-0"></div>
             <button icon mat-dialog-close *ngIf="!loading">
                 <app-icon>close</app-icon>
             </button>
         </header>
         <main class="p-4 w-[36rem]" *ngIf="!loading; else load_state">
-            <form [formGroup]="form" class="space-y-4">
+            <form [formGroup]="form">
                 <a-user-search-field
                     ngModel
                     (ngModelChange)="setUser($event)"
@@ -28,7 +40,7 @@ import { CustomTooltipComponent } from '@placeos/components';
                     class="mb-4"
                 ></a-user-search-field>
                 <div class="flex flex-col">
-                    <label for="name">Name:</label>
+                    <label for="name">{{ 'FORM.NAME' | translate }}</label>
                     <mat-form-field appearance="outline">
                         <input
                             matInput
@@ -37,32 +49,39 @@ import { CustomTooltipComponent } from '@placeos/components';
                         />
                     </mat-form-field>
                 </div>
-                <div class="flex items-center space-x-2">
+                <div class="flex items-center space-x-4">
                     <div class="flex flex-col flex-1">
-                        <label for="email">Email:</label>
+                        <label for="email">{{
+                            'FORM.EMAIL' | translate
+                        }}</label>
                         <mat-form-field appearance="outline">
                             <input
                                 matInput
                                 formControlName="email"
                                 type="email"
-                                placeholder="Email address"
+                                [placeholder]="'FORM.EMAIL' | translate"
                             />
                         </mat-form-field>
                     </div>
                     <div class="flex flex-col flex-1">
-                        <label for="email">Phone:</label>
+                        <label for="email">{{
+                            'FORM.PHONE' | translate
+                        }}</label>
                         <mat-form-field appearance="outline">
                             <input
                                 matInput
                                 formControlName="phone"
                                 type="tel"
-                                placeholder="Emergency contact number"
+                                [placeholder]="
+                                    'APP.CONCIERGE.CONTACTS_PHONE_PLACEHOLDER'
+                                        | translate
+                                "
                             />
                         </mat-form-field>
                     </div>
                 </div>
                 <div class="flex flex-col">
-                    <label for="name">Level:</label>
+                    <label for="name">{{ 'RESOURCE.LEVEL' | translate }}</label>
                     <mat-form-field appearance="outline">
                         <mat-select
                             formControlName="zone"
@@ -81,8 +100,10 @@ import { CustomTooltipComponent } from '@placeos/components';
                     </mat-form-field>
                 </div>
                 <div class="flex flex-col">
-                    <label for="email">Roles:</label>
-                    <div class="flex items-center space-x-2">
+                    <label for="email">{{
+                        'APP.CONCIERGE.CONTACTS_ROLES' | translate
+                    }}</label>
+                    <div class="flex items-center space-x-4">
                         <mat-form-field
                             class="no-subscript flex-1"
                             appearance="outline"
@@ -90,7 +111,10 @@ import { CustomTooltipComponent } from '@placeos/components';
                             <mat-select
                                 multiple
                                 formControlName="roles"
-                                placeholder="Select roles"
+                                [placeholder]="
+                                    'APP.CONCIERGE.CONTACTS_ROLES_SELECT'
+                                        | translate
+                                "
                             >
                                 <ng-container
                                     *ngFor="
@@ -111,7 +135,12 @@ import { CustomTooltipComponent } from '@placeos/components';
                             [content]="role_form"
                         >
                             <app-icon>add</app-icon>
-                            <div class="pr-2">Add New Role</div>
+                            <div class="pr-2">
+                                {{
+                                    'APP.CONCIERGE.CONTACTS_ROLES_ADD'
+                                        | translate
+                                }}
+                            </div>
                         </button>
                     </div>
                 </div>
@@ -129,7 +158,7 @@ import { CustomTooltipComponent } from '@placeos/components';
                 class="h-64 flex flex-col items-center justify-center"
             >
                 <mat-spinner [diameter]="48" class="mb-4"></mat-spinner>
-                <p>Saving contact details...</p>
+                <p>{{ 'APP.CONCIERGE.CONTACTS_SAVING' | translate }}</p>
             </main>
         </ng-template>
         <ng-template #role_form>
@@ -138,11 +167,13 @@ import { CustomTooltipComponent } from '@placeos/components';
                     <input
                         matInput
                         [(ngModel)]="role_name"
-                        placeholder="Role name"
+                        [placeholder]="
+                            'APP.CONCIERGE.CONTACTS_ROLES_NAME' | translate
+                        "
                     />
                 </mat-form-field>
                 <button btn matRipple class="w-full" (click)="addRole()">
-                    Save Role
+                    {{ 'APP.CONCIERGE.CONTACTS_ROLES_SAVE' | translate }}
                 </button>
             </div>
         </ng-template>
@@ -165,7 +196,7 @@ export class EmergencyContactModalComponent {
         shareReplay(1),
     );
     public readonly form = new FormGroup({
-        id: new FormControl(this._data?.id || `ecntct-${randomString(8)}`),
+        id: new FormControl(this._data?.id || `contact-${randomString(8)}`),
         name: new FormControl(this._data?.name || ''),
         email: new FormControl(this._data?.email || ''),
         phone: new FormControl(this._data?.phone || ''),
@@ -229,9 +260,18 @@ export class EmergencyContactModalComponent {
             name: 'emergency_contacts',
             description: 'Emergency Contacts',
             details: { roles: data.roles || [], contacts: new_contacts },
-        }).toPromise();
-        this._dialog_ref.disableClose = true;
-        notifySuccess('Successfully updated emergency contacts.');
+        })
+            .toPromise()
+            .catch((e) => {
+                this._dialog_ref.disableClose = false;
+                this.loading = false;
+                notifyError(
+                    i18n('APP.CONCIERGE.CONTACTS_SAVE_ERROR', { error: e }),
+                );
+                throw e;
+            });
+        this._dialog_ref.disableClose = false;
+        notifySuccess(i18n('APP.CONCIERGE.CONTACTS_SAVE_SUCCESS'));
         this.loading = false;
         this._dialog_ref.close();
     }

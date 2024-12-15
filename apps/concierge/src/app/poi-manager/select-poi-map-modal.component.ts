@@ -23,7 +23,7 @@ declare let mapsindoors: any;
     selector: 'select-poi-map-modal',
     template: `
         <header>
-            <h2>Select Point of Interest from Map</h2>
+            <h2>{{ 'APP.CONCIERGE.POI_MAP_SELECT_HEADER' | translate }}</h2>
             <button icon matRipple mat-dialog-close>
                 <app-icon>close</app-icon>
             </button>
@@ -82,7 +82,15 @@ declare let mapsindoors: any;
                     class="flex flex-col flex-1 h-1/2 overflow-auto space-y-2 px-2"
                 >
                     <div class="sticky top-0 w-full bg-base-100 px-1 py-3 z-10">
-                        Results ({{ (search_results | async)?.length || 0 }})
+                        {{
+                            'APP.CONCIERGE.POI_MAP_SELECT_RESULTS'
+                                | translate
+                                    : {
+                                          count:
+                                              (search_results | async)
+                                                  ?.length || 0,
+                                      }
+                        }}
                         <span *ngIf="last_page">
                             {{ page * 100 + 1 }} -
                             {{
@@ -194,7 +202,10 @@ declare let mapsindoors: any;
                                 class="w-36"
                             />
                             <div class="text-center opacity-30">
-                                No results found
+                                {{
+                                    'APP.CONCIERGE.POI_MAP_SELECT_RESULTS_EMPTY'
+                                        | translate
+                                }}
                             </div>
                         </div>
                     </ng-template>
@@ -207,7 +218,7 @@ declare let mapsindoors: any;
                         class="w-full"
                         [mat-dialog-close]="selected.value"
                     >
-                        Save
+                        {{ 'COMMON.SAVE' | translate }}
                     </button>
                 </div>
             </div>
