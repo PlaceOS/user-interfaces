@@ -51,8 +51,8 @@ export class BuildingListItemService {
             const res = await forkJoin(resArr)
                 .pipe(
                     map((res: number[]) =>
-                        res.reduce((arr, curr) => arr + curr, 0)
-                    )
+                        res.reduce((arr, curr) => arr + curr, 0),
+                    ),
                 )
                 .toPromise();
             stats.responses = res;
@@ -68,7 +68,7 @@ export class BuildingListItemService {
                 catchError((err) => {
                     notifyError('Error loading surveys');
                     return of(null);
-                })
+                }),
             )
             .toPromise() as Promise<Survey[]>;
     }
@@ -78,7 +78,7 @@ export class BuildingListItemService {
             .pipe(
                 first(),
                 map((answers) => answers?.length || 0),
-                catchError((err) => of(0))
+                catchError((err) => of(0)),
             )
             .toPromise();
     }

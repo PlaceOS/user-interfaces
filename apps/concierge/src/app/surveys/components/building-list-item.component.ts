@@ -180,7 +180,6 @@ import { SettingsService } from '@placeos/common';
             } */
         `,
     ],
-    providers: [BuildingListItemService],
 })
 export class BuildingListItemComponent implements OnInit {
     @Input() building: Building | any;
@@ -191,7 +190,7 @@ export class BuildingListItemComponent implements OnInit {
     constructor(
         private _settings: SettingsService,
         private router: Router,
-        private service: BuildingListItemService
+        private service: BuildingListItemService,
     ) {}
 
     ngOnInit(): void {
