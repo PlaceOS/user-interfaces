@@ -8,6 +8,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import {
     AsyncHandler,
     extractTextFromHTML,
+    i18n,
     notifySuccess,
 } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
@@ -17,44 +18,47 @@ import { Clipboard } from '@angular/cdk/clipboard';
 @Component({
     selector: 'email-template-manage',
     template: `
-        <div class="absolute inset-0 bg-base-100 overflow-auto p-8">
+        <div class="absolute inset-0 bg-base-100 overflow-auto">
+            <header
+                class="sticky flex items-center justify-between top-0 px-4 py-2 mx-auto my-2 max-w-[40rem] w-full border-none z-10 bg-base-200 rounded"
+            >
+                <h2 class="text-xl font-medium">
+                    {{
+                        (template?.id
+                            ? 'APP.CONCIERGE.EMAIL_TEMPLATES_EDIT'
+                            : 'APP.CONCIERGE.EMAIL_TEMPLATES_NEW'
+                        ) | translate
+                    }}
+                </h2>
+                <a
+                    icon
+                    matRipple
+                    [routerLink]="['/email-templates']"
+                    *ngIf="!loading"
+                >
+                    <app-icon>close</app-icon>
+                </a>
+            </header>
             <form
-                class="max-w-full w-[48rem] mx-auto min-h-full"
+                class="mx-auto my-2 max-w-[40rem] w-full z-0 p-4 overflow-visible"
                 [formGroup]="form"
             >
-                <div class="flex items-center space-x-2 mb-8">
-                    <a
-                        icon
-                        matRipple
-                        [routerLink]="['/email-templates']"
-                        class="-ml-8"
-                    >
-                        <app-icon>arrow_back</app-icon>
-                    </a>
-                    <h2 class="text-2xl font-medium">
-                        {{ template?.id ? 'Edit' : 'New' }} Email Template
-                    </h2>
-                    <div class="flex-1"></div>
-                    <button
-                        btn
-                        matRipple
-                        type="button"
-                        class="w-48"
-                        (click)="save()"
-                    >
-                        Save Template
-                    </button>
-                </div>
                 <div class="flex items-center space-x-4">
                     <div class="flex-1 space-y-2 w-1/4">
-                        <label for="zone">Building</label>
+                        <label for="zone">
+                            {{ 'RESOURCE.BUILDING' | translate }}
+                        </label>
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
                                 name="zone"
-                                placeholder="Select Building"
+                                [placeholder]="
+                                    'COMMON.BUILDING_SELECT' | translate
+                                "
                                 formControlName="zone_id"
                             >
-                                <mat-option value=""> No Building </mat-option>
+                                <mat-option value="">{{
+                                    'COMMON.BUILDING_EMPTY' | translate
+                                }}</mat-option>
                                 <mat-option
                                     *ngFor="let bld of buildings | async"
                                     [value]="bld.id"
@@ -62,11 +66,13 @@ import { Clipboard } from '@angular/cdk/clipboard';
                                     {{ bld.display_name || bld.name }}
                                 </mat-option>
                             </mat-select>
-                            <mat-error>A building is required</mat-error>
+                            <mat-error>{{
+                                'COMMON.BUILDING_REQUIRED' | translate
+                            }}</mat-error>
                         </mat-form-field>
                     </div>
-                    <div class="flex-1 space-y-2 w-1/4">
-                        <label for="category">Category</label>
+                    <!-- <div class="flex-1 space-y-2 w-1/4">
+                        <label for="category">{{'COMMON.CATEGORY' | translate}}</label>
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
                                 name="category"
@@ -82,9 +88,11 @@ import { Clipboard } from '@angular/cdk/clipboard';
                             </mat-select>
                             <mat-error>A category is required</mat-error>
                         </mat-form-field>
-                    </div>
+                    </div> -->
                     <div class="flex-1 space-y-2 w-1/4 pb-6">
-                        <label for="trigger">Trigger</label>
+                        <label for="trigger">
+                            {{ 'COMMON.TRIGGER' | translate }}
+                        </label>
                         <button
                             duration-field
                             class="flex items-center justify-between border border-neutral rounded h-12 w-full px-2"
@@ -105,7 +113,7 @@ import { Clipboard } from '@angular/cdk/clipboard';
                                     class="opacity-30 truncate"
                                     *ngIf="!active_trigger"
                                 >
-                                    Select a trigger
+                                    {{ 'COMMON.TRIGGER_SELECT' | translate }}
                                 </div>
                             </div>
                             <app-icon class="text-2xl">
@@ -117,7 +125,7 @@ import { Clipboard } from '@angular/cdk/clipboard';
                                 mat-menu-item
                                 (click)="form.patchValue({ trigger: '' })"
                             >
-                                None
+                                {{ 'COMMON.NONE' | translate }}
                             </button>
                             <ng-container
                                 *ngFor="let group of definitions | async"
@@ -167,7 +175,10 @@ import { Clipboard } from '@angular/cdk/clipboard';
                         [disabled]="!form.value.trigger"
                         [matMenuTriggerFor]="tracking_menu"
                     >
-                        Placeholders
+                        {{
+                            'APP.CONCIERGE.EMAIL_TEMPLATES_PLACEHOLDERS'
+                                | translate
+                        }}
                     </button>
                     <mat-menu #tracking_menu="matMenu" class="max-h-[24rem]">
                         <button
@@ -189,7 +200,10 @@ import { Clipboard } from '@angular/cdk/clipboard';
                             *ngIf="!(active_trigger?.fields || []).length"
                             [disabled]="true"
                         >
-                            No placeholders available
+                            {{
+                                'APP.CONCIERGE.EMAIL_TEMPLATES_PLACEHOLDERS_EMPTY'
+                                    | translate
+                            }}
                         </button>
                     </mat-menu>
                 </div>
@@ -197,18 +211,29 @@ import { Clipboard } from '@angular/cdk/clipboard';
                     <mat-form-field appearance="outline" class="flex-1">
                         <input
                             matInput
-                            placeholder="Reply to address"
+                            [placeholder]="
+                                'APP.CONCIERGE.EMAIL_TEMPLATES_REPLY_TO'
+                                    | translate
+                            "
                             formControlName="reply_to"
                         />
-                        <mat-error>A reply address is required</mat-error>
+                        <mat-error>{{
+                            'APP.CONCIERGE.EMAIL_TEMPLATES_REPLY_TO_REQUIRED'
+                                | translate
+                        }}</mat-error>
                     </mat-form-field>
                     <mat-form-field appearance="outline" class="flex-1">
                         <input
                             matInput
-                            placeholder="From address"
+                            [placeholder]="
+                                'APP.CONCIERGE.EMAIL_TEMPLATES_FROM' | translate
+                            "
                             formControlName="from"
                         />
-                        <mat-error>A from address is required</mat-error>
+                        <mat-error>{{
+                            'APP.CONCIERGE.EMAIL_TEMPLATES_FROM_REQUIRED'
+                                | translate
+                        }}</mat-error>
                     </mat-form-field>
                 </div>
                 <mat-form-field appearance="outline" class="w-full">
@@ -220,15 +245,28 @@ import { Clipboard } from '@angular/cdk/clipboard';
                         placeholder="Template Subject"
                         formControlName="subject"
                     />
-                    <mat-error>A title for the template is required</mat-error>
+                    <mat-error>{{
+                        'APP.CONCIERGE.EMAIL_TEMPLATES_SUBJECT_REQUIRED'
+                            | translate
+                    }}</mat-error>
                 </mat-form-field>
                 <rich-text-input
                     formControlName="html"
-                    placeholder="Body of the email template"
+                    [placeholder]="
+                        'APP.CONCIERGE.EMAIL_TEMPLATES_BODY' | translate
+                    "
                     [images_allowed]="true"
-                    class="min-h-[calc(100vh-28rem)] block"
+                    class="min-h-[calc(100vh-32rem)] block"
                 ></rich-text-input>
             </form>
+            <footer
+                class="fixed bottom-0 left-1/2 -translate-x-1/2 px-4 py-2 mx-auto my-2 max-w-[640px] w-full border-none z-10 bg-base-200 rounded flex items-center justify-end"
+                *ngIf="!loading"
+            >
+                <button btn matRipple class="w-40" (click)="save()">
+                    {{ 'APP.CONCIERGE.EMAIL_TEMPLATES_SAVE' | translate }}
+                </button>
+            </footer>
         </div>
         <ng-template #load_state>
             <div class="absolute inset-0 bg-base-100">
@@ -275,7 +313,9 @@ export class EmailTemplateManageComponent extends AsyncHandler {
             'route.params',
             this._route.paramMap.subscribe(async (params) => {
                 if (params.has('id')) {
-                    this.loading = 'Loading email template...';
+                    this.loading = i18n(
+                        'APP.CONCIERGE.EMAIL_TEMPLATES_LOADING',
+                    );
                     this.template = await this._state.loadTemplate(
                         params.get('id'),
                     );
@@ -306,18 +346,24 @@ export class EmailTemplateManageComponent extends AsyncHandler {
 
     public copyField(field: string) {
         this._clipboard.copy(`%{${field}}`);
-        notifySuccess(`Copied field "${field}" to clipboard.`);
+        notifySuccess(
+            i18n('APP.CONCIERGE.EMAIL_TEMPLATES_COPIED_FIELD', { field }),
+        );
     }
 
     public async save() {
-        this.loading = 'Saving email template...';
-        await this._state.saveTemplate({
-            ...(this.template || {}),
-            ...this.form.getRawValue(),
-            text: extractTextFromHTML(this.form.getRawValue().html || ''),
-        } as any);
+        this.loading = i18n('APP.CONCIERGE.EMAIL_TEMPLATES_SAVING');
+        await this._state
+            .saveTemplate({
+                ...(this.template || {}),
+                ...this.form.getRawValue(),
+                text: extractTextFromHTML(this.form.getRawValue().html || ''),
+            } as any)
+            .catch((e) => {
+                this.loading = '';
+                throw e;
+            });
         this.loading = '';
-        notifySuccess('Successfully saved email template');
         this._router.navigate(['/email-templates']);
     }
 }

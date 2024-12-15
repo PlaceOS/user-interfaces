@@ -5,28 +5,32 @@ import {
     EmailTemplatesStateService,
 } from './email-templates-state.service';
 import { OrganisationService } from '@placeos/organisation';
-import { currentUser, notifyError, notifySuccess } from '@placeos/common';
+import { currentUser, i18n, notifyError, notifySuccess } from '@placeos/common';
 import { getModule } from '@placeos/ts-client';
 
 @Component({
     selector: 'email-templates-list',
     template: ` <div class="absolute inset-0 flex flex-col">
         <div class="flex items-center justify-between p-8 space-x-2">
-            <h2 class="text-2xl font-medium">Email Templates</h2>
+            <h2 class="text-2xl font-medium">
+                {{ 'APP.CONCIERGE.EMAIL_TEMPLATES_HEADER' | translate }}
+            </h2>
             <div class="flex-1"></div>
-            <mat-form-field appearance="outline" class="w-56 no-subscript">
+            <!-- <mat-form-field appearance="outline" class="w-56 no-subscript">
                 <mat-select
                     [ngModel]="(filters | async)?.category"
-                    placeholder="All Categories"
+                    [placeholder]="'COMMON.CATEGORY_ALL' | translate"
                     (ngModelChange)="setFilters({ category: $event })"
                 >
-                    <mat-option value="">All Categories</mat-option>
-                    <mat-option value="internal">Internal</mat-option>
-                    <mat-option value="external">External</mat-option>
+                    <mat-option value="">{{'COMMON.CATEGORY_ALL' | translate}}</mat-option>
+                    <mat-option value="internal">{{'COMMON.TYPE_INTERNAL' | translate}}</mat-option>
+                    <mat-option value="external">{{'COMMON.TYPE_EXTERNAL' | translate}}</mat-option>
                 </mat-select>
-            </mat-form-field>
+            </mat-form-field> -->
             <a btn matRipple [routerLink]="['/email-templates', 'manage']">
-                <div class="ml-2">Create Template</div>
+                <div class="ml-2">
+                    {{ 'APP.CONCIERGE.EMAIL_TEMPLATES_ADD' | translate }}
+                </div>
                 <app-icon class="text-2xl">add</app-icon>
             </a>
         </div>
@@ -37,25 +41,25 @@ import { getModule } from '@placeos/ts-client';
                     [data]="templates"
                     empty_message="No group events for selected period"
                     [columns]="[
-                        { key: 'subject', name: 'Title' },
+                        { key: 'subject', name: 'FORM.TITLE' | translate },
                         {
                             key: 'category',
-                            name: 'Category',
-                            show: !(filters | async)?.category,
+                            name: 'COMMON.CATEGORY' | translate,
+                            show: !(filters | async)?.category && false,
                         },
                         {
                             key: 'trigger',
-                            name: 'Trigger',
-                            empty: 'No Trigger',
+                            name: 'COMMON.TRIGGER' | translate,
+                            content: trigger_template,
                         },
                         {
                             key: 'zone_id',
-                            name: 'Building',
+                            name: 'RESOURCE.BUILDING' | translate,
                             content: bld_template,
                         },
                         {
                             key: 'created_at',
-                            name: 'Created',
+                            name: 'COMMON.CREATED_AT' | translate,
                             size: '8rem',
                             content: date_template,
                         },
@@ -79,7 +83,15 @@ import { getModule } from '@placeos/ts-client';
                     <div class="p-4">
                         {{ (data | building)?.display_name }}
                         <span class="opacity-30" *ngIf="!(data | building)">
-                            No Building
+                            {{ 'RESOURCE.BUILDING_EMPTY' | translate }}
+                        </span>
+                    </div>
+                </ng-template>
+                <ng-template #trigger_template let-data="data">
+                    <div class="p-4 font-mono text-xs">
+                        {{ data }}
+                        <span class="opacity-30" *ngIf="!data">
+                            {{ 'COMMON.TRIGGER_EMPTY' | translate }}
                         </span>
                     </div>
                 </ng-template>
@@ -96,7 +108,12 @@ import { getModule } from '@placeos/ts-client';
                         <button mat-menu-item (click)="sendTestEmail(row)">
                             <div class="flex items-center space-x-2">
                                 <app-icon class="text-2xl">send</app-icon>
-                                <div>Send Test Email</div>
+                                <div>
+                                    {{
+                                        'APP.CONCIERGE.EMAIL_TEMPLATES_SEND_TEST'
+                                            | translate
+                                    }}
+                                </div>
                             </div>
                         </button>
                         <a
@@ -109,7 +126,12 @@ import { getModule } from '@placeos/ts-client';
                         >
                             <div class="flex items-center space-x-2">
                                 <app-icon class="text-2xl">edit</app-icon>
-                                <div>Edit Template</div>
+                                <div>
+                                    {{
+                                        'APP.CONCIERGE.EMAIL_TEMPLATES_EDIT'
+                                            | translate
+                                    }}
+                                </div>
                             </div>
                         </a>
                         <button mat-menu-item (click)="removeTemplate(row)">
@@ -117,7 +139,12 @@ import { getModule } from '@placeos/ts-client';
                                 <app-icon class="text-2xl text-error">
                                     delete
                                 </app-icon>
-                                <div>Delete Template</div>
+                                <div>
+                                    {{
+                                        'APP.CONCIERGE.EMAIL_TEMPLATES_REMOVE'
+                                            | translate
+                                    }}
+                                </div>
                             </div>
                         </button>
                     </mat-menu>
@@ -148,7 +175,7 @@ export class EmailTemplatesListComponent {
         const stmp_system = this._org.binding('smtp');
         if (!stmp_system) {
             return notifyError(
-                'Mailing system not configured for application.',
+                i18n('APP.CONCIERGE.EMAIL_TEMPLATES_CONFIG_ERROR'),
             );
         }
         const mod = getModule(stmp_system, 'Mailer');
@@ -164,7 +191,7 @@ export class EmailTemplatesListComponent {
             template.reply_to || null, // reply_to
             template.from || currentUser()?.email, // from
         ]);
-        notifySuccess('Successfully sent test email');
+        notifySuccess(i18n('APP.CONCIERGE.EMAIL_TEMPLATES_SEND_TEST'));
         this.sending_email = null;
     }
 }

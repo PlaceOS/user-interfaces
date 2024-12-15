@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
 import {
+    i18n,
+    notifyError,
     notifySuccess,
     randomString,
     SettingsService,
@@ -192,8 +194,17 @@ export class EmailTemplatesStateService {
             name: `email_templates`,
             details: new_template_list,
             description: 'Email Templates for Zone',
-        }).toPromise();
-        notifySuccess('Successfully saved template');
+        })
+            .toPromise()
+            .catch((e) => {
+                notifyError(
+                    i18n('APP.CONCIERGE.EMAIL_TEMPLATES_SAVE_ERROR', {
+                        error: e,
+                    }),
+                );
+                throw e;
+            });
+        notifySuccess(i18n('APP.CONCIERGE.EMAIL_TEMPLATES_SAVE_SUCCESS'));
     }
 
     public async removeTemplate(template: EmailTemplate) {
@@ -208,8 +219,17 @@ export class EmailTemplatesStateService {
             name: `email_templates`,
             details: new_template_list,
             description: 'Email Templates for Zone',
-        }).toPromise();
-        notifySuccess('Successfully removed template');
+        })
+            .toPromise()
+            .catch((e) => {
+                notifyError(
+                    i18n('APP.CONCIERGE.EMAIL_TEMPLATES_REMOVE_ERROR', {
+                        error: e,
+                    }),
+                );
+                throw e;
+            });
+        notifySuccess(i18n('APP.CONCIERGE.EMAIL_TEMPLATES_REMOVE_SUCCESS'));
     }
 
     public setFilters(filters: Partial<EmailTemplatesFilters>) {
