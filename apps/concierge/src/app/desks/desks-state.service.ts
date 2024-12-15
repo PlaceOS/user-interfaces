@@ -294,51 +294,52 @@ export class DesksStateService extends AsyncHandler {
     }
 
     public async approveDesk(desk: Booking) {
-        const success = await approveBooking(desk.id)
+        const status: any = await approveBooking(desk.id)
             .toPromise()
-            .catch((_) => 'failed');
-        if (success === 'failed') {
-            return notifyError('Error approving in desk booking');
+            .catch((_) => ({ failed: true, error: _ }));
+        if (status.failed) {
+            return notifyError(
+                i18n('APP.CONCIERGE.DESKS_APPROVE_ERROR', {
+                    error: status.error,
+                }),
+            );
         }
-        notifySuccess(
-            `Approved desk booking for ${desk.user_name} on ${format(
-                desk.date,
-                'MMM do',
-            )}.`,
-        );
+        notifySuccess(i18n('APP.CONCIERGE.DESKS_APPROVE_SUCCESS'));
         (desk as any).approved = true;
         (desk as any).rejected = false;
     }
 
     public async rejectDesk(desk: Booking) {
-        const success = await rejectBooking(desk.id)
+        const status: any = await rejectBooking(desk.id)
             .toPromise()
-            .catch((_) => 'failed');
-        if (success === 'failed') {
-            return notifyError('Error rejecting in desk booking');
+            .catch((_) => ({ failed: true, error: _ }));
+        if (status.failed) {
+            return notifyError(
+                i18n('APP.CONCIERGE.DESKS_REJECT_ERROR', {
+                    error: status.error,
+                }),
+            );
         }
-        notifySuccess(
-            `Rejected desk booking for ${desk.user_name} on ${format(
-                desk.date,
-                'MMM do',
-            )}.`,
-        );
+        notifySuccess(i18n('APP.CONCIERGE.DESKS_REJECT_SUCCESS'));
         (desk as any).approved = false;
         (desk as any).rejected = true;
     }
 
     public async giveAccess(desk: Booking) {
-        const success = await saveBooking(
+        const status: any = await saveBooking(
             new Booking({ ...desk, access: true }),
         )
             .toPromise()
-            .catch((_) => 'failed');
-        if (success === 'failed')
-            return notifyError('Error giving building access booking host');
-        notifySuccess(
-            `Successfully gave building access to ${desk.user_name} for desk booking.`,
-        );
-        this._desk_bookings = [...this._desk_bookings, success] as any;
+            .catch((_) => ({ failed: true, error: _ }));
+        if (status.failed) {
+            return notifyError(
+                i18n('APP.CONCIERGE.DESKS_ACCESS_ERROR', {
+                    error: status.error,
+                }),
+            );
+        }
+        notifySuccess(i18n('APP.CONCIERGE.DESKS_ACCESS_SUCCESS'));
+        this._desk_bookings = [...this._desk_bookings, status] as any;
     }
 
     public async rejectAllDesks() {
@@ -347,9 +348,8 @@ export class DesksStateService extends AsyncHandler {
             return notifyInfo('No desks to reject for the selected date');
         const resp = await openConfirmModal(
             {
-                title: 'Cancel all desk bookings',
-                content:
-                    'Are you sure you want to cancel all bookings for the selected date?',
+                title: i18n('APP.CONCIERGE.DESKS_REJECT_ALL_TITLE'),
+                content: i18n('APP.CONCIERGE.DESKS_REJECT_ALL_MSG'),
                 icon: {
                     type: 'icon',
                     class: 'material-icons',
@@ -359,13 +359,16 @@ export class DesksStateService extends AsyncHandler {
             this._dialog,
         );
         if (resp.reason !== 'done') return;
-        resp.loading('Rejecting all desks for selected date...');
+        resp.loading(i18n('APP.CONCIERGE.DESKS_REJECT_ALL_LOADING'));
         await Promise.all(
             list.map((desk) => rejectBooking(desk.id).toPromise()),
-        );
-        notifySuccess(
-            'Successfully rejected all desk bookings for selected date.',
-        );
+        ).catch((e) => {
+            notifyError(
+                i18n('APP.CONCIERGE.DESKS_REJECT_ALL_ERROR', { error: e }),
+            );
+            throw e;
+        });
+        notifySuccess(i18n('APP.CONCIERGE.DESKS_REJECT_ALL_SUCCESS'));
         resp.close();
     }
 }

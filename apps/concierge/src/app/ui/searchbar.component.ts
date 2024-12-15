@@ -6,7 +6,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
         <mat-form-field appearance="outline" class="no-subscript">
             <input
                 matInput
-                placeholder="Search..."
+                [placeholder]="'COMMON.SEARCH' | translate"
                 [(ngModel)]="model"
                 (ngModelChange)="modelChange.emit($event)"
             />
@@ -17,7 +17,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 })
 export class SearchbarComponent {
     /** Currently selected date */
-    @Input() public model: string = '';
+    @Input() public model = '';
     /** Emitter for changes to the date */
     @Output() public modelChange = new EventEmitter<string>();
 }

@@ -32,7 +32,7 @@ import { OrganisationService } from '@placeos/organisation';
                 info
                 class="absolute bottom-0 rounded p-2 m-2 bg-base-100 shadow text-center"
             >
-                Click/Tap an available desk to book it.
+                Click or Tap an available desk to book it.
             </div>
         </div>
     `,
@@ -72,7 +72,7 @@ export class DeskMapViewComponent extends AsyncHandler implements OnInit {
         private _state: ExploreStateService,
         private _desk: DesksStateService,
         private _desks_state: ExploreDesksService,
-        private _org: OrganisationService
+        private _org: OrganisationService,
     ) {
         super();
     }
@@ -89,7 +89,7 @@ export class DeskMapViewComponent extends AsyncHandler implements OnInit {
                     all_day: true,
                     zones: opts.zones,
                 });
-            })
+            }),
         );
     }
 }

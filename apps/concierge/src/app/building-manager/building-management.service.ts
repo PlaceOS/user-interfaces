@@ -1,6 +1,11 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { notifySuccess, openConfirmModal } from '@placeos/common';
+import {
+    i18n,
+    notifyError,
+    notifySuccess,
+    openConfirmModal,
+} from '@placeos/common';
 import { Building, OrganisationService } from '@placeos/organisation';
 import { PlaceZone, removeZone } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest } from 'rxjs';
@@ -37,7 +42,7 @@ export class BuildingManagementService {
             }
             if (options.search) {
                 list = list.filter((_) =>
-                    _.name.toLowerCase().includes(options.search.toLowerCase())
+                    _.name.toLowerCase().includes(options.search.toLowerCase()),
                 );
             }
             for (const bld of list) {
@@ -49,12 +54,12 @@ export class BuildingManagementService {
                     this._org.levelsForBuilding(bld)?.length || 0;
             }
             return list;
-        })
+        }),
     );
 
     constructor(
         private _org: OrganisationService,
-        private _dialog: MatDialog
+        private _dialog: MatDialog,
     ) {}
 
     public setFilters(options: Partial<BuildingListOptions>) {
@@ -107,18 +112,27 @@ export class BuildingManagementService {
     public async removeBuilding(building: Building) {
         const ref = await openConfirmModal(
             {
-                title: 'Remove Building',
-                content: `Are you sure you want to remove the building "${building.name}"?`,
+                title: i18n('APP.CONCIERGE.BUILDINGS_REMOVE_TITLE'),
+                content: i18n('APP.CONCIERGE.BUILDINGS_REMOVE_MSG', {
+                    name: building.name,
+                }),
                 icon: { content: 'delete_forever' },
-                confirm_text: 'Remove',
+                confirm_text: i18n('COMMON.REMOVE'),
             },
-            this._dialog
+            this._dialog,
         );
         if (ref.reason !== 'done') return ref.close();
-        ref.loading('Removing building...');
-        await removeZone(building.id).toPromise();
+        ref.loading(i18n('APP.CONCIERGE.BUILDINGS_REMOVE_LOADING'));
+        await removeZone(building.id)
+            .toPromise()
+            .catch((e) => {
+                notifyError(
+                    i18n('APP.CONCIERGE.BUILDINGS_REMOVE_ERROR', { error: e }),
+                );
+                throw e;
+            });
         this._org.removeZone({ id: building.id, tags: ['building'] } as any);
-        notifySuccess('Successfully removed building.');
+        notifySuccess(i18n('APP.CONCIERGE.BUILDINGS_REMOVE_SUCCESS'));
         ref.close();
     }
 }

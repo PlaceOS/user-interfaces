@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { BuildingManagementService } from './building-management.service';
-import { notifySuccess } from '@placeos/common';
+import { i18n, notifySuccess } from '@placeos/common';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { MatDialog } from '@angular/material/dialog';
 
@@ -16,11 +16,11 @@ import { VisitorKioskSettingsFormModalComponent } from '../ui/app-settings/visit
             <simple-table
                 class="min-w-[62rem] w-full block text-sm"
                 [data]="buildings"
-                empty_message="No Buildings"
+                [empty_message]="'APP.CONCIERGE.BUILDINGS_EMPTY' | translate"
                 [columns]="[
                     {
                         key: 'display_name',
-                        name: 'Building Name',
+                        name: 'APP.CONCIERGE.BUILDINGS_NAME' | translate,
                         content: name_template,
                     },
                     {
@@ -30,17 +30,21 @@ import { VisitorKioskSettingsFormModalComponent } from '../ui/app-settings/visit
                     },
                     {
                         key: 'timezone',
-                        name: 'Timezone',
+                        name: 'COMMON.TIMEZONE' | translate,
                         size: '14rem',
                         content: timezone_template,
                     },
                     {
                         key: 'region',
-                        name: 'Region',
+                        name: 'RESOURCE.REGION' | translate,
                         size: '11rem',
                         sortable: false,
                     },
-                    { key: 'level_count', name: 'Levels', size: '6rem' },
+                    {
+                        key: 'level_count',
+                        name: 'APP.CONCIERGE.BUILDINGS_LEVELS' | translate,
+                        size: '6rem',
+                    },
                     {
                         key: 'actions',
                         name: ' ',
@@ -96,7 +100,9 @@ import { VisitorKioskSettingsFormModalComponent } from '../ui/app-settings/visit
                     >
                         <div class="flex items-center space-x-2">
                             <app-icon class="text-xl">edit_square</app-icon>
-                            <span>Application Settings</span>
+                            <div>
+                                {{ 'APP.CONCIERGE.APP_SETTINGS' | translate }}
+                            </div>
                         </div>
                     </button>
                     <mat-menu #app_settings_menu="matMenu">
@@ -108,7 +114,12 @@ import { VisitorKioskSettingsFormModalComponent } from '../ui/app-settings/visit
                                 <app-icon class="text-xl"
                                     >meeting_room</app-icon
                                 >
-                                <span>Workplace Settings</span>
+                                <div>
+                                    {{
+                                        'APP.CONCIERGE.APP_SETTINGS_WORKPLACE'
+                                            | translate
+                                    }}
+                                </div>
                             </div>
                         </button>
                         <button
@@ -119,7 +130,12 @@ import { VisitorKioskSettingsFormModalComponent } from '../ui/app-settings/visit
                                 <app-icon class="text-xl"
                                     >support_agent</app-icon
                                 >
-                                <span>Concierge Settings</span>
+                                <div>
+                                    {{
+                                        'APP.CONCIERGE.APP_SETTINGS_CONCIERGE'
+                                            | translate
+                                    }}
+                                </div>
                             </div>
                         </button>
                         <button
@@ -128,7 +144,12 @@ import { VisitorKioskSettingsFormModalComponent } from '../ui/app-settings/visit
                         >
                             <div class="flex items-center space-x-2">
                                 <app-icon class="text-xl">event_busy</app-icon>
-                                <span>Booking Panel Settings</span>
+                                <div>
+                                    {{
+                                        'APP.CONCIERGE.APP_SETTINGS_BOOKING_PANEL'
+                                            | translate
+                                    }}
+                                </div>
                             </div>
                         </button>
                         <button
@@ -137,14 +158,21 @@ import { VisitorKioskSettingsFormModalComponent } from '../ui/app-settings/visit
                         >
                             <div class="flex items-center space-x-2">
                                 <app-icon class="text-xl">qr_code</app-icon>
-                                <span>Visitor Kiosk Settings</span>
+                                <div>
+                                    {{
+                                        'APP.CONCIERGE.APP_SETTINGS_VISITOR_KIOSK'
+                                            | translate
+                                    }}
+                                </div>
                             </div>
                         </button>
                     </mat-menu>
                     <button mat-menu-item (click)="editBuilding(row)">
                         <div class="flex items-center space-x-2">
                             <app-icon class="text-xl">edit</app-icon>
-                            <span>Edit Building</span>
+                            <div>
+                                {{ 'APP.CONCIERGE.BUILDINGS_EDIT' | translate }}
+                            </div>
                         </div>
                     </button>
                     <button mat-menu-item (click)="setAutoRelease(row)">
@@ -155,7 +183,12 @@ import { VisitorKioskSettingsFormModalComponent } from '../ui/app-settings/visit
                             >
                                 release_alert
                             </app-icon>
-                            <span>Auto-release Settings</span>
+                            <div>
+                                {{
+                                    'APP.CONCIERGE.BUILDINGS_AUTO_RELEASE'
+                                        | translate
+                                }}
+                            </div>
                         </div>
                     </button>
                     <button mat-menu-item (click)="setInduction(row)">
@@ -166,7 +199,12 @@ import { VisitorKioskSettingsFormModalComponent } from '../ui/app-settings/visit
                             >
                                 badge
                             </app-icon>
-                            <span>Induction Settings</span>
+                            <div>
+                                {{
+                                    'APP.CONCIERGE.BUILDINGS_INDUCTION'
+                                        | translate
+                                }}
+                            </div>
                         </div>
                     </button>
                     <button mat-menu-item (click)="setSupportIssueTypes(row)">
@@ -177,7 +215,12 @@ import { VisitorKioskSettingsFormModalComponent } from '../ui/app-settings/visit
                             >
                                 support_agent
                             </app-icon>
-                            <span>Support Request Types</span>
+                            <div>
+                                {{
+                                    'APP.CONCIERGE.BUILDINGS_SUPPORT_TYPES'
+                                        | translate
+                                }}
+                            </div>
                         </div>
                     </button>
                     <button mat-menu-item (click)="removeBuilding(row)">
@@ -185,7 +228,11 @@ import { VisitorKioskSettingsFormModalComponent } from '../ui/app-settings/visit
                             <app-icon class="text-error text-xl">
                                 delete
                             </app-icon>
-                            <span>Delete Building</span>
+                            <div>
+                                {{
+                                    'APP.CONCIERGE.BUILDINGS_REMOVE' | translate
+                                }}
+                            </div>
                         </div>
                     </button>
                 </mat-menu>
@@ -218,7 +265,7 @@ export class BuildingListComponent {
 
     public readonly copyToClipboard = (id: string) => {
         const success = this._clipboard.copy(id);
-        if (success) notifySuccess('Building ID copied to clipboard.');
+        if (success) notifySuccess(i18n('APP.CONCIERGE.BUILDINGS_COPIED_ID'));
     };
 
     public editWorkplaceSettings(building) {

@@ -1,7 +1,7 @@
 import { Component, Inject } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { notifyError } from '@placeos/common';
+import { i18n, notifyError, notifySuccess } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { PlaceSystem, showMetadata, updateMetadata } from '@placeos/ts-client';
 
@@ -9,7 +9,12 @@ import { PlaceSystem, showMetadata, updateMetadata } from '@placeos/ts-client';
     selector: 'room-alert-modal',
     template: `
         <header class="space-x-4">
-            <h2>Set Alert for {{ room.display_name || room.name }}</h2>
+            <h2>
+                {{
+                    'APP.CONCIERGE.ROOMS_ALERT_HEADER'
+                        | translate: { name: room.display_name || room.name }
+                }}
+            </h2>
             <button btn icon mat-dialog-close *ngIf="!loading">
                 <app-icon>close</app-icon>
             </button>
@@ -22,13 +27,23 @@ import { PlaceSystem, showMetadata, updateMetadata } from '@placeos/ts-client';
             <label for="status">Status</label>
             <mat-form-field appearance="outline">
                 <mat-select name="status" formControlName="status">
-                    <mat-option value="">None</mat-option>
-                    <mat-option value="info">Info</mat-option>
-                    <mat-option value="warn">Warning</mat-option>
-                    <mat-option value="closed">Closed</mat-option>
+                    <mat-option value="">{{
+                        'APP.CONCIERGE.ROOMS_ALERT_TYPE_NONE' | translate
+                    }}</mat-option>
+                    <mat-option value="info">{{
+                        'APP.CONCIERGE.ROOMS_ALERT_TYPE_INFO' | translate
+                    }}</mat-option>
+                    <mat-option value="warn">{{
+                        'APP.CONCIERGE.ROOMS_ALERT_TYPE_WARNING' | translate
+                    }}</mat-option>
+                    <mat-option value="closed">{{
+                        'APP.CONCIERGE.ROOMS_ALERT_TYPE_CLOSED' | translate
+                    }}</mat-option>
                 </mat-select>
             </mat-form-field>
-            <label for="message">Message</label>
+            <label for="message">{{
+                'APP.CONCIERGE.ROOMS_ALERT_MSG' | translate
+            }}</label>
             <mat-form-field appearance="outline">
                 <textarea
                     matInput
@@ -41,12 +56,16 @@ import { PlaceSystem, showMetadata, updateMetadata } from '@placeos/ts-client';
             class="p-2 flex justify-end border-t border-base-200"
             *ngIf="!loading"
         >
-            <button btn class="w-32" (click)="save()">Save</button>
+            <button btn class="w-32" (click)="save()">
+                {{ 'COMMON.SAVE' | translate }}
+            </button>
         </footer>
         <ng-template #load_state>
             <div class="flex flex-col items-center justify-center w-64 h-64">
                 <mat-spinner diameter="32"></mat-spinner>
-                <p class="mt-4">Saving room...</p>
+                <p class="mt-4">
+                    {{ 'APP.CONCIERGE.ROOMS_SAVING' | translate }}
+                </p>
             </div>
         </ng-template>
     `,
@@ -77,7 +96,9 @@ export class RoomAlertModalComponent {
             .toPromise()
             .catch((e) => {
                 notifyError(
-                    `Error loading existing room alert details: ${e.message || e}`,
+                    i18n('APP.CONCIERGE.ROOMS_ALERT_LOAD_ERROR', {
+                        error: e.message || e,
+                    }),
                 );
                 this.loading = false;
                 throw e;
@@ -97,11 +118,14 @@ export class RoomAlertModalComponent {
             .toPromise()
             .catch((e) => {
                 notifyError(
-                    `Error saving room alert details: ${e.message || e}`,
+                    i18n('APP.CONCIERGE.ROOMS_ALERT_SAVE_ERROR', {
+                        error: e.message || e,
+                    }),
                 );
                 this.loading = false;
                 throw e;
             });
+        notifySuccess(i18n('APP.CONCIERGE.ROOMS_ALERT_SAVE_SUCCESS'));
         this._dialog_ref.close(true);
     }
 }

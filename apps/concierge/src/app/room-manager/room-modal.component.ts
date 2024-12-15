@@ -1,4 +1,10 @@
-import { Component, Inject, SimpleChanges } from '@angular/core';
+import {
+    Component,
+    Inject,
+    OnChanges,
+    OnInit,
+    SimpleChanges,
+} from '@angular/core';
 import { SPACE, ENTER, COMMA } from '@angular/cdk/keycodes';
 import { MatChipInputEvent } from '@angular/material/chips';
 import {
@@ -16,6 +22,7 @@ import {
     TIMEZONES_IANA,
     getInvalidFields,
     getItemWithKeys,
+    i18n,
     notifyError,
     notifyInfo,
     notifyWarn,
@@ -30,7 +37,14 @@ import { FormControl, FormGroup } from '@angular/forms';
     selector: 'room-form-modal',
     template: `
         <header>
-            <h2>{{ form.value.id ? 'Edit' : 'Add' }} Room</h2>
+            <h2>
+                {{
+                    (form.value.id
+                        ? 'APP.CONCIERGE.ROOMS_EDIT'
+                        : 'APP.CONCIERGE.ROOMS_NEW'
+                    ) | translate
+                }}
+            </h2>
             <button btn icon mat-dialog-close *ngIf="!loading">
                 <app-icon>close</app-icon>
             </button>
@@ -53,12 +67,14 @@ import { FormControl, FormGroup } from '@angular/forms';
                             form.controls.zone.touched
                         "
                     >
-                        Level<span>*</span>:
+                        {{ 'RESOURCE.LEVEL' | translate }}<span>*</span>
                     </label>
                     <mat-form-field appearance="outline">
                         <mat-select
                             formControlName="zone"
-                            placeholder="Select Level"
+                            [placeholder]="
+                                'APP.CONCIERGE.ROOMS_SELECT_LEVEL' | translate
+                            "
                         >
                             <mat-option
                                 *ngFor="let level of levels | async"
@@ -67,7 +83,9 @@ import { FormControl, FormGroup } from '@angular/forms';
                                 {{ level.display_name || level.name }}
                             </mat-option>
                         </mat-select>
-                        <mat-error>Level is required</mat-error>
+                        <mat-error>{{
+                            'APP.CONCIERGE.ROOMS_LEVEL_REQUIRED' | translate
+                        }}</mat-error>
                     </mat-form-field>
                 </div>
                 <div class="flex space-x-2">
@@ -82,19 +100,19 @@ import { FormControl, FormGroup } from '@angular/forms';
                                 form.controls.name.touched
                             "
                         >
-                            Name<span>*</span>:
+                            {{ 'FORM.NAME' | translate }}<span>*</span>
                         </label>
                         <mat-form-field appearance="outline">
                             <input
                                 matInput
                                 name="system-name"
-                                placeholder="Room Name"
+                                [placeholder]="'FORM.NAME' | translate"
                                 formControlName="name"
                                 required
                             />
-                            <mat-error *ngIf="form.controls.name.invalid"
-                                >Room name is required</mat-error
-                            >
+                            <mat-error *ngIf="form.controls.name.invalid">
+                                {{ 'FORM.NAME_REQUIRED' | translate }}
+                            </mat-error>
                         </mat-form-field>
                     </div>
                     <div
@@ -108,18 +126,18 @@ import { FormControl, FormGroup } from '@angular/forms';
                                 form.controls.email.touched
                             "
                         >
-                            Email:
+                            {{ 'FORM.EMAIL' | translate }}
                         </label>
                         <mat-form-field appearance="outline">
                             <input
                                 matInput
                                 name="system-email"
-                                placeholder="Room Email"
+                                [placeholder]="'FORM.EMAIL' | translate"
                                 formControlName="email"
                             />
-                            <mat-error *ngIf="form.controls.email.invalid"
-                                >A valid email is required</mat-error
-                            >
+                            <mat-error *ngIf="form.controls.email.invalid">
+                                {{ 'FORM.EMAIL_REQUIRED' | translate }}
+                            </mat-error>
                         </mat-form-field>
                     </div>
                 </div>
@@ -128,12 +146,14 @@ import { FormControl, FormGroup } from '@angular/forms';
                         class="flex flex-col flex-1"
                         *ngIf="form.controls.display_name"
                     >
-                        <label for="display-name">Display Name: </label>
+                        <label for="display-name">{{
+                            'FORM.DISPLAY_NAME' | translate
+                        }}</label>
                         <mat-form-field appearance="outline">
                             <input
                                 matInput
                                 name="display-name"
-                                placeholder="Display Name"
+                                [placeholder]="'FORM.DISPLAY_NAME' | translate"
                                 formControlName="display_name"
                             />
                         </mat-form-field>
@@ -142,12 +162,16 @@ import { FormControl, FormGroup } from '@angular/forms';
                         class="flex flex-col flex-1"
                         *ngIf="form.controls.display_name"
                     >
-                        <label for="code-name">Code: </label>
+                        <label for="code-name">{{
+                            'APP.CONCIERGE.ROOMS_CODE' | translate
+                        }}</label>
                         <mat-form-field appearance="outline">
                             <input
                                 matInput
                                 name="code-name"
-                                placeholder="Code"
+                                [placeholder]="
+                                    'APP.CONCIERGE.ROOMS_CODE' | translate
+                                "
                                 formControlName="code"
                             />
                         </mat-form-field>
@@ -156,10 +180,14 @@ import { FormControl, FormGroup } from '@angular/forms';
                 <div class="flex space-x-2" [formGroup]="settings_form">
                     <div class="flex-1 flex flex-col space-y-2">
                         <label for="setup" class="flex items-center">
-                            Default Setup Duration
+                            {{
+                                'APP.CONCIERGE.ROOMS_DEFAULT_SETUP' | translate
+                            }}
                             <app-icon
                                 class="ml-2"
-                                matTooltip="Time before a meeting needed for setup and preparation for the upcoming meeting"
+                                [matTooltip]="
+                                    'APP.CONCIERGE.ROOMS_SETUP_INFO' | translate
+                                "
                             >
                                 info_outline
                             </app-icon>
@@ -172,10 +200,16 @@ import { FormControl, FormGroup } from '@angular/forms';
                     </div>
                     <div class="flex-1 flex flex-col space-y-2">
                         <label for="breakdown" class="flex items-center">
-                            Default Breakdown Duration
+                            {{
+                                'APP.CONCIERGE.ROOMS_DEFAULT_BREAKDOWN'
+                                    | translate
+                            }}
                             <app-icon
                                 class="ml-2"
-                                matTooltip="Time after a meeting needed for cleaning and preparation for next meeting"
+                                [matTooltip]="
+                                    'APP.CONCIERGE.ROOMS_BREAKDOWN_INFO'
+                                        | translate
+                                "
                             >
                                 info_outline
                             </app-icon>
@@ -187,7 +221,7 @@ import { FormControl, FormGroup } from '@angular/forms';
                         ></a-duration-field>
                     </div>
                 </div>
-                <div class="flex space-x-2">
+                <div class="flex space-x-2 mb-4">
                     <div
                         class="flex flex-col flex-1"
                         *ngIf="form.controls.capacity"
@@ -199,37 +233,36 @@ import { FormControl, FormGroup } from '@angular/forms';
                                 form.controls.capacity.touched
                             "
                         >
-                            Capacity:
+                            {{ 'COMMON.CAPACITY' | translate }}
                         </label>
-                        <mat-form-field appearance="outline">
-                            <input
-                                matInput
-                                name="capacity"
-                                type="number"
-                                placeholder="Capacity"
-                                formControlName="capacity"
-                            />
-                            <mat-error *ngIf="form.controls.capacity.invalid">
-                                A valid positive number is required
-                            </mat-error>
-                        </mat-form-field>
+                        <a-counter
+                            name="capacity"
+                            class="w-full"
+                            formControlName="capacity"
+                            [min]="0"
+                            [max]="256"
+                        ></a-counter>
                     </div>
-                    <div class="flex flex-col" *ngIf="form.controls.bookable">
-                        <mat-checkbox
-                            name="bookable"
+                    <div
+                        class="flex flex-col pt-4 flex-1"
+                        *ngIf="form.controls.bookable"
+                    >
+                        <settings-toggle
+                            [name]="'COMMON.BOOKABLE' | translate"
                             formControlName="bookable"
                         >
-                            Bookable
-                        </mat-checkbox>
+                        </settings-toggle>
                     </div>
                 </div>
                 <div class="flex flex-col" *ngIf="form.controls.description">
-                    <label for="description">Description:</label>
+                    <label for="description">{{
+                        'COMMON.DESCRIPTION' | translate
+                    }}</label>
                     <mat-form-field appearance="outline">
                         <textarea
                             matInput
                             name="description"
-                            placeholder="Description"
+                            [placeholder]="'COMMON.DESCRIPTION' | translate"
                             formControlName="description"
                         ></textarea>
                     </mat-form-field>
@@ -241,10 +274,13 @@ import { FormControl, FormGroup } from '@angular/forms';
                             form.controls.features.touched
                         "
                     >
-                        Features:
+                        {{ 'COMMON.FEATURES' | translate }}
                     </label>
                     <mat-form-field appearance="outline">
-                        <mat-chip-grid #chipList aria-label="Room features">
+                        <mat-chip-grid
+                            #chipList
+                            [aria-label]="'COMMON.FEATRUES' | translate"
+                        >
                             <mat-chip-row
                                 *ngFor="let feature of feature_list"
                                 [selectable]="true"
@@ -255,7 +291,7 @@ import { FormControl, FormGroup } from '@angular/forms';
                                 <app-icon matChipRemove>close</app-icon>
                             </mat-chip-row>
                             <input
-                                placeholder="New feature..."
+                                [placeholder]="'COMMON.FEATURES' | translate"
                                 [matChipInputFor]="chipList"
                                 [matChipInputSeparatorKeyCodes]="separators"
                                 [matChipInputAddOnBlur]="true"
@@ -265,24 +301,30 @@ import { FormControl, FormGroup } from '@angular/forms';
                     </mat-form-field>
                 </div>
                 <div class="flex flex-col" *ngIf="form.controls.map_id">
-                    <label for="map_id">Map ID:</label>
+                    <label for="map_id">{{
+                        'EXPLORE.MAP_ID' | translate
+                    }}</label>
                     <mat-form-field appearance="outline">
                         <input
                             matInput
                             name="map_id"
-                            placeholder="Map SVG ID selector e.g. area-01.10-status"
+                            [placeholder]="
+                                'EXPLORE.MAP_ID_PLACEHOLDER' | translate
+                            "
                             formControlName="map_id"
                         />
                     </mat-form-field>
                 </div>
                 <div class="flex flex-col">
-                    <label for="timezone">Timezone</label>
+                    <label for="timezone">{{
+                        'COMMON.TIMEZONE' | translate
+                    }}</label>
                     <mat-form-field appearance="outline">
                         <app-icon matPrefix class="text-2xl">search</app-icon>
                         <input
                             matInput
                             formControlName="timezone"
-                            placeholder="Room timezone"
+                            [placeholder]="'COMMON.TIMEZONE' | translate"
                             [matAutocomplete]="auto"
                         />
                     </mat-form-field>
@@ -290,15 +332,16 @@ import { FormControl, FormGroup } from '@angular/forms';
                         <mat-option
                             *ngFor="let tz of filtered_timezones"
                             [value]="tz"
-                            >{{ tz }}</mat-option
                         >
+                            {{ tz }}
+                        </mat-option>
                         <mat-option *ngIf="!timezones.length" [disabled]="true">
-                            No matching timezones
+                            {{ 'COMMON.TIMEZONE_EMPTY' | translate }}
                         </mat-option>
                     </mat-autocomplete>
                 </div>
                 <div class="flex flex-col" *ngIf="form.controls.images">
-                    <label for="images">Images:</label>
+                    <label for="images">{{ 'COMMON.IMAGE' | translate }}</label>
                     <image-list-field
                         name="images"
                         formControlName="images"
@@ -310,12 +353,16 @@ import { FormControl, FormGroup } from '@angular/forms';
             class="p-2 flex justify-end border-t border-base-200"
             *ngIf="!loading"
         >
-            <button btn class="w-32" (click)="save()">Save</button>
+            <button btn class="w-32" (click)="save()">
+                {{ 'COMMON.SAVE' | translate }}
+            </button>
         </footer>
         <ng-template #load_state>
             <div class="flex flex-col items-center justify-center w-64 h-64">
                 <mat-spinner diameter="32"></mat-spinner>
-                <p class="mt-4">Saving room...</p>
+                <p class="mt-4">
+                    {{ 'APP.CONCIERGE.ROOMS_SAVING' | translate }}
+                </p>
             </div>
         </ng-template>
     `,
@@ -334,7 +381,10 @@ import { FormControl, FormGroup } from '@angular/forms';
         `,
     ],
 })
-export class RoomModalComponent extends AsyncHandler {
+export class RoomModalComponent
+    extends AsyncHandler
+    implements OnInit, OnChanges
+{
     public loading = false;
     public timezones: string[] = [];
     public filtered_timezones: string[] = [];
@@ -443,9 +493,9 @@ export class RoomModalComponent extends AsyncHandler {
     public async save() {
         if (!this.form.valid)
             return notifyError(
-                `Some form fields are invalid. [${getInvalidFields(
-                    this.form,
-                ).join(', ')}]`,
+                i18n('FORM.INVALID_FIELDS', {
+                    field_list: getInvalidFields(this.form).join(', '),
+                }),
             );
         if (!this.form.value.id) {
             this.form.patchValue({

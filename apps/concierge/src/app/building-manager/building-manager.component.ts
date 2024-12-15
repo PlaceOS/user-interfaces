@@ -12,9 +12,11 @@ import { BuildingManagementService } from './building-management.service';
                 <header
                     class="flex items-center justify-between mb-2 px-8 pt-4 pb-8"
                 >
-                    <h2 class="text-2xl font-medium">Building Management</h2>
+                    <h2 class="text-2xl font-medium">
+                        {{ 'APP.CONCIERGE.BUILDINGS_HEADER' | translate }}
+                    </h2>
                     <button btn matRipple (click)="newBuilding()" class="w-40">
-                        Add Building
+                        {{ 'APP.CONCIERGE.BUILDINGS_ADD' | translate }}
                     </button>
                 </header>
                 <building-list

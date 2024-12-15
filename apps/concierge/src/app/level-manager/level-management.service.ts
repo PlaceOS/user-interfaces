@@ -5,7 +5,12 @@ import { PlaceZone, removeZone } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map, shareReplay, switchMap } from 'rxjs/operators';
 import { LevelModalComponent } from './level-modal.component';
-import { notifySuccess, openConfirmModal } from '@placeos/common';
+import {
+    i18n,
+    notifyError,
+    notifySuccess,
+    openConfirmModal,
+} from '@placeos/common';
 import { requestSpacesForZone } from '@placeos/spaces';
 
 export interface LevelListOptions {
@@ -83,18 +88,28 @@ export class LevelManagementService {
     public async removeLevel(level: BuildingLevel) {
         const ref = await openConfirmModal(
             {
-                title: 'Remove Building',
-                content: `Are you sure you want to remove the building "${level.name}"?`,
+                title: i18n('APP.CONCIERGE.LEVELS_REMOVE_TITLE'),
+                content: i18n('APP.CONCIERGE.LEVELS_REMOVE_MSG', {
+                    name: level.name,
+                }),
                 icon: { content: 'delete_forever' },
-                confirm_text: 'Remove',
+                confirm_text: i18n('COMMON.REMOVE'),
             },
             this._dialog,
         );
         if (ref.reason !== 'done') return ref.close();
-        ref.loading('Removing building...');
-        await removeZone(level.id).toPromise();
+        ref.loading(i18n('APP.CONCIERGE.LEVELS_REMOVE_LOADING'));
+        await removeZone(level.id)
+            .toPromise()
+            .catch((e) => {
+                notifyError(
+                    i18n('APP.CONCIERGE.LEVELS_REMOVE_ERROR', { error: e }),
+                );
+                ref.close();
+                throw e;
+            });
         this._org.removeZone({ id: level.id, tags: ['level'] } as any);
-        notifySuccess('Successfully removed building.');
+        notifySuccess(i18n('APP.CONCIERGE.LEVELS_REMOVE_SUCCESS'));
         ref.close();
     }
 }

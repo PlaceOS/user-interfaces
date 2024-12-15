@@ -14,7 +14,14 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
     selector: 'region-modal',
     template: `
         <header>
-            <h2>{{ form.value.id ? 'Edit' : 'Add' }} Region</h2>
+            <h2>
+                {{
+                    (form.value.id
+                        ? 'APP.CONCIERGE.REGIONS_EDIT'
+                        : 'APP.CONCIERGE.REGIONS_NEW'
+                    ) | translate
+                }}
+            </h2>
             <button btn icon mat-dialog-close *ngIf="!loading">
                 <app-icon>close</app-icon>
             </button>
@@ -30,7 +37,9 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
                 [formGroup]="form"
             >
                 <div class="flex flex-col" *ngIf="form.controls.display_name">
-                    <label for="display-name"> Display Name: </label>
+                    <label for="display-name">
+                        {{ 'FORM.DISPLAY_NAME' | translate }}
+                    </label>
                     <mat-form-field appearance="outline">
                         <input
                             matInput
@@ -41,13 +50,15 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
                     </mat-form-field>
                 </div>
                 <div class="flex flex-col">
-                    <label for="display-name"> Timezone: </label>
+                    <label for="display-name">
+                        {{ 'COMMON.TIMEZONE' | translate }}
+                    </label>
                     <mat-form-field appearance="outline">
                         <app-icon matPrefix class="text-2xl">search</app-icon>
                         <input
                             matInput
                             formControlName="timezone"
-                            placeholder="Building timezone"
+                            [placeholder]="'COMMON.TIMEZONE' | translate"
                             [matAutocomplete]="auto"
                         />
                     </mat-form-field>
@@ -58,7 +69,7 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
                             >{{ tz }}</mat-option
                         >
                         <mat-option *ngIf="!timezones.length" [disabled]="true">
-                            No matching timezones
+                            {{ 'COMMON.TIMEZONE_EMPTY' | translate }}
                         </mat-option>
                     </mat-autocomplete>
                 </div>
@@ -68,12 +79,16 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
             class="p-2 flex justify-end border-t border-base-200"
             *ngIf="!loading"
         >
-            <button btn class="w-32" (click)="save()">Save</button>
+            <button btn class="w-32" (click)="save()">
+                {{ 'APP.CONCIERGE.REGION_SAVING' | translate }}
+            </button>
         </footer>
         <ng-template #load_state>
             <div class="flex flex-col items-center justify-center w-64 h-64">
                 <mat-spinner diameter="32"></mat-spinner>
-                <p class="mt-4">Saving region...</p>
+                <p class="mt-4">
+                    {{ '' }}
+                </p>
             </div>
         </ng-template>
     `,

@@ -2,6 +2,8 @@ import {
     Component,
     EventEmitter,
     Input,
+    OnChanges,
+    OnInit,
     Output,
     SimpleChanges,
 } from '@angular/core';
@@ -10,6 +12,7 @@ import {
     AsyncHandler,
     TIMEZONES_IANA,
     getInvalidFields,
+    i18n,
     notifyError,
     notifySuccess,
 } from '@placeos/common';
@@ -30,16 +33,18 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
                     class="flex flex-col"
                     *ngIf="(region_list | async)?.length"
                 >
-                    <label for="region"> Region: </label>
+                    <label for="region">
+                        {{ 'RESOURCE.REGION' | translate }}
+                    </label>
                     <mat-form-field appearance="outline">
                         <mat-select
                             name="region"
                             formControlName="parent_id"
-                            placeholder="Select Region..."
+                            [placeholder]="'COMMON.REGION_SELECT' | translate"
                         >
-                            <mat-option [value]="default_parent"
-                                >None</mat-option
-                            >
+                            <mat-option [value]="default_parent">
+                                {{ 'COMMON.NONE' | translate }}
+                            </mat-option>
                             <mat-option
                                 *ngFor="let region of region_list | async"
                                 [value]="region.id"
@@ -50,24 +55,28 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
                     </mat-form-field>
                 </div>
                 <div class="flex flex-col">
-                    <label for="display-name"> Display Name: </label>
+                    <label for="display-name"
+                        >{{ 'FORM.DISPLAY_NAME' | translate }}
+                    </label>
                     <mat-form-field appearance="outline">
                         <input
                             matInput
                             name="display-name"
-                            placeholder="Display Name"
+                            [placeholder]="'FORM.DISPLAY_NAME' | translate"
                             formControlName="display_name"
                         />
                     </mat-form-field>
                 </div>
                 <div class="flex flex-col">
-                    <label for="display-name"> Timezone: </label>
+                    <label for="display-name">{{
+                        'COMMON.TIMEZONE' | translate
+                    }}</label>
                     <mat-form-field appearance="outline">
                         <app-icon matPrefix class="text-2xl">search</app-icon>
                         <input
                             matInput
                             formControlName="timezone"
-                            placeholder="Building timezone"
+                            [placeholder]="'COMMON.TIMEZONE' | translate"
                             [matAutocomplete]="auto"
                         />
                     </mat-form-field>
@@ -78,17 +87,19 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
                             >{{ tz }}</mat-option
                         >
                         <mat-option *ngIf="!timezones.length" [disabled]="true">
-                            No matching timezones
+                            {{ 'COMMON.TIMEZONE_EMPTY' | translate }}
                         </mat-option>
                     </mat-autocomplete>
                 </div>
                 <div class="flex flex-col">
-                    <label for="address"> Location: </label>
+                    <label for="address">
+                        {{ 'COMMON.LOCATION' | translate }}
+                    </label>
                     <mat-form-field appearance="outline">
                         <input
                             matInput
                             name="address"
-                            placeholder="Location or Address..."
+                            [placeholder]="'COMMON.LOCATION' | translate"
                             formControlName="location"
                         />
                     </mat-form-field>
@@ -98,15 +109,20 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
         <ng-template #load_state>
             <div class="flex flex-col items-center justify-center w-64 h-64">
                 <mat-spinner diameter="32"></mat-spinner>
-                <p class="mt-4">Saving building...</p>
+                <p class="mt-4">
+                    {{ 'APP.CONCIERGE.BUILDINGS_SAVING' | translate }}
+                </p>
             </div>
         </ng-template>
     `,
     styles: [``],
 })
-export class BuildingFormComponent extends AsyncHandler {
+export class BuildingFormComponent
+    extends AsyncHandler
+    implements OnInit, OnChanges
+{
     @Input() public building: Building | null = null;
-    @Input() public save: number = 0;
+    @Input() public save = 0;
     @Input() public loading = false;
     @Output() public loadingChange = new EventEmitter<boolean>();
     @Output() public done = new EventEmitter();
@@ -157,9 +173,9 @@ export class BuildingFormComponent extends AsyncHandler {
         });
         if (!this.form.valid) {
             return notifyError(
-                `Some form fields are invalid. [${getInvalidFields(
-                    this.form,
-                ).join(', ')}]`,
+                i18n('FORM.INVALID_FIELDS', {
+                    field_list: getInvalidFields(this.form).join(', '),
+                }),
             );
         }
         const data = this.form.getRawValue();
@@ -176,13 +192,15 @@ export class BuildingFormComponent extends AsyncHandler {
             .toPromise()
             .catch((e) => {
                 notifyError(
-                    `Error saving building: ${e.message || e.error || e}`,
+                    i18n('APP.CONCIERGE.BUILDINGS_SAVE_ERROR', {
+                        error: e.message || e.error || e,
+                    }),
                 );
                 this.loading = false;
                 this.loadingChange.emit(false);
                 throw e;
             });
-        notifySuccess('Successfully saved building.');
+        notifySuccess(i18n('APP.CONCIERGE.BUILDINGS_SAVE_SUCCESS'));
         this.loading = false;
         this.loadingChange.emit(false);
         this.done.emit(building);

@@ -20,7 +20,7 @@ import {
     openConfirmModal,
     SettingsService,
 } from '@placeos/common';
-import { map, shareReplay } from 'rxjs/operators';
+import { map, shareReplay, startWith } from 'rxjs/operators';
 import { combineLatest } from 'rxjs';
 import {
     CalendarEvent,
@@ -243,6 +243,7 @@ export class RoomWeekBookingsTimelineComponent
             }
             return map;
         }),
+        startWith({}),
         shareReplay(1),
     );
 

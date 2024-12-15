@@ -11,9 +11,11 @@ import { LevelManagementService } from './level-management.service';
                 <header
                     class="flex items-center justify-between mb-2 px-8 pt-4 pb-8"
                 >
-                    <h2 class="text-2xl font-medium">Level Management</h2>
+                    <h2 class="text-2xl font-medium">
+                        {{ 'APP.CONCIERGE.LEVELS_HEADER' | translate }}
+                    </h2>
                     <button btn matRipple (click)="newLevel()" class="w-40">
-                        Add Level
+                        {{ 'APP.CONCIERGE.LEVELS_ADD' | translate }}
                     </button>
                 </header>
                 <level-list

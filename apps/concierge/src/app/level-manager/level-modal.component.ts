@@ -1,7 +1,7 @@
 import { Component, Inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { getInvalidFields, notifyError } from '@placeos/common';
+import { getInvalidFields, i18n, notifyError } from '@placeos/common';
 import { BuildingLevel, OrganisationService } from '@placeos/organisation';
 import { addZone, authority, updateZone } from '@placeos/ts-client';
 
@@ -9,7 +9,14 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
     selector: 'level-modal',
     template: `
         <header>
-            <h2>{{ form.value.id ? 'Edit' : 'Add' }} Level</h2>
+            <h2>
+                {{
+                    (form.value.id
+                        ? 'APP.CONCIERGE.LEVELS_EDIT'
+                        : 'APP.CONCIERGE.LEVELS_NEW'
+                    ) | translate
+                }}
+            </h2>
             <button btn icon mat-dialog-close *ngIf="!loading">
                 <app-icon>close</app-icon>
             </button>
@@ -32,12 +39,12 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
                             form.controls.parent_id.touched
                         "
                     >
-                        Building<span>*</span>:
+                        {{ 'RESOURCE.BUILDING' | translate }}<span>*</span>
                     </label>
                     <mat-form-field appearance="outline">
                         <mat-select
                             formControlName="parent_id"
-                            placeholder="Select Building"
+                            [placeholder]="'COMMON.BUILDING_SELECT' | translate"
                         >
                             <mat-option
                                 *ngFor="let building of building_list | async"
@@ -46,35 +53,48 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
                                 {{ building.display_name || building.name }}
                             </mat-option>
                         </mat-select>
-                        <mat-error>Building is required</mat-error>
+                        <mat-error>{{
+                            'APP.CONCIERGE.LEVELS_BUILDING_REQUIRED' | translate
+                        }}</mat-error>
                     </mat-form-field>
                 </div>
                 <div class="flex flex-col" *ngIf="form.controls.display_name">
-                    <label for="display-name"> Display Name: </label>
+                    <label for="display-name">{{
+                        'FORM.DISPLAY_NAME' | translate
+                    }}</label>
                     <mat-form-field appearance="outline">
                         <input
                             matInput
                             name="display-name"
-                            placeholder="Display Name"
+                            [placeholder]="'FORM.DISPLAY_NAME' | translate"
                             formControlName="display_name"
                         />
                     </mat-form-field>
                 </div>
+                <div class="flex space-x-4 pb-4" *ngIf="form.controls.parking">
+                    <settings-toggle
+                        class="flex-1"
+                        [name]="'APP.CONCIERGE.LEVELS_HAS_PARKING' | translate"
+                        formControlName="parking"
+                    >
+                    </settings-toggle>
+                    <div class="flex-1"></div>
+                </div>
                 <div class="flex flex-col" *ngIf="form.controls.map_id">
-                    <label for="map-id"> Map URL: </label>
+                    <label for="map-id">{{
+                        'APP.CONCIERGE.LEVELS_MAP_URL' | translate
+                    }}</label>
                     <mat-form-field appearance="outline">
                         <input
                             matInput
                             name="map-id"
-                            placeholder="URL of the Map SVG file"
+                            [placeholder]="
+                                'APP.CONCIERGE.LEVELS_MAP_URL_PLACEHOLDER'
+                                    | translate
+                            "
                             formControlName="map_id"
                         />
                     </mat-form-field>
-                </div>
-                <div class="flex flex-col py-2" *ngIf="form.controls.parking">
-                    <mat-checkbox name="parking" formControlName="parking">
-                        Has Parking Spaces
-                    </mat-checkbox>
                 </div>
             </form>
         </main>
@@ -82,12 +102,16 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
             class="p-2 flex justify-end border-t border-base-200"
             *ngIf="!loading"
         >
-            <button btn class="w-32" (click)="save()">Save</button>
+            <button btn class="w-32" (click)="save()">
+                {{ 'COMMON.SAVE' | translate }}
+            </button>
         </footer>
         <ng-template #load_state>
             <div class="flex flex-col items-center justify-center w-64 h-64">
                 <mat-spinner diameter="32"></mat-spinner>
-                <p class="mt-4">Saving level...</p>
+                <p class="mt-4">
+                    {{ 'APP.CONCIERGE.LEVELS_SAVING' | translate }}
+                </p>
             </div>
         </ng-template>
     `,
@@ -122,9 +146,9 @@ export class LevelModalComponent {
     public async save() {
         if (!this.form.valid) {
             return notifyError(
-                `Some form fields are invalid. [${getInvalidFields(
-                    this.form,
-                ).join(', ')}]`,
+                i18n('FORM.INVALID_FIELDS', {
+                    field_list: getInvalidFields(this.form).join(', '),
+                }),
             );
         }
         this.loading = true;

@@ -11,9 +11,11 @@ import { RegionManagementService } from './region-management.service';
                 <header
                     class="flex items-center justify-between mb-2 px-8 pt-4 pb-8"
                 >
-                    <h2 class="text-2xl font-medium">Region Management</h2>
+                    <h2 class="text-2xl font-medium">
+                        {{ 'APP.CONCIERGE.REGIONS_HEADER' | translate }}
+                    </h2>
                     <button btn matRipple (click)="newRegion()" class="w-40">
-                        Add Region
+                        {{ 'APP.CONCIERGE.REGIONS_ADD' | translate }}
                     </button>
                 </header>
                 <region-list

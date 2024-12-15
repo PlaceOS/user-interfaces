@@ -56,9 +56,10 @@ import { CalendarEvent } from '@placeos/events';
                     class="opacity-30 p-4 flex items-center justify-center text-sm text-center"
                 >
                     {{
-                        (events | async).length
-                            ? 'No matching events found.'
-                            : 'No events for the currently selected date and zone'
+                        ((events | async).length
+                            ? 'APP.CONCIERGE.ROOMS_SEARCH_EMPTY'
+                            : 'APP.CONCIERGE.ROOMS_EMPTY'
+                        ) | translate
                     }}
                 </div>
                 <div class="px-2 pb-2 -mt-2">

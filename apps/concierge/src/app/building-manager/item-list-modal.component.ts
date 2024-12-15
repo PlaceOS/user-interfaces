@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { SettingsService, notify, notifyError } from '@placeos/common';
 import { Building } from '@placeos/organisation';
@@ -8,7 +8,7 @@ import { showMetadata, updateMetadata } from '@placeos/ts-client';
     selector: 'item-list-modal',
     template: `
         <header>
-            <h2>Support Request Issue Types</h2>
+            <h2>{{ 'APP.CONCIERGE.SUPPORT_TYPES_HEADER' | translate }}</h2>
             <button icon matRipple mat-dialog-close="">
                 <app-icon>close</app-icon>
             </button>
@@ -20,7 +20,7 @@ import { showMetadata, updateMetadata } from '@placeos/ts-client';
                 class="w-full"
                 (click)="item_list.push({ name: '', email: '' })"
             >
-                Add Item
+                {{ 'APP.CONCIERGE.SUPPORT_TYPES_ADD' | translate }}
             </button>
             <div
                 class="w-full flex items-center space-x-2"
@@ -29,22 +29,29 @@ import { showMetadata, updateMetadata } from '@placeos/ts-client';
                 <input
                     type="text"
                     class="flex-1 border border-base-200 px-4 py-3 rounded"
-                    placeholder="Issue Name"
+                    [placeholder]="
+                        'APP.CONCIERGE.SUPPORT_TYPES_NAME' | translate
+                    "
                     [(ngModel)]="item_list[i].name"
                 />
                 <input
                     type="email"
                     class="flex-[2] border border-base-200 px-4 py-3 rounded"
-                    placeholder="Issue Email"
+                    [placeholder]="
+                        'APP.CONCIERGE.SUPPORT_TYPES_EMAIL' | translate
+                    "
                     [(ngModel)]="item_list[i].email"
                 />
                 <button
                     icon
                     matRipple
-                    matTooltip="Remove Item"
+                    [matTooltip]="
+                        'APP.CONCIERGE.SUPPORT_TYPES_REMOVE' | translate
+                    "
+                    class="text-error border border-error rounded h-12 w-12"
                     (click)="item_list.splice(i, 1)"
                 >
-                    <app-icon>close</app-icon>
+                    <app-icon class="text-2xl">delete</app-icon>
                 </button>
             </div>
         </main>
@@ -56,9 +63,9 @@ import { showMetadata, updateMetadata } from '@placeos/ts-client';
     `,
     styles: [``],
 })
-export class ItemListModalComponent {
+export class ItemListModalComponent implements OnInit {
     public item_list: { name: string; email: string }[] = [];
-    public loading: boolean = false;
+    public loading = false;
 
     public identify = (index: number, item: any) => index;
 

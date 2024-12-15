@@ -1,4 +1,9 @@
-import { SettingsService, notifySuccess } from '@placeos/common';
+import {
+    SettingsService,
+    i18n,
+    notifyError,
+    notifySuccess,
+} from '@placeos/common';
 import {
     EncryptionLevel,
     PlaceSettings,
@@ -10,7 +15,7 @@ import {
 } from '@placeos/ts-client';
 import { map } from 'rxjs/operators';
 import * as yaml from 'js-yaml';
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
 @Component({
@@ -19,44 +24,58 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
         <header
             class="flex items-center justify-between border-b border-gray-300 p-4"
         >
-            <h3 class="text-xl font-medium">Auto-Release Settings</h3>
+            <h3 class="text-xl font-medium">
+                {{ 'APP.CONCIERGE.AUTO_RELEASE_HEADER' | translate }}
+            </h3>
             <button icon matRipple mat-dialog-close *ngIf="!loading">
                 <app-icon class="text-2xl">close</app-icon>
             </button>
         </header>
         <main class="px-2 w-[20rem]" *ngIf="!loading; else load_state">
-            <label>Notify Before Event</label>
+            <label>
+                {{ 'APP.CONCIERGE.AUTO_RELEASE_NOTIFY' | translate }}
+            </label>
             <a-duration-field
                 [min]="0"
                 [max]="60"
                 [step]="5"
                 [(ngModel)]="settings.time_before"
             ></a-duration-field>
-            <label>Cancel Event After</label>
+            <label>{{ 'APP.CONCIERGE.AUTO_RELEASE_CANCEL' | translate }}</label>
             <a-duration-field
                 [min]="0"
                 [max]="60"
                 [step]="5"
                 [(ngModel)]="settings.time_after"
             ></a-duration-field>
-            <label>Event Types</label>
+            <label>{{ 'APP.CONCIERGE.AUTO_RELEASE_TYPES' | translate }}</label>
             <mat-form-field appearance="outline" class="w-full">
                 <mat-select
                     multiple
                     [(ngModel)]="settings.resources"
-                    placeholder="Set Event Types..."
+                    [placeholder]="
+                        'APP.CONCIERGE.AUTO_RELEASE_TYPES' | translate
+                    "
                 >
                     <!-- <mat-option value="room">
                         Rooms
                     </mat-option> -->
-                    <mat-option value="desk"> Desks </mat-option>
-                    <mat-option value="visitor"> Visitors </mat-option>
-                    <mat-option value="parking"> Parking </mat-option>
+                    <mat-option value="desk">
+                        {{ 'RESORUCE.DESKS' | translate }}
+                    </mat-option>
+                    <mat-option value="visitor">
+                        {{ 'RESOURCE.VISITORS' | translate }}
+                    </mat-option>
+                    <mat-option value="parking">
+                        {{ 'RESOURCE.PARKING' | translate }}
+                    </mat-option>
                 </mat-select>
             </mat-form-field>
         </main>
         <footer class="p-4 flex justify-end" *ngIf="!loading">
-            <button btn matRipple class="w-32" (click)="save()">Save</button>
+            <button btn matRipple class="w-32" (click)="save()">
+                {{ 'COMMON.SAVE' | translate }}
+            </button>
         </footer>
         <ng-template #load_state>
             <main
@@ -69,7 +88,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
     `,
     styles: [``],
 })
-export class AutoReleaseSettingsModalComponent {
+export class AutoReleaseSettingsModalComponent implements OnInit {
     public loading = '';
     public readonly id = this._id;
     public settings = {};
@@ -85,7 +104,7 @@ export class AutoReleaseSettingsModalComponent {
     }
 
     public async loadSettings(id: string) {
-        this.loading = 'Loading auto-release settings for building...';
+        this.loading = i18n('APP.CONCIERGE.AUTO_RELEASE_LOADING');
         this.settings = {};
         const settings = await querySettings({ parent_id: id })
             .pipe(map((_) => _.data))
@@ -102,7 +121,7 @@ export class AutoReleaseSettingsModalComponent {
     }
 
     public async save() {
-        this.loading = 'Saving changes to auto-release settings...';
+        this.loading = i18n('APP.CONCIERGE.AUTO_RELEASE_SAVING');
         const settings = await querySettings({ parent_id: this.id })
             .pipe(map((_) => _.data))
             .toPromise();
@@ -124,9 +143,15 @@ export class AutoReleaseSettingsModalComponent {
             ...old_settings,
             auto_release: this.settings,
         });
+        const on_error = (e) => {
+            notifyError(i18n('APP.CONCIERGE.AUTO_RELEASE_ERROR', { error: e }));
+            throw e;
+        };
         unencrypted.id
-            ? await updateSettings(unencrypted.id, unencrypted).toPromise()
-            : await addSettings(unencrypted).toPromise();
+            ? await updateSettings(unencrypted.id, unencrypted)
+                  .toPromise()
+                  .catch(on_error)
+            : await addSettings(unencrypted).toPromise().catch(on_error);
 
         const metadata_key =
             this._settings.get('app.workplace_metadata_key') || 'workplace_app';
@@ -137,8 +162,10 @@ export class AutoReleaseSettingsModalComponent {
             name: metadata_key,
             details,
             description: '',
-        }).toPromise();
-        notifySuccess('Auto-release settings updated');
+        })
+            .toPromise()
+            .catch(on_error);
+        notifySuccess(i18n('APP.CONCIERGE.AUTO_RELEASE_SUCCESS'));
         this.loading = '';
         this._dialog_ref.close();
     }

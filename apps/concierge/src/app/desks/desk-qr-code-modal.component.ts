@@ -12,7 +12,9 @@ import { map } from 'rxjs/operators';
             <div
                 class="sticky top-0 flex items-center justify-between print:hidden p-4 w-full"
             >
-                <button btn matRipple (click)="print()">Print QR Codes</button>
+                <button btn matRipple (click)="print()">
+                    {{ 'APP.CONCIERGE.DESKS_ACTION_PRINT_QR_LIST' | translate }}
+                </button>
                 <button icon matRipple mat-dialog-close>
                     <app-icon>close</app-icon>
                 </button>
@@ -44,6 +46,8 @@ import { map } from 'rxjs/operators';
     styles: [``],
 })
 export class DeskQrCodeModalComponent {
+    public readonly print = () => window.print();
+
     public readonly desks = this._state.desks.pipe(
         map((list) =>
             list.map((_) => {
@@ -71,9 +75,5 @@ export class DeskQrCodeModalComponent {
         item.qr_link = link;
         item.qr_code = generateQRCode(link);
         return item.qr_code;
-    }
-
-    public print() {
-        window.print();
     }
 }

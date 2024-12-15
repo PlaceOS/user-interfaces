@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { RoomManagementService } from './room-management.service';
 import { Clipboard } from '@angular/cdk/clipboard';
-import { notifySuccess, SettingsService } from '@placeos/common';
+import { i18n, notifySuccess, SettingsService } from '@placeos/common';
 
 @Component({
     selector: 'room-list',
@@ -14,27 +14,35 @@ import { notifySuccess, SettingsService } from '@placeos/common';
                 [columns]="[
                     {
                         key: 'display_name',
-                        name: 'Room Name',
+                        name: 'APP.CONCIERGE.ROOMS_NAME' | translate,
                         content: name_template,
                     },
                     {
                         key: 'zones',
-                        name: 'Level',
+                        name: 'RESOURCE.LEVEL' | translate,
                         size: '10rem',
                         content: level_template,
                     },
-                    { key: 'capacity', name: 'Capacity', size: '6rem' },
-                    { key: 'type', name: 'Room Type', size: '8rem' },
+                    {
+                        key: 'capacity',
+                        name: 'COMMON.CAPACITY' | translate,
+                        size: '6rem',
+                    },
+                    {
+                        key: 'type',
+                        name: 'APP.CONCIERGE.ROOMS_TYPE' | translate,
+                        size: '8rem',
+                    },
                     {
                         key: 'bookable',
-                        name: 'Bookable',
+                        name: 'COMMON.BOOKABLE' | translate,
                         size: '5.5rem',
                         content: bool_template,
                         sortable: false,
                     },
                     {
                         key: 'alert',
-                        name: 'Alert',
+                        name: 'APP.CONCIERGE.ROOMS_ALERT' | translate,
                         size: '5.5rem',
                         content: alert_template,
                     },
@@ -108,7 +116,9 @@ import { notifySuccess, SettingsService } from '@placeos/common';
                 <button mat-menu-item (click)="editRoom(row)">
                     <div class="flex items-center space-x-2">
                         <app-icon class="text-xl">edit</app-icon>
-                        <span>Edit Room</span>
+                        <span>{{
+                            'APP.CONCIERGE.ROOMS_EDIT' | translate
+                        }}</span>
                     </div>
                 </button>
                 <button mat-menu-item (click)="setRoomAlert(row)">
@@ -116,7 +126,9 @@ import { notifySuccess, SettingsService } from '@placeos/common';
                         <app-icon class="text-xl"
                             >notification_important</app-icon
                         >
-                        <span>Set Alert</span>
+                        <span>{{
+                            'APP.CONCIERGE.ROOMS_SET_ALERT' | translate
+                        }}</span>
                     </div>
                 </button>
                 <a
@@ -134,7 +146,9 @@ import { notifySuccess, SettingsService } from '@placeos/common';
                             className="material-symbols-rounded"
                             >tv_remote</app-icon
                         >
-                        <span>View Control Panel</span>
+                        <span>{{
+                            'APP.CONCIERGE.ROOMS_VIEW_CONTROL' | translate
+                        }}</span>
                     </div>
                 </a>
             </mat-menu>
@@ -150,7 +164,7 @@ export class RoomListComponent {
 
     public readonly copyToClipboard = (id: string) => {
         const success = this._clipboard.copy(id);
-        if (success) notifySuccess('Room ID copied to clipboard.');
+        if (success) notifySuccess(i18n('APP.CONCIERGE.ROOMS_COPIED_ID'));
     };
 
     public get control_path() {

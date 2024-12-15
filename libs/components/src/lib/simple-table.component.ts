@@ -142,7 +142,9 @@ export interface TableColumn {
                                 "
                                 class="opacity-30"
                             >
-                                {{ column.empty || 'N/A' }}
+                                {{
+                                    column.empty || ('COMMON.EMPTY' | translate)
+                                }}
                             </span>
                         </div>
                         <ng-container *ngSwitchCase="'template'">

@@ -6,7 +6,14 @@ import { Building } from '@placeos/organisation';
     selector: 'building-modal',
     template: `
         <header>
-            <h2>{{ building.id ? 'Edit' : 'Add' }} Building</h2>
+            <h2>
+                {{
+                    (building.id
+                        ? 'APP.CONCIERGE.BUILDINGS_EDIT'
+                        : 'APP.CONCIERGE.BUILDINGS_NEW'
+                    ) | translate
+                }}
+            </h2>
             <button btn icon mat-dialog-close *ngIf="!loading">
                 <app-icon>close</app-icon>
             </button>
@@ -23,7 +30,9 @@ import { Building } from '@placeos/organisation';
             class="p-2 flex justify-end border-t border-base-200"
             *ngIf="!loading"
         >
-            <button btn class="w-32" (click)="save()">Save</button>
+            <button btn class="w-32" (click)="save()">
+                {{ 'COMMON.SAVE' | translate }}
+            </button>
         </footer>
     `,
     styles: [``],
@@ -38,6 +47,6 @@ export class BuildingModalComponent {
 
     constructor(
         @Inject(MAT_DIALOG_DATA) private _data: Building | undefined,
-        private _dialog_ref: MatDialogRef<BuildingModalComponent>
+        private _dialog_ref: MatDialogRef<BuildingModalComponent>,
     ) {}
 }

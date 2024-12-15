@@ -1,6 +1,11 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { SettingsService, notifyError, notifySuccess } from '@placeos/common';
+import {
+    SettingsService,
+    i18n,
+    notifyError,
+    notifySuccess,
+} from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import {
     querySettings,
@@ -14,7 +19,9 @@ import {
         <header
             class="flex items-center justify-between border-b border-gray-300 p-4"
         >
-            <h3 class="text-xl font-medium">Induction Settings</h3>
+            <h3 class="text-xl font-medium">
+                {{ 'APP.CONCIERGE.INDUCTION_HEADER' | translate }}
+            </h3>
             <button icon matRipple mat-dialog-close *ngIf="!loading">
                 <app-icon class="text-2xl">close</app-icon>
             </button>
@@ -30,12 +37,14 @@ import {
                 <textarea
                     matInput
                     [(ngModel)]="induction_details"
-                    placeholder="Induction Details"
+                    [placeholder]="
+                        'APP.CONCIERGE.INDUCTION_DETAILS' | translate
+                    "
                     class="w-[34rem] max-w-[calc(80vw-2rem)] h-[calc(50vh-2rem)] resize-none"
                 ></textarea>
             </mat-form-field>
             <mat-checkbox [(ngModel)]="is_enabled">
-                Enable Induction for Building
+                {{ 'APP.CONCIERGE.INDUCTION_ENABLE' | translate }}
             </mat-checkbox>
         </main>
         <footer class="px-4 pb-4 flex justify-end" *ngIf="!loading">
@@ -52,10 +61,10 @@ import {
     `,
     styles: [``],
 })
-export class InductionSettingsModalComponent {
+export class InductionSettingsModalComponent implements OnInit {
     public loading = '';
-    public induction_details: string = '';
-    public is_enabled: boolean = false;
+    public induction_details = '';
+    public is_enabled = false;
     public settings: Record<string, any> = {};
 
     constructor(
@@ -71,7 +80,7 @@ export class InductionSettingsModalComponent {
     }
 
     public async loadSettings() {
-        this.loading = 'Loading induction settings for building...';
+        this.loading = i18n('APP.CONCIERGE.INDUCTION_LOADING');
         const visitor_kiosk_app =
             this._settings.get('app.visitor_kiosk_app') || 'visitor-kiosk_app';
         this.settings = {};
@@ -97,7 +106,7 @@ export class InductionSettingsModalComponent {
     }
 
     public async save() {
-        this.loading = 'Saving induction settings...';
+        this.loading = i18n('APP.CONCIERGE.INDUCTION_SAVING');
         const visitor_kiosk_app =
             this._settings.get('app.visitor_kiosk_app') || 'visitor-kiosk_app';
         const concierge_app =
@@ -130,7 +139,7 @@ export class InductionSettingsModalComponent {
             .catch((err) => {
                 console.error(err);
                 notifyError(
-                    'Error saving induction settings for visitor kiosk',
+                    i18n('APP.CONCIERGE.INDUCTION_ERROR', { error: err }),
                 );
             });
         const result2 = await updateMetadata(this._zone_id, {
@@ -141,11 +150,13 @@ export class InductionSettingsModalComponent {
             .toPromise()
             .catch((err) => {
                 console.error(err);
-                notifyError('Error saving induction settings for concierge');
+                notifyError(
+                    i18n('APP.CONCIERGE.INDUCTION_ERROR', { error: err }),
+                );
             });
         this.loading = '';
         if (result) {
-            notifySuccess('Successfully saved induction settings');
+            notifySuccess(i18n('APP.CONCIERGE.INDUCTION_SUCCESS'));
             this._dialog_ref.close();
         }
     }

@@ -17,14 +17,18 @@ import { VisitorKioskSettingsFormModalComponent } from '../ui/app-settings/visit
             <simple-table
                 class="min-w-[32rem] block text-sm"
                 [data]="regions"
-                empty_message="No Regions"
+                [empty_message]="'APP.CONCIERGE.REGIONS_EMPTY' | translate"
                 [columns]="[
                     {
                         key: 'display_name',
-                        name: 'Building Name',
+                        name: 'APP.CONCIERGE.REGIONS_NAME' | translate,
                         content: name_template,
                     },
-                    { key: 'building_count', name: 'Buildings', size: '8rem' },
+                    {
+                        key: 'building_count',
+                        name: 'APP.CONCIERGE.REGIONS_BUILDINGS' | translate,
+                        size: '8rem',
+                    },
                     {
                         key: 'actions',
                         name: ' ',
@@ -65,7 +69,9 @@ import { VisitorKioskSettingsFormModalComponent } from '../ui/app-settings/visit
                     >
                         <div class="flex items-center space-x-2">
                             <app-icon class="text-xl">edit_square</app-icon>
-                            <span>Application Settings</span>
+                            <div>
+                                {{ 'APP.CONCIERGE.APP_SETTINGS' | translate }}
+                            </div>
                         </div>
                     </button>
                     <mat-menu #app_settings_menu="matMenu">
@@ -77,7 +83,12 @@ import { VisitorKioskSettingsFormModalComponent } from '../ui/app-settings/visit
                                 <app-icon class="text-xl"
                                     >meeting_room</app-icon
                                 >
-                                <span>Workplace Settings</span>
+                                <div>
+                                    {{
+                                        'APP.CONCIERGE.APP_SETTINGS_WORKPLACE'
+                                            | translate
+                                    }}
+                                </div>
                             </div>
                         </button>
                         <button
@@ -88,7 +99,12 @@ import { VisitorKioskSettingsFormModalComponent } from '../ui/app-settings/visit
                                 <app-icon class="text-xl"
                                     >support_agent</app-icon
                                 >
-                                <span>Concierge Settings</span>
+                                <div>
+                                    {{
+                                        'APP.CONCIERGE.APP_SETTINGS_CONCIERGE'
+                                            | translate
+                                    }}
+                                </div>
                             </div>
                         </button>
                         <button
@@ -97,7 +113,12 @@ import { VisitorKioskSettingsFormModalComponent } from '../ui/app-settings/visit
                         >
                             <div class="flex items-center space-x-2">
                                 <app-icon class="text-xl">event_busy</app-icon>
-                                <span>Booking Panel Settings</span>
+                                <div>
+                                    {{
+                                        'APP.CONCIERGE.APP_SETTINGS_BOOKING_PANEL'
+                                            | translate
+                                    }}
+                                </div>
                             </div>
                         </button>
                         <button
@@ -106,20 +127,31 @@ import { VisitorKioskSettingsFormModalComponent } from '../ui/app-settings/visit
                         >
                             <div class="flex items-center space-x-2">
                                 <app-icon class="text-xl">qr_code</app-icon>
-                                <span>Visitor Kiosk Settings</span>
+                                <div>
+                                    {{
+                                        'APP.CONCIERGE.APP_SETTINGS_VISITOR_KIOSK'
+                                            | translate
+                                    }}
+                                </div>
                             </div>
                         </button>
                     </mat-menu>
                     <button mat-menu-item (click)="editRegion(row)">
                         <div class="flex items-center space-x-2">
-                            <app-icon>edit</app-icon>
-                            <span>Edit Region</span>
+                            <app-icon class="text-xl">edit</app-icon>
+                            <div>
+                                {{ 'APP.CONCIERGE.REGIONS_EDIT' | translate }}
+                            </div>
                         </div>
                     </button>
                     <button mat-menu-item (click)="removeRegion(row)">
                         <div class="flex items-center space-x-2 text-red-500">
-                            <app-icon class="text-error">delete</app-icon>
-                            <span>Delete Region</span>
+                            <app-icon class="text-error text-xl">
+                                delete
+                            </app-icon>
+                            <div>
+                                {{ 'APP.CONCIERGE.REGIONS_REMOVE' | translate }}
+                            </div>
                         </div>
                     </button>
                 </mat-menu>

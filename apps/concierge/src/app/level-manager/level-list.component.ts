@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { LevelManagementService } from './level-management.service';
-import { notifySuccess } from '@placeos/common';
+import { i18n, notifySuccess } from '@placeos/common';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { MatDialog } from '@angular/material/dialog';
 import { BookingPanelSettingsModalComponent } from '../ui/app-settings/booking-panel-settings-modal.component';
@@ -12,22 +12,30 @@ import { BookingPanelSettingsModalComponent } from '../ui/app-settings/booking-p
             <simple-table
                 class="min-w-[48rem] block text-sm"
                 [data]="levels"
-                empty_message="No levels"
+                [empty_message]="'APP.CONCIERGE.LEVELS_EMPTY' | translate"
                 [columns]="[
                     {
                         key: 'display_name',
-                        name: 'Level Name',
+                        name: 'APP.CONCIERGE.LEVELS_NAME' | translate,
                         content: name_template,
                     },
-                    { key: 'building', name: 'Building', size: '16rem' },
+                    {
+                        key: 'building',
+                        name: 'RESOURCE.BUILDING' | translate,
+                        size: '16rem',
+                    },
                     {
                         key: 'parking',
-                        name: 'Parking',
+                        name: 'RESOURCE.PARKING' | translate,
                         content: parking_template,
                         size: '5rem',
                         sortable: false,
                     },
-                    { key: 'room_count', name: 'Rooms', size: '6rem' },
+                    {
+                        key: 'room_count',
+                        name: 'APP.CONCIERGE.LEVELS_ROOMS' | translate,
+                        size: '6rem',
+                    },
                     {
                         key: 'actions',
                         name: ' ',
@@ -73,7 +81,9 @@ import { BookingPanelSettingsModalComponent } from '../ui/app-settings/booking-p
                     <button mat-menu-item (click)="editLevel(row)">
                         <div class="flex items-center space-x-2">
                             <app-icon class="text-2xl">edit</app-icon>
-                            <span>Edit Level</span>
+                            <span>{{
+                                'APP.CONCIERGE.LEVELS_EDIT' | translate
+                            }}</span>
                         </div>
                     </button>
                     <button
@@ -87,7 +97,10 @@ import { BookingPanelSettingsModalComponent } from '../ui/app-settings/booking-p
                             >
                                 top_panel_open
                             </app-icon>
-                            <span>Edit Booking Panel Settings</span>
+                            <span>{{
+                                'APP.CONCIERGE.APP_SETTINGS_BOOKING_PANEL'
+                                    | translate
+                            }}</span>
                         </div>
                     </button>
                     <button mat-menu-item (click)="removeLevel(row)">
@@ -95,7 +108,9 @@ import { BookingPanelSettingsModalComponent } from '../ui/app-settings/booking-p
                             <app-icon class="text-2xl text-error">
                                 delete
                             </app-icon>
-                            <span>Remove Level</span>
+                            <span>
+                                {{ 'APP.CONCIERGE.LEVELS_REMOVE' | translate }}
+                            </span>
                         </div>
                     </button>
                 </mat-menu>
@@ -112,7 +127,7 @@ export class LevelListComponent {
 
     public readonly copyToClipboard = (id: string) => {
         const success = this._clipboard.copy(id);
-        if (success) notifySuccess('Level ID copied to clipboard.');
+        if (success) notifySuccess(i18n('APP.CONCIERGE.LEVELS_COPIED_ID'));
     };
 
     constructor(
