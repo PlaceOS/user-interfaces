@@ -132,7 +132,7 @@ import {
                     class="w-full max-w-[32rem] mx-auto"
                     [routerLink]="['/']"
                 >
-                    {{ 'BOOKINGS.FINISHED' | translate }}
+                    {{ 'APP.WORKPLACE.BOOKING_FINISHED' | translate }}
                 </a>
             </footer>
         </div>
