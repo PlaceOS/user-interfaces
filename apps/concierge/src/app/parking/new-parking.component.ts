@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
 import { ParkingStateService } from './parking-state.service';
@@ -18,7 +18,7 @@ import { ParkingStateService } from './parking-state.service';
                             [routerLink]="['/book', 'parking', 'new', 'manage']"
                             [active]="path === 'manage'"
                         >
-                            Spaces
+                            {{ 'APP.CONCIERGE.PARKING_TAB_SPACES' | translate }}
                         </a>
                         <a
                             mat-tab-link
@@ -31,7 +31,7 @@ import { ParkingStateService } from './parking-state.service';
                             ]"
                             [active]="path === 'users'"
                         >
-                            Users
+                            {{ 'APP.CONCIERGE.PARKING_TAB_USERS' | translate }}
                         </a>
                         <a
                             mat-tab-link
@@ -44,7 +44,7 @@ import { ParkingStateService } from './parking-state.service';
                             ]"
                             [active]="path === 'map'"
                         >
-                            Map
+                            {{ 'APP.CONCIERGE.PARKING_TAB_MAP' | translate }}
                         </a>
                     </nav>
                     <mat-tab-nav-panel #tabPanel></mat-tab-nav-panel>
@@ -62,7 +62,7 @@ import { ParkingStateService } from './parking-state.service';
                         class="absolute inset-0 bg-base-100 opacity-80 z-0"
                     ></div>
                     <p class="z-10 opacity-60">
-                        No parking floors for the currently selected building
+                        {{ 'APP.CONCIERGE.PARKING_UNAVAILABLE' | translate }}
                     </p>
                 </div>
             </main>
@@ -92,7 +92,7 @@ import { ParkingStateService } from './parking-state.service';
         `,
     ],
 })
-export class NewParkingComponent extends AsyncHandler {
+export class NewParkingComponent extends AsyncHandler implements OnInit {
     /** List of levels for the active building */
     public readonly levels = this._state.levels;
 

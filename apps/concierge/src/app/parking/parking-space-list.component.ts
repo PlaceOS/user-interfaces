@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { ParkingStateService } from './parking-state.service';
-import { AsyncHandler, notifySuccess } from '@placeos/common';
+import { AsyncHandler, i18n, notifySuccess } from '@placeos/common';
 import { combineLatest } from 'rxjs';
 import { ParkingSpace } from '@placeos/explore';
 import { Booking } from '@placeos/bookings';
@@ -17,16 +17,20 @@ import { Clipboard } from '@angular/cdk/clipboard';
             class="min-w-[52rem] block text-sm"
             [data]="spaces"
             [columns]="[
-                { key: 'name', name: 'Parking Bay', content: name_template },
+                {
+                    key: 'name',
+                    name: 'APP.CONCIERGE.PARKING_BAY' | translate,
+                    content: name_template,
+                },
                 {
                     key: 'assigned_to',
                     name: 'Assigned',
                     content: assigned_template,
                 },
-                { key: 'notes', name: 'Notes' },
+                { key: 'notes', name: 'FORM.NOTES' | translate },
                 {
                     key: 'status',
-                    name: 'Status',
+                    name: 'COMMON.STATUS' | translate,
                     content: status_template,
                     sortable: false,
                     size: '4.5rem',
@@ -61,7 +65,7 @@ import { Clipboard } from '@angular/cdk/clipboard';
                 [class.text-error-content]="
                     space_status[row.id]?.includes('busy')
                 "
-                [matTooltip]="statusTooltip(space_status[row.id])"
+                [matTooltip]="statusTooltip(space_status[row.id]) | translate"
                 matTooltipPosition="left"
             >
                 <app-icon class="text-2xl">
@@ -87,7 +91,9 @@ import { Clipboard } from '@angular/cdk/clipboard';
             </button>
         </ng-template>
         <ng-template #assigned_template let-row="row" let-data="data">
-            <div *ngIf="!data" class="p-4 opacity-30">No Assigned User</div>
+            <div *ngIf="!data" class="p-4 opacity-30">
+                {{ 'APP.CONCIERGE.PARKING_UNASSIGNED' | translate }}
+            </div>
             <button
                 *ngIf="data"
                 class="px-4 py-2 text-left leading-tight"
@@ -108,7 +114,9 @@ import { Clipboard } from '@angular/cdk/clipboard';
                     icon
                     matRipple
                     (click)="editSpace(row)"
-                    matTooltip="Edit Parking Space"
+                    [matTooltip]="
+                        'APP.CONCIERGE.PARKING_SPACE_EDIT' | translate
+                    "
                 >
                     <app-icon>edit</app-icon>
                 </button>
@@ -116,7 +124,9 @@ import { Clipboard } from '@angular/cdk/clipboard';
                     icon
                     matRipple
                     class="text-error"
-                    matTooltip="Remove Parking Space"
+                    [matTooltip]="
+                        'APP.CONCIERGE.PARKING_SPACE_REMOVE' | translate
+                    "
                     (click)="removeSpace(row)"
                 >
                     <app-icon>delete</app-icon>
@@ -159,26 +169,28 @@ export class ParkingSpaceListComponent extends AsyncHandler {
         const success = this._clipboard.copy(id);
         if (success)
             notifySuccess(
-                type
-                    ? 'Assigned user email copied to clipboard.'
-                    : 'Parking Bay ID copied to clipboard.',
+                i18n(
+                    type
+                        ? 'APP.CONCIERGE.PARKING_COPIED_USER'
+                        : 'APP.CONCIERGE.PARKING_COPIED_ID',
+                ),
             );
     }
 
     public statusTooltip(status: string) {
         switch (status) {
             case 'assigned_free':
-                return 'Space is assigned to a user but available for use';
+                return 'APP.CONCIERGE.PARKING_STATUS_ASSIGNED_FREE';
             case 'assigned_busy':
-                return 'Space is assigned to a user and in use';
+                return 'APP.CONCIERGE.PARKING_STATUS_ASSIGNED_BUSY';
             case 'reuse_busy':
-                return 'Space is assigned to a user and in use';
+                return 'APP.CONCIERGE.PARKING_STATUS_ASSIGNED_OTHER';
             case 'busy':
-                return 'Space is unassigned and in use';
+                return 'APP.CONCIERGE.PARKING_STATUS_BUSY';
             case 'free':
-                return 'Space is unassigned and available for use';
+                return 'APP.CONCIERGE.PARKING_STATUS_FREE';
         }
-        return 'Space is unassigned and available for use';
+        return 'APP.CONCIERGE.PARKING_STATUS_FREE';
     }
 
     private _updateStatusList(spaces: ParkingSpace[], bookings: Booking[]) {

@@ -30,7 +30,12 @@ import { DeskQrCodeModalComponent } from './desk-qr-code-modal.component';
             <main class="flex flex-col flex-1 w-1/2 h-full">
                 <div class="flex items-center w-full py-4 px-8 space-x-2">
                     <h2 class="text-2xl font-medium">
-                        {{ manage ? 'Desk Management' : 'Desk Bookings' }}
+                        {{
+                            (manage
+                                ? 'APP.CONCIERGE.DESKS_HEADER'
+                                : 'APP.CONCIERGE.DESKS_BOOK_HEADER'
+                            ) | translate
+                        }}
                     </h2>
                     <div class="flex-1 w-px"></div>
                     <searchbar

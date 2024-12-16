@@ -1,4 +1,11 @@
-import { Component, EventEmitter, Inject, Input, Output } from '@angular/core';
+import {
+    Component,
+    EventEmitter,
+    Inject,
+    Input,
+    OnInit,
+    Output,
+} from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { DialogEvent } from '@placeos/common';
@@ -11,7 +18,14 @@ import { showUser } from '@placeos/ts-client';
     template: `
         <div class="w-[28rem]">
             <header class="flex items-center justify-between px-2 w-full">
-                <h2 class="px-2">{{ id ? 'Edit' : 'New' }} Parking Space</h2>
+                <h2 class="px-2">
+                    {{
+                        (id
+                            ? 'APP.CONCIERGE.PARKING_SPACE_EDIT'
+                            : 'APP.CONCIERGE.PARKING_SPACE_NEW'
+                        ) | translate
+                    }}
+                </h2>
                 <button *ngIf="!loading" icon matRipple mat-dialog-close>
                     <app-icon>close</app-icon>
                 </button>
@@ -21,19 +35,25 @@ import { showUser } from '@placeos/ts-client';
                 class="p-4 flex flex-col"
                 [formGroup]="form"
             >
-                <label for="name">Parking Space Name/Bay Number</label>
+                <label for="name">{{
+                    'APP.CONCIERGE.PARKING_SPACE_NAME' | translate
+                }}</label>
                 <mat-form-field appearance="outline">
                     <input matInput name="name" formControlName="name" />
-                    <mat-error>A name is required for parking spaces</mat-error>
+                    <mat-error>{{
+                        'FORM.NAME_REQUIRED' | translate
+                    }}</mat-error>
                 </mat-form-field>
-                <label for="map-id">Map ID</label>
+                <label for="map-id">{{ 'EXPLORE.MAP_ID' | translate }}</label>
                 <mat-form-field appearance="outline">
                     <input matInput name="map-id" formControlName="map_id" />
                     <mat-error>
-                        A map ID is required for parking spaces
+                        {{ 'EXPLORE.MAP_ID_REQUIRED' | translate }}
                     </mat-error>
                 </mat-form-field>
-                <label for="user">Assigned User</label>
+                <label for="user">{{
+                    'APP.CONCIERGE.PARKING_USER_ASSIGNED' | translate
+                }}</label>
                 <div class="flex items-center space-x-2 mb-4">
                     <a-user-search-field
                         name="user"
@@ -44,7 +64,9 @@ import { showUser } from '@placeos/ts-client';
                         icon
                         matRipple
                         class="h-12 w-12 min-w-12 rounded bg-secondary text-secondary-content"
-                        matTooltip="Clear Assigned User"
+                        [matTooltip]="
+                            'APP.CONCIERGE.PARKING_USER_CLEAR' | translate
+                        "
                         (click)="
                             form.patchValue({
                                 assigned_user: null,
@@ -58,7 +80,7 @@ import { showUser } from '@placeos/ts-client';
                         </app-icon>
                     </button>
                 </div>
-                <label for="notes">Notes</label>
+                <label for="notes">{{ 'FORM.NOTES' | translate }}</label>
                 <mat-form-field appearance="outline">
                     <textarea
                         matInput
@@ -75,11 +97,8 @@ import { showUser } from '@placeos/ts-client';
                     ></textarea>
                 </mat-form-field> -->
                 <div class="flex items-center justify-center space-x-2">
-                    <button btn matRipple class="w-32 inverse" mat-dialog-close>
-                        Cancel
-                    </button>
                     <button btn matRipple class="w-32" (click)="postForm()">
-                        Save
+                        {{ 'COMMON.SAVE' | translate }}
                     </button>
                 </div>
             </main>
@@ -89,13 +108,13 @@ import { showUser } from '@placeos/ts-client';
                 class="p-8 flex flex-col items-center justify-center space-y-2"
             >
                 <mat-spinner diameter="32"></mat-spinner>
-                <p>Saving parking space details...</p>
+                <p>{{ 'APP.CONCIERGE.PARKING_SPACE_SAVE' | translate }}</p>
             </main>
         </ng-template>
     `,
     styles: [``],
 })
-export class ParkingSpaceModalComponent {
+export class ParkingSpaceModalComponent implements OnInit {
     @Output() public readonly event = new EventEmitter<DialogEvent>();
     public loading: boolean;
 

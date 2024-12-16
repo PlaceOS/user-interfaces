@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
 import { ExploreParkingService, ExploreStateService } from '@placeos/explore';
 import { ParkingStateService } from './parking-state.service';
@@ -25,7 +25,7 @@ import { first, take } from 'rxjs/operators';
     styles: [``],
     providers: [ExploreParkingService],
 })
-export class ParkingMapComponent extends AsyncHandler {
+export class ParkingMapComponent extends AsyncHandler implements OnInit {
     public url = this._explore.map_url;
     public styles = this._explore.map_styles;
     public features = this._explore.map_features;

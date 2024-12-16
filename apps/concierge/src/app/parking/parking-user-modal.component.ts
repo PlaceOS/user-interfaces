@@ -10,7 +10,14 @@ import { ParkingUser } from './parking-state.service';
     template: `
         <div class="w-[28rem]">
             <header class="flex items-center justify-between px-2 w-full">
-                <h2 class="px-2">{{ id ? 'Edit' : 'New' }} Parking User</h2>
+                <h2 class="px-2">
+                    {{
+                        (id
+                            ? 'APP.CONCIERGE.PARKING_USER_EDIT'
+                            : 'APP.CONCIERGE.PARKING_USER_NEW'
+                        ) | translate
+                    }}
+                </h2>
                 <button *ngIf="!loading" icon matRipple mat-dialog-close>
                     <app-icon>close</app-icon>
                 </button>
@@ -45,7 +52,7 @@ import { ParkingUser } from './parking-state.service';
                         </app-icon>
                     </button>
                 </div>
-                <label for="name">Name</label>
+                <label for="name">{{ 'FORM.NAME' | translate }}</label>
                 <mat-form-field appearance="outline">
                     <input
                         matInput
@@ -53,66 +60,82 @@ import { ParkingUser } from './parking-state.service';
                         formControlName="name"
                         placeholder="Name"
                     />
-                    <mat-error>A name is required</mat-error>
+                    <mat-error>{{
+                        'FORM.NAME_REQUIRED' | translate
+                    }}</mat-error>
                 </mat-form-field>
-                <label for="email">Email</label>
+                <label for="email">{{ 'FORM.EMAIL' | translate }}</label>
                 <mat-form-field appearance="outline">
                     <input
                         matInput
                         name="email"
                         formControlName="email"
-                        placeholder="Email"
+                        [placeholder]="'FORM.EMAIL' | translate"
                     />
-                    <mat-error>An email is required</mat-error>
+                    <mat-error>{{
+                        'FORM.EMAIL_REQUIRED' | translate
+                    }}</mat-error>
                 </mat-form-field>
                 <div class="flex items-center space-x-2">
                     <div class="flex-1 w-1/3">
-                        <label for="plate-number">Car Number Plate</label>
+                        <label for="plate-number">{{
+                            'EXPLORE.PARKING_PLATE_NUMBER' | translate
+                        }}</label>
                         <mat-form-field appearance="outline" class="w-full">
                             <input
                                 matInput
                                 name="plate-number"
                                 formControlName="plate_number"
-                                placeholder="Car Plate Number"
+                                [placeholder]="
+                                    'EXPLORE.PARKING_PLATE_NUMBER' | translate
+                                "
                             />
                         </mat-form-field>
                     </div>
                     <div class="flex-1 w-1/3">
-                        <label for="car-color">Car Colour</label>
+                        <label for="car-color">{{
+                            'APP.CONCIERGE.PARKING_CAR_COLOUR' | translate
+                        }}</label>
                         <mat-form-field appearance="outline" class="w-full">
                             <input
                                 matInput
                                 name="car-color"
                                 formControlName="car_color"
-                                placeholder="Car Colour"
+                                [placeholder]="
+                                    'APP.CONCIERGE.PARKING_CAR_COLOUR'
+                                        | translate
+                                "
                             />
                         </mat-form-field>
                     </div>
                 </div>
-                <label for="notes">Notes</label>
+                <label for="notes">{{ 'FORM.NOTES' | translate }}</label>
                 <mat-form-field appearance="outline">
                     <textarea
                         matInput
                         name="notes"
                         formControlName="notes"
-                        placeholder="User's Notes"
+                        [placeholder]="'FORM.NOTES' | translate"
                     ></textarea>
                 </mat-form-field>
-                <div class="px-2 pb-2">
-                    <mat-checkbox name="deny" formControlName="deny">
-                        Deny User Parking Access
-                    </mat-checkbox>
+                <div class="flex items-center mb-4">
+                    <settings-toggle
+                        class="flex-1"
+                        [name]="
+                            'APP.CONCIERGE.PARKING_USER_DENY_PLACEHOLER'
+                                | translate
+                        "
+                        formControlName="deny"
+                    >
+                    </settings-toggle>
                 </div>
             </main>
             <footer
                 *ngIf="!loading"
                 class="flex items-center justify-end space-x-2 p-2 border-t border-base-200"
             >
-                <button btn matRipple class="w-32 inverse" mat-dialog-close>
-                    Cancel
-                </button>
                 <button btn matRipple class="w-32" (click)="postForm()">
-                    Save
+                    {{ 'COMMON.SAVE' | translate }}
                 </button>
             </footer>
         </div>
@@ -121,7 +144,7 @@ import { ParkingUser } from './parking-state.service';
                 class="p-8 flex flex-col items-center justify-center user-y-2"
             >
                 <mat-spinner diameter="32"></mat-spinner>
-                <p>Saving parking user details...</p>
+                <p>{{ 'APP.CONCIERGE.PARKING_USER_SAVE' | translate }}</p>
             </main>
         </ng-template>
     `,

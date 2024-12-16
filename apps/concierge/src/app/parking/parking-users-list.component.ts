@@ -2,6 +2,8 @@ import { Component } from '@angular/core';
 import { ParkingStateService } from './parking-state.service';
 import { FormGroup } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
+import { Clipboard } from '@angular/cdk/clipboard';
+import { i18n, notifySuccess } from '@placeos/common';
 
 @Component({
     selector: 'parking-users-list',
@@ -14,17 +16,24 @@ import { BehaviorSubject } from 'rxjs';
             class="min-w-[68rem] block text-sm"
             [data]="user_list"
             [columns]="[
-                { key: 'name', name: 'User', content: name_template },
-                { key: 'car_color', name: 'Car Colour' },
+                {
+                    key: 'name',
+                    name: 'APP.CONCIERGE.PARKING_USER' | translate,
+                    content: name_template,
+                },
+                {
+                    key: 'car_color',
+                    name: 'APP.CONCIERGE.PARKING_CAR_COLOUR' | translate,
+                },
                 {
                     key: 'plate_number',
-                    name: 'Plate Number',
+                    name: 'EXPLORE.PARKING_PLATE_NUMBER' | translate,
                     content: plate_template,
                 },
-                { key: 'notes', name: 'Notes' },
+                { key: 'notes', name: 'FORM.NOTES' | translate },
                 {
                     key: 'deny',
-                    name: 'Deny',
+                    name: 'APP.CONCIERGE.PARKING_USER_DENY' | translate,
                     size: '4.5rem',
                     content: denied_template,
                 },
@@ -61,7 +70,9 @@ import { BehaviorSubject } from 'rxjs';
         <ng-template #plate_template let-data="data">
             <div class="p-4 font-mono text-sm uppercase">
                 {{ data }}
-                <span *ngIf="!data" class="opacity-30">N/A</span>
+                <span *ngIf="!data" class="opacity-30">
+                    {{ 'COMMON.EMPTY' | translate }}
+                </span>
             </div>
         </ng-template>
         <ng-template #action_template let-row="row">
@@ -70,7 +81,7 @@ import { BehaviorSubject } from 'rxjs';
                     icon
                     matRipple
                     (click)="editUser(row)"
-                    matTooltip="Edit User"
+                    [matTooltip]="'APP.CONCIERGE.PARKING_USER_EDIT' | translate"
                 >
                     <app-icon>edit</app-icon>
                 </button>
@@ -78,7 +89,9 @@ import { BehaviorSubject } from 'rxjs';
                     icon
                     (click)="removeUser(row)"
                     class="text-error"
-                    matTooltip="Remove User"
+                    [matTooltip]="
+                        'APP.CONCIERGE.PARKING_USER_REMOVE' | translate
+                    "
                 >
                     <app-icon>delete</app-icon>
                 </button>
@@ -98,5 +111,13 @@ export class ParkingUsersListComponent {
     public readonly editUser = (u?) => this._state.editUser(u);
     public readonly removeUser = (u) => this._state.removeUser(u);
 
-    constructor(private _state: ParkingStateService) {}
+    public copyToClipboard(id: string) {
+        const success = this._clipboard.copy(id);
+        if (success) notifySuccess(i18n('APP.CONCIERGE.PARKING_COPIED_USER'));
+    }
+
+    constructor(
+        private _state: ParkingStateService,
+        private _clipboard: Clipboard,
+    ) {}
 }

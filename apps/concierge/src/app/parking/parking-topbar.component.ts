@@ -15,9 +15,10 @@ import { MatDialog } from '@angular/material/dialog';
         <div class="flex items-center w-full py-4 px-8 space-x-2">
             <h2 class="text-2xl font-medium">
                 {{
-                    path !== 'events'
-                        ? 'Parking Management'
-                        : 'Parking Reservations'
+                    (path !== 'events'
+                        ? 'APP.CONCIERGE.PARKING_HEADER'
+                        : 'APP.CONCIERGE.PARKING_BOOK_HEADER'
+                    ) | translate
                 }}
             </h2>
             <div class="flex-1 w-px"></div>
@@ -41,7 +42,9 @@ import { MatDialog } from '@angular/material/dialog';
                     (click)="newParkingSpace()"
                     [disabled]="!(options | async)?.zones?.length"
                 >
-                    <div class="pl-2">New Space</div>
+                    <div class="pl-2">
+                        {{ 'APP.CONCIERGE.PARKING_SPACE_ADD' | translate }}
+                    </div>
                     <app-icon>add</app-icon>
                 </button>
             </div>
@@ -52,7 +55,9 @@ import { MatDialog } from '@angular/material/dialog';
                 class="space-x-2 w-40"
                 (click)="newParkingUser()"
             >
-                <div class="pl-2">New User</div>
+                <div class="pl-2">
+                    {{ 'APP.CONCIERGE.PARKING_USER_ADD' | translate }}
+                </div>
                 <app-icon>add</app-icon>
             </button>
             <button
@@ -62,7 +67,9 @@ import { MatDialog } from '@angular/material/dialog';
                 class="space-x-2 w-48"
                 (click)="newReservation()"
             >
-                <div class="pl-2">New Reservation</div>
+                <div class="pl-2">
+                    {{ 'APP.CONCIERGE.PARKING_ADD' | translate }}
+                </div>
                 <app-icon>add</app-icon>
             </button>
         </div>
@@ -94,7 +101,7 @@ import { MatDialog } from '@angular/material/dialog';
                 matRipple
                 class="bg-secondary text-secondary-content rounded h-12 w-12"
                 (click)="manageRestrictions()"
-                matTooltip="Parking Restrictions"
+                [matTooltip]="'APP.CONCIERGE.PARKING_BOOKING_RULES' | translate"
                 *ngIf="path !== 'events' && path !== 'map'"
             >
                 <app-icon>lock_open</app-icon>

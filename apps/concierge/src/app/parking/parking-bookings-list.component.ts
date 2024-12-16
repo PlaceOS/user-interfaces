@@ -15,33 +15,40 @@ import { SettingsService } from '@placeos/common';
             [columns]="[
                 {
                     key: 'state',
-                    name: 'In Use',
+                    name: 'COMMON.STATUS_BUSY' | translate,
                     content: state_template,
                     size: '4.75rem',
                     sortable: false,
                 },
-                { key: 'date', name: 'Time', content: date_template },
-                { key: 'asset_name', name: 'Bay Number' },
+                {
+                    key: 'date',
+                    name: 'FORM.TIME' | translate,
+                    content: date_template,
+                },
+                {
+                    key: 'asset_name',
+                    name: 'APP.CONCIERGE.PARKING_BAY_NUMBER' | translate,
+                },
                 {
                     key: 'user_name',
-                    name: 'Reserved For',
+                    name: 'APP.CONCIERGE.PARKING_RESERVED_FOR' | translate,
                     content: person_template,
                 },
                 {
                     key: 'booked_by_name',
-                    name: 'Reserved By',
+                    name: 'APP.CONCIERGE.PARKING_RESERVED_BY' | translate,
                     content: host_template,
                 },
                 {
                     key: 'plate_number',
-                    name: 'Plate Number',
+                    name: 'EXPLORE.PARKING_PLATE_NUMBER' | translate,
                     content: plate_template,
                     size: '10rem',
                     sortable: false,
                 },
                 {
                     key: 'status',
-                    name: 'Status',
+                    name: 'COMMON.STATUS' | translate,
                     content: status_template,
                     size: '9.5rem',
                 },
@@ -55,12 +62,13 @@ import { SettingsService } from '@placeos/common';
             ]"
             [filter]="(options | async)?.search"
             [sortable]="true"
+            [empty_message]="'APP.CONCIERGE.PARKING_BOOKINGS_EMPTY' | translate"
         ></simple-table>
         <ng-template #date_template let-row="row">
             <div class="px-4 py-2">
                 {{
                     row.all_day || row.duration > 12 * 60
-                        ? 'All Day'
+                        ? ('COMMON.ALL_DAY' | translate)
                         : (row.date | date: time_format) +
                           ' - ' +
                           (row.date_end | date: time_format)
@@ -94,7 +102,13 @@ import { SettingsService } from '@placeos/common';
                 *ngIf="!row?.checked_in && row.checked_out_at"
                 class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-base-300 text-base-100 mx-auto"
                 [matTooltip]="
-                    'Left at ' + (row.checked_out_at * 1000 | date: time_format)
+                    'APP.CONCIERGE.PARKING_CHECKED_OUT_AT'
+                        | translate
+                            : {
+                                  time:
+                                      (row.checked_out_at * 1000
+                                      | date: time_format),
+                              }
                 "
                 matTooltipPosition="right"
             >
@@ -103,7 +117,9 @@ import { SettingsService } from '@placeos/common';
             <div
                 *ngIf="!row?.checked_in && !row.checked_out_at"
                 class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-warning text-warning-content mx-auto"
-                matTooltip="Has not arrived at space"
+                [matTooltip]="
+                    'APP.CONCIERGE.PARKING_NOT_CHECKED_IN' | translate
+                "
                 matTooltipPosition="right"
             >
                 <app-icon>question_mark</app-icon>
@@ -111,7 +127,7 @@ import { SettingsService } from '@placeos/common';
             <div
                 *ngIf="row?.checked_in"
                 class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-success text-success-content mx-auto"
-                matTooltip="Arrived at space"
+                [matTooltip]="'APP.CONCIERGE.PARKING_CHECKED_IN' | translate"
                 matTooltipPosition="right"
             >
                 <app-icon>done</app-icon>
@@ -124,7 +140,7 @@ import { SettingsService } from '@placeos/common';
                     *ngIf="!row?.extension_data?.plate_number"
                     class="opacity-30"
                 >
-                    N/A
+                    {{ 'COMMON.EMPTY' | translate }}
                 </span>
             </div>
         </ng-template>
@@ -148,13 +164,14 @@ import { SettingsService } from '@placeos/common';
                     <div class="flex items-center pl-4 pr-2 space-x-2">
                         <div class="flex-1 text-left">
                             {{
-                                row?.status === 'ended'
-                                    ? 'Ended'
+                                (row?.status === 'ended'
+                                    ? 'APP.CONCIERGE.BOOKING_STATUS_ENDED'
                                     : row?.status === 'approved'
-                                      ? 'Approved'
+                                      ? 'APP.CONCIERGE.BOOKING_STATUS_APPROVED'
                                       : row?.status === 'declined'
-                                        ? 'Declined'
-                                        : 'Pending'
+                                        ? 'APP.CONCIERGE.BOOKING_STATUS_DECLINED'
+                                        : 'APP.CONCIERGE.BOOKING_STATUS_PENDING'
+                                ) | translate
                             }}
                         </div>
                         <app-icon class="text-2xl">arrow_drop_down</app-icon>
@@ -165,13 +182,17 @@ import { SettingsService } from '@placeos/common';
                 <button mat-menu-item (click)="approve(row)">
                     <div class="flex items-center space-x-2">
                         <app-icon class="text-2xl">event_available</app-icon>
-                        <div class="pr-2">Approve Reservation</div>
+                        <div class="pr-2">
+                            {{ 'APP.CONCIERGE.PARKING_APPROVE' | translate }}
+                        </div>
                     </div>
                 </button>
                 <button mat-menu-item (click)="reject(row)">
                     <div class="flex items-center space-x-2">
                         <app-icon class="text-2xl">event_busy</app-icon>
-                        <div class="pr-2">Decline Reservation</div>
+                        <div class="pr-2">
+                            {{ 'APP.CONCIERGE.PARKING_DECLINE' | translate }}
+                        </div>
                     </div>
                 </button>
             </mat-menu>
@@ -181,13 +202,13 @@ import { SettingsService } from '@placeos/common';
                 <button
                     icon
                     matRipple
-                    [matMenuTriggerFor]="menu"
                     [disabled]="
                         row.checked_in ||
                         row.state === 'in_progress' ||
                         row.status === 'ended' ||
                         row.instance
                     "
+                    [matTooltip]="'APP.CONCIERGE.PARKING_EDIT' | translate"
                     (click)="editReservation(row)"
                 >
                     <app-icon class="text-2xl">edit</app-icon>

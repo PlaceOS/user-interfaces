@@ -6,6 +6,7 @@ import {
     AsyncHandler,
     currentUser,
     getInvalidFields,
+    i18n,
     notifyError,
     notifySuccess,
     SettingsService,
@@ -20,7 +21,12 @@ import { addDays, endOfDay } from 'date-fns';
         <div class="w-[32rem]">
             <header class="flex items-center justify-between px-2 w-full">
                 <h2 class="px-2">
-                    {{ id ? 'Edit' : 'New' }} Parking Reservation
+                    {{
+                        (id
+                            ? 'APP.CONCIERGE.PARKING_EDIT'
+                            : 'APP.CONCIERGE.PARKING_NEW'
+                        ) | translate
+                    }}
                 </h2>
                 <button *ngIf="!loading" icon matRipple mat-dialog-close>
                     <app-icon>close</app-icon>
@@ -40,32 +46,40 @@ import { addDays, endOfDay } from 'date-fns';
                 </div>
                 <div class="flex items-center space-x-2">
                     <div class="flex-1">
-                        <label for="user-name">Name</label>
+                        <label for="user-name">{{
+                            'FORM.NAME' | translate
+                        }}</label>
                         <mat-form-field appearance="outline" class="w-full">
                             <input
                                 matInput
                                 name="user-name"
                                 formControlName="user_name"
-                                placeholder="Name"
+                                [placeholder]="'FORM.NAME' | translate"
                             />
-                            <mat-error>A name is required</mat-error>
+                            <mat-error>{{
+                                'FORM.NAME_REQUIRED' | translate
+                            }}</mat-error>
                         </mat-form-field>
                     </div>
                     <div class="flex-1">
-                        <label for="email">Email</label>
+                        <label for="email">{{
+                            'FORM.EMAIL' | translate
+                        }}</label>
                         <mat-form-field appearance="outline" class="w-full">
                             <input
                                 matInput
                                 name="email"
                                 formControlName="user_email"
-                                placeholder="Email"
+                                [placeholder]="'FORM.EMAIL' | translate"
                             />
-                            <mat-error>An email is required</mat-error>
+                            <mat-error>{{
+                                'FORM.EMAIL_REQUIRED' | translate
+                            }}</mat-error>
                         </mat-form-field>
                     </div>
                 </div>
                 <div class="relative">
-                    <label for="date">Date</label>
+                    <label for="date">{{ 'FORM.DATE' | translate }}</label>
                     <a-date-field formControlName="date"></a-date-field>
                     <mat-checkbox
                         formControlName="all_day"
@@ -74,7 +88,7 @@ import { addDays, endOfDay } from 'date-fns';
                         "
                         class="absolute -top-2 right-0"
                     >
-                        All Day
+                        {{ 'COMMON.ALL_DAY' | translate }}
                     </mat-checkbox>
                 </div>
                 <div
@@ -82,7 +96,10 @@ import { addDays, endOfDay } from 'date-fns';
                     *ngIf="!form.value.all_day"
                 >
                     <div class="flex-1 w-1/3">
-                        <label for="start-time">Start Time<span>*</span></label>
+                        <label for="start-time"
+                            >{{ 'FORM.TIME_START' | translate
+                            }}<span>*</span></label
+                        >
                         <a-time-field
                             name="start-time"
                             [ngModel]="form.value.date"
@@ -93,7 +110,10 @@ import { addDays, endOfDay } from 'date-fns';
                         ></a-time-field>
                     </div>
                     <div class="flex-1 w-1/3 relative">
-                        <label for="end-time">End Time<span>*</span></label>
+                        <label for="end-time"
+                            >{{ 'FORM.TIME_END' | translate
+                            }}<span>*</span></label
+                        >
                         <a-duration-field
                             name="end-time"
                             formControlName="duration"
@@ -104,34 +124,38 @@ import { addDays, endOfDay } from 'date-fns';
                         </a-duration-field>
                     </div>
                 </div>
-                <label for="parking-space">Parking Space</label>
+                <label for="parking-space">{{
+                    'APP.CONCIERGE.PARKING_SPACE' | translate
+                }}</label>
                 <parking-space-list-field
                     name="parking-space"
                     formControlName="resources"
                     class="mb-2"
                 ></parking-space-list-field>
                 <label for="plate-number">
-                    Plate Number<span *ngIf="user">*</span>
+                    {{ 'EXPLORE.PARKING_PLATE_NUMBER' | translate
+                    }}<span *ngIf="user">*</span>
                 </label>
                 <mat-form-field appearance="outline" class="w-full">
                     <input
                         matInput
                         name="plate-number"
                         formControlName="plate_number"
-                        placeholder="Plate Number"
+                        [placeholder]="
+                            'EXPLORE.PARKING_PLATE_NUMBER' | translate
+                        "
                     />
-                    <mat-error>A plate number is required</mat-error>
+                    <mat-error>{{
+                        'BOOKINGS.PARKING_PLATE_NUMBER_REQUIRED' | translate
+                    }}</mat-error>
                 </mat-form-field>
             </main>
             <footer
                 *ngIf="!loading"
                 class="flex items-center justify-end space-x-2 p-2 border-t border-base-200"
             >
-                <button btn matRipple class="w-32 inverse" mat-dialog-close>
-                    Cancel
-                </button>
                 <button btn matRipple class="w-32" (click)="postForm()">
-                    Save
+                    {{ 'COMMON.SAVE' | translate }}
                 </button>
             </footer>
         </div>
@@ -140,14 +164,14 @@ import { addDays, endOfDay } from 'date-fns';
                 class="p-8 flex flex-col items-center justify-center user-y-2"
             >
                 <mat-spinner diameter="32"></mat-spinner>
-                <p>Saving parking reservation...</p>
+                <p>{{ 'APP.CONCIERGE.PARKING_SAVING' | translate }}</p>
             </main>
         </ng-template>
     `,
     styles: [``],
 })
 export class ParkingBookingModalComponent extends AsyncHandler {
-    public loading: boolean = false;
+    public loading = false;
     public readonly user = this._data.user;
     public readonly date = this._data.date;
     public readonly allow_time_changes = this._data.allow_time_changes;
@@ -308,11 +332,12 @@ export class ParkingBookingModalComponent extends AsyncHandler {
         this.form.updateValueAndValidity();
         if (this.form.invalid) {
             return notifyError(
-                `Some fields are invalid. [${getInvalidFields(this.form).join(', ')}]`,
+                i18n('FORM.INVALID_FIELDS', {
+                    field_list: getInvalidFields(this.form).join(', '),
+                }),
             );
         }
         this.loading = true;
-        const id = this.form.value.id;
         this.form.patchValue({ user_id: undefined, booking_type: 'parking' });
         const result = await this._booking_form.postForm().catch((e) => {
             this.loading = false;
@@ -321,9 +346,7 @@ export class ParkingBookingModalComponent extends AsyncHandler {
             throw e;
         });
         this.form.controls.plate_number.setValidators([]);
-        notifySuccess(
-            `Successfully ${id ? 'updated' : 'created'} parking reservation`,
-        );
+        notifySuccess(i18n('APP.CONCIERGE.PARKING_SAVE'));
 
         this.form.get('date').enable();
         this.form.get('duration').enable();
