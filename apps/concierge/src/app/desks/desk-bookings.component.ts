@@ -64,9 +64,10 @@ import { SettingsService } from '@placeos/common';
                     },
                 ]"
                 [empty_message]="
-                    (filters | async)?.search
+                    ((filters | async)?.search
                         ? 'APP.CONCIERGE.DESKS_BOOKINGS_SEARCH_EMPTY'
                         : 'APP.CONCIERGE.DESKS_BOOKINGS_EMPTY'
+                    ) | translate
                 "
                 [sortable]="true"
             ></simple-table>

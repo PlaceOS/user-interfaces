@@ -6,19 +6,24 @@ import { Question, QuestionType, QuestionTypeOptions } from '../types';
     styles: [],
     template: `
         <div
-            class="border bg-base-100 shadow flex flex-col w-full items-center justify-between px-4 py-2 pt-4"
+            class="border border-base-400 bg-base-100 shadow flex flex-col w-full items-center justify-between px-4 py-2 pt-4"
         >
             <ng-container *ngIf="!preview; else previewTitle">
                 <mat-form-field class="w-full" appearance="outline">
                     <input
                         matInput
-                        placeholder="Enter your question here"
+                        [placeholder]="
+                            'APP.CONCIERGE.SURVEY_QUESTION_ENTER' | translate
+                        "
                         type="text"
                         [(ngModel)]="question.title"
                     />
-                    <mat-error class="input-error" *ngIf="!question?.title"
-                        >Please enter a question</mat-error
-                    >
+                    <mat-error class="input-error" *ngIf="!question?.title">
+                        {{
+                            'APP.CONCIERGE.SURVEY_QUESTION_ENTER_ERROR'
+                                | translate
+                        }}
+                    </mat-error>
                 </mat-form-field>
             </ng-container>
 
@@ -96,15 +101,15 @@ import { Question, QuestionType, QuestionTypeOptions } from '../types';
                 </select>
 
                 <mat-slide-toggle [(ngModel)]="question.isRequired">
-                    Required</mat-slide-toggle
-                >
+                    {{ 'COMMON.REQUIRED' | translate }}
+                </mat-slide-toggle>
                 <!-- <mat-slide-toggle [(ngModel)]="preview"> Preview</mat-slide-toggle> -->
             </div>
         </div>
     `,
 })
 export class QuestionComponent implements OnInit {
-    @Input() preview: boolean = false;
+    @Input() preview = false;
     @Input() set value(value: Question) {
         if (value) {
             this.question = value;

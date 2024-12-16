@@ -1,4 +1,4 @@
-<div class="flex flex-col w-full h-full bg-base-200 border-l relative">
+<div class="flex flex-col w-full h-full bg-base-200 border-l border-base-400 relative">
     <div
         *ngIf="(loading$ | async).length"
         class="flex absolute inset-0 opacity-60 bg-base-100 z-10"
@@ -9,28 +9,30 @@
         </div>
     </div>
     <header class="flex items-center pt-2 px-4 w-full">
-        <span>Question Bank</span>
+        <span>{{'APP.CONCIERGE.SURVEY_QUESTION_HEADER' | translate}}</span>
         <div class="ml-auto">
             <button icon matRipple (click)="onAddQuestion()">
                 <app-icon>add_circle_outline</app-icon>
             </button>
         </div>
     </header>
-    <div class="flex w-full pb-3 px-4 border-b space-x-2">
+    <div class="flex w-full pb-3 px-4 border-b border-base-400 space-x-2">
         <search-input
-            class="flex-1"
+            class="flex-1 w-px"
+            [placeholder]="'APP.CONCIERGE.SURVEY_QUESTION_SEARCH' | translate"
             (onSearch)="setFilter({ search: $event })"
         ></search-input>
         <mat-form-field
-            class="w-44"
+            class="flex-1 max-w-32 no-subscript"
             appearance="outline"
-            subscriptSizing="dynamic"
         >
             <mat-select
                 [value]="(filters$ | async)?.type || ''"
                 (selectionChange)="setFilter({ type: $event.value })"
             >
-                <mat-option value="">All types</mat-option>
+                <mat-option value="">
+                    {{'APP.CONCIERGE.SURVEY_QUESTION_TYPES_ALL' | translate}}
+                </mat-option>
                 <mat-option
                     *ngFor="let item of typeOptions"
                     [value]="item.value"
@@ -49,7 +51,7 @@
         <div
             cdkDrag
             *ngFor="let q of questions$ | async"
-            class="bg-base-100 border flex w-full items-center pr-2 space-x-3"
+            class="bg-base-100 border border-base-400 flex w-full items-center pr-2 space-x-3"
         >
             <div
                 cdkDragHandle
@@ -66,25 +68,30 @@
             </button>
             <mat-menu #actionsMenu="matMenu">
                 <button mat-menu-item (click)="onAddQuestion(q)">
-                    <app-icon>content_copy</app-icon>
-                    <span>Duplicate</span>
+                    <div class="flex items-center space-x-2">
+                        <app-icon class="text-xl">content_copy</app-icon>
+                        <div>{{'COMMON.DUPLICATE' | translate}}</div></div>
                 </button>
                 <button mat-menu-item (click)="onEditQuestion(q)">
-                    <app-icon>edit</app-icon>
-                    <span>Edit</span>
+                    <div class="flex items-center space-x-2">
+                        <app-icon class="text-xl">edit</app-icon>
+                        <div>{{'COMMON.EDIT' | translate}}</div>
+                    </div>
                 </button>
                 <button mat-menu-item (click)="onDeleteQuestion(q)">
-                    <app-icon>delete</app-icon>
-                    <span>Delete</span>
+                    <div class="flex items-center space-x-2">
+                        <app-icon class="text-xl text-error">delete</app-icon>
+                        <div>{{'COMMON.DELETE' | translate}}</div>
+                    </div>
                 </button>
             </mat-menu>
         </div>
-        <div *ngIf="(questions$ | async)?.length > 0; else noQuestions"></div>
+        <div *ngIf="(questions$ | async)?.length > 0; else empty_template"></div>
     </div>
 </div>
-<ng-template #noQuestions>
-    <div class="flex flex-col items-center h-20 m-auto text-gray-600">
-        <span>No questions found</span>
-        <span>Click <i>Add</i> to add some questions.</span>
+<ng-template #empty_template>
+    <div class="flex flex-col items-center h-20 m-auto opacity-30 space-y-2">
+        <span>{{'APP.CONCIERGE.SURVEY_QUESTION_EMPTY' | translate}}</span>
+        <span>{{ 'APP.CONCIERGE.SURVEY_QUESTION_EMPTY_ACTION' | translate }}</span>
     </div>
 </ng-template>

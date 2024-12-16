@@ -1,6 +1,6 @@
-import { Component, OnInit } from "@angular/core";
-import { QuestionType } from "../types";
-import { BaseQuestionComponent } from "./base-question.component";
+import { Component, OnInit } from '@angular/core';
+import { QuestionType } from '../types';
+import { BaseQuestionComponent } from './base-question.component';
 
 @Component({
     selector: 'multi-line-text',
@@ -9,15 +9,15 @@ import { BaseQuestionComponent } from "./base-question.component";
         <div class="flex flex-col w-full" *ngIf="preview">
             <mat-form-field appearance="outline">
                 <textarea matInput cols="30" rows="5"></textarea>
-                <mat-hint>*Type your answer above. Multiple lines supported</mat-hint>
+                <mat-hint>{{
+                    'APP.CONCIERGE.SURVEY_QUESTION_HINT_MULTILINE' | translate
+                }}</mat-hint>
             </mat-form-field>
         </div>
-    `
+    `,
 })
-
-export class MultiLineTextComponent extends BaseQuestionComponent{
-
-    constructor(){
+export class MultiLineTextComponent extends BaseQuestionComponent {
+    constructor() {
         super();
     }
 }

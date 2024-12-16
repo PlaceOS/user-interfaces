@@ -24,8 +24,6 @@ import { SurveySuiteModule } from '@placeos/survey-suite';
 import { SurveyModule } from 'survey-angular-ui';
 import { QuestionBankComponent } from './components/question-bank/question-bank.component';
 import { SearchInputComponent } from './components/search-input.component';
-import { SurveyBuilderComponent } from './components/survey-builder/survey-builder.component';
-import { SurveyCreatorTopbarComponent } from './components/survey-creator-topbar.component';
 import { ModQuestionOverlayComponent } from './overlays/mod-question-overlay.component';
 import { ModSurveyComponent } from './pages/mod-survey.component';
 import { RunSurveyComponent } from './pages/run-survey.component';
@@ -66,8 +64,6 @@ const COMPONENTS = [
     NotFoundComponent,
     ModQuestionOverlayComponent,
     QuestionBankComponent,
-    SurveyBuilderComponent,
-    SurveyCreatorTopbarComponent,
     ModSurveyComponent,
     SearchInputComponent,
     SurveyListingsComponent,

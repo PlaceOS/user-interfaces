@@ -31,7 +31,7 @@ const EMPTY = [];
                 </mat-form-field>
                 <button btn matRipple class="space-x-2" (click)="newBooking()">
                     <div class="pl-2">
-                        {{ 'APP.CONCIERGE.ROOMS_BOOKING' | translate }}
+                        {{ 'APP.CONCIERGE.ROOMS_BOOK_ADD' | translate }}
                     </div>
                     <app-icon class="text-2xl">add</app-icon>
                 </button>

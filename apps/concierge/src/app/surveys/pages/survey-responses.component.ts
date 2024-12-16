@@ -1,9 +1,29 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { AsyncHandler, SettingsService } from '@placeos/common';
-import { TriggerEnumMap } from '@placeos/survey-suite';
-import { map, shareReplay, take } from 'rxjs/operators';
-import { SurveyResponsesService } from '../services/survey-responses.service';
+import { ActivatedRoute } from '@angular/router';
+import {
+    addStringKey,
+    AsyncHandler,
+    removeStringKey,
+    SettingsService,
+} from '@placeos/common';
+import {
+    catchError,
+    filter,
+    map,
+    shareReplay,
+    startWith,
+    switchMap,
+    tap,
+} from 'rxjs/operators';
+import { BehaviorSubject, combineLatest, of } from 'rxjs';
+import { queryAnswers, queryQuestions, showSurvey } from '@placeos/ts-client';
+import {
+    endOfDay,
+    endOfYear,
+    getUnixTime,
+    startOfDay,
+    startOfYear,
+} from 'date-fns';
 
 @Component({
     selector: 'survey-responses',
@@ -20,194 +40,274 @@ import { SurveyResponsesService } from '../services/survey-responses.service';
         `,
     ],
     template: `
-        <div
-            *ngIf="(loading$ | async).length"
-            class="flex absolute inset-0 opacity-60 bg-base-100 z-10"
-        >
-            <div class="flex flex-col m-auto items-center">
-                <mat-spinner [diameter]="32"></mat-spinner>
-                <span>{{ loading$ | async }}</span>
-            </div>
-        </div>
-        <ng-container *ngIf="surveyId$ | async; else noId">
+        <ng-container *ngIf="has_id; else invalid_template">
             <header
-                class="flex justify-between items-center w-full pb-4 border-b mt-4 pl-2"
+                class="flex justify-between items-center w-full pt-8 pb-4 pl-4 pr-8"
             >
-                <div class="flex flex-row items-center">
-                    <button icon matRipple (click)="back()">
-                        <app-icon class="flex mr-2">arrow_back</app-icon>
-                    </button>
-                    <div class="flex flex-row items-center">
-                        <span class="text-2xl">
-                            Survey Responses -
-                            {{ (survey$ | async)?.title || '' }}
-                        </span>
-                    </div>
-                </div>
-                <mat-form-field
-                    appearance="outline"
-                    subscriptSizing="dynamic"
-                    class="w-72 mr-4"
-                >
-                    <mat-date-range-input
-                        [rangePicker]="picker"
-                        (stateChanges)="datePicked($event)"
+                <div class="flex flex-row">
+                    <a
+                        icon
+                        matRipple
+                        [routerLink]="[
+                            '/surveys',
+                            'survey-list',
+                            (survey$ | async)?.building_id,
+                        ]"
                     >
-                        <input
-                            matStartDate
-                            readonly
-                            [ngModel]="(options$ | async)?.start"
-                            (ngModelChange)="$event ? setStartDate($event) : ''"
-                            placeholder="Start date"
-                        />
-                        <input
-                            matEndDate
-                            readonly
-                            [ngModel]="(options$ | async)?.end"
-                            (ngModelChange)="$event ? setEndDate($event) : ''"
-                            placeholder="End date"
-                        />
-                    </mat-date-range-input>
-                    <div matSuffix class="flex items-center">
-                        <mat-datepicker-toggle
-                            [for]="picker"
-                        ></mat-datepicker-toggle>
-                        <button
-                            *ngIf="(options$ | async)?.end"
-                            icon
-                            matRipple
-                            (click)="clearDates()"
-                        >
-                            <app-icon>close</app-icon>
-                        </button>
+                        <app-icon class="flex">arrow_back</app-icon>
+                    </a>
+                    <div class="space-y-2">
+                        <div class="text-2xl mt-1">
+                            {{
+                                'APP.CONCIERGE.SURVEY_ANSWERS_HEADER'
+                                    | translate
+                            }}
+                        </div>
+                        <div class="text-lg">
+                            {{ (survey$ | async)?.title || '' }}
+                        </div>
                     </div>
-                    <mat-date-range-picker #picker></mat-date-range-picker>
-                </mat-form-field>
+                </div>
+                <date-range-field [week_start]="week_start">
+                    <input
+                        #startDate
+                        [ngModel]="(options$ | async).start"
+                        (ngModelChange)="$event ? setStartDate($event) : ''"
+                    />
+                    <input
+                        #endDate
+                        [ngModel]="(options$ | async).start"
+                        (ngModelChange)="$event ? setEndDate($event) : ''"
+                    />
+                </date-range-field>
             </header>
-            <div class="flex p-4 border-b justify-end space-x-2">
-                <div class="flex flex-col items-center flex-1">
-                    <h3>Total Questions</h3>
+            <div class="flex justify-end space-x-4 px-8">
+                <div
+                    class="flex flex-col items-center flex-1 rounded border border-base-300 p-4"
+                >
+                    <h3>
+                        {{
+                            'APP.CONCIERGE.SURVEY_ANSWERS_QUESTIONS' | translate
+                        }}
+                    </h3>
                     <p class="text-4xl">
-                        {{ (stats$ | async)?.question_count || 0 }}
+                        {{ (questions$ | async)?.length || 0 }}
                     </p>
                 </div>
-                <div class="flex flex-col items-center flex-1">
-                    <h3>Total Answers</h3>
+                <div
+                    class="flex flex-col items-center flex-1 rounded border border-base-300 p-4"
+                >
+                    <h3>
+                        {{ 'APP.CONCIERGE.SURVEY_ANSWERS_ANSWERS' | translate }}
+                    </h3>
                     <p class="text-4xl">
-                        {{ (stats$ | async)?.answer_count || 0 }}
+                        {{ (answers$ | async)?.length || 0 }}
                     </p>
                 </div>
-                <div class="flex flex-col items-center flex-1">
-                    <h3>Triggers On</h3>
-                    <p class="text-2xl">
-                        {{ triggerMap[(survey$ | async)?.trigger] }}
+                <div
+                    class="flex flex-col items-center flex-1 space-y-2 rounded border border-base-300 p-4"
+                >
+                    <h3>
+                        {{ 'APP.CONCIERGE.SURVEY_ANSWERS_TRIGGER' | translate }}
+                    </h3>
+                    <p class="text-xl capitalize font-mono">
+                        {{ (survey$ | async)?.trigger }}
                     </p>
                 </div>
             </div>
-
-            <ng-container *ngIf="pagedResponses$ | async as pagedResponses">
-                <ng-container
-                    *ngIf="pagedResponses?.length > 0; else noRecords"
-                >
-                    <ng-container
-                        *ngFor="let p of pagedResponses; let i = index"
+            @let question_pages = paged_responses$ | async;
+            <div
+                class="h-1/2 flex-1 overflow-auto"
+                *ngIf="question_pages?.length > 0; else empty_template"
+            >
+                <ng-container *ngFor="let p of question_pages; let i = index">
+                    <div
+                        class="flex w-full px-3 pt-2 font-thin text-xl"
+                        *ngIf="question_pages.length > 1"
                     >
-                        <div
-                            class="flex w-full px-3 pt-2 space-x-2"
-                            *ngIf="pagedResponses.length > 1"
-                        >
-                            <span class="font-thin text-xl"
-                                >Page {{ i + 1 }}
-                                {{
-                                    p.title?.length ? '- ' + p.title : ''
-                                }}</span
-                            >
-                        </div>
-                        <div class="flex flex-wrap w-full p-2">
-                            <survey-widget
-                                class="w-full lg:w-1/2 2xl:w-1/3"
-                                *ngFor="let r of p.responses"
-                                [response]="r"
-                            ></survey-widget>
-                        </div>
-                    </ng-container>
+                        {{
+                            (p.title
+                                ? 'APP.CONCIERGE.SURVEY_ANSWERS_PAGE_WITH_TITLE'
+                                : 'APP.CONCIERGE.SURVEY_ANSWERS_PAGE'
+                            )
+                                | translate
+                                    : {
+                                          id: i + 1,
+                                          title: page.title,
+                                      }
+                        }}
+                    </div>
+                    <div class="flex flex-wrap w-full py-2 px-6">
+                        <survey-widget
+                            class="w-full lg:w-1/2 2xl:w-1/3"
+                            *ngFor="let r of p.responses"
+                            [response]="r"
+                        ></survey-widget>
+                    </div>
                 </ng-container>
-            </ng-container>
+            </div>
         </ng-container>
 
-        <ng-template #noId>
+        <ng-template #invalid_template>
             <div
                 class="flex flex-col w-full h-full items-center justify-center"
             >
-                <span class="text-lg text-gray-700"
-                    >Invalid survey identity</span
-                >
+                <span class="text-lg opacity-30">{{
+                    'APP.CONCIERGE.SURVEY_ANSWERS_ID_INVALID' | translate
+                }}</span>
             </div>
         </ng-template>
-        <ng-template #noRecords>
+        <ng-template #empty_template>
             <div
                 class="flex flex-col w-full min-h-[10rem] items-center justify-center"
             >
-                <span class="text-lg text-gray-700">No responses found</span>
+                <span class="text-lg opacity-30">{{
+                    'APP.CONCIERGE.SURVEY_ANSWERS_EMPTY' | translate
+                }}</span>
             </div>
         </ng-template>
+        <div
+            *ngIf="loading$ | async"
+            class="flex absolute inset-0 opacity-60 bg-base-100 z-10"
+        >
+            <div class="flex flex-col m-auto items-center space-y-4">
+                <mat-spinner [diameter]="32"></mat-spinner>
+                <p>{{ 'APP.CONCIERGE.SURVEY_ANSWERS_LOADING' | translate }}</p>
+            </div>
+        </div>
     `,
-    providers: [SurveyResponsesService],
 })
 export class SurveyResponsesComponent extends AsyncHandler implements OnInit {
-    surveyId$ = this.route.params.pipe(map((params) => params.id || ''));
-    survey$ = this.service.survey$;
-    pagedResponses$ = this.service.paged_responses$;
-    options$ = this.service.options$.pipe(shareReplay(1));
-    stats$ = this.service.stats$.pipe(shareReplay(1));
-    loading$ = this.service.loading$.pipe(shareReplay(1));
+    private _survey_id = new BehaviorSubject('');
 
-    triggerMap = TriggerEnumMap;
+    public readonly options$ = new BehaviorSubject<any>({});
+    public readonly loading$ = new BehaviorSubject('');
 
-    private start_date;
+    public readonly survey$ = this._survey_id.pipe(
+        filter((_) => !!_),
+        switchMap((id) => {
+            this.loading$.next(
+                addStringKey(this.loading$.getValue(), 'SURVEY'),
+            );
+            return showSurvey(id).pipe(catchError(() => of(null)));
+        }),
+        tap(() =>
+            this.loading$.next(
+                removeStringKey(this.loading$.getValue(), 'SURVEY'),
+            ),
+        ),
+        shareReplay(1),
+    );
+
+    public readonly questions$ = this._survey_id.pipe(
+        filter((_) => !!_),
+        switchMap((id) => {
+            this.loading$.next(
+                addStringKey(this.loading$.getValue(), 'QUESTIONS'),
+            );
+            return queryQuestions({ survey_id: id }).pipe(
+                catchError(() => of([])),
+            );
+        }),
+        tap(() =>
+            this.loading$.next(
+                removeStringKey(this.loading$.getValue(), 'QUESTIONS'),
+            ),
+        ),
+        shareReplay(1),
+        startWith([]),
+    );
+
+    public readonly answers$ = combineLatest([
+        this._survey_id,
+        this.options$,
+    ]).pipe(
+        filter(([_]) => !!_),
+        switchMap(([id, { start, end }]) => {
+            this.loading$.next(
+                addStringKey(this.loading$.getValue(), 'ANSWERS'),
+            );
+            const q: any = {
+                survey_id: id,
+            };
+            if (start || end) {
+                q.created_after = getUnixTime(startOfDay(start || Date.now()));
+                q.created_before = getUnixTime(endOfDay(end || Date.now()));
+            }
+            return queryAnswers(q).pipe(catchError(() => of([])));
+        }),
+        tap(() =>
+            this.loading$.next(
+                removeStringKey(this.loading$.getValue(), 'ANSWERS'),
+            ),
+        ),
+        shareReplay(1),
+        startWith([]),
+    );
+
+    public readonly paged_responses$ = combineLatest([
+        this.survey$,
+        this.questions$,
+        this.answers$,
+        this.questions$,
+    ]).pipe(
+        map(([survey, questions, answers]) => {
+            return [
+                survey,
+                questions.map((item) => ({
+                    question: item,
+                    answers: answers.filter((a) => a.question_id === item.id),
+                })),
+            ];
+        }),
+        map(([survey, q_list]) => {
+            const mapping = {};
+            q_list.forEach((e) => (mapping[e.question.id] = e));
+            const paged = [];
+            survey.pages.forEach((p) => {
+                const t = { title: p.title, responses: [] };
+                p.question_order.forEach((q) => t.responses.push(mapping[q]));
+                paged.push(t);
+            });
+            return paged;
+        }),
+    );
+
+    public get has_id() {
+        return !!this._survey_id.getValue();
+    }
+
+    public get week_start() {
+        return this._settings.get('app.week_start');
+    }
 
     constructor(
         private _settings: SettingsService,
-        private service: SurveyResponsesService,
-        private router: Router,
-        private route: ActivatedRoute,
+        private _route: ActivatedRoute,
     ) {
         super();
     }
 
-    ngOnInit(): void {
+    public ngOnInit() {
         this.subscription(
             'params',
-            this.surveyId$.subscribe((survey_id) => {
-                if (survey_id?.length) {
-                    this.service.setOptions({ survey_id });
-                }
+            this._route.paramMap.subscribe((params) => {
+                this._survey_id.next(params.get('id') || '');
             }),
+        );
+        this.subscription(
+            'paged',
+            this.paged_responses$.subscribe((d) =>
+                console.log('Questions:', d),
+            ),
         );
     }
 
-    setStartDate(start: Date) {
-        if (!start) return;
-        this.start_date = start;
+    public setStartDate(date: number) {
+        this.options$.next({ ...this.options$.getValue(), start: date });
     }
 
-    setEndDate(end: Date) {
-        if (!this.start_date || !end) return;
-        this.service.setOptions({ start: this.start_date, end });
-    }
-
-    clearDates() {
-        this.service.setOptions({ start: null, end: null });
-    }
-
-    public async back() {
-        const survey = await this.survey$.pipe(take(1)).toPromise();
-        this.router.navigate([
-            this._settings.get('app.default_route').includes('new')
-                ? '/surveys'
-                : '/surveys',
-            'survey-list',
-            survey.building_id || '',
-        ]);
+    public setEndDate(date: number) {
+        this.options$.next({ ...this.options$.getValue(), end: date });
     }
 }

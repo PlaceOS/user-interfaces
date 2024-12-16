@@ -21,7 +21,7 @@ import { querySurveys } from '@placeos/ts-client';
                         'APP.CONCIERGE.SURVEY_LIST_HEADER' | translate
                     }}</span>
                     <span class="text-4xl">
-                        {{ building.display_name || building.name }}
+                        {{ building?.display_name || building?.name }}
                     </span>
                 </div>
             </div>

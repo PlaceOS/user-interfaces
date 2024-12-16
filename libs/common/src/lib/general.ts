@@ -417,6 +417,18 @@ export function cleanArray(
     return array.filter((_) => !removal_items.includes(_));
 }
 
+export function addStringKey(value: string, key: string) {
+    return removeStringKey(value, key) + `[${key}]`;
+}
+
+export function removeStringKey(value: string, key: string) {
+    const key_value = `[${key}]`;
+    while (value.includes(key_value)) {
+        value = value.replace(`[${key}]`, '');
+    }
+    return value;
+}
+
 export function isMobileSafari() {
     return (
         [

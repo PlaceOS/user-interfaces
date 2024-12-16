@@ -20,7 +20,9 @@ import { debounceTime, distinctUntilChanged, map } from 'rxjs/operators';
             subscriptSizing="dynamic"
             class="w-full {{ classNames ? classNames : '' }} "
         >
-            <app-icon matPrefix class="-ml-3 mr-1">search</app-icon>
+            <div class="-ml-2 mr-1" matPrefix>
+                <app-icon class="text-2xl">search</app-icon>
+            </div>
             <input
                 matInput
                 #searchInput
@@ -68,11 +70,11 @@ export class SearchInputComponent
         this.search$ = fromEvent<any>(this.input.nativeElement, 'keyup').pipe(
             map((event) => event.target.value),
             debounceTime(500),
-            distinctUntilChanged()
+            distinctUntilChanged(),
         );
         this.subscription(
             'search-input',
-            this.search$.subscribe((value) => this.onSearch.emit(value))
+            this.search$.subscribe((value) => this.onSearch.emit(value)),
         );
     }
 }
