@@ -218,12 +218,12 @@ export class ApplicationSidebarComponent
                     },
                     {
                         id: 'lockers',
-                        name: i18n('APP.CONCIERGE.MENU_MANAGE_CATERING'),
+                        name: i18n('APP.CONCIERGE.MENU_MANAGE_LOCKERS'),
                         route: ['/book/lockers/new/manage'],
                     },
                     {
                         id: 'catering',
-                        name: i18n('APP.CONCIERGE.MENU_BOOKINGS'),
+                        name: i18n('APP.CONCIERGE.MENU_MANAGE_CATERING'),
                         route: ['/book/catering/new/menu'],
                     },
                     {
