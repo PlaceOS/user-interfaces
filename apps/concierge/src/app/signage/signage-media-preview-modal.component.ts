@@ -7,7 +7,12 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
         <header
             class="flex items-center justify-between p-2 border-b border-base-300"
         >
-            <h1 class="px-2">Preview - {{ name }}</h1>
+            <h1 class="px-2">
+                {{
+                    'APP.CONCIERGE.SIGNAGE_MEDIA_PREVIEW_HEADER'
+                        | translate: { name: name }
+                }}
+            </h1>
             <button icon matRipple mat-dialog-close>
                 <app-icon>close</app-icon>
             </button>
@@ -37,7 +42,7 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
             class="p-2 flex items-center justify-end space-x-2 border-t border-base-300"
         >
             <button btn matRipple class="w-32" (click)="save.emit()">
-                Save Media
+                {{ 'APP.CONCIERGE.SIGNAGE_MEDIA_SAVE' | translate }}
             </button>
         </footer>
         <ng-template #load_state>

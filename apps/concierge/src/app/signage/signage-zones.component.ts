@@ -1,16 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { SignageStateService } from './signage-state.service';
-import {
-    map,
-    shareReplay,
-    startWith,
-    switchMap,
-    take,
-    tap,
-} from 'rxjs/operators';
+import { map, shareReplay, switchMap, take, tap } from 'rxjs/operators';
 import { ActivatedRoute } from '@angular/router';
-import { AsyncHandler, notifySuccess, unique } from '@placeos/common';
+import { AsyncHandler, i18n, notifySuccess } from '@placeos/common';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import {
     listZoneTriggers,
@@ -24,14 +17,16 @@ import {
     template: `
         <div class="relative h-full w-full overflow-visible flex space-x-4">
             <div sidebar class="w-64 h-full flex flex-col space-y-4 py-4">
-                <h3 class="text-xl font-medium text-center">Zones</h3>
+                <h3 class="text-xl font-medium text-center">
+                    {{ 'APP.CONCIERGE.SIGNAGE_ZONES' | translate }}
+                </h3>
                 <mat-form-field
                     appearance="outline"
                     class="w-full no-subscript"
                 >
                     <input
                         matInput
-                        placeholder="Search..."
+                        [placeholder]="'COMMON.SEARCH' | translate"
                         [ngModel]="search.getValue()"
                         (ngModelChange)="search.next($event)"
                     />
@@ -104,9 +99,10 @@ import {
                         <app-icon class="text-6xl">hide_image</app-icon>
                         <p class="text-center">
                             {{
-                                search.getValue()
-                                    ? 'No matching zones found'
-                                    : 'No zones'
+                                (search.getValue()
+                                    ? 'APP.CONCIERGE.SIGNAGE_ZONES_SEARCH_EMPTY'
+                                    : 'APP.CONCIERGE.SIGNAGE_ZONES_EMPTY'
+                                ) | translate
                             }}
                         </p>
                     </div>
@@ -131,7 +127,11 @@ import {
                         class="absolute inset-0 flex flex-col items-center justify-center space-y-2 opacity-30"
                     >
                         <app-icon class="text-6xl">desktop_windows</app-icon>
-                        <p>Select a zone from the left to view playlists</p>
+                        <p>
+                            {{
+                                'APP.CONCIERGE.SIGNAGE_ZONES_SELECT' | translate
+                            }}
+                        </p>
                     </div>
                 }
                 <search-overlay
@@ -145,7 +145,7 @@ import {
     `,
     styles: [``],
 })
-export class SignageZonesComponent extends AsyncHandler {
+export class SignageZonesComponent extends AsyncHandler implements OnInit {
     public adding = false;
     public switching = false;
     public readonly search = new BehaviorSubject<string>('');
@@ -223,7 +223,11 @@ export class SignageZonesComponent extends AsyncHandler {
             'patch',
         ).toPromise();
         notifySuccess(
-            `Successfully added playlist to the ${trigger ? 'trigger' : 'zone'}`,
+            i18n(
+                trigger
+                    ? 'APP.CONCIERGE.SIGNAGE_TRIGGERS_PLAYLIST_ADDED'
+                    : 'APP.CONCIERGE.SIGNAGE_ZONES_PLAYLIST_ADDED',
+            ),
         );
         this._state.changed();
         this.adding = false;
@@ -241,7 +245,11 @@ export class SignageZonesComponent extends AsyncHandler {
             'patch',
         ).toPromise();
         notifySuccess(
-            `Successfully removed playlist from ${trigger ? 'trigger' : 'zone'}`,
+            i18n(
+                trigger
+                    ? 'APP.CONCIERGE.SIGNAGE_TRIGGERS_PLAYLIST_REMOVE'
+                    : 'APP.CONCIERGE.SIGNAGE_ZONES_PLAYLIST_REMOVE',
+            ),
         );
         this._state.changed();
         this.adding = false;
@@ -265,7 +273,11 @@ export class SignageZonesComponent extends AsyncHandler {
                 throw e;
             });
         notifySuccess(
-            `Successfully re-ordered playlists on ${trigger ? 'trigger' : 'zone'}`,
+            i18n(
+                trigger
+                    ? 'APP.CONCIERGE.SIGNAGE_TRIGGERS_PLAYLIST_REORDER'
+                    : 'APP.CONCIERGE.SIGNAGE_ZONES_PLAYLIST_REORDER',
+            ),
         );
         this._state.changed();
     }

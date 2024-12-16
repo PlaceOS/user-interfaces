@@ -2,6 +2,7 @@ import {
     Component,
     EventEmitter,
     Input,
+    OnChanges,
     Output,
     SimpleChanges,
 } from '@angular/core';
@@ -46,7 +47,10 @@ const PLAYLIST_ITEM_COUNTS = {};
                             matRipple
                             cdkDragHandle
                             class="flex items-center justify-center w-6 h-full rounded hover:bg-base-200"
-                            matTooltip="Drag to reorder"
+                            [matTooltip]="
+                                'APP.CONCIERGE.SIGNAGE_MEDIA_REORDER'
+                                    | translate
+                            "
                         >
                             <app-icon>drag_handle</app-icon>
                         </button>
@@ -55,7 +59,11 @@ const PLAYLIST_ITEM_COUNTS = {};
                                 {{ item.name }}
                             </div>
                             <div class="truncate text-sm opacity-30">
-                                {{ playlistCount(item.id) || 0 }} Media items
+                                {{
+                                    'APP.CONCIERGE.SIGNAGE_MEDIA_COUNT'
+                                        | translate
+                                            : { count: playlistCount(item.id) }
+                                }}
                             </div>
                         </div>
                         <button
@@ -78,7 +86,12 @@ const PLAYLIST_ITEM_COUNTS = {};
                                     <app-icon class="text-2xl">
                                         visibility
                                     </app-icon>
-                                    <div class="pr-2">View Playlist</div>
+                                    <div class="pr-2">
+                                        {{
+                                            'APP.CONCIERGE.SIGNAGE_PLAYLISTS_VIEW'
+                                                | translate
+                                        }}
+                                    </div>
                                 </div>
                             </a>
                             <button mat-menu-item (click)="remove.next(item)">
@@ -86,14 +99,21 @@ const PLAYLIST_ITEM_COUNTS = {};
                                     <app-icon class="text-2xl text-error">
                                         delete
                                     </app-icon>
-                                    <div class="pr-2">Remove Playlist</div>
+                                    <div class="pr-2">
+                                        {{
+                                            'APP.CONCIERGE.SIGNAGE_PLAYLISTS_REMOVE'
+                                                | translate
+                                        }}
+                                    </div>
                                 </div>
                             </button>
                         </mat-menu>
                     </div>
                 }
             </div>
-            <button btn matRipple (click)="add.emit()">Add Playlist</button>
+            <button btn matRipple (click)="add.emit()">
+                {{ 'APP.CONCIERGE.SIGNAGE_PLAYLISTS_ADD' | translate }}
+            </button>
         } @else {
             <div
                 class="flex flex-col items-center justify-center p-8 space-y-2 mx-auto flex-1"
@@ -102,10 +122,15 @@ const PLAYLIST_ITEM_COUNTS = {};
                     class="flex flex-col items-center justify-center opacity-30"
                 >
                     <app-icon class="text-6xl">hide_image</app-icon>
-                    <p>No playlists in {{ name }}.</p>
+                    <p>
+                        {{
+                            'APP.CONCIERGE.SIGNAGE_DISPLAYS_PLAYLISTS_EMPTY'
+                                | translate: { name: name }
+                        }}
+                    </p>
                 </div>
                 <button btn matRipple (click)="add.emit()" class="w-40">
-                    Add Playlist
+                    {{ 'APP.CONCIERGE.SIGNAGE_PLAYLISTS_ADD' | translate }}
                 </button>
             </div>
         }
@@ -119,10 +144,10 @@ const PLAYLIST_ITEM_COUNTS = {};
         `,
     ],
 })
-export class SignageItemPlaylistsComponent {
+export class SignageItemPlaylistsComponent implements OnChanges {
     @Input() public item: any;
-    @Input() public name: string = 'zone';
-    @Input() public extra: string = '';
+    @Input() public name = 'zone';
+    @Input() public extra = '';
     @Output() public readonly add = new EventEmitter();
     @Output() public readonly remove = new EventEmitter<SignagePlaylist>();
     @Output() public readonly ondrop = new EventEmitter<any>();

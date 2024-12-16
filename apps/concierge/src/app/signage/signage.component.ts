@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 
 import { SignageStateService } from './signage-state.service';
 import { NavigationEnd, Router } from '@angular/router';
-import { AsyncHandler } from '@placeos/common';
+import { AsyncHandler, i18n } from '@placeos/common';
 
 @Component({
     selector: '[app-new-staff]',
@@ -13,7 +13,7 @@ import { AsyncHandler } from '@placeos/common';
             <main class="flex flex-col flex-1 w-1/2 h-full">
                 <div class="p-8 h-28 flex items-center justify-between">
                     <h2 class="text-2xl font-medium">
-                        Digital Signage Management
+                        {{ 'APP.CONCIERGE.SIGNAGE_HEADER' | translate }}
                     </h2>
                     <button
                         btn
@@ -25,7 +25,12 @@ import { AsyncHandler } from '@placeos/common';
                         "
                         (click)="newItem(active_link)"
                     >
-                        Add {{ singular(active_link) }}
+                        {{
+                            (active_link === 'Displays'
+                                ? 'APP.CONCIERGE.SIGNAGE_DISPLAYS_ADD'
+                                : 'APP.CONCIERGE.SIGNAGE_PLAYLISTS_ADD'
+                            ) | translate
+                        }}
                     </button>
                 </div>
                 <div class="px-8">
@@ -33,11 +38,13 @@ import { AsyncHandler } from '@placeos/common';
                         @for (link of links; track link) {
                             <a
                                 mat-tab-link
-                                [routerLink]="'/signage/' + (link | lowercase)"
-                                (click)="active_link = link"
-                                [active]="active_link == link"
+                                [routerLink]="
+                                    '/signage/' + (link.id | lowercase)
+                                "
+                                (click)="active_link = link.id"
+                                [active]="active_link == link.id"
                             >
-                                {{ link }}
+                                {{ link.name }}
                             </a>
                         }
                     </nav>
@@ -65,18 +72,11 @@ import { AsyncHandler } from '@placeos/common';
 })
 export class SignageComponent extends AsyncHandler implements OnInit {
     public readonly loading = this._state.loading;
-    public links = ['Media', 'Displays', 'Zones'];
+    public links = [];
     public active_link = this.links[0];
 
     public readonly previewFile = (event) =>
         this._state.previewFileFromInput(event);
-
-    public singular(name: string) {
-        if (name === 'Media') return 'Playlist';
-        if (name === 'Playlists') return 'Playlist';
-        if (name === 'Displays') return 'Display';
-        return '';
-    }
 
     public async newItem(name: string) {
         let result = null;
@@ -108,6 +108,12 @@ export class SignageComponent extends AsyncHandler implements OnInit {
     }
 
     public ngOnInit() {
+        this.links = [
+            { id: 'Media', name: i18n('APP.CONCIERGE.SIGNAGE_MEDIA') },
+            { id: 'Displays', name: i18n('APP.CONCIERGE.SIGNAGE_DISPLAYS') },
+            { id: 'Zones', name: i18n('APP.CONCIERGE.SIGNAGE_ZONES') },
+        ];
+        this.active_link = this.links[0].id;
         this.subscription(
             'route.query',
             this._router.events.subscribe((event) => {

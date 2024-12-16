@@ -12,7 +12,12 @@ import { addSystem, PlaceSystem, updateSystem } from '@placeos/ts-client';
             class="flex items-center justify-between border-b border-base-300 p-2"
         >
             <h1 class="p-2 font-medium text-xl">
-                {{ display.id ? 'Edit' : 'New' }} Display
+                {{
+                    (display.id
+                        ? 'APP.CONCIERGE.SIGNAGE_DISPLAYS_EDIT'
+                        : 'APP.CONCIERGE.SIGNAGE_DISPLAYS_NEW'
+                    ) | translate
+                }}
             </h1>
             <button icon matRipple mat-dialog-close *ngIf="!loading">
                 <app-icon>close</app-icon>
@@ -24,44 +29,66 @@ import { addSystem, PlaceSystem, updateSystem } from '@placeos/ts-client';
             *ngIf="!loading; else load_state"
         >
             <div class="flex flex-col">
-                <label for="name">Name<span required>*</span></label>
+                <label for="name"
+                    >{{ 'FORM.NAME' | translate }}<span required>*</span></label
+                >
                 <mat-form-field appearance="outline" class="w-full">
                     <input
                         matInput
                         name="name"
-                        placeholder="Name"
+                        [placeholder]="'FORM.NAME' | translate"
                         formControlName="name"
                         required
                     />
-                    <mat-error>Name is required</mat-error>
+                    <mat-error>{{
+                        'FORM.NAME_REQUIRED' | translate
+                    }}</mat-error>
                 </mat-form-field>
             </div>
             <div class="flex flex-col">
-                <label for="description">Description</label>
+                <label for="description">{{
+                    'COMMON.DESCRIPTION' | translate
+                }}</label>
                 <mat-form-field appearance="outline" class="w-full">
                     <textarea
                         matInput
                         name="description"
-                        placeholder="Description"
+                        [placeholder]="'COMMON.DESCRIPTION' | translate"
                         formControlName="description"
                         class="min-h-32"
                     ></textarea>
                 </mat-form-field>
             </div>
             <div class="flex flex-col">
-                <label for="orientation">Orientation</label>
+                <label for="orientation">{{
+                    'APP.CONCIERGE.SIGNAGE_ORIENTATION' | translate
+                }}</label>
                 <mat-form-field appearance="outline" class="w-full">
                     <mat-select
                         name="orientation"
                         formControlName="orientation"
-                        placeholder="Unspecified"
+                        [placeholder]="
+                            'APP.CONCIERGE.SIGNAGE_ORIENTATION_NONE' | translate
+                        "
                     >
                         <mat-option value="unspecified">
-                            Unspecified
+                            {{
+                                'APP.CONCIERGE.SIGNAGE_ORIENTATION_NONE'
+                                    | translate
+                            }}
                         </mat-option>
-                        <mat-option value="landscape">Landscape</mat-option>
-                        <mat-option value="portrait">Portrait</mat-option>
-                        <mat-option value="square">Square</mat-option>
+                        <mat-option value="landscape">{{
+                            'APP.CONCIERGE.SIGNAGE_ORIENTATION_LANDSCAPE'
+                                | translate
+                        }}</mat-option>
+                        <mat-option value="portrait">{{
+                            'APP.CONCIERGE.SIGNAGE_ORIENTATION_PORTRAIT'
+                                | translate
+                        }}</mat-option>
+                        <mat-option value="square">{{
+                            'APP.CONCIERGE.SIGNAGE_ORIENTATION_SQUARE'
+                                | translate
+                        }}</mat-option>
                     </mat-select>
                 </mat-form-field>
             </div>
@@ -70,12 +97,16 @@ import { addSystem, PlaceSystem, updateSystem } from '@placeos/ts-client';
             *ngIf="!loading"
             class="flex justify-end p-4 border-t border-base-200"
         >
-            <button btn matRipple class="w-32" (click)="save()">Save</button>
+            <button btn matRipple class="w-32" (click)="save()">
+                {{ 'COMMON.SAVE' | translate }}
+            </button>
         </footer>
         <ng-template #load_state>
             <main class="flex flex-col items-center justify-center p-8">
                 <mat-spinner [diameter]="32"></mat-spinner>
-                <p class="mt-4">Saving display...</p>
+                <p class="mt-4">
+                    {{ 'APP.CONCIERGE.SIGNAGE_DISPLAYS_SAVING' | translate }}
+                </p>
             </main>
         </ng-template>
     `,

@@ -25,7 +25,7 @@ import { BehaviorSubject } from 'rxjs';
                     class="rounded-[4rem] text-xl text-base-content bg-base-100 border border-base-300 shadow pl-14 pr-6 py-4 w-full"
                     [ngModel]="search.getValue()"
                     (ngModelChange)="search.next($event)"
-                    placeholder="Search..."
+                    [placeholder]="'COMMON.SEARCH' | translate"
                 />
                 <app-icon
                     class="absolute left-3 top-1/2 -translate-y-1/2 text-3xl pointer-events-none"
@@ -66,7 +66,9 @@ import { BehaviorSubject } from 'rxjs';
                         (click)="close.next()"
                     >
                         <div class="opacity-30">
-                            No items available to select
+                            {{
+                                'APP.CONCIERGE.SIGNAGE_SEARCH_EMPTY' | translate
+                            }}
                         </div>
                     </button>
                 }

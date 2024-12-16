@@ -1,4 +1,4 @@
-import { Component, Input, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { SignageStateService } from './signage-state.service';
@@ -9,11 +9,13 @@ import { getUnixTime, startOfMinute } from 'date-fns';
     selector: 'signage-media-list',
     template: `
         <div class="p-4 relative">
-            <h3 class="text-xl font-medium text-center mb-4">Media</h3>
+            <h3 class="text-xl font-medium text-center mb-4">
+                {{ 'APP.CONCIERGE.SIGNAGE_MEDIA' | translate }}
+            </h3>
             <mat-form-field appearance="outline" class="w-full no-subscript">
                 <input
                     matInput
-                    placeholder="Search..."
+                    [placeholder]="'COMMON.SEARCH' | translate"
                     [ngModel]="search.getValue()"
                     (ngModelChange)="search.next($event)"
                 />
@@ -22,7 +24,7 @@ import { getUnixTime, startOfMinute } from 'date-fns';
                 icon
                 matRipple
                 class="absolute top-2 right-2 border border-base-300"
-                matTooltip="Upload Media"
+                [matTooltip]="'APP.CONCIERGE.SIGNAGE_MEDIA_UPLOAD' | translate"
                 matTooltipPosition="left"
             >
                 <app-icon>add</app-icon>
@@ -89,7 +91,12 @@ import { getUnixTime, startOfMinute } from 'date-fns';
                                     media.media_type === 'image'
                                 "
                             >
-                                {{ media.media_type }}
+                                {{
+                                    (media.media_type === 'image'
+                                        ? 'COMMON.IMAGE'
+                                        : 'COMMON.VIDEO'
+                                    ) | translate
+                                }}
                             </div>
                             <div
                                 class="absolute bottom-1 right-1 px-2 py-1 text-xs rounded-lg bg-info text-info-content capitalize font-mono"
@@ -124,7 +131,9 @@ import { getUnixTime, startOfMinute } from 'date-fns';
                                     >
                                         <input
                                             matInput
-                                            placeholder="Search..."
+                                            [placeholder]="
+                                                'COMMON.SEARCH' | translate
+                                            "
                                             [ngModel]="
                                                 playlist_search.getValue()
                                             "
@@ -139,7 +148,10 @@ import { getUnixTime, startOfMinute } from 'date-fns';
                                     [disabled]="true"
                                     *ngIf="!((playlists | async)?.length > 0)"
                                 >
-                                    No playlists
+                                    {{
+                                        'APP.CONCIERGE.SIGNAGE_PLAYLISTS_EMPTY'
+                                            | translate
+                                    }}
                                 </button>
 
                                 <button
@@ -160,7 +172,12 @@ import { getUnixTime, startOfMinute } from 'date-fns';
                                         <app-icon class="text-2xl"
                                             >edit</app-icon
                                         >
-                                        <div class="pr-2">Edit Media Item</div>
+                                        <div class="pr-2">
+                                            {{
+                                                'APP.CONCIERGE.SIGNAGE_MEDIA_EDIT'
+                                                    | translate
+                                            }}
+                                        </div>
                                     </div>
                                 </button>
                                 <button
@@ -171,7 +188,12 @@ import { getUnixTime, startOfMinute } from 'date-fns';
                                         <app-icon class="text-2xl"
                                             >add</app-icon
                                         >
-                                        <div class="pr-2">Add to Playlist</div>
+                                        <div class="pr-2">
+                                            {{
+                                                'APP.CONCIERGE.SIGNAGE_MEDIA_ADD_PLAYLIST'
+                                                    | translate
+                                            }}
+                                        </div>
                                     </div>
                                 </button>
                                 <button
@@ -183,7 +205,10 @@ import { getUnixTime, startOfMinute } from 'date-fns';
                                             >visibility</app-icon
                                         >
                                         <div class="pr-2">
-                                            Preview Media Item
+                                            {{
+                                                'APP.CONCIERGE.SIGNAGE_MEDIA_PREVIEW'
+                                                    | translate
+                                            }}
                                         </div>
                                     </div>
                                 </button>
@@ -196,7 +221,10 @@ import { getUnixTime, startOfMinute } from 'date-fns';
                                             delete
                                         </app-icon>
                                         <div class="pr-2">
-                                            Remove Media Item
+                                            {{
+                                                'APP.CONCIERGE.SIGNAGE_MEDIA_REMOVE'
+                                                    | translate
+                                            }}
                                         </div>
                                     </div>
                                 </button>
@@ -210,7 +238,7 @@ import { getUnixTime, startOfMinute } from 'date-fns';
                 class="flex flex-col items-center justify-center p-8 space-y-2 opacity-30 mx-auto flex-1"
             >
                 <app-icon class="text-6xl">hide_image</app-icon>
-                <p>No media found.</p>
+                <p>{{ 'APP.CONCIERGE.SIGNAGE_MEDIA_EMPTY' | translate }}</p>
             </div>
         }
     `,
@@ -224,7 +252,7 @@ import { getUnixTime, startOfMinute } from 'date-fns';
         `,
     ],
 })
-export class SignageMediaListComponent {
+export class SignageMediaListComponent implements OnChanges {
     @Input() public playlist_count = 0;
     public readonly search = new BehaviorSubject<string>('');
     public readonly playlist_search = new BehaviorSubject<string>('');
@@ -277,7 +305,7 @@ export class SignageMediaListComponent {
         }
     }
 
-    public drop(event) {}
+    // public drop(event) {}
 
     public async addToPlaylist(media_id: string, playlist: any) {
         const media_list = await listSignagePlaylistMedia(

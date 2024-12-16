@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import {
     AsyncHandler,
+    i18n,
     notifyError,
     notifySuccess,
     openConfirmModal,
@@ -226,16 +227,16 @@ export class SignageStateService extends AsyncHandler {
     public async removeDisplay(display: PlaceSystem) {
         const result = await openConfirmModal(
             {
-                title: `Remove Display`,
-                content: `
-                Are you sure you wish to remove the display "<strong>${display.display_name}</strong>"?
-                `,
+                title: i18n('APP.CONCIERGE.SIGNAGE_DISPLAYS_REMOVE'),
+                content: i18n('APP.CONCIERGE.SIGNAGE_DISPLAYS_REMOVE_MSG', {
+                    name: display.display_name,
+                }),
                 icon: { content: 'delete' },
             },
             this._dialog,
         );
         if (result.reason !== 'done') return;
-        result.loading('Removing display...');
+        result.loading(i18n('APP.CONCIERGE.SIGNAGE_DISPLAYS_REMOVE_LOADING'));
         if (display.map_id || display.email || display.module_list.length > 0) {
             await updateSystem(display.id, {
                 signage: false,
@@ -244,6 +245,7 @@ export class SignageStateService extends AsyncHandler {
             await removeSystem(display.id).toPromise();
         }
         this._change.next(Date.now());
+        notifySuccess(i18n('APP.CONCIERGE.SIGNAGE_DISPLAYS_REMOVE_SUCCESS'));
         result.close();
     }
 
@@ -252,7 +254,7 @@ export class SignageStateService extends AsyncHandler {
             ? updateSignagePlaylist(playlist.id, playlist)
             : addSignagePlaylist(playlist);
         const new_playlist = await call.toPromise();
-        notifySuccess(`Successfully saved playlist.`);
+        notifySuccess(i18n('APP.CONCIERGE.SIGNAGE_PLAYLISTS_SAVE_SUCCESS'));
         this._change.next(Date.now());
     }
 
@@ -260,23 +262,26 @@ export class SignageStateService extends AsyncHandler {
         if (!playlist?.id) return;
         const result = await openConfirmModal(
             {
-                title: `Remove Playlist`,
-                content: `
-            Are you sure you wish to remove the playlist "<strong>${playlist.name}</strong>"?<br/><br/>`,
+                title: i18n('APP.CONCIERGE.SIGNAGE_PLAYLISTS_REMOVE'),
+                content: i18n('APP.CONCIERGE.SIGNAGE_PLAYLISTS_REMOVE_MSG', {
+                    name: playlist.name,
+                }),
                 icon: { content: 'delete' },
             },
             this._dialog,
         );
         if (result.reason !== 'done') return;
         await removeSignagePlaylist(playlist.id).toPromise();
-        notifySuccess(`Successfully removed playlist.`);
+        notifySuccess(i18n('APP.CONCIERGE.SIGNAGE_PLAYLISTS_REMOVE_SUCCESS'));
         this._change.next(Date.now());
         result.close();
     }
 
     public async updatePlaylistMedia(playlist_id: string, list: string[]) {
         await updateSignagePlaylistMedia(playlist_id, list).toPromise();
-        notifySuccess(`Successfully updated playlist media.`);
+        notifySuccess(
+            i18n('APP.CONCIERGE.SIGNAGE_PLAYLISTS_MEDIA_SAVE_SUCCESS'),
+        );
     }
 
     public getPlaylistMedia(playlist_id: string) {
@@ -286,7 +291,7 @@ export class SignageStateService extends AsyncHandler {
     }
 
     public previewMedia(item: SignageMedia) {
-        const ref = this._dialog.open(SignageMediaPreviewModalComponent, {
+        this._dialog.open(SignageMediaPreviewModalComponent, {
             data: {
                 url: item.media_url,
                 type: item.media_type,
@@ -296,7 +301,7 @@ export class SignageStateService extends AsyncHandler {
         });
     }
 
-    public previewFileFromInput(event, playlist_id: string = '') {
+    public previewFileFromInput(event, playlist_id = '') {
         const element: HTMLInputElement = event.target as any;
         /* istanbul ignore else */
         if (!element?.files?.length) return;
@@ -308,11 +313,11 @@ export class SignageStateService extends AsyncHandler {
         ) {
             this.editMedia(undefined, file, playlist_id);
         } else {
-            notifyError('Invalid file type.');
+            notifyError(i18n('APP.CONCIERGE.SIGNAGE_MEDIA_FILE_ERROR'));
         }
     }
 
-    public previewFileMedia(media: File, playlist_id: string = '') {
+    public previewFileMedia(media: File, playlist_id = '') {
         const url = URL.createObjectURL(media);
         const type = media.type.includes('image') ? 'image' : 'video';
         const ref = this._dialog.open(SignageMediaPreviewModalComponent, {
@@ -401,19 +406,19 @@ export class SignageStateService extends AsyncHandler {
         if (!item?.id) return;
         const result = await openConfirmModal(
             {
-                title: `Remove Media item`,
-                content: `
-                Are you sure you wish to remove the media item "<strong>${item.name}</strong>"?<br/><br/>
-                <i class="text-sm">The item will be removed from all playlists and the files deleted from storage.</i>
-                `,
+                title: i18n('APP.CONCIERGE.SIGNAGE_MEDIA_REMOVE'),
+                content: i18n('APP.CONCIERGE.SIGNAGE_MEDIA_REMOVE_MSG', {
+                    name: item.name,
+                }),
                 icon: { content: 'delete' },
             },
             this._dialog,
         );
         if (result.reason !== 'done') return;
-        result.loading('Removing media...');
+        result.loading(i18n('APP.CONCIERGE.SIGNAGE_MEDIA_REMOVE_LOADING'));
         await removeSignageMedia(item.id).toPromise();
         this._change.next(Date.now());
+        notifySuccess(i18n('APP.CONCIERGE.SIGNAGE_MEDIA_REMOVE_SUCCESS'));
         result.close();
     }
 

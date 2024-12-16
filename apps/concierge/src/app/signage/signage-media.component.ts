@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 
 import { SignageStateService } from './signage-state.service';
 import { AsyncHandler, unique } from '@placeos/common';
@@ -17,14 +17,16 @@ import { CdkDragDrop } from '@angular/cdk/drag-drop';
                 sidebar
                 class="w-64 h-full flex flex-col space-y-4 py-4 overflow-auto"
             >
-                <h3 class="text-xl font-medium text-center">Playlists</h3>
+                <h3 class="text-xl font-medium text-center">
+                    {{ 'APP.CONCIERGE.SIGNAGE_PLAYLISTS' | translate }}
+                </h3>
                 <mat-form-field
                     appearance="outline"
                     class="w-full no-subscript"
                 >
                     <input
                         matInput
-                        placeholder="Search..."
+                        [placeholder]="'COMMON.SEARCH' | translate"
                         [ngModel]="search.getValue()"
                         (ngModelChange)="search.next($event)"
                     />
@@ -37,7 +39,7 @@ import { CdkDragDrop } from '@angular/cdk/drag-drop';
                     [routerLink]="[]"
                     [queryParams]="{ playlist: '' }"
                 >
-                    All Media
+                    {{ 'APP.CONCIERGE.SIGNAGE_MEDIA_ALL' | translate }}
                 </a>
                 <hr class="w-full" />
                 @if ((playlists | async)?.length > 0) {
@@ -77,9 +79,10 @@ import { CdkDragDrop } from '@angular/cdk/drag-drop';
                         <app-icon class="text-6xl">hide_image</app-icon>
                         <p class="text-center">
                             {{
-                                search.getValue()
-                                    ? 'No matching playlists found'
-                                    : 'No playlists'
+                                (search.getValue()
+                                    ? 'APP.CONCIERGE.SIGNAGE_PLAYLISTS_SEARCH_EMPTY'
+                                    : 'APP.CONCIERGE.SIGNAGE_PLAYLISTS_EMPTY'
+                                ) | translate
                             }}
                         </p>
                     </div>
@@ -92,7 +95,10 @@ import { CdkDragDrop } from '@angular/cdk/drag-drop';
                     >
                         <div class="flex items-center justify-center w-full">
                             <app-icon class="text-2xl">add</app-icon>
-                            <span class="ml-2 mr-4">Add Playlist</span>
+                            <span class="ml-2 mr-4">{{
+                                'APP.CONCIERGE.SIGNAGE_PLAYLISTS_ADD'
+                                    | translate
+                            }}</span>
                         </div>
                     </button>
                 }
@@ -127,7 +133,12 @@ import { CdkDragDrop } from '@angular/cdk/drag-drop';
                         class="absolute inset-4 border-4 border-dashed border-base-300 flex flex-col items-center justify-center rounded-2xl text-base-100 space-y-4"
                     >
                         <app-icon class="text-6xl">cloud_upload</app-icon>
-                        <p>Drop Media to upload</p>
+                        <p>
+                            {{
+                                'APP.CONCIERGE.SIGNAGE_MEDIA_DROP_UPLOAD'
+                                    | translate
+                            }}
+                        </p>
                     </div>
                     <input
                         type="file"
@@ -146,7 +157,7 @@ import { CdkDragDrop } from '@angular/cdk/drag-drop';
         `,
     ],
 })
-export class SignageMediaComponent extends AsyncHandler {
+export class SignageMediaComponent extends AsyncHandler implements OnInit {
     public readonly search = new BehaviorSubject<string>('');
     public readonly loading = this._state.loading;
     public readonly playlists = combineLatest([

@@ -40,13 +40,23 @@ import { getUnixTime, startOfMinute } from 'date-fns';
                 <button mat-menu-item (click)="editPlaylist()">
                     <div class="flex items-center space-x-2">
                         <app-icon class="text-2xl">edit</app-icon>
-                        <div class="pr-2">Edit Playlist</div>
+                        <div class="pr-2">
+                            {{
+                                'APP.CONCIERGE.SIGNAGE_PLAYLISTS_EDIT'
+                                    | translate
+                            }}
+                        </div>
                     </div>
                 </button>
                 <button mat-menu-item (click)="removePlaylist()">
                     <div class="flex items-center space-x-2">
                         <app-icon class="text-2xl text-error">delete</app-icon>
-                        <div class="pr-2">Remove Playlist</div>
+                        <div class="pr-2">
+                            {{
+                                'APP.CONCIERGE.SIGNAGE_PLAYLISTS_REMOVE'
+                                    | translate
+                            }}
+                        </div>
                     </div>
                 </button>
             </mat-menu>
@@ -63,24 +73,25 @@ import { getUnixTime, startOfMinute } from 'date-fns';
                     "
                 >
                     {{
-                        (selected_playlist | async)?.enabled
-                            ? 'Enabled'
-                            : 'Disabled'
+                        ((selected_playlist | async)?.enabled
+                            ? 'COMMON.ENABLED'
+                            : 'COMMON.DISABLED'
+                        ) | translate
                     }}
                 </div>
                 <div
                     class="ml-2 text-xs px-2 py-1 m-1 rounded bg-secondary text-secondary-content"
                     *ngIf="(selected_playlist | async)?.random"
                 >
-                    Shuffle ON
+                    {{ 'APP.CONCIERGE.SIGNAGE_SHUFFLE' | translate }}
                 </div>
                 <div
-                    class="text-xs px-2 py-1 m-1 "
+                    class="text-xs px-2 py-2 m-1 rounded bg-base-200"
                     matTooltip="Default Transition Animation"
                 >
-                    Animation:
+                    {{ 'APP.CONCIERGE.SIGNAGE_ANIMATION' | translate }}
                     <span
-                        class="ml-1 uppercase bg-base-200 px-2 py-1 rounded"
+                        class="ml-1 uppercase bg-base-300 px-2 py-1 rounded"
                         >{{
                             animation_name(
                                 (selected_playlist | async)?.default_animation
@@ -89,12 +100,12 @@ import { getUnixTime, startOfMinute } from 'date-fns';
                     >
                 </div>
                 <div
-                    class="text-xs px-2 py-1 m-1"
+                    class="text-xs px-2 py-2 m-1 rounded bg-base-200"
                     matTooltip="Default Playback Duration"
                 >
-                    Duration:
+                    {{ 'APP.CONCIERGE.SIGNAGE_DURATION' | translate }}
                     <span
-                        class="ml-1 font-mono bg-base-200 px-2 py-1 rounded"
+                        class="ml-1 font-mono bg-base-300 px-2 py-1 rounded"
                         >{{
                             (selected_playlist | async)?.default_duration / 1000
                                 | mediaDuration
@@ -102,12 +113,12 @@ import { getUnixTime, startOfMinute } from 'date-fns';
                     >
                 </div>
                 <div
-                    class="text-xs px-2 py-1 m-1"
+                    class="text-xs px-2 py-2 m-1 rounded bg-base-200"
                     matTooltip="Prefered Orientation"
                 >
-                    Orientation:
+                    {{ 'APP.CONCIERGE.SIGNAGE_ORIENTATION' | translate }}
                     <span
-                        class="ml-1 uppercase bg-base-200 px-2 py-1 rounded"
+                        class="ml-1 uppercase bg-base-300 px-2 py-1 rounded"
                         >{{ (selected_playlist | async)?.orientation }}</span
                     >
                 </div>
@@ -182,7 +193,12 @@ import { getUnixTime, startOfMinute } from 'date-fns';
                                         <app-icon class="text-2xl">
                                             edit
                                         </app-icon>
-                                        <div class="pr-2">Edit Media Item</div>
+                                        <div class="pr-2">
+                                            {{
+                                                'APP.CONCIERGE.SIGNAGE_MEDIA_EDIT'
+                                                    | translate
+                                            }}
+                                        </div>
                                     </div>
                                 </button>
                                 <button
@@ -194,7 +210,10 @@ import { getUnixTime, startOfMinute } from 'date-fns';
                                             visibility
                                         </app-icon>
                                         <div class="pr-2">
-                                            Preview Media Item
+                                            {{
+                                                'APP.CONCIERGE.SIGNAGE_MEDIA_PREVIEW'
+                                                    | translate
+                                            }}
                                         </div>
                                     </div>
                                 </button>
@@ -207,7 +226,10 @@ import { getUnixTime, startOfMinute } from 'date-fns';
                                             delete
                                         </app-icon>
                                         <div class="pr-2">
-                                            Remove Media Item
+                                            {{
+                                                'APP.CONCIERGE.SIGNAGE_MEDIA_REMOVE'
+                                                    | translate
+                                            }}
                                         </div>
                                     </div>
                                 </button>
@@ -220,7 +242,12 @@ import { getUnixTime, startOfMinute } from 'date-fns';
                     class="flex flex-col items-center justify-center p-8 space-y-2 opacity-30 mx-auto flex-1"
                 >
                     <app-icon class="text-6xl">hide_image</app-icon>
-                    <p>No media in playlist.</p>
+                    <p>
+                        {{
+                            'APP.CONCIERGE.SIGNAGE_PLAYLIST_MEDIA_EMPTY'
+                                | translate
+                        }}
+                    </p>
                 </div>
             }
         </div>

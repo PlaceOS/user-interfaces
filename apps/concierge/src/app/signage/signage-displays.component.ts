@@ -1,9 +1,14 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { SignageStateService } from './signage-state.service';
 import { map, shareReplay, switchMap, take, tap } from 'rxjs/operators';
 import { ActivatedRoute } from '@angular/router';
-import { AsyncHandler, notifySuccess, SettingsService } from '@placeos/common';
+import {
+    AsyncHandler,
+    i18n,
+    notifySuccess,
+    SettingsService,
+} from '@placeos/common';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import {
     listSystemTriggers,
@@ -17,14 +22,16 @@ import {
     template: `
         <div class="relative h-full w-full overflow-visible flex space-x-4">
             <div sidebar class="w-64 h-full flex flex-col space-y-4 py-4">
-                <h3 class="text-xl font-medium text-center">Displays</h3>
+                <h3 class="text-xl font-medium text-center">
+                    {{ 'APP.CONCIERGE.SIGNAGE_DISPLAYS' | translate }}
+                </h3>
                 <mat-form-field
                     appearance="outline"
                     class="w-full no-subscript"
                 >
                     <input
                         matInput
-                        placeholder="Search..."
+                        [placeholder]="'COMMON.SEARCH' | translate"
                         [ngModel]="search.getValue()"
                         (ngModelChange)="search.next($event)"
                     />
@@ -97,9 +104,10 @@ import {
                         <app-icon class="text-6xl">hide_image</app-icon>
                         <p class="text-center">
                             {{
-                                search.getValue()
-                                    ? 'No matching displays found'
-                                    : 'No displays'
+                                (search.getValue()
+                                    ? 'APP.CONCIERGE.SIGNAGE_DISPLAYS_SEARCH_EMPTY'
+                                    : 'APP.CONCIERGE.SIGNAGE_DISPLAYS_EMPTY'
+                                ) | translate
                             }}
                         </p>
                     </div>
@@ -150,7 +158,10 @@ import {
                                 class="underline font-mono text-xs px-2 py-1 rounded m-1"
                                 matRipple
                             >
-                                Add Zone
+                                {{
+                                    'APP.CONCIERGE.SIGNAGE_DISPLAYS_ZONE_ADD'
+                                        | translate
+                                }}
                             </button>
                         </div>
                         <button
@@ -176,7 +187,12 @@ import {
                                     <app-icon class="text-2xl"
                                         >open_in_new</app-icon
                                     >
-                                    <div class="pr-2">Open Signage Player</div>
+                                    <div class="pr-2">
+                                        {{
+                                            'APP.CONCIERGE.SIGNAGE_DISPLAYS_OPEN_PLAYER'
+                                                | translate
+                                        }}
+                                    </div>
                                 </div>
                             </a>
                             <button mat-menu-item (click)="removeDisplay()">
@@ -184,7 +200,12 @@ import {
                                     <app-icon class="text-2xl text-error"
                                         >delete</app-icon
                                     >
-                                    <div class="pr-2">Remove Display</div>
+                                    <div class="pr-2">
+                                        {{
+                                            'APP.CONCIERGE.SIGNAGE_DISPLAYS_REMOVE'
+                                                | translate
+                                        }}
+                                    </div>
                                 </div>
                             </button>
                         </mat-menu>
@@ -194,7 +215,12 @@ import {
                         class="absolute inset-0 flex flex-col items-center justify-center space-y-2 opacity-30"
                     >
                         <app-icon class="text-6xl">desktop_windows</app-icon>
-                        <p>Select a display from the left to view playlists</p>
+                        <p>
+                            {{
+                                'APP.CONCIERGE.SIGNAGE_DISPLAYS_SELECT'
+                                    | translate
+                            }}
+                        </p>
                     </div>
                 }
                 <search-overlay
@@ -208,7 +234,7 @@ import {
     `,
     styles: [``],
 })
-export class SignageDisplaysComponent extends AsyncHandler {
+export class SignageDisplaysComponent extends AsyncHandler implements OnInit {
     public adding = false;
     public switching = false;
     public readonly search = new BehaviorSubject<string>('');
@@ -304,7 +330,11 @@ export class SignageDisplaysComponent extends AsyncHandler {
             'patch',
         ).toPromise();
         notifySuccess(
-            `Successfully added playlist to the ${trigger ? 'trigger' : 'display'}`,
+            i18n(
+                trigger
+                    ? 'APP.CONCIERGE.SIGNAGE_TRIGGERS_PLAYLIST_ADDED'
+                    : 'APP.CONCIERGE.SIGNAGE_DISPLAYS_PLAYLIST_ADDED',
+            ),
         );
         this._state.changed();
         this.adding = false;
@@ -322,7 +352,11 @@ export class SignageDisplaysComponent extends AsyncHandler {
             'patch',
         ).toPromise();
         notifySuccess(
-            `Successfully removed playlist from ${trigger ? 'trigger' : 'display'}`,
+            i18n(
+                trigger
+                    ? 'APP.CONCIERGE.SIGNAGE_TRIGGERS_PLAYLIST_REMOVED'
+                    : 'APP.CONCIERGE.SIGNAGE_DISPLAYS_PLAYLIST_REMOVED',
+            ),
         );
         this._state.changed();
         this.adding = false;
@@ -346,7 +380,11 @@ export class SignageDisplaysComponent extends AsyncHandler {
                 throw e;
             });
         notifySuccess(
-            `Successfully re-ordered playlists on ${trigger ? 'trigger' : 'display'}`,
+            i18n(
+                trigger
+                    ? 'APP.CONCIERGE.SIGNAGE_TRIGGERS_PLAYLIST_REORDER'
+                    : 'APP.CONCIERGE.SIGNAGE_DISPLAYS_PLAYLIST_REORDER',
+            ),
         );
         this._state.changed();
     }
