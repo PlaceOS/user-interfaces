@@ -38,6 +38,7 @@ import {
 } from '@placeos/bookings';
 import {
     AsyncHandler,
+    i18n,
     notifyError,
     notifyInfo,
     notifySuccess,
@@ -490,36 +491,50 @@ export class LockerStateService extends AsyncHandler {
     public async removeLockerBank(bank: LockerBank) {
         const state = await openConfirmModal(
             {
-                title: 'Remove Locker Bank',
-                content: `Are you sure you wish to remove the locker bank "${bank.name}"?`,
+                title: i18n('APP.CONCIERGE.LOCKERS_BANK_REMOVE_TITLE'),
+                content: i18n('APP.CONCIERGE.LOCKERS_BANK_REMOVE_TITLE', {
+                    name: bank.name,
+                }),
                 icon: { content: 'delete' },
             },
             this._dialog,
         );
         if (state?.reason !== 'done') return;
-        state.loading('Removing parking space...');
+        state.loading(i18n('APP.CONCIERGE.LOCKERS_BANK_REMOVE_LOADING'));
         const zone = this._org.building.id;
         const banks = await this.lockers_banks$.pipe(take(1)).toPromise();
         await updateMetadata(zone, {
             name: 'locker_banks',
             details: banks.filter((_) => _.id !== bank.id),
             description: 'List of available locker banks',
-        }).toPromise();
+        })
+            .toPromise()
+            .catch((e) => {
+                notifyError(
+                    i18n('APP.CONCIERGE.LOCKERS_BANK_REMOVE_ERROR', {
+                        error: e,
+                    }),
+                );
+                throw e;
+            });
         state.close();
+        notifySuccess(i18n('APP.CONCIERGE.LOCKERS_BANK_REMOVE_SUCCESS'));
         this._change.next(Date.now());
     }
 
     public async removeLocker(locker: Locker) {
         const state = await openConfirmModal(
             {
-                title: 'Remove Locker',
-                content: `Are you sure you wish to remove the locker "${locker.name}"?`,
+                title: i18n('APP.CONCIERGE.LOCKERS_REMOVE_TITLE'),
+                content: i18n('APP.CONCIERGE.LOCKERS_REMOVE_TITLE', {
+                    name: locker.name,
+                }),
                 icon: { content: 'delete' },
             },
             this._dialog,
         );
         if (state?.reason !== 'done') return;
-        state.loading('Removing parking space...');
+        state.loading(i18n('APP.CONCIERGE.LOCKERS_REMOVE_LOADING'));
         const zone = this._org.building.id;
         const lockers = await this.lockers$.pipe(take(1)).toPromise();
         this._clearAssignedBooking(locker);
@@ -527,8 +542,16 @@ export class LockerStateService extends AsyncHandler {
             name: 'lockers',
             details: lockers.filter((_) => _.id !== locker.id),
             description: 'List of available lockers',
-        }).toPromise();
+        })
+            .toPromise()
+            .catch((e) => {
+                notifyError(
+                    i18n('APP.CONCIERGE.LOCKERS_REMOVE_ERROR', { error: e }),
+                );
+                throw e;
+            });
         state.close();
+        notifySuccess(i18n('APP.CONCIERGE.LOCKERS_REMOVE_SUCCESS'));
         this._change.next(Date.now());
     }
 
@@ -581,13 +604,21 @@ export class LockerStateService extends AsyncHandler {
             .catch((_) => ({ failed: true, error: _ }));
         if (status.failed) {
             notifyError(
-                status.error
-                    ? `Error: ${status.error}`
-                    : `Error checking ${state ? 'in' : 'out'} locker booking`,
+                i18n(
+                    state
+                        ? 'BOOKINGS.CHECK_IN_ERROR'
+                        : 'BOOKINGS_CHECK_OUT_ERROR',
+                ),
             );
             throw status.error;
         }
-        notifySuccess(`Checked ${state ? 'in' : 'out'} ${locker.user_name}.`);
+        notifySuccess(
+            i18n(
+                state
+                    ? 'BOOKINGS.CHECK_IN_SUCCESS'
+                    : 'BOOKINGS_CHECK_OUT_SUCCESS',
+            ),
+        );
     }
 
     public async approveLocker(locker: Booking) {
@@ -595,13 +626,12 @@ export class LockerStateService extends AsyncHandler {
             .toPromise()
             .catch((_) => 'failed');
         if (success === 'failed') {
-            return notifyError('Error approving in locker booking');
+            return notifyError(i18n('APP.CONCIERGE.LOCKERS_APPROVE_ERROR'));
         }
         notifySuccess(
-            `Approved locker booking for ${locker.user_name} on ${format(
-                locker.date,
-                'MMM do',
-            )}.`,
+            i18n('APP.CONCIERGE.LOCKERS_APPROVE_SUCCESS', {
+                name: locker.user_name,
+            }),
         );
         (locker as any).approved = true;
         (locker as any).rejected = false;
@@ -612,13 +642,12 @@ export class LockerStateService extends AsyncHandler {
             .toPromise()
             .catch((_) => 'failed');
         if (success === 'failed') {
-            return notifyError('Error rejecting in locker booking');
+            return notifyError(i18n('APP.CONCIERGE.LOCKERS_REJECT_ERROR'));
         }
         notifySuccess(
-            `Rejected locker booking for ${locker.user_name} on ${format(
-                locker.date,
-                'MMM do',
-            )}.`,
+            i18n('APP.CONCIERGE.LOCKERS_REJECT_SUCCESS', {
+                name: locker.user_name,
+            }),
         );
         (locker as any).approved = false;
         (locker as any).rejected = true;
@@ -644,9 +673,8 @@ export class LockerStateService extends AsyncHandler {
             return notifyInfo('No lockers to reject for the selected date');
         const resp = await openConfirmModal(
             {
-                title: 'Cancel all locker bookings',
-                content:
-                    'Are you sure you want to cancel all bookings for the selected date?',
+                title: i18n('APP.CONCIERGE.LOCKERS_REJECT_ALL_TITLE'),
+                content: i18n('APP.CONCIERGE.LOCKERS_REJECT_ALL_MSG'),
                 icon: {
                     type: 'icon',
                     class: 'material-icons',
@@ -656,13 +684,14 @@ export class LockerStateService extends AsyncHandler {
             this._dialog,
         );
         if (resp.reason !== 'done') return;
-        resp.loading('Rejecting all lockers for selected date...');
+        resp.loading(i18n('APP.CONCIERGE.LOCKERS_REJECT_ALL_LOADING'));
         await Promise.all(
             list.map((locker) => rejectBooking(locker.id).toPromise()),
-        );
-        notifySuccess(
-            'Successfully rejected all locker bookings for selected date.',
-        );
+        ).catch((e) => {
+            notifyError(i18n('APP.CONCIERGE.LOCKERS_REJECT_ALL_ERROR'));
+            throw e;
+        });
+        notifySuccess(i18n('APP.CONCIERGE.LOCKERS_REJECT_ALL_SUCCESS'));
         resp.close();
     }
 

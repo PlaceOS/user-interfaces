@@ -39,10 +39,7 @@ import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component'
         `,
     ],
 })
-export class NewLockersComponent
-    extends AsyncHandler
-    implements OnInit, OnDestroy
-{
+export class NewLockersComponent extends AsyncHandler implements OnInit {
     public readonly loading = this._state.loading;
     public path: string;
     /** List of levels for the active building */
@@ -92,62 +89,9 @@ export class NewLockersComponent
         this.path = parts[parts.length - 1].split('?')[0];
     }
 
-    public ngOnDestroy() {
-        super.ngOnDestroy();
-    }
-
-    // public newLockerBooking() {
-    //     const ref = this._dialog.open(LockerBookModalComponent, {});
-    //     ref.afterClosed().subscribe((_) => {
-    //         this._state.refresh();
-    //     });
-    // }
-
     public manageRestrictions() {
         this._dialog.open(BookingRulesModalComponent, {
             data: { type: 'locker' },
         });
     }
-
-    // public newLocker() {
-    //     this._state.addLockers([
-    //         new Locker({ id: `locker-${randomInt(999_999)}` }),
-    //     ]);
-    //     notifySuccess(
-    //         'New locker added to local data. Make sure to save the locker before using it.'
-    //     );
-    // }
-
-    // public downloadTemplate() {
-    //     const locker: any = new Locker({
-    //         id: 'locker-123',
-    //         name: 'Test Locker',
-    //         bookable: true,
-    //         groups: ['test-locker-group', 'locker-bookers'],
-    //         features: ['Standing Locker', 'Dual Monitor'],
-    //     }).toJSON();
-    //     const data = jsonToCsv([locker]);
-    //     downloadFile('locker-template.csv', data);
-    // }
-
-    // public async loadCSVData(event: InputEvent) {
-    //     const data = await loadTextFileFromInputEvent(event).catch(([m, e]) => {
-    //         notifyError(m);
-    //         throw e;
-    //     });
-    //     try {
-    //         const list = csvToJson(data) || [];
-    //         this._state.addLockers(
-    //             list.map(
-    //                 (_) =>
-    //                     new Locker({
-    //                         ..._,
-    //                         id: _.id || `locker-${randomInt(999_999)}`,
-    //                     })
-    //             )
-    //         );
-    //     } catch (e) {
-    //         console.error(e);
-    //     }
-    // }
 }

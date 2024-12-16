@@ -16,7 +16,14 @@ import { map } from 'rxjs/operators';
     template: `
         <div class="w-[28rem]">
             <header class="flex items-center justify-between px-2 w-full">
-                <h2 class="px-2">{{ id ? 'Edit' : 'New' }} Locker Bank</h2>
+                <h2 class="px-2">
+                    {{
+                        (id
+                            ? 'APP.CONCIERGE.LOCKERS_BANK_EDIT'
+                            : 'APP.CONCIERGE.LOCKERS_BANK_NEW'
+                        ) | translate
+                    }}
+                </h2>
                 <button *ngIf="!loading" icon matRipple mat-dialog-close>
                     <app-icon>close</app-icon>
                 </button>
@@ -26,7 +33,7 @@ import { map } from 'rxjs/operators';
                 class="p-4 flex flex-col"
                 [formGroup]="form"
             >
-                <label for="name">Level</label>
+                <label for="name">{{ 'RESOURCE.LEVEL' | translate }}</label>
                 <mat-form-field appearance="outline" class="w-full">
                     <mat-select
                         [ngModel]="form.value.zones[0]"
@@ -55,29 +62,31 @@ import { map } from 'rxjs/operators';
                         </mat-option>
                     </mat-select>
                 </mat-form-field>
-                <label for="name">Locker Bank Name</label>
+                <label for="name">{{ 'FORM.NAME' | translate }}</label>
                 <mat-form-field appearance="outline">
                     <input
                         matInput
                         name="name"
                         formControlName="name"
-                        placeholder="Name"
+                        [placeholder]="'FORM.NAME' | translate"
                     />
-                    <mat-error>A name is required for a locker bank</mat-error>
+                    <mat-error>{{
+                        'FORM.NAME_REQUIRED' | translate
+                    }}</mat-error>
                 </mat-form-field>
-                <label for="map-id">Map ID</label>
+                <label for="map-id">{{ 'EXPLORE.MAP_ID' | translate }}</label>
                 <mat-form-field appearance="outline">
                     <input
                         matInput
                         name="map-id"
                         formControlName="map_id"
-                        placeholder="Map ID"
+                        [placeholder]="'EXPLORE.MAP_ID' | translate"
                     />
                     <mat-error>
-                        A map ID is required for a locker bank
+                        {{ 'EXPLORE.MAP_ID_REQUIRED' | translate }}
                     </mat-error>
                 </mat-form-field>
-                <label for="row">Height</label>
+                <label for="row">{{ 'COMMON.HEIGHT' | translate }}</label>
                 <a-counter
                     formControlName="height"
                     class="mb-4"
@@ -85,16 +94,16 @@ import { map } from 'rxjs/operators';
                     [max]="16"
                     [render_fn]="render_fn"
                 ></a-counter>
-                <label for="notes">Notes</label>
+                <label for="notes">{{ 'FORM.NOTES' | translate }}</label>
                 <mat-form-field appearance="outline">
                     <textarea
                         matInput
                         name="notes"
-                        placeholder="Locker Bank Notes"
+                        [placeholder]="'FORM.NOTES' | translate"
                         formControlName="notes"
                     ></textarea>
                 </mat-form-field>
-                <label for="tags"> Tags </label>
+                <label for="tags"> {{ 'COMMON.TAGS' | translate }} </label>
                 <mat-form-field appearance="outline" class="w-full">
                     <mat-chip-grid name="tags" #chipList aria-label="Tag List">
                         <mat-chip-row
@@ -104,7 +113,9 @@ import { map } from 'rxjs/operators';
                             <div class="truncate max-w-md">{{ item }}</div>
                             <button
                                 matChipRemove
-                                [attr.aria-label]="'Remove item'"
+                                [attr.aria-label]="
+                                    'COMMON.ITEM_REMOVE' | translate
+                                "
                             >
                                 <app-icon>cancel</app-icon>
                             </button>
@@ -119,11 +130,8 @@ import { map } from 'rxjs/operators';
                     />
                 </mat-form-field>
                 <div class="flex items-center justify-center space-x-2">
-                    <button btn matRipple class="w-32 inverse" mat-dialog-close>
-                        Cancel
-                    </button>
                     <button btn matRipple class="w-32" (click)="postForm()">
-                        Save
+                        {{ 'COMMON.SAVE' | translate }}
                     </button>
                 </div>
             </main>
@@ -133,7 +141,7 @@ import { map } from 'rxjs/operators';
                 class="p-8 flex flex-col items-center justify-center space-y-2"
             >
                 <mat-spinner diameter="32"></mat-spinner>
-                <p>Saving locker bank details...</p>
+                <p>{{ 'APP.CONCIERGE.LOCKERS_BANK_SAVING' | translate }}</p>
             </main>
         </ng-template>
     `,

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Inject, Output } from '@angular/core';
+import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Locker } from '@placeos/bookings';
@@ -14,7 +14,14 @@ import {
     template: `
         <div class="w-[28rem]">
             <header class="flex items-center justify-between px-2 w-full">
-                <h2 class="px-2">{{ id ? 'Edit' : 'New' }} Locker</h2>
+                <h2 class="px-2">
+                    {{
+                        (id
+                            ? 'APP.CONCIERGE.LOCKERS_EDIT'
+                            : 'APP.CONCIERGE.LOCKERS_NEW'
+                        ) | translate
+                    }}
+                </h2>
                 <button *ngIf="!loading" icon matRipple mat-dialog-close>
                     <app-icon>close</app-icon>
                 </button>
@@ -24,17 +31,21 @@ import {
                 class="p-4 flex flex-col"
                 [formGroup]="form"
             >
-                <label for="name">Locker Name</label>
+                <label for="name">{{ 'FORM.NAME' | translate }}</label>
                 <mat-form-field appearance="outline">
                     <input
                         matInput
                         name="name"
                         formControlName="name"
-                        placeholder="Name"
+                        [placeholder]="'FORM.NAME' | translate"
                     />
-                    <mat-error>A name is required for a locker</mat-error>
+                    <mat-error>{{
+                        'FORM.NAME_REQUIRED' | translate
+                    }}</mat-error>
                 </mat-form-field>
-                <label for="user">Assigned User</label>
+                <label for="user">{{
+                    'APP.CONCIERGE.USER_ASSIGNED' | translate
+                }}</label>
                 <div class="flex items-center space-x-2 mb-4">
                     <a-user-search-field
                         name="user"
@@ -45,7 +56,7 @@ import {
                         icon
                         matRipple
                         class="h-12 w-12 min-w-12 rounded bg-secondary text-secondary-content"
-                        matTooltip="Clear Assigned User"
+                        [matTooltip]="'APP.CONCIERGE.USER_CLEAR' | translate"
                         (click)="
                             form.patchValue({
                                 assigned_user: null,
@@ -62,12 +73,12 @@ import {
                 <div class="flex space-x-4 mb-4">
                     <settings-toggle
                         class="flex-1"
-                        name="Accessible"
+                        [name]="'APP.CONCIERGE.LOCKERS_ACCESSIBLE' | translate"
                         formControlName="accessible"
                     ></settings-toggle>
                     <settings-toggle
                         class="flex-1"
-                        name="Bookable"
+                        [name]="'COMMON.BOOKABLE' | translate"
                         formControlName="bookable"
                     ></settings-toggle>
                 </div>
@@ -107,7 +118,9 @@ import {
                 </div>
                 <div class="flex space-x-4 mb-4">
                     <div class="flex-1">
-                        <label for="row">Width</label>
+                        <label for="row">{{
+                            'COMMON.WIDTH' | translate
+                        }}</label>
                         <a-counter
                             [ngModel]="form.value.size[0]"
                             (ngModelChange)="
@@ -121,7 +134,9 @@ import {
                         ></a-counter>
                     </div>
                     <div class="flex-1">
-                        <label for="column">Height</label>
+                        <label for="column">{{
+                            'COMMON.HEIGHT' | translate
+                        }}</label>
                         <a-counter
                             [ngModel]="form.value.size[1]"
                             (ngModelChange)="
@@ -136,16 +151,18 @@ import {
                         ></a-counter>
                     </div>
                 </div>
-                <label for="notes">Notes</label>
+                <label for="notes">{{ 'FORM.NOTES' | translate }}</label>
                 <mat-form-field appearance="outline">
                     <textarea
                         matInput
                         name="notes"
                         formControlName="notes"
-                        placeholder="Locker Notes"
+                        [placeholder]="'FORM.NOTES' | translate"
                     ></textarea>
                 </mat-form-field>
-                <label for="features"> Features </label>
+                <label for="features">
+                    {{ 'COMMON.FEATURES' | translate }}
+                </label>
                 <mat-form-field appearance="outline" class="w-full">
                     <mat-chip-grid
                         name="features"
@@ -159,14 +176,16 @@ import {
                             <div class="truncate max-w-md">{{ item }}</div>
                             <button
                                 matChipRemove
-                                [attr.aria-label]="'Remove item'"
+                                [attr.aria-label]="
+                                    'COMMON.ITEM_REMOVE' | translate
+                                "
                             >
                                 <app-icon>cancel</app-icon>
                             </button>
                         </mat-chip-row>
                     </mat-chip-grid>
                     <input
-                        placeholder="Features..."
+                        [placeholder]="'COMMON.FEATURES' | translate"
                         [matChipInputFor]="chipList"
                         [matChipInputSeparatorKeyCodes]="separators"
                         [matChipInputAddOnBlur]="true"
@@ -174,11 +193,8 @@ import {
                     />
                 </mat-form-field>
                 <div class="flex items-center justify-center space-x-2">
-                    <button btn matRipple class="w-32 inverse" mat-dialog-close>
-                        Cancel
-                    </button>
                     <button btn matRipple class="w-32" (click)="postForm()">
-                        Save
+                        {{ 'COMMON.SAVE' | translate }}
                     </button>
                 </div>
             </main>
@@ -188,13 +204,13 @@ import {
                 class="p-8 flex flex-col items-center justify-center space-y-2"
             >
                 <mat-spinner diameter="32"></mat-spinner>
-                <p>Saving parking space details...</p>
+                <p>{{ 'APP.CONCIERGE.LOCKERS_SAVING' | translate }}</p>
             </main>
         </ng-template>
     `,
     styles: [``],
 })
-export class LockerModalComponent {
+export class LockerModalComponent implements OnInit {
     @Output() public readonly event = new EventEmitter<DialogEvent>();
     public loading: boolean;
 

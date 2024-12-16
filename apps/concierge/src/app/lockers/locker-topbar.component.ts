@@ -15,7 +15,10 @@ import { LockerStateService } from './locker-state.service';
         <div class="flex items-center w-full py-4 px-8 space-x-2">
             <h2 class="text-2xl font-medium">
                 {{
-                    path !== 'events' ? 'Locker Management' : 'Locker Bookings'
+                    (path !== 'events'
+                        ? 'APP.CONCIERGE.LOCKERS_HEADER'
+                        : 'APP.CONCIERGE.LOCKERS_BOOK_HEADER'
+                    ) | translate
                 }}
             </h2>
             <div class="flex-1 w-px"></div>
@@ -26,9 +29,10 @@ import { LockerStateService } from './locker-state.service';
             ></searchbar>
             <div
                 [matTooltip]="
-                    (options | async)?.zones?.length
+                    ((options | async)?.zones?.length
                         ? ''
-                        : 'Select a level to add a space'
+                        : 'APP.CONCIERGE.LOCKERS_LEVEL_SELECT'
+                    ) | translate
                 "
             >
                 <button
@@ -39,7 +43,9 @@ import { LockerStateService } from './locker-state.service';
                     (click)="newLockerBank()"
                     [disabled]="!(options | async)?.zones?.length"
                 >
-                    <div class="pl-4">New Bank</div>
+                    <div class="pl-4">
+                        {{ 'APP.CONCIERGE.LOCKERS_BANK_ADD' | translate }}
+                    </div>
                     <app-icon class="text-2xl">add</app-icon>
                 </button>
             </div>
@@ -50,7 +56,9 @@ import { LockerStateService } from './locker-state.service';
                 class="space-x-2 w-48"
                 (click)="newBooking()"
             >
-                <div class="pl-2">New Booking</div>
+                <div class="pl-2">
+                    {{ 'APP.CONCIERGE.NEW_BOOKING' | translate }}
+                </div>
                 <app-icon class="text-2xl">add</app-icon>
             </button>
         </div>
@@ -82,7 +90,7 @@ import { LockerStateService } from './locker-state.service';
                 matRipple
                 class="bg-secondary text-secondary-content rounded h-12 w-12"
                 (click)="manageRestrictions()"
-                matTooltip="Locker Restrictions"
+                [matTooltip]="'APP.CONCIERGE.LOCKERS_BOOKING_RULES' | translate"
                 *ngIf="path !== 'events' && path !== 'map'"
             >
                 <app-icon>lock_open</app-icon>

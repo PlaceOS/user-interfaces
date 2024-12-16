@@ -52,7 +52,7 @@ import { showUser } from '@placeos/ts-client';
                     </mat-error>
                 </mat-form-field>
                 <label for="user">{{
-                    'APP.CONCIERGE.PARKING_USER_ASSIGNED' | translate
+                    'APP.CONCIERGE.USER_ASSIGNED' | translate
                 }}</label>
                 <div class="flex items-center space-x-2 mb-4">
                     <a-user-search-field
@@ -64,9 +64,7 @@ import { showUser } from '@placeos/ts-client';
                         icon
                         matRipple
                         class="h-12 w-12 min-w-12 rounded bg-secondary text-secondary-content"
-                        [matTooltip]="
-                            'APP.CONCIERGE.PARKING_USER_CLEAR' | translate
-                        "
+                        [matTooltip]="'APP.CONCIERGE.USER_CLEAR' | translate"
                         (click)="
                             form.patchValue({
                                 assigned_user: null,

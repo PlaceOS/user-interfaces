@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { LockerStateService } from './locker-state.service';
-import { AsyncHandler, notifySuccess } from '@placeos/common';
+import { AsyncHandler, i18n, notifySuccess } from '@placeos/common';
 import { combineLatest } from 'rxjs';
 import { Booking, Locker } from '@placeos/bookings';
 import { Clipboard } from '@angular/cdk/clipboard';
@@ -16,15 +16,23 @@ import { Clipboard } from '@angular/cdk/clipboard';
             class="min-w-[52rem] block text-sm"
             [data]="locker_banks"
             [columns]="[
-                { key: 'name', name: 'Locker Bank', content: name_template },
-                { key: 'map_id', name: 'Map ID', content: id_template },
+                {
+                    key: 'name',
+                    name: 'APP.CONCIERGE.LOCKERS_BANK' | translate,
+                    content: name_template,
+                },
+                {
+                    key: 'map_id',
+                    name: 'EXPLORE.MAP_ID' | translate,
+                    content: id_template,
+                },
                 {
                     key: 'height',
-                    name: 'Height',
+                    name: 'COMMON.HEIGHT' | translate,
                     size: '6rem',
                     content: height_template,
                 },
-                { key: 'tags', name: 'Tags', size: '8rem' },
+                { key: 'tags', name: 'COMMON.TAGS' | translate, size: '8rem' },
                 {
                     key: 'actions',
                     name: ' ',
@@ -37,7 +45,7 @@ import { Clipboard } from '@angular/cdk/clipboard';
             [show_children]="show_children"
             [child_template]="locker_list_template"
             [sortable]="true"
-            empty_message="No lockers for selected zone"
+            [empty_message]="'APP.CONCIERGE.LOCKERS_BANK_EMPTY' | translate"
         ></simple-table>
         <div class="w-full h-20"></div>
         <ng-template #height_template let-data="data">
@@ -49,7 +57,9 @@ import { Clipboard } from '@angular/cdk/clipboard';
                 (click)="copyToClipboard(data)"
             >
                 {{ data }}
-                <span *ngIf="!data" class="opacity-30">No Map ID</span>
+                <span *ngIf="!data" class="opacity-30">{{
+                    'EXPLORE.MAP_ID_EMPTY' | translate
+                }}</span>
             </button>
         </ng-template>
         <ng-template #name_template let-row="row" let-data="data">
@@ -75,7 +85,9 @@ import { Clipboard } from '@angular/cdk/clipboard';
                     <button mat-menu-item (click)="editLocker(row.id)">
                         <div class="flex items-center space-x-2">
                             <app-icon class="text-xl">add</app-icon>
-                            <span>Add Locker</span>
+                            <span>{{
+                                'APP.CONCIERGE.LOCKERS_ADD' | translate
+                            }}</span>
                         </div>
                     </button>
                     <button mat-menu-item (click)="viewBank(row)">
@@ -87,7 +99,9 @@ import { Clipboard } from '@angular/cdk/clipboard';
                     <button mat-menu-item (click)="editLockerBank(row)">
                         <div class="flex items-center space-x-2">
                             <app-icon class="text-xl">edit</app-icon>
-                            <span>Edit Locker Bank</span>
+                            <span>{{
+                                'APP.CONCIERGE.LOCKERS_BANK_EDIT' | translate
+                            }}</span>
                         </div>
                     </button>
                     <button mat-menu-item>
@@ -95,7 +109,9 @@ import { Clipboard } from '@angular/cdk/clipboard';
                             <app-icon class="text-xl text-error"
                                 >delete</app-icon
                             >
-                            <span>Remove Locker Bank</span>
+                            <span>{{
+                                'APP.CONCIERGE.LOCKERS_BANK_REMOVE' | translate
+                            }}</span>
                         </div>
                     </button>
                 </mat-menu>
@@ -159,10 +175,12 @@ import { Clipboard } from '@angular/cdk/clipboard';
                         size: '5.9rem',
                     },
                 ]"
-                empty_message="No lockers for this bank"
+                [empty_message]="'APP.CONCIERGE.LOCKERS_EMPTY' | translate"
             ></simple-table>
             <ng-template #assigned_template let-row="row" let-data="data">
-                <div *ngIf="!data" class="p-4 opacity-30">No Assigned User</div>
+                <div *ngIf="!data" class="p-4 opacity-30">
+                    {{ 'APP.CONCIERGE.UNASSIGNED' | translate }}
+                </div>
                 <button
                     *ngIf="data"
                     class="px-4 py-2 text-left leading-tight"
@@ -180,7 +198,9 @@ import { Clipboard } from '@angular/cdk/clipboard';
             <ng-template #pos_template let-data="data">
                 <div class="w-full flex space-x-2 p-2">
                     <div class="flex flex-col">
-                        <div class="opacity-30 text-xs">Column</div>
+                        <div class="opacity-30 text-xs">
+                            {{ 'COMMON.COLUMN' | translate }}
+                        </div>
                         <div
                             class="bg-base-200 rounded px-2 py-1 w-12 text-center"
                         >
@@ -188,7 +208,9 @@ import { Clipboard } from '@angular/cdk/clipboard';
                         </div>
                     </div>
                     <div class="flex flex-col">
-                        <div class="opacity-30 text-xs">Row</div>
+                        <div class="opacity-30 text-xs">
+                            {{ 'COMMON.ROW' | translate }}
+                        </div>
                         <div
                             class="bg-base-200 rounded px-2 py-1 w-12 text-center"
                         >
@@ -200,7 +222,9 @@ import { Clipboard } from '@angular/cdk/clipboard';
             <ng-template #size_template let-data="data">
                 <div class="w-full flex space-x-2 p-2">
                     <div class="flex flex-col">
-                        <div class="opacity-30 text-xs">Width</div>
+                        <div class="opacity-30 text-xs">
+                            {{ 'COMMON.WIDTH' | translate }}
+                        </div>
                         <div
                             class="bg-base-200 rounded px-2 py-1 w-12 text-center"
                         >
@@ -208,7 +232,9 @@ import { Clipboard } from '@angular/cdk/clipboard';
                         </div>
                     </div>
                     <div class="flex flex-col">
-                        <div class="opacity-30 text-xs">Height</div>
+                        <div class="opacity-30 text-xs">
+                            {{ 'COMMON.HEIGHT' | translate }}
+                        </div>
                         <div
                             class="bg-base-200 rounded px-2 py-1 w-12 text-center"
                         >
@@ -222,7 +248,7 @@ import { Clipboard } from '@angular/cdk/clipboard';
                     <div
                         *ngIf="data"
                         class="flex items-center justify-center h-8 w-8 rounded bg-info text-info-content"
-                        matTooltip="Locker is Accessible"
+                        [matTooltip]="'APP.CONCIERGE.LOCKERS_ACCESSIBLE_INFO'"
                     >
                         <app-icon class="text-2xl">accessible</app-icon>
                     </div>
@@ -232,7 +258,7 @@ import { Clipboard } from '@angular/cdk/clipboard';
                 <div
                     *ngIf="data"
                     class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-success text-success-content mx-auto"
-                    matTooltip="Bookable"
+                    [matTooltip]="'COMMON.BOOKABLE' | translate"
                 >
                     <app-icon>done</app-icon>
                 </div>
@@ -249,20 +275,26 @@ import { Clipboard } from '@angular/cdk/clipboard';
                     <button mat-menu-item (click)="editLocker(bank.id, row)">
                         <div class="flex items-center space-x-2">
                             <app-icon class="text-xl">edit</app-icon>
-                            <span>Edit Locker</span>
+                            <span>{{
+                                'APP.CONCIERGE.LOCKERS_EDIT' | translate
+                            }}</span>
                         </div>
                     </button>
                     @if (has_driver) {
                         <button mat-menu-item (click)="shareLocker(row)">
                             <div class="flex items-center space-x-2">
                                 <app-icon class="text-xl">edit</app-icon>
-                                <span>Share Locker</span>
+                                <span>{{
+                                    'APP.CONCIERGE.LOCKERS_SHARE' | translate
+                                }}</span>
                             </div>
                         </button>
                         <button mat-menu-item (click)="releaseLocker(row)">
                             <div class="flex items-center space-x-2">
                                 <app-icon class="text-xl">event_busy</app-icon>
-                                <span>Release Locker</span>
+                                <span>{{
+                                    'APP.CONCIERGE.LOCKERS_RELEASE' | translate
+                                }}</span>
                             </div>
                         </button>
                     }
@@ -271,7 +303,9 @@ import { Clipboard } from '@angular/cdk/clipboard';
                             <app-icon class="text-xl text-error"
                                 >delete</app-icon
                             >
-                            <span>Remove Locker</span>
+                            <span>{{
+                                'APP.CONCIERGE.LOCKERS_REMOVE' | translate
+                            }}</span>
                         </div>
                     </button>
                 </mat-menu>
@@ -323,26 +357,28 @@ export class LockerListComponent extends AsyncHandler {
         const success = this._clipboard.copy(id);
         if (success)
             notifySuccess(
-                type
-                    ? 'Assigned user email copied to clipboard.'
-                    : 'Locker Bay ID copied to clipboard.',
+                i18n(
+                    type
+                        ? 'APP.CONCIERGE.LOCKERS_COPIED_USER'
+                        : 'APP.CONCIERGE.LOCKERS_COPIED_ID',
+                ),
             );
     }
 
     public statusTooltip(status: string) {
         switch (status) {
             case 'assigned_free':
-                return 'Locker is assigned to a user but available for use';
+                return 'APP.CONCIERGE.LOCKERS_STATUS_ASSIGNED_FREE';
             case 'assigned_busy':
-                return 'Locker is assigned to a user and in use';
+                return 'APP.CONCIERGE.LOCKERS_STATUS_ASSIGNED_BUSY';
             case 'reuse_busy':
-                return 'Locker is assigned to a user and in use';
+                return 'APP.CONCIERGE.LOCKERS_STATUS_ASSIGNED_OTHER';
             case 'busy':
-                return 'Locker is unassigned and in use';
+                return 'APP.CONCIERGE.LOCKERS_STATUS_BUSY';
             case 'free':
-                return 'Locker is unassigned and available for use';
+                return 'APP.CONCIERGE.LOCKERS_STATUS_FREE';
         }
-        return 'Locker is unassigned and available for use';
+        return 'APP.CONCIERGE.LOCKERS_STATUS_FREE';
     }
 
     private _updateStatusList(lockers: Locker[], bookings: Booking[]) {

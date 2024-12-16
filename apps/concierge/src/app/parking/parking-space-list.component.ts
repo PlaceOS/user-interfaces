@@ -92,7 +92,7 @@ import { Clipboard } from '@angular/cdk/clipboard';
         </ng-template>
         <ng-template #assigned_template let-row="row" let-data="data">
             <div *ngIf="!data" class="p-4 opacity-30">
-                {{ 'APP.CONCIERGE.PARKING_UNASSIGNED' | translate }}
+                {{ 'APP.CONCIERGE.UNASSIGNED' | translate }}
             </div>
             <button
                 *ngIf="data"
