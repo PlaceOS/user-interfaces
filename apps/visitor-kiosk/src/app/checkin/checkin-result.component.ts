@@ -51,10 +51,17 @@ const DEFAULT_TEMPLATE = `
                         {{ (event | async)?.asset_name }}
                     </div>
                     <div class="text-sm mt-1">
-                        For: {{ (event | async)?.title }}
+                        {{
+                            'APP.VISITOR_KIOSK.LABEL_FOR'
+                                | translate: { title: (event | async)?.title }
+                        }}
                     </div>
                     <div class="text-sm opacity-60">
-                        Seeing {{ (event | async)?.user_name }}
+                        {{
+                            'APP.VISITOR_KIOSK.LABEL_HOST'
+                                | translate
+                                    : { host_name: (event | async)?.user_name }
+                        }}
                     </div>
                 </div>
                 <div
@@ -69,11 +76,15 @@ const DEFAULT_TEMPLATE = `
                         alt="Logo"
                         [src]="logo?.src || logo"
                     />
-                    <div class="text-xs text-right" *ngIf="level | async">
-                        Cleared for
+                    <div class="text-xs text-right" *ngIf="zones | level">
                         {{
-                            (level | async)?.display_name ||
-                                (level | async)?.name
+                            'APP.VISITOR_KIOSK.LABEL_LOCATION'
+                                | translate
+                                    : {
+                                          location:
+                                              (zones | level)?.display_name ||
+                                              (zones | level)?.name,
+                                      }
                         }}
                     </div>
                     <pre class="text-right">
@@ -85,12 +96,13 @@ const DEFAULT_TEMPLATE = `
                     <div class="text-right font-medium leading-tight">
                         <div>
                             {{
-                                (event | async)?.date || now | date: 'shortTime'
+                                (event | async)?.date || date
+                                    | date: 'shortTime'
                             }}
                         </div>
                         <div>
                             {{
-                                (event | async)?.date || now
+                                (event | async)?.date || date
                                     | date: 'mediumDate'
                             }}
                         </div>
@@ -133,6 +145,8 @@ const DEFAULT_TEMPLATE = `
 })
 export class CheckinResultsComponent extends AsyncHandler implements OnInit {
     public qr_code = '';
+    public date = Date.now();
+    public zones = [];
     public readonly event = this._checkin.event;
     public readonly guest = this._checkin.guest;
     public readonly level = combineLatest([
@@ -218,10 +232,13 @@ export class CheckinResultsComponent extends AsyncHandler implements OnInit {
     }
 
     public ngOnInit(): void {
-        this.event.pipe(first()).subscribe((_) => {
-            !_ ? this.previous() : '';
-            if (_) {
-                this.qr_code = generateQRCode(_.asset_id);
+        this.event.pipe(first()).subscribe((event) => {
+            !event ? this.previous() : '';
+            if (event) {
+                this.qr_code = generateQRCode(event.asset_id);
+                this.date = event.date || event.booking_start * 1000;
+                this.zones = event.zones;
+                console.log('Event:', event);
             }
         });
     }
