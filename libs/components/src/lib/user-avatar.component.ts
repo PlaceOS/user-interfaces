@@ -5,7 +5,7 @@ import { User } from 'libs/users/src/lib/user.class';
     selector: 'a-user-avatar',
     template: `
         <div
-            class="flex items-center justify-center rounded-full overflow-hidden"
+            class="flex items-center justify-center border-2 border-base-100 bg-base-200 rounded-full overflow-hidden"
             *ngIf="user"
             [attr.user-id]="user.id"
         >
@@ -26,9 +26,6 @@ import { User } from 'libs/users/src/lib/user.class';
             :host > div {
                 height: 2.5em;
                 width: 2.5em;
-                background-color: var(--b2);
-                overflow: hidden;
-                border: 2px solid var(--b1);
             }
 
             .initials {

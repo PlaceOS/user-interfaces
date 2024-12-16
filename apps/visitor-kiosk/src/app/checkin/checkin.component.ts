@@ -7,7 +7,7 @@ import { startOfMinute } from 'date-fns';
     template: `
         <!-- <a-topbar-header class="w-full screen-only"></a-topbar-header> -->
         <div
-            class="absolute inset-0 p-8 flex items-center"
+            class="absolute inset-0 p-8 flex items-center print:hidden"
             [style.background-image]="'url(' + background + ')'"
         >
             <div class="flex flex-col justify-center space-y-8 z-10 w-full">

@@ -167,7 +167,7 @@ export class VisitorRegistrationComponent {
         this.form.markAllAsTouched();
         if (!this.form.valid) {
             return notifyError(
-                i18n('COMMON.INVALID_FIELDS', {
+                i18n('FORM.INVALID_FIELDS', {
                     field_list: getInvalidFields(this.form).join(', '),
                 }),
             );

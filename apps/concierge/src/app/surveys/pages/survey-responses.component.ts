@@ -123,7 +123,7 @@ import { SurveyResponsesService } from '../services/survey-responses.service';
                                 }}</span
                             >
                         </div>
-                        <div class="flex flex-wrap w-full pt-2">
+                        <div class="flex flex-wrap w-full p-2">
                             <survey-widget
                                 class="w-full lg:w-1/2 2xl:w-1/3"
                                 *ngFor="let r of p.responses"

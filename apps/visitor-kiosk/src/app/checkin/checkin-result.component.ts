@@ -2,11 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { debounceTime, filter, first, map, startWith } from 'rxjs/operators';
 import { CheckinStateService } from './checkin-state.service';
-import { SettingsService } from '@placeos/common';
+import { AsyncHandler, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { combineLatest } from 'rxjs';
 import { roundToNearestMinutes, startOfMinute } from 'date-fns';
 import { DatePipe } from '@angular/common';
+import { generateQRCode } from 'libs/common/src/lib/qr-code';
 
 const DEFAULT_TEMPLATE = `
 <p class="text-center">
@@ -20,7 +21,7 @@ const DEFAULT_TEMPLATE = `
     selector: 'checkin-results',
     template: `
         <div
-            class="bg-base-100 rounded shadow overflow-hidden relative flex flex-col items-center w-[36rem] p-4 space-y-4"
+            class="bg-base-100 rounded shadow overflow-hidden relative flex flex-col items-center w-[36rem] p-4 space-y-4 print:hidden"
             *ngIf="event | async"
         >
             <h3 class="text-xl">
@@ -36,11 +37,14 @@ const DEFAULT_TEMPLATE = `
             >
                 <div class="flex flex-col h-full">
                     <div
-                        class="h-[4.75rem] w-[4.75rem] rounded-full bg-base-200 flex items-center justify-center"
+                        class="h-[4.75rem] w-[4.75rem] rounded-full bg-base-200 print:border-2 border-base-400 flex items-center justify-center mb-2"
                     >
                         <a-user-avatar
                             class="text-3xl"
-                            [user]="{}"
+                            [user]="{
+                                name: (event | async)?.asset_name,
+                                email: (event | async)?.asset_id,
+                            }"
                         ></a-user-avatar>
                     </div>
                     <div class="text-2xl">
@@ -52,18 +56,18 @@ const DEFAULT_TEMPLATE = `
                     <div class="text-sm opacity-60">
                         Seeing {{ (event | async)?.user_name }}
                     </div>
-                    <div
-                        class="rounded-lg bg-black text-white px-2 py-1 text-sm mt-2 w-32 text-center"
-                    >
-                        {{ 'APP.VISITOR_KIOSK.VISITOR' | translate }}
-                    </div>
+                </div>
+                <div
+                    class="absolute bottom-4 left-4 rounded-lg border border-black text-black px-2 py-1 text-sm mt-2 w-32 text-center font-medium uppercase"
+                >
+                    {{ 'APP.VISITOR_KIOSK.VISITOR' | translate }}
                 </div>
                 <div class="absolute top-4 right-4 flex flex-col items-end">
                     <img
                         auth
                         class="h-10"
                         alt="Logo"
-                        [source]="(logo | async)?.src || (logo | async)"
+                        [src]="logo?.src || logo"
                     />
                     <div class="text-xs text-right" *ngIf="level | async">
                         Cleared for
@@ -81,18 +85,25 @@ const DEFAULT_TEMPLATE = `
                     <div class="text-right font-medium leading-tight">
                         <div>
                             {{
-                                (event | async)?.date || '' | date: 'shortTime'
+                                (event | async)?.date || now | date: 'shortTime'
                             }}
                         </div>
                         <div>
                             {{
-                                (event | async)?.date || '' | date: 'mediumDate'
+                                (event | async)?.date || now
+                                    | date: 'mediumDate'
                             }}
                         </div>
                     </div>
                     <div
-                        class="h-16 w-16 rounded-lg border border-base-200"
-                    ></div>
+                        class="relative h-16 w-16 rounded-lg border border-base-200 p-2"
+                    >
+                        <img
+                            class="h-12 w-12 object-center object-contain"
+                            *ngIf="qr_code"
+                            [src]="qr_code"
+                        />
+                    </div>
                 </div>
             </div>
             <div class="flex items-center space-x-2">
@@ -120,7 +131,8 @@ const DEFAULT_TEMPLATE = `
     ],
     providers: [DatePipe],
 })
-export class CheckinResultsComponent implements OnInit {
+export class CheckinResultsComponent extends AsyncHandler implements OnInit {
+    public qr_code = '';
     public readonly event = this._checkin.event;
     public readonly guest = this._checkin.guest;
     public readonly level = combineLatest([
@@ -185,15 +197,11 @@ export class CheckinResultsComponent implements OnInit {
         );
     }
 
-    public readonly logo = this._org.active_building.pipe(
-        debounceTime(500),
-        map(
-            () =>
-                (this._settings.get('theme') === 'dark'
-                    ? this._settings.get('app.logo_dark')
-                    : this._settings.get('app.logo_light')) || {},
-        ),
-    );
+    public get logo() {
+        return this._settings.get('theme') === 'dark'
+            ? this._settings.get('app.logo_dark')
+            : this._settings.get('app.logo_light');
+    }
 
     public get allow_printing_label() {
         return this._settings.get('app.allow_printing_label') !== false;
@@ -205,10 +213,17 @@ export class CheckinResultsComponent implements OnInit {
         private _settings: SettingsService,
         private _router: Router,
         private _date: DatePipe,
-    ) {}
+    ) {
+        super();
+    }
 
     public ngOnInit(): void {
-        this.event.pipe(first()).subscribe((_) => (!_ ? this.previous() : ''));
+        this.event.pipe(first()).subscribe((_) => {
+            !_ ? this.previous() : '';
+            if (_) {
+                this.qr_code = generateQRCode(_.asset_id);
+            }
+        });
     }
 
     public previous(): void {
