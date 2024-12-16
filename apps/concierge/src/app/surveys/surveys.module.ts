@@ -20,8 +20,6 @@ import { UIModule } from '../ui/ui.module';
 import { BuildingListComponent } from './pages/building-list.component';
 import { NotFoundComponent } from './pages/not-found.component';
 
-import { BuildingListItemComponent } from './components/building-list-item.component';
-
 import { SurveySuiteModule } from '@placeos/survey-suite';
 import { SurveyModule } from 'survey-angular-ui';
 import { QuestionBankComponent } from './components/question-bank/question-bank.component';
@@ -44,18 +42,19 @@ import { StylesManager } from 'survey-core';
 //SurveyJS styling
 StylesManager.applyTheme('modern');
 
-const children: Route[] = [
-    { path: '', component: BuildingListComponent },
-    { path: 'survey-list/:id', component: SurveyListingsComponent },
-    { path: 'builder', component: ModSurveyComponent },
-    { path: 'responses/:id', component: SurveyResponsesComponent },
-    { path: '**', pathMatch: 'full', component: NotFoundComponent },
-];
-
 const routes: Route[] = [
-    { path: 'new', component: NewSurveyComponent, children },
     { path: 'run/:id', component: RunSurveyComponent },
-    { path: '', component: SurveyComponent, children },
+    {
+        path: '',
+        component: NewSurveyComponent,
+        children: [
+            { path: '', component: BuildingListComponent },
+            { path: 'survey-list/:id', component: SurveyListingsComponent },
+            { path: 'builder', component: ModSurveyComponent },
+            { path: 'responses/:id', component: SurveyResponsesComponent },
+            { path: '**', pathMatch: 'full', component: NotFoundComponent },
+        ],
+    },
     { path: '404', component: NotFoundComponent },
     { path: '**', pathMatch: 'full', component: NotFoundComponent },
 ];
@@ -64,7 +63,6 @@ const COMPONENTS = [
     SurveyComponent,
     NewSurveyComponent,
     BuildingListComponent,
-    BuildingListItemComponent,
     NotFoundComponent,
     ModQuestionOverlayComponent,
     QuestionBankComponent,

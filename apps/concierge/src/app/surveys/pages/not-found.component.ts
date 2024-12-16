@@ -5,38 +5,25 @@ import { Router } from '@angular/router';
     selector: 'placeos-not-found',
     styles: [``],
     template: `<div
-        class="flex flex-1 flex-col z-0 bg-base-200 h-full overflow-y-auto"
+        class="flex flex-col items-center justify-center z-0 border border-base-300 shadow w-[32rem] h-[24rem] rounded-xl my-8 mx-auto space-y-4"
     >
-        <div
-            class="flex flex-col border-b border-base-200 py-5 h-full items-center justify-center"
-        >
-            <div class="mx-3 flex flex-row">
-                <img
-                    src="assets/icons/not-found.svg"
-                    alt="graphic of magnifying glass"
-                    width="200px"
-                    class="items-center"
-                />
-            </div>
-            <div class="mx-3 flex flex-row">
-                <div class="mb-3">
-                    <span class="text-3xl font-bold mr-auto text-gray-700">
-                        Page not found</span
-                    >
-                </div>
-            </div>
-            <div class="mx-3 flex flex-row">
-                <span class="flex flex-row">
-                    The page
-                    <span class="font-bold mx-1"> {{ router.url }} </span> was
-                    not found.
-                </span>
-            </div>
+        <div class="mx-3 flex flex-row">
+            <img
+                src="assets/icons/not-found.svg"
+                alt="graphic of magnifying glass"
+                class="w-48"
+            />
+        </div>
+        <div class="text-3xl font-bold">Page not found</div>
+        <div>
+            The page
+            <span class="font-bold font-mono">
+                {{ router.url }}
+            </span>
+            was not found.
         </div>
     </div> `,
 })
-export class NotFoundComponent implements OnInit {
+export class NotFoundComponent {
     constructor(public router: Router) {}
-
-    ngOnInit(): void {}
 }

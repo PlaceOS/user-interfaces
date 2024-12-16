@@ -56,7 +56,7 @@ export class SurveyService {
         private _settings: SettingsService,
         private router: Router,
         private builder: SurveyBuilderService,
-        private dialog: MatDialog
+        private dialog: MatDialog,
     ) {}
 
     public async loadSurvey(survey_id: string) {
@@ -95,7 +95,7 @@ export class SurveyService {
                             Note: This action is irreversible.`,
                 icon: { class: 'material-icons', content: 'delete' },
             },
-            this.dialog
+            this.dialog,
         );
         if (details.reason !== 'done') return;
         details.close();
@@ -134,7 +134,7 @@ export class SurveyService {
         if (building_id?.length) {
             this.router.navigate([
                 this._settings.get('app.default_route').includes('new')
-                    ? '/surveys/new'
+                    ? '/surveys'
                     : '/surveys',
                 'survey-list',
                 building_id,
@@ -142,7 +142,7 @@ export class SurveyService {
         } else {
             this.router.navigate([
                 this._settings.get('app.default_route').includes('new')
-                    ? '/surveys/new'
+                    ? '/surveys'
                     : '/surveys',
             ]);
         }
@@ -155,7 +155,7 @@ export class SurveyService {
                 catchError((err) => {
                     notifyError('Error loading survey');
                     return null;
-                })
+                }),
             )
             .toPromise() as Promise<Survey>;
     }
@@ -165,12 +165,12 @@ export class SurveyService {
             .pipe(
                 first(),
                 map((questions) =>
-                    questions.map((e) => translateToQuestion(e))
+                    questions.map((e) => translateToQuestion(e)),
                 ),
                 catchError((err) => {
                     notifyError('Error loading survey questions');
                     return [];
-                })
+                }),
             )
             .toPromise() as Promise<Question[]>;
     }
@@ -194,7 +194,7 @@ export class SurveyService {
         }
         let allQuestions = [];
         survey.pages.forEach(
-            (p) => (allQuestions = [...allQuestions, ...p.elements])
+            (p) => (allQuestions = [...allQuestions, ...p.elements]),
         );
         if (allQuestions.length === 0) {
             notifyError('Please add at least 1 question to any page');
@@ -209,7 +209,7 @@ export class SurveyService {
         const res = await removeSurvey(`${id}`)
             .pipe(
                 first(),
-                finalize(() => (this.loading = ''))
+                finalize(() => (this.loading = '')),
             )
             .toPromise();
         if (res) {
@@ -226,7 +226,7 @@ export class SurveyService {
                     notifyError('Failed to create survey');
                     return of(null);
                 }),
-                finalize(() => (this.loading = ''))
+                finalize(() => (this.loading = '')),
             )
             .toPromise();
         if (res) {
@@ -244,7 +244,7 @@ export class SurveyService {
                     notifyError('Failed to update survey');
                     return of(null);
                 }),
-                finalize(() => (this.loading = ''))
+                finalize(() => (this.loading = '')),
             )
             .toPromise();
         if (res) {

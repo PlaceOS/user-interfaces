@@ -280,7 +280,7 @@ export class ApplicationSidebarComponent
             {
                 id: 'surveys',
                 name: i18n('APP.CONCIERGE.MENU_SURVEYS'),
-                route: ['/surveys/new'],
+                route: ['/surveys'],
                 icon: 'add_reaction',
             },
             {

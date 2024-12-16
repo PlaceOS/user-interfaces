@@ -1,60 +1,58 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { AsyncHandler, SettingsService } from '@placeos/common';
-import { TriggerEnumMap } from '@placeos/survey-suite';
-import { shareReplay } from 'rxjs/operators';
-import { SurveyListingsService } from '../services/survey-listings.service';
+import { ActivatedRoute } from '@angular/router';
+import { AsyncHandler } from '@placeos/common';
+import { OrganisationService } from '@placeos/organisation';
+import { BehaviorSubject, combineLatest, of } from 'rxjs';
+
+import { SurveyService } from '../services/survey.service';
+import { catchError, shareReplay, switchMap, tap } from 'rxjs/operators';
+import { querySurveys } from '@placeos/ts-client';
 
 @Component({
     selector: 'survey-listings',
-    styles: [
-        `
-            :host {
-                display: flex;
-                flex-direction: column;
-                height: 100%;
-                width: 100%;
-                background-color: var(--b1);
-            }
-
-            .mat-column-actions {
-                width: 4rem;
-            }
-
-            .mat-column-trigger {
-                width: 12rem;
-            }
-        `,
-    ],
     template: `
         <div class="flex items-center justify-between px-8 py-4 w-full">
             <div class="flex">
-                <button icon matRipple (click)="back()">
+                <a icon matRipple [routerLink]="['/surveys']">
                     <app-icon class="flex mr-2">arrow_back</app-icon>
-                </button>
+                </a>
                 <div class="flex flex-col">
-                    <span class="text-2xl">Survey Listing </span>
-                    <span class="text-4xl">{{
-                        (building$ | async)?.display_name || building_name
+                    <span class="text-2xl">{{
+                        'APP.CONCIERGE.SURVEY_LIST_HEADER' | translate
                     }}</span>
+                    <span class="text-4xl">
+                        {{ building.display_name || building.name }}
+                    </span>
                 </div>
             </div>
-            <button btn matRipple class="space-x-2" (click)="newSurvey()">
-                <span class="ml-2">Add New Survey</span>
-                <app-icon>add</app-icon>
-            </button>
+            <a
+                btn
+                matRipple
+                class="space-x-2"
+                [routerLink]="['/surveys', 'builder']"
+                [queryParams]="{ building_id: building?.id }"
+            >
+                <span class="ml-4">{{
+                    'APP.CONCIERGE.SURVEY_ADD' | translate
+                }}</span>
+                <app-icon class="text-xl">add</app-icon>
+            </a>
         </div>
         <div class="flex flex-1 h-1/2 w-full overflow-auto px-8">
             <simple-table
                 class="min-w-[36rem] w-full block text-sm"
                 [data]="surveys$"
                 [columns]="[
-                    { key: 'title', name: 'Title' },
-                    { key: 'zone_id', name: 'Level', content: level_template },
+                    { key: 'title', name: 'FORM.TITLE' | translate },
+                    {
+                        key: 'zone_id',
+                        name: 'RESOURCE.LEVEL' | translate,
+                        content: level_template,
+                    },
                     {
                         key: 'trigger',
-                        name: 'Trigger',
-                        content: trigger_template
+                        name: 'COMMON.TRIGGER' | translate,
+                        content: trigger_template,
                     },
                     { key: 'id', name: 'Link', show: false },
                     {
@@ -62,8 +60,8 @@ import { SurveyListingsService } from '../services/survey-listings.service';
                         name: ' ',
                         content: action_template,
                         size: '3.5rem',
-                        sortable: false
-                    }
+                        sortable: false,
+                    },
                 ]"
                 [sortable]="true"
                 empty_message="No surveys found. Click on <i>Add survey</i> to create new surveys for this building."
@@ -71,11 +69,14 @@ import { SurveyListingsService } from '../services/survey-listings.service';
         </div>
         <ng-template #level_template let-data="data">
             <div class="p-4">
-                {{ levelMap[data] || data }}
+                {{ (data | level)?.display_name || (data | level)?.name }}
+                <span class="opacity-30" *ngIf="!(data | level)">
+                    {{ 'COMMON.LEVEL_ALL' | translate }}
+                </span>
             </div>
         </ng-template>
         <ng-template #trigger_template let-data="data">
-            <div class="p-4">
+            <div class="p-4 capitalize">
                 {{ data }}
             </div>
         </ng-template>
@@ -85,84 +86,96 @@ import { SurveyListingsService } from '../services/survey-listings.service';
                     <app-icon>more_vert</app-icon>
                 </button>
                 <mat-menu #actionsMenu="matMenu">
-                    <button mat-menu-item (click)="onViewStats(row.id)">
+                    <a
+                        mat-menu-item
+                        [routerLink]="['/surveys', 'responses', row.id]"
+                    >
                         <div class="flex items-center space-x-2">
                             <app-icon class="text-xl">analytics</app-icon>
-                            <span>Survey Responses</span>
+                            <span>{{
+                                'APP.CONCIERGE.SURVEY_RESPONSES' | translate
+                            }}</span>
                         </div>
-                    </button>
-                    <button mat-menu-item (click)="onEdit(row.id)">
+                    </a>
+                    <a
+                        mat-menu-item
+                        [routerLink]="['/surveys', 'builder']"
+                        [queryParams]="{ survey_id: row.id }"
+                    >
                         <div class="flex items-center space-x-2">
                             <app-icon class="text-xl">edit</app-icon>
-                            <span>Edit Survey</span>
+                            <span>{{
+                                'APP.CONCIERGE.SURVEY_EDIT' | translate
+                            }}</span>
                         </div>
-                    </button>
+                    </a>
                     <button mat-menu-item (click)="onDelete(row.id)">
                         <div class="flex items-center space-x-2">
                             <app-icon class="text-error text-xl">
                                 delete
                             </app-icon>
-                            <span>Delete Survey</span>
+                            <span>{{
+                                'APP.CONCIERGE.SURVEY_REMOVE' | translate
+                            }}</span>
                         </div>
                     </button>
                 </mat-menu>
             </div>
         </ng-template>
     `,
-    providers: [SurveyListingsService],
+    styles: [
+        `
+            :host {
+                display: flex;
+                flex-direction: column;
+                height: 100%;
+                width: 100%;
+                background-color: var(--b1);
+            }
+        `,
+    ],
 })
 export class SurveyListingsComponent extends AsyncHandler implements OnInit {
-    levelMap = {};
-    loading$ = this._service.loading$.pipe(shareReplay(1));
-    building$ = this._service.building$.pipe(shareReplay(1));
-    surveys$ = this._service.surveys$;
-    triggerMap = TriggerEnumMap;
-    onEdit = (id: number) => this._service.editSurvey(id);
-    onDelete = (id: number) => this._service.deleteSurvey(id);
-    newSurvey = () => this._service.newSurvey();
-    back = () => this._service.back();
-    onViewStats = (id: number) =>
-        this._router.navigate([
-            this._settings.get('app.default_route').includes('new')
-                ? '/surveys/new'
-                : '/surveys',
-            'responses',
-            id,
-        ]);
+    private _building_id = new BehaviorSubject('');
+    private _change = new BehaviorSubject(0);
+    public readonly loading$ = new BehaviorSubject('');
+    public readonly surveys$ = combineLatest([
+        this._building_id,
+        this._change,
+    ]).pipe(
+        switchMap(([bld_id]) => {
+            return querySurveys({ building_id: bld_id }).pipe(
+                catchError(() => of([])),
+            );
+        }),
+        tap((list) => console.log('List:', list)),
+        shareReplay(1),
+    );
 
-    displayedColumns: string[] = ['title', 'level', 'trigger', 'actions'];
-
-    constructor(
-        private _settings: SettingsService,
-        private _route: ActivatedRoute,
-        private _router: Router,
-        private _service: SurveyListingsService
-    ) {
-        super();
+    public get building() {
+        return this._org.buildings.find(
+            (_) => _.id === this._building_id.getValue(),
+        );
     }
 
-    public get building_name() {
-        return (
-            this._service.building?.display_name ||
-            this._service.building?.name ||
-            ''
-        );
+    constructor(
+        private _org: OrganisationService,
+        private _route: ActivatedRoute,
+        private _service: SurveyService,
+    ) {
+        super();
     }
 
     async ngOnInit() {
         this.subscription(
             'route-param',
-            this._route.params.subscribe((params) => {
-                const id = params.id || '';
-                this._service.initBuilding(id);
-            })
+            this._route.paramMap.subscribe((params) =>
+                this._building_id.next(params.get('id') || ''),
+            ),
         );
+    }
 
-        this.subscription(
-            'level_map',
-            this._service.levelNameMap$.subscribe(
-                (map) => (this.levelMap = map)
-            )
-        );
+    public async onDelete(id: number) {
+        await this._service.confirmDeleteSurvey(id);
     }
 }

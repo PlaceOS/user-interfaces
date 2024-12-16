@@ -170,7 +170,7 @@ export class SurveyResponsesComponent extends AsyncHandler implements OnInit {
         private _settings: SettingsService,
         private service: SurveyResponsesService,
         private router: Router,
-        private route: ActivatedRoute
+        private route: ActivatedRoute,
     ) {
         super();
     }
@@ -182,7 +182,7 @@ export class SurveyResponsesComponent extends AsyncHandler implements OnInit {
                 if (survey_id?.length) {
                     this.service.setOptions({ survey_id });
                 }
-            })
+            }),
         );
     }
 
@@ -204,7 +204,7 @@ export class SurveyResponsesComponent extends AsyncHandler implements OnInit {
         const survey = await this.survey$.pipe(take(1)).toPromise();
         this.router.navigate([
             this._settings.get('app.default_route').includes('new')
-                ? '/surveys/new'
+                ? '/surveys'
                 : '/surveys',
             'survey-list',
             survey.building_id || '',
