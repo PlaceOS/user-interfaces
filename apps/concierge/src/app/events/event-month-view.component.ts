@@ -46,7 +46,7 @@ import { Router } from '@angular/router';
                         *ngFor="
                             let event of (event_day_map | async)[
                                 dateString(day.id)
-                            ] || [] | slice: 0:3
+                            ] || [] | slice: 0 : 3
                         "
                         (click)="viewEvent(event)"
                         class="relative w-[calc(100%-0.5rem)] h-7 bg-base-100 rounded border border-base-200 hover:border-info shadow pl-3 pr-2 py-1 overflow-hidden mx-1"
@@ -87,10 +87,17 @@ import { Router } from '@angular/router';
                         [matMenuTriggerFor]="menu"
                     >
                         {{
-                            ((event_day_map | async)[dateString(day.id)] || [])
-                                .length - 3
+                            'APP.CONCIERGE.EVENTS_MORE_COUNT'
+                                | translate
+                                    : {
+                                          count:
+                                              (
+                                                  (event_day_map | async)[
+                                                      dateString(day.id)
+                                                  ] || []
+                                              ).length - 3,
+                                      }
                         }}
-                        more event(s)
                     </button>
                     <mat-menu #menu="matMenu">
                         <button
@@ -148,7 +155,7 @@ export class EventMonthViewComponent extends AsyncHandler {
             return map;
         }),
         startWith({}),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     public readonly viewEvent = (event: any) => this._state.viewEvent(event);
@@ -166,7 +173,7 @@ export class EventMonthViewComponent extends AsyncHandler {
         private _state: EventStateService,
         private _settings: SettingsService,
         private _dialog: MatDialog,
-        private _router: Router
+        private _router: Router,
     ) {
         super();
     }
@@ -178,7 +185,7 @@ export class EventMonthViewComponent extends AsyncHandler {
                 this.month = date;
                 this._setMonthDays();
                 this._setWeekdays();
-            })
+            }),
         );
         this._setMonthDays();
         this._setWeekdays();
@@ -203,7 +210,7 @@ export class EventMonthViewComponent extends AsyncHandler {
             weekStartsOn: this.offset_weekday as any,
         });
         this.weekdays = Array.from(Array(7).keys()).map((i) =>
-            addDays(start, i)
+            addDays(start, i),
         );
     }
 }

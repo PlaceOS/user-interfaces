@@ -1,6 +1,4 @@
-import { Component } from '@angular/core';
-import { Router } from '@angular/router';
-import { MatDialog } from '@angular/material/dialog';
+import { Component, OnInit } from '@angular/core';
 import { addDays, format, startOfMinute } from 'date-fns';
 import { map, shareReplay, startWith } from 'rxjs/operators';
 
@@ -114,7 +112,7 @@ import { EventStateService } from './event-state.service';
     `,
     styles: [``],
 })
-export class EventWeekViewComponent extends AsyncHandler {
+export class EventWeekViewComponent extends AsyncHandler implements OnInit {
     public days = new Array(7).fill(0).map((_, idx) => idx + 1);
     public readonly hours = new Array(24)
         .fill(0)
@@ -138,7 +136,7 @@ export class EventWeekViewComponent extends AsyncHandler {
             return map;
         }),
         startWith({}),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     public readonly viewEvent = (event: any) => this._state.viewEvent(event);
@@ -162,11 +160,7 @@ export class EventWeekViewComponent extends AsyncHandler {
         return (now.getHours() * 60 + now.getMinutes()) / (24 * 60);
     }
 
-    constructor(
-        private _state: EventStateService,
-        private _dialog: MatDialog,
-        private _router: Router
-    ) {
+    constructor(private _state: EventStateService) {
         super();
     }
 
@@ -176,9 +170,9 @@ export class EventWeekViewComponent extends AsyncHandler {
             this._state.options.subscribe(({ date }) => {
                 if (!date) return;
                 this.days = this.days.map((_, idx) =>
-                    addDays(date, idx).valueOf()
+                    addDays(date, idx).valueOf(),
                 );
-            })
+            }),
         );
     }
 }

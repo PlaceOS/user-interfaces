@@ -21,41 +21,41 @@ import { CalendarEvent } from '@placeos/events';
                 { key: 'date', name: 'Event', content: event_template },
                 {
                     key: 'level',
-                    name: 'Level',
+                    name: 'RESOURCE.LEVEL' | translate,
                     content: level_template,
                     size: '8rem',
                     sortable: false,
                 },
                 {
                     key: 'room',
-                    name: 'Room',
+                    name: 'RESOURCE.ROOM' | translate,
                     content: room_template,
                     size: '12rem',
                     sortable: false,
                 },
                 {
                     key: 'interested',
-                    name: 'Interested',
+                    name: 'CALENDAR_EVENT.GROUP_INTERESTED' | translate,
                     content: interested_template,
                     size: '6rem',
                     sortable: false,
                 },
                 {
                     key: 'attending',
-                    name: 'Attending',
+                    name: 'CALENDAR_EVENT.GROUP_ATTENDING_FIELD' | translate,
                     content: attending_template,
                     size: '6rem',
                     sortable: false,
                 },
                 {
                     key: 'state',
-                    name: 'Status',
+                    name: 'COMMON.STATUS' | translate,
                     content: status_template,
                     size: '8.5rem',
                 },
                 {
                     key: 'access',
-                    name: 'Published',
+                    name: 'COMMON.PUBLISHED' | translate,
                     content: published_template,
                     size: '6rem',
                     sortable: false,
@@ -121,7 +121,7 @@ import { CalendarEvent } from '@placeos/events';
                         ?.display_name
                 }}
                 <span *ngIf="!room(item)?.email" class="opacity-30">
-                    No Level
+                    {{ 'COMMON.LEVEL_EMPTY' | translate }}
                 </span>
             </div>
         </ng-template>
@@ -129,7 +129,7 @@ import { CalendarEvent } from '@placeos/events';
             <div class="p-4">
                 {{ (room(item)?.email | space | async)?.display_name }}
                 <span *ngIf="!room(item)?.email" class="opacity-30">
-                    No Room
+                    {{ 'COMMON.ROOM_EMPTY' | translate }}
                 </span>
             </div>
         </ng-template>
@@ -153,7 +153,9 @@ import { CalendarEvent } from '@placeos/events';
                         [host]="item.user_email || item.host"
                         [show_host]="false"
                         [hide_close]="true"
-                        [custom_title]="'Interested'"
+                        [custom_title]="
+                            'CALENDAR_EVENT.GROUP_INTERESTED' | translate
+                        "
                     ></attendee-list>
                 </div>
             </ng-template>
@@ -214,12 +216,13 @@ import { CalendarEvent } from '@placeos/events';
                     [class.text-base-content]="item.state === 'done'"
                 >
                     {{
-                        item.state === 'done'
-                            ? 'Done'
+                        (item.state === 'done'
+                            ? 'COMMON.STATE_DONE'
                             : item.state === 'in_progress' ||
                                 item.state === 'started'
-                              ? 'In Progress'
-                              : 'Active'
+                              ? 'COMMON.STATE_IN_PROGRESS'
+                              : 'COMMON.STATE_ACTIVE'
+                        ) | translate
                     }}
                 </div>
             </div>
@@ -240,13 +243,17 @@ import { CalendarEvent } from '@placeos/events';
                         <app-icon class="text-2xl">
                             confirmation_number
                         </app-icon>
-                        <div class="mr-2">Promote Event</div>
+                        <div class="mr-2">
+                            {{ 'APP.CONCIERGE.EVENTS_PROMOTE' | translate }}
+                        </div>
                     </div>
                 </button>
                 <button mat-menu-item (click)="viewEvent(row)">
                     <div class="flex items-center space-x-2">
                         <app-icon class="text-2xl">visibility</app-icon>
-                        <div class="mr-2">View Event</div>
+                        <div class="mr-2">
+                            {{ 'APP.CONCIERGE.EVENTS_VIEW' | translate }}
+                        </div>
                     </div>
                 </button>
                 <a
@@ -260,19 +267,25 @@ import { CalendarEvent } from '@placeos/events';
                 >
                     <div class="flex items-center space-x-2">
                         <app-icon class="text-2xl">edit</app-icon>
-                        <div class="mr-2">Edit Event</div>
+                        <div class="mr-2">
+                            {{ 'APP.CONCIERGE.EVENTS_EDIT' | translate }}
+                        </div>
                     </div>
                 </a>
                 <button mat-menu-item [disabled]="true">
                     <div class="flex items-center space-x-2">
                         <app-icon class="text-2xl">content_copy</app-icon>
-                        <div class="mr-2">Copy URL</div>
+                        <div class="mr-2">
+                            {{ 'APP.CONCIERGE.EVENTS_COPY_URL' | translate }}
+                        </div>
                     </div>
                 </button>
                 <button mat-menu-item (click)="removeEvent(row)">
                     <div class="flex items-center space-x-2">
                         <app-icon class="text-2xl text-error">delete</app-icon>
-                        <div class="mr-2">Delete Event</div>
+                        <div class="mr-2">
+                            {{ 'APP.CONCIERGE.EVENTS_REMOVE' | translate }}
+                        </div>
                     </div>
                 </button>
             </mat-menu>

@@ -47,11 +47,11 @@ export interface UploadDetails {
         >
             <div
                 image
-                class="relative rounded border-2 border-base-200  border-dashed flex-shrink-0 flex flex-col items-center justify-center h-32 w-36 hover:bg-base-content/10 :bg-base-100/10 cursor-pointer"
+                class="relative rounded-xl border-2 border-base-200  border-dashed flex-shrink-0 flex flex-col items-center justify-center h-32 w-36 hover:bg-base-content/10 :bg-base-100/10 cursor-pointer"
                 [style.transform]="'translate(-' + offset + '00%)'"
             >
                 <app-icon class="text-4xl opacity-60">add</app-icon>
-                <p class="opacity-60">
+                <p class="opacity-60 px-4 text-center">
                     {{ 'COMMON.IMAGE_UPLOADS' | translate }}
                 </p>
                 <input

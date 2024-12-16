@@ -12,10 +12,30 @@ import { OrganisationService } from '@placeos/organisation';
         <div
             class="w-full px-8 pt-4 pb-2 bg-base-100 flex items-center space-x-2"
         >
+            <h2 class="text-2xl font-medium">
+                {{
+                    (active !== 'items' && active !== 'purchase-orders'
+                        ? 'APP.CONCIERGE.ASSETS_HEADER'
+                        : 'APP.CONCIERGE.ASSETS_MANAGE_HEADER'
+                    ) | translate
+                }}
+            </h2>
+            <div class="flex-1 w-px"></div>
+            <mat-form-field appearance="outline" class="no-subscript">
+                <app-icon matPrefix class="text-2xl relative top-1 -left-1">
+                    search
+                </app-icon>
+                <input
+                    matInput
+                    [ngModel]="(options | async)?.search"
+                    (ngModelChange)="setOptions({ search: $event })"
+                    placeholder="Search products and requests"
+                />
+            </mat-form-field>
             <a
                 btn
                 matRipple
-                class="secondary"
+                class="w-40"
                 *ngIf="active === 'items'"
                 [routerLink]="[base_route, 'manage', 'group']"
             >
@@ -24,16 +44,20 @@ import { OrganisationService } from '@placeos/organisation';
             <a
                 btn
                 matRipple
-                class="secondary"
+                class="w-48"
                 *ngIf="active === 'purchase-orders'"
                 [routerLink]="[base_route, 'manage', 'purchase-order']"
             >
                 Add Purchase Order
             </a>
+        </div>
+        <div
+            class="flex items-center px-8 space-x-2 mb-2"
+            *ngIf="active === 'items'"
+        >
             <mat-button-toggle-group
                 [ngModel]="(options | async)?.view"
                 (ngModelChange)="setOptions({ view: $event })"
-                *ngIf="active === 'items'"
             >
                 <mat-button-toggle value="grid" matTooltip="View as Grid">
                     <div class="flex items-center justify-center h-12 w-8">
@@ -48,10 +72,8 @@ import { OrganisationService } from '@placeos/organisation';
             </mat-button-toggle-group>
             <div class="flex-1"></div>
             <button
-                btn
                 icon
                 matRipple
-                *ngIf="active === 'items'"
                 class="bg-secondary text-secondary-content rounded h-12 w-12"
                 matTooltip="Edit Config"
                 (click)="editConfig()"
@@ -59,10 +81,8 @@ import { OrganisationService } from '@placeos/organisation';
                 <app-icon>menu_book</app-icon>
             </button>
             <button
-                btn
                 icon
                 matRipple
-                *ngIf="active === 'items'"
                 class="bg-secondary text-secondary-content rounded h-12 w-12"
                 matTooltip="Room Availability"
                 (click)="setRoomAvailability()"
@@ -70,7 +90,6 @@ import { OrganisationService } from '@placeos/organisation';
                 <app-icon>event_available</app-icon>
             </button>
             <button
-                btn
                 icon
                 matRipple
                 *ngIf="active === 'items'"
@@ -80,17 +99,6 @@ import { OrganisationService } from '@placeos/organisation';
             >
                 <app-icon>list_alt</app-icon>
             </button>
-            <mat-form-field appearance="outline" class="no-subscript">
-                <app-icon matPrefix class="text-2xl relative top-1 -left-1">
-                    search
-                </app-icon>
-                <input
-                    matInput
-                    [ngModel]="(options | async)?.search"
-                    (ngModelChange)="setOptions({ search: $event })"
-                    placeholder="Search products and requests"
-                />
-            </mat-form-field>
         </div>
         <div
             class="flex items-center space-x-2 px-4 pb-2"
@@ -144,7 +152,7 @@ export class AssetManagerTopbarComponent extends AsyncHandler {
         private _state: AssetManagerStateService,
         private _org: OrganisationService,
         private _settings: SettingsService,
-        private _dialog: MatDialog
+        private _dialog: MatDialog,
     ) {
         super();
     }
@@ -165,7 +173,7 @@ export class AssetManagerTopbarComponent extends AsyncHandler {
                     .saveSettings({ disabled_rooms: list })
                     .catch();
                 ref.componentInstance.loading = false;
-            })
+            }),
         );
     }
 }

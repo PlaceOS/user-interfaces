@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { EventStateService } from './event-state.service';
 import {
@@ -19,13 +19,17 @@ import { distinctUntilChanged, map, take } from 'rxjs/operators';
     template: `
         <div class="absolute inset-0 flex flex-col">
             <div class="flex items-center justify-between p-8">
-                <h2 class="text-2xl font-medium">Events</h2>
+                <h2 class="text-2xl font-medium">
+                    {{ 'APP.CONCIERGE.EVENTS_HEADER' | translate }}
+                </h2>
                 <a
                     btn
                     matRipple
                     [routerLink]="['/entertainment', 'events', 'manage']"
                 >
-                    <div class="ml-2">Create Event</div>
+                    <div class="ml-2">
+                        {{ 'APP.CONCIERGE.EVENTS_ADD' | translate }}
+                    </div>
                     <app-icon class="text-2xl">chevron_right</app-icon>
                 </a>
             </div>
@@ -39,7 +43,7 @@ import { distinctUntilChanged, map, take } from 'rxjs/operators';
                 >
                     <div class="flex items-center space-x-2">
                         <app-icon class="text-xl">list</app-icon>
-                        <div class="pr-2">List</div>
+                        <div class="pr-2">{{ 'COMMON.LIST' | translate }}</div>
                     </div>
                 </button>
                 <button
@@ -51,7 +55,9 @@ import { distinctUntilChanged, map, take } from 'rxjs/operators';
                 >
                     <div class="flex items-center space-x-2">
                         <app-icon class="text-xl">event</app-icon>
-                        <div class="pr-2">Calendar</div>
+                        <div class="pr-2">
+                            {{ 'COMMON.CALENDAR' | translate }}
+                        </div>
                     </div>
                 </button>
                 <div class="h-full px-2">
@@ -62,8 +68,12 @@ import { distinctUntilChanged, map, take } from 'rxjs/operators';
                         [ngModel]="period | async"
                         (ngModelChange)="setPeriodType($event)"
                     >
-                        <mat-option value="week">Week</mat-option>
-                        <mat-option value="month">Month</mat-option>
+                        <mat-option value="week">{{
+                            'COMMON.WEEK' | translate
+                        }}</mat-option>
+                        <mat-option value="month">{{
+                            'COMMON.MONTH' | translate
+                        }}</mat-option>
                     </mat-select>
                 </mat-form-field>
                 <mat-form-field appearance="outline" class="w-64 no-subscript">
@@ -99,7 +109,7 @@ import { distinctUntilChanged, map, take } from 'rxjs/operators';
         >
             <div class="absolute inset-0 bg-base-100 opacity-80"></div>
             <p class="opacity-60 text-lg max-w-[32rem]">
-                A shared calendar is required to view and manage group events.
+                {{ 'APP.CONCIERGE.EVENTS_CONFIG_ERROR' | translate }}
             </p>
         </div>
     `,
@@ -111,10 +121,10 @@ import { distinctUntilChanged, map, take } from 'rxjs/operators';
         `,
     ],
 })
-export class EventsListComponent extends AsyncHandler {
+export class EventsListComponent extends AsyncHandler implements OnInit {
     public readonly period = this._state.options.pipe(
         map((_) => _.period),
-        distinctUntilChanged()
+        distinctUntilChanged(),
     );
 
     public view: 'list' | 'calendar' = 'list';
@@ -129,7 +139,7 @@ export class EventsListComponent extends AsyncHandler {
         private _settings: SettingsService,
         private _state: EventStateService,
         private _router: Router,
-        private _route: ActivatedRoute
+        private _route: ActivatedRoute,
     ) {
         super();
     }
@@ -141,7 +151,7 @@ export class EventsListComponent extends AsyncHandler {
             this.period.subscribe(() => {
                 this._generatePeriods();
                 this._initPeriod();
-            })
+            }),
         );
         this._generatePeriods();
         this._initPeriod();
@@ -154,7 +164,7 @@ export class EventsListComponent extends AsyncHandler {
                 if (q.has('period') && q.get('period') !== this._state.period) {
                     this.setPeriodType(
                         q.get('period') as 'week' | 'month',
-                        false
+                        false,
                     );
                 }
                 this._generatePeriods();
@@ -163,7 +173,7 @@ export class EventsListComponent extends AsyncHandler {
                     this.timeout('update', () => {
                         const id = parseInt(q.get('range'), 10);
                         const item = this.period_list.find(
-                            (_) => id >= _.start && id < _.end
+                            (_) => id >= _.start && id < _.end,
                         ) ||
                             this.period_list[0] || {
                                 start: id,
@@ -180,7 +190,7 @@ export class EventsListComponent extends AsyncHandler {
                         this.setPeriod(this.selected_range);
                     });
                 }
-            })
+            }),
         );
     }
 
@@ -244,7 +254,7 @@ export class EventsListComponent extends AsyncHandler {
                         end,
                         display: `${format(date, 'EEE, do MMM')} – ${format(
                             end,
-                            'do MMM'
+                            'do MMM',
                         )}`,
                     });
                     date = addDays(date, 7).valueOf();
@@ -269,14 +279,14 @@ export class EventsListComponent extends AsyncHandler {
             () => {
                 if (this.period_list.length) {
                     let index = this.period_list.findIndex(
-                        (_) => _.start <= Date.now() && _.end >= Date.now()
+                        (_) => _.start <= Date.now() && _.end >= Date.now(),
                     );
                     if (index < 0) index = 0;
                     this.setPeriod(this.period_list[index].id);
                     this.selected_range = this.period_list[index].id;
                 }
             },
-            350
+            350,
         );
     }
 }

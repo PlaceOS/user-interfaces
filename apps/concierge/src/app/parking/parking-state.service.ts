@@ -15,6 +15,7 @@ import {
 } from '@placeos/bookings';
 import {
     AsyncHandler,
+    i18n,
     notifyError,
     notifySuccess,
     openConfirmModal,
@@ -374,22 +375,34 @@ export class ParkingStateService extends AsyncHandler {
     public async removeUser(user: ParkingUser) {
         const state = await openConfirmModal(
             {
-                title: 'Remove Parking User',
-                content: `Are you sure you wish to remove the parking user "${user.name}"?`,
+                title: i18n('APP.CONCIERGE.PARKING_USER_REMOVE'),
+                content: i18n('APP.CONCIERGE.PARKING_USER_REMOVE_MSG', {
+                    name: user.name,
+                }),
                 icon: { content: 'delete' },
             },
             this._dialog,
         );
         if (state?.reason !== 'done') return;
-        state.loading('Removing parking user...');
+        state.loading(i18n('APP.CONCIERGE.PARKING_USER_REMOVE_LOADING'));
         const zone = this._org.building.id;
         const users = await this.users.pipe(take(1)).toPromise();
         await updateMetadata(zone, {
             name: 'parking-users',
             details: users.filter((_) => _.id !== user.id),
             description: 'List of available parking users',
-        }).toPromise();
+        })
+            .toPromise()
+            .catch((e) => {
+                notifyError(
+                    i18n('APP.CONCIERGE.PARKING_USER_REMOVE_ERROR', {
+                        error: e,
+                    }),
+                );
+                throw e;
+            });
         state.close();
+        notifySuccess(i18n('APP.CONCIERGE.PARKING_USER_REMOVE_SUCCESS'));
         this._change.next(Date.now());
     }
 
@@ -439,26 +452,32 @@ export class ParkingStateService extends AsyncHandler {
         });
     }
 
-    public async setBookingCheckinState(
-        booking: Booking,
-        state: boolean = true,
-    ) {
+    public async setBookingCheckinState(booking: Booking, state = true) {
         const promise = (
             booking.instance
                 ? checkinBookingInstance(booking.id, booking.instance, state)
                 : checkinBooking(booking.id, state)
         )
             .toPromise()
-            .catch((_) => 'failed');
+            .catch((_) => ({ state: 'failed', error: _ }));
         const success = await promise;
-        success === 'failed'
-            ? notifyError('Error setting checkin state of parking booking')
+        success.state === 'failed'
+            ? notifyError(
+                  i18n(
+                      state
+                          ? 'APP.CONCIERGE.PARKING_CHECKIN_ERROR'
+                          : 'APP.CONCIERGE.PARKING_CHECKOUT_ERROR',
+                      { error: success.error },
+                  ),
+              )
             : notifySuccess(
-                  `${state ? 'Checked in to' : 'Checked out of'} parking reservation for ${
-                      booking.user_name
-                  } on ${format(booking.date, 'MMM Do')}.`,
+                  i18n(
+                      state
+                          ? 'APP.CONCIERGE.PARKING_CHECKIN_SUCCESS'
+                          : 'APP.CONCIERGE.PARKING_CHECKOUT_SUCCESS',
+                  ),
               );
-        if (success !== 'failed') this._change.next(Date.now());
+        if (success.state !== 'failed') this._change.next(Date.now());
     }
 
     public async approveBooking(booking: Booking) {
@@ -468,16 +487,16 @@ export class ParkingStateService extends AsyncHandler {
                 : approveBooking(booking.id)
         )
             .toPromise()
-            .catch((_) => 'failed');
+            .catch((_) => ({ state: 'failed', error: _ }));
         const success = await promise;
-        success === 'failed'
-            ? notifyError('Error approving in parking booking')
-            : notifySuccess(
-                  `Approved parking reservation for ${
-                      booking.user_name
-                  } on ${format(booking.date, 'MMM Do')}.`,
-              );
-        if (success !== 'failed') this._change.next(Date.now());
+        success.state === 'failed'
+            ? notifyError(
+                  i18n('APP.CONCIERGE.PARKING_APPROVE_ERROR', {
+                      error: success.error,
+                  }),
+              )
+            : notifySuccess(i18n('APP.CONCIERGE.PARKING_APPROVE_SUCCESS'));
+        if (success.state !== 'failed') this._change.next(Date.now());
     }
 
     public async rejectBooking(booking: Booking) {
@@ -487,16 +506,16 @@ export class ParkingStateService extends AsyncHandler {
                 : rejectBooking(booking.id)
         )
             .toPromise()
-            .catch((_) => 'failed');
+            .catch((_) => ({ state: 'failed', error: _ }));
         const success = await promise;
-        success === 'failed'
-            ? notifyError('Error rejecting in parking booking')
-            : notifySuccess(
-                  `Rejected parking reservation for ${
-                      booking.user_name
-                  } on ${format(booking.date, 'MMM dd')}.`,
-              );
-        if (success !== 'failed') this._change.next(Date.now());
+        success.state === 'failed'
+            ? notifyError(
+                  i18n('APP.CONCIERGE.PARKING_DECLINE_ERROR', {
+                      error: success.error,
+                  }),
+              )
+            : notifySuccess(i18n('APP.CONCIERGE.PARKING_DECLINE_SUCCESS'));
+        if (success.state !== 'failed') this._change.next(Date.now());
     }
 
     private async _clearAssignedBooking(space: ParkingSpace) {

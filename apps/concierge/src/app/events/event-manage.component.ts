@@ -3,18 +3,12 @@ import { Component } from '@angular/core';
 import { MatChipInputEvent } from '@angular/material/chips';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
-    BookingFormService,
-    removeBooking,
-    showBooking,
-} from '@placeos/bookings';
-import {
     AsyncHandler,
     SettingsService,
     TIMEZONES_IANA,
     currentUser,
     getInvalidFields,
     notifyError,
-    randomString,
     unique,
 } from '@placeos/common';
 import {
@@ -22,7 +16,7 @@ import {
     BuildingLevel,
     OrganisationService,
 } from '@placeos/organisation';
-import { first, startWith, take } from 'rxjs/operators';
+import { first } from 'rxjs/operators';
 import { EventStateService } from './event-state.service';
 import {
     differenceInMinutes,
@@ -30,13 +24,8 @@ import {
     formatDuration,
     startOfDay,
 } from 'date-fns';
-import {
-    CalendarEvent,
-    EventFormService,
-    removeEvent,
-    showEvent,
-} from '@placeos/events';
-import { StaffUser, User } from '@placeos/users';
+import { EventFormService, showEvent } from '@placeos/events';
+import { StaffUser } from '@placeos/users';
 import { Space, SpacePipe } from '@placeos/spaces';
 
 const EMPTY = [];
@@ -48,23 +37,34 @@ const EMPTY = [];
             class="absolute inset-0 bg-base-100 overflow-auto"
             *ngIf="!loading; else load_state"
         >
-            <a
-                icon
-                matRipple
-                class="sticky top-2 right-2 ml-auto"
-                [routerLink]="['/entertainment', 'events']"
+            <header
+                class="sticky flex items-center justify-between top-0 px-4 py-2 mx-auto my-2 max-w-[640px] w-full border-none z-10 bg-base-200 rounded"
             >
-                <app-icon>close</app-icon>
-            </a>
+                <h2 class="text-xl font-medium">
+                    {{
+                        (form.value.id
+                            ? 'APP.CONCIERGE.EVENTS_EDIT'
+                            : 'APP.CONCIERGE.EVENTS_NEW'
+                        ) | translate
+                    }}
+                </h2>
+                <a
+                    icon
+                    matRipple
+                    *ngIf="!loading"
+                    [routerLink]="['/entertainment', 'events']"
+                >
+                    <app-icon>close</app-icon>
+                </a>
+            </header>
             <form
-                class="flex flex-col w-[40rem] max-w-full mx-auto px-4"
+                class="flex flex-col w-[40rem] max-w-full mx-auto px-4 my-2 pb-16"
                 [formGroup]="form"
             >
-                <h3 class="py-4 text-2xl font-medium">
-                    {{ form.value.id ? 'Edit' : 'New' }} Group Event
-                </h3>
                 <section class="flex flex-col space-y-2">
-                    <label for="title">Event Title<span>*</span></label>
+                    <label for="title"
+                        >{{ 'FORM.TITLE' | translate }}<span>*</span></label
+                    >
                     <ng-container>
                         <mat-form-field appearance="outline" class="w-full">
                             <input
@@ -77,13 +77,18 @@ const EMPTY = [];
                                 {{ 'FORM.TITLE_ERROR' | translate }}
                             </mat-error>
                         </mat-form-field>
-                        <label for="host">Organiser<span>*</span></label>
-                        <a-user-search-field
-                            class="block mb-4"
-                            name="host"
-                            formControlName="organiser"
-                        ></a-user-search-field>
-                        <label for="tags">Tags</label>
+                        <label for="host"
+                            >{{ 'FORM.HOST' | translate }}<span>*</span></label
+                        >
+                        <div class="pb-4">
+                            <a-user-search-field
+                                name="host"
+                                formControlName="organiser"
+                            ></a-user-search-field>
+                        </div>
+                        <label for="tags">{{
+                            'COMMON.TAGS' | translate
+                        }}</label>
                         <mat-form-field
                             appearance="outline"
                             class="no-subscript"
@@ -107,11 +112,20 @@ const EMPTY = [];
                                 />
                             </mat-chip-grid>
                         </mat-form-field>
-                        <div class="py-4 flex items-center space-x-8">
-                            <mat-checkbox formControlName="featured">
-                                Featured
-                            </mat-checkbox>
-                            <mat-checkbox
+                        <div class="py-4 flex items-center space-x-4">
+                            <settings-toggle
+                                class="flex-1"
+                                [name]="
+                                    'CALENDAR_EVENT.GROUP_FEATURED' | translate
+                                "
+                                formControlName="featured"
+                            >
+                            </settings-toggle>
+                            <settings-toggle
+                                class="flex-1"
+                                [name]="
+                                    'APP.CONCIERGE.EVENTS_PUBLISH' | translate
+                                "
                                 [ngModel]="form.value.view_access === 'OPEN'"
                                 [ngModelOptions]="{ standalone: true }"
                                 (ngModelChange)="
@@ -122,13 +136,14 @@ const EMPTY = [];
                                     })
                                 "
                             >
-                                Publish
-                            </mat-checkbox>
+                            </settings-toggle>
                         </div>
                     </ng-container>
                     <!-- END BASIC DETAILS -->
                     <div class="w-full h-px bg-base-200"></div>
-                    <h3 class="py-4 text-2xl font-medium">Date and Time</h3>
+                    <h3 class="py-4 text-2xl font-medium">
+                        {{ 'APP.CONCIERGE.EVENTS_DATE_TIME' | translate }}
+                    </h3>
                     <ng-container>
                         <div class="flex items-center flex-wrap sm:space-x-2">
                             <div class="flex-1 min-w-[256px] relative">
@@ -145,8 +160,8 @@ const EMPTY = [];
                             </div>
                             <div class="flex-1 min-w-[256px] relative">
                                 <label for="date">
-                                    {{ 'FORM.END_DATE' | translate
-                                    }}<span>*</span>
+                                    {{ 'FORM.DATE_END' | translate }}
+                                    <span>*</span>
                                 </label>
                                 <a-date-field
                                     name="date"
@@ -164,7 +179,7 @@ const EMPTY = [];
                         >
                             <div class="flex-1 w-1/3">
                                 <label for="start-time">
-                                    {{ 'FORM.START_TIME' | translate }}
+                                    {{ 'FORM.TIME_START' | translate }}
                                     <span>*</span>
                                 </label>
                                 <a-time-field
@@ -180,8 +195,8 @@ const EMPTY = [];
                             </div>
                             <div class="flex-1 w-1/3">
                                 <label for="end-time">
-                                    {{ 'FORM.END_TIME' | translate
-                                    }}<span>*</span>
+                                    {{ 'FORM.TIME_END' | translate }}
+                                    <span>*</span>
                                 </label>
                                 <a-time-field
                                     name="end-time"
@@ -204,7 +219,9 @@ const EMPTY = [];
                             </div>
                         </div>
                         <div class="flex flex-col">
-                            <label for="display-name"> Timezone: </label>
+                            <label for="display-name">
+                                {{ 'COMMON.TIMEZONE' | translate }}
+                            </label>
                             <mat-form-field appearance="outline">
                                 <app-icon matPrefix class="text-2xl">
                                     search
@@ -212,7 +229,9 @@ const EMPTY = [];
                                 <input
                                     matInput
                                     formControlName="timezone"
-                                    placeholder="Timezone"
+                                    [placeholder]="
+                                        'COMMON.TIMEZONE' | translate
+                                    "
                                     [matAutocomplete]="auto"
                                 />
                             </mat-form-field>
@@ -227,14 +246,16 @@ const EMPTY = [];
                                     *ngIf="!timezones.length"
                                     [disabled]="true"
                                 >
-                                    No matching timezones
+                                    {{ 'COMMON.TIMEZONE_EMPTY' | translate }}
                                 </mat-option>
                             </mat-autocomplete>
                         </div>
                     </ng-container>
                     <!-- END DATE TIME -->
                     <div class="w-full h-px bg-base-200"></div>
-                    <h3 class="py-4 text-2xl font-medium">Location</h3>
+                    <h3 class="py-4 text-2xl font-medium">
+                        {{ 'COMMON.LOCATION' | translate }}
+                    </h3>
                     <ng-container>
                         <div class="flex items-center space-x-2 pb-2">
                             <button
@@ -252,7 +273,12 @@ const EMPTY = [];
                                 "
                             >
                                 <app-icon class="text-2xl">domain</app-icon>
-                                <div class="mx-2">On Premise</div>
+                                <div class="mx-2">
+                                    {{
+                                        'APP.CONCIERGE.EVENTS_LOCATION_ONSITE'
+                                            | translate
+                                    }}
+                                </div>
                             </button>
                             <button
                                 btn
@@ -268,7 +294,12 @@ const EMPTY = [];
                                 "
                             >
                                 <app-icon class="text-2xl">laptop_mac</app-icon>
-                                <div class="mx-2">Online Only</div>
+                                <div class="mx-2">
+                                    {{
+                                        'APP.CONCIERGE.EVENTS_LOCATION_ONLINE'
+                                            | translate
+                                    }}
+                                </div>
                             </button>
                             <button
                                 btn
@@ -282,19 +313,28 @@ const EMPTY = [];
                                 "
                             >
                                 <app-icon class="text-2xl">add</app-icon>
-                                <div class="mx-2">Both</div>
+                                <div class="mx-2">
+                                    {{
+                                        'APP.CONCIERGE.EVENTS_LOCATION_BOTH'
+                                            | translate
+                                    }}
+                                </div>
                             </button>
                         </div>
                         <ng-container
                             *ngIf="form.value.attendance_type !== 'ONLINE'"
                         >
-                            <label for="location">Building Location</label>
+                            <label for="location">
+                                {{ 'RESOURCE.BUILDING' | translate }}
+                            </label>
                             <mat-form-field appearance="outline">
                                 <mat-select
                                     [ngModel]="building_zone"
                                     [ngModelOptions]="{ standalone: true }"
                                     (ngModelChange)="setBuilding($event)"
-                                    placeholder="Select Building"
+                                    [placeholder]="
+                                        'COMMON.BUILDING_SELECT' | translate
+                                    "
                                 >
                                     <mat-option
                                         *ngFor="
@@ -312,7 +352,9 @@ const EMPTY = [];
                             </mat-form-field>
                             <div class="flex space-x-2">
                                 <div class="flex flex-col flex-[2]">
-                                    <label for="level">Level</label>
+                                    <label for="level">{{
+                                        'RESOURCE.LEVEL' | translate
+                                    }}</label>
                                     <mat-form-field appearance="outline">
                                         <mat-select
                                             [ngModel]="level_zone"
@@ -320,7 +362,10 @@ const EMPTY = [];
                                                 standalone: true,
                                             }"
                                             (ngModelChange)="setLevel($event)"
-                                            placeholder="Select Level"
+                                            [placeholder]="
+                                                'COMMON.LEVEL_SELECT'
+                                                    | translate
+                                            "
                                         >
                                             <mat-option
                                                 *ngFor="
@@ -338,7 +383,9 @@ const EMPTY = [];
                                     </mat-form-field>
                                 </div>
                                 <div class="flex flex-col flex-[3]">
-                                    <label for="level">Room</label>
+                                    <label for="level">{{
+                                        'RESOURCE.ROOM' | translate
+                                    }}</label>
                                     <mat-form-field appearance="outline">
                                         <mat-select
                                             [(ngModel)]="resource"
@@ -349,9 +396,15 @@ const EMPTY = [];
                                                 (available_spaces | async)
                                                     ?.length === 0
                                             "
-                                            placeholder="Select Room"
+                                            [placeholder]="
+                                                'COMMON.ROOM_SELECT' | translate
+                                            "
                                         >
-                                            <mat-option><i>None</i></mat-option>
+                                            <mat-option
+                                                ><i>{{
+                                                    'COMMON.NONE' | translate
+                                                }}</i></mat-option
+                                            >
                                             <mat-option
                                                 *ngFor="
                                                     let room of available_spaces
@@ -372,33 +425,34 @@ const EMPTY = [];
                     </ng-container>
                     <!-- END LOCATION -->
                     <div class="w-full h-px bg-base-200"></div>
-                    <h3 class="py-4 text-2xl font-medium">Event Information</h3>
+                    <h3 class="py-4 text-2xl font-medium">
+                        {{ 'APP.CONCIERGE.EVENTS_INFO' | translate }}
+                    </h3>
                     <ng-container>
-                        <label for="title">Event Description</label>
-                        <rich-text-input
-                            formControlName="body"
-                        ></rich-text-input>
-                        <label for="tags">Images</label>
+                        <label for="description">
+                            {{ 'COMMON.DESCRIPTION' | translate }}
+                        </label>
+                        <div class="mb-16">
+                            <rich-text-input
+                                formControlName="body"
+                            ></rich-text-input>
+                        </div>
+                        <label for="images">
+                            {{ 'COMMON.IMAGES' | translate }}
+                        </label>
                         <image-list-field
                             formControlName="images"
                         ></image-list-field>
                     </ng-container>
                 </section>
-                <div
-                    class="flex justify-end space-x-2 sticky bottom-0 w-full bg-base-100 py-4"
+                <footer
+                    class="fixed bottom-0 left-1/2 -translate-x-1/2 px-4 py-2 mx-auto my-2 max-w-[640px] w-full border-none z-10 bg-base-200 rounded flex items-center justify-end"
+                    *ngIf="!loading"
                 >
-                    <a
-                        btn
-                        matRipple
-                        class="inverse w-32"
-                        [routerLink]="['/entertainment', 'events']"
-                    >
-                        Cancel
-                    </a>
                     <button btn matRipple class="w-32" (click)="save()">
-                        Save
+                        {{ 'COMMON.SAVE' | translate }}
                     </button>
-                </div>
+                </footer>
             </form>
         </div>
         <ng-template #load_state>
@@ -406,7 +460,7 @@ const EMPTY = [];
                 class="absolute inset-0 bg-base-100 flex flex-col items-center justify-center space-y-4"
             >
                 <mat-spinner diameter="48"></mat-spinner>
-                <p>Saving event...</p>
+                <p>{{ 'APP.CONCIERGE.EVENTS_SAVING' | translate }}</p>
             </div>
         </ng-template>
     `,

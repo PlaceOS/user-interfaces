@@ -11,7 +11,10 @@ import { ActivatedRoute, Router } from '@angular/router';
         <div class="flex items-center border-y border-base-200 w-full">
             <div class="flex-1 px-2 py-4">
                 <span *ngIf="is_today | async" class="text-info text-xs">{{
-                    (period | async) === 'week' ? 'This Week' : 'This Month'
+                    ((period | async) === 'week'
+                        ? 'COMMON.WEEK_THIS'
+                        : 'COMMON.MONTH_THIS'
+                    ) | translate
                 }}</span>
             </div>
             <div class="flex-2 flex items-center justify-center space-x-2">
@@ -33,7 +36,7 @@ import { ActivatedRoute, Router } from '@angular/router';
                     [class.inverse]="(period | async) !== 'week'"
                     (click)="setPeriod('week')"
                 >
-                    Week
+                    {{ 'COMMON.WEEK' | translate }}
                 </button>
                 <button
                     btn
@@ -42,7 +45,7 @@ import { ActivatedRoute, Router } from '@angular/router';
                     [class.inverse]="(period | async) !== 'month'"
                     (click)="setPeriod('month')"
                 >
-                    Month
+                    {{ 'COMMON.MONTH' | translate }}
                 </button>
             </div>
         </div>
@@ -72,7 +75,7 @@ export class EventCalendarComponent {
 
     public readonly options = this._state.options;
     public readonly is_today = this.options.pipe(
-        map((_) => _.date <= Date.now() && _.end > Date.now())
+        map((_) => _.date <= Date.now() && _.end > Date.now()),
     );
     public readonly event_list = this._state.event_list;
     public readonly event_day_map = this.event_list.pipe(
@@ -85,7 +88,7 @@ export class EventCalendarComponent {
             }
             return map;
         }),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     public get time_format() {
@@ -96,7 +99,7 @@ export class EventCalendarComponent {
         private _settings: SettingsService,
         private _state: EventStateService,
         private _router: Router,
-        private _route: ActivatedRoute
+        private _route: ActivatedRoute,
     ) {}
 
     public setPeriod(period: 'week' | 'month') {
