@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { debounceTime, filter, first, map, startWith } from 'rxjs/operators';
+import { filter, first, map, startWith } from 'rxjs/operators';
 import { CheckinStateService } from './checkin-state.service';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
@@ -35,22 +35,26 @@ const DEFAULT_TEMPLATE = `
                 printable
                 class="relative w-[24rem] h-[14rem] rounded-xl border border-neutral m-4 p-4 bg-base-100 print-only"
             >
-                <div class="flex flex-col h-full">
+                <div class="flex flex-col h-full leading-tight">
                     <div
-                        class="h-[4.75rem] w-[4.75rem] rounded-full bg-base-200 print:border-2 border-base-400 flex items-center justify-center mb-2"
+                        class="h-[4.75rem] w-[4.75rem] rounded-full bg-base-200 print:border-2 border-base-400 flex items-center justify-center mb-2 text-3xl overflow-hidden"
                     >
                         <a-user-avatar
-                            class="text-3xl"
                             [user]="{
-                                name: (event | async)?.asset_name,
+                                name:
+                                    (event | async)?.asset_name ||
+                                    (event | async)?.description,
                                 email: (event | async)?.asset_id,
                             }"
                         ></a-user-avatar>
                     </div>
                     <div class="text-2xl">
-                        {{ (event | async)?.asset_name }}
+                        {{
+                            (event | async)?.asset_name ||
+                                (event | async)?.description
+                        }}
                     </div>
-                    <div class="text-sm mt-1">
+                    <div class="text-sm">
                         {{
                             'APP.VISITOR_KIOSK.LABEL_FOR'
                                 | translate: { title: (event | async)?.title }
