@@ -33,10 +33,9 @@ import { OrganisationService } from '@placeos/organisation';
                 </h3>
                 <div class="flex items-center flex-wrap sm:space-x-2">
                     <div class="flex-1 min-w-[256px]">
-                        <label for="date"
-                            >{{ 'RESOURCE.BUILDING' | translate
-                            }}<span>*</span></label
-                        >
+                        <label for="date">
+                            {{ 'RESOURCE.BUILDING' | translate }}<span>*</span>
+                        </label>
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
                                 [(ngModel)]="building"

@@ -9,16 +9,16 @@ import {
 import { AsyncHandler, currentUser, SettingsService } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
-import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
+import { addHours, endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { combineLatest, Observable } from 'rxjs';
-import { map, shareReplay } from 'rxjs/operators';
+import { map, shareReplay, tap } from 'rxjs/operators';
 
 @Component({
     selector: 'placeos-book-locker-flow',
     template: `
         <ng-container
             *ngIf="
-                !(assigned_space | async) || !(has_booking | async);
+                !((assigned_space | async) && (has_booking | async));
                 else assigned_state
             "
         >
@@ -81,9 +81,9 @@ export class BookLockerFlowComponent extends AsyncHandler implements OnInit {
     );
 
     public readonly has_booking = queryBookings({
-        period_start: getUnixTime(startOfDay(Date.now())),
-        period_end: getUnixTime(endOfDay(Date.now())),
-        type: 'parking',
+        period_start: getUnixTime(addHours(startOfDay(Date.now()), 1)),
+        period_end: getUnixTime(addHours(endOfDay(Date.now()), -1)),
+        type: 'locker',
     }).pipe(
         map((_) => _.length > 0),
         shareReplay(1),
