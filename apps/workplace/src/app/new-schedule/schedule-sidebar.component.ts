@@ -191,7 +191,7 @@ import { startOfDay } from 'date-fns';
                     <div
                         class="h-10 w-10 rounded-full flex items-center justify-center bg-base-200 text-2xl"
                     >
-                        <app-icon>door_back</app-icon>
+                        <app-icon>lock</app-icon>
                     </div>
                     <div class="flex-1">
                         <div class="">
@@ -220,7 +220,7 @@ import { startOfDay } from 'date-fns';
                     <div
                         class="h-10 w-10 rounded-full flex items-center justify-center bg-base-200 text-2xl"
                     >
-                        <app-icon>door_back</app-icon>
+                        <app-icon>event_available</app-icon>
                     </div>
                     <div class="flex-1">
                         <div class="">

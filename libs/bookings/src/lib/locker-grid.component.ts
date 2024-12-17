@@ -12,8 +12,8 @@ import { Locker, LockerBank } from './locker.class';
         <div
             class="flex-1 grid gap-2 overflow-hidden max-h-full h-[75vh] min-w-[60vw] p-2"
             [style.width]="columns * 2.5 + 'rem'"
-            [style.grid-template-columns]="'repeat(' + columns + ', 1fr)'"
-            [style.grid-template-rows]="'repeat(' + bank?.height + ', 1fr)'"
+            [style.grid-template-columns]="'repeat(' + columns + ', 5rem)'"
+            [style.grid-template-rows]="'repeat(' + bank?.height + ', 5rem)'"
         >
             <button
                 *ngFor="let locker of bank?.lockers || []"
