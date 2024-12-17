@@ -185,7 +185,7 @@ const EMPTY_FAVS = [];
                                     : 'COMMON.FAVOURITES_ADD'
                                 ) | translate
                             "
-                            [class.text-blue-400]="favorites.includes(item.id)"
+                            [class.text-info]="favorites.includes(item.id)"
                             (click)="toggleFavourite(item)"
                         >
                             <app-icon>{{

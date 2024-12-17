@@ -203,7 +203,7 @@ import { SettingsService } from '@placeos/common';
                 <div class="px-2">
                     <button
                         matRipple
-                        class="rounded-3xl bg-warning text-warning-content border-none w-[4.5rem] h-10"
+                        class="rounded-3xl bg-warning text-warning-content border-none w-24 h-10"
                         [matMenuTriggerFor]="checkinMenu"
                         [class.!bg-neutral]="!data"
                         [class.!text-neutral-content]="!data"
@@ -219,7 +219,10 @@ import { SettingsService } from '@placeos/common';
                     >
                         <div class="flex items-center pl-4 pr-2 space-x-2">
                             <div class="flex-1 text-left">
-                                {{ data ? 'COMMON.TRUE' : 'COMMON.FALSE' }}
+                                {{
+                                    (data ? 'COMMON.TRUE' : 'COMMON.FALSE')
+                                        | translate
+                                }}
                             </div>
                             <app-icon class="text-2xl">
                                 arrow_drop_down

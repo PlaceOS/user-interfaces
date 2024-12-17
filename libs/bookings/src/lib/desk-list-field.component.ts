@@ -91,7 +91,7 @@ const EMPTY_FAVS: string[] = [];
                     matRipple
                     name="toggle-desk-favourite"
                     class="absolute top-1 right-1"
-                    [class.text-blue-400]="favorites.includes(item?.id)"
+                    [class.text-info]="favorites.includes(item?.id)"
                     (click)="toggleFavourite(item)"
                 >
                     <app-icon>{{

@@ -182,7 +182,7 @@ import { Region } from '@placeos/organisation';
                 >
                     <div class="flex-1 w-1/3">
                         <label for="start-time">
-                            {{ 'FORM.TIME_START' }}<span>*</span>
+                            {{ 'FORM.TIME_START' | translate }}<span>*</span>
                         </label>
                         <a-time-field
                             name="start-time"

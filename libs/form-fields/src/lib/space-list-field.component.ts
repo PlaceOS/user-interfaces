@@ -146,7 +146,7 @@ const EMPTY_FAVS: string[] = [];
                     matRipple
                     name="toggle-space-favourite"
                     class="absolute top-1 right-1"
-                    [class.text-blue-400]="favorites.includes(space?.id)"
+                    [class.text-info]="favorites.includes(space?.id)"
                     (click)="toggleFavourite(space)"
                 >
                     <app-icon>{{

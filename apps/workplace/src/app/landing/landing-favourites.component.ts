@@ -1,5 +1,4 @@
-import { P } from '@angular/cdk/keycodes';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import {
     BookingFormService,
@@ -12,6 +11,7 @@ import { OrganisationService } from '@placeos/organisation';
 import { Space } from '@placeos/spaces';
 import { showMetadata } from '@placeos/ts-client';
 import { FAV_DESK_KEY } from 'libs/bookings/src/lib/desk-select-modal/desk-select-modal.component';
+import { FAV_LOCKER_KEY } from 'libs/bookings/src/lib/locker-select-modal/locker-select-modal.component';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 import { combineLatest } from 'rxjs';
 import { map, shareReplay } from 'rxjs/operators';
@@ -269,7 +269,7 @@ const EMPTY = [];
     ],
     providers: [SpacePipe],
 })
-export class LandingFavouritesComponent extends AsyncHandler {
+export class LandingFavouritesComponent extends AsyncHandler implements OnInit {
     private _room_alerts: Record<string, [string, string]>;
     public readonly assets = combineLatest([
         this._booking_form.loadResourceList('desks' as any),
@@ -298,6 +298,10 @@ export class LandingFavouritesComponent extends AsyncHandler {
 
     public get parking_spaces() {
         return this._settings.get<string[]>(FAV_PARKING_KEY) || EMPTY;
+    }
+
+    public get locker_banks() {
+        return this._settings.get<string[]>(FAV_LOCKER_KEY) || EMPTY;
     }
 
     public level(space: Space) {
@@ -329,11 +333,12 @@ export class LandingFavouritesComponent extends AsyncHandler {
         )
             .pipe(map((v) => v.details as any))
             .toPromise();
-        console.log('Room Alerts:', this._room_alerts);
-        console.log('Spaces:', this.spaces);
     }
 
-    public toggleFavourite(type: 'space' | 'desk' | 'parking', id: string) {
+    public toggleFavourite(
+        type: 'space' | 'desk' | 'parking' | 'locker',
+        id: string,
+    ) {
         let fav_list = this.spaces;
         let key = 'favourite_spaces';
         switch (type) {
@@ -374,12 +379,20 @@ export class LandingFavouritesComponent extends AsyncHandler {
         if (this._settings.get('app.new_features')) {
             this._router.navigate([
                 '/book',
-                type === 'desk' ? 'new-desk' : 'new-parking',
+                type === 'desk'
+                    ? 'new-desk'
+                    : type === 'locker'
+                      ? 'locker'
+                      : 'new-parking',
             ]);
         } else {
             this._router.navigate([
                 '/book',
-                type === 'desk' ? 'desks' : 'parking',
+                type === 'desk'
+                    ? 'desks'
+                    : type === 'locker'
+                      ? 'locker'
+                      : 'parking',
             ]);
         }
         setTimeout(() => {

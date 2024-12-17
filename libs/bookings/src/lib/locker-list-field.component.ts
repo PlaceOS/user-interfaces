@@ -107,7 +107,7 @@ const EMPTY_FAVS: string[] = [];
                     matRipple
                     name="toggle-locker-favourite"
                     class="absolute top-1 right-1"
-                    [class.text-blue-400]="favorites.includes(asset?.id)"
+                    [class.text-info]="favorites.includes(asset?.id)"
                     (click)="toggleFavourite(asset)"
                 >
                     <app-icon>{{

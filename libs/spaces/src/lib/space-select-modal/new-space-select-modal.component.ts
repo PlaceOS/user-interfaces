@@ -37,7 +37,7 @@ import { Space } from '../space.class';
                         [class.inverse]="view !== 'list'"
                         (click)="view = 'list'"
                     >
-                        {{ 'COMMON.LIST' }}
+                        {{ 'COMMON.LIST' | translate }}
                     </button>
                 </div>
             </header>

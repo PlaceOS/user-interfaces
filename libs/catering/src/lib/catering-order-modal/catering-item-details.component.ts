@@ -38,7 +38,7 @@ interface CateringOptionGroup {
                     matRipple
                     name="toggle-catering-item-favourite-details"
                     [class.text-white]="!fav"
-                    [class.text-blue-400]="fav"
+                    [class.text-info]="fav"
                     (click)="toggleFav.emit()"
                     class="absolute top-2 right-2 bg-neutral"
                 >

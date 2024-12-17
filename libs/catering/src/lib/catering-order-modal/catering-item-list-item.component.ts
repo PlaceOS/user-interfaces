@@ -95,7 +95,7 @@ import { CateringItem } from '../catering-item.class';
                 matRipple
                 name="toggle-catering-item-favourite"
                 class="absolute top-1 right-1"
-                [class.text-blue-400]="favourite"
+                [class.text-info]="favourite"
                 (click)="toggleFav.emit()"
             >
                 <app-icon>{{

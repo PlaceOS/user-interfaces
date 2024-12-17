@@ -1,17 +1,10 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { combineLatest, forkJoin, Observable, of } from 'rxjs';
-import {
-    catchError,
-    filter,
-    map,
-    shareReplay,
-    switchMap,
-} from 'rxjs/operators';
+import { combineLatest, Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { BookingFormService, BookingAsset } from '../booking-form.service';
 import { Locker, LockerBank } from '../locker.class';
 import { OrganisationService } from '@placeos/organisation';
-import { flatten, SettingsService } from '@placeos/common';
-import { PlaceMetadata, showMetadata } from '@placeos/ts-client';
+import { SettingsService } from '@placeos/common';
 import { loadLockerBanks, loadLockers } from '../booking.utilities';
 
 @Component({
@@ -118,12 +111,12 @@ import { loadLockerBanks, loadLockers } from '../booking.utilities';
                             </div>
                         </div>
                     </button>
-                    <button
+                    <!-- <button
                         icon
                         matRipple
                         name="toggle-locker_bank-favourite"
                         class="absolute top-1 right-1"
-                        [class.text-blue-400]="isFavourite(locker_bank.id)"
+                        [class.text-info]="isFavourite(locker_bank.id)"
                         (click)="toggleFav.emit(locker_bank)"
                     >
                         <app-icon>{{
@@ -131,7 +124,7 @@ import { loadLockerBanks, loadLockers } from '../booking.utilities';
                                 ? 'favorite'
                                 : 'favorite_border'
                         }}</app-icon>
-                    </button>
+                    </button> -->
                     <div
                         class="absolute bottom-2 right-2 bg-base-200 rounded text-xs px-2 py-1 font-mono"
                         *ngIf="locker_bank.tags?.length"
