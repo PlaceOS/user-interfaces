@@ -102,20 +102,6 @@ const EMPTY_FAVS: string[] = [];
                         </button>
                     </div>
                 </div>
-                <button
-                    icon
-                    matRipple
-                    name="toggle-locker-favourite"
-                    class="absolute top-1 right-1"
-                    [class.text-info]="favorites.includes(asset?.id)"
-                    (click)="toggleFavourite(asset)"
-                >
-                    <app-icon>{{
-                        favorites.includes(asset?.id)
-                            ? 'favorite'
-                            : 'favorite_border'
-                    }}</app-icon>
-                </button>
             </div>
         </div>
         <button
