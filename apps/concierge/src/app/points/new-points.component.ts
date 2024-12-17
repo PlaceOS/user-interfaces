@@ -18,7 +18,7 @@ import { PointsStateService } from './points-state.service';
                         class="w-40"
                         (click)="newAsset()"
                     >
-                        New Asset
+                        {{ 'APP.CONCIERGE.POINTS_ASSETS_ADD' | translate }}
                     </button>
                 </points-topbar>
                 <div class="px-8 mb-4">
@@ -32,7 +32,9 @@ import { PointsStateService } from './points-state.service';
                             ]"
                             [active]="page === 'overview'"
                         >
-                            Overview
+                            {{
+                                'APP.CONCIERGE.POINTS_TAB_OVERVIEW' | translate
+                            }}
                         </a>
                         <a
                             mat-tab-link
@@ -43,7 +45,7 @@ import { PointsStateService } from './points-state.service';
                             ]"
                             [active]="page === 'assets'"
                         >
-                            Assets
+                            {{ 'APP.CONCIERGE.POINTS_TAB_ASSETS' | translate }}
                         </a>
                     </nav>
                 </div>

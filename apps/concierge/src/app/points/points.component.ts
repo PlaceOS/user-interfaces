@@ -15,7 +15,7 @@ import { PointsStateService } from './points-state.service';
                     matRipple
                     (click)="newAsset()"
                 >
-                    New Asset
+                    {{ 'APP.CONCIERGE.POINTS_ASSETS_ADD' | translate }}
                 </button>
             </points-topbar>
             <nav mat-tab-nav-bar>
@@ -24,14 +24,14 @@ import { PointsStateService } from './points-state.service';
                     [routerLink]="['/points', 'overview']"
                     [active]="page === 'overview'"
                 >
-                    Overview
+                    {{ 'APP.CONCIERGE.POINTS_TAB_OVERVIEW' | translate }}
                 </a>
                 <a
                     mat-tab-link
                     [routerLink]="['/points', 'assets']"
                     [active]="page === 'assets'"
                 >
-                    Assets
+                    {{ 'APP.CONCIERGE.POINTS_TAB_ASSETS' | translate }}
                 </a>
             </nav>
             <div class="flex-1 w-full h-1/2 overflow-auto">
@@ -55,7 +55,10 @@ export class PointsComponent extends AsyncHandler implements OnInit {
 
     public readonly newAsset = () => this._state.newAsset();
 
-    constructor(private _state: PointsStateService, private _router: Router) {
+    constructor(
+        private _state: PointsStateService,
+        private _router: Router,
+    ) {
         super();
     }
 
@@ -65,7 +68,7 @@ export class PointsComponent extends AsyncHandler implements OnInit {
             this._router.events.subscribe(() => {
                 const url_parts = this._router.url?.split('/') || [''];
                 this.page = url_parts[url_parts.length - 1];
-            })
+            }),
         );
         const parts = this._router.url?.split('/') || [''];
         this.page = parts[parts.length - 1];

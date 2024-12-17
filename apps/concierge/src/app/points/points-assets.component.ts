@@ -24,34 +24,38 @@ export interface PointAsset {
             class="block min-w-[32rem] w-full"
             [data]="asset_list"
             [columns]="[
-                { key: 'name', name: 'Name' },
-                { key: 'type', name: 'Type', content: type_template },
+                { key: 'name', name: 'FORM.NAME' | translate },
+                {
+                    key: 'type',
+                    name: 'COMMON.TYPE' | translate,
+                    content: type_template,
+                },
                 {
                     key: 'unit_price',
-                    name: 'Unit Price',
-                    content: price_template
+                    name: 'APP.CONCIERGE.POINTS_PRICE' | translate,
+                    content: price_template,
                 },
                 {
                     key: 'accept_points',
-                    name: 'Points',
+                    name: 'APP.CONCIERGE.POINTS_LABEL' | translate,
                     content: bool_template,
-                    size: '5.5rem'
+                    size: '5.5rem',
                 },
                 {
                     key: 'discount_cap',
-                    name: 'Discount %',
+                    name: 'APP.CONCIERGE.POINTS_DISCOUNT' | translate,
                     content: discount_template,
-                    size: '9rem'
+                    size: '9rem',
                 },
                 {
                     key: 'actions',
                     name: ' ',
                     content: action_template,
-                    size: '6.5rem'
-                }
+                    size: '6.5rem',
+                },
             ]"
             [sortable]="true"
-            empty_message="No priced assets"
+            [empty_message]="'APP.CONCIERGE.POINTS_ASSETS_EMPTY' | translate"
         >
         </simple-table>
         <ng-template #type_template let-data="data">
@@ -112,6 +116,6 @@ export class PointsAssetsComponent {
 
     constructor(
         private _state: PointsStateService,
-        private _org: OrganisationService
+        private _org: OrganisationService,
     ) {}
 }
