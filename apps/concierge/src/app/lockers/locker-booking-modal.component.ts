@@ -23,8 +23,8 @@ import { addDays, endOfDay } from 'date-fns';
                 <h2 class="px-2">
                     {{
                         (id
-                            ? 'APP.CONCIERGE.LOCKER_BOOK_EDIT'
-                            : 'APP.CONCIERGE.LOCKER_BOOK_NEW'
+                            ? 'APP.CONCIERGE.LOCKERS_BOOK_EDIT'
+                            : 'APP.CONCIERGE.LOCKERS_BOOK_NEW'
                         ) | translate
                     }}
                 </h2>
@@ -62,7 +62,9 @@ import { addDays, endOfDay } from 'date-fns';
                         </mat-form-field>
                     </div>
                     <div class="flex-1">
-                        <label for="email">{{ 'FORM.EMAIL' }}</label>
+                        <label for="email">{{
+                            'FORM.EMAIL' | translate
+                        }}</label>
                         <mat-form-field appearance="outline" class="w-full">
                             <input
                                 matInput
