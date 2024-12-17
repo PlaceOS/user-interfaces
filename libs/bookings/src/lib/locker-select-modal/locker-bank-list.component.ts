@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { combineLatest, Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
 import { BookingFormService, BookingAsset } from '../booking-form.service';
 import { Locker, LockerBank } from '../locker.class';
 import { OrganisationService } from '@placeos/organisation';
@@ -201,9 +201,11 @@ export class LockerBankListComponent {
                         ..._,
                         map_id: bank.map_id || bank.id,
                         zone: bank.zone,
+                        zones: bank.zones,
                     })),
                 }));
         }),
+        tap((list) => console.log('Bank List:', list)),
     );
     public readonly loading = this._state.loading;
 

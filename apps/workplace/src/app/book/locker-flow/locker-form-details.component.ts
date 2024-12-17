@@ -184,7 +184,7 @@ export class LockerFormDetailsComponent
                 'date',
                 this.form
                     .get('date')
-                    ?.valueChanges?.subscribe((d) =>
+                    ?.valueChanges?.subscribe(() =>
                         this._setCustomDateOptions(),
                     ),
             );

@@ -59,8 +59,8 @@ const EMPTY_FAVS: string[] = [];
                         >
                         <p>
                             {{
-                                (item.bank?.zones | level)?.display_name ||
-                                    (item.bank?.zones | level)?.name
+                                (item?.zones | level)?.display_name ||
+                                    (item?.zones | level)?.name
                             }}
                         </p>
                     </div>

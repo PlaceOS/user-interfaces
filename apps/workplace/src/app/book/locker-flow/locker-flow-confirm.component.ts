@@ -136,12 +136,10 @@ export class BookLockerFlowConfirmComponent extends AsyncHandler {
     }
 
     public get location() {
-        const building = this._org.buildings.find(
-            (b) => b.id === this.booking_asset?.zone?.parent_id,
+        const building = this._org.buildings.find((b) =>
+            this.booking.zones.includes(b.id),
         );
-        const level = this._org.levels.find(
-            (l) => l.id === this.booking_asset?.zone?.id,
-        );
+        const level = this._org.levelWithID((this.booking_asset as any).zones);
         return `${level?.display_name || level?.name}${building ? ',' : ''} ${
             building?.address || building?.display_name || building?.name || ''
         }`;
@@ -154,5 +152,6 @@ export class BookLockerFlowConfirmComponent extends AsyncHandler {
         private _settings: SettingsService,
     ) {
         super();
+        console.log('State:', this.booking);
     }
 }
