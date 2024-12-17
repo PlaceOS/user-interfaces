@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { AssetManagerStateService } from './asset-manager-state.service';
 import { OrganisationService } from '@placeos/organisation';
 import { startOfDay } from 'date-fns';
+import { Booking } from '@placeos/bookings';
 
 @Component({
     selector: 'app-asset-request-list',
@@ -10,8 +11,9 @@ import { startOfDay } from 'date-fns';
         <div class="relative w-full h-[calc(100%-1rem)] flex flex-col">
             <div class="flex items-center justify-between">
                 <div class="opacity-60 text-sm p-4">
-                    {{ (requests | async)?.length }} asset request{{
-                        (requests | async)?.length === '1' ? '' : 's'
+                    {{
+                        'APP.CONCIERGE.ASSETS_REQUESTS_COUNT'
+                            | translate: { count: (requests | async)?.length }
                     }}
                 </div>
                 <date-options
@@ -28,47 +30,59 @@ import { startOfDay } from 'date-fns';
                     [columns]="[
                         {
                             key: 'user_name',
-                            name: 'Requester',
-                            content: user_template
+                            name:
+                                'APP.CONCIERGE.ASSETS_REQUESTS_USER'
+                                | translate,
+                            content: user_template,
                         },
                         {
                             key: 'date',
-                            name: 'Deliver At',
+                            name:
+                                'APP.CONCIERGE.ASSETS_REQUESTS_TIME'
+                                | translate,
                             content: date_template,
-                            size: '8rem'
+                            size: '8rem',
                         },
                         {
                             key: 'assets',
-                            name: 'Asset',
+                            name: 'RESOURCE.ASSETS' | translate,
                             content: assets_template,
-                            sortable: false
+                            sortable: false,
                         },
                         {
                             key: 'zones',
-                            name: 'Floor',
+                            name: 'RESOURCE.LEVEL' | translate,
                             content: level_template,
                             size: '9rem',
-                            sortable: false
+                            sortable: false,
                         },
-                        { key: 'description', name: 'Location' },
+                        {
+                            key: 'description',
+                            name: 'COMMON.LOCATION' | translate,
+                        },
                         {
                             key: 'status',
-                            name: 'Approval',
+                            name:
+                                'APP.CONCIERGE.ASSETS_REQUESTS_APPROVAL'
+                                | translate,
                             content: approval_template,
-                            size: '11rem'
+                            size: '11rem',
                         },
                         {
                             key: 'tracking',
-                            name: 'Tracking',
+                            name:
+                                'APP.CONCIERGE.ASSETS_REQUESTS_TRACKING'
+                                | translate,
                             content: tracking_template,
                             size: '12rem',
-                            sortable: false
-                        }
+                            sortable: false,
+                        },
                     ]"
                     [empty_message]="
-                        (filters | async)?.search
-                            ? 'No matching asset requests'
-                            : 'There are no asset requests for the currently selected date.'
+                        ((filters | async)?.search
+                            ? 'APP.CONCIERGE.ASSETS_REQUESTS_SEARCH_EMPTY'
+                            : 'APP.CONCIERGE.ASSETS_REQUESTS_EMPTY'
+                        ) | translate
                     "
                     [sortable]="true"
                     (row_clicked)="request = $event"
@@ -143,8 +157,8 @@ import { startOfDay } from 'date-fns';
                             row.status === 'approved'
                                 ? 'done'
                                 : row.status === 'declined'
-                                ? 'close'
-                                : 'warning'
+                                  ? 'close'
+                                  : 'warning'
                         }}
                     </app-icon>
                     <div class="capitalize flex-1">{{ row.status }}</div>
@@ -155,13 +169,23 @@ import { startOfDay } from 'date-fns';
                 <button mat-menu-item (click)="setStatus(row, 'approved')">
                     <div class="flex items-center space-x-2">
                         <app-icon class="text-2xl">event_available</app-icon>
-                        <div class="pr-2">Approve Asset Request</div>
+                        <div class="pr-2">
+                            {{
+                                'APP.CONCIERGE.ASSETS_REQUESTS_ACTION_APPROVE'
+                                    | translate
+                            }}
+                        </div>
                     </div>
                 </button>
                 <button mat-menu-item (click)="setStatus(row, 'declined')">
                     <div class="flex items-center space-x-2">
                         <app-icon class="text-2xl">event_busy</app-icon>
-                        <div class="pr-2">Decline Asset Request</div>
+                        <div class="pr-2">
+                            {{
+                                'APP.CONCIERGE.ASSETS_REQUESTS_ACTION_DECLINE'
+                                    | translate
+                            }}
+                        </div>
                     </div>
                 </button>
             </mat-menu>
@@ -188,19 +212,34 @@ import { startOfDay } from 'date-fns';
                 <button mat-menu-item (click)="setTracking(row, 'in_storage')">
                     <div class="flex items-center space-x-2">
                         <app-icon class="text-2xl">inventory</app-icon>
-                        <div class="pr-2">In Storage</div>
+                        <div class="pr-2">
+                            {{
+                                'APP.CONCIERGE.ASSETS_REQUESTS_TRACKING_STORAGE'
+                                    | translate
+                            }}
+                        </div>
                     </div>
                 </button>
                 <button mat-menu-item (click)="setTracking(row, 'in_transit')">
                     <div class="flex items-center space-x-2">
                         <app-icon class="text-2xl">trolley</app-icon>
-                        <div class="pr-2">In Transit</div>
+                        <div class="pr-2">
+                            {{
+                                'APP.CONCIERGE.ASSETS_REQUESTS_TRACKING_TRANSIT'
+                                    | translate
+                            }}
+                        </div>
                     </div>
                 </button>
                 <button mat-menu-item (click)="setTracking(row, 'at_location')">
                     <div class="flex items-center space-x-2">
                         <app-icon class="text-2xl">place</app-icon>
-                        <div class="pr-2">At Location</div>
+                        <div class="pr-2">
+                            {{
+                                'APP.CONCIERGE.ASSETS_REQUESTS_TRACKING_LOCATION'
+                                    | translate
+                            }}
+                        </div>
                     </div>
                 </button>
             </mat-menu>
@@ -217,26 +256,26 @@ import { startOfDay } from 'date-fns';
         `,
     ],
 })
-export class AssetRequestListComponent extends AsyncHandler {
+export class AssetRequestListComponent extends AsyncHandler implements OnInit {
     public readonly requests = this._state.filtered_requests;
     public readonly filters = this._state.options;
     public request;
 
     public readonly loading: Record<string, boolean> = {};
 
-    public date(booking: any) {
+    public date(booking: Booking) {
         return booking.all_day
             ? startOfDay(booking.date).valueOf()
             : booking.date;
     }
 
-    public async setStatus(item: any, status: string) {
+    public async setStatus(item: Booking, status: string) {
         this.loading[item.id] = true;
         await this._state.setStatus(item, status);
         this.loading[item.id] = false;
     }
 
-    public async setTracking(item: any, state: string) {
+    public async setTracking(item: Booking, state: string) {
         this.loading[item.id] = true;
         await this._state.setTracking(item, state);
         this.loading[item.id] = false;
@@ -251,7 +290,7 @@ export class AssetRequestListComponent extends AsyncHandler {
     constructor(
         private _state: AssetManagerStateService,
         private _org: OrganisationService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         super();
     }

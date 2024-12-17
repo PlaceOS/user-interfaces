@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { AssetManagerStateService } from './asset-manager-state.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
@@ -19,139 +19,139 @@ import { OrganisationService } from '@placeos/organisation';
 @Component({
     selector: 'asset-form',
     template: `
-        <div class="absolute inset-0 bg-base-100">
-            <div
-                class="h-full max-w-[32rem] mx-auto flex flex-col"
-                *ngIf="!loading; else load_state"
-            >
-                <header class="p-4">
-                    <h2 class="text-center text-xl font-medium">
-                        {{ form.value.id ? 'Edit' : 'Add' }} Asset
-                    </h2>
-                </header>
-                <main class="flex-1 h-1/2 overflow-auto" [formGroup]="form">
+        <fullscreen-modal-shell
+            [heading]="
+                (form.value.id
+                    ? 'APP.CONCIERGE.ASSETS_EDIT'
+                    : 'APP.CONCIERGE.ASSETS_NEW'
+                ) | translate
+            "
+            [close]="product ? [base_route, 'view', product.id] : [base_route]"
+            [loading]="loading"
+            (confirm)="save()"
+        >
+            <form [formGroup]="form">
+                <div class="flex flex-1 flex-col space-y-2">
+                    <label for="name">{{
+                        'APP.CONCIERGE.ASSETS_PRODUCT' | translate
+                    }}</label>
+                    <mat-form-field appearance="outline">
+                        <input
+                            matInput
+                            [ngModel]="product?.name || 'No Product'"
+                            [ngModelOptions]="{ standalone: true }"
+                            [disabled]="true"
+                        />
+                    </mat-form-field>
+                </div>
+                <div class="flex items-center space-x-2">
                     <div class="flex flex-1 flex-col space-y-2">
-                        <label for="name">Product</label>
+                        <label for="serial-number">{{
+                            'APP.CONCIERGE.ASSETS_ITEM_ASSET_SERIAL' | translate
+                        }}</label>
                         <mat-form-field appearance="outline">
                             <input
                                 matInput
-                                [ngModel]="product?.name || 'No Product'"
-                                [ngModelOptions]="{ standalone: true }"
-                                [disabled]="true"
+                                name="serial-number"
+                                [placeholder]="
+                                    'APP.CONCIERGE.ASSETS_ITEM_ASSET_SERIAL'
+                                        | translate
+                                "
+                                formControlName="serial_number"
                             />
+                            <mat-error>{{
+                                'APP.CONCIERGE.ASSETS_SERIAL_REQUIRED'
+                                    | translate
+                            }}</mat-error>
                         </mat-form-field>
                     </div>
-                    <div class="flex items-center space-x-2">
-                        <div class="flex flex-1 flex-col space-y-2">
-                            <label for="serial-number"> Serial Number </label>
-                            <mat-form-field appearance="outline">
-                                <input
-                                    matInput
-                                    name="serial-number"
-                                    placeholder="Serial Number"
-                                    formControlName="serial_number"
-                                />
-                                <mat-error>Serial Number is required</mat-error>
-                            </mat-form-field>
-                        </div>
-                        <div class="flex flex-1 flex-col space-y-2">
-                            <label for="identifier">Label/Friendly Name</label>
-                            <mat-form-field appearance="outline">
-                                <input
-                                    matInput
-                                    name="identifier"
-                                    placeholder="Identifier, Asset ID or Barcode"
-                                    formControlName="identifier"
-                                />
-                                <mat-error>
-                                    Label/Friendly Name is required
-                                </mat-error>
-                            </mat-form-field>
-                        </div>
-                    </div>
                     <div class="flex flex-1 flex-col space-y-2">
-                        <label for="purchase-order-id">
-                            Purchase Order ID
-                        </label>
+                        <label for="identifier">{{
+                            'APP.CONCIERGE.ASSETS_ITEM_ASSET_NAME' | translate
+                        }}</label>
                         <mat-form-field appearance="outline">
-                            <mat-select
-                                formControlName="purchase_order_id"
-                                placeholder="Select Purchase Order"
-                            >
-                                <mat-option
-                                    *ngFor="
-                                        let order of purchase_orders | async
-                                    "
-                                    [value]="order.id"
-                                >
-                                    {{
-                                        order.purchase_order_number ||
-                                            order.invoice_number
-                                    }}
-                                </mat-option>
-                                <mat-option
-                                    *ngIf="!(purchase_orders | async)?.length"
-                                    class="opacity-60"
-                                    [disabled]="true"
-                                >
-                                    No purchase orders
-                                </mat-option>
-                            </mat-select>
+                            <input
+                                matInput
+                                name="identifier"
+                                [placeholder]="
+                                    'APP.CONCIERGE.ASSETS_ITEM_ASSET_NAME'
+                                        | translate
+                                "
+                                formControlName="identifier"
+                            />
                             <mat-error>
-                                Purchase Order ID is required
+                                {{
+                                    'APP.CONCIERGE.ASSETS_NAME_REQUIRED'
+                                        | translate
+                                }}
                             </mat-error>
                         </mat-form-field>
                     </div>
-                    <div class="flex flex-1 flex-col space-y-2">
-                        <label for="serial-number">Barcode</label>
-                        <mat-form-field appearance="outline">
-                            <input
-                                matInput
-                                name="barcode"
-                                placeholder="Barcode"
-                                formControlName="barcode"
-                            />
-                            <mat-error>Barcode is required</mat-error>
-                        </mat-form-field>
-                    </div>
-                </main>
-                <footer
-                    class="flex justify-end space-x-2 p-2 border-t border-base-200"
-                >
-                    <a
-                        btn
-                        matRipple
-                        class="w-32 inverse"
-                        [routerLink]="
-                            product
-                                ? [base_route, 'view', product.id]
-                                : [base_route]
-                        "
-                    >
-                        Cancel
-                    </a>
-                    <button btn matRipple class="w-32" (click)="save()">
-                        Save
-                    </button>
-                </footer>
-            </div>
-        </div>
-        <ng-template #load_state>
-            <div
-                class="absolute inset-0 flex flex-col items-center justify-center space-y-2"
-            >
-                <mat-spinner [diameter]="32"></mat-spinner>
-                <p>{{ loading }}</p>
-            </div>
-        </ng-template>
+                </div>
+                <div class="flex flex-1 flex-col space-y-2">
+                    <label for="purchase-order-id">{{
+                        'APP.CONCIERGE.ASSETS_ORDER_ID' | translate
+                    }}</label>
+                    <mat-form-field appearance="outline">
+                        <mat-select
+                            formControlName="purchase_order_id"
+                            [placeholder]="
+                                'APP.CONCIERGE.ASSETS_ORDER_SELECT' | translate
+                            "
+                        >
+                            <mat-option
+                                *ngFor="let order of purchase_orders | async"
+                                [value]="order.id"
+                            >
+                                {{
+                                    order.purchase_order_number ||
+                                        order.invoice_number
+                                }}
+                            </mat-option>
+                            <mat-option
+                                *ngIf="!(purchase_orders | async)?.length"
+                                class="opacity-60"
+                                [disabled]="true"
+                            >
+                                {{
+                                    'APP.CONCIERGE.ASSETS_ORDER_ID_EMPTY'
+                                        | translate
+                                }}
+                            </mat-option>
+                        </mat-select>
+                        <mat-error>{{
+                            'APP.CONCIERGE.ASSETS_ORDER_ID_REQUIRED' | translate
+                        }}</mat-error>
+                    </mat-form-field>
+                </div>
+                <div class="flex flex-1 flex-col space-y-2">
+                    <label for="serial-number">{{
+                        'APP.CONCIERGE.ASSETS_BARCODE' | translate
+                    }}</label>
+                    <mat-form-field appearance="outline">
+                        <input
+                            matInput
+                            name="barcode"
+                            [placeholder]="
+                                'APP.CONCIERGE.ASSETS_BARCODE' | translate
+                            "
+                            formControlName="barcode"
+                        />
+                        <mat-error>{{
+                            'APP.CONCIERGE.ASSETS_BARCODE_REQUIRED' | translate
+                        }}</mat-error>
+                    </mat-form-field>
+                </div>
+            </form>
+        </fullscreen-modal-shell>
     `,
     styles: [``],
 })
-export class AssetFormComponent extends AsyncHandler {
+export class AssetFormComponent extends AsyncHandler implements OnInit {
     public readonly form = generateAssetForm();
     public readonly purchase_orders = this._state.purchase_orders;
     public product: AssetGroup;
-    public loading: string = '';
+    public loading = '';
 
     public get base_route() {
         return this._state.base_route;
@@ -161,7 +161,7 @@ export class AssetFormComponent extends AsyncHandler {
         private _state: AssetManagerStateService,
         private _route: ActivatedRoute,
         private _router: Router,
-        private _org: OrganisationService
+        private _org: OrganisationService,
     ) {
         super();
     }
@@ -189,7 +189,7 @@ export class AssetFormComponent extends AsyncHandler {
                         .catch(() => null);
                     if (!product) {
                         notifyError(
-                            'Unable to load associated product details.'
+                            'Unable to load associated product details.',
                         );
                         this._router.navigate([this.base_route]);
                     }
@@ -197,7 +197,7 @@ export class AssetFormComponent extends AsyncHandler {
                     this.form.patchValue({ type_id: product.id });
                     this.loading = '';
                 }
-            })
+            }),
         );
         this._state.setOptions({ active_item: null });
     }
@@ -205,7 +205,7 @@ export class AssetFormComponent extends AsyncHandler {
     public async save() {
         if (!this.form.valid) {
             return notifyError(
-                `Some fields are invalid. [${getInvalidFields(this.form)}]`
+                `Some fields are invalid. [${getInvalidFields(this.form)}]`,
             );
         }
         this.loading = 'Saving Product...';
@@ -223,7 +223,7 @@ export class AssetFormComponent extends AsyncHandler {
         this.form.reset();
         this._state.postChange();
         this._state.setExtraAssets(
-            [item].map((d) => ({ ...d, type_id: this.product.id }))
+            [item].map((d) => ({ ...d, type_id: this.product.id })),
         );
         notifySuccess('Asset saved successfully.');
         this._router.navigate([this.base_route, 'view', this.product?.id]);

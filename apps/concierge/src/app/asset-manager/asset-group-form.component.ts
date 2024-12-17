@@ -15,119 +15,119 @@ import { map } from 'rxjs/operators';
 @Component({
     selector: 'asset-group-form',
     template: `
-        <div class="absolute inset-0 bg-base-100">
-            <div
-                class="h-full max-w-[32rem] mx-auto flex flex-col"
-                *ngIf="!loading; else load_state"
-            >
-                <header class="p-4">
-                    <h2 class="text-center text-xl font-medium">
-                        {{ form.value.id ? 'Edit' : 'Add' }} Product
-                    </h2>
-                </header>
-                <main class="flex-1 h-1/2 overflow-auto p-2" [formGroup]="form">
-                    <div class="flex flex-col space-y-2">
-                        <label for="name">Name<span>*</span></label>
-                        <mat-form-field appearance="outline">
-                            <input
-                                matInput
-                                name="name"
-                                placeholder="Name of the product"
-                                formControlName="name"
-                            />
-                            <mat-error>Name is required</mat-error>
-                        </mat-form-field>
-                    </div>
-                    <div class="flex flex-col space-y-2">
-                        <label for="name">Category<span>*</span></label>
-                        <mat-form-field appearance="outline">
-                            <mat-select
-                                formControlName="category_id"
-                                placeholder="Category of Product"
-                                (click)="
-                                    current_category = form.value.category_id
-                                "
-                            >
-                                <mat-option
-                                    *ngFor="let category of categories | async"
-                                    [value]="category.id"
-                                >
-                                    {{ category.name }}
-                                </mat-option>
-                                <mat-option
-                                    (click)="newCategory()"
-                                    class="relative"
-                                >
-                                    <div class="flex items-center space-x-2">
-                                        <app-icon>add</app-icon>
-                                        <p>New Category</p>
-                                    </div>
-                                </mat-option>
-                            </mat-select>
-                            <mat-error>Category is required</mat-error>
-                        </mat-form-field>
-                    </div>
-                    <div class="flex flex-col space-y-2">
-                        <label for="brand">Brand<span>*</span></label>
-                        <mat-form-field appearance="outline">
-                            <input
-                                matInput
-                                name="brand"
-                                placeholder="Brand of the product"
-                                formControlName="brand"
-                            />
-                            <mat-error>Brand is required</mat-error>
-                        </mat-form-field>
-                    </div>
-                    <div class="flex flex-col space-y-2">
-                        <label for="description">Description</label>
-                        <mat-form-field appearance="outline">
-                            <textarea
-                                matInput
-                                name="description"
-                                placeholder="Description of the product"
-                                formControlName="description"
-                            ></textarea>
-                            <mat-error>Description is required</mat-error>
-                        </mat-form-field>
-                    </div>
-                    <div class="flex flex-col space-y-2">
-                        <label for="images">Images</label>
-                        <image-list-field
-                            name="images"
-                            formControlName="images"
-                        ></image-list-field>
-                    </div>
-                </main>
-                <footer
-                    class="flex justify-end space-x-2 p-2 border-t border-base-200"
-                >
-                    <a
-                        btn
-                        matRipple
-                        class="w-32 inverse"
-                        [routerLink]="
-                            form.value.id
-                                ? [base_route, 'view', form.value.id]
-                                : [base_route, 'list', 'items']
-                        "
+        <fullscreen-modal-shell
+            [heading]="
+                (form.value.id
+                    ? 'APP.CONCIERGE.ASSETS_ITEM_EDIT'
+                    : 'APP.CONCIERGE.ASSETS_ITEM_NEW'
+                ) | translate
+            "
+            [close]="
+                form.value.id
+                    ? [base_route, 'view', form.value.id]
+                    : [base_route, 'list', 'items']
+            "
+            [loading]="loading"
+            (confirm)="save()"
+        >
+            <form [formGroup]="form">
+                <div class="flex flex-col space-y-2">
+                    <label for="name"
+                        >{{ 'FORM.NAME' | translate }}<span>*</span></label
                     >
-                        Cancel
-                    </a>
-                    <button btn matRipple class="w-32" (click)="save()">
-                        Save
-                    </button>
-                </footer>
-            </div>
-        </div>
-        <ng-template #load_state>
-            <div
-                class="absolute inset-0 flex flex-col items-center justify-center space-y-2"
-            >
-                <mat-spinner [diameter]="32"></mat-spinner>
-                <p>{{ loading }}</p>
-            </div>
-        </ng-template>
+                    <mat-form-field appearance="outline">
+                        <input
+                            matInput
+                            name="name"
+                            [placeholder]="'FORM.NAME' | translate"
+                            formControlName="name"
+                        />
+                        <mat-error>{{
+                            'FORM.NAME_REQUIED' | translate
+                        }}</mat-error>
+                    </mat-form-field>
+                </div>
+                <div class="flex flex-col space-y-2">
+                    <label for="name"
+                        >{{ 'COMMON.CATEGORY' | translate
+                        }}<span>*</span></label
+                    >
+                    <mat-form-field appearance="outline">
+                        <mat-select
+                            formControlName="category_id"
+                            [placeholder]="'COMMON.CATEGORY' | translate"
+                            (click)="current_category = form.value.category_id"
+                        >
+                            <mat-option
+                                *ngFor="let category of categories | async"
+                                [value]="category.id"
+                            >
+                                {{ category.name }}
+                            </mat-option>
+                            <mat-option
+                                (click)="newCategory()"
+                                class="relative"
+                            >
+                                <div class="flex items-center space-x-2">
+                                    <app-icon>add</app-icon>
+                                    <p>
+                                        {{ 'COMMON.CATEGORY_NEW' | translate }}
+                                    </p>
+                                </div>
+                            </mat-option>
+                        </mat-select>
+                        <mat-error>{{
+                            'COMMON.CATEGORY_REQUIRED' | translate
+                        }}</mat-error>
+                    </mat-form-field>
+                </div>
+                <div class="flex flex-col space-y-2">
+                    <label for="brand"
+                        >{{ 'APP.CONCIERGE.ASSETS_ITEM_BRAND' | translate
+                        }}<span>*</span></label
+                    >
+                    <mat-form-field appearance="outline">
+                        <input
+                            matInput
+                            name="brand"
+                            [placeholder]="
+                                'APP.CONCIERGE.ASSETS_ITEM_BRAND' | translate
+                            "
+                            formControlName="brand"
+                        />
+                        <mat-error>{{
+                            'APP.CONCIERGE.ASSETS_ITEM_BRAND_REQUIRED'
+                                | translate
+                        }}</mat-error>
+                    </mat-form-field>
+                </div>
+                <div class="flex flex-col space-y-2">
+                    <label for="description">{{
+                        'COMMON.DESCRIPTION' | translate
+                    }}</label>
+                    <mat-form-field appearance="outline">
+                        <textarea
+                            matInput
+                            name="description"
+                            placeholder="Description of the product"
+                            formControlName="description"
+                        ></textarea>
+                        <mat-error>{{
+                            'COMMON.DESCRIPTION_REQUIRED' | translate
+                        }}</mat-error>
+                    </mat-form-field>
+                </div>
+                <div class="flex flex-col space-y-2">
+                    <label for="images">{{
+                        'COMMON.IMAGES' | translate
+                    }}</label>
+                    <image-list-field
+                        name="images"
+                        formControlName="images"
+                    ></image-list-field>
+                </div>
+            </form>
+        </fullscreen-modal-shell>
     `,
     styles: [``],
 })
@@ -138,9 +138,9 @@ export class AssetGroupFormComponent extends AsyncHandler {
         this._state.categories,
         this.new_category,
     ]).pipe(
-        map(([list, item]) => (item ? unique([...list, item], 'id') : list))
+        map(([list, item]) => (item ? unique([...list, item], 'id') : list)),
     );
-    public loading: string = '';
+    public loading = '';
     public current_category: string;
 
     public get base_route() {
@@ -151,7 +151,7 @@ export class AssetGroupFormComponent extends AsyncHandler {
         private _state: AssetManagerStateService,
         private _route: ActivatedRoute,
         private _router: Router,
-        private _dialog: MatDialog
+        private _dialog: MatDialog,
     ) {
         super();
     }
@@ -172,7 +172,7 @@ export class AssetGroupFormComponent extends AsyncHandler {
                     this.form.patchValue(product);
                     this.loading = '';
                 }
-            })
+            }),
         );
     }
 

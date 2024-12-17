@@ -29,7 +29,14 @@ import { OrganisationService } from '@placeos/organisation';
                     matInput
                     [ngModel]="(options | async)?.search"
                     (ngModelChange)="setOptions({ search: $event })"
-                    placeholder="Search products and requests"
+                    [placeholder]="
+                        (active === 'items'
+                            ? 'APP.CONCIERGE.ASSETS_ITEM_SEARCH'
+                            : active === 'purchase-orders'
+                              ? 'APP.CONCIERGE.ASSETS_ITEM_SEARCH'
+                              : 'APP.CONCIERGE.ASSETS_REQUESTS_SEARCH'
+                        ) | translate
+                    "
                 />
             </mat-form-field>
             <a
@@ -39,7 +46,7 @@ import { OrganisationService } from '@placeos/organisation';
                 *ngIf="active === 'items'"
                 [routerLink]="[base_route, 'manage', 'group']"
             >
-                Add Product
+                {{ 'APP.CONCIERGE.ASSETS_ITEM_ADD' | translate }}
             </a>
             <a
                 btn
@@ -48,7 +55,7 @@ import { OrganisationService } from '@placeos/organisation';
                 *ngIf="active === 'purchase-orders'"
                 [routerLink]="[base_route, 'manage', 'purchase-order']"
             >
-                Add Purchase Order
+                {{ 'APP.CONCIERGE.ASSETS_PURCHASE_ADD' | translate }}
             </a>
         </div>
         <div
@@ -75,7 +82,7 @@ import { OrganisationService } from '@placeos/organisation';
                 icon
                 matRipple
                 class="bg-secondary text-secondary-content rounded h-12 w-12"
-                matTooltip="Edit Config"
+                [matTooltip]="'APP.CONCIERGE.ASSETS_MANAGE_CONFIG' | translate"
                 (click)="editConfig()"
             >
                 <app-icon>menu_book</app-icon>
@@ -84,7 +91,9 @@ import { OrganisationService } from '@placeos/organisation';
                 icon
                 matRipple
                 class="bg-secondary text-secondary-content rounded h-12 w-12"
-                matTooltip="Room Availability"
+                [matTooltip]="
+                    'APP.CONCIERGE.ASSETS_MANAGE_BOOKING_RULES' | translate
+                "
                 (click)="setRoomAvailability()"
             >
                 <app-icon>event_available</app-icon>
@@ -94,7 +103,9 @@ import { OrganisationService } from '@placeos/organisation';
                 matRipple
                 *ngIf="active === 'items'"
                 class="bg-secondary text-secondary-content rounded h-12 w-12"
-                matTooltip="Manage Categories"
+                [matTooltip]="
+                    'APP.CONCIERGE.ASSETS_MANAGE_CATEGORIES' | translate
+                "
                 (click)="manageCategories()"
             >
                 <app-icon>list_alt</app-icon>
@@ -108,7 +119,7 @@ import { OrganisationService } from '@placeos/organisation';
                 <mat-select
                     [ngModel]="(building | async)?.id"
                     (ngModelChange)="setBuilding($event)"
-                    placeholder="All Buildings"
+                    [placeholder]="'COMMON.BUILDINGS_ALL' | translate"
                 >
                     <mat-option
                         *ngFor="let bld of buildings | async"

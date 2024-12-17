@@ -62,7 +62,12 @@ import { SettingsService } from '@placeos/common';
                         >
                             <app-icon class="text-sm">send</app-icon>
                         </div>
-                        <div class="font-medium">Asset Requested</div>
+                        <div class="font-medium">
+                            {{
+                                'APP.CONCIERGE.ASSETS_REQUESTS_ITEMS'
+                                    | translate
+                            }}
+                        </div>
                     </div>
                     <div class="pl-10 flex flex-col mt-1">
                         <div *ngFor="let item of items">
@@ -80,7 +85,11 @@ import { SettingsService } from '@placeos/common';
                         >
                             <app-icon class="text-sm">event</app-icon>
                         </div>
-                        <div class="font-medium">Date For</div>
+                        <div class="font-medium">
+                            {{
+                                'APP.CONCIERGE.ASSETS_REQUESTS_DATE' | translate
+                            }}
+                        </div>
                     </div>
                     <div class="pl-10 mt-1">
                         {{ request.date | date: 'EEEE, MMMM d, y' }}
@@ -91,7 +100,9 @@ import { SettingsService } from '@placeos/common';
                         >
                             <app-icon class="text-sm">schedule</app-icon>
                         </div>
-                        <div class="font-medium">Period</div>
+                        <div class="font-medium">
+                            {{ 'COMMON.PERIOD' | translate }}
+                        </div>
                     </div>
                     <div class="pl-10 mt-1">
                         {{ request.date | date: time_format }} &ndash;
@@ -118,7 +129,9 @@ import { SettingsService } from '@placeos/common';
                         >
                             <app-icon class="text-sm">meeting_room</app-icon>
                         </div>
-                        <div class="font-medium">Room</div>
+                        <div class="font-medium">
+                            {{ 'RESOURCE.ROOM' | translate }}
+                        </div>
                     </div>
                     <div class="pl-10 mt-1">
                         {{ request.description }}
@@ -149,8 +162,8 @@ import { SettingsService } from '@placeos/common';
                                     request.status === 'approved'
                                         ? 'done'
                                         : request.status === 'declined'
-                                        ? 'close'
-                                        : 'warning'
+                                          ? 'close'
+                                          : 'warning'
                                 }}
                             </app-icon>
                             <div class="capitalize flex-1">
@@ -163,13 +176,13 @@ import { SettingsService } from '@placeos/common';
                                 mat-menu-item
                                 (click)="setStatus('approved')"
                             >
-                                Approve
+                                {{ 'COMMON.APPROVE' | translate }}
                             </button>
                             <button
                                 mat-menu-item
                                 (click)="setStatus('declined')"
                             >
-                                Decline
+                                {{ 'COMMON.DECLINE' | translate }}
                             </button>
                         </mat-menu>
                         <button
@@ -191,19 +204,28 @@ import { SettingsService } from '@placeos/common';
                                 mat-menu-item
                                 (click)="setTracking('in_storage')"
                             >
-                                In Storage
+                                {{
+                                    'APP.CONCIERGE.ASSETS_REQUESTS_TRACKING_STORAGE'
+                                        | translate
+                                }}
                             </button>
                             <button
                                 mat-menu-item
                                 (click)="setTracking('in_transit')"
                             >
-                                In Transit
+                                {{
+                                    'APP.CONCIERGE.ASSETS_REQUESTS_TRACKING_TRANSIT'
+                                        | translate
+                                }}
                             </button>
                             <button
                                 mat-menu-item
                                 (click)="setTracking('at_location')"
                             >
-                                At Location
+                                {{
+                                    'APP.CONCIERGE.ASSETS_REQUESTS_TRACKING_LOCATION'
+                                        | translate
+                                }}
                             </button>
                         </mat-menu>
                     </div>
@@ -230,7 +252,7 @@ export class AssetRequestDetailsComponent {
     constructor(
         private _state: AssetManagerStateService,
         private _org: OrganisationService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {}
 
     public level(zones) {

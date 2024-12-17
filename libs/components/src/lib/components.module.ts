@@ -92,6 +92,8 @@ import { LoginComponent } from './login.component';
 import { SettingsToggleComponent } from './settings-toggle.component';
 import { UnauthorisedComponent } from './unauthorised.component';
 import { MisconfiguredComponent } from './misconfigured.component';
+import { FullscreenModalShellComponent } from './fullscreen-modal-shell.component';
+import { RouterModule } from '@angular/router';
 
 const MAT_MODULES = [
     MatAutocompleteModule,
@@ -177,6 +179,7 @@ const COMPONENTS = [
     AvailableRoomsStateModalComponent,
     DeskHeightPresetsComponent,
     LoginComponent,
+    FullscreenModalShellComponent,
 
     UnauthorisedComponent,
     MisconfiguredComponent,
@@ -195,6 +198,7 @@ const DIRECTIVES = [
         CommonModule,
         FormsModule,
         ReactiveFormsModule,
+        RouterModule,
         TranslateModule.forChild(),
         ...MAT_MODULES,
     ],

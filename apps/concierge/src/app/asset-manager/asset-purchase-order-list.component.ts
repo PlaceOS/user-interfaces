@@ -18,32 +18,42 @@ import { Router } from '@angular/router';
                     [columns]="[
                         {
                             key: 'purchase_order_number',
-                            name: 'PO Number'
+                            name:
+                                'APP.CONCIERGE.ASSETS_PURCHASE_NUMBER'
+                                | translate,
                         },
                         {
                             key: 'invoice_number',
-                            name: 'Invoice Number'
+                            name:
+                                'APP.CONCIERGE.ASSETS_PURCHASE_INVOICE'
+                                | translate,
                         },
                         {
                             key: 'purchase_date',
-                            name: 'Purchase Date',
-                            content: date_template
+                            name:
+                                'APP.CONCIERGE.ASSETS_PURCHASE_DATE'
+                                | translate,
+                            content: date_template,
                         },
                         {
                             key: 'expected_service_start_date',
-                            name: 'Service Start',
-                            content: date_template
+                            name:
+                                'APP.CONCIERGE.ASSETS_PURCHASE_START'
+                                | translate,
+                            content: date_template,
                         },
                         {
                             key: 'expected_service_end_date',
-                            name: 'Service End',
-                            content: date_template
-                        }
+                            name:
+                                'APP.CONCIERGE.ASSETS_PURCHASE_END' | translate,
+                            content: date_template,
+                        },
                     ]"
                     [empty_message]="
-                        (filters | async)?.search
-                            ? 'No matching purchase orders found.'
-                            : 'There are purchase orders for this building.'
+                        ((filters | async)?.search
+                            ? 'APP.CONCIERGE.ASSETS_PURCHASE_SEARCH_EMPTY'
+                            : 'APP.CONCIERGE.ASSETS_PURCHASE_EMPTY'
+                        ) | translate
                     "
                     [filter]="(filters | async)?.search"
                     [sortable]="true"
@@ -53,7 +63,9 @@ import { Router } from '@angular/router';
         </div>
         <ng-template #date_template let-data="data">
             <div class="p-4">
-                <span class="opacity-30" *ngIf="!data">No Date</span>
+                <span class="opacity-30" *ngIf="!data">{{
+                    'COMMON.DATE_EMPTY' | translate
+                }}</span>
                 {{ data ? (data * 1000 | date: 'mediumDate') : '' }}
             </div>
         </ng-template>
@@ -83,15 +95,15 @@ export class AssetPurchaseOrderListComponent {
                         .includes(search.toLowerCase()) ||
                     _.invoice_number
                         ?.toLowerCase()
-                        .includes(search.toLowerCase())
-            )
-        )
+                        .includes(search.toLowerCase()),
+            ),
+        ),
     );
     public readonly filters = this._state.options;
 
     constructor(
         private _state: AssetManagerStateService,
-        private _router: Router
+        private _router: Router,
     ) {}
 
     public editOrder(order) {
@@ -99,7 +111,7 @@ export class AssetPurchaseOrderListComponent {
             [this._state.base_route, 'manage', 'purchase-order'],
             {
                 queryParams: { id: order.id },
-            }
+            },
         );
     }
 }

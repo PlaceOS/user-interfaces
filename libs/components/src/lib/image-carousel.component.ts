@@ -21,37 +21,55 @@ import { Component, Input } from '@angular/core';
                 class="h-full w-full relative flex flex-col items-center justify-center opacity-30 space-y-2"
                 *ngIf="!images?.length"
             >
-                <app-icon class="text-5xl">image_not_supported</app-icon>
+                <app-icon class="text-6xl">image_not_supported</app-icon>
                 <p>{{ 'COMMON.IMAGES_EMPTY' | translate }}</p>
             </div>
             <button
-                matRipple
                 *ngIf="images?.length"
-                class="opacity-0 hover:opacity-30 flex items-center justify-center absolute left-0 inset-y-0 w-1/3 bg-neutral text-white"
+                class="opacity-0 hover:opacity-100 flex items-center justify-center absolute left-0 inset-y-0 w-1/3"
                 [disabled]="offset === 0"
                 (click)="offset = offset - 1"
             >
-                <app-icon class="text-4xl">chevron_left</app-icon>
+                <div
+                    matRipple
+                    class=" h-10 w-10 absolute top-1/2 left-4 -translate-y-1/2 bg-base-100 text-base-content rounded-full border border-base-300 shadow"
+                >
+                    <app-icon class="text-3xl">chevron_left</app-icon>
+                </div>
             </button>
             <button
-                matRipple
                 *ngIf="images?.length"
-                class="opacity-0 hover:opacity-30 flex items-center justify-center absolute right-0 inset-y-0 w-1/3 bg-neutral text-white"
+                class="opacity-0 hover:opacity-100 flex items-center justify-center absolute right-0 inset-y-0 w-1/3 text-white"
                 [disabled]="offset >= images?.length - 1"
                 (click)="offset = offset + 1"
             >
-                <app-icon class="text-4xl">chevron_right</app-icon>
+                <div
+                    matRipple
+                    class=" h-10 w-10 absolute top-1/2 right-4 -translate-y-1/2 bg-base-100 text-base-content rounded-full border border-base-300 shadow"
+                >
+                    <app-icon class="text-3xl">chevron_right</app-icon>
+                </div>
             </button>
             <div
-                class="absolute bottom-1 left-1/2 -translate-x-1/2 text-sm opacity-30 space-x-2"
+                class="absolute bottom-2 left-1/2 flex items-center -translate-x-1/2 text-sm space-x-2"
                 *ngIf="images?.length"
             >
                 <button
                     matRipple
-                    [class.!bg-base-100]="offset === i"
                     *ngFor="let img of images; let i = index"
-                    class="h-4 w-4 rounded-full bg-base-300 shadow"
-                ></button>
+                    (click)="offset = i"
+                    class="h-4 w-4 flex items-center justify-center"
+                >
+                    <div
+                        class="rounded-full bg-base-100 shadow transition-all"
+                        [class.opacity-30]="offset !== i"
+                        [class.h-2]="offset !== i"
+                        [class.w-2]="offset !== i"
+                        [class.h-4]="offset === i"
+                        [class.w-4]="offset === i"
+                        [class.opacity-80]="offset === i"
+                    ></div>
+                </button>
             </div>
         </div>
     `,
@@ -65,6 +83,10 @@ import { Component, Input } from '@angular/core';
 
             [image] {
                 transition: transform 300ms;
+            }
+
+            button[disabled] {
+                pointer-events: none;
             }
         `,
     ],
