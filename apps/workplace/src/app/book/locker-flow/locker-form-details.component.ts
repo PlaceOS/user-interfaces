@@ -51,13 +51,20 @@ import { OrganisationService } from '@placeos/organisation';
                             </mat-select>
                         </mat-form-field>
                     </div>
-                    <div class="flex-1 min-w-[256px]">
+                    <div class="relative flex-1 min-w-[256px]">
                         <label for="date">
                             {{ 'FORM.DATE' | translate }}<span>*</span>
                         </label>
                         <a-date-field name="date" formControlName="date">
                             {{ 'FORM.DATE_REQUIRED' | translate }}
                         </a-date-field>
+                        <mat-checkbox
+                            formControlName="all_day"
+                            *ngIf="allow_all_day"
+                            class="absolute -top-2 right-0"
+                        >
+                            {{ 'COMMON.ALL_DAY' | translate }}
+                        </mat-checkbox>
                     </div>
                 </div>
                 <div class="flex items-center space-x-2">
@@ -141,6 +148,14 @@ export class LockerFormDetailsComponent
 
     public get use_24hr() {
         return this._settings.get('app.use_24_hour_time');
+    }
+
+    public get allow_all_day() {
+        return (
+            this._settings.get('app.lockers.allow_all_day') ||
+            this._settings.get('app.bookings.allow_all_day') ||
+            true
+        );
     }
 
     public readonly setOptions = (o) => this._state.setOptions(o);
