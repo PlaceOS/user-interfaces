@@ -1,7 +1,18 @@
-import { Component, Input, SimpleChanges } from '@angular/core';
+import {
+    Component,
+    Input,
+    OnChanges,
+    OnInit,
+    SimpleChanges,
+} from '@angular/core';
 
 import { LineChart, PieChart } from 'chartist';
-import { AsyncHandler, SettingsService, unique } from '@placeos/common';
+import {
+    AsyncHandler,
+    flatten,
+    SettingsService,
+    unique,
+} from '@placeos/common';
 import { format, parse } from 'date-fns';
 import { OrganisationService } from '@placeos/organisation';
 import { combineLatest } from 'rxjs';
@@ -52,8 +63,11 @@ import { LockersReportService } from './lockers-report.service';
         `,
     ],
 })
-export class LockersReportChartsComponent extends AsyncHandler {
-    @Input() public print: boolean = false;
+export class LockersReportChartsComponent
+    extends AsyncHandler
+    implements OnInit, OnChanges
+{
+    @Input() public print = false;
     public readonly day_list = combineLatest([
         this._state.daily_stats$,
         this._state.counts$,
@@ -76,16 +90,30 @@ export class LockersReportChartsComponent extends AsyncHandler {
                         days[date].bookings.reduce(
                             (c, v) => c + v.duration,
                             0,
-                        ) / total_spaces,
+                        ) /
+                        (total_spaces || 1) /
+                        (8 * 60),
                 });
             }
             return list.sort((a, b) => a.date.localeCompare(b.date));
         }),
     );
-    public readonly stats = combineLatest([
-        this._state.options$,
-        this._state.counts$,
-    ]);
+
+    public readonly stats = combineLatest([this._state.bookings$]).pipe(
+        map(([bookings]) => {
+            const mapping = unique(
+                flatten(bookings.map((_) => _.zones)),
+            ).filter((id) => this._org.levels.find((_) => _.id === id));
+            return [
+                mapping,
+                mapping.reduce((counts, id) => {
+                    const list = bookings.filter((_) => _.zones.includes(id));
+                    counts[id] = list.length || 0;
+                    return counts;
+                }, {}),
+            ];
+        }),
+    );
 
     private _day_chart: any;
     private _level_chart: any;
