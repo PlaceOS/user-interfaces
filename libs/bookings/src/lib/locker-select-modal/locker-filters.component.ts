@@ -186,12 +186,12 @@ import { map } from 'rxjs/operators';
                 </div>
             </section>
             <section favs class="space-y-4 pb-4">
-                <settings-toggle
+                <!-- <settings-toggle
                     [name]="'APP.WORKPLACE.FAVOURITES_SHOW' | translate"
                     [ngModel]="(options | async)?.show_fav"
                     (ngModelChange)="setOptions({ show_fav: $event })"
                     [ngModelOptions]="{ standalone: true }"
-                ></settings-toggle>
+                ></settings-toggle> -->
                 <settings-toggle
                     [name]="'BOOKINGS.LOCKER_ACCESSIBLE_SHOW' | translate"
                     [ngModel]="(options | async)?.show_accessible"

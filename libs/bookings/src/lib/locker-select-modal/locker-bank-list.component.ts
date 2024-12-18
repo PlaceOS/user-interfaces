@@ -30,7 +30,7 @@ import { loadLockerBanks, loadLockers } from '../booking.utilities';
         </p>
         <ng-container *ngIf="!(loading | async)?.length; else load_state">
             <ul
-                class="list-style-none space-y-2 min-w-[50vh]"
+                class="list-style-none space-y-2 overflow-hidden"
                 *ngIf="(locker_banks | async)?.length; else empty_state"
             >
                 <li
