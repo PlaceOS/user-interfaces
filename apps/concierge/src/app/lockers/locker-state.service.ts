@@ -62,7 +62,6 @@ export interface LockerFilters {
     date?: number;
     zones?: string[];
     show_map?: boolean;
-    search?: string;
 }
 
 const addToken = (l: string, t: string) => l.replace(t, '') + t;
@@ -72,6 +71,7 @@ const removeToken = (l: string, t: string) => l.replace(t, '');
     providedIn: 'root',
 })
 export class LockerStateService extends AsyncHandler {
+    private _search = new BehaviorSubject('');
     private _filters = new BehaviorSubject<LockerFilters>({});
     // private _new_lockers = new BehaviorSubject<Locker[]>([]);
     private _locker_bookings: Booking[] = [];
@@ -120,8 +120,12 @@ export class LockerStateService extends AsyncHandler {
         () => this._settings.get('app.use_region'),
     );
 
-    public filtered_lockers = combineLatest([this.filters, this.lockers$]).pipe(
-        map(([{ zones, search }, list]) => {
+    public filtered_lockers = combineLatest([
+        this.filters,
+        this._search,
+        this.lockers$,
+    ]).pipe(
+        map(([{ zones }, search, list]) => {
             search = (search || '').toLowerCase();
             return list.filter((item) => {
                 if (!zones?.length && !search) return;
@@ -145,9 +149,10 @@ export class LockerStateService extends AsyncHandler {
 
     public filtered_banks = combineLatest([
         this.filters,
+        this._search,
         this.lockers_banks$,
     ]).pipe(
-        map(([{ zones, search }, list]) => {
+        map(([{ zones }, search, list]) => {
             search = (search || '').toLowerCase();
             return list.filter((item) => {
                 if (!zones?.length && !search) return;
@@ -255,6 +260,24 @@ export class LockerStateService extends AsyncHandler {
     );
     public readonly bookings = this.paged_bookings.pipe(map((i) => i.list));
 
+    public readonly filtered_bookings = combineLatest([
+        this.bookings,
+        this._search,
+    ]).pipe(
+        map(([l, search]) =>
+            l.filter(
+                (_) =>
+                    _.title.toLowerCase().includes(search.toLowerCase()) ||
+                    _.user_name.toLowerCase().includes(search.toLowerCase()) ||
+                    _.user_email.toLowerCase().includes(search.toLowerCase()) ||
+                    _.description
+                        .toLowerCase()
+                        .includes(search.toLowerCase()) ||
+                    _.asset_name.toLowerCase().includes(search.toLowerCase()),
+            ),
+        ),
+    );
+
     public nextPage() {
         this._call_next_page.next(`NEXT_${Date.now()}`);
     }
@@ -266,6 +289,10 @@ export class LockerStateService extends AsyncHandler {
     ) {
         super();
         this.setup_paging.subscribe();
+    }
+
+    public setSearch(value: string) {
+        this._search.next(value);
     }
 
     public setFilters(filters: LockerFilters) {

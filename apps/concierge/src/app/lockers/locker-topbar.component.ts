@@ -126,8 +126,7 @@ export class LockersTopbarComponent extends AsyncHandler implements OnInit {
     /** Set filtered date */
     public readonly setDate = (d) => this._state.setFilters({ date: d });
     /** Set filter string */
-    public readonly setSearch = (str) =>
-        this._state.setFilters({ search: str });
+    public readonly setSearch = (str) => this._state.setSearch(str);
     public readonly newLockerBank = () => this._state.editLockerBank();
     /** List of levels for the active building */
     public readonly updateZones = (z) => {

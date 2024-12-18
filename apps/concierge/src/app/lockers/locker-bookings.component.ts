@@ -272,7 +272,7 @@ export class LockerBookingsComponent {
     public loading: string;
     public readonly filters = this._state.filters;
     public readonly has_more_pages = this._state.has_more_pages;
-    public readonly bookings = this._state.bookings.pipe(
+    public readonly bookings = this._state.filtered_bookings.pipe(
         map((i) =>
             i.map((booking) => ({
                 ...booking,
