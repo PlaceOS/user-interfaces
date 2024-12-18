@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 
 import { CateringItem } from './catering-item.class';
 
@@ -60,7 +60,7 @@ const ACTIVE_ITEMS = new Set<string>();
         `,
     ],
 })
-export class CateringOrderItemComponent {
+export class CateringOrderItemComponent implements OnInit {
     @Input() public order_id: string;
     @Input() public item: CateringItem;
 

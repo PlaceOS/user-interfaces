@@ -2,6 +2,7 @@ import {
     Component,
     EventEmitter,
     Input,
+    OnChanges,
     Output,
     SimpleChanges,
 } from '@angular/core';
@@ -14,9 +15,14 @@ import { CateringOrderStateService } from './catering-order-state.service';
     template: `
         <div class="w-full h-full overflow-auto py-2">
             <ng-container *ngIf="(list | async)?.length">
-                <h3 class="font-bold px-2">Ordered Items</h3>
+                <h3 class="font-bold px-2">
+                    {{ 'CATERING.ORDER_SELECTED_HEADER' | translate }}
+                </h3>
                 <p count class="text-sm opacity-60 mb-2 px-2">
-                    {{ (list | async)?.length || 0 }} items(s)
+                    {{
+                        'CATERING.ORDER_SELECTED_COUNT'
+                            | translate: { count: (list | async)?.length || 0 }
+                    }}
                 </p>
 
                 <ul class="list-style-none space-y-2 p-2">
@@ -32,9 +38,12 @@ import { CateringOrderStateService } from './catering-order-state.service';
                     ></catering-item-list-item>
                 </ul>
             </ng-container>
-            <h3 class="font-bold px-2">Results</h3>
+            <h3 class="font-bold px-2">{{ 'COMMON.RESULTS' | translate }}</h3>
             <p count class="text-sm opacity-60 mb-2 px-2">
-                {{ (item_list | async)?.length || 0 }} result(s) found
+                {{
+                    'COMMON.RESULTS_COUNT'
+                        | translate: { count: (item_list | async)?.length || 0 }
+                }}
             </p>
             <ng-container *ngIf="!(loading | async); else load_state">
                 <ul
@@ -61,7 +70,7 @@ import { CateringOrderStateService } from './catering-order-state.service';
                 class="p-16 flex flex-col items-center justify-center space-y-2"
             >
                 <p class="opacity-30 text-center">
-                    No available items for selected time and/or filters
+                    {{ 'CATERING.ORDER_ITEMS_EMPTY' | translate }}
                 </p>
             </div>
         </ng-template>
@@ -71,15 +80,17 @@ import { CateringOrderStateService } from './catering-order-state.service';
                 class="p-16 flex flex-col items-center justify-center space-y-2"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
-                <p class="opacity-30">Finding available items...</p>
+                <p class="opacity-30">
+                    {{ 'CATERING.ORDER_ITEMS_LOADING' | translate }}
+                </p>
             </div>
         </ng-template>
     `,
     styles: [``],
 })
-export class CateringItemListComponent {
-    @Input() public active: string = '';
-    @Input() public selected: string = '';
+export class CateringItemListComponent implements OnChanges {
+    @Input() public active = '';
+    @Input() public selected = '';
     @Input() public selected_items: CateringItem[] = [];
     @Input() public favorites: string[] = [];
     @Output() public toggleFav = new EventEmitter<CateringItem>();
@@ -105,7 +116,7 @@ export class CateringItemListComponent {
         return this.favorites?.includes(item_id);
     }
 
-    public selectItem(item: CateringItem, clear_state: boolean = false) {
+    public selectItem(item: CateringItem, clear_state = false) {
         this.onSelect.emit(item);
         if (clear_state) {
             item.options?.forEach((_) => delete _.active);

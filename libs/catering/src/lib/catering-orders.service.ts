@@ -19,7 +19,6 @@ import {
 } from '@placeos/common';
 import {
     queryEvents,
-    saveEvent,
     updateEventMetadata,
 } from 'libs/events/src/lib/events.fn';
 import { CalendarEvent } from 'libs/events/src/lib/event.class';
@@ -173,6 +172,7 @@ export class CateringOrdersService extends AsyncHandler {
             () => this._poll.next(new Date().valueOf()),
             delay,
         );
+        return () => this.stopPolling();
     }
 
     /** Stop polling for new catering orders */

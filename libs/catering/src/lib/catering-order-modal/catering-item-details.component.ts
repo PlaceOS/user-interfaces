@@ -2,6 +2,7 @@ import {
     Component,
     EventEmitter,
     Input,
+    OnChanges,
     Output,
     SimpleChanges,
 } from '@angular/core';
@@ -19,7 +20,7 @@ interface CateringOptionGroup {
     selector: 'catering-item-details',
     template: `
         <ng-container *ngIf="item; else empty_state">
-            <section image class="relative w-full h-64 sm:h-40 bg-neutral">
+            <section image class="relative w-full h-64 sm:h-40 bg-base-200">
                 <image-carousel
                     [images]="item.images"
                     class="absolute inset-0"
@@ -40,7 +41,7 @@ interface CateringOptionGroup {
                     [class.text-white]="!fav"
                     [class.text-info]="fav"
                     (click)="toggleFav.emit()"
-                    class="absolute top-2 right-2 bg-neutral"
+                    class="absolute top-2 right-2"
                 >
                     <app-icon>{{
                         fav ? 'favorite' : 'favorite_border'
@@ -99,9 +100,11 @@ interface CateringOptionGroup {
                                         [disabled]="item?.in_order"
                                     >
                                         <mat-radio-button class="m-0" value="">
-                                            <span class="font-medium p-2"
-                                                >None</span
+                                            <div
+                                                class="font-medium p-2 opacity-60"
                                             >
+                                                {{ 'COMMON.NONE' | translate }}
+                                            </div>
                                         </mat-radio-button>
                                         <mat-radio-button
                                             class="m-0"
@@ -112,7 +115,7 @@ interface CateringOptionGroup {
                                                 class="flex items-center justify-center max-w-[calc(100vw-4rem)] sm:max-w-[15rem]"
                                             >
                                                 <div
-                                                    class="font-medium p-2 flex-1 w-1/2 whitespace-normal"
+                                                    class="font-medium p-2 flex-1 w-1/2 whitespace-normal capitalize"
                                                 >
                                                     {{ opt.name }}
                                                 </div>
@@ -179,7 +182,12 @@ interface CateringOptionGroup {
                             active ? 'remove' : 'add'
                         }}</app-icon>
                         <p>
-                            {{ active ? 'Remove this item' : 'Add this item' }}
+                            {{
+                                (active
+                                    ? 'CATERING.ORDER_ITEM_REMOVE'
+                                    : 'CATERING.ORDER_ITEM_ADD'
+                                ) | translate
+                            }}
                         </p>
                     </div>
                 </button>
@@ -191,7 +199,7 @@ interface CateringOptionGroup {
                 class="p-16 flex flex-col items-center justify-center space-y-2"
             >
                 <p class="opacity-30 text-center">
-                    Select an item to view it's details
+                    {{ 'CATERING.ORDER_ITEM_SELECT' | translate }}
                 </p>
             </div>
         </ng-template>
@@ -209,11 +217,11 @@ interface CateringOptionGroup {
         `,
     ],
 })
-export class CateringItemDetailsComponent {
+export class CateringItemDetailsComponent implements OnChanges {
     @Input() public item?: CateringItem;
-    @Input() public active: boolean = false;
-    @Input() public fav: boolean = false;
-    @Input() public code: string = 'USD';
+    @Input() public active = false;
+    @Input() public fav = false;
+    @Input() public code = 'USD';
 
     @Output() public toggleFav = new EventEmitter<void>();
     @Output() public activeChange = new EventEmitter<boolean>();

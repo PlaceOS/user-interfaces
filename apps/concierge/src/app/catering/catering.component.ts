@@ -12,7 +12,7 @@ import { AsyncHandler } from '@placeos/common';
                 class="p-2 flex items-center justify-center bg-info text-info-content text-sm"
                 *ngIf="page === 'menu'"
             >
-                To edit the menu select "All Levels" from the top left
+                {{ 'CATERING.MENU_EDIT_INFO' | translate }}
             </div>
             <div class="flex flex-1 h-1/2 w-full overflow-auto">
                 <ng-container [ngSwitch]="page">
@@ -119,8 +119,8 @@ export class CateringComponent extends AsyncHandler implements OnInit {
             'route.params',
             this._route.paramMap.subscribe(
                 (params) =>
-                    (this.page = params.has('view') ? params.get('view') : '')
-            )
+                    (this.page = params.has('view') ? params.get('view') : ''),
+            ),
         );
     }
 }

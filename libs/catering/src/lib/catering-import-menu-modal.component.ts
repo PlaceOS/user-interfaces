@@ -5,31 +5,38 @@ import { CateringItem } from './catering-item.class';
 @Component({
     selector: 'catering-import-menu-modal',
     template: `
-        <header class="h-16 flex items-center justify-between px-4">
-            <h2 class="text-xl font-medium">Import Catering Menu</h2>
+        <header
+            class="sticky top-0 p-2 m-2 w-[calc(100%-1rem)] border-none z-10 bg-base-200 rounded"
+        >
+            <h2 class="text-xl font-medium px-2">
+                {{ 'CATERING.MENU_IMPORT' | translate }}
+            </h2>
             <button icon matRipple mat-dialog-close *ngIf="!loading">
                 <app-icon>close</app-icon>
             </button>
         </header>
         <main *ngIf="!loading; else load_state">
             <div
-                class="relative flex flex-col items-center justify-center space-y-2 h-[24rem] w-[24rem] border-4 border-base-200 border-dashed rounded-xl hover:bg-base-200 m-4 p-4 cursor-pointer"
+                class="relative flex flex-col items-center justify-center space-y-4 h-[24rem] w-[24rem] border-4 border-base-300 border-dashed rounded-xl hover:bg-base-200 mx-2 p-4 cursor-pointer"
             >
-                <app-icon class="text-4xl">upload</app-icon>
-                <p>Click to select file or Drag and drop files</p>
+                <app-icon class="text-8xl opacity-30">cloud_upload</app-icon>
+                <p class="opacity-30 text-center px-4">
+                    {{ 'CATERING.MENU_IMPORT_FILE_SELECT' | translate }}
+                </p>
                 <input
                     type="file"
                     class="absolute inset-0 opacity-0"
                     (change)="handleFileEvent($event)"
                 />
             </div>
-            <div class="flex items-center justify-center px-4 pb-4">
+            <div class="flex items-center justify-center p-2">
                 <button
+                    btn
                     matRipple
-                    class="clear underline w-48"
+                    class="w-full"
                     (click)="downloadTemplate()"
                 >
-                    Download Template
+                    {{ 'CATERING.MENU_IMPORT_TEMPLATE' | translate }}
                 </button>
             </div>
         </main>

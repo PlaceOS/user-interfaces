@@ -1,13 +1,12 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { take } from 'rxjs/operators';
 import { CateringOrderStateService } from './catering-order-state.service';
-import { AsyncHandler, SettingsService } from '@placeos/common';
+import { AsyncHandler, i18n, SettingsService } from '@placeos/common';
 import {
     addDays,
     addMinutes,
     differenceInMinutes,
     endOfDay,
-    format,
     startOfDay,
 } from 'date-fns';
 
@@ -64,14 +63,14 @@ const ICONS = {
 @Component({
     selector: 'catering-item-filters',
     template: `
-        <div class="px-4 mt-3 mb-2" [class.sm:hidden]="!search">
+        <div class="px-2 mt-2 mb-2" [class.sm:hidden]="!search">
             <mat-form-field appearance="outline" class="w-full h-14">
                 <app-icon matPrefix class="text-xl">search</app-icon>
                 <input
                     matInput
                     [ngModel]="(filters | async)?.search"
                     (ngModelChange)="setFilters({ search: $event })"
-                    placeholder="Search menu..."
+                    [placeholder]="'CATERING.MENU_SEARCH' | translate"
                 />
             </mat-form-field>
         </div>
@@ -79,7 +78,7 @@ const ICONS = {
             *ngIf="!search && (caterers | async)?.length > 1"
             class="hidden sm:block px-2 py-2"
         >
-            <label>Caterer:</label>
+            <label>{{ 'CATERING.CATERER' | translate }}</label>
             <mat-form-field appearance="outline" class="w-full h-14">
                 <mat-select
                     [ngModel]="
@@ -97,7 +96,7 @@ const ICONS = {
             </mat-form-field>
         </div>
         <h3 class="hidden sm:block font-medium px-2 py-2" *ngIf="!search">
-            Options
+            {{ 'COMMON.FILTERS' | translate }}
         </h3>
         <div class="flex flex-col px-2" *ngIf="!search">
             <mat-checkbox
@@ -105,10 +104,10 @@ const ICONS = {
                 (ngModelChange)="at_timeChange.next($event)"
                 [matTooltip]="exact_tooltip"
             >
-                Exact Time
+                {{ 'CATERING.ORDERS_DELIVER_EXACT' | translate }}
             </mat-checkbox>
             <ng-container *ngIf="day_options.length > 1">
-                <label>Deliver Date:</label>
+                <label>{{ 'CATERING.ORDERS_DELIVER_DATE' | translate }}</label>
                 <mat-form-field
                     appearance="outline"
                     class="w-full no-subscript mb-4"
@@ -126,7 +125,7 @@ const ICONS = {
                     </mat-select>
                 </mat-form-field>
             </ng-container>
-            <label>Deliver After:</label>
+            <label>{{ 'CATERING.ORDERS_DELIVER_AFTER' | translate }}</label>
             <a-duration-field
                 [(ngModel)]="offset"
                 (ngModelChange)="offsetChange.next($event)"
@@ -140,10 +139,10 @@ const ICONS = {
             ></a-duration-field>
         </div>
         <h3 class="hidden sm:block font-medium px-2 py-4" *ngIf="!search">
-            Catergories
+            {{ 'COMMON.CATEGORIES' | translate }}
         </h3>
         <div
-            class="flex flex-col px-2 space-y-4"
+            class="flex flex-col px-2 space-y-2"
             [class.sm:hidden]="search"
             [class.sm:pt-1]="!search"
         >
@@ -161,6 +160,7 @@ const ICONS = {
         `
             :host {
                 min-width: 16rem;
+                overflow: auto;
             }
         `,
     ],
@@ -190,8 +190,7 @@ export class CateringItemFiltersComponent
     public readonly categories = this._state.categories;
     public readonly caterers = this._state.caterers;
 
-    public readonly exact_tooltip =
-        'Deliver at exactly specified time. \nNote that changes to the booking will not be \nreflected in the order if this is set.';
+    public exact_tooltip = '';
 
     public get start_of_date() {
         return startOfDay(
@@ -239,6 +238,7 @@ export class CateringItemFiltersComponent
             this._settings.get('app.catering.min_offset'),
             0,
         );
+        this.exact_tooltip = i18n('CATERING.ORDERS_DELIVER_EXACT_INFO');
         this.subscription(
             'filters',
             this._state.filters.subscribe(() => {

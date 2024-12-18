@@ -1,9 +1,8 @@
-import { Component } from '@angular/core';
-import { CateringOrder } from './catering-order.class';
+import { Component, OnInit } from '@angular/core';
 
 import { CateringOrdersService } from './catering-orders.service';
 import { AsyncHandler, SettingsService } from '@placeos/common';
-import { CATERING_STATUSES } from './catering.vars';
+import { statusList } from './catering.vars';
 
 @Component({
     selector: 'catering-order-list',
@@ -27,36 +26,39 @@ import { CATERING_STATUSES } from './catering.vars';
                     },
                     {
                         key: 'caterer',
-                        name: 'Caterer',
+                        name: 'CATERING.CATERER' | translate,
                         show:
                             !filters?.caterer && (caterers | async)?.length > 1,
                     },
                     {
                         key: 'deliver_at',
-                        name: 'Time',
+                        name: 'COMMON.TIME' | translate,
                         content: time_template,
                     },
                     {
                         key: 'event',
-                        name: 'Location',
+                        name: 'COMMON.LOCATION' | translate,
                         content: location_template,
                         sortable: false,
                     },
                     {
                         key: 'event',
-                        name: 'Host',
+                        name: 'FORM.HOST' | translate,
                         content: host_template,
                         sortable: false,
                     },
-                    { key: 'charge_code', name: 'Charge Code' },
+                    {
+                        key: 'charge_code',
+                        name: 'CATERING.CHARGE_CODE' | translate,
+                    },
                     {
                         key: 'invoice_number',
-                        name: 'Invoice No.',
+                        name: 'CATERING.INVOICE_NUMBER' | translate,
                         empty: 'No Invoice',
                     },
                     {
                         key: 'status',
-                        name: 'Status',
+                        name: 'COMMON.STATUS' | translate,
                         content: status_template,
                         size: '11rem',
                     },
@@ -71,7 +73,7 @@ import { CATERING_STATUSES } from './catering.vars';
                 [sortable]="true"
                 [show_children]="show_children"
                 [child_template]="child_template"
-                empty_message="No Catering Orders"
+                [empty_message]="'CATERING.ORDERS_EMPTY' | translate"
             >
             </simple-table>
             <ng-template #state_template let-data="data">
@@ -85,7 +87,12 @@ import { CATERING_STATUSES } from './catering.vars';
             </ng-template>
             <ng-template #time_template let-data="data" let-row="row">
                 <div class="p-4">
-                    <div>Deliver at {{ data | date: time_format }}</div>
+                    <div>
+                        {{
+                            'CATERING.ORDERS_DELIVER_TIME'
+                                | translate: { time: data | date: time_format }
+                        }}
+                    </div>
                     <div class="text-xs opacity-30">
                         {{ row?.event?.date | date: 'MMM d' }},
                         {{ row?.event?.date | date: time_format }}
@@ -104,7 +111,7 @@ import { CATERING_STATUSES } from './catering.vars';
                             !(data?.space?.display_name || data?.space?.name)
                         "
                     >
-                        No Location
+                        {{ 'CATERING.ORDERS_LOCATION_EMPTY' | translate }}
                     </span>
                 </div>
             </ng-template>
@@ -174,7 +181,9 @@ import { CATERING_STATUSES } from './catering.vars';
                         <div
                             class="p-2 rounded-lg bg-base-100 text-base-content max-w-[32rem] min-w-[8rem] shadow border border-base-200"
                         >
-                            <div class="mb-2">Notes</div>
+                            <div class="mb-2">
+                                {{ 'FORM.NOTES' | translate }}
+                            </div>
                             <p class="text-sm px-4 py-2 bg-base-200 rounded">
                                 {{ row.notes }}
                             </p>
@@ -222,7 +231,7 @@ import { CATERING_STATUSES } from './catering.vars';
         `,
     ],
 })
-export class CateringOrderListComponent extends AsyncHandler {
+export class CateringOrderListComponent extends AsyncHandler implements OnInit {
     /** List of filtered orders */
     public readonly order_list = this._orders.filtered;
     /** Whether order list is loading */
@@ -234,7 +243,7 @@ export class CateringOrderListComponent extends AsyncHandler {
 
     public caterers = this._orders.caterers;
 
-    public readonly statuses = CATERING_STATUSES;
+    public statuses = [];
     public readonly show_children: Record<string, boolean> = {};
 
     public readonly updateStatus = async (order, s) => {
@@ -247,7 +256,7 @@ export class CateringOrderListComponent extends AsyncHandler {
     }
 
     public status(value: string) {
-        return CATERING_STATUSES.find((i) => i.id === value);
+        return this.statuses.find((i) => i.id === value);
     }
 
     constructor(
@@ -258,15 +267,7 @@ export class CateringOrderListComponent extends AsyncHandler {
     }
 
     public ngOnInit() {
-        this._orders.startPolling();
-    }
-
-    public ngOnDestroy() {
-        this._orders.stopPolling();
-    }
-
-    /* istanbul ignore next */
-    public trackByFn(index: number, order: CateringOrder) {
-        return order ? order.id : undefined;
+        this.statuses = statusList();
+        this.subscription('polling', this._orders.startPolling());
     }
 }

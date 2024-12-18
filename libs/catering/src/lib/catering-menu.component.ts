@@ -21,16 +21,16 @@ import { map } from 'rxjs/operators';
                     size: '3.5rem',
                     sortable: false,
                 },
-                { key: 'name', name: 'Name' },
-                { key: 'category', name: 'Category' },
+                { key: 'name', name: 'FORM.NAME' | translate },
+                { key: 'category', name: 'COMMON.CATEGORY' | translate },
                 {
                     key: 'caterer',
-                    name: 'Caterer',
+                    name: 'CATERING.CATERER' | translate,
                     show: !filters?.caterer && caterers.length > 1,
                 },
                 {
                     key: 'unit_price',
-                    name: 'Price',
+                    name: 'CATERING.ITEM_PRICE' | translate,
                     content: price_template,
                     size: '6rem',
                 },
@@ -46,12 +46,12 @@ import { map } from 'rxjs/operators';
             [show_children]="show_children"
             [child_template]="child_template"
             [sortable]="true"
-            empty_message="No Items in Menu"
+            [empty_message]="'CATERING.ITEM_LIST_EMPTY' | translate"
         ></simple-table>
         <ng-template #active_template let-row="row">
             <mat-checkbox
                 class="mx-auto"
-                matTooltip="Allow Ordering Item for this zone"
+                [matTooltip]="'CATERING.ORDER_ALLOW' | translate"
                 matTooltipPosition="right"
                 [ngModel]="isEnabled(row)"
                 (ngModelChange)="setEnabled(row, $event)"
@@ -83,7 +83,9 @@ import { map } from 'rxjs/operators';
                     >
                         <div class="flex items-center space-x-2 pr-2">
                             <app-icon>add</app-icon>
-                            <div>Add Option</div>
+                            <div>
+                                {{ 'CATERING.ITEM_OPTION_ADD' | translate }}
+                            </div>
                         </div>
                     </button>
                     <button
@@ -93,7 +95,7 @@ import { map } from 'rxjs/operators';
                     >
                         <div class="flex items-center space-x-2 pr-2">
                             <app-icon>edit</app-icon>
-                            <div>Edit Item</div>
+                            <div>{{ 'CATERING.ITEM_EDIT' | translate }}</div>
                         </div>
                     </button>
                     <button
@@ -103,7 +105,7 @@ import { map } from 'rxjs/operators';
                     >
                         <div class="flex items-center space-x-2 pr-2">
                             <app-icon class="text-error">delete</app-icon>
-                            <div>Remove Item</div>
+                            <div>{{ 'CATERING.ITEM_REMOVE' | translate }}</div>
                         </div>
                     </button>
                 </mat-menu>
@@ -113,8 +115,10 @@ import { map } from 'rxjs/operators';
                     [disabled]="!row.options?.length"
                     [matTooltip]="
                         row.options?.length
-                            ? (show_children[row.id] ? 'Hide' : 'Show') +
-                              ' Menu Item Options'
+                            ? ((show_children[row.id]
+                                  ? 'CATERING.ITEM_OPTION_HIDE'
+                                  : 'CATERING.ITEM_OPTION_SHOW'
+                              ) | translate)
                             : ''
                     "
                     (click)="show_children[row.id] = !show_children[row.id]"
@@ -146,7 +150,7 @@ import { map } from 'rxjs/operators';
                 <button
                     icon
                     matRipple
-                    matTooltip="Edit Menu Item Option"
+                    [matTooltip]="'CATERING.ITEM_OPTION_EDIT' | translate"
                     (click)="editOption(row, option)"
                     *ngIf="can_edit"
                 >
@@ -156,7 +160,7 @@ import { map } from 'rxjs/operators';
                     icon
                     matRipple
                     class="!mr-1"
-                    matTooltip="Remove Menu Item Option"
+                    [matTooltip]="'CATERING.ITEM_OPTION_REMOVE' | translate"
                     (click)="removeOption(row, option)"
                     *ngIf="can_edit"
                 >

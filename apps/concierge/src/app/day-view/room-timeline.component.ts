@@ -400,19 +400,20 @@ Host:  ${event.organiser?.name || event.host}`;
         );
         const diff = differenceInMinutes(date, start_time);
 
-        return (Math.max(0, diff / 60) / this.block_range) * 100;
+        return +((Math.max(0, diff / 60) / this.block_range) * 100).toFixed(2);
     }
 
     public endToOffset(duration: number) {
-        return (
-            (Math.min(this.block_range, duration / 60) / this.block_range) * 100
-        );
+        return +(
+            (Math.min(this.block_range, duration / 60) / this.block_range) *
+            100
+        ).toFixed(2);
     }
 
     public viewEvent(
         event: CalendarEvent,
         space_id: string,
-        scroll_to: boolean = false,
+        scroll_to = false,
     ) {
         if (event.is_system_event) return;
         const ref = this._dialog.open(EventDetailsModalComponent, {

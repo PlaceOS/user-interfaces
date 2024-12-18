@@ -15,7 +15,7 @@ import { AsyncHandler } from '@placeos/common';
                 class="p-2 flex items-center justify-center bg-info text-white text-sm mb-4 mx-8 rounded"
                 *ngIf="page === 'menu'"
             >
-                To edit the menu de-select all levels from the top left
+                {{ 'CATERING.MENU_EDIT_INFO' | translate }}
             </div>
             <div class="flex flex-col flex-1 h-1/2 px-8" [ngSwitch]="page">
                 <catering-order-list
@@ -101,8 +101,8 @@ export class CateringComponent extends AsyncHandler {
             'route.params',
             this._route.paramMap.subscribe(
                 (params) =>
-                    (this.page = params.has('view') ? params.get('view') : '')
-            )
+                    (this.page = params.has('view') ? params.get('view') : ''),
+            ),
         );
     }
 }

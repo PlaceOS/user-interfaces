@@ -21,6 +21,7 @@ import {
     AsyncHandler,
     currentUser,
     flatten,
+    i18n,
     notifyError,
     notifySuccess,
     openConfirmModal,
@@ -306,8 +307,8 @@ export class CateringStateService extends AsyncHandler {
     public async deleteItem(item: CateringItem) {
         const details = await openConfirmModal(
             {
-                title: 'Delete Catering Item',
-                content: `Are you sure you wish to remove the catering item ${item.name} from the menu?`,
+                title: i18n('CATERING.ITEM_REMOVE'),
+                content: i18n('CATERING.ITEM_REMOVE_MSG', { name: item.name }),
                 icon: {
                     type: 'icon',
                     class: 'material-icons',
@@ -317,22 +318,29 @@ export class CateringStateService extends AsyncHandler {
             this._dialog,
         );
         if (details.reason !== 'done') return;
-        details.loading('Removing catering item...');
+        details.loading(i18n('CATERING.ITEM_REMOVE_LOADING'));
         const menu = this._menu.getValue().filter((itm) => item.id !== itm.id);
         this.updateMenu(this._org.building.id, menu).then(
             () => {
                 this._menu.next([...menu]);
+                notifySuccess(i18n('CATERING.ITEM_REMOVE_SUCCESS'));
                 details.close();
             },
-            () => details.loading(''),
+            (e) => {
+                notifyError(i18n('CATERING.ITEM_REMOVE_ERROR', { error: e }));
+                details.loading('');
+            },
         );
     }
 
     public async deleteOption(item: CateringItem, option: CateringOption) {
         const details = await openConfirmModal(
             {
-                title: 'Delete Catering Item Option',
-                content: `Are you sure you wish to remove the catering option "${option.name}" from "${item.name}"?`,
+                title: i18n('CATERING.ITEM_OPTION_REMOVE'),
+                content: i18n('CATERING.ITEM_OPTION_REMOVE', {
+                    name: option.name,
+                    item: item.name,
+                }),
                 icon: {
                     type: 'icon',
                     class: 'material-icons',
@@ -342,7 +350,7 @@ export class CateringStateService extends AsyncHandler {
             this._dialog,
         );
         if (details.reason !== 'done') return;
-        details.loading('Removing catering item option...');
+        details.loading(i18n('CATERING.ITEM_OPTION_REMOVE_LOADING'));
         const menu = this._menu.getValue();
         menu.splice(
             menu.findIndex((itm) => itm.id === item.id),
@@ -355,9 +363,21 @@ export class CateringStateService extends AsyncHandler {
         this.updateMenu(this._org.building.id, menu).then(
             () => {
                 this._menu.next([...menu]);
+                notifySuccess(
+                    i18n('CATERING.ITEM_OPTION_REMOVE_SUCCESS', {
+                        item: item.name,
+                    }),
+                );
                 details.close();
             },
-            () => details.loading(''),
+            () => {
+                notifySuccess(
+                    i18n('CATERING.ITEM_OPTION_REMOVE_ERROR', {
+                        item: item.name,
+                    }),
+                );
+                details.loading('');
+            },
         );
     }
 
@@ -399,17 +419,19 @@ export class CateringStateService extends AsyncHandler {
             ref.afterClosed().toPromise(),
         ]);
         if (details?.reason !== 'done') return;
-        ref.componentInstance.loading = 'Updating menu...';
+        ref.componentInstance.loading = i18n('CATERING.MENU_IMPORT_LOADING');
         const menu = this._menu.getValue();
         const bld = this._org.building;
         const updated_menu = unique(details.metadata.concat(menu), 'id');
         await this.updateMenu(bld.id, updated_menu).catch((_) => {
-            notifyError('Error importing catering menu');
+            notifyError(i18n('CATERING.MENU_IMPORT_ERROR'));
             ref.close();
             throw _;
         });
         notifySuccess(
-            `Successfully imported catering menu. ${details.metadata.length} item(s) added.`,
+            i18n('CATERING.MENU_IMPORT_SUCCESS', {
+                count: details.metadata.length,
+            }),
         );
         ref.close();
     }

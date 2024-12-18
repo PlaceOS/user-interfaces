@@ -5,6 +5,8 @@ import { MatChipInputEvent } from '@angular/material/chips';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { DialogEvent, randomInt } from '@placeos/common';
 import { CateringItem } from './catering-item.class';
+import { CurrencyPipe } from '@angular/common';
+import { OrganisationService } from '@placeos/organisation';
 
 export interface CateringItemModalData {
     item: CateringItem;
@@ -15,14 +17,22 @@ export interface CateringItemModalData {
 @Component({
     selector: 'catering-item-modal',
     template: `
-        <header>
-            <h3>{{ item.id ? 'Edit' : 'Add' }} Item</h3>
+        <header
+            class="sticky top-0 p-2 m-2 w-[calc(100%-1rem)] border-none z-10 bg-base-200 rounded"
+        >
+            <h2 class="text-xl font-medium px-2">
+                {{
+                    item.id
+                        ? 'CATERING.ITEM_EDIT'
+                        : ('CATERING.ITEM_NEW' | translate)
+                }}
+            </h2>
             <button icon matRipple mat-dialog-close *ngIf="!loading">
                 <app-icon>close</app-icon>
             </button>
         </header>
         <form
-            class="p-4 overflow-auto max-h-[65vh]"
+            class="px-4 overflow-auto max-h-[65vh] max-w-xl"
             *ngIf="form && !loading; else load_state"
             [formGroup]="form"
         >
@@ -35,16 +45,18 @@ export interface CateringItemModalData {
                             form.controls.name.touched
                         "
                     >
-                        Name<span>*</span>:
+                        {{ 'FORM.NAME' | translate }}<span>*</span>:
                     </label>
                     <mat-form-field appearance="outline">
                         <input
                             matInput
                             name="name"
-                            placeholder="Item name"
+                            [placeholder]="'FORM.NAME' | translate"
                             formControlName="name"
                         />
-                        <mat-error>Name is required</mat-error>
+                        <mat-error>{{
+                            'FORM.NAME_REQUIRED' | translate
+                        }}</mat-error>
                     </mat-form-field>
                 </div>
             </div>
@@ -60,17 +72,19 @@ export interface CateringItemModalData {
                             form.controls.category.touched
                         "
                     >
-                        Category<span>*</span>:
+                        {{ 'COMMON.CATEGORY' | translate }}<span>*</span>:
                     </label>
                     <mat-form-field appearance="outline">
                         <input
                             matInput
                             name="category"
-                            placeholder="Category"
+                            [placeholder]="'COMMON.CATEGORY' | translate"
                             formControlName="category"
                             [matAutocomplete]="auto"
                         />
-                        <mat-error>Category is required</mat-error>
+                        <mat-error>{{
+                            'COMMON.CATEGORY_REQUIRED' | translate
+                        }}</mat-error>
                     </mat-form-field>
                 </div>
                 <div class="flex flex-col flex-1" *ngIf="form.controls.caterer">
@@ -81,19 +95,77 @@ export interface CateringItemModalData {
                             form.controls.caterer.touched
                         "
                     >
-                        Caterer<span>*</span>:
+                        {{ 'CATERING.CATERER' | translate }}<span>*</span>:
                     </label>
                     <mat-form-field appearance="outline">
                         <input
                             matInput
                             name="caterer"
-                            placeholder="Caterer"
+                            [placeholder]="'CATERING.CATERER' | translate"
                             formControlName="caterer"
                             [matAutocomplete]="caterer_auto"
                         />
                         <mat-error>Caterer is required</mat-error>
                     </mat-form-field>
                 </div>
+            </div>
+            <div class="flex space-x-4">
+                <div
+                    class="flex flex-col flex-1"
+                    *ngIf="form.controls.unit_price"
+                >
+                    <label
+                        for="title"
+                        [class.error]="
+                            form.controls.unit_price.invalid &&
+                            form.controls.unit_price.touched
+                        "
+                    >
+                        {{ 'CATERING.ITEM_PRICE' | translate }}<span>*</span>
+                    </label>
+                    <a-counter
+                        formControlName="unit_price"
+                        [min]="0"
+                        [max]="100000"
+                        [step]="10"
+                        [render_fn]="renderPrice"
+                    ></a-counter>
+                </div>
+                <div class="flex items-center py-4 flex-1">
+                    <settings-toggle
+                        class="w-full"
+                        [name]="'CATERING.ITEM_POINTS' | translate"
+                        formControlName="accept_points"
+                    >
+                    </settings-toggle>
+                </div>
+            </div>
+            <div class="mb-4 space-y-2">
+                <label class="flex-1 w-24 min-w-0">{{
+                    'CATERING.ITEM_DISCOUNT' | translate
+                }}</label>
+                <div class="max-w-[calc(50%-0.5rem)]">
+                    <a-counter
+                        formControlName="discount_cap"
+                        [min]="0"
+                        [max]="100"
+                        [step]="5"
+                        [render_fn]="renderPercent"
+                    ></a-counter>
+                </div>
+            </div>
+            <div class="flex flex-col" *ngIf="form.controls.description">
+                <label for="description">{{
+                    'COMMON.DESCRIPTION' | translate
+                }}</label>
+                <mat-form-field appearance="outline">
+                    <textarea
+                        matInput
+                        name="description"
+                        [placeholder]="'COMMON.DESCRIPTION' | translate"
+                        formControlName="description"
+                    ></textarea>
+                </mat-form-field>
             </div>
             <div class="flex flex-col" *ngIf="form.controls.tags">
                 <label
@@ -102,7 +174,7 @@ export interface CateringItemModalData {
                         form.controls.tags.invalid && form.controls.tags.touched
                     "
                 >
-                    Tags:
+                    {{ 'COMMON.TAGS' | translate }}
                 </label>
                 <mat-form-field appearance="outline">
                     <mat-chip-grid #chipList aria-label="Item Tags">
@@ -113,7 +185,10 @@ export interface CateringItemModalData {
                             {{ item }}
                             <button
                                 matChipRemove
-                                [attr.aria-label]="'Remove ' + item"
+                                [attr.aria-label]="
+                                    'COMMON.REMOVE_ITEM'
+                                        | translate: { item: item }
+                                "
                             >
                                 <app-icon>cancel</app-icon>
                             </button>
@@ -129,46 +204,11 @@ export interface CateringItemModalData {
                     />
                 </mat-form-field>
             </div>
-            <div class="flex flex-col" *ngIf="form.controls.description">
-                <label for="description">Description:</label>
-                <mat-form-field appearance="outline">
-                    <textarea
-                        matInput
-                        name="description"
-                        placeholder="Item Description"
-                        formControlName="description"
-                    ></textarea>
-                </mat-form-field>
-            </div>
-            <div class="flex flex-col" *ngIf="form.controls.unit_price">
-                <label
-                    for="title"
-                    [class.error]="
-                        form.controls.unit_price.invalid &&
-                        form.controls.unit_price.touched
-                    "
-                >
-                    Unit Price<span>*</span>:
-                </label>
-                <mat-form-field appearance="outline">
-                    <input
-                        matInput
-                        name="unit-price"
-                        type="number"
-                        placeholder="Unit Price"
-                        formControlName="unit_price"
-                    />
-                    <mat-error>Unit Price is required</mat-error>
-                </mat-form-field>
-            </div>
-            <div class="flex items-center">
-                <label class="flex-none w-28 min-w-0">Accept Points?</label>
-                <mat-checkbox formControlName="accept_points">{{
-                    form.get('accept_points')?.value ? 'No' : 'Yes'
-                }}</mat-checkbox>
-            </div>
-            <div class="flex items-center flex-wrap max-w-lg" list>
-                <mat-checkbox
+            <label>{{ 'CATERING.TAGS' | translate }}</label>
+            <div class="flex items-center flex-wrap -mx-2 pb-2" list>
+                <settings-toggle
+                    class="min-w-[40%] flex-1 p-2"
+                    [name]="'CATERING.TAG_GLUTEN_FREE' | translate"
                     [ngModel]="hasTag('Gluten Free')"
                     (ngModelChange)="
                         $event
@@ -177,18 +217,20 @@ export interface CateringItemModalData {
                     "
                     [ngModelOptions]="{ standalone: true }"
                 >
-                    Gluten Free (GF)
-                </mat-checkbox>
-                <mat-checkbox
+                </settings-toggle>
+                <settings-toggle
+                    class="min-w-[40%] flex-1 p-2"
+                    [name]="'CATERING.TAG_VEGAN' | translate"
                     [ngModel]="hasTag('Vegan')"
                     (ngModelChange)="
                         $event ? addTag({ value: 'Vegan' }) : removeTag('Vegan')
                     "
                     [ngModelOptions]="{ standalone: true }"
                 >
-                    Vegan (VG)
-                </mat-checkbox>
-                <mat-checkbox
+                </settings-toggle>
+                <settings-toggle
+                    class="min-w-[40%] flex-1 p-2"
+                    [name]="'CATERING.TAG_VEGETARIAN' | translate"
                     [ngModel]="hasTag('Vegetarian')"
                     (ngModelChange)="
                         $event
@@ -197,9 +239,10 @@ export interface CateringItemModalData {
                     "
                     [ngModelOptions]="{ standalone: true }"
                 >
-                    Vegetarian (V)
-                </mat-checkbox>
-                <mat-checkbox
+                </settings-toggle>
+                <settings-toggle
+                    class="min-w-[40%] flex-1 p-2"
+                    [name]="'CATERING.TAG_DAIRY' | translate"
                     [ngModel]="hasTag('Contains Dairy')"
                     (ngModelChange)="
                         $event
@@ -208,9 +251,10 @@ export interface CateringItemModalData {
                     "
                     [ngModelOptions]="{ standalone: true }"
                 >
-                    Contains Dairy (D)
-                </mat-checkbox>
-                <mat-checkbox
+                </settings-toggle>
+                <settings-toggle
+                    class="min-w-[40%] p-2 w-1/2"
+                    [name]="'CATERING.TAG_NUTS' | translate"
                     [ngModel]="hasTag('Contains Nuts')"
                     (ngModelChange)="
                         $event
@@ -219,22 +263,10 @@ export interface CateringItemModalData {
                     "
                     [ngModelOptions]="{ standalone: true }"
                 >
-                    Contains Nuts (N)
-                </mat-checkbox>
-            </div>
-            <div class="flex items-center">
-                <label class="flex-1 w-24 min-w-0">Discount Cap</label>
-                <a-counter
-                    class="border border-base-200 rounded"
-                    formControlName="discount_cap"
-                    [min]="0"
-                    [max]="100"
-                    [step]="5"
-                    [render_fn]="renderPercent"
-                ></a-counter>
+                </settings-toggle>
             </div>
             <div class="flex flex-col" *ngIf="form.controls.images">
-                <label for="images">Images:</label>
+                <label for="images">{{ 'COMMON.IMAGES' | translate }}</label>
                 <image-list-field
                     name="images"
                     formControlName="images"
@@ -243,21 +275,22 @@ export interface CateringItemModalData {
         </form>
         <footer
             *ngIf="!loading"
-            class="flex p-2 items-center justify-center border-t border-solid border-base-200"
+            class="flex px-4 py-2 items-center justify-end border-t border-solid border-base-200"
         >
             <button
                 btn
                 matRipple
+                class="w-32"
                 [disabled]="!form.dirty"
                 (click)="saveChanges()"
             >
-                Save
+                {{ 'COMMON.SAVE' | translate }}
             </button>
         </footer>
         <ng-template #load_state>
             <div class="flex flex-col items-center p-8 space-y-2 w-64">
                 <mat-spinner diameter="32"></mat-spinner>
-                <p>Saving catering item...</p>
+                <p>{{ 'CATERING.ITEM_SAVING' | translate }}</p>
             </div>
         </ng-template>
         <mat-autocomplete #auto="matAutocomplete">
@@ -324,8 +357,21 @@ export class CateringItemModalComponent {
         return this.form.controls.tags.value;
     }
 
-    public renderPercent(value: number = 0) {
+    public renderPercent(value = 0) {
         return `${value}%`;
+    }
+
+    private _currency_pipe = new CurrencyPipe('en');
+
+    public renderPrice = (v) => this._renderPrice(v);
+
+    public _renderPrice(value = 0) {
+        return (
+            this._currency_pipe?.transform(
+                value / 100,
+                this._org.currency_code,
+            ) || value
+        );
     }
 
     public hasTag(tag: string) {
@@ -334,7 +380,15 @@ export class CateringItemModalComponent {
 
     constructor(
         @Inject(MAT_DIALOG_DATA) private _data: CateringItemModalData,
-    ) {}
+        private _org: OrganisationService,
+    ) {
+        console.log(
+            'Currency:',
+            this._org.currency_code,
+            this._currency_pipe,
+            this.renderPrice(10),
+        );
+    }
 
     /**
      * Add a tag to the list of tags for the item

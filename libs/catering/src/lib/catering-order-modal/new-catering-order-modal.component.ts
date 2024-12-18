@@ -13,16 +13,11 @@ const EMPTY_FAVS: string[] = [];
         <div
             class="w-[100vw] h-[100vh] sm:relative sm:w-auto sm:h-auto flex flex-col bg-base-100"
         >
-            <header class="flex items-center space-x-4 w-full">
-                <button
-                    icon
-                    matRipple
-                    [mat-dialog-close]="selected"
-                    class="bg-neutral"
-                >
+            <header class="flex items-center justify-between space-x-4 w-full">
+                <h3>{{ 'CATERING.ORDER' | translate }}</h3>
+                <button icon matRipple [mat-dialog-close]="selected">
                     <app-icon>close</app-icon>
                 </button>
-                <h3>Add Catering</h3>
             </header>
             <main
                 class="flex-1 flex items-center divide-x divide-base-200 min-h-[65vh] h-[65vh] sm:max-h-[65vh] sm:max-w-[95vw] w-full overflow-hidden"
@@ -77,7 +72,7 @@ const EMPTY_FAVS: string[] = [];
                     *ngIf="displayed"
                     (click)="displayed = null"
                 >
-                    Back
+                    {{ 'COMMON.BACK' | translate }}
                 </button>
                 <button
                     btn
@@ -87,7 +82,7 @@ const EMPTY_FAVS: string[] = [];
                     [class.mb-2]="displayed"
                     class="w-full sm:w-auto sm:mb-0"
                 >
-                    View List
+                    {{ 'COMMON.VIEW_LIST' | translate }}
                 </button>
             </footer>
             <footer
@@ -102,10 +97,17 @@ const EMPTY_FAVS: string[] = [];
                 >
                     <div class="flex items-center">
                         <app-icon class="text-xl">arrow_back</app-icon>
-                        <div class="mr-1 underline">Back to form</div>
+                        <div class="mr-1 underline">
+                            {{ 'COMMON.BACK_TO_FORM' | translate }}
+                        </div>
                     </div>
                 </button>
-                <p class="opacity-60 text-sm">{{ count }} items(s) added</p>
+                <p class="opacity-60 text-sm">
+                    {{
+                        'CATERING.ORDER_ITEM_COUNT'
+                            | translate: { count: count }
+                    }}
+                </p>
                 <button
                     btn
                     matRipple
@@ -125,9 +127,10 @@ const EMPTY_FAVS: string[] = [];
                         }}</app-icon>
                         <div class="mr-1">
                             {{
-                                isSelected(displayed?.custom_id)
-                                    ? 'Remove from Booking'
-                                    : 'Add to booking'
+                                (isSelected(displayed?.custom_id)
+                                    ? 'COMMON.REMOVE_FROM'
+                                    : 'COMMON.ADD_TO'
+                                ) | translate
                             }}
                         </div>
                     </div>

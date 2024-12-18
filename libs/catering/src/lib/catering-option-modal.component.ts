@@ -17,14 +17,22 @@ export interface CateringItemOptionModalData {
 @Component({
     selector: 'catering-option-modal',
     template: `
-        <header>
-            <h3>{{ option.id ? 'Edit' : 'Add' }} Item Option</h3>
-            <button icon mat-dialog-close *ngIf="!loading">
+        <header
+            class="sticky top-0 p-2 m-2 w-[calc(100%-1rem)] border-none z-10 bg-base-200 rounded"
+        >
+            <h2 class="text-xl font-medium px-2">
+                {{
+                    option.id
+                        ? 'CATERING.ITEM_OPTION_EDIT'
+                        : ('CATERING.ITEM_OPTION_NEW' | translate)
+                }}
+            </h2>
+            <button icon matRipple mat-dialog-close *ngIf="!loading">
                 <app-icon>close</app-icon>
             </button>
         </header>
         <form
-            class="p-4 overflow-auto max-h-[65vh]"
+            class="px-4 overflow-auto max-h-[65vh] w-[28rem]"
             *ngIf="form && !loading; else load_state"
             [formGroup]="form"
         >
@@ -35,16 +43,18 @@ export interface CateringItemOptionModalData {
                         form.controls.name.invalid && form.controls.name.touched
                     "
                 >
-                    Name<span>*</span>:
+                    {{ 'FORM.NAME' | translate }}<span>*</span>:
                 </label>
                 <mat-form-field appearance="outline">
                     <input
                         matInput
                         name="name"
-                        placeholder="Item name"
+                        [placeholder]="'FORM.NAME' | translate"
                         formControlName="name"
                     />
-                    <mat-error>Name is required</mat-error>
+                    <mat-error>{{
+                        'FORM.NAME_REQUIRED' | translate
+                    }}</mat-error>
                 </mat-form-field>
             </div>
             <div class="flex flex-col" *ngIf="form.controls.group">
@@ -55,54 +65,63 @@ export interface CateringItemOptionModalData {
                         form.controls.group.touched
                     "
                 >
-                    Type<span>*</span>:
+                    {{ 'COMMON.TYPE' | translate }}<span>*</span>:
                 </label>
                 <mat-form-field appearance="outline">
                     <input
                         matInput
                         name="group"
-                        placeholder="Type of option e.g. Number of sugars"
+                        [placeholder]="
+                            'CATERING.ITEM_OPTION_TYPE_PLACEHOLDER' | translate
+                        "
                         formControlName="group"
                         [matAutocomplete]="auto"
                     />
-                    <mat-error>Type is required</mat-error>
+                    <mat-error>{{
+                        'CATERING.ITEM_OPTION_TYPE_REQUIRED' | translate
+                    }}</mat-error>
                 </mat-form-field>
             </div>
+            <div class="flex flex-col mb-4" *ngIf="form.controls.multiple">
+                <settings-toggle
+                    [name]="'CATERING.ITEM_OPTION_SELECT_MULTIPLE' | translate"
+                    formControlName="multiple"
+                >
+                </settings-toggle>
+            </div>
             <div class="flex flex-col" *ngIf="form.controls.unit_price">
-                <label for="title">Unit Price:</label>
+                <label for="title">{{
+                    'CATERING.ITEM_PRICE' | translate
+                }}</label>
                 <mat-form-field appearance="outline">
                     <input
                         matInput
                         name="unit-price"
                         type="number"
-                        placeholder="Unit Price"
+                        [placeholder]="'CATERING.ITEM_PRICE' | translate"
                         formControlName="unit_price"
                     />
                 </mat-form-field>
             </div>
-            <div class="flex flex-col" *ngIf="form.controls.multiple">
-                <mat-checkbox name="multiple" formControlName="multiple">
-                    Can select multiple of type
-                </mat-checkbox>
-            </div>
         </form>
         <footer
             *ngIf="!loading"
-            class="flex p-2 items-center justify-center border-t border-solid border-base-200"
+            class="flex px-4 py-2 items-center justify-end border-t border-solid border-base-200"
         >
             <button
                 btn
                 matRipple
+                class="w-32"
                 [disabled]="!form.dirty"
                 (click)="saveChanges()"
             >
-                Save
+                {{ 'COMMON.SAVE' | translate }}
             </button>
         </footer>
         <ng-template #load_state>
             <div loading class="flex flex-col items-center p-8 space-y-2 w-64">
                 <mat-spinner diameter="32"></mat-spinner>
-                <p>Saving catering item option...</p>
+                <p>{{ 'CATREING.ITEM_OPTION_SAVING' | translate }}</p>
             </div>
         </ng-template>
         <mat-autocomplete #auto="matAutocomplete">
@@ -137,7 +156,7 @@ export class CateringItemOptionModalComponent {
     }
 
     constructor(
-        @Inject(MAT_DIALOG_DATA) private _data: CateringItemOptionModalData
+        @Inject(MAT_DIALOG_DATA) private _data: CateringItemOptionModalData,
     ) {}
 
     public saveChanges() {
