@@ -199,6 +199,7 @@ export class LockerBankListComponent {
                     ).length,
                     lockers: bank.lockers.map((_) => ({
                         ..._,
+                        available: !!resources.find((lkr) => lkr.id === _.id),
                         map_id: bank.map_id || bank.id,
                         zone: bank.zone,
                         zones: bank.zones,

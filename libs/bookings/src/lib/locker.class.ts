@@ -18,6 +18,7 @@ export interface Locker {
     map_id?: string;
     assigned_to?: string;
     name: string;
+    available?: boolean;
     accessible: boolean;
     bookable: boolean;
     position: [number, number];

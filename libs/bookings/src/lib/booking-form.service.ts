@@ -556,10 +556,15 @@ export class BookingFormService extends AsyncHandler {
                 invoice_id: receipt.invoice_id,
             };
         }
-        if (!value.zones?.length && this._booking.getValue().zones?.length) {
-            value.zones = this._booking.getValue().zones;
-        }
+        value.zones = unique(
+            [
+                ...value.zones,
+                ...this._booking.getValue().zones,
+                ...(value.booking_asset?.zones || []),
+            ].filter((_) => _),
+        );
         this._loading.next('Saving booking');
+        console.log('Zones:', value.zones, { ...value });
         delete value.booking_asset;
         if (value.all_day) {
             value.date = startOfDay(value.date).valueOf();
