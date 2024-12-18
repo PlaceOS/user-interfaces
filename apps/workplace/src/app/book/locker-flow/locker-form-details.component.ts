@@ -67,7 +67,10 @@ import { OrganisationService } from '@placeos/organisation';
                         </mat-checkbox>
                     </div>
                 </div>
-                <div class="flex items-center space-x-2">
+                <div
+                    class="flex items-center space-x-2"
+                    *ngIf="!form.value.all_day"
+                >
                     <div class="flex-1 w-1/3">
                         <label for="start-time">
                             {{ 'FORM.TIME_START' | translate }}<span>*</span>
