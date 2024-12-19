@@ -15,6 +15,7 @@ import { BehaviorSubject } from 'rxjs';
 
 import { DesksStateService } from '../../app/desks/desks-state.service';
 import { PointsAssetModalComponent } from '../../app/points/asset-modal.component';
+import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
 
 describe('PointsAssetModalComponent', () => {
     let spectator: Spectator<PointsAssetModalComponent>;
@@ -32,6 +33,7 @@ describe('PointsAssetModalComponent', () => {
             MockComponent(CounterComponent),
             MockComponent(TimeFieldComponent),
             MockComponent(IconComponent),
+            MockComponent(SettingsToggleComponent),
         ],
         imports: [
             MatFormFieldModule,

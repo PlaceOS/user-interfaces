@@ -7,6 +7,7 @@ import { MockComponent, MockDirective, MockPipe, MockProvider } from 'ng-mocks';
 import { SettingsService } from '@placeos/common';
 import { SanitizePipe, UserAvatarComponent } from '@placeos/components';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
+import { LevelPipe } from 'libs/components/src/lib/level.pipe';
 
 describe('CheckinComponent', () => {
     let spectator: SpectatorRouting<CheckinResultsComponent>;
@@ -23,6 +24,7 @@ describe('CheckinComponent', () => {
             MockPipe(SanitizePipe),
             MockComponent(UserAvatarComponent),
             MockDirective(AuthenticatedImageDirective),
+            MockPipe(LevelPipe),
         ],
     });
 

@@ -1,4 +1,5 @@
 import { addMinutes, isAfter, isBefore } from 'date-fns';
+
 import { User } from 'libs/users/src/lib/user.class';
 
 export interface BookingRuleset {
@@ -90,17 +91,18 @@ export function addToDate(add: string, date: Date | number = new Date()) {
 export function filterResourcesFromRules(
     resources: BookableResource[],
     details: BookingRuleDetails,
-    ruleset_list: BookingRuleset[]
+    ruleset_list: BookingRuleset[],
 ) {
     return resources.filter(
         (_) =>
-            !rulesForResource({ ...details, resource: _ }, ruleset_list)?.hidden
+            !rulesForResource({ ...details, resource: _ }, ruleset_list)
+                ?.hidden,
     );
 }
 
 export function rulesForResource(
     details: BookingRuleDetails,
-    ruleset_list: BookingRuleset[]
+    ruleset_list: BookingRuleset[],
 ): BookingRules {
     if (!(ruleset_list instanceof Array)) return DEFAULT_RULES;
     for (const ruleset of ruleset_list) {
@@ -131,7 +133,7 @@ export function rulesForResource(
 
 export function checkRulesMatch(
     { date, duration, host, resource }: BookingRuleDetails,
-    ruleset: BookingRuleset
+    ruleset: BookingRuleset,
 ): boolean {
     const date_obj = new Date(date);
     let matches = 0;

@@ -2,9 +2,12 @@ import { showUser } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { delay, map, retry } from 'rxjs/operators';
 
-import { StaffUser } from '../../../users/src/lib/user.class';
+import { StaffUser } from 'libs/users/src/lib/user.class';
 
-const EMPTY_USER = new StaffUser();
+const EMPTY_USER = {
+    name: '<empty>',
+    email: '<empty>@place.tech',
+} as StaffUser;
 
 const _current_user = new BehaviorSubject<StaffUser>(null);
 const _change = new BehaviorSubject(0);

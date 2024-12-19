@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+
 import * as DEFAULT_LOCALE from 'shared/assets/locale/en-AU.json';
 
 interface LocaleStore {

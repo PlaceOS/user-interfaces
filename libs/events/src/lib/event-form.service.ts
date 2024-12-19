@@ -44,20 +44,26 @@ import {
     queryResourceAvailability,
     saveBooking,
 } from 'libs/bookings/src/lib/bookings.fn';
-import { CalendarEvent } from './event.class';
-import { querySpaceAvailability, saveEvent, showEvent } from './events.fn';
-import { generateEventForm, newCalendarEventFromBooking } from './utilities';
 import { newBookingFromCalendarEvent } from 'libs/bookings/src/lib/booking.utilities';
 import { PaymentsService } from 'libs/payments/src/lib/payments.service';
-import { EventLinkModalComponent } from './event-link-modal.component';
 import { requestSpacesForZone } from 'libs/spaces/src/lib/space.utilities';
-import { periodInFreeTimeSlot } from './helpers';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 import { validateAssetRequestsForResource } from 'libs/assets/src/lib/assets.fn';
 import { User } from 'libs/users/src/lib/user.class';
 import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
-import { removeEvent } from './events.fn';
 import { AssetRequest } from 'libs/assets/src/lib/asset-request.class';
+
+import { CalendarEvent } from './event.class';
+import {
+    querySpaceAvailability,
+    saveEvent,
+    showEvent,
+    removeEvent,
+} from './events.fn';
+import { periodInFreeTimeSlot } from './helpers';
+import { generateEventForm, newCalendarEventFromBooking } from './utilities';
+
+import { EventLinkModalComponent } from './event-link-modal.component';
 
 const BOOKING_URLS = [
     'book/rooms',
@@ -107,7 +113,9 @@ export class EventFormService extends AsyncHandler {
     private _space_pipe: SpacePipe;
 
     public last_success: CalendarEvent = new CalendarEvent(
-        JSON.parse(sessionStorage.getItem('PLACEOS.last_booked_event') || '{}'),
+        JSON.parse(
+            sessionStorage?.getItem('PLACEOS.last_booked_event') || '{}',
+        ),
     );
     public readonly loading = this._loading.asObservable();
     public readonly options = this._options.asObservable();
@@ -135,7 +143,7 @@ export class EventFormService extends AsyncHandler {
                                     _.details instanceof Array ? _.details : [],
                             })),
                         )
-                        .toPromise(),
+                        ?.toPromise(),
                 ),
             ),
         ),
@@ -262,7 +270,7 @@ export class EventFormService extends AsyncHandler {
         debounceTime(300),
         map(([list, bookings, booking_rules]) => {
             this._loading.next(i18n('CALENDAR_EVENT.SPACE_STATUS_LOADING'));
-            let { ical_uid, date, duration, all_day } =
+            const { ical_uid, date, duration, all_day } =
                 this._form.getRawValue();
             list = filterResourcesFromRules(
                 list,
@@ -288,7 +296,7 @@ export class EventFormService extends AsyncHandler {
                 })
                 .sort((a, b) => a.capacity - b.capacity);
         }),
-        tap((_) => this._loading.next('')),
+        tap(() => this._loading.next('')),
         shareReplay(1),
     );
 
@@ -303,7 +311,7 @@ export class EventFormService extends AsyncHandler {
             switchMap(([spaces, booking_rules]) => {
                 if (!spaces.length) return of([]);
                 this._loading.next(i18n('CALENDAR_EVENT.SPACE_STATUS_LOADING'));
-                let { date, duration, all_day } = this._form.getRawValue();
+                const { date, duration, all_day } = this._form.getRawValue();
                 const availability_method = this.has_calendar
                     ? querySpaceAvailability
                     : queryResourceAvailability;
@@ -324,7 +332,7 @@ export class EventFormService extends AsyncHandler {
                     [this.event?.date, this.event?.duration],
                 ).pipe(
                     map((availability) => {
-                        var list = spaces.filter((_, i) => availability[i]);
+                        let list = spaces.filter((_, i) => availability[i]);
                         list = filterResourcesFromRules(
                             list,
                             {
@@ -337,10 +345,10 @@ export class EventFormService extends AsyncHandler {
                         ) as any;
                         return list;
                     }),
-                    catchError((_) => []),
+                    catchError(() => of([])),
                 );
             }),
-            tap((_) => this._loading.next('')),
+            tap(() => this._loading.next('')),
             shareReplay(1),
         );
 
@@ -398,7 +406,7 @@ export class EventFormService extends AsyncHandler {
         const previous = {};
         this.subscription(
             'form_change',
-            this._form.valueChanges.subscribe(({ date, duration, assets }) => {
+            this._form.valueChanges.subscribe(({ date, duration }) => {
                 if (
                     (date && date !== previous['date']) ||
                     (duration && duration !== previous['duration'])
@@ -438,7 +446,7 @@ export class EventFormService extends AsyncHandler {
         this._event.next(event);
         if (event.recurring_event_id) {
             const master = await showEvent(event.recurring_event_id)
-                .toPromise()
+                ?.toPromise()
                 .catch(() => null);
             if (master) {
                 (this._event.getValue() as any).recurrence = {
@@ -548,7 +556,7 @@ export class EventFormService extends AsyncHandler {
 
     public readonly cancelPostForm = () => this.unsub('post-event-form');
 
-    public openEventLinkModal(force: boolean = false) {
+    public openEventLinkModal(force = false) {
         const form = this._form;
         form.markAllAsTouched();
         if (!form.valid && !force) return;
@@ -572,14 +580,14 @@ export class EventFormService extends AsyncHandler {
             if (!form.valid && !force) {
                 this._loading.next('');
                 return reject(
-                    `Some form fields are invalid. [${getInvalidFields(
-                        form,
-                    ).join(', ')}]`,
+                    i18n('FORM.INVALID_FIELDS', {
+                        field_list: getInvalidFields(form).join(', '),
+                    }),
                 );
             }
             const ical_uid = this.event?.ical_uid;
             let value = this._form.getRawValue();
-            let {
+            const {
                 id,
                 host,
                 date,
@@ -597,13 +605,13 @@ export class EventFormService extends AsyncHandler {
                         !ignore_space_check.includes(_.id),
                 );
             }
-            let catering = form.get('catering')?.value || [];
+            const catering = form.get('catering')?.value || [];
             if (recurrence?._pattern && recurrence?._pattern !== 'none') {
                 this.form.patchValue({ recurring: true });
                 value = this._form.getRawValue();
             }
             let changed_times = false;
-            let changed_spaces = spaces.some(
+            const changed_spaces = spaces.some(
                 (s) => !event.resources?.find((_) => _.id === s.id),
             );
             if (
@@ -757,7 +765,7 @@ export class EventFormService extends AsyncHandler {
                                   system_id: spaces[0].id,
                               }
                             : {},
-                    ).toPromise();
+                    )?.toPromise();
                     console.warn("Couldn't update asset requests", e);
                     if (e?.status === 409) {
                         notifyError(i18n('CALENDAR_EVENT.ASSETS_CLASH_ERROR'));
@@ -851,7 +859,7 @@ export class EventFormService extends AsyncHandler {
                       } as any),
                   ).pipe(map((_) => newCalendarEventFromBooking(_)))
                 : saveEvent(event, query)
-        ).toPromise();
+        )?.toPromise();
     }
 
     private async checkSelectedSpacesAreAvailable(
@@ -886,7 +894,7 @@ export class EventFormService extends AsyncHandler {
                 date,
                 duration,
                 ignore,
-            ).toPromise();
+            )?.toPromise();
             if (!availability.every((_) => _))
                 throw i18n(
                     spaces.length > 1

@@ -11,12 +11,16 @@ import { MockComponent } from 'ng-mocks';
 import { CateringItem } from '../lib/catering-item.class';
 
 import { CateringItemOptionModalComponent } from '../lib/catering-option-modal.component';
+import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
 
 describe('CateringItemOptionModalComponent', () => {
     let spectator: Spectator<CateringItemOptionModalComponent>;
     const createComponent = createComponentFactory({
         component: CateringItemOptionModalComponent,
-        declarations: [MockComponent(IconComponent)],
+        declarations: [
+            MockComponent(IconComponent),
+            MockComponent(SettingsToggleComponent),
+        ],
         providers: [
             {
                 provide: MAT_DIALOG_DATA,

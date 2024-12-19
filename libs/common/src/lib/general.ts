@@ -1,11 +1,12 @@
 import { FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { first } from 'rxjs/operators';
+
 import {
     ConfirmModalComponent,
     ConfirmModalData,
     CONFIRM_METADATA,
-} from '../../../components/src/lib/confirm-modal.component';
+} from 'libs/components/src/lib/confirm-modal.component';
 import { HashMap } from './types';
 
 /** Available console output streams. */
@@ -383,7 +384,7 @@ export function is24HourTime(): boolean {
     return localeString.indexOf('am') < 0 && localeString.indexOf('pm') < 0;
 }
 
-export function getInvalidFields(form: FormGroup, prefix: string = '') {
+export function getInvalidFields(form: FormGroup, prefix = '') {
     let invalid = [];
     for (const key in form.controls) {
         if (form.controls[key] instanceof FormGroup) {

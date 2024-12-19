@@ -4,20 +4,22 @@ import {
     currentUser,
     hasNewVersion,
     LocaleService,
-    SettingsService,
     VERSION,
 } from '@placeos/common';
-import { ChangelogModalComponent } from '@placeos/components';
-import { OrganisationService } from '@placeos/organisation';
+
+import { ChangelogModalComponent } from './changelog-modal.component';
 import { logout } from '@placeos/ts-client';
-import { WFHSettingsModalComponent } from 'libs/users/src/lib/wfh-settings-modal.component';
 import { AccessibilityTooltipComponent } from './accessibility-tooltip.component';
 import { BuildingSelectComponent } from './building-select.component';
 import { HelpTooltipComponent } from './help-tooltip.component';
 import { LanguageSelectComponent } from './language-tooltip.component';
 import { RegionSelectComponent } from './region-select.component';
-import { SupportTicketModalComponent } from 'libs/form-fields/src/lib/support-ticket-modal.component';
 import { WorkLocationTooltipComponent } from './work-location-tooltip.component';
+
+import { SettingsService } from 'libs/common/src/lib/settings.service';
+import { WFHSettingsModalComponent } from 'libs/users/src/lib/wfh-settings-modal.component';
+import { SupportTicketModalComponent } from 'libs/form-fields/src/lib/support-ticket-modal.component';
+import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 
 export interface AppLocale {
     id: string;

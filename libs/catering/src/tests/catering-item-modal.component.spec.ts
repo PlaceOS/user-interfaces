@@ -14,6 +14,7 @@ import { MockComponent, MockProvider } from 'ng-mocks';
 
 import { CateringItemModalComponent } from '../lib/catering-item-modal.component';
 import { CateringItem } from '../lib/catering-item.class';
+import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
 
 describe('CateringItemModalComponent', () => {
     let spectator: Spectator<CateringItemModalComponent>;
@@ -23,6 +24,7 @@ describe('CateringItemModalComponent', () => {
             MockComponent(IconComponent),
             MockComponent(CounterComponent),
             MockComponent(ImageListFieldComponent),
+            MockComponent(SettingsToggleComponent),
         ],
         providers: [
             MockProvider(MAT_DIALOG_DATA, {

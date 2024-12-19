@@ -426,9 +426,7 @@ export class BookingDetailsModalComponent {
         private _settings: SettingsService,
         private _org: OrganisationService,
         private _dialog: MatDialog,
-    ) {
-        console.log('Valid assets:', this.booking?.valid_assets);
-    }
+    ) {}
 
     public get period() {
         if (this.booking?.is_all_day) return i18n('COMMON.ALL_DAY');
