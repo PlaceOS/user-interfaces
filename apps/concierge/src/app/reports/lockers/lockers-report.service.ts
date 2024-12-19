@@ -60,6 +60,7 @@ export class LockersReportService {
                         ? this._org.region?.id
                         : '') ||
                     this._org.building?.id,
+                limit: 10000,
             });
         }),
         tap((_) => {

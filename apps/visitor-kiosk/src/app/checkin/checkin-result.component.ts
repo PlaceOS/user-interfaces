@@ -151,6 +151,7 @@ export class CheckinResultsComponent extends AsyncHandler implements OnInit {
     public qr_code = '';
     public date = Date.now();
     public zones = [];
+    public e;
     public readonly event = this._checkin.event;
     public readonly guest = this._checkin.guest;
     public readonly level = combineLatest([
@@ -203,7 +204,10 @@ export class CheckinResultsComponent extends AsyncHandler implements OnInit {
         startWith(DEFAULT_TEMPLATE),
     );
 
-    public readonly print = () => window.print();
+    public readonly print = () => {
+        this.qr_code = generateQRCode(this.e?.asset_id);
+        this.timeout('print', () => window.print());
+    };
 
     public get time_format() {
         return this._settings.time_format;
@@ -239,9 +243,9 @@ export class CheckinResultsComponent extends AsyncHandler implements OnInit {
         this.event.pipe(first()).subscribe((event) => {
             !event ? this.previous() : '';
             if (event) {
-                this.qr_code = generateQRCode(event.asset_id);
                 this.date = event.date || event.booking_start * 1000;
                 this.zones = event.zones;
+                this.e = event;
                 console.log('Event:', event);
             }
         });
