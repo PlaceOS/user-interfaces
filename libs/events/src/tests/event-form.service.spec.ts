@@ -61,6 +61,7 @@ describe('EventFormService', () => {
         expect(spectator.service).toBeTruthy();
     });
 
+    /// TODO: Fix
     // it('should handle view changes', fakeAsync(() => {
     //     expect(spectator.service.view).toBe('form');
     //     spectator.service.setView('find');

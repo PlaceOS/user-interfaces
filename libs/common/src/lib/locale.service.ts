@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 
 import * as DEFAULT_LOCALE from 'shared/assets/locale/en-AU.json';
+import { log } from './general';
 
 interface LocaleStore {
     expiry: number;
@@ -74,6 +75,7 @@ export class LocaleService {
         this._current_locale_short = this._current_locale.split('-')[0];
         if (!this._locale_mappings[locale]) this._loadLocale(locale);
         localStorage.setItem('APP.locale', locale);
+        log('LOCALE', `Locale set to "${locale}"`);
     }
 
     private async _loadLocale(locale: string) {
