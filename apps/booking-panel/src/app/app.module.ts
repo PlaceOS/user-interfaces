@@ -1,6 +1,11 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { APP_INITIALIZER, ErrorHandler, NgModule } from '@angular/core';
+import {
+    APP_INITIALIZER,
+    ErrorHandler,
+    LOCALE_ID,
+    NgModule,
+} from '@angular/core';
 import {
     provideHttpClient,
     withInterceptorsFromDi,
@@ -8,10 +13,6 @@ import {
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ServiceWorkerModule } from '@angular/service-worker';
-
-import { HttpClient } from '@angular/common/http';
-import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
-import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
@@ -43,11 +44,7 @@ import { PaymentsModule } from '@placeos/payments';
 import { AssetsModule } from '@placeos/assets';
 import { SharedExploreModule } from '@placeos/explore';
 import { EventPanelComponent } from './event-panel.component';
-
-// AoT requires an exported function for factories
-export function HttpLoaderFactory(http: HttpClient) {
-    return new TranslateHttpLoader(http, './assets/locale/', '.json');
-}
+import { LocaleService } from '@placeos/common';
 
 const MAT_MODULES: any[] = [
     MatFormFieldModule,
@@ -85,14 +82,6 @@ const MAT_MODULES: any[] = [
         AssetsModule,
         SharedExploreModule,
         ...MAT_MODULES,
-        TranslateModule.forRoot({
-            defaultLanguage: 'en',
-            loader: {
-                provide: TranslateLoader,
-                useFactory: HttpLoaderFactory,
-                deps: [HttpClient],
-            },
-        }),
         ServiceWorkerModule.register('ngsw-worker.js', {
             enabled: environment.production,
         }),
@@ -113,6 +102,11 @@ const MAT_MODULES: any[] = [
             useFactory: () => () => {},
             deps: [Sentry.TraceService],
             multi: true,
+        },
+        {
+            provide: LOCALE_ID,
+            deps: [LocaleService],
+            useFactory: (localeService: LocaleService) => localeService.locale,
         },
         provideHttpClient(withInterceptorsFromDi()),
     ],

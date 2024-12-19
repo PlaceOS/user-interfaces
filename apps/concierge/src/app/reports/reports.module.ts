@@ -16,7 +16,7 @@ import { ReportDesksOverallListComponent } from './desks/report-desks-overall-li
 import { ReportDesksLevelListComponent } from './desks/report-desks-level-list.component';
 import { ReportsMenuComponent } from './reports-menu.component';
 import { ReportSpacesOverallComponent } from './spaces/report-spaces-overall.component';
-import { ReportSpacesSpaceListing } from './spaces/report-spaces-space-listing.component';
+import { ReportSpacesSpaceListingComponent } from './spaces/report-spaces-space-listing.component';
 import { ReportSpacesUserListingComponent } from './spaces/report-spaces-user-listing.component';
 import { CateringReportComponent } from './catering/catering-report.component';
 import { CateringReportOverallComponent } from './catering/catering-report-overall.component';
@@ -81,7 +81,7 @@ const ROUTES: Route[] = [
         ReportSpacesComponent,
         ReportSpacesOverallComponent,
         ReportSpacesOverallListComponent,
-        ReportSpacesSpaceListing,
+        ReportSpacesSpaceListingComponent,
         ReportSpacesUserListingComponent,
 
         ReportDesksComponent,

@@ -17,7 +17,6 @@ import { RatingsWidgetComponent } from './survey-widget/ratings-widget.component
 import { SelectionWidgetComponent } from './survey-widget/selection.widget.component';
 import { SurveyWidgetComponent } from './survey-widget/survey-widget.component';
 import { TableWidgetComponent } from './survey-widget/table-widget.component';
-import { TranslateModule } from '@ngx-translate/core';
 
 @NgModule({
     imports: [
@@ -31,7 +30,6 @@ import { TranslateModule } from '@ngx-translate/core';
         MatIconModule,
         MatButtonModule,
         MatSliderModule,
-        TranslateModule.forChild(),
     ],
     declarations: [
         QuestionComponent,

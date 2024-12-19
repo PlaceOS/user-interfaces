@@ -1,6 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
-import { currentUser, notifyError, reloadUserData } from '@placeos/common';
+import {
+    currentUser,
+    i18n,
+    notifyError,
+    reloadUserData,
+} from '@placeos/common';
 import { addDays, set, startOfMinute, startOfWeek } from 'date-fns';
 import { WorktimeBlock, WorktimePreference } from './user.class';
 import { showUser, updateUser } from '@placeos/ts-client';
@@ -9,7 +14,9 @@ import { showUser, updateUser } from '@placeos/ts-client';
     selector: `wfh-settings-modal`,
     template: `
         <header class="relative flex items-center justify-between">
-            <h2 class="font-medium text-xl">Working Location Settings</h2>
+            <h2 class="font-medium text-xl">
+                {{ 'COMMON.WORK_LOCATION_SETTINGS' | translate }}
+            </h2>
             <button
                 icon
                 matRipple
@@ -24,7 +31,7 @@ import { showUser, updateUser } from '@placeos/ts-client';
             class="relative flex flex-col rounded w-[40rem] max-w-full p-4 space-y-2 max-h-[65vh] overflow-auto"
             *ngIf="!loading; else load_state"
         >
-            <h3>Working Days</h3>
+            <h3>{{ 'COMMON.WORK_DAYS' | translate }}</h3>
             <div
                 class="flex items-center justify-between w-full pb-4 space-x-2"
             >
@@ -36,7 +43,7 @@ import { showUser, updateUser } from '@placeos/ts-client';
                     {{ day | date: 'EEE' }}
                 </mat-checkbox>
             </div>
-            <h3>Work Hours</h3>
+            <h3>{{ 'COMMON.WORK_HOURS' | translate }}</h3>
             <ng-container *ngIf="has_working_days; else empty_state">
                 <ng-container *ngFor="let day of days">
                     <ng-container *ngIf="weekdays_enabled[day.getDay()]">
@@ -144,7 +151,7 @@ import { showUser, updateUser } from '@placeos/ts-client';
                 >
                     <img src="assets/icons/no-results.svg" class="m-auto" />
                     <p class="opacity-30">
-                        No work days are currently set for this user
+                        {{ 'COMMON.WORK_SETTINGS_EMPTY' | translate }}
                     </p>
                 </div>
             </ng-template>
@@ -154,7 +161,7 @@ import { showUser, updateUser } from '@placeos/ts-client';
             *ngIf="!loading"
         >
             <button btn matRipple class="w-48" (click)="saveChanges()">
-                Save
+                {{ 'COMMON.SAVE' | translate }}
             </button>
         </footer>
         <ng-template #load_state>
@@ -164,7 +171,7 @@ import { showUser, updateUser } from '@placeos/ts-client';
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
                 <p class="opacity-30">
-                    Saving changes to work location settings...
+                    {{ 'COMMON.WORK_SETTINGS_SAVE' | translate }}
                 </p>
             </div>
         </ng-template>
@@ -172,12 +179,8 @@ import { showUser, updateUser } from '@placeos/ts-client';
     styles: [``],
 })
 export class WFHSettingsModalComponent implements OnInit {
-    public readonly options = [
-        { id: 'wfo', name: 'Office' },
-        { id: 'wfh', name: 'Home' },
-        { id: 'aol', name: 'Leave' },
-    ];
-    public option = this.options[0].id;
+    public options = [];
+    public option = '';
     public settings: WorktimePreference[] = [];
     public weekdays_enabled: Record<number, boolean> = {};
     public changed = false;
@@ -215,6 +218,12 @@ export class WFHSettingsModalComponent implements OnInit {
             if (day.blocks.length)
                 this.weekdays_enabled[day.day_of_week] = true;
         }
+        this.options = [
+            { id: 'wfo', name: i18n('COMMON.WORK_OFFICE'), icon: 'business' },
+            { id: 'wfh', name: i18n('COMMON.WORK_HOME'), icon: 'home' },
+            { id: 'aol', name: i18n('COMMON.WORK_LEAVE'), icon: 'event_busy' },
+        ];
+        this.option = this.options[0].id;
     }
 
     public timeFrom(hours: number) {

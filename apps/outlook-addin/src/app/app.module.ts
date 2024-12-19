@@ -1,7 +1,11 @@
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
-import { HttpClient, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import {
+    HttpClient,
+    provideHttpClient,
+    withInterceptorsFromDi,
+} from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { MatSnackBarModule } from '@angular/material/snack-bar';
@@ -27,16 +31,10 @@ import { MeetingBookingComponent } from './meetings/meeting-booking.component';
 import { MeetingBookingFormComponent } from './meetings/meeting-form.component';
 import { MeetingBookingSuccessComponent } from './meetings/meeting-success.component';
 import { MeetingFlowConfirmComponent } from 'apps/workplace/src/app/book/meeting-flow/meeting-flow-confirm.component';
-import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
-import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { MatSelectModule } from '@angular/material/select';
 
-// AoT requires an exported function for factories
-export function HttpLoaderFactory(http: HttpClient) {
-    return new TranslateHttpLoader(http, './assets/locale/', '.json');
-}
-
-@NgModule({ declarations: [
+@NgModule({
+    declarations: [
         AppComponent,
         DeskBookingComponent,
         DeskBookingFormComponent,
@@ -46,7 +44,9 @@ export function HttpLoaderFactory(http: HttpClient) {
         MeetingBookingSuccessComponent,
         MeetingFlowConfirmComponent,
     ],
-    bootstrap: [AppComponent], imports: [BrowserModule,
+    bootstrap: [AppComponent],
+    imports: [
+        BrowserModule,
         BrowserAnimationsModule,
         AppRoutingModule,
         BookModule,
@@ -62,15 +62,10 @@ export function HttpLoaderFactory(http: HttpClient) {
         ReactiveFormsModule,
         SharedCateringModule,
         SharedExploreModule,
-        TranslateModule.forRoot({
-            defaultLanguage: 'en',
-            loader: {
-                provide: TranslateLoader,
-                useFactory: HttpLoaderFactory,
-                deps: [HttpClient],
-            },
-        }),
         ServiceWorkerModule.register('ngsw-worker.js', {
             enabled: environment.production,
-        })], providers: [SpacePipe, provideHttpClient(withInterceptorsFromDi())] })
+        }),
+    ],
+    providers: [SpacePipe, provideHttpClient(withInterceptorsFromDi())],
+})
 export class AppModule {}

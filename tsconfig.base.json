@@ -13,6 +13,7 @@
         "lib": ["es2017", "dom"],
         "skipLibCheck": true,
         "skipDefaultLibCheck": true,
+        "resolveJsonModule": true,
         "baseUrl": ".",
         "paths": {
             "@placeos/assets": ["libs/assets/src/index.ts"],

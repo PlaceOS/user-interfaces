@@ -1,4 +1,4 @@
-import { Component, OnInit, Optional } from '@angular/core';
+import { Component, Inject, LOCALE_ID, OnInit, Optional } from '@angular/core';
 import { SwUpdate } from '@angular/service-worker';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Clipboard } from '@angular/cdk/clipboard';
@@ -34,6 +34,7 @@ import {
     hasNewVersion,
     requestScreenWakeLock,
     setTranslationService,
+    LocaleService,
 } from '@placeos/common';
 import { MapsPeopleService } from 'libs/common/src/lib/mapspeople.service';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
@@ -49,7 +50,7 @@ import {
     OpenStack,
 } from '@placeos/cloud-uploads';
 import { setCustomHeaders } from '@placeos/svg-viewer';
-import { TranslateService } from '@ngx-translate/core';
+import { DatePipe } from '@angular/common';
 
 const START_QUERY = location.search;
 
@@ -124,7 +125,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
         private _route: ActivatedRoute,
         private _router: Router,
         private _maps: MapsPeopleService,
-        @Optional() private _translate: TranslateService,
+        @Optional() private _locale: LocaleService,
     ) {
         super();
     }
@@ -160,7 +161,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
                 localStorage.setItem('PlaceOS.hide_nav', 'true');
             if (params.has('lang')) {
                 const locale = params.get('lang');
-                this._translate?.use(locale);
+                this._locale?.setLocale(locale);
                 localStorage.setItem('PLACEOS.locale', locale);
             }
             if (params.has('x-api-key')) {
@@ -168,7 +169,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
             }
         });
         setNotifyOutlet(this._snackbar);
-        setTranslationService(this._translate);
+        setTranslationService(this._locale);
         /** Wait for settings to initialise */
         await this._settings.initialised.pipe(first((_) => _)).toPromise();
         setAppName(this._settings.get('app.short_name'));
@@ -249,9 +250,8 @@ export class AppComponent extends AsyncHandler implements OnInit {
         try {
             let locale = localStorage.getItem('PLACEOS.locale');
             const locales = this._settings.get('app.locales') || [];
-            this._translate?.addLangs(locales.map((_) => _.id));
             if (locale) {
-                this._translate?.use(locale);
+                this._locale?.setLocale(locale);
             } else {
                 const list = navigator.languages;
                 for (const lang of list) {
@@ -259,7 +259,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
                     if (!locale)
                         locale = locales.find((_) => lang.includes(_.id));
                     if (locale) {
-                        this._translate?.use(lang);
+                        this._locale?.setLocale(lang);
                         localStorage.setItem('PLACEOS.locale', lang);
                         break;
                     }

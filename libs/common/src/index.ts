@@ -11,3 +11,4 @@ export * from './lib/shorten.fn';
 export * from './lib/fixed-device-helpers';
 export * from './lib/translate';
 export * from './lib/calendar-links';
+export * from './lib/locale.service';

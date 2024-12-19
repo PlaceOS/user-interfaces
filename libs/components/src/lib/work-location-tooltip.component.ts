@@ -1,6 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { currentUser, reloadUserData } from '@placeos/common';
+import { currentUser, i18n, reloadUserData } from '@placeos/common';
 import { updateUser } from '@placeos/ts-client';
 import { WorktimePreference } from '@placeos/users';
 import {
@@ -22,11 +22,13 @@ import { WFHSettingsModalComponent } from 'libs/users/src/lib/wfh-settings-modal
             class="flex flex-col w-[18.5rem] rounded bg-base-100 shadow relative -top-12 -right-1 overflow-hidden"
         >
             <div class="flex items-center justify-between px-2">
-                <h3 class="px-2 py-4 font-medium">Work Location</h3>
+                <h3 class="px-2 py-4 font-medium">
+                    {{ 'COMMON.WORK_LOCATION' | translate }}
+                </h3>
                 <button
                     icon
                     matRipple
-                    matTooltip="Edit Work Location Preferences"
+                    [matTooltip]="'COMMON.WORK_LOCATION_EDIT' | translate"
                     matTooltipPosition="left"
                     class="hover:bg-base-200"
                     (click)="editSettings()"
@@ -90,7 +92,9 @@ import { WFHSettingsModalComponent } from 'libs/users/src/lib/wfh-settings-modal
                                     <app-icon class="text-2xl">{{
                                         loc.icon
                                     }}</app-icon>
-                                    <div class="pr-8">{{ loc.name }}</div>
+                                    <div class="pr-8">
+                                        {{ loc.name | translate }}
+                                    </div>
                                 </div>
                             </button>
                         </mat-menu>
@@ -112,22 +116,19 @@ import { WFHSettingsModalComponent } from 'libs/users/src/lib/wfh-settings-modal
                 class="flex flex-col items-center justify-center p-8 space-y-2 w-full opacity-30"
             >
                 <app-icon class="text-6xl">event_busy</app-icon>
-                <p class="text-center text-sm">No work location for today.</p>
                 <p class="text-center text-sm">
-                    Click the edit button on the top right to edit your work
-                    location preferences.
+                    {{ 'COMMON.WORK_LOCATION_EMPTY' | translate }}
+                </p>
+                <p class="text-center text-sm">
+                    {{ 'COMMON.WORK_LOCATION_EDIT_INFO' | translate }}
                 </p>
             </div>
         </ng-template>
     `,
     styles: [``],
 })
-export class WorkLocationTooltipComponent {
-    public readonly locations = [
-        { id: 'wfo', name: 'Office', icon: 'business' },
-        { id: 'wfh', name: 'Home', icon: 'home' },
-        { id: 'aol', name: 'Leave', icon: 'event_busy' },
-    ];
+export class WorkLocationTooltipComponent implements OnInit {
+    public locations = [];
     public settings: WorktimePreference[];
     public overrides: Record<string, WorktimePreference>;
 
@@ -149,6 +150,11 @@ export class WorkLocationTooltipComponent {
         const user = currentUser();
         this.settings = user.work_preferences;
         this.overrides = user.work_overrides;
+        this.locations = [
+            { id: 'wfo', name: i18n('COMMON.WORK_OFFICE'), icon: 'business' },
+            { id: 'wfh', name: i18n('COMMON.WORK_HOME'), icon: 'home' },
+            { id: 'aol', name: i18n('COMMON.WORK_LEAVE'), icon: 'event_busy' },
+        ];
     }
 
     public location_icon(time: number) {

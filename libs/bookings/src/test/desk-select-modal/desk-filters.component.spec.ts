@@ -9,7 +9,6 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { TranslateModule } from '@ngx-translate/core';
 import { BookingFormService } from '@placeos/bookings';
 import { SettingsService } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
@@ -65,7 +64,6 @@ describe('DeskFiltersComponent', () => {
             MockModule(MatSelectModule),
             MockModule(FormsModule),
             MockModule(ReactiveFormsModule),
-            MockModule(TranslateModule),
         ],
     });
 

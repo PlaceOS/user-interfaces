@@ -5,12 +5,15 @@ import {
 } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ServiceWorkerModule } from '@angular/service-worker';
-import { APP_INITIALIZER, ErrorHandler, NgModule } from '@angular/core';
+import {
+    APP_INITIALIZER,
+    ErrorHandler,
+    LOCALE_ID,
+    NgModule,
+} from '@angular/core';
 import { Router } from '@angular/router';
 
 import { HttpClient } from '@angular/common/http';
-import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
-import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MAT_CHIPS_DEFAULT_OPTIONS } from '@angular/material/chips';
@@ -23,10 +26,14 @@ import { UIModule } from './ui/ui.module';
 
 import * as Sentry from '@sentry/angular';
 
-// AoT requires an exported function for factories
-export function HttpLoaderFactory(http: HttpClient) {
-    return new TranslateHttpLoader(http, './assets/locale/', '.json');
-}
+import localeFr from '@angular/common/locales/fr';
+import localeJa from '@angular/common/locales/ja';
+import localeAr from '@angular/common/locales/ar';
+import localeZh from '@angular/common/locales/zh';
+import localeEs from '@angular/common/locales/es';
+import localeIt from '@angular/common/locales/it';
+import { registerLocaleData } from '@angular/common';
+import { LocaleService } from '@placeos/common';
 
 @NgModule({
     declarations: [AppComponent],
@@ -37,14 +44,6 @@ export function HttpLoaderFactory(http: HttpClient) {
         MatSnackBarModule,
         BrowserAnimationsModule,
         UIModule,
-        TranslateModule.forRoot({
-            defaultLanguage: 'en',
-            loader: {
-                provide: TranslateLoader,
-                useFactory: HttpLoaderFactory,
-                deps: [HttpClient],
-            },
-        }),
         ServiceWorkerModule.register('ngsw-worker.js', {
             enabled: environment.production,
         }),
@@ -72,7 +71,21 @@ export function HttpLoaderFactory(http: HttpClient) {
             deps: [Sentry.TraceService],
             multi: true,
         },
+        {
+            provide: LOCALE_ID,
+            deps: [LocaleService],
+            useFactory: (localeService: LocaleService) => localeService.locale,
+        },
         provideHttpClient(withInterceptorsFromDi()),
     ],
 })
-export class AppModule {}
+export class AppModule {
+    constructor() {
+        registerLocaleData(localeFr);
+        registerLocaleData(localeAr);
+        registerLocaleData(localeJa);
+        registerLocaleData(localeZh);
+        registerLocaleData(localeEs);
+        registerLocaleData(localeIt);
+    }
+}

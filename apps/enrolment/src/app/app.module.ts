@@ -5,9 +5,6 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { Route, Router, RouterModule } from '@angular/router';
 import { ComponentsModule } from '@placeos/components';
 import { FormFieldsModule } from '@placeos/form-fields';
-import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
-import { HttpClient } from '@angular/common/http';
-import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 
 import { AppComponent } from './app.component';
 import { EnrolmentErrorComponent } from './enrolment-error.component';
@@ -31,12 +28,6 @@ const ROUTES: Route[] = [
     { path: ':view', component: EnrolmentComponent },
     { path: '**', redirectTo: '' },
 ];
-
-// AoT requires an exported function for factories
-export function HttpLoaderFactory(http: HttpClient) {
-    return new TranslateHttpLoader(http, './assets/locale/', '.json');
-}
-
 @NgModule({
     declarations: [
         AppComponent,
@@ -67,14 +58,6 @@ export function HttpLoaderFactory(http: HttpClient) {
             // Register the ServiceWorker as soon as the app is stable
             // or after 30 seconds (whichever comes first).
             registrationStrategy: 'registerWhenStable:30000',
-        }),
-        TranslateModule.forRoot({
-            defaultLanguage: 'en',
-            loader: {
-                provide: TranslateLoader,
-                useFactory: HttpLoaderFactory,
-                deps: [HttpClient],
-            },
         }),
     ],
     providers: [

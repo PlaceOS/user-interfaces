@@ -8,7 +8,6 @@ import {
 } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 
 import { AppComponent } from '../../../../libs/components/src/lib/app.component';
 
@@ -24,15 +23,8 @@ import { SharedSpacesModule } from '@placeos/spaces';
 import { PaymentsModule } from '@placeos/payments';
 import { AssetsModule } from '@placeos/assets';
 import { SharedBookingsModule } from '@placeos/bookings';
-import { HttpClient } from '@angular/common/http';
-import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { VisitorRegistrationComponent } from './visitor-registration.component';
 import { FormFieldsModule } from '../../../../libs/form-fields/src/lib/form-fields.module';
-
-// AoT requires an exported function for factories
-export function HttpLoaderFactory(http: HttpClient) {
-    return new TranslateHttpLoader(http, './assets/locale/', '.json');
-}
 
 @NgModule({
     declarations: [
@@ -58,14 +50,6 @@ export function HttpLoaderFactory(http: HttpClient) {
         AssetsModule,
         FormFieldsModule,
         ReactiveFormsModule,
-        TranslateModule.forRoot({
-            defaultLanguage: 'en',
-            loader: {
-                provide: TranslateLoader,
-                useFactory: HttpLoaderFactory,
-                deps: [HttpClient],
-            },
-        }),
         FormFieldsModule,
     ],
     providers: [

@@ -3,6 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import {
     currentUser,
     hasNewVersion,
+    LocaleService,
     SettingsService,
     VERSION,
 } from '@placeos/common';
@@ -17,7 +18,6 @@ import { LanguageSelectComponent } from './language-tooltip.component';
 import { RegionSelectComponent } from './region-select.component';
 import { SupportTicketModalComponent } from 'libs/form-fields/src/lib/support-ticket-modal.component';
 import { WorkLocationTooltipComponent } from './work-location-tooltip.component';
-import { TranslateService } from '@ngx-translate/core';
 
 export interface AppLocale {
     id: string;
@@ -291,7 +291,7 @@ export class UserControlsComponent {
 
     public get active_locale(): string {
         const locale_list = this.locales;
-        const locale = this._translate.currentLang;
+        const locale = this._locale.locale;
         for (const item of locale_list) {
             if (item.id === locale) return item.name;
         }
@@ -322,7 +322,7 @@ export class UserControlsComponent {
         private _settings: SettingsService,
         private _org: OrganisationService,
         private _dialog: MatDialog,
-        private _translate: TranslateService,
+        private _locale: LocaleService,
     ) {}
 
     public logout() {

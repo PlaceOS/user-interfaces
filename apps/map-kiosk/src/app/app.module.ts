@@ -14,15 +14,12 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { ComponentsModule } from '@placeos/components';
 import { SharedExploreModule } from '@placeos/explore';
 import { FormFieldsModule } from '@placeos/form-fields';
-import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 
 import * as Sentry from '@sentry/angular';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { PaymentsModule } from '@placeos/payments';
 import { AssetsModule } from '@placeos/assets';
 import { SharedBookingsModule } from '@placeos/bookings';
-import { HttpClient } from '@angular/common/http';
-import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from 'libs/components/src/lib/app.component';
@@ -34,11 +31,6 @@ import { ExploreMapStackComponent } from './explore-map-stack.component';
 import { FooterMenuComponent } from './footer-menu.component';
 import { DeskBookingComponent } from './desk-booking.component';
 import { AccessibilityControlsComponent } from './accessibility-controls.component';
-
-// AoT requires an exported function for factories
-export function HttpLoaderFactory(http: HttpClient) {
-    return new TranslateHttpLoader(http, './assets/locale/', '.json');
-}
 
 @NgModule({
     declarations: [
@@ -71,14 +63,6 @@ export function HttpLoaderFactory(http: HttpClient) {
         AssetsModule,
         ServiceWorkerModule.register('ngsw-worker.js', {
             enabled: environment.production,
-        }),
-        TranslateModule.forRoot({
-            defaultLanguage: 'en',
-            loader: {
-                provide: TranslateLoader,
-                useFactory: HttpLoaderFactory,
-                deps: [HttpClient],
-            },
         }),
     ],
     providers: [

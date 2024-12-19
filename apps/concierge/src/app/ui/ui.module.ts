@@ -38,7 +38,6 @@ import { VisitorKioskSettingsFormModalComponent } from './app-settings/visitor-k
 import { ConciergeSettingsFormModalComponent } from './app-settings/concierge-settings-form-modal.component';
 import { WorkplaceSettingsFormModalComponent } from './app-settings/workplace-settings-form-modal.component';
 import { UploadButtonComponent } from './app-settings/upload-button.component';
-import { TranslateModule } from '@ngx-translate/core';
 
 const COMPONENTS: Type<any>[] = [
     AppSettingsModalComponent,
@@ -91,7 +90,6 @@ const ANGULAR_MODULES: any[] = [FormsModule, ReactiveFormsModule];
         PaymentsModule,
         AssetsModule,
         RouterModule.forChild([]),
-        TranslateModule.forChild(),
     ],
     exports: [
         ...COMPONENTS,

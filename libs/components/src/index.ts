@@ -21,6 +21,7 @@ export * from './lib/custom-tooltip.component';
 export * from './lib/fixed.pipe';
 export * from './lib/safe.pipe';
 export * from './lib/sanitise.pipe';
+export * from './lib/translate.pipe';
 export * from './lib/virtual-keyboard.component';
 export * from './lib/global-loading.component';
 export * from './lib/map-locate-modal.component';

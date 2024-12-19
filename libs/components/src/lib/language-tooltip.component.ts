@@ -1,6 +1,5 @@
 import { Component, Inject } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
-import { SettingsService } from '@placeos/common';
+import { LocaleService, SettingsService } from '@placeos/common';
 import { CustomTooltipData } from '@placeos/components';
 
 @Component({
@@ -31,7 +30,7 @@ import { CustomTooltipData } from '@placeos/components';
 })
 export class LanguageSelectComponent {
     public readonly setLocale = (code: string) => {
-        this._translation.use(code);
+        this._locale.setLocale(code);
         localStorage.setItem('PLACEOS.locale', code);
         setTimeout(() => location.reload(), 300);
     };
@@ -45,6 +44,6 @@ export class LanguageSelectComponent {
     constructor(
         @Inject(CustomTooltipData) private _data: any,
         private _settings: SettingsService,
-        private _translation: TranslateService,
+        private _locale: LocaleService,
     ) {}
 }

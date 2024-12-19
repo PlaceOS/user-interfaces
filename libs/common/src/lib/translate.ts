@@ -1,12 +1,12 @@
-import { TranslateService } from '@ngx-translate/core';
+import { LocaleService } from './locale.service';
 
-let _service: TranslateService;
+let _service: LocaleService;
 
-export function setTranslationService(pipe: TranslateService) {
-    _service = pipe;
+export function setTranslationService(service: LocaleService) {
+    _service = service;
 }
 
 export function i18n(key: string, args: Record<string, any> = {}) {
     if (!_service) return key;
-    return _service.instant(key, args);
+    return _service.get(key, args);
 }

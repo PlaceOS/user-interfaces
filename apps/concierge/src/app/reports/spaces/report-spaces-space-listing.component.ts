@@ -13,8 +13,18 @@ import { ReportsStateService } from '../reports-state.service';
             class="m-4 rounded bg-base-100 border border-base-200 overflow-hidden"
         >
             <div class="border-b border-base-200 px-4 py-2 flex items-center">
-                <h3 class="font-bold text-xl flex-1">Room Utilisation</h3>
-                <button icon matRipple (click)="download()" *ngIf="!print">
+                <h3 class="font-bold text-xl flex-1">
+                    {{ 'APP.CONCIERGE.REPORTS_ROOMS_UTIL_HEADER' | translate }}
+                </h3>
+                <button
+                    icon
+                    matRipple
+                    [matTooltip]="
+                        'APP.CONCIERGE.REPORTS_DOWNLOAD_TABLE' | translate
+                    "
+                    (click)="download()"
+                    *ngIf="!print"
+                >
                     <app-icon>download</app-icon>
                 </button>
             </div>
@@ -22,48 +32,60 @@ import { ReportsStateService } from '../reports-state.service';
                 class="w-full block text-sm"
                 [data]="space_list"
                 [columns]="[
-                    { key: 'name', name: 'Name' },
+                    { key: 'name', name: 'FORM.NAME' | translate },
                     {
                         key: 'capacity',
-                        name: 'Capacity',
+                        name: 'COMMON.CAPACITY' | translate,
                         content: capacity_template,
                     },
                     { key: 'booking_count', name: 'Bookings' },
-                    { key: 'utilisation', name: 'Utilisation' },
+                    {
+                        key: 'utilisation',
+                        name: 'APP.CONCIERGE.REPORTS_UTILISATION' | translate,
+                    },
                     { key: 'avg_attendees', name: 'Avg. Invitees per Booking' },
                     {
                         key: 'no_shows',
-                        name: 'No Shows',
+                        name: 'APP.CONCIERGE.REPORTS_NO_SHOWS' | translate,
                         show: has_attendance | async,
                     },
                     {
                         key: 'min_attendance',
-                        name: 'Min. In-Room Attendance',
+                        name:
+                            'APP.CONCIERGE.REPORTS_MIN_ATTENDANCE' | translate,
                         show: has_attendance | async,
                     },
                     {
                         key: 'max_attendance',
-                        name: 'Max. In-Room Attendance',
+                        name:
+                            'APP.CONCIERGE.REPORTS_MAX_ATTENDANCE' | translate,
                         show: has_attendance | async,
                     },
-                    { key: 'occupancy', name: 'Occupancy %' },
+                    {
+                        key: 'occupancy',
+                        name: 'APP.CONCIERGE.REPORTS_OCCUPANCY' | translate,
+                    },
                 ]"
                 [sortable]="true"
                 [page_size]="print ? 0 : 10"
-                empty_message="No events for selected period"
+                [empty_message]="
+                    'APP.CONCIERGE.REPORTS_DAILY_EMPTY' | translate
+                "
             ></simple-table>
             <ng-template #capacity_template let-data="data">
                 <div class="p-4">
                     {{ data < 1 ? '' : data }}
-                    <span class="opacity-30" *ngIf="data < 1">Not set</span>
+                    <span class="opacity-30" *ngIf="data < 1">{{
+                        'COMMON.CAPACITY_EMPTY' | translate
+                    }}</span>
                 </div>
             </ng-template>
         </div>
     `,
     styles: [``],
 })
-export class ReportSpacesSpaceListing {
-    @Input() public print: boolean = false;
+export class ReportSpacesSpaceListingComponent {
+    @Input() public print = false;
 
     private _space_pipe = new SpacePipe();
 

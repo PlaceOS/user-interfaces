@@ -14,15 +14,19 @@ import { ReportsStateService } from '../reports-state.service';
             class="m-4 p-4 rounded bg-base-100 border border-base-200 flex justify-center items-center space-x-2"
         >
             <div class="flex flex-col items-center flex-1">
-                <h3>Business Days</h3>
+                <h3>{{ 'APP.CONCIERGE.REPORTS_BUSINESS_DAYS' | translate }}</h3>
                 <p>{{ (business_days | async) || 0 }}</p>
             </div>
             <div class="flex flex-col items-center flex-1">
-                <h3>Total Bookings</h3>
+                <h3>
+                    {{ 'APP.CONCIERGE.REPORTS_TOTAL_BOOKINGS' | translate }}
+                </h3>
                 <p>{{ (total_count | async) || 0 }}</p>
             </div>
             <div class="flex flex-col items-center flex-1">
-                <h3>Average Booking Length</h3>
+                <h3>
+                    {{ 'APP.CONCIERGE.REPORTS_AVERAGE_LENGTH' | translate }}
+                </h3>
                 <p>{{ (avg_length | async) || 'None' }}</p>
             </div>
         </div>
@@ -31,15 +35,19 @@ import { ReportsStateService } from '../reports-state.service';
             *ngIf="has_attendance | async"
         >
             <div class="flex-1 flex flex-col items-center justify-center">
-                <h3>No show count</h3>
+                <h3>{{ 'APP.CONCIERGE.REPORTS_NO_SHOWS' | translate }}</h3>
                 <p>{{ (no_shows | async) || 0 }}</p>
             </div>
             <div class="flex-1 flex flex-col items-center justify-center">
-                <h3>% of No show Bookings</h3>
+                <h3>
+                    {{ 'APP.CONCIERGE.REPORTS_NO_SHOWS_PERCENT' | translate }}
+                </h3>
                 <p>{{ (no_show_percent | async) || 0 }}%</p>
             </div>
             <div class="flex-1 flex flex-col items-center justify-center">
-                <h3>Total in-room attendance</h3>
+                <h3>
+                    {{ 'APP.CONCIERGE.REPORTS_TOTAL_ATTENDEES' | translate }}
+                </h3>
                 <p>{{ (attendance | async) || 0 }}</p>
             </div>
         </div>`,

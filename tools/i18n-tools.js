@@ -4,7 +4,7 @@ const merge = require('deepmerge');
 const dir = './shared/assets/locale';
 
 function generate_i18nFiles(lang_list) {
-    let data = fs.readFileSync(`${dir}/en.json`);
+    let data = fs.readFileSync(`${dir}/en-AU.json`);
     const json = JSON.parse(data);
     for (const lang of lang_list) {
         if (lang === 'en') continue;

@@ -1,8 +1,8 @@
 import { randomString } from 'libs/common/src/lib/general';
-import { MapLocation } from './location.class';
 import { USER_DOMAIN } from './user.utilities';
 import { Booking } from 'libs/bookings/src/lib/booking.class';
-import { format, isSameDay } from 'date-fns';
+import { format } from 'date-fns';
+import { i18n } from '@placeos/common';
 
 export interface Attachment {
     id?: string;
@@ -209,19 +209,19 @@ export class StaffUser extends User {
         const location = this.location_time(datetime);
         const in_hours = this.in_hours_time(datetime);
         if (location.includes('w') && !in_hours) {
-            return 'Outside working hours';
+            return i18n('COMMON.WORK_HOURS_OUTSIDE');
         }
         switch (location) {
             case 'wfh':
-                return 'Working from Home';
+                return i18n('COMMON.WORK_HOURS_HOME');
             case 'wfo':
-                return 'Working from Office';
+                return i18n('COMMON.WORK_HOURS_OFFICE');
             case 'ooo':
-                return 'Out of Office';
+                return i18n('COMMON.WORK_HOURS_OUT');
             case 'aol':
-                return 'Away on Leave';
+                return i18n('COMMON.WORK_HOURS_LEAVE');
             default:
-                return 'Unknown';
+                return i18n('COMMON.UNKNOWN');
         }
     }
 

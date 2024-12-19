@@ -26,7 +26,6 @@ import {
     provideHttpClient,
     withInterceptorsFromDi,
 } from '@angular/common/http';
-import { TranslateModule } from '@ngx-translate/core';
 
 import { BindingDirective } from './binding.directive';
 import { ActionIconComponent } from './action-icon.component';
@@ -94,6 +93,7 @@ import { UnauthorisedComponent } from './unauthorised.component';
 import { MisconfiguredComponent } from './misconfigured.component';
 import { FullscreenModalShellComponent } from './fullscreen-modal-shell.component';
 import { RouterModule } from '@angular/router';
+import { TranslatePipe } from './translate.pipe';
 
 const MAT_MODULES = [
     MatAutocompleteModule,
@@ -165,6 +165,7 @@ const COMPONENTS = [
     MediaDurationPipe,
     ThumbnailPipe,
     ZonePipe,
+    TranslatePipe,
 
     UserControlsComponent,
     BuildingSelectComponent,
@@ -193,13 +194,12 @@ const DIRECTIVES = [
 
 @NgModule({
     declarations: [...COMPONENTS, ...DIRECTIVES],
-    exports: [...COMPONENTS, ...DIRECTIVES, ...MAT_MODULES, TranslateModule],
+    exports: [...COMPONENTS, ...DIRECTIVES, ...MAT_MODULES],
     imports: [
         CommonModule,
         FormsModule,
         ReactiveFormsModule,
         RouterModule,
-        TranslateModule.forChild(),
         ...MAT_MODULES,
     ],
     providers: [

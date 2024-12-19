@@ -10,8 +10,6 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatChipsModule } from '@angular/material/chips';
-import { TranslateHttpLoader } from '@ngx-translate/http-loader';
-import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 
 import { SharedCateringModule } from '@placeos/catering';
 import { ComponentsModule } from '@placeos/components';
@@ -28,15 +26,9 @@ import { PaymentsModule } from '@placeos/payments';
 import { AssetsModule } from '@placeos/assets';
 import { SharedSpacesModule } from '@placeos/spaces';
 import { SharedExploreModule } from '@placeos/explore';
-import { HttpClient } from '@angular/common/http';
 
 import { DateOptionsComponent } from 'apps/concierge/src/app/ui/date-options.component';
 import { FormFieldsModule } from '@placeos/form-fields';
-
-// AoT requires an exported function for factories
-export function HttpLoaderFactory(http: HttpClient) {
-    return new TranslateHttpLoader(http, './assets/locale/', '.json');
-}
 
 @NgModule({
     declarations: [
@@ -66,14 +58,6 @@ export function HttpLoaderFactory(http: HttpClient) {
         AssetsModule,
         ServiceWorkerModule.register('ngsw-worker.js', {
             enabled: environment.production,
-        }),
-        TranslateModule.forRoot({
-            defaultLanguage: 'en',
-            loader: {
-                provide: TranslateLoader,
-                useFactory: HttpLoaderFactory,
-                deps: [HttpClient],
-            },
         }),
     ],
     providers: [

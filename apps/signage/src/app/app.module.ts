@@ -1,7 +1,12 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { APP_INITIALIZER, ErrorHandler, NgModule } from '@angular/core';
+import {
+    APP_INITIALIZER,
+    ErrorHandler,
+    LOCALE_ID,
+    NgModule,
+} from '@angular/core';
 import { Router } from '@angular/router';
 import { ServiceWorkerModule } from '@angular/service-worker';
 
@@ -12,7 +17,6 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatRippleModule } from '@angular/material/core';
 
 import { ComponentsModule } from '@placeos/components';
-import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from 'libs/components/src/lib/app.component';
@@ -20,18 +24,12 @@ import { environment } from '../environments/environment';
 import { BootstrapComponent } from './bootstrap.component';
 
 import * as Sentry from '@sentry/angular';
-import { HttpClient } from '@angular/common/http';
-import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { SignagePanelComponent } from './signage.component';
 import { PaymentsModule } from 'libs/payments/src/lib/payments.module';
 import { SharedSpacesModule } from '@placeos/spaces';
 import { SharedExploreModule } from '@placeos/explore';
 import { MediaPlayerComponent } from './media-player.component';
-
-// AoT requires an exported function for factories
-export function HttpLoaderFactory(http: HttpClient) {
-    return new TranslateHttpLoader(http, './assets/locale/', '.json');
-}
+import { LocaleService } from '@placeos/common';
 
 @NgModule({
     declarations: [
@@ -57,14 +55,6 @@ export function HttpLoaderFactory(http: HttpClient) {
         ServiceWorkerModule.register('ngsw-worker.js', {
             enabled: environment.production,
         }),
-        TranslateModule.forRoot({
-            defaultLanguage: 'en',
-            loader: {
-                provide: TranslateLoader,
-                useFactory: HttpLoaderFactory,
-                deps: [HttpClient],
-            },
-        }),
     ],
     providers: [
         {
@@ -82,6 +72,11 @@ export function HttpLoaderFactory(http: HttpClient) {
             useFactory: () => () => {},
             deps: [Sentry.TraceService],
             multi: true,
+        },
+        {
+            provide: LOCALE_ID,
+            deps: [LocaleService],
+            useFactory: (localeService: LocaleService) => localeService.locale,
         },
     ],
     bootstrap: [AppComponent],

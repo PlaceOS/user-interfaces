@@ -70,8 +70,6 @@
         "@material-design-icons/font": "^0.14.3",
         "@ngneat/spectator": "^19.0.0",
         "@ngneat/tailwind": "^7.0.3",
-        "@ngx-translate/core": "^16.0.0",
-        "@ngx-translate/http-loader": "^16.0.0",
         "@nx/cypress": "20.1.4",
         "@nx/devkit": "20.1.4",
         "@nx/eslint": "20.1.4",
