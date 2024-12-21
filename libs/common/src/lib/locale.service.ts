@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 
 import * as DEFAULT_LOCALE from 'shared/assets/locale/en-AU.json';
+
 import { log } from './general';
 
 interface LocaleStore {
@@ -25,6 +26,8 @@ function removeNesting(value: any, path = ''): Record<string, string> {
     return out_object;
 }
 
+const STORE_KEY = 'APP.locale';
+
 @Injectable({
     providedIn: 'root',
 })
@@ -33,6 +36,7 @@ export class LocaleService {
     private _current_locale = this._default_locale;
     private _current_locale_short = this._current_locale.split('-')[0];
     private _cache_time = 7 * 24 * 60 * 60 * 1000;
+    private _load_promises: Record<string, Promise<void>> = {};
 
     private _default_mappings: Record<string, string> =
         removeNesting(DEFAULT_LOCALE);
@@ -42,7 +46,7 @@ export class LocaleService {
 
     constructor() {
         this.setLocale(
-            localStorage.getItem('APP.locale') || this._default_locale,
+            localStorage.getItem(`${STORE_KEY}`) || this._default_locale,
         );
     }
 
@@ -73,23 +77,27 @@ export class LocaleService {
     public setLocale(locale: string) {
         this._current_locale = locale;
         this._current_locale_short = this._current_locale.split('-')[0];
-        if (!this._locale_mappings[locale]) this._loadLocale(locale);
-        localStorage.setItem('APP.locale', locale);
+        if (!this._locale_mappings[locale] && !this._load_promises[locale]) {
+            this._load_promises[locale] = this._loadLocale(locale);
+        }
+        localStorage.setItem(`${STORE_KEY}`, locale);
         log('LOCALE', `Locale set to "${locale}"`);
     }
 
     private async _loadLocale(locale: string) {
         const existing: LocaleStore = JSON.parse(
-            localStorage.getItem(`APP.locale.${locale}`) || '{}',
+            localStorage.getItem(`${STORE_KEY}.${locale}`) || '{}',
         );
         if (!existing.expiry || existing.expiry < Date.now()) {
-            localStorage.removeItem(`APP.locale.${locale}`);
+            localStorage.removeItem(`${STORE_KEY}.${locale}`);
             const resp = await fetch(`${this.locale_folder}/${locale}.json`);
-            if (!resp.ok)
+            if (!resp.ok) {
+                delete this._load_promises[locale];
                 return console.error(
                     `Failed to loaded locale file for "${locale}".`,
                     resp,
                 );
+            }
             const locale_data = await resp.json();
             this._locale_mappings[locale] = removeNesting(locale_data);
             const store = {
@@ -97,9 +105,13 @@ export class LocaleService {
                 locale,
                 mappings: this._locale_mappings[locale],
             };
-            localStorage.setItem(`APP.locale.${locale}`, JSON.stringify(store));
+            localStorage.setItem(
+                `${STORE_KEY}.${locale}`,
+                JSON.stringify(store),
+            );
         } else {
             this._locale_mappings[locale] = existing.mappings;
         }
+        delete this._load_promises[locale];
     }
 }
