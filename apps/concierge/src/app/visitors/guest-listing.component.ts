@@ -2,10 +2,8 @@ import { Component } from '@angular/core';
 import {
     AsyncHandler,
     SettingsService,
-    getTimezoneOffsetInMinutes,
     getTimezoneOffsetString,
     notifyError,
-    padLength,
 } from '@placeos/common';
 import { VisitorsStateService } from './visitors-state.service';
 import { Booking, saveBooking } from '@placeos/bookings';
@@ -23,46 +21,50 @@ import { User } from '@placeos/users';
             [columns]="[
                 {
                     key: 'state',
-                    name: 'Checked In',
+                    name: 'COMMON.CHECKED_IN' | translate,
                     content: state_template,
                     size: '6.5rem',
                     sortable: false,
                 },
                 {
                     key: 'date',
-                    name: 'Time',
+                    name: 'FORM.TIME' | translate,
                     content: date_template,
                     size: '6rem',
                 },
                 {
                     key: 'asset_name',
-                    name: 'Visitor',
+                    name: 'RESOURCE.VISITOR' | translate,
                     content: person_template,
                 },
-                { key: 'user_name', name: 'Host', content: host_template },
+                {
+                    key: 'user_name',
+                    name: 'FORM.HOST' | translate,
+                    content: host_template,
+                },
                 {
                     key: 'status',
-                    name: 'State',
+                    name: 'COMMON.STATE' | translate,
                     content: status_template,
                     size: '9.5rem',
                 },
                 {
                     key: 'induction',
-                    name: 'Inducted',
+                    name: 'BOOKINGS.INDUCTED' | translate,
                     content: induction_template,
                     show: !!inductions_enabled,
                     size: '5.5rem',
                 },
                 {
                     key: 'parking_space',
-                    name: 'Parking',
+                    name: 'RESOURCE.PARKING' | translate,
                     content: parking_template,
                     show: !!has_parking,
                     size: '5.5rem',
                 },
                 {
                     key: 'notes',
-                    name: 'Notes',
+                    name: 'FORM.NOTES' | translate,
                     content: notes_template,
                     sortable: false,
                     size: '4.5rem',
@@ -83,8 +85,13 @@ import { User } from '@placeos/users';
                 *ngIf="!row?.checked_in && row.checked_out_at"
                 class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-base-400 text-neutral-content mx-auto"
                 [matTooltip]="
-                    'Checked out at:
-' + (row.checked_out_at * 1000 | date: time_format : tz)
+                    'APP.CONCIERGE.VISITOR_STATUS_CHECKED_OUT'
+                        | translate
+                            : {
+                                  time:
+                                      (row.checked_out_at * 1000
+                                      | date: time_format : tz),
+                              }
                 "
                 matTooltipPosition="right"
             >
@@ -93,7 +100,9 @@ import { User } from '@placeos/users';
             <div
                 *ngIf="!row?.checked_in && !row.checked_out_at"
                 class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-warning text-warning-content mx-auto"
-                matTooltip="Not checked in"
+                [matTooltip]="
+                    'APP.CONCIERGE.VISITOR_STATUS_NOT_CHECKED_IN' | translate
+                "
                 matTooltipPosition="right"
             >
                 <app-icon>question_mark</app-icon>
@@ -102,8 +111,13 @@ import { User } from '@placeos/users';
                 *ngIf="row?.checked_in"
                 class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-success text-success-content mx-auto"
                 [matTooltip]="
-                    'Checked in at:
-' + (row.checked_in_at * 1000 | date: time_format : tz)
+                    'APP.CONCIERGE.VISITOR_STATUS_CHECKED_IN'
+                        | translate
+                            : {
+                                  time:
+                                      (row.checked_in_at * 1000
+                                      | date: time_format : tz),
+                              }
                 "
                 matTooltipPosition="right"
             >
@@ -160,14 +174,20 @@ import { User } from '@placeos/users';
                         matRipple
                         (click)="setExt(row, 'id_confirmed', true)"
                     >
-                        Confirm ID
+                        {{
+                            'APP.CONCIERGE.VISITORS_ACTION_ID_APPROVE'
+                                | translate
+                        }}
                     </button>
                     <button
                         matRipple
                         class="inverse mt-2"
                         (click)="setExt(row, 'id_confirmed', false)"
                     >
-                        Reject ID
+                        {{
+                            'APP.CONCIERGE.VISITORS_ACTION_ID_REJECT'
+                                | translate
+                        }}
                     </button>
                 </div>
             </ng-template>
@@ -234,13 +254,14 @@ import { User } from '@placeos/users';
                     <div class="flex items-center pl-4 pr-2 space-x-2">
                         <div class="flex-1 text-left">
                             {{
-                                row?.status === 'ended'
-                                    ? 'Ended'
+                                (row?.status === 'ended'
+                                    ? 'APP.CONCIERGE.BOOKING_STATUS_ENDED'
                                     : row?.status === 'approved'
-                                      ? 'Approved'
+                                      ? 'APP.CONCIERGE.BOOKING_STATUS_APPROVED'
                                       : row?.status === 'declined'
-                                        ? 'Declined'
-                                        : 'Pending'
+                                        ? 'APP.CONCIERGE.BOOKING_STATUS_DECLINED'
+                                        : 'APP.CONCIERGE.BOOKING_STATUS_PENDING'
+                                ) | translate
                             }}
                         </div>
                         <app-icon
@@ -261,7 +282,12 @@ import { User } from '@placeos/users';
                 <button mat-menu-item (click)="approveVisitor(row)">
                     <div class="flex items-center space-x-2">
                         <app-icon class="text-2xl">event_available</app-icon>
-                        <div class="pr-2">Approve Visitor</div>
+                        <div class="pr-2">
+                            {{
+                                'APP.CONCIERGE.VISITORS_ACTION_APPROVE'
+                                    | translate
+                            }}
+                        </div>
                     </div>
                 </button>
                 <button mat-menu-item (click)="declineVisitor(row)">
@@ -269,7 +295,12 @@ import { User } from '@placeos/users';
                         <app-icon class="text-2xl text-error">
                             event_busy
                         </app-icon>
-                        <div class="pr-2">Decline Visitor</div>
+                        <div class="pr-2">
+                            {{
+                                'APP.CONCIERGE.VISITORS_ACTION_DECLINE'
+                                    | translate
+                            }}
+                        </div>
                     </div>
                 </button>
             </mat-menu>
@@ -302,7 +333,12 @@ import { User } from '@placeos/users';
                     >
                         <div class="flex items-center space-x-2">
                             <app-icon class="text-2xl">attachment</app-icon>
-                            <div>View Attachments</div>
+                            <div>
+                                {{
+                                    'APP.CONCIERGE.VISITORS_ACTION_ATTACHMENTS'
+                                        | translate
+                                }}
+                            </div>
                         </div>
                     </button>
                     <button
@@ -315,7 +351,12 @@ import { User } from '@placeos/users';
                     >
                         <div class="flex items-center space-x-2">
                             <app-icon class="text-2xl">directions_car</app-icon>
-                            <div>Reserve Parking Space</div>
+                            <div>
+                                {{
+                                    'APP.CONCIERGE.VISITORS_ACTION_PARKING'
+                                        | translate
+                                }}
+                            </div>
                         </div>
                     </button>
                     <mat-menu #menu="matMenu">
@@ -337,13 +378,12 @@ import { User } from '@placeos/users';
                                 }}
                             </app-icon>
                             <div>
-                                Set as
                                 {{
-                                    row.extension_data.remote
-                                        ? 'Onsite'
-                                        : 'Remote'
+                                    (row.extension_data.remote
+                                        ? 'APP.CONCIERGE.VISITORS_ACTION_ONSITE'
+                                        : 'APP.CONCIERGE.VISITORS_ACTION_REMOTE'
+                                    ) | translate
                                 }}
-                                Visitor
                             </div>
                         </div>
                     </button>
@@ -354,18 +394,23 @@ import { User } from '@placeos/users';
                     >
                         <div class="flex items-center space-x-2">
                             <app-icon class="text-2xl">print</app-icon>
-                            <div>Print QR Code</div>
+                            <div>
+                                {{
+                                    'APP.CONCIERGE.VISITORS_ACTION_PRINT_QR'
+                                        | translate
+                                }}
+                            </div>
                         </div>
                     </button>
                     <a mat-menu-item [href]="'mailto:' + row?.asset_id">
                         <div class="flex items-center space-x-2">
                             <app-icon class="text-2xl">email</app-icon>
                             <div>
-                                Email
                                 {{
-                                    row?.user_email === row?.asset_id
-                                        ? 'Host'
-                                        : 'Guest'
+                                    (row?.user_email === row?.asset_id
+                                        ? 'APP.CONCIERGE.VISITORS_ACTION_EMAIL_HOST'
+                                        : 'APP.CONCIERGE.VISITORS_ACTION_EMAIL_GUEST'
+                                    ) | translate
                                 }}
                             </div>
                         </div>
@@ -384,8 +429,12 @@ import { User } from '@placeos/users';
                                 }}
                             </app-icon>
                             <div>
-                                {{ row.checked_in ? 'Checkout' : 'Checkin' }}
-                                Guest
+                                {{
+                                    (row.checked_in
+                                        ? 'APP.CONCIERGE.VISITORS_ACTION_CHECKOUT'
+                                        : 'APP.CONCIERGE.VISITORS_ACTION_CHECKIN'
+                                    ) | translate
+                                }}
                             </div>
                         </div>
                     </button>
@@ -395,7 +444,12 @@ import { User } from '@placeos/users';
                                 <app-icon class="text-2xl">
                                     event_available
                                 </app-icon>
-                                <div>Checkin all for Meeting</div>
+                                <div>
+                                    {{
+                                        'APP.CONCIERGE.VISITORS_ACTION_CHECKIN_ALL'
+                                            | translate
+                                    }}
+                                </div>
                             </div>
                         </button>
                         <button
@@ -406,7 +460,12 @@ import { User } from '@placeos/users';
                                 <app-icon class="text-2xl text-error">
                                     event_busy
                                 </app-icon>
-                                <div>Checkout all for Meeting</div>
+                                <div>
+                                    {{
+                                        'APP.CONCIERGE.VISITORS_ACTION_CHECKOUT_ALL'
+                                            | translate
+                                    }}
+                                </div>
                             </div>
                         </button>
                     </ng-container>
@@ -416,7 +475,9 @@ import { User } from '@placeos/users';
         <ng-template #notes_template let-row="row">
             <div class="relative p-4 mx-auto">
                 <button
-                    matTooltip="Edit Visitor Notes"
+                    [matTooltip]="
+                        'APP.CONCIERGE.VISITORS_NOTES_EDIT' | translate
+                    "
                     matTooltipPosition="left"
                     icon
                     matRipple
@@ -427,7 +488,9 @@ import { User } from '@placeos/users';
                 <div
                     class="absolute top-1 right-1 bg-info text-info-content rounded-full h-4 w-4 flex items-center justify-center"
                     *ngIf="row.extension_data?.notes?.length"
-                    matTooltip="Visitor Notes Available"
+                    [matTooltip]="
+                        'APP.CONCIERGE.VISITORS_NOTES_AVAILABLE' | translate
+                    "
                 >
                     <app-icon
                         className="material-symbols-rounded"
@@ -440,7 +503,7 @@ import { User } from '@placeos/users';
         </ng-template>
         <button
             class="bg-secondary hover:shadow-lg shadow absolute bottom-4 right-4 text-white h-12 w-12 z-20"
-            matTooltip="Download Visitor List"
+            [matTooltip]="'APP.CONCIERGE.VISITORS_DOWNLOAD' | translate"
             matTooltipPosition="left"
             icon
             matRipple

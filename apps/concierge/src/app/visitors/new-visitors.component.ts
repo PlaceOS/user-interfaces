@@ -16,14 +16,21 @@ import { SettingsService } from '@placeos/common';
             <app-sidebar></app-sidebar>
             <main class="flex flex-col flex-1 w-1/2 h-full">
                 <div class="flex items-center px-8 py-4 space-x-2">
-                    <h2 class="text-2xl font-medium">Visitors</h2>
+                    <h2 class="text-2xl font-medium">
+                        {{ 'RESOURCE.VISITORS' | translate }}
+                    </h2>
                     <div class="flex-1 w-2"></div>
                     <searchbar
                         class="mr-2"
                         (modelChange)="setSearch($event)"
                     ></searchbar>
-                    <button btn matRipple (click)="inviteVisitor()">
-                        Invite Visitor
+                    <button
+                        btn
+                        matRipple
+                        class="w-40"
+                        (click)="inviteVisitor()"
+                    >
+                        {{ 'BOOKINGS.VISITOR_INVITE_TITLE' | translate }}
                     </button>
                 </div>
                 <div class="flex items-center px-8 pb-4">
