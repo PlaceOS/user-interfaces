@@ -706,6 +706,7 @@ export class EventFormService extends AsyncHandler {
             const processed_assets = (assets || []).map((_) =>
                 new AssetRequest(_).toJSON(),
             );
+            delete value.location;
             const result = await this._makeBooking(
                 new CalendarEvent({
                     ...value,
