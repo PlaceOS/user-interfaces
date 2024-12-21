@@ -25,7 +25,7 @@ import { addDays, endOfDay, getUnixTime, set } from 'date-fns';
             able to check-in.
         </div> -->
         <div
-            class="p-0 sm:py-4 sm:px-16 divide-y divide-base-200 space-y-2"
+            class="divide-y divide-base-200 space-y-2"
             *ngIf="form"
             [formGroup]="form"
         >

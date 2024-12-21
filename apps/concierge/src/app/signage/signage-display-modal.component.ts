@@ -8,107 +8,89 @@ import { addSystem, PlaceSystem, updateSystem } from '@placeos/ts-client';
 @Component({
     selector: 'signage-display-modal',
     template: `
-        <header
-            class="flex items-center justify-between border-b border-base-300 p-2"
+        <fullscreen-modal-shell
+            [heading]="
+                (display.id
+                    ? 'APP.CONCIERGE.SIGNAGE_DISPLAYS_EDIT'
+                    : 'APP.CONCIERGE.SIGNAGE_DISPLAYS_NEW'
+                ) | translate
+            "
+            (confirm)="save()"
+            [loading]="
+                loading
+                    ? ('APP.CONCIERGE.SIGNAGE_DISPLAYS_SAVING' | translate)
+                    : ''
+            "
         >
-            <h1 class="p-2 font-medium text-xl">
-                {{
-                    (display.id
-                        ? 'APP.CONCIERGE.SIGNAGE_DISPLAYS_EDIT'
-                        : 'APP.CONCIERGE.SIGNAGE_DISPLAYS_NEW'
-                    ) | translate
-                }}
-            </h1>
-            <button icon matRipple mat-dialog-close *ngIf="!loading">
-                <app-icon>close</app-icon>
-            </button>
-        </header>
-        <main
-            [formGroup]="form"
-            class="p-4 flex flex-col w-[32rem] max-w-[calc(100vw-2rem)]"
-            *ngIf="!loading; else load_state"
-        >
-            <div class="flex flex-col">
-                <label for="name"
-                    >{{ 'FORM.NAME' | translate }}<span required>*</span></label
-                >
-                <mat-form-field appearance="outline" class="w-full">
-                    <input
-                        matInput
-                        name="name"
-                        [placeholder]="'FORM.NAME' | translate"
-                        formControlName="name"
-                        required
-                    />
-                    <mat-error>{{
-                        'FORM.NAME_REQUIRED' | translate
-                    }}</mat-error>
-                </mat-form-field>
-            </div>
-            <div class="flex flex-col">
-                <label for="description">{{
-                    'COMMON.DESCRIPTION' | translate
-                }}</label>
-                <mat-form-field appearance="outline" class="w-full">
-                    <textarea
-                        matInput
-                        name="description"
-                        [placeholder]="'COMMON.DESCRIPTION' | translate"
-                        formControlName="description"
-                        class="min-h-32"
-                    ></textarea>
-                </mat-form-field>
-            </div>
-            <div class="flex flex-col">
-                <label for="orientation">{{
-                    'APP.CONCIERGE.SIGNAGE_ORIENTATION' | translate
-                }}</label>
-                <mat-form-field appearance="outline" class="w-full">
-                    <mat-select
-                        name="orientation"
-                        formControlName="orientation"
-                        [placeholder]="
-                            'APP.CONCIERGE.SIGNAGE_ORIENTATION_NONE' | translate
-                        "
+            <form [formGroup]="form">
+                <div class="flex flex-col">
+                    <label for="name"
+                        >{{ 'FORM.NAME' | translate
+                        }}<span required>*</span></label
                     >
-                        <mat-option value="unspecified">
-                            {{
+                    <mat-form-field appearance="outline" class="w-full">
+                        <input
+                            matInput
+                            name="name"
+                            [placeholder]="'FORM.NAME' | translate"
+                            formControlName="name"
+                            required
+                        />
+                        <mat-error>{{
+                            'FORM.NAME_REQUIRED' | translate
+                        }}</mat-error>
+                    </mat-form-field>
+                </div>
+                <div class="flex flex-col">
+                    <label for="description">{{
+                        'COMMON.DESCRIPTION' | translate
+                    }}</label>
+                    <mat-form-field appearance="outline" class="w-full">
+                        <textarea
+                            matInput
+                            name="description"
+                            [placeholder]="'COMMON.DESCRIPTION' | translate"
+                            formControlName="description"
+                            class="min-h-32"
+                        ></textarea>
+                    </mat-form-field>
+                </div>
+                <div class="flex flex-col">
+                    <label for="orientation">{{
+                        'APP.CONCIERGE.SIGNAGE_ORIENTATION' | translate
+                    }}</label>
+                    <mat-form-field appearance="outline" class="w-full">
+                        <mat-select
+                            name="orientation"
+                            formControlName="orientation"
+                            [placeholder]="
                                 'APP.CONCIERGE.SIGNAGE_ORIENTATION_NONE'
                                     | translate
-                            }}
-                        </mat-option>
-                        <mat-option value="landscape">{{
-                            'APP.CONCIERGE.SIGNAGE_ORIENTATION_LANDSCAPE'
-                                | translate
-                        }}</mat-option>
-                        <mat-option value="portrait">{{
-                            'APP.CONCIERGE.SIGNAGE_ORIENTATION_PORTRAIT'
-                                | translate
-                        }}</mat-option>
-                        <mat-option value="square">{{
-                            'APP.CONCIERGE.SIGNAGE_ORIENTATION_SQUARE'
-                                | translate
-                        }}</mat-option>
-                    </mat-select>
-                </mat-form-field>
-            </div>
-        </main>
-        <footer
-            *ngIf="!loading"
-            class="flex justify-end p-4 border-t border-base-200"
-        >
-            <button btn matRipple class="w-32" (click)="save()">
-                {{ 'COMMON.SAVE' | translate }}
-            </button>
-        </footer>
-        <ng-template #load_state>
-            <main class="flex flex-col items-center justify-center p-8">
-                <mat-spinner [diameter]="32"></mat-spinner>
-                <p class="mt-4">
-                    {{ 'APP.CONCIERGE.SIGNAGE_DISPLAYS_SAVING' | translate }}
-                </p>
-            </main>
-        </ng-template>
+                            "
+                        >
+                            <mat-option value="unspecified">
+                                {{
+                                    'APP.CONCIERGE.SIGNAGE_ORIENTATION_NONE'
+                                        | translate
+                                }}
+                            </mat-option>
+                            <mat-option value="landscape">{{
+                                'APP.CONCIERGE.SIGNAGE_ORIENTATION_LANDSCAPE'
+                                    | translate
+                            }}</mat-option>
+                            <mat-option value="portrait">{{
+                                'APP.CONCIERGE.SIGNAGE_ORIENTATION_PORTRAIT'
+                                    | translate
+                            }}</mat-option>
+                            <mat-option value="square">{{
+                                'APP.CONCIERGE.SIGNAGE_ORIENTATION_SQUARE'
+                                    | translate
+                            }}</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+            </form>
+        </fullscreen-modal-shell>
     `,
     styles: [``],
 })

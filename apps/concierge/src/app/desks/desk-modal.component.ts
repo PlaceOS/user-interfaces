@@ -95,12 +95,14 @@ import { Desk } from '@placeos/organisation';
                         formControlName="notes"
                     ></textarea>
                 </mat-form-field>
-                <div class="flex items-center justify-end space-x-2">
-                    <button btn matRipple class="w-32" (click)="postForm()">
-                        {{ 'COMMON.SAVE' | translate }}
-                    </button>
-                </div>
             </main>
+            <footer
+                class="flex items-center justify-end space-x-2 px-4 py-2 border-t border-base-300"
+            >
+                <button btn matRipple class="w-32" (click)="postForm()">
+                    {{ 'COMMON.SAVE' | translate }}
+                </button>
+            </footer>
         </div>
         <ng-template #load_state>
             <main

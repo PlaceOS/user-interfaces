@@ -29,7 +29,10 @@ import { NewDeskFlowConfirmComponent } from './new-desk-flow-confirm.component';
                 >
                     {{ 'BOOKINGS.DESK_TITLE' | translate }}
                 </h2>
-                <new-desk-form-details [form]="form"></new-desk-form-details>
+                <new-desk-form-details
+                    class="p-0 sm:py-4 sm:px-16 block"
+                    [form]="form"
+                ></new-desk-form-details>
                 <div class="sm:mb-2 border-b border-base-200 w-full"></div>
                 <section
                     class="flex flex-col sm:flex-row items-center sm:space-x-2 p-2 sm:px-16 sm:mb-2"

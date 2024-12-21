@@ -15,209 +15,194 @@ import { getUnixTime } from 'date-fns';
 @Component({
     selector: 'signage-playlist-modal',
     template: `
-        <header
-            class="flex items-center justify-between border-b border-base-300"
+        <fullscreen-modal-shell
+            [heading]="
+                (playlist.id
+                    ? 'APP.CONCIERGE.SIGNAGE_PLAYLISTS_EDIT'
+                    : 'APP.CONCIERGE.SIGNAGE_PLAYLISTS_NEW'
+                ) | translate
+            "
+            (confirm)="savePlaylist()"
+            [loading]="
+                loading
+                    ? ('APP.CONCIERGE.SIGNAGE_PLAYLISTS_SAVING' | translate)
+                    : ''
+            "
         >
-            <h1 class="p-2 font-medium text-xl">
-                {{
-                    (playlist.id
-                        ? 'APP.CONCIERGE.SIGNAGE_PLAYLISTS_EDIT'
-                        : 'APP.CONCIERGE.SIGNAGE_PLAYLISTS_NEW'
-                    ) | translate
-                }}
-            </h1>
-            <button icon matRipple mat-dialog-close *ngIf="!loading">
-                <app-icon>close</app-icon>
-            </button>
-        </header>
-        <main
-            [formGroup]="form"
-            class="p-4 flex flex-col w-[32rem] max-w-[calc(100vw-2rem)]"
-            *ngIf="!loading; else load_state"
-        >
-            <label for="name"
-                >{{ 'FORM.NAME' | translate }}<span required>*</span></label
-            >
-            <mat-form-field appearance="outline" class="w-full">
-                <input
-                    matInput
-                    name="name"
-                    [placeholder]="'FORM.NAME' | translate"
-                    formControlName="name"
-                />
-                <mat-error>{{ 'FORM.NAME_REQUIRED' | translate }}</mat-error>
-            </mat-form-field>
-            <div class="flex items-center space-x-4 mb-4">
-                <settings-toggle
-                    class="flex-1"
-                    [name]="'COMMON.ENABLED' | translate"
-                    formControlName="enabled"
+            <form [formGroup]="form">
+                <label for="name"
+                    >{{ 'FORM.NAME' | translate }}<span required>*</span></label
                 >
-                </settings-toggle>
-                <settings-toggle
-                    class="flex-1"
-                    [name]="
-                        'APP.CONCIERGE.SIGNAGE_PLAYLISTS_SHUFFLE' | translate
-                    "
-                    formControlName="random"
-                >
-                </settings-toggle>
-            </div>
-            <div class="flex items-center space-x-4">
-                <label
-                    for="default-duration"
-                    class="w-auto min-w-0 m-0 space-x-2 flex items-center"
-                >
-                    <div>Default Play Time</div>
-                    <app-icon
-                        class="text-xl"
-                        matTooltip="Default length of time to hold images on screen"
+                <mat-form-field appearance="outline" class="w-full">
+                    <input
+                        matInput
+                        name="name"
+                        [placeholder]="'FORM.NAME' | translate"
+                        formControlName="name"
+                    />
+                    <mat-error>{{
+                        'FORM.NAME_REQUIRED' | translate
+                    }}</mat-error>
+                </mat-form-field>
+                <div class="flex items-center space-x-4 mb-4">
+                    <settings-toggle
+                        class="flex-1"
+                        [name]="'COMMON.ENABLED' | translate"
+                        formControlName="enabled"
                     >
-                        info
-                    </app-icon>
-                </label>
-                <div class="text-xs font-mono">
-                    {{ form.value.default_duration / 1000 | mediaDuration }}
+                    </settings-toggle>
+                    <settings-toggle
+                        class="flex-1"
+                        [name]="
+                            'APP.CONCIERGE.SIGNAGE_PLAYLISTS_SHUFFLE'
+                                | translate
+                        "
+                        formControlName="random"
+                    >
+                    </settings-toggle>
                 </div>
-            </div>
-            <mat-slider min="5000" max="300000" step="1000">
-                <input
-                    name="default-duration"
-                    matSliderThumb
-                    formControlName="default_duration"
-                />
-            </mat-slider>
-            <div class="flex space-x-2">
-                <div class="flex-1">
-                    <label for="orientation">{{
-                        'APP.CONCIERGE.SIGNAGE_ORIENTATION' | translate
-                    }}</label>
-                    <mat-form-field appearance="outline" class="w-full">
-                        <mat-select
-                            name="orientation"
-                            formControlName="orientation"
-                            [placeholder]="
-                                'APP.CONCIERGE.SIGNAGE_ORIENTATION_NONE'
-                                    | translate
-                            "
+                <div class="flex items-center space-x-4">
+                    <label
+                        for="default-duration"
+                        class="w-auto min-w-0 m-0 space-x-2 flex items-center"
+                    >
+                        <div>Default Play Time</div>
+                        <app-icon
+                            class="text-xl"
+                            matTooltip="Default length of time to hold images on screen"
                         >
-                            <mat-option value="unspecified">
-                                {{
+                            info
+                        </app-icon>
+                    </label>
+                    <div class="text-xs font-mono">
+                        {{ form.value.default_duration / 1000 | mediaDuration }}
+                    </div>
+                </div>
+                <mat-slider min="5000" max="300000" step="1000">
+                    <input
+                        name="default-duration"
+                        matSliderThumb
+                        formControlName="default_duration"
+                    />
+                </mat-slider>
+                <div class="flex space-x-2">
+                    <div class="flex-1">
+                        <label for="orientation">{{
+                            'APP.CONCIERGE.SIGNAGE_ORIENTATION' | translate
+                        }}</label>
+                        <mat-form-field appearance="outline" class="w-full">
+                            <mat-select
+                                name="orientation"
+                                formControlName="orientation"
+                                [placeholder]="
                                     'APP.CONCIERGE.SIGNAGE_ORIENTATION_NONE'
                                         | translate
-                                }}
-                            </mat-option>
-                            <mat-option value="landscape">{{
-                                'APP.CONCIERGE.SIGNAGE_ORIENTATION_LANDSCAPE'
-                                    | translate
-                            }}</mat-option>
-                            <mat-option value="portrait">{{
-                                'APP.CONCIERGE.SIGNAGE_ORIENTATION_PORTRAIT'
-                                    | translate
-                            }}</mat-option>
-                            <mat-option value="square">{{
-                                'APP.CONCIERGE.SIGNAGE_ORIENTATION_SQUARE'
-                                    | translate
-                            }}</mat-option>
-                        </mat-select>
-                    </mat-form-field>
+                                "
+                            >
+                                <mat-option value="unspecified">
+                                    {{
+                                        'APP.CONCIERGE.SIGNAGE_ORIENTATION_NONE'
+                                            | translate
+                                    }}
+                                </mat-option>
+                                <mat-option value="landscape">{{
+                                    'APP.CONCIERGE.SIGNAGE_ORIENTATION_LANDSCAPE'
+                                        | translate
+                                }}</mat-option>
+                                <mat-option value="portrait">{{
+                                    'APP.CONCIERGE.SIGNAGE_ORIENTATION_PORTRAIT'
+                                        | translate
+                                }}</mat-option>
+                                <mat-option value="square">{{
+                                    'APP.CONCIERGE.SIGNAGE_ORIENTATION_SQUARE'
+                                        | translate
+                                }}</mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+                    <div class="flex-1">
+                        <label for="animation">{{
+                            'APP.CONCIERGE.SIGNAGE_ANIMATION' | translate
+                        }}</label>
+                        <mat-form-field appearance="outline" class="w-full">
+                            <mat-select
+                                name="animation"
+                                formControlName="default_animation"
+                                [placeholder]="
+                                    'APP.CONCIERGE.SIGNAGE_ANIMATION_DEFAULT'
+                                        | translate
+                                "
+                            >
+                                <mat-option [value]="0">{{
+                                    'APP.CONCIERGE.SIGNAGE_ANIMATION_DEFAULT'
+                                        | translate
+                                }}</mat-option>
+                                <mat-option [value]="1">{{
+                                    'APP.CONCIERGE.SIGNAGE_ANIMATION_CUT'
+                                        | translate
+                                }}</mat-option>
+                                <mat-option [value]="2">{{
+                                    'APP.CONCIERGE.SIGNAGE_ANIMATION_CROSS_FADE'
+                                        | translate
+                                }}</mat-option>
+                                <mat-option [value]="3">{{
+                                    'APP.CONCIERGE.SIGNAGE_ANIMATION_SLIDE_TOP'
+                                        | translate
+                                }}</mat-option>
+                                <mat-option [value]="4">{{
+                                    'APP.CONCIERGE.SIGNAGE_ANIMATION_SLIDE_LEFT'
+                                        | translate
+                                }}</mat-option>
+                                <mat-option [value]="5">{{
+                                    'APP.CONCIERGE.SIGNAGE_ANIMATION_SLIDE_RIGHT'
+                                        | translate
+                                }}</mat-option>
+                                <mat-option [value]="6">{{
+                                    'APP.CONCIERGE.SIGNAGE_ANIMATION_SLIDE_BOTTOM'
+                                        | translate
+                                }}</mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
                 </div>
-                <div class="flex-1">
-                    <label for="animation">{{
-                        'APP.CONCIERGE.SIGNAGE_ANIMATION' | translate
-                    }}</label>
-                    <mat-form-field appearance="outline" class="w-full">
-                        <mat-select
-                            name="animation"
-                            formControlName="default_animation"
-                            [placeholder]="
-                                'APP.CONCIERGE.SIGNAGE_ANIMATION_DEFAULT'
-                                    | translate
-                            "
-                        >
-                            <mat-option [value]="0">{{
-                                'APP.CONCIERGE.SIGNAGE_ANIMATION_DEFAULT'
-                                    | translate
-                            }}</mat-option>
-                            <mat-option [value]="1">{{
-                                'APP.CONCIERGE.SIGNAGE_ANIMATION_CUT'
-                                    | translate
-                            }}</mat-option>
-                            <mat-option [value]="2">{{
-                                'APP.CONCIERGE.SIGNAGE_ANIMATION_CROSS_FADE'
-                                    | translate
-                            }}</mat-option>
-                            <mat-option [value]="3">{{
-                                'APP.CONCIERGE.SIGNAGE_ANIMATION_SLIDE_TOP'
-                                    | translate
-                            }}</mat-option>
-                            <mat-option [value]="4">{{
-                                'APP.CONCIERGE.SIGNAGE_ANIMATION_SLIDE_LEFT'
-                                    | translate
-                            }}</mat-option>
-                            <mat-option [value]="5">{{
-                                'APP.CONCIERGE.SIGNAGE_ANIMATION_SLIDE_RIGHT'
-                                    | translate
-                            }}</mat-option>
-                            <mat-option [value]="6">{{
-                                'APP.CONCIERGE.SIGNAGE_ANIMATION_SLIDE_BOTTOM'
-                                    | translate
-                            }}</mat-option>
-                        </mat-select>
-                    </mat-form-field>
+                <label for="description">{{
+                    'COMMON.DESCRIPTION' | translate
+                }}</label>
+                <mat-form-field appearance="outline" class="w-full">
+                    <textarea
+                        matInput
+                        name="description"
+                        [placeholder]="'COMMON.DESCRIPTION' | translate"
+                        formControlName="description"
+                        class="min-h-32"
+                    ></textarea>
+                </mat-form-field>
+                <div class="flex space-x-4">
+                    <div class="flex-1">
+                        <label for="valid-from">{{
+                            'APP.CONCIERGE.VALID_FROM' | translate
+                        }}</label>
+                        <a-date-field
+                            name="valid-from"
+                            class="w-full"
+                            formControlName="valid_from"
+                        ></a-date-field>
+                    </div>
+                    <div class="flex-1">
+                        <label for="valid-until">{{
+                            'APP.CONCIERGE.VALID_UNTIL' | translate
+                        }}</label>
+                        <a-date-field
+                            name="valid-until"
+                            class="w-full"
+                            [from]="form.value.valid_from"
+                            formControlName="valid_until"
+                            [disabled]="!form.value.valid_from"
+                        ></a-date-field>
+                    </div>
                 </div>
-            </div>
-            <label for="description">{{
-                'COMMON.DESCRIPTION' | translate
-            }}</label>
-            <mat-form-field appearance="outline" class="w-full">
-                <textarea
-                    matInput
-                    name="description"
-                    [placeholder]="'COMMON.DESCRIPTION' | translate"
-                    formControlName="description"
-                    class="min-h-32"
-                ></textarea>
-            </mat-form-field>
-            <div class="flex space-x-4">
-                <div class="flex-1">
-                    <label for="valid-from">{{
-                        'APP.CONCIERGE.VALID_FROM' | translate
-                    }}</label>
-                    <a-date-field
-                        name="valid-from"
-                        class="w-full"
-                        formControlName="valid_from"
-                    ></a-date-field>
-                </div>
-                <div class="flex-1">
-                    <label for="valid-until">{{
-                        'APP.CONCIERGE.VALID_UNTIL' | translate
-                    }}</label>
-                    <a-date-field
-                        name="valid-until"
-                        class="w-full"
-                        [from]="form.value.valid_from"
-                        formControlName="valid_until"
-                        [disabled]="!form.value.valid_from"
-                    ></a-date-field>
-                </div>
-            </div>
-        </main>
-        <footer
-            class="p-4 flex items-center justify-end space-x-2 border-t border-base-300"
-            *ngIf="!loading"
-        >
-            <button btn matRipple class="w-32" (click)="savePlaylist()">
-                Save Playlist
-            </button>
-        </footer>
-        <ng-template #load_state>
-            <main class="flex flex-col items-center justify-center p-8">
-                <mat-spinner [diameter]="32"></mat-spinner>
-                <p class="mt-4">Saving Playlist...</p>
-            </main>
-        </ng-template>
+            </form>
+        </fullscreen-modal-shell>
     `,
     styles: [``],
 })

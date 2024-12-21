@@ -8,29 +8,21 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
 @Component({
     selector: 'level-modal',
     template: `
-        <header>
-            <h2>
-                {{
-                    (form.value.id
-                        ? 'APP.CONCIERGE.LEVELS_EDIT'
-                        : 'APP.CONCIERGE.LEVELS_NEW'
-                    ) | translate
-                }}
-            </h2>
-            <button btn icon mat-dialog-close *ngIf="!loading">
-                <app-icon>close</app-icon>
-            </button>
-        </header>
-        <main
-            class="max-h-[65vh] overflow-y-auto overflow-x-hidden p-4"
-            *ngIf="!loading; else load_state"
+        <fullscreen-modal-shell
+            [heading]="
+                (form.value.id
+                    ? 'APP.CONCIERGE.LEVELS_EDIT'
+                    : 'APP.CONCIERGE.LEVELS_NEW'
+                ) | translate
+            "
+            [loading]="
+                (loading | async)
+                    ? ('APP.CONCIERGE.LEVELS_SAVING' | translate)
+                    : ''
+            "
+            (confirm)="save()"
         >
-            <form
-                system
-                class="flex flex-col w-[36rem] max-w-[calc(100vw-4rem)]"
-                *ngIf="form"
-                [formGroup]="form"
-            >
+            <form system [formGroup]="form">
                 <div class="flex flex-col" *ngIf="form.controls.parent_id">
                     <label
                         for="zone"
@@ -97,23 +89,7 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
                     </mat-form-field>
                 </div>
             </form>
-        </main>
-        <footer
-            class="p-2 flex justify-end border-t border-base-200"
-            *ngIf="!loading"
-        >
-            <button btn class="w-32" (click)="save()">
-                {{ 'COMMON.SAVE' | translate }}
-            </button>
-        </footer>
-        <ng-template #load_state>
-            <div class="flex flex-col items-center justify-center w-64 h-64">
-                <mat-spinner diameter="32"></mat-spinner>
-                <p class="mt-4">
-                    {{ 'APP.CONCIERGE.LEVELS_SAVING' | translate }}
-                </p>
-            </div>
-        </ng-template>
+        </fullscreen-modal-shell>
     `,
     styles: [``],
 })

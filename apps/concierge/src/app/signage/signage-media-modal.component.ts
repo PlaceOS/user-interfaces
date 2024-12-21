@@ -9,203 +9,187 @@ import { addYears, endOfDay, getUnixTime, startOfDay } from 'date-fns';
 @Component({
     selector: 'signage-media-modal',
     template: `
-        <header
-            class="flex items-center justify-between border-b border-base-300"
+        <fullscreen-modal-shell
+            [heading]="
+                (item.id
+                    ? 'APP.CONCIERGE.SIGNAGE_MEDIA_EDIT'
+                    : 'APP.CONCIERGE.SIGNAGE_MEDIA_NEW'
+                ) | translate
+            "
+            (confirm)="saveMedia()"
+            [loading]="
+                loading
+                    ? ('APP.CONCIERGE.SIGNAGE_MEDIA_SAVING' | translate)
+                    : ''
+            "
         >
-            <h2 class="p-2 text-xl font-medium">
-                {{
-                    (item.id
-                        ? 'APP.CONCIERGE.SIGNAGE_MEDIA_EDIT'
-                        : 'APP.CONCIERGE.SIGNAGE_MEDIA_NEW'
-                    ) | translate
-                }}
-            </h2>
-            <button icon matRipple mat-dialog-close *ngIf="!loading">
-                <app-icon>close</app-icon>
-            </button>
-        </header>
-        <main
-            class="p-4 max-w-[calc(100vw-2rem)] w-[32rem] max-h-[65vh] overflow-auto"
-            [formGroup]="form"
-            *ngIf="!loading; else load_state"
-        >
-            <div class="flex flex-col">
-                <button
-                    matRipple
-                    class="relative w-full h-48 mx-auto bg-base-300 rounded-xl overflow-hidden mb-4"
-                    (click)="preview()"
-                >
-                    <img
-                        class="h-full w-full object-contain object-center"
-                        auth
-                        [source]="thumbnail || url"
-                    />
-                    <div
-                        class="absolute top-2 left-2 px-2 py-1 rounded text-xs bg-base-400 capitalize"
+            <form [formGroup]="form">
+                <div class="flex flex-col">
+                    <button
+                        matRipple
+                        class="relative w-full h-48 mx-auto bg-base-300 rounded-xl overflow-hidden mb-4"
+                        (click)="preview()"
                     >
-                        {{ media_type }}
-                    </div>
-                </button>
-                <label for="name">{{ 'FORM.NAME' | translate }}</label>
-                <mat-form-field appearance="outline">
-                    <input
-                        matInput
-                        name="name"
-                        formControlName="name"
-                        [placeholder]="'FORM.NAME' | translate"
-                    />
-                    <mat-error>{{
-                        'FORM.NAME_REQUIRED' | translate
-                    }}</mat-error>
-                </mat-form-field>
-                @if (media_type === 'video') {
+                        <img
+                            class="h-full w-full object-contain object-center"
+                            auth
+                            [source]="thumbnail || url"
+                        />
+                        <div
+                            class="absolute top-2 left-2 px-2 py-1 rounded text-xs bg-base-400 capitalize"
+                        >
+                            {{ media_type }}
+                        </div>
+                    </button>
+                    <label for="name">{{ 'FORM.NAME' | translate }}</label>
+                    <mat-form-field appearance="outline">
+                        <input
+                            matInput
+                            name="name"
+                            formControlName="name"
+                            [placeholder]="'FORM.NAME' | translate"
+                        />
+                        <mat-error>{{
+                            'FORM.NAME_REQUIRED' | translate
+                        }}</mat-error>
+                    </mat-form-field>
+                    @if (media_type === 'video') {
+                        <div class="flex items-center space-x-4">
+                            <label
+                                for="start-time"
+                                class="w-auto min-w-0 m-0"
+                                >{{ 'FORM.TIME_START' | translate }}</label
+                            >
+                            <div class="text-xs font-mono">
+                                {{
+                                    form.value.start_time / 1000
+                                        | mediaDuration: true
+                                }}
+                            </div>
+                        </div>
+                        <mat-slider
+                            min="0"
+                            [max]="(item.video_length || 300000) - 1000"
+                            step="100"
+                        >
+                            <input
+                                name="start-time"
+                                matSliderThumb
+                                formControlName="start_time"
+                            />
+                        </mat-slider>
+                    }
                     <div class="flex items-center space-x-4">
-                        <label for="start-time" class="w-auto min-w-0 m-0">{{
-                            'FORM.TIME_START' | translate
-                        }}</label>
-                        <div class="text-xs font-mono">
+                        <label for="play-time" class="w-auto min-w-0 m-0">
                             {{
-                                form.value.start_time / 1000
-                                    | mediaDuration: true
-                            }}
+                                'APP.CONCIERGE.SIGNAGE_MEDIA_PLAY_TIME'
+                                    | translate
+                            }}</label
+                        >
+                        <div class="text-xs font-mono">
+                            @if (form.value.play_time) {
+                                {{
+                                    form.value.play_time / 1000
+                                        | mediaDuration: true
+                                }}
+                            } @else {
+                                <span class="opacity-30">
+                                    {{ 'COMMON.DEFAULT' | translate }} ({{
+                                        item.video_length
+                                            ? (item.video_length / 1000
+                                              | mediaDuration)
+                                            : ''
+                                    }})
+                                </span>
+                            }
                         </div>
                     </div>
                     <mat-slider
-                        min="0"
-                        [max]="(item.video_length || 300000) - 1000"
+                        [min]="form.value.start_time"
+                        [max]="item.video_length || 300000"
                         step="100"
                     >
                         <input
-                            name="start-time"
+                            name="play-time"
                             matSliderThumb
-                            formControlName="start_time"
+                            formControlName="play_time"
                         />
                     </mat-slider>
-                }
-                <div class="flex items-center space-x-4">
-                    <label for="play-time" class="w-auto min-w-0 m-0">
-                        {{
-                            'APP.CONCIERGE.SIGNAGE_MEDIA_PLAY_TIME' | translate
-                        }}</label
-                    >
-                    <div class="text-xs font-mono">
-                        @if (form.value.play_time) {
-                            {{
-                                form.value.play_time / 1000
-                                    | mediaDuration: true
-                            }}
-                        } @else {
-                            <span class="opacity-30">
-                                {{ 'COMMON.DEFAULT' | translate }} ({{
-                                    item.video_length
-                                        ? (item.video_length / 1000
-                                          | mediaDuration)
-                                        : ''
-                                }})
-                            </span>
-                        }
+                    <label for="animation">{{
+                        'APP.CONCIERGE.SIGNAGE_ANIMATION' | translate
+                    }}</label>
+                    <mat-form-field appearance="outline">
+                        <mat-select
+                            name="animation"
+                            formControlName="animation"
+                            placeholder="Playlist Default"
+                        >
+                            <mat-option [value]="0">{{
+                                'APP.CONCIERGE.SIGNAGE_ANIMATION_DEFAULT'
+                                    | translate
+                            }}</mat-option>
+                            <mat-option [value]="1">{{
+                                'APP.CONCIERGE.SIGNAGE_ANIMATION_CUT'
+                                    | translate
+                            }}</mat-option>
+                            <mat-option [value]="2">{{
+                                'APP.CONCIERGE.SIGNAGE_ANIMATION_CROSS_FADE'
+                                    | translate
+                            }}</mat-option>
+                            <mat-option [value]="3">{{
+                                'APP.CONCIERGE.SIGNAGE_ANIMATION_SLIDE_TOP'
+                                    | translate
+                            }}</mat-option>
+                            <mat-option [value]="4">{{
+                                'APP.CONCIERGE.SIGNAGE_ANIMATION_SLIDE_LEFT'
+                                    | translate
+                            }}</mat-option>
+                            <mat-option [value]="5">{{
+                                'APP.CONCIERGE.SIGNAGE_ANIMATION_SLIDE_RIGHT'
+                                    | translate
+                            }}</mat-option>
+                            <mat-option [value]="6">{{
+                                'APP.CONCIERGE.SIGNAGE_ANIMATION_SLIDE_BOTTOM'
+                                    | translate
+                            }}</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <label for="description">{{
+                        'COMMON.DESCRIPTION' | translate
+                    }}</label>
+                    <mat-form-field appearance="outline" class="w-full">
+                        <textarea
+                            matInput
+                            name="description"
+                            [placeholder]="'COMMON.DESCRIPTION' | translate"
+                            formControlName="description"
+                            class="min-h-32"
+                        ></textarea>
+                    </mat-form-field>
+                    <div class="flex space-x-4">
+                        <div class="flex-1">
+                            <label for="valid-from">{{
+                                'APP.CONCIERGE.VALID_FROM' | translate
+                            }}</label>
+                            <a-date-field
+                                name="valid-from"
+                                formControlName="valid_from"
+                            ></a-date-field>
+                        </div>
+                        <div class="flex-1">
+                            <label for="valid-until">{{
+                                'APP.CONCIERGE.VALID_UNTIL' | translate
+                            }}</label>
+                            <a-date-field
+                                name="valid-until"
+                                [from]="form.value.valid_from"
+                                formControlName="valid_until"
+                            ></a-date-field>
+                        </div>
                     </div>
                 </div>
-                <mat-slider
-                    [min]="form.value.start_time"
-                    [max]="item.video_length || 300000"
-                    step="100"
-                >
-                    <input
-                        name="play-time"
-                        matSliderThumb
-                        formControlName="play_time"
-                    />
-                </mat-slider>
-                <label for="animation">{{
-                    'APP.CONCIERGE.SIGNAGE_ANIMATION' | translate
-                }}</label>
-                <mat-form-field appearance="outline">
-                    <mat-select
-                        name="animation"
-                        formControlName="animation"
-                        placeholder="Playlist Default"
-                    >
-                        <mat-option [value]="0">{{
-                            'APP.CONCIERGE.SIGNAGE_ANIMATION_DEFAULT'
-                                | translate
-                        }}</mat-option>
-                        <mat-option [value]="1">{{
-                            'APP.CONCIERGE.SIGNAGE_ANIMATION_CUT' | translate
-                        }}</mat-option>
-                        <mat-option [value]="2">{{
-                            'APP.CONCIERGE.SIGNAGE_ANIMATION_CROSS_FADE'
-                                | translate
-                        }}</mat-option>
-                        <mat-option [value]="3">{{
-                            'APP.CONCIERGE.SIGNAGE_ANIMATION_SLIDE_TOP'
-                                | translate
-                        }}</mat-option>
-                        <mat-option [value]="4">{{
-                            'APP.CONCIERGE.SIGNAGE_ANIMATION_SLIDE_LEFT'
-                                | translate
-                        }}</mat-option>
-                        <mat-option [value]="5">{{
-                            'APP.CONCIERGE.SIGNAGE_ANIMATION_SLIDE_RIGHT'
-                                | translate
-                        }}</mat-option>
-                        <mat-option [value]="6">{{
-                            'APP.CONCIERGE.SIGNAGE_ANIMATION_SLIDE_BOTTOM'
-                                | translate
-                        }}</mat-option>
-                    </mat-select>
-                </mat-form-field>
-                <label for="description">{{
-                    'COMMON.DESCRIPTION' | translate
-                }}</label>
-                <mat-form-field appearance="outline" class="w-full">
-                    <textarea
-                        matInput
-                        name="description"
-                        [placeholder]="'COMMON.DESCRIPTION' | translate"
-                        formControlName="description"
-                        class="min-h-32"
-                    ></textarea>
-                </mat-form-field>
-                <div class="flex space-x-4">
-                    <div class="flex-1">
-                        <label for="valid-from">{{
-                            'APP.CONCIERGE.VALID_FROM' | translate
-                        }}</label>
-                        <a-date-field
-                            name="valid-from"
-                            formControlName="valid_from"
-                        ></a-date-field>
-                    </div>
-                    <div class="flex-1">
-                        <label for="valid-until">{{
-                            'APP.CONCIERGE.VALID_UNTIL' | translate
-                        }}</label>
-                        <a-date-field
-                            name="valid-until"
-                            [from]="form.value.valid_from"
-                            formControlName="valid_until"
-                        ></a-date-field>
-                    </div>
-                </div>
-            </div>
-        </main>
-        <footer
-            *ngIf="!loading"
-            class="flex justify-end p-4 border-t border-base-300"
-        >
-            <button btn matRipple class="w-32" (click)="saveMedia()">
-                {{ 'COMMON.SAVE' | translate }}
-            </button>
-        </footer>
-        <ng-template #load_state>
-            <main
-                class="flex flex-col items-center justify-center p-8 max-w-[calc(100vw-2rem)] min-h-64 w-[32rem] space-y-4"
-            >
-                <mat-spinner diameter="32"></mat-spinner>
-                <p>{{ 'APP.CONCIERGE.SIGNAGE_MEDIA_SAVING' | translate }}</p>
-            </main>
-        </ng-template>
+            </form>
+        </fullscreen-modal-shell>
     `,
     styles: [``],
 })

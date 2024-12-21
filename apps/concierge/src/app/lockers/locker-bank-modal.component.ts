@@ -14,9 +14,11 @@ import { map } from 'rxjs/operators';
 @Component({
     selector: 'locker-bank-modal',
     template: `
-        <div class="w-[28rem]">
-            <header class="flex items-center justify-between px-2 w-full">
-                <h2 class="px-2">
+        <div class="w-[32rem]">
+            <header
+                class="sticky top-0 p-2 m-2 w-[calc(100%-1rem)] border-none z-10 bg-base-200 rounded"
+            >
+                <h2 class="text-xl font-medium px-2">
                     {{
                         (id
                             ? 'APP.CONCIERGE.LOCKERS_BANK_EDIT'
@@ -24,7 +26,7 @@ import { map } from 'rxjs/operators';
                         ) | translate
                     }}
                 </h2>
-                <button *ngIf="!loading" icon matRipple mat-dialog-close>
+                <button icon matRipple mat-dialog-close *ngIf="!loading">
                     <app-icon>close</app-icon>
                 </button>
             </header>
@@ -62,30 +64,38 @@ import { map } from 'rxjs/operators';
                         </mat-option>
                     </mat-select>
                 </mat-form-field>
-                <label for="name">{{ 'FORM.NAME' | translate }}</label>
-                <mat-form-field appearance="outline">
-                    <input
-                        matInput
-                        name="name"
-                        formControlName="name"
-                        [placeholder]="'FORM.NAME' | translate"
-                    />
-                    <mat-error>{{
-                        'FORM.NAME_REQUIRED' | translate
-                    }}</mat-error>
-                </mat-form-field>
-                <label for="map-id">{{ 'EXPLORE.MAP_ID' | translate }}</label>
-                <mat-form-field appearance="outline">
-                    <input
-                        matInput
-                        name="map-id"
-                        formControlName="map_id"
-                        [placeholder]="'EXPLORE.MAP_ID' | translate"
-                    />
-                    <mat-error>
-                        {{ 'EXPLORE.MAP_ID_REQUIRED' | translate }}
-                    </mat-error>
-                </mat-form-field>
+                <div class="flex space-x-4">
+                    <div class="flex-1 flex flex-col">
+                        <label for="name">{{ 'FORM.NAME' | translate }}</label>
+                        <mat-form-field appearance="outline">
+                            <input
+                                matInput
+                                name="name"
+                                formControlName="name"
+                                [placeholder]="'FORM.NAME' | translate"
+                            />
+                            <mat-error>{{
+                                'FORM.NAME_REQUIRED' | translate
+                            }}</mat-error>
+                        </mat-form-field>
+                    </div>
+                    <div class="flex-1 flex flex-col">
+                        <label for="map-id">{{
+                            'EXPLORE.MAP_ID' | translate
+                        }}</label>
+                        <mat-form-field appearance="outline">
+                            <input
+                                matInput
+                                name="map-id"
+                                formControlName="map_id"
+                                [placeholder]="'EXPLORE.MAP_ID' | translate"
+                            />
+                            <mat-error>
+                                {{ 'EXPLORE.MAP_ID_REQUIRED' | translate }}
+                            </mat-error>
+                        </mat-form-field>
+                    </div>
+                </div>
                 <label for="row">{{ 'COMMON.HEIGHT' | translate }}</label>
                 <a-counter
                     formControlName="height"
@@ -129,12 +139,14 @@ import { map } from 'rxjs/operators';
                         (matChipInputTokenEnd)="addTag($event)"
                     />
                 </mat-form-field>
-                <div class="flex items-center justify-center space-x-2">
-                    <button btn matRipple class="w-32" (click)="postForm()">
-                        {{ 'COMMON.SAVE' | translate }}
-                    </button>
-                </div>
             </main>
+            <footer
+                class="flex items-center justify-end space-x-2 px-4 py-2 border-t border-base-300"
+            >
+                <button btn matRipple class="w-32" (click)="postForm()">
+                    {{ 'COMMON.SAVE' | translate }}
+                </button>
+            </footer>
         </div>
         <ng-template #load_state>
             <main

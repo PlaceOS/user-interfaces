@@ -17,8 +17,10 @@ import { showUser } from '@placeos/ts-client';
     selector: 'parking-space-modal',
     template: `
         <div class="w-[28rem]">
-            <header class="flex items-center justify-between px-2 w-full">
-                <h2 class="px-2">
+            <header
+                class="sticky top-0 p-2 m-2 w-[calc(100%-1rem)] border-none z-10 bg-base-200 rounded"
+            >
+                <h2 class="text-xl font-medium px-2">
                     {{
                         (id
                             ? 'APP.CONCIERGE.PARKING_SPACE_EDIT'
@@ -26,7 +28,7 @@ import { showUser } from '@placeos/ts-client';
                         ) | translate
                     }}
                 </h2>
-                <button *ngIf="!loading" icon matRipple mat-dialog-close>
+                <button icon matRipple mat-dialog-close *ngIf="!loading">
                     <app-icon>close</app-icon>
                 </button>
             </header>
@@ -86,20 +88,14 @@ import { showUser } from '@placeos/ts-client';
                         formControlName="notes"
                     ></textarea>
                 </mat-form-field>
-                <!-- <label for="map-rotation">Map Rotation</label>
-                <mat-form-field appearance="outline">
-                    <textarea
-                        matInput
-                        name="map-rotation"
-                        formControlName="map_rotation"
-                    ></textarea>
-                </mat-form-field> -->
-                <div class="flex items-center justify-center space-x-2">
-                    <button btn matRipple class="w-32" (click)="postForm()">
-                        {{ 'COMMON.SAVE' | translate }}
-                    </button>
-                </div>
             </main>
+            <footer
+                class="flex items-center justify-end space-x-2 px-4 py-2 border-t border-base-300"
+            >
+                <button btn matRipple class="w-32" (click)="postForm()">
+                    {{ 'COMMON.SAVE' | translate }}
+                </button>
+            </footer>
         </div>
         <ng-template #load_state>
             <main

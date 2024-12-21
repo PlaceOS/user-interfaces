@@ -17,8 +17,10 @@ import { CustomTooltipComponent } from '@placeos/components';
 @Component({
     selector: 'emergency-contact-modal',
     template: `
-        <header>
-            <h2>
+        <header
+            class="sticky top-0 p-2 m-2 w-[calc(100%-1rem)] border-none z-10 bg-base-200 rounded"
+        >
+            <h2 class="text-xl font-medium px-2">
                 {{
                     (contact
                         ? 'APP.CONCIERGE.CONTACTS_EDIT'
@@ -26,8 +28,7 @@ import { CustomTooltipComponent } from '@placeos/components';
                     ) | translate
                 }}
             </h2>
-            <div class="flex-1 w-0"></div>
-            <button icon mat-dialog-close *ngIf="!loading">
+            <button icon matRipple mat-dialog-close *ngIf="!loading">
                 <app-icon>close</app-icon>
             </button>
         </header>
@@ -148,9 +149,11 @@ import { CustomTooltipComponent } from '@placeos/components';
         </main>
         <footer
             *ngIf="!loading"
-            class="flex justify-center items-center p-2 border-t border-base-200"
+            class="flex justify-end items-center px-4 py-2 border-t border-base-200"
         >
-            <button btn matRipple class="w-32" (click)="save()">Save</button>
+            <button btn matRipple class="w-32" (click)="save()">
+                {{ 'COMMON.SAVE' | translate }}
+            </button>
         </footer>
         <ng-template #load_state>
             <main

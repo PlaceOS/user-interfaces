@@ -22,98 +22,80 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
 @Component({
     selector: 'building-form',
     template: `
-        <ng-container *ngIf="!loading; else load_state">
-            <form
-                building
-                class="flex flex-col w-[36rem] max-w-[calc(100vw-4rem)]"
-                *ngIf="form"
-                [formGroup]="form"
-            >
-                <div
-                    class="flex flex-col"
-                    *ngIf="(region_list | async)?.length"
-                >
-                    <label for="region">
-                        {{ 'RESOURCE.REGION' | translate }}
-                    </label>
-                    <mat-form-field appearance="outline">
-                        <mat-select
-                            name="region"
-                            formControlName="parent_id"
-                            [placeholder]="'COMMON.REGION_SELECT' | translate"
-                        >
-                            <mat-option [value]="default_parent">
-                                {{ 'COMMON.NONE' | translate }}
-                            </mat-option>
-                            <mat-option
-                                *ngFor="let region of region_list | async"
-                                [value]="region.id"
-                            >
-                                {{ region.display_name || region.name }}
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                </div>
-                <div class="flex flex-col">
-                    <label for="display-name"
-                        >{{ 'FORM.DISPLAY_NAME' | translate }}
-                    </label>
-                    <mat-form-field appearance="outline">
-                        <input
-                            matInput
-                            name="display-name"
-                            [placeholder]="'FORM.DISPLAY_NAME' | translate"
-                            formControlName="display_name"
-                        />
-                    </mat-form-field>
-                </div>
-                <div class="flex flex-col">
-                    <label for="display-name">{{
-                        'COMMON.TIMEZONE' | translate
-                    }}</label>
-                    <mat-form-field appearance="outline">
-                        <app-icon matPrefix class="text-2xl">search</app-icon>
-                        <input
-                            matInput
-                            formControlName="timezone"
-                            [placeholder]="'COMMON.TIMEZONE' | translate"
-                            [matAutocomplete]="auto"
-                        />
-                    </mat-form-field>
-                    <mat-autocomplete #auto="matAutocomplete">
-                        <mat-option
-                            *ngFor="let tz of filtered_timezones"
-                            [value]="tz"
-                            >{{ tz }}</mat-option
-                        >
-                        <mat-option *ngIf="!timezones.length" [disabled]="true">
-                            {{ 'COMMON.TIMEZONE_EMPTY' | translate }}
+        <form building *ngIf="form" [formGroup]="form">
+            <div class="flex flex-col" *ngIf="(region_list | async)?.length">
+                <label for="region">
+                    {{ 'RESOURCE.REGION' | translate }}
+                </label>
+                <mat-form-field appearance="outline">
+                    <mat-select
+                        name="region"
+                        formControlName="parent_id"
+                        [placeholder]="'COMMON.REGION_SELECT' | translate"
+                    >
+                        <mat-option [value]="default_parent">
+                            {{ 'COMMON.NONE' | translate }}
                         </mat-option>
-                    </mat-autocomplete>
-                </div>
-                <div class="flex flex-col">
-                    <label for="address">
-                        {{ 'COMMON.LOCATION' | translate }}
-                    </label>
-                    <mat-form-field appearance="outline">
-                        <input
-                            matInput
-                            name="address"
-                            [placeholder]="'COMMON.LOCATION' | translate"
-                            formControlName="location"
-                        />
-                    </mat-form-field>
-                </div>
-            </form>
-        </ng-container>
-        <ng-template #load_state>
-            <div class="flex flex-col items-center justify-center w-64 h-64">
-                <mat-spinner diameter="32"></mat-spinner>
-                <p class="mt-4">
-                    {{ 'APP.CONCIERGE.BUILDINGS_SAVING' | translate }}
-                </p>
+                        <mat-option
+                            *ngFor="let region of region_list | async"
+                            [value]="region.id"
+                        >
+                            {{ region.display_name || region.name }}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
             </div>
-        </ng-template>
+            <div class="flex flex-col">
+                <label for="display-name"
+                    >{{ 'FORM.DISPLAY_NAME' | translate }}
+                </label>
+                <mat-form-field appearance="outline">
+                    <input
+                        matInput
+                        name="display-name"
+                        [placeholder]="'FORM.DISPLAY_NAME' | translate"
+                        formControlName="display_name"
+                    />
+                </mat-form-field>
+            </div>
+            <div class="flex flex-col">
+                <label for="display-name">{{
+                    'COMMON.TIMEZONE' | translate
+                }}</label>
+                <mat-form-field appearance="outline">
+                    <app-icon matPrefix class="text-2xl">search</app-icon>
+                    <input
+                        matInput
+                        formControlName="timezone"
+                        [placeholder]="'COMMON.TIMEZONE' | translate"
+                        [matAutocomplete]="auto"
+                    />
+                </mat-form-field>
+                <mat-autocomplete #auto="matAutocomplete">
+                    <mat-option
+                        *ngFor="let tz of filtered_timezones"
+                        [value]="tz"
+                        >{{ tz }}</mat-option
+                    >
+                    <mat-option *ngIf="!timezones.length" [disabled]="true">
+                        {{ 'COMMON.TIMEZONE_EMPTY' | translate }}
+                    </mat-option>
+                </mat-autocomplete>
+            </div>
+            <div class="flex flex-col">
+                <label for="address">
+                    {{ 'COMMON.LOCATION' | translate }}
+                </label>
+                <mat-form-field appearance="outline">
+                    <input
+                        matInput
+                        name="address"
+                        [placeholder]="'COMMON.LOCATION' | translate"
+                        formControlName="location"
+                    />
+                </mat-form-field>
+            </div>
+        </form>
     `,
     styles: [``],
 })

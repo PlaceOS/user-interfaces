@@ -18,25 +18,21 @@ import { addDays, endOfDay } from 'date-fns';
 @Component({
     selector: 'parking-booking-modal',
     template: `
-        <div class="w-[32rem]">
-            <header class="flex items-center justify-between px-2 w-full">
-                <h2 class="px-2">
-                    {{
-                        (id
-                            ? 'APP.CONCIERGE.PARKING_EDIT'
-                            : 'APP.CONCIERGE.PARKING_NEW'
-                        ) | translate
-                    }}
-                </h2>
-                <button *ngIf="!loading" icon matRipple mat-dialog-close>
-                    <app-icon>close</app-icon>
-                </button>
-            </header>
-            <main
-                *ngIf="!loading; else load_state"
-                class="p-4 flex flex-col max-h-[65vh] overflow-auto"
-                [formGroup]="form"
-            >
+        <fullscreen-modal-shell
+            [heading]="
+                (id
+                    ? 'APP.CONCIERGE.PARKING_EDIT'
+                    : 'APP.CONCIERGE.PARKING_NEW'
+                ) | translate
+            "
+            [loading]="
+                (loading | async)
+                    ? ('APP.CONCIERGE.PARKING_SAVING' | translate)
+                    : ''
+            "
+            (confirm)="postForm()"
+        >
+            <form [formGroup]="form">
                 <div class="flex items-center space-x-2 mb-4" *ngIf="!user">
                     <a-user-search-field
                         name="user"
@@ -149,24 +145,8 @@ import { addDays, endOfDay } from 'date-fns';
                         'BOOKINGS.PARKING_PLATE_NUMBER_REQUIRED' | translate
                     }}</mat-error>
                 </mat-form-field>
-            </main>
-            <footer
-                *ngIf="!loading"
-                class="flex items-center justify-end space-x-2 p-2 border-t border-base-200"
-            >
-                <button btn matRipple class="w-32" (click)="postForm()">
-                    {{ 'COMMON.SAVE' | translate }}
-                </button>
-            </footer>
-        </div>
-        <ng-template #load_state>
-            <main
-                class="p-8 flex flex-col items-center justify-center user-y-2"
-            >
-                <mat-spinner diameter="32"></mat-spinner>
-                <p>{{ 'APP.CONCIERGE.PARKING_SAVING' | translate }}</p>
-            </main>
-        </ng-template>
+            </form>
+        </fullscreen-modal-shell>
     `,
     styles: [``],
 })

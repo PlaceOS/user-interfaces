@@ -12,29 +12,17 @@ import {
 @Component({
     selector: 'short-url-modal',
     template: `
-        <header>
-            <h2>
-                {{
-                    (form.value.id
-                        ? 'APP.CONCIERGE.URLS_EDIT'
-                        : 'APP.CONCIERGE.URLS_ADD'
-                    ) | translate
-                }}
-            </h2>
-            <button btn icon mat-dialog-close *ngIf="!loading">
-                <app-icon>close</app-icon>
-            </button>
-        </header>
-        <main
-            class="max-h-[65vh] overflow-y-auto overflow-x-hidden p-4"
-            *ngIf="!loading; else load_state"
+        <fullscreen-modal-shell
+            [heading]="
+                (form.value.id
+                    ? 'APP.CONCIERGE.URLS_EDIT'
+                    : 'APP.CONCIERGE.URLS_ADD'
+                ) | translate
+            "
+            (confirm)="save()"
+            [loading]="loading ? ('APP.CONCIERGE.URLS_SAVING' | translate) : ''"
         >
-            <form
-                system
-                class="flex flex-col w-[32rem] max-w-[calc(100vw-4rem)]"
-                *ngIf="form"
-                [formGroup]="form"
-            >
+            <form [formGroup]="form">
                 <div class="flex flex-col" *ngIf="form.controls.name">
                     <label for="name">
                         {{ 'FORM.NAME' | translate }}<span>*</span>
@@ -83,36 +71,20 @@ import {
                     <div class="flex-1"></div>
                 </div>
                 <!-- <div class="flex flex-col" *ngIf="form.controls.valid_from">
-                    <label for="uri" > Valid From: </label>
+                    <label for="uri" >{{ 'APP.CONCIERGE.VALID_FROM' | translate }}</label>
                     <a-date-field formControlName="valid_from"></a-date-field>
                 </div>
                 <div class="flex flex-col" *ngIf="form.controls.valid_to">
                     <label for="uri" >
-                        Valid Until<span>*</span>:
+                        {{'APP.CONCIERGE.VALID_UNTIL' | translate}}<span>*</span>
                     </label>
                     <a-date-field
-                        formControlName="valid_from"
+                        formControlName="valid_until"
                         [from]="form.value.valid_from"
                     ></a-date-field>
                 </div> -->
             </form>
-        </main>
-        <footer
-            class="p-2 flex justify-end border-t border-base-200"
-            *ngIf="!loading"
-        >
-            <button btn class="w-32" (click)="save()">
-                {{ 'COMMON.SAVE' | translate }}
-            </button>
-        </footer>
-        <ng-template #load_state>
-            <div class="flex flex-col items-center justify-center w-64 h-64">
-                <mat-spinner diameter="32"></mat-spinner>
-                <p class="mt-4">
-                    {{ 'APP.CONCIERGE.URLS_SAVING' | translate }}
-                </p>
-            </div>
-        </ng-template>
+        </fullscreen-modal-shell>
     `,
     styles: [``],
 })
@@ -142,8 +114,6 @@ export class ShortUrlModalComponent extends AsyncHandler {
     ) {
         super();
     }
-
-    public async ngOnInit() {}
 
     public async save() {
         if (!this.form.valid) {

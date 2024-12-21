@@ -5,35 +5,27 @@ import { Building } from '@placeos/organisation';
 @Component({
     selector: 'building-modal',
     template: `
-        <header>
-            <h2>
-                {{
-                    (building.id
-                        ? 'APP.CONCIERGE.BUILDINGS_EDIT'
-                        : 'APP.CONCIERGE.BUILDINGS_NEW'
-                    ) | translate
-                }}
-            </h2>
-            <button btn icon mat-dialog-close *ngIf="!loading">
-                <app-icon>close</app-icon>
-            </button>
-        </header>
-        <main class="max-h-[65vh] overflow-y-auto overflow-x-hidden p-4">
+        <fullscreen-modal-shell
+            [heading]="
+                (building.id
+                    ? 'APP.CONCIERGE.BUILDINGS_EDIT'
+                    : 'APP.CONCIERGE.BUILDINGS_NEW'
+                ) | translate
+            "
+            [loading]="
+                (loading | async)
+                    ? ('APP.CONCIERGE.BUILDINGS_SAVING' | translate)
+                    : ''
+            "
+            (confirm)="save()"
+        >
             <building-form
                 [building]="building"
                 [save]="save_state"
                 [(loading)]="loading"
                 (done)="close($event)"
             ></building-form>
-        </main>
-        <footer
-            class="p-2 flex justify-end border-t border-base-200"
-            *ngIf="!loading"
-        >
-            <button btn class="w-32" (click)="save()">
-                {{ 'COMMON.SAVE' | translate }}
-            </button>
-        </footer>
+        </fullscreen-modal-shell>
     `,
     styles: [``],
 })
