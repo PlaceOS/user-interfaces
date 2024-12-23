@@ -12,39 +12,48 @@ import { CateringReportStateService } from './catering-report-state.service';
             <div
                 class="border-b border-base-200 flex items-center justify-between px-4"
             >
-                <h2 class="py-2 text-xl font-medium">Ordered Items</h2>
+                <h2 class="py-2 text-xl font-medium">
+                    {{
+                        'APP.CONCIERGE.REPORTS_CATERING_ITEMS_HEADER'
+                            | translate
+                    }}
+                </h2>
             </div>
             <simple-table
                 class="w-full block text-sm"
                 [data]="items"
                 [columns]="[
-                    { key: 'name', name: 'Name' },
+                    { key: 'name', name: 'FORM.NAME' | translate },
                     {
                         key: 'options',
-                        name: 'Options',
+                        name:
+                            'APP.CONCIERGE.REPORTS_CATERING_OPTIONS'
+                            | translate,
                         content: option_template,
                     },
                     {
                         key: 'caterer',
-                        name: 'Caterer',
+                        name: 'CATERING.CATERER' | translate,
                     },
                     {
                         key: 'quantity',
-                        name: 'Quantity',
+                        name: 'CATERING.QUANTITY' | translate,
                     },
                     {
                         key: 'unit_price',
-                        name: 'Unit Price',
+                        name: 'COMMON.ITEM_PRICE' | translate,
                         content: cost_template,
                     },
                     {
                         key: 'total_cost',
-                        name: 'Total Cost',
+                        name: 'CATERING.TOTAL_COST' | translate,
                         content: cost_template,
                     },
                 ]"
                 [page_size]="print ? 0 : 10"
-                empty_message="No orders for selected period"
+                [empty_message]="
+                    'APP.CONCIERGE.REPORTS_CATERING_ORDERS_EMPTY' | translate
+                "
                 [sortable]="true"
             ></simple-table>
             <ng-template #option_template let-data="data">
@@ -54,7 +63,10 @@ import { CateringReportStateService } from './catering-report-state.service';
                         *ngIf="data.length"
                         [matTooltip]="options(data)"
                     >
-                        {{ data?.length || 0 }} option(s)
+                        {{
+                            'APP.CONCIERGE.REPORTS_CATERING_OPTIONS'
+                                | translate: { count: data?.length || 0 }
+                        }}
                     </span>
                 </div>
             </ng-template>
@@ -66,7 +78,7 @@ import { CateringReportStateService } from './catering-report-state.service';
     styles: [``],
 })
 export class CateringReportItemsComponent {
-    @Input() public print: boolean = false;
+    @Input() public print = false;
     public readonly items = this._report.catering_items;
 
     public get code() {

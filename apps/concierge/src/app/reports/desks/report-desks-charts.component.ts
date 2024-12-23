@@ -1,4 +1,10 @@
-import { Component, Input, SimpleChanges } from '@angular/core';
+import {
+    Component,
+    Input,
+    OnChanges,
+    OnInit,
+    SimpleChanges,
+} from '@angular/core';
 import { ReportsStateService } from '../reports-state.service';
 
 import { LineChart, PieChart } from 'chartist';
@@ -20,7 +26,7 @@ import { take } from 'rxjs/operators';
                 class="bg-base-100 border border-base-200 rounded flex-1 h-[18rem]"
             >
                 <div class="border-b border-base-200 p-4 text-xl font-bold">
-                    Daily Utilisation
+                    {{ 'APP.CONCIERGE.REPORTS_DAILY_HEADER' | translate }}
                 </div>
                 <div
                     id="daily-chart"
@@ -31,7 +37,7 @@ import { take } from 'rxjs/operators';
                 class="bg-base-100 border border-base-200 rounded flex-1 h-[18rem]"
             >
                 <div class="border-b border-base-200 p-4 text-xl font-bold">
-                    Level Utilisation
+                    {{ 'APP.CONCIERGE.REPORTS_LEVEL_UTIL_HEADER' | translate }}
                 </div>
                 <div
                     id="level-chart"
@@ -52,8 +58,11 @@ import { take } from 'rxjs/operators';
         `,
     ],
 })
-export class ReportDesksChartsComponent extends AsyncHandler {
-    @Input() public print: boolean = false;
+export class ReportDesksChartsComponent
+    extends AsyncHandler
+    implements OnInit, OnChanges
+{
+    @Input() public print = false;
     public readonly day_list = this._state.day_list;
     public readonly stats = combineLatest([
         this._state.options,

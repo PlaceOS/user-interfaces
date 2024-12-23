@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { AssetsReportService } from './assets-report.service';
 import { map } from 'rxjs/operators';
 import { differenceInBusinessDays, endOfDay, startOfDay } from 'date-fns';
+import { formatDuration, i18n } from '@placeos/common';
 
 @Component({
     selector: 'asset-report-overall',
@@ -10,16 +11,22 @@ import { differenceInBusinessDays, endOfDay, startOfDay } from 'date-fns';
             class="m-4 p-4 rounded bg-base-100 border border-base-200 flex justify-center items-center space-x-2"
         >
             <div class="flex flex-col items-center flex-1">
-                <h3 class="text-sm">Business Days</h3>
+                <h3 class="text-sm">
+                    {{ 'APP.CONCIERGE.REPORTS_BUSINESS_DAYS' | translate }}
+                </h3>
                 <p class="text-2xl">{{ (business_days | async) || 0 }}</p>
             </div>
             <div class="flex flex-col items-center flex-1">
-                <h3 class="text-sm">Total Bookings</h3>
+                <h3 class="text-sm">
+                    {{ 'APP.CONCIERGE.REPORTS_TOTAL_BOOKINGS' | translate }}
+                </h3>
                 <p class="text-2xl">{{ (total_count | async) || 0 }}</p>
             </div>
             <div class="flex flex-col items-center flex-1">
-                <h3 class="text-sm">Average Booking Length</h3>
-                <p class="text-2xl">{{ (avg_length | async) || '0' }} mins</p>
+                <h3 class="text-sm">
+                    {{ 'APP.CONCIERGE.REPORTS_AVERAGE_LENGTH' | translate }}
+                </h3>
+                <p class="text-2xl">{{ (avg_length | async) || '0' }}</p>
             </div>
         </div>
     `,
@@ -39,9 +46,12 @@ export class AssetReportOverallComponent {
         ),
     );
     public readonly avg_length = this._state.stats$.pipe(
-        map(
-            ({ events }) =>
-                events.reduce((c, i) => c + i.duration, 0) / events.length,
+        map(({ events }) =>
+            formatDuration({
+                minutes:
+                    events.reduce((c, i) => c + i.duration, 0) /
+                    (events.length || 1),
+            }),
         ),
     );
 

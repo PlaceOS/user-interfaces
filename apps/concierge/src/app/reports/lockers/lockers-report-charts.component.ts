@@ -31,7 +31,7 @@ import { LockersReportService } from './lockers-report.service';
                 class="bg-base-100 border border-base-200 rounded flex-1 w-1/2 h-[18rem]"
             >
                 <div class="border-b border-base-200 p-4 text-xl font-bold">
-                    Daily Utilisation
+                    {{ 'APP.CONCIERGE.REPORTS_DAILY_HEADER' | translate }}
                 </div>
                 <div
                     id="daily-chart"
@@ -42,7 +42,7 @@ import { LockersReportService } from './lockers-report.service';
                 class="bg-base-100 border border-base-200 rounded flex-1 w-1/2 h-[18rem]"
             >
                 <div class="border-b border-base-200 p-4 text-xl font-bold">
-                    Level Utilisation
+                    {{ 'APP.CONCIERGE.REPORTS_LEVEL_UTIL_HEADER' | translate }}
                 </div>
                 <div
                     id="level-chart"

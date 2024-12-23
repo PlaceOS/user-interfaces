@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
-import { downloadFile, jsonToCsv, unique } from '@placeos/common';
-import { map, take } from 'rxjs/operators';
+import { downloadFile, jsonToCsv } from '@placeos/common';
+import { take } from 'rxjs/operators';
 import { AssetsReportService } from './assets-report.service';
 
 @Component({
@@ -11,9 +11,20 @@ import { AssetsReportService } from './assets-report.service';
         >
             <div class="border-b border-base-200 px-4 py-2 flex items-center">
                 <h3 class="font-bold text-xl flex-1">
-                    Expired Assets Purchase Orders
+                    {{
+                        'APP.CONCIERGE.REPORTS_ASSETS_EXPIRED_PO_HEADER'
+                            | translate
+                    }}
                 </h3>
-                <button icon matRipple (click)="download()" *ngIf="!print">
+                <button
+                    icon
+                    matRipple
+                    [matTooltip]="
+                        'APP.CONCIERGE.REPORTS_DOWNLOAD_TABLE' | translate
+                    "
+                    (click)="download()"
+                    *ngIf="!print"
+                >
                     <app-icon>download</app-icon>
                 </button>
             </div>
@@ -23,35 +34,41 @@ import { AssetsReportService } from './assets-report.service';
                 [columns]="[
                     {
                         key: 'purchase_order_number',
-                        name: 'PO Number',
+                        name:
+                            'APP.CONCIERGE.ASSETS_PURCHASE_NUMBER' | translate,
                     },
                     {
                         key: 'invoice_number',
-                        name: 'Invoice Number',
+                        name:
+                            'APP.CONCIERGE.ASSETS_PURCHASE_INVOICE' | translate,
                     },
                     {
                         key: 'purchase_date',
-                        name: 'Purchase Date',
+                        name: 'APP.CONCIERGE.ASSETS_PURCHASE_DATE' | translate,
                         content: date_template,
                     },
                     {
                         key: 'expected_service_start_date',
-                        name: 'Service Start',
+                        name: 'APP.CONCIERGE.ASSETS_PURCHASE_START' | translate,
                         content: date_template,
                     },
                     {
                         key: 'expected_service_end_date',
-                        name: 'Service End',
+                        name: 'APP.CONCIERGE.ASSETS_PURCHASE_END' | translate,
                         content: date_template,
                     },
                 ]"
                 [sortable]="true"
                 [page_size]="print ? 0 : 10"
-                empty_message="No purchase orders expired for selected period"
+                [empty_message]="
+                    'APP.CONCIERGE.REPORTS_ASSETS_EXPIRED_PO_EMPTY' | translate
+                "
             ></simple-table>
             <ng-template #date_template let-data="data">
                 <div class="p-4">
-                    <span class="opacity-30" *ngIf="!data">No Date</span>
+                    <span class="opacity-30" *ngIf="!data">{{
+                        'COMMON.DATE_EMPTY' | translate
+                    }}</span>
                     {{ data ? (data * 1000 | date: 'mediumDate') : '' }}
                 </div>
             </ng-template>
@@ -60,7 +77,7 @@ import { AssetsReportService } from './assets-report.service';
     styles: [``],
 })
 export class AssetReportExpiredItemsComponent {
-    @Input() public print: boolean = false;
+    @Input() public print = false;
     public readonly expired_items = this._state.expired_items$;
 
     public readonly download = async () => {

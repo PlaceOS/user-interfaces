@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { downloadFile, jsonToCsv } from '@placeos/common';
+import { downloadFile, i18n, jsonToCsv } from '@placeos/common';
 import { map, take } from 'rxjs/operators';
 import { LockersReportService } from './lockers-report.service';
 
@@ -10,8 +10,20 @@ import { LockersReportService } from './lockers-report.service';
             class="m-4 rounded bg-base-100 border border-base-200 overflow-hidden"
         >
             <div class="border-b border-base-200 px-4 py-2 flex items-center">
-                <h3 class="font-bold text-xl flex-1">Lockers List</h3>
-                <button icon matRipple (click)="download()" *ngIf="!print">
+                <h3 class="font-bold text-xl flex-1">
+                    {{
+                        'APP.CONCIERGE.REPORTS_LOCKERS_UTIL_HEADER' | translate
+                    }}
+                </h3>
+                <button
+                    icon
+                    matRipple
+                    [matTooltip]="
+                        'APP.CONCIERGE.REPORTS_DOWNLOAD_TABLE' | translate
+                    "
+                    (click)="download()"
+                    *ngIf="!print"
+                >
                     <app-icon>download</app-icon>
                 </button>
             </div>
@@ -19,19 +31,34 @@ import { LockersReportService } from './lockers-report.service';
                 class="w-full block text-sm"
                 [data]="lockers_bookings"
                 [columns]="[
-                    { key: 'lockers_name', name: 'Lockers Name' },
-                    { key: 'date', name: 'Date', content: date_template },
+                    {
+                        key: 'lockers_name',
+                        name: 'RESOURCE.LOCKER' | translate,
+                    },
+                    {
+                        key: 'date',
+                        name: 'FORM.DATE' | translate,
+                        content: date_template,
+                    },
                     {
                         key: 'duration',
-                        name: 'Duration',
+                        name: 'FORM.DURATION' | translate,
                         content: duration_template,
                     },
-                    { key: 'host', name: 'Booked For' },
-                    { key: 'checked_in', name: 'Checked In' },
+                    {
+                        key: 'host',
+                        name: 'APP.CONCIERGE.BOOKED_FOR' | translate,
+                    },
+                    {
+                        key: 'checked_in',
+                        name: 'COMMON.CHECKED_IN' | translate,
+                    },
                 ]"
                 [sortable]="true"
                 [page_size]="print ? 0 : 10"
-                empty_message="No events for selected period"
+                [empty_message]="
+                    'APP.CONCIERGE.REPORTS_DAILY_EMPTY' | translate
+                "
             ></simple-table>
             <ng-template #date_template let-row="row">
                 <div class="p-4">
@@ -42,7 +69,7 @@ import { LockersReportService } from './lockers-report.service';
                 <div class="p-4">
                     {{
                         row.duration > 12 * 60 || row.all_day
-                            ? 'All Day'
+                            ? ('COMMON.ALL_DAY' | translate)
                             : (row.duration | duration: true)
                     }}
                 </div>
@@ -52,11 +79,11 @@ import { LockersReportService } from './lockers-report.service';
     styles: [``],
 })
 export class LockersReportListComponent {
-    @Input() public print: boolean = false;
+    @Input() public print = false;
 
     public readonly lockers_bookings = this._state.bookings$.pipe(
         map((bookings) => {
-            let list = [];
+            const list = [];
             for (const booking of bookings) {
                 list.push({
                     lockers_name:
@@ -68,10 +95,14 @@ export class LockersReportListComponent {
                     duration: booking.duration,
                     all_day: booking.all_day,
                     host: booking.user_name || booking.user_email,
-                    checked_in: booking.checked_in ? 'Yes' : 'No',
-                    self_registered: booking.extension_data?.self_registered
-                        ? 'Yes'
-                        : 'No',
+                    checked_in: i18n(
+                        booking.checked_in ? 'COMMON.TRUE' : 'COMMON.FALSE',
+                    ),
+                    self_registered: i18n(
+                        booking.extension_data?.self_registered
+                            ? 'COMMON.TRUE'
+                            : 'COMMON.FALSE',
+                    ),
                 });
             }
             list.sort((a, b) => a.date - b.date);

@@ -10,8 +10,21 @@ import { AssetsReportService } from './assets-report.service';
             class="m-4 rounded bg-base-100 border border-base-200 overflow-hidden"
         >
             <div class="border-b border-base-200 px-4 py-2 flex items-center">
-                <h3 class="font-bold text-xl flex-1">Asset Products Usage</h3>
-                <button icon matRipple (click)="download()" *ngIf="!print">
+                <h3 class="font-bold text-xl flex-1">
+                    {{
+                        'APP.CONCIERGE.REPORTS_ASSETS_PRDOUCTS_HEADER'
+                            | translate
+                    }}
+                </h3>
+                <button
+                    icon
+                    matRipple
+                    [matTooltip]="
+                        'APP.CONCIERGE.REPORTS_DOWNLOAD_TABLE' | translate
+                    "
+                    (click)="download()"
+                    *ngIf="!print"
+                >
                     <app-icon>download</app-icon>
                 </button>
             </div>
@@ -19,21 +32,34 @@ import { AssetsReportService } from './assets-report.service';
                 class="w-full block text-sm"
                 [data]="products"
                 [columns]="[
-                    { key: 'name', name: 'Name' },
-                    { key: 'booking_count', name: 'Bookings with Product' },
-                    { key: 'booked_count', name: 'Number Booked' },
-                    { key: 'asset_count', name: 'Assets Available' },
+                    { key: 'name', name: 'FORM.NAME' | translate },
+                    {
+                        key: 'booking_count',
+                        name: 'RESOURCE.BOOKINGS' | translate,
+                    },
+                    {
+                        key: 'booked_count',
+                        name: 'APP.CONCIERGE.REPORTS_ASSETS_BOOKED' | translate,
+                    },
+                    {
+                        key: 'asset_count',
+                        name:
+                            'APP.CONCIERGE.REPORTS_ASSETS_AVAILABLE'
+                            | translate,
+                    },
                 ]"
                 [sortable]="true"
                 [page_size]="print ? 0 : 10"
-                empty_message="No events for selected period"
+                [empty_message]="
+                    'APP.CONCIERGE.REPORTS_DAILY_EMPTY' | translate
+                "
             ></simple-table>
         </div>
     `,
     styles: [``],
 })
 export class AssetReportProductUsageComponent {
-    @Input() public print: boolean = false;
+    @Input() public print = false;
     public readonly products = this._state.stats$.pipe(
         map(({ events, bookings, products }) =>
             products

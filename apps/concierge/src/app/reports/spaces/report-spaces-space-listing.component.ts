@@ -38,12 +38,20 @@ import { ReportsStateService } from '../reports-state.service';
                         name: 'COMMON.CAPACITY' | translate,
                         content: capacity_template,
                     },
-                    { key: 'booking_count', name: 'Bookings' },
+                    {
+                        key: 'booking_count',
+                        name: 'RESOURCE.BOOKINGS' | translate,
+                    },
                     {
                         key: 'utilisation',
                         name: 'APP.CONCIERGE.REPORTS_UTILISATION' | translate,
                     },
-                    { key: 'avg_attendees', name: 'Avg. Invitees per Booking' },
+                    {
+                        key: 'avg_attendees',
+                        name:
+                            'APP.CONCIERGE.REPORTS_AVG_BOOKING_INVITES'
+                            | translate,
+                    },
                     {
                         key: 'no_shows',
                         name: 'APP.CONCIERGE.REPORTS_NO_SHOWS' | translate,

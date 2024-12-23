@@ -13,8 +13,18 @@ import { ReportsStateService } from '../reports-state.service';
                 class="m-4 rounded bg-base-100 border border-base-200 overflow-hidden"
             >
                 <div class="border-b border-base-200 p-4 flex items-center">
-                    <h3 class="font-bold text-xl flex-1">Daily Utilisation</h3>
-                    <button icon matRipple *ngIf="!print" (click)="download()">
+                    <h3 class="font-bold text-xl flex-1">
+                        {{ 'APP.CONCIERGE.REPORTS_DAILY_HEADER' | translate }}
+                    </h3>
+                    <button
+                        icon
+                        matRipple
+                        [matTooltip]="
+                            'APP.CONCIERGE.REPORTS_DOWNLOAD_TABLE' | translate
+                        "
+                        *ngIf="!print"
+                        (click)="download()"
+                    >
                         <app-icon>download</app-icon>
                     </button>
                 </div>
@@ -22,17 +32,33 @@ import { ReportsStateService } from '../reports-state.service';
                     class="w-full block text-sm"
                     [data]="day_list"
                     [columns]="[
-                        { key: 'date', name: 'Date', content: date_template },
-                        { key: 'approved', name: 'Approved Bookings' },
-                        { key: 'count', name: 'Total Requests' },
+                        {
+                            key: 'date',
+                            name: 'FORM.DATE' | translate,
+                            content: date_template,
+                        },
+                        {
+                            key: 'approved',
+                            name: 'APP.CONCIERGE.REPORTS_APPROVED' | translate,
+                        },
+                        {
+                            key: 'count',
+                            name:
+                                'APP.CONCIERGE.REPORTS_TOTAL_REQUESTS'
+                                | translate,
+                        },
                         {
                             key: 'utilisation',
-                            name: 'Utilisation',
-                            content: percent_template
-                        }
+                            name:
+                                'APP.CONCIERGE.REPORTS_UTILISATION' | translate,
+                            content: percent_template,
+                        },
                     ]"
                     [page_size]="print ? 0 : 10"
                     [sortable]="true"
+                    [empty_message]="
+                        'APP.CONCIERGE.REPORTS_DAILY_EMPTY' | translate
+                    "
                 >
                 </simple-table>
                 <ng-template #date_template let-data="data">

@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { queryBookings } from '@placeos/bookings';
 import {
     downloadFile,
+    i18n,
     jsonToCsv,
     notifyError,
     SettingsService,
@@ -64,7 +65,7 @@ export class ParkingReportService {
         }),
         tap((_) => {
             if (!_.length) {
-                notifyError('No bookings for the selected levels and period');
+                notifyError(i18n('APP.CONCIERGE.REPORTS_LOAD_ERROR'));
             }
             this._loading.next(false);
         }),

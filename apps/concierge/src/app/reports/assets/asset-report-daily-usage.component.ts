@@ -10,8 +10,18 @@ import { AssetsReportService } from './assets-report.service';
             class="m-4 rounded bg-base-100 border border-base-200 overflow-hidden"
         >
             <div class="border-b border-base-200 px-4 py-2 flex items-center">
-                <h3 class="font-bold text-xl flex-1">Daily Asset Usage</h3>
-                <button icon matRipple (click)="download()" *ngIf="!print">
+                <h3 class="font-bold text-xl flex-1">
+                    {{ 'APP.CONCIERGE.REPORTS_DAILY_HEADER' | translate }}
+                </h3>
+                <button
+                    icon
+                    matRipple
+                    [matTooltip]="
+                        'APP.CONCIERGE.REPORTS_DOWNLOAD_TABLE' | translate
+                    "
+                    (click)="download()"
+                    *ngIf="!print"
+                >
                     <app-icon>download</app-icon>
                 </button>
             </div>
@@ -19,15 +29,34 @@ import { AssetsReportService } from './assets-report.service';
                 class="w-full block text-sm"
                 [data]="daily_products"
                 [columns]="[
-                    { key: 'name', name: 'Name' },
-                    { key: 'date', name: 'Date', content: date_template },
-                    { key: 'booking_count', name: 'Bookings Count' },
-                    { key: 'booked_count', name: 'Number Booked' },
-                    { key: 'asset_count', name: 'Assets Available' },
+                    { key: 'name', name: 'FORM.NAME' | translate },
+                    {
+                        key: 'date',
+                        name: 'FORM.DATE' | translate,
+                        content: date_template,
+                    },
+                    {
+                        key: 'booking_count',
+                        name:
+                            'APP.CONCIERGE.REPORTS_BOOKING_COUNT_HEADER'
+                            | translate,
+                    },
+                    {
+                        key: 'booked_count',
+                        name: 'APP.CONCIERGE.REPORTS_TOTAL_BOOKED' | translate,
+                    },
+                    {
+                        key: 'asset_count',
+                        name:
+                            'APP.CONCIERGE.REPORTS_ASSETS_AVAILABLE'
+                            | translate,
+                    },
                 ]"
                 [sortable]="true"
                 [page_size]="print ? 0 : 10"
-                empty_message="No events for selected period"
+                [empty_message]="
+                    'APP.CONCIERGE.REPORTS_DAILY_EMPTY' | translate
+                "
             ></simple-table>
             <ng-template #date_template let-row="row">
                 <div class="p-4">
@@ -39,7 +68,7 @@ import { AssetsReportService } from './assets-report.service';
     styles: [``],
 })
 export class AssetReportDailyUsageComponent {
-    @Input() public print: boolean = false;
+    @Input() public print = false;
     public readonly daily_products = this._state.daily_stats$.pipe(
         map((days) => {
             let list = [];

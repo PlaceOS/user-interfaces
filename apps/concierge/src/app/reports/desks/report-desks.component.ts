@@ -38,11 +38,21 @@ import { OrganisationService } from '@placeos/organisation';
                         class="m-4 p-4 rounded bg-base-100 border border-base-200 flex justify-center items-center space-x-2"
                     >
                         <div class="flex flex-col items-center flex-1">
-                            <h3>Total Bookings</h3>
+                            <h3>
+                                {{
+                                    'APP.CONCIERGE.REPORTS_TOTAL_BOOKINGS'
+                                        | translate
+                                }}
+                            </h3>
                             <p>{{ (total_count | async) || 0 }}</p>
                         </div>
                         <div class="flex flex-col items-center flex-1">
-                            <h3>Utilisation</h3>
+                            <h3>
+                                {{
+                                    'APP.CONCIERGE.REPORTS_UTILISATION'
+                                        | translate
+                                }}
+                            </h3>
                             <p>{{ (utilisation | async) || 0 }}%</p>
                         </div>
                     </div>

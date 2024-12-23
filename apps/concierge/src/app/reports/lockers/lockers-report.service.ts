@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { queryBookings } from '@placeos/bookings';
 import {
     downloadFile,
+    i18n,
     jsonToCsv,
     notifyError,
     SettingsService,
@@ -65,7 +66,7 @@ export class LockersReportService {
         }),
         tap((_) => {
             if (!_.length) {
-                notifyError('No bookings for the selected levels and period');
+                notifyError(i18n('APP.CONCIERGE.REPORTS_LOAD_ERROR'));
             }
             this._loading.next(false);
         }),
@@ -121,7 +122,7 @@ export class LockersReportService {
             );
         }),
         map((list: [string, number][]) => {
-            let mapping: Record<string, number> = {};
+            const mapping: Record<string, number> = {};
             list.forEach(
                 ([id, count]) => (mapping[id] = Math.max(count || 0, 1)),
             );

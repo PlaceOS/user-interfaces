@@ -9,31 +9,43 @@ import { CateringReportStateService } from './catering-report-state.service';
             <div count class="text-3xl">
                 {{ (stats | async)?.order_count || '0' }}
             </div>
-            <div class="print:text-sm">Orders</div>
+            <div class="print:text-sm">
+                {{ 'APP.CONCIERGE.REPORTS_CATERING_ORDERS_HEADER' | translate }}
+            </div>
         </div>
         <div item class="flex flex-col flex-1 items-center justify-center">
             <div unique class="text-3xl">
                 {{ (stats | async)?.unique_items || '0' }}
             </div>
-            <div class="print:text-sm">Unique Items</div>
+            <div class="print:text-sm">
+                {{ 'APP.CONCIERGE.REPORTS_CATERING_ITEMS_UNIQUE' | translate }}
+            </div>
         </div>
         <div item class="flex flex-col flex-1 items-center justify-center">
             <div items class="text-3xl">
                 {{ (stats | async)?.item_count || '0' }}
             </div>
-            <div class="print:text-sm">Ordered Items</div>
+            <div class="print:text-sm">
+                {{ 'APP.CONCIERGE.REPORTS_CATERING_ITEMS_HEADER' | translate }}
+            </div>
         </div>
         <div item class="flex flex-col flex-1 items-center justify-center">
             <div total class="text-3xl">
                 {{ (stats | async)?.total_cost / 100 || 0 | currency: code }}
             </div>
-            <div class="print:text-sm">Total</div>
+            <div class="print:text-sm">
+                {{ 'CATERING.TOTAL_COST' | translate }}
+            </div>
         </div>
         <div item class="flex flex-col flex-1 items-center justify-center">
             <div average class="text-3xl">
                 {{ (stats | async)?.avg_cost / 100 || 0 | currency: code }}
             </div>
-            <div class="print:text-sm">Order Average</div>
+            <div class="print:text-sm">
+                {{
+                    'APP.CONCIERGE.REPORTS_CATERING_ORDERS_AVERAGE' | translate
+                }}
+            </div>
         </div>
     `,
     styles: [
@@ -69,6 +81,6 @@ export class CateringReportOverallComponent {
 
     constructor(
         private _report: CateringReportStateService,
-        private _org: OrganisationService
+        private _org: OrganisationService,
     ) {}
 }

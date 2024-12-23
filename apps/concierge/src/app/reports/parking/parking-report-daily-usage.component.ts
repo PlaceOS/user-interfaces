@@ -10,8 +10,18 @@ import { ParkingReportService } from './parking-report.service';
             class="m-4 rounded bg-base-100 border border-base-200 overflow-hidden"
         >
             <div class="border-b border-base-200 px-4 py-2 flex items-center">
-                <h3 class="font-bold text-xl flex-1">Daily Parking Details</h3>
-                <button icon matRipple (click)="download()" *ngIf="!print">
+                <h3 class="font-bold text-xl flex-1">
+                    {{ 'APP.CONCIERGE.REPORTS_DAILY_HEADER' | translate }}
+                </h3>
+                <button
+                    icon
+                    matRipple
+                    [matTooltip]="
+                        'APP.CONCIERGE.REPORTS_DOWNLOAD_TABLE' | translate
+                    "
+                    (click)="download()"
+                    *ngIf="!print"
+                >
                     <app-icon>download</app-icon>
                 </button>
             </div>
@@ -19,14 +29,33 @@ import { ParkingReportService } from './parking-report.service';
                 class="w-full block text-sm"
                 [data]="daily_stats"
                 [columns]="[
-                    { key: 'date', name: 'Date', content: date_template },
-                    { key: 'booking_count', name: 'Unique Spaces Reserved' },
-                    { key: 'host_count', name: 'Reservee Count' },
-                    { key: 'booked_count', name: 'Booking Count' },
+                    {
+                        key: 'date',
+                        name: 'FORM.DATE' | translate,
+                        content: date_template,
+                    },
+                    {
+                        key: 'booking_count',
+                        name: 'APP.CONCIERGE.REPORTS_UNIQUE_HEADER' | translate,
+                    },
+                    {
+                        key: 'host_count',
+                        name:
+                            'APP.CONCIERGE.REPORTS_HOST_COUNT_HEADER'
+                            | translate,
+                    },
+                    {
+                        key: 'booked_count',
+                        name:
+                            'APP.CONCIERGE.REPORTS_BOOKING_COUNT_HEADER'
+                            | translate,
+                    },
                 ]"
                 [sortable]="true"
                 [page_size]="print ? 0 : 10"
-                empty_message="No events for selected period"
+                [empty_message]="
+                    'APP.CONCIERGE.REPORTS_DAILY_EMPTY' | translate
+                "
             ></simple-table>
             <ng-template #date_template let-row="row">
                 <div class="p-4">
