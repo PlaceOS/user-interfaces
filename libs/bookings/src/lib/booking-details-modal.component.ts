@@ -6,8 +6,9 @@ import {
     notifyError,
     notifySuccess,
     SettingsService,
+    formatDuration,
 } from '@placeos/common';
-import { addMinutes, format, formatDuration } from 'date-fns';
+import { addMinutes, format } from 'date-fns';
 
 import { MapLocateModalComponent } from 'libs/components/src/lib/map-locate-modal.component';
 import { MapPinComponent } from 'libs/components/src/lib/map-pin.component';

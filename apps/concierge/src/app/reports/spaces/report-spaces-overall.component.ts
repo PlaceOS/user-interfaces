@@ -1,12 +1,8 @@
 import { Component } from '@angular/core';
-import {
-    differenceInBusinessDays,
-    endOfDay,
-    formatDuration,
-    startOfDay,
-} from 'date-fns';
+import { differenceInBusinessDays, endOfDay, startOfDay } from 'date-fns';
 import { map } from 'rxjs/operators';
 import { ReportsStateService } from '../reports-state.service';
+import { formatDuration } from '@placeos/common';
 
 @Component({
     selector: 'report-spaces-overall',

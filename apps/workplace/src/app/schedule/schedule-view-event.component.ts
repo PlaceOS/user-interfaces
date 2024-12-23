@@ -7,6 +7,7 @@ import {
     notifySuccess,
     openConfirmModal,
     SettingsService,
+    formatDuration,
 } from '@placeos/common';
 import {
     CalendarEvent,
@@ -16,7 +17,6 @@ import {
     showEvent,
 } from '@placeos/events';
 import { Space, SpacesService } from '@placeos/spaces';
-import { formatDuration } from 'date-fns';
 import { MapLocateModalComponent } from '@placeos/components';
 import { removeBooking, showBooking } from '@placeos/bookings';
 import { map } from 'rxjs/operators';
@@ -351,7 +351,7 @@ export class ScheduleViewEventComponent extends AsyncHandler {
         private _dialog: MatDialog,
         private _events: EventFormService,
         private _spaces: SpacesService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         super();
     }
@@ -370,12 +370,12 @@ export class ScheduleViewEventComponent extends AsyncHandler {
                               system_id: parts[1],
                           }).toPromise();
                 }
-            })
+            }),
         );
         this.timeout(
             'return',
             () => (!this.event ? this._router.navigate(['/schedule']) : ''),
-            8 * 1000
+            8 * 1000,
         );
     }
 
@@ -408,13 +408,15 @@ export class ScheduleViewEventComponent extends AsyncHandler {
                 } this event?`,
                 icon: { content: this.is_host ? 'delete' : 'event_busy' },
             },
-            this._dialog
+            this._dialog,
         );
         if (details.reason !== 'done') return;
         details.loading('Removing event...');
-        await (this._settings.get('app.events.use_bookings')
-            ? removeBooking
-            : removeEvent)(this.event.id)
+        await (
+            this._settings.get('app.events.use_bookings')
+                ? removeBooking
+                : removeEvent
+        )(this.event.id)
             .toPromise()
             .catch((e) => {
                 details.loading('');

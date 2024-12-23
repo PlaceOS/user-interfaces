@@ -14,8 +14,9 @@ import {
     notifySuccess,
     openConfirmModal,
     SettingsService,
+    formatDuration,
 } from '@placeos/common';
-import { addMinutes, formatDuration, isAfter } from 'date-fns';
+import { addMinutes, isAfter } from 'date-fns';
 import { MapLocateModalComponent } from '@placeos/components';
 
 @Component({
@@ -164,7 +165,7 @@ export class ScheduleViewBookingComponent extends AsyncHandler {
             this.event &&
             isAfter(
                 new Date(),
-                addMinutes(this.event.date, this.event.duration)
+                addMinutes(this.event.date, this.event.duration),
             )
         );
     }
@@ -174,7 +175,7 @@ export class ScheduleViewBookingComponent extends AsyncHandler {
         private _router: Router,
         private _dialog: MatDialog,
         private _bookings: BookingFormService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         super();
     }
@@ -188,12 +189,12 @@ export class ScheduleViewBookingComponent extends AsyncHandler {
                         .toPromise()
                         .catch(() => null);
                 }
-            })
+            }),
         );
         this.timeout(
             'return',
             () => (!this.event ? this._router.navigate(['/schedule']) : ''),
-            8 * 1000
+            8 * 1000,
         );
     }
 
@@ -226,7 +227,7 @@ export class ScheduleViewBookingComponent extends AsyncHandler {
                 } this event?`,
                 icon: { content: this.is_host ? 'delete' : 'event_busy' },
             },
-            this._dialog
+            this._dialog,
         );
         if (details.reason !== 'done') return;
         details.loading('Removing booking...');

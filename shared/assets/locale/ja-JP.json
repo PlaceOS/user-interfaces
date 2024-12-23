@@ -174,7 +174,15 @@
         "TRIGGER_EMPTY": "トリガーなし",
         "BUILDING_EMPTY": "建物なし",
         "BUILDING_REQUIRED": "建物が必要です",
-        "CREATED_AT": "作成日"
+        "CREATED_AT": "作成日",
+        "TIME_SECOND": "{{ seconds }} 分",
+        "TIME_SECONDS": "{{ seconds }} 分",
+        "TIME_MINUTE": "{{ minutes }} 分",
+        "TIME_MINUTES": "{{ minutes }} 分",
+        "TIME_HOUR": "{{ hours }} 時間",
+        "TIME_HOURS": "{{ hours }} 時間",
+        "TIME_DAY": "{{ days }} 日",
+        "TIME_DAYS": "{{ days }} 日"
     },
     "LANGUAGE": {
         "ENGLISH": "英語",

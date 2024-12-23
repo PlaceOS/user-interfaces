@@ -14,7 +14,6 @@ import {
     differenceInMinutes,
     endOfDay,
     format,
-    formatDuration,
     isBefore,
     isSameMinute,
     set,
@@ -22,7 +21,7 @@ import {
     startOfMinute,
 } from 'date-fns';
 
-import { AsyncHandler } from '@placeos/common';
+import { AsyncHandler, formatDuration } from '@placeos/common';
 
 import { ITimelineEventGroup } from '../event-timeline/event-timeline.component';
 

@@ -7,8 +7,8 @@ import {
     SimpleChanges,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { getTimezoneOffsetString } from '@placeos/common';
-import { addMinutes, formatDuration } from 'date-fns';
+import { getTimezoneOffsetString, formatDuration } from '@placeos/common';
+import { addMinutes } from 'date-fns';
 
 export interface DurationOption {
     id: number;

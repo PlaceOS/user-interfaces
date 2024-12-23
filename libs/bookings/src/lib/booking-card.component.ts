@@ -9,8 +9,13 @@ import {
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
-import { SettingsService, currentUser, i18n } from '@placeos/common';
-import { addMinutes, format, formatDuration, isSameDay } from 'date-fns';
+import {
+    SettingsService,
+    currentUser,
+    i18n,
+    formatDuration,
+} from '@placeos/common';
+import { addMinutes, format, isSameDay } from 'date-fns';
 import { map } from 'rxjs/operators';
 
 import { Booking } from './booking.class';

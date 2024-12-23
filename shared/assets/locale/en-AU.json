@@ -200,7 +200,15 @@
         "WORK_OFFICE": "Office",
         "WORK_LEAVE": "Leave",
         "WORK_DAYS": "Working Days",
-        "WORK_HOURS": "Working Hours"
+        "WORK_HOURS": "Working Hours",
+        "TIME_SECOND": "{{ seconds }} minute",
+        "TIME_SECONDS": "{{ seconds }} minutes",
+        "TIME_MINUTE": "{{ minutes }} minute",
+        "TIME_MINUTES": "{{ minutes }} minutes",
+        "TIME_HOUR": "{{ hours }} hour",
+        "TIME_HOURS": "{{ hours }} hours",
+        "TIME_DAY": "{{ days }} day",
+        "TIME_DAYS": "{{ days }} days"
     },
     "LANGUAGE": {
         "ENGLISH": "English",

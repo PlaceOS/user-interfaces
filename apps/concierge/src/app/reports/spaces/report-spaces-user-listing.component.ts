@@ -1,7 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { downloadFile, jsonToCsv } from '@placeos/common';
-import { User } from '@placeos/users';
-import { formatDuration } from 'date-fns';
+import { downloadFile, jsonToCsv, formatDuration } from '@placeos/common';
 import { combineLatest } from 'rxjs';
 import { debounceTime, map, shareReplay, take } from 'rxjs/operators';
 import { ReportsStateService } from '../reports-state.service';

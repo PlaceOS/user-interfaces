@@ -8,6 +8,7 @@ import {
     CONFIRM_METADATA,
 } from 'libs/components/src/lib/confirm-modal.component';
 import { HashMap } from './types';
+import { i18n } from './translate';
 
 /** Available console output streams. */
 export type ConsoleStream = 'debug' | 'warn' | 'log' | 'error';
@@ -557,4 +558,38 @@ export function shuffleArrayWithFirstItem(array: any[], first_index: number) {
     }
 
     return array;
+}
+
+export function formatDuration(
+    {
+        days,
+        hours,
+        minutes,
+        seconds,
+    }: {
+        days?: number;
+        hours?: number;
+        minutes?: number;
+        seconds?: number;
+    },
+    { zero }: { zero?: boolean } = {},
+): string {
+    const value = [];
+    if (days > 0 || (zero && days === 0))
+        value.push(
+            `${i18n(days === 1 ? 'COMMON.TIME_DAY' : 'COMMON.TIME_DAYS', { days })}`,
+        );
+    if (hours > 0 || (zero && hours === 0))
+        value.push(
+            `${i18n(hours === 1 ? 'COMMON.TIME_HOUR' : 'COMMON.TIME_HOURS', { hours })}`,
+        );
+    if (minutes > 0 || (zero && minutes === 0))
+        value.push(
+            `${i18n(minutes === 1 ? 'COMMON.TIME_MINUTE' : 'COMMON.TIME_MINUTES', { minutes })}`,
+        );
+    if (seconds > 0 || (zero && seconds === 0))
+        value.push(
+            `${i18n(seconds === 1 ? 'COMMON.TIME_SECOND' : 'COMMON.TIME_SECONDS', { seconds })}`,
+        );
+    return value.join(' ');
 }

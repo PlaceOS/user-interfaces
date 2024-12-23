@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
-import { formatDuration } from 'date-fns';
 import { ContactTracingStateService } from './contact-tracing-state.service';
-import { SettingsService } from '@placeos/common';
+import { formatDuration, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { debounceTime, map } from 'rxjs/operators';
 

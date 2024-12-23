@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { formatDuration } from 'date-fns';
+import { formatDuration } from '@placeos/common';
 
 @Pipe({
     name: 'duration',

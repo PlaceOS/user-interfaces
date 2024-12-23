@@ -1,5 +1,5 @@
 import { COMMA, ENTER, SPACE } from '@angular/cdk/keycodes';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { MatChipInputEvent } from '@angular/material/chips';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
@@ -7,6 +7,7 @@ import {
     SettingsService,
     TIMEZONES_IANA,
     currentUser,
+    formatDuration,
     getInvalidFields,
     notifyError,
     unique,
@@ -18,12 +19,7 @@ import {
 } from '@placeos/organisation';
 import { first } from 'rxjs/operators';
 import { EventStateService } from './event-state.service';
-import {
-    differenceInMinutes,
-    format,
-    formatDuration,
-    startOfDay,
-} from 'date-fns';
+import { differenceInMinutes, format, startOfDay } from 'date-fns';
 import { EventFormService, showEvent } from '@placeos/events';
 import { StaffUser } from '@placeos/users';
 import { Space, SpacePipe } from '@placeos/spaces';
@@ -466,7 +462,7 @@ const EMPTY = [];
     `,
     styles: [``],
 })
-export class EventManageComponent extends AsyncHandler {
+export class EventManageComponent extends AsyncHandler implements OnInit {
     public loading = false;
     public timezones: string[] = [];
     public resource: string;

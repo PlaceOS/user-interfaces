@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { SettingsService } from '@placeos/common';
+import { SettingsService, formatDuration } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
 import {
@@ -9,7 +9,6 @@ import {
     differenceInMinutes,
     endOfDay,
     format,
-    formatDuration,
     set,
     startOfDay,
 } from 'date-fns';

@@ -1,14 +1,10 @@
 import { Component } from '@angular/core';
-import {
-    differenceInSeconds,
-    formatDuration,
-    isAfter,
-    isSameDay,
-} from 'date-fns';
+import { differenceInSeconds, isAfter, isSameDay } from 'date-fns';
 import { combineLatest, interval } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { PanelStateService } from '../panel-state.service';
+import { formatDuration } from '@placeos/common';
 
 @Component({
     selector: 'panel-booking-list',
@@ -94,7 +90,7 @@ import { PanelStateService } from '../panel-state.service';
             <li
                 upcoming
                 class="flex items-center w-full p-4"
-                *ngFor="let event of upcoming | async | slice: 0:2"
+                *ngFor="let event of upcoming | async | slice: 0 : 2"
             >
                 <div class="opacity-60 w-24">
                     {{ event?.date | date: 'shortTime' }}
@@ -141,16 +137,18 @@ export class PanelBookingListComponent {
     /** List of current and future events for the current day */
     public readonly bookings = this._state.bookings.pipe(
         map((l) =>
-            l.filter((e) => e.state !== 'done' && isSameDay(e.date, new Date()))
-        )
+            l.filter(
+                (e) => e.state !== 'done' && isSameDay(e.date, new Date()),
+            ),
+        ),
     );
     /** In progress or next event */
     public readonly current = this.bookings.pipe(
-        map((list) => list.sort((a, b) => a.date - b.date)[0])
+        map((list) => list.sort((a, b) => a.date - b.date)[0]),
     );
     /** Whether current event has started */
     public readonly started = combineLatest([this.current, interval(600)]).pipe(
-        map(([c]) => isAfter(Date.now(), c?.date))
+        map(([c]) => isAfter(Date.now(), c?.date)),
     );
     /** Display string for time until current event's start */
     public readonly starting_in = combineLatest([
@@ -166,7 +164,7 @@ export class PanelBookingListComponent {
                       seconds: diff < 60 ? diff : 0,
                   })}`
                 : '';
-        })
+        }),
     );
     /** Whether current event is waiting for the attendees to begin the evnt */
     public readonly pending = combineLatest([
@@ -174,11 +172,13 @@ export class PanelBookingListComponent {
         this._state.settings,
         interval(600),
     ]).pipe(
-        map(([i, settings]) => i && settings.pending_period && settings.pending)
+        map(
+            ([i, settings]) => i && settings.pending_period && settings.pending,
+        ),
     );
     /** List of events excluding the current/next event */
     public readonly upcoming = this.bookings.pipe(
-        map((list) => list.sort((a, b) => a.date - b.date).slice(1))
+        map((list) => list.sort((a, b) => a.date - b.date).slice(1)),
     );
 
     constructor(private _state: PanelStateService) {}
