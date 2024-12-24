@@ -73,7 +73,9 @@ import { BookingAsset } from '../booking-form.service';
                     </h2>
                 </section>
                 <section details class="space-y-2 pb-2 border-b">
-                    <h2 class="text-xl font-medium">Details</h2>
+                    <h2 class="text-xl font-medium">
+                        {{ 'BOOKINGS.DETAILS' | translate }}
+                    </h2>
                     <div class="flex items-center space-x-2">
                         <app-icon>person</app-icon>
                         <p>{{ 'BOOKINGS.DESK_COUNT_LONE' | translate }}</p>

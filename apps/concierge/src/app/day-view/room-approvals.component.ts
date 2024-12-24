@@ -46,7 +46,7 @@ import { getTimezoneOffsetString, SettingsService } from '@placeos/common';
             <div class="border-b border-base-200 relative -mt-px">
                 <input
                     type="text"
-                    placeholder="Search..."
+                    [placeholder]="'COMMON.SEARCH' | translate"
                     class="w-full py-4 pr-4 pl-10"
                     [ngModel]="search | async"
                     (ngModelChange)="search.next($event)"

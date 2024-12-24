@@ -147,7 +147,7 @@ import { DeskQrCodeModalComponent } from './desk-qr-code-modal.component';
                             btn
                             icon
                             matRipple
-                            matTooltip="Refresh List"
+                            [matTooltip]="'COMMON.REFRESH' | translate"
                             class="ml-2 rounded border border-base-200"
                             (click)="refresh()"
                             [disabled]="loading | async"
@@ -158,7 +158,9 @@ import { DeskQrCodeModalComponent } from './desk-qr-code-modal.component';
                             btn
                             icon
                             matRipple
-                            matTooltip="Reject All"
+                            [matTooltip]="
+                                'APP.CONCIERGE.REJECT_ALL' | translate
+                            "
                             class="ml-2 rounded border border-base-200"
                             (click)="rejectAll()"
                             [disabled]="loading | async"

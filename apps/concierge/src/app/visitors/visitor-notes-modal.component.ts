@@ -1,14 +1,14 @@
 import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { Booking, BookingFormService, updateBooking } from '@placeos/bookings';
-import { notifyError, notifySuccess } from '@placeos/common';
+import { Booking, updateBooking } from '@placeos/bookings';
+import { i18n, notifyError, notifySuccess } from '@placeos/common';
 
 @Component({
     selector: 'visitor-notes-modal',
     template: `
         <header>
             <h2>
-                Notes for Visitor
+                {{ 'APP.CONCIERGE.VISITORS_NOTES_HEADERS' | translate }}
                 <span
                     class="font-medium px-2 py-1 text-sm bg-base-200 rounded ml-2"
                 >
@@ -28,7 +28,9 @@ import { notifyError, notifySuccess } from '@placeos/common';
                     matInput
                     [(ngModel)]="notes"
                     class="resize-none h-[60vh] max-h-[64rem]"
-                    placeholder="Notes for visitor"
+                    [placeholder]="
+                        'APP.CONCIERGE.VISITORS_NOTES_HEADERS' | translate
+                    "
                 ></textarea>
             </mat-form-field>
         </main>
@@ -36,7 +38,9 @@ import { notifyError, notifySuccess } from '@placeos/common';
             class="flex justify-end space-x-2 p-2 border-t border-base-200"
             *ngIf="!loading"
         >
-            <button btn matRipple class="w-32" (click)="save()">Save</button>
+            <button btn matRipple class="w-32" (click)="save()">
+                {{ 'COMMON.SAVE' | translate }}
+            </button>
         </footer>
         <ng-template #loading_template>
             <div
@@ -44,7 +48,7 @@ import { notifyError, notifySuccess } from '@placeos/common';
                 class="absolute inset-0 bg-base-100 flex flex-col items-center justify-center space-y-2"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
-                <p>Saving visitor notes...</p>
+                <p>{{ 'APP.CONCIERGE.VISITORS_NOTES_SAVING' | translate }}</p>
             </div>
         </ng-template>
     `,
@@ -73,14 +77,16 @@ export class VisitorNotesModalComponent {
             },
         })
             .toPromise()
-            .catch((_) => {
-                notifyError('Error saving visitor notes');
+            .catch((e) => {
+                notifyError(
+                    i18n('APP.CONCIERGE.VISITORS_NOTES_ERROR', { error: e }),
+                );
                 this._dialog_ref.disableClose = false;
                 this.loading = '';
-                throw _;
+                throw e;
             });
         this.loading = '';
-        notifySuccess('Successfully saved visitor notes');
+        notifySuccess(i18n('APP.CONCIERGE.VISITORS_NOTES_SUCCESS'));
         this._dialog_ref.close();
     }
 }

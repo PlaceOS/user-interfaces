@@ -36,7 +36,7 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
                         <input
                             matInput
                             name="display-name"
-                            placeholder="Display Name"
+                            [placeholder]="'FORM.DISPLAY_NAME' | translate"
                             formControlName="display_name"
                         />
                     </mat-form-field>

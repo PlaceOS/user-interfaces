@@ -41,14 +41,26 @@ import { showUser } from '@placeos/ts-client';
                     'APP.CONCIERGE.PARKING_SPACE_NAME' | translate
                 }}</label>
                 <mat-form-field appearance="outline">
-                    <input matInput name="name" formControlName="name" />
+                    <input
+                        matInput
+                        name="name"
+                        [placeholder]="
+                            'APP.CONCIERGE.PARKING_SPACE_NAME' | translate
+                        "
+                        formControlName="name"
+                    />
                     <mat-error>{{
                         'FORM.NAME_REQUIRED' | translate
                     }}</mat-error>
                 </mat-form-field>
                 <label for="map-id">{{ 'EXPLORE.MAP_ID' | translate }}</label>
                 <mat-form-field appearance="outline">
-                    <input matInput name="map-id" formControlName="map_id" />
+                    <input
+                        matInput
+                        name="map-id"
+                        [placeholder]="'EXPLORE.MAP_ID_PLACEHOLDER' | translate"
+                        formControlName="map_id"
+                    />
                     <mat-error>
                         {{ 'EXPLORE.MAP_ID_REQUIRED' | translate }}
                     </mat-error>
@@ -85,6 +97,7 @@ import { showUser } from '@placeos/ts-client';
                     <textarea
                         matInput
                         name="notes"
+                        [placeholder]="'FORM.NOTES' | translate"
                         formControlName="notes"
                     ></textarea>
                 </mat-form-field>

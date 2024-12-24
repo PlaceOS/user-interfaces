@@ -15,6 +15,7 @@ import {
     fromUnixTime,
     getUnixTime,
     isSameDay,
+    setHours,
     startOfDay,
 } from 'date-fns';
 import { queryUserFreeBusy } from 'libs/calendar/src/lib/calendar.fn';
@@ -79,13 +80,12 @@ export interface FindAvailabilityData {
                 >
                     <div
                         hour
-                        *ngFor="let _ of hours; let hour = index"
-                        class="relative border-r border-base-200 h-10 min-w-[5rem] p-2"
+                        *ngFor="let hr of hours; let hour = index"
+                        class="relative border-r border-base-200 h-10 min-w-[5rem] p-2 text-sm"
                         [attr.disabled]="today && current_hour > hour"
                         [style.left]="-offset_x + 'px'"
                     >
-                        {{ hour % 12 === 0 ? '12' : hour % 12
-                        }}{{ hour >= 12 ? 'pm' : 'am' }}
+                        <span>{{ hr | date: 'haa' }}</span>
                     </div>
                 </div>
                 <div users class="row-start-2 w-24 overflow-hidden">
@@ -258,7 +258,9 @@ export class FindAvailabilityModalComponent
     public offset_x = 0;
 
     public readonly host = this._data.host;
-    public readonly hours = new Array(24).fill(0);
+    public readonly hours = new Array(24)
+        .fill(0)
+        .map((_, idx) => setHours(startOfDay(Date.now()), idx).valueOf());
     public readonly on_change = new BehaviorSubject(0);
 
     public readonly availability = combineLatest([

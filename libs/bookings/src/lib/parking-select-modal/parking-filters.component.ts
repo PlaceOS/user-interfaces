@@ -35,7 +35,9 @@ import { addDays, endOfDay } from 'date-fns';
                     {{ 'BOOKINGS.DETAILS' | translate }}
                 </h2>
                 <div class="flex-1 min-w-[256px] flex flex-col">
-                    <label for="location">Location</label>
+                    <label for="location">{{
+                        'BOOKINGS.LOCATION' | translate
+                    }}</label>
                     <ng-container *ngIf="!use_region">
                         <mat-form-field
                             appearance="outline"

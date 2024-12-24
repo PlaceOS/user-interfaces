@@ -94,7 +94,7 @@ export interface TableColumn {
                         : page * (page_size || 9999)
                         : (page + 1) * (page_size || 9999);
                 track row;
-                let idx = $index
+                let i = $index
             ) {
                 <div
                     *ngIf="selectable"

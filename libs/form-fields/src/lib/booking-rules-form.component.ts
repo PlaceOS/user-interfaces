@@ -30,7 +30,7 @@ import {
     selector: 'booking-rules-form',
     template: `
         <div class="flex flex-col space-y-2" [formGroup]="form">
-            <div class="flex items-center space-x-2">
+            <div class="flex items-center space-x-4">
                 <div class="flex flex-col flex-1">
                     <label for="zone"
                         >{{ 'COMMON.ZONE' | translate }}<span>*</span>:</label
@@ -69,25 +69,23 @@ import {
                     </mat-form-field>
                 </div>
             </div>
-            <div class="flex items-center space-x-2" formGroupName="rules">
+            <div class="flex items-center space-x-4 pb-4" formGroupName="rules">
                 <div class="flex flex-col flex-1">
-                    <mat-checkbox
-                        name="hidden"
+                    <settings-toggle
                         formControlName="hidden"
-                        [matTooltip]="'BOOKINGS.PREVENT_INFO' | translate"
+                        [name]="'BOOKINGS.PREVENT' | translate"
+                        [info]="'BOOKINGS.PREVENT_INFO' | translate"
                     >
-                        {{ 'BOOKINGS.PREVENT' | translate }}
-                    </mat-checkbox>
+                    </settings-toggle>
                 </div>
                 <div class="flex flex-col flex-1">
-                    <mat-checkbox
-                        name="auto_approve"
-                        formControlName="auto_approve"
+                    <settings-toggle
                         *ngIf="!form.value.rules.hidden"
-                        [matTooltip]="'BOOKINGS.AUTO_APPROVE_INFO' | translate"
+                        formControlName="auto_approve"
+                        [name]="'BOOKINGS.AUTO_APPROVE' | translate"
+                        [info]="'BOOKINGS.AUTO_APPROVE_INFO' | translate"
                     >
-                        {{ 'BOOKINGS.AUTO_APPROVE' | translate }}
-                    </mat-checkbox>
+                    </settings-toggle>
                 </div>
             </div>
             <div class="flex flex-col">
@@ -143,7 +141,7 @@ import {
                     {{
                         (form.value.rules.hidden
                             ? 'BOOKINGS.GROUPS_DENY'
-                            : 'BOOKINGS.GROUP_ALLOW'
+                            : 'BOOKINGS.GROUPS_ALLOW'
                         ) | translate
                     }}
                 </label>
@@ -404,7 +402,6 @@ import {
         `
             :host {
                 display: block;
-                padding: 0.5rem;
             }
         `,
     ],

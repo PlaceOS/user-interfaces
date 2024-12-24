@@ -9,7 +9,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
             <header
                 class="sticky flex items-center justify-between top-0 px-4 py-2 mx-auto my-2 max-w-[640px] w-full border-none z-10 bg-base-200 rounded"
             >
-                <h2 class="text-xl font-medium">
+                <h2 class="text-xl font-medium capitalize">
                     {{ heading }}
                 </h2>
                 @if (!close?.length) {
@@ -32,7 +32,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
                 class="fixed bottom-0 left-1/2 -translate-x-1/2 px-4 py-2 mx-auto my-2 max-w-[640px] w-full border-none z-10 bg-base-200 rounded flex items-center justify-end"
                 *ngIf="!loading && !hide_confirm"
             >
-                <button btn matRipple class="w-32" (click)="save.emit()">
+                <button btn matRipple class="w-32" (click)="confirm.emit()">
                     {{ confirm_text || ('COMMON.SAVE' | translate) }}
                 </button>
             </footer>

@@ -24,7 +24,7 @@ import { PlaceSystem, showMetadata, updateMetadata } from '@placeos/ts-client';
             *ngIf="!loading; else load_state"
             [formGroup]="form"
         >
-            <label for="status">Status</label>
+            <label for="status">{{ 'COMMON.STATUS' | translate }}</label>
             <mat-form-field appearance="outline">
                 <mat-select name="status" formControlName="status">
                     <mat-option value="">{{
