@@ -102,7 +102,7 @@ import { i18n, notifySuccess, SettingsService } from '@placeos/common';
             </div>
         </ng-template>
         <ng-template #action_template let-row="row">
-            <div class="mx-auto">
+            <div class="mx-auto p-1">
                 <button
                     icon
                     matRipple

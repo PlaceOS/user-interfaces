@@ -21,7 +21,7 @@ import { AsyncHandler } from '@placeos/common';
                     (click)="active = 'requests'"
                     *ngIf="!is_new"
                 >
-                    Requests
+                    {{ 'APP.CONCIERGE.ASSETS_REQUESTS' | translate }}
                 </a>
                 <a
                     mat-tab-link
@@ -29,7 +29,7 @@ import { AsyncHandler } from '@placeos/common';
                     [active]="active === 'items'"
                     (click)="active = 'items'"
                 >
-                    Products
+                    {{ 'APP.CONCIERGE.ASSETS_PRODUCTS' | translate }}
                 </a>
                 <a
                     mat-tab-link
@@ -37,7 +37,7 @@ import { AsyncHandler } from '@placeos/common';
                     [active]="active === 'purchase-orders'"
                     (click)="active = 'purchase-orders'"
                 >
-                    Purchase Orders
+                    {{ 'APP.CONCIERGE.ASSETS_PO' | translate }}
                 </a>
             </nav>
             <mat-tab-nav-panel

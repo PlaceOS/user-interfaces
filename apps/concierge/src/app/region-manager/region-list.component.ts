@@ -33,7 +33,7 @@ import { VisitorKioskSettingsFormModalComponent } from '../ui/app-settings/visit
                         key: 'actions',
                         name: ' ',
                         content: action_template,
-                        size: '3rem',
+                        size: '3.5rem',
                         sortable: false,
                     },
                 ]"
@@ -53,7 +53,7 @@ import { VisitorKioskSettingsFormModalComponent } from '../ui/app-settings/visit
             </button>
         </ng-template>
         <ng-template #action_template let-row="row">
-            <div class="w-full flex justify-end space-x-2">
+            <div class="w-full flex justify-end space-x-2 p-1">
                 <button
                     icon
                     matRipple

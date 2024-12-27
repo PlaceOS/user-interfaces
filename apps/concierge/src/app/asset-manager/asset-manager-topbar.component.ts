@@ -66,12 +66,18 @@ import { OrganisationService } from '@placeos/organisation';
                 [ngModel]="(options | async)?.view"
                 (ngModelChange)="setOptions({ view: $event })"
             >
-                <mat-button-toggle value="grid" matTooltip="View as Grid">
+                <mat-button-toggle
+                    value="grid"
+                    [matTooltip]="'COMMON.VIEW_AS_GRID' | translate"
+                >
                     <div class="flex items-center justify-center h-12 w-8">
                         <app-icon class="text-2xl">view_module</app-icon>
                     </div>
                 </mat-button-toggle>
-                <mat-button-toggle value="list" matTooltip="View as List">
+                <mat-button-toggle
+                    value="list"
+                    [matTooltip]="'COMMON.VIEW_AS_LIST' | translate"
+                >
                     <div class="flex items-center justify-center h-12 w-8">
                         <app-icon class="text-2xl">view_list</app-icon>
                     </div>

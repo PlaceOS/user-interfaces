@@ -50,7 +50,6 @@ import {
     OpenStack,
 } from '@placeos/cloud-uploads';
 import { setCustomHeaders } from '@placeos/svg-viewer';
-import { DatePipe } from '@angular/common';
 
 const START_QUERY = location.search;
 

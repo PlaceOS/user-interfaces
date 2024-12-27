@@ -49,7 +49,7 @@ import { VisitorKioskSettingsFormModalComponent } from '../ui/app-settings/visit
                         key: 'actions',
                         name: ' ',
                         content: action_template,
-                        size: '3rem',
+                        size: '3.5rem',
                         sortable: false,
                     },
                 ]"
@@ -81,10 +81,12 @@ import { VisitorKioskSettingsFormModalComponent } from '../ui/app-settings/visit
                 [source]="data[0]"
                 class="max-h-[3rem] max-w-[8rem]"
             />
-            <span *ngIf="!data.length" class="opacity-30">No Images</span>
+            <span *ngIf="!data.length" class="opacity-30">{{
+                'COMMON.IMAGES_EMPTY' | translate
+            }}</span>
         </ng-template>
         <ng-template #action_template let-row="row">
-            <div class="w-full flex justify-end space-x-2">
+            <div class="w-full flex justify-center space-x-2 p-1">
                 <button
                     icon
                     matRipple

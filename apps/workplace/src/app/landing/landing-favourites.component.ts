@@ -135,14 +135,17 @@ const EMPTY = [];
                             name="landing-remove-favourite"
                             mat-menu-item
                             (click)="toggleFavourite('space', item)"
-                            class="flex items-center space-x-2"
                         >
-                            <app-icon class="text-2xl">cancel</app-icon>
-                            <div>
-                                {{
-                                    'APP.WORKPLACE.FAVOURITES_REMOVE'
-                                        | translate
-                                }}
+                            <div class="flex items-center space-x-2">
+                                <app-icon class="text-2xl text-error"
+                                    >delete</app-icon
+                                >
+                                <div>
+                                    {{
+                                        'APP.WORKPLACE.FAVOURITES_REMOVE'
+                                            | translate
+                                    }}
+                                </div>
                             </div>
                         </button>
                     </mat-menu>
@@ -228,7 +231,7 @@ const EMPTY = [];
                         >
                             <div class="flex items-center space-x-2">
                                 <app-icon class="text-2xl text-error">
-                                    cancel
+                                    delete
                                 </app-icon>
                                 <div class="pr-4">
                                     {{

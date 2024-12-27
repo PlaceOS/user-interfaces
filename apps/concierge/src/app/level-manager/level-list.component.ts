@@ -40,7 +40,7 @@ import { BookingPanelSettingsModalComponent } from '../ui/app-settings/booking-p
                         key: 'actions',
                         name: ' ',
                         content: action_template,
-                        size: '3.75rem',
+                        size: '3.5rem',
                         sortable: false,
                     },
                 ]"
@@ -68,7 +68,7 @@ import { BookingPanelSettingsModalComponent } from '../ui/app-settings/booking-p
             </div>
         </ng-template>
         <ng-template #action_template let-row="row">
-            <div class="w-full flex justify-end space-x-2 p-2">
+            <div class="w-full flex justify-center space-x-2 p-1">
                 <button
                     icon
                     matRipple

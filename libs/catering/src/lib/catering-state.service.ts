@@ -116,14 +116,20 @@ export class CateringStateService extends AsyncHandler {
                 this._settings.get('app.catering_provider_groups') || {};
             let provider_list = Object.keys(provider_groups);
             if (!provider_list.length) {
-                return unique(menu_items.map((i) => i.caterer));
+                return unique(menu_items.map((i) => i.caterer)).sort((a, b) =>
+                    `${a}`.localeCompare(b),
+                );
             }
             provider_list = provider_list.filter((caterer) =>
                 provider_groups[caterer].find((group) =>
                     currentUser().groups.includes(group),
                 ),
             );
-            return unique(provider_list);
+            provider_list = unique(provider_list);
+            provider_list = provider_list.sort((a, b) =>
+                `${a}`.localeCompare(b),
+            );
+            return provider_list;
         }),
         shareReplay(1),
     );

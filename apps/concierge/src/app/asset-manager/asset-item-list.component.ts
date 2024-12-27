@@ -17,10 +17,14 @@ import { combineLatest } from 'rxjs';
                     <h2 class="py-2">
                         <span class="font-medium">{{ group?.name }}</span>
                         <span class="text-xs">
-                            ({{ (products | async)[group.id]?.length }} item{{
-                                (products | async)[group.id]?.length === 1
-                                    ? ''
-                                    : 's'
+                            ({{
+                                'COMMON.ITEM_COUNT'
+                                    | translate
+                                        : {
+                                              count: (products | async)[
+                                                  group.id
+                                              ]?.length,
+                                          }
                             }})
                         </span>
                     </h2>
@@ -40,7 +44,7 @@ import { combineLatest } from 'rxjs';
                                     [routerLink]="[
                                         base_route,
                                         'view',
-                                        asset.id
+                                        asset.id,
                                     ]"
                                 >
                                     <div
@@ -101,7 +105,7 @@ import { combineLatest } from 'rxjs';
                                     [routerLink]="[
                                         base_route,
                                         'view',
-                                        asset.id
+                                        asset.id,
                                     ]"
                                 >
                                     <div

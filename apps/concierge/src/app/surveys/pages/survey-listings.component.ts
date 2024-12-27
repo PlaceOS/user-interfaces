@@ -81,8 +81,13 @@ import { querySurveys } from '@placeos/ts-client';
             </div>
         </ng-template>
         <ng-template #action_template let-row="row">
-            <div class="flex items-center space-x-2 mx-auto p-2">
-                <button icon matRipple [matMenuTriggerFor]="actionsMenu">
+            <div class="flex items-center space-x-2 mx-auto p-1">
+                <button
+                    icon
+                    matRipple
+                    class="h-12 w-12 rounded"
+                    [matMenuTriggerFor]="actionsMenu"
+                >
                     <app-icon>more_vert</app-icon>
                 </button>
                 <mat-menu #actionsMenu="matMenu">
