@@ -1740,10 +1740,12 @@
             "CONTINUE": "Next",
             "SAVE": "Save",
             "BEVERAGE_MSG": "Would you like a drink?",
-            "ERROR_PRINT": "Error printing visitor pass",
-            "ERROR_CHECKIN": "Error checking in {{ guest }} for {{ host }}'s meeting.",
+            "ERROR_PRINT": "Failed to print visitor pass.",
+            "ERROR_CHECKIN": "Failed to check-in {{ guest }} for {{ host }}'s meeting.",
             "SUCCESS_CHECKIN": "Successfully checked in {{ guest }} for {{ host }}'s meeting",
-            "NOT_FOUND": "No meetings for guest \"{{ email }}\" today"
+            "NOT_FOUND": "No meetings for guest \"{{ email }}\" today",
+            "LOAD_ERROR": "Failed to load booking for guest.",
+            "UPDATE_SUCCESS": "Successfully updated booking for guest."
         }
     }
 }

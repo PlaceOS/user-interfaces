@@ -1,10 +1,16 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 
-import { CateringItem, CateringStateService } from '@placeos/catering';
-import { notifyError, notifySuccess } from '@placeos/common';
+import {
+    CateringItem,
+    CateringOrder,
+    CateringStateService,
+} from '@placeos/catering';
+import { i18n, notifyError, notifySuccess } from '@placeos/common';
 import { first, map } from 'rxjs/operators';
 import { CheckinStateService } from './checkin-state.service';
+import { CalendarEvent, showEvent, updateEvent } from '@placeos/events';
+import { updateBooking } from '@placeos/bookings';
 
 @Component({
     selector: 'checkin-preferences',
@@ -80,38 +86,52 @@ export class CheckinPreferencesComponent {
 
     public async update() {
         if (!this.beverage) return this.next();
-        const event = await this._checkin.event
+        const booking = await this._checkin.event
             .pipe(first((_) => !!_))
             .toPromise();
-        if (!event) return notifyError('Unable to load event data.');
-        // const order =
-        //     (event.ext('catering') ? event.ext('catering')[0] : null) ||
-        //     new CateringOrder();
-        // await updateEvent(
-        //     event.id,
-        //     new CalendarEvent({
-        //         ...event,
-        //         extension_data: {
-        //             ...event.extension_data,
-        //             catering: [
-        //                 ...(event.extension_data.catering?.filter(
-        //                     (_) => _.id !== order.id
-        //                 ) || []),
-        //                 new CateringOrder({
-        //                     ...order,
-        //                     items: [
-        //                         ...order.items,
-        //                         new CateringItem({
-        //                             ...this.beverage,
-        //                             quantity: 1,
-        //                         }),
-        //                     ],
-        //                 }),
-        //             ],
-        //         },
-        //     })
-        // ).toPromise();
-        notifySuccess('Successfully update event.');
+        if (!booking) return notifyError(i18n('APP.VISITOR_KIOSK.LOAD_ERROR'));
+        await updateBooking(booking.id, {
+            ...booking,
+            extension_data: {
+                ...booking.extension_data,
+                beverage: this.beverage,
+            },
+        });
+        if (booking.linked_event) {
+            const event = await showEvent(booking.linked_event.id)
+                .toPromise()
+                .catch(() => null);
+            if (event) {
+                const order =
+                    (event.ext('catering') ? event.ext('catering')[0] : null) ||
+                    new CateringOrder();
+                await updateEvent(
+                    booking.id,
+                    new CalendarEvent({
+                        ...event,
+                        extension_data: {
+                            ...event.extension_data,
+                            catering: [
+                                ...(event.extension_data.catering?.filter(
+                                    (_) => _.id !== order.id,
+                                ) || []),
+                                new CateringOrder({
+                                    ...order,
+                                    items: [
+                                        ...order.items,
+                                        new CateringItem({
+                                            ...this.beverage,
+                                            quantity: 1,
+                                        }),
+                                    ],
+                                }),
+                            ],
+                        },
+                    }),
+                ).toPromise();
+            }
+        }
+        notifySuccess(i18n('APP.VISITOR_KIOSK.UPDATE_SUCCESS'));
         this.next();
     }
 

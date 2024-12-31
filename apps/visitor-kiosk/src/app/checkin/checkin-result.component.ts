@@ -256,8 +256,8 @@ export class CheckinResultsComponent extends AsyncHandler implements OnInit {
     }
 
     public next(): void {
-        // this._settings.get('app.allow_beverages')
-        //     ? this._router.navigate(['/checkin', 'preferences']) :
-        this._router.navigate(['/welcome']);
+        this._settings.get('app.allow_beverages')
+            ? this._router.navigate(['/checkin', 'preferences'])
+            : this._router.navigate(['/welcome']);
     }
 }
