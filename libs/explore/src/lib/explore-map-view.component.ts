@@ -76,6 +76,14 @@ const EMPTY = [];
                 <div class="text-sm">{{ pair[0] }}</div>
             </div>
         </div>
+        <button
+            class="absolute top-2 right-2 bg-base-100 shadow border border-base-300 h-12 min-w-32 px-4 rounded-lg"
+            matRipple
+            *ngIf="locate"
+            (click)="clearLocate()"
+        >
+            Clear Pin
+        </button>
     `,
     styles: [
         `
@@ -193,7 +201,7 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
                         );
                     this.locateUser(
                         user instanceof Array ? user[0] : user,
-                    ).catch((_) => {
+                    ).catch(() => {
                         notifyError(
                             i18n('EXPLORE.LOCATE_USER_FAILED', {
                                 name: params.get('user'),
@@ -201,7 +209,8 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
                         );
                         this._router.navigate([], {
                             relativeTo: this._route,
-                            queryParams: {},
+                            queryParams: { user: '' },
+                            queryParamsHandling: 'preserve',
                         });
                     });
                 } else if (params.has('locate')) {
@@ -226,6 +235,21 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
         this._state.setPositions(this._state.positions.zoom, center);
     }
 
+    public clearLocate() {
+        this.locate = '';
+        this._state.setFeatures('_located', []);
+        this._router.navigate([], {
+            relativeTo: this._route,
+            queryParams: {
+                user: undefined,
+                space: undefined,
+                locate: undefined,
+                name: undefined,
+            },
+            queryParamsHandling: 'merge',
+        });
+    }
+
     private _locateFeature(id: string, name = '') {
         const has_coordinates = id.includes(',');
         const parts = id.split(',');
@@ -238,10 +262,10 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
             z_index: 99,
             data: { message: name },
         };
-        this.locate = id;
-        this.timeout('update_location', () =>
-            this._state.setFeatures('_located', [feature]),
-        );
+        this.timeout('update_location', () => {
+            this.locate = id;
+            this._state.setFeatures('_located', [feature]);
+        });
     }
 
     private async locateSpace(id: string) {
@@ -258,9 +282,10 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
                 message: `${space.display_name || space.name} is here`,
             },
         };
-        this.timeout('update_location', () =>
-            this._state.setFeatures('_located', [feature]),
-        );
+        this.timeout('update_location', () => {
+            this.locate = id;
+            this._state.setFeatures('_located', [feature]);
+        });
     }
 
     private async locateUser(user: User) {
@@ -316,6 +341,7 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
             },
         };
         this.timeout('update_location', () => {
+            this.locate = user.id || user.email;
             this._state.setFeatures('_located', [feature]);
         });
     }
