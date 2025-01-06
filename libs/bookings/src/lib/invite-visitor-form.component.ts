@@ -2,6 +2,7 @@ import {
     Component,
     EventEmitter,
     Input,
+    OnChanges,
     OnInit,
     Output,
     SimpleChanges,
@@ -219,7 +220,7 @@ import { User } from 'libs/users/src/lib/user.class';
                             <input
                                 name="reason"
                                 matInput
-                                formControlName="description"
+                                formControlName="title"
                                 [placeholder]="
                                     'BOOKINGS.VISITOR_REASON_PLACEHOLDER'
                                         | translate
@@ -326,7 +327,10 @@ import { User } from 'libs/users/src/lib/user.class';
     `,
     styles: [``],
 })
-export class InviteVisitorFormComponent extends AsyncHandler implements OnInit {
+export class InviteVisitorFormComponent
+    extends AsyncHandler
+    implements OnInit, OnChanges
+{
     @Input() public date: number;
     @Output() public done = new EventEmitter<void>();
 
@@ -401,6 +405,7 @@ export class InviteVisitorFormComponent extends AsyncHandler implements OnInit {
         );
         if (this.multiple)
             this.form.patchValue({ asset_id: 'multiple@place.tech' });
+        this.form.patchValue({ title: 'Visit' });
     }
 
     public ngOnChanges(changes: SimpleChanges) {
