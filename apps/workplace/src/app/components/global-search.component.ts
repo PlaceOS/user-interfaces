@@ -67,7 +67,7 @@ import { ExploreSearchService } from '@placeos/explore';
                 <ng-container *ngIf="!(loading | async) && filter_str">
                     <a
                         matRipple
-                        *ngFor="let option of results | async | slice: 0 : 20"
+                        *ngFor="let option of results | async | slice: 0 : 100"
                         [routerLink]="['/explore']"
                         [queryParams]="
                             option.type === 'space'
