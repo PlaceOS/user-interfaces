@@ -341,12 +341,13 @@ export class LockerStateService extends AsyncHandler {
     }
 
     public async shareLocker(locker: Locker, user?: StaffUser) {
+        const system_id = this._org.binding('lockers');
+        if (!system_id)
+            return notifyError(i18n('APP.CONCIERGE.LOCKERS_NO_DRIVER'));
         if (!user) {
             // TODO: Ask to select user
             return;
         }
-        const system_id = this._org.binding('lockers');
-        if (!system_id) return notifyError('Driver not setup for lockers');
         const mod = getModule(system_id, 'Locker');
         await mod
             .execute('locker_share_mine', [locker.bank_id, locker.id, user.id])
@@ -355,66 +356,77 @@ export class LockerStateService extends AsyncHandler {
                 throw e;
             });
         notifySuccess(
-            `Successfully shared locker "${locker.name}" with ${user.name}`,
+            i18n(`APP.CONCIERGE.LOCKERS_SHARE_SUCCESS`, {
+                name: locker.name,
+                user: user.name,
+            }),
         );
     }
 
     public async releaseLocker(locker: Locker, confirm = false) {
+        const system_id = this._org.binding('lockers');
+        if (!system_id)
+            return notifyError(i18n('APP.CONCIERGE.LOCKERS_NO_DRIVER'));
         let close: () => void;
         if (confirm) {
             const result = await openConfirmModal(
                 {
-                    title: 'Release Locker',
-                    content:
-                        'Are you sure you wish to release this locker? This will cancel any bookings in the room at this time.',
+                    title: i18n('APP.CONCIERGE.LOCKERS_RELEASE_TITLE'),
+                    content: i18n('APP.CONCIERGE.LOCKERS_RELEASE_MSG'),
                     icon: { content: 'event_busy' },
                 },
                 this._dialog,
             );
             if (result.reason !== 'done') return;
-            result.loading('Releasing locker...');
+            result.loading(i18n('APP.CONCIERGE.LOCKERS_RELEASE_LOADING'));
             close = result.close;
         }
-        const system_id = this._org.binding('lockers');
-        if (!system_id) return notifyError('Driver not setup for lockers');
         const mod = getModule(system_id, 'Locker');
         await mod
             .execute('locker_release', [locker.bank_id, locker.id])
             .catch((e) => {
-                notifyError(e);
+                notifyError(
+                    i18n('APP.CONCIERGE.LOCKERS_RELEASE_ERROR', { error: e }),
+                );
                 if (close) close();
                 throw e;
             });
-        notifySuccess(`Successfully released locker "${locker.name}"`);
+        notifySuccess(
+            i18n(`APP.CONCIERGE.LOCKERS_RELEASE_SUCCESS`, {
+                name: locker.name,
+            }),
+        );
         if (close) close();
     }
 
     public async openLocker(locker: Locker, confirm = false) {
         const system_id = this._org.binding('lockers');
-        if (!system_id) return notifyError('Driver not setup for lockers');
+        if (!system_id)
+            return notifyError(i18n('APP.CONCIERGE.LOCKERS_NO_DRIVER'));
         let close: () => void;
         if (confirm) {
             const result = await openConfirmModal(
                 {
-                    title: 'Open Locker',
-                    content:
-                        'Are you sure you wish to open this locker? The contents of the locker will be accessible to anybody nearby.',
+                    title: i18n('APP.CONICERGE.LOCKERS_OPEN_TITLE'),
+                    content: i18n('APP.CONICERGE.LOCKERS_OPEN_MSG'),
                     icon: { content: 'event_busy' },
                 },
                 this._dialog,
             );
             if (result.reason !== 'done') return;
-            result.loading('Releasing locker...');
+            result.loading(i18n('APP.CONICERGE.LOCKERS_OPEN_LOADING'));
             close = result.close;
         }
         const mod = getModule(system_id, 'Locker');
         await mod
             .execute('locker_unlock_mine', [locker.bank_id, locker.id])
             .catch((e) => {
-                notifyError(e);
+                notifyError(
+                    i18n(`APP.CONCIERGE.LOCKERS_OPEN_ERROR`, { error: e }),
+                );
                 throw e;
             });
-        notifySuccess(`Successfully opened locker "${locker.name}"`);
+        notifySuccess(i18n(`APP.CONCIERGE.LOCKERS_OPEN_SUCCESS`));
         if (close) close();
     }
 
