@@ -12,14 +12,7 @@ import {
     take,
     tap,
 } from 'rxjs/operators';
-import {
-    addHours,
-    endOfDay,
-    format,
-    getUnixTime,
-    set,
-    startOfDay,
-} from 'date-fns';
+import { addHours, endOfDay, getUnixTime, set, startOfDay } from 'date-fns';
 
 import {
     approveBooking,

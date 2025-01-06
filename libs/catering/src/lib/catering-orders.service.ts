@@ -7,6 +7,7 @@ import {
     tap,
     shareReplay,
     catchError,
+    first,
 } from 'rxjs/operators';
 import { startOfDay, endOfDay, getUnixTime, format } from 'date-fns';
 
@@ -69,6 +70,7 @@ export class CateringOrdersService extends AsyncHandler {
     public readonly orders: Observable<CateringOrder[]> = combineLatest([
         this._filters,
         this._poll,
+        this._org.initialised.pipe(first((_) => _)),
     ]).pipe(
         debounceTime(300),
         switchMap(([{ date, zones }]) => {

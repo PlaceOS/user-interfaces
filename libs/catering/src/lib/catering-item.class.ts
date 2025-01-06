@@ -53,7 +53,7 @@ export class CateringItem {
         this.quantity = data.quantity || 0;
         this.discount_cap = data.discount_cap || 0;
         this.accept_points = !!data.accept_points;
-        this.tags = data.tags || [];
+        this.tags = (data.tags instanceof Array ? data.tags : null) || [];
         this.images = data.images || [];
         this.options = data.options || [];
         const has_options = this.options.some((_) => _.active === true);

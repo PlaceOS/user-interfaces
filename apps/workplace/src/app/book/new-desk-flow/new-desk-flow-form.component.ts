@@ -11,7 +11,7 @@ import {
     notifyError,
     SettingsService,
 } from '@placeos/common';
-import { Desk, OrganisationService } from '@placeos/organisation';
+import { OrganisationService } from '@placeos/organisation';
 import { isBefore, startOfMinute } from 'date-fns';
 import { first } from 'rxjs/operators';
 import { NewDeskFlowConfirmComponent } from './new-desk-flow-confirm.component';

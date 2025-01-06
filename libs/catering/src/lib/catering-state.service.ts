@@ -164,7 +164,7 @@ export class CateringStateService extends AsyncHandler {
                     this._loading.next(true);
                     this._menu.next([]);
                     const menu = (
-                        await this.getCateringForZone(bld.id).catch((_) => [])
+                        await this.getCateringForZone(bld.id).catch(() => [])
                     ).map((i) => new CateringItem(i));
                     this._currency.next(
                         this._settings.get('app.currency') ||
