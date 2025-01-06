@@ -1280,6 +1280,7 @@
             "LOCKERS_EDIT": "Edit Locker",
             "LOCKERS_REMOVE": "Remove Locker",
             "LOCKERS_SHARE": "Share Locker",
+            "LOCKERS_OPEN": "Open Locker",
             "LOCKERS_RELEASE": "Release Locker",
             "LOCKERS_SAVING": "Saving locker details...",
             "LOCKERS_BOOKING_RULES": "Locker Restrictions",

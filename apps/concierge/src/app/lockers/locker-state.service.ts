@@ -389,9 +389,24 @@ export class LockerStateService extends AsyncHandler {
         if (close) close();
     }
 
-    public async openLocker(locker: Locker) {
+    public async openLocker(locker: Locker, confirm = false) {
         const system_id = this._org.binding('lockers');
         if (!system_id) return notifyError('Driver not setup for lockers');
+        let close: () => void;
+        if (confirm) {
+            const result = await openConfirmModal(
+                {
+                    title: 'Open Locker',
+                    content:
+                        'Are you sure you wish to open this locker? The contents of the locker will be accessible to anybody nearby.',
+                    icon: { content: 'event_busy' },
+                },
+                this._dialog,
+            );
+            if (result.reason !== 'done') return;
+            result.loading('Releasing locker...');
+            close = result.close;
+        }
         const mod = getModule(system_id, 'Locker');
         await mod
             .execute('locker_unlock_mine', [locker.bank_id, locker.id])
@@ -400,6 +415,7 @@ export class LockerStateService extends AsyncHandler {
                 throw e;
             });
         notifySuccess(`Successfully opened locker "${locker.name}"`);
+        if (close) close();
     }
 
     /** Add or update a space in the available list */

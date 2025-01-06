@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { LockerStateService } from './locker-state.service';
 import { AsyncHandler, i18n, notifySuccess } from '@placeos/common';
 import { combineLatest } from 'rxjs';
@@ -281,9 +281,19 @@ import { Clipboard } from '@angular/cdk/clipboard';
                         </div>
                     </button>
                     @if (has_driver) {
+                        <button mat-menu-item (click)="openLocker(row)">
+                            <div class="flex items-center space-x-2">
+                                <app-icon class="text-xl"
+                                    >meeting_room</app-icon
+                                >
+                                <span>{{
+                                    'APP.CONCIERGE.LOCKERS_OPEN' | translate
+                                }}</span>
+                            </div>
+                        </button>
                         <button mat-menu-item (click)="shareLocker(row)">
                             <div class="flex items-center space-x-2">
-                                <app-icon class="text-xl">edit</app-icon>
+                                <app-icon class="text-xl">share</app-icon>
                                 <span>{{
                                     'APP.CONCIERGE.LOCKERS_SHARE' | translate
                                 }}</span>
@@ -314,7 +324,7 @@ import { Clipboard } from '@angular/cdk/clipboard';
     `,
     styles: [],
 })
-export class LockerListComponent extends AsyncHandler {
+export class LockerListComponent extends AsyncHandler implements OnInit {
     public show_children = {};
     public readonly locker_banks = this._state.filtered_banks;
     public readonly lockers = this._state.filtered_lockers;
@@ -331,6 +341,7 @@ export class LockerListComponent extends AsyncHandler {
     public readonly removeLockerBank = (b) => this._state.removeLockerBank(b);
     public readonly shareLocker = (l) => this._state.shareLocker(l);
     public readonly releaseLocker = (l) => this._state.releaseLocker(l, true);
+    public readonly openLocker = (l) => this._state.openLocker(l, true);
 
     public get has_driver() {
         return this._state.has_driver;
