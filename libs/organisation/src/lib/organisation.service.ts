@@ -29,7 +29,7 @@ import { Building } from './building.class';
 import { BuildingLevel } from './level.class';
 import { Organisation } from './organisation.class';
 import { Region } from './region.class';
-import { AsyncHandler, log, unique } from '@placeos/common';
+import { log, unique } from '@placeos/common';
 
 import * as yaml from 'js-yaml';
 
@@ -103,14 +103,14 @@ export class OrganisationService {
     }
 
     /** Mapping region settings overrides */
-    public regionSettings(id: string = ''): Record<string, any> {
+    public regionSettings(id = ''): Record<string, any> {
         const region = this._active_region.getValue();
         if (!id && region) id = region?.id;
         return this._region_settings ? this._region_settings[id] || {} : {};
     }
 
     /** Mapping building settings overrides */
-    public buildingSettings(bld_id: string = ''): Record<string, any> {
+    public buildingSettings(bld_id = ''): Record<string, any> {
         if (!bld_id && this.building) {
             bld_id = this.building?.id || this.buildings[0]?.id;
         }
@@ -148,6 +148,7 @@ export class OrganisationService {
         ) {
             this.building = this.buildingsForRegion(item)[0];
         } else this._updateSettingOverrides();
+        localStorage.setItem('PLACEOS.region', item.id);
     }
 
     /** List of available buildings */
@@ -172,6 +173,7 @@ export class OrganisationService {
                 (_) => _.id === this.building.parent_id,
             );
         }
+        localStorage.setItem('PLACEOS.building', bld.id);
     }
 
     public get timezone() {
@@ -316,7 +318,7 @@ export class OrganisationService {
         }
     }
 
-    private async init(tries: number = 0) {
+    private async init(tries = 0) {
         this._initialised.next(false);
         await this.load().catch((err) => {
             notifyError('Error loading organisation data. Retrying...');
@@ -324,6 +326,20 @@ export class OrganisationService {
             throw err;
         });
         this._initialised.next(true);
+        if (localStorage.getItem('PLACEOS.region')) {
+            this.region = this.regions.find(
+                (region) =>
+                    region.id === localStorage.getItem('PLACEOS.region'),
+            );
+        }
+        setTimeout(() => {
+            if (localStorage.getItem('PLACEOS.building')) {
+                this.building = this.buildings.find(
+                    (bld) =>
+                        bld.id === localStorage.getItem('PLACEOS.building'),
+                );
+            }
+        }, 1000);
         if (window.debug) {
             if (!window.application) window.application = {};
             window.application.orgs = this;
