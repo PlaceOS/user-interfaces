@@ -1,12 +1,14 @@
-import { COMMA, ENTER, SPACE } from '@angular/cdk/keycodes';
 import { Component, EventEmitter, Inject, Output } from '@angular/core';
+import { CurrencyPipe } from '@angular/common';
+import { COMMA, ENTER, SPACE } from '@angular/cdk/keycodes';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatChipInputEvent } from '@angular/material/chips';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { DialogEvent, randomInt } from '@placeos/common';
+
+import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
+
 import { CateringItem } from './catering-item.class';
-import { CurrencyPipe } from '@angular/common';
-import { OrganisationService } from '@placeos/organisation';
 
 export interface CateringItemModalData {
     item: CateringItem;
@@ -22,9 +24,8 @@ export interface CateringItemModalData {
         >
             <h2 class="text-xl font-medium px-2">
                 {{
-                    item.id
-                        ? 'CATERING.ITEM_EDIT'
-                        : ('CATERING.ITEM_NEW' | translate)
+                    (item.id ? 'CATERING.ITEM_EDIT' : 'CATERING.ITEM_NEW')
+                        | translate
                 }}
             </h2>
             <button icon matRipple mat-dialog-close *ngIf="!loading">
