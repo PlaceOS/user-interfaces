@@ -201,12 +201,8 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
                         );
                     this.locateUser(
                         user instanceof Array ? user[0] : user,
-                    ).catch(() => {
-                        notifyError(
-                            i18n('EXPLORE.LOCATE_USER_FAILED', {
-                                name: params.get('user'),
-                            }),
-                        );
+                    ).catch((e) => {
+                        notifyError(e);
                         this._router.navigate([], {
                             relativeTo: this._route,
                             queryParams: { user: '' },
@@ -310,9 +306,7 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
                 locate_details.priority.indexOf(a.type) -
                 locate_details.priority.indexOf(b.type),
         );
-        if (!locations?.length) {
-            throw i18n('EXPLORE.LOCATE_USER_NOT_FOUND');
-        }
+        if (!locations?.length) throw i18n('EXPLORE.LOCATE_USER_NOT_FOUND');
         this._state.setLevel(this._org.levelWithID([locations[0]?.level])?.id);
         const pos: any = locations[0].position;
         const { coordinates_from } = locations[0];
