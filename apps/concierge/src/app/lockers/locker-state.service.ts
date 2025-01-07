@@ -317,7 +317,7 @@ export class LockerStateService extends AsyncHandler {
     }
 
     public async allocateLocker(locker: Locker) {
-        const mod = this._org.module('lockers', 'Locker');
+        const mod = this._org.module('lockers', 'Lockers');
         if (!mod) return notifyError(i18n('APP.CONCIERGE.LOCKERS_NO_DRIVER'));
         await mod
             .execute('locker_allocate_me', [locker.bank_id, locker.id])
@@ -333,7 +333,7 @@ export class LockerStateService extends AsyncHandler {
     }
 
     public async shareLocker(locker: Locker, user?: StaffUser) {
-        const mod = this._org.module('lockers', 'Locker');
+        const mod = this._org.module('lockers', 'Lockers');
         if (!mod) return notifyError(i18n('APP.CONCIERGE.LOCKERS_NO_DRIVER'));
         if (!user) {
             // TODO: Ask to select user
@@ -354,7 +354,7 @@ export class LockerStateService extends AsyncHandler {
     }
 
     public async releaseLocker(locker: Locker, confirm = false) {
-        const mod = this._org.module('lockers', 'Locker');
+        const mod = this._org.module('lockers', 'Lockers');
         if (!mod) return notifyError(i18n('APP.CONCIERGE.LOCKERS_NO_DRIVER'));
         let close: () => void;
         if (confirm) {
@@ -388,7 +388,7 @@ export class LockerStateService extends AsyncHandler {
     }
 
     public async openLocker(locker: Locker, confirm = false) {
-        const mod = this._org.module('lockers', 'Locker');
+        const mod = this._org.module('lockers', 'Lockers');
         if (!mod) return notifyError(i18n('APP.CONCIERGE.LOCKERS_NO_DRIVER'));
         let close: () => void;
         if (confirm) {
