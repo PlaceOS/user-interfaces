@@ -162,7 +162,11 @@ export class OrganisationService {
         return this._active_building.getValue();
     }
     public set building(bld: Building) {
-        if (!bld) return;
+        this.setBuilding(bld);
+    }
+
+    public setBuilding(bld: Building, save = false) {
+        if (!(bld instanceof Object)) return;
         this._active_building.next(bld);
         if (!this._service.get('dont_load_metadata')) {
             this.loadBuildingData(bld).then(() =>
@@ -174,7 +178,9 @@ export class OrganisationService {
                 (_) => _.id === this.building.parent_id,
             );
         }
-        localStorage.setItem('PLACEOS.building', bld.id);
+        if (save) {
+            localStorage.setItem('PLACEOS.building', bld.id);
+        }
     }
 
     public get timezone() {
@@ -338,7 +344,6 @@ export class OrganisationService {
             setTimeout(() => this.init(tries), Math.min(10_000, 300 * ++tries));
             throw err;
         });
-        this._initialised.next(true);
         if (localStorage.getItem('PLACEOS.region')) {
             this.region = this.regions.find(
                 (region) =>
@@ -352,11 +357,12 @@ export class OrganisationService {
                         bld.id === localStorage.getItem('PLACEOS.building'),
                 );
             }
-        }, 1000);
+        }, 100);
         if (window.debug) {
             if (!window.application) window.application = {};
             window.application.orgs = this;
         }
+        this._initialised.next(true);
     }
 
     /**
@@ -560,17 +566,6 @@ export class OrganisationService {
         this._service.overrides = [...this._settings];
         await this._initialiseActiveBuilding();
         this._updateSettingOverrides();
-    }
-
-    /** Save building selection */
-    public saveBuilding(id: string) {
-        const region_id = this._buildings
-            .getValue()
-            .find((bld) => bld.id === id)?.parent_id;
-        if (region_id && region_id !== this._organisation.id) {
-            sessionStorage.setItem(`PLACEOS.region`, region_id);
-        }
-        sessionStorage.setItem(`PLACEOS.building`, id);
     }
 
     private _initialiseActiveBuilding() {

@@ -42,8 +42,7 @@ export class BuildingSelectComponent {
     public readonly building = this._org.active_building;
 
     public readonly setBuilding = (b) => {
-        this._org.building = b;
-        this._org.saveBuilding(b.id);
+        this._org.setBuilding(b, true);
         this._data?.close();
     };
 

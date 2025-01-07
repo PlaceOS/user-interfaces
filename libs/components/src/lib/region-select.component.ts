@@ -42,7 +42,7 @@ export class RegionSelectComponent {
 
     public readonly setRegion = async (i) => {
         await this._org.setRegion(i);
-        this._org.saveBuilding(this._org.building.id);
+        this._org.setBuilding(this._org.building, true);
         this._data?.close();
     };
 
