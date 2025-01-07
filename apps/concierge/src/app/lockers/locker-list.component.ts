@@ -82,7 +82,7 @@ import { Clipboard } from '@angular/cdk/clipboard';
                     <app-icon>more_vert</app-icon>
                 </button>
                 <mat-menu #menu="matMenu">
-                    <button mat-menu-item (click)="editLocker(row.id)">
+                    <button mat-menu-item (click)="editLocker(row)">
                         <div class="flex items-center space-x-2">
                             <app-icon class="text-xl">add</app-icon>
                             <span>{{
@@ -272,7 +272,7 @@ import { Clipboard } from '@angular/cdk/clipboard';
                     </button>
                 </div>
                 <mat-menu #locker_menu="matMenu">
-                    <button mat-menu-item (click)="editLocker(bank.id, row)">
+                    <button mat-menu-item (click)="editLocker(bank, row)">
                         <div class="flex items-center space-x-2">
                             <app-icon class="text-xl">edit</app-icon>
                             <span>{{

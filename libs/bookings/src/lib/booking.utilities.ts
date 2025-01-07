@@ -319,7 +319,7 @@ export function loadLockers(
             for (const locker of locker_list) {
                 const bank = banks.find((b) => b.id === locker.bank_id);
                 locker.bank = bank;
-                locker.zone = org.levelWithID(bank.zones);
+                locker.zone = org.levelWithID(bank?.zones || []);
             }
             return lockers.filter((_) => _.bank);
         }),

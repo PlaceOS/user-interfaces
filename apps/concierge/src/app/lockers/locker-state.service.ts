@@ -317,13 +317,8 @@ export class LockerStateService extends AsyncHandler {
     }
 
     public async allocateLocker(locker: Locker) {
-        const binding = this._org.binding('lockers');
-        const system_id = binding instanceof Object ? binding.id : binding;
-        const mod_id =
-            (binding instanceof Object ? binding.mod : '') || 'Locker';
-        if (!system_id || !mod_id)
-            return notifyError(i18n('APP.CONCIERGE.LOCKERS_NO_DRIVER'));
-        const mod = getModule(system_id, mod_id);
+        const mod = this._org.module('lockers', 'Locker');
+        if (!mod) return notifyError(i18n('APP.CONCIERGE.LOCKERS_NO_DRIVER'));
         await mod
             .execute('locker_allocate_me', [locker.bank_id, locker.id])
             .catch((e) => {
@@ -338,17 +333,12 @@ export class LockerStateService extends AsyncHandler {
     }
 
     public async shareLocker(locker: Locker, user?: StaffUser) {
-        const binding = this._org.binding('lockers');
-        const system_id = binding instanceof Object ? binding.id : binding;
-        const mod_id =
-            (binding instanceof Object ? binding.mod : '') || 'Locker';
-        if (!system_id || !mod_id)
-            return notifyError(i18n('APP.CONCIERGE.LOCKERS_NO_DRIVER'));
+        const mod = this._org.module('lockers', 'Locker');
+        if (!mod) return notifyError(i18n('APP.CONCIERGE.LOCKERS_NO_DRIVER'));
         if (!user) {
             // TODO: Ask to select user
             return;
         }
-        const mod = getModule(system_id, mod_id);
         await mod
             .execute('locker_share_mine', [locker.bank_id, locker.id, user.id])
             .catch((e) => {
@@ -364,12 +354,8 @@ export class LockerStateService extends AsyncHandler {
     }
 
     public async releaseLocker(locker: Locker, confirm = false) {
-        const binding = this._org.binding('lockers');
-        const system_id = binding instanceof Object ? binding.id : binding;
-        const mod_id =
-            (binding instanceof Object ? binding.mod : '') || 'Locker';
-        if (!system_id || !mod_id)
-            return notifyError(i18n('APP.CONCIERGE.LOCKERS_NO_DRIVER'));
+        const mod = this._org.module('lockers', 'Locker');
+        if (!mod) return notifyError(i18n('APP.CONCIERGE.LOCKERS_NO_DRIVER'));
         let close: () => void;
         if (confirm) {
             const result = await openConfirmModal(
@@ -384,7 +370,6 @@ export class LockerStateService extends AsyncHandler {
             result.loading(i18n('APP.CONCIERGE.LOCKERS_RELEASE_LOADING'));
             close = result.close;
         }
-        const mod = getModule(system_id, mod_id);
         await mod
             .execute('locker_release', [locker.bank_id, locker.id])
             .catch((e) => {
@@ -403,12 +388,8 @@ export class LockerStateService extends AsyncHandler {
     }
 
     public async openLocker(locker: Locker, confirm = false) {
-        const binding = this._org.binding('lockers');
-        const system_id = binding instanceof Object ? binding.id : binding;
-        const mod_id =
-            (binding instanceof Object ? binding.mod : '') || 'Locker';
-        if (!system_id || !mod_id)
-            return notifyError(i18n('APP.CONCIERGE.LOCKERS_NO_DRIVER'));
+        const mod = this._org.module('lockers', 'Locker');
+        if (!mod) return notifyError(i18n('APP.CONCIERGE.LOCKERS_NO_DRIVER'));
         let close: () => void;
         if (confirm) {
             const result = await openConfirmModal(
@@ -423,7 +404,6 @@ export class LockerStateService extends AsyncHandler {
             result.loading(i18n('APP.CONCIERGE.LOCKERS_OPEN_LOADING'));
             close = result.close;
         }
-        const mod = getModule(system_id, mod_id);
         await mod
             .execute('locker_unlock_mine', [locker.bank_id, locker.id])
             .catch((e) => {
@@ -472,9 +452,9 @@ export class LockerStateService extends AsyncHandler {
     }
 
     /** Add or update a space in the available list */
-    public async editLocker(bank_id: string, locker: Locker = {} as Locker) {
+    public async editLocker(bank: LockerBank, locker: Locker = {} as Locker) {
         const ref = this._dialog.open(LockerModalComponent, {
-            data: locker,
+            data: { locker, bank },
         });
         const state = await Promise.race([
             ref.afterClosed().toPromise(),
@@ -486,7 +466,7 @@ export class LockerStateService extends AsyncHandler {
         const zone = this._org.building.id;
         const new_locker = {
             ...state.metadata,
-            bank_id,
+            bank_id: bank.id,
             zone,
             id: locker.id || `locker-${zone}.${randomInt(999_999)}`,
         };
@@ -539,6 +519,7 @@ export class LockerStateService extends AsyncHandler {
         const new_locker_list = lockers;
         for (const locker of new_locker_list) {
             if (locker.bank) delete locker.bank;
+            if (locker.zone) delete locker.zone;
         }
         await updateMetadata(zone, {
             name: 'lockers',

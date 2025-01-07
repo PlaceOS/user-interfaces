@@ -1,13 +1,33 @@
 import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import {
+    AbstractControl,
+    FormControl,
+    FormGroup,
+    Validators,
+} from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { Locker } from '@placeos/bookings';
-import { DialogEvent } from '@placeos/common';
+import { Locker, LockerBank } from '@placeos/bookings';
+import { AsyncHandler, DialogEvent } from '@placeos/common';
 import { showStaff, User } from '@placeos/users';
 import {
     addChipItem,
     removeChipItem,
 } from 'libs/form-fields/src/lib/item-list-field.component';
+
+type Box = [number, number, number, number];
+
+function boxesOverlap(
+    [a_x, a_y, a_w, a_h]: Box,
+    [b_x, b_y, b_w, b_h]: Box,
+): boolean {
+    return (
+        a_x < b_x + b_w && a_x + a_w > b_x && a_y < b_y + b_h && a_y + a_h > b_y
+    );
+}
+
+function validateNoOverlap(box: Box, check_boxes: Box[]): boolean {
+    return !check_boxes.find((check) => boxesOverlap(box, check));
+}
 
 @Component({
     selector: 'locker-modal',
@@ -84,7 +104,7 @@ import {
                         formControlName="bookable"
                     ></settings-toggle>
                 </div>
-                <div class="flex space-x-4 mb-4">
+                <div class="flex space-x-4 mb-1">
                     <div class="flex-1">
                         <label for="row">Start Column</label>
                         <a-counter
@@ -118,7 +138,14 @@ import {
                         ></a-counter>
                     </div>
                 </div>
-                <div class="flex space-x-4 mb-4">
+                <div
+                    class="text-xs text-error mb-4"
+                    [class.opacity-100]="form.get('position').invalid"
+                    [class.opacity-0]="!form.get('position').invalid"
+                >
+                    {{ 'APP.CONCIERGE.LOCKERS_POSITION_INVALID' | translate }}
+                </div>
+                <div class="flex space-x-4 mb-1">
                     <div class="flex-1">
                         <label for="row">{{
                             'COMMON.WIDTH' | translate
@@ -152,6 +179,13 @@ import {
                             [render_fn]="render_fn"
                         ></a-counter>
                     </div>
+                </div>
+                <div
+                    class="text-xs text-error mb-4"
+                    [class.opacity-100]="form.get('size').invalid"
+                    [class.opacity-0]="!form.get('size').invalid"
+                >
+                    {{ 'APP.CONCIERGE.LOCKERS_SIZE_INVALID' | translate }}
                 </div>
                 <label for="notes">{{ 'FORM.NOTES' | translate }}</label>
                 <mat-form-field appearance="outline">
@@ -214,14 +248,24 @@ import {
     `,
     styles: [``],
 })
-export class LockerModalComponent implements OnInit {
+export class LockerModalComponent extends AsyncHandler implements OnInit {
     @Output() public readonly event = new EventEmitter<DialogEvent>();
     public loading: boolean;
 
     public readonly render_fn = (v) => `${v}u`;
 
+    private _locker_bounds = [];
+
+    public get bank() {
+        return this._data.bank;
+    }
+
+    public get locker() {
+        return this._data.locker;
+    }
+
     public get id() {
-        return this._data?.id || '';
+        return this.locker?.id || '';
     }
 
     public readonly addTag = (e) =>
@@ -233,14 +277,14 @@ export class LockerModalComponent implements OnInit {
         return this.form.controls.features.value;
     }
 
-    public readonly form = new FormGroup({
+    public readonly form: FormGroup = new FormGroup({
         id: new FormControl(''),
         name: new FormControl('', [Validators.required]),
         assigned_user: new FormControl<User>(null),
         assigned_to: new FormControl(''),
         assigned_name: new FormControl(''),
-        position: new FormControl([0, 0]),
-        size: new FormControl([1, 1]),
+        position: new FormControl([0, 0], [(e) => this.validatePosition(e)]),
+        size: new FormControl([1, 1], [(e) => this.validateSize(e)]),
         notes: new FormControl(''),
         accessible: new FormControl(false),
         bookable: new FormControl(false),
@@ -248,15 +292,31 @@ export class LockerModalComponent implements OnInit {
     });
 
     constructor(
-        @Inject(MAT_DIALOG_DATA) private _data: Locker,
+        @Inject(MAT_DIALOG_DATA)
+        private _data: { locker?: Locker; bank: LockerBank },
         private _dialog_ref: MatDialogRef<LockerModalComponent>,
     ) {
-        if (_data) this.form.patchValue(_data);
+        super();
+        this._locker_bounds = this._lockerBounds();
+        if (_data.locker) this.form.patchValue(_data.locker);
     }
 
     public async ngOnInit() {
-        if (this._data.assigned_to) {
-            const user = await showStaff(this._data.assigned_to).toPromise();
+        this.subscription(
+            'pos_change',
+            this.form.controls.position.valueChanges.subscribe(() => {
+                this.timeout(
+                    'changed',
+                    () =>
+                        this.form.controls.size.patchValue(
+                            this.form.controls.size.value,
+                        ),
+                    50,
+                );
+            }),
+        );
+        if (this.locker?.assigned_to) {
+            const user = await showStaff(this.locker.assigned_to).toPromise();
             if (user) {
                 this.form.patchValue({
                     assigned_user: user,
@@ -265,6 +325,21 @@ export class LockerModalComponent implements OnInit {
                 });
             }
         }
+    }
+
+    public validatePosition(control: AbstractControl) {
+        const [x, y] = control.value;
+        return validateNoOverlap([x, y, 1, 1], this._locker_bounds)
+            ? null
+            : { position: true };
+    }
+
+    public validateSize(control: AbstractControl) {
+        const [x, y] = this.form?.value?.position || [0, 0];
+        const [w, h] = control.value;
+        return validateNoOverlap([x, y, w, h], this._locker_bounds)
+            ? null
+            : { position: true };
     }
 
     public postForm() {
@@ -281,5 +356,20 @@ export class LockerModalComponent implements OnInit {
         }
         this._dialog_ref.disableClose = true;
         this.event.emit({ reason: 'done', metadata: value });
+    }
+
+    private _lockerBounds(): Box[] {
+        const list = [];
+        for (const locker of this.bank.lockers || []) {
+            if (locker.id !== this.locker?.id) {
+                list.push([
+                    locker.position[0],
+                    locker.position[1],
+                    locker.size[0],
+                    locker.size[1],
+                ]);
+            }
+        }
+        return list;
     }
 }

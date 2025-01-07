@@ -1340,6 +1340,8 @@
             "LOCKERS_RELEASE_SUCCESS": "Successfully opened locker",
             "LOCKERS_SHARE_SUCCESS": "Successfully shared locker \"{{ name }}\" with {{ user }}",
             "LOCKERS_NO_DRIVER": "Driver is not setup for lockers",
+            "LOCKERS_POSITION_INVALID": "Position of the locker overlaps with another locker",
+            "LOCKERS_SIZE_INVALID": "Locker overlaps with another locker",
             "SIGNAGE_HEADER": "Digital Signage Management",
             "SIGNAGE_PLAYLIST": "Playlist",
             "SIGNAGE_PLAYLISTS": "Playlists",
