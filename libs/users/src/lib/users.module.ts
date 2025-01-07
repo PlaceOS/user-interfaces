@@ -16,6 +16,7 @@ import { UserPipe } from './user.pipe';
 import { WFHSettingsModalComponent } from './wfh-settings-modal.component';
 import { FindAvailabilityModalComponent } from './find-availability-modal/find-availability-modal.component';
 import { UserAvailabilityComponent } from './find-availability-modal/user-availability.component';
+import { SelectUserModalComponent } from './select-user-modal.component';
 
 const COMPONENTS = [
     NewUserModalComponent,
@@ -24,6 +25,7 @@ const COMPONENTS = [
     UserPipe,
     FindAvailabilityModalComponent,
     UserAvailabilityComponent,
+    SelectUserModalComponent,
 ];
 
 @NgModule({

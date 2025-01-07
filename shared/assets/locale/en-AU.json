@@ -210,7 +210,12 @@
         "TIME_HOUR": "{{ hours }} hour",
         "TIME_HOURS": "{{ hours }} hours",
         "TIME_DAY": "{{ days }} day",
-        "TIME_DAYS": "{{ days }} days"
+        "TIME_DAYS": "{{ days }} days",
+        "NOT_IMPLEMENTED": "Not implemented yet",
+        "SELECT_USER_TITLE": "Select a user",
+        "SELECT_USER_SEARCH": "Search for users...",
+        "SELECT_USER_EMPTY": "Start typing to search for users.",
+        "SELECT_USER_EMPTY_MATCHES": "No matching users found."
     },
     "LANGUAGE": {
         "ENGLISH": "English",
@@ -1338,6 +1343,7 @@
             "LOCKERS_RELEASE_LOADING": "Releasing locker...",
             "LOCKERS_RELEASE_ERROR": "Failed to open locker. Error: {{ error }}",
             "LOCKERS_RELEASE_SUCCESS": "Successfully opened locker",
+            "LOCKERS_SHARE_ERROR": "Failed to share locker with \"{{ name }}\". Error: {{ error }}",
             "LOCKERS_SHARE_SUCCESS": "Successfully shared locker \"{{ name }}\" with {{ user }}",
             "LOCKERS_NO_DRIVER": "Driver is not setup for lockers",
             "LOCKERS_POSITION_INVALID": "Position of the locker overlaps with another locker",

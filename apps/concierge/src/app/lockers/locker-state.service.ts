@@ -50,6 +50,7 @@ import { LockerBookingModalComponent } from './locker-booking-modal.component';
 import { LockerBankModalComponent } from './locker-bank-modal.component';
 import { ViewLockerBankModalComponent } from './view-locker-bank-modal.component';
 import { StaffUser } from '@placeos/users';
+import { SelectUserModalComponent } from 'libs/users/src/lib/select-user-modal.component';
 
 export interface LockerFilters {
     date?: number;
@@ -337,12 +338,20 @@ export class LockerStateService extends AsyncHandler {
         if (!mod) return notifyError(i18n('APP.CONCIERGE.LOCKERS_NO_DRIVER'));
         if (!user) {
             // TODO: Ask to select user
-            return;
+            const ref = this._dialog.open(SelectUserModalComponent, {});
+            const value = await ref.afterClosed().toPromise();
+            if (!value) return;
+            user = value;
         }
         await mod
             .execute('locker_share_mine', [locker.bank_id, locker.id, user.id])
             .catch((e) => {
-                notifyError(e);
+                console.log('err', e);
+                notifyError(
+                    i18n(`APP.CONCIERGE.LOCKERS_SHARE_ERROR`, {
+                        error: `${e?.msg || e}`,
+                    }),
+                );
                 throw e;
             });
         notifySuccess(

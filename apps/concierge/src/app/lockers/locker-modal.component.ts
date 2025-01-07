@@ -32,7 +32,7 @@ function validateNoOverlap(box: Box, check_boxes: Box[]): boolean {
 @Component({
     selector: 'locker-modal',
     template: `
-        <div class="w-[28rem]">
+        <div class="w-[32rem]">
             <header
                 class="sticky top-0 p-2 m-2 w-[calc(100%-1rem)] border-none z-10 bg-base-200 rounded"
             >
