@@ -285,16 +285,10 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
     }
 
     private async locateUser(user: User) {
-        let locate_details: any = this._org.binding('location_services');
-        if (!locate_details) throw i18n('EXPLORE.LOCATE_SERVICE_UNAVAILABLE');
-        if (typeof locate_details === 'string') {
-            locate_details = {
-                system_id: locate_details,
-                module: 'LocationServices',
-                priority: [],
-            };
-        }
-        const mod = getModule(locate_details.system_id, locate_details.module);
+        const binding: any = this._org.binding('location_services');
+        const mod = this._org.module('location_services', 'LocationServices');
+        if (!mod) throw i18n('EXPLORE.LOCATE_SERVICE_UNAVAILABLE');
+        const priority = binding?.priority || [];
         const locations: MapLocation[] = (
             await mod.execute('locate_user', [
                 user.email,
@@ -303,9 +297,10 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
         ).map((i) => new MapLocation(i));
         locations.sort(
             (a, b) =>
-                locate_details.priority.indexOf(a.type) -
-                locate_details.priority.indexOf(b.type),
+                (priority.includes(a.type) ? priority.indexOf(a.type) : 999) -
+                (priority.includes(b.type) ? priority.indexOf(b.type) : 999),
         );
+
         if (!locations?.length) throw i18n('EXPLORE.LOCATE_USER_NOT_FOUND');
         this._state.setLevel(this._org.levelWithID([locations[0]?.level])?.id);
         const pos: any = locations[0].position;

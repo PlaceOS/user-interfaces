@@ -197,10 +197,14 @@ export class OrganisationService {
     }
 
     public module(name: string, default_mod_id = 'System') {
-        const binding = this.binding(name);
-        const system_id = binding instanceof Object ? binding.id : binding;
+        const binding: any = this.binding(name);
+        const system_id =
+            binding instanceof Object
+                ? binding.id || binding.system_id
+                : binding;
         const mod_id =
-            (binding instanceof Object ? binding.mod : '') || default_mod_id;
+            (binding instanceof Object ? binding.mod || binding.module : '') ||
+            default_mod_id;
         return !system_id || !mod_id ? null : getModule(system_id, mod_id);
     }
 
