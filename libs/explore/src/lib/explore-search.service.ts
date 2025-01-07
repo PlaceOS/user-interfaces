@@ -24,7 +24,6 @@ import { Space } from 'libs/spaces/src/lib/space.class';
 import { StaffUser, User } from 'libs/users/src/lib/user.class';
 import { searchStaff } from 'libs/users/src/lib/staff.fn';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
-import { moduleFromMetadata } from '@placeos/organisation';
 
 export interface PointOfInterest {
     id: string;
@@ -349,10 +348,7 @@ export class ExploreSearchService {
 
     public async init() {
         await this._org.initialised.pipe(first((_) => _)).toPromise();
-        const mod = moduleFromMetadata(
-            this._org.binding('location_services'),
-            'LocationServices',
-        );
+        const mod = this._org.module('location_services', 'LocationServices');
         if (mod) {
             const binding = mod.binding('emergency_contacts');
             binding.listen().subscribe((contacts_map) => {

@@ -47,6 +47,11 @@ export interface BookingRuleDetails {
     readonly info?: string;
 }
 
+export interface Binding {
+    id: string;
+    mod: string;
+}
+
 export interface BuildingComplete extends Building {
     settings: Record<string, any>;
     locker_structure: Record<string, any>;
@@ -98,7 +103,7 @@ export class Building {
     /** Start and end hours catering can be delivered */
     public readonly catering_hours: { start: number; end: number };
     /** PlaceOS bindings for applications */
-    public readonly bindings: Record<string, string>;
+    public readonly bindings: Record<string, string | Binding>;
     /** List of image URLs for the building */
     public readonly images: string[];
     /** Identifier of building in relation to mapping */
@@ -139,7 +144,7 @@ export class Building {
             name: i.extra_name || i.name,
         }));
         this.levels = (raw_data.levels || disc_info.levels || []).map(
-            (i) => new BuildingLevel({ ...i, building_id: this.id })
+            (i) => new BuildingLevel({ ...i, building_id: this.id }),
         );
         this._roles = raw_data.roles || disc_info.roles || {};
         this._lockers =

@@ -172,13 +172,12 @@ export class EmailTemplatesListComponent {
 
     public async sendTestEmail(template: EmailTemplate) {
         this.sending_email = template.id;
-        const stmp_system = this._org.binding('smtp');
-        if (!stmp_system) {
+        const mod = this._org.module('smtp', 'Mailer');
+        if (!mod) {
             return notifyError(
                 i18n('APP.CONCIERGE.EMAIL_TEMPLATES_CONFIG_ERROR'),
             );
         }
-        const mod = getModule(stmp_system, 'Mailer');
         await mod.execute('send_mail', [
             currentUser()?.email,
             template.subject,

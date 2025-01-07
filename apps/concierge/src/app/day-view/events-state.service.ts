@@ -224,9 +224,7 @@ export class EventsStateService extends AsyncHandler {
 
     public readonly pending: Observable<CalendarEvent[]> = of(1).pipe(
         switchMap(() => {
-            const system_id = this._org.binding('approvals');
-            if (!system_id) return of([]);
-            const mod = getModule(system_id, 'RoomBookingApproval');
+            const mod = this._org.module('approvals', 'RoomBookingApproval');
             if (!mod) return of([]);
             const binding =
                 mod.binding<Partial<CalendarEvent>[]>('approval_required');

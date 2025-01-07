@@ -15,7 +15,12 @@ import {
     SettingsService,
     unique,
 } from '@placeos/common';
-import { LockerBank, Locker, loadLockerBanks, loadLockers } from '@placeos/bookings';
+import {
+    LockerBank,
+    Locker,
+    loadLockerBanks,
+    loadLockers,
+} from '@placeos/bookings';
 import { OrganisationService } from '@placeos/organisation';
 
 import { ExploreLockerBankInfoComponent } from './explore-locker-bank-info.component';
@@ -31,13 +36,21 @@ export class ExploreLockersService extends AsyncHandler {
 
     public readonly lockers_banks$: Observable<LockerBank[]> = loadLockerBanks(
         this._org,
-        combineLatest([this._org.active_building, this._org.active_region, this._change]),
+        combineLatest([
+            this._org.active_building,
+            this._org.active_region,
+            this._change,
+        ]),
         () => this._settings.get('app.use_region'),
     );
 
     public readonly lockers$: Observable<Locker[]> = loadLockers(
         this._org,
-        combineLatest([this._org.active_building, this._org.active_region, this._change]),
+        combineLatest([
+            this._org.active_building,
+            this._org.active_region,
+            this._change,
+        ]),
         this.lockers_banks$,
         () => this._settings.get('app.use_region'),
     );
@@ -73,9 +86,9 @@ export class ExploreLockersService extends AsyncHandler {
     ]).pipe(
         map(([lvl, { is_public }]) => {
             if (!lvl || is_public) return [];
-            const sys_id = this._org.binding('area_management');
-            if (!sys_id) return of({});
-            let binding = getModule(sys_id, 'AreaManagement').binding(lvl.id);
+            const mod = this._org.module('area_management', 'AreaManagement');
+            if (!mod) return of({});
+            const binding = mod.binding(lvl.id);
             this.subscription(
                 `lvl-in_use`,
                 binding

@@ -210,7 +210,10 @@ export class DebugConsoleComponent extends AsyncHandler implements OnInit {
         this.subscription(
             'binding',
             this._org.active_building.subscribe(() => {
-                this._logs.setSystem(this._org.binding('remote_logger'));
+                const binding = this._org.binding('remote_logger');
+                const system_id =
+                    binding instanceof Object ? binding.id : binding;
+                this._logs.setSystem(system_id);
             }),
         );
         this.subscription(
@@ -232,7 +235,9 @@ export class DebugConsoleComponent extends AsyncHandler implements OnInit {
                 () => (this.show = !this.show),
             ),
         );
-        this._logs.setSystem(this._org.binding('remote_logger'));
+        const binding = this._org.binding('remote_logger');
+        const system_id = binding instanceof Object ? binding.id : binding;
+        this._logs.setSystem(system_id);
     }
 
     public type(item: any) {

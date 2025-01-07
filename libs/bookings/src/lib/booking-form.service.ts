@@ -542,7 +542,7 @@ export class BookingFormService extends AsyncHandler {
                 this._options.getValue().type,
             );
         }
-        if (this._payments.payment_module) {
+        if (this._payments.enabled) {
             const receipt = await this._payments.makePayment({
                 type: this._options.getValue().type,
                 resource_name: value.asset_name,

@@ -36,7 +36,11 @@ export class ChatService extends AsyncHandler {
         this._binding,
     ]).pipe(
         filter(([b]) => !!b),
-        map(([_, biniding]) => biniding || this._org.binding('chat_room')),
+        map(([_, bind_id]) => {
+            const binding = this._org.binding('chat_room');
+            const system_id = binding instanceof Object ? binding.id : binding;
+            return bind_id || system_id;
+        }),
     );
     private _chat_id = '';
 

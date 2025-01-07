@@ -5,6 +5,7 @@ import {
     PlaceMetadata,
     PlaceZone,
     authority,
+    getModule,
     isMock,
     onlineState,
     querySettings,
@@ -193,6 +194,14 @@ export class OrganisationService {
         return (
             this.building?.bindings[name] || this._organisation?.bindings[name]
         );
+    }
+
+    public module(name: string, default_mod_id = 'System') {
+        const binding = this.binding(name);
+        const system_id = binding instanceof Object ? binding.id : binding;
+        const mod_id =
+            (binding instanceof Object ? binding.mod : '') || default_mod_id;
+        return !system_id || !mod_id ? null : getModule(system_id, mod_id);
     }
 
     /** Get building by id */

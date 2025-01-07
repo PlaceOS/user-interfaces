@@ -663,7 +663,7 @@ export class EventFormService extends AsyncHandler {
                   }
                 : {};
             if (is_owner && !ignore_owner) query.calendar = host || creator;
-            if (this._payments.payment_module && spaces.length) {
+            if (this._payments.enabled && spaces.length) {
                 const receipt = await this._payments.makePayment({
                     type: 'space',
                     resource_name: spaces[0].display_name || spaces[0].name,

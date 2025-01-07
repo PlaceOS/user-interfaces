@@ -41,30 +41,31 @@ export class PaymentsService {
 
     public readonly payment_sources = of(1).pipe(
         switchMap(() => {
-            const mod = getModule(this.payment_module, STRIPE_MODULE);
+            const mod = this._org.module('payments', STRIPE_MODULE);
             if (!mod) return of([]);
             return mod.execute('list_payment_methods', ['card']);
         }),
         tap((_) => (_[0] ? this._active_card.next(_[0].id) : '')),
-        shareReplay(1)
+        shareReplay(1),
     );
 
-    public get payment_module() {
-        return this._org.binding('payments');
+    public get enabled() {
+        return !!this._org.module('payments', STRIPE_MODULE);
     }
 
     constructor(
         private _org: OrganisationService,
         private _settings: SettingsService,
-        private _dialog: MatDialog
+        private _dialog: MatDialog,
     ) {}
 
     public async makePayment(
-        details: PaymentDetails
+        details: PaymentDetails,
     ): Promise<PaymentResult | undefined> {
-        if (!this.payment_module) throw 'Payments not enabled';
+        if (!this._org.module('payments', STRIPE_MODULE))
+            throw 'Payments not enabled';
         const [cost, period] = await this._getCostOfProduct(
-            details?.type
+            details?.type,
         ).catch((_) => [0, 60]);
         console.log('Cost:', cost, period);
         if (cost <= 0) return;
@@ -78,7 +79,7 @@ export class PaymentsService {
                 (e) => {
                     this._loading.next('');
                     throw e;
-                }
+                },
             );
         };
         const data = {
@@ -94,7 +95,7 @@ export class PaymentsService {
     }
 
     private async _addPaymentMethod(card: PaymentCardDetails): Promise<string> {
-        const mod = getModule(this.payment_module, STRIPE_MODULE);
+        const mod = this._org.module('payments', STRIPE_MODULE);
         if (!mod) throw 'Unable to load module';
         const payment_method = await mod.execute('add_payment_method', [
             'card',
@@ -115,8 +116,8 @@ export class PaymentsService {
     }
 
     private async _getCostOfProduct(type: string) {
-        let price: [number, number] = [0, 60];
-        const mod = getModule(this.payment_module, STRIPE_MODULE);
+        const price: [number, number] = [0, 60];
+        const mod = this._org.module('payments', STRIPE_MODULE);
         if (!mod) return price;
         const product_list = await mod.execute('get_product_prices', [
             null,
@@ -130,7 +131,7 @@ export class PaymentsService {
     private async _processPayment(
         amount: number,
         customer_id: string,
-        card_details?: PaymentCardDetails
+        card_details?: PaymentCardDetails,
     ) {
         this._loading.next('Checking payment method...');
         console.log('Getting payment method...');
@@ -140,7 +141,7 @@ export class PaymentsService {
         if (!source) throw 'No payment source selected';
         this._loading.next('Processing payment...');
         console.log('Processing payment...');
-        const mod = getModule(this.payment_module, STRIPE_MODULE);
+        const mod = this._org.module('payments', STRIPE_MODULE);
         if (!mod) throw 'Unable to load module';
         const id = await mod.execute<string>('create_payment_intent', [
             amount,
@@ -168,7 +169,7 @@ export class PaymentsService {
     }
 
     private async _newCustomerID() {
-        const mod = getModule(this.payment_module, STRIPE_MODULE);
+        const mod = this._org.module('payments', STRIPE_MODULE);
         if (!mod) throw 'Unable to load module';
         const user = currentUser();
         const id = await mod.execute<string>('create_customer', [

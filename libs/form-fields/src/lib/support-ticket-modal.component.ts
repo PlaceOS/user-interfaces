@@ -206,11 +206,10 @@ export class SupportTicketModalComponent {
         this.form.markAllAsTouched();
         this.form.updateValueAndValidity();
         if (this.form.valid) {
-            const stmp_system = this._org.binding('smtp');
-            if (!stmp_system) {
+            const mod = this._org.module('smtp', 'Mailer');
+            if (!mod) {
                 return notifyError(i18n('COMMON.SUPPORT_NO_MAILER'));
             }
-            const mod = getModule(stmp_system, 'Mailer');
             const { name, email, location, description, images, issue_type } =
                 this.form.value;
             const support_email =

@@ -317,9 +317,13 @@ export class LockerStateService extends AsyncHandler {
     }
 
     public async allocateLocker(locker: Locker) {
-        const system_id = this._org.binding('lockers');
-        if (!system_id) return notifyError('Driver not setup for lockers');
-        const mod = getModule(system_id, 'Locker');
+        const binding = this._org.binding('lockers');
+        const system_id = binding instanceof Object ? binding.id : binding;
+        const mod_id =
+            (binding instanceof Object ? binding.mod : '') || 'Locker';
+        if (!system_id || !mod_id)
+            return notifyError(i18n('APP.CONCIERGE.LOCKERS_NO_DRIVER'));
+        const mod = getModule(system_id, mod_id);
         await mod
             .execute('locker_allocate_me', [locker.bank_id, locker.id])
             .catch((e) => {
@@ -334,14 +338,17 @@ export class LockerStateService extends AsyncHandler {
     }
 
     public async shareLocker(locker: Locker, user?: StaffUser) {
-        const system_id = this._org.binding('lockers');
-        if (!system_id)
+        const binding = this._org.binding('lockers');
+        const system_id = binding instanceof Object ? binding.id : binding;
+        const mod_id =
+            (binding instanceof Object ? binding.mod : '') || 'Locker';
+        if (!system_id || !mod_id)
             return notifyError(i18n('APP.CONCIERGE.LOCKERS_NO_DRIVER'));
         if (!user) {
             // TODO: Ask to select user
             return;
         }
-        const mod = getModule(system_id, 'Locker');
+        const mod = getModule(system_id, mod_id);
         await mod
             .execute('locker_share_mine', [locker.bank_id, locker.id, user.id])
             .catch((e) => {
@@ -357,8 +364,11 @@ export class LockerStateService extends AsyncHandler {
     }
 
     public async releaseLocker(locker: Locker, confirm = false) {
-        const system_id = this._org.binding('lockers');
-        if (!system_id)
+        const binding = this._org.binding('lockers');
+        const system_id = binding instanceof Object ? binding.id : binding;
+        const mod_id =
+            (binding instanceof Object ? binding.mod : '') || 'Locker';
+        if (!system_id || !mod_id)
             return notifyError(i18n('APP.CONCIERGE.LOCKERS_NO_DRIVER'));
         let close: () => void;
         if (confirm) {
@@ -374,7 +384,7 @@ export class LockerStateService extends AsyncHandler {
             result.loading(i18n('APP.CONCIERGE.LOCKERS_RELEASE_LOADING'));
             close = result.close;
         }
-        const mod = getModule(system_id, 'Locker');
+        const mod = getModule(system_id, mod_id);
         await mod
             .execute('locker_release', [locker.bank_id, locker.id])
             .catch((e) => {
@@ -393,8 +403,11 @@ export class LockerStateService extends AsyncHandler {
     }
 
     public async openLocker(locker: Locker, confirm = false) {
-        const system_id = this._org.binding('lockers');
-        if (!system_id)
+        const binding = this._org.binding('lockers');
+        const system_id = binding instanceof Object ? binding.id : binding;
+        const mod_id =
+            (binding instanceof Object ? binding.mod : '') || 'Locker';
+        if (!system_id || !mod_id)
             return notifyError(i18n('APP.CONCIERGE.LOCKERS_NO_DRIVER'));
         let close: () => void;
         if (confirm) {
@@ -410,7 +423,7 @@ export class LockerStateService extends AsyncHandler {
             result.loading(i18n('APP.CONCIERGE.LOCKERS_OPEN_LOADING'));
             close = result.close;
         }
-        const mod = getModule(system_id, 'Locker');
+        const mod = getModule(system_id, mod_id);
         await mod
             .execute('locker_unlock_mine', [locker.bank_id, locker.id])
             .catch((e) => {

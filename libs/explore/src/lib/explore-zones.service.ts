@@ -60,13 +60,10 @@ export class ExploreZonesService extends AsyncHandler {
         map(([_, lvl]) => {
             this._statuses = {};
             const system_id = this._org.binding('area_management');
-            if (!system_id) return;
-            const bind_areas = getModule(system_id, 'AreaManagement').binding(
-                `${lvl.id}:areas`,
-            );
-            const bind_zone = getModule(system_id, 'AreaManagement').binding(
-                `${lvl.id}`,
-            );
+            const mod = this._org.module('area_management', 'AreaManagement');
+            if (!mod) return;
+            const bind_areas = mod.binding(`${lvl.id}:areas`);
+            const bind_zone = mod.binding(`${lvl.id}`);
             const zones = combineLatest([
                 bind_areas.listen(),
                 bind_zone.listen(),

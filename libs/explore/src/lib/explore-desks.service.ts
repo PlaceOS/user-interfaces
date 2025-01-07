@@ -101,18 +101,16 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
         filter(([_, { is_public }]) => !!_ && !is_public),
         map(([lvl]) => {
             this._statuses = {};
-            const system_id = this._org.binding('area_management');
-            if (!system_id) return;
-            let binding = getModule(system_id, 'AreaManagement')?.binding(
-                lvl.id,
-            );
+            const mod = this._org.module('area_management', 'AreaManagement');
+            if (!mod) return;
+            const binding = mod.binding(lvl.id);
             if (!binding) return;
             this.subscription(
                 `lvl-in_use`,
                 binding
                     .listen()
                     .subscribe((d) =>
-                        this.processBindingChange(d || {}, system_id),
+                        this.processBindingChange(d || {}, mod.id),
                     ),
             );
             this.subscription('lvl-in_use_bind', binding.bind());

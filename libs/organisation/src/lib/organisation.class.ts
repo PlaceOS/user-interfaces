@@ -1,4 +1,5 @@
 import { getItemWithKeys } from 'libs/common/src/lib/general';
+import { Binding } from './building.class';
 
 export interface OrganisationComplete extends Organisation {
     settings?: Record<string, any>;
@@ -18,7 +19,7 @@ export class Organisation {
     /** Capacity for the Organisation */
     public readonly capacity: number;
     /** PlaceOS bindings for applications */
-    public readonly bindings: Record<string, string>;
+    public readonly bindings: Record<string, string | Binding>;
     /** Map of custom settings for the building */
     private _settings: Record<string, any>;
 

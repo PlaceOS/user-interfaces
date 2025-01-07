@@ -183,9 +183,9 @@ export class LandingStateService extends AsyncHandler {
                     this.updateOccupancy({});
                 }),
         );
-        let sys_id = this._org.binding('area_management');
-        if (!sys_id) return;
-        const binding = getModule(sys_id, 'AreaManagement').binding('overview');
+        const mod = this._org.module('area_management', 'AreaManagement');
+        if (!mod) return;
+        const binding = mod.binding('overview');
         binding.listen().subscribe((d) => this.updateOccupancy(d || {}));
         binding.bind();
     }

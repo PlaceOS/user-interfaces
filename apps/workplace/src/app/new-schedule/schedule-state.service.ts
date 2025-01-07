@@ -330,9 +330,8 @@ export class ScheduleStateService extends AsyncHandler {
     ]).pipe(
         debounceTime(300),
         switchMap(async ([lockers]) => {
-            const system_id = this._org.binding('lockers');
-            if (!system_id) return [[], lockers];
-            const mod = getModule(system_id, 'LockerLocations');
+            const mod = this._org.module('lockers', 'LockerLocations');
+            if (!mod) return [[], lockers];
             const my_lockers = await mod
                 .execute('lockers_allocated_to_me')
                 .catch(() => []);
