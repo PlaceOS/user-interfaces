@@ -400,14 +400,14 @@ export class LockerStateService extends AsyncHandler {
         if (confirm) {
             const result = await openConfirmModal(
                 {
-                    title: i18n('APP.CONICERGE.LOCKERS_OPEN_TITLE'),
-                    content: i18n('APP.CONICERGE.LOCKERS_OPEN_MSG'),
+                    title: i18n('APP.CONCIERGE.LOCKERS_OPEN_TITLE'),
+                    content: i18n('APP.CONCIERGE.LOCKERS_OPEN_MSG'),
                     icon: { content: 'event_busy' },
                 },
                 this._dialog,
             );
             if (result.reason !== 'done') return;
-            result.loading(i18n('APP.CONICERGE.LOCKERS_OPEN_LOADING'));
+            result.loading(i18n('APP.CONCIERGE.LOCKERS_OPEN_LOADING'));
             close = result.close;
         }
         const mod = getModule(system_id, 'Locker');
