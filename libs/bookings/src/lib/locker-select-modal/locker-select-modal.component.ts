@@ -166,14 +166,12 @@ export const FAV_LOCKER_KEY = 'favourite_lockers';
             </locker-map>
         </ng-template>
         <ng-template #bank_view>
-            <div class="h-full w-full flex flex-col overflow-auto">
-                <div
-                    class="sticky left-0 font-medium px-2 py-2 w-full bg-base-200"
-                >
+            <div class="h-full w-full flex flex-col overflow-auto bg-base-200">
+                <div class="sticky left-0 font-medium px-2 py-2 w-full">
                     {{ bank.name }}
                 </div>
                 <locker-grid
-                    class="w-full flex-1 h-1/2 bg-base-200"
+                    class="w-full flex-1 h-1/2"
                     [bank]="bank"
                     [selected]="displayed?.id"
                     (clicked)="displayed = $event"
