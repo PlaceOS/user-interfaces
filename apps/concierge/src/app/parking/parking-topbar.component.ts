@@ -8,6 +8,7 @@ import { OrganisationService } from '@placeos/organisation';
 import { ParkingStateService } from './parking-state.service';
 import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';
 import { MatDialog } from '@angular/material/dialog';
+import { timer } from 'rxjs';
 
 @Component({
     selector: 'parking-topbar',
@@ -172,6 +173,7 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
 
     public async ngOnInit() {
         await this._org.initialised.pipe(first((_) => _)).toPromise();
+        await timer(1000).toPromise();
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {

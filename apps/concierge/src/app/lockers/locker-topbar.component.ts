@@ -8,6 +8,7 @@ import { OrganisationService } from '@placeos/organisation';
 import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';
 import { MatDialog } from '@angular/material/dialog';
 import { LockerStateService } from './locker-state.service';
+import { timer } from 'rxjs';
 
 @Component({
     selector: 'lockers-topbar',
@@ -161,6 +162,7 @@ export class LockersTopbarComponent extends AsyncHandler implements OnInit {
 
     public async ngOnInit() {
         await this._org.initialised.pipe(first((_) => _)).toPromise();
+        await timer(1000).toPromise();
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {

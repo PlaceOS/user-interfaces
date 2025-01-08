@@ -14,8 +14,8 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
                 <app-icon>close</app-icon>
             </button>
         </header>
-        <main class="max-w-[80vw] max-h-[65vh] h-[50vh] px-2 pb-2">
-            <locker-grid [show_name]="false" [bank]="bank"></locker-grid>
+        <main class="w-[65vw] h-[65vh] px-2 pb-2 overflow-auto">
+            <locker-grid [bank]="bank"></locker-grid>
         </main>
     `,
     styles: [``],

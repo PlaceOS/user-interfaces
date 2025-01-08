@@ -6,11 +6,8 @@ import { Locker, LockerBank } from './locker.class';
 @Component({
     selector: 'locker-grid',
     template: `
-        <div class="p-4 text-xl font-medium" *ngIf="show_name">
-            {{ bank?.name }}
-        </div>
         <div
-            class="flex-1 grid gap-2 overflow-hidden max-h-full h-[75vh] min-w-[60vw] p-2"
+            class="flex-1 grid gap-2 p-2"
             [style.width]="columns * 2.5 + 'rem'"
             [style.grid-template-columns]="'repeat(' + columns + ', 5rem)'"
             [style.grid-template-rows]="'repeat(' + bank?.height + ', 5rem)'"

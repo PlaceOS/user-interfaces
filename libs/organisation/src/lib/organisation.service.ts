@@ -138,7 +138,7 @@ export class OrganisationService {
         this.setRegion(item);
     }
 
-    public async setRegion(item: Region) {
+    public async setRegion(item: Region, save = false) {
         if (!item) return;
         this._active_region.next(item);
         await this.loadRegionData(item);
@@ -149,7 +149,7 @@ export class OrganisationService {
         ) {
             this.building = this.buildingsForRegion(item)[0];
         } else this._updateSettingOverrides();
-        localStorage.setItem('PLACEOS.region', item.id);
+        if (save) localStorage.setItem('PLACEOS.region', item.id);
     }
 
     /** List of available buildings */
@@ -178,9 +178,7 @@ export class OrganisationService {
                 (_) => _.id === this.building.parent_id,
             );
         }
-        if (save) {
-            localStorage.setItem('PLACEOS.building', bld.id);
-        }
+        if (save) localStorage.setItem('PLACEOS.building', bld.id);
     }
 
     public get timezone() {

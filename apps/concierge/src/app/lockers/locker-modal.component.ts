@@ -119,6 +119,7 @@ function validateNoOverlap(box: Box, check_boxes: Box[]): boolean {
                             "
                             [ngModelOptions]="{ standalone: true }"
                             [min]="1"
+                            [max]="255"
                         ></a-counter>
                     </div>
                     <div class="flex-1">
@@ -135,6 +136,7 @@ function validateNoOverlap(box: Box, check_boxes: Box[]): boolean {
                             "
                             [ngModelOptions]="{ standalone: true }"
                             [min]="1"
+                            [max]="bank?.height"
                         ></a-counter>
                     </div>
                 </div>
@@ -159,6 +161,7 @@ function validateNoOverlap(box: Box, check_boxes: Box[]): boolean {
                             "
                             [ngModelOptions]="{ standalone: true }"
                             [min]="1"
+                            [max]="10"
                             [render_fn]="render_fn"
                         ></a-counter>
                     </div>
