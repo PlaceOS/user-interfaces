@@ -350,6 +350,6 @@ export class MeetingBookingFormComponent extends AsyncHandler {
 
     public setBuilding(bld: Building) {
         this._org.building = bld;
-        this._org.saveBuilding(bld.id);
+        this._org.setBuilding(bld, true);
     }
 }
