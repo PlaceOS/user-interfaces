@@ -166,6 +166,9 @@ export const FAV_LOCKER_KEY = 'favourite_lockers';
             </locker-map>
         </ng-template>
         <ng-template #bank_view>
+            <div class="font-medium px-2 py-2 w-full bg-base-200">
+                {{ bank.name }}
+            </div>
             <locker-grid
                 class="max-w-full overflow-auto flex-1 h-1/2 bg-base-200"
                 [bank]="bank"

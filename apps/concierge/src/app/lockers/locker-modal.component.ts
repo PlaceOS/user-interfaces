@@ -178,7 +178,7 @@ function validateNoOverlap(box: Box, check_boxes: Box[]): boolean {
                             "
                             [ngModelOptions]="{ standalone: true }"
                             [min]="1"
-                            [max]="10"
+                            [max]="bank?.height || 10"
                             [render_fn]="render_fn"
                         ></a-counter>
                     </div>

@@ -139,6 +139,7 @@ export class OrganisationService {
     }
 
     public async setRegion(item: Region, save = false) {
+        console.warn('Set Region:', item);
         if (!item) return;
         this._active_region.next(item);
         await this.loadRegionData(item);
@@ -166,6 +167,7 @@ export class OrganisationService {
     }
 
     public setBuilding(bld: Building, save = false) {
+        console.warn('Set Building:', bld);
         if (!(bld instanceof Object)) return;
         this._active_building.next(bld);
         if (!this._service.get('dont_load_metadata')) {
