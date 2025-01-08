@@ -138,9 +138,8 @@ export class OrganisationService {
         this.setRegion(item);
     }
 
-    public async setRegion(item: Region, save = false) {
-        console.warn('Set Region:', item);
-        if (!item) return;
+    public async setRegion(item: Region) {
+        if (!item || this._active_region.value?.id == item.id) return;
         this._active_region.next(item);
         await this.loadRegionData(item);
         this._setBuildingFromTimezone();
@@ -150,7 +149,7 @@ export class OrganisationService {
         ) {
             this.building = this.buildingsForRegion(item)[0];
         } else this._updateSettingOverrides();
-        if (save) localStorage.setItem('PLACEOS.region', item.id);
+        localStorage.setItem('PLACEOS.region', item.id);
     }
 
     /** List of available buildings */
@@ -167,7 +166,6 @@ export class OrganisationService {
     }
 
     public setBuilding(bld: Building, save = false) {
-        console.warn('Set Building:', bld);
         if (!(bld instanceof Object)) return;
         this._active_building.next(bld);
         if (!this._service.get('dont_load_metadata')) {
@@ -344,20 +342,20 @@ export class OrganisationService {
             setTimeout(() => this.init(tries), Math.min(10_000, 300 * ++tries));
             throw err;
         });
-        if (localStorage.getItem('PLACEOS.region')) {
-            this.region = this.regions.find(
-                (region) =>
-                    region.id === localStorage.getItem('PLACEOS.region'),
-            );
-        }
         setTimeout(() => {
+            if (localStorage.getItem('PLACEOS.region')) {
+                this.region = this.regions.find(
+                    (region) =>
+                        region.id === localStorage.getItem('PLACEOS.region'),
+                );
+            }
             if (localStorage.getItem('PLACEOS.building')) {
                 this.building = this.buildings.find(
                     (bld) =>
                         bld.id === localStorage.getItem('PLACEOS.building'),
                 );
             }
-        }, 100);
+        }, 1000);
         if (window.debug) {
             if (!window.application) window.application = {};
             window.application.orgs = this;
@@ -621,7 +619,8 @@ export class OrganisationService {
 
     private async _setDefaultBuilding() {
         if (!this.buildings.length) return;
-        const region_id = sessionStorage.getItem(`PLACEOS.region`);
+        const region_id = localStorage.getItem(`PLACEOS.region`);
+
         await (region_id
             ? this.setRegion(
                   this._regions.getValue().find((_) => _.id === region_id),
