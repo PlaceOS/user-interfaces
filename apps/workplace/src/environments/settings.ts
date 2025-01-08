@@ -157,7 +157,7 @@ const app = {
         { id: 'pt', name: 'LANGUAGE.PORTUGESE', flag: '🇵🇹' },
         { id: 'it', name: 'LANGUAGE.ITALIAN', flag: '🇮🇹' },
         { id: 'zh', name: 'LANGUAGE.CHINESE', flag: '🇨🇳' },
-        { id: 'ja', name: 'LANGUAGE.JAPANESE', flag: '🇯🇵' },
+        { id: 'ja-JP', name: 'LANGUAGE.JAPANESE', flag: '🇯🇵' },
         { id: 'ar', name: 'LANGUAGE.ARABIC', flag: '' },
     ],
     features: [

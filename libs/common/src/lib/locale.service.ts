@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import * as DEFAULT_LOCALE from 'shared/assets/locale/en-AU.json';
 
 import { log } from './general';
+import { showMetadata } from '@placeos/ts-client';
 
 interface LocaleStore {
     expiry: number;
@@ -26,6 +27,21 @@ function removeNesting(value: any, path = ''): Record<string, string> {
     return out_object;
 }
 
+/**
+ * Removes all localStorage items whose key includes the given substring.
+ *
+ * @param substring - The substring to search for in the keys.
+ */
+function removeLocalStorageKeysWithSubstring(substring: string): void {
+    // Iterate backward to avoid issues if items are removed during iteration
+    for (let i = localStorage.length - 1; i >= 0; i--) {
+        const key = localStorage.key(i);
+        if (key && key.includes(substring)) {
+            localStorage.removeItem(key);
+        }
+    }
+}
+
 const STORE_KEY = 'APP.locale';
 
 @Injectable({
@@ -43,11 +59,18 @@ export class LocaleService {
     private _locale_mappings: Record<string, Record<string, string>> = {};
 
     public locale_folder = 'assets/locale';
+    public zone_id: string;
 
-    constructor() {
+    public init() {
         this.setLocale(
             localStorage.getItem(`${STORE_KEY}`) || this._default_locale,
         );
+        if (window.debug) {
+            (window as any).clearLocaleDataStore = () => {
+                removeLocalStorageKeysWithSubstring(STORE_KEY);
+                location.reload();
+            };
+        }
     }
 
     public get(key: string, args: Record<string, any> = {}) {
@@ -99,7 +122,21 @@ export class LocaleService {
                 );
             }
             const locale_data = await resp.json();
-            this._locale_mappings[locale] = removeNesting(locale_data);
+            console.log('Zone ID:', this.zone_id);
+            const locale_override_data = this.zone_id
+                ? await showMetadata(
+                      this.zone_id,
+                      `locale_${locale}`,
+                  ).toPromise()
+                : { details: {} };
+            const base_locale_values = removeNesting(locale_data);
+            const override_locale_values = removeNesting(
+                locale_override_data.details,
+            );
+            this._locale_mappings[locale] = {
+                ...base_locale_values,
+                ...override_locale_values,
+            };
             const store = {
                 expiry: Date.now() + this._cache_time,
                 locale,

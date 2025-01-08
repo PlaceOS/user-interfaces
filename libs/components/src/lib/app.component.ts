@@ -187,6 +187,10 @@ export class AppComponent extends AsyncHandler implements OnInit {
         /** Wait for authentication details to load */
         await setupPlace(settings).catch((_) => console.error(_));
         await this._org.initialised.pipe(first((_) => _)).toPromise();
+        if (this._locale) {
+            this._locale.zone_id = this._org.organisation.id;
+            this._locale.init();
+        }
         setupCache(this._cache);
         if (!settings.local_login) {
             this.timeout('wait_for_user', () => this.onInitError(), 30 * 1000);
