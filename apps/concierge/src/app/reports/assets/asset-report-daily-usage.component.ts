@@ -2,6 +2,7 @@ import { Component, Input } from '@angular/core';
 import { downloadFile, jsonToCsv } from '@placeos/common';
 import { map, take } from 'rxjs/operators';
 import { AssetsReportService } from './assets-report.service';
+import { formatDate } from '@angular/common';
 
 @Component({
     selector: 'asset-report-daily-usage',
@@ -103,6 +104,10 @@ export class AssetReportDailyUsageComponent {
 
     public readonly download = async () => {
         const data = await this.daily_products.pipe(take(1)).toPromise();
+        console.log('Data:', data);
+        for (const item of data) {
+            item.date = formatDate(item.date, 'MMM d, y, h:mm a', 'en');
+        }
         downloadFile('report-assets-daily-usage.csv', jsonToCsv(data));
     };
 

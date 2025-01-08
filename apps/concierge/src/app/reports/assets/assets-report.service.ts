@@ -1,3 +1,4 @@
+import { formatDate } from '@angular/common';
 import { Injectable } from '@angular/core';
 import {
     AssetGroup,
@@ -34,6 +35,7 @@ import {
     take,
     tap,
 } from 'rxjs/operators';
+import { REMOVE_KEYS } from '../reports-state.service';
 
 export interface AssetsReportOptions {
     /** Zones to check available space for */
@@ -211,12 +213,13 @@ export class AssetsReportService {
         downloadFile(
             `report+assets+${date}.tsv`,
             jsonToCsv(
-                bookings.map((bkn: any) => {
-                    const details = bkn.toJSON();
-                    delete details.zones;
-                    delete details.server_names;
-                    delete details.extension_data;
-                    return details;
+                bookings.map((booking) => {
+                    const b: any = booking.toJSON();
+                    const fmt_str = 'MMM d, y, h:mm a';
+                    b.start = formatDate(b.booking_start * 1000, fmt_str, 'en');
+                    b.end = formatDate(b.booking_end * 1000, fmt_str, 'en');
+                    for (const key of REMOVE_KEYS) delete b[key];
+                    return b;
                 }),
                 '\t',
             ),

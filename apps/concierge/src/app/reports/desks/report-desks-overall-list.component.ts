@@ -72,7 +72,7 @@ import { ReportsStateService } from '../reports-state.service';
     `,
 })
 export class ReportDesksOverallListComponent {
-    @Input() public print: boolean = false;
+    @Input() public print = false;
 
     public readonly day_list = this._state.day_list;
 
@@ -80,7 +80,7 @@ export class ReportDesksOverallListComponent {
         let data = await this.day_list.pipe(take(1)).toPromise();
         data = data.map((d) => ({
             ...d,
-            date: format(d.date, 'MMMM d, y(EEE)'),
+            date: format(d.date, 'MMM d, y(EEE)'),
         }));
         downloadFile('desks-usage.csv', jsonToCsv(data));
     };

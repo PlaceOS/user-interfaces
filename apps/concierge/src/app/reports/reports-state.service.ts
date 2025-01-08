@@ -46,6 +46,7 @@ import {
 } from './reports.utilities';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 import { requestSpacesForZone } from '@placeos/spaces';
+import { formatDate } from '@angular/common';
 
 export interface ReportOptions {
     type?: 'desks' | 'events' | 'parking';
@@ -73,6 +74,22 @@ const DAYS_OF_WEEK_INDEX = {
     5: 'friday',
     6: 'saturday',
 };
+
+export const REMOVE_KEYS = [
+    'zones',
+    'server_names',
+    'extension_data',
+    'event_start',
+    'event_end',
+    'booking_start',
+    'booking_end',
+    'system',
+    'old_system',
+    'date',
+    'date_end',
+    '_valid_asset_cache',
+    '_valid_cache_expiry',
+];
 
 @Injectable({
     providedIn: 'root',
@@ -366,9 +383,17 @@ export class ReportsStateService {
             jsonToCsv(
                 bookings.map((bkn) => {
                     const details = bkn.toJSON();
-                    delete details.zones;
-                    delete details.server_names;
-                    delete details.extension_data;
+                    details.start = formatDate(
+                        (details.event_start || details.booking_start) * 1000,
+                        'MMM d, y, h:mm a',
+                        'en',
+                    );
+                    details.end = formatDate(
+                        (details.event_end || details.booking_end) * 1000,
+                        'MMM d, y, h:mm a',
+                        'en',
+                    );
+                    for (const key of REMOVE_KEYS) delete details[key];
                     return details;
                 }),
                 '\t',
