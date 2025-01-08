@@ -46,6 +46,10 @@ import { LockersReportService } from './lockers-report.service';
                         content: duration_template,
                     },
                     {
+                        key: 'type',
+                        name: 'COMMON.TYPE' | translate,
+                    },
+                    {
                         key: 'host',
                         name: 'APP.CONCIERGE.BOOKED_FOR' | translate,
                     },
@@ -103,6 +107,10 @@ export class LockersReportListComponent {
                             ? 'COMMON.TRUE'
                             : 'COMMON.FALSE',
                     ),
+                    type:
+                        booking.extension_data?.tags?.[0] ||
+                        booking.tags?.[0] ||
+                        '',
                 });
             }
             list.sort((a, b) => a.date - b.date);

@@ -213,6 +213,7 @@ export class LockerFormDetailsComponent
             booking_type: 'locker',
             zones: [this.building.id],
             booking_asset: locker,
+            tags: locker.bank?.tags || [],
         });
     }
 }
