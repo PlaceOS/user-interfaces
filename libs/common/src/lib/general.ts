@@ -11,7 +11,7 @@ import { HashMap } from './types';
 import { i18n } from './translate';
 
 /** Available console output streams. */
-export type ConsoleStream = 'debug' | 'warn' | 'log' | 'error';
+export type ConsoleStream = 'debug' | 'warn' | 'log' | 'error' | 'info';
 
 declare global {
     interface Window {

@@ -6,7 +6,7 @@ import {
     CateringOrder,
     CateringStateService,
 } from '@placeos/catering';
-import { i18n, notifyError, notifySuccess } from '@placeos/common';
+import { i18n, log, notifyError, notifySuccess } from '@placeos/common';
 import { first, map } from 'rxjs/operators';
 import { CheckinStateService } from './checkin-state.service';
 import { CalendarEvent, showEvent, updateEvent } from '@placeos/events';
@@ -106,9 +106,18 @@ export class CheckinPreferencesComponent implements OnInit {
     ) {}
 
     public ngOnInit(): void {
-        this.event
-            .pipe(first())
-            .subscribe((event) => (!event ? this.next() : null));
+        this.event.pipe(first()).subscribe((event) => {
+            if (event) {
+                if (!event.linked_event) {
+                    log(
+                        'CHECKIN',
+                        'Visitor booking does not support catering.',
+                        undefined,
+                        'info',
+                    );
+                }
+            } else this.next();
+        });
     }
 
     public async update() {
