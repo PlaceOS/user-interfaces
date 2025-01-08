@@ -112,11 +112,12 @@ export class VisitorsReportService {
         if (!bookings?.length) return;
         const is_same = isSameDay(options.start, options.end);
         const date = is_same
-            ? format(options.start, 'yyyy-MM-dd')
-            : `${format(options.start, 'yyyy-MM-dd')}-${format(
-                  options.end,
+            ? format(options.start || startOfDay(Date.now()), 'yyyy-MM-dd')
+            : `${format(options.start || startOfDay(Date.now()), 'yyyy-MM-dd')}-${format(
+                  options.end || endOfDay(Date.now()),
                   'yyyy-MM-dd',
               )}`;
+        console.log('Bookings:', bookings);
         downloadFile(
             `report+assets+${date}.tsv`,
             jsonToCsv(
