@@ -343,6 +343,7 @@ export class LockerStateService extends AsyncHandler {
             if (!value) return;
             user = value;
         }
+        await this.allocateLocker(locker);
         await mod
             .execute('locker_share_mine', [locker.bank_id, locker.id, user.id])
             .catch((e) => {

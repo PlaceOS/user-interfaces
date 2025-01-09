@@ -1,6 +1,6 @@
 import { formatDate } from '@angular/common';
 import { Injectable } from '@angular/core';
-import { queryBookings } from '@placeos/bookings';
+import { Booking, queryBookings } from '@placeos/bookings';
 import {
     downloadFile,
     i18n,
@@ -23,7 +23,7 @@ import {
     take,
     tap,
 } from 'rxjs/operators';
-import { REMOVE_KEYS } from '../reports-state.service';
+import { REMOVE_KEYS, ReportsStateService } from '../reports-state.service';
 
 export interface ReportOptions {
     /** Zones to check available space for */
@@ -38,42 +38,13 @@ export interface ReportOptions {
     providedIn: 'root',
 })
 export class LockersReportService {
-    private _loading = new BehaviorSubject<boolean>(false);
     private _options = new BehaviorSubject<ReportOptions>({});
-    private _generate = new BehaviorSubject<number>(0);
 
-    public readonly loading$ = this._loading.asObservable();
+    public readonly loading$ = this._report.loading;
     public readonly options$ = this._options.asObservable();
 
-    public readonly bookings$ = this._generate.pipe(
-        filter((gen) => gen > 0),
-        switchMap(() => this._options.pipe(take(1))),
-        debounceTime(300),
-        switchMap((options) => {
-            this._loading.next(true);
-            const { start, end, zones } = options;
-            return queryBookings({
-                period_start: getUnixTime(startOfDay(start || Date.now())),
-                period_end: getUnixTime(endOfDay(end || start || Date.now())),
-                type: 'locker',
-                include_checked_out: true,
-                zones:
-                    (zones || [])?.join(',') ||
-                    (this._settings.get('app.use_region')
-                        ? this._org.region?.id
-                        : '') ||
-                    this._org.building?.id,
-                limit: 10000,
-            });
-        }),
-        tap((_) => {
-            if (!_.length) {
-                notifyError(i18n('APP.CONCIERGE.REPORTS_LOAD_ERROR'));
-            }
-            this._loading.next(false);
-        }),
-        startWith([]),
-        shareReplay(1),
+    public readonly bookings$ = this._report.bookings.pipe(
+        map((_) => _ as Booking[]),
     );
 
     public readonly daily_stats$ = combineLatest([
@@ -136,14 +107,17 @@ export class LockersReportService {
     constructor(
         private _settings: SettingsService,
         private _org: OrganisationService,
+        private _report: ReportsStateService,
     ) {}
 
     public setOptions(options: Partial<ReportOptions>) {
         this._options.next({ ...this._options.getValue(), ...options });
+        this._report.setOptions(options);
     }
 
     public generateReport() {
-        this._generate.next(Date.now());
+        this._report.setOptions({ type: 'lockers' });
+        this._report.generateReport();
     }
 
     public async downloadReport() {

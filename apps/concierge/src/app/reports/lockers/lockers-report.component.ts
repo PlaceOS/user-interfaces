@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { LockersReportService } from './lockers-report.service';
 import { ActivatedRoute } from '@angular/router';
@@ -72,7 +72,7 @@ import { OrganisationService } from '@placeos/organisation';
         `,
     ],
 })
-export class LockersReportComponent extends AsyncHandler {
+export class LockersReportComponent extends AsyncHandler implements OnInit {
     public printing = false;
     public readonly total_count = this._state.bookings$.pipe(
         map((i) => i.length || 0),

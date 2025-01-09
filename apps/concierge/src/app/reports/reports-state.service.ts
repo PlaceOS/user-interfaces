@@ -49,7 +49,7 @@ import { requestSpacesForZone } from '@placeos/spaces';
 import { formatDate } from '@angular/common';
 
 export interface ReportOptions {
-    type?: 'desks' | 'events' | 'parking';
+    type?: 'desks' | 'events' | 'parking' | 'lockers' | 'assets';
     start?: number | Date;
     end?: number | Date;
     zones?: string[];
@@ -152,6 +152,20 @@ export class ReportsStateService {
                         ...query,
                         zones: zones,
                         type: 'parking',
+                        limit: 1000,
+                    });
+                case 'lockers':
+                    return queryAllBookings({
+                        ...query,
+                        zones: zones,
+                        type: 'locker',
+                        limit: 1000,
+                    });
+                case 'assets':
+                    return queryAllBookings({
+                        ...query,
+                        zones: zones,
+                        type: 'asset-request',
                         limit: 1000,
                     });
                 case 'events':
