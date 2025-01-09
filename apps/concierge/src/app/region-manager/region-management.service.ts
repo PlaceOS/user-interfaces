@@ -6,12 +6,8 @@ import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { RegionModalComponent } from './region-modal.component';
 import { AppSettingsModalComponent } from '../ui/app-settings-modal.component';
-import {
-    i18n,
-    notifyError,
-    notifySuccess,
-    openConfirmModal,
-} from '@placeos/common';
+import { i18n, notifyError, notifySuccess } from '@placeos/common';
+import { openConfirmModal } from '@placeos/components';
 
 export interface RegionListOptions {
     search?: string;

@@ -4,7 +4,6 @@ import {
     i18n,
     notifyError,
     notifySuccess,
-    openConfirmModal,
     SettingsService,
     uploadFile,
 } from '@placeos/common';
@@ -44,6 +43,7 @@ import { SignageMediaPreviewModalComponent } from './signage-media-preview-modal
 import { SignagePlaylistModalComponent } from './signage-playlist-modal.component';
 import { SignageMediaModalComponent } from './signage-media-modal.component';
 import { SignageDisplayModalComponent } from './signage-display-modal.component';
+import { openConfirmModal } from '@placeos/components';
 
 function dataURLtoBlob(dataURL) {
     // Split the data URL to get the mime type and the data
@@ -189,7 +189,7 @@ export class SignageStateService extends AsyncHandler {
     public editMedia(
         media: SignageMedia = new SignageMedia({}),
         file?: File,
-        playlist_id: string = '',
+        playlist_id = '',
     ) {
         return new Promise<SignagePlaylist | null>(async (resolve) => {
             const ref = this._dialog.open(SignageMediaModalComponent, {
@@ -427,7 +427,7 @@ export class SignageStateService extends AsyncHandler {
             const url = URL.createObjectURL(file);
             // file is loaded
             if (file.type.includes('video')) {
-                let video = document.createElement('video');
+                const video = document.createElement('video');
                 video.src = url.toString();
                 video.addEventListener('loadedmetadata', () => {
                     const { videoWidth, videoHeight } = video;
@@ -435,7 +435,7 @@ export class SignageStateService extends AsyncHandler {
                 });
                 video.load();
             } else {
-                let img = new Image();
+                const img = new Image();
                 img.onload = () => resolve([img.width > img.height, 0]);
                 img.src = url.toString(); // is the data URL because called with readAsDataURL
             }

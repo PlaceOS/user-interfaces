@@ -1,11 +1,5 @@
 import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import {
-    currentUser,
-    hasNewVersion,
-    LocaleService,
-    VERSION,
-} from '@placeos/common';
 
 import { ChangelogModalComponent } from './changelog-modal.component';
 import { logout } from '@placeos/ts-client';
@@ -16,6 +10,10 @@ import { LanguageSelectComponent } from './language-tooltip.component';
 import { RegionSelectComponent } from './region-select.component';
 import { WorkLocationTooltipComponent } from './work-location-tooltip.component';
 
+import { currentUser } from 'libs/common/src/lib/user-state';
+import { LocaleService } from 'libs/common/src/lib/locale.service';
+import { VERSION } from 'libs/common/src/lib/version';
+import { hasNewVersion } from 'libs/common/src/lib/application';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { WFHSettingsModalComponent } from 'libs/users/src/lib/wfh-settings-modal.component';
 import { SupportTicketModalComponent } from 'libs/form-fields/src/lib/support-ticket-modal.component';

@@ -5,9 +5,10 @@ import { showMetadata, updateMetadata } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import { filter, map, shareReplay, switchMap, take } from 'rxjs/operators';
 import { EmergencyContactModalComponent } from './emergency-contact-modal.component';
-import { notify, notifySuccess, openConfirmModal } from '@placeos/common';
+import { notifySuccess } from '@placeos/common';
 import { RoleManagementModalComponent } from './role-management-modal.component';
 import { Clipboard } from '@angular/cdk/clipboard';
+import { openConfirmModal } from '@placeos/components';
 
 export interface EmergencyContact {
     id: string;

@@ -37,7 +37,7 @@ describe('BookingFormService', () => {
             MockProvider(MatDialog, { open: jest.fn() }),
             MockProvider(PaymentsService, {
                 makePayment: jest.fn(),
-                payment_module: '',
+                enabled: true,
             }),
         ],
     });
@@ -53,7 +53,7 @@ describe('BookingFormService', () => {
                     },
                     zone: { id: 'lvl-1' },
                 },
-            ])
+            ]),
         );
         spectator = createService();
         (ts_client as any).cleanObject = jest.fn((a) => a);
@@ -136,11 +136,11 @@ describe('BookingFormService', () => {
         expect(spectator.service.clearForm).not.toBeCalled();
         const router = spectator.inject(Router);
         (router.events as any).next(
-            new NavigationEnd(1, '/book/desks/form', '/book/desks/form')
+            new NavigationEnd(1, '/book/desks/form', '/book/desks/form'),
         );
         expect(spectator.service.clearForm).not.toBeCalled();
         (router.events as any).next(
-            new NavigationEnd(1, '/schedule', '/schedule')
+            new NavigationEnd(1, '/schedule', '/schedule'),
         );
         expect(spectator.service.clearForm).toBeCalled();
         spy.mockRestore();

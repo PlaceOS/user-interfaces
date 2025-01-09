@@ -7,12 +7,12 @@ import { ShortUrlModalComponent } from './url-modal.component';
 import {
     notifyError,
     notifySuccess,
-    openConfirmModal,
     queryShortURLs,
     deleteShortURL,
     ShortURL,
     i18n,
 } from '@placeos/common';
+import { openConfirmModal } from '@placeos/components';
 
 export interface UrlListOptions {
     search?: string;

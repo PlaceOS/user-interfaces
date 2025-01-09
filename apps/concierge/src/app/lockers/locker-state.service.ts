@@ -35,7 +35,6 @@ import {
     notifyError,
     notifyInfo,
     notifySuccess,
-    openConfirmModal,
     randomInt,
     SettingsService,
     unique,
@@ -43,7 +42,7 @@ import {
 import { OrganisationService } from '@placeos/organisation';
 
 import { QueryResponse } from '@placeos/ts-client/dist/esm/resources/functions';
-import { getModule, updateMetadata } from '@placeos/ts-client';
+import { updateMetadata } from '@placeos/ts-client';
 import { LockerModalComponent } from './locker-modal.component';
 import { User } from '@sentry/angular';
 import { LockerBookingModalComponent } from './locker-booking-modal.component';
@@ -51,6 +50,7 @@ import { LockerBankModalComponent } from './locker-bank-modal.component';
 import { ViewLockerBankModalComponent } from './view-locker-bank-modal.component';
 import { StaffUser } from '@placeos/users';
 import { SelectUserModalComponent } from 'libs/users/src/lib/select-user-modal.component';
+import { openConfirmModal } from '@placeos/components';
 
 export interface LockerFilters {
     date?: number;
@@ -343,6 +343,7 @@ export class LockerStateService extends AsyncHandler {
             if (!value) return;
             user = value;
         }
+        console.log('User:', user);
         await this.allocateLocker(locker);
         await mod
             .execute('locker_share_mine', [locker.bank_id, locker.id, user.id])

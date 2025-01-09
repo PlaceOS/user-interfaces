@@ -1,4 +1,4 @@
-import { i18n } from 'libs/common/src/lib/translate';
+import { i18n } from 'libs/common/src/lib/locale.service';
 
 export function statusList() {
     return [

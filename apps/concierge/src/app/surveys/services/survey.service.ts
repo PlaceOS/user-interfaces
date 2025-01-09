@@ -1,12 +1,7 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
-import {
-    SettingsService,
-    notifyError,
-    notifySuccess,
-    openConfirmModal,
-} from '@placeos/common';
+import { SettingsService, notifyError, notifySuccess } from '@placeos/common';
 import {
     generateNewSurvey,
     Question,
@@ -27,6 +22,7 @@ import {
 import { BehaviorSubject, of } from 'rxjs';
 import { catchError, finalize, first, map } from 'rxjs/operators';
 import { SurveyBuilderService } from './survey-builder.service';
+import { openConfirmModal } from '@placeos/components';
 
 export interface SurveyOptions {
     zone_id: string;
@@ -107,7 +103,7 @@ export class SurveyService {
         if (!this.validateSurvey(survey)) return false;
         const { id, title, description, pages } = survey;
         const { zone_id, building_id, trigger } = this._options.getValue();
-        let toSave: Survey = {
+        const toSave: Survey = {
             id,
             title,
             description,

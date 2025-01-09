@@ -12,12 +12,11 @@ import {
     currentUser,
     notifyError,
     notifySuccess,
-    openConfirmModal,
     SettingsService,
     formatDuration,
 } from '@placeos/common';
 import { addMinutes, isAfter } from 'date-fns';
-import { MapLocateModalComponent } from '@placeos/components';
+import { MapLocateModalComponent, openConfirmModal } from '@placeos/components';
 
 @Component({
     selector: 'schedule-view-booking',

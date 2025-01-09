@@ -1,5 +1,10 @@
 import { Component, Output, EventEmitter, Inject, OnInit } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import {
+    MatDialogRef,
+    MAT_DIALOG_DATA,
+    MatDialog,
+} from '@angular/material/dialog';
+import { first } from 'rxjs/operators';
 
 import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
 import { ApplicationIcon, DialogEvent } from 'libs/common/src/lib/types';
@@ -25,6 +30,35 @@ export const CONFIRM_METADATA = {
     maxHeight: 'calc(100vh - 2em)',
     maxWidth: 'calc(100vw - 2em)',
 };
+
+export interface ConfirmRepsonse {
+    reason: 'done' | '' | null;
+    loading: (_: string) => void;
+    close: () => void;
+}
+
+export async function openConfirmModal(
+    data: ConfirmModalData,
+    dialog: MatDialog,
+): Promise<ConfirmRepsonse> {
+    const ref = dialog.open<ConfirmModalComponent, ConfirmModalData>(
+        ConfirmModalComponent,
+        {
+            ...CONFIRM_METADATA,
+            data,
+        },
+    );
+    return {
+        ...(await Promise.race([
+            ref.componentInstance.event
+                .pipe(first((_) => _.reason === 'done'))
+                .toPromise(),
+            ref.afterClosed().toPromise(),
+        ])),
+        loading: (s) => (ref.componentInstance.loading = s),
+        close: () => ref.close(),
+    };
+}
 
 @Component({
     selector: 'confirm-modal',

@@ -5,7 +5,6 @@ import {
     isSameWeek,
     startOfMinute,
     startOfWeek,
-    format,
     setHours,
 } from 'date-fns';
 import { EventsStateService } from './events-state.service';
@@ -15,16 +14,12 @@ import {
     getTimezoneOffsetInMinutes,
     getTimezoneOffsetString,
     i18n,
-    notifyError,
-    notifySuccess,
-    openConfirmModal,
     SettingsService,
 } from '@placeos/common';
 import { map, shareReplay, startWith } from 'rxjs/operators';
 import { combineLatest } from 'rxjs';
 import {
     CalendarEvent,
-    declineEvent,
     EventDetailsModalComponent,
     SetupBreakdownModalComponent,
 } from '@placeos/events';
@@ -336,7 +331,7 @@ export class RoomWeekBookingsTimelineComponent
     public viewEvent(
         event: CalendarEvent,
         space_id: string,
-        scroll_to: boolean = false,
+        scroll_to = false,
     ) {
         if (event.is_system_event) return;
         const ref = this._dialog.open(EventDetailsModalComponent, {

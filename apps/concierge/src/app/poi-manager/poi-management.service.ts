@@ -4,13 +4,9 @@ import { OrganisationService } from '@placeos/organisation';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import { catchError, map, shareReplay, switchMap } from 'rxjs/operators';
 import { POIModalComponent } from './poi-modal.component';
-import {
-    flatten,
-    notifyError,
-    notifySuccess,
-    openConfirmModal,
-} from '@placeos/common';
+import { flatten, notifyError, notifySuccess } from '@placeos/common';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
+import { openConfirmModal } from '@placeos/components';
 
 export interface POIListOptions {
     search?: string;

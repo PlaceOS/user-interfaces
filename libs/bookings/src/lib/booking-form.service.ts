@@ -10,7 +10,6 @@ import {
     i18n,
     notifyError,
     notifyWarn,
-    openConfirmModal,
     rulesForResource,
     SettingsService,
     unique,
@@ -55,10 +54,12 @@ import {
 import { bookedResourceList, queryBookings, saveBooking } from './bookings.fn';
 import { DeskQuestionsModalComponent } from './desk-questions-modal.component';
 import { findNearbyFeature } from './booking.utilities';
-import { PaymentsService } from 'libs/payments/src/lib/payments.service';
 import { BookingLinkModalComponent } from './booking-link-modal.component';
+
+import { PaymentsService } from 'libs/payments/src/lib/payments.service';
 import { validateAssetRequestsForResource } from 'libs/assets/src/lib/assets.fn';
 import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
+import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
 
 export type BookingFlowView = 'form' | 'map' | 'confirm' | 'success';
 

@@ -19,9 +19,7 @@ import {
     jsonToCsv,
     notifyError,
     notifySuccess,
-    openConfirmModal,
 } from '@placeos/common';
-import { GuestUser, updateGuest } from '@placeos/users';
 import { MatDialog } from '@angular/material/dialog';
 import {
     Booking,
@@ -35,6 +33,7 @@ import {
 import { OrganisationService } from '@placeos/organisation';
 import { VisitorInductionModalComponent } from './visitor-induction-modal.component';
 import { VisitorNotesModalComponent } from './visitor-notes-modal.component';
+import { openConfirmModal } from '@placeos/components';
 
 export interface VisitorFilters {
     date?: number;

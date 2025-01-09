@@ -41,7 +41,7 @@ describe('EventFormService', () => {
             }),
             MockProvider(PaymentsService, {
                 makePayment: jest.fn(),
-                payment_module: '',
+                enabled: true,
             }),
             MockProvider(SettingsService, { get: jest.fn() }),
             MockProvider(AssetStateService, {}),

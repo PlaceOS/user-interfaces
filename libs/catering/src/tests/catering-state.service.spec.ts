@@ -1,8 +1,12 @@
 import { MatDialog } from '@angular/material/dialog';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator';
-import { Building, OrganisationService } from '@placeos/organisation';
 import { BehaviorSubject, of } from 'rxjs';
+import { MockProvider } from 'ng-mocks';
 import { delay } from 'rxjs/operators';
+
+import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
+import { Building } from 'libs/organisation/src/lib/building.class';
+import { SettingsService } from 'libs/common/src/lib/settings.service';
 
 import { CateringOrder } from '../lib/catering-order.class';
 import { CateringStateService } from '../lib/catering-state.service';
@@ -11,8 +15,6 @@ jest.mock('@placeos/ts-client');
 
 import * as ts_client from '@placeos/ts-client';
 import { CateringItem } from '../lib/catering-item.class';
-import { MockProvider } from 'ng-mocks';
-import { SettingsService } from '@placeos/common';
 
 const dialog_fn = (has_delay, metadata?) => () => ({
     componentInstance: {
@@ -32,6 +34,7 @@ describe('CateringStateService', () => {
             MockProvider(OrganisationService, {
                 building: new Building({ id: 'bld-1' }),
                 active_building: new BehaviorSubject(new Building()),
+                initialised: of(true),
             }),
             MockProvider(SettingsService, { get: jest.fn() }),
             MockProvider(MatDialog, { open: jest.fn() }),
@@ -54,7 +57,7 @@ describe('CateringStateService', () => {
         let order = await spectator.service.manageCateringOrder(input_order);
         expect(order).toBe(input_order);
         (dialog.open as any).mockImplementation(
-            dialog_fn(false, { order: new CateringOrder() })
+            dialog_fn(false, { order: new CateringOrder() }),
         );
         order = await spectator.service.manageCateringOrder(input_order);
         expect(order).not.toBe(input_order);
@@ -67,7 +70,7 @@ describe('CateringStateService', () => {
         await spectator.service.addItem();
         expect(ts_client.updateMetadata).not.toHaveBeenCalled();
         (dialog.open as any).mockImplementation(
-            dialog_fn(false, { item: new CateringItem() })
+            dialog_fn(false, { item: new CateringItem() }),
         );
         await spectator.service.addItem(new CateringItem());
         expect(ts_client.updateMetadata).toHaveBeenCalledWith('bld-1', {
@@ -87,7 +90,7 @@ describe('CateringStateService', () => {
         (dialog.open as any).mockImplementation(
             dialog_fn(false, {
                 item: new CateringItem({ options: [{} as any] }),
-            })
+            }),
         );
         await spectator.service.addOption(new CateringItem(), {} as any);
         expect(ts_client.updateMetadata).toHaveBeenCalledWith('bld-1', {
@@ -105,7 +108,7 @@ describe('CateringStateService', () => {
         let options = await spectator.service.selectOptions([]);
         expect(options).toEqual([]);
         (dialog.open as any).mockImplementation(
-            dialog_fn(false, { options: [{} as any] })
+            dialog_fn(false, { options: [{} as any] }),
         );
         options = await spectator.service.selectOptions([]);
         expect(options).toEqual([{}]);
@@ -166,14 +169,14 @@ describe('CateringStateService', () => {
         expect(config).toEqual([]);
         expect(ts_client.showMetadata).toHaveBeenCalledWith(
             'bld-1',
-            'catering_config'
+            'catering_config',
         );
         (ts_client as any).showMetadata = jest.fn(() => of([]));
         config = await spectator.service.getCateringConfig('bld-2');
         expect(config).toEqual([]);
         expect(ts_client.showMetadata).toHaveBeenCalledWith(
             'bld-2',
-            'catering_config'
+            'catering_config',
         );
     });
 

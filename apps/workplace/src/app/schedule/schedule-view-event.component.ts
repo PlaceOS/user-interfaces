@@ -5,7 +5,6 @@ import {
     AsyncHandler,
     notifyError,
     notifySuccess,
-    openConfirmModal,
     SettingsService,
     formatDuration,
 } from '@placeos/common';
@@ -17,7 +16,7 @@ import {
     showEvent,
 } from '@placeos/events';
 import { Space, SpacesService } from '@placeos/spaces';
-import { MapLocateModalComponent } from '@placeos/components';
+import { MapLocateModalComponent, openConfirmModal } from '@placeos/components';
 import { removeBooking, showBooking } from '@placeos/bookings';
 import { map } from 'rxjs/operators';
 import { CateringItem } from '@placeos/catering';

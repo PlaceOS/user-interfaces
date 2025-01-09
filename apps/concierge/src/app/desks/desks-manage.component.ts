@@ -8,7 +8,6 @@ import {
     loadTextFileFromInputEvent,
     notifyError,
     notifySuccess,
-    openConfirmModal,
     randomInt,
 } from '@placeos/common';
 import { Desk, OrganisationService } from '@placeos/organisation';
@@ -17,6 +16,7 @@ import { generateQRCode } from 'libs/common/src/lib/qr-code';
 import { take } from 'rxjs/operators';
 import { DesksStateService } from './desks-state.service';
 import { Clipboard } from '@angular/cdk/clipboard';
+import { openConfirmModal } from '@placeos/components';
 
 const QR_CODES = {};
 

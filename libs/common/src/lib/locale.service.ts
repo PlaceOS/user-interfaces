@@ -5,6 +5,17 @@ import * as DEFAULT_LOCALE from 'shared/assets/locale/en-AU.json';
 import { log } from './general';
 import { showMetadata } from '@placeos/ts-client';
 
+let _service: LocaleService;
+
+export function setTranslationService(service: LocaleService) {
+    _service = service;
+}
+
+export function i18n(key: string, args: Record<string, any> = {}) {
+    if (!_service) return key;
+    return _service.get(key, args);
+}
+
 interface LocaleStore {
     expiry: number;
     locale: string;

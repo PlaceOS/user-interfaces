@@ -18,7 +18,6 @@ import {
     i18n,
     notifyError,
     notifySuccess,
-    openConfirmModal,
     SettingsService,
     unique,
 } from '@placeos/common';
@@ -48,6 +47,7 @@ import { ParkingSpaceModalComponent } from './parking-space-modal.component';
 import { ParkingUserModalComponent } from './parking-user-modal.component';
 import { ParkingBookingModalComponent } from './parking-booking-modal.component';
 import { User } from '@placeos/users';
+import { openConfirmModal } from '@placeos/components';
 
 export interface ParkingOptions {
     date: number;

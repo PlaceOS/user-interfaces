@@ -9,8 +9,8 @@ import {
     getTimezoneOffsetString,
     i18n,
     notifyError,
-    openConfirmModal,
 } from '@placeos/common';
+import { openConfirmModal } from '@placeos/components';
 import {
     CalendarEvent,
     EventFormService,

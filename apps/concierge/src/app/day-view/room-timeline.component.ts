@@ -18,7 +18,6 @@ import {
     getTimezoneOffsetString,
     notifyError,
     notifySuccess,
-    openConfirmModal,
 } from '@placeos/common';
 import { MatDialog } from '@angular/material/dialog';
 import {
@@ -29,6 +28,7 @@ import {
 } from '@placeos/events';
 import { DatePipe } from '@angular/common';
 import { OrganisationService } from '@placeos/organisation';
+import { openConfirmModal } from '@placeos/components';
 
 @Component({
     selector: 'room-bookings-timeline',

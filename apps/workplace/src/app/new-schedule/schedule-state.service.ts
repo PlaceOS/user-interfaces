@@ -16,10 +16,10 @@ import {
     current_user,
     currentUser,
     flatten,
-    openConfirmModal,
     SettingsService,
     unique,
 } from '@placeos/common';
+import { openConfirmModal } from '@placeos/components';
 import {
     CalendarEvent,
     newCalendarEventFromBooking,

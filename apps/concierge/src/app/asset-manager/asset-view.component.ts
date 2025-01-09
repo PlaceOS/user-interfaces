@@ -1,8 +1,8 @@
 import { Component, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AsyncHandler, openConfirmModal, unique } from '@placeos/common';
-import { CustomTooltipComponent } from '@placeos/components';
+import { AsyncHandler, unique } from '@placeos/common';
+import { CustomTooltipComponent, openConfirmModal } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
 import { first, map } from 'rxjs/operators';
 import { AssetLocationModalComponent } from './asset-location-modal.component';

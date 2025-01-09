@@ -382,14 +382,7 @@ export class CateringItemModalComponent {
     constructor(
         @Inject(MAT_DIALOG_DATA) private _data: CateringItemModalData,
         private _org: OrganisationService,
-    ) {
-        console.log(
-            'Currency:',
-            this._org.currency_code,
-            this._currency_pipe,
-            this.renderPrice(10),
-        );
-    }
+    ) {}
 
     /**
      * Add a tag to the list of tags for the item

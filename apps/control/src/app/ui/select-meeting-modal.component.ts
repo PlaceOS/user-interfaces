@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { notifySuccess, openConfirmModal } from '@placeos/common';
+import { notifySuccess } from '@placeos/common';
 import { CalendarEvent } from '@placeos/events';
 import { format } from 'date-fns';
 import { ControlStateService } from '../control-state.service';
+import { openConfirmModal } from '@placeos/components';
 
 @Component({
     selector: 'select-meeting-modal',
@@ -104,7 +105,7 @@ export class SelectMeetingModalComponent {
                 }'s meeting for ${format(e.date, 'h:mm a')}?`,
                 icon: { content: 'login' },
             },
-            this._dialog
+            this._dialog,
         );
         if (details.reason !== 'done') return;
         await this._service.setEvent(e);
@@ -115,6 +116,6 @@ export class SelectMeetingModalComponent {
     constructor(
         private _service: ControlStateService,
         private _dialog: MatDialog,
-        private _dialog_ref: MatDialogRef<SelectMeetingModalComponent>
+        private _dialog_ref: MatDialogRef<SelectMeetingModalComponent>,
     ) {}
 }

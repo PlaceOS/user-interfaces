@@ -14,7 +14,6 @@ import {
     i18n,
     notifyError,
     notifySuccess,
-    openConfirmModal,
     SettingsService,
 } from '@placeos/common';
 import {
@@ -30,6 +29,7 @@ import {
     ScheduleStateService,
 } from './schedule-state.service';
 import { combineLatest } from 'rxjs';
+import { openConfirmModal } from '@placeos/components';
 
 @Component({
     selector: 'app-schedule',

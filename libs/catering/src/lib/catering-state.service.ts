@@ -17,18 +17,14 @@ import {
     tap,
 } from 'rxjs/operators';
 
-import {
-    AsyncHandler,
-    currentUser,
-    flatten,
-    i18n,
-    notifyError,
-    notifySuccess,
-    openConfirmModal,
-    SettingsService,
-    unique,
-} from '@placeos/common';
-import { Building, OrganisationService } from '@placeos/organisation';
+import { i18n } from 'libs/common/src/lib/locale.service';
+import { flatten, unique } from 'libs/common/src/lib/general';
+import { SettingsService } from 'libs/common/src/lib/settings.service';
+import { notifyError, notifySuccess } from 'libs/common/src/lib/notifications';
+import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
+import { currentUser } from 'libs/common/src/lib/user-state';
+import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
+import { Building } from 'libs/organisation/src/lib/building.class';
 
 import {
     CateringItemModalComponent,
@@ -38,11 +34,6 @@ import {
     CateringItemOptionModalComponent,
     CateringItemOptionModalData,
 } from './catering-option-modal.component';
-import {
-    AttachedResourceConfigModalComponent,
-    AttachedResourceRuleset,
-    AttachedResourceConfigModalData,
-} from '@placeos/components';
 import { CateringItem } from './catering-item.class';
 import { CateringOrder } from './catering-order.class';
 import {
@@ -56,6 +47,13 @@ import {
 } from './catering-order-options-modal.component';
 import { CateringImportMenuModalComponent } from './catering-import-menu-modal.component';
 import { CateringOrdersService } from './catering-orders.service';
+
+import {
+    AttachedResourceConfigModalComponent,
+    AttachedResourceRuleset,
+    AttachedResourceConfigModalData,
+} from 'libs/components/src/lib/attached-resource-config-modal.component';
+import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
 
 export interface CateringSettings {
     require_notes?: boolean;

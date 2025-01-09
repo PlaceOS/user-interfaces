@@ -32,20 +32,14 @@ import {
     i18n,
     notifyError,
     notifySuccess,
-    openConfirmModal,
     timePeriodsIntersect,
 } from '@placeos/common';
-import {
-    CalendarEvent,
-    declineEvent,
-    queryEvents,
-    removeEvent,
-} from '@placeos/events';
+import { CalendarEvent, declineEvent, queryEvents } from '@placeos/events';
 import { Space, requestSpacesForZone } from '@placeos/spaces';
 import { OrganisationService } from '@placeos/organisation';
-import { getModule } from '@placeos/ts-client';
 
 import { EventBookModalComponent } from './event-book-modal.component';
+import { openConfirmModal } from '@placeos/components';
 
 export type BookingType =
     | 'internal'

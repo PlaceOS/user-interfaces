@@ -34,7 +34,6 @@ import {
     notifyError,
     notifyInfo,
     notifySuccess,
-    openConfirmModal,
     randomInt,
     SettingsService,
 } from '@placeos/common';
@@ -43,6 +42,7 @@ import { Desk, OrganisationService } from '@placeos/organisation';
 import { generateQRCode } from 'libs/common/src/lib/qr-code';
 import { QueryResponse } from '@placeos/ts-client/dist/esm/resources/functions';
 import { DeskModalComponent } from './desk-modal.component';
+import { openConfirmModal } from '@placeos/components';
 
 function addQRCodeToBooking(booking: Booking): Booking {
     return new Booking({

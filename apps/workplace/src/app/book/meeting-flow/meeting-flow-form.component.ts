@@ -19,7 +19,6 @@ import {
     i18n,
     notifyError,
     notifyWarn,
-    openConfirmModal,
     SettingsService,
     UserIdleTimeService,
 } from '@placeos/common';
@@ -33,6 +32,7 @@ import { debounceTime, first, map, switchMap, tap } from 'rxjs/operators';
 import { MeetingFlowConfirmModalComponent } from './meeting-flow-confirm-modal.component';
 import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
 import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
+import { openConfirmModal } from '@placeos/components';
 
 @Component({
     selector: 'meeting-flow-form',

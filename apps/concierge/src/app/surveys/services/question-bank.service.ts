@@ -1,12 +1,7 @@
 import { CdkDragDrop } from '@angular/cdk/drag-drop';
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import {
-    AsyncHandler,
-    notifyError,
-    notifySuccess,
-    openConfirmModal,
-} from '@placeos/common';
+import { AsyncHandler, notifyError, notifySuccess } from '@placeos/common';
 import {
     Question,
     translateToQuestion,
@@ -22,6 +17,7 @@ import { updateQuestion } from '@placeos/ts-client/dist/esm/staff/questions/func
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { catchError, filter, finalize, first, map, tap } from 'rxjs/operators';
 import { ModQuestionOverlayComponent } from '../overlays/mod-question-overlay.component';
+import { openConfirmModal } from '@placeos/components';
 
 export interface QuestionFilter {
     search: string;
@@ -77,9 +73,9 @@ export class QuestionBankService extends AsyncHandler {
                 .filter((e) => !activeIds.includes(e.id))
                 .filter((e) => (type?.length ? e.type === type : true))
                 .filter((e) => e.title.includes(search))
-                .filter((e) => !e.deleted)
+                .filter((e) => !e.deleted);
         }),
-        tap((q) => (this.filteredQuestions = q))
+        tap((q) => (this.filteredQuestions = q)),
     );
     private filteredQuestions = [];
 
@@ -88,7 +84,7 @@ export class QuestionBankService extends AsyncHandler {
         this.loadQuestions();
     }
 
-    public resetTransaction(){
+    public resetTransaction() {
         this.withdrawnQuestions = [];
         this._filter.next({
             search: '',
@@ -118,7 +114,7 @@ export class QuestionBankService extends AsyncHandler {
     }
 
     public depositQuestions(list: Question[]) {
-        let withdrawn = [...this.withdrawnQuestions];
+        const withdrawn = [...this.withdrawnQuestions];
         list.forEach((q) => {
             const idx = withdrawn.findIndex((e) => e.id === q.id);
             if (idx > -1) withdrawn.splice(idx, 1);
@@ -127,8 +123,7 @@ export class QuestionBankService extends AsyncHandler {
     }
 
     public onDrop(event: CdkDragDrop<Question[]>) {
-        const { container, previousContainer, previousIndex, currentIndex } =
-            event;
+        const { container, previousContainer, previousIndex } = event;
         if (container !== previousContainer) {
             //Dropped from survey
             const q = previousContainer.data.splice(previousIndex, 1);
@@ -146,14 +141,14 @@ export class QuestionBankService extends AsyncHandler {
                             Note: This action is irreversible.`,
                 icon: { class: 'material-icons', content: 'delete' },
             },
-            this._dialog
+            this._dialog,
         );
         if (details.reason !== 'done') return;
         details.close();
         this.deleteQuestion(q);
     }
 
-    public modQuestionOverlay(question?: Question, isEdit?:boolean) {
+    public modQuestionOverlay(question?: Question, isEdit?: boolean) {
         const ref = this._dialog.open(ModQuestionOverlayComponent, {
             data: question,
         });
@@ -164,8 +159,10 @@ export class QuestionBankService extends AsyncHandler {
                 .afterClosed()
                 .pipe(filter((result) => !!result))
                 .subscribe((result) => {
-                    isEdit? this.editQuestion(result) : this.saveQuestion(result);
-                })
+                    isEdit
+                        ? this.editQuestion(result)
+                        : this.saveQuestion(result);
+                }),
         );
     }
 
@@ -176,9 +173,9 @@ export class QuestionBankService extends AsyncHandler {
                 first(),
                 tap(() => this.removeQuestionFromStore(question)),
                 catchError((err) =>
-                    this.handleError('Error deleting question', null)
+                    this.handleError('Error deleting question', null),
                 ),
-                finalize(() => (this.loading = ''))
+                finalize(() => (this.loading = '')),
             )
             .toPromise();
     }
@@ -190,12 +187,12 @@ export class QuestionBankService extends AsyncHandler {
                 first(),
                 map(
                     (res: SurveyQuestion[]) =>
-                        res?.map((e) => translateToQuestion(e)) || []
+                        res?.map((e) => translateToQuestion(e)) || [],
                 ),
                 catchError((err) =>
-                    this.handleError('Error loading questions', [])
+                    this.handleError('Error loading questions', []),
                 ),
-                finalize(() => (this.loading = ''))
+                finalize(() => (this.loading = '')),
             )
             .toPromise()) as Question[];
         this.questions = q;
@@ -204,15 +201,15 @@ export class QuestionBankService extends AsyncHandler {
     private async saveQuestion(question: Question) {
         this.loading = 'Saving question to bank...';
         const res: Question = (await addQuestion(
-            translateToSurveyQuestion(question)
+            translateToSurveyQuestion(question),
         )
             .pipe(
                 first(),
                 map((res) => translateToQuestion(res)),
                 catchError((err) =>
-                    this.handleError('Error adding question', null)
+                    this.handleError('Error adding question', null),
                 ),
-                finalize(() => (this.loading = ''))
+                finalize(() => (this.loading = '')),
             )
             .toPromise()) as Question;
         if (res) {
@@ -221,19 +218,24 @@ export class QuestionBankService extends AsyncHandler {
         }
     }
 
-    private async editQuestion(question: Question){
+    private async editQuestion(question: Question) {
         this.loading = 'Updating question...';
-        const res: Question = (await updateQuestion(`${question.id}`, translateToSurveyQuestion(question)).pipe(
-            first(),
-            map((res) => translateToQuestion(res)),
-            catchError((err) =>
-                this.handleError('Error updating question', null)
-            ),
-            finalize(() => (this.loading = ''))
-        ).toPromise()) as Question;
-        if(res?.id === question.id){
+        const res: Question = (await updateQuestion(
+            `${question.id}`,
+            translateToSurveyQuestion(question),
+        )
+            .pipe(
+                first(),
+                map((res) => translateToQuestion(res)),
+                catchError((err) =>
+                    this.handleError('Error updating question', null),
+                ),
+                finalize(() => (this.loading = '')),
+            )
+            .toPromise()) as Question;
+        if (res?.id === question.id) {
             this.updateQuestionInStore(res);
-        }else{
+        } else {
             this.addQuestionToStore(res);
             this.markQuestionDeletedInStore(question.id);
         }
@@ -245,31 +247,31 @@ export class QuestionBankService extends AsyncHandler {
     }
 
     private removeQuestionFromStore(q: Question) {
-        let qs = [...this.questions];
-        let idx = qs.findIndex((e) => e.id === q.id);
+        const qs = [...this.questions];
+        const idx = qs.findIndex((e) => e.id === q.id);
         if (idx > -1) qs.splice(idx, 1);
         this.questions = qs;
     }
 
     private addQuestionToStore(q: Question) {
-        let qs = [...this.questions];
+        const qs = [...this.questions];
         qs.push(q);
         this.questions = qs;
     }
 
-    private updateQuestionInStore(q: Question){
-        let qs = [...this.questions];
-        const idx = qs.findIndex(e =>  e.id === q.id);
-        if(idx > -1){
+    private updateQuestionInStore(q: Question) {
+        const qs = [...this.questions];
+        const idx = qs.findIndex((e) => e.id === q.id);
+        if (idx > -1) {
             qs[idx] = q;
             this.questions = qs;
         }
     }
 
-    private markQuestionDeletedInStore(qid: number){
-        let qs = [...this.questions];
-        const idx = qs.findIndex(e =>  e.id === qid);
-        if(idx > -1){
+    private markQuestionDeletedInStore(qid: number) {
+        const qs = [...this.questions];
+        const idx = qs.findIndex((e) => e.id === qid);
+        if (idx > -1) {
             qs[idx].deleted = true;
             this.questions = qs;
         }

@@ -13,12 +13,12 @@ import {
     i18n,
     notifyError,
     notifySuccess,
-    openConfirmModal,
     SettingsService,
 } from '@placeos/common';
 import { CalendarEvent, EventFormService, removeEvent } from '@placeos/events';
 import { format } from 'date-fns';
 import { LandingStateService } from './landing-state.service';
+import { openConfirmModal } from '@placeos/components';
 
 @Component({
     selector: 'landing-upcoming',

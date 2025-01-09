@@ -7,8 +7,8 @@ import {
     i18n,
     notifyError,
     notifySuccess,
-    openConfirmModal,
 } from '@placeos/common';
+import { openConfirmModal } from '@placeos/components';
 import {
     CalendarEvent,
     GroupEventDetailsModalComponent,

@@ -32,7 +32,6 @@ import {
     notifyError,
     notifySuccess,
     notifyWarn,
-    openConfirmModal,
     SettingsService,
     timePeriodsIntersect,
 } from '@placeos/common';
@@ -48,6 +47,7 @@ import {
     startOfMinute,
 } from 'date-fns';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
+import { openConfirmModal } from '@placeos/components';
 
 export interface PanelSettings {
     /** Name of the room */
@@ -290,9 +290,9 @@ export class PanelStateService extends AsyncHandler {
      */
     public async newBooking(
         date: number = Date.now(),
-        user: boolean = false,
-        future: boolean = false,
-        force_api: boolean = false,
+        user = false,
+        future = false,
+        force_api = false,
     ) {
         // if (date <= Date.now() && !user) {
         //     return this.confirmBookNow();
@@ -305,7 +305,7 @@ export class PanelStateService extends AsyncHandler {
         )
             return notifyError('Booking already exists for this time');
 
-        var max_duration = this._settings.getValue().max_duration;
+        let max_duration = this._settings.getValue().max_duration;
         const next = await this.next.pipe(take(1)).toPromise();
         if (next && date <= Date.now()) {
             const diff = Math.abs(differenceInMinutes(next.date, date));
@@ -318,7 +318,7 @@ export class PanelStateService extends AsyncHandler {
             );
         }
 
-        var min_duration = this._settings.getValue().min_duration;
+        const min_duration = this._settings.getValue().min_duration;
         const space = await this._space_pipe.transform(this.system);
         const details = await openBookingModal(
             {
@@ -366,7 +366,7 @@ export class PanelStateService extends AsyncHandler {
         ) {
             return notifyError('Booking already exists for this time');
         }
-        var max_duration = undefined;
+        let max_duration = undefined;
         const next = await this._next.pipe(take(1)).toPromise();
         if (next && date <= Date.now()) {
             const diff = Math.abs(differenceInMinutes(next.date, date));
@@ -494,7 +494,7 @@ export class PanelStateService extends AsyncHandler {
      * End the current meeting
      * @param reason Reason for ending the meeting early
      */
-    public async endCurrent(reason: string = 'user_input') {
+    public async endCurrent(reason = 'user_input') {
         const current = await this._current.pipe(take(1)).toPromise();
         const module = getModule(this.system, 'Bookings');
         if (current && module) {
@@ -568,7 +568,7 @@ export class PanelStateService extends AsyncHandler {
     private bindTo<K extends keyof PanelSettings>(
         id: string,
         name: K,
-        mod: string = 'Bookings',
+        mod = 'Bookings',
         on_change: (v: PanelSettings[K]) => void = (v) =>
             this.updateProperty(name, v),
     ) {

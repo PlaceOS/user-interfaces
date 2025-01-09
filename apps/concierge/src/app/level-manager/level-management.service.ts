@@ -3,15 +3,11 @@ import { MatDialog } from '@angular/material/dialog';
 import { BuildingLevel, OrganisationService } from '@placeos/organisation';
 import { PlaceZone, removeZone } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest } from 'rxjs';
-import { map, shareReplay, switchMap } from 'rxjs/operators';
+import { shareReplay, switchMap } from 'rxjs/operators';
 import { LevelModalComponent } from './level-modal.component';
-import {
-    i18n,
-    notifyError,
-    notifySuccess,
-    openConfirmModal,
-} from '@placeos/common';
+import { i18n, notifyError, notifySuccess } from '@placeos/common';
 import { requestSpacesForZone } from '@placeos/spaces';
+import { openConfirmModal } from '@placeos/components';
 
 export interface LevelListOptions {
     zone?: string;

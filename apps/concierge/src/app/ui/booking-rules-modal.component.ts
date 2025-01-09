@@ -5,9 +5,9 @@ import {
     i18n,
     notifyError,
     notifySuccess,
-    openConfirmModal,
     randomString,
 } from '@placeos/common';
+import { openConfirmModal } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
 import { BehaviorSubject, Observable, combineLatest, of } from 'rxjs';
@@ -18,7 +18,6 @@ import {
     shareReplay,
     switchMap,
     take,
-    tap,
 } from 'rxjs/operators';
 
 @Component({
