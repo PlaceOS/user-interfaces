@@ -558,8 +558,8 @@ export class BookingFormService extends AsyncHandler {
         }
         value.zones = unique(
             [
-                ...value.zones,
-                ...this._booking.getValue().zones,
+                ...(value?.zones || []),
+                ...(this._booking.getValue()?.zones || []),
                 ...(value.booking_asset?.zones || []),
             ].filter((_) => _),
         );
