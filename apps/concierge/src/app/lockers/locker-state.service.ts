@@ -517,6 +517,7 @@ export class LockerStateService extends AsyncHandler {
                         new_locker.zone,
                         ...(bank?.zones || []),
                     ]).filter((_) => !!_),
+                    tags: bank?.tags || [],
                     extension_data: {
                         asset_name: new_locker.name,
                         tags: bank.tags || [],
