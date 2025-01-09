@@ -253,15 +253,15 @@ import { User } from 'libs/users/src/lib/user.class';
                     <h2 class="text-3xl">
                         {{
                             (multiple
-                                ? 'BOOKINGS.VISITOR_SENT_SINGLE'
-                                : 'BOOKINGS.VISITOR_SENT_MULTIPLE'
+                                ? 'BOOKINGS.VISITOR_SENT_MULTIPLE'
+                                : 'BOOKINGS.VISITOR_SENT_SINGLE'
                             )
                                 | translate
                                     : {
                                           name:
                                               last_success?.asset_name ||
                                               last_success?.asset_id,
-                                          count: last_count,
+                                          count: last_count || 1,
                                       }
                         }}
                     </h2>
