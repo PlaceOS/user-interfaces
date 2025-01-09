@@ -513,10 +513,10 @@ export class LockerStateService extends AsyncHandler {
                         this._org.organisation.id,
                         this._org.region?.id,
                         this._org.building?.id,
-                        new_locker.zone_id ||
-                            new_locker.zone?.id ||
-                            new_locker.zone,
-                    ]),
+                        new_locker.zone?.id,
+                        new_locker.zone,
+                        ...(bank?.zones || []),
+                    ]).filter((_) => !!_),
                     extension_data: {
                         asset_name: new_locker.name,
                         tags: bank.tags || [],

@@ -3,6 +3,22 @@ const merge = require('deepmerge');
 
 const dir = './shared/assets/locale';
 
+function removeNesting(value, path = '') {
+    let out_object= {};
+    for (const key in value) {
+        const out_key = path ? [path, key].join('.') : key;
+        if (value[key] instanceof Object) {
+            out_object = {
+                ...out_object,
+                ...removeNesting(value[key], out_key),
+            };
+        } else {
+            out_object[out_key] = `${value[key]}`;
+        }
+    }
+    return out_object;
+}
+
 function generate_i18nFiles(lang_list) {
     let data = fs.readFileSync(`${dir}/en-AU.json`);
     const json = JSON.parse(data);
@@ -27,18 +43,18 @@ function i18nFilesToCSV(outfile) {
     for (const file of files) {
         const data = fs.readFileSync(`${dir}/${file}`);
         const json = JSON.parse(data);
-        i18n_data[file.replace('.json', '')] = json;
+        i18n_data[file.replace('.json', '')] = removeNesting(json);
     }
     const lang_list = Object.keys(i18n_data);
-    const keys = getKeyListFromObject(i18n_data.en);
+    const keys = Object.keys(i18n_data['en-AU']);
     const i18n_rows = [];
     for (const key of keys) {
         const obj = { key };
         for (const lang of lang_list) {
-            const value = getItemWithKeys(i18n_data[lang], key.split('.'));
+            const value = i18n_data[lang][key];
             obj[lang] =
-                lang !== 'en' &&
-                value === getItemWithKeys(i18n_data.en, key.split('.'))
+                lang !== 'en-AU' &&
+                value === i18n_data['en-AU'][key]
                     ? ''
                     : value || '';
         }
