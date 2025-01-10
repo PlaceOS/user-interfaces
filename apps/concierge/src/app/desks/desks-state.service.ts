@@ -18,13 +18,21 @@ import {
     take,
     tap,
 } from 'rxjs/operators';
-import { endOfDay, format, getUnixTime, startOfDay } from 'date-fns';
+import {
+    addHours,
+    endOfDay,
+    format,
+    getUnixTime,
+    set,
+    startOfDay,
+} from 'date-fns';
 
 import {
     approveBooking,
     Booking,
     checkinBooking,
     queryPagedBookings,
+    RecurrenceDays,
     rejectBooking,
     saveBooking,
 } from '@placeos/bookings';
@@ -36,6 +44,7 @@ import {
     notifySuccess,
     randomInt,
     SettingsService,
+    unique,
 } from '@placeos/common';
 import { Desk, OrganisationService } from '@placeos/organisation';
 
@@ -252,14 +261,49 @@ export class DesksStateService extends AsyncHandler {
         ]);
         if (state?.reason !== 'done') return;
         const zone = this._filters.getValue().zones[0];
-        const new_space = {
+        const new_desk = {
             ...state.metadata,
-            id: state.metadata.id || `parking-${zone}.${randomInt(999_999)}`,
+            id:
+                state.metadata.id ||
+                `desk-${zone.slice(-3)}.${randomInt(999_999)}`,
         };
+        if (desk.assigned_to !== new_desk.assigned_to && new_desk.assigned_to) {
+            const date = set(Date.now(), { hours: 4, minutes: 0, seconds: 0 });
+            await saveBooking(
+                new Booking({
+                    user_id: new_desk.assigned_to,
+                    user_email: new_desk.assigned_to,
+                    booking_start: getUnixTime(date),
+                    booking_end: getUnixTime(addHours(date, 16)),
+                    type: 'desk',
+                    booking_type: 'desk',
+                    asset_id: new_desk.id,
+                    asset_name: new_desk.name,
+                    recurrence_type: 'daily',
+                    recurrence_days:
+                        RecurrenceDays.MONDAY |
+                        RecurrenceDays.TUESDAY |
+                        RecurrenceDays.WEDNESDAY |
+                        RecurrenceDays.THURSDAY |
+                        RecurrenceDays.FRIDAY,
+                    zones: unique([
+                        this._org.organisation.id,
+                        this._org.region?.id,
+                        this._org.building?.id,
+                        new_desk.zone?.id,
+                        new_desk.zone,
+                        ...new_desk.zones,
+                    ]).filter((_) => !!_),
+                    extension_data: {
+                        asset_name: new_desk.name,
+                    },
+                }),
+            ).toPromise();
+        }
         const desk_list = await this.desks.pipe(take(1)).toPromise();
-        const idx = desk_list.findIndex((_) => _.id === new_space.id);
-        if (idx >= 0) desk_list[idx] = new_space;
-        else desk_list.push(new_space);
+        const idx = desk_list.findIndex((_) => _.id === new_desk.id);
+        if (idx >= 0) desk_list[idx] = new_desk;
+        else desk_list.push(new_desk);
         await updateMetadata(zone, {
             name: 'desks',
             details: desk_list,

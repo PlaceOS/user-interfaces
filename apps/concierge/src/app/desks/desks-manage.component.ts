@@ -49,6 +49,11 @@ const QR_CODES = {};
                         content: item_list_template,
                     },
                     {
+                        key: 'assigned_to',
+                        name: 'Assigned',
+                        content: assigned_template,
+                    },
+                    {
                         key: 'features',
                         name: 'COMMON.FEATURES' | translate,
                         content: item_list_template,
@@ -107,6 +112,24 @@ const QR_CODES = {};
                 >
                     <app-icon>{{ data ? 'done' : 'close' }}</app-icon>
                 </div>
+            </ng-template>
+            <ng-template #assigned_template let-row="row" let-data="data">
+                <div *ngIf="!data" class="p-4 opacity-30">
+                    {{ 'APP.CONCIERGE.UNASSIGNED' | translate }}
+                </div>
+                <button
+                    *ngIf="data"
+                    class="px-4 py-2 text-left leading-tight"
+                    (click)="copyToClipboard(data, 'assigned')"
+                >
+                    <div class="">{{ row.assigned_name || data }}</div>
+                    <div
+                        *ngIf="row.assigned_name"
+                        class="text-[0.625rem] opacity-30 font-mono"
+                    >
+                        {{ data }}
+                    </div>
+                </button>
             </ng-template>
             <ng-template #action_template let-row="row">
                 <div class="flex items-center justify-end space-x-2 p-2">

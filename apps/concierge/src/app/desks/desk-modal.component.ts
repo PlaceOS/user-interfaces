@@ -3,6 +3,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { DialogEvent } from '@placeos/common';
 import { Desk } from '@placeos/organisation';
+import { User } from '@placeos/users';
 
 @Component({
     selector: 'desk-modal',
@@ -25,7 +26,7 @@ import { Desk } from '@placeos/organisation';
             </header>
             <main
                 *ngIf="!loading; else load_state"
-                class="p-4 flex flex-col"
+                class="p-4 flex flex-col max-h-[65vh] overflow-auto"
                 [formGroup]="form"
             >
                 <div class="flex space-x-4">
@@ -65,6 +66,33 @@ import { Desk } from '@placeos/organisation';
                             </mat-error>
                         </mat-form-field>
                     </div>
+                </div>
+                <label for="user">{{
+                    'APP.CONCIERGE.USER_ASSIGNED' | translate
+                }}</label>
+                <div class="flex items-center space-x-2 mb-4">
+                    <a-user-search-field
+                        name="user"
+                        formControlName="assigned_user"
+                        class="flex-1"
+                    ></a-user-search-field>
+                    <button
+                        icon
+                        matRipple
+                        class="h-12 w-12 min-w-12 rounded bg-secondary text-secondary-content"
+                        [matTooltip]="'APP.CONCIERGE.USER_CLEAR' | translate"
+                        (click)="
+                            form.patchValue({
+                                assigned_user: null,
+                                assigned_to: null,
+                                assigned_name: null,
+                            })
+                        "
+                    >
+                        <app-icon className="material-symbols-outlined">
+                            person_cancel
+                        </app-icon>
+                    </button>
                 </div>
                 <div class="flex pb-4 space-x-4">
                     <settings-toggle
@@ -131,6 +159,9 @@ export class DeskModalComponent {
         features: new FormControl<string[]>([]),
         bookable: new FormControl(false),
         notes: new FormControl(''),
+        assigned_user: new FormControl<User>(null),
+        assigned_to: new FormControl(''),
+        assigned_name: new FormControl(''),
     });
 
     constructor(
@@ -145,7 +176,15 @@ export class DeskModalComponent {
         this.form.updateValueAndValidity();
         if (!this.form.valid) return;
         this.loading = true;
-        const value = this.form.value;
+        const value = { ...this.form.getRawValue() };
+        if (value.assigned_user) {
+            value.assigned_to = value.assigned_user.email;
+            value.assigned_name = value.assigned_user.name;
+            delete value.assigned_user;
+        } else {
+            delete value.assigned_to;
+            delete value.assigned_name;
+        }
         this._dialog_ref.disableClose = true;
         this.event.emit({ reason: 'done', metadata: value });
     }
