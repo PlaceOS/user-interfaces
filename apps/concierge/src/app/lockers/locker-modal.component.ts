@@ -50,7 +50,7 @@ function validateNoOverlap(box: Box, check_boxes: Box[]): boolean {
             </header>
             <main
                 *ngIf="!loading; else load_state"
-                class="p-4 flex flex-col"
+                class="p-4 flex flex-col max-h-[65vh] overflow-auto"
                 [formGroup]="form"
             >
                 <label for="name">{{ 'FORM.NAME' | translate }}</label>
