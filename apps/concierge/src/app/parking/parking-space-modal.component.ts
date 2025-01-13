@@ -120,6 +120,7 @@ import { showUser } from '@placeos/ts-client';
         </ng-template>
     `,
     styles: [``],
+    standalone: false
 })
 export class ParkingSpaceModalComponent implements OnInit {
     @Output() public readonly event = new EventEmitter<DialogEvent>();

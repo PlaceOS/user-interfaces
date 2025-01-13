@@ -96,6 +96,7 @@ const SYS_ID_KEY = 'PLACEOS.ASSISTANT.system';
         </ng-template>
     `,
     styles: [],
+    standalone: false
 })
 export class BootstrapComponent extends AsyncHandler {
     public loading = '';

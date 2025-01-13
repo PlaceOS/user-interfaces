@@ -176,6 +176,7 @@ import {
             </div>
         </div>
     `,
+    standalone: false
 })
 export class SurveyResponsesComponent extends AsyncHandler implements OnInit {
     private _survey_id = new BehaviorSubject('');

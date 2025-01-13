@@ -83,6 +83,7 @@ import { BehaviorSubject } from 'rxjs';
         </div>
     `,
     styles: [``],
+    standalone: false
 })
 export class SearchOverlayComponent<T extends {} = any> {
     @Input() public item_list: T[] = [];

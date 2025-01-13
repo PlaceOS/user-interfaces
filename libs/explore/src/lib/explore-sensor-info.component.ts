@@ -53,6 +53,7 @@ let shown_id = '';
         </ng-template>
     `,
     styles: [``],
+    standalone: false
 })
 export class ExploreSensorInfoComponent extends AsyncHandler {
     public readonly temp = this._details.temp || 0;

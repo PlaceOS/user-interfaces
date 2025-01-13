@@ -29,6 +29,7 @@ import { DesksService } from '@placeos/bookings';
             }
         `,
     ],
+    standalone: false
 })
 export class ExploreComponent implements OnInit {
     public get hide_nav() {

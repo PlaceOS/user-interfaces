@@ -260,6 +260,7 @@ export interface AppLocale {
         </div>
     `,
     styles: [``],
+    standalone: false
 })
 export class UserControlsComponent {
     public readonly building = this._org.active_building;

@@ -68,6 +68,7 @@ import {
             }
         `,
     ],
+    standalone: false
 })
 export class TakePhotoComponent implements OnInit, OnDestroy {
     @Output() public photoAccepted = new EventEmitter();

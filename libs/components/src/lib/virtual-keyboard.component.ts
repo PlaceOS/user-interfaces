@@ -94,6 +94,7 @@ const DEFAULT_KEYS = [
             }
         `,
     ],
+    standalone: false
 })
 export class VirtualKeyboardComponent
     extends AsyncHandler

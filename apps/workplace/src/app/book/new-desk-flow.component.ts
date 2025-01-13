@@ -27,6 +27,7 @@ import { first, take } from 'rxjs/operators';
             }
         `,
     ],
+    standalone: false
 })
 export class NewDeskFlowComponent extends AsyncHandler implements OnInit {
     public get view() {

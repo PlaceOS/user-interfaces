@@ -292,6 +292,7 @@ import { CalendarEvent } from '@placeos/events';
         </ng-template>
     `,
     styles: [``],
+    standalone: false
 })
 export class EventListingComponent {
     public readonly loading = this._state.loading;

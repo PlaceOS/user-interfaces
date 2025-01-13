@@ -93,6 +93,7 @@ import { uploadFiles } from '@placeos/cloud-uploads';
             multi: true,
         },
     ],
+    standalone: false
 })
 export class UploadListFieldComponent implements ControlValueAccessor {
     public list: Attachment[] = [];

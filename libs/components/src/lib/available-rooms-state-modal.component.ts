@@ -120,6 +120,7 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
             }
         `,
     ],
+    standalone: false
 })
 export class AvailableRoomsStateModalComponent {
     @Output() public change = new EventEmitter<string[]>();

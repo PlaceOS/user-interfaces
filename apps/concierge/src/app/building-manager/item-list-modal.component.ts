@@ -62,6 +62,7 @@ import { showMetadata, updateMetadata } from '@placeos/ts-client';
         </footer>
     `,
     styles: [``],
+    standalone: false
 })
 export class ItemListModalComponent implements OnInit {
     public item_list: { name: string; email: string }[] = [];

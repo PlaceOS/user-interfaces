@@ -48,6 +48,7 @@ import { Space } from '@placeos/spaces';
         </div>
     `,
     styles: [``],
+    standalone: false
 })
 export class ControlSpaceListItemComponent {
     /** Space to display */

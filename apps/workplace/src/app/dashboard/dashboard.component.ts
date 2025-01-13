@@ -63,6 +63,7 @@ import { SettingsService } from '@placeos/common';
             }
         `,
     ],
+    standalone: false
 })
 export class DashboardComponent {
     constructor(private _settings: SettingsService) {}

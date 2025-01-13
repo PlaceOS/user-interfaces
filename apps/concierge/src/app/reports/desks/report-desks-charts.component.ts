@@ -57,6 +57,7 @@ import { take } from 'rxjs/operators';
             }
         `,
     ],
+    standalone: false
 })
 export class ReportDesksChartsComponent
     extends AsyncHandler

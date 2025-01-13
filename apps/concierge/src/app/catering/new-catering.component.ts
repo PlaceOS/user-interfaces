@@ -114,6 +114,7 @@ import { AsyncHandler } from '@placeos/common';
             }
         `,
     ],
+    standalone: false
 })
 export class NewCateringComponent extends AsyncHandler implements OnInit {
     /** Page being displayed */

@@ -85,6 +85,7 @@ import { CustomTooltipData } from '@placeos/components';
             }
         `,
     ],
+    standalone: false
 })
 export class AccessibilityTooltipComponent extends AsyncHandler {
     public get dark_mode() {

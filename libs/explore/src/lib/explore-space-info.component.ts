@@ -134,6 +134,7 @@ export interface SpaceInfoData {
             }
         `,
     ],
+    standalone: false
 })
 export class ExploreSpaceInfoComponent implements OnInit {
     /** Space to display details for */

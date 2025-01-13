@@ -87,6 +87,7 @@ import {
         </fullscreen-modal-shell>
     `,
     styles: [``],
+    standalone: false
 })
 export class ShortUrlModalComponent extends AsyncHandler {
     public loading = false;

@@ -137,6 +137,7 @@ import {
             </footer>
         </div>
     `,
+    standalone: false
 })
 export class NewDeskFlowSuccessComponent {
     public outlook_link = '';

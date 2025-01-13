@@ -87,6 +87,7 @@ import { openConfirmModal } from '@placeos/components';
         </ng-template>
     `,
     styles: [``],
+    standalone: false
 })
 export class LandingUpcomingComponent
     extends AsyncHandler

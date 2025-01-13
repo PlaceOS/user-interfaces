@@ -156,6 +156,7 @@ import { loadLockerBanks, loadLockers } from '../booking.utilities';
             </div>
         </ng-template>
     `,
+    standalone: false
 })
 export class LockerBankListComponent {
     @Input() public active = '';

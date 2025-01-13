@@ -639,6 +639,7 @@ const EMPTY_ACTIONS = [];
     styles: [``],
     animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
     providers: [SpacePipe],
+    standalone: false
 })
 export class EventDetailsModalComponent implements OnInit {
     @Output() public action = new EventEmitter();

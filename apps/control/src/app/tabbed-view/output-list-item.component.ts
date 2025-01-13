@@ -49,6 +49,7 @@ import { ICON_MAP } from '../ui/output-display.component';
             }
         `,
     ],
+    standalone: false
 })
 export class DeviceOutputListItemComponent extends AsyncHandler {
     @Input() public item: RoomOutput;

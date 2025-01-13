@@ -78,6 +78,7 @@ import { MAP_FEATURE_DATA } from '@placeos/components';
         </div>
     `,
     styles: [],
+    standalone: false
 })
 export class SpaceLocationPinComponent {
     public readonly selected = this._data.selected === true;

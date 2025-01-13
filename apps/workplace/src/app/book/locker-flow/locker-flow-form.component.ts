@@ -50,6 +50,7 @@ import { BookLockerFlowConfirmComponent } from './locker-flow-confirm.component'
             </div>
         </div>
     `,
+    standalone: false
 })
 export class BookLockerFlowFormComponent implements OnInit {
     public sheet_ref: MatBottomSheetRef<BookLockerFlowConfirmComponent>;

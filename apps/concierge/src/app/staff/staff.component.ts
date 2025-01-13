@@ -26,6 +26,7 @@ import { StaffStateService } from './staff-state.service';
             }
         `,
     ],
+    standalone: false
 })
 export class StaffComponent implements OnInit, OnDestroy {
     public readonly loading = this._state.loading;

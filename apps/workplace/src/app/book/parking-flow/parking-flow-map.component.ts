@@ -21,6 +21,7 @@ import { first, take } from 'rxjs/operators';
             ></div>
         </div>
     `,
+    standalone: false
 })
 class SpacePingComponent extends AsyncHandler {
     public zoom = 1;
@@ -174,6 +175,7 @@ class SpacePingComponent extends AsyncHandler {
         `,
     ],
     providers: [ExploreParkingService],
+    standalone: false
 })
 export class ParkingFlowMapComponent extends AsyncHandler {
     /** Observable for the active map */

@@ -48,6 +48,7 @@ import { PointsStateService } from './points-state.service';
             }
         `,
     ],
+    standalone: false
 })
 export class PointsComponent extends AsyncHandler implements OnInit {
     /** Page being displayed */

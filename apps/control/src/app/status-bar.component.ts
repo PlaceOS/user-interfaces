@@ -134,6 +134,7 @@ import { ControlStateService } from './control-state.service';
             }
         `,
     ],
+    standalone: false
 })
 export class ControlStatusBarComponent extends AsyncHandler {
     /** Details of the active system */

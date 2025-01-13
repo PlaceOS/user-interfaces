@@ -339,6 +339,7 @@ import { combineLatest } from 'rxjs';
             </div>
         </ng-template>
     `,
+    standalone: false
 })
 export class ModSurveyComponent extends AsyncHandler implements OnInit {
     loading$ = this._survey.loading$.pipe(shareReplay(1));

@@ -58,6 +58,7 @@ import { LockerStateService } from './locker-state.service';
             }
         `,
     ],
+    standalone: false
 })
 export class LockersComponent
     extends AsyncHandler

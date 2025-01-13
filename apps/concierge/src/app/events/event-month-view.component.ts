@@ -130,6 +130,7 @@ import { Router } from '@angular/router';
             }
         `,
     ],
+    standalone: false
 })
 export class EventMonthViewComponent extends AsyncHandler {
     public month = startOfDay(Date.now()).valueOf();

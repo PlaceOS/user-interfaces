@@ -95,6 +95,7 @@ import { BookingFormService } from '../booking-form.service';
             }
         `,
     ],
+    standalone: false
 })
 export class ParkingSpaceFiltersDisplayComponent extends AsyncHandler {
     @Input() public view: 'map' | 'list' = 'list';

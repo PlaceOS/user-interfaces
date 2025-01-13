@@ -13,6 +13,7 @@ import { User } from '@placeos/users';
     selector: 'room-confirm',
     templateUrl: './room-confirm.component.html',
     styles: [``],
+    standalone: false
 })
 export class RoomConfirmComponent implements OnInit {
     unix_time: number;

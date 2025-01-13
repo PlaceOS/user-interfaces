@@ -58,6 +58,7 @@ import { PanelStateService } from '../panel-state.service';
             }
         `,
     ],
+    standalone: false
 })
 export class PanelTimelineComponent {
     @Input() public step = 10;

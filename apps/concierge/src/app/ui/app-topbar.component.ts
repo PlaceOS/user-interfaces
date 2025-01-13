@@ -53,6 +53,7 @@ import { debounceTime, first, map } from 'rxjs/operators';
             }
         `,
     ],
+    standalone: false
 })
 export class ApplicationTopbarComponent {
     public readonly user_controls = UserControlsComponent;

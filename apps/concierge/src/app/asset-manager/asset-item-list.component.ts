@@ -190,6 +190,7 @@ import { combineLatest } from 'rxjs';
             }
         `,
     ],
+    standalone: false
 })
 export class AssetItemListComponent {
     public readonly loading = this._state.loading;

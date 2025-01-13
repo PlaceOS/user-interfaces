@@ -132,6 +132,7 @@ import { formatDuration } from '@placeos/common';
             }
         `,
     ],
+    standalone: false
 })
 export class PanelBookingListComponent {
     /** List of current and future events for the current day */

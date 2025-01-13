@@ -23,6 +23,7 @@ import { debounceTime, map } from 'rxjs/operators';
         </div>
     `,
     styles: [``],
+    standalone: false
 })
 export class PanelTopbarComponent {
     public readonly logo = this._org.active_building.pipe(

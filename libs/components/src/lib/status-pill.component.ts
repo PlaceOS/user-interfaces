@@ -41,6 +41,7 @@ export type StatusValue = 'success' | 'warning' | 'error' | 'info' | 'neutral';
         </div>
     `,
     styles: [``],
+    standalone: false
 })
 export class StatusPillComponent {
     @Input() public status: string;

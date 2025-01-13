@@ -58,6 +58,7 @@ import { EventsStateService } from '../day-view/events-state.service';
             }
         `,
     ],
+    standalone: false
 })
 export class FacilitiesTopbarComponent extends AsyncHandler {
     /** List of selected levels */

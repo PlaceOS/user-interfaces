@@ -178,6 +178,7 @@ const EMPTY_FAVS: string[] = [];
             multi: true,
         },
     ],
+    standalone: false
 })
 export class SpaceListFieldComponent
     implements ControlValueAccessor, OnDestroy

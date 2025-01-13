@@ -55,6 +55,7 @@ import { OrganisationService } from '@placeos/organisation';
             }
         `,
     ],
+    standalone: false
 })
 export class ExploreMapStackComponent {
     public readonly levels = this._orgs.active_levels;

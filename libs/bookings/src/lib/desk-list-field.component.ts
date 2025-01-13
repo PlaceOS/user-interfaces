@@ -126,6 +126,7 @@ const EMPTY_FAVS: string[] = [];
             multi: true,
         },
     ],
+    standalone: false
 })
 export class DeskListFieldComponent implements ControlValueAccessor {
     @Input() public features: string[] = [];

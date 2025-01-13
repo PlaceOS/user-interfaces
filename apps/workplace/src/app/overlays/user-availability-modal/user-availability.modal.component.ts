@@ -14,6 +14,7 @@ import { queryEvents } from '@placeos/events';
     selector: 'app-user-availability-modal',
     templateUrl: './user-availability.modal.component.html',
     styleUrls: ['./user-availability.modal.component.scss'],
+    standalone: false
 })
 export class UserAvailabilityModalComponent
     extends AsyncHandler

@@ -164,6 +164,7 @@ import { DatePipe } from '@angular/common';
             }
         `,
     ],
+    standalone: false
 })
 export class RoomWeekBookingsTimelineComponent
     extends AsyncHandler

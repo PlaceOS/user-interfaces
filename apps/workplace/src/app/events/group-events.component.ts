@@ -72,6 +72,7 @@ import { AsyncHandler } from '@placeos/common';
             }
         `,
     ],
+    standalone: false
 })
 export class GroupEventsComponent extends AsyncHandler {
     public readonly event_list = this._state.filtered_events;

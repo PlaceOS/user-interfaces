@@ -71,6 +71,7 @@ import { ControlStateService, RoomInput } from '../control-state.service';
             </div>
         </ng-template>
     `,
+    standalone: false
 })
 export class SourceSelectComponent implements OnChanges {
     // Whether to use the simple display

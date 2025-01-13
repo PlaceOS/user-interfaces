@@ -174,6 +174,7 @@ import { CalendarEvent } from './event.class';
             }
         `,
     ],
+    standalone: false
 })
 export class GroupEventCardComponent {
     @Input() public event: CalendarEvent;

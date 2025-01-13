@@ -326,6 +326,7 @@ import { User } from 'libs/users/src/lib/user.class';
         </ng-template>
     `,
     styles: [``],
+    standalone: false
 })
 export class InviteVisitorFormComponent
     extends AsyncHandler

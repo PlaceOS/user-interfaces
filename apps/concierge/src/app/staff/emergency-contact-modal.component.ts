@@ -182,6 +182,7 @@ import { CustomTooltipComponent } from '@placeos/components';
         </ng-template>
     `,
     styles: [``],
+    standalone: false
 })
 export class EmergencyContactModalComponent {
     private _changes = new BehaviorSubject(0);

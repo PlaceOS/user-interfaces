@@ -116,6 +116,7 @@ import { OrganisationService } from '@placeos/organisation';
         </div>
     `,
     styles: [``],
+    standalone: false
 })
 export class VisitorRegistrationComponent {
     public readonly form = this._booking_form.form;

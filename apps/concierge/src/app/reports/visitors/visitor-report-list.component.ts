@@ -63,6 +63,7 @@ import { VisitorsReportService } from './visitors-report.service';
         </div>
     `,
     styles: [``],
+    standalone: false
 })
 export class VisitorReportListComponent {
     @Input() public print = false;

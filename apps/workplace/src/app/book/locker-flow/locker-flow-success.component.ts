@@ -108,6 +108,7 @@ import {
             </footer>
         </div>
     `,
+    standalone: false
 })
 export class BookLockerFlowSuccessComponent {
     public outlook_link = '';

@@ -67,6 +67,7 @@ const VALID_TYPES = ['not_started', 'wrong_resource', 'other'];
         </div>
     `,
     styles: [``],
+    standalone: false
 })
 export class CodeFlowErrorComponent extends AsyncHandler {
     public type = 'other';

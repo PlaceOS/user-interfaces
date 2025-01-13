@@ -34,6 +34,7 @@ import { EnrolmentStateService } from './enrolment-state.service';
         </div>
     `,
     styles: [``],
+    standalone: false
 })
 export class EnrolmentErrorComponent {
     public readonly error = this._state.error;

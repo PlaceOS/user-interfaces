@@ -78,6 +78,7 @@ import { EnrolmentStateService } from './enrolment-state.service';
         </div>
     `,
     styles: [``],
+    standalone: false
 })
 export class EnrolmentGuestConfirmComponent {
     public readonly form = this._state.form;

@@ -76,6 +76,7 @@ import { OrganisationService } from '@placeos/organisation';
             }
         `,
     ],
+    standalone: false
 })
 export class DeskMapComponent extends AsyncHandler implements OnInit {
     @Input() public is_displayed: boolean = false;

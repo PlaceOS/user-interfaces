@@ -84,6 +84,7 @@ import { first, take } from 'rxjs/operators';
             }
         `,
     ],
+    standalone: false
 })
 export class DeskFlowFormComponent implements OnInit {
     public time = 0;

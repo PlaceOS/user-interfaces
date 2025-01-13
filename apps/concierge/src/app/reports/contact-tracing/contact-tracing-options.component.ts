@@ -62,6 +62,7 @@ import { SettingsService } from '@placeos/common';
             }
         `,
     ],
+    standalone: false
 })
 export class ContactTracingOptionsComponent {
     @Output() public printing = new EventEmitter<boolean>();

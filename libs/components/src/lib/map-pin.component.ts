@@ -61,6 +61,7 @@ export interface MapPinData {
             }
         `,
     ],
+    standalone: false
 })
 export class MapPinComponent implements OnInit {
     /** Message to display above the pin */

@@ -3,6 +3,7 @@ import { Building, OrganisationService } from '@placeos/organisation';
 
 @Pipe({
     name: 'building',
+    standalone: false
 })
 export class BuildingPipe implements PipeTransform {
     constructor(private _org: OrganisationService) {}

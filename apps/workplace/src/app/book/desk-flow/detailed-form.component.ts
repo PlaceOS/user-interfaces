@@ -250,6 +250,7 @@ import { addDays, endOfDay, format } from 'date-fns';
         </form>
     `,
     styles: [``],
+    standalone: false
 })
 export class DeskFlowDetailedFormComponent {
     @Input() public form: FormGroup;

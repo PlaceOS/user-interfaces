@@ -177,6 +177,7 @@ const EMPTY_FAVS: string[] = [];
         },
     ],
     animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
+    standalone: false
 })
 export class AssetListFieldComponent implements ControlValueAccessor {
     @Input() public options: {

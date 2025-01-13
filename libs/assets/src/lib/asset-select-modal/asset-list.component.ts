@@ -130,6 +130,7 @@ import { map } from 'rxjs/operators';
             }
         `,
     ],
+    standalone: false
 })
 export class AssetListComponent {
     @Input() public selected: string = '';

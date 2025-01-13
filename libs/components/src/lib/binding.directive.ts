@@ -17,6 +17,7 @@ import { filter, first } from 'rxjs/operators';
 
 @Directive({
     selector: 'i[bind], [binding], co-bind',
+    standalone: false
 })
 export class BindingDirective<T = any>
     extends AsyncHandler

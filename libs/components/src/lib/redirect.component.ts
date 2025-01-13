@@ -8,7 +8,8 @@ import { OrganisationService } from "libs/organisation/src/lib/organisation.serv
 @Component({
     selector: 'page-redirect',
     template: ``,
-    styles: [``]
+    styles: [``],
+    standalone: false
 })
 export class RedirectComponent implements OnInit {
     constructor(private _settings: SettingsService, private _org: OrganisationService, private _router: Router) {}

@@ -54,6 +54,7 @@ import { currentUser, notifyError, notifySuccess } from '@placeos/common';
         </ng-template>
     `,
     styles: [``],
+    standalone: false
 })
 export class SetupBreakdownModalComponent {
     public loading = false;

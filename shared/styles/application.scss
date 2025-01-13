@@ -1,8 +1,9 @@
-@import 'chartist/dist/index.css';
+@use 'chartist/dist/index.css';
+@use 'material-symbols';
+@use '@material-design-icons/font';
+
 @import 'quill/dist/quill.core.css';
 @import 'quill/dist/quill.snow.css';
-@import 'material-symbols';
-@import '@material-design-icons/font';
 
 :root {
     /* Primary */

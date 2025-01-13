@@ -21,6 +21,7 @@ const EMPTY = {};
             }
         `,
     ],
+    standalone: false
 })
 export class CustomReportComponent extends AsyncHandler {
     public id = '';

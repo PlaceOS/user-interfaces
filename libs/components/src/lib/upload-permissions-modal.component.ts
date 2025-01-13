@@ -51,6 +51,7 @@ import { UploadPermissions } from '@placeos/common';
         </footer>
     `,
     styles: [``],
+    standalone: false
 })
 export class UploadPermissionsModalComponent {
     /** File to upload */

@@ -41,6 +41,7 @@ import { MeetingFlowConfirmComponent } from 'apps/workplace/src/app/book/meeting
         </div>
     `,
     styles: [``],
+    standalone: false
 })
 export class MeetingBookingComponent {
     public sheet_ref: MatBottomSheetRef;

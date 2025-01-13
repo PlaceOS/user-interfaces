@@ -122,6 +122,7 @@ function isSamePoint(p1: Point, p2: Point): boolean {
             }
         `,
     ],
+    standalone: false
 })
 export class MapRendererComponent
     extends AsyncHandler

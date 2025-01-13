@@ -230,6 +230,7 @@ import { statusList } from './catering.vars';
             }
         `,
     ],
+    standalone: false
 })
 export class CateringOrderListComponent extends AsyncHandler implements OnInit {
     /** List of filtered orders */

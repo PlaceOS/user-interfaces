@@ -5,15 +5,8 @@ import {
 } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ServiceWorkerModule } from '@angular/service-worker';
-import {
-    APP_INITIALIZER,
-    ErrorHandler,
-    LOCALE_ID,
-    NgModule,
-} from '@angular/core';
+import { ErrorHandler, LOCALE_ID, NgModule } from '@angular/core';
 import { Router } from '@angular/router';
-
-import { HttpClient } from '@angular/common/http';
 
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MAT_CHIPS_DEFAULT_OPTIONS } from '@angular/material/chips';
@@ -64,12 +57,6 @@ import { LocaleService } from '@placeos/common';
         {
             provide: Sentry.TraceService,
             deps: [Router],
-        },
-        {
-            provide: APP_INITIALIZER,
-            useFactory: () => () => {},
-            deps: [Sentry.TraceService],
-            multi: true,
         },
         {
             provide: LOCALE_ID,

@@ -170,6 +170,7 @@ import { OrganisationService } from '@placeos/organisation';
         </fullscreen-modal-shell>
     `,
     styles: [``],
+    standalone: false
 })
 export class AssetPurchaseOrderFormComponent
     extends AsyncHandler

@@ -239,6 +239,7 @@ import { Region } from '@placeos/organisation';
             </button>
         </div>
     `,
+    standalone: false
 })
 export class DeskFiltersComponent {
     @Input() public hide_levels: boolean;

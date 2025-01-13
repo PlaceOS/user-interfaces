@@ -121,6 +121,7 @@ import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component'
             }
         `,
     ],
+    standalone: false
 })
 export class DesksTopbarComponent extends AsyncHandler implements OnInit {
     /** List of levels for the active building */

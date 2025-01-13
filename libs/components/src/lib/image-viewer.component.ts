@@ -20,6 +20,7 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
         </div>
     `,
     styles: [``],
+    standalone: false
 })
 export class ImageViewerComponent {
     constructor(@Inject(MAT_DIALOG_DATA) public url: string) {}

@@ -47,6 +47,7 @@ import { LevelManagementService } from './level-management.service';
             }
         `,
     ],
+    standalone: false
 })
 export class LevelManagerComponent {
     public readonly newLevel = () => this._manager.editLevel();

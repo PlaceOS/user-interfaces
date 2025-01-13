@@ -53,6 +53,7 @@ import { QuestionType, UISurveyResponse } from '../types';
             </div>
         </div>
     `,
+    standalone: false
 })
 export class SurveyWidgetComponent implements OnInit {
     @Input() response: UISurveyResponse;

@@ -105,6 +105,7 @@ const EMPTY = [];
         ExploreLockersService,
         SpacePipe,
     ],
+    standalone: false
 })
 export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
     /** Observable for the active map */

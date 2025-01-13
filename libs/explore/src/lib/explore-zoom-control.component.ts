@@ -58,6 +58,7 @@ import { ExploreStateService } from './explore-state.service';
             }
         `,
     ],
+    standalone: false
 })
 export class ExploreZoomControlComponent {
     public readonly zoomIn = () =>

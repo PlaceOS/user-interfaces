@@ -44,6 +44,7 @@ import { BaseWidget } from './base-widget.component';
             </ng-container>
         </div>
     `,
+    standalone: false
 })
 export class TableWidgetComponent extends BaseWidget {
     public chart_data$ = this.data$.pipe(

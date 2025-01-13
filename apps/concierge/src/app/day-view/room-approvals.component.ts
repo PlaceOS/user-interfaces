@@ -187,6 +187,7 @@ import { getTimezoneOffsetString, SettingsService } from '@placeos/common';
             }
         `,
     ],
+    standalone: false
 })
 export class RoomBookingsApprovalsComponent {
     private _show = true;

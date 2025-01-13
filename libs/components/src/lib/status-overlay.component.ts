@@ -43,6 +43,7 @@ import { ApplicationLink } from '@placeos/common';
         </ng-template>
     `,
     styles: [``],
+    standalone: false
 })
 export class StatusOverlayComponent {
     /** Whether overlay is loading */

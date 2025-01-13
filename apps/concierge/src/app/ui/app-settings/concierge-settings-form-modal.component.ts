@@ -993,6 +993,7 @@ import { format } from 'date-fns';
             }
         `,
     ],
+    standalone: false
 })
 export class ConciergeSettingsFormModalComponent {
     public loading = '';

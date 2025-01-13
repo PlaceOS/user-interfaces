@@ -85,6 +85,7 @@ import { SettingsService } from '@placeos/common';
         </div>
     `,
     styles: [``],
+    standalone: false
 })
 export class LandingQuickLinksComponent {
     public get features() {

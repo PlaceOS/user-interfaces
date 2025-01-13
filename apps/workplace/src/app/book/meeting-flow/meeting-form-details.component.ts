@@ -177,6 +177,7 @@ import {
         </div>
     `,
     styles: [],
+    standalone: false
 })
 export class MeetingFormDetailsComponent {
     @Input() public form: FormGroup;

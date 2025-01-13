@@ -139,6 +139,7 @@ import { querySurveys } from '@placeos/ts-client';
             }
         `,
     ],
+    standalone: false
 })
 export class SurveyListingsComponent extends AsyncHandler implements OnInit {
     private _building_id = new BehaviorSubject('');

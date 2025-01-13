@@ -40,6 +40,7 @@ export interface MapPolygonData {
         ></canvas>
     `,
     styles: [],
+    standalone: false
 })
 export class MapCanvasComponent extends AsyncHandler implements OnInit {
     public zoom = 1;

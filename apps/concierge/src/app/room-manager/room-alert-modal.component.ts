@@ -70,6 +70,7 @@ import { PlaceSystem, showMetadata, updateMetadata } from '@placeos/ts-client';
         </ng-template>
     `,
     styles: [``],
+    standalone: false
 })
 export class RoomAlertModalComponent {
     public loading = false;

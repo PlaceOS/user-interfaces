@@ -10,6 +10,7 @@ import { RoomConfirmService } from '../room-confirm.service';
     selector: 'placeos-room-tile',
     templateUrl: './room-tile.component.html',
     styles: [``],
+    standalone: false
 })
 export class RoomTileComponent implements OnInit {
     space: Space;

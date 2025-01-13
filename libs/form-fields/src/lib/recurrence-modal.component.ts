@@ -168,6 +168,7 @@ import { RecurrenceDetails } from 'libs/events/src/lib/event.interfaces';
             }
         `,
     ],
+    standalone: false
 })
 export class RecurrenceModalComponent {
     public data: RecurrenceDetails = {

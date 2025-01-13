@@ -87,6 +87,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
         </ng-template>
     `,
     styles: [``],
+    standalone: false
 })
 export class AutoReleaseSettingsModalComponent implements OnInit {
     public loading = '';

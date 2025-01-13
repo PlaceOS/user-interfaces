@@ -155,6 +155,7 @@ const EMPTY = [];
         </div>
     `,
     styles: [``],
+    standalone: false
 })
 export class RoomBookingsComponent extends AsyncHandler implements OnInit {
     public readonly zones = this._state.zones;

@@ -264,6 +264,7 @@ export interface TableColumn {
             }
         `,
     ],
+    standalone: false
 })
 export class SimpleTableComponent<T extends object = any> extends AsyncHandler {
     @Input() public data: T[] | Observable<T[]>;

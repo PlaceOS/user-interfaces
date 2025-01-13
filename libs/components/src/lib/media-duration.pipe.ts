@@ -3,6 +3,7 @@ import { padLength } from '@placeos/common';
 
 @Pipe({
     name: 'mediaDuration',
+    standalone: false
 })
 export class MediaDurationPipe {
     public transform(period_length: number, show_ms: boolean = false): string {

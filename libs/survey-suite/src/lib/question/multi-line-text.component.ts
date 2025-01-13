@@ -15,6 +15,7 @@ import { BaseQuestionComponent } from './base-question.component';
             </mat-form-field>
         </div>
     `,
+    standalone: false
 })
 export class MultiLineTextComponent extends BaseQuestionComponent {
     constructor() {

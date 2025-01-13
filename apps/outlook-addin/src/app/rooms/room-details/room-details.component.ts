@@ -11,6 +11,7 @@ import { scan } from 'rxjs/operators';
     selector: 'placeos-room-details',
     templateUrl: './room-details.component.html',
     styles: [``],
+    standalone: false
 })
 export class RoomDetailsComponent implements OnInit {
     space: Space | any;

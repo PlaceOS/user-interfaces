@@ -51,6 +51,7 @@ import { ScheduleStateService } from 'apps/workplace/src/app/new-schedule/schedu
         </ng-template>
     `,
     styles: [``],
+    standalone: false
 })
 export class UpcomingBookingsComponent extends AsyncHandler implements OnInit {
     public user = currentUser();

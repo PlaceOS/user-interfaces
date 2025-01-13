@@ -59,6 +59,7 @@ import { queryUsers } from '@placeos/ts-client';
         </main>
     </div>`,
     styles: [``],
+    standalone: false
 })
 export class SelectUserModalComponent {
     public readonly search = new BehaviorSubject('');

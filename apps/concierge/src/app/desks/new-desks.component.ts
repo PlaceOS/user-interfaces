@@ -245,6 +245,7 @@ import { DeskQrCodeModalComponent } from './desk-qr-code-modal.component';
             }
         `,
     ],
+    standalone: false
 })
 export class NewDesksComponent
     extends AsyncHandler

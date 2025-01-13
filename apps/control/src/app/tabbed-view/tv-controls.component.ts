@@ -44,6 +44,7 @@ import { ControlStateService } from '../control-state.service';
             </button>
         </div>
     `,
+    standalone: false
 })
 export class TVControlsComponent extends AsyncHandler {
     @Input() public mod = '';

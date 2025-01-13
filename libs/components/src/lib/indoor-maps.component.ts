@@ -185,6 +185,7 @@ function degreesToRadians(degrees: number): number {
             }
         `,
     ],
+    standalone: false
 })
 export class IndoorMapsComponent
     extends AsyncHandler

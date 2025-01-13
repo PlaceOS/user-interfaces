@@ -127,6 +127,7 @@ export async function openBookingModal(
         `,
     ],
     animations: [],
+    standalone: false
 })
 export class BookingModalComponent extends AsyncHandler {
     /** Emitter for user action on the modal */

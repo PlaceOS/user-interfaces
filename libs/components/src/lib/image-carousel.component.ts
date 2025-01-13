@@ -90,6 +90,7 @@ import { Component, Input } from '@angular/core';
             }
         `,
     ],
+    standalone: false
 })
 export class ImageCarouselComponent {
     @Input() public images: string[] = [];

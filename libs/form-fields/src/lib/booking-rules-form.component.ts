@@ -405,6 +405,7 @@ import {
             }
         `,
     ],
+    standalone: false
 })
 export class BookingRulesFormComponent {
     @Input() public ruleset?: BookingRuleset;

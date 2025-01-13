@@ -57,6 +57,7 @@ import { OrganisationService } from '@placeos/organisation';
         </ng-template>
     `,
     styles: [``],
+    standalone: false
 })
 export class EnrolmentComponent extends AsyncHandler {
     public loading = this._state.loading;

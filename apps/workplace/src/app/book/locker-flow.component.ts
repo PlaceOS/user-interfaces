@@ -56,6 +56,7 @@ import { map, shareReplay, tap } from 'rxjs/operators';
             }
         `,
     ],
+    standalone: false
 })
 export class BookLockerFlowComponent extends AsyncHandler implements OnInit {
     private _lockers_banks = loadLockerBanks(

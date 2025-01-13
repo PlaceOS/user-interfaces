@@ -40,6 +40,7 @@ import { SettingsService } from '@placeos/common';
         </div>
     `,
     styles: [``],
+    standalone: false
 })
 export class VisitorInductionModalComponent {
     public agree = false;

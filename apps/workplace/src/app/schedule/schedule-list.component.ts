@@ -101,6 +101,7 @@ import { BookingLike, ScheduleStateService } from './schedule-state.service';
             }
         `,
     ],
+    standalone: false
 })
 export class ScheduleListComponent implements OnInit, OnDestroy {
     public readonly today = new Date();

@@ -369,6 +369,7 @@ import { map } from 'rxjs/operators';
     `,
     styles: [``],
     providers: [SpacePipe],
+    standalone: false
 })
 export class MeetingFlowConfirmModalComponent
     extends AsyncHandler

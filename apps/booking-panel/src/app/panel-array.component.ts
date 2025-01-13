@@ -53,6 +53,7 @@ import { AsyncHandler } from '@placeos/common';
             }
         `,
     ],
+    standalone: false
 })
 export class BookingPanelArrayComponent extends AsyncHandler implements OnInit {
     /** List of systems to show panels for */

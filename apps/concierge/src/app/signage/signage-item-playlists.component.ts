@@ -143,6 +143,7 @@ const PLAYLIST_ITEM_COUNTS = {};
             }
         `,
     ],
+    standalone: false
 })
 export class SignageItemPlaylistsComponent implements OnChanges {
     @Input() public item: any;

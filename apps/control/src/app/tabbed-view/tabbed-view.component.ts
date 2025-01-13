@@ -105,6 +105,7 @@ import { OrganisationService } from '@placeos/organisation';
             }
         `,
     ],
+    standalone: false
 })
 export class ControlTabbedViewComponent extends AsyncHandler implements OnInit {
     public readonly system = this._state.system;

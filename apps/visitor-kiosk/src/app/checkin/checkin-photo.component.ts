@@ -51,6 +51,7 @@ import { CheckinStateService } from './checkin-state.service';
             }
         `,
     ],
+    standalone: false
 })
 export class CheckinPhotoComponent {
     /** Whether guest pass is being loaded */

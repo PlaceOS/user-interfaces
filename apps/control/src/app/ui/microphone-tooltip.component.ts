@@ -133,6 +133,7 @@ import { ControlStateService } from '../control-state.service';
         </ng-template>
     `,
     styles: [``],
+    standalone: false
 })
 export class MicrophoneTooltipComponent extends AsyncHandler {
     /** List of microphone inputs */

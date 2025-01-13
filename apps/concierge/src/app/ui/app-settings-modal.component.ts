@@ -174,6 +174,7 @@ import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
         </ng-template>
     `,
     styles: [``],
+    standalone: false
 })
 export class AppSettingsModalComponent {
     public readonly zone = this._data.zone;

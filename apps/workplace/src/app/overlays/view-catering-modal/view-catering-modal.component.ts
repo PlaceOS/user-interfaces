@@ -9,6 +9,7 @@ import { AsyncHandler } from '@placeos/common';
     selector: 'view-catering-modal',
     templateUrl: './view-catering-modal.component.html',
     styleUrls: ['./view-catering-modal.component.scss'],
+    standalone: false
 })
 export class ViewCateringModalComponent extends AsyncHandler implements OnInit {
     public catering: CateringItem[];

@@ -29,6 +29,7 @@ import { TimetableStateService } from './timetable-state.service';
             }
         `,
     ],
+    standalone: false
 })
 export class SpaceTimetableComponent {
     @Input() public space?: Space;

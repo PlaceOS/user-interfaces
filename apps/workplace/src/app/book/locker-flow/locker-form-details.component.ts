@@ -119,6 +119,7 @@ import { OrganisationService } from '@placeos/organisation';
             </section>
         </div>
     `,
+    standalone: false
 })
 export class LockerFormDetailsComponent
     extends AsyncHandler

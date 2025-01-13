@@ -4,7 +4,8 @@ import { Question, QuestionType } from "../types";
 @Component({
     selector: 'base-question',
     styles: [],
-    template: ``
+    template: ``,
+    standalone: false
 })
 
 export class BaseQuestionComponent{

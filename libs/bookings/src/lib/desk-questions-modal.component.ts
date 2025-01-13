@@ -80,6 +80,7 @@ import { DialogEvent, notifyError } from '@placeos/common';
             }
         `,
     ],
+    standalone: false
 })
 export class DeskQuestionsModalComponent {
     @Output() public event = new EventEmitter<DialogEvent>();

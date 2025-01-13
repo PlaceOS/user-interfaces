@@ -63,6 +63,7 @@ import { EventsStateService } from '../day-view/events-state.service';
             }
         `,
     ],
+    standalone: false
 })
 export class WeekViewTopbarComponent extends AsyncHandler implements OnInit {
     /** List of selected levels */

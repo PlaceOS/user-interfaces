@@ -130,6 +130,7 @@ export interface ExploreBookingModalData {
             }
         `,
     ],
+    standalone: false
 })
 export class ExploreBookingModalComponent implements OnInit {
     public readonly loading = this._event_form.loading;

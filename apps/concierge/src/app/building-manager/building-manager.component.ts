@@ -48,6 +48,7 @@ import { BuildingManagementService } from './building-management.service';
             }
         `,
     ],
+    standalone: false
 })
 export class BuildingManagerComponent {
     public readonly newBuilding = () => this._state.editBuilding();

@@ -3,6 +3,7 @@ import { formatDuration } from '@placeos/common';
 
 @Pipe({
     name: 'duration',
+    standalone: false
 })
 export class DurationPipe {
     /**

@@ -135,6 +135,7 @@ import { currentBooking } from './panel-state.service';
             }
         `,
     ],
+    standalone: false
 })
 export class BookingPanelSelectComponent
     extends AsyncHandler

@@ -85,6 +85,7 @@ interface EventBlock {
             }
         `,
     ],
+    standalone: false
 })
 export class CheckinTimetableComponent extends AsyncHandler {
     @Input() public events: CalendarEvent[] = [];

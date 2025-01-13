@@ -111,6 +111,7 @@ import { queryAnswers, querySurveys } from '@placeos/ts-client';
             }
         `,
     ],
+    standalone: false
 })
 export class BuildingListComponent {
     public readonly buildings$ = this._org.building_list;

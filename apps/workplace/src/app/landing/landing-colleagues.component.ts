@@ -215,6 +215,7 @@ import { LandingStateService } from './landing-state.service';
             }
         `,
     ],
+    standalone: false
 })
 export class LandingColleaguesComponent extends AsyncHandler {
     public show_search = false;

@@ -72,6 +72,7 @@ import { ReportsStateService } from '../reports-state.service';
             </div>
         </div>
     `,
+    standalone: false
 })
 export class ReportDesksLevelListComponent {
     @Input() public print = false;

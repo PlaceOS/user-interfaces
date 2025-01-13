@@ -34,6 +34,7 @@ import { OrganisationService } from 'libs/organisation/src/lib/organisation.serv
             }
         `,
     ],
+    standalone: false
 })
 export class GlobalLoadingComponent extends AsyncHandler implements OnInit {
     public loading: boolean;

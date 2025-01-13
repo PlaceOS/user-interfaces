@@ -91,6 +91,7 @@ import { SettingsService } from '@placeos/common';
             }
         `,
     ],
+    standalone: false
 })
 export class NewVisitorsComponent implements OnInit, OnDestroy {
     public readonly loading = this._state.loading;

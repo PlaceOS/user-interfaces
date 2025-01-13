@@ -81,6 +81,7 @@ export interface DeskInfoData {
             }
         `,
     ],
+    standalone: false
 })
 export class ExploreDeskInfoComponent implements OnInit {
     /** Space to display details for */

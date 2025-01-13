@@ -222,6 +222,7 @@ import { DesksStateService } from '../desks/desks-state.service';
             }
         `,
     ],
+    standalone: false
 })
 export class PointsAssetModalComponent extends AsyncHandler {
     @Output() public event = new EventEmitter<DialogEvent>();

@@ -339,6 +339,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
     `,
     styles: [``],
     animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
+    standalone: false
 })
 export class BookingDetailsModalComponent {
     @Output() public edit = new EventEmitter();

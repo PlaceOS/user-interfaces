@@ -177,6 +177,7 @@ import { showUser, updateUser } from '@placeos/ts-client';
         </ng-template>
     `,
     styles: [``],
+    standalone: false
 })
 export class WFHSettingsModalComponent implements OnInit {
     public options = [];

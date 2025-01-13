@@ -149,6 +149,7 @@ import { addDays, endOfDay } from 'date-fns';
         </fullscreen-modal-shell>
     `,
     styles: [``],
+    standalone: false
 })
 export class ParkingBookingModalComponent extends AsyncHandler {
     public loading = false;

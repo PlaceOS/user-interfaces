@@ -110,6 +110,7 @@ const HOUR_BLOCKS = new Array(24).fill(0).map((_, idx) => {
             }
         `,
     ],
+    standalone: false
 })
 export class DayviewTimelineComponent
     extends AsyncHandler

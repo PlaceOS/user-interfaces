@@ -180,6 +180,7 @@ export const FAV_LOCKER_KEY = 'favourite_lockers';
             </div>
         </ng-template>
     `,
+    standalone: false
 })
 export class LockerSelectModalComponent {
     public displayed?: BookingAsset;

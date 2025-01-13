@@ -56,6 +56,7 @@ export interface LockerBankInfoData {
         >
     `,
     styles: [``],
+    standalone: false
 })
 export class ExploreLockerBankInfoComponent implements OnInit {
     public bank: LockerBank = this._details.bank;

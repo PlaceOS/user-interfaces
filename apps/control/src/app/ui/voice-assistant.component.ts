@@ -56,6 +56,7 @@ import { ControlStateService } from '../control-state.service';
             }
         `,
     ],
+    standalone: false
 })
 export class VoiceAssistantComponent {
     @Input() public system_id: string;

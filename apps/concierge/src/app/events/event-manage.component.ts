@@ -461,6 +461,7 @@ const EMPTY = [];
         </ng-template>
     `,
     styles: [``],
+    standalone: false
 })
 export class EventManageComponent extends AsyncHandler implements OnInit {
     public loading = false;

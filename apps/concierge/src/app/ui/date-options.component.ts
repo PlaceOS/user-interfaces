@@ -90,6 +90,7 @@ import {
             }
         `,
     ],
+    standalone: false
 })
 export class DateOptionsComponent extends AsyncHandler {
     @Input() public is_new = false;

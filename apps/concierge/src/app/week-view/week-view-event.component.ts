@@ -58,6 +58,7 @@ import { SettingsService } from '@placeos/common';
             }
         `,
     ],
+    standalone: false
 })
 export class WeekViewEventComponent {
     @Input() public event: CalendarEvent;

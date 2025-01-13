@@ -88,6 +88,7 @@ import { take } from 'rxjs/operators';
         </div>
     `,
     styles: [``],
+    standalone: false
 })
 export class MeetingFlowSuccessComponent {
     private _space_pipe: SpacePipe = new SpacePipe(this._org);

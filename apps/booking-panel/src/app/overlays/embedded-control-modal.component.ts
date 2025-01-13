@@ -70,6 +70,7 @@ export interface EmbeddedControlModalData {
             ]),
         ]),
     ],
+    standalone: false
 })
 export class EmbeddedControlModalComponent
     extends AsyncHandler

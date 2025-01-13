@@ -22,6 +22,7 @@ import { ApplicationLinkInternal, SettingsService } from '@placeos/common';
             }
         `,
     ],
+    standalone: false
 })
 export class DayViewComponent implements OnInit {
     public get links(): ApplicationLinkInternal[] {

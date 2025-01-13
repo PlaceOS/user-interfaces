@@ -51,6 +51,7 @@ import { User } from '@placeos/users';
         </div>
     `,
     styles: [``],
+    standalone: false
 })
 export class DirectoryUserListItemComponent {
     /** Space to display */

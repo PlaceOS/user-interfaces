@@ -31,6 +31,7 @@ import { BehaviorSubject } from 'rxjs';
         </fullscreen-modal-shell>
     `,
     styles: [``],
+    standalone: false
 })
 export class DeskBookModalComponent {
     @Output() public event = new EventEmitter<DialogEvent>();

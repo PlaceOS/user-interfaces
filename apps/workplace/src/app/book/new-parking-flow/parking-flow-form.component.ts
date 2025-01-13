@@ -132,6 +132,7 @@ import { take } from 'rxjs/operators';
     `,
     styles: [``],
     animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
+    standalone: false
 })
 export class ParkingFlowFormComponent extends AsyncHandler {
     public hide_block: Record<string, boolean> = {};

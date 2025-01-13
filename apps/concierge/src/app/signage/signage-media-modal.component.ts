@@ -192,6 +192,7 @@ import { addYears, endOfDay, getUnixTime, startOfDay } from 'date-fns';
         </fullscreen-modal-shell>
     `,
     styles: [``],
+    standalone: false
 })
 export class SignageMediaModalComponent implements OnDestroy {
     public loading = false;

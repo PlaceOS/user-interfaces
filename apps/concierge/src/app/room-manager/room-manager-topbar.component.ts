@@ -65,6 +65,7 @@ import { combineLatest } from 'rxjs';
             }
         `,
     ],
+    standalone: false
 })
 export class RoomManagerTopbarComponent extends AsyncHandler implements OnInit {
     /** List of levels for the active building */

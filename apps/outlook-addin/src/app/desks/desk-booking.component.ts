@@ -36,6 +36,7 @@ import { BookingFormService } from '@placeos/bookings';
         </div>
     `,
     styles: [``],
+    standalone: false
 })
 export class DeskBookingComponent {
     public readonly clearForm = () => this._service.clearForm();

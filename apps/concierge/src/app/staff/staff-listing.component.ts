@@ -98,6 +98,7 @@ const CHARS = '#abcdefghijklmnopqrstuvwxyz'.split('');
             }
         `,
     ],
+    standalone: false
 })
 export class StaffListingComponent extends AsyncHandler {
     public active_group = '#';

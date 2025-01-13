@@ -5,6 +5,7 @@ import { Space } from '@placeos/spaces';
     selector: 'find-space-item',
     templateUrl: './find-space-item.component.html',
     styles: [``],
+    standalone: false
 })
 export class FindSpaceItemComponent {
     @Input() public space: Space;

@@ -26,6 +26,7 @@ import { BaseQuestionComponent } from './base-question.component';
             </div>
         </div>
     `,
+    standalone: false
 })
 export class RatingsComponent extends BaseQuestionComponent implements OnInit {
     constructor() {

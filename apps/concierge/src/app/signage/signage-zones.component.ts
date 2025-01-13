@@ -144,6 +144,7 @@ import {
         </div>
     `,
     styles: [``],
+    standalone: false
 })
 export class SignageZonesComponent extends AsyncHandler implements OnInit {
     public adding = false;

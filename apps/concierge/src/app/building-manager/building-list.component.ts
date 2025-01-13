@@ -242,6 +242,7 @@ import { VisitorKioskSettingsFormModalComponent } from '../ui/app-settings/visit
         </ng-template>
     `,
     styles: [``],
+    standalone: false
 })
 export class BuildingListComponent {
     public readonly buildings = this._manager.filtered_buildings;

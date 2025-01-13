@@ -103,6 +103,7 @@ import { OrganisationService } from '@placeos/organisation';
             }
         `,
     ],
+    standalone: false
 })
 export class NewParkingFlowConfirmComponent extends AsyncHandler {
     @Input() public show_close: boolean = false;

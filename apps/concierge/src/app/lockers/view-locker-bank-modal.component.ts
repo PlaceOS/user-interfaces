@@ -19,6 +19,7 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
         </main>
     `,
     styles: [``],
+    standalone: false
 })
 export class ViewLockerBankModalComponent {
     public readonly bank = this._data.bank;

@@ -193,6 +193,7 @@ export interface UploadDetails {
             multi: true,
         },
     ],
+    standalone: false
 })
 export class ImageListFieldComponent extends AsyncHandler {
     /** List of images */

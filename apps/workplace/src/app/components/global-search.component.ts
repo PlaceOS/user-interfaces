@@ -118,6 +118,7 @@ import { ExploreSearchService } from '@placeos/explore';
             }
         `,
     ],
+    standalone: false
 })
 export class GlobalSearchComponent extends AsyncHandler {
     public readonly results = this._service.search_results;

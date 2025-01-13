@@ -66,6 +66,7 @@ import { DialogEvent } from '@placeos/common';
         </footer>
     `,
     styles: [``],
+    standalone: false
 })
 export class DashboardDeliveryModalComponent {
     @Output() public events = new EventEmitter<DialogEvent>();

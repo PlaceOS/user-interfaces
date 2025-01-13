@@ -157,6 +157,7 @@ import { LandingStateService } from './landing-state.service';
         `,
     ],
     providers: [ExploreSpacesService],
+    standalone: false
 })
 export class LandingAvailabilityComponent {
     public readonly space_list = this._state.free_space_list;

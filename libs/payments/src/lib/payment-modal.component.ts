@@ -103,6 +103,7 @@ export interface PaymentData {
         </ng-template>
     `,
     styles: [``],
+    standalone: false
 })
 export class PaymentModalComponent {
     @Output() public readonly event = new EventEmitter();

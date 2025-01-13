@@ -1,6 +1,11 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { APP_INITIALIZER, ErrorHandler, NgModule } from '@angular/core';
+import {
+    ErrorHandler,
+    NgModule,
+    inject,
+    provideAppInitializer,
+} from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ServiceWorkerModule } from '@angular/service-worker';
@@ -70,12 +75,6 @@ import { FormFieldsModule } from '@placeos/form-fields';
         {
             provide: Sentry.TraceService,
             deps: [Router],
-        },
-        {
-            provide: APP_INITIALIZER,
-            useFactory: () => () => {},
-            deps: [Sentry.TraceService],
-            multi: true,
         },
     ],
     bootstrap: [AppComponent],

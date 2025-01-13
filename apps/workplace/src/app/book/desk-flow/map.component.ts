@@ -165,6 +165,7 @@ import { debounceTime, map, startWith } from 'rxjs/operators';
             }
         `,
     ],
+    standalone: false
 })
 export class DeskFlowMapComponent extends AsyncHandler implements OnInit {
     /** Observable for the active map */

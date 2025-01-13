@@ -29,6 +29,7 @@ export interface ChangelogModalData {
         </ng-template>
     `,
     styles: [``],
+    standalone: false
 })
 export class ChangelogModalComponent {
     /** Whether the changelog is loading */

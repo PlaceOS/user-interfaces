@@ -60,6 +60,7 @@ import { parseRatingAnswers, parseRatingStats } from './survey-helper';
             </div>
         </ng-container>
     `,
+    standalone: false
 })
 export class RatingsWidgetComponent extends BaseWidget {
     public chart_data$ = this.data$.pipe(

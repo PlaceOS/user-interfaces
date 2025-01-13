@@ -58,6 +58,7 @@ import { Booking } from './booking.class';
             }
         `,
     ],
+    standalone: false
 })
 export class BookingLinkModalComponent {
     public readonly outlook_link = generateMicrosoftCalendarLink(

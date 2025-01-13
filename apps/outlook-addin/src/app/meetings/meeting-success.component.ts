@@ -41,6 +41,7 @@ import { EventFormService } from '@placeos/events';
             }
         `,
     ],
+    standalone: false
 })
 export class MeetingBookingSuccessComponent {
     public readonly last_success = this._service.last_success;

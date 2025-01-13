@@ -109,6 +109,7 @@ export interface DurationOption {
             multi: true,
         },
     ],
+    standalone: false
 })
 export class DurationFieldComponent
     implements OnInit, OnChanges, ControlValueAccessor

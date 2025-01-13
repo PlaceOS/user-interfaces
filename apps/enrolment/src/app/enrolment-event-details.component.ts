@@ -26,6 +26,7 @@ import { EnrolmentStateService } from './enrolment-state.service';
         </div>
     `,
     styles: [``],
+    standalone: false
 })
 export class EnrolmentEventDetailsComponent {
     public readonly event = this._state.event;

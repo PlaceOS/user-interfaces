@@ -205,6 +205,7 @@ import { getUnixTime } from 'date-fns';
         </fullscreen-modal-shell>
     `,
     styles: [``],
+    standalone: false
 })
 export class SignagePlaylistModalComponent {
     public loading = false;

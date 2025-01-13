@@ -37,6 +37,7 @@ import { ControlStateService, LightScene } from '../control-state.service';
         </ng-template>
     `,
     styles: [``],
+    standalone: false
 })
 export class LightingSceneTooltipComponent {
     public readonly scene = this._state.lighting_scene;

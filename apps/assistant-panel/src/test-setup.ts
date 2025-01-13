@@ -7,7 +7,9 @@ globalThis.ngJest = {
 };
 import { defineGlobalsInjections } from '@ngneat/spectator';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import 'jest-preset-angular/setup-jest';
+import { setupZoneTestEnv } from 'jest-preset-angular/setup-env/zone';
+
+setupZoneTestEnv();
 import { MockPipe } from 'ng-mocks';
 
 defineGlobalsInjections({

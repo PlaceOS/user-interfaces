@@ -23,6 +23,7 @@ import { CheckinStateService } from './checkin-state.service';
             }
         `,
     ],
+    standalone: false
 })
 export class CheckinErrorComponent {
     public readonly error = this._checkin.error;

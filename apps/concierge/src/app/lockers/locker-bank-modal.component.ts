@@ -158,6 +158,7 @@ import { map } from 'rxjs/operators';
         </ng-template>
     `,
     styles: [``],
+    standalone: false
 })
 export class LockerBankModalComponent {
     @Output() public readonly event = new EventEmitter<DialogEvent>();

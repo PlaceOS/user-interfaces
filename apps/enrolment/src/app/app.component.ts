@@ -56,6 +56,7 @@ export function initSentry(dsn: string, sample_rate: number = 0.2) {
             }
         `,
     ],
+    standalone: false
 })
 export class AppComponent extends AsyncHandler implements OnInit {
     constructor(

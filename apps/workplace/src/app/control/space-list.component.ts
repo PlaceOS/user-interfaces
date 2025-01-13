@@ -61,6 +61,7 @@ import { Space, SpacesService } from '@placeos/spaces';
             }
         `,
     ],
+    standalone: false
 })
 export class ControlSpaceListComponent extends AsyncHandler implements OnInit {
     /** List of controllable spaces */

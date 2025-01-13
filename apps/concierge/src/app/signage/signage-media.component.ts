@@ -156,6 +156,7 @@ import { CdkDragDrop } from '@angular/cdk/drag-drop';
             }
         `,
     ],
+    standalone: false
 })
 export class SignageMediaComponent extends AsyncHandler implements OnInit {
     public readonly search = new BehaviorSubject<string>('');

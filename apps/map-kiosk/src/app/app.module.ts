@@ -1,7 +1,12 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { APP_INITIALIZER, ErrorHandler, NgModule } from '@angular/core';
+import {
+    ErrorHandler,
+    NgModule,
+    inject,
+    provideAppInitializer,
+} from '@angular/core';
 import { Router } from '@angular/router';
 import { ServiceWorkerModule } from '@angular/service-worker';
 
@@ -75,12 +80,6 @@ import { AccessibilityControlsComponent } from './accessibility-controls.compone
         {
             provide: Sentry.TraceService,
             deps: [Router],
-        },
-        {
-            provide: APP_INITIALIZER,
-            useFactory: () => () => {},
-            deps: [Sentry.TraceService],
-            multi: true,
         },
     ],
     bootstrap: [AppComponent],

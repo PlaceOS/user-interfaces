@@ -28,6 +28,7 @@ import { Building } from '@placeos/organisation';
         </fullscreen-modal-shell>
     `,
     styles: [``],
+    standalone: false
 })
 export class BuildingModalComponent {
     public loading = false;

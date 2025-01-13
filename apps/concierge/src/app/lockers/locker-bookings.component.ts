@@ -267,6 +267,7 @@ import { SettingsService } from '@placeos/common';
             }
         `,
     ],
+    standalone: false
 })
 export class LockerBookingsComponent {
     public loading: string;

@@ -162,6 +162,7 @@ export const FAV_DESK_KEY = 'favourite_desks';
             </desk-map>
         </ng-template>
     `,
+    standalone: false
 })
 export class DeskSelectModalComponent {
     public displayed?: BookingAsset;

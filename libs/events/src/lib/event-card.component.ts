@@ -141,6 +141,7 @@ import { DatePipe } from '@angular/common';
         `,
     ],
     providers: [SpacePipe],
+    standalone: false
 })
 export class EventCardComponent
     extends AsyncHandler

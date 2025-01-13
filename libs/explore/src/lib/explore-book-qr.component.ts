@@ -24,6 +24,7 @@ const DEFAULT_PATH = `workplace/#/explore?space={{id}}`;
         </main>
     `,
     styles: [``],
+    standalone: false
 })
 export class ExploreBookQrComponent {
     public readonly space = this._data.space;

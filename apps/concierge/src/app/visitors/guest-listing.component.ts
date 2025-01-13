@@ -515,6 +515,7 @@ import { User } from '@placeos/users';
         <div class="w-full h-8"></div>
     `,
     styles: [``],
+    standalone: false
 })
 export class GuestListingComponent extends AsyncHandler {
     public readonly guests = this._state.filtered_bookings;

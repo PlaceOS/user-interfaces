@@ -77,6 +77,7 @@ import { BookingLike } from './schedule-state.service';
             </a>
         </ng-container>
     `,
+    standalone: false
 })
 export class ScheduleListItemComponent {
     @Input() public item: BookingLike;

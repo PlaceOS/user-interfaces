@@ -80,6 +80,7 @@ export enum TimezoneDiffRange {
             multi: true,
         },
     ],
+    standalone: false
 })
 export class DateFieldComponent
     extends AsyncHandler

@@ -136,6 +136,7 @@ import { Clipboard } from '@angular/cdk/clipboard';
         <div class="w-full h-20"></div>
     `,
     styles: [],
+    standalone: false
 })
 export class ParkingSpaceListComponent extends AsyncHandler {
     public readonly spaces = this._state.spaces;

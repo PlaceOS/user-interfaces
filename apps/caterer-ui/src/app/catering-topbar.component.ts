@@ -153,6 +153,7 @@ import { combineLatest } from 'rxjs';
             }
         `,
     ],
+    standalone: false
 })
 export class CateringTopbarComponent extends AsyncHandler implements OnInit {
     /** List of selected levels */

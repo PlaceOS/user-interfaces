@@ -120,6 +120,7 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
             }
         `,
     ],
+    standalone: false
 })
 export class ParkingSpaceListComponent {
     @Input() public active: string = '';

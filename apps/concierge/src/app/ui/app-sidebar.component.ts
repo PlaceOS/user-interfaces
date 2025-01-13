@@ -86,6 +86,7 @@ import { OrganisationService } from '@placeos/organisation';
         `,
     ],
     animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
+    standalone: false
 })
 export class ApplicationSidebarComponent
     extends AsyncHandler

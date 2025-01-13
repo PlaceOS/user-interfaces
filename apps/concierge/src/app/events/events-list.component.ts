@@ -120,6 +120,7 @@ import { distinctUntilChanged, map, take } from 'rxjs/operators';
             }
         `,
     ],
+    standalone: false
 })
 export class EventsListComponent extends AsyncHandler implements OnInit {
     public readonly period = this._state.options.pipe(

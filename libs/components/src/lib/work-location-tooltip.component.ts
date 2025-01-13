@@ -126,6 +126,7 @@ import { WFHSettingsModalComponent } from 'libs/users/src/lib/wfh-settings-modal
         </ng-template>
     `,
     styles: [``],
+    standalone: false
 })
 export class WorkLocationTooltipComponent implements OnInit {
     public locations = [];

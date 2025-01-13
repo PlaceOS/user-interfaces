@@ -76,6 +76,7 @@ import {
             multi: true,
         },
     ],
+    standalone: false
 })
 export class ScheduleMobileCalendarComponent
     implements OnInit, ControlValueAccessor

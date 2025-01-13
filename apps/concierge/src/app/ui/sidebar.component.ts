@@ -123,6 +123,7 @@ import { debounceTime, map } from 'rxjs/operators';
             }
         `,
     ],
+    standalone: false
 })
 export class SidebarComponent {
     public get links(): ApplicationLinkInternal[] {

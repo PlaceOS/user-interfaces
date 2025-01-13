@@ -122,6 +122,7 @@ import { OrganisationService } from '@placeos/organisation';
             }
         `,
     ],
+    standalone: false
 })
 export class TopMenuComponent
     extends AsyncHandler

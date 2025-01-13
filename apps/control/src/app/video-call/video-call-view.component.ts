@@ -66,6 +66,7 @@ import { ControlStateService } from '../control-state.service';
             }
         `,
     ],
+    standalone: false
 })
 export class ControlVideoCallViewComponent
     extends AsyncHandler

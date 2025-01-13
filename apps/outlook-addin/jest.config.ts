@@ -14,9 +14,7 @@ export default {
             },
         ],
     },
-    transformIgnorePatterns: [
-        'node_modules/(?!.*\\.mjs$)' || '/node_modules' || '**/node_modules',
-    ],
+    transformIgnorePatterns: ['node_modules/(?!.*.mjs$)'],
     moduleNameMapper: {
         '^quill$': 'node_modules/quill/dist/quill.js',
     },

@@ -140,6 +140,7 @@ import { BookingAsset } from '../booking-form.service';
             }
         `,
     ],
+    standalone: false
 })
 export class ParkingSpaceDetailsComponent {
     @Input() public space?: BookingAsset;

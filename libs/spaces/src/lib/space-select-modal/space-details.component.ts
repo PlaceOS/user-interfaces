@@ -183,6 +183,7 @@ import { Space } from '../space.class';
             }
         `,
     ],
+    standalone: false
 })
 export class SpaceDetailsComponent implements OnChanges {
     @Input() public space?: Space;

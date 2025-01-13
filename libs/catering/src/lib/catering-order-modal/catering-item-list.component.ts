@@ -87,6 +87,7 @@ import { CateringOrderStateService } from './catering-order-state.service';
         </ng-template>
     `,
     styles: [``],
+    standalone: false
 })
 export class CateringItemListComponent implements OnChanges {
     @Input() public active = '';

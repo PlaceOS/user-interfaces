@@ -26,6 +26,7 @@ import { first } from 'rxjs/operators';
             }
         `,
     ],
+    standalone: false
 })
 export class PointsTopbarComponent extends AsyncHandler {
     constructor(private _org: OrganisationService) {

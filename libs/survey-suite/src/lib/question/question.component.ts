@@ -107,6 +107,7 @@ import { Question, QuestionType, QuestionTypeOptions } from '../types';
             </div>
         </div>
     `,
+    standalone: false
 })
 export class QuestionComponent implements OnInit {
     @Input() preview = false;

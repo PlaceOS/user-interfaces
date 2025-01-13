@@ -45,6 +45,7 @@ import { debounceTime, map } from 'rxjs/operators';
             }
         `,
     ],
+    standalone: false
 })
 export class TopbarHeaderComponent {
     public date: number;

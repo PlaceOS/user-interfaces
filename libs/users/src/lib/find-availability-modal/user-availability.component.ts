@@ -39,6 +39,7 @@ export interface AvailabilityBlock {
             }
         `,
     ],
+    standalone: false
 })
 export class UserAvailabilityComponent {
     @Input() public user: User;

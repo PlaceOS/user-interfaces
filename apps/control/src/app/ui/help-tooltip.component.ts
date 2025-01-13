@@ -33,6 +33,7 @@ import { ControlStateService } from '../control-state.service';
         </div>
     `,
     styles: [``],
+    standalone: false
 })
 export class HelpTooltipComponent {
     public support_contact: string;

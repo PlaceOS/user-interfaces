@@ -82,6 +82,7 @@ import { getModule } from '@placeos/ts-client';
         </ng-template>
     `,
     styles: [],
+    standalone: false
 })
 export class DeskSettingsModalComponent {
     public readonly desk_id = this._data.id;

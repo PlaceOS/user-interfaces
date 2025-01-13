@@ -77,6 +77,7 @@ import { ParkingReportService } from './parking-report.service';
         </div>
     `,
     styles: [``],
+    standalone: false
 })
 export class ParkingReportListComponent {
     @Input() public print = false;

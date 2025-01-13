@@ -183,6 +183,7 @@ import { SelectPOIMapModalComponent } from './select-poi-map-modal.component';
         </fullscreen-modal-shell>
     `,
     styles: [``],
+    standalone: false
 })
 export class POIModalComponent extends AsyncHandler {
     public loading = false;

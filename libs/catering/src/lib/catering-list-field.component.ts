@@ -224,6 +224,7 @@ const EMPTY_FAVS = [];
             multi: true,
         },
     ],
+    standalone: false
 })
 export class CateringListFieldComponent
     implements ControlValueAccessor, OnInit, OnChanges

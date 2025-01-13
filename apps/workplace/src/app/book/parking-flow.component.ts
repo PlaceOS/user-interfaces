@@ -30,6 +30,7 @@ import { AsyncHandler } from '@placeos/common';
             }
         `,
     ],
+    standalone: false
 })
 export class BookParkingFlowComponent extends AsyncHandler implements OnInit {
     public get view() {

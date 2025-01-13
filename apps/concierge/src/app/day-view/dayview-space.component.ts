@@ -23,6 +23,7 @@ import { AsyncHandler } from '@placeos/common';
             }
         `,
     ],
+    standalone: false
 })
 export class DayviewSpaceComponent extends AsyncHandler implements OnInit {
     /** Space to display events for */

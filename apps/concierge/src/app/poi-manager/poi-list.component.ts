@@ -136,6 +136,7 @@ import { generateQRCode } from 'libs/common/src/lib/qr-code';
         </ng-template>
     `,
     styles: [``],
+    standalone: false
 })
 export class POIListComponent {
     public readonly features = this._manager.filtered_features;

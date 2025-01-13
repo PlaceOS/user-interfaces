@@ -112,6 +112,7 @@ import { CalendarEvent } from '@placeos/events';
         </div>
     `,
     styles: [``],
+    standalone: false
 })
 export class RoomBookingSearchComponent extends AsyncHandler implements OnInit {
     @Output() public selected = new EventEmitter<CalendarEvent>();

@@ -32,6 +32,7 @@ import { startOfMinute } from 'date-fns';
             }
         `,
     ],
+    standalone: false
 })
 export class CheckinComponent {
     public get now() {

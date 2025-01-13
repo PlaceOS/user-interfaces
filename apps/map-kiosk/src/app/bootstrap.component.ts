@@ -262,6 +262,7 @@ import { first } from 'rxjs/operators';
             }
         `,
     ],
+    standalone: false
 })
 export class BootstrapComponent extends AsyncHandler implements OnInit {
     /** Loading state of the bootstrap */

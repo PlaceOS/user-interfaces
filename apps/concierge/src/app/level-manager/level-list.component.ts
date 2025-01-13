@@ -118,6 +118,7 @@ import { BookingPanelSettingsModalComponent } from '../ui/app-settings/booking-p
         </ng-template>
     `,
     styles: [``],
+    standalone: false
 })
 export class LevelListComponent {
     public readonly levels = this._manager.filtered_levels;

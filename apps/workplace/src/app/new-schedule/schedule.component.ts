@@ -163,6 +163,7 @@ import { openConfirmModal } from '@placeos/components';
             }
         `,
     ],
+    standalone: false
 })
 export class ScheduleComponent extends AsyncHandler {
     public readonly booking_dates = combineLatest([

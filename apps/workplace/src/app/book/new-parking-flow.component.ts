@@ -59,6 +59,7 @@ import { AsyncHandler } from '@placeos/common';
             }
         `,
     ],
+    standalone: false
 })
 export class NewParkingFlowComponent extends AsyncHandler implements OnInit {
     public readonly deny_parking_access = this._parking.deny_parking_access;

@@ -190,6 +190,7 @@ import { OrganisationService } from '@placeos/organisation';
         </form>
     `,
     styles: [``],
+    standalone: false
 })
 export class DetailBookSpaceFormComponent {
     @Input() public form: FormGroup;

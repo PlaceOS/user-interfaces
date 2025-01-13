@@ -57,6 +57,7 @@ export interface PopoutAction extends ApplicationIcon {
             }
         `,
     ],
+    standalone: false
 })
 export class PopoutMenuComponent extends AsyncHandler {
     /** List of available actions */

@@ -119,6 +119,7 @@ enum TOOLTIP {
             }
         `,
     ],
+    standalone: false
 })
 export class TopbarHeaderComponent extends AsyncHandler {
     public readonly system = this._state.system;

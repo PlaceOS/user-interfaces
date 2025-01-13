@@ -202,6 +202,7 @@ import { currentPeriod, nextPeriod } from './helpers';
             }
         `,
     ],
+    standalone: false
 })
 export class PanelViewStatusComponent {
     public readonly state = this._state.status;

@@ -312,6 +312,7 @@ export interface CateringItemModalData {
             }
         `,
     ],
+    standalone: false
 })
 export class CateringItemModalComponent {
     /** Emitter for events on the modal */

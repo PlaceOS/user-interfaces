@@ -91,6 +91,7 @@ import { ParkingStateService } from './parking-state.service';
             }
         `,
     ],
+    standalone: false
 })
 export class NewParkingComponent extends AsyncHandler implements OnInit {
     /** List of levels for the active building */

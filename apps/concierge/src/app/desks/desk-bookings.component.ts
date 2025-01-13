@@ -278,6 +278,7 @@ import { SettingsService } from '@placeos/common';
             }
         `,
     ],
+    standalone: false
 })
 export class DeskBookingsComponent {
     public loading: string;

@@ -146,6 +146,7 @@ export interface SupportRequestType {
             }
         `,
     ],
+    standalone: false
 })
 export class SupportTicketModalComponent {
     public loading = false;

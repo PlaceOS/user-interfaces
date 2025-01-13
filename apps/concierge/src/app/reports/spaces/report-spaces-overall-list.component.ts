@@ -69,6 +69,7 @@ import { ReportsStateService } from '../reports-state.service';
             </div>
         </div>
     `,
+    standalone: false
 })
 export class ReportSpacesOverallListComponent {
     @Input() public print = false;

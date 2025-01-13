@@ -97,6 +97,7 @@ import {
         </div>
     `,
     styles: [``],
+    standalone: false
 })
 export class ParkingFlowSuccessComponent {
     public outlook_link = '';

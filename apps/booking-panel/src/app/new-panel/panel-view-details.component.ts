@@ -79,6 +79,7 @@ import { PanelStateService } from '../panel-state.service';
             }
         `,
     ],
+    standalone: false
 })
 export class PanelViewDetailsComponent {
     public readonly system = this._state.space;

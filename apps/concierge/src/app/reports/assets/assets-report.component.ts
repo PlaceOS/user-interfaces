@@ -76,6 +76,7 @@ import { OrganisationService } from '@placeos/organisation';
             }
         `,
     ],
+    standalone: false
 })
 export class AssetsReportComponent extends AsyncHandler {
     public printing = false;

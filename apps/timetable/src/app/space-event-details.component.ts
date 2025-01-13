@@ -25,6 +25,7 @@ import { getHours, getMinutes } from 'date-fns';
         </div>
     `,
     styles: [``],
+    standalone: false
 })
 export class SpaceEventDetailsComponent {
     @Input() public event?: CalendarEvent;

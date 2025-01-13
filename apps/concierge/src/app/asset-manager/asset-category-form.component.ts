@@ -89,6 +89,7 @@ import { i18n, notifyError } from '@placeos/common';
         </ng-template>
     `,
     styles: [``],
+    standalone: false
 })
 export class AssetCategoryFormComponent {
     public loading = false;

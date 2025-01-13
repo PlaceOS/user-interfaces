@@ -148,6 +148,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
         `,
     ],
     providers: [SpacePipe],
+    standalone: false
 })
 export class MeetingFlowConfirmComponent
     extends AsyncHandler

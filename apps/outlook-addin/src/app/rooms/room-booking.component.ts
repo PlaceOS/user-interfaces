@@ -15,6 +15,7 @@ import { currentUser } from '@placeos/common';
             }
         `,
     ],
+    standalone: false
 })
 export class RoomBookingComponent implements OnInit {
     public show_spaces = false;

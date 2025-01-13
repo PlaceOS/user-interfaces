@@ -66,7 +66,8 @@ import { BaseQuestionComponent } from "./base-question.component";
             </ng-template>
         </div>
     </ng-container>
-    `
+    `,
+    standalone: false
 })
 
 export class SelectionComponent extends BaseQuestionComponent implements OnInit{

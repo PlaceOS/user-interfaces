@@ -74,6 +74,7 @@ import { OrganisationService } from '@placeos/organisation';
             }
         `,
     ],
+    standalone: false
 })
 export class ReportSpacesComponent extends AsyncHandler {
     public printing = false;

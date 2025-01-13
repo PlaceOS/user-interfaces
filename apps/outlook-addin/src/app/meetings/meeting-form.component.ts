@@ -279,6 +279,7 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
     `,
     styles: [``],
     animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
+    standalone: false
 })
 export class MeetingBookingFormComponent extends AsyncHandler {
     public readonly form = this._service.form;

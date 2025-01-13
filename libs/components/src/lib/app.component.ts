@@ -101,6 +101,7 @@ export function initSentry(dsn: string, sample_rate = 0.1) {
             }
         `,
     ],
+    standalone: false,
 })
 export class AppComponent extends AsyncHandler implements OnInit {
     public get debug() {
@@ -124,6 +125,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
         private _route: ActivatedRoute,
         private _router: Router,
         private _maps: MapsPeopleService,
+        private _tracing: Sentry.TraceService,
         @Optional() private _locale: LocaleService,
     ) {
         super();

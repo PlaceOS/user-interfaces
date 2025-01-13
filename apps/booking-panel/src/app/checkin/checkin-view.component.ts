@@ -263,6 +263,7 @@ import { PanelStateService } from '../panel-state.service';
         `,
     ],
     providers: [PanelStateService],
+    standalone: false
 })
 export class CheckinViewComponent extends AsyncHandler implements OnInit {
     public readonly state = this._state.status;

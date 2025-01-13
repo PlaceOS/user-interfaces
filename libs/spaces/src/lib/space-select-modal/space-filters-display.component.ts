@@ -116,6 +116,7 @@ import { SpaceFiltersComponent } from './space-filters.component';
             }
         `,
     ],
+    standalone: false
 })
 export class SpaceFiltersDisplayComponent
     extends AsyncHandler

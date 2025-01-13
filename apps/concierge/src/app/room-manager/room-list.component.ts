@@ -155,6 +155,7 @@ import { i18n, notifySuccess, SettingsService } from '@placeos/common';
         </ng-template>
     `,
     styles: [``],
+    standalone: false
 })
 export class RoomListComponent {
     public readonly rooms = this._manager.filtered_rooms;

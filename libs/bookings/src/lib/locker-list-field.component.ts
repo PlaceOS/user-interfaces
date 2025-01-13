@@ -128,6 +128,7 @@ const EMPTY_FAVS: string[] = [];
             multi: true,
         },
     ],
+    standalone: false
 })
 export class LockerListFieldComponent implements ControlValueAccessor {
     @Input() public features: string[] = [];

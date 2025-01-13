@@ -35,6 +35,7 @@ import { first, take } from 'rxjs/operators';
             }
         `,
     ],
+    standalone: false
 })
 export class ExploreLevelSelectComponent {
     public readonly levels = this._org.active_levels;

@@ -130,6 +130,7 @@ import { map } from 'rxjs/operators';
         </fullscreen-modal-shell>
     `,
     styles: [``],
+    standalone: false
 })
 export class AssetGroupFormComponent extends AsyncHandler {
     public readonly form = generateAssetGroupForm();

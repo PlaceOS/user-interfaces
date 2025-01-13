@@ -60,6 +60,7 @@ import {
         </ng-template>
     `,
     styles: [``],
+    standalone: false
 })
 export class InductionSettingsModalComponent implements OnInit {
     public loading = '';

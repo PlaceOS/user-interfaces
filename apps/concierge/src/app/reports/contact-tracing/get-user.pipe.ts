@@ -7,6 +7,7 @@ const USER_LIST = {};
 
 @Pipe({
     name: 'user',
+    standalone: false
 })
 export class GetUserPipe implements PipeTransform {
     /**

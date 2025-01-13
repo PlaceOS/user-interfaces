@@ -131,6 +131,7 @@ export interface CateringItemOptionModalData {
         </mat-autocomplete>
     `,
     styles: [``],
+    standalone: false
 })
 export class CateringItemOptionModalComponent {
     /** Emitter for events on the modal */

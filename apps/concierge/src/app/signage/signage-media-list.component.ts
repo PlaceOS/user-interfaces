@@ -251,6 +251,7 @@ import { getUnixTime, startOfMinute } from 'date-fns';
             }
         `,
     ],
+    standalone: false
 })
 export class SignageMediaListComponent implements OnChanges {
     @Input() public playlist_count = 0;

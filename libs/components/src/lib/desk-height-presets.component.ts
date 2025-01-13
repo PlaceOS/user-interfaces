@@ -78,6 +78,7 @@ import { SettingsService } from '@placeos/common';
         </div>
     `,
     styles: [``],
+    standalone: false
 })
 export class DeskHeightPresetsComponent {
     @Input() public show_close = false;

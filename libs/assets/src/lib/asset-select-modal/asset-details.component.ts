@@ -118,6 +118,7 @@ import { AssetGroup } from '../asset.class';
             }
         `,
     ],
+    standalone: false
 })
 export class AssetDetailsComponent {
     @Input() public item?: AssetGroup;

@@ -74,6 +74,7 @@ import { uploadFiles } from '@placeos/cloud-uploads';
             multi: true,
         },
     ],
+    standalone: false
 })
 export class UploadFileFieldComponent implements ControlValueAccessor {
     public item: Attachment;

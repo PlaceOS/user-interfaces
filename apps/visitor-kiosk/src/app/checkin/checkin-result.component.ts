@@ -146,6 +146,7 @@ const DEFAULT_TEMPLATE = `
         `,
     ],
     providers: [DatePipe],
+    standalone: false
 })
 export class CheckinResultsComponent extends AsyncHandler implements OnInit {
     public qr_code = '';

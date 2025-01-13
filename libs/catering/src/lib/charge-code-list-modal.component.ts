@@ -78,6 +78,7 @@ import { CateringStateService } from './catering-state.service';
         </ng-template>
     `,
     styles: [``],
+    standalone: false
 })
 export class ChargeCodeListModalComponent implements OnInit {
     public charge_codes: string[] = [];

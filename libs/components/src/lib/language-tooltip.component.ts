@@ -27,6 +27,7 @@ import { CustomTooltipData } from '@placeos/components';
         </div>
     `,
     styles: [``],
+    standalone: false
 })
 export class LanguageSelectComponent {
     public readonly setLocale = (code: string) => {

@@ -87,6 +87,7 @@ import { AsyncHandler } from '@placeos/common';
             }
         `,
     ],
+    standalone: false
 })
 export class CateringComponent extends AsyncHandler {
     /** Page being displayed */

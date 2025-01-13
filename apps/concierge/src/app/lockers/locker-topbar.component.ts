@@ -115,6 +115,7 @@ import { timer } from 'rxjs';
             }
         `,
     ],
+    standalone: false
 })
 export class LockersTopbarComponent extends AsyncHandler implements OnInit {
     public path = '';

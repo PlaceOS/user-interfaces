@@ -8,6 +8,7 @@ import { of, Observable } from 'rxjs';
     selector: 'booking-confirmed',
     templateUrl: './booking-confirmed.component.html',
     styles: [``],
+    standalone: false
 })
 export class BookingConfirmedComponent implements OnInit {
     public get form() {

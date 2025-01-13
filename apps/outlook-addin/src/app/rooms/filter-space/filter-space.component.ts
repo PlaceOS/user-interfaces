@@ -13,6 +13,7 @@ import { Observable } from 'rxjs';
     selector: '[filter-space]',
     templateUrl: './filter-space.component.html',
     styles: [``],
+    standalone: false
 })
 export class FilterSpaceComponent implements OnInit {
     readonly buildings = this._org.building_list;

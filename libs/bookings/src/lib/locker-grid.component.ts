@@ -72,6 +72,7 @@ import { Locker, LockerBank } from './locker.class';
             }
         `,
     ],
+    standalone: false
 })
 export class LockerGridComponent {
     @Input() public show_name = true;

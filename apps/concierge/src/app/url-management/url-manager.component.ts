@@ -47,6 +47,7 @@ import { UrlManagementService } from './url-management.service';
             }
         `,
     ],
+    standalone: false
 })
 export class UrlManagerComponent {
     public readonly new = () => this._state.editURL();

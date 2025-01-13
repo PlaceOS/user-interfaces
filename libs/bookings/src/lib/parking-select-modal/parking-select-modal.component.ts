@@ -137,6 +137,7 @@ export const FAV_PARKING_KEY = 'favourite_parking_spaces';
         </ng-template>
     `,
     styles: [``],
+    standalone: false
 })
 export class ParkingSpaceSelectModalComponent {
     public displayed?: BookingAsset;

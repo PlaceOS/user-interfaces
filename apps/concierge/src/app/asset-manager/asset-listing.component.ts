@@ -58,6 +58,7 @@ import { AsyncHandler } from '@placeos/common';
             }
         `,
     ],
+    standalone: false
 })
 export class AssetListingComponent extends AsyncHandler {
     public active = 'requests';

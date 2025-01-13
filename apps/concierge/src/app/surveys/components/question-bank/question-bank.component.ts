@@ -11,7 +11,8 @@ import { QuestionBankService, QuestionFilter } from "../../services/question-ban
             height: 100%;
         }
     `],
-    templateUrl: './question-bank.component.html'
+    templateUrl: './question-bank.component.html',
+    standalone: false
 })
 export class QuestionBankComponent {
 

@@ -93,6 +93,7 @@ import {
             }
         `,
     ],
+    standalone: false
 })
 export class AssetFiltersComponent extends AsyncHandler {
     @Input() public search = false;

@@ -24,6 +24,7 @@ import { VisitorsStateService } from './visitors-state.service';
             }
         `,
     ],
+    standalone: false
 })
 export class VisitorsComponent implements OnInit, OnDestroy {
     public readonly loading = this._state.loading;

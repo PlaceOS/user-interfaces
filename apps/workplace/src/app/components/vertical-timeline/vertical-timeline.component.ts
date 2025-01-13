@@ -29,6 +29,7 @@ import { ITimelineEventGroup } from '../event-timeline/event-timeline.component'
     selector: 'vertical-timeline',
     templateUrl: './vertical-timeline.component.html',
     styleUrls: ['./vertical-timeline.component.scss'],
+    standalone: false
 })
 export class VerticalTimelineComponent
     extends AsyncHandler

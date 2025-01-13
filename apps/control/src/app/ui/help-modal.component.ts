@@ -84,6 +84,7 @@ import { debounceTime, map } from 'rxjs/operators';
             }
         `,
     ],
+    standalone: false
 })
 export class HelpModalComponent {
     public active_item = { id: '', content: `` };

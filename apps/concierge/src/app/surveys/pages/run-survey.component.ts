@@ -33,6 +33,7 @@ import { RunSurveyService } from '../services/run-survey.service';
         </main>
     `,
     providers: [RunSurveyService],
+    standalone: false
 })
 export class RunSurveyComponent extends AsyncHandler implements OnInit {
     loading$ = this.service.loading$;

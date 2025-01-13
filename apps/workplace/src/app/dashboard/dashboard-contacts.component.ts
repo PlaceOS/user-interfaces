@@ -145,6 +145,7 @@ import { DashboardStateService } from './dashboard-state.service';
             }
         `,
     ],
+    standalone: false
 })
 export class DashboardContactsComponent extends AsyncHandler {
     public readonly contacts = this._state.contacts;

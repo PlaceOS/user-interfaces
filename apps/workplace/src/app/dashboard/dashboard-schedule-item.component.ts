@@ -62,6 +62,7 @@ import { BookingLike } from '../schedule/schedule-state.service';
         </a>
     `,
     styles: [],
+    standalone: false
 })
 export class DashboardScheduledItemComponent {
     @Input() public item: BookingLike;

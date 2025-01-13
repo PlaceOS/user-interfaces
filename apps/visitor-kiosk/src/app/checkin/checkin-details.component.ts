@@ -132,6 +132,7 @@ import { SettingsService } from '@placeos/common';
             }
         `,
     ],
+    standalone: false
 })
 export class CheckinDetailsComponent implements OnInit {
     public readonly form = this._checkin.form;

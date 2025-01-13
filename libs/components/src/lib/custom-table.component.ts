@@ -120,6 +120,7 @@ import { Observable } from 'rxjs';
             }
         `,
     ],
+    standalone: false
 })
 export class CustomTableComponent<T extends {} = any>
     extends AsyncHandler

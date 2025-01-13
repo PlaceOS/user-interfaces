@@ -118,6 +118,7 @@ const STORE_KEY = 'PLACEOS.CONTROL.system';
             }
         `,
     ],
+    standalone: false
 })
 export class BootstrapComponent extends AsyncHandler implements OnInit {
     /** List of available systems */

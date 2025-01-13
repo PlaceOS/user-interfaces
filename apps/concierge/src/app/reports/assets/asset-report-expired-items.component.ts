@@ -75,6 +75,7 @@ import { AssetsReportService } from './assets-report.service';
         </div>
     `,
     styles: [``],
+    standalone: false
 })
 export class AssetReportExpiredItemsComponent {
     @Input() public print = false;

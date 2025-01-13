@@ -119,6 +119,7 @@ import { SettingsService, ShortURL, getShortUrlQRCode } from '@placeos/common';
         </ng-template>
     `,
     styles: [``],
+    standalone: false
 })
 export class UrlListComponent {
     public readonly features = this._manager.filtered_urls;

@@ -49,6 +49,7 @@ import { OrganisationService } from '@placeos/organisation';
         </div>
     `,
     styles: [],
+    standalone: false
 })
 export class CheckinInductionComponent {
     public readonly event = this._checkin.event;

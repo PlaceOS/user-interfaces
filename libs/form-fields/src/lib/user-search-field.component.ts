@@ -113,6 +113,7 @@ import { authority, queryUsers } from '@placeos/ts-client';
             multi: true,
         },
     ],
+    standalone: false
 })
 export class UserSearchFieldComponent
     extends AsyncHandler

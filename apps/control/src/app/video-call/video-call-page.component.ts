@@ -185,6 +185,7 @@ import { VideoCallStateService } from './video-call-state.service';
             }
         `,
     ],
+    standalone: false
 })
 export class VideoCallPageComponent extends AsyncHandler {
     @Input() public redirect = true;

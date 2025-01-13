@@ -130,6 +130,7 @@ import { debounceTime, map } from 'rxjs/operators';
             }
         `,
     ],
+    standalone: false
 })
 export class ContactTracingReportComponent {
     public printing = false;

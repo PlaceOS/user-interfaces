@@ -264,6 +264,7 @@ don't detect presence in room after a period of time"
             }
         `,
     ],
+    standalone: false
 })
 export class BookingPanelSettingsModalComponent extends AsyncHandler {
     public loading = '';

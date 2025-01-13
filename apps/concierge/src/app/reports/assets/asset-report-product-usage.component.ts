@@ -57,6 +57,7 @@ import { AssetsReportService } from './assets-report.service';
         </div>
     `,
     styles: [``],
+    standalone: false
 })
 export class AssetReportProductUsageComponent {
     @Input() public print = false;

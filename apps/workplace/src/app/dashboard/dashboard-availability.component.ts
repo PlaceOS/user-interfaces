@@ -69,6 +69,7 @@ import { DashboardStateService } from './dashboard-state.service';
             }
         `,
     ],
+    standalone: false
 })
 export class DashboardAvailabilityComponent implements OnInit, OnDestroy {
     public readonly space_list = this._state.free_spaces;

@@ -91,6 +91,7 @@ import { ReportsStateService } from '../reports-state.service';
         </div>
     `,
     styles: [``],
+    standalone: false
 })
 export class ReportSpacesSpaceListingComponent {
     @Input() public print = false;

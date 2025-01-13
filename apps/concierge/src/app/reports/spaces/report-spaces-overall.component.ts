@@ -58,6 +58,7 @@ import { formatDuration } from '@placeos/common';
             }
         `,
     ],
+    standalone: false
 })
 export class ReportSpacesOverallComponent {
     public readonly business_days = this._state.options.pipe(

@@ -29,6 +29,7 @@ setInterval(() => {
 
 @Pipe({
     name: 'space',
+    standalone: false
 })
 export class SpacePipe {
     constructor(@Optional() private _org?: OrganisationService) {}

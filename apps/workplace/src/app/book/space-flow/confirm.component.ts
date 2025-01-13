@@ -269,6 +269,7 @@ import { OrganisationService } from '@placeos/organisation';
             }
         `,
     ],
+    standalone: false
 })
 export class SpaceFlowConfirmComponent {
     public show_spaces = false;

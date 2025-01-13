@@ -248,6 +248,7 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
             }
         `,
     ],
+    standalone: false
 })
 export class FooterMenuComponent {
     public show_book_items = false;

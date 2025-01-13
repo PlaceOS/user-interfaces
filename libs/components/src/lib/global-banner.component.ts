@@ -43,6 +43,7 @@ export interface BannerDetails {
             }
         `,
     ],
+    standalone: false
 })
 export class GlobalBannerComponent {
     private _change = new BehaviorSubject(0);

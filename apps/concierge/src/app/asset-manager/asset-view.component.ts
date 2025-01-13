@@ -464,6 +464,7 @@ import { combineLatest } from 'rxjs';
             }
         `,
     ],
+    standalone: false
 })
 export class AssetViewComponent extends AsyncHandler {
     public loading = false;

@@ -128,6 +128,7 @@ import { addDays, endOfDay } from 'date-fns';
         </fullscreen-modal-shell>
     `,
     styles: [``],
+    standalone: false
 })
 export class LockerBookingModalComponent
     extends AsyncHandler

@@ -9,6 +9,7 @@ const EMPTY_USER = new User();
 
 @Pipe({
     name: 'user',
+    standalone: false
 })
 export class UserPipe {
     /**

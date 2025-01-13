@@ -37,6 +37,7 @@ import { EventsStateService } from '../day-view/events-state.service';
             }
         `,
     ],
+    standalone: false
 })
 export class WeekViewTimelineComponent implements OnInit, OnDestroy {
     public readonly weekdays = [0, 1, 2, 3, 4, 5, 6];

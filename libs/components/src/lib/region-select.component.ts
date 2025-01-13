@@ -35,6 +35,7 @@ import { OrganisationService } from '@placeos/organisation';
         </div>
     `,
     styles: [``],
+    standalone: false
 })
 export class RegionSelectComponent {
     public readonly regions = this._org.region_list;

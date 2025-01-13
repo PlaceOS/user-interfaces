@@ -22,6 +22,7 @@ import { ControlStateService } from '../control-state.service';
         </div>
     `,
     styles: [``],
+    standalone: false
 })
 export class JoinRoomTooltipComponent {
     public readonly modes = this._state.join_modes.pipe(

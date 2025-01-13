@@ -299,6 +299,7 @@ import { Region } from '@placeos/organisation';
             }
         `,
     ],
+    standalone: false
 })
 export class SpaceFiltersComponent {
     @Input() public multiday: boolean;

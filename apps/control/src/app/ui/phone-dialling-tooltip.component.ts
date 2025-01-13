@@ -49,6 +49,7 @@ import { ControlStateService } from '../control-state.service';
         </div>
     `,
     styles: [``],
+    standalone: false
 })
 export class PhoneDiallingTooltipComponent {
     public phone = '';

@@ -234,6 +234,7 @@ import { SettingsService } from '@placeos/common';
         </div>
     `,
     styles: [``],
+    standalone: false
 })
 export class AssetRequestDetailsComponent {
     @Input() public request: any;

@@ -122,6 +122,7 @@ import { DashboardStateService } from './dashboard-state.service';
             }
         `,
     ],
+    standalone: false
 })
 export class DashboardUpcomingComponent implements OnInit, OnDestroy {
     public readonly today = new Date();

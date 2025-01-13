@@ -74,6 +74,7 @@ import { OrganisationService } from '@placeos/organisation';
             }
         `,
     ],
+    standalone: false
 })
 export class CateringReportComponent extends AsyncHandler implements OnInit {
     public printing = false;

@@ -252,6 +252,7 @@ function validateNoOverlap(box: Box, check_boxes: Box[]): boolean {
         </ng-template>
     `,
     styles: [``],
+    standalone: false
 })
 export class LockerModalComponent extends AsyncHandler implements OnInit {
     @Output() public readonly event = new EventEmitter<DialogEvent>();

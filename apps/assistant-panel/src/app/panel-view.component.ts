@@ -200,6 +200,7 @@ declare let loadVosklet: any;
             }
         `,
     ],
+    standalone: false
 })
 export class PanelViewComponent extends AsyncHandler {
     public scale = 1;

@@ -81,6 +81,7 @@ import { LockersReportService } from './lockers-report.service';
         </div>
     `,
     styles: [``],
+    standalone: false
 })
 export class LockersReportListComponent {
     @Input() public print = false;

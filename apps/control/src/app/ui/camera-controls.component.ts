@@ -83,6 +83,7 @@ export enum ZoomDirection {
         </div>
     `,
     styles: [``],
+    standalone: false
 })
 export class CameraControlsComponent extends AsyncHandler {
     /** Currently active camera */

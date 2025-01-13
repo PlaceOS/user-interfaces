@@ -57,6 +57,7 @@ interface ParkingSpaceExtended extends ParkingSpace {
             }
         `,
     ],
+    standalone: false
 })
 export class ExploreParkingInfoComponent {
     public readonly status =

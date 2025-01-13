@@ -47,6 +47,7 @@ import { RegionManagementService } from './region-management.service';
             }
         `,
     ],
+    standalone: false
 })
 export class RegionManagerComponent {
     public readonly newRegion = () => this._state.editRegion();

@@ -93,6 +93,7 @@ import { User } from 'libs/users/src/lib/user.class';
         </footer>
     `,
     styles: [``],
+    standalone: false
 })
 export class SetDatetimeModalComponent {
     public host = this._data.host;

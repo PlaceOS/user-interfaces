@@ -254,6 +254,7 @@ import { addDays, endOfDay, getUnixTime, set } from 'date-fns';
             </section>
         </div>
     `,
+    standalone: false
 })
 export class NewDeskFormDetailsComponent extends AsyncHandler {
     @Input() public form: FormGroup;

@@ -44,6 +44,7 @@ import { map, take, tap } from 'rxjs/operators';
         </div>
     `,
     styles: [``],
+    standalone: false
 })
 export class GroupEventsFiltersListComponent {
     public readonly options = this._state.options;

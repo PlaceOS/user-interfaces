@@ -93,6 +93,7 @@ import { take } from 'rxjs/operators';
         </div>
     `,
     styles: [``],
+    standalone: false
 })
 export class GroupEventsSidebarComponent
     extends AsyncHandler

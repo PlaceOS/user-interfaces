@@ -1,6 +1,11 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { APP_INITIALIZER, ErrorHandler, NgModule } from '@angular/core';
+import {
+    ErrorHandler,
+    NgModule,
+    inject,
+    provideAppInitializer,
+} from '@angular/core';
 import {
     provideHttpClient,
     withInterceptorsFromDi,
@@ -63,12 +68,7 @@ const MAT_MODULES: any[] = [
             provide: Sentry.TraceService,
             deps: [Router],
         },
-        {
-            provide: APP_INITIALIZER,
-            useFactory: () => () => {},
-            deps: [Sentry.TraceService],
-            multi: true,
-        },
+
         provideHttpClient(withInterceptorsFromDi()),
     ],
 })

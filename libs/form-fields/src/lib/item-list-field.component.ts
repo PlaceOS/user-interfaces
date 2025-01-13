@@ -90,6 +90,7 @@ export function removeChipItem<T = string>(
             multi: true,
         },
     ],
+    standalone: false
 })
 export class ItemListFieldComponent<T = any> implements ControlValueAccessor {
     @Input() public separators: number[] = [ENTER, COMMA];

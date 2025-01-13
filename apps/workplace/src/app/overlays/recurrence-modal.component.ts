@@ -91,6 +91,7 @@ export const RECURRENCE_METADATA = {
         </ng-template>
     `,
     styles: [``],
+    standalone: false
 })
 export class RecurrenceModalComponent extends AsyncHandler implements OnInit {
     /** Emitter for user action on the modal */

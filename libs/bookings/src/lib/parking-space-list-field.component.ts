@@ -121,6 +121,7 @@ const EMPTY_FAVS: string[] = [];
             multi: true,
         },
     ],
+    standalone: false
 })
 export class ParkingSpaceListFieldComponent implements ControlValueAccessor {
     @Input() public disable_date = false;

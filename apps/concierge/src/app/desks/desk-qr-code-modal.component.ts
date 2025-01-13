@@ -44,6 +44,7 @@ import { map } from 'rxjs/operators';
         </div>
     `,
     styles: [``],
+    standalone: false
 })
 export class DeskQrCodeModalComponent {
     public readonly print = () => window.print();

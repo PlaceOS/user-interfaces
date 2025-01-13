@@ -126,6 +126,7 @@ const EMPTY_FAVS: string[] = [];
         </div>
     `,
     styles: [``],
+    standalone: false
 })
 export class AssetSelectModalComponent {
     public displayed: AssetGroup | null = null;

@@ -23,6 +23,7 @@ import { Router } from '@angular/router';
             was not found.
         </div>
     </div> `,
+    standalone: false
 })
 export class NotFoundComponent {
     constructor(public router: Router) {}

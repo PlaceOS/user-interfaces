@@ -21,6 +21,7 @@ export interface LockerBankModalData {
         </main>
     `,
     styles: [``],
+    standalone: false
 })
 export class ExploreLockerBankModalComponent {
     public readonly bank = this._data.bank;

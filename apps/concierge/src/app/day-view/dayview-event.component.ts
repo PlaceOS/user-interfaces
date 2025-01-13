@@ -121,6 +121,7 @@ const DAY_IN_MINUTES = 24 * 60;
             }
         `,
     ],
+    standalone: false
 })
 export class DayviewEventComponent implements OnChanges {
     /** Event to display */

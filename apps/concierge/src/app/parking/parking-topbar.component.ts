@@ -126,6 +126,7 @@ import { timer } from 'rxjs';
             }
         `,
     ],
+    standalone: false
 })
 export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
     public path = '';

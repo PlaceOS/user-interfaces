@@ -171,6 +171,7 @@ import { map } from 'rxjs/operators';
             }
         `,
     ],
+    standalone: false
 })
 export class ChatComponent extends AsyncHandler implements OnInit {
     public show = false;

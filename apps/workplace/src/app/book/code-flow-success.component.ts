@@ -30,5 +30,6 @@ import { Component } from '@angular/core';
         </div>
     `,
     styles: [``],
+    standalone: false
 })
 export class CodeFlowSuccessComponent {}

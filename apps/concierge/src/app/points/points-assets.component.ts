@@ -103,6 +103,7 @@ export interface PointAsset {
             }
         `,
     ],
+    standalone: false
 })
 export class PointsAssetsComponent {
     public asset_list = this._state.assets;

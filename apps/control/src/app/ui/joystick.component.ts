@@ -85,6 +85,7 @@ export enum JoystickPan {
         </div>
     `,
     styles: [``],
+    standalone: false
 })
 export class JoystickComponent extends AsyncHandler {
     @Input() public pan: JoystickPan;

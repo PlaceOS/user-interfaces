@@ -47,6 +47,7 @@ import { DashboardDeliveryModalComponent } from './dashboard-delivery-modal.comp
         </ng-template>
     `,
     styles: [``],
+    standalone: false
 })
 export class DashboardDeliveriesComponent {
     public deliveries = [

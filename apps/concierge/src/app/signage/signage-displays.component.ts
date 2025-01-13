@@ -233,6 +233,7 @@ import {
         </div>
     `,
     styles: [``],
+    standalone: false
 })
 export class SignageDisplaysComponent extends AsyncHandler implements OnInit {
     public adding = false;

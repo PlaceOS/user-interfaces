@@ -71,6 +71,7 @@ import { CateringReportStateService } from './catering-report-state.service';
             }
         `,
     ],
+    standalone: false
 })
 export class CateringReportOverallComponent {
     public readonly stats = this._report.stats;

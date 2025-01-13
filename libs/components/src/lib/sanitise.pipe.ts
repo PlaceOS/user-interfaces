@@ -11,7 +11,8 @@ enum SecurityContext {
 }
 
 @Pipe({
-    name: 'sanitize'
+    name: 'sanitize',
+    standalone: false
 })
 export class SanitizePipe implements PipeTransform {
     constructor(private sanitizer: DomSanitizer) {}

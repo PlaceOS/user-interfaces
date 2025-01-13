@@ -198,6 +198,7 @@ export interface AttachedResourceConfigModalData {
             }
         `,
     ],
+    standalone: false
 })
 export class AttachedResourceConfigModalComponent extends AsyncHandler {
     /** Emitter for events on the modal */

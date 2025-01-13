@@ -80,6 +80,7 @@ export interface DeskConfirmModalData {
             }
         `,
     ],
+    standalone: false
 })
 export class DeskConfirmModalComponent {
     @Output() public event = new EventEmitter<DialogEvent>();

@@ -244,6 +244,7 @@ export interface FindAvailabilityData {
             }
         `,
     ],
+    standalone: false
 })
 export class FindAvailabilityModalComponent
     extends AsyncHandler

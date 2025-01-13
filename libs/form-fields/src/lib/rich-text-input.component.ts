@@ -37,6 +37,7 @@ import Quill from 'quill';
             multi: true,
         },
     ],
+    standalone: false
 })
 export class RichTextInputComponent
     extends AsyncHandler

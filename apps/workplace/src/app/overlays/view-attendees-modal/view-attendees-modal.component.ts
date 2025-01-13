@@ -8,6 +8,7 @@ import { User } from '@placeos/users';
     selector: 'schedule-view-attendees',
     templateUrl: './view-attendees-modal.component.html',
     styleUrls: ['./view-attendees-modal.component.scss'],
+    standalone: false
 })
 export class ViewAttendeesModalComponent
     extends AsyncHandler

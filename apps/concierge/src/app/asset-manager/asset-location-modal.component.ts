@@ -123,6 +123,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
         </ng-template>
     `,
     styles: [``],
+    standalone: false
 })
 export class AssetLocationModalComponent {
     public readonly asset = this._state.active_product;

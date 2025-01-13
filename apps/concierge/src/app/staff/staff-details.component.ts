@@ -55,6 +55,7 @@ import { StaffStateService } from './staff-state.service';
         </div>
     `,
     styles: [``],
+    standalone: false
 })
 export class StaffDetailsComponent {
     @Input() public user: StaffUser;

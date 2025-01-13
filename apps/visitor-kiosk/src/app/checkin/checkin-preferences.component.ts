@@ -76,6 +76,7 @@ import { updateBooking } from '@placeos/bookings';
             }
         `,
     ],
+    standalone: false
 })
 export class CheckinPreferencesComponent implements OnInit {
     public loading = false;

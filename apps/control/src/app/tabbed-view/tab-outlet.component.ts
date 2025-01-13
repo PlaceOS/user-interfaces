@@ -160,6 +160,7 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
             }
         `,
     ],
+    standalone: false
 })
 export class TabOutletComponent extends AsyncHandler {
     public readonly active_tab = new BehaviorSubject('');

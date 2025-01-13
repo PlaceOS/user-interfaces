@@ -35,6 +35,7 @@ import { EventsStateService } from '../day-view/events-state.service';
             }
         `,
     ],
+    standalone: false
 })
 export class WeekViewDayComponent implements OnChanges {
     @Input() public index: number;

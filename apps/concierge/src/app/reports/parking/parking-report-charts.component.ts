@@ -51,6 +51,7 @@ import { ParkingReportService } from './parking-report.service';
             }
         `,
     ],
+    standalone: false
 })
 export class ParkingReportChartsComponent extends AsyncHandler {
     @Input() public print: boolean = false;

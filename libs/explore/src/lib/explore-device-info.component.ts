@@ -139,6 +139,7 @@ const EMPTY = [];
             }
         `,
     ],
+    standalone: false
 })
 export class ExploreDeviceInfoComponent extends AsyncHandler implements OnInit {
     /** Name of the user associated with the mac address */

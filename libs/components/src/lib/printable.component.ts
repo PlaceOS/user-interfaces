@@ -23,6 +23,7 @@ import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
             ></div>
         </ng-template>
     `,
+    standalone: false
 })
 export class PrintableComponent
     extends AsyncHandler

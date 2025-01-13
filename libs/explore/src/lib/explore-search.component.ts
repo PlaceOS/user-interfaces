@@ -111,6 +111,7 @@ import { ExploreSearchService, SearchResult } from './explore-search.service';
             }
         `,
     ],
+    standalone: false
 })
 export class ExploreSearchComponent extends AsyncHandler implements OnInit {
     public show = false;

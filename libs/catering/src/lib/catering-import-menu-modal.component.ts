@@ -50,6 +50,7 @@ import { CateringItem } from './catering-item.class';
         </ng-template>
     `,
     styles: [``],
+    standalone: false
 })
 export class CateringImportMenuModalComponent {
     @Output() public event = new EventEmitter<DialogEvent>();

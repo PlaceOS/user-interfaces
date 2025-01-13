@@ -93,6 +93,7 @@ import { take } from 'rxjs/operators';
         </footer>
     `,
     styles: [``],
+    standalone: false
 })
 export class BookLockerFlowConfirmComponent extends AsyncHandler {
     @Input() public show_close = false;

@@ -65,6 +65,7 @@ export interface Locatable {
             }
         `,
     ],
+    standalone: false
 })
 export class MapLocateModalComponent extends AsyncHandler implements OnInit {
     /** Emitter for user action on the modal */

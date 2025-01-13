@@ -448,6 +448,7 @@ import { DEFAULT_SETTINGS } from 'apps/visitor-kiosk/src/environments/settings';
             }
         `,
     ],
+    standalone: false
 })
 export class VisitorKioskSettingsFormModalComponent {
     public loading = '';

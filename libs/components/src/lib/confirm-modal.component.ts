@@ -102,6 +102,7 @@ export async function openConfirmModal(
         </ng-template>
     `,
     styles: [``],
+    standalone: false
 })
 export class ConfirmModalComponent extends AsyncHandler implements OnInit {
     /** Loading state */

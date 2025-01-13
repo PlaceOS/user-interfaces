@@ -110,6 +110,7 @@ import { startOfMinute } from 'date-fns';
             }
         `,
     ],
+    standalone: false
 })
 export class LandingComponent {
     public time: number;

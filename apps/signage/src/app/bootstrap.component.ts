@@ -117,6 +117,7 @@ const STORE_BUILDING_KEY = `${STORE_PREFIX}.building`;
             }
         `,
     ],
+    standalone: false
 })
 export class BootstrapComponent extends AsyncHandler implements OnInit {
     /** Loading state of the bootstrap */

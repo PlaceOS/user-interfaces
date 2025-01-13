@@ -99,6 +99,7 @@ import { endOfDay, startOfDay } from 'date-fns';
             }
         `,
     ],
+    standalone: false
 })
 export class ReportsOptionsComponent extends AsyncHandler {
     @Input() public loading: boolean = false;

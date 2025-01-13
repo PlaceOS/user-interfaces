@@ -228,6 +228,7 @@ import {
         </fullscreen-modal-shell>
     `,
     styles: [``],
+    standalone: false
 })
 export class BookingRulesModalComponent {
     public loading = false;

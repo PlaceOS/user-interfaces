@@ -82,6 +82,7 @@ import { AsyncHandler, SettingsService } from '@placeos/common';
             }
         `,
     ],
+    standalone: false
 })
 export class WelcomeComponent
     extends AsyncHandler

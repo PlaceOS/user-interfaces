@@ -73,6 +73,7 @@ import { SettingsService } from '@placeos/common';
             }
         `,
     ],
+    standalone: false
 })
 export class POIManagerComponent {
     public readonly new = () => this._state.editPointOfInterest();

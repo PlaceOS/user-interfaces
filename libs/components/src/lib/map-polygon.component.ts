@@ -85,6 +85,7 @@ export interface MapPolygonData {
             }
         `,
     ],
+    standalone: false
 })
 export class MapPolygonComponent extends AsyncHandler implements OnInit {
     /** Message to display above the pin */

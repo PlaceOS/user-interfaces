@@ -153,6 +153,7 @@ import { getModule } from '@placeos/ts-client';
         </div>
     </div>`,
     styles: [``],
+    standalone: false
 })
 export class EmailTemplatesListComponent {
     public sending_email: string;

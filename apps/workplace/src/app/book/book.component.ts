@@ -23,6 +23,7 @@ import { Component } from '@angular/core';
             }
         `,
     ],
+    standalone: false
 })
 export class BookComponent {
     public get hide_nav() {

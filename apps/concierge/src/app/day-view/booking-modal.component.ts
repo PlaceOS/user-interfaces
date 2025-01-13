@@ -53,6 +53,7 @@ export interface BookingModalData {
             }
         `,
     ],
+    standalone: false
 })
 export class BookingModalComponent implements OnInit {
     @Output() public event = new EventEmitter<DialogEvent>();

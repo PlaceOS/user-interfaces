@@ -70,6 +70,7 @@ import { OrganisationService } from '@placeos/organisation';
             }
         `,
     ],
+    standalone: false
 })
 export class VisitorsReportComponent extends AsyncHandler implements OnInit {
     public printing = false;

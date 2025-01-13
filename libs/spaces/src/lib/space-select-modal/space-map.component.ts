@@ -69,6 +69,7 @@ import { Space } from '../space.class';
             }
         `,
     ],
+    standalone: false
 })
 export class SpaceSelectMapComponent extends AsyncHandler implements OnInit {
     @Input() public selected: string[] = [];

@@ -124,6 +124,7 @@ const DATE_PIPE = new DatePipe('en-us', '');
             multi: true,
         },
     ],
+    standalone: false
 })
 export class CardInputFieldComponent
     extends AsyncHandler

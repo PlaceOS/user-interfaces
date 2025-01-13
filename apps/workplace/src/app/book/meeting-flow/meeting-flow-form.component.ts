@@ -412,6 +412,7 @@ import { openConfirmModal } from '@placeos/components';
     `,
     styles: [],
     animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
+    standalone: false
 })
 export class MeetingFlowFormComponent extends AsyncHandler implements OnInit {
     public sheet_ref: MatBottomSheetRef<any>;

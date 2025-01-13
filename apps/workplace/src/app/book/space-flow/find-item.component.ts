@@ -55,6 +55,7 @@ import { MapLocateModalComponent } from '@placeos/components';
             }
         `,
     ],
+    standalone: false
 })
 export class SpaceFlowFindItemComponent {
     /** Space to display details for */

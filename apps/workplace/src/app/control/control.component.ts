@@ -25,6 +25,7 @@ import { SettingsService } from '@placeos/common';
             }
         `,
     ],
+    standalone: false
 })
 export class ControlComponent implements OnInit {
     constructor(private _settings: SettingsService) {}

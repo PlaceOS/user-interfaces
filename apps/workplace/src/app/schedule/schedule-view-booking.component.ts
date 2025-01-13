@@ -138,6 +138,7 @@ import { MapLocateModalComponent, openConfirmModal } from '@placeos/components';
             }
         `,
     ],
+    standalone: false
 })
 export class ScheduleViewBookingComponent extends AsyncHandler {
     @Input() public event: Booking;

@@ -34,6 +34,7 @@ import { Router } from '@angular/router';
             </div>
         </section>
     </div> `,
+    standalone: false
 })
 export class NotFoundComponent implements OnInit {
     constructor(public router: Router) {}

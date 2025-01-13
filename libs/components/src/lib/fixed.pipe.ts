@@ -2,6 +2,7 @@ import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
     name: 'toFixed',
+    standalone: false
 })
 export class FixedPipe implements PipeTransform {
 

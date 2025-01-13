@@ -65,6 +65,7 @@ import { VisitorsReportService } from './visitors-report.service';
         </div>
     `,
     styles: [``],
+    standalone: false
 })
 export class VisitorReportDailyUsageComponent {
     @Input() public print: boolean = false;

@@ -69,6 +69,7 @@ import { SettingsService } from '@placeos/common';
         </div>
     `,
     styles: [``],
+    standalone: false
 })
 export class CateringReportOrdersComponent {
     @Input() public print = false;

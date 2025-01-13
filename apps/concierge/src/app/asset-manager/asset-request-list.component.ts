@@ -255,6 +255,7 @@ import { Booking } from '@placeos/bookings';
             }
         `,
     ],
+    standalone: false
 })
 export class AssetRequestListComponent extends AsyncHandler implements OnInit {
     public readonly requests = this._state.filtered_requests;

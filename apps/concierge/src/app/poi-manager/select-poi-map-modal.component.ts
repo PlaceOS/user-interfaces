@@ -225,6 +225,7 @@ declare let mapsindoors: any;
         </main>
     `,
     styles: [``],
+    standalone: false
 })
 export class SelectPOIMapModalComponent extends AsyncHandler {
     public selected_item: any;

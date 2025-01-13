@@ -42,6 +42,7 @@ import { CustomTooltipData } from '@placeos/components';
             }
         `,
     ],
+    standalone: false
 })
 export class HelpTooltipComponent {
     /** Tiles to display on the help page */

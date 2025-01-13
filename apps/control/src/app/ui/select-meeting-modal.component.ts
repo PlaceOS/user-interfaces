@@ -85,6 +85,7 @@ import { openConfirmModal } from '@placeos/components';
         </ng-template>
     `,
     styles: [``],
+    standalone: false
 })
 export class SelectMeetingModalComponent {
     public readonly calendars = this._service.calendars;

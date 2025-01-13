@@ -67,6 +67,7 @@ import { formatDate } from '@angular/common';
         </div>
     `,
     styles: [``],
+    standalone: false
 })
 export class AssetReportDailyUsageComponent {
     @Input() public print = false;

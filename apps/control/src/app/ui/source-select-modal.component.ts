@@ -35,6 +35,7 @@ export class SourceSelectModalData {
             </button>
         </div>
     `,
+    standalone: false
 })
 export class SourceSelectModalComponent {
     public simple = false;

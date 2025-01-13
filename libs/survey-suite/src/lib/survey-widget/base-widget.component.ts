@@ -8,6 +8,7 @@ import { makeHTMLId } from '../helper';
     selector: 'base-widget',
     styles: [],
     template: ``,
+    standalone: false
 })
 export class BaseWidget extends AsyncHandler {
     private readonly _data = new BehaviorSubject<UISurveyAnswer[]>([]);

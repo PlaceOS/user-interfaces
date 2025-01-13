@@ -237,6 +237,7 @@ import { ScheduleStateService } from './schedule-state.service';
         </div>
     `,
     styles: [``],
+    standalone: false
 })
 export class ScheduleFiltersComponent {
     public readonly filters = this._state.filters;

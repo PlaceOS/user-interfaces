@@ -36,6 +36,7 @@ import { BookingFormService } from '@placeos/bookings';
             }
         `,
     ],
+    standalone: false
 })
 export class DeskBookingSuccessComponent {
     public readonly last_success = this._service.last_success;

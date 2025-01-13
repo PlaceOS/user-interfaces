@@ -24,6 +24,7 @@ import { MAP_FEATURE_DATA } from '@placeos/components';
             }
         `,
     ],
+    standalone: false
 })
 export class ExploreIconComponent {
     public readonly icon = this._details.icon || { content: 'done' };

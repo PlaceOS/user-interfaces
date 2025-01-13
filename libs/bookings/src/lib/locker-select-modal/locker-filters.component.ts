@@ -237,6 +237,7 @@ import { map } from 'rxjs/operators';
             </button>
         </div>
     `,
+    standalone: false
 })
 export class LockerFiltersComponent {
     @Input() public hide_levels: boolean;

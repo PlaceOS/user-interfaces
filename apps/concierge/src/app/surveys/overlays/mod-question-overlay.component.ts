@@ -38,6 +38,7 @@ import {
             </button>
         </div>
     `,
+    standalone: false
 })
 export class ModQuestionOverlayComponent implements OnInit {
     @ViewChild('questionElement') questionElement: QuestionComponent;

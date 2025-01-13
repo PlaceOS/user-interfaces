@@ -7,6 +7,7 @@ const ALLOWED_ALPHANUMERIC = 'abcdefghijklmnopqrstuvwxyz0123456789'.split('');
 
 @Directive({
     selector: '[limitInput]',
+    standalone: false
 })
 export class LimitInputDirective {
     @Input() restriction:

@@ -28,6 +28,7 @@ import { EventsStateService } from '../day-view/events-state.service';
             }
         `,
     ],
+    standalone: false
 })
 export class FacilitiesMapComponent extends AsyncHandler {
     /** Observable for the active map */

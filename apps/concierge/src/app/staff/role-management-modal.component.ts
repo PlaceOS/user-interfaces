@@ -79,6 +79,7 @@ import { filter, map, shareReplay, switchMap, take } from 'rxjs/operators';
         </ng-template>
     `,
     styles: [``],
+    standalone: false
 })
 export class RoleManagementModalComponent {
     private _changes = new BehaviorSubject(0);

@@ -23,6 +23,7 @@ import { Component } from '@angular/core';
             }
         `,
     ],
+    standalone: false
 })
 export class ControlPageViewComponent {
     public view: 'basic' | 'advanced';

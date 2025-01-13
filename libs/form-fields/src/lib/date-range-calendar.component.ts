@@ -89,6 +89,7 @@ import {
         </div>
     `,
     styles: [``],
+    standalone: false
 })
 export class DateRangeCalendarComponent implements OnInit, OnChanges {
     /** Earliest date available the user is allowed to pick */

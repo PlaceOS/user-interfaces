@@ -100,6 +100,7 @@ import { i18n, notifySuccess } from '@placeos/common';
         <div class="w-full h-20"></div>
     `,
     styles: [``],
+    standalone: false
 })
 export class ParkingUsersListComponent {
     public readonly options = this._state.options;

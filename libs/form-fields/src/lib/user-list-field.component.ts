@@ -215,6 +215,7 @@ const DENIED_FILE_TYPES = [
             multi: true,
         },
     ],
+    standalone: false
 })
 export class UserListFieldComponent
     extends AsyncHandler

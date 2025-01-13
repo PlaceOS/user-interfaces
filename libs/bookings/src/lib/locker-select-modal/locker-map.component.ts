@@ -78,6 +78,7 @@ import { loadLockerBanks, loadLockers } from '../booking.utilities';
             }
         `,
     ],
+    standalone: false
 })
 export class LockerMapComponent
     extends AsyncHandler

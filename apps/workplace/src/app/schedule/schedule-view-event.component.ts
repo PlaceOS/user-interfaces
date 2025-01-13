@@ -323,6 +323,7 @@ import { CateringItem } from '@placeos/catering';
             }
         `,
     ],
+    standalone: false
 })
 export class ScheduleViewEventComponent extends AsyncHandler {
     @Input() public event: CalendarEvent;

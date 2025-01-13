@@ -344,6 +344,7 @@ import { map, tap } from 'rxjs/operators';
     `,
     styles: [``],
     animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
+    standalone: false
 })
 export class EventBookModalComponent implements OnInit {
     @Output() public event = new EventEmitter<DialogEvent>();

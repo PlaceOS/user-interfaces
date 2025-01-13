@@ -41,6 +41,7 @@ import { Router } from '@angular/router';
             }
         `,
     ],
+    standalone: false
 })
 export class FindSpaceComponent extends AsyncHandler implements OnInit {
     start_time$: Observable<any>;

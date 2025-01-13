@@ -167,6 +167,7 @@ const URL_STARTS = [
         </ng-template>
     `,
     styles: [``],
+    standalone: false
 })
 export class DebugConsoleComponent extends AsyncHandler implements OnInit {
     @Input() public show = false;

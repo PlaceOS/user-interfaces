@@ -53,6 +53,7 @@ import { PanelStateService } from '../panel-state.service';
     `,
     styles: [``],
     providers: [PanelStateService],
+    standalone: false
 })
 export class PanelViewComponent extends AsyncHandler {
     public readonly system = this._state.space;

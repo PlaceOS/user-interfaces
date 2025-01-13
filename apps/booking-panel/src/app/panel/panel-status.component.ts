@@ -14,6 +14,7 @@ import { PanelStateService } from '../panel-state.service';
         ></div>
     `,
     styles: [``],
+    standalone: false
 })
 export class PanelStatusComponent {
     public readonly settings = this._state.settings;

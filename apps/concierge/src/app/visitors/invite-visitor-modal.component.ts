@@ -12,6 +12,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
         </main>
     `,
     styles: [``],
+    standalone: false
 })
 export class InviteVisitorModalComponent {
     public readonly date = this._data.date;

@@ -45,6 +45,7 @@ import { startOfDay } from 'date-fns';
         </ng-template>
     `,
     styles: [``],
+    standalone: false
 })
 export class DateRangeFieldComponent extends AsyncHandler {
     /** Earliest date available the user is allowed to pick */

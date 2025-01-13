@@ -58,6 +58,7 @@ const RESOURCE_MAP: Record<string, any> = {};
         </button>
     `,
     styles: [``],
+    standalone: false
 })
 export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
     @Input() public zone: BuildingLevel;

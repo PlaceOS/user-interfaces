@@ -58,6 +58,7 @@ import { DesksStateService } from './desks-state.service';
             }
         `,
     ],
+    standalone: false
 })
 export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
     public readonly loading = this._state.loading;

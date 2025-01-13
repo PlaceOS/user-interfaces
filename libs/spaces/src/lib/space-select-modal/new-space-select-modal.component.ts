@@ -164,6 +164,7 @@ import { Space } from '../space.class';
         </ng-template>
     `,
     styles: [``],
+    standalone: false
 })
 export class NewSpaceSelectModalComponent {
     public displayed?: Space;

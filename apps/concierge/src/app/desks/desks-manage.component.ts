@@ -224,6 +224,7 @@ const QR_CODES = {};
         </div>
     `,
     styles: [``],
+    standalone: false
 })
 export class DesksManageComponent extends AsyncHandler {
     public loading: string;

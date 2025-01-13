@@ -223,6 +223,7 @@ import { filter, first, map, take } from 'rxjs/operators';
         `,
     ],
     providers: [SpacePipe],
+    standalone: false
 })
 export class SpaceFlowFindComponent implements OnInit {
     public book_space: HashMap<boolean> = {};

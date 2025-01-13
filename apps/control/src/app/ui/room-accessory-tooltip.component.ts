@@ -43,6 +43,7 @@ import { ControlStateService } from '../control-state.service';
         </ng-template>
     `,
     styles: [``],
+    standalone: false
 })
 export class RoomAccessoryTooltipComponent {
     public readonly list = this._state.room_accessories;

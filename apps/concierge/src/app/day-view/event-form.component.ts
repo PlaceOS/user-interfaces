@@ -184,6 +184,7 @@ import { map, tap } from 'rxjs/operators';
         </form>
     `,
     styles: [``],
+    standalone: false
 })
 export class EventFormComponent {
     @Input() public form: FormGroup;

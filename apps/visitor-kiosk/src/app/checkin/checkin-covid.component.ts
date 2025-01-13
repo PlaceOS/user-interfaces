@@ -79,6 +79,7 @@ import { CheckinStateService } from './checkin-state.service';
             }
         `,
     ],
+    standalone: false
 })
 export class CheckinCovidComponent {
     public contact: string;

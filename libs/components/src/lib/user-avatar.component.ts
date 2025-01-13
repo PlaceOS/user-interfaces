@@ -22,6 +22,7 @@ import { User } from 'libs/users/src/lib/user.class';
         </ng-template>
     `,
     styles: [``],
+    standalone: false
 })
 export class UserAvatarComponent {
     /** User to display avatar for */

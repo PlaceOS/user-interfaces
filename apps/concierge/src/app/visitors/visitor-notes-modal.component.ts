@@ -53,6 +53,7 @@ import { i18n, notifyError, notifySuccess } from '@placeos/common';
         </ng-template>
     `,
     styles: [``],
+    standalone: false
 })
 export class VisitorNotesModalComponent {
     public item: Booking = this._data.item;

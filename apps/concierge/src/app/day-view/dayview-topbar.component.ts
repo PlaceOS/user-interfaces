@@ -88,6 +88,7 @@ import { BookingUIOptions, EventsStateService } from './events-state.service';
             }
         `,
     ],
+    standalone: false
 })
 export class DayviewTopbarComponent extends AsyncHandler {
     /** List of selected levels */

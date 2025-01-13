@@ -225,6 +225,7 @@ import { openConfirmModal } from '@placeos/components';
             }
         `,
     ],
+    standalone: false
 })
 export class RoomBookingsTimelineComponent
     extends AsyncHandler

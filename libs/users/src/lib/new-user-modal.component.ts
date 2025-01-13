@@ -51,6 +51,7 @@ import { generateUserForm } from './user.utilities';
             }
         `,
     ],
+    standalone: false
 })
 export class NewUserModalComponent extends AsyncHandler implements OnInit {
     /** Emitter for user action on the modal */

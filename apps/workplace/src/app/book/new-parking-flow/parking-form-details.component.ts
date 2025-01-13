@@ -131,6 +131,7 @@ import { addDays, endOfDay } from 'date-fns';
         </div>
     `,
     styles: [``],
+    standalone: false
 })
 export class ParkingFormDetailsComponent extends AsyncHandler {
     @Input() public form: FormGroup;

@@ -97,6 +97,7 @@ const LETTERS = `ABCDEFGHIJKLMNOPQRSTUVWXYZ`.split('');
             }
         `,
     ],
+    standalone: false
 })
 export class DirectoryUserListComponent extends AsyncHandler implements OnInit {
     /** List of searchable users */

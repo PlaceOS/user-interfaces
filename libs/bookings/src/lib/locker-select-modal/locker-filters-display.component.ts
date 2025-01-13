@@ -120,6 +120,7 @@ import { endOfDay } from 'date-fns';
             </div>
         </section>
     `,
+    standalone: false
 })
 export class LockerFiltersDisplayComponent extends AsyncHandler {
     @Input() public view: 'map' | 'list' = 'list';

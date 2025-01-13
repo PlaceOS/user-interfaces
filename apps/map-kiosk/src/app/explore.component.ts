@@ -267,6 +267,7 @@ import { debounceTime, first, map, take, tap } from 'rxjs/operators';
         SpacePipe,
     ],
     animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
+    standalone: false
 })
 export class ExploreComponent extends AsyncHandler implements OnInit {
     /** Number of seconds after a user action to reset the kiosk state */

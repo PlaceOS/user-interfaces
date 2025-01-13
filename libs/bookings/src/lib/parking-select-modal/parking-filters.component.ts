@@ -240,6 +240,7 @@ import { addDays, endOfDay } from 'date-fns';
             }
         `,
     ],
+    standalone: false
 })
 export class ParkingSpaceFiltersComponent {
     @Input() public hide_levels: boolean;

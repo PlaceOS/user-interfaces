@@ -149,6 +149,7 @@ import { ParkingUser } from './parking-state.service';
         </ng-template>
     `,
     styles: [``],
+    standalone: false
 })
 export class ParkingUserModalComponent extends AsyncHandler {
     @Output() public readonly event = new EventEmitter<DialogEvent>();

@@ -179,6 +179,7 @@ import { map } from 'rxjs/operators';
             }
         `,
     ],
+    standalone: false
 })
 export class CateringMenuComponent {
     public show_children: Record<string, boolean> = {};

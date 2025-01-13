@@ -192,6 +192,7 @@ import { SettingsService } from '@placeos/common';
             }
         `,
     ],
+    standalone: false
 })
 export class ScheduleFilterCardComponent {
     public readonly filters = this._state.filters;

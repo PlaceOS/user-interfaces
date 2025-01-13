@@ -76,6 +76,7 @@ import { ControlStateService } from './control-state.service';
             }
         `,
     ],
+    standalone: false
 })
 export class ControlMainViewComponent extends AsyncHandler implements OnInit {
     public readonly system = this._state.system;

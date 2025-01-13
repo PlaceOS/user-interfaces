@@ -96,6 +96,7 @@ export interface CateringOrderOptionsModalData {
             }
         `,
     ],
+    standalone: false
 })
 export class CateringOrderOptionsModalComponent {
     /** Emitter for events on the modal */

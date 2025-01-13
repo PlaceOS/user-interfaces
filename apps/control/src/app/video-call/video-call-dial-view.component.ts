@@ -71,6 +71,7 @@ import { VideoCallStateService } from './video-call-state.service';
         </ng-template>
     `,
     styles: [``],
+    standalone: false
 })
 export class VideoCallDialViewComponent {
     @Input() public redirect = true;

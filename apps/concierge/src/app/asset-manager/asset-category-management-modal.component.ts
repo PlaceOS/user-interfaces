@@ -61,6 +61,7 @@ import { Observable } from 'rxjs';
         </button>
     `,
     styles: [``],
+    standalone: false
 })
 export class AssetCategoryManagementModalComponent {
     public readonly changed = new EventEmitter();

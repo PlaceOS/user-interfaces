@@ -68,6 +68,7 @@ import { notifyError } from '@placeos/common';
             }
         `,
     ],
+    standalone: false
 })
 export class EventLinkModalComponent {
     public readonly outlook_link = generateMicrosoftCalendarLink(

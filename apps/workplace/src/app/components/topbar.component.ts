@@ -55,6 +55,7 @@ const EMPTY = [];
             }
         `,
     ],
+    standalone: false
 })
 export class TopbarComponent {
     public show_menu: boolean;

@@ -99,6 +99,7 @@ import { OrganisationService } from '@placeos/organisation';
             }
         `,
     ],
+    standalone: false
 })
 export class ReportDesksComponent extends AsyncHandler {
     public printing = false;

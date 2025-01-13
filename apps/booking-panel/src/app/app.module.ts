@@ -1,10 +1,11 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {
-    APP_INITIALIZER,
     ErrorHandler,
     LOCALE_ID,
     NgModule,
+    inject,
+    provideAppInitializer,
 } from '@angular/core';
 import {
     provideHttpClient,
@@ -97,12 +98,7 @@ const MAT_MODULES: any[] = [
             provide: Sentry.TraceService,
             deps: [Router],
         },
-        {
-            provide: APP_INITIALIZER,
-            useFactory: () => () => {},
-            deps: [Sentry.TraceService],
-            multi: true,
-        },
+
         {
             provide: LOCALE_ID,
             deps: [LocaleService],

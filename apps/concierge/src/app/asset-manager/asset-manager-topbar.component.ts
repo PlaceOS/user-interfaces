@@ -138,6 +138,7 @@ import { OrganisationService } from '@placeos/organisation';
         </div>
     `,
     styles: [``],
+    standalone: false
 })
 export class AssetManagerTopbarComponent extends AsyncHandler {
     @Input() public active = '';

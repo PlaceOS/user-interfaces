@@ -59,6 +59,7 @@ const ACTIVE_ITEMS = new Set<string>();
             }
         `,
     ],
+    standalone: false
 })
 export class CateringOrderItemComponent implements OnInit {
     @Input() public order_id: string;

@@ -69,6 +69,7 @@ import { AsyncHandler, i18n } from '@placeos/common';
             }
         `,
     ],
+    standalone: false
 })
 export class SignageComponent extends AsyncHandler implements OnInit {
     public readonly loading = this._state.loading;

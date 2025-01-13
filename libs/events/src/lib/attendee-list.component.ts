@@ -66,6 +66,7 @@ import { User } from 'libs/users/src/lib/user.class';
         </div>
     `,
     styles: [``],
+    standalone: false
 })
 export class AttendeeListComponent {
     @Input() public host: string = '';

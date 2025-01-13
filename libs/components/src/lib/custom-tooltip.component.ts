@@ -49,6 +49,7 @@ export class CustomTooltipData<T = any> {
             </div>
         </ng-template>
     `,
+    standalone: false
 })
 export class CustomTooltipComponent<T = any>
     extends AsyncHandler

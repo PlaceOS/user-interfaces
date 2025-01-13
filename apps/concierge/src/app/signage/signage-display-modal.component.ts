@@ -93,6 +93,7 @@ import { addSystem, PlaceSystem, updateSystem } from '@placeos/ts-client';
         </fullscreen-modal-shell>
     `,
     styles: [``],
+    standalone: false
 })
 export class SignageDisplayModalComponent {
     public loading = false;

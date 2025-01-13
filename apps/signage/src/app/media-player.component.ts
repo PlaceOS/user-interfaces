@@ -250,6 +250,7 @@ export type MediaPlayerState = 'PAUSED' | 'PLAYING';
             }
         `,
     ],
+    standalone: false
 })
 export class MediaPlayerComponent
     extends AsyncHandler

@@ -355,6 +355,7 @@ import { FormControl, FormGroup } from '@angular/forms';
             }
         `,
     ],
+    standalone: false
 })
 export class RoomModalComponent
     extends AsyncHandler

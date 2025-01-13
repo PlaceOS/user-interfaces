@@ -101,6 +101,7 @@ import { FormGroup } from '@angular/forms';
             }
         `,
     ],
+    standalone: false
 })
 export class UserFormComponent {
     /** Group of form fields used for creating the system */

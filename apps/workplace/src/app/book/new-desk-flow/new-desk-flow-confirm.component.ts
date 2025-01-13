@@ -199,6 +199,7 @@ import { map, take } from 'rxjs/operators';
         </footer>
     `,
     styles: [``],
+    standalone: false
 })
 export class NewDeskFlowConfirmComponent extends AsyncHandler {
     @Input() public show_close = false;

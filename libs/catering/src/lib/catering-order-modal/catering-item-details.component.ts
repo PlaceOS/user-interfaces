@@ -216,6 +216,7 @@ interface CateringOptionGroup {
             }
         `,
     ],
+    standalone: false
 })
 export class CateringItemDetailsComponent implements OnChanges {
     @Input() public item?: CateringItem;

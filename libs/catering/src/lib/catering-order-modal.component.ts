@@ -228,6 +228,7 @@ export interface CateringOrderModalData {
             }
         `,
     ],
+    standalone: false
 })
 export class CateringOrderModalComponent
     extends AsyncHandler

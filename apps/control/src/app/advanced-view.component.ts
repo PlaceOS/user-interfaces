@@ -55,6 +55,7 @@ import { ControlStateService } from './control-state.service';
             }
         `,
     ],
+    standalone: false
 })
 export class ControlAdvancedViewComponent {
     public page = 0;

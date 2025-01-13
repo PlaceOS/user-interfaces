@@ -100,6 +100,7 @@ interface DateItem {
             multi: true,
         },
     ],
+    standalone: false
 })
 export class DateCalendarComponent
     extends AsyncHandler

@@ -130,6 +130,7 @@ import { SettingsService } from '@placeos/common';
             }
         `,
     ],
+    standalone: false
 })
 export class ViewEventDetailsComponent {
     /** Event to display */

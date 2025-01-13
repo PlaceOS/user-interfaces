@@ -105,6 +105,7 @@ import { CateringItem } from '../catering-item.class';
         </li>
     `,
     styles: [``],
+    standalone: false
 })
 export class CateringItemListItemComponent {
     @Input() public item: CateringItem;

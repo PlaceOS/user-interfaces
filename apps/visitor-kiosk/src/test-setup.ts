@@ -1,4 +1,6 @@
-import 'jest-preset-angular/setup-jest';
+import { setupZoneTestEnv } from 'jest-preset-angular/setup-env/zone';
+
+setupZoneTestEnv();
 
 import { defineGlobalsInjections } from '@ngneat/spectator';
 import { MockPipe } from 'ng-mocks';

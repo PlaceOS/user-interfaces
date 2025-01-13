@@ -63,6 +63,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
             multi: true,
         },
     ],
+    standalone: false
 })
 export class CounterComponent implements ControlValueAccessor {
     /** Size of a single step */

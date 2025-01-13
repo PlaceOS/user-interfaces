@@ -133,6 +133,7 @@ import { generateQRCode } from 'libs/common/src/lib/qr-code';
             }
         `,
     ],
+    standalone: false
 })
 export class EventPanelComponent extends AsyncHandler {
     public system_id = '';

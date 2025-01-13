@@ -55,6 +55,7 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
         </ng-template>
     `,
     styles: [``],
+    standalone: false
 })
 export class SignageMediaPreviewModalComponent {
     @Output() public readonly save = new EventEmitter<any>();

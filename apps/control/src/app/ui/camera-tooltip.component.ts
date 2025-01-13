@@ -174,6 +174,7 @@ export enum ZoomDirection {
         </ng-template>
     `,
     styles: [``],
+    standalone: false
 })
 export class CameraTooltipComponent extends AsyncHandler {
     /** Currently active camera */

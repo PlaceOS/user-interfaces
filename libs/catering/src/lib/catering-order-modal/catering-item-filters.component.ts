@@ -164,6 +164,7 @@ const ICONS = {
             }
         `,
     ],
+    standalone: false
 })
 export class CateringItemFiltersComponent
     extends AsyncHandler

@@ -95,6 +95,7 @@ import { debounceTime, first, map } from 'rxjs/operators';
             }
         `,
     ],
+    standalone: false
 })
 export class AppTimetableComponent extends AsyncHandler {
     public spaces: Space[] = [];

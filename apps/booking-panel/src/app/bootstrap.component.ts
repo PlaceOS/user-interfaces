@@ -109,6 +109,7 @@ import { OrganisationService } from '@placeos/organisation';
             }
         `,
     ],
+    standalone: false
 })
 export class BootstrapComponent extends AsyncHandler implements OnInit {
     /** List of available systems */

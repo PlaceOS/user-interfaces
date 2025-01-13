@@ -50,6 +50,7 @@ import { AsyncHandler, SettingsService } from '@placeos/common';
         </div>
     `,
     styles: [``],
+    standalone: false
 })
 export class AccessibilityControlsComponent extends AsyncHandler {
     constructor(private _settings: SettingsService) {

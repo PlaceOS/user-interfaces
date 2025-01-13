@@ -251,6 +251,7 @@ import { startOfDay } from 'date-fns';
             }
         `,
     ],
+    standalone: false
 })
 export class ScheduleSidebarComponent extends AsyncHandler implements OnInit {
     public readonly filters = this._state.filters;

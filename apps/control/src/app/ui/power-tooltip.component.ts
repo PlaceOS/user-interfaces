@@ -21,6 +21,7 @@ import { ControlStateService } from '../control-state.service';
         </div>
     `,
     styles: [``],
+    standalone: false
 })
 export class PowerTooltipComponent {
     /** Shutdown the system */

@@ -43,6 +43,7 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
         </ng-template>
     `,
     styles: [``],
+    standalone: false
 })
 export class VideoConferenceTooltipComponent {
     public dial_number = '';

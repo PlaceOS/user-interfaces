@@ -1,10 +1,11 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {
-    APP_INITIALIZER,
     ErrorHandler,
     LOCALE_ID,
     NgModule,
+    inject,
+    provideAppInitializer,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -60,12 +61,7 @@ import { LocaleService } from '@placeos/common';
             provide: Sentry.TraceService,
             deps: [Router],
         },
-        {
-            provide: APP_INITIALIZER,
-            useFactory: () => () => {},
-            deps: [Sentry.TraceService],
-            multi: true,
-        },
+
         {
             provide: LOCALE_ID,
             deps: [LocaleService],

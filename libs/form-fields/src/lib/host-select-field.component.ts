@@ -44,6 +44,7 @@ import { catchError, map, shareReplay, switchMap, take } from 'rxjs/operators';
             multi: true,
         },
     ],
+    standalone: false
 })
 export class HostSelectFieldComponent implements ControlValueAccessor {
     public item?: User;

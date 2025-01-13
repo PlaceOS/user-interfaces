@@ -158,6 +158,7 @@ import { BookingAsset } from '../booking-form.service';
             </div>
         </ng-template>
     `,
+    standalone: false
 })
 export class DeskDetailsComponent {
     @Input() public desk?: BookingAsset;

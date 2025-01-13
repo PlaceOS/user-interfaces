@@ -416,6 +416,7 @@ import {
         </div>
     `,
     styles: [``],
+    standalone: false
 })
 export class GroupEventDetailsModalComponent {
     @Output() public edit = new EventEmitter();

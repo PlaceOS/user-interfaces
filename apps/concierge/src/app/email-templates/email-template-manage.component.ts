@@ -280,6 +280,7 @@ import { Clipboard } from '@angular/cdk/clipboard';
         </ng-template>
     `,
     styles: [``],
+    standalone: false
 })
 export class EmailTemplateManageComponent extends AsyncHandler {
     public loading = '';

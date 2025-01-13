@@ -96,6 +96,7 @@ import { take } from 'rxjs/operators';
             }
         `,
     ],
+    standalone: false
 })
 export class CheckinQRScanComponent
     extends AsyncHandler

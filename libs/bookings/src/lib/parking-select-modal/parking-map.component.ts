@@ -56,6 +56,7 @@ import { MapsPeopleService } from 'libs/common/src/lib/mapspeople.service';
             }
         `,
     ],
+    standalone: false
 })
 export class ParkingSpaceSelectMapComponent extends AsyncHandler {
     @Input() public selected: string[] = [];

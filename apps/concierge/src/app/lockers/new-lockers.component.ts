@@ -38,6 +38,7 @@ import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component'
             }
         `,
     ],
+    standalone: false
 })
 export class NewLockersComponent extends AsyncHandler implements OnInit {
     public readonly loading = this._state.loading;

@@ -71,6 +71,7 @@ import { OrganisationService } from '@placeos/organisation';
             }
         `,
     ],
+    standalone: false
 })
 export class ParkingReportComponent extends AsyncHandler {
     public printing = false;

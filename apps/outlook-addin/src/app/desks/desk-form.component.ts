@@ -119,6 +119,7 @@ import { Desk } from '@placeos/organisation';
         </div>
     `,
     styles: [``],
+    standalone: false
 })
 export class DeskBookingFormComponent extends AsyncHandler {
     public readonly form = this._service.form;

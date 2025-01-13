@@ -39,6 +39,7 @@ import { PanelStateService } from '../panel-state.service';
     `,
     styles: [``],
     providers: [PanelStateService],
+    standalone: false
 })
 export class BookingPanelComponent
     extends AsyncHandler

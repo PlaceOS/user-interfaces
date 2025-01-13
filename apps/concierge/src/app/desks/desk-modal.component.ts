@@ -142,6 +142,7 @@ import { User } from '@placeos/users';
         </ng-template>
     `,
     styles: [``],
+    standalone: false
 })
 export class DeskModalComponent {
     @Output() public readonly event = new EventEmitter<DialogEvent>();

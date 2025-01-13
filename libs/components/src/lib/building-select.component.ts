@@ -36,6 +36,7 @@ import { OrganisationService } from '@placeos/organisation';
         </div>
     `,
     styles: [``],
+    standalone: false
 })
 export class BuildingSelectComponent {
     public readonly buildings = this._org.active_buildings;

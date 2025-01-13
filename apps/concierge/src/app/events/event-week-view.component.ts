@@ -111,6 +111,7 @@ import { EventStateService } from './event-state.service';
         </div>
     `,
     styles: [``],
+    standalone: false
 })
 export class EventWeekViewComponent extends AsyncHandler implements OnInit {
     public days = new Array(7).fill(0).map((_, idx) => idx + 1);

@@ -114,6 +114,7 @@ import { GroupEventDetailsModalComponent } from '../../../events/src/lib/group-e
             }
         `,
     ],
+    standalone: false
 })
 export class BookingCardComponent
     extends AsyncHandler

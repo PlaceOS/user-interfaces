@@ -33,6 +33,7 @@ import { notifyError, uploadFile } from '@placeos/common';
             multi: true,
         },
     ],
+    standalone: false
 })
 export class UploadButtonComponent {
     @Input() public type: string = 'image';

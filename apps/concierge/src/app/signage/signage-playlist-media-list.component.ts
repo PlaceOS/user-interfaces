@@ -259,6 +259,7 @@ import { getUnixTime, startOfMinute } from 'date-fns';
             }
         `,
     ],
+    standalone: false
 })
 export class SignagePlaylistMediaListComponent {
     @Input() public playlist = '';

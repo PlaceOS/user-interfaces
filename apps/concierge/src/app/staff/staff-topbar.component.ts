@@ -50,6 +50,7 @@ import { StaffStateService } from './staff-state.service';
             }
         `,
     ],
+    standalone: false
 })
 export class StaffTopbarComponent extends AsyncHandler implements OnInit {
     /** List of selected levels */

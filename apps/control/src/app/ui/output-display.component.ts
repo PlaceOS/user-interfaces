@@ -72,6 +72,7 @@ export const ICON_MAP = {
             }
         `,
     ],
+    standalone: false
 })
 export class OutputDisplayComponent extends AsyncHandler {
     @Input() public item: RoomOutput;

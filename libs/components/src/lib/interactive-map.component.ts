@@ -105,6 +105,7 @@ export interface MapMetadata {
         </div>
     `,
     styles: [``],
+    standalone: false
 })
 export class InteractiveMapComponent extends AsyncHandler {
     @Input() public src: string;

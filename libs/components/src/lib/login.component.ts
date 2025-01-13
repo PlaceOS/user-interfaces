@@ -91,6 +91,7 @@ import { debounceTime, first, map } from 'rxjs/operators';
             }
         `,
     ],
+    standalone: false
 })
 export class LoginComponent implements OnInit {
     /** Whether the user credentials are being checked */

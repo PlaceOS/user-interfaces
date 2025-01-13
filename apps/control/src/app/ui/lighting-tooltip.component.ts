@@ -48,6 +48,7 @@ import {
         </ng-template>
     `,
     styles: [``],
+    standalone: false
 })
 export class LightingTooltipComponent {
     public light: EnvironmentSource;

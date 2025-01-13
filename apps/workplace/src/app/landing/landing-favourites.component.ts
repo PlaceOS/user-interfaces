@@ -271,6 +271,7 @@ const EMPTY = [];
         `,
     ],
     providers: [SpacePipe],
+    standalone: false
 })
 export class LandingFavouritesComponent extends AsyncHandler implements OnInit {
     private _room_alerts: Record<string, [string, string]>;

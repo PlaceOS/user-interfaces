@@ -62,6 +62,7 @@ import { LockersReportService } from './lockers-report.service';
             }
         `,
     ],
+    standalone: false
 })
 export class LockersReportChartsComponent
     extends AsyncHandler

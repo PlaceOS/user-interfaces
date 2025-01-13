@@ -24,6 +24,7 @@ import { first, take } from 'rxjs/operators';
     `,
     styles: [``],
     providers: [ExploreParkingService],
+    standalone: false
 })
 export class ParkingMapComponent extends AsyncHandler implements OnInit {
     public url = this._explore.map_url;

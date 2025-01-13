@@ -53,6 +53,7 @@ import { OrganisationService } from '@placeos/organisation';
         `,
     ],
     providers: [ExploreDesksService],
+    standalone: false
 })
 export class DeskMapViewComponent extends AsyncHandler implements OnInit {
     /** Observable for the active map */

@@ -76,6 +76,7 @@ import { CateringReportStateService } from './catering-report-state.service';
         </div>
     `,
     styles: [``],
+    standalone: false
 })
 export class CateringReportItemsComponent {
     @Input() public print = false;

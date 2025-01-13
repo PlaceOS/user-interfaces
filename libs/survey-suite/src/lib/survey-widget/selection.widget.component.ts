@@ -54,6 +54,7 @@ import { parseSelectionAnswers } from './survey-helper';
             </ng-container>
         </div>
     `,
+    standalone: false
 })
 export class SelectionWidgetComponent extends BaseWidget {
     chart_data$ = this.data$.pipe(

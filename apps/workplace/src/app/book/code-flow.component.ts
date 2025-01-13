@@ -160,6 +160,7 @@ import QrScanner from 'qr-scanner';
             }
         `,
     ],
+    standalone: false
 })
 export class BookCodeFlowComponent
     extends AsyncHandler

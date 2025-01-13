@@ -219,6 +219,7 @@ export interface EmergencyContactData {
             }
         `,
     ],
+    standalone: false
 })
 export class EmergencyContactsComponent {
     private _change = new BehaviorSubject<number>(0);

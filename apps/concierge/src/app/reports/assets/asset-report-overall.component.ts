@@ -31,6 +31,7 @@ import { formatDuration, i18n } from '@placeos/common';
         </div>
     `,
     styles: [``],
+    standalone: false
 })
 export class AssetReportOverallComponent {
     public readonly total_count = this._state.stats$.pipe(

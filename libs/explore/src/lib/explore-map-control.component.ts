@@ -65,6 +65,7 @@ import { ExploreStateService } from './explore-state.service';
             }
         `,
     ],
+    standalone: false
 })
 export class ExploreMapControlComponent extends AsyncHandler implements OnInit {
     /** List of available buildings */

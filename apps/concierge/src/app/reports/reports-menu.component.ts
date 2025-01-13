@@ -100,6 +100,7 @@ const DEFAULT_FEATURES = ['desks', 'spaces', 'catering', 'contact-tracing'];
             }
         `,
     ],
+    standalone: false
 })
 export class ReportsMenuComponent {
     public get custom_reports() {

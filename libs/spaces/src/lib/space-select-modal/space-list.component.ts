@@ -190,6 +190,7 @@ import { Space } from '../space.class';
             }
         `,
     ],
+    standalone: false
 })
 export class SpaceListComponent {
     @Input() public active: string = '';

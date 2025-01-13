@@ -48,6 +48,7 @@ import { SignageStateService } from './signage-state.service';
             }
         `,
     ],
+    standalone: false
 })
 export class SignageTopbarComponent extends AsyncHandler implements OnInit {
     /** List of selected levels */

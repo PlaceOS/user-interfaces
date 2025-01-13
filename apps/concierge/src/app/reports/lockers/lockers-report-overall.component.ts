@@ -31,6 +31,7 @@ import { formatDuration } from '@placeos/common';
         </div>
     `,
     styles: [``],
+    standalone: false
 })
 export class LockersReportOverallComponent {
     public readonly total_count = this._state.bookings$.pipe(

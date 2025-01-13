@@ -39,6 +39,7 @@ import { currentUser } from '@placeos/common';
         </div>
     `,
     styles: [``],
+    standalone: false
 })
 export class FlowSuccessComponent {
     @Input() public calendar: string;

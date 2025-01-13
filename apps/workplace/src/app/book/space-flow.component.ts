@@ -34,6 +34,7 @@ import { EventFormService } from '@placeos/events';
             }
         `,
     ],
+    standalone: false
 })
 export class BookSpaceFlowComponent extends AsyncHandler implements OnInit {
     public get view() {

@@ -78,6 +78,7 @@ import { MAP_FEATURE_DATA } from '@placeos/components';
         </div>
     `,
     styles: [],
+    standalone: false
 })
 export class ParkingSpaceLocationPinComponent {
     public get selected() {

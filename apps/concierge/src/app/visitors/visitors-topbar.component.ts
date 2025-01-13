@@ -54,6 +54,7 @@ import { VisitorsStateService } from './visitors-state.service';
             }
         `,
     ],
+    standalone: false
 })
 export class VisitorsTopbarComponent extends AsyncHandler implements OnInit {
     /** List of selected levels */

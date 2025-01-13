@@ -62,6 +62,7 @@ export interface MapRadiusData {
             }
         `,
     ],
+    standalone: false
 })
 export class MapRadiusComponent implements OnInit {
     public zoom = 1;

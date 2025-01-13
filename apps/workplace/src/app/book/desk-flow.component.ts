@@ -43,6 +43,7 @@ import { first } from 'rxjs/operators';
             }
         `,
     ],
+    standalone: false
 })
 export class BookDeskFlowComponent extends AsyncHandler implements OnInit {
     public get view() {

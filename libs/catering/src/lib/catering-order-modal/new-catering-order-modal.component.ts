@@ -139,6 +139,7 @@ const EMPTY_FAVS: string[] = [];
         </div>
     `,
     styles: [``],
+    standalone: false
 })
 export class NewCateringOrderModalComponent {
     public displayed: CateringItem | null = null;

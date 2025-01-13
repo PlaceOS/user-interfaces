@@ -88,6 +88,7 @@ import { addDays, addMinutes, roundToNearestMinutes, setHours } from 'date-fns';
             }
         `,
     ],
+    standalone: false
 })
 export class SpaceFlowFormComponent {
     public time = 0;
