@@ -31,9 +31,11 @@ import {
     approveBooking,
     Booking,
     checkinBooking,
+    queryBookings,
     queryPagedBookings,
     RecurrenceDays,
     rejectBooking,
+    removeBooking,
     saveBooking,
 } from '@placeos/bookings';
 import {
@@ -267,6 +269,9 @@ export class DesksStateService extends AsyncHandler {
                 state.metadata.id ||
                 `desk-${zone.slice(-3)}.${randomInt(999_999)}`,
         };
+        if (desk.assigned_to && desk.assigned_to !== new_desk.assigned_to) {
+            this._clearAssignedBooking(desk);
+        }
         if (desk.assigned_to !== new_desk.assigned_to && new_desk.assigned_to) {
             const date = set(Date.now(), { hours: 4, minutes: 0, seconds: 0 });
             await saveBooking(
@@ -292,7 +297,7 @@ export class DesksStateService extends AsyncHandler {
                         this._org.building?.id,
                         new_desk.zone?.id,
                         new_desk.zone,
-                        ...new_desk.zones,
+                        ...(new_desk?.zones || []),
                     ]).filter((_) => !!_),
                     extension_data: {
                         asset_name: new_desk.name,
@@ -414,5 +419,17 @@ export class DesksStateService extends AsyncHandler {
         });
         notifySuccess(i18n('APP.CONCIERGE.DESKS_REJECT_ALL_SUCCESS'));
         resp.close();
+    }
+
+    private async _clearAssignedBooking(desk: Desk) {
+        const booking_list = await queryBookings({
+            period_start: getUnixTime(startOfDay(Date.now())),
+            period_end: getUnixTime(endOfDay(Date.now())),
+            type: 'desk',
+            email: desk.assigned_to,
+            include_checked_out: true,
+        }).toPromise();
+        const filtered = booking_list.filter((_) => _.asset_id === desk.id);
+        await Promise.all(filtered.map((_) => removeBooking(_.id).toPromise()));
     }
 }
