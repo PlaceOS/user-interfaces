@@ -157,6 +157,7 @@ export class DesksStateService extends AsyncHandler {
         this._next_page,
         this._call_next_page,
     ]).pipe(
+        debounceTime(500),
         distinctUntilChanged((a, b) => a[1] === b[1]),
         switchMap(([next_page, action]) => {
             this._loading.next(true);
@@ -184,7 +185,12 @@ export class DesksStateService extends AsyncHandler {
             (acc, { data, total, next, reset }) => {
                 const list = data;
                 this._next_page.next(next); // Set the next page function
-                if (reset) return { list, total, has_next: !!next }; // Reset the items array
+                if (reset)
+                    return {
+                        list,
+                        total,
+                        has_next: list.length < total && !!next,
+                    }; // Reset the items array
                 return {
                     list: [...acc.list, ...list],
                     has_next: !!next,
@@ -200,7 +206,10 @@ export class DesksStateService extends AsyncHandler {
     public readonly has_more_pages = this.paged_bookings.pipe(
         map((_) => _.has_next),
     );
-    public readonly bookings = this.paged_bookings.pipe(map((i) => i.list));
+    public readonly bookings = combineLatest([
+        this.paged_bookings,
+        this._change,
+    ]).pipe(map(([i]) => i.list));
 
     public nextPage() {
         this._call_next_page.next(`NEXT_${Date.now()}`);
@@ -356,6 +365,7 @@ export class DesksStateService extends AsyncHandler {
         notifySuccess(i18n('APP.CONCIERGE.DESKS_APPROVE_SUCCESS'));
         (desk as any).approved = true;
         (desk as any).rejected = false;
+        this.setFilters({});
     }
 
     public async rejectDesk(desk: Booking) {
@@ -372,6 +382,7 @@ export class DesksStateService extends AsyncHandler {
         notifySuccess(i18n('APP.CONCIERGE.DESKS_REJECT_SUCCESS'));
         (desk as any).approved = false;
         (desk as any).rejected = true;
+        this.setFilters({});
     }
 
     public async giveAccess(desk: Booking) {
@@ -389,6 +400,7 @@ export class DesksStateService extends AsyncHandler {
         }
         notifySuccess(i18n('APP.CONCIERGE.DESKS_ACCESS_SUCCESS'));
         this._desk_bookings = [...this._desk_bookings, status] as any;
+        this.setFilters({});
     }
 
     public async rejectAllDesks() {
@@ -418,6 +430,7 @@ export class DesksStateService extends AsyncHandler {
             throw e;
         });
         notifySuccess(i18n('APP.CONCIERGE.DESKS_REJECT_ALL_SUCCESS'));
+        this.setFilters({});
         resp.close();
     }
 
