@@ -66,7 +66,9 @@ import { generateQRCode } from 'libs/common/src/lib/qr-code';
                     </ng-template>
                 </div>
                 <div class="min-w-[40%]">
-                    <h2 class="text-2xl font-medium uppercase">Next</h2>
+                    <h2 class="text-2xl font-medium uppercase">
+                        {{ 'APP.BOOKING_PANEL.NEXT' | translate }}
+                    </h2>
                     <hr class="mb-8" />
                     <ng-container *ngIf="next | async; else next_empty_state">
                         <h2 class="text-2xl font-medium">

@@ -115,10 +115,6 @@ export class SettingsService extends AsyncHandler {
             if (!window.application) window.application = {};
             window.application.settings = this;
         }
-        this.subscription(
-            'user_settings',
-            this._user_settings.subscribe((_) => this._applyUserSettings(_)),
-        );
         const user = await current_user.pipe(first((_) => !!_)).toPromise();
         const data = await showMetadata(user.id, 'settings').toPromise();
         this._user_settings.next(data.details || {});
@@ -166,11 +162,7 @@ export class SettingsService extends AsyncHandler {
         this.timeout('save_settings', () => this._savePendingChanges(), 5000);
     }
 
-    public overrideCssVariable(
-        key: string,
-        value: string,
-        important: boolean = false,
-    ) {
+    public overrideCssVariable(key: string, value: string, important = false) {
         let element = document.getElementById(`css-var-overrides+${key}`);
         if (!element) {
             element = document.createElement('style');
@@ -221,11 +213,6 @@ export class SettingsService extends AsyncHandler {
             ...this._pending_settings,
         });
         this._pending_settings = {};
-    }
-
-    private async _applyUserSettings(settings: HashMap) {
-        if (settings.font_size) {
-        }
     }
 
     private _setFontSize() {

@@ -72,6 +72,11 @@ export class LocaleService {
     public locale_folder = 'assets/locale';
     public zone_id: string;
 
+    constructor() {
+        this._current_locale =
+            localStorage.getItem(`${STORE_KEY}`) || this._default_locale;
+    }
+
     public init() {
         this.setLocale(
             localStorage.getItem(`${STORE_KEY}`) || this._default_locale,
@@ -135,7 +140,6 @@ export class LocaleService {
                 );
             }
             const locale_data = await resp.json();
-            console.log('Zone ID:', this.zone_id);
             const locale_override_data = this.zone_id
                 ? await showMetadata(
                       this.zone_id,
