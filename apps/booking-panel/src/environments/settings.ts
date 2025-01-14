@@ -5,7 +5,7 @@ const app = {
     title: 'PlaceOS',
     description: 'Bookings UI',
     short_name: 'PlaceOS',
-    logo: 'assets/logo-light.svg',
+    logo_light: 'assets/logo-light.svg',
     logo_dark: 'assets/logo-dark.svg',
     general,
     prevent_space_init: true,

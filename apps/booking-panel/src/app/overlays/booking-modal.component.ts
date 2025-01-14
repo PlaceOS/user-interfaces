@@ -7,6 +7,9 @@ import {
     HashMap,
     AsyncHandler,
     currentUser,
+    log,
+    i18n,
+    getInvalidFields,
 } from '@placeos/common';
 import { Space } from '@placeos/spaces';
 import { first, shareReplay, switchMap } from 'rxjs/operators';
@@ -46,16 +49,26 @@ export async function openBookingModal(
 @Component({
     selector: 'booking-modal',
     template: `
-        <header class="p-4">
-            <h3>New Booking</h3>
+        <header
+            class="sticky top-0 p-2 m-2 w-[calc(100%-1rem)] border-none z-10 bg-base-200 rounded"
+        >
+            <h2 class="text-xl font-medium px-2">
+                {{ 'APP.BOOKING_PANEL.BOOKING_NEW' | translate }}
+            </h2>
+            <button icon matRipple mat-dialog-close *ngIf="!loading">
+                <app-icon>close</app-icon>
+            </button>
         </header>
         <form
             *ngIf="form && !loading; else load_state"
             [formGroup]="form"
-            class="px-4 pt-4"
+            class="px-4"
         >
             <div class="field" *ngIf="!hide_host && form.controls.organiser">
-                <label for="host">Booked by<span>*</span>:</label>
+                <label for="host"
+                    >{{ 'APP.BOOKING_PANEL.BOOKING_HOST' | translate
+                    }}<span>*</span></label
+                >
                 <a-user-search-field
                     name="host"
                     [query_fn]="searchStaff"
@@ -65,14 +78,18 @@ export async function openBookingModal(
             </div>
             <div class="flex space-x-2">
                 <div class="flex-1" *ngIf="form.controls.date && future">
-                    <label for="start-time">Start Time:</label>
+                    <label for="start-time">{{
+                        'FORM.TIME_START' | translate
+                    }}</label>
                     <a-time-field
                         name="start-time"
                         formControlName="date"
                     ></a-time-field>
                 </div>
                 <div class="flex-1" *ngIf="form.controls.duration">
-                    <label for="duration">Duration:</label>
+                    <label for="duration">{{
+                        'FORM.DURATION' | translate
+                    }}</label>
                     <a-duration-field
                         [min]="min_duration"
                         [max]="max_duration"
@@ -83,12 +100,12 @@ export async function openBookingModal(
                 </div>
             </div>
             <div class="flex flex-col" *ngIf="form.controls.title">
-                <label for="title">Title:</label>
+                <label for="title">{{ 'FORM.TITLE' | translate }}</label>
                 <mat-form-field appearance="outline" class="w-full">
                     <input
                         matInput
                         name="title"
-                        placeholder="Meeting Title"
+                        [placeholder]="'FORM.TITLE' | translate"
                         formControlName="title"
                     />
                 </mat-form-field>
@@ -96,25 +113,16 @@ export async function openBookingModal(
         </form>
         <footer
             *ngIf="!loading"
-            class="flex items-center justify-center p-2 w-full border-t border-base-200 space-x-2"
+            class="flex items-center justify-end px-4 py-2 w-full border-t border-base-200 space-x-2"
         >
-            <button
-                btn
-                matRipple
-                name="close"
-                class="inverse w-32"
-                mat-dialog-close
-            >
-                Cancel
-            </button>
             <button btn matRipple name="save" class="w-32" (click)="save()">
-                Save
+                {{ 'COMMON.SAVE' | translate }}
             </button>
         </footer>
         <ng-template #load_state>
             <div class="flex flex-col items-center p-8">
                 <mat-spinner [diameter]="32"></mat-spinner>
-                <p>Processing request...</p>
+                <p>{{ 'APP.BOOKING_PANEL.BOOKING_LOADING' | translate }}</p>
             </div>
         </ng-template>
     `,
@@ -127,7 +135,7 @@ export async function openBookingModal(
         `,
     ],
     animations: [],
-    standalone: false
+    standalone: false,
 })
 export class BookingModalComponent extends AsyncHandler {
     /** Emitter for user action on the modal */
@@ -166,10 +174,10 @@ export class BookingModalComponent extends AsyncHandler {
 
     public searchStaff = (q: string) =>
         of(q).pipe(
-            switchMap((_) => {
+            switchMap(() => {
                 const mod = getModule(this._data.space?.id, 'Bookings');
                 if (!mod) return of([]);
-                return mod.execute('list_users', [q]).catch((_) => []);
+                return mod.execute('list_users', [q]).catch(() => []);
             }),
             shareReplay(1),
         );
@@ -180,7 +188,12 @@ export class BookingModalComponent extends AsyncHandler {
     public save() {
         this.form.markAllAsTouched();
         if (!this.form.valid) {
-            return console.log('Invalid form fields. Valid states:', this.form);
+            return log(
+                'PANEL',
+                i18n(`FORM.INVALID_FIELDS`, {
+                    field_list: getInvalidFields(this.form).join(', '),
+                }),
+            );
         }
         if (!this.future) this.form.patchValue({ date: new Date().valueOf() });
         this.loading = true;

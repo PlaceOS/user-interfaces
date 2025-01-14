@@ -76,7 +76,7 @@ export class SettingsService extends AsyncHandler {
     }
     public set title(value: string) {
         this._title.setTitle(
-            `${value} | ${this.get('app.name') || this._app_name}`
+            `${value} | ${this.get('app.name') || this._app_name}`,
         );
         const tracking_id = this.get('app.analytics.tracking_id');
         if (!tracking_id) return;
@@ -85,7 +85,7 @@ export class SettingsService extends AsyncHandler {
 
     constructor(
         private _title: Title,
-        @Optional() private _analytics: GoogleAnalyticsService
+        @Optional() private _analytics: GoogleAnalyticsService,
     ) {
         super();
         const now = new Date();
@@ -117,7 +117,7 @@ export class SettingsService extends AsyncHandler {
         }
         this.subscription(
             'user_settings',
-            this._user_settings.subscribe((_) => this._applyUserSettings(_))
+            this._user_settings.subscribe((_) => this._applyUserSettings(_)),
         );
         const user = await current_user.pipe(first((_) => !!_)).toPromise();
         const data = await showMetadata(user.id, 'settings').toPromise();
@@ -169,7 +169,7 @@ export class SettingsService extends AsyncHandler {
     public overrideCssVariable(
         key: string,
         value: string,
-        important: boolean = false
+        important: boolean = false,
     ) {
         let element = document.getElementById(`css-var-overrides+${key}`);
         if (!element) {

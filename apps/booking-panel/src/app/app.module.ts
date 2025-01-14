@@ -1,16 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import {
-    ErrorHandler,
-    LOCALE_ID,
-    NgModule,
-    inject,
-    provideAppInitializer,
-} from '@angular/core';
-import {
-    provideHttpClient,
-    withInterceptorsFromDi,
-} from '@angular/common/http';
+import { ErrorHandler, LOCALE_ID, NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ServiceWorkerModule } from '@angular/service-worker';
@@ -46,6 +36,14 @@ import { AssetsModule } from '@placeos/assets';
 import { SharedExploreModule } from '@placeos/explore';
 import { EventPanelComponent } from './event-panel.component';
 import { LocaleService } from '@placeos/common';
+
+import localeFr from '@angular/common/locales/fr';
+import localeJa from '@angular/common/locales/ja';
+import localeAr from '@angular/common/locales/ar';
+import localeZh from '@angular/common/locales/zh';
+import localeEs from '@angular/common/locales/es';
+import localeIt from '@angular/common/locales/it';
+import { registerLocaleData } from '@angular/common';
 
 const MAT_MODULES: any[] = [
     MatFormFieldModule,
@@ -104,11 +102,15 @@ const MAT_MODULES: any[] = [
             deps: [LocaleService],
             useFactory: (localeService: LocaleService) => localeService.locale,
         },
-        provideHttpClient(withInterceptorsFromDi()),
     ],
 })
 export class AppModule {
     constructor() {
-        console.log('Production:', !!environment.production);
+        registerLocaleData(localeFr);
+        registerLocaleData(localeAr);
+        registerLocaleData(localeJa);
+        registerLocaleData(localeZh);
+        registerLocaleData(localeEs);
+        registerLocaleData(localeIt);
     }
 }

@@ -1,4 +1,3 @@
-
 import { ApplicationIcon } from './types';
 
 export interface SettingsOptions {
@@ -42,22 +41,16 @@ export interface ApplicationSettings {
     general: GeneralAppSettings;
 }
 
-export interface GeneralAppSettings { }
+export interface GeneralAppSettings {}
 
 const app: any = {
     title: 'PlaceOS',
     description: 'PlaceOS UI',
     short_name: 'PlaceOS',
-    logo_light: {
-        type: 'img',
-        src: 'assets/logo-light.svg'
-    },
-    logo_dark: {
-        type: 'img',
-        src: 'assets/logo-dark.svg'
-    },
-    general: {}
-}
+    logo_light: 'assets/logo-light.svg',
+    logo_dark: 'assets/logo-dark.svg',
+    general: {},
+};
 
 /**
  * ROOT SETTIGNS
@@ -72,5 +65,5 @@ export const DEFAULT_SETTINGS: SettingsOptions = {
         use_domain: false,
         local_login: false,
     },
-    app
+    app,
 };

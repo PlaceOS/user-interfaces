@@ -61,7 +61,6 @@ import { LocaleService } from '@placeos/common';
             provide: Sentry.TraceService,
             deps: [Router],
         },
-
         {
             provide: LOCALE_ID,
             deps: [LocaleService],

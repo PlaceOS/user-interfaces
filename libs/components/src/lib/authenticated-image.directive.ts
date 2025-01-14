@@ -1,20 +1,24 @@
 import {
     Directive,
     ElementRef,
-    Host,
     Input,
+    OnChanges,
     SimpleChanges,
 } from '@angular/core';
-import { AsyncHandler } from '@placeos/common';
 import { apiKey, authority, token } from '@placeos/ts-client';
+
+import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
 
 const IMAGE_STORE = new Map<string, string>();
 
 @Directive({
     selector: 'img [auth], video [auth]',
-    standalone: false
+    standalone: false,
 })
-export class AuthenticatedImageDirective extends AsyncHandler {
+export class AuthenticatedImageDirective
+    extends AsyncHandler
+    implements OnChanges
+{
     @Input() public source: string;
 
     constructor(private _image_el: ElementRef<HTMLImageElement>) {
@@ -26,6 +30,7 @@ export class AuthenticatedImageDirective extends AsyncHandler {
     }
 
     private async _loadImage() {
+        if (typeof this.source !== 'string') return;
         if (!this._image_el || !authority()) {
             return this.timeout('load', () => this._loadImage(), 300);
         }

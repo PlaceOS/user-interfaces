@@ -1,10 +1,14 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { AsyncHandler, SettingsService } from '@placeos/common';
+import {
+    AsyncHandler,
+    DEFAULT_SETTINGS,
+    SettingsService,
+} from '@placeos/common';
 import { CalendarEvent } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
 import { startOfMinute } from 'date-fns';
-import { debounceTime, first, map, tap } from 'rxjs/operators';
+import { debounceTime, first, map } from 'rxjs/operators';
 import { PanelStateService } from './panel-state.service';
 import { generateQRCode } from 'libs/common/src/lib/qr-code';
 
@@ -22,7 +26,7 @@ import { generateQRCode } from 'libs/common/src/lib/qr-code';
                         auth
                         class="h-10"
                         alt="Logo"
-                        [source]="(logo | async)?.src || (logo | async)"
+                        [source]="(logo | async)?.src || (logo | async) || ''"
                     />
                 </div>
             </header>
@@ -57,7 +61,7 @@ import { generateQRCode } from 'libs/common/src/lib/qr-code';
                     </ng-container>
                     <ng-template #current_empty_state>
                         <p class="opacity-60 text-2xl font-medium">
-                            No event currently in progress
+                            {{ 'APP.BOOKING_PANEL.NO_CURRENT' | translate }}
                         </p>
                     </ng-template>
                 </div>
@@ -78,7 +82,7 @@ import { generateQRCode } from 'libs/common/src/lib/qr-code';
                     </ng-container>
                     <ng-template #next_empty_state>
                         <p class="opacity-60 text-2xl font-medium">
-                            No upcoming events
+                            {{ 'APP.BOOKING_PANEL.NO_UPCOMING' | translate }}
                         </p>
                     </ng-template>
                 </div>
@@ -106,7 +110,7 @@ import { generateQRCode } from 'libs/common/src/lib/qr-code';
                     (click)="toggleQRShow()"
                     class="absolute top-1/2 left-px -translate-y-1/2 -translate-x-full bg-base-100 border-l border-y border-base-300 px-1 py-4 rounded-l-lg z-20 uppercase"
                 >
-                    Book
+                    {{ 'COMMON.BOOK' | transition }}
                 </button>
                 <div
                     qr-code-out
@@ -133,9 +137,9 @@ import { generateQRCode } from 'libs/common/src/lib/qr-code';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
-export class EventPanelComponent extends AsyncHandler {
+export class EventPanelComponent extends AsyncHandler implements OnInit {
     public system_id = '';
     public show_qr = false;
     public room_name: string | null = '';

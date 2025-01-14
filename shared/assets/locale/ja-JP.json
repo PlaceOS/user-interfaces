@@ -1658,7 +1658,8 @@
             "FREE_FOR_HOURS_AND_MINUTES": "{{ hour }} 時間 {{ minute }} 分間空き",
             "FREE_FOR_MINUTES": "{{ minute }} 分間空き",
             "FREE_FOR_LESS_THAN_MINUTE": "1分未満の空き",
-            "EARLY_CHECKIN": "ミーティングが早めにチェックインされました"
+            "EARLY_CHECKIN": "ミーティングが早めにチェックインされました",
+            "BOOKING_NEW": "新規予約"
         },
         "CONTROL": {
             "BOOTSTRAP_TITLE": "コントロールパネルセットアップ",

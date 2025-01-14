@@ -41,7 +41,9 @@ import { PanelStateService } from '../panel-state.service';
             </div>
             <div class="absolute bottom-0 right-0 p-2">
                 <div class="text-xs opacity-40 w-full">
-                    <ng-container>Version: </ng-container>
+                    <ng-container
+                        >{{ 'COMMON.CONTROLS_VERSION' | translate }}:
+                    </ng-container>
                     {{ version.hash }}
                 </div>
                 <div class="text-xs opacity-40 w-full">
@@ -53,7 +55,7 @@ import { PanelStateService } from '../panel-state.service';
     `,
     styles: [``],
     providers: [PanelStateService],
-    standalone: false
+    standalone: false,
 })
 export class PanelViewComponent extends AsyncHandler {
     public readonly system = this._state.space;
