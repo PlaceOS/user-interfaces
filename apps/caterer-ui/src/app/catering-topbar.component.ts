@@ -27,13 +27,16 @@ import { combineLatest } from 'rxjs';
                 <app-icon class="text-2xl">arrow_back</app-icon>
             </a>
             <h2 class="text-2xl font-medium">
-                Catering {{ page === 'menu' ? 'Menu' : 'Orders' }}
+                {{
+                    (page === 'menu' ? 'CATERING.MENU' : 'CATERING.ORDERS')
+                        | translate
+                }}
             </h2>
             <div class="flex-1 w-px"></div>
             <mat-form-field appearance="outline" class="no-subscript w-64">
                 <input
                     matInput
-                    placeholder="Search..."
+                    [placeholder]="'COMMON.SEARCH' | translate"
                     [ngModel]="filters?.search"
                     (ngModelChange)="setSearch($event)"
                 />
@@ -73,9 +76,11 @@ import { combineLatest } from 'rxjs';
                 <mat-select
                     [ngModel]="filters?.caterer"
                     (ngModelChange)="setCaterer($event)"
-                    placeholder="All Caterers"
+                    [placeholder]="'CATERING.CATERERS_ALL' | translate"
                 >
-                    <mat-option value="">All Caterers</mat-option>
+                    <mat-option value="">{{
+                        'CATERING.CATERERS_ALL' | translate
+                    }}</mat-option>
                     <mat-option
                         *ngFor="let caterer of caterers | async"
                         [value]="caterer || '<empty>'"
@@ -91,7 +96,7 @@ import { combineLatest } from 'rxjs';
                 "
                 icon
                 matRipple
-                matTooltip="Add Item"
+                [matTooltip]="'CATERING.MENU_ADD' | translate"
                 class="bg-secondary text-secondary-content rounded h-12 w-12"
                 (click)="addItem()"
             >
@@ -101,7 +106,7 @@ import { combineLatest } from 'rxjs';
                 *ngIf="page === 'menu'"
                 icon
                 matRipple
-                matTooltip="Edit Config"
+                [matTooltip]="'CATERING.BOOKING_RULES' | translate"
                 class="bg-secondary text-secondary-content rounded h-12 w-12"
                 (click)="editConfig()"
             >
@@ -111,7 +116,7 @@ import { combineLatest } from 'rxjs';
                 *ngIf="page === 'menu'"
                 icon
                 matRipple
-                matTooltip="Import Menu"
+                [matTooltip]="'CATERING.MENU_IMPORT' | translate"
                 class="bg-secondary text-secondary-content rounded h-12 w-12"
                 (click)="importMenu()"
             >
@@ -121,7 +126,7 @@ import { combineLatest } from 'rxjs';
                 *ngIf="page === 'menu'"
                 icon
                 matRipple
-                matTooltip="Room Availability"
+                [matTooltip]="'CATERING.ROOM_AVAILABILITY' | translate"
                 class="bg-secondary text-secondary-content rounded h-12 w-12"
                 (click)="setRoomAvailability()"
             >
@@ -131,7 +136,7 @@ import { combineLatest } from 'rxjs';
                 *ngIf="page === 'menu'"
                 icon
                 matRipple
-                matTooltip="Charge Codes"
+                [matTooltip]="'CATERING.CHARGE_CODES' | translate"
                 class="bg-secondary text-secondary-content rounded h-12 w-12"
                 (click)="setChargeCodes()"
             >
@@ -153,7 +158,7 @@ import { combineLatest } from 'rxjs';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class CateringTopbarComponent extends AsyncHandler implements OnInit {
     /** List of selected levels */

@@ -28,7 +28,7 @@ import { first } from 'rxjs/operators';
                         class="absolute inset-0 bg-base-100 opacity-10 z-0"
                     ></div>
                     <div class="relative text-sm font-mono uppercase z-10">
-                        {{ 'APP.VISITOR_KIOSK.SETUP' | translate }}
+                        {{ 'COMMON.BOOTSTRAP_SETUP' | translate }}
                     </div>
                 </div>
             </header>
@@ -296,7 +296,7 @@ import { first } from 'rxjs/operators';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class BootstrapComponent extends AsyncHandler implements OnInit {
     /** Loading state of the bootstrap */

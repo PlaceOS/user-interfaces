@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { AsyncHandler } from '@placeos/common';
@@ -17,7 +17,10 @@ import { AsyncHandler } from '@placeos/common';
             >
                 {{ 'CATERING.MENU_EDIT_INFO' | translate }}
             </div>
-            <div class="flex flex-col flex-1 h-1/2 px-8" [ngSwitch]="page">
+            <div
+                class="flex flex-col flex-1 h-1/2 px-8 overflow-auto"
+                [ngSwitch]="page"
+            >
                 <catering-order-list
                     *ngSwitchCase="'orders'"
                     class="flex-1"
@@ -43,13 +46,13 @@ import { AsyncHandler } from '@placeos/common';
                                 class="absolute inset-0 bg-base-content opacity-40 z-0"
                             ></div>
                             <div class="text-2xl text-base-100 z-10">
-                                Menus and Pricing
+                                {{ 'CATERING.OPTION_MENU' | translate }}
                             </div>
                         </div>
                         <div
                             class="p-2 h-14 w-full text-sm text-center flex items-center justify-center"
                         >
-                            View and Edit Menus and Pricing
+                            {{ 'CATERING.OPTION_MENU_INFO' | translate }}
                         </div>
                     </a>
                     <a
@@ -65,13 +68,13 @@ import { AsyncHandler } from '@placeos/common';
                                 class="absolute inset-0 bg-base-content opacity-40 z-0"
                             ></div>
                             <div class="text-2xl text-base-100 z-10">
-                                Today's Orders
+                                {{ 'CATERING.OPTION_ORDERS' | translate }}
                             </div>
                         </div>
                         <div
                             class="p-2 h-14 w-full text-sm text-center flex items-center justify-center"
                         >
-                            View Catering Orders and their statuses upon arrival
+                            {{ 'CATERING.OPTION_ORDERS_INFO' | translate }}
                         </div>
                     </a>
                 </div>
@@ -87,9 +90,9 @@ import { AsyncHandler } from '@placeos/common';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
-export class CateringComponent extends AsyncHandler {
+export class CateringComponent extends AsyncHandler implements OnInit {
     /** Page being displayed */
     public page: string;
 

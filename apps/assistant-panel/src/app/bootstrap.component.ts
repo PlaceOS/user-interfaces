@@ -1,11 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { Space } from '@placeos/spaces';
 import { querySystems } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
-import { debounceTime, map, shareReplay, switchMap, tap } from 'rxjs/operators';
+import { debounceTime, map, shareReplay, switchMap } from 'rxjs/operators';
 
 const SYS_ID_KEY = 'PLACEOS.ASSISTANT.system';
 
@@ -19,22 +19,24 @@ const SYS_ID_KEY = 'PLACEOS.ASSISTANT.system';
             <header
                 class="px-4 py-3 bg-secondary text-secondary-content text-xl font-medium flex items-center justify-between w-full"
             >
-                <div>Assistant Panel</div>
-                <div class="px-2 py-1 rounded text-sm font-mono">SETUP</div>
+                <div>{{ 'COMMON.BOOTSTRAP_ASSISTANT' | translate }}</div>
+                <div class="px-2 py-1 rounded text-sm font-mono uppercase">
+                    {{ 'COMMON.BOOTSTRAP_SETUP' | translate }}
+                </div>
             </header>
             <main
                 class="p-4 w-full flex flex-col space-y-2"
                 *ngIf="!loading; else load_state"
             >
                 <label for="system-id">
-                    {{ 'APP.BOOKING_PANEL.BOOTSTRAP_LABEL' | translate }}
+                    {{ 'COMMON.BOOTSTRAP_LABEL' | translate }}
                 </label>
                 <mat-form-field appearance="outline" class="w-full">
                     <input
                         matInput
                         [ngModel]="system_id$ | async"
                         [matAutocomplete]="auto"
-                        placeholder="System ID"
+                        [placeholder]="'COMMON.BOOTSTRAP_LABEL' | translate"
                         (ngModelChange)="system_id$.next($event)"
                     />
                     <mat-spinner
@@ -43,8 +45,7 @@ const SYS_ID_KEY = 'PLACEOS.ASSISTANT.system';
                         *ngIf="loading === 'search'"
                     ></mat-spinner>
                     <mat-hint class="-mx-4">
-                        Select the system to connect to for Assistant
-                        functionality
+                        {{ 'COMMON.BOOTSTRAP_ASSISTANT_INFO' | translate }}
                     </mat-hint>
                 </mat-form-field>
                 <mat-autocomplete #auto="matAutocomplete">
@@ -66,10 +67,7 @@ const SYS_ID_KEY = 'PLACEOS.ASSISTANT.system';
                             !(space_list | async)?.length
                         "
                     >
-                        {{
-                            'APP.BOOKING_PANEL.BOOTSTRAP_INPUT_PLACEHOLDER'
-                                | translate
-                        }}
+                        {{ 'COMMON.BOOTSTRAP_INPUT_PLACEHOLDER' | translate }}
                     </mat-option>
                 </mat-autocomplete>
             </main>
@@ -91,14 +89,14 @@ const SYS_ID_KEY = 'PLACEOS.ASSISTANT.system';
         <ng-template #load_state>
             <main class="flex flex-col items-center justify-center p-8 w-full">
                 <mat-spinner [diameter]="48" />
-                <p>{{ loading }}</p>
+                <p>{{ 'COMMON.BOOTSTRAP_LOADING' | translate }}</p>
             </main>
         </ng-template>
     `,
     styles: [],
-    standalone: false
+    standalone: false,
 })
-export class BootstrapComponent extends AsyncHandler {
+export class BootstrapComponent extends AsyncHandler implements OnInit {
     public loading = '';
     /** ID of the system to bootstrap */
     public system_id$ = new BehaviorSubject('');

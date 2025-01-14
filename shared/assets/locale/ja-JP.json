@@ -102,6 +102,7 @@
         "BOOTSTRAP_DESCRIPTION": "PlaceOS システムIDを入力して初期設定を行います",
         "BOOTSTRAP_LABEL": "システムID",
         "BOOTSTRAP_SUBMIT": "セットアップを完了",
+        "BOOTSTRAP_SETUP": "セットアップ",
         "BOOTSTRAP_LOADING": "システムデータを読み込み中...",
         "BOOTSTRAP_INPUT_PLACEHOLDER": "部屋を検索するには入力を開始してください",
         "CONTROLS_HELP": "ヘルプ & サポート",
@@ -1776,7 +1777,6 @@
         "TIMETABLE": {},
         "VISITOR_KIOSK": {
             "APP": "ビジターキオスク",
-            "SETUP": "セットアップ",
             "SELECT_REGION_MSG": "下のドロップダウンから地域を選択してください",
             "SELECT_REGION": "地域を選択",
             "SELECT_BUILDING_MSG": "下のドロップダウンから建物を選択してください",
