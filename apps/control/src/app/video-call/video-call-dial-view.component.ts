@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { getModule } from '@placeos/ts-client';
 import { take } from 'rxjs/operators';
-import { ControlStateService, RoomInput } from '../control-state.service';
+import { ControlStateService } from '../control-state.service';
 import { VideoCallStateService } from './video-call-state.service';
 
 @Component({
@@ -12,7 +12,9 @@ import { VideoCallStateService } from './video-call-state.service';
             <ng-container *ngIf="!loading; else load_state" class="">
                 <dialpad (pressed)="addDigit($event)"></dialpad>
                 <div class="flex flex-col" [class.pt-8]="!redirect">
-                    <p class="px-2 pt-4">Enter your video conference code</p>
+                    <p class="px-2 pt-4">
+                        {{ 'APP.CONTROL.VC_ENTER_CODE' | translate }}
+                    </p>
                     <div class="p-2 w-full">
                         <mat-form-field
                             appearance="outline"
@@ -21,7 +23,9 @@ import { VideoCallStateService } from './video-call-state.service';
                             <input
                                 matInput
                                 [(ngModel)]="dial_number"
-                                placeholder="Dial number..."
+                                [placeholder]="
+                                    'APP.CONTROL.VC_DIAL' | translate
+                                "
                             />
                         </mat-form-field>
                     </div>
@@ -33,7 +37,7 @@ import { VideoCallStateService } from './video-call-state.service';
                             [disabled]="!dial_number"
                             (click)="joinConference()"
                         >
-                            Join
+                            {{ 'APP.CONTROL.JOIN' | translate }}
                         </button>
                     </div>
                     <div class="px-2 w-full">
@@ -66,12 +70,12 @@ import { VideoCallStateService } from './video-call-state.service';
                 class="flex flex-col items-center justify-center p-16 space-y-2"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
-                <p>Joining video conference...</p>
+                <p>{{ 'APP.CONTROL.VC_JOINING' | translate }}</p>
             </div>
         </ng-template>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class VideoCallDialViewComponent {
     @Input() public redirect = true;
@@ -84,7 +88,7 @@ export class VideoCallDialViewComponent {
 
     public readonly toggleCamera = async () =>
         this._call.showCameraPIP(
-            !(await this.show_camera_pip.pipe(take(1)).toPromise())
+            !(await this.show_camera_pip.pipe(take(1)).toPromise()),
         );
 
     public get id() {
@@ -95,7 +99,7 @@ export class VideoCallDialViewComponent {
         private _control: ControlStateService,
         private _call: VideoCallStateService,
         private _router: Router,
-        private _route: ActivatedRoute
+        private _route: ActivatedRoute,
     ) {}
 
     public addDigit(digit: string) {
@@ -103,7 +107,7 @@ export class VideoCallDialViewComponent {
             ? (this.dial_number += digit)
             : (this.dial_number = this.dial_number.substr(
                   0,
-                  this.dial_number.length - 1
+                  this.dial_number.length - 1,
               ));
     }
 

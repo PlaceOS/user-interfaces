@@ -27,7 +27,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
                 [class.translate-x-full]="!inline"
                 (click)="pressed.emit('')"
             >
-                Backspace
+                {{ 'APP.CONTROL.BACKSPACE' | translate }}
             </button>
         </div>
     `,
@@ -36,7 +36,10 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
             [digit] {
                 box-shadow: 0px 4px 0px 0px var(--b3);
                 border: 2px solid var(--b3);
-                transition: top 200ms, bottom 200ms, box-shadow 200ms;
+                transition:
+                    top 200ms,
+                    bottom 200ms,
+                    box-shadow 200ms;
             }
 
             [digit]:active {
@@ -44,7 +47,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class DialpadComponent {
     @Input() public backspace = true;

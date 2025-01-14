@@ -45,7 +45,7 @@ export class VoiceAssistantService extends AsyncHandler {
     );
 
     private _user_speech: any;
-    private _has_command: boolean = false;
+    private _has_command = false;
 
     constructor(private _chat_service: ChatService) {
         super();
@@ -108,7 +108,7 @@ export class VoiceAssistantService extends AsyncHandler {
     }
 
     private _setupVoiceRecognition() {
-        var commands = DEFAULT_START_PHRASES;
+        const commands = DEFAULT_START_PHRASES;
         const SpeechRecognition =
             (window as any).SpeechRecognition ||
             (window as any).webkitSpeechRecognition;

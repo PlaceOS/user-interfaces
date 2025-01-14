@@ -321,7 +321,7 @@ export class ControlStateService extends AsyncHandler {
     }
 
     /** Power off the active system */
-    public powerOff(unlink: boolean = false) {
+    public powerOff(unlink = false) {
         return this._execute('power', [false, unlink]);
     }
 
@@ -388,7 +388,7 @@ export class ControlStateService extends AsyncHandler {
         );
     }
 
-    public setMute(state: boolean = true, source: string = '') {
+    public setMute(state = true, source = '') {
         const outputs = this._output_data.getValue();
         if (!source) {
             this._mute.next(state);
@@ -406,7 +406,7 @@ export class ControlStateService extends AsyncHandler {
         return this._execute('mute', source ? [state, source] : [state]);
     }
 
-    public setVolume(value: number = 0, source: string = '') {
+    public setVolume(value = 0, source = '') {
         this.timeout(
             `set:volume:${source}`,
             () => {
@@ -444,11 +444,7 @@ export class ControlStateService extends AsyncHandler {
     }
 
     /** Execute driver method */
-    private _execute(
-        name: string,
-        params: any[] = [],
-        mod_name: string = 'System',
-    ) {
+    private _execute(name: string, params: any[] = [], mod_name = 'System') {
         const mod = getModule(this._id.getValue(), mod_name);
         if (!mod) return;
         return mod.execute(name, params);
@@ -561,7 +557,7 @@ export class ControlStateService extends AsyncHandler {
     private bindTo(
         id: string,
         name: string,
-        mod: string = 'System',
+        mod = 'System',
         on_change: (v: any) => void = (v) => this.updateProperty(name, v),
     ) {
         const module = getModule(id, mod).binding(name);

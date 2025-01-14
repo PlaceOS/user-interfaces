@@ -13,7 +13,7 @@ import { ControlStateService } from '../control-state.service';
                     matInput
                     readonly
                     [ngModel]="(system | async)?.phone"
-                    placeholder="Phone Number"
+                    [placeholder]="'APP.CONTROL.PHONE' | translate"
                 />
                 <button
                     *ngIf="(system | async)?.phone"
@@ -35,7 +35,7 @@ import { ControlStateService } from '../control-state.service';
                     !((system | async)?.offhook || (system | async)?.ringing)
                 "
             >
-                Dial Phone
+                {{ 'APP.CONTROL.PHONE_DIAL' | translate }}
             </button>
             <button
                 *ngIf="(system | async)?.offhook || (system | async)?.ringing"
@@ -44,12 +44,12 @@ import { ControlStateService } from '../control-state.service';
                 class="w-full inverse"
                 (click)="hangup()"
             >
-                Hangup
+                {{ 'APP.CONTROL.PHONE_HANGUP' | translate }}
             </button>
         </div>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class PhoneDiallingTooltipComponent {
     public phone = '';

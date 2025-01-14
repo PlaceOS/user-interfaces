@@ -37,7 +37,10 @@ import { ICON_MAP } from '../ui/output-display.component';
                     class="text-white text-sm"
                     [class.opacity-60]="!(input | async)"
                 >
-                    {{ (input | async)?.name || 'No input source' }}
+                    {{
+                        (input | async)?.name ||
+                            ('APP.CONTROL.INPUT_EMPTY' | translate)
+                    }}
                 </span>
             </div>
         </button>
@@ -49,7 +52,7 @@ import { ICON_MAP } from '../ui/output-display.component';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class DeviceOutputListItemComponent extends AsyncHandler {
     @Input() public item: RoomOutput;

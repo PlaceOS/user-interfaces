@@ -1,9 +1,9 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { AsyncHandler, notifyError } from '@placeos/common';
+import { AsyncHandler, i18n, notifyError } from '@placeos/common';
 import { getModule } from '@placeos/ts-client';
 import { filter, take } from 'rxjs/operators';
-import { ControlStateService, RoomInput } from '../control-state.service';
+import { ControlStateService } from '../control-state.service';
 import { VideoCallStateService } from './video-call-state.service';
 
 @Component({
@@ -49,7 +49,9 @@ import { VideoCallStateService } from './video-call-state.service';
                             >
                         </mat-select>
                     </mat-form-field>
-                    <p class="pb-2">HDMI Content Destination:</p>
+                    <p class="pb-2">
+                        {{ 'APP.CONTROL.VC_CONTENT_DEST' | translate }}
+                    </p>
                     <mat-form-field
                         appearance="outline"
                         class="w-full h-[3.5rem]"
@@ -59,18 +61,20 @@ import { VideoCallStateService } from './video-call-state.service';
                             (ngModelChange)="setPresentationMode($event)"
                             placeholder="Select HDMI content destination"
                         >
-                            <mat-option value="None"
-                                >Hide Presentation</mat-option
-                            >
-                            <mat-option value="Local"
-                                >Present Locally</mat-option
-                            >
-                            <mat-option value="Remote"
-                                >Present to All</mat-option
-                            >
+                            <mat-option value="None">{{
+                                'APP.CONTROL.VC_CONTENT_DEST_HIDE' | translate
+                            }}</mat-option>
+                            <mat-option value="Local">{{
+                                'APP.CONTROL.VC_CONTENT_DEST_LOCAL' | translate
+                            }}</mat-option>
+                            <mat-option value="Remote">{{
+                                'APP.CONTROL.VC_CONTENT_DEST_ALL'
+                            }}</mat-option>
                         </mat-select>
                     </mat-form-field>
-                    <p class="pb-2">Video Layout:</p>
+                    <p class="pb-2">
+                        {{ 'APP.CONTROL.VC_LAYOUT' | translate }}
+                    </p>
                     <mat-form-field
                         appearance="outline"
                         class="w-full h-[3.5rem]"
@@ -78,13 +82,16 @@ import { VideoCallStateService } from './video-call-state.service';
                         <mat-select
                             [ngModel]="video_layout | async"
                             (ngModelChange)="setVideoLayout($event)"
-                            placeholder="Select Video layout"
+                            [placeholder]="
+                                'APP.CONTROL.VC_LAYOUT_SELECT' | translate
+                            "
                         >
                             <mat-option
                                 *ngFor="let layout of video_layouts"
                                 [value]="layout"
-                                >{{ layout }}</mat-option
                             >
+                                {{ layout }}
+                            </mat-option>
                         </mat-select>
                     </mat-form-field>
                 </div>
@@ -105,7 +112,9 @@ import { VideoCallStateService } from './video-call-state.service';
                     >
                         <div class="flex items-center space-x-4">
                             <app-icon>call_end</app-icon>
-                            <span>End Call</span>
+                            <span>{{
+                                'APP.CONTROL.VC_END_CALL' | translate
+                            }}</span>
                         </div>
                     </button>
                     <button
@@ -120,9 +129,10 @@ import { VideoCallStateService } from './video-call-state.service';
                                 (mic_mute | async) ? 'mic_off' : 'mic'
                             }}</app-icon>
                             <span>{{
-                                (mic_mute | async)
-                                    ? 'Unmute Microphones'
-                                    : 'Mute Microphones'
+                                ((mic_mute | async)
+                                    ? 'APP.CONTROL.VC_MICS_UNMUTE'
+                                    : 'APP.CONTROL.VC_MICS_MUTE'
+                                ) | translate
                             }}</span>
                         </div>
                     </button>
@@ -140,9 +150,10 @@ import { VideoCallStateService } from './video-call-state.service';
                                     : 'play_arrow'
                             }}</app-icon>
                             <span>{{
-                                (call | async)?.Status !== 'OnHold'
-                                    ? 'Place on Hold'
-                                    : 'Resume Call'
+                                ((call | async)?.Status !== 'OnHold'
+                                    ? 'APP.CONTROL.VC_ON_HOLD'
+                                    : 'APP.CONTROL.VC_RESUME'
+                                ) | translate
                             }}</span>
                         </div>
                     </button>
@@ -160,9 +171,10 @@ import { VideoCallStateService } from './video-call-state.service';
                                     : 'visibility'
                             }}</app-icon>
                             <span>{{
-                                (show_camera_pip | async)
-                                    ? 'Hide Camera PIP'
-                                    : 'Show Camera PIP'
+                                ((show_camera_pip | async)
+                                    ? 'APP.CONTROL.VC_PIP_HIDE'
+                                    : 'APP.CONTROL.VC_PIP_SHOW'
+                                ) | translate
                             }}</span>
                         </div>
                     </button>
@@ -185,12 +197,12 @@ import { VideoCallStateService } from './video-call-state.service';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
-export class VideoCallPageComponent extends AsyncHandler {
+export class VideoCallPageComponent extends AsyncHandler implements OnInit {
     @Input() public redirect = true;
     @Input() public present_output = '';
-    public loading = 'Loading call details...';
+    public loading = '';
     public readonly call = this._state.call;
     public readonly show_camera_pip = this._state.show_camera_pip;
     public readonly mic_mute = this._state.mic_mute;
@@ -217,18 +229,18 @@ export class VideoCallPageComponent extends AsyncHandler {
     public readonly setVideoLayout = (d) => this._state.setVideoLayout(d);
     public readonly toggleCamera = async () =>
         this._state.showCameraPIP(
-            !(await this.show_camera_pip.pipe(take(1)).toPromise())
+            !(await this.show_camera_pip.pipe(take(1)).toPromise()),
         );
     public readonly toggleMute = async () =>
         this._state.muteMicrophone(
-            !(await this.mic_mute.pipe(take(1)).toPromise())
+            !(await this.mic_mute.pipe(take(1)).toPromise()),
         );
     public readonly toggleOnHold = () => this._state.toggleCallOnHold();
     public readonly endCall = async () => {
-        this.loading = 'Hanging up call...';
+        this.loading = i18n('APP.CONTROL.VC_LEAVE_LOADING');
         await this._state.hangup().catch((_) => {
             this.loading = '';
-            notifyError('Error hanging up call.');
+            notifyError(i18n('APP.CONTROL.VC_LEAVE_ERROR', { error: _ }));
             throw _;
         });
         this._onCallEnded();
@@ -237,24 +249,25 @@ export class VideoCallPageComponent extends AsyncHandler {
     constructor(
         private _state: VideoCallStateService,
         private _control: ControlStateService,
-        private _router: Router
+        private _router: Router,
     ) {
         super();
     }
 
     public async ngOnInit() {
+        this.loading = i18n('APP.CONTROL.VC_LOADING');
         this.timeout(
             'check_call',
             () => {
-                notifyError('Unable to find active video conference.');
+                notifyError(i18n('APP.CONTROL.VC_JOIN_ERROR'));
                 this._onCallEnded();
             },
-            5000
+            5000,
         );
         await this._state.call
             .pipe(
                 filter((_) => !!_),
-                take(1)
+                take(1),
             )
             .toPromise();
         this.loading = '';

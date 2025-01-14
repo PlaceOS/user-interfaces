@@ -8,7 +8,9 @@ import { ControlStateService } from '../control-state.service';
         <div
             class="p-4 my-2 bg-base-100 shadow rounded flex flex-col items-center space-y-2"
         >
-            <h3 class="mb-2 font-medium text-center">Join Rooms</h3>
+            <h3 class="mb-2 font-medium text-center">
+                {{ 'APP.CONTROL.ACTION_JOIN_ROOMS' | translate }}
+            </h3>
             <button
                 btn
                 matRipple
@@ -22,7 +24,7 @@ import { ControlStateService } from '../control-state.service';
         </div>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class JoinRoomTooltipComponent {
     public readonly modes = this._state.join_modes.pipe(
@@ -35,7 +37,7 @@ export class JoinRoomTooltipComponent {
                 });
             }
             return list;
-        })
+        }),
     );
     public readonly active = this._state.joined_id;
     public readonly join = (id) => this._state.join(id);

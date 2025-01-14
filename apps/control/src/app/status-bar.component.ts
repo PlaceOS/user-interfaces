@@ -85,20 +85,21 @@ import { ControlStateService } from './control-state.service';
                     [class.bg-base-300]="rec_status === 'stopped'"
                 >
                     {{
-                        rec_status === 'playing'
-                            ? 'Recording'
+                        (rec_status === 'playing'
+                            ? 'APP.CONTROL.STATE_RECORDING'
                             : rec_status === 'paused'
-                              ? 'Paused'
-                              : 'Idle'
+                              ? 'APP.CONTROL.STATE_PAUSED'
+                              : 'APP.CONTROL.STATE_IDLE'
+                        ) | translate
                     }}
                 </div>
             </div>
             <div class="h-12 p-2">
-                <label>Remaining</label>
+                <label>{{ 'APP.CONTROL.REMAINING' | translate }}</label>
                 <div class="">{{ rec_remaining | duration }}</div>
             </div>
             <div class="h-12 p-2">
-                <label>Next Recording</label>
+                <label>{{ 'APP.CONTROL.NEXT_RECORDING' | translate }}</label>
                 <div class="">{{ rec_current | duration }}</div>
             </div>
         </div>
@@ -134,7 +135,7 @@ import { ControlStateService } from './control-state.service';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class ControlStatusBarComponent extends AsyncHandler {
     /** Details of the active system */

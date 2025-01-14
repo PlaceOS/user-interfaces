@@ -91,7 +91,9 @@ export class LocaleService {
             this._default_mappings[key] ||
             key;
         for (const id in args) {
-            value = value.replace(`{{ ${id} }}`, args[id]);
+            value = value
+                .replace(`{{ ${id} }}`, args[id])
+                .replace(`{{ ${id} }}`, args[id]);
         }
         return value;
     }

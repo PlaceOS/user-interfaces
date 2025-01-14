@@ -10,7 +10,9 @@ import { ControlStateService } from '../control-state.service';
         <div
             class="p-4 my-2 bg-base-100 shadow rounded flex flex-col items-center space-y-2 max-h-[65vh] overflow-x-hidden overflow-y-auto"
         >
-            <h3 class="mb-2 text-xl font-medium">Microphones</h3>
+            <h3 class="mb-2 text-xl font-medium">
+                {{ 'APP.CONTROL.ACTION_MICS' | translate }}
+            </h3>
             <ng-container
                 *ngIf="
                     (mic_list | async)?.length || (microphones | async)?.length;
@@ -33,8 +35,8 @@ import { ControlStateService } from '../control-state.service';
                                 mute[mic.id]
                                     ? 'volume_off'
                                     : volume[mic.id] > 0
-                                    ? 'volume_up'
-                                    : 'volume_mute'
+                                      ? 'volume_up'
+                                      : 'volume_mute'
                             }}</app-icon>
                         </button>
                         <mat-slider class="flex-1">
@@ -84,8 +86,8 @@ import { ControlStateService } from '../control-state.service';
                                 mute[i]
                                     ? 'volume_off'
                                     : volume[i] > 0
-                                    ? 'volume_up'
-                                    : 'volume_mute'
+                                      ? 'volume_up'
+                                      : 'volume_mute'
                             }}</app-icon>
                         </button>
                         <mat-slider
@@ -128,12 +130,12 @@ import { ControlStateService } from '../control-state.service';
         </div>
         <ng-template #empty_state>
             <div class="flex items-center justify-center p-8">
-                <p>No microphones available for system</p>
+                <p>{{ 'APP.CONTROL.MICS_EMPTY' | translate }}</p>
             </div>
         </ng-template>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class MicrophoneTooltipComponent extends AsyncHandler {
     /** List of microphone inputs */
@@ -155,7 +157,7 @@ export class MicrophoneTooltipComponent extends AsyncHandler {
 
     constructor(
         private _state: ControlStateService,
-        private _tooltip: CustomTooltipData
+        private _tooltip: CustomTooltipData,
     ) {
         super();
     }

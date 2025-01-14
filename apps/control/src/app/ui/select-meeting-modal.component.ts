@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { notifySuccess } from '@placeos/common';
+import { i18n, notifySuccess } from '@placeos/common';
 import { CalendarEvent } from '@placeos/events';
 import { format } from 'date-fns';
 import { ControlStateService } from '../control-state.service';
@@ -20,7 +20,7 @@ import { openConfirmModal } from '@placeos/components';
             </button>
             <div class="w-[40rem] max-w-full p-2 mx-auto">
                 <h2 class="w-full text-center my-4 text-2xl font-medium">
-                    Select a meeting to join
+                    {{ 'APP.CONTROL.MEETING_SELECT' | translate }}
                 </h2>
                 <div class="w-full">
                     <label for="calendar">User calendar:</label>
@@ -37,13 +37,16 @@ import { openConfirmModal } from '@placeos/components';
                             </mat-option>
                         </mat-select>
                         <mat-hint>
-                            If you are joining the meeting on behalf of another,
-                            please use the dropdown to select their email
+                            {{ 'APP.CONTROL.MEETING_JOIN_INFO' | translate }}
                         </mat-hint>
                     </mat-form-field>
                 </div>
                 <h3 class="w-full my-4 font-medium">
-                    {{ (events | async)?.length || '0' }} Available meeting(s)
+                    {{
+                        'APP.CONTROL.MEETING_COUNT'
+                            | translate
+                                : { count: (events | async)?.length || '0' }
+                    }}
                 </h3>
                 <ng-container *ngIf="!loading; else load_state">
                     <div
@@ -72,7 +75,7 @@ import { openConfirmModal } from '@placeos/components';
             <div
                 class="w-full flex items-center justify-center opacity-40 h-32"
             >
-                No events found for selected calendar with a meeting URL
+                {{ 'APP.CONTROL.MEETINGS_EMPTY' | translate }}
             </div>
         </ng-template>
         <ng-template #load_state>
@@ -80,12 +83,12 @@ import { openConfirmModal } from '@placeos/components';
                 class="w-full flex items-center justify-center opacity-40 h-32"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
-                <p>Loading events...</p>
+                <p>{{ 'APP.CONTROL.MEETINGS_LOADING' | translate }}</p>
             </div>
         </ng-template>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class SelectMeetingModalComponent {
     public readonly calendars = this._service.calendars;
@@ -100,17 +103,19 @@ export class SelectMeetingModalComponent {
     public readonly select = async (e: CalendarEvent) => {
         const details = await openConfirmModal(
             {
-                title: 'Join meeting',
-                content: `Are you sure you wish to join ${
-                    e.organiser?.name
-                }'s meeting for ${format(e.date, 'h:mm a')}?`,
+                title: i18n('APP.CONTROL.MEETING_JOIN_TITLE'),
+                content: i18n('APP.CONTROL.MEETING_JOIN_MSG', {
+                    name: e.organiser?.name,
+                    time: format(e.date, 'h:mm a'),
+                }),
                 icon: { content: 'login' },
             },
             this._dialog,
         );
+        details.loading(i18n('APP.CONTROL.MEETING_JOIN_LOADING'));
         if (details.reason !== 'done') return;
         await this._service.setEvent(e);
-        notifySuccess('Successfully setup meeting');
+        notifySuccess(i18n('APP.CONTROL.MEETING_JOIN_SUCCESS'));
         this._dialog_ref.close();
     };
 

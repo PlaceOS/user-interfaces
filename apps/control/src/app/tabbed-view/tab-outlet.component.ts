@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
 import { BehaviorSubject, combineLatest } from 'rxjs';
@@ -62,7 +62,7 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
                     *ngIf="(inputs | async)?.length > 1"
                 >
                     <h3 class="text-center p-2 font-medium text-lg">
-                        Available Inputs
+                        {{ 'APP.CONTROL.INPUTS_AVAILABLE' | translate }}
                     </h3>
                     <button
                         btn
@@ -81,7 +81,7 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
                         class="flex-1 h-1/2 w-full p-8 flex items-center justify-center opacity-30"
                         *ngIf="!(inputs | async)?.length"
                     >
-                        No inputs available for category
+                        {{ 'APP.CONTROL.INPUT_CATEGORY_EMPTY' | translate }}
                     </div>
                 </div>
                 <div
@@ -129,7 +129,9 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
                                 class="h-full w-full flex items-center justify-center opacity-60"
                             >
                                 <p>
-                                    No controls available for this input source
+                                    {{
+                                        'APP.CONTROL.CONTROLS_EMPTY' | translate
+                                    }}
                                 </p>
                             </div>
                         </ng-container>
@@ -143,7 +145,9 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
                     >
                         <div class="flex items-center justify-center mr-2">
                             <app-icon>help</app-icon>
-                            <div class="mx-2">Help</div>
+                            <div class="mx-2">
+                                {{ 'APP.CONTROL.ACTION_HELP' | translate }}
+                            </div>
                         </div>
                     </button>
                 </div>
@@ -160,9 +164,9 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
-export class TabOutletComponent extends AsyncHandler {
+export class TabOutletComponent extends AsyncHandler implements OnInit {
     public readonly active_tab = new BehaviorSubject('');
     public readonly system$ = this._service.system;
     public readonly tabs = this._service.tabs;
@@ -196,7 +200,7 @@ export class TabOutletComponent extends AsyncHandler {
         this.tab,
     ]).pipe(map(([_, t]) => (_ || []).find((h: any) => h.id === t?.help)));
 
-    public join_code: string = '';
+    public join_code = '';
 
     public setInput = (s) => this._service.setOutputSource(s.id);
     public viewHelp = async () =>

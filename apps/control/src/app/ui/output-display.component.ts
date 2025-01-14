@@ -1,4 +1,4 @@
-import { Component, Input, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -42,7 +42,7 @@ export const ICON_MAP = {
                 </p>
                 <p class="text-xs">
                     <span *ngIf="(input | async)?.name" class="opacity-50">
-                        Click to switch input source
+                        {{ 'APP.CONTROL.OUTPUT_SWITCH' | translate }}
                     </span>
                 </p>
             </div>
@@ -52,8 +52,8 @@ export const ICON_MAP = {
                         item.mute
                             ? 'volume_off'
                             : item.volume > 0
-                            ? 'volume_up'
-                            : 'volume_mute'
+                              ? 'volume_up'
+                              : 'volume_mute'
                     }}</app-icon>
                 </button>
                 <mat-slider class="flex-1"
@@ -72,9 +72,9 @@ export const ICON_MAP = {
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
-export class OutputDisplayComponent extends AsyncHandler {
+export class OutputDisplayComponent extends AsyncHandler implements OnChanges {
     @Input() public item: RoomOutput;
     /** Current volume level for output */
     public volume: number;

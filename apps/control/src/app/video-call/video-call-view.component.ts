@@ -31,7 +31,9 @@ import { ControlStateService } from '../control-state.service';
                 (click)="powerOn()"
                 (touchend)="powerOn()"
             >
-                <h2 class="font-light text-4xl mb-4">Touch to Start</h2>
+                <h2 class="font-light text-4xl mb-4">
+                    {{ 'APP.CONTROL.TOUCH_TO_START' | translate }}
+                </h2>
                 <p class="text-lg">{{ (system | async).name }}</p>
             </div>
         </ng-template>
@@ -42,8 +44,7 @@ import { ControlStateService } from '../control-state.service';
             >
                 <mat-spinner class="mb-4" [diameter]="64"></mat-spinner>
                 <div class="text-2xl my-4">
-                    Connecting to system(<em>{{ id }}</em
-                    >)...
+                    {{ 'APP.CONTROL.CONNECTING' | translate: { id: id } }}
                 </div>
                 <div class="text-base"></div>
             </div>
@@ -66,7 +67,7 @@ import { ControlStateService } from '../control-state.service';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class ControlVideoCallViewComponent
     extends AsyncHandler

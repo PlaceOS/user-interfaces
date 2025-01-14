@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { AsyncHandler, SettingsService } from '@placeos/common';
+import { Component, OnInit } from '@angular/core';
+import { AsyncHandler, i18n, SettingsService } from '@placeos/common';
 import { isTrusted } from '@placeos/ts-client';
 import { combineLatest } from 'rxjs';
 import { ControlStateService } from './control-state.service';
@@ -119,9 +119,9 @@ enum TOOLTIP {
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
-export class TopbarHeaderComponent extends AsyncHandler {
+export class TopbarHeaderComponent extends AsyncHandler implements OnInit {
     public readonly system = this._state.system;
     public readonly mic_list = this._state.mic_list;
     public readonly camera_list = this._state.camera_list;
@@ -141,51 +141,7 @@ export class TopbarHeaderComponent extends AsyncHandler {
         join: JoinRoomTooltipComponent,
     };
 
-    public action_list = [
-        {
-            id: 'phone',
-            name: 'Phone',
-            icon: 'call',
-            show: true,
-        },
-        {
-            id: 'video_conf',
-            name: 'Video Conference',
-            icon: 'call',
-            show: true,
-        },
-        {
-            id: 'meet',
-            name: 'Join Meeting',
-            icon: 'video_call',
-            show: true,
-            action: () => this.selectMeeting(),
-        },
-        {
-            id: 'lighting_scenes',
-            name: 'Lighting Scenes',
-            icon: 'emoji_objects',
-            show: true,
-        },
-        {
-            id: 'lighting',
-            name: 'Lighting',
-            icon: 'brightness_high',
-            show: true,
-        },
-        { id: 'blinds', name: 'Accessories', icon: 'unfold_more', show: true },
-        { id: 'mics', name: 'Microphones', icon: 'mic', show: true },
-        { id: 'camera', name: 'Cameras', icon: 'photo_camera', show: true },
-        {
-            id: 'help',
-            name: 'Help',
-            icon: 'help',
-            show: true,
-            action: () => this.viewHelp(),
-        },
-        { id: 'join', name: 'Join Rooms', icon: 'link', show: true },
-        { id: 'power', name: 'Power', icon: 'power_settings_new', show: true },
-    ];
+    public action_list = [];
 
     public readonly selectMeeting = () => this._state.selectMeeting();
     public readonly viewHelp = () => this._state.viewHelp();
@@ -215,6 +171,76 @@ export class TopbarHeaderComponent extends AsyncHandler {
     }
 
     public ngOnInit() {
+        this.action_list = [
+            {
+                id: 'phone',
+                name: i18n('APP.CONTROL.ACTION_PHONE'),
+                icon: 'call',
+                show: true,
+            },
+            {
+                id: 'video_conf',
+                name: i18n('APP.CONTROL.ACTION_CONFERENCE'),
+                icon: 'call',
+                show: true,
+            },
+            {
+                id: 'meet',
+                name: i18n('APP.CONTROL.ACTION_JOIN_MEETING'),
+                icon: 'video_call',
+                show: true,
+                action: () => this.selectMeeting(),
+            },
+            {
+                id: 'lighting_scenes',
+                name: i18n('APP.CONTROL.ACTION_LIGHT_SCENES'),
+                icon: 'emoji_objects',
+                show: true,
+            },
+            {
+                id: 'lighting',
+                name: i18n('APP.CONTROL.ACTION_LIGHTING'),
+                icon: 'brightness_high',
+                show: true,
+            },
+            {
+                id: 'blinds',
+                name: i18n('APP.CONTROL.ACTION_ACCESSORIES'),
+                icon: 'unfold_more',
+                show: true,
+            },
+            {
+                id: 'mics',
+                name: i18n('APP.CONTROL.ACTION_MICS'),
+                icon: 'mic',
+                show: true,
+            },
+            {
+                id: 'camera',
+                name: i18n('APP.CONTROL.ACTION_CAMERAS'),
+                icon: 'photo_camera',
+                show: true,
+            },
+            {
+                id: 'help',
+                name: i18n('APP.CONTROL.ACTION_HELP'),
+                icon: 'help',
+                show: true,
+                action: () => this.viewHelp(),
+            },
+            {
+                id: 'join',
+                name: i18n('APP.CONTROL.ACTION_JOIN_ROOMS'),
+                icon: 'link',
+                show: true,
+            },
+            {
+                id: 'power',
+                name: i18n('APP.CONTROL.ACTION_POWER'),
+                icon: 'power_settings_new',
+                show: true,
+            },
+        ];
         this.subscription(
             'check',
             combineLatest([

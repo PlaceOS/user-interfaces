@@ -1,9 +1,6 @@
 import { Component, Inject } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
 import { CustomTooltipData } from '@placeos/components';
-import { getModule } from '@placeos/ts-client';
-import { take } from 'rxjs/operators';
-import { ControlStateService } from '../control-state.service';
+
 import { VideoCallStateService } from '../video-call/video-call-state.service';
 
 @Component({
@@ -19,7 +16,9 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
             <div
                 class=" my-2 p-2 bg-base-100 shadow rounded flex flex-col items-center space-y-2"
             >
-                <h3 class="p-2 w-full text-center font-medium">In Call</h3>
+                <h3 class="p-2 w-full text-center font-medium">
+                    {{ 'APP.CONTROL.VC_IN_CALL' | translate }}
+                </h3>
                 <a
                     btn
                     matRipple
@@ -27,7 +26,7 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
                     [routerLink]="['/panel', id, 'call']"
                     routerLinkActive="inverse"
                 >
-                    View Call
+                    {{ 'APP.CONTROL.VC_VIEW_CALL' | translate }}
                 </a>
                 <a
                     btn
@@ -37,13 +36,13 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
                     [routerLinkActiveOptions]="{ exact: true }"
                     routerLinkActive="inverse"
                 >
-                    View Inputs
+                    {{ 'APP.CONTROL.VC_VIEW_INPUTS' | translate }}
                 </a>
             </div>
         </ng-template>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class VideoConferenceTooltipComponent {
     public dial_number = '';
@@ -52,7 +51,7 @@ export class VideoConferenceTooltipComponent {
 
     constructor(
         private _vc_state: VideoCallStateService,
-        @Inject(CustomTooltipData) private _ref: any
+        @Inject(CustomTooltipData) private _ref: any,
     ) {}
 
     public addDigit(digit: string) {

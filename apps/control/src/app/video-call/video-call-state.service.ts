@@ -23,7 +23,7 @@ export class VideoCallStateService extends AsyncHandler {
         this._control.system_id.pipe(
             distinctUntilChanged(),
             switchMap((id) => this.bindTo(id, 'connected')),
-            shareReplay(1)
+            shareReplay(1),
         );
     public readonly call: Observable<VideoCallDetails | null> =
         this._control.system_id.pipe(
@@ -35,38 +35,38 @@ export class VideoCallStateService extends AsyncHandler {
                 }
                 return null;
             }),
-            shareReplay(1)
+            shareReplay(1),
         );
     public readonly mic_mute: Observable<VideoCallDetails | null> =
         this._control.system_id.pipe(
             distinctUntilChanged(),
             switchMap((id) => this.bindTo(id, 'mic_mute')),
-            shareReplay(1)
+            shareReplay(1),
         );
     public readonly presentation_mode: Observable<VideoCallDetails | null> =
         this._control.system_id.pipe(
             distinctUntilChanged(),
             switchMap((id) => this.bindTo(id, 'presentation_mode')),
-            shareReplay(1)
+            shareReplay(1),
         );
     public readonly video_layout: Observable<VideoCallDetails | null> =
         this._control.system_id.pipe(
             distinctUntilChanged(),
             switchMap((id) => this.bindTo(id, 'video_layout')),
-            shareReplay(1)
+            shareReplay(1),
         );
     public readonly show_camera_pip: Observable<VideoCallDetails | null> =
         this._control.system_id.pipe(
             distinctUntilChanged(),
             switchMap((id) => this.bindTo(id, 'selfview')),
-            shareReplay(1)
+            shareReplay(1),
         );
     public readonly speaker_track: Observable<boolean> =
         this._control.system_id.pipe(
             distinctUntilChanged(),
             switchMap((id) => this.bindTo(id, 'speaker_track')),
             map((_) => (_ || {})['Status/Cameras/SpeakerTrack/Availability']),
-            shareReplay(1)
+            shareReplay(1),
         );
 
     constructor(private _control: ControlStateService) {
@@ -116,11 +116,11 @@ export class VideoCallStateService extends AsyncHandler {
         if (!call) return;
         return getModule(id, 'VidConf').execute(
             call.Status === 'OnHold' ? 'call_resume' : 'call_place_on_hold',
-            []
+            [],
         );
     }
 
-    private bindTo(id: string, name: string, mod_name: string = 'VidConf') {
+    private bindTo(id: string, name: string, mod_name = 'VidConf') {
         const mod = getModule(id, mod_name);
         const binding = mod.binding(name);
         const unbind = binding.bind();

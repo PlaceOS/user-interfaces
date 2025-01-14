@@ -38,8 +38,7 @@ import { OrganisationService } from '@placeos/organisation';
                     >lock</app-icon
                 >
                 <p class="relative text-base-content z-10 text-2xl">
-                    This room has been combined and is controlled from another
-                    panel
+                    {{ 'APP.CONTROL.ROOMS_JOINED' | translate }}
                 </p>
             </div>
         </ng-container>
@@ -50,7 +49,9 @@ import { OrganisationService } from '@placeos/organisation';
                 (click)="powerOn()"
                 (touchend)="powerOn()"
             >
-                <h2 class="font-light text-4xl mb-4">Touch to Start</h2>
+                <h2 class="font-light text-4xl mb-4">
+                    {{ 'APP.CONTROL.TOUCH_TO_START' | translate }}
+                </h2>
                 <p class="text-lg">{{ (system | async).name }}</p>
                 <div class="absolute bottom-0 left-0 p-2">
                     <div class="text-xs opacity-60 w-full">
@@ -82,8 +83,7 @@ import { OrganisationService } from '@placeos/organisation';
             >
                 <mat-spinner class="mb-4" [diameter]="64"></mat-spinner>
                 <div class="text-2xl my-4">
-                    Connecting to system(<em>{{ id }}</em
-                    >)...
+                    {{ 'APP.CONTROL.CONNECTING' | translate: { id: id } }}
                 </div>
                 <div class="text-base"></div>
             </div>
@@ -105,7 +105,7 @@ import { OrganisationService } from '@placeos/organisation';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class ControlTabbedViewComponent extends AsyncHandler implements OnInit {
     public readonly system = this._state.system;
