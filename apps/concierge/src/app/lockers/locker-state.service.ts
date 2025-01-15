@@ -498,6 +498,7 @@ export class LockerStateService extends AsyncHandler {
                 new Booking({
                     user_id: new_locker.assigned_to,
                     user_email: new_locker.assigned_to,
+                    user_name: new_locker?.assigned_name,
                     booking_start: getUnixTime(date),
                     booking_end: getUnixTime(addHours(date, 16)),
                     type: 'locker',
