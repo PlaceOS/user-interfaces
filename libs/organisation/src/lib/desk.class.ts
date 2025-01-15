@@ -23,6 +23,8 @@ export class Desk implements Record<string, any> {
     public readonly features: string[];
     /** List of URLs to images */
     public readonly images: string[];
+    /**  */
+    public readonly security: string;
 
     public staff_name?: string;
 
@@ -37,6 +39,7 @@ export class Desk implements Record<string, any> {
         this.qr_code = data.qr_code || '';
         this.features = data.features || [];
         this.images = data.images || [];
+        this.security = data.security || '';
         for (const key in data) {
             if (!(key in this)) this[key] = data[key];
         }

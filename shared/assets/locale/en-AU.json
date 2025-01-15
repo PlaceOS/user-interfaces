@@ -931,6 +931,7 @@
             "DESKS_REJECT_ALL_LOADING": "Rejecting all desks for selected date...",
             "DESKS_REJECT_ALL_SUCCESS": "Successfully rejected all desk bookings for selected date.",
             "DESKS_REJECT_ALL_ERROR": "Failed to reject all desk bookings for selected date. Error: {{ error }}",
+            "DESKS_SECURITY": "Security",
             "BOOKING_ENDED": "Manually Ended",
             "BOOKING_EXPIRED": "Expired",
             "BOOKING_STATUS_ENDED": "Ended",

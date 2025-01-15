@@ -8,7 +8,7 @@ import { User } from '@placeos/users';
 @Component({
     selector: 'desk-modal',
     template: `
-        <div class="w-[28rem]">
+        <div class="w-[32rem]">
             <header
                 class="sticky top-0 p-2 m-2 w-[calc(100%-1rem)] border-none z-10 bg-base-200 rounded"
             >
@@ -120,8 +120,22 @@ import { User } from '@placeos/users';
                     <textarea
                         matInput
                         name="notes"
+                        [placeholder]="'FORM.NOTES' | translate"
                         formControlName="notes"
                     ></textarea>
+                </mat-form-field>
+                <label for="security">
+                    {{ 'APP.CONCIERGE.DESKS_SECURITY' | translate }}
+                </label>
+                <mat-form-field appearance="outline" class="w-full">
+                    <input
+                        matInput
+                        name="security"
+                        [placeholder]="
+                            'APP.CONCIERGE.DESKS_SECURITY' | translate
+                        "
+                        formControlName="security"
+                    />
                 </mat-form-field>
             </main>
             <footer
@@ -142,7 +156,7 @@ import { User } from '@placeos/users';
         </ng-template>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class DeskModalComponent {
     @Output() public readonly event = new EventEmitter<DialogEvent>();
@@ -163,6 +177,7 @@ export class DeskModalComponent {
         assigned_user: new FormControl<User>(null),
         assigned_to: new FormControl(''),
         assigned_name: new FormControl(''),
+        security: new FormControl(''),
     });
 
     constructor(
