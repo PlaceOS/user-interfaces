@@ -1,9 +1,10 @@
-import { randomInt } from '@placeos/common';
-import { CalendarEvent } from '@placeos/events';
+import { addDays, addMinutes, set, startOfDay, startOfMinute } from 'date-fns';
 
 import { CateringItem } from './catering-item.class';
 import { CateringOrderStatus } from './catering.interfaces';
-import { addDays, addMinutes, set, startOfDay, startOfMinute } from 'date-fns';
+
+import { randomInt } from 'libs/common/src/lib/general';
+import { CalendarEvent } from 'libs/events/src/lib/event.class';
 
 function deliverAtTime(order: CateringOrder) {
     let date = order.event?.date || (order as any)._time;

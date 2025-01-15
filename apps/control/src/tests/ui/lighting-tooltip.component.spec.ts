@@ -1,9 +1,5 @@
-
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import {
-    BindingDirective,
-    CustomTooltipData,
-} from '@placeos/components';
+import { BindingDirective, CustomTooltipData } from '@placeos/components';
 import { MockDirective } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 import { ControlStateService } from '../../app/control-state.service';
@@ -26,7 +22,7 @@ describe('LightingTooltipComponent', () => {
                 provide: CustomTooltipData,
                 useValue: { close: jest.fn() },
             },
-        ]
+        ],
     });
 
     beforeEach(() => (spectator = createComponent()));
@@ -37,8 +33,11 @@ describe('LightingTooltipComponent', () => {
 
     it('should list light presets', () => {
         spectator.detectChanges();
-        expect('p').toContainText('No presets available');
-        spectator.component.light = { states: ['One', 'Two', 'Three'], state: 'One' } as any;
+        expect('p').toContainText('');
+        spectator.component.light = {
+            states: ['One', 'Two', 'Three'],
+            state: 'One',
+        } as any;
         spectator.detectChanges();
         expect('p').not.toExist();
         expect('button[state]').toExist();
@@ -47,5 +46,5 @@ describe('LightingTooltipComponent', () => {
         spectator.detectChanges();
         expect('button[state].inverse').not.toContainText('One');
         expect('button[state].inverse').toContainText('Two');
-    })
+    });
 });

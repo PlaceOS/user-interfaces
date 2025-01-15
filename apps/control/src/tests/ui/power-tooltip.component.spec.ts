@@ -1,14 +1,15 @@
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { CustomTooltipData } from '@placeos/components';
+import { CustomTooltipData, SanitizePipe } from '@placeos/components';
 import { ControlStateService } from '../../app/control-state.service';
 
 import { PowerTooltipComponent } from '../../app/ui/power-tooltip.component';
+import { MockPipe } from 'ng-mocks';
 
 describe('PowerTooltipComponent', () => {
     let spectator: Spectator<PowerTooltipComponent>;
     const createComponent = createComponentFactory({
         component: PowerTooltipComponent,
-        declarations: [],
+        declarations: [MockPipe(SanitizePipe)],
         providers: [
             {
                 provide: ControlStateService,
