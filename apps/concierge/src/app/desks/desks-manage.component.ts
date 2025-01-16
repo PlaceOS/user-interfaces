@@ -59,6 +59,10 @@ const QR_CODES = {};
                         content: item_list_template,
                     },
                     {
+                        key: 'security',
+                        name: 'APP.CONCIERGE.DESKS_SECURITY' | translate,
+                    },
+                    {
                         key: 'bookable',
                         name: 'COMMON.BOOKABLE' | translate,
                         content: bool_template,
@@ -224,7 +228,7 @@ const QR_CODES = {};
         </div>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class DesksManageComponent extends AsyncHandler {
     public loading: string;
