@@ -1,4 +1,4 @@
-import { Component, forwardRef, Input, OnChanges, OnInit } from '@angular/core';
+import { Component, forwardRef, Input } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 @Component({
@@ -39,7 +39,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
             multi: true,
         },
     ],
-    standalone: false
+    standalone: false,
 })
 export class SettingsToggleComponent implements ControlValueAccessor {
     @Input() public name: string;
