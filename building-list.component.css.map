@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;577e594e7d75fa908f630c2823b2efac7227123c8145b7063544239e182719b7;/home/runner/work/user-interfaces/user-interfaces/apps/concierge/src/app/surveys/pages/building-list.component.ts"],
+  "sourcesContent": ["\n            :host {\n                display: flex;\n                flex-direction: column;\n                height: 100%;\n                width: 100%;\n                overflow: auto;\n                background-color: var(--b1);\n            }\n        "],
+  "mappings": ";AACY;AACI,WAAS;AACT,kBAAgB;AAChB,UAAQ;AACR,SAAO;AACP,YAAU;AACV,oBAAkB,IAAI;AAC1B;",
+  "names": []
+}

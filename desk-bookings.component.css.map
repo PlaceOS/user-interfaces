@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;50f565321ed488c261915867f2cdb2126821993bd33e062143023023a6d86219;/home/runner/work/user-interfaces/user-interfaces/apps/concierge/src/app/desks/desk-bookings.component.ts"],
+  "sourcesContent": ["\n            :host {\n                position: relative;\n                display: flex;\n                flex-direction: column;\n                height: 100%;\n                width: 100%;\n            }\n        "],
+  "mappings": ";AACY;AACI,YAAU;AACV,WAAS;AACT,kBAAgB;AAChB,UAAQ;AACR,SAAO;AACX;",
+  "names": []
+}

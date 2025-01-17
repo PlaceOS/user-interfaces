@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;d872c769e8a75c71a1339db27a072e63856ed822211b397f614e8181c733aaec;/home/runner/work/user-interfaces/user-interfaces/libs/survey-suite/src/lib/survey-widget/selection.widget.component.ts"],
+  "sourcesContent": ["\n            :host {\n                display: flex;\n                height: 100%;\n                width: 100%;\n                padding-bottom: 0.5rem;\n            }\n        "],
+  "mappings": ";AACY;AACI,WAAS;AACT,UAAQ;AACR,SAAO;AACP,kBAAgB;AACpB;",
+  "names": []
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;32e0d558f713ae5ab80cbd7890c2cc26db255330854defb57d1e6f3bc23dc80d;/home/runner/work/user-interfaces/user-interfaces/apps/concierge/src/app/day-view/dayview-topbar.component.ts"],
+  "sourcesContent": ["\n            button {\n                min-width: 0;\n                padding: 0 0.85rem;\n            }\n\n            mat-form-field {\n                height: 3.25em;\n                width: 8em;\n                margin-left: 1em;\n            }\n\n            mat-slide-toggle div {\n                width: 5.5em;\n                white-space: initial;\n                line-height: 1.2em;\n            }\n        "],
+  "mappings": ";AACY;AACI,aAAW;AACX,WAAS,EAAE;AACf;AAEA;AACI,UAAQ;AACR,SAAO;AACP,eAAa;AACjB;AAEA,iBAAiB;AACb,SAAO;AACP,eAAa;AACb,eAAa;AACjB;",
+  "names": []
+}

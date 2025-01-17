@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;53cb030fa3a803b962b5550229c05545d762f57ea140e0c7a3f82418aee7e5a5;/home/runner/work/user-interfaces/user-interfaces/libs/survey-suite/src/lib/survey-widget/table-widget.component.ts"],
+  "sourcesContent": ["\n            :host {\n                display: flex;\n                height: 100%;\n                width: 100%;\n                padding-bottom: 0.5rem;\n            }\n\n            blockquote:after, blockquote:before {\n                font-size: 1.3rem;  \n            } \n\n            blockquote:after {                                                       \n                content: close-quote;\n                vertical-align: bottom;\n                margin-left: 0.25rem;\n            }\n\n            blockquote:before {                                     \n                content: open-quote;\n                vertical-align: top;\n                margin-right: 0.25rem;\n            }\n        "],
+  "mappings": ";AACY;AACI,WAAS;AACT,UAAQ;AACR,SAAO;AACP,kBAAgB;AACpB;AAEA,UAAU;AAAQ,UAAU;AACxB,aAAW;AACf;AAEA,UAAU;AACN,WAAS;AACT,kBAAgB;AAChB,eAAa;AACjB;AAEA,UAAU;AACN,WAAS;AACT,kBAAgB;AAChB,gBAAc;AAClB;",
+  "names": []
+}

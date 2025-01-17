@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;ade2e5798fea4b47f1c6cb883fe5a283d38ebcd62508c6484a00c566492d3d00;/home/runner/work/user-interfaces/user-interfaces/apps/concierge/src/app/reports/contact-tracing/contact-tracing-options.component.ts"],
+  "sourcesContent": ["\n            mat-form-field {\n                height: 3.25rem;\n            }\n\n            button[icon][disabled] {\n                background-color: var(--n) !important;\n            }\n        "],
+  "mappings": ";AACY;AACI,UAAQ;AACZ;AAEA,MAAM,CAAC,KAAK,CAAC;AACT,oBAAkB,IAAI;AAC1B;",
+  "names": []
+}

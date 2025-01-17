@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;f5b3cc57ef2806e3e4c0ef9ac8c3de2791897cf257197e0c7fa8639112d7c713;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/custom-table.component.ts"],
+  "sourcesContent": ["\n            cdk-header-row {\n                font-weight: 500;\n                text-transform: capitalize;\n                min-height: 3rem;\n            }\n        "],
+  "mappings": ";AACY;AACI,eAAa;AACb,kBAAgB;AAChB,cAAY;AAChB;",
+  "names": []
+}

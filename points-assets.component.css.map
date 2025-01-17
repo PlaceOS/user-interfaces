@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;fc920bce50edd1dac5546bb62d2c5d80ffdb0ed114cdfa8d17a0a6a91a2c6859;/home/runner/work/user-interfaces/user-interfaces/apps/concierge/src/app/points/points-assets.component.ts"],
+  "sourcesContent": ["\n            :host {\n                height: 100%;\n                width: 100%;\n                overflow-x: auto;\n                overflow-y: hidden;\n            }\n        "],
+  "mappings": ";AACY;AACI,UAAQ;AACR,SAAO;AACP,cAAY;AACZ,cAAY;AAChB;",
+  "names": []
+}

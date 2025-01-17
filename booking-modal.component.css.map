@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;7fcf6a88305ab3370390caa495501603983c1c1baa6acf3a55b6150bad31ba4a;/home/runner/work/user-interfaces/user-interfaces/apps/concierge/src/app/day-view/booking-modal.component.ts"],
+  "sourcesContent": ["\n            main {\n                width: 32rem;\n                max-height: 65vh;\n                max-width: calc(100vw - 4rem);\n            }\n        "],
+  "mappings": ";AACY;AACI,SAAO;AACP,cAAY;AACZ,aAAW,KAAK,MAAM,EAAE;AAC5B;",
+  "names": []
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;598beeb1039b1ab45f9544c34b6ccfd79f95c38cdc3862574ac547cac62c7acc;/home/runner/work/user-interfaces/user-interfaces/apps/concierge/src/app/desks/desks-topbar.component.ts"],
+  "sourcesContent": ["\n            mat-form-field {\n                height: 3.25em;\n                width: 8em;\n            }\n        "],
+  "mappings": ";AACY;AACI,UAAQ;AACR,SAAO;AACX;",
+  "names": []
+}

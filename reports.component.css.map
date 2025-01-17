@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;281ba29c91b0438ba3dc517df0fec0c061076644f4abc764a34da2cd2be8fb27;/home/runner/work/user-interfaces/user-interfaces/apps/concierge/src/app/reports/reports.component.ts"],
+  "sourcesContent": ["\n            :host {\n                display: flex;\n                height: 100%;\n                width: 100%;\n            }\n\n            main > *:not(router-outlet) {\n                display: flex;\n                flex-direction: column;\n                width: 100%;\n                height: 100%;\n            }\n        "],
+  "mappings": ";AACY;AACI,WAAS;AACT,UAAQ;AACR,SAAO;AACX;AAEA,KAAK,EAAE,CAAC,KAAK;AACT,WAAS;AACT,kBAAgB;AAChB,SAAO;AACP,UAAQ;AACZ;",
+  "names": []
+}

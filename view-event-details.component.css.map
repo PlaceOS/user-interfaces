@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;d626e0f36c5e1f1d3415aa11a083574c1e1afd211ab7fff08c440bd8bd885c29;/home/runner/work/user-interfaces/user-interfaces/apps/concierge/src/app/ui/view-event-details.component.ts"],
+  "sourcesContent": ["\n            :host {\n                z-index: 999;\n            }\n\n            [name='panel'] {\n                padding-top: 0;\n                width: 26em;\n                left: 50%;\n                top: 6.5em;\n                transform: translateX(-50%);\n                max-height: 80vh;\n            }\n\n            [name='actions'] {\n                border-top: 1px solid #ccc;\n            }\n\n            [name='close'] {\n                position: absolute;\n                top: 0.25em;\n                right: 0.25em;\n            }\n        "],
+  "mappings": ";AACY;AACI,WAAS;AACb;AAEA,CAAC;AACG,eAAa;AACb,SAAO;AACP,QAAM;AACN,OAAK;AACL,aAAW,WAAW;AACtB,cAAY;AAChB;AAEA,CAAC;AACG,cAAY,IAAI,MAAM;AAC1B;AAEA,CAAC;AACG,YAAU;AACV,OAAK;AACL,SAAO;AACX;",
+  "names": []
+}

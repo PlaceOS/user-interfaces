@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;eeb114e7766a95e93c6c6baee8932f63df21a648b3e512ffa9a6462164777c8a;/home/runner/work/user-interfaces/user-interfaces/apps/concierge/src/app/points/asset-modal.component.ts"],
+  "sourcesContent": ["\n            label {\n                width: auto;\n                min-width: 0;\n                margin: 0 1rem 0 0;\n            }\n        "],
+  "mappings": ";AACY;AACI,SAAO;AACP,aAAW;AACX,UAAQ,EAAE,KAAK,EAAE;AACrB;",
+  "names": []
+}

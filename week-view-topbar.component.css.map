@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;19eccc044f6ed839f748063505d4befeb487e475cee7a86b1855dc3f2c76014a;/home/runner/work/user-interfaces/user-interfaces/apps/concierge/src/app/week-view/week-view-topbar.component.ts"],
+  "sourcesContent": ["\n            :host {\n                display: flex;\n                align-items: center;\n                background-color: var(--b1);\n                height: 5em;\n                padding: 0 1em;\n            }\n\n            button {\n                min-width: 0;\n                padding: 0 0.85rem;\n            }\n\n            mat-form-field {\n                height: 3.25em;\n                width: 8em;\n                margin-left: 1em;\n            }\n        "],
+  "mappings": ";AACY;AACI,WAAS;AACT,eAAa;AACb,oBAAkB,IAAI;AACtB,UAAQ;AACR,WAAS,EAAE;AACf;AAEA;AACI,aAAW;AACX,WAAS,EAAE;AACf;AAEA;AACI,UAAQ;AACR,SAAO;AACP,eAAa;AACjB;",
+  "names": []
+}

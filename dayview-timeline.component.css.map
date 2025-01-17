@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;5bfac2f076fa45ac4c4881d53e16010834e55ae38bb9d3556c0c8f1a9a9fb25d;/home/runner/work/user-interfaces/user-interfaces/apps/concierge/src/app/day-view/dayview-timeline.component.ts"],
+  "sourcesContent": ["\n            :host {\n                position: relative;\n                height: 100%;\n                width: 100%;\n            }\n\n            [change-transform] {\n                will-change: transform;\n            }\n        "],
+  "mappings": ";AACY;AACI,YAAU;AACV,UAAQ;AACR,SAAO;AACX;AAEA,CAAC;AACG,eAAa;AACjB;",
+  "names": []
+}

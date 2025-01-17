@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;2c590c9e56511a088a1469fe4b227d8190323c208f95620a03712f1a8f5bae8d;/home/runner/work/user-interfaces/user-interfaces/apps/concierge/src/app/events/event-calendar.component.ts"],
+  "sourcesContent": ["\n            :host {\n                display: flex;\n                flex-direction: column;\n                height: 100%;\n                width: 100%;\n            }\n        "],
+  "mappings": ";AACY;AACI,WAAS;AACT,kBAAgB;AAChB,UAAQ;AACR,SAAO;AACX;",
+  "names": []
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;2e9d87d521e7a9befe87746c1b1aed540800c3f305148c2d1b94a2dbb3f9a57c;/home/runner/work/user-interfaces/user-interfaces/apps/concierge/src/app/week-view/week-view-timeline.component.ts"],
+  "sourcesContent": ["\n            :host {\n                position: relative;\n                height: 100%;\n                width: 100%;\n                overflow: hidden;\n            }\n        "],
+  "mappings": ";AACY;AACI,YAAU;AACV,UAAQ;AACR,SAAO;AACP,YAAU;AACd;",
+  "names": []
+}

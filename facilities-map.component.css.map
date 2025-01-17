@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;f26b881f8eefd87319c7388ff7bb3cecb37d07a0db8d3a808d3cfede99235935;/home/runner/work/user-interfaces/user-interfaces/apps/concierge/src/app/facilities/facilities-map.component.ts"],
+  "sourcesContent": ["\n            :host {\n                position: relative;\n                height: 100%;\n                width: 100%;\n            }\n        "],
+  "mappings": ";AACY;AACI,YAAU;AACV,UAAQ;AACR,SAAO;AACX;",
+  "names": []
+}

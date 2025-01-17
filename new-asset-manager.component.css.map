@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;08c828c36224658230d6844bbbe8551e02a5c30c320aa5e48c90063783b9b8fa;/home/runner/work/user-interfaces/user-interfaces/apps/concierge/src/app/asset-manager/new-asset-manager.component.ts"],
+  "sourcesContent": ["\n            :host {\n                display: flex;\n                flex-direction: column;\n                height: 100%;\n                width: 100%;\n                background-color: var(--b1);\n            }\n        "],
+  "mappings": ";AACY;AACI,WAAS;AACT,kBAAgB;AAChB,UAAQ;AACR,SAAO;AACP,oBAAkB,IAAI;AAC1B;",
+  "names": []
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;cc697b08d9f2fbde961b53703f5a7647bcb7d79fe59beff1abcb16f98f102d91;/home/runner/work/user-interfaces/user-interfaces/libs/survey-suite/src/lib/survey-widget/survey-widget.component.ts"],
+  "sourcesContent": ["\n            :host {\n                display: flex;\n            }\n        "],
+  "mappings": ";AACY;AACI,WAAS;AACb;",
+  "names": []
+}

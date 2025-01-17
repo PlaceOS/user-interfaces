@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;5784da58046fe51e566546051a5c06ba941c3fccb5ef3905c439eccf92edf994;/home/runner/work/user-interfaces/user-interfaces/apps/concierge/src/app/reports/spaces/report-spaces-overall.component.ts"],
+  "sourcesContent": ["\n            h3 {\n                font-weight: 500;\n            }\n\n            p:not([simple]) {\n                font-size: 1.75rem;\n            }\n        "],
+  "mappings": ";AACY;AACI,eAAa;AACjB;AAEA,CAAC,KAAK,CAAC;AACH,aAAW;AACf;",
+  "names": []
+}

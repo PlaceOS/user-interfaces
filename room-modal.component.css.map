@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;04b7a7094a437298576db2a062c3593f3d6712155227875ebf15729043ce208e;/home/runner/work/user-interfaces/user-interfaces/apps/concierge/src/app/room-manager/room-modal.component.ts"],
+  "sourcesContent": ["\n            mat-checkbox {\n                margin-top: 2.5em;\n                margin-bottom: 1.5em;\n            }\n\n            @media screen and (max-width: 640px) {\n                mat-checkbox {\n                    margin-top: 0;\n                }\n            }\n        "],
+  "mappings": ";AACY;AACI,cAAY;AACZ,iBAAe;AACnB;AAEA,OAAO,OAAO,IAAI,CAAC,SAAS,EAAE;AAC1B;AACI,gBAAY;AAChB;AACJ;",
+  "names": []
+}

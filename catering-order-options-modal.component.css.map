@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;6d0e3900ca0c81c651d39ed0818f526b2939d0b7293a60641300dbf3b88fa642;/home/runner/work/user-interfaces/user-interfaces/libs/catering/src/lib/catering-order-options-modal.component.ts"],
+  "sourcesContent": ["\n            main {\n                min-height: 24em;\n                width: 24rem;\n                max-width: calc(100vw - 2rem);\n            }\n        "],
+  "mappings": ";AACY;AACI,cAAY;AACZ,SAAO;AACP,aAAW,KAAK,MAAM,EAAE;AAC5B;",
+  "names": []
+}

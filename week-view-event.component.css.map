@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;3a7cea5117d3bbce1ee5dc72b81e3118d3fd349bd4d2a58591e15b23616cf475;/home/runner/work/user-interfaces/user-interfaces/apps/concierge/src/app/week-view/week-view-event.component.ts"],
+  "sourcesContent": ["\n            button {\n                background: none !important;\n                border: none !important;\n            }\n\n            [content] {\n                width: calc(100% - 1rem);\n            }\n\n            .done {\n                opacity: 0.5;\n            }\n\n            .done:hover {\n                opacity: 1;\n            }\n\n            .cancelled {\n                border-color: #626262;\n            }\n\n            .external {\n                border-color: #d85be0;\n            }\n\n            .internal {\n                border-color: #00a4c7;\n            }\n        "],
+  "mappings": ";AACY;AACI,cAAY;AACZ,UAAQ;AACZ;AAEA,CAAC;AACG,SAAO,KAAK,KAAK,EAAE;AACvB;AAEA,CAAC;AACG,WAAS;AACb;AAEA,CAJC,IAII;AACD,WAAS;AACb;AAEA,CAAC;AACG,gBAAc;AAClB;AAEA,CAAC;AACG,gBAAc;AAClB;AAEA,CAAC;AACG,gBAAc;AAClB;",
+  "names": []
+}

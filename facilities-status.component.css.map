@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;0f44140f54b4279195f22099eb8e5b7af133a4fb684e10772280afddc2632a5e;/home/runner/work/user-interfaces/user-interfaces/apps/concierge/src/app/facilities/facilities-status.component.ts"],
+  "sourcesContent": ["\n            :host {\n                display: flex;\n                flex-direction: column;\n                align-items: center;\n                width: 20em;\n                padding: 2em;\n            }\n\n            .bg-light {\n                background-color: rgba(0, 0, 0, 0.05);\n            }\n\n            [name='mood'] app-icon {\n            }\n\n            [name='status'] {\n                margin: 0.5em;\n                border: 4px solid #21a453;\n                border-radius: 100%;\n            }\n        "],
+  "mappings": ";AACY;AACI,WAAS;AACT,kBAAgB;AAChB,eAAa;AACb,SAAO;AACP,WAAS;AACb;AAEA,CAAC;AACG,oBAAkB,KAAK,CAAC,EAAE,CAAC,EAAE,CAAC,EAAE;AACpC;AAEA,CAAC,WAAa;AACd;AAEA,CAAC;AACG,UAAQ;AACR,UAAQ,IAAI,MAAM;AAClB,iBAAe;AACnB;",
+  "names": []
+}

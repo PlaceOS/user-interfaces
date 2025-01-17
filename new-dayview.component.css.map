@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;a601cbb7d699676f3f7a2e48e4300694049c302c7b799a2ae7a0b3ce185e7eef;/home/runner/work/user-interfaces/user-interfaces/apps/concierge/src/app/day-view/new-dayview.component.ts"],
+  "sourcesContent": ["\n            :host {\n                display: flex;\n                flex-direction: column;\n                height: 100%;\n                width: 100%;\n                background-color: var(--b1);\n            }\n\n            @media print {\n                :host {\n                    display: none;\n                }\n            }\n        "],
+  "mappings": ";AACY;AACI,WAAS;AACT,kBAAgB;AAChB,UAAQ;AACR,SAAO;AACP,oBAAkB,IAAI;AAC1B;AAEA,OAAO;AACH;AACI,aAAS;AACb;AACJ;",
+  "names": []
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;12e1a74f72032b78382da6c9e640899f4d55a10f8da8212aece9944f92018221;/home/runner/work/user-interfaces/user-interfaces/apps/concierge/src/app/parking/parking.component.ts"],
+  "sourcesContent": ["\n            :host {\n                display: flex;\n                height: 100%;\n                width: 100%;\n            }\n\n            sidebar {\n                height: 100%;\n            }\n\n            main {\n                display: flex;\n                flex-direction: column;\n                flex: 1;\n                min-width: 50%;\n                height: 100%;\n            }\n        "],
+  "mappings": ";AACY;AACI,WAAS;AACT,UAAQ;AACR,SAAO;AACX;AAEA;AACI,UAAQ;AACZ;AAEA;AACI,WAAS;AACT,kBAAgB;AAChB,QAAM;AACN,aAAW;AACX,UAAQ;AACZ;",
+  "names": []
+}

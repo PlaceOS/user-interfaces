@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;e1dec1af016150e2b3a1724eb9ebdcfafad860ec5d68d0d9560f19db1df1dfbd;/home/runner/work/user-interfaces/user-interfaces/apps/concierge/src/app/surveys/pages/survey-listings.component.ts"],
+  "sourcesContent": ["\n            :host {\n                display: flex;\n                flex-direction: column;\n                height: 100%;\n                width: 100%;\n                background-color: var(--b1);\n            }\n\n            .mat-column-actions {\n                width: 4rem;\n            }\n\n            .mat-column-trigger {\n                width: 12rem;\n            }\n        "],
+  "mappings": ";AACY;AACI,WAAS;AACT,kBAAgB;AAChB,UAAQ;AACR,SAAO;AACP,oBAAkB,IAAI;AAC1B;AAEA,CAAC;AACG,SAAO;AACX;AAEA,CAAC;AACG,SAAO;AACX;",
+  "names": []
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;f16e3b3feefb174fbec6acfda77d1a60f609b8986c5702a31b913b59c0ad198f;/home/runner/work/user-interfaces/user-interfaces/apps/concierge/src/app/surveys/survey.component.ts"],
+  "sourcesContent": ["\n            :host {\n                display: flex;\n                height: 100%;\n                width: 100%;\n                background-color: var(--b1);\n            }\n        "],
+  "mappings": ";AACY;AACI,WAAS;AACT,UAAQ;AACR,SAAO;AACP,oBAAkB,IAAI;AAC1B;",
+  "names": []
+}

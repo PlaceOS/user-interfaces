@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;6714f28fad7d44bfe3f2ce1c97e51c47788fbc9ca35df075a6079c15b86aa170;/home/runner/work/user-interfaces/user-interfaces/apps/concierge/src/app/asset-manager/asset-purchase-order-list.component.ts"],
+  "sourcesContent": ["\n            :host {\n                display: block;\n                height: 100%;\n                width: 100%;\n            }\n        "],
+  "mappings": ";AACY;AACI,WAAS;AACT,UAAQ;AACR,SAAO;AACX;",
+  "names": []
+}

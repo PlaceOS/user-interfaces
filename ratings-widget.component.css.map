@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;717ea3d437819b32609791243d9393c3544f592433d439c9be9c863997b12533;/home/runner/work/user-interfaces/user-interfaces/libs/survey-suite/src/lib/survey-widget/ratings-widget.component.ts"],
+  "sourcesContent": ["\n            :host {\n                padding-bottom: 0.5rem;\n            }\n        "],
+  "mappings": ";AACY;AACI,kBAAgB;AACpB;",
+  "names": []
+}
