@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;756d751949baab0d174e2b09d453d8a27a35e7433604e0603e0f4d8376563681;/home/runner/work/user-interfaces/user-interfaces/libs/catering/src/lib/catering-order-item.component.ts"],
+  "sourcesContent": ["\n            :host:last-child > div {\n                border: none !important;\n            }\n        "],
+  "mappings": ";AACY,KAAK,YAAY,EAAE;AACf,UAAQ;AACZ;",
+  "names": []
+}

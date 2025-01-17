@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;495cb0c9a8dabee08a6d384523a3eb34393e5b67924f918dc16570a08535da21;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/simple-table.component.ts"],
+  "sourcesContent": ["\n            :host,\n            :host > button {\n                min-width: 100%;\n            }\n\n            [header] app-icon {\n                opacity: 0;\n            }\n            [header]:hover app-icon {\n                opacity: 0.3;\n            }\n            [header]:hover.pointer-events-none app-icon {\n                opacity: 0;\n            }\n            [header].active app-icon {\n                opacity: 1;\n            }\n        "],
+  "mappings": ";AACY;AACA,MAAM,EAAE;AACJ,aAAW;AACf;AAEA,CAAC,QAAQ;AACL,WAAS;AACb;AACA,CAAC,OAAO,OAAO;AACX,WAAS;AACb;AACA,CAAC,OAAO,MAAM,CAAC,oBAAoB;AAC/B,WAAS;AACb;AACA,CAAC,OAAO,CAAC,OAAO;AACZ,WAAS;AACb;",
+  "names": []
+}
