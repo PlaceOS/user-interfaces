@@ -244,7 +244,9 @@ export class CalendarEvent {
             system?.email &&
             !this.resources.find((_) => _.email === system.email)
         ) {
-            this.resources.push(new Space(system as any));
+            this.resources.push(
+                new Space({ ...(system as any), response_status: data.status }),
+            );
         }
         this.system = system || (this.resources[0] as any) || null;
         if (!system && data.system_id) {
