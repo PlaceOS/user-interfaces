@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;908ed65ac59a66e5b4ca89c92e5d470a3c9fc68e1f6867d16624efc0c13fdff5;/home/runner/work/user-interfaces/user-interfaces/apps/workplace/src/app/book/space-flow/find.component.ts"],
+  "sourcesContent": ["\n            :host {\n                height: 100%;\n                width: 100%;\n                display: flex;\n                flex-direction: column;\n            }\n\n            [topbar] {\n                background-color: var(--secondary-dark);\n            }\n\n            [filters] {\n                background-color: var(--p);\n            }\n        "],
+  "mappings": ";AACY;AACI,UAAQ;AACR,SAAO;AACP,WAAS;AACT,kBAAgB;AACpB;AAEA,CAAC;AACG,oBAAkB,IAAI;AAC1B;AAEA,CAAC;AACG,oBAAkB,IAAI;AAC1B;",
+  "names": []
+}

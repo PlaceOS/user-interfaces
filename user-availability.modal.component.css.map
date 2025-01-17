@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["apps/workplace/src/app/overlays/user-availability-modal/user-availability.modal.component.scss"],
+  "sourcesContent": ["\n.heading {\n    flex: 1;\n    text-align: center;\n}\n\n.not-mobile {\n    @media screen and (max-width: 639px) {\n        display: none;\n    }\n}\n\n.mobile-only {\n    @media screen and (min-width: 640px) {\n        display: none;\n    }\n}\n\n.date {\n    display: flex;\n    justify-content: center;\n    margin-bottom: 1em;\n}\n\n.spinner {\n    display: flex;\n    justify-content: center;\n    width: 100%;\n    height: 3em;\n}\n"],
+  "mappings": ";AACA,CAAA;AACI,QAAA;AACA,cAAA;;AAIA,OAAA,OAAA,IAAA,CAAA,SAAA,EAAA;AADJ,GAAA;AAEQ,aAAA;;;AAKJ,OAAA,OAAA,IAAA,CAAA,SAAA,EAAA;AADJ,GAAA;AAEQ,aAAA;;;AAIR,CAAA;AACI,WAAA;AACA,mBAAA;AACA,iBAAA;;AAGJ,CAAA;AACI,WAAA;AACA,mBAAA;AACA,SAAA;AACA,UAAA;;",
+  "names": []
+}

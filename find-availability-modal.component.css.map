@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;76b970ea1fbd22f261c4ae1d7362a2a4be952fddab9217461619407a5e9eb6ef;/home/runner/work/user-interfaces/user-interfaces/libs/users/src/lib/find-availability-modal/find-availability-modal.component.ts"],
+  "sourcesContent": ["\n            .grid {\n                grid-template-columns: 6rem 1fr;\n                grid-template-rows: 2.5rem minmax(0, 1fr);\n            }\n            [disabled='true'],\n            [disabled='true'] [header] {\n                background: var(--b3) !important;\n                pointer-events: none;\n            }\n            [disabled='true'] > * {\n                opacity: 0.3;\n            }\n        "],
+  "mappings": ";AACY,CAAC;AACG,yBAAuB,KAAK;AAC5B,sBAAoB,OAAO,OAAO,CAAC,EAAE;AACzC;AACA,CAAC;AACD,CAAC,eAAiB,CAAC;AACf,cAAY,IAAI;AAChB,kBAAgB;AACpB;AACA,CAAC,eAAiB,EAAE;AAChB,WAAS;AACb;",
+  "names": []
+}

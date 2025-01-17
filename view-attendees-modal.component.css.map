@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["apps/workplace/src/app/overlays/view-attendees-modal/view-attendees-modal.component.scss"],
+  "sourcesContent": [".body {\n    display: flex;\n    flex-direction: column;\n    row-gap: 0.5em;\n\n    div {\n        display: grid;\n        grid-template-columns: 3em 1fr;\n        grid-template-rows: 1fr 1fr;\n        grid-template-areas: 'icon name' 'icon email';\n        margin-bottom: 0.5em;\n        align-items: center;\n\n        app-icon {\n            margin: auto;\n            grid-area: icon;\n            font-size: 2em;\n        }\n        label {\n            grid-area: name;\n        }\n        a {\n            grid-area: email;\n        }\n    }\n}\n"],
+  "mappings": ";AAAA,CAAA;AACI,WAAA;AACA,kBAAA;AACA,WAAA;;AAEA,CALJ,KAKI;AACI,WAAA;AACA,yBAAA,IAAA;AACA,sBAAA,IAAA;AACA,uBAAA,YAAA;AACA,iBAAA;AACA,eAAA;;AAEA,CAbR,KAaQ,IAAA;AACI,UAAA;AACA,aAAA;AACA,aAAA;;AAEJ,CAlBR,KAkBQ,IAAA;AACI,aAAA;;AAEJ,CArBR,KAqBQ,IAAA;AACI,aAAA;;",
+  "names": []
+}

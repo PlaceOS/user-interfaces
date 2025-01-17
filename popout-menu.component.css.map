@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;612abf0d4b443924a3936767842583ed07d49d900ab7f05842aa86a02b879047;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/popout-menu.component.ts"],
+  "sourcesContent": ["\n            :host {\n                position: relative;\n            }\n\n            app-icon {\n                transition: transform 200ms;\n            }\n\n            button {\n                background-color: #fff;\n                color: rgba(#000, 0.85);\n                font-size: 1.25rem;\n                height: 2.5em;\n                width: 2.5em;\n            }\n\n            button.show app-icon {\n                transform: rotate(45deg);\n            }\n\n            button.small {\n                transition: top 200ms, left 200ms;\n            }\n        "],
+  "mappings": ";AACY;AACI,YAAU;AACd;AAEA;AACI,cAAY,UAAU;AAC1B;AAEA;AACI,oBAAkB;AAClB,SAAO,KAAK,IAAI,EAAE;AAClB,aAAW;AACX,UAAQ;AACR,SAAO;AACX;AAEA,MAAM,CAAC,KAAK;AACR,aAAW,OAAO;AACtB;AAEA,MAAM,CAAC;AACH,cAAY,IAAI,KAAK,EAAE,KAAK;AAChC;",
+  "names": []
+}

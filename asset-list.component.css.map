@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;1a86fe953ac4699a7233eba07c73d4f08a6d86f7f3505df7b6b4c6605938d0ed;/home/runner/work/user-interfaces/user-interfaces/libs/assets/src/lib/asset-select-modal/asset-list.component.ts"],
+  "sourcesContent": ["\n            :host {\n                width: 100%;\n                height: 100%;\n            }\n        "],
+  "mappings": ";AACY;AACI,SAAO;AACP,UAAQ;AACZ;",
+  "names": []
+}

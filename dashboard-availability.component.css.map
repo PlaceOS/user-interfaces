@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;11fb6e53c84bdbe396a0d9a961cb1c61a7817c407f7fabec6f810286ce3422aa;/home/runner/work/user-interfaces/user-interfaces/apps/workplace/src/app/dashboard/dashboard-availability.component.ts"],
+  "sourcesContent": ["\n            :host {\n                padding: 1em;\n                min-width: 16rem;\n            }\n        "],
+  "mappings": ";AACY;AACI,WAAS;AACT,aAAW;AACf;",
+  "names": []
+}

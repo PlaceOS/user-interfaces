@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["apps/workplace/src/app/overlays/view-catering-modal/view-catering-modal.component.scss"],
+  "sourcesContent": [".body {\n    display: grid;\n    grid-template-columns: 1fr 1fr;\n    row-gap: 0.5em;\n\n    .note-box,\n    .note-label {\n        grid-column: 1/-1;\n    }\n\n    .note-label {\n        margin-top: 0.5em;\n    }\n\n    .qty, .total {\n        text-align: right;\n    }\n\n}\n"],
+  "mappings": ";AAAA,CAAA;AACI,WAAA;AACA,yBAAA,IAAA;AACA,WAAA;;AAEA,CALJ,KAKI,CAAA;AAAA,CALJ,KAKI,CAAA;AAEI,eAAA,CAAA,CAAA;;AAGJ,CAVJ,KAUI,CALA;AAMI,cAAA;;AAGJ,CAdJ,KAcI,CAAA;AAAA,CAdJ,KAcI,CAAA;AACI,cAAA;;",
+  "names": []
+}

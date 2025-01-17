@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;494b6bc14a9fbfde9c60dc8a5c68a1079c36b47d4878c0779115a89b362bddaa;/home/runner/work/user-interfaces/user-interfaces/apps/workplace/src/app/book/space-flow/find-item.component.ts"],
+  "sourcesContent": ["\n            button {\n                width: 8rem;\n            }\n        "],
+  "mappings": ";AACY;AACI,SAAO;AACX;",
+  "names": []
+}

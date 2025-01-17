@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;9c1ecf837e47c407c45318b4244a31c57e846e4b5fe82d2e31b473f88ae1672a;/home/runner/work/user-interfaces/user-interfaces/apps/workplace/src/app/components/booking-form-modal.component.ts"],
+  "sourcesContent": ["\n            .field {\n                display: flex;\n                flex-wrap: wrap;\n            }\n\n            .notes {\n                padding-bottom: 150px;\n                width: 100%;\n                background-color: lightgrey;\n                border: solid 1px rgba(black, 0.5);\n                margin-bottom: 50px;\n            }\n\n            mat-form-field {\n                width: 100%;\n            }\n        "],
+  "mappings": ";AACY,CAAC;AACG,WAAS;AACT,aAAW;AACf;AAEA,CAAC;AACG,kBAAgB;AAChB,SAAO;AACP,oBAAkB;AAClB,UAAQ,MAAM,IAAI,KAAK,KAAK,EAAE;AAC9B,iBAAe;AACnB;AAEA;AACI,SAAO;AACX;",
+  "names": []
+}

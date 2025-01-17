@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;ff74857218cba298a5fc0467ce31f7512cdf294a0cb0a9c5f777ccd2a40d0737;/home/runner/work/user-interfaces/user-interfaces/apps/workplace/src/app/schedule/schedule-view-booking.component.ts"],
+  "sourcesContent": ["\n            :host {\n                height: 100%;\n                width: 100%;\n                display: flex;\n                flex-direction: column;\n            }\n\n            [topbar] {\n                background-color: #00539f;\n            }\n\n            [list] {\n                transition: height 200ms;\n            }\n        "],
+  "mappings": ";AACY;AACI,UAAQ;AACR,SAAO;AACP,WAAS;AACT,kBAAgB;AACpB;AAEA,CAAC;AACG,oBAAkB;AACtB;AAEA,CAAC;AACG,cAAY,OAAO;AACvB;",
+  "names": []
+}

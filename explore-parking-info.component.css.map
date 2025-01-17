@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;186a95b4c185bcd2753f7ef9d30513d06855e35c348eb8e66dff829f779ea78f;/home/runner/work/user-interfaces/user-interfaces/libs/explore/src/lib/explore-parking-info.component.ts"],
+  "sourcesContent": ["\n            .triangle {\n                width: 0px;\n                height: 0px;\n                border-style: solid;\n                border-width: 0.5rem 0.5rem 0 0;\n                border-color: currentColor transparent transparent transparent;\n                transform: rotate(0deg);\n            }\n        "],
+  "mappings": ";AACY,CAAC;AACG,SAAO;AACP,UAAQ;AACR,gBAAc;AACd,gBAAc,OAAO,OAAO,EAAE;AAC9B,gBAAc,aAAa,YAAY,YAAY;AACnD,aAAW,OAAO;AACtB;",
+  "names": []
+}

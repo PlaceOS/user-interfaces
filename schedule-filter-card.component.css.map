@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;c8f9d18253326e4ed43aff56311c0651df3afa940b60387869cba90c71ede5e2;/home/runner/work/user-interfaces/user-interfaces/apps/workplace/src/app/new-schedule/schedule-filter-card.component.ts"],
+  "sourcesContent": ["\n            mat-checkbox {\n                pointer-events: none;\n            }\n        "],
+  "mappings": ";AACY;AACI,kBAAgB;AACpB;",
+  "names": []
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;a06df7e621aef1a8e37f27538bd827f318d299b81e71a664b59cedd72ad336cf;/home/runner/work/user-interfaces/user-interfaces/apps/workplace/src/app/components/top-menu.component.ts"],
+  "sourcesContent": ["\n            [menu] > * {\n                height: 3.5rem;\n                flex-shrink: 1;\n            }\n\n            [bar] {\n                display: none;\n            }\n\n            .active > [bar] {\n                display: block;\n            }\n\n            a:not([mat-menu-item]):not(.active) {\n                opacity: 0.6;\n            }\n\n            a:not([mat-menu-item]):not(.active):hover {\n                border-radius: 0.5rem;\n                margin-top: 0.25rem;\n                margin-bottom: 0.25rem;\n                height: 3rem;\n\n                background-color: var(--b2);\n                opacity: 0.4;\n            }\n\n            a:not(.active) [filled],\n            a.active [outline] {\n                display: none;\n            }\n        "],
+  "mappings": ";AACY,CAAC,MAAM,EAAE;AACL,UAAQ;AACR,eAAa;AACjB;AAEA,CAAC;AACG,WAAS;AACb;AAEA,CAAC,OAAO,EAAE,CAAC;AACP,WAAS;AACb;AAEA,CAAC,KAAK,CAAC,eAAe,KAAK,CAJ1B;AAKG,WAAS;AACb;AAEA,CAAC,KAAK,CAAC,eAAe,KAAK,CAR1B,OAQkC;AAC/B,iBAAe;AACf,cAAY;AACZ,iBAAe;AACf,UAAQ;AAER,oBAAkB,IAAI;AACtB,WAAS;AACb;AAEA,CAAC,KAAK,CAlBL,QAkBc,CAAC;AAChB,CAAC,CAnBA,OAmBQ,CAAC;AACN,WAAS;AACb;",
+  "names": []
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;82f35f173f39103785d6e5db465d18acbcc02435c35c0eaee64c94a58db96e23;/home/runner/work/user-interfaces/user-interfaces/apps/workplace/src/app/components/footer-menu.component.ts"],
+  "sourcesContent": ["\n            a.active app-icon {\n                color: var(--s) !important;\n            }\n\n            a.active {\n                font-weight: 500;\n            }\n\n            a:not(.active) [filled],\n            a.active [outline] {\n                display: none;\n            }\n        "],
+  "mappings": ";AACY,CAAC,CAAC,OAAO;AACL,SAAO,IAAI;AACf;AAEA,CAAC,CAJC;AAKE,eAAa;AACjB;AAEA,CAAC,KAAK,CARJ,QAQa,CAAC;AAChB,CAAC,CATC,OASO,CAAC;AACN,WAAS;AACb;",
+  "names": []
+}

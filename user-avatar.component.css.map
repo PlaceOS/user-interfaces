@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;fea596c98b3df7851da11b27b75d9fb36b167bfa703954b8e8bb71decb43ac45;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/user-avatar.component.ts"],
+  "sourcesContent": ["\n            :host > div {\n                height: 2.5em;\n                width: 2.5em;\n                background-color: var(--b2);\n                overflow: hidden;\n                border: 2px solid var(--b1);\n            }\n\n            .initials {\n                font-size: 1em;\n            }\n        "],
+  "mappings": ";AACY,MAAM,EAAE;AACJ,UAAQ;AACR,SAAO;AACP,oBAAkB,IAAI;AACtB,YAAU;AACV,UAAQ,IAAI,MAAM,IAAI;AAC1B;AAEA,CAAC;AACG,aAAW;AACf;",
+  "names": []
+}

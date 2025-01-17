@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;2cb229e064d3ae597f1144c7f84062bb1043afb07327d544961a663779714da9;/home/runner/work/user-interfaces/user-interfaces/apps/workplace/src/app/dashboard/dashboard-upcoming.component.ts"],
+  "sourcesContent": ["\n            :host {\n                padding: 1em;\n                min-width: 16rem;\n            }\n\n            [name='event'] {\n                padding: 1rem 1rem 1rem 2rem;\n            }\n\n            [name='status'] {\n                top: 1rem;\n                left: -0.8rem;\n                height: 2.5rem;\n                width: 1.6rem;\n                background-color: #00529b;\n            }\n\n            button {\n                height: 3em;\n            }\n\n            app-icon {\n                margin-left: -0.25rem;\n            }\n        "],
+  "mappings": ";AACY;AACI,WAAS;AACT,aAAW;AACf;AAEA,CAAC;AACG,WAAS,KAAK,KAAK,KAAK;AAC5B;AAEA,CAAC;AACG,OAAK;AACL,QAAM;AACN,UAAQ;AACR,SAAO;AACP,oBAAkB;AACtB;AAEA;AACI,UAAQ;AACZ;AAEA;AACI,eAAa;AACjB;",
+  "names": []
+}

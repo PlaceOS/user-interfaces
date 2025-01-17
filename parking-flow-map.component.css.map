@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;924b7f75fb66803dc11e349df2a7be7c873b79c53447d4f71426ac327ba27000;/home/runner/work/user-interfaces/user-interfaces/apps/workplace/src/app/book/parking-flow/parking-flow-map.component.ts"],
+  "sourcesContent": ["\n            .active {\n                background-color: var(--s) !important;\n                color: #fff;\n            }\n\n            .selected {\n                background-color: #fff !important;\n                color: #000d;\n            }\n        "],
+  "mappings": ";AACY,CAAC;AACG,oBAAkB,IAAI;AACtB,SAAO;AACX;AAEA,CAAC;AACG,oBAAkB;AAClB,SAAO;AACX;",
+  "names": []
+}

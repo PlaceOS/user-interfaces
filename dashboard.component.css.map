@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;e0258363ed6267cafeb221be03e7f420bb90872e86c52aafec50e31fb81bcb99;/home/runner/work/user-interfaces/user-interfaces/apps/workplace/src/app/dashboard/dashboard.component.ts"],
+  "sourcesContent": ["\n            :host {\n                position: absolute;\n                top: 0;\n                left: 0;\n                right: 0;\n                bottom: 0;\n                overflow: hidden;\n                display: flex;\n                flex-direction: column;\n            }\n\n            main {\n                min-height: 50%;\n            }\n\n            .top {\n                background-color: #007ac8;\n            }\n\n            a[button].tile {\n                flex: 1;\n                border-radius: 0;\n                background-color: #fff;\n                color: rgba(0, 0, 0, 0.85);\n                border: none;\n                border-right: 1px solid #ccc;\n            }\n\n            a[button].tile:last-child {\n                border: none;\n            }\n        "],
+  "mappings": ";AACY;AACI,YAAU;AACV,OAAK;AACL,QAAM;AACN,SAAO;AACP,UAAQ;AACR,YAAU;AACV,WAAS;AACT,kBAAgB;AACpB;AAEA;AACI,cAAY;AAChB;AAEA,CAAC;AACG,oBAAkB;AACtB;AAEA,CAAC,CAAC,OAAO,CAAC;AACN,QAAM;AACN,iBAAe;AACf,oBAAkB;AAClB,SAAO,KAAK,CAAC,EAAE,CAAC,EAAE,CAAC,EAAE;AACrB,UAAQ;AACR,gBAAc,IAAI,MAAM;AAC5B;AAEA,CAAC,CAAC,OAAO,CATC,IASI;AACV,UAAQ;AACZ;",
+  "names": []
+}
