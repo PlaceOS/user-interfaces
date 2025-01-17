@@ -57,7 +57,7 @@ export class Space {
         this.images = data.images || [];
         this.configurations = data.configurations || [];
         this.features = data.features || [];
-        this.response_status = data.response_status;
+        this.response_status = data.response_status || 'tentative';
         this.level = data.level || new BuildingLevel();
         this.availability = data.availability || [];
     }
@@ -69,7 +69,7 @@ export class Space {
                 (i) =>
                     i.date == start &&
                     i.date + i.duration * 60 * 1000 == end &&
-                    i.status !== 'free'
+                    i.status !== 'free',
             ).length > 0
         );
     }
