@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;b6f7884aac43d1ff081a75b0fbb13fae50817163aff995683ca0c265e1534983;/home/runner/work/user-interfaces/user-interfaces/apps/booking-panel/src/app/panel-select.component.ts"],
+  "sourcesContent": ["\n            .item {\n                height: 11.5em;\n                width: 10em;\n                background-color: var(--bg-dark);\n                box-shadow: 0 1px 3px 0 rgba(#000, 0.2),\n                    0 1px 1px 0 rgba(#000, 0.14),\n                    0 2px 1px -1px rgba(#000, 0.12);\n            }\n\n            .free {\n                background-color: rgba(var(--success), 0.6);\n            }\n\n            .busy {\n                background-color: rgba(var(--error), 0.6);\n            }\n\n            img {\n                max-width: 1em;\n                max-height: 1em;\n            }\n        "],
+  "mappings": ";AACY,CAAC;AACG,UAAQ;AACR,SAAO;AACP,oBAAkB,IAAI;AACtB;AAAA,IAAY,EAAE,IAAI,IAAI,EAAE,KAAK,IAAI,EAAE,IAAI;AAAA,IACnC,EAAE,IAAI,IAAI,EAAE,KAAK,IAAI,EAAE,KAAK;AAAA,IAC5B,EAAE,IAAI,IAAI,KAAK,KAAK,IAAI,EAAE;AAClC;AAEA,CAAC;AACG,oBAAkB,KAAK,IAAI,UAAU,EAAE;AAC3C;AAEA,CAAC;AACG,oBAAkB,KAAK,IAAI,QAAQ,EAAE;AACzC;AAEA;AACI,aAAW;AACX,cAAY;AAChB;",
+  "names": []
+}

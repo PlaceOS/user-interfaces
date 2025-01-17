@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;1060c87603291495cff9e3cda6ca80b592788d5590df620afa290ada3735fba9;/home/runner/work/user-interfaces/user-interfaces/apps/booking-panel/src/app/panel/timeline.component.ts"],
+  "sourcesContent": ["\n            [cover] > div {\n                width: 2px;\n            }\n        "],
+  "mappings": ";AACY,CAAC,OAAO,EAAE;AACN,SAAO;AACX;",
+  "names": []
+}

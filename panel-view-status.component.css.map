@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;3a64e7b2af1bd8e45ac5326d46a7b79302199f336dc78b84757d8bc3dfd387fe;/home/runner/work/user-interfaces/user-interfaces/apps/booking-panel/src/app/new-panel/panel-view-status.component.ts"],
+  "sourcesContent": ["\n            :host > div > div {\n                background-color: #424242;\n            }\n        "],
+  "mappings": ";AACY,MAAM,EAAE,IAAI,EAAE;AACV,oBAAkB;AACtB;",
+  "names": []
+}

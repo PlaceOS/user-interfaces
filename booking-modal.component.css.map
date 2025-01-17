@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;f94a1b607f5fac6b8724058c80614936ad65e95ba011a7ff66d1e8fe894a6fc0;/home/runner/work/user-interfaces/user-interfaces/apps/booking-panel/src/app/overlays/booking-modal.component.ts"],
+  "sourcesContent": ["\n            form {\n                width: 32rem;\n                max-width: calc(100vw - 2rem);\n            }\n        "],
+  "mappings": ";AACY;AACI,SAAO;AACP,aAAW,KAAK,MAAM,EAAE;AAC5B;",
+  "names": []
+}
