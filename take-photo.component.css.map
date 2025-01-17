@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;c3948da5e7161cbc96cfea419181985b0f256ccc8ea2b8830ee9778602d63cb6;/home/runner/work/user-interfaces/user-interfaces/apps/visitor-kiosk/src/app/components/take-photo.component.ts"],
+  "sourcesContent": ["\n            :host {\n                display: flex;\n                flex-direction: column;\n                align-items: center;\n            }\n\n            [name='camera'] {\n                width: 22.5rem;\n                height: 25rem;\n            }\n\n            button {\n                width: 8rem;\n            }\n        "],
+  "mappings": ";AACY;AACI,WAAS;AACT,kBAAgB;AAChB,eAAa;AACjB;AAEA,CAAC;AACG,SAAO;AACP,UAAQ;AACZ;AAEA;AACI,SAAO;AACX;",
+  "names": []
+}

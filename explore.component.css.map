@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;0efb63fb3533e4684cb691887ccc42ac31ccb02329247af79741317828cefb66;/home/runner/work/user-interfaces/user-interfaces/apps/map-kiosk/src/app/explore.component.ts"],
+  "sourcesContent": ["\n            :host {\n                position: absolute;\n                display: flex;\n                flex-direction: column;\n                top: 0;\n                left: 0;\n                right: 0;\n                bottom: 0;\n                background-color: var(--b2);\n            }\n\n            hr {\n                margin-top: 0.5rem !important;\n                margin-bottom: 0.5rem !important;\n            }\n        "],
+  "mappings": ";AACY;AACI,YAAU;AACV,WAAS;AACT,kBAAgB;AAChB,OAAK;AACL,QAAM;AACN,SAAO;AACP,UAAQ;AACR,oBAAkB,IAAI;AAC1B;AAEA;AACI,cAAY;AACZ,iBAAe;AACnB;",
+  "names": []
+}

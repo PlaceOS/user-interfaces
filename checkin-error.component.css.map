@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;34ad53ca058d4bf3dd80f3650a92e5ea3d6f6a240f4ad5727b63ca6d2e8f6f4b;/home/runner/work/user-interfaces/user-interfaces/apps/visitor-kiosk/src/app/checkin/checkin-error.component.ts"],
+  "sourcesContent": ["\n            :host > div {\n                width: 28rem;\n                max-width: calc(100vw - 2rem);\n            }\n        "],
+  "mappings": ";AACY,MAAM,EAAE;AACJ,SAAO;AACP,aAAW,KAAK,MAAM,EAAE;AAC5B;",
+  "names": []
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;f8c4f94f51bad43854aa11f38704354ddfb3bca198dce0c82bd54a6e53c0dd17;/home/runner/work/user-interfaces/user-interfaces/apps/visitor-kiosk/src/app/checkin/checkin-qr-scan.component.ts"],
+  "sourcesContent": ["\n            video {\n                width: 34rem;\n                height: 24rem;\n            }\n\n            a {\n                position: absolute;\n            }\n        "],
+  "mappings": ";AACY;AACI,SAAO;AACP,UAAQ;AACZ;AAEA;AACI,YAAU;AACd;",
+  "names": []
+}

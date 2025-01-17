@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;45a1e70cbb4b993091add757337674b51f7e2cd5d8c6d8ffd9f9f0736356a592;/home/runner/work/user-interfaces/user-interfaces/apps/visitor-kiosk/src/app/checkin/checkin-preferences.component.ts"],
+  "sourcesContent": ["\n            :host > div {\n                max-width: calc(100vw - 2rem);\n            }\n        "],
+  "mappings": ";AACY,MAAM,EAAE;AACJ,aAAW,KAAK,MAAM,EAAE;AAC5B;",
+  "names": []
+}
