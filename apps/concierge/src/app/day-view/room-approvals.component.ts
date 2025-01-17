@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
-import { EventsStateService } from './events-state.service';
 import { OrganisationService } from '@placeos/organisation';
-import { getModule } from '@placeos/ts-client';
 import { CalendarEvent } from '@placeos/events';
+import { getTimezoneOffsetString, SettingsService } from '@placeos/common';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { getTimezoneOffsetString, SettingsService } from '@placeos/common';
+
+import { EventsStateService } from './events-state.service';
 
 @Component({
     selector: 'room-bookings-approvals',
@@ -63,12 +63,18 @@ import { getTimezoneOffsetString, SettingsService } from '@placeos/common';
                     class="w-full h-full flex flex-col items-center justify-center space-y-2"
                 >
                     <img src="assets/icons/no-pending.svg" />
-                    <p>{{ 'APP.CONCIERGE.ROOMS_PENDING_EMPTY' | translate }}</p>
+                    <p class="opacity-30">
+                        {{ 'APP.CONCIERGE.ROOMS_PENDING_EMPTY' | translate }}
+                    </p>
                 </div>
                 <div
                     *ngFor="let event of filtered_pending | async"
                     class="relative border border-base-300 p-2 w-full rounded"
                 >
+                    @let space =
+                        (event.resources.length
+                            ? (event.resources[0]?.email | space | async)
+                            : null) || event.system;
                     <h3>{{ event.title }}</h3>
                     <p class="opacity-30 text-xs mb-2">
                         {{ event.date | date: 'mediumDate' : tz }}
@@ -81,11 +87,8 @@ import { getTimezoneOffsetString, SettingsService } from '@placeos/common';
                         <img
                             auth
                             class="object-cover min-w-full min-h-full"
-                            [source]="
-                                (event.resources[0]?.email | space | async)
-                                    ?.images[0]
-                            "
-                            *ngIf="event.resources.length"
+                            [source]="space?.images[0]"
+                            *ngIf="space"
                         />
                     </div>
                     <div class="flex items-center space-x-2 mb-2">
@@ -96,12 +99,8 @@ import { getTimezoneOffsetString, SettingsService } from '@placeos/common';
                         </div>
                         <div class="flex-1 text-xs">
                             {{
-                                (
-                                    event.resources.length &&
-                                    (event.resources[0]?.email | space | async)
-                                )?.display_name ||
-                                    (event.resources[0]?.email | space | async)
-                                        ?.name ||
+                                space?.display_name ||
+                                    space?.name ||
                                     'No Location'
                             }}
                         </div>
@@ -187,7 +186,7 @@ import { getTimezoneOffsetString, SettingsService } from '@placeos/common';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class RoomBookingsApprovalsComponent {
     private _show = true;
