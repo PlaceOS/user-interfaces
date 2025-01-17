@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;3e4635dffa25bbb5509b5ad5ed62f87c396dd7f6fe919adad84e303cefc25ff3;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/indoor-maps.component.ts"],
+  "sourcesContent": ["\n            :host {\n                height: 100%;\n                width: 100%;\n            }\n\n            mat-spinner {\n                top: 50%;\n                left: 50%;\n                transform: translate(-50%, -50%);\n            }\n        "],
+  "mappings": ";AACY;AACI,UAAQ;AACR,SAAO;AACX;AAEA;AACI,OAAK;AACL,QAAM;AACN,aAAW,UAAU,IAAI,EAAE;AAC/B;",
+  "names": []
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;d33528046b07f59ff437482cc819df9cc850653ec8aad9f9be734d4a3749eeaf;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/map-polygon.component.ts"],
+  "sourcesContent": ["\n            [polygon] {\n                will-change: transform;\n            }\n\n            polygon {\n                stroke-width: 2;\n            }\n            circle {\n                stroke-width: 2;\n            }\n\n            [text] {\n                width: 32rem;\n                max-width: 65vw;\n            }\n        "],
+  "mappings": ";AACY,CAAC;AACG,eAAa;AACjB;AAEA;AACI,gBAAc;AAClB;AACA;AACI,gBAAc;AAClB;AAEA,CAAC;AACG,SAAO;AACP,aAAW;AACf;",
+  "names": []
+}

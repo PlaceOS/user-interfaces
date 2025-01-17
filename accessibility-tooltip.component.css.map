@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;2a3ad5fca4add8f7c00a5c674775d54babef20dd7d3ab272288e42765a09511f;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/accessibility-tooltip.component.ts"],
+  "sourcesContent": ["\n            :host > div > [action] {\n                border-top: 1px solid #ccc;\n            }\n        "],
+  "mappings": ";AACY,MAAM,EAAE,IAAI,EAAE,CAAC;AACX,cAAY,IAAI,MAAM;AAC1B;",
+  "names": []
+}

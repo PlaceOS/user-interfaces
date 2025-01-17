@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;c5f6bcfc7f55c51d68f0109640dbc7571c236171d990e4c2404613af764ae801;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/json-display.component.ts"],
+  "sourcesContent": ["\n            pre {\n                white-space: pre-wrap; /* Since CSS 2.1 */\n                white-space: -moz-pre-wrap; /* Mozilla, since 1999 */\n                white-space: -pre-wrap; /* Opera 4-6 */\n                white-space: -o-pre-wrap; /* Opera 7 */\n                word-wrap: break-word; /* Internet Explorer 5.5+ */\n            }\n        "],
+  "mappings": ";AACY;AACI,eAAa;AACb,eAAa;AACb,eAAa;AACb,eAAa;AACb,aAAW;AACf;",
+  "names": []
+}
