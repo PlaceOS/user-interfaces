@@ -74,7 +74,7 @@ import { EventsStateService } from './events-state.service';
                     @let space =
                         (event.resources.length
                             ? (event.resources[0]?.email | space | async)
-                            : null) || event.system;
+                            : (event.mailbox | space | async)) || event.system;
                     <h3>{{ event.title }}</h3>
                     <p class="opacity-30 text-xs mb-2">
                         {{ event.date | date: 'mediumDate' : tz }}
