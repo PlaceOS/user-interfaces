@@ -1,11 +1,12 @@
-import { Component } from '@angular/core';
-import { EventsStateService } from './events-state.service';
+import { Component, OnInit } from '@angular/core';
 import { OrganisationService } from '@placeos/organisation';
-import { getModule } from '@placeos/ts-client';
 import { CalendarEvent } from '@placeos/events';
+import { getTimezoneOffsetString, SettingsService } from '@placeos/common';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { getTimezoneOffsetString, SettingsService } from '@placeos/common';
+
+import { EventsStateService } from './events-state.service';
+import { getModule } from '@placeos/ts-client';
 
 @Component({
     selector: 'room-bookings-approvals',
@@ -21,25 +22,25 @@ import { getTimezoneOffsetString, SettingsService } from '@placeos/common';
                     btn
                     icon
                     matRipple
-                    class="absolute top-4 left-2 bg-base-200"
+                    class="absolute top-3 left-2 bg-base-200"
                     matTooltip="Hide Pending Approvals"
                     matTooltipPosition="left"
                     (click)="show = !show"
                 >
                     <app-icon>chevron_right</app-icon>
                 </button>
-                <h3 class="flex-1 py-4 text-center">
+                <h3 class="flex-1 py-3 text-center">
                     Pending Approval ({{
                         (filtered_pending | async)?.length || '0'
                     }}
                     of {{ (pending | async)?.length || '0' }})
                 </h3>
             </div>
-            <div class="border-b border-base-200 relative">
+            <div class="border-b border-base-200 relative -mt-px">
                 <input
                     type="text"
                     placeholder="Search..."
-                    class="w-full py-3 pr-4 pl-10"
+                    class="w-full py-4 pr-4 pl-10"
                     [ngModel]="search | async"
                     (ngModelChange)="search.next($event)"
                 />
@@ -49,18 +50,22 @@ import { getTimezoneOffsetString, SettingsService } from '@placeos/common';
                     search
                 </app-icon>
             </div>
-            <div class="flex-1 overflow-auto p-2 space-y-2">
+            <div class="flex-1 overflow-auto p-3 space-y-2">
                 <div
                     *ngIf="!(filtered_pending | async)?.length"
                     class="w-full h-full flex flex-col items-center justify-center space-y-2"
                 >
                     <img src="assets/icons/no-pending.svg" />
-                    <p>No pending requests</p>
+                    <p class="opacity-30">No pending requests</p>
                 </div>
                 <div
                     *ngFor="let event of filtered_pending | async"
-                    class="relative border border-base-200 p-2 w-full rounded"
+                    class="relative border border-base-300 p-2 w-full rounded"
                 >
+                    @let space =
+                        (event.resources.length
+                            ? (event.resources[0]?.email | space | async)
+                            : (event.mailbox | space | async)) || event.system;
                     <h3>{{ event.title }}</h3>
                     <p class="opacity-30 text-xs mb-2">
                         {{ event.date | date: 'mediumDate' : tz }}
@@ -73,11 +78,8 @@ import { getTimezoneOffsetString, SettingsService } from '@placeos/common';
                         <img
                             auth
                             class="object-cover min-w-full min-h-full"
-                            [source]="
-                                (event.resources[0]?.email | space | async)
-                                    ?.images[0]
-                            "
-                            *ngIf="event.resources.length"
+                            [source]="space?.images[0]"
+                            *ngIf="space"
                         />
                     </div>
                     <div class="flex items-center space-x-2 mb-2">
@@ -88,12 +90,8 @@ import { getTimezoneOffsetString, SettingsService } from '@placeos/common';
                         </div>
                         <div class="flex-1 text-xs">
                             {{
-                                (
-                                    event.resources.length &&
-                                    (event.resources[0]?.email | space | async)
-                                )?.display_name ||
-                                    (event.resources[0]?.email | space | async)
-                                        ?.name ||
+                                space?.display_name ||
+                                    space?.name ||
                                     'No Location'
                             }}
                         </div>
@@ -157,7 +155,7 @@ import { getTimezoneOffsetString, SettingsService } from '@placeos/common';
             btn
             icon
             matRipple
-            class="bg-warning absolute top-2 -left-8 shadow text-warning-content"
+            class="bg-warning absolute top-3 -left-8 shadow text-warning-content"
             *ngIf="!show"
             (click)="show = !show"
             matTooltip="Show Pending Approvals"
@@ -176,7 +174,7 @@ import { getTimezoneOffsetString, SettingsService } from '@placeos/common';
         `,
     ],
 })
-export class RoomBookingsApprovalsComponent {
+export class RoomBookingsApprovalsComponent implements OnInit {
     private _show = true;
     public loading = false;
     public status: Record<string, 'accept' | 'decline' | undefined> = {};
