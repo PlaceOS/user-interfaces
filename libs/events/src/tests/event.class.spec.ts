@@ -56,7 +56,7 @@ describe('CalendarEvent', () => {
             attachments: [{ name: 'file.png', blob: null }],
         });
         expect(event.id).toBe('One');
-        expect(event.status).toBe('declined');
+        expect(event.status).toBe('tentative');
         expect(event.host).toBe('me@work.com');
         expect(event.calendar).toBe('me@work.com');
         expect(event.creator).toBe('me@work.com');
@@ -82,7 +82,7 @@ describe('CalendarEvent', () => {
             assets: [],
             images: [],
         });
-        expect(event.type).toBe('cancelled');
+        expect(event.type).toBe('external');
         // TODO: Test date/time fields
     });
 
