@@ -1,7 +1,13 @@
 import { Component } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { BehaviorSubject, of } from 'rxjs';
-import { catchError, map, startWith, switchMap } from 'rxjs/operators';
+import {
+    catchError,
+    debounceTime,
+    map,
+    startWith,
+    switchMap,
+} from 'rxjs/operators';
 import { searchStaff } from './staff.fn';
 import { StaffUser } from './user.class';
 import { queryUsers } from '@placeos/ts-client';
@@ -59,12 +65,13 @@ import { queryUsers } from '@placeos/ts-client';
         </main>
     </div>`,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class SelectUserModalComponent {
     public readonly search = new BehaviorSubject('');
 
     public readonly users = this.search.pipe(
+        debounceTime(300),
         switchMap((s) =>
             queryUsers({ q: s }).pipe(
                 map((o) => o.data),
