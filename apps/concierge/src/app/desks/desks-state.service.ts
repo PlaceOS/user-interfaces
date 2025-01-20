@@ -288,6 +288,7 @@ export class DesksStateService extends AsyncHandler {
                 new Booking({
                     user_id: new_desk.assigned_to,
                     user_email: new_desk.assigned_to,
+                    user_name: new_desk.assigned_name,
                     booking_start: getUnixTime(date),
                     booking_end: getUnixTime(addHours(date, 16)),
                     type: 'desk',
