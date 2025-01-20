@@ -263,7 +263,7 @@ export class DesksStateService extends AsyncHandler {
         this._change.next(Date.now());
     }
 
-    public async editDesk(desk?: Desk) {
+    public async editDesk(desk: Desk = new Desk()) {
         const ref = this._dialog.open(DeskModalComponent, { data: { desk } });
         const state = await Promise.race([
             ref.afterClosed().toPromise(),
