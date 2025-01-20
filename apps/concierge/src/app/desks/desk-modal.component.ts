@@ -1,9 +1,9 @@
-import { Component, EventEmitter, Inject, Output } from '@angular/core';
+import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { DialogEvent } from '@placeos/common';
 import { Desk } from '@placeos/organisation';
-import { User } from '@placeos/users';
+import { showStaff, User } from '@placeos/users';
 
 @Component({
     selector: 'desk-modal',
@@ -158,12 +158,16 @@ import { User } from '@placeos/users';
     styles: [``],
     standalone: false,
 })
-export class DeskModalComponent {
+export class DeskModalComponent implements OnInit {
     @Output() public readonly event = new EventEmitter<DialogEvent>();
     public loading: boolean;
 
     public get id(): string {
         return this._data?.desk?.id || '';
+    }
+
+    public get desk(): Desk {
+        return this._data?.desk;
     }
 
     public readonly form = new FormGroup({
@@ -185,6 +189,19 @@ export class DeskModalComponent {
         private _dialog_ref: MatDialogRef<DeskModalComponent>,
     ) {
         if (_data?.desk) this.form.patchValue(_data.desk);
+    }
+
+    public async ngOnInit() {
+        if (this.desk?.assigned_to) {
+            const user = await showStaff(this.desk.assigned_to).toPromise();
+            if (user) {
+                this.form.patchValue({
+                    assigned_user: user,
+                    assigned_to: user.email,
+                    assigned_name: user.name,
+                });
+            }
+        }
     }
 
     public postForm() {
