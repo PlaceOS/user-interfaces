@@ -308,6 +308,7 @@ export class DesksStateService extends AsyncHandler {
                         new_desk.zone?.id,
                         new_desk.zone,
                         ...(new_desk?.zones || []),
+                        zone,
                     ]).filter((_) => !!_),
                     extension_data: {
                         asset_name: new_desk.name,
