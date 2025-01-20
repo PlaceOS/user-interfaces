@@ -86,11 +86,15 @@ import { SettingsService } from '@placeos/common';
                         "
                     >
                         <div class="p-2">
-                            <ng-container *ngIf="!row.all_day">
+                            <ng-container
+                                *ngIf="!(row.all_day || row.duration > 12 * 60)"
+                            >
                                 {{ row.date | date: time_format }} &ndash;
                                 {{ row.date_end | date: time_format }}
                             </ng-container>
-                            <ng-container *ngIf="row.all_day">
+                            <ng-container
+                                *ngIf="row.all_day || row.duration > 12 * 60"
+                            >
                                 {{ 'COMMON.ALL_DAY' | translate }}
                             </ng-container>
                         </div>
@@ -267,7 +271,7 @@ import { SettingsService } from '@placeos/common';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class LockerBookingsComponent {
     public loading: string;

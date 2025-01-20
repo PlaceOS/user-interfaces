@@ -493,14 +493,14 @@ export class LockerStateService extends AsyncHandler {
             locker.assigned_to !== new_locker.assigned_to &&
             new_locker.assigned_to
         ) {
-            const date = set(Date.now(), { hours: 4, minutes: 0, seconds: 0 });
+            const date = set(Date.now(), { hours: 2, minutes: 0, seconds: 0 });
             await saveBooking(
                 new Booking({
                     user_id: new_locker.assigned_to,
                     user_email: new_locker.assigned_to,
                     user_name: new_locker?.assigned_name,
                     booking_start: getUnixTime(date),
-                    booking_end: getUnixTime(addHours(date, 16)),
+                    booking_end: getUnixTime(addHours(date, 20)),
                     type: 'locker',
                     booking_type: 'locker',
                     asset_id: new_locker.id,
