@@ -317,7 +317,7 @@ export class LockerStateService extends AsyncHandler {
         });
     }
 
-    public async allocateLocker(locker: Locker) {
+    public async allocateLocker(locker: Locker, notify = true) {
         const mod = this._org.module('lockers', 'Lockers');
         if (!mod) return notifyError(i18n('APP.CONCIERGE.LOCKERS_NO_DRIVER'));
         await mod
@@ -326,7 +326,8 @@ export class LockerStateService extends AsyncHandler {
                 notifyError(e);
                 throw e;
             });
-        notifySuccess(`Successfully allocated locker "${locker.name}"`);
+        if (notify)
+            notifySuccess(`Successfully allocated locker "${locker.name}"`);
     }
 
     public get has_driver() {
@@ -344,7 +345,7 @@ export class LockerStateService extends AsyncHandler {
             user = value;
         }
         console.log('User:', user);
-        await this.allocateLocker(locker);
+        await this.allocateLocker(locker, false);
         await mod
             .execute('locker_share_mine', [locker.bank_id, locker.id, user.id])
             .catch((e) => {
