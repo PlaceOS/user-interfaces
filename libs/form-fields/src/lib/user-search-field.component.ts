@@ -113,7 +113,7 @@ import { authority, queryUsers } from '@placeos/ts-client';
             multi: true,
         },
     ],
-    standalone: false
+    standalone: false,
 })
 export class UserSearchFieldComponent
     extends AsyncHandler
@@ -140,8 +140,9 @@ export class UserSearchFieldComponent
         this._settings.get('app.basic_user_search')
             ? queryUsers({ q, authority_id: authority()?.id }).pipe(
                   map((_) => _.data.map((_) => new User(_))),
+                  catchError(() => of([])),
               )
-            : searchStaff(q);
+            : searchStaff(q).pipe(catchError(() => of([])));
     /** Currently selected user */
     public active_user: User;
     /** User list to display */
@@ -163,7 +164,10 @@ export class UserSearchFieldComponent
                 : query.length >= 3
                   ? !this.guests
                       ? this.query_fn(query)
-                      : forkJoin([searchStaff(query), searchGuests(query)])
+                      : forkJoin([
+                            searchStaff(query).pipe(catchError(() => of([]))),
+                            searchGuests(query).pipe(catchError(() => of([]))),
+                        ])
                   : of([]);
         }),
         catchError(() => of([])),
