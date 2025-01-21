@@ -642,6 +642,10 @@ import { format } from 'date-fns';
                                 name="Allow booking parking for visitors"
                                 formControlName="has_parking"
                             ></settings-toggle>
+                            <settings-toggle
+                                name="Show calendar links after booking"
+                                formControlName="show_calendar_links"
+                            ></settings-toggle>
                         </div>
                     </section>
                     <section
@@ -993,7 +997,7 @@ import { format } from 'date-fns';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class ConciergeSettingsFormModalComponent {
     public loading = '';
@@ -1038,6 +1042,7 @@ export class ConciergeSettingsFormModalComponent {
         }),
         visitors: new FormGroup({
             has_parking: new FormControl(false),
+            show_calendar_links: new FormControl(false),
         }),
         bookings: new FormGroup({
             allow_all_day: new FormControl(true),

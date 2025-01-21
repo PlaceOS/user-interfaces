@@ -10,7 +10,15 @@ import {
 import { Validators } from '@angular/forms';
 import { first } from 'rxjs/operators';
 
-import { AsyncHandler, SettingsService, currentUser } from '@placeos/common';
+import {
+    AsyncHandler,
+    CalEvent,
+    SettingsService,
+    currentUser,
+    generateCalendarFileLink,
+    generateGoogleCalendarLink,
+    generateMicrosoftCalendarLink,
+} from '@placeos/common';
 import { notifyError } from 'libs/common/src/lib/notifications';
 import { getInvalidFields, randomString } from 'libs/common/src/lib/general';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
@@ -283,6 +291,51 @@ import { User } from 'libs/users/src/lib/user.class';
                                       }
                         }}
                     </p>
+                    <div
+                        class="flex flex-col items-center space-y-4 p-4 relative"
+                        *ngIf="show_links"
+                    >
+                        <a
+                            btn
+                            matRipple
+                            name="desk-outlook-link"
+                            class="flex items-center p-2 space-x-2 pr-4 w-64 rounded inverse"
+                            [href]="outlook_link | sanitize: 'url'"
+                            target="_blank"
+                            rel="noopener noreferer"
+                        >
+                            <img src="assets/icons/outlook.svg" class="w-6" />
+                            <span>{{
+                                'BOOKINGS.LINK_OUTLOOK' | translate
+                            }}</span>
+                        </a>
+                        <a
+                            btn
+                            matRipple
+                            name="desk-google-link"
+                            class="flex items-center p-2 space-x-2 pr-4 w-64 rounded inverse"
+                            [href]="google_link | sanitize: 'url'"
+                            target="_blank"
+                            rel="noopener noreferer"
+                        >
+                            <img src="assets/icons/gcal.svg" class="w-6" />
+                            <span>{{
+                                'BOOKINGS.LINK_GOOGLE' | translate
+                            }}</span>
+                        </a>
+                        <a
+                            btn
+                            matRipple
+                            name="desk-ical-link"
+                            class="flex items-center p-2 space-x-2 pr-4 w-64 rounded inverse"
+                            [href]="ical_link | safe: 'url'"
+                            target="_blank"
+                            rel="noopener noreferer"
+                        >
+                            <app-icon class="text-xl">download</app-icon>
+                            <span>{{ 'BOOKINGS.LINK_ICAL' | translate }}</span>
+                        </a>
+                    </div>
                 </div>
                 <div class="w-full p-2 border-t border-base-200">
                     <div
@@ -326,7 +379,7 @@ import { User } from 'libs/users/src/lib/user.class';
         </ng-template>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class InviteVisitorFormComponent
     extends AsyncHandler
@@ -334,6 +387,10 @@ export class InviteVisitorFormComponent
 {
     @Input() public date: number;
     @Output() public done = new EventEmitter<void>();
+
+    public outlook_link = '';
+    public google_link = '';
+    public ical_link = '';
 
     public sent = false;
     public booking?: Booking;
@@ -351,6 +408,10 @@ export class InviteVisitorFormComponent
 
     public get can_book_for_others() {
         return this._settings.get('app.bookings.can_book_for_others');
+    }
+
+    public get show_links() {
+        return this._settings.get('app.visitors.show_calendar_links');
     }
 
     public get building() {
@@ -463,6 +524,20 @@ export class InviteVisitorFormComponent
         ]);
         await (this.multiple ? this._bookForMany() : this._bookForOne());
         this.last_success = this._service.last_success;
+        const event: CalEvent = {
+            ...this.last_success,
+            host: this.last_success.user_email,
+            organiser: {
+                name: this.last_success.user_name,
+                email: this.last_success.user_email,
+            } as any,
+            attendees: this.last_success.attendees.map((_) => _.email),
+            body: this.last_success.description,
+            location: this.last_success.asset_name,
+        };
+        this.outlook_link = generateMicrosoftCalendarLink(event);
+        this.google_link = generateGoogleCalendarLink(event);
+        this.ical_link = generateCalendarFileLink(event);
         await this.initFormZone();
         this.sent = true;
     }

@@ -959,6 +959,15 @@ import { format } from 'date-fns';
                                 name="Allow booking with assets"
                                 formControlName="allow_assets"
                             ></settings-toggle>
+                            <ng-container
+                                [form]="form"
+                                formGroupName="visitors"
+                            >
+                                <settings-toggle
+                                    name="Show calendar links after visitor invite"
+                                    formControlName="show_calendar_links"
+                                ></settings-toggle>
+                            </ng-container>
                         </div>
                     </section>
                     <section
@@ -1369,7 +1378,7 @@ import { format } from 'date-fns';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class WorkplaceSettingsFormModalComponent {
     public loading = '';
@@ -1472,6 +1481,9 @@ export class WorkplaceSettingsFormModalComponent {
             multiple_visitors: new FormControl(false),
             all_day_default: new FormControl(false),
             allow_all_day: new FormControl(false),
+        }),
+        visitors: new FormGroup({
+            show_calendar_links: new FormControl(false),
         }),
         explore: new FormGroup({
             hide_device_fields: new FormControl(false),
