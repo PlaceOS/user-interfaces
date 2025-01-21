@@ -24,8 +24,14 @@ const DEFAULT_TEMPLATE = `
             class="bg-base-100 rounded shadow overflow-hidden relative flex flex-col items-center w-[36rem] p-4 space-y-4 print:hidden"
             *ngIf="event | async"
         >
+            @let details = event | async;
             <h3 class="text-xl">
-                {{ 'APP.VISITOR_KIOSK.CHECKED_IN_MSG' | translate }}
+                {{
+                    (details.extension_data?.self_registered
+                        ? 'APP.VISITOR_KIOSK.CHECKED_IN_MSG_SELF_REG'
+                        : 'APP.VISITOR_KIOSK.CHECKED_IN_MSG'
+                    ) | translate
+                }}
             </h3>
             <div
                 class=""
@@ -146,7 +152,7 @@ const DEFAULT_TEMPLATE = `
         `,
     ],
     providers: [DatePipe],
-    standalone: false
+    standalone: false,
 })
 export class CheckinResultsComponent extends AsyncHandler implements OnInit {
     public qr_code = '';
