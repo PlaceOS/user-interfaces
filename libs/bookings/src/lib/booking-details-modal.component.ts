@@ -58,46 +58,52 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                         class="flex items-center space-x-2 px-2"
                         *ngIf="!booking.is_done"
                     >
-                        <button
-                            btn
-                            matRipple
-                            class="flex-1 h-10 border-none"
-                            [class.bg-success]="booking.checked_in"
-                            [class.text-success-content]="booking.checked_in"
-                            [disabled]="checking_in"
-                            *ngIf="
-                                !booking.checked_out_at &&
-                                !checked_out &&
-                                !auto_checkin &&
-                                (booking.state === 'upcoming' ||
-                                    booking.state === 'in_progress') &&
-                                booking.status !== 'declined'
-                            "
-                            (click)="toggleCheckedIn()"
-                        >
-                            <div
-                                class="flex items-center space-x-2 justify-center"
-                                *ngIf="!checking_in; else loading_state"
+                        @if (can_checkin) {
+                            <button
+                                btn
+                                matRipple
+                                class="flex-1 h-10 border-none"
+                                [class.bg-success]="booking.checked_in"
+                                [class.text-success-content]="
+                                    booking.checked_in
+                                "
+                                [disabled]="checking_in"
+                                *ngIf="
+                                    !booking.checked_out_at &&
+                                    !checked_out &&
+                                    !auto_checkin &&
+                                    (booking.state === 'upcoming' ||
+                                        booking.state === 'in_progress') &&
+                                    booking.status !== 'declined'
+                                "
+                                (click)="toggleCheckedIn()"
                             >
-                                <app-icon>{{
-                                    booking.checked_in ? 'done' : 'arrow_back'
-                                }}</app-icon>
-                                <div class="mr-4">
-                                    {{
-                                        (booking.checked_in
-                                            ? 'COMMON.CHECKED_IN'
-                                            : 'COMMON.CHECK_IN'
-                                        ) | translate
-                                    }}
+                                <div
+                                    class="flex items-center space-x-2 justify-center"
+                                    *ngIf="!checking_in; else loading_state"
+                                >
+                                    <app-icon>{{
+                                        booking.checked_in
+                                            ? 'done'
+                                            : 'arrow_back'
+                                    }}</app-icon>
+                                    <div class="mr-4">
+                                        {{
+                                            (booking.checked_in
+                                                ? 'COMMON.CHECKED_IN'
+                                                : 'COMMON.CHECK_IN'
+                                            ) | translate
+                                        }}
+                                    </div>
                                 </div>
-                            </div>
-                            <ng-template #loading_state>
-                                <mat-spinner
-                                    class="mx-auto"
-                                    [diameter]="32"
-                                ></mat-spinner>
-                            </ng-template>
-                        </button>
+                                <ng-template #loading_state>
+                                    <mat-spinner
+                                        class="mx-auto"
+                                        [diameter]="32"
+                                    ></mat-spinner>
+                                </ng-template>
+                            </button>
+                        }
                         <button
                             icon
                             matRipple
@@ -339,7 +345,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
     `,
     styles: [``],
     animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
-    standalone: false
+    standalone: false,
 })
 export class BookingDetailsModalComponent {
     @Output() public edit = new EventEmitter();
@@ -383,6 +389,18 @@ export class BookingDetailsModalComponent {
             this.booking.booking_type !== 'visitor' &&
             this.booking.booking_type !== 'parking' &&
             this.booking.booking_type !== 'locker'
+        );
+    }
+
+    public get can_checkin() {
+        return (
+            !this._settings.get(
+                `app.${(this.booking?.type || 'booking') + 's'}.hide_checkin`,
+            ) &&
+            !this._settings.get(
+                `app.${this.booking?.type || 'bookings'}.hide_checkin`,
+            ) &&
+            !this._settings.get('app.bookings.hide_checkin')
         );
     }
 

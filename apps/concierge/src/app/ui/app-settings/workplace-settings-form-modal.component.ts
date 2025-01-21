@@ -912,6 +912,10 @@ import { format } from 'date-fns';
                                 name="Enabled desk height"
                                 formControlName="height_enabled"
                             ></settings-toggle>
+                            <settings-toggle
+                                name="Hide Checkin Options"
+                                formControlName="hide_checkin"
+                            ></settings-toggle>
                         </div>
                     </section>
                     <section
@@ -1458,6 +1462,7 @@ export class WorkplaceSettingsFormModalComponent {
             available_period: new FormControl(14),
             hide_map: new FormControl(false),
             height_enabled: new FormControl(false),
+            hide_checkin: new FormControl(false),
         }),
         parking: new FormGroup({
             allow_all_day: new FormControl(false),
