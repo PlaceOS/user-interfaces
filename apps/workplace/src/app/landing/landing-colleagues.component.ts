@@ -155,10 +155,10 @@ import { LandingStateService } from './landing-state.service';
                                 [class.bg-success]="user.location"
                             ></div> -->
                         </div>
-                        <div class="leading-tight">
+                        <div class="leading-tight flex-1">
                             <div class="truncate">{{ user.name }}</div>
-                            <div class="text-sm truncate">
-                                {{ user.organisation }}
+                            <div class="text-xs truncate opacity-60">
+                                {{ user.organisation || user.email }}
                             </div>
                         </div>
                     </button>
@@ -215,7 +215,7 @@ import { LandingStateService } from './landing-state.service';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class LandingColleaguesComponent extends AsyncHandler {
     public show_search = false;
