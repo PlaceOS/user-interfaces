@@ -17,6 +17,7 @@ import {
     formatRecurrence,
 } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
+
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 
 @Component({
@@ -148,7 +149,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
         `,
     ],
     providers: [SpacePipe],
-    standalone: false
+    standalone: false,
 })
 export class MeetingFlowConfirmComponent
     extends AsyncHandler

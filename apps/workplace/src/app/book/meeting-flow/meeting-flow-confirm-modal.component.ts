@@ -1,6 +1,10 @@
 import { DatePipe } from '@angular/common';
 import { Component, Input, OnInit, Optional } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { addMinutes, endOfDay, startOfDay } from 'date-fns';
+import { BehaviorSubject, combineLatest } from 'rxjs';
+import { map } from 'rxjs/operators';
+
 import { validateAssetRequestsForResource } from '@placeos/assets';
 import { CateringItem, CateringOrder } from '@placeos/catering';
 import {
@@ -14,11 +18,9 @@ import { openConfirmModal } from '@placeos/components';
 import { EventFormService, formatRecurrence } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
 import { Space } from '@placeos/spaces';
-import { addMinutes, endOfDay, startOfDay } from 'date-fns';
+
 import { AssetRequest } from 'libs/assets/src/lib/asset-request.class';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
-import { BehaviorSubject, combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
 
 @Component({
     selector: 'meeting-flow-confirm-modal',
@@ -369,7 +371,7 @@ import { map } from 'rxjs/operators';
     `,
     styles: [``],
     providers: [SpacePipe],
-    standalone: false
+    standalone: false,
 })
 export class MeetingFlowConfirmModalComponent
     extends AsyncHandler
@@ -391,6 +393,10 @@ export class MeetingFlowConfirmModalComponent
         return request.conflict
             ? i18n('FORM.ASSETS_CLASH_ERROR')
             : i18n('FORM.ASSETS_TIME_ERROR');
+    }
+
+    public get has_assets() {
+        return !!this._settings.get('app.events.has_assets');
     }
 
     public get has_conflict() {
@@ -541,34 +547,36 @@ export class MeetingFlowConfirmModalComponent
             this.event.date_end !== this._event_form.event.date_end;
         const event = this._event_form.form.value;
         this._loading.next(true);
-        await validateAssetRequestsForResource(
-            this._event_form.event || {},
-            {
-                date: this.event.date,
-                duration: this.event.duration,
-                host: this.event.host,
-                all_day: this.event.all_day,
-                location_name:
-                    this._space?.display_name || this._space?.name || '',
-                location_id: this._space?.id || '',
-                zones: this._space?.level?.parent_id
-                    ? [this._space?.level?.parent_id]
-                    : [this._org.building?.id],
-                reset_state: changed_times,
-            },
-            event.assets,
-            changed_spaces || changed_times,
-        ).catch((e) => notifyError(e));
-        this.timeout(
-            'update_assets',
-            () => {
-                (this as any).assets = event.assets?.map(
-                    (_) => new AssetRequest({ ..._, event }),
-                );
-                this._event_form.form.patchValue({ assets: event.assets });
-            },
-            100,
-        );
+        if (this.has_assets && event.assets.length) {
+            await validateAssetRequestsForResource(
+                this._event_form.event || {},
+                {
+                    date: this.event.date,
+                    duration: this.event.duration,
+                    host: this.event.host,
+                    all_day: this.event.all_day,
+                    location_name:
+                        this._space?.display_name || this._space?.name || '',
+                    location_id: this._space?.id || '',
+                    zones: this._space?.level?.parent_id
+                        ? [this._space?.level?.parent_id]
+                        : [this._org.building?.id],
+                    reset_state: changed_times,
+                },
+                event.assets,
+                changed_spaces || changed_times,
+            ).catch((e) => notifyError(e));
+            this.timeout(
+                'update_assets',
+                () => {
+                    (this as any).assets = event.assets?.map(
+                        (_) => new AssetRequest({ ..._, event }),
+                    );
+                    this._event_form.form.patchValue({ assets: event.assets });
+                },
+                100,
+            );
+        }
         this._loading.next(false);
     }
 
