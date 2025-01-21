@@ -636,6 +636,38 @@ import { format } from 'date-fns';
                         >
                             Visitors
                         </h3>
+                        <label for="hide-fields">Hide Guest List fields</label>
+                        <mat-form-field appearance="outline" class="w-full">
+                            <mat-select
+                                name="hide-fields"
+                                formControlName="hide_fields"
+                                placeholder="No fields selected"
+                                multiple
+                            >
+                                <mat-option value="checked_in_at">
+                                    {{ 'COMMON.CHECKED_IN_AT' | translate }}
+                                </mat-option>
+                                <mat-option value="checked_out_at">
+                                    {{ 'COMMON.CHECKED_OUT_AT' | translate }}
+                                </mat-option>
+                                <mat-option value="state">
+                                    {{ 'COMMON.CHECKED_IN' | translate }}
+                                </mat-option>
+                                <mat-option value="date">
+                                    {{ 'FORM.TIME' | translate }}
+                                </mat-option>
+                                <mat-option value="user_name">
+                                    {{ 'FORM.HOST' | translate }}
+                                </mat-option>
+                                <mat-option value="status">
+                                    {{ 'COMMON.STATE' | translate }}
+                                </mat-option>
+                            </mat-select>
+                            <mat-hint>
+                                Hide selected columns on the visitor listing
+                                table
+                            </mat-hint>
+                        </mat-form-field>
 
                         <div class="flex items-center flex-wrap -mx-2">
                             <settings-toggle
@@ -1043,6 +1075,7 @@ export class ConciergeSettingsFormModalComponent {
         visitors: new FormGroup({
             has_parking: new FormControl(false),
             show_calendar_links: new FormControl(false),
+            hide_fields: new FormControl([]),
         }),
         bookings: new FormGroup({
             allow_all_day: new FormControl(true),

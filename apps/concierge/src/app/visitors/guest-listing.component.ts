@@ -16,7 +16,8 @@ import { User } from '@placeos/users';
     selector: 'guest-listings',
     template: `
         <simple-table
-            class="min-w-[72rem] block text-sm z-0"
+            class="block text-sm z-0"
+            [style.min-width]="64 + extra_width + 'rem'"
             [data]="guests"
             [columns]="[
                 {
@@ -24,12 +25,14 @@ import { User } from '@placeos/users';
                     name: 'COMMON.CHECKED_IN' | translate,
                     content: state_template,
                     size: '6.5rem',
+                    show: !hide_field('state'),
                     sortable: false,
                 },
                 {
                     key: 'date',
                     name: 'FORM.TIME' | translate,
                     content: date_template,
+                    show: !hide_field('date'),
                     size: '6rem',
                 },
                 {
@@ -41,11 +44,27 @@ import { User } from '@placeos/users';
                     key: 'user_name',
                     name: 'FORM.HOST' | translate,
                     content: host_template,
+                    show: !hide_field('user_name'),
+                },
+                {
+                    key: 'checked_in_at',
+                    name: 'COMMON.CHECKED_IN' | translate,
+                    content: time_template,
+                    show: !hide_field('checked_in_at'),
+                    size: '6rem',
+                },
+                {
+                    key: 'checked_out_at',
+                    name: 'COMMON.CHECKED_OUT' | translate,
+                    content: time_template,
+                    show: !hide_field('checked_out_at'),
+                    size: '6rem',
                 },
                 {
                     key: 'status',
                     name: 'COMMON.STATE' | translate,
                     content: status_template,
+                    show: !hide_field('status'),
                     size: '9.5rem',
                 },
                 {
@@ -66,6 +85,7 @@ import { User } from '@placeos/users';
                     key: 'notes',
                     name: 'FORM.NOTES' | translate,
                     content: notes_template,
+                    show: !hide_field('notes'),
                     sortable: false,
                     size: '4.5rem',
                 },
@@ -305,6 +325,14 @@ import { User } from '@placeos/users';
                 </button>
             </mat-menu>
         </ng-template>
+        <ng-template #time_template let-data="data">
+            <div class="px-4">
+                {{ data | date: time_format : tz }}
+                <span class="text-xs opacity-30" *ngIf="timezone">
+                    {{ data | date: 'z' : tz }}
+                </span>
+            </div>
+        </ng-template>
         <ng-template #date_template let-row="row">
             <div class="px-4">
                 {{
@@ -515,13 +543,24 @@ import { User } from '@placeos/users';
         <div class="w-full h-8"></div>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class GuestListingComponent extends AsyncHandler {
     public readonly guests = this._state.filtered_bookings;
     public readonly search = this._state.search;
     public readonly filters = this._state.filters;
     public inductions_enabled = false;
+
+    public hide_field(id: string) {
+        return (this._settings.get('app.visitors.hide_fields') || []).includes(
+            id,
+        );
+    }
+
+    public get extra_width() {
+        const hide = this._settings.get('app.visitors.hide_fields') || [];
+        return Math.max(0, 3 - hide.length) * 6;
+    }
 
     public get timezone() {
         const use_tz = this._settings.get('app.bookings.use_building_timezone');
