@@ -412,7 +412,7 @@ import { openConfirmModal } from '@placeos/components';
     `,
     styles: [],
     animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
-    standalone: false
+    standalone: false,
 })
 export class MeetingFlowFormComponent extends AsyncHandler implements OnInit {
     public sheet_ref: MatBottomSheetRef<any>;
@@ -503,7 +503,7 @@ export class MeetingFlowFormComponent extends AsyncHandler implements OnInit {
     private _assets_available = this._space_list.pipe(
         debounceTime(300),
         switchMap((space_list) => {
-            if (!space_list?.length) return of(false);
+            if (!space_list?.length || !this.has_assets) return of(false);
             const value = this.form.getRawValue();
             this._assets.setOptions({
                 date: value.date,

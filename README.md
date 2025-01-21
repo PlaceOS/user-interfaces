@@ -24,7 +24,6 @@ to point the the server with the live environment and update the SSL settings th
 Note that OAuth redirects don't work when connecting you local instance to the live environment.
 To login in the local instance you will either need to copy a token from a live instance or use the basic auth form at `/login/?continue=/`. For the local login you will need to create a user or set a password for an auto-generated user.
 
-
 ## Compilation
 
 Compile the application into static files using `nx build <project>` e.g. `nx build bookings`
@@ -48,7 +47,7 @@ Each application has a seperate branch dedicated to each of it's build types.
 Commits to the branch `develop` will produce development builds that are committed to the branches `build/<project>/dev`  
 Commits to the branch `release/**` will produce development builds that are committed to the branches `build/<project>/uat`.
 You should have only one `release` branch at a time and it should be kept inline with develop rather than worked on directly.  
-Commits to the branch `master` will produce a production build that is commited to the branch `build/<project>/prod`  
+Commits to the branch `master` will produce a production build that is commited to the branch `build/<project>/prod`
 
 ## Available Frontends
 
@@ -62,9 +61,18 @@ There are 7 available frontends for this client
 -   [`visitors`](./apps/visitor-kiosk/README.md) | Internal building location kiosk UI
 -   [`workplace`](./apps/workplace/README.md) | Staff Application
 
-
 ## Settings
 
 A list of application settings (configurable via Zone.metadata) is available at `/apps/<app name>/src/environments/settings.schema.json`
 
-* [Workplace App](https://github.com/PlaceOS/user-interfaces/blob/master/apps/workplace/src/environments/settings.ts)
+-   [Workplace App](https://github.com/PlaceOS/user-interfaces/blob/master/apps/workplace/src/environments/settings.ts)
+
+## Upgrade
+
+`nx migrate latest`
+`npm install`
+`nx migrate --run-migrations`
+
+## Generate Changelog
+
+`git cliff -o CHANGELOG.md`
