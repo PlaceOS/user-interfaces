@@ -1,7 +1,7 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
-import { AsyncHandler, SettingsService } from '@placeos/common';
+import { AsyncHandler, LocaleService, SettingsService } from '@placeos/common';
 
 @Component({
     selector: 'app-welcome',
@@ -68,6 +68,35 @@ import { AsyncHandler, SettingsService } from '@placeos/common';
             <div class="absolute top-4 right-4 text-2xl text-white">
                 {{ now | date: 'mediumDate' }} {{ now | date: 'shortTime' }}
             </div>
+            <button
+                class="absolute top-4 left-4"
+                *ngIf="locales.length > 1"
+                [matMenuTriggerFor]="menu"
+            >
+                <div class="flex items-center justify-between space-x-4">
+                    <div class=" text-white">
+                        {{ 'COMMON.LANGUAGE' | translate }}
+                    </div>
+                    <div
+                        class="text-sm px-2 py-1 rounded bg-base-200 max-w-24 truncate"
+                        [matTooltip]="active_locale | translate"
+                    >
+                        {{ active_locale | translate }}
+                    </div>
+                </div>
+            </button>
+            <mat-menu #menu="matMenu">
+                <button
+                    mat-menu-item
+                    *ngFor="let lang of locales"
+                    (click)="setLocale(lang.id)"
+                >
+                    <div class="flex items-center justify-between space-x-4">
+                        <div>{{ lang.name | translate }}</div>
+                        <div>{{ lang.flag }}</div>
+                    </div>
+                </button>
+            </mat-menu>
             <img
                 src="assets/img/building.png"
                 class="absolute w-[60%] bottom-0 right-0"
@@ -82,7 +111,7 @@ import { AsyncHandler, SettingsService } from '@placeos/common';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class WelcomeComponent
     extends AsyncHandler
@@ -91,6 +120,12 @@ export class WelcomeComponent
     public now = Date.now();
     /** Level to initially load on explore */
     public level = '';
+
+    public readonly setLocale = (code: string) => {
+        this._locale.setLocale(code);
+        localStorage.setItem('PLACEOS.locale', code);
+        setTimeout(() => location.reload(), 300);
+    };
 
     public get background() {
         return this._settings.get('app.welcome_background');
@@ -104,9 +139,24 @@ export class WelcomeComponent
         return this._settings.get('app.welcome_message');
     }
 
+    public get active_locale(): string {
+        const locale_list = this.locales;
+        const locale = this._locale.locale;
+        for (const item of locale_list) {
+            if (item.id === locale) return item.name;
+        }
+        return 'LANGUAGE.ENGLISH';
+    }
+
+    public get locales(): { id: string; name: string }[] {
+        return this._settings.get('app.locales') || [];
+    }
+
     constructor(
         private route: ActivatedRoute,
         private _settings: SettingsService,
+        private _locale: LocaleService,
+        private _cdr: ChangeDetectorRef,
     ) {
         super();
     }
@@ -128,5 +178,6 @@ export class WelcomeComponent
                 }
             }),
         );
+        this.timeout('check', () => this._cdr.detectChanges(), 1000);
     }
 }
