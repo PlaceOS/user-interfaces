@@ -186,7 +186,7 @@ export class MeetingFlowConfirmComponent
         const date = this.event.date;
         const date_end = this.event.date_end;
         const all_day = this.event.all_day;
-        const tz_format = this._date.transform(date, 'z', tz);
+        const tz_format = this._date.transform(date, 'zzzz', tz);
         const start_date = this._date.transform(date, 'MMM d', tz);
         const start_time = this._date.transform(date, this.time_format, tz);
         const end_date = this._date.transform(date_end, 'MMM d', tz);

@@ -199,7 +199,7 @@ import { map, take } from 'rxjs/operators';
         </footer>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class NewDeskFlowConfirmComponent extends AsyncHandler {
     @Input() public show_close = false;
@@ -231,7 +231,7 @@ export class NewDeskFlowConfirmComponent extends AsyncHandler {
         const date = this.booking.date;
         const date_end = this.booking.date_end;
         const all_day = this.booking.all_day;
-        const tz_format = this._date.transform(date, 'z', tz);
+        const tz_format = this._date.transform(date, 'zzzz', tz);
         const start_date = this._date.transform(date, 'MMM d', tz);
         const start_time = this._date.transform(date, this.time_format, tz);
         const end_date = this._date.transform(date_end, 'MMM d', tz);

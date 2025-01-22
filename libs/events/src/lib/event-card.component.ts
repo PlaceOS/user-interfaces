@@ -30,7 +30,7 @@ import { DatePipe } from '@angular/common';
         <h4 class="mb-2 flex items-center" *ngIf="event" date>
             <span *ngIf="show_day" day>{{ day }},&nbsp;</span>
             {{ event?.date | date: time_format }}
-            <span class="text-xs px-2">({{ event?.date | date: 'z' }})</span>
+            <span class="text-xs px-2">({{ event?.date | date: 'zzzz' }})</span>
         </h4>
         <a
             name="view-event-details"
@@ -141,7 +141,7 @@ import { DatePipe } from '@angular/common';
         `,
     ],
     providers: [SpacePipe],
-    standalone: false
+    standalone: false,
 })
 export class EventCardComponent
     extends AsyncHandler
@@ -190,7 +190,7 @@ export class EventCardComponent
         const date = this.event.date;
         const date_end = this.event.date_end;
         const all_day = this.event.all_day;
-        const tz_format = this._date.transform(date, 'z', tz);
+        const tz_format = this._date.transform(date, 'zzzz', tz);
         const start_date = this._date.transform(date, 'MMM d', tz);
         const start_time = this._date.transform(date, this.time_format, tz);
         const end_date = this._date.transform(date_end, 'MMM d', tz);

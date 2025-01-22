@@ -66,7 +66,7 @@ import { openConfirmModal } from '@placeos/components';
                 class="sticky top-0 left-0 z-30 bg-base-100 flex items-center justify-center"
             >
                 <div class="text-xs opacity-30">
-                    {{ date | async | date: 'z' : tz }}
+                    {{ date | async | date: 'zzzz' : tz }}
                 </div>
                 <div
                     class="absolute h-2 w-px right-0 bottom-0 bg-base-300"
@@ -225,7 +225,7 @@ import { openConfirmModal } from '@placeos/components';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class RoomBookingsTimelineComponent
     extends AsyncHandler

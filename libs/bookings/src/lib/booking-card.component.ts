@@ -31,7 +31,9 @@ import { GroupEventDetailsModalComponent } from '../../../events/src/lib/group-e
         <h4 class="mb-2 flex items-center" *ngIf="booking">
             <span *ngIf="show_day" day>{{ day }},&nbsp;</span>
             {{ booking?.date | date: time_format }}
-            <span class="text-xs px-2">({{ booking?.date | date: 'z' }})</span>
+            <span class="text-xs px-2"
+                >({{ booking?.date | date: 'zzzz' }})</span
+            >
         </h4>
         <a
             name="view-booking-details"
@@ -114,7 +116,7 @@ import { GroupEventDetailsModalComponent } from '../../../events/src/lib/group-e
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class BookingCardComponent
     extends AsyncHandler

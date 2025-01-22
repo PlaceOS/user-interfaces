@@ -80,7 +80,7 @@ import { EventsStateService } from './events-state.service';
                         {{ event.date | date: 'mediumDate' : tz }}
                         {{ event.date | date: time_format : tz }}
                         <span *ngIf="tz">{{
-                            event.date | date: 'z' : tz
+                            event.date | date: 'zzzz' : tz
                         }}</span>
                     </p>
                     <div class="w-64 h-32 overflow-hidden mb-2 bg-base-200">
