@@ -279,6 +279,23 @@ export class DesksStateService extends AsyncHandler {
                 state.metadata.id ||
                 `desk-${zone.slice(-3)}.${randomInt(999_999)}`,
         };
+        const desk_list = await this.desks.pipe(take(1)).toPromise();
+        const idx = desk_list.findIndex((_) => _.id === new_desk.id);
+        if (idx >= 0) desk_list[idx] = new_desk;
+        else desk_list.push(new_desk);
+        await updateMetadata(zone, {
+            name: 'desks',
+            details: desk_list,
+            description: 'List of available desks',
+        })
+            .toPromise()
+            .catch((e) => {
+                notifyError(
+                    i18n('APP.CONCIERGE.DESKS_SAVE_ERROR', { error: e }),
+                );
+                ref.componentInstance.loading = false;
+                throw e;
+            });
         if (desk.assigned_to && desk.assigned_to !== new_desk.assigned_to) {
             this._clearAssignedBooking(desk);
         }
@@ -317,15 +334,6 @@ export class DesksStateService extends AsyncHandler {
                 }),
             ).toPromise();
         }
-        const desk_list = await this.desks.pipe(take(1)).toPromise();
-        const idx = desk_list.findIndex((_) => _.id === new_desk.id);
-        if (idx >= 0) desk_list[idx] = new_desk;
-        else desk_list.push(new_desk);
-        await updateMetadata(zone, {
-            name: 'desks',
-            details: desk_list,
-            description: 'List of available desks',
-        }).toPromise();
         this._change.next(Date.now());
         ref.close();
     }

@@ -893,6 +893,7 @@
             "DESKS_ID": "Desk ID",
             "DESKS_NAME": "Desk Name",
             "DESKS_SAVING": "Saving desk details...",
+            "DESKS_SAVE_ERROR": "Failed to save desk details. Error: {{ error }}",
             "DESKS_MAP_ID_PLACEHOLDER": "e.g. table-01.123",
             "DESKS_VIEW_QR_CODE_LIST": "View Desk QR Codes",
             "DESKS_LIST_UPLOAD": "Upload Desks CSV",
