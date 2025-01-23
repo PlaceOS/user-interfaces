@@ -853,9 +853,11 @@ export class EventFormService extends AsyncHandler {
                 ? saveBooking(
                       newBookingFromCalendarEvent({
                           ...event.toJSON(),
-                          status: this._settings.get('app.bookings.no_approval')
-                              ? 'approved'
-                              : 'tentative',
+                          status:
+                              this._settings.get('app.bookings.no_approval') ===
+                              true
+                                  ? 'approved'
+                                  : 'tentative',
                       } as any),
                   ).pipe(map((_) => newCalendarEventFromBooking(_)))
                 : saveEvent(event, query)
