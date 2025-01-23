@@ -125,11 +125,11 @@ export class CheckinStateService {
         await updateBookingInductionStatus(event.id, 'declined').toPromise();
     }
 
-    public async checkinGuest() {
+    public async checkinGuest(state = true) {
         const guest = this._guest.getValue();
         const event = this._booking.getValue() || guest.extension_data.event;
         if (!guest || !event) return;
-        const checkin_fn = checkinBooking(event.id, true).toPromise();
+        const checkin_fn = checkinBooking(event.id, state).toPromise();
         const vars = {
             guest: guest.name,
             host: event.user_name || event.user_email,

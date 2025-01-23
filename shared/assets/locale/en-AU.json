@@ -1828,7 +1828,7 @@
             "SELECT_LOCATION_MSG": "Select a fixed location from the dropdown below",
             "SELECT_LOCATION": "Select location",
             "WELCOME_MESSAGE": "<p>Welcome to Place<span class=\"text-primary\">OS</span></p><p>Self Service Kiosk</p>",
-            "CHECK_IN": "Check-in",
+            "CHECK_IN": "Check-in or out",
             "VISITOR": "Visitor",
             "REGISTER": "Register",
             "REGISTRATION": "Visitor Registration",
@@ -1870,7 +1870,11 @@
             "SUCCESS_CHECKIN": "Successfully checked in {{ guest }} for {{ host }}'s meeting",
             "NOT_FOUND": "No meetings for guest \"{{ email }}\" today",
             "LOAD_ERROR": "Failed to load booking for guest.",
-            "UPDATE_SUCCESS": "Successfully updated booking for guest."
+            "UPDATE_SUCCESS": "Successfully updated booking for guest.",
+            "CHECKOUT": "Checkout",
+            "CHECKOUT_MSG": "You are currently checked in to the building. Would you like to check out?",
+            "CHECKOUT_LOADING": "Checking out guest...",
+            "CHECKOUT_SUCCESS": "Successfully checked out guest."
         }
     }
 }

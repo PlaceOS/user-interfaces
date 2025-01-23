@@ -13,6 +13,7 @@ import { CheckinErrorComponent } from './checkin-error.component';
 import { CheckinCovidComponent } from './checkin-covid.component';
 import { CheckinComponent } from './checkin.component';
 import { CheckinInductionComponent } from './checkin-induction.component';
+import { CheckoutComponent } from './checkout.component';
 
 const ROUTES: Route[] = [
     {
@@ -22,6 +23,7 @@ const ROUTES: Route[] = [
             { path: 'scan', component: CheckinQRScanComponent },
             { path: 'details', component: CheckinDetailsComponent },
             { path: 'preferences', component: CheckinPreferencesComponent },
+            { path: 'checkout', component: CheckoutComponent },
             { path: 'photo', component: CheckinPhotoComponent },
             { path: 'results', component: CheckinResultsComponent },
             { path: 'error', component: CheckinErrorComponent },
