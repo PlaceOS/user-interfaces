@@ -46,6 +46,7 @@ const ROUTES: Route[] = [
         CheckinErrorComponent,
         CheckinCovidComponent,
         CheckinInductionComponent,
+        CheckoutComponent,
     ],
     imports: [
         CommonModule,

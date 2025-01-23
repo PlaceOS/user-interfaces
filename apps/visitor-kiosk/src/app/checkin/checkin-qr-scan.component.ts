@@ -203,6 +203,10 @@ export class CheckinQRScanComponent
             this.checking_code = false;
             return;
         }
+        if (event.checked_in_at) {
+            this._router.navigate(['/checkin', 'checkout']);
+            return;
+        }
         if (
             event.induction !== 'accepted' &&
             this.is_induction_enabled &&
