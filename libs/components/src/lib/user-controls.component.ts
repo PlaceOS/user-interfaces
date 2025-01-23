@@ -189,12 +189,23 @@ export interface AppLocale {
                         <div
                             class="flex items-center justify-center rounded-full w-8 h-8 bg-base-200"
                         >
-                            <app-icon>mode_night</app-icon>
+                            <app-icon>language</app-icon>
                         </div>
                         <div
                             class="flex-1 flex items-center justify-between space-x-4"
                         >
-                            <div>{{ 'COMMON.LANGUAGE' | translate }}</div>
+                            <div>
+                                <div>{{ 'COMMON.LANGUAGE' | translate }}</div>
+                                <div
+                                    *ngIf="
+                                        ('COMMON.LANGUAGE' | translate) !==
+                                        'Language'
+                                    "
+                                    class="text-xs opacity-30"
+                                >
+                                    Language
+                                </div>
+                            </div>
                             <div
                                 class="text-sm px-2 py-1 rounded bg-base-200 max-w-24 truncate"
                                 [matTooltip]="active_locale | translate"
@@ -260,7 +271,7 @@ export interface AppLocale {
         </div>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class UserControlsComponent {
     public readonly building = this._org.active_building;

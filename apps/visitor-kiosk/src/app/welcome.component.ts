@@ -73,12 +73,21 @@ import { AsyncHandler, LocaleService, SettingsService } from '@placeos/common';
                 *ngIf="locales.length > 1"
                 [matMenuTriggerFor]="menu"
             >
-                <div class="flex items-center justify-between space-x-4">
-                    <div class=" text-white">
-                        {{ 'COMMON.LANGUAGE' | translate }}
+                <div class="flex items-center justify-between">
+                    <app-icon class="text-2xl text-white">language</app-icon>
+                    <div class="text-white text-left ml-2">
+                        <div>{{ 'COMMON.LANGUAGE' | translate }}</div>
+                        <div
+                            *ngIf="
+                                ('COMMON.LANGUAGE' | translate) !== 'Language'
+                            "
+                            class="text-xs opacity-30"
+                        >
+                            Language
+                        </div>
                     </div>
                     <div
-                        class="text-sm px-2 py-1 rounded bg-base-200 max-w-24 truncate"
+                        class="text-sm px-2 py-1 rounded bg-base-200 max-w-24 truncate ml-4"
                         [matTooltip]="active_locale | translate"
                     >
                         {{ active_locale | translate }}
@@ -91,9 +100,19 @@ import { AsyncHandler, LocaleService, SettingsService } from '@placeos/common';
                     *ngFor="let lang of locales"
                     (click)="setLocale(lang.id)"
                 >
-                    <div class="flex items-center justify-between space-x-4">
-                        <div>{{ lang.name | translate }}</div>
-                        <div>{{ lang.flag }}</div>
+                    <div
+                        class="flex items-center justify-between space-x-8 h-14"
+                    >
+                        <div>
+                            <div>{{ lang.name | translate }}</div>
+                            <div
+                                *ngIf="(lang.name | translate) !== lang.local"
+                                class="text-xs opacity-30"
+                            >
+                                {{ lang.local }}
+                            </div>
+                        </div>
+                        <div class="text-3xl">{{ lang.flag }}</div>
                     </div>
                 </button>
             </mat-menu>
