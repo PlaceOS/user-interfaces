@@ -67,7 +67,7 @@ export class CheckoutComponent implements OnInit {
         if (!event) this._router.navigate(['/checkin']);
     }
 
-    public async updateGuest() {
+    public async checkout() {
         this.loading = true;
         const result = await this._state
             .checkinGuest(false)

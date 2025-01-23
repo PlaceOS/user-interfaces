@@ -1872,7 +1872,7 @@
             "NOT_FOUND": "No meetings for guest \"{{ email }}\" today",
             "LOAD_ERROR": "Failed to load booking for guest.",
             "UPDATE_SUCCESS": "Successfully updated booking for guest.",
-            "CHECKOUT": "Checkout",
+            "CHECKOUT": "Check-out from building",
             "CHECKOUT_MSG": "You are currently checked in to the building. Would you like to check out?",
             "CHECKOUT_LOADING": "Checking out guest...",
             "CHECKOUT_SUCCESS": "Successfully checked out guest."
