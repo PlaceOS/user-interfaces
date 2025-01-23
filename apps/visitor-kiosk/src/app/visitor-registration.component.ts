@@ -116,7 +116,7 @@ import { OrganisationService } from '@placeos/organisation';
         </div>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class VisitorRegistrationComponent {
     public readonly form = this._booking_form.form;
@@ -192,7 +192,12 @@ export class VisitorRegistrationComponent {
                 this._org.building?.id,
             ]),
         });
-        const result = await this._booking_form.postForm(true);
+        const result = await this._booking_form.postForm(true).catch((e) => {
+            notifyError(
+                i18n('APP.VISITOR_KIOSK.REGISTRATION_ERROR', { error: e }),
+            );
+            throw e;
+        });
         this._checkin.setBooking(result, 'registered');
         if (
             result.induction !== 'accepted' &&
