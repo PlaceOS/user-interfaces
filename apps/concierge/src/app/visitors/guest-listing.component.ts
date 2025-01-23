@@ -327,9 +327,9 @@ import { User } from '@placeos/users';
         </ng-template>
         <ng-template #time_template let-data="data">
             <div class="px-4">
-                {{ data | date: time_format : tz }}
+                {{ data * 1000 | date: time_format : tz }}
                 <span class="text-xs opacity-30" *ngIf="timezone">
-                    {{ data | date: 'zzzz' : tz }}
+                    {{ data * 1000 | date: 'zzzz' : tz }}
                 </span>
             </div>
         </ng-template>
