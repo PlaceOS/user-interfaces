@@ -75,6 +75,15 @@ export class LocaleService {
     constructor() {
         this._current_locale =
             localStorage.getItem(`${STORE_KEY}`) || this._default_locale;
+        if (this._current_locale !== this._default_locale) {
+            const existing: LocaleStore = JSON.parse(
+                localStorage.getItem(`${STORE_KEY}.${this._current_locale}`) ||
+                    '{}',
+            );
+            if (existing.expiry && existing.expiry > Date.now()) {
+                this._locale_mappings[this._current_locale] = existing.mappings;
+            }
+        }
     }
 
     public init() {

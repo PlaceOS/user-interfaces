@@ -72,6 +72,33 @@ const app = {
     explore,
     home,
     welcome_background: 'assets/img/skyline.png',
+    locales: [
+        { id: 'en-AU', name: 'LANGUAGE.ENGLISH', local: 'English', flag: '🇦🇺' },
+        {
+            id: 'en-US',
+            name: 'LANGUAGE.ENGLISH_US',
+            local: 'English (US)',
+            flag: '🇺🇸',
+        },
+        { id: 'fr', name: 'LANGUAGE.FRENCH', local: 'Français', flag: '🇫🇷' },
+        {
+            id: 'fr-CA',
+            name: 'LANGUAGE.FRENCH_CA',
+            local: 'Français (Canada)',
+            flag: '🇨🇦',
+        },
+        { id: 'es', name: 'LANGUAGE.SPANISH', local: 'Español', flag: '🇪🇸' },
+        {
+            id: 'pt',
+            name: 'LANGUAGE.PORTUGESE',
+            local: 'Português',
+            flag: '🇵🇹',
+        },
+        { id: 'it', name: 'LANGUAGE.ITALIAN', local: 'Italiano', flag: '🇮🇹' },
+        { id: 'zh', name: 'LANGUAGE.CHINESE', local: '中文', flag: '🇨🇳' },
+        { id: 'ja-JP', name: 'LANGUAGE.JAPANESE', local: '日本語', flag: '🇯🇵' },
+        { id: 'ar', name: 'LANGUAGE.ARABIC', local: 'عربية', flag: '' },
+    ],
 };
 
 /**

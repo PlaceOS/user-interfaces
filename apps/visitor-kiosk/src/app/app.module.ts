@@ -1,11 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import {
-    ErrorHandler,
-    NgModule,
-    inject,
-    provideAppInitializer,
-} from '@angular/core';
+import { ErrorHandler, LOCALE_ID, NgModule } from '@angular/core';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import {
     provideHttpClient,
@@ -30,6 +25,15 @@ import { AssetsModule } from '@placeos/assets';
 import { SharedBookingsModule } from '@placeos/bookings';
 import { VisitorRegistrationComponent } from './visitor-registration.component';
 import { FormFieldsModule } from '../../../../libs/form-fields/src/lib/form-fields.module';
+import { LocaleService } from '@placeos/common';
+
+import localeFr from '@angular/common/locales/fr';
+import localeJa from '@angular/common/locales/ja';
+import localeAr from '@angular/common/locales/ar';
+import localeZh from '@angular/common/locales/zh';
+import localeEs from '@angular/common/locales/es';
+import localeIt from '@angular/common/locales/it';
+import { registerLocaleData } from '@angular/common';
 
 @NgModule({
     declarations: [
@@ -68,8 +72,20 @@ import { FormFieldsModule } from '../../../../libs/form-fields/src/lib/form-fiel
             provide: Sentry.TraceService,
             deps: [Router],
         },
-
-        provideHttpClient(withInterceptorsFromDi()),
+        {
+            provide: LOCALE_ID,
+            deps: [LocaleService],
+            useFactory: (localeService: LocaleService) => localeService.locale,
+        },
     ],
 })
-export class AppModule {}
+export class AppModule {
+    constructor() {
+        registerLocaleData(localeFr);
+        registerLocaleData(localeAr);
+        registerLocaleData(localeJa);
+        registerLocaleData(localeZh);
+        registerLocaleData(localeEs);
+        registerLocaleData(localeIt);
+    }
+}
