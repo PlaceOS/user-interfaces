@@ -96,7 +96,7 @@ import { take } from 'rxjs/operators';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class CheckinQRScanComponent
     extends AsyncHandler
@@ -171,6 +171,10 @@ export class CheckinQRScanComponent
                 this.checking_code = false;
                 return;
             }
+            if (event.checked_in_at) {
+                this._router.navigate(['/checkin', 'checkout']);
+                return;
+            }
             if (event.checked_out_at) {
                 this.handleError('Your meeting has already finished.');
                 this.checking_code = false;
@@ -197,6 +201,10 @@ export class CheckinQRScanComponent
         if (event.checked_out_at) {
             this.handleError('Your meeting has already finished.');
             this.checking_code = false;
+            return;
+        }
+        if (event.checked_in_at) {
+            this._router.navigate(['/checkin', 'checkout']);
             return;
         }
         if (
