@@ -164,12 +164,13 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
             ]) => {
                 this._statuses = {};
                 const level = await this._state.level.pipe(take(1)).toPromise();
-                for (const { id, bookable } of desks) {
-                    const is_used = in_use.some((i) => id === i);
-                    const has_presence = presence.some((i) => id === i);
-                    const has_signs = signs.some((i) => id === i);
+                for (const { id, bookable, map_id } of desks) {
+                    const d_id = map_id || id;
+                    const is_used = in_use.some((i) => d_id === i);
+                    const has_presence = presence.some((i) => d_id === i);
+                    const has_signs = signs.some((i) => d_id === i);
                     const is_checked_in =
-                        checked_in.some((i) => id === i) ||
+                        checked_in.some((i) => d_id === i) ||
                         (is_used &&
                             this._settings.get(`app.desks.auto_checkin`));
                     const is_restricted = rulesForResource(
@@ -184,7 +185,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
                         },
                         restrictions,
                     )?.hidden;
-                    this._statuses[id] =
+                    this._statuses[d_id] =
                         bookable && !is_restricted
                             ? !is_used && !has_presence && !is_checked_in
                                 ? has_signs
@@ -320,7 +321,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
         for (const desk of desks) {
             list.push({
                 track_id: `desk:hover:${desk.map_id || desk.id}`,
-                location: desk.id,
+                location: desk.map_id || desk.id,
                 content: ExploreDeskInfoComponent,
                 full_size: true,
                 no_scale: true,
@@ -342,7 +343,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
             };
             ['mousedown', 'touchstart'].forEach((event) =>
                 actions.push({
-                    id: desk.id,
+                    id: desk.map_id || desk.id,
                     action: event,
                     priority: 10,
                     callback: () => {
@@ -353,7 +354,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
             );
             ['mouseup', 'touchend'].forEach((event) =>
                 actions.push({
-                    id: desk.id,
+                    id: desk.map_id || desk.id,
                     action: event,
                     priority: 10,
                     callback: book_fn,
