@@ -18,6 +18,7 @@ import { startOfMinute } from 'date-fns';
                         matRipple
                         class="flex-1"
                         [class.inverse]="tab !== 'people'"
+                        *ngIf="!hide_colleagues"
                         (click)="tab = 'people'"
                     >
                         <div class="flex items-center space-x-2 capitalize">
@@ -110,7 +111,7 @@ import { startOfMinute } from 'date-fns';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class LandingComponent {
     public time: number;
