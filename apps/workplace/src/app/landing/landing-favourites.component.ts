@@ -27,7 +27,12 @@ const EMPTY = [];
             <h2>
                 {{
                     'APP.WORKPLACE.FAVOURITES_COUNT'
-                        | translate: { count: spaces?.length || 0 }
+                        | translate
+                            : {
+                                  count:
+                                      (spaces?.length || 0) +
+                                      (assets | async)?.length,
+                              }
                 }}
             </h2>
         </div>
@@ -271,7 +276,7 @@ const EMPTY = [];
         `,
     ],
     providers: [SpacePipe],
-    standalone: false
+    standalone: false,
 })
 export class LandingFavouritesComponent extends AsyncHandler implements OnInit {
     private _room_alerts: Record<string, [string, string]>;
