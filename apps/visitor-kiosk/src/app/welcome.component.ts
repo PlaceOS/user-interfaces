@@ -75,7 +75,7 @@ import { AsyncHandler, LocaleService, SettingsService } from '@placeos/common';
             >
                 <div class="flex items-center justify-between">
                     <app-icon class="text-2xl text-white">language</app-icon>
-                    <div class="text-white text-left ml-2">
+                    <div class="text-white text-left ml-2 leading-tight">
                         <div>{{ 'COMMON.LANGUAGE' | translate }}</div>
                         <div
                             *ngIf="
@@ -101,9 +101,14 @@ import { AsyncHandler, LocaleService, SettingsService } from '@placeos/common';
                     (click)="setLocale(lang.id)"
                 >
                     <div
-                        class="flex items-center justify-between space-x-8 h-14"
+                        class="flex items-center justify-between space-x-8 h-14 min-w-[24rem]"
                     >
-                        <div>
+                        <div
+                            class="leading-tight"
+                            [class.mt-2]="
+                                (lang.name | translate) !== lang.local
+                            "
+                        >
                             <div>{{ lang.name | translate }}</div>
                             <div
                                 *ngIf="(lang.name | translate) !== lang.local"
@@ -112,7 +117,7 @@ import { AsyncHandler, LocaleService, SettingsService } from '@placeos/common';
                                 {{ lang.local }}
                             </div>
                         </div>
-                        <div class="text-3xl">{{ lang.flag }}</div>
+                        <!-- <div class="text-3xl">{{ lang.flag }}</div> -->
                     </div>
                 </button>
             </mat-menu>

@@ -30,7 +30,7 @@ import { CustomTooltipData } from '@placeos/components';
                         {{ lang.local }}
                     </div>
                 </div>
-                <div class="text-3xl">{{ lang.flag }}</div>
+                <!-- <div class="text-3xl">{{ lang.flag }}</div> -->
             </button>
         </div>
     `,
