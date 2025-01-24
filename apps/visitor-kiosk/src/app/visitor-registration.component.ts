@@ -194,7 +194,9 @@ export class VisitorRegistrationComponent {
         });
         const result = await this._booking_form.postForm(true).catch((e) => {
             notifyError(
-                i18n('APP.VISITOR_KIOSK.REGISTRATION_ERROR', { error: e }),
+                i18n('APP.VISITOR_KIOSK.REGISTRATION_ERROR', {
+                    error: e?.statusText || e,
+                }),
             );
             throw e;
         });
