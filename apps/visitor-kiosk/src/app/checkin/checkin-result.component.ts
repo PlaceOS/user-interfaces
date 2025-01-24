@@ -253,7 +253,6 @@ export class CheckinResultsComponent extends AsyncHandler implements OnInit {
                 this.date = event.date || event.booking_start * 1000;
                 this.zones = event.zones;
                 this.e = event;
-                console.log('Event:', event);
             }
         });
     }

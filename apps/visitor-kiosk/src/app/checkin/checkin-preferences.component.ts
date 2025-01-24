@@ -76,7 +76,7 @@ import { updateBooking } from '@placeos/bookings';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class CheckinPreferencesComponent implements OnInit {
     public loading = false;
@@ -85,10 +85,6 @@ export class CheckinPreferencesComponent implements OnInit {
 
     public readonly menu = this._catering.menu.pipe(
         map((l) => {
-            console.log(
-                'Menu:',
-                l.map((_) => _.tags),
-            );
             return l.filter((_) =>
                 (_.tags || []).find(
                     (_) =>
