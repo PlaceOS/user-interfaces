@@ -93,7 +93,7 @@ export interface TableColumn {
                     | slice
                         : page * (page_size || 9999)
                         : (page + 1) * (page_size || 9999);
-                track row;
+                track row.id || row;
                 let i = $index
             ) {
                 <div
@@ -264,7 +264,7 @@ export interface TableColumn {
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class SimpleTableComponent<T extends object = any> extends AsyncHandler {
     @Input() public data: T[] | Observable<T[]>;
@@ -341,7 +341,7 @@ export class SimpleTableComponent<T extends object = any> extends AsyncHandler {
                             return keys.some((key) => {
                                 const value = v[key];
                                 const cmp_str =
-                                    JSON.stringify(value).toLowerCase();
+                                    `${JSON.stringify(value)}`.toLowerCase();
                                 return cmp_str.includes(filter_str);
                             });
                         });
