@@ -221,7 +221,11 @@
         "SELECT_USER_TITLE": "Select a user",
         "SELECT_USER_SEARCH": "Search for users...",
         "SELECT_USER_EMPTY": "Start typing to search for users.",
-        "SELECT_USER_EMPTY_MATCHES": "No matching users found."
+        "SELECT_USER_EMPTY_MATCHES": "No matching users found.",
+        "USER_NEW": "New External User",
+        "USER_EDIT": "Edit External User",
+        "USER_SAVING": "Saving user...",
+        "ORGANISATION": "Organisation"
     },
     "LANGUAGE": {
         "ENGLISH": "English",

@@ -8,11 +8,11 @@ import { Component } from '@angular/core';
                 class="flex-1 flex flex-col items-center justify-center space-y-2 p-8"
             >
                 <h2 class="text-2xl font-medium">
-                    {{ 'WPA.RESOURCE_CHECKED_IN' | translate }}
+                    {{ 'APP.WORKPLACE.RESOURCE_CHECKED_IN' | translate }}
                 </h2>
                 <img src="assets/icons/success.svg" />
                 <p class="text-center max-w-[32rem]">
-                    {{ 'WPA.CHECKED_IN' | translate }}
+                    {{ 'APP.WORKPLACE.CHECKED_IN' | translate }}
                 </p>
             </main>
             <footer
@@ -24,12 +24,12 @@ import { Component } from '@angular/core';
                     class="w-full max-w-[32rem]"
                     [routerLink]="['/']"
                 >
-                    {{ 'WPA.BOOKING_DONE_CONTINUE' | translate }}
+                    {{ 'APP.WORKPLACE.BOOKING_DONE_CONTINUE' | translate }}
                 </a>
             </footer>
         </div>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class CodeFlowSuccessComponent {}

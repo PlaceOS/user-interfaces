@@ -16,31 +16,28 @@ import { take } from 'rxjs/operators';
 @Component({
     selector: 'meeting-flow-success',
     template: `
+        @let details =
+            {
+                level: level?.display_name || level?.name,
+                space: space?.display_name || space?.name,
+                date: last_event.date | date: 'mediumDate',
+                time: (last_event.date | date: time_format),
+            };
         <div
             class="absolute inset-0 bg-base-100 flex flex-col z-50 overflow-auto"
+            *ngIf="!loading"
         >
             <main
                 class="flex-1 flex flex-col items-center justify-center space-y-2 p-8"
             >
                 <h2 class="text-2xl font-medium">
-                    {{ 'WPA.BOOKING_CONFIRMED' | translate }}
+                    {{
+                        'BOOKINGS.ITEM_BOOKED'
+                            | translate: { name: 'RESOURCE.ROOM' | translate }
+                    }}
                 </h2>
                 <img src="assets/icons/success.svg" />
                 <p class="text-center max-w-[32rem]">
-                    @let details =
-                        {
-                            level: level?.display_name || level?.name,
-                            space: space?.display_name || space?.name,
-                            date: last_event.date | date: 'mediumDate',
-                            time:
-                                last_event.date
-                                | date
-                                    : time_format +
-                                          '-' +
-                                          last_event.date +
-                                          last_event.duration * 60 * 1000
-                                | date: time_format,
-                        };
                     <ng-container *ngIf="last_event?.all_day">
                         {{
                             (space
@@ -88,9 +85,10 @@ import { take } from 'rxjs/operators';
         </div>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class MeetingFlowSuccessComponent {
+    public loading = false;
     private _space_pipe: SpacePipe = new SpacePipe(this._org);
 
     public get allow_desk_booking() {
@@ -106,11 +104,27 @@ export class MeetingFlowSuccessComponent {
     }
 
     public get level() {
-        return this._org.levelWithID(this.space?.zones);
+        return (
+            this._org.levelWithID(this.space?.zones) ||
+            this._org.levelsForBuilding()[0]
+        );
     }
 
     public get time_format() {
         return this._settings.time_format;
+    }
+
+    constructor(
+        private _event_form: EventFormService,
+        private _org: OrganisationService,
+        private _settings: SettingsService,
+        private _booking_form: BookingFormService,
+        private _router: Router,
+    ) {}
+
+    public ngOnInit() {
+        this.loading = true;
+        setTimeout(() => (this.loading = false), 500);
     }
 
     public startDeskBooking() {
@@ -160,12 +174,4 @@ export class MeetingFlowSuccessComponent {
             });
         }, 50);
     }
-
-    constructor(
-        private _event_form: EventFormService,
-        private _org: OrganisationService,
-        private _settings: SettingsService,
-        private _booking_form: BookingFormService,
-        private _router: Router,
-    ) {}
 }

@@ -13,7 +13,7 @@ const VALID_TYPES = ['not_started', 'wrong_resource', 'other'];
                 class="flex-1 flex flex-col items-center justify-center space-y-2 p-8"
             >
                 <h2 class="text-2xl font-medium">
-                    {{ 'WPA.RESOURCE_CHECKED_IN_FAILED' | translate }}
+                    {{ 'APP.WORKPLACE.RESOURCE_CHECKED_IN_FAILED' | translate }}
                 </h2>
                 <div class="py-4">
                     <img src="assets/icons/not-found.svg" class="h-64" />
@@ -43,7 +43,7 @@ const VALID_TYPES = ['not_started', 'wrong_resource', 'other'];
                     [queryParams]="{ asset_id: asset_id }"
                     *ngIf="type === 'not_started'"
                 >
-                    {{ 'WPA.TRY_AGAIN' | translate }}
+                    {{ 'APP.WORKPLACE.TRY_AGAIN' | translate }}
                 </a>
                 <a
                     btn
@@ -53,7 +53,7 @@ const VALID_TYPES = ['not_started', 'wrong_resource', 'other'];
                     [queryParams]="{ asset_id: asset_id }"
                     *ngIf="type === 'no_booking'"
                 >
-                    {{ 'WPA.BOOK' | translate }}
+                    {{ 'APP.WORKPLACE.BOOK' | translate }}
                 </a>
                 <a
                     btn
@@ -67,7 +67,7 @@ const VALID_TYPES = ['not_started', 'wrong_resource', 'other'];
         </div>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class CodeFlowErrorComponent extends AsyncHandler {
     public type = 'other';
@@ -76,7 +76,7 @@ export class CodeFlowErrorComponent extends AsyncHandler {
 
     constructor(
         private _route: ActivatedRoute,
-        private _state: BookingFormService
+        private _state: BookingFormService,
     ) {
         super();
     }
@@ -87,7 +87,7 @@ export class CodeFlowErrorComponent extends AsyncHandler {
             this._route.queryParamMap.subscribe((params) => {
                 this.type = params.get('type') as any;
                 this.asset_id = params.get('asset_id') as any;
-            })
+            }),
         );
     }
 }

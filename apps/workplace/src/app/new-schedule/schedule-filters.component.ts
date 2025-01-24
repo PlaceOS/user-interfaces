@@ -135,7 +135,7 @@ import { ScheduleStateService } from './schedule-state.service';
             >
                 <div class="flex items-center justify-center space-x-2">
                     <app-icon class="text-xl">filter_list</app-icon>
-                    <!-- <div class="mr-2">{{ "WPA.FILTERS" | translate }}</div> -->
+                    <!-- <div class="mr-2">{{ "APP.WORKPLACE.FILTERS" | translate }}</div> -->
                 </div>
             </button>
             <div
@@ -237,7 +237,7 @@ import { ScheduleStateService } from './schedule-state.service';
         </div>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class ScheduleFiltersComponent {
     public readonly filters = this._state.filters;
