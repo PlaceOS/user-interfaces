@@ -1,5 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { BehaviorSubject, combineLatest } from 'rxjs';
+import { map, shareReplay, tap } from 'rxjs/operators';
+
 import {
     BookingFormService,
     BookingType,
@@ -10,11 +13,10 @@ import { EventFormService } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
 import { Space } from '@placeos/spaces';
 import { showMetadata } from '@placeos/ts-client';
+
 import { FAV_DESK_KEY } from 'libs/bookings/src/lib/desk-select-modal/desk-select-modal.component';
 import { FAV_LOCKER_KEY } from 'libs/bookings/src/lib/locker-select-modal/locker-select-modal.component';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
-import { combineLatest } from 'rxjs';
-import { map, shareReplay } from 'rxjs/operators';
 
 const EMPTY = [];
 
@@ -45,116 +47,117 @@ const EMPTY = [];
                     else empty_state
                 "
             >
-                <div
-                    class="flex flex-col items-center mx-2 pt-2 space-y-2 relative"
-                    item
-                    *ngFor="let item of spaces"
-                >
-                    <div class="flex w-full items-center space-x-2 relative">
+                <ng-container *ngFor="let item of spaces">
+                    @let space = item | space | async;
+                    <div
+                        class="flex flex-col items-center mx-2 pt-2 space-y-2 relative"
+                        item
+                        *ngIf="space?.id"
+                    >
                         <div
-                            class="w-16 h-16 overflow-hidden rounded relative flex items-center justify-center bg-base-300"
+                            class="flex w-full items-center space-x-2 relative"
                         >
-                            <img
-                                auth
-                                *ngIf="
-                                    (item | space | async)?.images?.length;
-                                    else space_placeholder
-                                "
-                                class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 object-cover min-w-full min-h-full"
-                                [source]="(item | space | async)?.images[0]"
-                            />
-                            <ng-template #space_placeholder>
+                            <div
+                                class="w-16 h-16 overflow-hidden rounded relative flex items-center justify-center bg-base-300"
+                            >
                                 <img
-                                    class="m-auto"
-                                    src="assets/icons/room-placeholder.svg"
+                                    auth
+                                    *ngIf="
+                                        space.images.length;
+                                        else space_placeholder
+                                    "
+                                    class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 object-cover min-w-full min-h-full"
+                                    [source]="space.images[0]"
                                 />
-                            </ng-template>
+                                <ng-template #space_placeholder>
+                                    <img
+                                        class="m-auto"
+                                        src="assets/icons/room-placeholder.svg"
+                                    />
+                                </ng-template>
+                            </div>
+                            <div
+                                class="h-16 flex-1 w-1/2 flex flex-col justify-center space-y-1"
+                            >
+                                <div class="truncate w-full pr-12">
+                                    {{ space.display_name || space.name }}
+                                </div>
+                                <div
+                                    class="flex items-center text-xs opacity-60 space-x-1"
+                                >
+                                    <app-icon class="text-blue-500"
+                                        >place</app-icon
+                                    >
+                                    <div class="flex-1 w-1/2 truncate">
+                                        {{ level(space)?.display_name }}
+                                    </div>
+                                </div>
+                                <div
+                                    class="flex items-center text-xs opacity-60 truncate space-x-2"
+                                >
+                                    <app-icon class="text-blue-500">
+                                        people
+                                    </app-icon>
+                                    <div>
+                                        {{
+                                            'APP.WORKPLACE.CAPACITY'
+                                                | translate
+                                                    : {
+                                                          count:
+                                                              space.capacity ||
+                                                              2,
+                                                      }
+                                        }}
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div
-                            class="h-16 flex-1 w-1/2 flex flex-col justify-center space-y-1"
+                        <button
+                            btn
+                            name="book-favourite"
+                            matRipple
+                            class="w-full inverse"
+                            [disabled]="isClosed(item)"
+                            (click)="newSpaceMeeting(item)"
                         >
-                            <div class="truncate w-full pr-12">
-                                {{
-                                    (item | space | async)?.display_name ||
-                                        (item | space | async)?.name
-                                }}
-                            </div>
-                            <div
-                                class="flex items-center text-xs opacity-60 space-x-1"
-                            >
-                                <app-icon class="text-blue-500">place</app-icon>
-                                <div class="flex-1 w-1/2 truncate">
-                                    {{
-                                        level(item | space | async)
-                                            ?.display_name
-                                    }}
-                                </div>
-                            </div>
-                            <div
-                                class="flex items-center text-xs opacity-60 truncate space-x-2"
-                            >
-                                <app-icon class="text-blue-500">
-                                    people
-                                </app-icon>
-                                <div>
-                                    {{
-                                        'APP.WORKPLACE.CAPACITY'
-                                            | translate
-                                                : {
-                                                      count:
-                                                          (item | space | async)
-                                                              ?.capacity || 2,
-                                                  }
-                                    }}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <button
-                        btn
-                        name="book-favourite"
-                        matRipple
-                        class="w-full inverse"
-                        [disabled]="isClosed(item)"
-                        (click)="newSpaceMeeting(item)"
-                    >
-                        {{ 'COMMON.BOOK' | translate }}
-                    </button>
-                    <button
-                        icon
-                        name="favourite-more"
-                        [matMenuTriggerFor]="menu"
-                        class="absolute top-2 right-0 bg-base-200 !rounded !m-0"
-                    >
-                        <app-icon>more_horiz</app-icon>
-                    </button>
-                    <mat-menu #menu="matMenu" xPosition="before">
-                        <!-- <button
+                            {{ 'COMMON.BOOK' | translate }}
+                        </button>
+                        <button
+                            icon
+                            name="favourite-more"
+                            [matMenuTriggerFor]="menu"
+                            class="absolute top-2 right-0 bg-base-200 !rounded !m-0"
+                        >
+                            <app-icon>more_horiz</app-icon>
+                        </button>
+                        <mat-menu #menu="matMenu" xPosition="before">
+                            <!-- <button
                             mat-menu-item
                             class="flex items-center space-x-2"
                         >
                             <app-icon class="text-2xl">info</app-icon>
                             <div>{{ 'APP.WORKPLACE.VIEW_DETAILS' | translate }}</div>
                         </button> -->
-                        <button
-                            name="landing-remove-favourite"
-                            mat-menu-item
-                            (click)="toggleFavourite('space', item)"
-                        >
-                            <div class="flex items-center space-x-2">
-                                <app-icon class="text-2xl text-error"
-                                    >delete</app-icon
-                                >
-                                <div>
-                                    {{
-                                        'APP.WORKPLACE.FAVOURITES_REMOVE'
-                                            | translate
-                                    }}
+                            <button
+                                name="landing-remove-favourite"
+                                mat-menu-item
+                                (click)="removeFavourite('space', item)"
+                            >
+                                <div class="flex items-center space-x-2">
+                                    <app-icon class="text-2xl text-error"
+                                        >delete</app-icon
+                                    >
+                                    <div>
+                                        {{
+                                            'APP.WORKPLACE.FAVOURITES_REMOVE'
+                                                | translate
+                                        }}
+                                    </div>
                                 </div>
-                            </div>
-                        </button>
-                    </mat-menu>
-                </div>
+                            </button>
+                        </mat-menu>
+                    </div>
+                </ng-container>
                 <div
                     class="flex flex-col items-center mx-2 pt-2 space-y-2 relative"
                     item
@@ -232,7 +235,7 @@ const EMPTY = [];
                         <button
                             name="landing-remove-favourite"
                             mat-menu-item
-                            (click)="toggleFavourite(item.type, item.id)"
+                            (click)="removeFavourite(item.type, item.id)"
                         >
                             <div class="flex items-center space-x-2">
                                 <app-icon class="text-2xl text-error">
@@ -279,10 +282,12 @@ const EMPTY = [];
     standalone: false,
 })
 export class LandingFavouritesComponent extends AsyncHandler implements OnInit {
+    private _change = new BehaviorSubject(0);
     private _room_alerts: Record<string, [string, string]>;
     public readonly assets = combineLatest([
         this._booking_form.loadResourceList('desks' as any),
         this._booking_form.loadResourceList('parking-spaces' as any),
+        this._change,
     ]).pipe(
         map(([desks, parking]) => {
             return [
@@ -294,6 +299,7 @@ export class LandingFavouritesComponent extends AsyncHandler implements OnInit {
                     .map((_) => ({ ..._, type: 'parking' })),
             ];
         }),
+        tap((_) => console.log(_)),
         shareReplay(1),
     );
 
@@ -344,7 +350,7 @@ export class LandingFavouritesComponent extends AsyncHandler implements OnInit {
             .toPromise();
     }
 
-    public toggleFavourite(
+    public removeFavourite(
         type: 'space' | 'desk' | 'parking' | 'locker',
         id: string,
     ) {
@@ -359,16 +365,16 @@ export class LandingFavouritesComponent extends AsyncHandler implements OnInit {
                 fav_list = this.parking_spaces;
                 key = FAV_PARKING_KEY;
                 break;
+            case 'locker':
+                fav_list = this.locker_banks;
+                key = FAV_LOCKER_KEY;
+                break;
         }
-        const new_state = !fav_list.includes(id);
-        if (new_state) {
-            this._settings.saveUserSetting(key, [...fav_list, id]);
-        } else {
-            this._settings.saveUserSetting(
-                key,
-                fav_list.filter((_) => _ !== id),
-            );
-        }
+        this._settings.saveUserSetting(
+            key,
+            fav_list.filter((_) => _ !== id),
+        );
+        this._change.next(Date.now());
     }
 
     public async newSpaceMeeting(id: string) {
