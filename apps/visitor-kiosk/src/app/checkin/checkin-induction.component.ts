@@ -49,7 +49,7 @@ import { OrganisationService } from '@placeos/organisation';
         </div>
     `,
     styles: [],
-    standalone: false
+    standalone: false,
 })
 export class CheckinInductionComponent {
     public readonly event = this._checkin.event;

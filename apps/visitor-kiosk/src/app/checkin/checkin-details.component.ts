@@ -132,7 +132,7 @@ import { SettingsService } from '@placeos/common';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class CheckinDetailsComponent implements OnInit {
     public readonly form = this._checkin.form;
@@ -149,12 +149,13 @@ export class CheckinDetailsComponent implements OnInit {
         private _settings: SettingsService,
     ) {}
 
-    public ngOnInit(): void {
-        this.form
-            .pipe(first())
-            .subscribe((_) => (!_ || !_.value.email ? this.previous() : ''));
+    public async ngOnInit() {
+        const form = await this.form.pipe(first()).toPromise();
+        const event = await this._checkin.event.pipe(first()).toPromise();
         if (this._checkin.metadata === 'registered') {
             this.updateGuest();
+        } else {
+            !form || !form.value.email ? this.previous() : '';
         }
     }
 

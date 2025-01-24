@@ -1836,6 +1836,7 @@
             "VISITOR": "Visitor",
             "REGISTER": "Register",
             "REGISTRATION": "Visitor Registration",
+            "REGISTERING": "Registering visitor...",
             "REGISTRATION_ERROR": "Failed to register visitor. Error: {{ error }}",
             "EXPLORE": "Explore",
             "QR_CODE_MSG": "Please enter your email address or scan your QR code",

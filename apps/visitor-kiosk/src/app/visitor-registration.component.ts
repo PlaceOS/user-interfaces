@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
 import {
@@ -29,6 +29,7 @@ import { OrganisationService } from '@placeos/organisation';
             <div
                 class="absolute top-1/2 left-4 -translate-y-1/2 bg-base-100 rounded shadow overflow-auto max-h-[80vh] max-w-[calc(100%-2rem)] w-[32rem]"
                 [formGroup]="form"
+                *ngIf="!loading; else load_state"
             >
                 <div
                     class="flex items-center justify-between space-x-4 px-4 py-2 border-b border-base-300"
@@ -114,11 +115,20 @@ import { OrganisationService } from '@placeos/organisation';
                 {{ now | date: 'mediumDate' }} {{ now | date: 'shortTime' }}
             </div>
         </div>
+        <ng-template #load_state>
+            <div
+                class="absolute top-1/2 left-4 -translate-y-1/2 bg-base-100 rounded shadow flex flex-col items-center justify-center space-y-4 p-16 w-[24rem]"
+            >
+                <mat-spinner diameter="32"></mat-spinner>
+                <p>{{ 'APP.VISITOR_KIOSK.REGISTERING' | translate }}</p>
+            </div>
+        </ng-template>
     `,
     styles: [``],
     standalone: false,
 })
-export class VisitorRegistrationComponent {
+export class VisitorRegistrationComponent implements OnInit {
+    public loading = false;
     public readonly form = this._booking_form.form;
 
     public get now() {
@@ -173,6 +183,7 @@ export class VisitorRegistrationComponent {
                 }),
             );
         }
+        this.loading = true;
         const value = this.form.value;
         this._booking_form.form.patchValue({
             booking_type: 'visitor',
@@ -198,6 +209,7 @@ export class VisitorRegistrationComponent {
                     error: e?.statusText || e,
                 }),
             );
+            this.loading = false;
             throw e;
         });
         this._checkin.setBooking(result, 'registered');
@@ -210,5 +222,6 @@ export class VisitorRegistrationComponent {
         } else {
             this._router.navigate(['/checkin', 'details']);
         }
+        this.loading = false;
     }
 }
