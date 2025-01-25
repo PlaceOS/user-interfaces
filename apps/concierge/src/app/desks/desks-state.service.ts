@@ -330,6 +330,7 @@ export class DesksStateService extends AsyncHandler {
                     ]).filter((_) => !!_),
                     extension_data: {
                         asset_name: new_desk.name,
+                        is_assigned: true,
                     },
                 }),
             ).toPromise();

@@ -301,6 +301,7 @@ export class ParkingStateService extends AsyncHandler {
                     ]),
                     extension_data: {
                         asset_name: new_space.name,
+                        is_assigned: true,
                     },
                 }),
             ).toPromise();

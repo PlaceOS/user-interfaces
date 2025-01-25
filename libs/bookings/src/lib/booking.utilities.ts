@@ -103,6 +103,7 @@ export function generateBookingForm(booking: Booking = new Booking()) {
         notes: new FormControl(booking.extension_data.notes || ''),
         update_master: new FormControl(false),
         self_registered: new FormControl(false),
+        is_assgined: new FormControl(false),
     });
     form.valueChanges.subscribe(() => {
         if (form.getRawValue().date < Date.now() && form.value.id) {

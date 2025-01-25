@@ -327,7 +327,11 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
             </button>
             <button
                 mat-menu-item
-                *ngIf="booking.instance && booking.booking_type !== 'parking'"
+                *ngIf="
+                    booking.instance &&
+                    booking.booking_type !== 'parking' &&
+                        !booking.extension_data.is_assigned
+                "
                 (click)="remove.emit(true)"
             >
                 <div class="flex items-center space-x-2 text-base">
