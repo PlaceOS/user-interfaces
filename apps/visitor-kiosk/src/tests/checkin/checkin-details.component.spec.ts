@@ -24,7 +24,8 @@ describe('CheckinDetailsComponent', () => {
                 updateGuest: jest.fn(),
                 checkinGuest: jest.fn(async () => null),
                 form: of(generateGuestForm({} as any)),
-            }),
+                event: of({}),
+            } as any),
             MockProvider(SettingsService, { get: jest.fn() }),
         ],
         imports: [
