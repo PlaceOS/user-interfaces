@@ -214,7 +214,7 @@ export class ExploreSearchService {
                 return poi_list.map(
                     (item) =>
                         ({
-                            id: item.id || item.location,
+                            id: item.location || item.id,
                             type: 'feature',
                             name: item.name,
                             description: '',
