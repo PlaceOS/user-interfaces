@@ -216,7 +216,11 @@ export class LandingStateService extends AsyncHandler {
         ).toPromise()) as any;
         const list = metadata.details instanceof Array ? metadata.details : [];
         const users = await Promise.all(
-            list.map((_) => showUser(_.email).toPromise()),
+            list.map((_) =>
+                showUser(_.email)
+                    .pipe(catchError(() => of(_)))
+                    .toPromise(),
+            ),
         );
         this._contacts.next(users.map((i) => new StaffUser(i as any)));
     }
