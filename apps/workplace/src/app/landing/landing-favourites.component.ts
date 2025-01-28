@@ -193,7 +193,9 @@ const EMPTY = [];
                             class="h-16 flex-1 w-1/2 flex flex-col justify-center space-y-1"
                         >
                             <div class="truncate">
-                                {{ item?.display_name || item?.name }}
+                                {{
+                                    item?.display_name || item?.name || item?.id
+                                }}
                             </div>
                             <div
                                 class="flex items-center text-xs opacity-60 space-x-1"
