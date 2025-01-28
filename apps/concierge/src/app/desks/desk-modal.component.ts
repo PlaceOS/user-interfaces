@@ -1,9 +1,11 @@
 import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { DialogEvent } from '@placeos/common';
+import { DialogEvent, randomString } from '@placeos/common';
 import { Desk } from '@placeos/organisation';
 import { showStaff, User } from '@placeos/users';
+
+const CHARS = '0123456789ABCDEF';
 
 @Component({
     selector: 'desk-modal',
@@ -29,6 +31,23 @@ import { showStaff, User } from '@placeos/users';
                 class="p-4 flex flex-col max-h-[65vh] overflow-auto"
                 [formGroup]="form"
             >
+                <div class="w-full" *ngIf="!id">
+                    <label for="id">
+                        {{ 'APP.CONCIERGE.DESKS_ID' | translate }}
+                        <span>*</span>
+                    </label>
+                    <mat-form-field appearance="outline" class="w-full">
+                        <input
+                            matInput
+                            name="id"
+                            formControlName="id"
+                            placeholder="desk-10.123"
+                        />
+                        <mat-error>{{
+                            'FORM.ID_REQUIRED' | translate
+                        }}</mat-error>
+                    </mat-form-field>
+                </div>
                 <div class="flex space-x-4">
                     <div class="flex-1 w-1/3">
                         <label for="name">
@@ -171,7 +190,7 @@ export class DeskModalComponent implements OnInit {
     }
 
     public readonly form = new FormGroup({
-        id: new FormControl(''),
+        id: new FormControl(``),
         name: new FormControl('', [Validators.required]),
         map_id: new FormControl('', [Validators.required]),
         groups: new FormControl<string[]>([]),
@@ -189,6 +208,11 @@ export class DeskModalComponent implements OnInit {
         private _dialog_ref: MatDialogRef<DeskModalComponent>,
     ) {
         if (_data?.desk) this.form.patchValue(_data.desk);
+        if (!this.form.value.id) {
+            this.form.patchValue({
+                id: `desk-${randomString(3, CHARS)}_${randomString(5, CHARS)}`,
+            });
+        }
     }
 
     public async ngOnInit() {
