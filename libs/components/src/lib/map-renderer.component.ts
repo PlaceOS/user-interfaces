@@ -122,7 +122,7 @@ function isSamePoint(p1: Point, p2: Point): boolean {
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class MapRendererComponent
     extends AsyncHandler
@@ -339,11 +339,11 @@ export class MapRendererComponent
             this.subscription(
                 'view_changes',
                 listenToViewerChanges(this.viewer)?.subscribe((v) => {
-                    const box =
-                        this._outlet_el.nativeElement.getBoundingClientRect();
                     this._on_changes.next({ ...v } as any);
                     this.zoomChange.emit(v.zoom);
+                    this.zoom = v.zoom;
                     this.centerChange.emit(v.center);
+                    this.center = v.center;
                 }),
             );
             const viewer = getViewer(this.viewer);

@@ -3,6 +3,7 @@ import {
     EventEmitter,
     InjectionToken,
     Input,
+    OnChanges,
     Output,
     SimpleChanges,
 } from '@angular/core';
@@ -105,9 +106,9 @@ export interface MapMetadata {
         </div>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
-export class InteractiveMapComponent extends AsyncHandler {
+export class InteractiveMapComponent extends AsyncHandler implements OnChanges {
     @Input() public src: string;
     @Input() public zoom = 1;
     @Input() public center: any = { x: 0.5, y: 0.5 };
