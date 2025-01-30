@@ -17,7 +17,7 @@ import { format } from 'date-fns';
                 class="sticky top-0 px-4 py-2 mx-auto my-2 max-w-[640px] w-full border-none z-10 bg-base-200 rounded"
             >
                 <h2 class="text-xl font-medium">
-                    Concierge Settings - {{ zone.display_name }}
+                    Concierge Settings - {{ zone.display_name || zone.name }}
                 </h2>
                 <button icon matRipple mat-dialog-close *ngIf="!loading">
                     <app-icon>close</app-icon>

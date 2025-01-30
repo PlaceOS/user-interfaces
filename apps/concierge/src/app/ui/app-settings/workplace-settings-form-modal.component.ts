@@ -19,7 +19,7 @@ import { format } from 'date-fns';
                 class="sticky top-0 px-4 py-2 mx-auto my-2 max-w-[640px] w-full border-none z-10 bg-base-200 rounded"
             >
                 <h2 class="text-xl font-medium">
-                    Workplace Settings - {{ zone.display_name }}
+                    Workplace Settings - {{ zone.display_name || zone.name }}
                 </h2>
                 <button icon matRipple mat-dialog-close *ngIf="!loading">
                     <app-icon>close</app-icon>
@@ -963,13 +963,18 @@ import { format } from 'date-fns';
                                 name="Allow booking with assets"
                                 formControlName="allow_assets"
                             ></settings-toggle>
-                            <ng-container
-                                [form]="form"
-                                formGroupName="visitors"
-                            >
+                            <ng-container>
                                 <settings-toggle
                                     name="Show calendar links after visitor invite"
-                                    formControlName="show_calendar_links"
+                                    [ngModel]="
+                                        form.value.visitors.show_calendar_links
+                                    "
+                                    (ngModelChange)="
+                                        form.controls.visitors.patchValue({
+                                            show_calendar_links: $event,
+                                        })
+                                    "
+                                    [ngModelOptions]="{ standalone: true }"
                                 ></settings-toggle>
                             </ng-container>
                         </div>

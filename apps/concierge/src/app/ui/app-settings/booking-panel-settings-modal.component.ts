@@ -30,7 +30,8 @@ import { validateURL } from '@placeos/spaces';
                 class="sticky top-0 px-4 py-2 mx-auto my-2 max-w-[640px] w-full border-none z-10 bg-base-200 rounded"
             >
                 <h2 class="text-xl font-medium">
-                    Booking Panel Settings - {{ zone.display_name }}
+                    Booking Panel Settings -
+                    {{ zone.display_name || zone.name }}
                 </h2>
                 <button icon matRipple mat-dialog-close *ngIf="!loading">
                     <app-icon>close</app-icon>
@@ -264,7 +265,7 @@ don't detect presence in room after a period of time"
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class BookingPanelSettingsModalComponent extends AsyncHandler {
     public loading = '';

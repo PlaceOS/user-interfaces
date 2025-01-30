@@ -16,7 +16,8 @@ import { DEFAULT_SETTINGS } from 'apps/visitor-kiosk/src/environments/settings';
                 class="sticky top-0 px-4 py-2 mx-auto my-2 max-w-[640px] w-full border-none z-10 bg-base-200 rounded"
             >
                 <h2 class="text-xl font-medium">
-                    Visitor Kiosk Settings - {{ zone.display_name }}
+                    Visitor Kiosk Settings -
+                    {{ zone.display_name || zone.name }}
                 </h2>
                 <button icon matRipple mat-dialog-close *ngIf="!loading">
                     <app-icon>close</app-icon>
@@ -448,7 +449,7 @@ import { DEFAULT_SETTINGS } from 'apps/visitor-kiosk/src/environments/settings';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class VisitorKioskSettingsFormModalComponent {
     public loading = '';

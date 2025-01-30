@@ -1,5 +1,11 @@
 import { Component } from '@angular/core';
 import { RegionManagementService } from './region-management.service';
+import { MatDialog } from '@angular/material/dialog';
+import { WorkplaceSettingsFormModalComponent } from '../ui/app-settings/workplace-settings-form-modal.component';
+import { ConciergeSettingsFormModalComponent } from '../ui/app-settings/concierge-settings-form-modal.component';
+import { BookingPanelSettingsModalComponent } from '../ui/app-settings/booking-panel-settings-modal.component';
+import { VisitorKioskSettingsFormModalComponent } from '../ui/app-settings/visitor-kiosk-settings-form-modal.component';
+import { OrganisationService } from '@placeos/organisation';
 
 @Component({
     selector: '[app-region-manager]',
@@ -9,7 +15,7 @@ import { RegionManagementService } from './region-management.service';
             <app-sidebar></app-sidebar>
             <main class="flex flex-col flex-1 w-1/2 h-full">
                 <header
-                    class="flex items-center justify-between mb-2 px-8 pt-4 pb-8"
+                    class="flex items-center justify-between mb-2 px-8 pt-4 pb-2"
                 >
                     <h2 class="text-2xl font-medium">
                         {{ 'APP.CONCIERGE.REGIONS_HEADER' | translate }}
@@ -18,6 +24,78 @@ import { RegionManagementService } from './region-management.service';
                         {{ 'APP.CONCIERGE.REGIONS_ADD' | translate }}
                     </button>
                 </header>
+                <div class="flex justify-end px-8 pb-8">
+                    <button
+                        icon
+                        matRipple
+                        [matMenuTriggerFor]="app_settings_menu"
+                        [matTooltip]="'Organisation App Settings'"
+                    >
+                        <app-icon>more_vert</app-icon>
+                    </button>
+                    <mat-menu #app_settings_menu="matMenu">
+                        <button
+                            mat-menu-item
+                            (click)="editWorkplaceSettings(org)"
+                        >
+                            <div class="flex items-center space-x-2">
+                                <app-icon class="text-xl"
+                                    >meeting_room</app-icon
+                                >
+                                <div>
+                                    {{
+                                        'APP.CONCIERGE.APP_SETTINGS_WORKPLACE'
+                                            | translate
+                                    }}
+                                </div>
+                            </div>
+                        </button>
+                        <button
+                            mat-menu-item
+                            (click)="editConciergeSettings(org)"
+                        >
+                            <div class="flex items-center space-x-2">
+                                <app-icon class="text-xl"
+                                    >support_agent</app-icon
+                                >
+                                <div>
+                                    {{
+                                        'APP.CONCIERGE.APP_SETTINGS_CONCIERGE'
+                                            | translate
+                                    }}
+                                </div>
+                            </div>
+                        </button>
+                        <button
+                            mat-menu-item
+                            (click)="editBookingPanelSettings(org)"
+                        >
+                            <div class="flex items-center space-x-2">
+                                <app-icon class="text-xl">event_busy</app-icon>
+                                <div>
+                                    {{
+                                        'APP.CONCIERGE.APP_SETTINGS_BOOKING_PANEL'
+                                            | translate
+                                    }}
+                                </div>
+                            </div>
+                        </button>
+                        <button
+                            mat-menu-item
+                            (click)="editVisitorKioskSettings(org)"
+                        >
+                            <div class="flex items-center space-x-2">
+                                <app-icon class="text-xl">qr_code</app-icon>
+                                <div>
+                                    {{
+                                        'APP.CONCIERGE.APP_SETTINGS_VISITOR_KIOSK'
+                                            | translate
+                                    }}
+                                </div>
+                            </div>
+                        </button>
+                    </mat-menu>
+                </div>
                 <region-list
                     class="block w-full relative flex-1 h-1/2"
                 ></region-list>
@@ -47,10 +125,43 @@ import { RegionManagementService } from './region-management.service';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class RegionManagerComponent {
     public readonly newRegion = () => this._state.editRegion();
 
-    constructor(private readonly _state: RegionManagementService) {}
+    public get org() {
+        return this._org.organisation;
+    }
+
+    constructor(
+        private readonly _state: RegionManagementService,
+        private _dialog: MatDialog,
+        private _org: OrganisationService,
+    ) {}
+
+    public editWorkplaceSettings(zone) {
+        console.log('Zone:', zone);
+        this._dialog.open(WorkplaceSettingsFormModalComponent, {
+            data: { zone },
+        });
+    }
+
+    public editConciergeSettings(zone) {
+        this._dialog.open(ConciergeSettingsFormModalComponent, {
+            data: { zone },
+        });
+    }
+
+    public editBookingPanelSettings(zone) {
+        this._dialog.open(BookingPanelSettingsModalComponent, {
+            data: { zone },
+        });
+    }
+
+    public editVisitorKioskSettings(zone) {
+        this._dialog.open(VisitorKioskSettingsFormModalComponent, {
+            data: { zone },
+        });
+    }
 }

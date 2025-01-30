@@ -242,7 +242,7 @@ import { VisitorKioskSettingsFormModalComponent } from '../ui/app-settings/visit
         </ng-template>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class BuildingListComponent {
     public readonly buildings = this._manager.filtered_buildings;
@@ -271,27 +271,27 @@ export class BuildingListComponent {
         if (success) notifySuccess(i18n('APP.CONCIERGE.BUILDINGS_COPIED_ID'));
     };
 
-    public editWorkplaceSettings(building) {
+    public editWorkplaceSettings(zone) {
         this._dialog.open(WorkplaceSettingsFormModalComponent, {
-            data: { zone: building },
+            data: { zone },
         });
     }
 
-    public editConciergeSettings(building) {
+    public editConciergeSettings(zone) {
         this._dialog.open(ConciergeSettingsFormModalComponent, {
-            data: { zone: building },
+            data: { zone },
         });
     }
 
-    public editBookingPanelSettings(building) {
+    public editBookingPanelSettings(zone) {
         this._dialog.open(BookingPanelSettingsModalComponent, {
-            data: { zone: building },
+            data: { zone },
         });
     }
 
-    public editVisitorKioskSettings(building) {
+    public editVisitorKioskSettings(zone) {
         this._dialog.open(VisitorKioskSettingsFormModalComponent, {
-            data: { zone: building },
+            data: { zone },
         });
     }
 
