@@ -273,13 +273,13 @@ export class ParkingStateService extends AsyncHandler {
             space.assigned_to !== new_space.assigned_to &&
             new_space.assigned_to
         ) {
-            const date = set(Date.now(), { hours: 4, minutes: 0, seconds: 0 });
+            const date = set(Date.now(), { hours: 1, minutes: 0, seconds: 0 });
             await saveBooking(
                 new Booking({
                     user_id: new_space.assigned_to,
                     user_email: new_space.assigned_to,
                     booking_start: getUnixTime(date),
-                    booking_end: getUnixTime(addHours(date, 16)),
+                    booking_end: getUnixTime(addHours(date, 22)),
                     type: 'parking',
                     booking_type: 'parking',
                     asset_id: new_space.id,

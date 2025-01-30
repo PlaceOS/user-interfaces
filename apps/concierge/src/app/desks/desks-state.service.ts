@@ -300,14 +300,14 @@ export class DesksStateService extends AsyncHandler {
             this._clearAssignedBooking(desk);
         }
         if (desk.assigned_to !== new_desk.assigned_to && new_desk.assigned_to) {
-            const date = set(Date.now(), { hours: 4, minutes: 0, seconds: 0 });
+            const date = set(Date.now(), { hours: 1, minutes: 0, seconds: 0 });
             await saveBooking(
                 new Booking({
                     user_id: new_desk.assigned_to,
                     user_email: new_desk.assigned_to,
                     user_name: new_desk.assigned_name,
                     booking_start: getUnixTime(date),
-                    booking_end: getUnixTime(addHours(date, 16)),
+                    booking_end: getUnixTime(addHours(date, 22)),
                     type: 'desk',
                     booking_type: 'desk',
                     asset_id: new_desk.id,
