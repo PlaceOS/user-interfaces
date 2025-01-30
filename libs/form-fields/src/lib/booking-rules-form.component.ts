@@ -2,6 +2,7 @@ import {
     Component,
     EventEmitter,
     Input,
+    OnChanges,
     Output,
     SimpleChanges,
 } from '@angular/core';
@@ -108,6 +109,9 @@ import {
                         <mat-option value="locations">
                             {{ 'BOOKINGS.CONDITION_LOCATION' | translate }}
                         </mat-option>
+                        <mat-option value="tags">
+                            {{ 'BOOKINGS.CONDITION_TAGS' | translate }}
+                        </mat-option>
                         <mat-option value="min_length">
                             {{ 'BOOKINGS.CONDITION_MIN_LENGTH' | translate }}
                         </mat-option>
@@ -163,6 +167,20 @@ import {
                     name="locations"
                     formControlName="locations"
                     [placeholder]="'BOOKINGS.CONDITION_LOCATION' | translate"
+                ></item-list-field>
+            </div>
+            <div
+                class="flex flex-col"
+                *ngIf="available_conditions.includes('tags')"
+                formGroupName="conditions"
+            >
+                <label for="tags">
+                    {{ 'BOOKINGS.CONDITION_TAGS' | translate }}
+                </label>
+                <item-list-field
+                    name="tags"
+                    formControlName="tags"
+                    [placeholder]="'BOOKINGS.CONDITION_TAGS' | translate"
                 ></item-list-field>
             </div>
             <div
@@ -405,9 +423,9 @@ import {
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
-export class BookingRulesFormComponent {
+export class BookingRulesFormComponent implements OnChanges {
     @Input() public ruleset?: BookingRuleset;
     @Input() public save = false;
     @Output() public rulesetChange = new EventEmitter<BookingRuleset>();
@@ -465,6 +483,7 @@ export class BookingRulesFormComponent {
         conditions: new FormGroup({
             groups: new FormControl([]),
             locations: new FormControl([]),
+            tags: new FormControl([]),
             min_length: new FormControl(0),
             max_length: new FormControl(24 * 60),
             is_before: new FormControl('1 Week'),
