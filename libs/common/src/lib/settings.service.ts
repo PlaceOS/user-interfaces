@@ -18,7 +18,7 @@ declare global {
     interface Window {
         debug: boolean;
         application: HashMap;
-        getSetting: (string) => any;
+        setting: (string) => any;
     }
 }
 
@@ -115,7 +115,7 @@ export class SettingsService extends AsyncHandler {
         if (window.debug) {
             if (!window.application) window.application = {};
             window.application.settings = this;
-            window.getSetting = (key) => this.get(key);
+            window.setting = (key) => this.get(key);
         }
         const user = await current_user.pipe(first((_) => !!_)).toPromise();
         const data = await showMetadata(user.id, 'settings').toPromise();
