@@ -73,6 +73,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                                     !checked_out &&
                                     !auto_checkin &&
                                     (booking.state === 'upcoming' ||
+                                        booking.state === 'started' ||
                                         booking.state === 'in_progress') &&
                                     booking.status !== 'declined'
                                 "
@@ -330,7 +331,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                 *ngIf="
                     booking.instance &&
                     booking.booking_type !== 'parking' &&
-                        !booking.extension_data.is_assigned
+                    !booking.extension_data.is_assigned
                 "
                 (click)="remove.emit(true)"
             >
