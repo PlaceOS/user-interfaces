@@ -163,7 +163,7 @@ import { openConfirmModal } from '@placeos/components';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class ScheduleComponent extends AsyncHandler {
     public readonly booking_dates = combineLatest([
@@ -316,7 +316,7 @@ export class ScheduleComponent extends AsyncHandler {
                 ? (item as any).recurring_event_id || item.id
                 : item.id,
             {
-                calendar: this._settings.get('app.no_user_calendar')
+                calendar: this._settings.get('app.events.use_bookings')
                     ? null
                     : (item as CalendarEvent).calendar || currentUser()?.email,
                 system_id: (item as CalendarEvent).system?.id,

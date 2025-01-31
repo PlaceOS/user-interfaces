@@ -87,7 +87,7 @@ import { openConfirmModal } from '@placeos/components';
         </ng-template>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class LandingUpcomingComponent
     extends AsyncHandler
@@ -166,7 +166,7 @@ export class LandingUpcomingComponent
         await (item instanceof CalendarEvent ? removeEvent : removeBooking)(
             item.id,
             {
-                calendar: this._settings.get('app.no_user_calendar')
+                calendar: this._settings.get('app.events.use_bookings')
                     ? null
                     : currentUser()?.email,
                 system_id: (item as any).system?.id,

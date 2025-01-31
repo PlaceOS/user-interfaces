@@ -387,10 +387,6 @@ import { format } from 'date-fns';
                                 formControlName="basic_user_search"
                             ></settings-toggle>
                             <settings-toggle
-                                name="No User Calendar access"
-                                formControlName="no_user_calendar"
-                            ></settings-toggle>
-                            <settings-toggle
                                 name="Only authenticated colleagues"
                                 info="Will limit the available users to add as colleagues to only
  those who have authenticated with the application"
