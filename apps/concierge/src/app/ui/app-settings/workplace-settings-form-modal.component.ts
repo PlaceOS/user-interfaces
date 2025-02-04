@@ -881,7 +881,7 @@ import { format } from 'date-fns';
                                 formControlName="has_assets"
                             ></settings-toggle>
                             <settings-toggle
-                                name="Disable reason field for desk booking"
+                                name="Hide reason field for desk booking"
                                 formControlName="hide_reason"
                             ></settings-toggle>
                             <settings-toggle

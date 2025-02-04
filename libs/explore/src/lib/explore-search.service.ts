@@ -8,7 +8,7 @@ import {
     showMetadata,
 } from '@placeos/ts-client';
 import { MapsPeopleService, SettingsService, flatten } from '@placeos/common';
-import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
+import { BehaviorSubject, combineLatest, Observable, of, timer } from 'rxjs';
 import {
     catchError,
     debounceTime,
@@ -17,6 +17,7 @@ import {
     map,
     shareReplay,
     switchMap,
+    take,
     tap,
 } from 'rxjs/operators';
 
@@ -24,6 +25,7 @@ import { Space } from 'libs/spaces/src/lib/space.class';
 import { StaffUser, User } from 'libs/users/src/lib/user.class';
 import { searchStaff } from 'libs/users/src/lib/staff.fn';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
+import { ExploreStateService } from './explore-state.service';
 
 export interface PointOfInterest {
     id: string;
@@ -341,6 +343,7 @@ export class ExploreSearchService {
         private _org: OrganisationService,
         private _settings: SettingsService,
         private _maps_people: MapsPeopleService,
+        private _state: ExploreStateService,
     ) {
         this.search_results.subscribe();
         this.init();
@@ -348,6 +351,11 @@ export class ExploreSearchService {
 
     public async init() {
         await this._org.initialised.pipe(first((_) => _)).toPromise();
+        await timer(500).toPromise();
+        const { is_public } = await this._state.options
+            .pipe(take(1))
+            .toPromise();
+        if (is_public) return;
         const mod = this._org.module('location_services', 'LocationServices');
         if (mod) {
             const binding = mod.binding('emergency_contacts');

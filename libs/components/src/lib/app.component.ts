@@ -1,4 +1,4 @@
-import { Component, Inject, LOCALE_ID, OnInit, Optional } from '@angular/core';
+import { Component, OnInit, Optional } from '@angular/core';
 import { SwUpdate } from '@angular/service-worker';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Clipboard } from '@angular/cdk/clipboard';
