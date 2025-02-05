@@ -365,6 +365,7 @@ export class Booking {
         data.zones = data.zones.filter((_) => _);
         delete data.date;
         delete data.duration;
+        delete data.process_state;
         removeEmptyFields(data);
         return data;
     }

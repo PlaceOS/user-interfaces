@@ -614,9 +614,9 @@ export class GuestListingComponent extends AsyncHandler {
 
     public inducted(item: Booking) {
         if (item.checked_in) return true;
-        return item.process_state.includes('declined')
+        return item.induction == 'declined'
             ? false
-            : item.process_state.includes('inducted') || item.induction
+            : item.induction == 'accepted'
               ? true
               : null;
     }
