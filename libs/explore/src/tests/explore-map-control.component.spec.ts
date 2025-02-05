@@ -9,30 +9,25 @@ import { BehaviorSubject, of } from 'rxjs';
 
 import { ExploreMapControlComponent } from '../lib/explore-map-control.component';
 import { ExploreStateService } from '../lib/explore-state.service';
+import { MockProvider } from 'ng-mocks';
 
 describe('ExploreMapControlComponent', () => {
     let spectator: SpectatorRouting<ExploreMapControlComponent>;
     const createComponent = createRoutingFactory({
         component: ExploreMapControlComponent,
         providers: [
-            {
-                provide: OrganisationService,
-                useValue: {
-                    initialised: of(true),
-                    active_buildings: new BehaviorSubject([]),
-                    active_building: new BehaviorSubject(null),
-                    active_levels: new BehaviorSubject([]),
-                },
-            },
-            {
-                provide: ExploreStateService,
-                useValue: {
-                    level: new BehaviorSubject(null),
-                    setLevel: jest.fn(),
-                    setFeatures: jest.fn(),
-                },
-            },
-            { provide: Router, useValue: { navigate: jest.fn() } },
+            MockProvider(OrganisationService, {
+                initialised: of(true),
+                active_buildings: new BehaviorSubject([]),
+                active_building: new BehaviorSubject(null),
+                active_levels: new BehaviorSubject([]),
+            }),
+            MockProvider(ExploreStateService, {
+                level: new BehaviorSubject(null),
+                setLevel: jest.fn(),
+                setFeatures: jest.fn(),
+            }),
+            MockProvider(Router, { navigate: jest.fn() }),
         ],
         imports: [MatFormFieldModule, MatSelectModule, FormsModule],
     });
@@ -46,7 +41,8 @@ describe('ExploreMapControlComponent', () => {
     it('should show dropdowns for buildings and levels', () => {
         expect('[buildings]').not.toExist();
         expect('[levels]').not.toExist();
-        const buildings = spectator.inject(OrganisationService).active_buildings;
+        const buildings =
+            spectator.inject(OrganisationService).active_buildings;
         const levels = spectator.inject(OrganisationService).active_levels;
         (levels as any).next([
             { id: 'lvl-1', name: 'Level 1' },
@@ -65,7 +61,8 @@ describe('ExploreMapControlComponent', () => {
     });
 
     it('should allow switching buildings', () => {
-        const buildings = spectator.inject(OrganisationService).active_buildings;
+        const buildings =
+            spectator.inject(OrganisationService).active_buildings;
         (buildings as any).next([
             { id: 'bld-1', name: 'Building 1' },
             { id: 'bld-2', name: 'Building 2' },

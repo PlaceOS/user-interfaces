@@ -13,6 +13,7 @@ jest.mock('@placeos/users');
 
 import { MockProvider } from 'ng-mocks';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
+import { ExploreStateService } from '../lib/explore-state.service';
 
 describe('ExploreSearchService', () => {
     let spectator: SpectatorService<ExploreSearchService>;
@@ -28,6 +29,9 @@ describe('ExploreSearchService', () => {
             MockProvider(SettingsService, {
                 get: jest.fn(),
             }),
+            MockProvider(ExploreStateService, {
+                options: new BehaviorSubject({}),
+            } as any),
         ],
     });
 

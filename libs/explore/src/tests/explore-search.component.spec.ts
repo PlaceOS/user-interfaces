@@ -4,28 +4,24 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
 import { IconComponent } from '@placeos/components';
-import { MockComponent, MockModule } from 'ng-mocks';
+import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 
 import { ExploreSearchComponent } from '../lib/explore-search.component';
 import { ExploreSearchService } from '../lib/explore-search.service';
-import { fakeAsync } from '@angular/core/testing';
 
 describe('ExploreSearchComponent', () => {
     let spectator: Spectator<ExploreSearchComponent>;
     const createComponent = createComponentFactory({
         component: ExploreSearchComponent,
         providers: [
-            {
-                provide: ExploreSearchService,
-                useValue: {
-                    search_results: new BehaviorSubject(null),
-                    loading: new BehaviorSubject(''),
-                    setFilter: jest.fn(),
-                },
-            },
-            { provide: Router, useValue: { navigate: jest.fn() } },
-            { provide: ActivatedRoute, useValue: {} },
+            MockProvider(ExploreSearchService, {
+                search_results: new BehaviorSubject(null),
+                loading: new BehaviorSubject(''),
+                setFilter: jest.fn(),
+            } as any),
+            MockProvider(Router, { navigate: jest.fn() }),
+            MockProvider(ActivatedRoute, {}),
         ],
         declarations: [MockComponent(IconComponent)],
         imports: [
