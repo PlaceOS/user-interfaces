@@ -880,14 +880,14 @@ import { format } from 'date-fns';
                                 name="Allow requesting assets with booking"
                                 formControlName="has_assets"
                             ></settings-toggle>
-                            <settings-toggle
+                            <!-- <settings-toggle
                                 name="Hide reason field for desk booking"
                                 formControlName="hide_reason"
                             ></settings-toggle>
                             <settings-toggle
                                 name="Require a reason for desk booking"
                                 formControlName="needs_reason"
-                            ></settings-toggle>
+                            ></settings-toggle> -->
                             <settings-toggle
                                 name="Allow Recurring Desk bookings"
                                 formControlName="allow_recurrence"
