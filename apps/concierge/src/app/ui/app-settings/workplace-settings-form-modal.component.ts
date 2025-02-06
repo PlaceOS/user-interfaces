@@ -869,7 +869,7 @@ import { format } from 'date-fns';
                                 formControlName="auto_allocation"
                             ></settings-toggle>
                             <settings-toggle
-                                name="Allow desk booking"
+                                name="Allow booking for others"
                                 formControlName="can_book_for_others"
                             ></settings-toggle>
                             <settings-toggle
