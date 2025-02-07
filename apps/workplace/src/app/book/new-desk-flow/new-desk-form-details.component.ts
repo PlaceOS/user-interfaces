@@ -125,7 +125,7 @@ import { addDays, endOfDay, getUnixTime, set } from 'date-fns';
                 </div>
                 <div
                     class="flex items-center space-x-2"
-                    *ngIf="!form.value.all_day"
+                    *ngIf="!form.value.all_day && allow_time_changes"
                 >
                     <div class="flex-1 w-1/3">
                         <label for="start-time">
@@ -319,7 +319,7 @@ export class NewDeskFormDetailsComponent extends AsyncHandler {
     }
 
     public get allow_time_changes() {
-        return !!this._settings.get('app.desks.allow_time_changes');
+        return this._settings.get('app.desks.allow_time_changes') !== false;
     }
 
     public get allow_all_day() {
