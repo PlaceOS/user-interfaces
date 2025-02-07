@@ -254,7 +254,7 @@ import { addDays, endOfDay, getUnixTime, set } from 'date-fns';
             </section>
         </div>
     `,
-    standalone: false
+    standalone: false,
 })
 export class NewDeskFormDetailsComponent extends AsyncHandler {
     @Input() public form: FormGroup;
@@ -327,7 +327,8 @@ export class NewDeskFormDetailsComponent extends AsyncHandler {
     }
 
     public get timezone() {
-        return this._settings.get('app.desks.use_building_timezone')
+        return this._settings.get('app.bookings.use_building_timezone') ||
+            this._settings.get('app.desks.use_building_timezone')
             ? this._org.building.timezone
             : '';
     }

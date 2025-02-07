@@ -55,6 +55,7 @@ import { addDays, endOfDay } from 'date-fns';
                         name="date"
                         formControlName="date"
                         [to]="end_date"
+                        [timezone]="timezone"
                     >
                         {{ 'FORM.DATE_REQUIRED' | translate }}
                     </a-date-field>
@@ -82,6 +83,7 @@ import { addDays, endOfDay } from 'date-fns';
                         (ngModelChange)="form.patchValue({ date: $event })"
                         [ngModelOptions]="{ standalone: true }"
                         [use_24hr]="use_24hr"
+                        [timezone]="timezone"
                     ></a-time-field>
                 </div>
                 <div class="flex-1 w-1/3 relative">
@@ -94,6 +96,7 @@ import { addDays, endOfDay } from 'date-fns';
                         [time]="form?.value?.date"
                         [max]="max_duration"
                         [use_24hr]="use_24hr"
+                        [timezone]="timezone"
                     >
                     </a-duration-field>
                 </div>
@@ -131,7 +134,7 @@ import { addDays, endOfDay } from 'date-fns';
         </div>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class ParkingFormDetailsComponent extends AsyncHandler {
     @Input() public form: FormGroup;
@@ -166,6 +169,13 @@ export class ParkingFormDetailsComponent extends AsyncHandler {
 
     public get can_book_for_others() {
         return this._settings.get('app.parking.can_book_for_others');
+    }
+
+    public get timezone() {
+        return this._settings.get('app.bookings.use_building_timezone') ||
+            this._settings.get('app.parking.use_building_timezone')
+            ? this._org.building.timezone
+            : '';
     }
 
     public readonly setBuilding = (bld) => (this._org.building = bld);

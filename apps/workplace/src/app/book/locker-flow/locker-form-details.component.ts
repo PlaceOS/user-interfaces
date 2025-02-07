@@ -55,7 +55,11 @@ import { OrganisationService } from '@placeos/organisation';
                         <label for="date">
                             {{ 'FORM.DATE' | translate }}<span>*</span>
                         </label>
-                        <a-date-field name="date" formControlName="date">
+                        <a-date-field
+                            name="date"
+                            formControlName="date"
+                            [timezone]="timezone"
+                        >
                             {{ 'FORM.DATE_REQUIRED' | translate }}
                         </a-date-field>
                         <mat-checkbox
@@ -82,6 +86,7 @@ import { OrganisationService } from '@placeos/organisation';
                             [ngModelOptions]="{ standalone: true }"
                             [use_24hr]="use_24hr"
                             [disabled]="form.value.duration > 24 * 60 - 1"
+                            [timezone]="timezone"
                         ></a-time-field>
                     </div>
                     <div class="flex-1 w-1/3 relative">
@@ -97,6 +102,7 @@ import { OrganisationService } from '@placeos/organisation';
                             [step]="60"
                             [use_24hr]="use_24hr"
                             [custom_options]="custom_durations"
+                            [timezone]="timezone"
                         >
                         </a-duration-field>
                     </div>
@@ -119,7 +125,7 @@ import { OrganisationService } from '@placeos/organisation';
             </section>
         </div>
     `,
-    standalone: false
+    standalone: false,
 })
 export class LockerFormDetailsComponent
     extends AsyncHandler
@@ -160,6 +166,13 @@ export class LockerFormDetailsComponent
             this._settings.get('app.bookings.allow_all_day') ||
             true
         );
+    }
+
+    public get timezone() {
+        return this._settings.get('app.bookings.use_building_timezone') ||
+            this._settings.get('app.lockers.use_building_timezone')
+            ? this._org.building.timezone
+            : '';
     }
 
     public readonly setOptions = (o) => this._state.setOptions(o);
