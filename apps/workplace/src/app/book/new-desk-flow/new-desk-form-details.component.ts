@@ -292,7 +292,10 @@ export class NewDeskFormDetailsComponent extends AsyncHandler {
     public readonly setFeature = (f, e) => this._state.setFeature(f, e);
 
     public get can_book_for_others() {
-        return this._settings.get('app.desks.can_book_for_others');
+        return (
+            this._settings.get('app.bookings.can_book_for_others') ||
+            this._settings.get('app.desks.can_book_for_others')
+        );
     }
 
     public get can_book_lockers() {

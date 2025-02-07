@@ -168,7 +168,10 @@ export class ParkingFormDetailsComponent extends AsyncHandler {
     }
 
     public get can_book_for_others() {
-        return this._settings.get('app.parking.can_book_for_others');
+        return (
+            this._settings.get('app.bookings.can_book_for_others') ||
+            this._settings.get('app.parking.can_book_for_others')
+        );
     }
 
     public get timezone() {
