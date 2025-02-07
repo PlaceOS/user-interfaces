@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { AsyncHandler, SettingsService } from '@placeos/common';
-import { EventFormService } from 'libs/events/src/lib/event-form.service';
+import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { take } from 'rxjs/operators';
 import { SpaceFiltersComponent } from './space-filters.component';
@@ -116,7 +116,7 @@ import { SpaceFiltersComponent } from './space-filters.component';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class SpaceFiltersDisplayComponent
     extends AsyncHandler
@@ -124,7 +124,7 @@ export class SpaceFiltersDisplayComponent
 {
     @Input() public view: 'map' | 'list' = 'list';
     @Output() public viewChange = new EventEmitter<'map' | 'list'>();
-    public readonly options = this._event_form.options;
+    public readonly options = this._event_form.options$;
     public location = '';
 
     public get all_day() {
@@ -159,26 +159,19 @@ export class SpaceFiltersDisplayComponent
     public ngOnInit() {
         this.subscription(
             'opts',
-            this.options.subscribe(({ zone_ids }) =>
-                this._updateLocation(zone_ids),
-            ),
+            this.options.subscribe(({ zones }) => this._updateLocation(zones)),
         );
     }
 
     public async removeFeature(feat: string) {
-        const value = await this._event_form.options.pipe(take(1)).toPromise();
-        this._event_form.setOptions({
-            ...value,
-            features: (value.features || []).filter((_) => _ !== feat),
+        const { features } = this._event_form.filters;
+        this._event_form.setFilters({
+            features: (features || []).filter((_) => _ !== feat),
         });
     }
 
     public async removeAllFeatures() {
-        const value = await this._event_form.options.pipe(take(1)).toPromise();
-        this._event_form.setOptions({
-            ...value,
-            features: [],
-        });
+        this._event_form.setFilters({ features: [] });
     }
 
     private _updateLocation(zone_ids: string[] = []) {

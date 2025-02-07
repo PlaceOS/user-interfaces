@@ -10,7 +10,7 @@ import { addDays, endOfDay, startOfDay } from 'date-fns';
 import { combineLatest } from 'rxjs';
 import { map, take } from 'rxjs/operators';
 
-import { EventFormService } from 'libs/events/src/lib/event-form.service';
+import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { Building } from 'libs/organisation/src/lib/building.class';
 import { SpacesService } from '../spaces.service';
@@ -299,14 +299,14 @@ import { Region } from '@placeos/organisation';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class SpaceFiltersComponent {
     @Input() public multiday: boolean;
     @Input() public hide_levels: boolean;
     @Input() public viewing_map: boolean;
     public can_close = false;
-    public readonly options = this._event_form.options;
+    public readonly options = this._event_form.options$;
 
     public readonly building = this._org.active_building;
     public readonly buildings = this._org.active_buildings;
@@ -422,9 +422,9 @@ export class SpaceFiltersComponent {
     }
 
     public async toggleFeature(feat: string, state: boolean) {
-        const { features } = await this.options.pipe(take(1)).toPromise();
+        const { features } = this._event_form.filters;
         const new_list = (features || []).filter((_) => feat !== _);
         if (state) new_list.push(feat);
-        this.setOptions({ features: new_list });
+        this._event_form.setFilters({ features: new_list });
     }
 }

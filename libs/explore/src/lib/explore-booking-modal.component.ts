@@ -9,7 +9,7 @@ import {
 } from '@placeos/common';
 
 import { Space } from 'libs/spaces/src/lib/space.class';
-import { EventFormService } from 'libs/events/src/lib/event-form.service';
+import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
 import { Router } from '@angular/router';
 
 export interface ExploreBookingModalData {
@@ -130,10 +130,10 @@ export interface ExploreBookingModalData {
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class ExploreBookingModalComponent implements OnInit {
-    public readonly loading = this._event_form.loading;
+    public readonly loading = this._event_form.loading$;
     public readonly alert = this._data.alert;
 
     public get form() {

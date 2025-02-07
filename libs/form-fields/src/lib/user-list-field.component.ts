@@ -215,7 +215,7 @@ const DENIED_FILE_TYPES = [
             multi: true,
         },
     ],
-    standalone: false
+    standalone: false,
 })
 export class UserListFieldComponent
     extends AsyncHandler
@@ -320,11 +320,11 @@ export class UserListFieldComponent
         super();
     }
 
-    public updateSearch(new_value: string = '') {
+    public updateSearch(new_value = '') {
         this.timeout('search', () => this.search$.next(new_value));
     }
 
-    public addUserFromEmail(email: string = '') {
+    public addUserFromEmail(email = '') {
         if (!email) email = this.search$.getValue();
         if (!validateEmail(email)) return;
         const user = new User({ id: email, email, name: email.split('@')[0] });

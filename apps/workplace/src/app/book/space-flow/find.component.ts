@@ -223,7 +223,7 @@ import { filter, first, map, take } from 'rxjs/operators';
         `,
     ],
     providers: [SpacePipe],
-    standalone: false
+    standalone: false,
 })
 export class SpaceFlowFindComponent implements OnInit {
     public book_space: HashMap<boolean> = {};
@@ -244,7 +244,7 @@ export class SpaceFlowFindComponent implements OnInit {
 
     public readonly levels = combineLatest([
         this.building,
-        this._state.options,
+        this._state.options$,
     ]).pipe(
         filter(([_]) => !!_),
         map(([bld]) => [
@@ -256,8 +256,8 @@ export class SpaceFlowFindComponent implements OnInit {
         ]),
     );
 
-    public readonly loading = this._state.loading;
-    public readonly options = this._state.options;
+    public readonly loading = this._state.loading$;
+    public readonly options = this._state.options$;
 
     public readonly spaces = this._state.available_spaces;
     public readonly features = this._state.features;
@@ -265,9 +265,9 @@ export class SpaceFlowFindComponent implements OnInit {
         const opts = await this.options.pipe(take(1)).toPromise();
         if (bld) this._org.building = bld;
         const levels = this._org.levelsForBuilding(this._org.building);
-        const lvl = levels.find((_) => opts.zone_ids?.includes(_.id));
+        const lvl = levels.find((_) => opts.zones?.includes(_.id));
         if (!lvl && levels.length) {
-            this.setOptions({ zone_ids: [levels[0].id] });
+            this.setOptions({ zones: [levels[0].id] });
         }
     }
 

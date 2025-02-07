@@ -159,7 +159,7 @@ export class MeetingFlowConfirmComponent
 
     private _date: DatePipe = new DatePipe('en');
 
-    public readonly loading = this._event_form.loading;
+    public readonly loading = this._event_form.loading$;
 
     public readonly postForm = async () => {
         if (!this.space) {

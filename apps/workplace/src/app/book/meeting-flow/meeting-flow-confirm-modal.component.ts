@@ -384,7 +384,7 @@ export class MeetingFlowConfirmModalComponent
     private _date: DatePipe = new DatePipe('en');
 
     public readonly loading = combineLatest([
-        this._event_form.loading,
+        this._event_form.loading$,
         this._loading,
     ]).pipe(map(([a, b]) => a || b));
     public readonly catering_orders;

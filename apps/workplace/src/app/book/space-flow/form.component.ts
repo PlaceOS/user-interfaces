@@ -88,7 +88,7 @@ import { addDays, addMinutes, roundToNearestMinutes, setHours } from 'date-fns';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class SpaceFlowFormComponent {
     public time = 0;
@@ -135,7 +135,7 @@ export class SpaceFlowFormComponent {
     constructor(
         private _state: EventFormService,
         private _settings: SettingsService,
-        private _router: Router
+        private _router: Router,
     ) {}
 
     public quickBook() {
@@ -145,13 +145,13 @@ export class SpaceFlowFormComponent {
             date: (this.time < 24 * 60
                 ? addMinutes(
                       roundToNearestMinutes(new Date(), { nearestTo: 5 }),
-                      this.time
+                      this.time,
                   )
                 : setHours(addDays(new Date(), 1), 8)
             ).valueOf(),
             title: 'Ad-hoc Meeting',
         });
-        this._state.setOptions({ capacity: this.capacity });
+        this._state.setFilters({ capacity: this.capacity });
         this._router.navigate(['/book', 'spaces', 'find']);
     }
 
@@ -162,8 +162,8 @@ export class SpaceFlowFormComponent {
         if (!this.form.valid)
             return notifyError(
                 `Some fields are invalid. [${getInvalidFields(this.form).join(
-                    ', '
-                )}]`
+                    ', ',
+                )}]`,
             );
         this._router.navigate(['/book', 'spaces', 'find']);
     }
@@ -175,8 +175,8 @@ export class SpaceFlowFormComponent {
         if (!this.form.valid)
             return notifyError(
                 `Some fields are invalid. [${getInvalidFields(this.form).join(
-                    ', '
-                )}]`
+                    ', ',
+                )}]`,
             );
         this._router.navigate(['/book', 'spaces', 'confirm']);
     }

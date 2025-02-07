@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { EventFormService } from 'libs/events/src/lib/event-form.service';
+import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 
 import { Space } from '../space.class';
@@ -176,6 +176,7 @@ import { Space } from '../space.class';
                 <mat-spinner [diameter]="32"></mat-spinner>
                 <p class="opacity-30">
                     {{ 'CALENDAR_EVENT.SPACE_SELECT_LOADING' | translate }}
+                    {{ loading | async | json }}
                 </p>
             </div>
         </ng-template>
@@ -190,7 +191,7 @@ import { Space } from '../space.class';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class SpaceListComponent {
     @Input() public active: string = '';
@@ -198,7 +199,7 @@ export class SpaceListComponent {
     @Input() public favorites: string[] = [];
     @Output() public onSelect = new EventEmitter<Space>();
     @Output() public toggleFav = new EventEmitter<Space>();
-    public readonly loading = this._event_form.loading;
+    public readonly loading = this._event_form.loading$;
 
     public readonly available_spaces = this._event_form.available_spaces;
     public readonly room_alerts = this._event_form.room_alerts;
