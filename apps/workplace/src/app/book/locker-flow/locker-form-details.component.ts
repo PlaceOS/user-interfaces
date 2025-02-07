@@ -162,8 +162,8 @@ export class LockerFormDetailsComponent
 
     public get allow_all_day() {
         return (
-            this._settings.get('app.lockers.allow_all_day') ||
-            this._settings.get('app.bookings.allow_all_day') ||
+            (this._settings.get('app.lockers.allow_all_day') ||
+                this._settings.get('app.bookings.allow_all_day')) ??
             true
         );
     }

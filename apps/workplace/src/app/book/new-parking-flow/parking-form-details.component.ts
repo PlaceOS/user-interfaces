@@ -160,7 +160,11 @@ export class ParkingFormDetailsComponent extends AsyncHandler {
     }
 
     public get allow_all_day() {
-        return this._settings.get('app.parking.allow_all_day') || true;
+        return (
+            (this._settings.get('app.parking.allow_all_day') ||
+                this._settings.get('app.bookings.allow_all_day')) ??
+            true
+        );
     }
 
     public get use_24hr() {
