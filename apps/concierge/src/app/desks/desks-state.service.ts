@@ -122,7 +122,7 @@ export class DesksStateService extends AsyncHandler {
 
     private _next_page = new Subject<() => QueryResponse<Booking>>();
     private _call_next_page = new Subject<string>();
-    private _all_zones_keys = ['All', -1, '-1'];
+    private _all_zones_keys = ['All', -1, '-1', ''];
     public readonly setup_paging = combineLatest([
         this._filters,
         this._org.initialised,
@@ -131,13 +131,14 @@ export class DesksStateService extends AsyncHandler {
         tap(([filters, loaded]) => {
             if (!loaded) return;
             const date = filters.date || Date.now();
-            const zones =
-                !filters.zones ||
-                filters.zones.some((z) => this._all_zones_keys.includes(z))
-                    ? this._settings.get('app.use_region')
-                        ? this._org.buildingsForRegion().map((_) => _.id)
-                        : [this._org.building.id]
-                    : filters.zones;
+            const active_zones = (filters.zones || []).filter(
+                (_) => !this._all_zones_keys.includes(_),
+            );
+            const zones = !active_zones.length
+                ? this._settings.get('app.use_region')
+                    ? this._org.buildingsForRegion().map((_) => _.id)
+                    : [this._org.building.id]
+                : filters.zones;
             this._next_page.next(() =>
                 queryPagedBookings({
                     period_start: getUnixTime(startOfDay(date)),
