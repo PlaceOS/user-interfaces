@@ -128,7 +128,7 @@ import { addDays, endOfDay } from 'date-fns';
         </fullscreen-modal-shell>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class LockerBookingModalComponent
     extends AsyncHandler
@@ -160,7 +160,7 @@ export class LockerBookingModalComponent
         return (
             this._settings.get('app.lockers.max_duration') ||
             this._settings.get('app.bookings.max_duration') ||
-            480
+            8 * 60
         );
     }
 

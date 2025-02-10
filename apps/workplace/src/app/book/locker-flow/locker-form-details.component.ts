@@ -97,7 +97,7 @@ import { OrganisationService } from '@placeos/organisation';
                             name="end-time"
                             formControlName="duration"
                             [time]="form.get('date')?.value"
-                            [max]="10 * 60"
+                            [max]="max_duration"
                             [min]="60"
                             [step]="60"
                             [use_24hr]="use_24hr"
@@ -154,6 +154,14 @@ export class LockerFormDetailsComponent
     }
     public set building(bld) {
         this._org.building = bld;
+    }
+
+    public get max_duration() {
+        return (
+            this._settings.get('app.lockers.max_duration') ||
+            this._settings.get('app.bookings.max_duration') ||
+            8 * 60
+        );
     }
 
     public get use_24hr() {

@@ -148,7 +148,7 @@ import { addDays, endOfDay, getUnixTime, set } from 'date-fns';
                             name="end-time"
                             formControlName="duration"
                             [time]="form.get('date')?.value"
-                            [max]="10 * 60"
+                            [max]="max_duration"
                             [min]="60"
                             [step]="60"
                             [use_24hr]="use_24hr"
@@ -290,6 +290,14 @@ export class NewDeskFormDetailsComponent extends AsyncHandler {
     public readonly setOptions = (o) => this._state.setOptions(o);
 
     public readonly setFeature = (f, e) => this._state.setFeature(f, e);
+
+    public get max_duration() {
+        return (
+            this._settings.get('app.desks.max_duration') ||
+            this._settings.get('app.bookings.max_duration') ||
+            8 * 60
+        );
+    }
 
     public get can_book_for_others() {
         return (

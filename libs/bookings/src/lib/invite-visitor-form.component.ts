@@ -102,6 +102,7 @@ import { User } from 'libs/users/src/lib/user.class';
                                 name="end-time"
                                 formControlName="duration"
                                 [time]="form.value.date"
+                                [max]="max_duration"
                                 [use_24hr]="use_24hr"
                             ></a-duration-field>
                         </div>
@@ -401,6 +402,14 @@ export class InviteVisitorFormComponent
     public last_count = 0;
     public visitors = [];
     public filtered_visitors = [];
+
+    public get max_duration() {
+        return (
+            this._settings.get('app.visitors.max_duration') ||
+            this._settings.get('app.bookings.max_duration') ||
+            4 * 60
+        );
+    }
 
     public get multiple() {
         return this._settings.get('app.bookings.multiple_visitors');
