@@ -461,7 +461,7 @@ const EMPTY = [];
         </ng-template>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class EventManageComponent extends AsyncHandler implements OnInit {
     public loading = false;
@@ -496,7 +496,7 @@ export class EventManageComponent extends AsyncHandler implements OnInit {
     }
 
     public get level_zone() {
-        const zones = this._form_state.options_value.zone_ids || [];
+        const zones = this._form_state.options.zones || [];
         const level = this._org.levelWithID(zones);
         return level;
     }
@@ -580,7 +580,7 @@ export class EventManageComponent extends AsyncHandler implements OnInit {
             this._org.building.id,
             level.id,
         ]);
-        this._form_state.setOptions({ zone_ids: [level.id] });
+        this._form_state.setOptions({ zones: [level.id] });
     }
 
     /**
