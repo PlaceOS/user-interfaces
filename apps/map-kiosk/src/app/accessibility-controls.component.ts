@@ -15,7 +15,7 @@ import { AsyncHandler, SettingsService } from '@placeos/common';
                 (ngModelChange)="setDarkMode($event)"
             ></mat-slide-toggle>
         </button>
-        <button
+        <!-- <button
             matRipple
             class="flex items-center justify-between hover:bg-base-200 w-full p-2 rounded"
             (click)="applySetting('accessible', !accessible)"
@@ -47,10 +47,10 @@ import { AsyncHandler, SettingsService } from '@placeos/common';
             >
                 {{ font_size }}px
             </div>
-        </div>
+        </div> -->
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class AccessibilityControlsComponent extends AsyncHandler {
     constructor(private _settings: SettingsService) {

@@ -45,7 +45,7 @@ import { debounceTime, first, map, take, tap } from 'rxjs/operators';
                     auth
                     class="h-12"
                     alt="Logo"
-                    [source]="(logo | async)?.src || (logo | async)"
+                    [source]="logo?.src || logo"
                 />
             </a>
             <div
@@ -267,7 +267,7 @@ import { debounceTime, first, map, take, tap } from 'rxjs/operators';
         SpacePipe,
     ],
     animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
-    standalone: false
+    standalone: false,
 })
 export class ExploreComponent extends AsyncHandler implements OnInit {
     /** Number of seconds after a user action to reset the kiosk state */
@@ -304,15 +304,11 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
     );
     public readonly level = this._state.level;
 
-    public readonly logo = this._org.active_building.pipe(
-        debounceTime(500),
-        map(
-            () =>
-                (this._settings.get('theme') === 'dark'
-                    ? this._settings.get('app.logo_dark')
-                    : this._settings.get('app.logo_light')) || {},
-        ),
-    );
+    public get logo() {
+        return this._settings.get('theme') === 'dark'
+            ? this._settings.get('app.logo_dark')
+            : this._settings.get('app.logo_light');
+    }
 
     public get time() {
         return startOfMinute(Date.now());
