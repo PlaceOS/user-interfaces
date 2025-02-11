@@ -3,7 +3,7 @@ import { Component, Input, OnInit, Optional } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { addMinutes, endOfDay, startOfDay } from 'date-fns';
 import { BehaviorSubject, combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { debounce, debounceTime, map, tap } from 'rxjs/operators';
 
 import { validateAssetRequestsForResource } from '@placeos/assets';
 import { CateringItem, CateringOrder } from '@placeos/catering';
@@ -545,9 +545,9 @@ export class MeetingFlowConfirmModalComponent
             !this._event_form.event ||
             this.event.date !== this._event_form.event.date ||
             this.event.date_end !== this._event_form.event.date_end;
-        const event = this._event_form.form.value;
+        const event = this._event_form.form.getRawValue();
         this._loading.next(true);
-        if (this.has_assets && event.assets.length) {
+        if (this.has_assets && event.assets?.length) {
             await validateAssetRequestsForResource(
                 this._event_form.event || {},
                 {

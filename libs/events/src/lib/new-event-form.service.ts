@@ -361,6 +361,7 @@ export class EventFormService extends AsyncHandler {
     }
 
     public newForm(event = new CalendarEvent()) {
+        this._loading.next('');
         this._form.reset(event);
         if (event.id) {
             sessionStorage.setItem(
@@ -431,11 +432,17 @@ export class EventFormService extends AsyncHandler {
         };
         this.addLoadingTag('POSTING_BOOKING');
         const event = this._event.getValue();
-        let spaces = (this.form.value.resources || []).filter((_) =>
-            ignore_space_check.includes(_.id),
+        const space_list = this.form.value.resources || [];
+        let spaces = space_list.filter(
+            (_) => !ignore_space_check.includes(_.id),
         );
         const recurr = this.form.value.recurrence;
-        this.form.patchValue({ recurring: recurr?._pattern !== 'none' });
+        this.form.patchValue({
+            recurring: recurr?._pattern && recurr?._pattern !== 'none',
+        });
+        if (!this.form.value.recurring) {
+            this.form.patchValue({ recurrence: null });
+        }
         const changed_spaces = spaces.filter(
             (_) => !event.resources.find((s) => s.id === _.id),
         );
@@ -443,6 +450,8 @@ export class EventFormService extends AsyncHandler {
             !event.id ||
             event.date !== this.form.value.date ||
             event.duration !== this.form.value.duration;
+
+        debugger;
         // Validate that all selected room resource are available
         if (spaces.length && has_time_changed) {
             await this._checkResourcesAvailable(
@@ -455,7 +464,7 @@ export class EventFormService extends AsyncHandler {
                     : this.form.value.duration,
                 event.ical_uid || event.id || '',
             ).catch(on_error);
-        } else if (!spaces.length && this.lone_space) {
+        } else if (!space_list.length && this.lone_space) {
             spaces = [await this._space_pipe.transform(this.lone_space)];
             this.form.patchValue({ resources: spaces });
         }
@@ -616,6 +625,7 @@ export class EventFormService extends AsyncHandler {
             'PLACEOS.last_modified_event',
             JSON.stringify(created_event.toJSON()),
         );
+        return true;
     }
 
     private async _handlePayments() {
