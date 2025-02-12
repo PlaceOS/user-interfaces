@@ -23,13 +23,13 @@ export function generateAssetCategoryForm(category: AssetCategory = {} as any) {
 }
 
 export function generateAssetPurchaseOrderForm(
-    order: AssetPurchaseOrder = {} as any
+    order: AssetPurchaseOrder = {} as any,
 ) {
     return new FormGroup({
         id: new FormControl(order.id),
         order_number: new FormControl(
             order.order_number || (order as any).purchase_order_number || '',
-            [Validators.required]
+            [Validators.required],
         ),
         invoice_number: new FormControl(order.invoice_number || ''),
         unit_price: new FormControl(order.unit_price || 0),
@@ -37,12 +37,12 @@ export function generateAssetPurchaseOrderForm(
         expected_service_start_date: new FormControl(
             order.expected_service_start_date * 1000 ||
                 (order as any).depreciation_start_date ||
-                null
+                null,
         ),
         expected_service_end_date: new FormControl(
             order.expected_service_end_date * 1000 ||
                 (order as any).depreciation_end_date ||
-                null
+                null,
         ),
     });
 }
@@ -83,9 +83,9 @@ export function getAssetRulesForZone(zone_id: string, fresh: boolean = false) {
                 (_) =>
                     (_.details instanceof Array
                         ? _.details
-                        : []) as AttachedResourceRuleset[]
+                        : []) as AttachedResourceRuleset[],
             ),
-            catchError((e) => of([] as AttachedResourceRuleset[]))
+            catchError((e) => of([] as AttachedResourceRuleset[])),
         );
     return RULE_REQUESTS[zone_id];
 }
@@ -93,18 +93,18 @@ export function getAssetRulesForZone(zone_id: string, fresh: boolean = false) {
 export function assetAvailable(
     item: AssetGroup,
     rules: AttachedResourceRuleset[],
-    event: CalendarEvent
+    event: CalendarEvent,
 ): boolean {
     const current_date = Date.now();
     const event_date = new Date(event.date);
 
     const isRuleMatch = (rule: AttachedResourceRuleset): boolean =>
         item.name === rule.name ||
-        item.category.name.includes(rule.name) ||
-        event.resources.some((resource) =>
-            resource.zones.includes(rule.name)
+        item.category?.name.includes(rule.name) ||
+        event.resources?.some((resource) =>
+            resource.zones?.includes(rule.name),
         ) ||
-        event.space?.zones.includes(rule.name) ||
+        event.space?.zones?.includes(rule.name) ||
         rule.name === '*';
 
     const countMatches = (rule: AttachedResourceRuleset): number =>
@@ -115,7 +115,7 @@ export function assetAvailable(
                         matches +
                         (isBefore(
                             current_date,
-                            subHours(event_date, condition[1])
+                            subHours(event_date, condition[1]),
                         )
                             ? 1
                             : 0)
@@ -125,7 +125,7 @@ export function assetAvailable(
                         matches +
                         (isAfter(
                             current_date,
-                            subHours(event_date, condition[1])
+                            subHours(event_date, condition[1]),
                         )
                             ? 1
                             : 0)
@@ -142,7 +142,7 @@ export function assetAvailable(
                         matches +
                         (isBefore(
                             event_date,
-                            setHours(event_date, condition[1])
+                            setHours(event_date, condition[1]),
                         )
                             ? 1
                             : 0)

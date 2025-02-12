@@ -63,10 +63,10 @@ export class AssetStateService {
         }),
         tap((_) =>
             this._loading.next(
-                this._loading.getValue().replace(/\[Rules\]/g, '')
-            )
+                this._loading.getValue().replace(/\[Rules\]/g, ''),
+            ),
         ),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     public readonly asset_list = of(0).pipe(
@@ -76,10 +76,10 @@ export class AssetStateService {
         }),
         tap((_) =>
             this._loading.next(
-                this._loading.getValue().replace(/\[Assets\]/g, '')
-            )
+                this._loading.getValue().replace(/\[Assets\]/g, ''),
+            ),
         ),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     public readonly asset_bookings = this._options.pipe(
@@ -95,10 +95,10 @@ export class AssetStateService {
         }),
         tap((_) =>
             this._loading.next(
-                this._loading.getValue().replace(/\[Bookings\]/g, '')
-            )
+                this._loading.getValue().replace(/\[Bookings\]/g, ''),
+            ),
         ),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     public readonly available_groups = combineLatest([
@@ -112,23 +112,23 @@ export class AssetStateService {
                     zones: bld.id || zone || '',
                     period_start: getUnixTime(startOfMinute(date)),
                     period_end: getUnixTime(
-                        endOfMinute(addMinutes(date, duration || 30))
+                        endOfMinute(addMinutes(date, duration || 30)),
                     ),
                     type: 'asset-request',
                     rejected: false,
                 } as any,
-                ignore
+                ignore,
             ).pipe(catchError(() => of([] as AssetGroup[])));
         }),
         map((list) => list.sort((a, b) => a.name.localeCompare(b.name))),
         tap((_) => updateAssetGroupList(_)),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     public readonly category_list = this._org.active_building.pipe(
         switchMap((bld) => queryAssetCategories({ zone_id: bld.id })),
         map((_) => _.sort((a, b) => a.name.localeCompare(b.name))),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     public readonly filtered_assets = combineLatest([
@@ -139,31 +139,32 @@ export class AssetStateService {
     ]).pipe(
         map(([search, category, assets, rules]) => {
             const s = search.toLowerCase();
-            let list = assets.filter(
+            console.log('Rules:', rules);
+            const list = assets.filter(
                 (_) =>
                     _.assets?.length &&
                     (!category.length || category.includes(_.category_id)) &&
                     (_.name.toLowerCase().includes(s) ||
                         _.description.toLowerCase().includes(s)) &&
-                    assetAvailable(_, rules, this._options.getValue() as any)
+                    assetAvailable(_, rules, this._options.getValue() as any),
             );
             return list;
         }),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     public readonly settings = combineLatest([this._org.active_building]).pipe(
         filter(([_]) => !!_),
         switchMap(([_]) =>
             showMetadata(_.id, 'assets-settings').pipe(
-                catchError((_) => of({} as PlaceMetadata))
-            )
+                catchError((_) => of({} as PlaceMetadata)),
+            ),
         ),
         map((_) => (_.details as Record<string, any>) || {}),
-        shareReplay(1)
+        shareReplay(1),
     );
     public readonly disabled_rooms = this.settings.pipe(
-        map((_) => _.disabled_rooms || [])
+        map((_) => _.disabled_rooms || []),
     );
 
     constructor(private _org: OrganisationService) {}
