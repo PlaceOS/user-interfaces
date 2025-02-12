@@ -34,8 +34,7 @@ import {
                                                     last_event.date +
                                                     last_event.duration *
                                                         60 *
-                                                        1000
-                                          | date: time_format,
+                                                        1000,
                                   }
                     }}
                 </p>
@@ -97,7 +96,7 @@ import {
         </div>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class ParkingFlowSuccessComponent {
     public outlook_link = '';

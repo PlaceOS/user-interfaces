@@ -3,6 +3,7 @@ import {
     EventEmitter,
     Input,
     OnChanges,
+    OnInit,
     Output,
     SimpleChanges,
 } from '@angular/core';
@@ -129,7 +130,7 @@ import { OrganisationService } from '@placeos/organisation';
 })
 export class LockerFormDetailsComponent
     extends AsyncHandler
-    implements OnChanges
+    implements OnChanges, OnInit
 {
     @Input() public form: FormGroup;
     @Output() public find = new EventEmitter<void>();
@@ -170,10 +171,15 @@ export class LockerFormDetailsComponent
 
     public get allow_all_day() {
         return (
-            (this._settings.get('app.lockers.allow_all_day') ||
+            this.allow_time_changes &&
+            ((this._settings.get('app.lockers.allow_all_day') ||
                 this._settings.get('app.bookings.allow_all_day')) ??
-            true
+                true)
         );
+    }
+
+    public get allow_time_changes() {
+        return this._settings.get('app.lockers.allow_time_changes') !== false;
     }
 
     public get timezone() {
@@ -193,6 +199,12 @@ export class LockerFormDetailsComponent
         private _settings: SettingsService,
     ) {
         super();
+    }
+
+    public ngOnInit() {
+        this._state.form.patchValue({
+            all_day: !this.allow_time_changes || this._state.form.value.all_day,
+        });
     }
 
     public ngOnChanges(changes: SimpleChanges) {
