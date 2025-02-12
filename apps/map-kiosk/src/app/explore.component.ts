@@ -31,7 +31,7 @@ import { MapLocation, showStaff, User } from '@placeos/users';
 import { startOfMinute } from 'date-fns';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 import { combineLatest } from 'rxjs';
-import { debounceTime, first, map, take, tap } from 'rxjs/operators';
+import { first, map, take } from 'rxjs/operators';
 
 @Component({
     selector: '[app-explore]',

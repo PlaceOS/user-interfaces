@@ -65,7 +65,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
         <section
             attendees
             class="flex space-x-1 px-2"
-            *ngIf="event.attendees.length"
+            *ngIf="event.attendees?.length"
         >
             <app-icon class="text-success mt-1">done</app-icon>
             <div details class="leading-6">

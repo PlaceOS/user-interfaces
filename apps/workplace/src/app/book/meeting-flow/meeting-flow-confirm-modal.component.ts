@@ -84,7 +84,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                 </div>
                 <div
                     class="pr-4 py-4 pl-16 relative space-y-2 flex-1"
-                    *ngIf="event.resources.length"
+                    *ngIf="event.resources?.length"
                 >
                     <div
                         class="absolute top-4 left-4 flex items-center justify-center rounded-full border border-success text-success text-2xl"
@@ -111,7 +111,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
             </div>
             <div
                 class="pr-4 py-4 pl-16 relative space-y-2"
-                *ngIf="event.attendees.length"
+                *ngIf="event.attendees?.length"
             >
                 <div
                     class="absolute top-4 left-4 flex items-center justify-center rounded-full border border-success text-success text-2xl"
@@ -121,7 +121,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                 <h3 class="text-xl !mt-0">
                     {{
                         'CALENDAR_EVENT.ATTENDEE_COUNT'
-                            | translate: { count: event.attendees.length }
+                            | translate: { count: event.attendees?.length }
                     }}
                 </h3>
                 <div attendee-list>
@@ -547,7 +547,7 @@ export class MeetingFlowConfirmModalComponent
             this.event.date_end !== this._event_form.event.date_end;
         const event = this._event_form.form.value;
         this._loading.next(true);
-        if (this.has_assets && event.assets.length) {
+        if (this.has_assets && event.assets?.length) {
             await validateAssetRequestsForResource(
                 this._event_form.event || {},
                 {
