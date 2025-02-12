@@ -494,7 +494,10 @@ export class OrganisationService {
                         catchError(() => of({})),
                     )
                     .toPromise(),
-                querySettings({ parent_id: bld.id })
+                (this.app_key.includes('concierge')
+                    ? querySettings({ parent_id: bld.id })
+                    : of({ data: {} as any })
+                )
                     .pipe(
                         catchError(() => of({ data: {} as any })),
                         map((_) => {
