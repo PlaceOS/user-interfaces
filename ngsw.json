@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1739167329411,
+  "timestamp": 1739322327759,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -13,7 +13,7 @@
       "urls": [
         "./favicon.ico",
         "./index.html",
-        "./main-SP5GU6GX.js",
+        "./main-F5ZRHRD5.js",
         "./polyfills-EONH2QZO.js",
         "./styles-IWBOE3SR.css"
       ],
@@ -192,8 +192,8 @@
     "./assets/yolov8x_web_model/metadata.yaml": "b1a29dc18ee0c4b5f0f7240d2d92cd8b2fa03318",
     "./assets/yolov8x_web_model/model.json": "51607c6c0f465d41cdca4d65a17cfbf9c9f99c62",
     "./favicon.ico": "4e23d0f9b6ddaf3c9ddef90dbaed2342941297b5",
-    "./index.html": "1ab6f1d3e49ecf92861aaaca207769e156476f9c",
-    "./main-SP5GU6GX.js": "8e246aa9c92af5c62b14dcdca5a1987fe3f4b702",
+    "./index.html": "1a0085b47064cf1a7f17f3eadd1c7dfa77914e64",
+    "./main-F5ZRHRD5.js": "61b5a6d3511fd65380cc4453e00867e5f103c7a2",
     "./polyfills-EONH2QZO.js": "e61db933651ae257d0c246b446cd1f470be08f78",
     "./styles-IWBOE3SR.css": "af8b4ada4ae0e8e0666986888d92c850721275a9"
   },
