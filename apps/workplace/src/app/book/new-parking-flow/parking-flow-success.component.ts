@@ -27,14 +27,12 @@ import {
                                       date:
                                           last_event.date | date: 'mediumDate',
                                       time:
-                                          last_event.date
-                                          | date
-                                              : time_format +
-                                                    ' - ' +
-                                                    last_event.date +
-                                                    last_event.duration *
-                                                        60 *
-                                                        1000,
+                                          (last_event.date
+                                              | date: time_format) +
+                                          ' - ' +
+                                          (last_event.date +
+                                              last_event.duration * 60 * 1000
+                                              | date: time_format),
                                   }
                     }}
                 </p>
