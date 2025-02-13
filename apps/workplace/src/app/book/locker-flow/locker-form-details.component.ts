@@ -244,9 +244,13 @@ export class LockerFormDetailsComponent
     }
 
     private _setCustomDateOptions() {
-        // for (const i of [1, 2, 3, 4, 5, 6, 7]) {
-        //     this.custom_durations.push(i * 24 * 60);
-        // }
+        const today = new Date();
+        const hours = 22 - today.getHours();
+        const days = 5 - today.getDay();
+        this.custom_durations = [];
+        for (let i = 1; i <= days; i++) {
+            this.custom_durations.push((24 * i + hours) * 60);
+        }
     }
 
     private setBookingAsset(locker: Locker) {

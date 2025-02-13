@@ -119,7 +119,7 @@ export class BookLockerFlowConfirmComponent extends AsyncHandler {
     }
 
     public get booking() {
-        return this._state.form.value as any;
+        return this._state.form.getRawValue() as any;
     }
 
     public get assets() {
@@ -153,6 +153,5 @@ export class BookLockerFlowConfirmComponent extends AsyncHandler {
         private _settings: SettingsService,
     ) {
         super();
-        console.log('State:', this.booking);
     }
 }
