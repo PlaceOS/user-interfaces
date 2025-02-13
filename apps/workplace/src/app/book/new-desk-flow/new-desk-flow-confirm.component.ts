@@ -206,6 +206,8 @@ export class NewDeskFlowConfirmComponent extends AsyncHandler {
 
     private _date: DatePipe = new DatePipe('en');
 
+    public booking_asset: Desk;
+
     public readonly loading = this._state.loading;
     public readonly is_group = this._state.options.pipe(map((_) => _.group));
 
@@ -291,10 +293,6 @@ export class NewDeskFlowConfirmComponent extends AsyncHandler {
             : 0;
     }
 
-    public get booking_asset() {
-        return this.booking.booking_asset as Desk;
-    }
-
     public get location() {
         const building = this._org.buildings.find(
             (b) => b.id === this.booking_asset?.zone?.parent_id,
@@ -329,5 +327,11 @@ export class NewDeskFlowConfirmComponent extends AsyncHandler {
         private _settings: SettingsService,
     ) {
         super();
+    }
+
+    public async ngOnInit() {
+        const resources = await this._state.resources.pipe(take(1)).toPromise();
+        const asset = this.booking.booking_asset;
+        this.booking_asset = resources.find((_) => _.id == asset.id) as Desk;
     }
 }

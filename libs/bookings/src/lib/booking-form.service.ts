@@ -259,7 +259,6 @@ export class BookingFormService extends AsyncHandler {
                                 !booked_ids.includes(asset.id)
                             );
                         });
-                        console.log('Resources:', resources, available);
                         return available;
                     },
                     catchError(() => of([])),
@@ -337,7 +336,7 @@ export class BookingFormService extends AsyncHandler {
                 this.storeForm();
             }),
         );
-        this.timeout('date', () =>
+        this.timeout('date', async () =>
             this.form.patchValue({
                 date: booking.date,
                 duration: booking.duration,
@@ -345,6 +344,15 @@ export class BookingFormService extends AsyncHandler {
         );
         this._booking.next(new Booking(booking));
         this._options.next({ type: this._options.getValue().type });
+        this.timeout('set-resource', async () => {
+            const resources = this.form.getRawValue().resources;
+            if (!resources?.length) return;
+            const item_list = await this.resources.pipe(take(1)).toPromise();
+            const new_list = resources.map(
+                (asset) => item_list.find((_) => _.id == asset.id) || asset,
+            );
+            this.form.patchValue({ resources: new_list });
+        });
     }
 
     constructor(
@@ -565,7 +573,6 @@ export class BookingFormService extends AsyncHandler {
             ].filter((_) => _),
         );
         this._loading.next('Saving booking');
-        console.log('Zones:', value.zones, { ...value });
         delete value.booking_asset;
         if (value.all_day) {
             value.date = startOfDay(value.date).valueOf();
