@@ -221,7 +221,7 @@ const app = {
         default_duration: 60,
     },
     lockers: {
-        only_duration: true,
+        only_duration: false,
     },
     parking: {
         allow_all_day: true,
