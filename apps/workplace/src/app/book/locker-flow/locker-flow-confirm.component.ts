@@ -12,7 +12,7 @@ import { take } from 'rxjs/operators';
             class="flex items-center justify-between p-2 h-12 m-2 rounded bg-base-200"
         >
             <h2 class="text-xl font-medium px-2">
-                {{ 'APP.WORKPLACE.PARKING_CONFIRM_TITLE' | translate }}
+                {{ 'APP.WORKPLACE.LOCKER_CONFIRM_TITLE' | translate }}
             </h2>
             <div class="">
                 <mat-spinner
@@ -93,7 +93,7 @@ import { take } from 'rxjs/operators';
         </footer>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class BookLockerFlowConfirmComponent extends AsyncHandler {
     @Input() public show_close = false;
