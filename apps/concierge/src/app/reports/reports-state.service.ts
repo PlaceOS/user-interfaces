@@ -16,7 +16,6 @@ import { CalendarEvent, queryAllEvents } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
 import {
     addDays,
-    addMinutes,
     endOfDay,
     format,
     getUnixTime,
@@ -38,7 +37,6 @@ import {
     map,
     shareReplay,
     switchMap,
-    tap,
 } from 'rxjs/operators';
 import {
     generateReportForBookings,

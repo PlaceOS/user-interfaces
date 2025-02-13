@@ -35,6 +35,9 @@ import { OrganisationService } from '@placeos/organisation';
             <ng-container *ngIf="!(loading | async); else load_state">
                 <ng-container *ngIf="total_count | async; else empty_state">
                     <report-spaces-overall></report-spaces-overall>
+                    <report-spaces-charts
+                        [print]="printing"
+                    ></report-spaces-charts>
                     <report-spaces-overall-list
                         [print]="printing"
                     ></report-spaces-overall-list>
@@ -74,7 +77,7 @@ import { OrganisationService } from '@placeos/organisation';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class ReportSpacesComponent extends AsyncHandler {
     public printing = false;

@@ -49,6 +49,7 @@ import { LockersReportDailyUsageComponent } from './lockers/lockers-report-daily
 import { LockersReportOverallComponent } from './lockers/lockers-report-overall.component';
 import { LockersReportListComponent } from './lockers/lockers-report-list.component';
 import { LockersReportChartsComponent } from './lockers/lockers-report-charts.component';
+import { ReportSpacesChartsComponent } from './spaces/report-spaces-charts.component';
 
 const children: Route[] = [
     { path: '', component: ReportsOptionsComponent },
@@ -83,6 +84,7 @@ const ROUTES: Route[] = [
         ReportSpacesOverallListComponent,
         ReportSpacesSpaceListingComponent,
         ReportSpacesUserListingComponent,
+        ReportSpacesChartsComponent,
 
         ReportDesksComponent,
         ReportDesksOverallListComponent,
