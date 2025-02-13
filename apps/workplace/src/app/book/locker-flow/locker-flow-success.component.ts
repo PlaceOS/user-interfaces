@@ -25,7 +25,9 @@ import {
                                 : {
                                       name:
                                           (last_event.asset_name ||
-                                              last_event.asset_id) + location,
+                                              last_event.asset_id) +
+                                          ', ' +
+                                          location,
                                   }
                     }}
                 </h2>
