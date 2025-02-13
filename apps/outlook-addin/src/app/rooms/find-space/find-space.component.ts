@@ -41,7 +41,7 @@ import { Router } from '@angular/router';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class FindSpaceComponent extends AsyncHandler implements OnInit {
     start_time$: Observable<any>;
@@ -83,7 +83,7 @@ export class FindSpaceComponent extends AsyncHandler implements OnInit {
 
     public readonly levels = combineLatest([
         this.building,
-        this._state.options,
+        this._state.options$,
     ]).pipe(
         filter(([_]) => !!_),
         map(([bld]) => [
@@ -95,7 +95,7 @@ export class FindSpaceComponent extends AsyncHandler implements OnInit {
         ]),
     );
 
-    public readonly loading = this._state.loading;
+    public readonly loading = this._state.loading$;
     public readonly options = this._state.options;
 
     public readonly spaces$: Observable<Space[]> = this._state.available_spaces;
