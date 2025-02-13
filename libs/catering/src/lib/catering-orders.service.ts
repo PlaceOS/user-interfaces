@@ -163,10 +163,13 @@ export class CateringOrdersService extends AsyncHandler {
             const start = startOfDay(
                 this._filters.getValue().date || Date.now(),
             );
-            return orders.filter(
-                (o) =>
-                    format(o.deliver_at, 'yyyy-MM-dd') ===
-                    format(start, 'yyyy-MM-dd'),
+            return unique(
+                orders.filter(
+                    (o) =>
+                        format(o.deliver_at, 'yyyy-MM-dd') ===
+                        format(start, 'yyyy-MM-dd'),
+                ),
+                'id',
             );
         }),
         tap(() => this._loading.next(false)),
