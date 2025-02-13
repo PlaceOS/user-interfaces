@@ -116,7 +116,7 @@ import {
             multi: true,
         },
     ],
-    standalone: false
+    standalone: false,
 })
 export class TimeFieldComponent
     extends AsyncHandler

@@ -220,6 +220,9 @@ const app = {
         default_select_as_map: false,
         default_duration: 60,
     },
+    lockers: {
+        only_duration: true,
+    },
     parking: {
         allow_all_day: true,
     },

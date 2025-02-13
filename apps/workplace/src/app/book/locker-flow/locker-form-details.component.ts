@@ -65,7 +65,7 @@ import { OrganisationService } from '@placeos/organisation';
                         </a-date-field>
                         <mat-checkbox
                             formControlName="all_day"
-                            *ngIf="allow_all_day"
+                            *ngIf="allow_all_day && !only_duration"
                             class="absolute -top-2 right-0"
                         >
                             {{ 'COMMON.ALL_DAY' | translate }}
@@ -86,7 +86,10 @@ import { OrganisationService } from '@placeos/organisation';
                             (ngModelChange)="form.patchValue({ date: $event })"
                             [ngModelOptions]="{ standalone: true }"
                             [use_24hr]="use_24hr"
-                            [disabled]="form.value.duration > 24 * 60 - 1"
+                            [disabled]="
+                                form.value.duration > 24 * 60 - 1 ||
+                                only_duration
+                            "
                             [timezone]="timezone"
                         ></a-time-field>
                     </div>
@@ -165,6 +168,10 @@ export class LockerFormDetailsComponent
         );
     }
 
+    public get only_duration() {
+        return this._settings.get('app.lockers.only_duration');
+    }
+
     public get use_24hr() {
         return this._settings.get('app.use_24_hour_time');
     }
@@ -205,6 +212,13 @@ export class LockerFormDetailsComponent
         this._state.form.patchValue({
             all_day: !this.allow_time_changes || this._state.form.value.all_day,
         });
+        this.subscription(
+            'bld',
+            this._org.active_building.subscribe(() => {
+                if (this.only_duration) this.form.controls.date.disable();
+                else this.form.controls.date.enable();
+            }),
+        );
     }
 
     public ngOnChanges(changes: SimpleChanges) {
@@ -230,9 +244,9 @@ export class LockerFormDetailsComponent
     }
 
     private _setCustomDateOptions() {
-        for (const i of [1, 2, 3, 4, 5, 6, 7]) {
-            this.custom_durations.push(i * 24 * 60);
-        }
+        // for (const i of [1, 2, 3, 4, 5, 6, 7]) {
+        //     this.custom_durations.push(i * 24 * 60);
+        // }
     }
 
     private setBookingAsset(locker: Locker) {
