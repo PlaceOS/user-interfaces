@@ -55,8 +55,16 @@ import { authority, queryUsers } from '@placeos/ts-client';
                 (click)="setValue(option); blurInput()"
             >
                 <div class="leading-tight">{{ option.name }}</div>
-                <div class="text-xs opacity-60">
+                <div class="text-xs opacity-60 w-full">
                     {{ option.email }}
+                    <span
+                        *ngIf="
+                            option.username && option.username !== option.email
+                        "
+                    >
+                        (<span class="truncate">{{ option.username }}</span
+                        >)
+                    </span>
                 </div>
             </mat-option>
             <mat-option

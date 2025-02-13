@@ -133,7 +133,20 @@ const DENIED_FILE_TYPES = [
                         class="leading-tight"
                     >
                         {{ user.name }}<br />
-                        <span class="text-xs">{{ user.email }}</span>
+                        <span class="text-xs w-full"
+                            >{{ user.email }}
+                            <span
+                                *ngIf="
+                                    user.username &&
+                                    user.username !== user.email
+                                "
+                            >
+                                (<span class="truncate">{{
+                                    user.username
+                                }}</span
+                                >)
+                            </span></span
+                        >
                     </mat-option>
                 </mat-autocomplete>
             </div>
