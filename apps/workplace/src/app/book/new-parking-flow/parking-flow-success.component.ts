@@ -6,6 +6,7 @@ import {
     generateGoogleCalendarLink,
     generateMicrosoftCalendarLink,
 } from '@placeos/common';
+import { OrganisationService } from '@placeos/organisation';
 
 @Component({
     selector: 'parking-flow-success',
@@ -100,16 +101,17 @@ export class ParkingFlowSuccessComponent {
     public outlook_link = '';
     public google_link = '';
     public ical_link = '';
+
     public get location() {
-        const resource = this.last_event?.extension_data?.booking_asset;
-        if (!resource) return '';
-        return resource.zone
-            ? `, ${
-                  resource.zone.display_name ||
-                  resource.zone.name ||
-                  resource.zone.id
-              }`
-            : '';
+        if (!this.last_event) return 'Unknown';
+        const building = this._org.buildings.find((_) =>
+            this.last_event.zones.includes(_.id),
+        );
+        const level = this._org.levelWithID(this.last_event.zones);
+        return (
+            (building ? `${building.display_name || building.name}, ` : '') +
+            (level ? `${level.display_name || level.name}, ` : '')
+        );
     }
 
     public get last_event() {
@@ -127,6 +129,7 @@ export class ParkingFlowSuccessComponent {
     constructor(
         private _state: BookingFormService,
         private _settings: SettingsService,
+        private _org: OrganisationService,
     ) {}
 
     public ngOnInit() {

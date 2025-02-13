@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { BookingFormService } from '@placeos/bookings';
 import { SettingsService } from '@placeos/common';
+import { OrganisationService } from '@placeos/organisation';
 import {
     generateCalendarFileLink,
     generateGoogleCalendarLink,
@@ -112,13 +113,15 @@ export class BookLockerFlowSuccessComponent {
     public google_link = '';
     public ical_link = '';
     public get location() {
-        const locker = this.last_event?.extension_data?.booking_asset;
-        if (!locker) return '';
-        return locker.zone
-            ? `, ${
-                  locker.zone.display_name || locker.zone.name || locker.zone.id
-              }`
-            : '';
+        if (!this.last_event) return 'Unknown';
+        const building = this._org.buildings.find((_) =>
+            this.last_event.zones.includes(_.id),
+        );
+        const level = this._org.levelWithID(this.last_event.zones);
+        return (
+            (building ? `${building.display_name || building.name}, ` : '') +
+            (level ? `${level.display_name || level.name}, ` : '')
+        );
     }
 
     public get last_event() {
@@ -139,6 +142,7 @@ export class BookLockerFlowSuccessComponent {
     constructor(
         private _state: BookingFormService,
         private _settings: SettingsService,
+        private _org: OrganisationService,
     ) {}
 
     public ngOnInit() {
