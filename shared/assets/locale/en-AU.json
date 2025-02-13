@@ -400,7 +400,7 @@
         "ACTION_DELETE": "Delete booking",
         "ACTION_PRINT": "Print booking",
         "ACTION_END": "End booking",
-        "ACTION_SET_DESK_HEIGHT": "Print booking",
+        "ACTION_SET_DESK_HEIGHT": "Set Desk Height",
         "ACTION_DELETE_SERIES": "Delete series",
         "CHECK_IN_ERROR": "Failed to check-in booking.",
         "CHECK_IN_SUCCESS": "Successfully checked-in booking.",
