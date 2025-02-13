@@ -156,7 +156,7 @@ import { loadLockerBanks, loadLockers } from '../booking.utilities';
             </div>
         </ng-template>
     `,
-    standalone: false
+    standalone: false,
 })
 export class LockerBankListComponent {
     @Input() public active = '';
@@ -193,19 +193,25 @@ export class LockerBankListComponent {
                             i.lockers.find((_) => _.accessible)) &&
                         resources.find((_: any) => _.bank_id === i.id),
                 )
-                .map((bank) => ({
-                    ...bank,
-                    available: resources.filter(
-                        (_: any) => _.bank_id === bank.id,
-                    ).length,
-                    lockers: bank.lockers.map((_) => ({
+                .map((bank) => {
+                    const locker_list = bank.lockers.map((_) => ({
                         ..._,
-                        available: !!resources.find((lkr) => lkr.id === _.id),
+                        available:
+                            !!resources.find((lkr) => lkr.id === _.id) &&
+                            (!show_accessible || _.accessible),
                         map_id: bank.map_id || bank.id,
                         zone: bank.zone,
                         zones: bank.zones,
-                    })),
-                }));
+                    }));
+                    return {
+                        ...bank,
+                        available: locker_list.reduce(
+                            (c, l) => c + (l.available ? 1 : 0),
+                            0,
+                        ),
+                        lockers: locker_list,
+                    };
+                });
         }),
         tap((list) => console.log('Bank List:', list)),
     );
