@@ -451,7 +451,6 @@ export class EventFormService extends AsyncHandler {
             event.date !== this.form.value.date ||
             event.duration !== this.form.value.duration;
 
-        debugger;
         // Validate that all selected room resource are available
         if (spaces.length && has_time_changed) {
             await this._checkResourcesAvailable(

@@ -103,13 +103,12 @@ import { statusList } from './catering.vars';
                 </div>
             </ng-template>
             <ng-template #location_template let-data="data">
+                @let space = data?.system;
                 <div class="px-4 py-2">
-                    {{ data?.space?.display_name || data?.space?.name || '' }}
+                    {{ space?.display_name || space?.name || '' }}
                     <span
                         class="opacity-30"
-                        *ngIf="
-                            !(data?.space?.display_name || data?.space?.name)
-                        "
+                        *ngIf="!(space?.display_name || space?.name)"
                     >
                         {{ 'CATERING.ORDERS_LOCATION_EMPTY' | translate }}
                     </span>
@@ -230,7 +229,7 @@ import { statusList } from './catering.vars';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class CateringOrderListComponent extends AsyncHandler implements OnInit {
     /** List of filtered orders */

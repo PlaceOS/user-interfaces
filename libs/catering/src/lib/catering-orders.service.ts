@@ -7,7 +7,6 @@ import {
     tap,
     shareReplay,
     catchError,
-    first,
     filter,
 } from 'rxjs/operators';
 import { startOfDay, endOfDay, getUnixTime, format } from 'date-fns';
@@ -31,6 +30,7 @@ import {
     queryBookings,
     updateBooking,
 } from 'libs/bookings/src/lib/bookings.fn';
+import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 
 import { CateringOrder } from './catering-order.class';
 import { CateringOrderStatus } from './catering.interfaces';
@@ -71,6 +71,7 @@ const BOOKINGS: Record<string, Booking> = {};
 export class CateringOrdersService extends AsyncHandler {
     private _poll = new BehaviorSubject<number>(0);
     private _loading = new BehaviorSubject<boolean>(false);
+    private _space_pipe = new SpacePipe(this._org);
     private _filters = new BehaviorSubject<CateringOrderFilters>({
         caterer: '',
     });
@@ -126,10 +127,19 @@ export class CateringOrdersService extends AsyncHandler {
                     flatten(
                         bookings.map((bkn) => {
                             BOOKINGS[bkn.asset_id] = bkn;
-                            return new CateringOrder({
+                            const order = new CateringOrder({
                                 ...bkn.extension_data.details,
-                                event: new CalendarEvent(bkn.linked_event),
+                                event: new CalendarEvent({
+                                    ...bkn.linked_event,
+                                }),
                             });
+                            this._space_pipe
+                                .transform(bkn.linked_event.system_id)
+                                .then((space) => {
+                                    (order as any).space = space;
+                                    (order.event as any).system = space;
+                                });
+                            return order;
                         }),
                     ),
                 ),
@@ -254,20 +264,21 @@ export class CateringOrdersService extends AsyncHandler {
             status,
             event: null,
         });
+        (updated_order as any)._status = status;
         const catering = [
             ...(order.event.extension_data.catering || []).filter(
                 (o) => o.id !== order.id,
             ),
             updated_order,
-        ].map((i) => new CateringOrder({ ...i }));
+        ].map((i) => new CateringOrder({ ...i }).toJSON());
         const system_id =
             order.event?.resources[0]?.id || order.event?.system?.id;
-        const ext_data = await showEventMetadata(
+        const extension_data = await showEventMetadata(
             order.event.id,
             system_id,
         ).toPromise();
         const event = new CalendarEvent({
-            ...({ ...order.event, extension_data: ext_data } as any),
+            ...({ ...order.event, extension_data } as any),
             catering,
         });
         const booking = await updateEventMetadata(
@@ -281,12 +292,12 @@ export class CateringOrdersService extends AsyncHandler {
                 ...booking,
                 extension_data: {
                     ...booking.extension_data,
-                    details: updated_order,
+                    details: updated_order.toJSON(),
                 },
             });
         }
         this.timeout('refresh-list', () => this._poll.next(Date.now()), 1000);
-        (order as any).status = status;
+        order.status = status;
         return booking;
     }
 }

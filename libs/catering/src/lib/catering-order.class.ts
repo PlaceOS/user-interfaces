@@ -97,4 +97,13 @@ export class CateringOrder {
         this.deliver_day_offset = data.deliver_day_offset || 0;
         this.deliver_at_time = deliverAtTime(this);
     }
+
+    public toJSON() {
+        const obj: any = { ...this };
+        obj.status = obj._status;
+        delete obj.event;
+        delete obj._status;
+        delete obj._time;
+        return obj;
+    }
 }
