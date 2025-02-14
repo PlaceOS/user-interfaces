@@ -215,8 +215,12 @@ export class LockerFormDetailsComponent
         this.subscription(
             'bld',
             this._org.active_building.subscribe(() => {
-                if (this.only_duration) this.form.controls.date.disable();
-                else this.form.controls.date.enable();
+                this.timeout('disable', () => {
+                    if (this.only_duration) {
+                        this.form.patchValue({ all_day: false });
+                        this.form.controls.date.disable();
+                    } else this.form.controls.date.enable();
+                });
             }),
         );
     }
