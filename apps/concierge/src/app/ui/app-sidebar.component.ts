@@ -86,7 +86,7 @@ import { OrganisationService } from '@placeos/organisation';
         `,
     ],
     animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
-    standalone: false
+    standalone: false,
 })
 export class ApplicationSidebarComponent
     extends AsyncHandler
@@ -109,9 +109,9 @@ export class ApplicationSidebarComponent
         const groups = currentUser().groups;
         const admin_group = this._settings.get('app.admin_group') || 'admin';
         return (
-            !groups.includes(admin_group) &&
-            !groups.includes('placeos_admin') &&
-            !groups.includes('placeos_support')
+            groups.includes(admin_group) ||
+            groups.includes('placeos_admin') ||
+            groups.includes('placeos_support')
         );
     }
 
@@ -397,7 +397,7 @@ export class ApplicationSidebarComponent
             const link = this.filtered_links.find((_) => _.id === 'home');
             link.route = this._settings.get('app.default_route') || ['/'];
         }
-        if (this.is_admin) {
+        if (!this.is_admin) {
             this.filtered_links = this.filtered_links.filter(
                 (_) => _.id !== 'facilities',
             );
