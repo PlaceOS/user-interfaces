@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { Booking, BookingFormService, ParkingSpace } from '@placeos/bookings';
@@ -149,9 +149,12 @@ import { addDays, endOfDay } from 'date-fns';
         </fullscreen-modal-shell>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
-export class ParkingBookingModalComponent extends AsyncHandler {
+export class ParkingBookingModalComponent
+    extends AsyncHandler
+    implements OnInit
+{
     public loading = false;
     public readonly user = this._data.user;
     public readonly date = this._data.date;
