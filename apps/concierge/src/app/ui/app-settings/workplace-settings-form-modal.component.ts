@@ -1583,7 +1583,8 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
             ) {
                 delete new_settings[key];
             } else if (
-                typeof new_settings[key] === 'object' &&
+                new_settings[key] instanceof Object &&
+                !(new_settings[key] instanceof Array) &&
                 this.existing_settings[key]
             ) {
                 for (const sub_key in new_settings[key]) {
