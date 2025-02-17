@@ -1564,6 +1564,12 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
                     this.existing_settings[key] || form_value[key];
             }
         }
+        console.log(
+            'Settings:',
+            this.existing_settings,
+            this.form.value,
+            new_settings,
+        );
         for (const key in new_settings) {
             if (
                 !this._isValid(new_settings[key], this.existing_settings[key])
