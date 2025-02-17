@@ -1549,7 +1549,21 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
     public async save() {
         this.loading = 'Saving settings...';
         const zone = this._data.zone;
-        const new_settings = { ...this.existing_settings, ...this.form.value };
+        const form_value = this.form.getRawValue();
+        const new_settings = {};
+        for (const key in form_value) {
+            if (form_value[key] instanceof Array) {
+                new_settings[key] = form_value[key];
+            } else if (form_value[key] instanceof Object) {
+                new_settings[key] = {
+                    ...(this.existing_settings[key] || {}),
+                    ...form_value[key],
+                };
+            } else {
+                new_settings[key] =
+                    this.existing_settings[key] || form_value[key];
+            }
+        }
         for (const key in new_settings) {
             if (
                 !this._isValid(new_settings[key], this.existing_settings[key])
