@@ -425,7 +425,7 @@ import { format } from 'date-fns';
                     <section
                         events
                         class="relative border border-base-300 rounded px-4 pb-2 pt-4"
-                        *ngIf="form.value.features.includes('spaces')"
+                        *ngIf="form.value.features?.includes('spaces')"
                         formGroupName="events"
                     >
                         <h3
@@ -1525,7 +1525,12 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
         const zone = this._data.zone;
         this.loading = 'Loading existing settings...';
         this.form.valueChanges.subscribe(() =>
-            console.log('Form Value:', this.form.getRawValue()),
+            console.log(
+                'Form Value:',
+                this.form.getRawValue(),
+                this.form.value.features,
+                this.form.controls.features.value,
+            ),
         );
         this.form.patchValue(DEFAULT_SETTINGS.app);
         const org_id = this._org.organisation.id;
@@ -1568,6 +1573,8 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
             'Settings:',
             this.existing_settings,
             this.form.value,
+            this.form.value.features,
+            this.form.controls.features.value,
             new_settings,
         );
         for (const key in new_settings) {
