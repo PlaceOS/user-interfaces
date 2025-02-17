@@ -318,6 +318,10 @@ export class BookingFormService extends AsyncHandler {
             all_day: this._settings.get('app.bookings.all_day_default'),
         }),
     ) {
+        for (const ctrl in this.form.controls) {
+            if (this.form.controls[ctrl].enable)
+                this.form.controls[ctrl].enable();
+        }
         this.form.reset();
         this.form.patchValue(
             cleanObject(

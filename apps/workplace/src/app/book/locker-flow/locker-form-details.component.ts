@@ -11,6 +11,7 @@ import { FormGroup } from '@angular/forms';
 import { BookingFormService, Locker } from '@placeos/bookings';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
+import { combineLatest } from 'rxjs';
 
 @Component({
     selector: 'new-locker-form-details',
@@ -214,14 +215,31 @@ export class LockerFormDetailsComponent
         });
         this.subscription(
             'bld',
-            this._org.active_building.subscribe(() => {
-                this.timeout('disable', () => {
-                    if (this.only_duration) {
-                        this.form.patchValue({ all_day: false });
-                        this.form.controls.date.disable();
-                    } else this.form.controls.date.enable();
-                });
+            combineLatest([
+                this._org.active_building,
+                this.form.controls.duration.valueChanges,
+            ]).subscribe(() => {
+                this.timeout(
+                    'disable',
+                    () => {
+                        if (this.only_duration) {
+                            this.form.patchValue({ all_day: false });
+                            this.form.controls.date.disable();
+                        } else this.form.controls.date.enable();
+                    },
+                    50,
+                );
             }),
+        );
+        this.timeout(
+            'disable',
+            () => {
+                if (this.only_duration) {
+                    this.form.patchValue({ all_day: false });
+                    this.form.controls.date.disable();
+                } else this.form.controls.date.enable();
+            },
+            50,
         );
     }
 

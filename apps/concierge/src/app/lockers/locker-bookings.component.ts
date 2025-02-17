@@ -15,7 +15,7 @@ import { SettingsService } from '@placeos/common';
             [class.pb-4]="!(!loading && more_pages)"
         >
             <simple-table
-                class="min-w-[76rem] block text-sm w-full flex-1 overflow-auto mr-4"
+                class="min-w-[72rem] block text-sm w-full flex-1 overflow-auto mr-4"
                 [data]="bookings"
                 [columns]="[
                     {
@@ -50,13 +50,6 @@ import { SettingsService } from '@placeos/common';
                         name: 'COMMON.STATUS' | translate,
                         content: status_template,
                         size: '11rem',
-                    },
-                    {
-                        key: 'checked_in',
-                        name: 'COMMON.CHECKED_IN' | translate,
-                        content: option_template,
-                        size: '7rem',
-                        sortable: false,
                     },
                 ]"
                 [sortable]="true"
