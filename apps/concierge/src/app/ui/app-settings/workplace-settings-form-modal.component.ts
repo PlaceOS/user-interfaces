@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
@@ -1385,7 +1385,7 @@ import { format } from 'date-fns';
     ],
     standalone: false,
 })
-export class WorkplaceSettingsFormModalComponent {
+export class WorkplaceSettingsFormModalComponent implements OnInit {
     public loading = '';
     public existing_settings: Record<string, any> = {};
     public readonly zone = this._data.zone;
@@ -1524,6 +1524,9 @@ export class WorkplaceSettingsFormModalComponent {
     public async ngOnInit() {
         const zone = this._data.zone;
         this.loading = 'Loading existing settings...';
+        this.form.valueChanges.subscribe(() =>
+            console.log('Form Value:', this.form.getRawValue()),
+        );
         this.form.patchValue(DEFAULT_SETTINGS.app);
         const org_id = this._org.organisation.id;
         const org_metadata = await this._getMetadata(org_id);
