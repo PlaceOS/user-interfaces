@@ -1524,14 +1524,6 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
     public async ngOnInit() {
         const zone = this._data.zone;
         this.loading = 'Loading existing settings...';
-        this.form.valueChanges.subscribe(() =>
-            console.log(
-                'Form Value:',
-                this.form.getRawValue(),
-                this.form.value.features,
-                this.form.controls.features.value,
-            ),
-        );
         this.form.patchValue(DEFAULT_SETTINGS.app);
         const org_id = this._org.organisation.id;
         const org_metadata = await this._getMetadata(org_id);
@@ -1569,14 +1561,6 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
                     this.existing_settings[key] || form_value[key];
             }
         }
-        console.log(
-            'Settings:',
-            this.existing_settings,
-            this.form.value,
-            this.form.value.features,
-            this.form.controls.features.value,
-            new_settings,
-        );
         for (const key in new_settings) {
             if (
                 !this._isValid(new_settings[key], this.existing_settings[key])
