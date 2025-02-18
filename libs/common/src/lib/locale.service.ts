@@ -109,7 +109,7 @@ export class LocaleService {
                 .replace(`{{ ${id} }}`, args[id])
                 .replace(`{{ ${id} }}`, args[id]);
         }
-        return value;
+        return value || '';
     }
 
     public get default_locale() {

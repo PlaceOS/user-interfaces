@@ -26,9 +26,7 @@ import { addDays, endOfDay } from 'date-fns';
                 ) | translate
             "
             [loading]="
-                (loading | async)
-                    ? ('APP.CONCIERGE.LOCKERS_BOOK_SAVING' | translate)
-                    : ''
+                loading ? ('APP.CONCIERGE.LOCKERS_BOOK_SAVING' | translate) : ''
             "
             (confirm)="postForm()"
         >
