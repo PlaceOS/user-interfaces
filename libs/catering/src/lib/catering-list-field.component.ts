@@ -39,7 +39,7 @@ const EMPTY_FAVS = [];
                         <div class="flex items-center space-x-4">
                             <div>
                                 {{
-                                    'CALEDAR_EVENT.CATERING_ORDER_AT_DATE'
+                                    'CALENDAR_EVENT.CATERING_ORDER_AT_DATE'
                                         | translate
                                             : {
                                                   date:
@@ -61,7 +61,7 @@ const EMPTY_FAVS = [];
                         </div>
                         <div class="text-xs opacity-60">
                             {{
-                                'CALEDAR_EVENT.CATERING_ORDER_DETAILS'
+                                'CALENDAR_EVENT.CATERING_ORDER_DETAILS'
                                     | translate
                                         : {
                                               count: order.item_count,
@@ -224,7 +224,7 @@ const EMPTY_FAVS = [];
             multi: true,
         },
     ],
-    standalone: false
+    standalone: false,
 })
 export class CateringListFieldComponent
     implements ControlValueAccessor, OnInit, OnChanges
