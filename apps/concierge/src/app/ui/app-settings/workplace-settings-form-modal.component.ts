@@ -777,6 +777,10 @@ import { format } from 'date-fns';
                                 name="Disable standalone bookings"
                                 formControlName="no_standalone"
                             ></settings-toggle>
+                            <settings-toggle
+                                name="Hide End Time option"
+                                formControlName="hide_end_time"
+                            ></settings-toggle>
                         </div>
                     </section>
                     <section
@@ -911,6 +915,10 @@ import { format } from 'date-fns';
                             <settings-toggle
                                 name="Hide Checkin Options"
                                 formControlName="hide_checkin"
+                            ></settings-toggle>
+                            <settings-toggle
+                                name="Hide End Time option"
+                                formControlName="hide_end_time"
                             ></settings-toggle>
                         </div>
                     </section>
@@ -1352,6 +1360,40 @@ import { format } from 'date-fns';
                                 name="Allow recurring parking bookings"
                                 formControlName="allow_recurrence"
                             ></settings-toggle>
+                            <settings-toggle
+                                name="Hide End time option"
+                                formControlName="hide_end_time"
+                            ></settings-toggle>
+                        </div>
+                    </section>
+                    <section
+                        lockers
+                        class="relative border border-base-300 rounded px-4 pb-2 pt-4"
+                        *ngIf="form.value.features.includes('lockers')"
+                        formGroupName="lockers"
+                    >
+                        <h3
+                            class="absolute top-0 left-4 -translate-y-1/2 rounded px-2 py-1 font-medium bg-base-100"
+                        >
+                            Locker Bookings
+                        </h3>
+                        <div class="flex items-center flex-wrap -mx-2">
+                            <settings-toggle
+                                name="Show Calendar Links after booking"
+                                formControlName="show_calendar_links"
+                            ></settings-toggle>
+                            <settings-toggle
+                                name="Hide End time option"
+                                formControlName="hide_end_time"
+                            ></settings-toggle>
+                            <settings-toggle
+                                name="Disable Date selection"
+                                formControlName="disabled_date_select"
+                            ></settings-toggle>
+                            <settings-toggle
+                                name="Disable start time option"
+                                formControlName="disabled_start_time"
+                            ></settings-toggle>
                         </div>
                     </section>
                 </form>
@@ -1445,6 +1487,7 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
             max_duration: new FormControl(360),
             cache_duration_in_days: new FormControl(14),
             idle_timeout: new FormControl(5),
+            hide_end_time: new FormControl(false),
         }),
         desks: new FormGroup({
             allow_all_day: new FormControl(false),
@@ -1464,6 +1507,7 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
             hide_map: new FormControl(false),
             height_enabled: new FormControl(false),
             hide_checkin: new FormControl(false),
+            hide_end_time: new FormControl(false),
         }),
         parking: new FormGroup({
             allow_all_day: new FormControl(false),
@@ -1475,9 +1519,13 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
             show_calendar_links: new FormControl(false),
             auto_checkin: new FormControl(false),
             available_period: new FormControl(14),
+            hide_end_time: new FormControl(false),
         }),
         lockers: new FormGroup({
             show_calendar_links: new FormControl(false),
+            hide_end_time: new FormControl(false),
+            disabled_start_time: new FormControl(false),
+            disabled_date_select: new FormControl(false),
         }),
         bookings: new FormGroup({
             use_building_timezone: new FormControl(false),
@@ -1487,6 +1535,7 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
             multiple_visitors: new FormControl(false),
             all_day_default: new FormControl(false),
             allow_all_day: new FormControl(false),
+            hide_end_time: new FormControl(false),
         }),
         visitors: new FormGroup({
             show_calendar_links: new FormControl(false),

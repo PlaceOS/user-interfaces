@@ -89,12 +89,13 @@ import { combineLatest } from 'rxjs';
                             [use_24hr]="use_24hr"
                             [disabled]="
                                 form.value.duration > 24 * 60 - 1 ||
-                                only_duration
+                                only_duration ||
+                                disable_start
                             "
                             [timezone]="timezone"
                         ></a-time-field>
                     </div>
-                    <div class="flex-1 w-1/3 relative">
+                    <div class="flex-1 w-1/3 relative" *ngIf="!hide_end">
                         <label for="end-time">
                             {{ 'FORM.TIME_END' | translate }}<span>*</span>
                         </label>
@@ -169,6 +170,17 @@ export class LockerFormDetailsComponent
         );
     }
 
+    public get disable_date() {
+        return this._settings.get('app.lockers.disable_date_select');
+    }
+
+    public get disable_start() {
+        return this._settings.get('app.lockers.disable_start_time');
+    }
+    public get hide_end() {
+        return this._settings.get('app.lockers.hide_end_time');
+    }
+
     public get only_duration() {
         return this._settings.get('app.lockers.only_duration');
     }
@@ -226,6 +238,9 @@ export class LockerFormDetailsComponent
                             this.form.patchValue({ all_day: false });
                             this.form.controls.date.disable();
                         } else this.form.controls.date.enable();
+                        if (this.disable_date) {
+                            this.form.controls.date.disable();
+                        }
                     },
                     50,
                 );
