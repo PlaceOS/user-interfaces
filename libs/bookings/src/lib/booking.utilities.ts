@@ -89,7 +89,7 @@ export function generateBookingForm(booking: Booking = new Booking()) {
         phone: new FormControl(booking.extension_data.phone || ''),
         permission: new FormControl(booking.permission || 'PRIVATE'),
         images: new FormControl(booking.images || []),
-        tags: new FormControl(booking.tags || []),
+        tags: new FormControl(booking?.tags || []),
         plate_number: new FormControl(
             booking.extension_data.plate_number || '',
         ),
@@ -320,7 +320,7 @@ export function loadLockers(
             for (const locker of locker_list) {
                 const bank = banks.find((b) => b.id === locker.bank_id);
                 locker.bank = bank;
-                locker.tags = bank.tags || [];
+                locker.tags = bank?.tags || [];
                 locker.zone = org.levelWithID(bank?.zones || []);
             }
             return lockers.filter((_) => _.bank);
