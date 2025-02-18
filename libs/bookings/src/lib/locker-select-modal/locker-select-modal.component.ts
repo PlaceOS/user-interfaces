@@ -1,6 +1,6 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { SettingsService } from '@placeos/common';
+import { AsyncHandler, SettingsService } from '@placeos/common';
 import {
     BookingAsset,
     BookingFlowOptions,
@@ -180,9 +180,9 @@ export const FAV_LOCKER_KEY = 'favourite_lockers';
             </div>
         </ng-template>
     `,
-    standalone: false
+    standalone: false,
 })
-export class LockerSelectModalComponent {
+export class LockerSelectModalComponent extends AsyncHandler implements OnInit {
     public displayed?: BookingAsset;
     public selected: BookingAsset[] = [];
     public view = 'list';
@@ -206,8 +206,16 @@ export class LockerSelectModalComponent {
             options: Partial<BookingFlowOptions>;
         },
     ) {
+        super();
         this.selected = [...(_data.items || [])];
         this._event_form.setOptions(_data.options);
+    }
+
+    public ngOnInit() {
+        this._event_form.options.subscribe(() => {
+            this.displayed = null;
+            this.bank = null;
+        });
     }
 
     public isSelected(id: string) {
