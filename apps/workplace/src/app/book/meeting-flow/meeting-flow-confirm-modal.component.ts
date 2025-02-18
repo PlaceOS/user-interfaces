@@ -349,7 +349,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                     <app-icon>done</app-icon>
                 </div>
                 <h3 class="text-xl !mt-0">
-                    {{ 'CALENDAR_EVENTS.NOTES_HEADER' | translate }}
+                    {{ 'CALENDAR_EVENT.NOTES_HEADER' | translate }}
                 </h3>
                 <div [innerHTML]="event.body | sanitize"></div>
             </div>
