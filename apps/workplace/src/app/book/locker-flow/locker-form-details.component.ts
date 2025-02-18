@@ -12,6 +12,7 @@ import { BookingFormService, Locker } from '@placeos/bookings';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { combineLatest } from 'rxjs';
+import { first } from 'rxjs/operators';
 
 @Component({
     selector: 'new-locker-form-details',
@@ -66,7 +67,9 @@ import { combineLatest } from 'rxjs';
                         </a-date-field>
                         <mat-checkbox
                             formControlName="all_day"
-                            *ngIf="allow_all_day && !only_duration"
+                            *ngIf="
+                                allow_all_day && !only_duration && !disable_date
+                            "
                             class="absolute -top-2 right-0"
                         >
                             {{ 'COMMON.ALL_DAY' | translate }}
@@ -171,11 +174,11 @@ export class LockerFormDetailsComponent
     }
 
     public get disable_date() {
-        return this._settings.get('app.lockers.disable_date_select');
+        return this._settings.get('app.lockers.disabled_date_select');
     }
 
     public get disable_start() {
-        return this._settings.get('app.lockers.disable_start_time');
+        return this._settings.get('app.lockers.disabled_start_time');
     }
     public get hide_end() {
         return this._settings.get('app.lockers.hide_end_time');
@@ -221,7 +224,8 @@ export class LockerFormDetailsComponent
         super();
     }
 
-    public ngOnInit() {
+    public async ngOnInit() {
+        await this._org.initialised.pipe(first((_) => !!_)).toPromise();
         this._state.form.patchValue({
             all_day: !this.allow_time_changes || this._state.form.value.all_day,
         });
@@ -253,6 +257,9 @@ export class LockerFormDetailsComponent
                     this.form.patchValue({ all_day: false });
                     this.form.controls.date.disable();
                 } else this.form.controls.date.enable();
+                if (this.disable_date) {
+                    this.form.controls.date.disable();
+                }
             },
             50,
         );
