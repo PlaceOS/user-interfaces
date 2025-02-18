@@ -94,6 +94,8 @@ export class LockerStateService extends AsyncHandler {
 
     public readonly filters = this._filters.asObservable();
 
+    public readonly search = this._search.asObservable();
+
     public readonly lockers_banks$: Observable<LockerBank[]> = loadLockerBanks(
         this._org,
         combineLatest([

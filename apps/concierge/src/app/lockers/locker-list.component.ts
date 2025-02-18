@@ -41,7 +41,7 @@ import { Clipboard } from '@angular/cdk/clipboard';
                     size: '6rem',
                 },
             ]"
-            [filter]="(options | async)?.search"
+            [filter]="search | async"
             [show_children]="show_children"
             [child_template]="locker_list_template"
             [sortable]="true"
@@ -175,6 +175,7 @@ import { Clipboard } from '@angular/cdk/clipboard';
                         size: '5.9rem',
                     },
                 ]"
+                [filter]="search | async"
                 [empty_message]="'APP.CONCIERGE.LOCKERS_EMPTY' | translate"
             ></simple-table>
             <ng-template #assigned_template let-row="row" let-data="data">
@@ -332,6 +333,7 @@ export class LockerListComponent extends AsyncHandler implements OnInit {
     public readonly options = this._state.filters;
     public readonly loading = this._state.loading;
     public readonly bookings = this._state.bookings;
+    public readonly search = this._state.search;
 
     public readonly locker_status: Record<string, string> = {};
 
