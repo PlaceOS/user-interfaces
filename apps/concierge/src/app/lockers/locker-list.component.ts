@@ -104,7 +104,7 @@ import { Clipboard } from '@angular/cdk/clipboard';
                             }}</span>
                         </div>
                     </button>
-                    <button mat-menu-item>
+                    <button mat-menu-item (click)="removeLockerBank(row)">
                         <div class="flex items-center space-x-2">
                             <app-icon class="text-xl text-error"
                                 >delete</app-icon
@@ -323,7 +323,7 @@ import { Clipboard } from '@angular/cdk/clipboard';
         </ng-template>
     `,
     styles: [],
-    standalone: false
+    standalone: false,
 })
 export class LockerListComponent extends AsyncHandler implements OnInit {
     public show_children = {};
