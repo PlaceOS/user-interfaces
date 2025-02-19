@@ -313,14 +313,13 @@ export class BookingFormService extends AsyncHandler {
         return this._resource_use[id];
     }
 
-    public newForm(
-        booking: Booking = new Booking({
-            all_day: this._settings.get('app.bookings.all_day_default'),
-        }),
-    ) {
-        for (const ctrl in this.form.controls) {
-            if (this.form.controls[ctrl].enable)
-                this.form.controls[ctrl].enable();
+    public newForm(booking: Booking = new Booking({})) {
+        if (!booking.id) {
+            const type = this._options.getValue().type;
+            (booking as any).all_day =
+                this._settings.get(`app.${type}s.all_day_default`) ??
+                this._settings.get(`app.${type}.all_day_default`) ??
+                this._settings.get('app.bookings.all_day_default');
         }
         this.form.reset();
         this.form.patchValue(

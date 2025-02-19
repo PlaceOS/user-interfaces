@@ -713,6 +713,10 @@ import { format } from 'date-fns';
                                 formControlName="allow_all_day"
                             ></settings-toggle>
                             <settings-toggle
+                                name="Default bookings to all day"
+                                formControlName="all_day_default"
+                            ></settings-toggle>
+                            <settings-toggle
                                 name="Disable booking requests"
                                 formControlName="booking_unavailable"
                                 info="Prevent making backend requests for bookings and give users links to create the booking in their own calendars"
@@ -752,10 +756,6 @@ import { format } from 'date-fns';
                             <settings-toggle
                                 name="Allow recurring meetings"
                                 formControlName="allow_recurrence"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Default bookings to all day"
-                                formControlName="all_day_default"
                             ></settings-toggle>
                             <settings-toggle
                                 name="Allow multi-day bookings"
@@ -861,6 +861,10 @@ import { format } from 'date-fns';
                                 formControlName="allow_all_day"
                             ></settings-toggle>
                             <settings-toggle
+                                name="Default bookings to all day"
+                                formControlName="all_day_default"
+                            ></settings-toggle>
+                            <settings-toggle
                                 name="Allow group bookings"
                                 formControlName="allow_groups"
                             ></settings-toggle>
@@ -944,6 +948,10 @@ import { format } from 'date-fns';
                                 formControlName="allow_all_day"
                             ></settings-toggle>
                             <settings-toggle
+                                name="Default bookings to all day"
+                                formControlName="all_day_default"
+                            ></settings-toggle>
+                            <settings-toggle
                                 name="Display times with building timezone"
                                 formControlName="use_building_timezone"
                             ></settings-toggle>
@@ -954,10 +962,6 @@ import { format } from 'date-fns';
                             <settings-toggle
                                 name="Allow booking multiple visitors"
                                 formControlName="multiple_visitors"
-                            ></settings-toggle>
-                            <settings-toggle
-                                name="Default to all day"
-                                formControlName="all_day_default"
                             ></settings-toggle>
                             <settings-toggle
                                 name="Auto-approve bookings"
@@ -1345,6 +1349,10 @@ import { format } from 'date-fns';
                         </div>
                         <div class="flex items-center flex-wrap -mx-2">
                             <settings-toggle
+                                name="Default bookings to all day"
+                                formControlName="all_day_default"
+                            ></settings-toggle>
+                            <settings-toggle
                                 name="Allow user selecting booking time"
                                 formControlName="allow_time_changes"
                             ></settings-toggle>
@@ -1378,6 +1386,10 @@ import { format } from 'date-fns';
                             Locker Bookings
                         </h3>
                         <div class="flex items-center flex-wrap -mx-2">
+                            <settings-toggle
+                                name="Default bookings to all day"
+                                formControlName="all_day_default"
+                            ></settings-toggle>
                             <settings-toggle
                                 name="Show Calendar Links after booking"
                                 formControlName="show_calendar_links"
@@ -1489,8 +1501,19 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
             idle_timeout: new FormControl(5),
             hide_end_time: new FormControl(false),
         }),
+        bookings: new FormGroup({
+            allow_all_day: new FormControl(false),
+            all_day_default: new FormControl(false),
+            use_building_timezone: new FormControl(false),
+            allow_assets: new FormControl(false),
+            no_approval: new FormControl(false),
+            can_book_for_others: new FormControl(false),
+            multiple_visitors: new FormControl(false),
+            hide_end_time: new FormControl(false),
+        }),
         desks: new FormGroup({
             allow_all_day: new FormControl(false),
+            all_day_default: new FormControl(false),
             allow_groups: new FormControl(false),
             allow_time_changes: new FormControl(false),
             auto_allocation: new FormControl(false),
@@ -1511,6 +1534,7 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
         }),
         parking: new FormGroup({
             allow_all_day: new FormControl(false),
+            all_day_default: new FormControl(false),
             allow_time_changes: new FormControl(false),
             auto_allocation: new FormControl(false),
             can_book_for_others: new FormControl(false),
@@ -1522,22 +1546,14 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
             hide_end_time: new FormControl(false),
         }),
         lockers: new FormGroup({
+            all_day_default: new FormControl(false),
             show_calendar_links: new FormControl(false),
             hide_end_time: new FormControl(false),
             disabled_start_time: new FormControl(false),
             disabled_date_select: new FormControl(false),
         }),
-        bookings: new FormGroup({
-            use_building_timezone: new FormControl(false),
-            allow_assets: new FormControl(false),
-            no_approval: new FormControl(false),
-            can_book_for_others: new FormControl(false),
-            multiple_visitors: new FormControl(false),
-            all_day_default: new FormControl(false),
-            allow_all_day: new FormControl(false),
-            hide_end_time: new FormControl(false),
-        }),
         visitors: new FormGroup({
+            all_day_default: new FormControl(false),
             show_calendar_links: new FormControl(false),
         }),
         explore: new FormGroup({

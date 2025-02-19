@@ -59,7 +59,7 @@ import { AsyncHandler } from '@placeos/common';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class NewParkingFlowComponent extends AsyncHandler implements OnInit {
     public readonly deny_parking_access = this._parking.deny_parking_access;
@@ -83,8 +83,8 @@ export class NewParkingFlowComponent extends AsyncHandler implements OnInit {
 
     public ngOnInit() {
         this._state.loadForm();
-        if (!this._state.form) this._state.newForm();
         this._state.setOptions({ type: 'parking' });
+        if (!this._state.form.value.id) this._state.newForm();
         this._state.form.patchValue({ booking_type: 'parking' });
         this.subscription(
             'route.params',

@@ -56,7 +56,7 @@ import { map, shareReplay, tap } from 'rxjs/operators';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class BookLockerFlowComponent extends AsyncHandler implements OnInit {
     private _lockers_banks = loadLockerBanks(
@@ -108,6 +108,9 @@ export class BookLockerFlowComponent extends AsyncHandler implements OnInit {
 
     public ngOnInit() {
         this._state.loadForm();
+        this._state.setOptions({ type: 'locker' });
+        if (!this._state.form.value.id) this._state.newForm();
+        this._state.form.patchValue({ booking_type: 'locker' });
         this.subscription(
             'route.params',
             this._route.paramMap.subscribe((param) => {

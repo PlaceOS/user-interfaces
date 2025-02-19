@@ -27,7 +27,7 @@ import { first, take } from 'rxjs/operators';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class NewDeskFlowComponent extends AsyncHandler implements OnInit {
     public get view() {
@@ -40,7 +40,7 @@ export class NewDeskFlowComponent extends AsyncHandler implements OnInit {
     constructor(
         private _state: BookingFormService,
         private _route: ActivatedRoute,
-        private _org: OrganisationService
+        private _org: OrganisationService,
     ) {
         super();
     }
@@ -49,13 +49,14 @@ export class NewDeskFlowComponent extends AsyncHandler implements OnInit {
         await this._org.initialised.pipe(first((_) => _)).toPromise();
         this._state.loadForm();
         this._state.setOptions({ type: 'desk' });
+        if (!this._state.form.value.id) this._state.newForm();
         this._state.form.patchValue({ booking_type: 'desk' });
         this.subscription(
             'route.params',
             this._route.paramMap.subscribe((param) => {
                 if (param.has('step'))
                     this._state.setView(param.get('step') as any);
-            })
+            }),
         );
         this.subscription(
             'route.query',
@@ -71,7 +72,7 @@ export class NewDeskFlowComponent extends AsyncHandler implements OnInit {
                     let asset = resources.find((_) => _.id === id);
                     if (!asset) {
                         return notifyInfo(
-                            'Unable to find desk with given asset ID.'
+                            'Unable to find desk with given asset ID.',
                         );
                     }
                     this._state.form.patchValue({
@@ -83,7 +84,7 @@ export class NewDeskFlowComponent extends AsyncHandler implements OnInit {
                         ],
                     });
                 }
-            })
+            }),
         );
     }
 }
