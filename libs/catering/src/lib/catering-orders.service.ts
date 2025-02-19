@@ -292,12 +292,12 @@ export class CateringOrdersService extends AsyncHandler {
         if (this.using_bookings) {
             const booking = BOOKINGS[order.id];
             await updateBooking(booking.id, {
-                ...booking,
+                ...booking.toJSON(),
                 extension_data: {
                     ...booking.extension_data,
                     details: updated_order.toJSON(),
                 },
-            });
+            }).toPromise();
         }
         this.timeout('refresh-list', () => this._poll.next(Date.now()), 1000);
         order.status = status;

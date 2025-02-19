@@ -5,6 +5,7 @@ import { CateringOrderStatus } from './catering.interfaces';
 
 import { randomInt } from 'libs/common/src/lib/general';
 import { CalendarEvent } from 'libs/events/src/lib/event.class';
+import { cleanObject } from '@placeos/ts-client';
 
 function deliverAtTime(order: CateringOrder) {
     let date = order.event?.date || (order as any)._time;
@@ -99,7 +100,7 @@ export class CateringOrder {
     }
 
     public toJSON() {
-        const obj: any = { ...this };
+        const obj: any = cleanObject({ ...this }, ['', null, undefined]);
         obj.status = obj._status;
         delete obj.event;
         delete obj._status;
