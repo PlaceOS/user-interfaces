@@ -1,6 +1,6 @@
-import { Component, Input, Optional } from '@angular/core';
+import { Component, Input, OnInit, Optional } from '@angular/core';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
-import { SettingsService } from '@placeos/common';
+import { AsyncHandler, SettingsService } from '@placeos/common';
 import { addDays, endOfDay } from 'date-fns';
 
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
@@ -169,9 +169,10 @@ import { map } from 'rxjs/operators';
                             (ngModelChange)="form.patchValue({ date: $event })"
                             [ngModelOptions]="{ standalone: true }"
                             [use_24hr]="use_24hr"
+                            [disabled]="disable_start"
                         ></a-time-field>
                     </div>
-                    <div class="flex-1 w-1/3">
+                    <div class="flex-1 w-1/3" *ngIf="!hide_end">
                         <label>{{ 'FORM.TIME_END' | translate }}</label>
                         <a-duration-field
                             formControlName="duration"
@@ -237,9 +238,9 @@ import { map } from 'rxjs/operators';
             </button>
         </div>
     `,
-    standalone: false
+    standalone: false,
 })
-export class LockerFiltersComponent {
+export class LockerFiltersComponent extends AsyncHandler implements OnInit {
     @Input() public hide_levels: boolean;
 
     public can_close = false;
@@ -284,6 +285,22 @@ export class LockerFiltersComponent {
     public readonly setFeature = (f, e) => this._state.setFeature(f, e);
     public readonly setLevel = (l) => {};
 
+    public get disable_date() {
+        return this._settings.get('app.lockers.disabled_date_select');
+    }
+
+    public get disable_start() {
+        return this._settings.get('app.lockers.disabled_start_time');
+    }
+
+    public get hide_end() {
+        return this._settings.get('app.lockers.hide_end_time');
+    }
+
+    public get only_duration() {
+        return !!this._settings.get('app.lockers.only_duration');
+    }
+
     public get allow_time_changes() {
         return !!this._settings.get('app.lockers.allow_time_changes');
     }
@@ -319,6 +336,44 @@ export class LockerFiltersComponent {
         private _org: OrganisationService,
         private _settings: SettingsService,
     ) {
+        super();
         this.can_close = !!this._bsheet_ref;
+    }
+
+    public ngOnInit() {
+        this.subscription(
+            'bld',
+            combineLatest([
+                this._org.active_building,
+                this.form.controls.duration.valueChanges,
+            ]).subscribe(() => {
+                this.timeout(
+                    'disable',
+                    () => {
+                        if (this.only_duration) {
+                            this.form.patchValue({ all_day: false });
+                            this.form.controls.date.disable();
+                        } else this.form.controls.date.enable();
+                        if (this.disable_date) {
+                            this.form.controls.date.disable();
+                        }
+                    },
+                    50,
+                );
+            }),
+        );
+        this.timeout(
+            'disable',
+            () => {
+                if (this.only_duration) {
+                    this.form.patchValue({ all_day: false });
+                    this.form.controls.date.disable();
+                } else this.form.controls.date.enable();
+                if (this.disable_date) {
+                    this.form.controls.date.disable();
+                }
+            },
+            50,
+        );
     }
 }
