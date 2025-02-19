@@ -58,9 +58,4 @@ const COMPONENTS = [
     providers: [ReactiveFormsModule],
     exports: [...COMPONENTS],
 })
-export class SharedEventsModule {
-    public async ngOnInit() {
-        await current_user.pipe(first((_) => !!_)).toPromise();
-        setDefaultCreator(currentUser());
-    }
-}
+export class SharedEventsModule {}

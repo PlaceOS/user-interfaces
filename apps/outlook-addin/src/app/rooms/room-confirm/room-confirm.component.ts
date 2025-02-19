@@ -13,7 +13,7 @@ import { User } from '@placeos/users';
     selector: 'room-confirm',
     templateUrl: './room-confirm.component.html',
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class RoomConfirmComponent implements OnInit {
     unix_time: number;
@@ -27,13 +27,13 @@ export class RoomConfirmComponent implements OnInit {
     public get form() {
         return this._state.form;
     }
-    public loading = this._state.loading;
+    public loading = this._state.loading$;
 
     constructor(
         @Inject(MAT_BOTTOM_SHEET_DATA) public data: any,
         private _bottomSheetRef: MatBottomSheetRef<RoomConfirmComponent>,
         private _state: EventFormService,
-        private _roomConfirmService: RoomConfirmService
+        private _roomConfirmService: RoomConfirmService,
     ) {}
 
     async ngOnInit() {

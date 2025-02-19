@@ -4,7 +4,7 @@ import { BehaviorSubject, combineLatest } from 'rxjs';
 import { debounceTime, map } from 'rxjs/operators';
 
 import { DEFAULT_COLOURS } from 'libs/explore/src/lib/explore-spaces.service';
-import { EventFormService } from 'libs/events/src/lib/event-form.service';
+import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { BuildingLevel } from 'libs/organisation/src/lib/level.class';
 import { SpaceLocationPinComponent } from './space-location-pin.component';
@@ -69,7 +69,7 @@ import { Space } from '../space.class';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class SpaceSelectMapComponent extends AsyncHandler implements OnInit {
     @Input() public selected: string[] = [];
@@ -142,7 +142,7 @@ export class SpaceSelectMapComponent extends AsyncHandler implements OnInit {
     );
 
     public readonly styles = combineLatest([
-        this._event_form.spaces,
+        this._event_form.spaces$,
         this._event_form.available_spaces,
     ]).pipe(
         map(([spaces, free_spaces]) =>
@@ -177,8 +177,8 @@ export class SpaceSelectMapComponent extends AsyncHandler implements OnInit {
     public ngOnInit() {
         this.subscription(
             'levels_update',
-            this._event_form.options.subscribe(({ zone_ids }) => {
-                const level = this._org.levelWithID(zone_ids);
+            this._event_form.options$.subscribe(({ zones }) => {
+                const level = this._org.levelWithID(zones);
                 if (level) this.level = level;
             }),
         );

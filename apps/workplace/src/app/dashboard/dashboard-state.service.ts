@@ -176,7 +176,9 @@ export class DashboardStateService extends AsyncHandler {
             differenceInMinutes(Date.now(), endOfDay(Date.now())),
         );
         this._event_form.setOptions({
-            zone_ids: [],
+            zones: [],
+        });
+        this._event_form.setFilters({
             capacity: 0,
             features: [],
             show_fav: false,

@@ -16,6 +16,13 @@ export function i18n(key: string, args: Record<string, any> = {}) {
     return _service.get(key, args);
 }
 
+declare global {
+    interface Window {
+        i18n: (string, any) => string;
+        clearLocaleDataStore: () => void;
+    }
+}
+
 interface LocaleStore {
     expiry: number;
     locale: string;
@@ -91,10 +98,11 @@ export class LocaleService {
             localStorage.getItem(`${STORE_KEY}`) || this._default_locale,
         );
         if (window.debug) {
-            (window as any).clearLocaleDataStore = () => {
+            window.clearLocaleDataStore = () => {
                 removeLocalStorageKeysWithSubstring(STORE_KEY);
                 location.reload();
             };
+            window.i18n = i18n;
         }
     }
 

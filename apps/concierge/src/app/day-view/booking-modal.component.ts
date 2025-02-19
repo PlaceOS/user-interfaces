@@ -53,12 +53,12 @@ export interface BookingModalData {
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class BookingModalComponent implements OnInit {
     @Output() public event = new EventEmitter<DialogEvent>();
     /** Observable for the loading state of the form */
-    public readonly loading = this._service.loading;
+    public readonly loading = this._service.loading$;
 
     public get form() {
         return this._service.form;

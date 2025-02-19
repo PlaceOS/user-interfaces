@@ -2,9 +2,9 @@ import { Component, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { SettingsService } from '@placeos/common';
 import {
-    EventFlowOptions,
+    EventFormOptions,
     EventFormService,
-} from 'libs/events/src/lib/event-form.service';
+} from 'libs/events/src/lib/new-event-form.service';
 import { Space } from '../space.class';
 
 @Component({
@@ -164,7 +164,7 @@ import { Space } from '../space.class';
         </ng-template>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class NewSpaceSelectModalComponent {
     public displayed?: Space;
@@ -188,7 +188,7 @@ export class NewSpaceSelectModalComponent {
         @Inject(MAT_DIALOG_DATA)
         private _data: {
             spaces: Space[];
-            options: Partial<EventFlowOptions>;
+            options: Partial<EventFormOptions>;
             multiday?: boolean;
         },
     ) {

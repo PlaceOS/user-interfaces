@@ -38,7 +38,6 @@ import {
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
-import { Space } from 'libs/spaces/src/lib/space.class';
 import {
     createBookingsForEvent,
     queryResourceAvailability,
@@ -46,6 +45,7 @@ import {
 } from 'libs/bookings/src/lib/bookings.fn';
 import { newBookingFromCalendarEvent } from 'libs/bookings/src/lib/booking.utilities';
 import { PaymentsService } from 'libs/payments/src/lib/payments.service';
+import { Space } from 'libs/spaces/src/lib/space.class';
 import { requestSpacesForZone } from 'libs/spaces/src/lib/space.utilities';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 import { validateAssetRequestsForResource } from 'libs/assets/src/lib/assets.fn';
@@ -99,7 +99,7 @@ export interface EventFlowOptions {
 @Injectable({
     providedIn: 'root',
 })
-export class EventFormService extends AsyncHandler {
+export class OldEventFormService extends AsyncHandler {
     private _view = new BehaviorSubject<EventFlowView>('form');
     private _options = new BehaviorSubject<EventFlowOptions>({
         zone_ids: [],
