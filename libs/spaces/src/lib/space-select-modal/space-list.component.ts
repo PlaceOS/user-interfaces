@@ -176,7 +176,7 @@ import { Space } from '../space.class';
                 <mat-spinner [diameter]="32"></mat-spinner>
                 <p class="opacity-30">
                     {{ 'CALENDAR_EVENT.SPACE_SELECT_LOADING' | translate }}
-                    {{ loading | async | json }}
+                    <!-- {{ loading | async | json }} -->
                 </p>
             </div>
         </ng-template>
