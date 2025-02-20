@@ -267,6 +267,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                     map
                     class="mt-4 sm:my-2 h-64 sm:h-48 relative border border-base-200 overflow-hidden rounded sm:bg-base-100 m-2 flex-grow-[3] min-w-1/3 w-[calc(100%-1rem)] p-2 sm:w-[16rem]"
                     (click)="viewLocation()"
+                    *ngIf="level?.map_id"
                 >
                     <ng-container *ngIf="!hide_map">
                         <interactive-map
