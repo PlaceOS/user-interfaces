@@ -235,11 +235,6 @@ export class EventFormService extends AsyncHandler {
                 [event?.date, event?.duration],
             ).pipe(
                 map((availability) => {
-                    console.log(
-                        'Availability:',
-                        availability,
-                        this._loading.getValue(),
-                    );
                     let list = spaces.filter((_, i) => availability[i]);
                     list = filterResourcesFromRules(
                         list,
@@ -502,7 +497,7 @@ export class EventFormService extends AsyncHandler {
         }
         this.form.patchValue({ setup_time: setup, breakdown_time: breakdown });
         // Apply shared catering fields to all orders
-        for (const order of this.form.value.catering) {
+        for (const order of this.form.value.catering || []) {
             order.notes = this.form.value.catering_notes;
             order.charge_code = this.form.value.catering_charge_code;
         }
@@ -572,7 +567,7 @@ export class EventFormService extends AsyncHandler {
             );
         }
         // Create bookings for each catering order in the event
-        if (this.form.value.catering.length) {
+        if (this.form.value.catering?.length) {
             await createBookingsForEvent(
                 created_event,
                 'catering-order',

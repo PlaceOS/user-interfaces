@@ -7,7 +7,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
             class="fixed top-0 left-0 right-0 bottom-0 bg-base-100 flex flex-col overflow-auto"
         >
             <header
-                class="sticky flex items-center justify-between top-0 px-4 py-2 mx-auto my-2 max-w-[640px] w-full border-none z-10 bg-base-200 rounded"
+                class="sticky h-14 flex items-center justify-between top-0 px-4 py-2 mx-auto my-2 max-w-[640px] w-full border-none z-10 bg-base-200 rounded"
             >
                 <h2 class="text-xl font-medium capitalize">
                     {{ heading }}
@@ -25,8 +25,10 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
             <main
                 class="h-1/2 flex-1 px-4 py-2 space-y-8 z-0 max-w-[640px] w-full mx-auto"
             >
-                <ng-content></ng-content>
-                <div class="w-full h-10"></div>
+                <ng-container *ngIf="!loading; else load_state">
+                    <ng-content></ng-content>
+                    <div class="w-full h-10"></div>
+                </ng-container>
             </main>
             <footer
                 class="fixed bottom-0 left-1/2 -translate-x-1/2 px-4 py-2 mx-auto my-2 max-w-[640px] w-full border-none z-10 bg-base-200 rounded flex items-center justify-end"
@@ -39,14 +41,14 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
         </div>
         <ng-template #load_state>
             <div
-                class="w-full flex-1 h-1/2 flex flex-col items-center justify-center p-12"
+                class="w-full flex-1 h-1/2 flex flex-col items-center justify-center p-12 space-y-4"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
-                <p class="text-center">{{ loading }}</p>
+                <p class="text-center opacity-50">{{ loading }}</p>
             </div>
         </ng-template>
     `,
-    standalone: false
+    standalone: false,
 })
 export class FullscreenModalShellComponent {
     @Input() public loading = '';

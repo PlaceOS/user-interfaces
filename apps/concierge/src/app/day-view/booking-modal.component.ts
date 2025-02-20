@@ -4,6 +4,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import {
     DialogEvent,
     SettingsService,
+    currentUser,
     notifyError,
     notifySuccess,
 } from '@placeos/common';
@@ -89,9 +90,18 @@ export class BookingModalComponent implements OnInit {
                 event.all_day;
         }
         this._service.newForm(event);
+        this.form.patchValue({
+            organiser: currentUser(),
+            host: currentUser().email,
+        });
     }
 
     public async save() {
+        if (!this.form.value.host) {
+            this.form.patchValue({
+                host: currentUser().email,
+            });
+        }
         const event = await this._service.postForm().catch((_) => {
             notifyError(_);
             throw _;

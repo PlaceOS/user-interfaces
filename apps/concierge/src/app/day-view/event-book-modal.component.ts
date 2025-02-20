@@ -344,7 +344,7 @@ import { map, tap } from 'rxjs/operators';
     `,
     styles: [``],
     animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
-    standalone: false
+    standalone: false,
 })
 export class EventBookModalComponent implements OnInit {
     @Output() public event = new EventEmitter<DialogEvent>();
@@ -459,6 +459,11 @@ export class EventBookModalComponent implements OnInit {
 
     public async save() {
         this.loading.next(true);
+        if (!this.form.value.host) {
+            this.form.patchValue({
+                host: currentUser().email,
+            });
+        }
         const event = await this._event_form.postForm().catch((_) => {
             notifyError(_);
             this.loading.next(false);
