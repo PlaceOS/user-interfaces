@@ -19,6 +19,7 @@ describe('NewDeskFlowConfirmComponent', () => {
                 form: generateBookingForm(),
                 postForm: jest.fn(),
                 options: new BehaviorSubject<any>({}),
+                resources: new BehaviorSubject([]),
             }),
             MockProvider(OrganisationService, {}),
             MockProvider(MatBottomSheetRef, { dismiss: jest.fn() }),

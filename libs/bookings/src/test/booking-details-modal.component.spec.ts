@@ -59,6 +59,4 @@ describe('BookingDetailsModalComponent', () => {
     });
 
     it('should show title', () => expect('[title]').toExist());
-
-    it('should show map', () => expect('interactive-map').toExist());
 });

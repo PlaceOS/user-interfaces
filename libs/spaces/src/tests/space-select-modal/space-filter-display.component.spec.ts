@@ -17,8 +17,9 @@ describe('SpaceFiltersDisplayComponent', () => {
             MockProvider(MatBottomSheet, { open: jest.fn() }),
             MockProvider(EventFormService, {
                 form: new FormGroup({}),
-                options: new BehaviorSubject({ features: ['Whiteboard'] }),
+                options$: new BehaviorSubject({ features: ['Whiteboard'] }),
                 setOptions: jest.fn(),
+                setFilters: jest.fn(),
             } as any),
             MockProvider(OrganisationService, {
                 levelWithID: jest.fn(),
@@ -59,7 +60,7 @@ describe('SpaceFiltersDisplayComponent', () => {
         spectator.click('[filter-item] button');
         spectator.detectChanges();
         await spectator.fixture.whenStable();
-        expect(spectator.inject(EventFormService).setOptions).toBeCalledWith({
+        expect(spectator.inject(EventFormService).setFilters).toBeCalledWith({
             features: [],
         });
     });

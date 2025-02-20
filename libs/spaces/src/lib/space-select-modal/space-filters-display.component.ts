@@ -164,7 +164,7 @@ export class SpaceFiltersDisplayComponent
     }
 
     public async removeFeature(feat: string) {
-        const { features } = this._event_form.filters;
+        const { features } = this._event_form.filters || {};
         this._event_form.setFilters({
             features: (features || []).filter((_) => _ !== feat),
         });

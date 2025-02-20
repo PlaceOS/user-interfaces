@@ -20,7 +20,7 @@ describe('SpaceSelectMapComponent', () => {
             MockProvider(EventFormService, {
                 spaces: new BehaviorSubject([]),
                 available_spaces: new BehaviorSubject([]),
-                options: new BehaviorSubject({}),
+                options$: new BehaviorSubject({}),
             } as any),
             MockProvider(OrganisationService, {
                 active_building: new BehaviorSubject({}),

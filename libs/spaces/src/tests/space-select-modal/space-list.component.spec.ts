@@ -16,7 +16,7 @@ describe('SpaceListComponent', () => {
         providers: [
             MockProvider(EventFormService, {
                 available_spaces: new BehaviorSubject([]),
-                loading: new BehaviorSubject(''),
+                loading$: new BehaviorSubject(''),
                 room_alerts: new BehaviorSubject({}),
                 setView: jest.fn(),
             }),
@@ -32,7 +32,7 @@ describe('SpaceListComponent', () => {
 
     beforeEach(() => {
         spectator = createComponent();
-        (spectator.inject(EventFormService).loading as any).next('');
+        (spectator.inject(EventFormService).loading$ as any).next('');
         (spectator.inject(EventFormService).available_spaces as any).next([]);
         spectator.detectChanges();
     });
@@ -51,7 +51,7 @@ describe('SpaceListComponent', () => {
 
     it('should show loading list state', () => {
         expect('[loading]').not.toExist();
-        (spectator.inject(EventFormService).loading as any).next(
+        (spectator.inject(EventFormService).loading$ as any).next(
             'Loading available spaces...',
         );
         spectator.detectChanges();

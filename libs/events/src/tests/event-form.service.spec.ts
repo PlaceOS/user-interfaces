@@ -13,7 +13,7 @@ import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { PaymentsService } from 'libs/payments/src/lib/payments.service';
 import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
 
-import { EventFormService } from '../lib/event-form.service';
+import { OldEventFormService } from '../lib/event-form.service';
 
 jest.mock('libs/calendar/src/lib/calendar.fn');
 jest.mock('libs/events/src/lib/events.fn');
@@ -24,9 +24,9 @@ import * as cal_mod from 'libs/calendar/src/lib/calendar.fn';
 import * as event_mod from 'libs/events/src/lib/events.fn';
 
 describe('EventFormService', () => {
-    let spectator: SpectatorService<EventFormService>;
+    let spectator: SpectatorService<OldEventFormService>;
     const createService = createServiceFactory({
-        service: EventFormService,
+        service: OldEventFormService,
         providers: [
             MockProvider(OrganisationService, {
                 initialised: of(true),

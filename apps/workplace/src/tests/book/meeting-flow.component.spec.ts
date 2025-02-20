@@ -5,6 +5,7 @@ import { BookMeetingFlowComponent } from '../../app/book/meeting-flow.component'
 import { MeetingFlowConfirmComponent } from '../../app/book/meeting-flow/meeting-flow-confirm.component';
 import { MeetingFlowFormComponent } from '../../app/book/meeting-flow/meeting-flow-form.component';
 import { MeetingFlowSuccessComponent } from '../../app/book/meeting-flow/meeting-flow-success.component';
+import { BehaviorSubject } from 'rxjs';
 
 describe('BookMeetingFlowComponent', () => {
     let spectator: SpectatorRouting<BookMeetingFlowComponent>;
@@ -18,6 +19,7 @@ describe('BookMeetingFlowComponent', () => {
                 view: '',
                 listenForStatusChanges: jest.fn(),
                 last_success: null,
+                available_spaces: new BehaviorSubject([]),
             } as any),
         ],
         declarations: [

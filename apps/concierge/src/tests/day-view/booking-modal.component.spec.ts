@@ -9,6 +9,7 @@ import { BehaviorSubject } from 'rxjs';
 import { BookingModalComponent } from '../../app/day-view/booking-modal.component';
 import { EventFormComponent } from '../../app/day-view/event-form.component';
 import { SettingsService } from '@placeos/common';
+import { FormGroup } from '@angular/forms';
 
 describe('BookingModalComponent', () => {
     let spectator: Spectator<BookingModalComponent>;
@@ -24,10 +25,10 @@ describe('BookingModalComponent', () => {
                 close: jest.fn(),
             }),
             MockProvider(EventFormService, {
-                form: null,
+                form: new FormGroup({}) as any,
                 newForm: jest.fn(),
                 postForm: jest.fn(async () => null),
-                loading: new BehaviorSubject(''),
+                loading$: new BehaviorSubject(''),
             }),
             MockProvider(SettingsService, { get: jest.fn() }),
         ],
@@ -47,14 +48,14 @@ describe('BookingModalComponent', () => {
     it('should handle loading state', () => {
         expect('[loading]').not.toExist();
         const service = spectator.inject(EventFormService);
-        (service.loading as any).next('Testing');
+        (service.loading$ as any).next('Testing');
         spectator.detectChanges();
         expect('[loading]').toExist();
     });
 
     it('should allow submitting form', () => {
         const service = spectator.inject(EventFormService);
-        (service.loading as any).next('');
+        (service.loading$ as any).next('');
         spectator.detectChanges();
         expect(service.postForm).not.toHaveBeenCalled();
         spectator.click('footer button');
