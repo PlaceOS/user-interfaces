@@ -4,12 +4,14 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
 import { map } from 'rxjs/operators';
 
-import { notifySuccess, SettingsService } from '@placeos/common';
+import { currentUser, notifySuccess, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 
 import { DEFAULT_SETTINGS } from 'apps/workplace/src/environments/settings';
 import { validateURL } from '@placeos/spaces';
 import { format } from 'date-fns';
+
+import { VERSION } from '@placeos/common';
 
 @Component({
     selector: 'workplace-settings-form-modal',
@@ -1648,10 +1650,14 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
                 }
             }
         }
+
         await updateMetadata(zone.id, {
             name: `${this.settings_key}`,
-            details: new_settings,
-            description: 'Workplace Application Settings',
+            details: {
+                ...new_settings,
+                edited_by: currentUser(),
+            },
+            description: `[${VERSION.hash}|C] Workplace Application Settings`,
         })
             .toPromise()
             .catch((e) => {

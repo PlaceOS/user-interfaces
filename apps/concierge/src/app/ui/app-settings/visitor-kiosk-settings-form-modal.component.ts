@@ -3,7 +3,8 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
 import { map } from 'rxjs/operators';
-import { notifySuccess, SettingsService } from '@placeos/common';
+import { currentUser, notifySuccess, SettingsService } from '@placeos/common';
+import { VERSION } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 
 import { DEFAULT_SETTINGS } from 'apps/visitor-kiosk/src/environments/settings';
@@ -559,8 +560,11 @@ export class VisitorKioskSettingsFormModalComponent {
         }
         await updateMetadata(zone.id, {
             name: `${this.settings_key}`,
-            details: new_settings,
-            description: 'Visitor-kiosk Application Settings',
+            details: {
+                ...new_settings,
+                edited_by: currentUser(),
+            },
+            description: `[${VERSION.hash}|C] Visitor-kiosk Application Settings`,
         })
             .toPromise()
             .catch((e) => {

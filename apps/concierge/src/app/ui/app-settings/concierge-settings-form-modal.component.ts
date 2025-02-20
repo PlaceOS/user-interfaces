@@ -3,11 +3,13 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
 import { map } from 'rxjs/operators';
-import { notifySuccess, SettingsService } from '@placeos/common';
+import { currentUser, notifySuccess, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 
 import { DEFAULT_SETTINGS } from 'apps/concierge/src/environments/settings';
 import { format } from 'date-fns';
+
+import { VERSION } from '@placeos/common';
 
 @Component({
     selector: 'concierge-settings-form-modal',
@@ -1164,10 +1166,14 @@ export class ConciergeSettingsFormModalComponent {
                 }
             }
         }
+
         await updateMetadata(zone.id, {
             name: `${this.settings_key}`,
-            details: new_settings,
-            description: 'Concierge Application Settings',
+            details: {
+                ...new_settings,
+                edited_by: currentUser(),
+            },
+            description: `[${VERSION.hash}|C] Concierge Application Settings`,
         })
             .toPromise()
             .catch((e) => {
