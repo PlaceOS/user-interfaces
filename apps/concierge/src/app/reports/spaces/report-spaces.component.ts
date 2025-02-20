@@ -124,7 +124,7 @@ export class ReportSpacesComponent extends AsyncHandler {
                         params.get('zones') || params.get('zone_ids');
                     const zones = id_list.split(',');
                     if (zones.length) this._state.setOptions({ zones });
-                }
+                } else this._state.setOptions({ zones: [] });
             }),
         );
     }

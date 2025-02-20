@@ -76,7 +76,7 @@ import { OrganisationService } from '@placeos/organisation';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class AssetsReportComponent extends AsyncHandler {
     public printing = false;
@@ -122,7 +122,7 @@ export class AssetsReportComponent extends AsyncHandler {
                         params.get('zones') || params.get('zone_ids')
                     ).split(',');
                     if (zones.length) this._state.setOptions({ zones });
-                }
+                } else this._state.setOptions({ zones: [] });
             }),
         );
     }

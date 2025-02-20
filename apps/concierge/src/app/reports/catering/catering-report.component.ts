@@ -74,7 +74,7 @@ import { OrganisationService } from '@placeos/organisation';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class CateringReportComponent extends AsyncHandler implements OnInit {
     public printing = false;
@@ -122,7 +122,7 @@ export class CateringReportComponent extends AsyncHandler implements OnInit {
                         params.get('zones') || params.get('zone_ids');
                     const zones = id_list.split(',');
                     if (zones.length) this._state.setOptions({ zones });
-                }
+                } else this._state.setOptions({ zones: [] });
             }),
         );
     }

@@ -71,7 +71,7 @@ import { OrganisationService } from '@placeos/organisation';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class ParkingReportComponent extends AsyncHandler {
     public printing = false;
@@ -117,7 +117,7 @@ export class ParkingReportComponent extends AsyncHandler {
                         params.get('zones') || params.get('zone_ids')
                     ).split(',');
                     if (zones.length) this._state.setOptions({ zones });
-                }
+                } else this._state.setOptions({ zones: [] });
             }),
         );
     }

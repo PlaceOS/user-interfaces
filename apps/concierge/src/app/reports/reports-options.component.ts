@@ -99,7 +99,7 @@ import { endOfDay, startOfDay } from 'date-fns';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class ReportsOptionsComponent extends AsyncHandler {
     @Input() public loading: boolean = false;
@@ -152,10 +152,15 @@ export class ReportsOptionsComponent extends AsyncHandler {
     };
 
     public readonly setZones = (zones) => {
+        // Get current query params
+        const q = { ...this._route.snapshot.queryParams };
+        q.zone_ids = zones.join(',');
+
+        // Delete the specific query param
+        if (!q.zone_ids) delete q.zone_ids;
         this._router.navigate([], {
             relativeTo: this._route,
-            queryParams: { zone_ids: zones.join(',') },
-            queryParamsHandling: 'merge',
+            queryParams: q,
         });
     };
 

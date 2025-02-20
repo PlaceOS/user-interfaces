@@ -99,7 +99,7 @@ import { OrganisationService } from '@placeos/organisation';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class ReportDesksComponent extends AsyncHandler {
     public printing = false;
@@ -155,9 +155,9 @@ export class ReportDesksComponent extends AsyncHandler {
                 if (params.has('zones') || params.has('zone_ids')) {
                     const id_list =
                         params.get('zones') || params.get('zone_ids');
-                    const zones = id_list.split(',');
+                    const zones = id_list.split(',').filter((_) => _);
                     if (zones.length) this._state.setOptions({ zones });
-                }
+                } else this._state.setOptions({ zones: [] });
             }),
         );
     }
