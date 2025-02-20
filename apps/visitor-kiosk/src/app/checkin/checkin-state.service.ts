@@ -136,6 +136,7 @@ export class CheckinStateService {
         };
         const result = await checkin_fn.catch(async (e) => {
             notifyError(e || i18n('APP.VISITOR_KIOSK.ERROR_CHECKIN', vars));
+            throw e;
         });
         if (!result) return;
 
