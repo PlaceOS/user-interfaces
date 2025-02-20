@@ -149,6 +149,15 @@ import {
                     ></a-duration-field>
                 </div>
             </div>
+            <div *ngIf="can_book_for_anyone" class="w-full flex flex-col">
+                <label for="host">
+                    {{ 'FORM.HOST' | translate }}<span>*</span>
+                </label>
+                <a-user-search-field
+                    name="host"
+                    formControlName="organiser"
+                ></a-user-search-field>
+            </div>
             <div *ngIf="can_book_for_others" class="w-full flex flex-col">
                 <label for="host">
                     {{ 'FORM.HOST' | translate }}<span>*</span>
@@ -177,7 +186,7 @@ import {
         </div>
     `,
     styles: [],
-    standalone: false
+    standalone: false,
 })
 export class MeetingFormDetailsComponent {
     @Input() public form: FormGroup;
@@ -193,6 +202,10 @@ export class MeetingFormDetailsComponent {
 
     public get can_book_for_others() {
         return this._settings.get('app.events.can_book_for_others');
+    }
+
+    public get can_book_for_anyone() {
+        return this._settings.get('app.events.can_book_for_anyone');
     }
 
     public get allow_all_day() {

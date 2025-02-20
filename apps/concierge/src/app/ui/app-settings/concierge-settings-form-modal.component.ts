@@ -602,6 +602,10 @@ import { VERSION } from '@placeos/common';
                                 formControlName="can_book_for_others"
                             ></settings-toggle>
                             <settings-toggle
+                                name="Allow booking for any other users"
+                                formControlName="can_book_for_anyone"
+                            ></settings-toggle>
+                            <settings-toggle
                                 name="Allow booking with assets"
                                 formControlName="has_assets"
                             ></settings-toggle>
@@ -1078,6 +1082,7 @@ export class ConciergeSettingsFormModalComponent {
             block_height: new FormControl(3),
             max_duration: new FormControl(360),
             can_book_for_others: new FormControl(false),
+            can_book_for_anyone: new FormControl(false),
         }),
         visitors: new FormGroup({
             has_parking: new FormControl(false),
