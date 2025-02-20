@@ -1167,12 +1167,21 @@ export class ConciergeSettingsFormModalComponent {
             }
         }
 
+        const user = currentUser();
+        (new_settings as any).edited_by = {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            domain: location.hostname,
+            role: user.groups.includes('placeos_admin')
+                ? 'Admin'
+                : user.groups.includes('placeos_support')
+                  ? 'Support'
+                  : 'User',
+        };
         await updateMetadata(zone.id, {
             name: `${this.settings_key}`,
-            details: {
-                ...new_settings,
-                edited_by: currentUser(),
-            },
+            details: new_settings,
             description: `[${VERSION.hash}|C] Concierge Application Settings`,
         })
             .toPromise()
