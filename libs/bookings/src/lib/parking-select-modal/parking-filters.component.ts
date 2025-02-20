@@ -148,7 +148,11 @@ import { combineLatest } from 'rxjs';
                 </div>
                 <!-- All Day -->
                 <div *ngIf="allow_all_day" class="flex justify-end -mt-2 mb-2">
-                    <mat-checkbox formControlName="all_day">
+                    <mat-checkbox
+                        [ngModel]="form.value.all_day"
+                        (ngModelChange)="form.patchValue({ all_day: $event })"
+                        [ngModelOptions]="{ standalone: true }"
+                    >
                         {{ 'COMMON.ALL_DAY' | translate }}
                     </mat-checkbox>
                 </div>
