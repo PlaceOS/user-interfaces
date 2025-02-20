@@ -250,13 +250,13 @@ export class LockerFormDetailsComponent
                 );
             }),
         );
-        this.timeout(
+        this.interval(
             'disable',
             () => {
                 if (this.only_duration) {
                     this.form.patchValue({ all_day: false });
                     this.form.controls.date.disable();
-                } else this.form.controls.date.enable();
+                }
                 if (this.disable_date) {
                     this.form.controls.date.disable();
                 }
