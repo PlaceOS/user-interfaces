@@ -34,7 +34,7 @@ import { ParkingSpaceFiltersDisplayComponent } from './parking-select-modal/park
 import { ParkingSpaceFiltersComponent } from './parking-select-modal/parking-filters.component';
 import { ParkingSpaceListComponent } from './parking-select-modal/parking-list.component';
 import { ParkingSpaceLocationPinComponent } from './parking-select-modal/parking-location-pin.component';
-import { ParkingSpaceSelectMapComponent } from './parking-select-modal/parking-map.component';
+import { ParkingSpaceMapComponent } from './parking-select-modal/parking-map.component';
 import { ParkingSpaceSelectModalComponent } from './parking-select-modal/parking-select-modal.component';
 import { ParkingSpaceListFieldComponent } from './parking-space-list-field.component';
 import { DeskListFieldComponent } from './desk-list-field.component';
@@ -64,9 +64,9 @@ const COMPONENTS = [
     ParkingSpaceFiltersDisplayComponent,
     ParkingSpaceListComponent,
     ParkingSpaceLocationPinComponent,
-    ParkingSpaceSelectMapComponent,
     ParkingSpaceDetailsComponent,
     ParkingSpaceListFieldComponent,
+    ParkingSpaceMapComponent,
 
     DeskSelectModalComponent,
     DeskDetailsComponent,

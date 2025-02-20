@@ -83,6 +83,7 @@ import { BookingAsset } from '../booking-form.service';
                 <section
                     map
                     class="w-full mx-auto h-64 sm:h-48 relative border border-base-200 overflow-hidden rounded"
+                    *ngIf="!map_open"
                 >
                     <interactive-map
                         class="pointer-events-none"
@@ -140,12 +141,13 @@ import { BookingAsset } from '../booking-form.service';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class ParkingSpaceDetailsComponent {
+    @Input() public map_open = false;
     @Input() public space?: BookingAsset;
-    @Input() public fav: boolean = false;
-    @Input() public active: boolean = false;
+    @Input() public fav = false;
+    @Input() public active = false;
 
     @Output() public activeChange = new EventEmitter<boolean>();
     @Output() public close = new EventEmitter<void>();

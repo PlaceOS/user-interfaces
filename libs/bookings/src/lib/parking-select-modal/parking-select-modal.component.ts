@@ -20,6 +20,28 @@ export const FAV_PARKING_KEY = 'favourite_parking_spaces';
                     <app-icon>close</app-icon>
                 </button>
                 <h3>{{ 'BOOKINGS.PARKING_FIND' | translate }}</h3>
+                <div class="hidden sm:flex items-center justify-end flex-1">
+                    <button
+                        btn
+                        matRipple
+                        name="view-desk-map"
+                        class="rounded-l rounded-r-none"
+                        [class.inverse]="view !== 'map'"
+                        (click)="view = 'map'"
+                    >
+                        {{ 'COMMON.MAP' | translate }}
+                    </button>
+                    <button
+                        btn
+                        matRipple
+                        name="view-desk-list"
+                        class="rounded-r rounded-l-none"
+                        [class.inverse]="view !== 'list'"
+                        (click)="view = 'list'"
+                    >
+                        {{ 'COMMON.LIST' | translate }}
+                    </button>
+                </div>
             </header>
             <main
                 class="flex-1 flex items-center divide-x divide-base-200 min-h-[65vh] h-[65vh] sm:max-h-[65vh] sm:max-w-[95vw] w-full overflow-hidden"
@@ -55,6 +77,7 @@ export const FAV_PARKING_KEY = 'favourite_parking_spaces';
                     [fav]="displayed && this.favorites.includes(displayed?.id)"
                     (toggleFav)="toggleFavourite(displayed)"
                     (close)="displayed = null"
+                    [map_open]="view === 'map'"
                 ></parking-space-details>
             </main>
             <footer
@@ -137,7 +160,7 @@ export const FAV_PARKING_KEY = 'favourite_parking_spaces';
         </ng-template>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class ParkingSpaceSelectModalComponent {
     public displayed?: BookingAsset;

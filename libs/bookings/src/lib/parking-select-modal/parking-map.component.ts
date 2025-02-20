@@ -1,16 +1,58 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { AsyncHandler, unique } from '@placeos/common';
-import { EventFormService } from '@placeos/events';
-import { BuildingLevel } from '@placeos/organisation';
-import { debounceTime, map } from 'rxjs/operators';
-import { BookingAsset } from '../booking-form.service';
-import { ParkingSpaceLocationPinComponent } from './parking-location-pin.component';
-import { MapsPeopleService } from 'libs/common/src/lib/mapspeople.service';
+import {
+    Component,
+    EventEmitter,
+    Input,
+    OnChanges,
+    OnInit,
+    Output,
+    SimpleChanges,
+} from '@angular/core';
+import { AsyncHandler, SettingsService } from '@placeos/common';
+import { map } from 'rxjs/operators';
+
+import { BookingAsset, BookingFormService } from '../booking-form.service';
+import { BehaviorSubject, combineLatest } from 'rxjs';
+import { DEFAULT_COLOURS } from 'libs/explore/src/lib/explore-spaces.service';
+import { ExploreParkingInfoComponent } from 'libs/explore/src/lib/explore-parking-info.component';
+import { BuildingLevel } from 'libs/organisation/src/lib/level.class';
+import { OrganisationService } from '@placeos/organisation';
+import { SpaceLocationPinComponent } from 'libs/spaces/src/lib/space-select-modal/space-location-pin.component';
 
 @Component({
-    selector: `parking-space-map`,
+    selector: 'parking-space-map',
     template: `
-        <ng-container *ngIf="is_displayed">
+        <div class="bg-base-100 p-2 border-b border-base-200 w-full">
+            <mat-form-field
+                levels
+                appearance="outline"
+                class="w-full"
+                *ngIf="(levels | async)?.length"
+            >
+                <mat-select
+                    name="location"
+                    [(ngModel)]="level"
+                    (ngModelChange)="setOptions({ zone_ids: [$event.id] })"
+                    [ngModelOptions]="{ standalone: true }"
+                    [placeholder]="'COMMON.LEVEL_ANY' | translate"
+                >
+                    <mat-option
+                        *ngFor="let lvl of levels | async"
+                        [value]="lvl"
+                    >
+                        <div class="flex flex-col-reverse">
+                            <div class="opacity-30 text-xs" *ngIf="use_region">
+                                {{ (lvl.parent_id | building)?.display_name }}
+                                <span class="opacity-0"> - </span>
+                            </div>
+                            <div>
+                                {{ lvl.display_name || lvl.name }}
+                            </div>
+                        </div>
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
+        <div class="relative flex-1 w-full">
             <interactive-map
                 [src]="map_url"
                 [(zoom)]="zoom"
@@ -20,27 +62,6 @@ import { MapsPeopleService } from 'libs/common/src/lib/mapspeople.service';
                 [actions]="actions | async"
                 [options]="{ controls: true }"
             ></interactive-map>
-        </ng-container>
-        <div
-            class="absolute inset-x-0 top-0 bg-base-100 p-2 border-b border-base-200"
-        >
-            <mat-form-field
-                levels
-                appearance="outline"
-                class="w-full h-[3.25rem]"
-            >
-                <mat-select
-                    [(ngModel)]="level"
-                    (ngModelChange)="setLevel($event)"
-                >
-                    <mat-option
-                        *ngFor="let opt of levels | async"
-                        [value]="opt"
-                    >
-                        {{ opt.display_name || opt.name }}
-                    </mat-option>
-                </mat-select>
-            </mat-form-field>
         </div>
     `,
     styles: [
@@ -48,7 +69,8 @@ import { MapsPeopleService } from 'libs/common/src/lib/mapspeople.service';
             :host {
                 position: relative;
                 background: rgba(0, 0, 0, 0.05);
-                padding-top: 4rem;
+                display: flex;
+                flex-direction: column;
             }
 
             button {
@@ -56,70 +78,148 @@ import { MapsPeopleService } from 'libs/common/src/lib/mapspeople.service';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
-export class ParkingSpaceSelectMapComponent extends AsyncHandler {
-    @Input() public selected: string[] = [];
-    @Input() public is_displayed: boolean = false;
+export class ParkingSpaceMapComponent
+    extends AsyncHandler
+    implements OnInit, OnChanges
+{
+    @Input() public is_displayed = false;
+    @Input() public active = '';
     @Output() public onSelect = new EventEmitter<BookingAsset>();
+
+    public readonly parkings = this._state.available_resources;
+    public readonly loading = this._state.loading;
 
     public zoom = 1;
     public center = { x: 0.5, y: 0.5 };
+    public level?: BuildingLevel;
+    public coordinates = undefined;
 
-    private _seletedSpace = (s) => () => this.onSelect.emit(s);
-    public level: BuildingLevel = null;
+    private _change = new BehaviorSubject(0);
+
+    public readonly levels = combineLatest([
+        this._org.active_region,
+        this._org.active_building,
+    ]).pipe(
+        map(([region, bld]) => {
+            const level_list = this.use_region
+                ? this._org.levelsForRegion(region)
+                : this._org.levelsForBuilding(bld);
+            const viewable_levels = level_list.filter((lvl) =>
+                lvl.tags.includes('parking'),
+            );
+            return viewable_levels.sort(
+                (a, b) =>
+                    a.parent_id.localeCompare(b.parent_id) ||
+                    (a.display_name || '').localeCompare(b.display_name || ''),
+            );
+        }),
+    );
+
+    public readonly setOptions = (o) => this._state.setOptions(o);
 
     public get map_url() {
         return this.level?.map_id || '';
     }
 
-    public readonly levels = this._event_form.available_spaces.pipe(
-        map((_) => unique(_.map(({ level }) => level)))
-    );
-
-    public readonly features = this._event_form.available_spaces.pipe(
-        debounceTime(1000),
-        map((l) =>
-            l.map((space) => ({
-                location: space.map_id,
-                content: ParkingSpaceLocationPinComponent,
-                data: {
-                    ...space,
-                    selected: this.selected.includes(space.id),
-                },
-            }))
-        )
-    );
-
-    public readonly actions = this._event_form.available_spaces.pipe(
-        map((l) =>
-            l.map((space) => ({
-                id: space.map_id,
+    public readonly actions = this._state.available_resources.pipe(
+        map((parkings) =>
+            parkings.map((parking) => ({
+                id: parking.map_id || parking.id,
                 action: ['touchend', 'mouseup'],
-                callback: this._seletedSpace(space),
-            }))
-        )
+                callback: () => this.selectParking(parking as any),
+            })),
+        ),
     );
+
+    public readonly features = combineLatest([
+        this._state.resources,
+        this._state.available_resources,
+    ]).pipe(
+        map(([parkings]) => {
+            return this._settings.get('app.parkings.hide_user')
+                ? []
+                : parkings.map((parking) => ({
+                      location: parking.map_id,
+                      content: ExploreParkingInfoComponent,
+                      hover: true,
+                      data: {
+                          ...parking,
+                      },
+                  }));
+        }),
+    );
+
+    public readonly styles = combineLatest([
+        this._state.resources,
+        this._state.available_resources,
+        this._change,
+    ]).pipe(
+        map(([parkings, free_parkings]) =>
+            parkings.reduce((styles, parking) => {
+                const colours = this._settings.get('app.explore.colors') || {};
+                const status =
+                    this.active === parking.id
+                        ? 'pending'
+                        : free_parkings.find((_) => _.id === parking.id)
+                          ? 'free'
+                          : this._state.resourceUserName(parking.id)
+                            ? 'busy'
+                            : 'not-bookable';
+                styles[`#${parking.map_id || parking.id}`] = {
+                    fill:
+                        colours[`parking-${status}`] ||
+                        colours[`${status}`] ||
+                        DEFAULT_COLOURS[`${status}`],
+                };
+                return styles;
+            }, {}),
+        ),
+    );
+
+    public get use_region() {
+        return !!this._settings.get('app.use_region');
+    }
 
     constructor(
-        private _event_form: EventFormService,
-        private _maps_people: MapsPeopleService
+        private _state: BookingFormService,
+        private _settings: SettingsService,
+        private _org: OrganisationService,
     ) {
         super();
     }
 
-    public ngOnInit() {
+    public ngOnInit(): void {
         this.subscription(
-            'spaces',
-            this._event_form.available_spaces.subscribe((_) => {
-                if (!this.level && _.length) this.level = _[0].level;
-            })
+            'levels_update',
+            this._state.options.subscribe(({ zone_id }) => {
+                const level = this._org.levelWithID([zone_id]);
+                if (level) this.level = level;
+            }),
         );
     }
 
+    public ngOnChanges(changes: SimpleChanges): void {
+        if (changes.active) this._change.next(Date.now());
+    }
+
+    public selectParking(parking: BookingAsset) {
+        this.onSelect.emit(parking);
+        this.active = parking.id;
+        this._change.next(Date.now());
+    }
+
     public setLevel(level: BuildingLevel) {
+        this.setOptions({ zone_id: level?.id });
+        const bld = this._org.buildings.find((_) => _.id === level?.parent_id);
+        if (bld) {
+            const [latitude, longitude] = bld.location
+                .split(',')
+                .map((_) => parseFloat(_));
+            this.coordinates = { latitude, longitude };
+        }
         this.level = level;
-        this._maps_people.setCustomZone(level.parent_id);
     }
 
     public setZoom(new_zoom: number) {
