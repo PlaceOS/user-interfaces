@@ -8,7 +8,7 @@ import {
     SimpleChanges,
 } from '@angular/core';
 import { AsyncHandler, SettingsService } from '@placeos/common';
-import { map } from 'rxjs/operators';
+import { map, take } from 'rxjs/operators';
 
 import { BookingAsset, BookingFormService } from '../booking-form.service';
 import { BehaviorSubject, combineLatest } from 'rxjs';
@@ -198,6 +198,12 @@ export class ParkingSpaceMapComponent
                 if (level) this.level = level;
             }),
         );
+        this.timeout('check_level', async () => {
+            if (!this.level) {
+                const list = await this.levels.pipe(take(1)).toPromise();
+                this._state.setOptions({ zone_id: list[0].id });
+            }
+        });
     }
 
     public ngOnChanges(changes: SimpleChanges): void {
