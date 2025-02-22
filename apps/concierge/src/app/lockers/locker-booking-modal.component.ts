@@ -77,9 +77,7 @@ import { addDays, endOfDay } from 'date-fns';
                     <a-date-field formControlName="date"></a-date-field>
                     <mat-checkbox
                         formControlName="all_day"
-                        *ngIf="
-                            allow_all_day && !form.controls.duration.disabled
-                        "
+                        *ngIf="allow_all_day && !only_duration && !disable_date"
                         class="absolute -top-2 right-0"
                     >
                         {{ 'COMMON.ALL_DAY' | translate }}
@@ -135,12 +133,27 @@ export class LockerBookingModalComponent
     public loading = false;
     public readonly user = this._data.user;
     public readonly date = this._data.date;
-    public readonly allow_time_changes = this._data.allow_time_changes;
+    public readonly allow_time_changes = this._data.allow_time_changes ?? true;
 
     public form = this._booking_form.form;
 
     public get id() {
         return this.form.value.id;
+    }
+
+    public get disable_date() {
+        return this._settings.get('app.lockers.disabled_date_select');
+    }
+
+    public get disable_start() {
+        return this._settings.get('app.lockers.disabled_start_time');
+    }
+    public get hide_end() {
+        return this._settings.get('app.lockers.hide_end_time');
+    }
+
+    public get only_duration() {
+        return this._settings.get('app.lockers.only_duration');
     }
 
     public get end_date() {
@@ -163,7 +176,12 @@ export class LockerBookingModalComponent
     }
 
     public get allow_all_day() {
-        return this._settings.get('app.lockers.allow_all_day') ?? true;
+        return (
+            this.allow_time_changes &&
+            (this._settings.get('app.lockers.allow_all_day') ??
+                this._settings.get('app.bookings.allow_all_day') ??
+                true)
+        );
     }
 
     public get use_24hr() {
