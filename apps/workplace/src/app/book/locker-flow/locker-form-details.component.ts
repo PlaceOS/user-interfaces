@@ -8,6 +8,7 @@ import {
     SimpleChanges,
 } from '@angular/core';
 import { FormGroup } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { BookingFormService, Locker } from '@placeos/bookings';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
@@ -220,6 +221,7 @@ export class LockerFormDetailsComponent
         private _state: BookingFormService,
         private _org: OrganisationService,
         private _settings: SettingsService,
+        private _dialog: MatDialog,
     ) {
         super();
     }
@@ -233,6 +235,7 @@ export class LockerFormDetailsComponent
             'bld',
             combineLatest([
                 this._org.active_building,
+                this._dialog.afterAllClosed,
                 this.form.controls.duration.valueChanges,
             ]).subscribe(() => {
                 this.timeout(
@@ -249,19 +252,6 @@ export class LockerFormDetailsComponent
                     50,
                 );
             }),
-        );
-        this.interval(
-            'disable',
-            () => {
-                if (this.only_duration) {
-                    this.form.patchValue({ all_day: false });
-                    this.form.controls.date.disable();
-                }
-                if (this.disable_date) {
-                    this.form.controls.date.disable();
-                }
-            },
-            50,
         );
     }
 
