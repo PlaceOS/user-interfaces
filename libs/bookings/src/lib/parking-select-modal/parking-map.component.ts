@@ -137,17 +137,26 @@ export class ParkingSpaceMapComponent
         this._state.resources,
         this._state.available_resources,
     ]).pipe(
-        map(([parkings]) => {
+        map(([space_list, available]) => {
+            console.log('Parking:', space_list);
             return this._settings.get('app.parkings.hide_user')
                 ? []
-                : parkings.map((parking) => ({
-                      location: parking.map_id,
-                      content: ExploreParkingInfoComponent,
-                      hover: true,
-                      data: {
-                          ...parking,
-                      },
-                  }));
+                : space_list.map((space) => {
+                      const status = available.find((_) => _.id === space.id)
+                          ? 'free'
+                          : this._state.resourceUserName(space.id)
+                            ? 'busy'
+                            : 'not-bookable';
+                      return {
+                          location: space.map_id,
+                          content: ExploreParkingInfoComponent,
+                          hover: true,
+                          data: {
+                              ...space,
+                              status,
+                          },
+                      };
+                  });
         }),
     );
 
