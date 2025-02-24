@@ -23,7 +23,7 @@ const EMPTY = [];
                     class="h-10 sm:block"
                     [class.hidden]="title"
                     alt="Logo"
-                    [source]="(logo | async)?.src || (logo | async)"
+                    [source]="logo?.src || logo"
                 />
                 <span *ngIf="title">{{ title }}</span>
             </a>
@@ -55,21 +55,19 @@ const EMPTY = [];
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class TopbarComponent {
     public show_menu: boolean;
     public readonly user_controls = UserControlsComponent;
 
-    public readonly logo = this._org.active_building.pipe(
-        debounceTime(500),
-        map(
-            () =>
-                (this._settings.get('theme') === 'dark'
-                    ? this._settings.get('app.logo_dark')
-                    : this._settings.get('app.logo_light')) || {},
-        ),
-    );
+    public get logo() {
+        return (
+            (this._settings.get('theme') === 'dark'
+                ? this._settings.get('app.logo_dark')
+                : this._settings.get('app.logo_light')) || {}
+        );
+    }
     /** Text to display for page title */
     public get title(): string {
         return this._settings.value('page_title');

@@ -10,11 +10,7 @@ import { debounceTime, first, map } from 'rxjs/operators';
         <div class="flex items-center border-b border-base-200 p-2">
             <div class="w-64">
                 <a [routerLink]="['/']">
-                    <img
-                        auth
-                        class="h-12"
-                        [source]="(logo | async)?.src || (logo | async)"
-                    />
+                    <img auth class="h-12" [source]="logo?.src || logo" />
                 </a>
             </div>
             <!-- <mat-form-field
@@ -53,20 +49,18 @@ import { debounceTime, first, map } from 'rxjs/operators';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class ApplicationTopbarComponent {
     public readonly user_controls = UserControlsComponent;
 
-    public readonly logo = this._org.active_building.pipe(
-        debounceTime(500),
-        map(
-            () =>
-                (this._settings.get('theme') === 'dark'
-                    ? this._settings.get('app.logo_dark')
-                    : this._settings.get('app.logo_light')) || {},
-        ),
-    );
+    public get logo() {
+        return (
+            (this._settings.get('theme') === 'dark'
+                ? this._settings.get('app.logo_dark')
+                : this._settings.get('app.logo_light')) || {}
+        );
+    }
 
     public get user() {
         return currentUser();
