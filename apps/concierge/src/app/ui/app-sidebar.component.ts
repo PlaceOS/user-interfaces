@@ -8,6 +8,7 @@ import {
     unique,
 } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
+import { first } from 'rxjs/operators';
 
 @Component({
     selector: 'app-sidebar',
@@ -123,7 +124,8 @@ export class ApplicationSidebarComponent
         super();
     }
 
-    public ngOnInit() {
+    public async ngOnInit() {
+        await this._org.initialised.pipe(first((_) => _)).toPromise();
         this.links = [
             {
                 name: i18n('APP.CONCIERGE.MENU_BOOKINGS'),
