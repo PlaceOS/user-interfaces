@@ -249,7 +249,9 @@ import { Clipboard } from '@angular/cdk/clipboard';
                     <div
                         *ngIf="data"
                         class="flex items-center justify-center h-8 w-8 rounded bg-info text-info-content"
-                        [matTooltip]="'APP.CONCIERGE.LOCKERS_ACCESSIBLE_INFO'"
+                        [matTooltip]="
+                            'APP.CONCIERGE.LOCKERS_ACCESSIBLE_INFO' | translate
+                        "
                     >
                         <app-icon class="text-2xl">accessible</app-icon>
                     </div>
