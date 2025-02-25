@@ -28,7 +28,7 @@ import { SettingsService } from '@placeos/common';
                         sortable: false,
                     },
                     {
-                        key: 'period',
+                        key: 'date',
                         name: 'FORM.PERIOD' | translate,
                         content: period_template,
                         size: '9rem',
