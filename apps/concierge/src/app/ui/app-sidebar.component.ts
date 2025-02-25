@@ -345,6 +345,7 @@ export class ApplicationSidebarComponent
                 .subscribe(() => this.updateFilteredLinks()),
         );
         this.timeout('update_inview', () => this._moveActiveLinkIntoView(), 50);
+        this.timeout('update_links', () => this.updateFilteredLinks(), 500);
     }
 
     private _isFeatureAvailable(name: string): boolean {
