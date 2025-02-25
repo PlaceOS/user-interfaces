@@ -391,7 +391,11 @@ export class BookingDetailsModalComponent {
     }
 
     public get can_edit() {
-        return this.booking.booking_type !== 'visitor';
+        return (
+            !this.booking.is_done &&
+            !this.booking.checked_in &&
+            this.booking.booking_type !== 'visitor'
+        );
     }
 
     public get can_checkin() {
