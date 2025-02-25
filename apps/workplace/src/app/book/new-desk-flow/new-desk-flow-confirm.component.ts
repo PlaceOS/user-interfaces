@@ -12,6 +12,7 @@ import {
 import { formatRecurrence } from '@placeos/events';
 import { Desk, OrganisationService } from '@placeos/organisation';
 import { addMinutes, endOfDay } from 'date-fns';
+import { AssetRequest } from 'libs/assets/src/lib/asset-request.class';
 import { map, take } from 'rxjs/operators';
 
 @Component({
