@@ -348,7 +348,10 @@ export class ApplicationSidebarComponent
     }
 
     private _isFeatureAvailable(name: string): boolean {
-        if (name.startsWith('*')) return true;
+        if (name.startsWith('*')) {
+            console.log('Is Available:', name, true);
+            return true;
+        }
         const has_feature = this.feature_list.includes(name);
         const feature_groups = this.feature_groups[name] || [];
         const groups = currentUser().groups;
@@ -358,8 +361,17 @@ export class ApplicationSidebarComponent
                 !feature_groups.length ||
                 groups.find((grp) => feature_groups.includes(grp)))
         ) {
+            console.log('Is Available:', name, true);
             return true;
         }
+        console.log('Is Available:', name, false);
+        console.log(
+            'Details:',
+            has_feature,
+            this.is_admin,
+            !feature_groups.length ||
+                groups.find((grp) => feature_groups.includes(grp)),
+        );
         return false;
     }
 
@@ -381,6 +393,7 @@ export class ApplicationSidebarComponent
                 'id',
             );
         }
+        console.log('Features:', this.feature_list);
         console.log('Links:', this.links, [...this.filtered_links]);
         this.filtered_links = this.links
             .map((link) => ({
