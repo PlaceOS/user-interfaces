@@ -8,7 +8,7 @@ import {
     unique,
 } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
-import { first } from 'rxjs/operators';
+import { debounceTime, filter, first } from 'rxjs/operators';
 
 @Component({
     selector: 'app-sidebar',
@@ -337,9 +337,12 @@ export class ApplicationSidebarComponent
         this.updateFilteredLinks();
         this.subscription(
             'building',
-            this._org.active_building.subscribe(() =>
-                this.updateFilteredLinks(),
-            ),
+            this._org.active_building
+                .pipe(
+                    filter((_) => !!_),
+                    debounceTime(100),
+                )
+                .subscribe(() => this.updateFilteredLinks()),
         );
         this.timeout('update_inview', () => this._moveActiveLinkIntoView(), 50);
     }
@@ -378,6 +381,7 @@ export class ApplicationSidebarComponent
                 'id',
             );
         }
+        console.log('Links:', this.links, [...this.filtered_links]);
         this.filtered_links = this.links
             .map((link) => ({
                 ...link,
@@ -404,6 +408,7 @@ export class ApplicationSidebarComponent
                 (_) => _.id !== 'facilities',
             );
         }
+        console.log('Links:', this.links, this.filtered_links);
     }
 
     public _moveActiveLinkIntoView() {
