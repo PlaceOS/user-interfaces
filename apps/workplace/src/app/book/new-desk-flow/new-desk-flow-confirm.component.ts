@@ -133,8 +133,11 @@ import { map, take } from 'rxjs/operators';
                             </div>
                             <div
                                 class="flex items-center justify-center h-6 w-6 rounded-full bg-error text-error-content"
-                                [matTooltip]="err_tooltip"
-                                *ngIf="end_time < request.deliver_at"
+                                [matTooltip]="err_tooltip(request)"
+                                *ngIf="
+                                    end_time < request.deliver_at ||
+                                    request.conflict
+                                "
                             >
                                 <app-icon>priority_high</app-icon>
                             </div>
@@ -207,6 +210,12 @@ export class NewDeskFlowConfirmComponent extends AsyncHandler {
     private _date: DatePipe = new DatePipe('en');
 
     public booking_asset: Desk;
+
+    public err_tooltip(request: AssetRequest) {
+        return request.conflict
+            ? i18n('FORM.ASSETS_CLASH_ERROR')
+            : i18n('FORM.ASSETS_TIME_ERROR');
+    }
 
     public readonly loading = this._state.loading;
     public readonly is_group = this._state.options.pipe(map((_) => _.group));
