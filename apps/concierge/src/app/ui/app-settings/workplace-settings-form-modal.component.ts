@@ -1444,6 +1444,7 @@ import { VERSION } from '@placeos/common';
 export class WorkplaceSettingsFormModalComponent implements OnInit {
     public loading = '';
     public existing_settings: Record<string, any> = {};
+    public old_settings: Record<string, any> = {};
     public readonly zone = this._data.zone;
     public readonly settings_key =
         this._settings.get('app.workplace_metadata_key') || 'workplace_app';
@@ -1607,6 +1608,7 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
         this.form.patchValue(org_metadata || {});
         this.form.patchValue(parent_metadata || {});
         this.form.patchValue(metadata || {});
+        this.old_settings = metadata;
         this.loading = '';
     }
 
@@ -1614,7 +1616,7 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
         this.loading = 'Saving settings...';
         const zone = this._data.zone;
         const form_value = this.form.getRawValue();
-        const new_settings = {};
+        const new_settings = { ...this.old_settings };
         for (const key in form_value) {
             if (form_value[key] instanceof Array) {
                 new_settings[key] = form_value[key];

@@ -26,12 +26,12 @@ import { VisitorKioskSettingsFormModalComponent } from '../ui/app-settings/visit
                     {
                         key: 'location',
                         name: 'Location',
-                        size: '16rem',
+                        size: '13.5rem',
                     },
                     {
                         key: 'timezone',
                         name: 'COMMON.TIMEZONE' | translate,
-                        size: '14rem',
+                        size: '12rem',
                         content: timezone_template,
                     },
                     {
@@ -43,7 +43,7 @@ import { VisitorKioskSettingsFormModalComponent } from '../ui/app-settings/visit
                     {
                         key: 'level_count',
                         name: 'APP.CONCIERGE.BUILDINGS_LEVELS' | translate,
-                        size: '6rem',
+                        size: '5.5rem',
                     },
                     {
                         key: 'actions',
@@ -69,7 +69,7 @@ import { VisitorKioskSettingsFormModalComponent } from '../ui/app-settings/visit
             </button>
         </ng-template>
         <ng-template #timezone_template let-data="data">
-            <div class="p-4 font-mono text-sm">{{ data }}</div>
+            <div class="p-4 font-mono text-xs">{{ data }}</div>
         </ng-template>
         <ng-template #level_template let-data="data">
             {{ (data | level)?.display_name || (data | level)?.name }}
