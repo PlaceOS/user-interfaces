@@ -467,6 +467,7 @@ export class VisitorKioskSettingsFormModalComponent {
         welcome_background: new FormControl(''),
         welcome_message: new FormControl(''),
         induction_enabled: new FormControl(false),
+        induction_details: new FormControl(''),
         induction_after_details: new FormControl(false),
         allow_self_registration: new FormControl(false),
         allow_printing_label: new FormControl(false),
