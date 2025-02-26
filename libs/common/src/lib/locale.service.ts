@@ -171,15 +171,17 @@ export class LocaleService {
                 ...base_locale_values,
                 ...override_locale_values,
             };
-            const store = {
-                expiry: Date.now() + this._cache_time,
-                locale,
-                mappings: this._locale_mappings[locale],
-            };
-            localStorage.setItem(
-                `${STORE_KEY}.${locale}`,
-                JSON.stringify(store),
-            );
+            if (!window.debug) {
+                const store = {
+                    expiry: Date.now() + this._cache_time,
+                    locale,
+                    mappings: this._locale_mappings[locale],
+                };
+                localStorage.setItem(
+                    `${STORE_KEY}.${locale}`,
+                    JSON.stringify(store),
+                );
+            }
         } else {
             this._locale_mappings[locale] = existing.mappings;
         }
