@@ -7,6 +7,7 @@ import {
     catchError,
     debounceTime,
     distinctUntilKeyChanged,
+    filter,
     first,
     map,
     shareReplay,
@@ -188,12 +189,13 @@ export class EventFormService extends AsyncHandler {
         this.spaces$,
         this._options,
         this._filters,
+        this._org.initialised.pipe(filter((_) => _)),
     ]).pipe(
         map(([list, { zones }, filters]) => {
             if (!zones?.length) {
                 zones = this._settings.get('app.use_region')
-                    ? [this._org.region.id]
-                    : [this._org.building.id];
+                    ? [this._org.region?.id]
+                    : [this._org.building?.id];
             }
             if (zones.length) {
                 list = list.filter((space) =>
