@@ -164,6 +164,7 @@ export class EventFormService extends AsyncHandler {
             ),
             distinctUntilKeyChanged('id'),
             switchMap((zone) => {
+                if (!zone) return of([]);
                 this.addLoadingTag(Tags.ListingRooms);
                 return requestSpacesForZone(zone.id).pipe(
                     catchError(() => of([])),
