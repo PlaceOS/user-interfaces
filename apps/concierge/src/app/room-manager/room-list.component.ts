@@ -137,6 +137,7 @@ import { i18n, notifySuccess, SettingsService } from '@placeos/common';
                         row.support_url || control_path + row.id
                             | sanitize: 'url'
                     "
+                    *ngIf="row.support_url || control_path"
                     target="_blank"
                     ref="noopener noreferrer"
                 >
@@ -155,7 +156,7 @@ import { i18n, notifySuccess, SettingsService } from '@placeos/common';
         </ng-template>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class RoomListComponent {
     public readonly rooms = this._manager.filtered_rooms;
