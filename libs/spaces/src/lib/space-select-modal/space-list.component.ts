@@ -176,7 +176,8 @@ import { Space } from '../space.class';
                 <mat-spinner [diameter]="32"></mat-spinner>
                 <p class="opacity-30">
                     {{ 'CALENDAR_EVENT.SPACE_SELECT_LOADING' | translate }}
-                    <!-- {{ loading | async | json }} -->
+                    <br />
+                    {{ loading | async | json }}
                 </p>
             </div>
         </ng-template>
@@ -194,8 +195,8 @@ import { Space } from '../space.class';
     standalone: false,
 })
 export class SpaceListComponent {
-    @Input() public active: string = '';
-    @Input() public selected: string = '';
+    @Input() public active = '';
+    @Input() public selected = '';
     @Input() public favorites: string[] = [];
     @Output() public onSelect = new EventEmitter<Space>();
     @Output() public toggleFav = new EventEmitter<Space>();
