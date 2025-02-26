@@ -192,10 +192,11 @@ export class EventFormService extends AsyncHandler {
         this._org.initialised.pipe(filter((_) => _)),
     ]).pipe(
         map(([list, { zones }, filters]) => {
+            if (!list.length) return list;
             if (!zones?.length) {
                 zones = this._settings.get('app.use_region')
-                    ? [this._org.region?.id]
-                    : [this._org.building?.id];
+                    ? [this._org.region.id]
+                    : [this._org.building.id];
             }
             if (zones.length) {
                 list = list.filter((space) =>
