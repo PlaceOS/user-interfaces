@@ -59,6 +59,13 @@ const BOOKING_URLS = [
     'upcoming',
 ];
 
+enum Tags {
+    Availability = 'AVAILABILITY',
+    BookingRules = 'BOOKING_RULES',
+    ListingRooms = 'LIST_ROOMS',
+    PostBooking = 'MAKING_BOOKING',
+}
+
 type EventFlowView = 'form' | 'find' | 'catering' | 'confirm' | 'success';
 
 export interface EventFormOptions {
@@ -95,7 +102,9 @@ export class EventFormService extends AsyncHandler {
     private _space_pipe = new SpacePipe(this._org);
 
     private removeLoadingTag = (t) =>
-        this._loading.next(this._loading.getValue().replace(`[${t}]`, ''));
+        this._loading.next(
+            this._loading.getValue().replace(`[${t}]`, '').trim(),
+        );
     private addLoadingTag = (t) =>
         t
             ? this._loading.next(
@@ -122,16 +131,16 @@ export class EventFormService extends AsyncHandler {
         Record<string, BookingRuleset[]>
     > = this._org.building_list.pipe(
         switchMap((list) => {
-            this.addLoadingTag('BOOKING_RULES');
+            this.addLoadingTag(Tags.BookingRules);
             return forkJoin(
                 list.map((bld) =>
                     showMetadata(bld.id, 'room_booking_rules').pipe(
-                        catchError(() => of({ details: [] })),
                         map((_) => ({
                             id: bld.id,
                             details:
                                 _.details instanceof Array ? _.details : [],
                         })),
+                        catchError(() => of({ id: bld.id, details: [] })),
                     ),
                 ),
             );
@@ -139,11 +148,11 @@ export class EventFormService extends AsyncHandler {
         map((building_rules) => {
             const mapping = {};
             for (const rules of building_rules) {
-                mapping[rules.id] = rules.details;
+                mapping[rules.id] = rules?.details;
             }
-            this.removeLoadingTag('BOOKING_RULES');
             return mapping;
         }),
+        tap(() => this.removeLoadingTag(Tags.BookingRules)),
         shareReplay(1),
     );
     public readonly spaces$: Observable<Space[]> =
@@ -155,13 +164,13 @@ export class EventFormService extends AsyncHandler {
             ),
             distinctUntilKeyChanged('id'),
             switchMap((zone) => {
-                this.addLoadingTag('ROOM_LIST');
+                this.addLoadingTag(Tags.ListingRooms);
                 return requestSpacesForZone(zone.id).pipe(
                     catchError(() => of([])),
                 );
             }),
             map((list) => list.filter((_) => _.bookable && _.email)),
-            tap(() => this.removeLoadingTag('ROOM_LIST')),
+            tap(() => this.removeLoadingTag(Tags.ListingRooms)),
             startWith([]),
             shareReplay(1),
         );
@@ -216,7 +225,7 @@ export class EventFormService extends AsyncHandler {
     ]).pipe(
         debounceTime(300),
         switchMap(([spaces, rules, event, { date, duration, all_day }]) => {
-            this.addLoadingTag('AVAILABILITY');
+            this.addLoadingTag(Tags.Availability);
             const method = this.book_internal
                 ? queryResourceAvailability
                 : querySpaceAvailability;
@@ -251,7 +260,7 @@ export class EventFormService extends AsyncHandler {
                 catchError(() => of([])),
             );
         }),
-        tap(() => this.removeLoadingTag('AVAILABILITY')),
+        tap(() => this.removeLoadingTag(Tags.Availability)),
         startWith([]),
         shareReplay(1),
     );
@@ -424,10 +433,10 @@ export class EventFormService extends AsyncHandler {
             });
         }
         const on_error = (e) => {
-            this.removeLoadingTag('POSTING_BOOKING');
+            this.removeLoadingTag(Tags.PostBooking);
             throw e;
         };
-        this.addLoadingTag('POSTING_BOOKING');
+        this.addLoadingTag(Tags.PostBooking);
         const event = this._event.getValue();
         const space_list = this.form.value.resources || [];
         let spaces = space_list.filter(
@@ -479,7 +488,7 @@ export class EventFormService extends AsyncHandler {
             !spaces.length &&
             this.form.value.attendees.find((_) => _.is_external)
         ) {
-            this.removeLoadingTag('POSTING_BOOKING');
+            this.removeLoadingTag(Tags.PostBooking);
             throw i18n('CALENDAR_EVENT.SPACE_EXTERNALS_ERROR');
         }
         // Handle payments for room resources
@@ -725,7 +734,7 @@ export class EventFormService extends AsyncHandler {
                 error: e,
             });
         }
-        this.removeLoadingTag('POSTING_BOOKING');
+        this.removeLoadingTag(Tags.PostBooking);
         throw e;
     }
 
