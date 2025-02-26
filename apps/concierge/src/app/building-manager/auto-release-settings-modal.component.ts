@@ -61,7 +61,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
                         Rooms
                     </mat-option> -->
                     <mat-option value="desk">
-                        {{ 'RESORUCE.DESKS' | translate }}
+                        {{ 'RESOURCE.DESKS' | translate }}
                     </mat-option>
                     <mat-option value="visitor">
                         {{ 'RESOURCE.VISITORS' | translate }}
@@ -87,7 +87,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
         </ng-template>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class AutoReleaseSettingsModalComponent implements OnInit {
     public loading = '';
