@@ -1,4 +1,11 @@
-import { Component, Input, OnInit } from '@angular/core';
+import {
+    AfterViewInit,
+    Component,
+    ElementRef,
+    Input,
+    OnInit,
+    ViewChild,
+} from '@angular/core';
 import { Question, QuestionType, QuestionTypeOptions } from '../types';
 
 @Component({
@@ -6,7 +13,8 @@ import { Question, QuestionType, QuestionTypeOptions } from '../types';
     styles: [],
     template: `
         <div
-            class="border border-base-400 bg-base-100 shadow flex flex-col w-full items-center justify-between px-4 py-2 pt-4"
+            #container_el
+            class="flex flex-col w-full items-center justify-between px-4 py-2 pt-4"
         >
             <ng-container *ngIf="!preview; else previewTitle">
                 <mat-form-field class="w-full" appearance="outline">
@@ -107,9 +115,10 @@ import { Question, QuestionType, QuestionTypeOptions } from '../types';
             </div>
         </div>
     `,
-    standalone: false
+    standalone: false,
 })
-export class QuestionComponent implements OnInit {
+export class QuestionComponent implements AfterViewInit {
+    @Input() isCard = true;
     @Input() preview = false;
     @Input() set value(value: Question) {
         if (value) {
@@ -124,7 +133,19 @@ export class QuestionComponent implements OnInit {
     public hasValue = false;
     public question: Question;
 
-    constructor() {}
+    @ViewChild('container_el', { static: true })
+    private _container_el: ElementRef<HTMLDivElement>;
+
+    public ngAfterViewInit() {
+        if (this.isCard) {
+            this._container_el.nativeElement.classList.add(
+                'border',
+                'border-base-400',
+                'bg-base-100',
+                'shadow',
+            );
+        }
+    }
 
     public get valid() {
         if (!this.question?.title) return false;
@@ -146,6 +167,4 @@ export class QuestionComponent implements OnInit {
 
         return valid;
     }
-
-    ngOnInit(): void {}
 }

@@ -17,6 +17,7 @@ import { RatingsWidgetComponent } from './survey-widget/ratings-widget.component
 import { SelectionWidgetComponent } from './survey-widget/selection.widget.component';
 import { SurveyWidgetComponent } from './survey-widget/survey-widget.component';
 import { TableWidgetComponent } from './survey-widget/table-widget.component';
+import { ComponentsModule } from '@placeos/components';
 
 @NgModule({
     imports: [
@@ -30,6 +31,7 @@ import { TableWidgetComponent } from './survey-widget/table-widget.component';
         MatIconModule,
         MatButtonModule,
         MatSliderModule,
+        ComponentsModule,
     ],
     declarations: [
         QuestionComponent,

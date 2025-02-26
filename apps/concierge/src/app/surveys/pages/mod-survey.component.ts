@@ -5,8 +5,6 @@ import { map, shareReplay } from 'rxjs/operators';
 import { SurveyOptions, SurveyService } from '../services/survey.service';
 import { SurveyBuilderService } from '../services/survey-builder.service';
 import { OrganisationService } from '@placeos/organisation';
-import { CdkDragDrop } from '@angular/cdk/drag-drop';
-import { Question } from 'survey-core';
 import { TriggerOptions, UISurveyPage } from '@placeos/survey-suite';
 import { MatTabChangeEvent } from '@angular/material/tabs';
 import { combineLatest } from 'rxjs';
@@ -108,7 +106,7 @@ import { combineLatest } from 'rxjs';
                 </mat-select>
             </mat-form-field>
         </div>
-        <div class="flex items-center space-x-4 px-8 mb-4">
+        <div class="flex items-center space-x-4 px-8 mb-4" *ngIf="survey">
             <mat-form-field
                 name="title"
                 appearance="outline"
@@ -339,7 +337,7 @@ import { combineLatest } from 'rxjs';
             </div>
         </ng-template>
     `,
-    standalone: false
+    standalone: false,
 })
 export class ModSurveyComponent extends AsyncHandler implements OnInit {
     loading$ = this._survey.loading$.pipe(shareReplay(1));
