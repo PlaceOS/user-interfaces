@@ -160,8 +160,8 @@ export class EventFormService extends AsyncHandler {
         this._org.active_building.pipe(
             switchMap(() =>
                 this._settings.get('app.use_region')
-                    ? this._org.active_region
-                    : this._org.active_building,
+                    ? this._org.active_region.pipe(filter((_) => !!_))
+                    : this._org.active_building.pipe(filter((_) => !!_)),
             ),
             distinctUntilKeyChanged('id'),
             switchMap((zone) => {
