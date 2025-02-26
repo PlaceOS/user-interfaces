@@ -54,9 +54,43 @@ import { GroupEventDetailsModalComponent } from '../../../events/src/lib/group-e
                     class="flex flex-wrap flex-col sm:flex-row sm:divide-x divide-base-200-500 py-2 space-y-2 sm:space-y-0"
                 >
                     <div class="flex items-center px-4 max-w-[33%]">
-                        <app-icon *ngIf="type !== 'desk'; else desk_icon">{{
-                            type
-                        }}</app-icon>
+                        @switch (type) {
+                            @case ('desk') {
+                                <app-icon
+                                    [matTooltip]="'RESOURCE.DESK' | translate"
+                                    matTooltipPosition="right"
+                                    >desk</app-icon
+                                >
+                            }
+                            @case ('locker') {
+                                <app-icon
+                                    [matTooltip]="'RESOURCE.LOCKER' | translate"
+                                    matTooltipPosition="right"
+                                    >lock</app-icon
+                                >
+                            }
+                            @case ('parking') {
+                                <app-icon
+                                    [matTooltip]="
+                                        'RESOURCE.PARKING' | translate
+                                    "
+                                    matTooltipPosition="right"
+                                    >drive_eta</app-icon
+                                >
+                            }
+                            @case ('visitor') {
+                                <app-icon
+                                    [matTooltip]="
+                                        'RESOURCE.VISITOR' | translate
+                                    "
+                                    matTooltipPosition="right"
+                                    >people</app-icon
+                                >
+                            }
+                            @default {
+                                <app-icon>book</app-icon>
+                            }
+                        }
                         <div class="mx-2 truncate flex-1 w-1/2">
                             {{
                                 raw_description ||
@@ -103,9 +137,6 @@ import { GroupEventDetailsModalComponent } from '../../../events/src/lib/group-e
                 </div>
             </div>
         </a>
-        <ng-template #desk_icon>
-            <img src="assets/icons/desk-outline.svg" class="w-5 h-5" />
-        </ng-template>
     `,
     styles: [
         `
@@ -191,9 +222,7 @@ export class BookingCardComponent
     }
 
     public get type() {
-        if (this.booking?.type === 'desk') return 'desk';
-        if (this.booking?.type === 'parking') return 'drive_eta';
-        return 'book';
+        return this.booking.type;
     }
 
     public get day() {

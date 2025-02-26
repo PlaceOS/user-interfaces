@@ -64,7 +64,11 @@ import { DatePipe } from '@angular/common';
                     class="flex flex-wrap flex-col sm:flex-row sm:divide-x divide-base-200-500 py-2 space-y-2 sm:space-y-0"
                 >
                     <div class="flex items-center px-4">
-                        <app-icon>meeting_room</app-icon>
+                        <app-icon
+                            [matTooltip]="'RESOURCE.ROOM' | translate"
+                            matTooltipPosition="right"
+                            >meeting_room</app-icon
+                        >
                         <div class="mx-2 truncate">
                             {{ location }}
                         </div>
