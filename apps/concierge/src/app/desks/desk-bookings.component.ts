@@ -255,7 +255,7 @@ import { SettingsService } from '@placeos/common';
                     <button mat-menu-item (click)="checkin(row, false)">
                         <div class="flex items-center space-x-2">
                             <app-icon class="text-2xl">cancel</app-icon>
-                            <div>{{ 'COMMON.CHECK_OUT' | translate }}t</div>
+                            <div>{{ 'COMMON.CHECK_OUT' | translate }}</div>
                         </div>
                     </button>
                 </mat-menu>
