@@ -170,9 +170,7 @@ export class RoomListComponent {
     };
 
     public get control_path() {
-        return (
-            this._settings.get('app.control_path') || '/av_control/#/tabbed/'
-        );
+        return this._settings.get('app.control_path') || '';
     }
 
     constructor(
