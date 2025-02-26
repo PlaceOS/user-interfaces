@@ -109,7 +109,7 @@ export class EventFormService extends AsyncHandler {
     private addLoadingTag = (t) =>
         t
             ? this._loading.next(
-                  `${this._loading.getValue().replace(t, '')}[${t}]`.trim(),
+                  `${this._loading.getValue().replace(`[${t}]`, '')}[${t}]`.trim(),
               )
             : '';
     private _overflow = (id = '') =>
