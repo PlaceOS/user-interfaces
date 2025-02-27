@@ -149,11 +149,11 @@ import { ParkingUser } from './parking-state.service';
         </ng-template>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
-export class ParkingUserModalComponent extends AsyncHandler {
+export class ParkingUserModalComponent extends AsyncHandler implements OnInit {
     @Output() public readonly event = new EventEmitter<DialogEvent>();
-    public loading: boolean = false;
+    public loading = false;
 
     public get id() {
         return this._data?.id || '';
@@ -182,7 +182,10 @@ export class ParkingUserModalComponent extends AsyncHandler {
         this.subscription(
             'user',
             this.form.valueChanges.subscribe((value) => {
-                if (value.user) {
+                if (
+                    value.user?.id &&
+                    value.user?.email !== this.form.value.email
+                ) {
                     this.form.patchValue({
                         email: value.user.email,
                         name: value.user.name,
