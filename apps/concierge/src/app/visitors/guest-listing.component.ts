@@ -642,9 +642,16 @@ export class GuestListingComponent extends AsyncHandler {
                     bld.id,
                     visitor_kiosk_app,
                 ).toPromise();
+                const org_metadata: any = await showMetadata(
+                    this._org.organisation.id,
+                    visitor_kiosk_app,
+                ).toPromise();
+                const data = {
+                    ...(org_metadata.details || {}),
+                    ...(metadata.details || {}),
+                };
                 this.inductions_enabled =
-                    metadata.details?.induction_enabled &&
-                    metadata.details?.induction_details;
+                    data?.induction_enabled && data?.induction_details;
             }),
         );
     }

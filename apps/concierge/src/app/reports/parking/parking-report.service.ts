@@ -116,7 +116,7 @@ export class ParkingReportService {
     }
 
     public generateReport() {
-        this._report.setOptions({ type: 'lockers' });
+        this._report.setOptions({ type: 'parking' });
         this._report.generateReport();
     }
 
