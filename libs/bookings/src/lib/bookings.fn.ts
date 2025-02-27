@@ -81,6 +81,8 @@ export function queryPagedBookings(q: BookingsQueryParams) {
     });
 }
 
+const MAX_PAGES = 100;
+
 /**
  * List all bookings
  * @param q Parameters to pass to the API request
@@ -96,13 +98,15 @@ export function queryAllBookings(
     }).pipe(
         switchMap(async ({ data, next }) => {
             let list = [...data];
-            while (next) {
+            let count = 1;
+            while (next && count <= MAX_PAGES) {
                 const resp = await next().toPromise();
                 data = resp.data;
                 next = resp.next;
                 list = [...list, ...data];
+                count += 1;
             }
-            return list;
+            return unique(list, 'id');
         }),
         catchError((_) => of([])),
     );
