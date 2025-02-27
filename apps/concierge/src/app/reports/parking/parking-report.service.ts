@@ -1,27 +1,18 @@
 import { formatDate } from '@angular/common';
 import { Injectable } from '@angular/core';
-import { Booking, queryBookings } from '@placeos/bookings';
-import {
-    downloadFile,
-    i18n,
-    jsonToCsv,
-    notifyError,
-    SettingsService,
-} from '@placeos/common';
+import { Booking } from '@placeos/bookings';
+import { downloadFile, jsonToCsv, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { showMetadata } from '@placeos/ts-client';
-import { endOfDay, format, getUnixTime, isSameDay, startOfDay } from 'date-fns';
+import { format, isSameDay } from 'date-fns';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import {
     catchError,
     debounceTime,
-    filter,
     map,
     shareReplay,
-    startWith,
     switchMap,
     take,
-    tap,
 } from 'rxjs/operators';
 import { REMOVE_KEYS, ReportsStateService } from '../reports-state.service';
 
@@ -95,7 +86,7 @@ export class ParkingReportService {
             );
         }),
         map((list: [string, number][]) => {
-            let mapping: Record<string, number> = {};
+            const mapping: Record<string, number> = {};
             list.forEach(
                 ([id, count]) => (mapping[id] = Math.max(count || 0, 1)),
             );
