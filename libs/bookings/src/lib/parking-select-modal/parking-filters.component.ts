@@ -262,8 +262,8 @@ export class ParkingSpaceFiltersComponent {
             const level_list = this.use_region
                 ? this._org.levelsForRegion(region)
                 : this._org.levelsForBuilding(bld);
-            const viewable_levels = level_list.filter(
-                (lvl) => !lvl.tags.includes('parking'),
+            const viewable_levels = level_list.filter((lvl) =>
+                lvl.tags.includes('parking'),
             );
             return viewable_levels.sort(
                 (a, b) =>
