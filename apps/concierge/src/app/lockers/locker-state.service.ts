@@ -694,6 +694,8 @@ export class LockerStateService extends AsyncHandler {
         );
         (locker as any).approved = true;
         (locker as any).rejected = false;
+        (locker as any).status = 'approved';
+        this.refresh();
     }
 
     public async rejectLocker(locker: Booking) {
@@ -710,6 +712,8 @@ export class LockerStateService extends AsyncHandler {
         );
         (locker as any).approved = false;
         (locker as any).rejected = true;
+        (locker as any).status = 'declined';
+        this.refresh();
     }
 
     public async giveAccess(locker: Booking) {
@@ -752,6 +756,7 @@ export class LockerStateService extends AsyncHandler {
         });
         notifySuccess(i18n('APP.CONCIERGE.LOCKERS_REJECT_ALL_SUCCESS'));
         resp.close();
+        this.refresh();
     }
 
     private async _clearAssignedBooking(locker: Locker) {
