@@ -81,7 +81,7 @@ export function queryPagedBookings(q: BookingsQueryParams) {
     });
 }
 
-const MAX_PAGES = 100;
+const MAX_PAGES = 50;
 
 /**
  * List all bookings

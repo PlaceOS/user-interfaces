@@ -1010,6 +1010,40 @@ import { VERSION } from '@placeos/common';
                             ></settings-toggle>
                         </div>
                     </section>
+                    <section
+                        lockers
+                        class="relative border border-base-300 rounded px-4 pb-2 pt-4"
+                        *ngIf="form.value.features.includes('lockers')"
+                        formGroupName="lockers"
+                    >
+                        <h3
+                            class="absolute top-0 left-4 -translate-y-1/2 rounded px-2 py-1 font-medium bg-base-100"
+                        >
+                            Locker Bookings
+                        </h3>
+                        <div class="flex items-center flex-wrap -mx-2">
+                            <settings-toggle
+                                name="Default bookings to all day"
+                                formControlName="all_day_default"
+                            ></settings-toggle>
+                            <settings-toggle
+                                name="Show Calendar Links after booking"
+                                formControlName="show_calendar_links"
+                            ></settings-toggle>
+                            <settings-toggle
+                                name="Hide End time option"
+                                formControlName="hide_end_time"
+                            ></settings-toggle>
+                            <settings-toggle
+                                name="Disable Date selection"
+                                formControlName="disabled_date_select"
+                            ></settings-toggle>
+                            <settings-toggle
+                                name="Disable start time option"
+                                formControlName="disabled_start_time"
+                            ></settings-toggle>
+                        </div>
+                    </section>
                 </form>
                 <div class="h-16 w-full"></div>
             </main>
@@ -1101,6 +1135,13 @@ export class ConciergeSettingsFormModalComponent {
             allow_all_day: new FormControl(true),
             available_period: new FormControl(7),
             max_duration: new FormControl(480),
+        }),
+        lockers: new FormGroup({
+            all_day_default: new FormControl(false),
+            show_calendar_links: new FormControl(false),
+            hide_end_time: new FormControl(false),
+            disabled_start_time: new FormControl(false),
+            disabled_date_select: new FormControl(false),
         }),
     });
 
