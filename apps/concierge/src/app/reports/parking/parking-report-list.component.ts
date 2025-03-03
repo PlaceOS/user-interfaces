@@ -2,6 +2,7 @@ import { Component, Input } from '@angular/core';
 import { downloadFile, i18n, jsonToCsv } from '@placeos/common';
 import { map, take } from 'rxjs/operators';
 import { ParkingReportService } from './parking-report.service';
+import { format } from 'date-fns';
 
 @Component({
     selector: 'parking-report-list',
@@ -77,7 +78,7 @@ import { ParkingReportService } from './parking-report.service';
         </div>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class ParkingReportListComponent {
     @Input() public print = false;
@@ -113,7 +114,10 @@ export class ParkingReportListComponent {
 
     public readonly download = async () => {
         const data = await this.parking_bookings.pipe(take(1)).toPromise();
-        downloadFile('report-assets-daily-usage.csv', jsonToCsv(data));
+        for (const bkn of data) {
+            bkn.date = format(bkn.date, 'yyyy-MM-dd HH:mm');
+        }
+        downloadFile('report-parking-daily-usage.csv', jsonToCsv(data));
     };
 
     constructor(private _state: ParkingReportService) {}
