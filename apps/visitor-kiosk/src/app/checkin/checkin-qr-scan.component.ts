@@ -131,6 +131,7 @@ export class CheckinQRScanComponent
     }
 
     public ngAfterViewInit() {
+        this._checkin.metadata = '';
         this.setupQRReader();
     }
 
