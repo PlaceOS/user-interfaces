@@ -161,7 +161,7 @@ export class CheckinDetailsComponent implements OnInit {
 
     public async updateGuest() {
         this.loading = true;
-        // await this._checkin.updateGuest();
+        await this._checkin.updateGuest();
         const result = await this._checkin
             .checkinGuest()
             .then(() => true)

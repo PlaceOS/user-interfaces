@@ -8,6 +8,7 @@ import {
     checkinBooking,
     queryAllBookings,
     showBooking,
+    updateBooking,
     updateBookingInductionStatus,
 } from '@placeos/bookings';
 import { SpacePipe } from '@placeos/spaces';
@@ -33,7 +34,7 @@ export class CheckinStateService {
     public readonly error = this._error.asObservable();
     public readonly form = this._form.asObservable();
 
-    public metadata: string = '';
+    public metadata = '';
 
     public clear() {
         this._guest.next(null);
@@ -41,7 +42,7 @@ export class CheckinStateService {
         this._photo.next(null);
     }
 
-    public setBooking(booking: Booking, metadata: string = '') {
+    public setBooking(booking: Booking, metadata = '') {
         this._booking.next(booking);
         this._guest.next(
             new GuestUser({
@@ -104,11 +105,22 @@ export class CheckinStateService {
         const guest = this._guest.getValue();
         const form = this._form.getValue();
         if (!guest || !form) return;
-        // await updateMetadata(guest.email, {
-        //     name: 'preferences',
-        //     details: { ...guest, ...form.value, ...(data || {}) },
-        //     description: '',
-        // }).toPromise();
+        const booking = this._booking.getValue() || guest.extension_data.event;
+        if (!booking) return;
+        const updated_booking = await updateBooking(booking.id, {
+            ...booking,
+            asset_id: form.value.email || booking.asset_id,
+            asset_name: form.value.name || booking.asset_name,
+            description: form.value.name || booking.description,
+            extension_data: {
+                ...booking.extension_data,
+                organisation:
+                    form.value.organisation ||
+                    booking.extension_data.organisation,
+                phone: form.value.phone || booking.extension_data.phone,
+            },
+        }).toPromise();
+        this.setBooking(updated_booking);
     }
 
     public async completeInduction() {
