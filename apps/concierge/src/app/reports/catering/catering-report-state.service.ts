@@ -5,7 +5,7 @@ import { CalendarEvent } from '@placeos/events';
 import { combineLatest } from 'rxjs';
 import { map, shareReplay, take } from 'rxjs/operators';
 import { ReportsStateService } from '../reports-state.service';
-import { endOfDay, startOfDay } from 'date-fns';
+import { endOfDay, format, startOfDay } from 'date-fns';
 
 @Injectable({
     providedIn: 'root',
@@ -76,7 +76,12 @@ export class CateringReportStateService {
 
     public async downloadOrders() {
         const orders = await this.catering_orders.pipe(take(1)).toPromise();
-        const csv_data = jsonToCsv(orders);
+        const data = orders.map((_) => ({ ..._ }));
+        for (const bkn of data) {
+            (bkn as any).date = format((bkn as any)._time, 'yyyy-MM-dd HH:mm');
+            delete (bkn as any)._time;
+        }
+        const csv_data = jsonToCsv(data, '\t');
         return downloadFile('catering-orders.csv', csv_data);
     }
 }
