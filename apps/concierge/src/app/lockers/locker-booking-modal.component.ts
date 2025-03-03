@@ -96,11 +96,13 @@ import { addDays, endOfDay } from 'date-fns';
                             [ngModel]="form.value.date"
                             (ngModelChange)="form.patchValue({ date: $event })"
                             [ngModelOptions]="{ standalone: true }"
-                            [disabled]="form.controls.date.disabled"
+                            [disabled]="
+                                form.controls.date.disabled || disable_start
+                            "
                             [use_24hr]="use_24hr"
                         ></a-time-field>
                     </div>
-                    <div class="flex-1 w-1/3 relative">
+                    <div class="flex-1 w-1/3 relative" *ngIf="!hide_end">
                         <label for="end-time">
                             {{ 'FORM.TIME_END' | translate }}<span>*</span>
                         </label>
