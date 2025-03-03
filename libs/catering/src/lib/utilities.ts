@@ -12,7 +12,7 @@ const RULE_REQUESTS: Record<string, Observable<AttachedResourceRuleset[]>> = {};
 
 export function getCateringRulesForZone(
     zone_id: string,
-    fresh: boolean = false
+    fresh: boolean = false,
 ) {
     if (!zone_id) return of([] as AttachedResourceRuleset[]);
     if (!RULE_REQUESTS[zone_id] || fresh)
@@ -21,9 +21,9 @@ export function getCateringRulesForZone(
                 (_) =>
                     (_.details instanceof Array
                         ? _.details
-                        : []) as AttachedResourceRuleset[]
+                        : []) as AttachedResourceRuleset[],
             ),
-            catchError((e) => of([] as AttachedResourceRuleset[]))
+            catchError((e) => of([] as AttachedResourceRuleset[])),
         );
     return RULE_REQUESTS[zone_id];
 }
@@ -31,7 +31,7 @@ export function getCateringRulesForZone(
 export function cateringItemAvailable(
     item: CateringItem,
     rules: AttachedResourceRuleset[],
-    event: CalendarEvent
+    event: CalendarEvent,
 ) {
     let is_available = true;
     for (const rule of rules) {
@@ -49,7 +49,7 @@ export function cateringItemAvailable(
                     case 'is_before':
                         matches += isBefore(
                             Date.now(),
-                            subHours(date, condition[1])
+                            subHours(date, condition[1]),
                         )
                             ? 1
                             : 0;
@@ -57,7 +57,7 @@ export function cateringItemAvailable(
                     case 'within_hours':
                         matches += isAfter(
                             Date.now(),
-                            subHours(date, condition[1])
+                            subHours(date, condition[1]),
                         )
                             ? 1
                             : 0;
@@ -94,6 +94,7 @@ export function cateringItemAvailable(
             }
             is_available = matches >= rule.rules.length;
         }
+        if (!is_available) return false;
     }
     return is_available;
 }
