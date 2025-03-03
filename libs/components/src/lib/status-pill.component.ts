@@ -6,7 +6,7 @@ export type StatusValue = 'success' | 'warning' | 'error' | 'info' | 'neutral';
     selector: 'status-pill',
     template: `
         <div
-            class="flex items-center bg-opacity-30 rounded-full px-2 py-1 text-base space-x-2 font-medium text-black"
+            class="flex items-center space-x-2 rounded-full bg-opacity-30 px-2 py-1 text-base font-medium text-black"
             [class.bg-success-light]="status === 'success'"
             [class.bg-warning-light]="status === 'warning'"
             [class.bg-error-light]="status === 'error'"
@@ -14,7 +14,7 @@ export type StatusValue = 'success' | 'warning' | 'error' | 'info' | 'neutral';
             [class.bg-base-200]="status === 'neutral'"
         >
             <div
-                class="rounded-full h-5 w-5 flex items-center justify-center"
+                class="flex h-5 w-5 items-center justify-center rounded-full"
                 [class.text-success]="status === 'success'"
                 [class.text-warning]="status === 'warning'"
                 [class.text-error]="status === 'error'"
@@ -41,7 +41,7 @@ export type StatusValue = 'success' | 'warning' | 'error' | 'info' | 'neutral';
         </div>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class StatusPillComponent {
     @Input() public status: string;

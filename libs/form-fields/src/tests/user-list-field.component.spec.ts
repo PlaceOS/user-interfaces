@@ -91,7 +91,7 @@ describe('UserListFieldComponent', () => {
             readAsText: () => null,
         };
         jest.spyOn(window, 'FileReader').mockReturnValue(
-            mock_file_reader as any
+            mock_file_reader as any,
         );
         spectator.component.addUsersFromFile({
             target: {
@@ -102,8 +102,8 @@ describe('UserListFieldComponent', () => {
         expect(spectator.component.active_list).toHaveLength(2);
         expect(
             spectator.component.active_list.find(
-                (user) => user.name === 'John Smith'
-            )
+                (user) => user.name === 'John Smith',
+            ),
         ).toBeTruthy();
     });
 

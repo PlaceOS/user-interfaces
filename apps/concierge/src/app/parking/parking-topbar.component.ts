@@ -13,7 +13,7 @@ import { timer } from 'rxjs';
 @Component({
     selector: 'parking-topbar',
     template: `
-        <div class="flex items-center w-full py-4 px-8 space-x-2">
+        <div class="flex w-full items-center space-x-2 px-8 py-4">
             <h2 class="text-2xl font-medium">
                 {{
                     (path !== 'events'
@@ -22,7 +22,7 @@ import { timer } from 'rxjs';
                     ) | translate
                 }}
             </h2>
-            <div class="flex-1 w-px"></div>
+            <div class="w-px flex-1"></div>
             <searchbar
                 class="mr-2"
                 [model]="(options | async)?.search"
@@ -39,7 +39,7 @@ import { timer } from 'rxjs';
                     btn
                     matRipple
                     *ngIf="path === 'manage'"
-                    class="space-x-2 w-40"
+                    class="w-40 space-x-2"
                     (click)="newParkingSpace()"
                     [disabled]="!(options | async)?.zones?.length"
                 >
@@ -53,7 +53,7 @@ import { timer } from 'rxjs';
                 btn
                 matRipple
                 *ngIf="path === 'users'"
-                class="space-x-2 w-40"
+                class="w-40 space-x-2"
                 (click)="newParkingUser()"
             >
                 <div class="pl-2">
@@ -65,7 +65,7 @@ import { timer } from 'rxjs';
                 btn
                 matRipple
                 *ngIf="path === 'events'"
-                class="space-x-2 w-48"
+                class="w-48 space-x-2"
                 (click)="newReservation()"
             >
                 <div class="pl-2">
@@ -74,8 +74,8 @@ import { timer } from 'rxjs';
                 <app-icon>add</app-icon>
             </button>
         </div>
-        <div class="flex items-center bg-base-100 px-8 mb-2 h-14">
-            <mat-form-field appearance="outline" class="w-56 no-subscript">
+        <div class="mb-2 flex h-14 items-center bg-base-100 px-8">
+            <mat-form-field appearance="outline" class="no-subscript w-56">
                 <mat-select
                     [(ngModel)]="zones"
                     (ngModelChange)="updateZones($event)"
@@ -96,11 +96,11 @@ import { timer } from 'rxjs';
                     </mat-option>
                 </mat-select>
             </mat-form-field>
-            <div class="flex-1 w-0"></div>
+            <div class="w-0 flex-1"></div>
             <button
                 icon
                 matRipple
-                class="bg-secondary text-secondary-content rounded h-12 w-12"
+                class="h-12 w-12 rounded bg-secondary text-secondary-content"
                 (click)="manageRestrictions()"
                 [matTooltip]="'APP.CONCIERGE.PARKING_BOOKING_RULES' | translate"
                 *ngIf="path !== 'events' && path !== 'map'"
@@ -126,7 +126,7 @@ import { timer } from 'rxjs';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
     public path = '';

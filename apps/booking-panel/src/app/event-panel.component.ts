@@ -16,9 +16,9 @@ import { generateQRCode } from 'libs/common/src/lib/qr-code';
     selector: 'event-panel',
     template: `
         <div class="absolute inset-0 flex flex-col items-center bg-base-100">
-            <header class="w-full flex justify-between items-center p-8">
+            <header class="flex w-full items-center justify-between p-8">
                 <h1 class="text-3xl font-medium">{{ space_name | async }}</h1>
-                <div class="portrait:hidden flex space-x-4 items-center">
+                <div class="flex items-center space-x-4 portrait:hidden">
                     <p class="text-2xl">
                         {{ time | date: 'shortTime' }}
                     </p>
@@ -31,7 +31,7 @@ import { generateQRCode } from 'libs/common/src/lib/qr-code';
                 </div>
             </header>
             <main
-                class="w-full flex-1 h-1/2 overflow-hidden p-8 flex bg-cover portrait:flex-col justify-between space-x-8 portrait:space-y-4 portrait:space-x-0 relative"
+                class="relative flex h-1/2 w-full flex-1 justify-between space-x-8 overflow-hidden bg-cover p-8 portrait:flex-col portrait:space-x-0 portrait:space-y-4"
                 [style.background-color]="background_color | safe"
                 [style.color]="text_color | safe"
                 [style.background-image]="
@@ -45,7 +45,7 @@ import { generateQRCode } from 'libs/common/src/lib/qr-code';
                         <h2 class="text-2xl font-medium">
                             {{ (current | async)?.title }}
                         </h2>
-                        <p class="text-2xl mb-4 lowercase">
+                        <p class="mb-4 text-2xl lowercase">
                             ending &#64;
                             {{
                                 (current | async)?.event_end * 1000
@@ -53,14 +53,14 @@ import { generateQRCode } from 'libs/common/src/lib/qr-code';
                             }}
                         </p>
                         <p
-                            class="text-base line-clamp-6 portrait:line-clamp-8"
+                            class="line-clamp-6 text-base portrait:line-clamp-8"
                             [innerHTML]="
                                 (current | async)?.body | sanitize: 'html'
                             "
                         ></p>
                     </ng-container>
                     <ng-template #current_empty_state>
-                        <p class="opacity-60 text-2xl font-medium">
+                        <p class="text-2xl font-medium opacity-60">
                             {{ 'APP.BOOKING_PANEL.NO_CURRENT' | translate }}
                         </p>
                     </ng-template>
@@ -83,14 +83,14 @@ import { generateQRCode } from 'libs/common/src/lib/qr-code';
                         </p>
                     </ng-container>
                     <ng-template #next_empty_state>
-                        <p class="opacity-60 text-2xl font-medium">
+                        <p class="text-2xl font-medium opacity-60">
                             {{ 'APP.BOOKING_PANEL.NO_UPCOMING' | translate }}
                         </p>
                     </ng-template>
                 </div>
             </main>
             <footer
-                class="w-full landscape:hidden bg-base-100 px-8 py-3 flex justify-between items-center"
+                class="flex w-full items-center justify-between bg-base-100 px-8 py-3 landscape:hidden"
             >
                 <img
                     auth
@@ -103,24 +103,24 @@ import { generateQRCode } from 'libs/common/src/lib/qr-code';
                 </p>
             </footer>
             <div
-                class="absolute top-1/2 -right-[2px] -translate-y-1/2"
+                class="absolute -right-[2px] top-1/2 -translate-y-1/2"
                 *ngIf="!hide_qr && checkin"
             >
                 <button
                     book-tag
                     matRipple
                     (click)="toggleQRShow()"
-                    class="absolute top-1/2 left-px -translate-y-1/2 -translate-x-full bg-base-100 border-l border-y border-base-300 px-1 py-4 rounded-l-lg z-20 uppercase"
+                    class="absolute left-px top-1/2 z-20 -translate-x-full -translate-y-1/2 rounded-l-lg border-y border-l border-base-300 bg-base-100 px-1 py-4 uppercase"
                 >
                     {{ 'COMMON.BOOK' | transition }}
                 </button>
                 <div
                     qr-code-out
-                    class="overflow-hidden bg-base-100 shadow border border-base-300 rounded-l-lg z-10"
+                    class="z-10 overflow-hidden rounded-l-lg border border-base-300 bg-base-100 shadow"
                     [class.w-0]="!show_qr"
                     [class.w-56]="show_qr"
                 >
-                    <div qr-checkin class="w-56 z-50 p-3">
+                    <div qr-checkin class="z-50 w-56 p-3">
                         <img class="w-full" [src]="qr_code" />
                     </div>
                 </div>

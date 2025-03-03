@@ -1,11 +1,9 @@
-import { Component } from "@angular/core";
+import { Component } from '@angular/core';
 
 @Component({
     selector: 'parking-flow-confirm',
     template: ``,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
-export class ParkingFlowConfirmComponent {
-    
-}
+export class ParkingFlowConfirmComponent {}

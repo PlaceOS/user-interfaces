@@ -26,17 +26,17 @@ const EMPTY = [];
     template: `
         <div
             name="radius"
-            class="radius absolute center bg-info bg-opacity-25 border-8 border-dashed border-blue-600 rounded-full"
+            class="radius center border-blue-600 absolute rounded-full border-8 border-dashed bg-info bg-opacity-25"
             [style]="'height: ' + diameter + '%; width: ' + diameter + '%;'"
         ></div>
         <div
             shadow
-            class="absolute center bg-neutral h-8 w-8 rounded-full"
+            class="center absolute h-8 w-8 rounded-full bg-neutral"
         ></div>
         <div
             name="dot"
             #dot
-            class="h-3 w-3 absolute center rounded-full shadow border-2 border-white"
+            class="center absolute h-3 w-3 rounded-full border-2 border-white shadow"
             [style.background-color]="bg_color"
         ></div>
         <div
@@ -47,13 +47,13 @@ const EMPTY = [];
             [yPosition]="y_pos"
             [hover]="true"
             (mouseenter)="loadUser()"
-            class="absolute inset-0 pointer-events-auto"
+            class="pointer-events-auto absolute inset-0"
         ></div>
 
         <ng-template #device_tooltip>
             <div
                 name="device-info"
-                class="w-64 rounded bg-base-100 p-4 top-0 left-0 shadow pointer-events-none mx-2"
+                class="pointer-events-none left-0 top-0 mx-2 w-64 rounded bg-base-100 p-4 shadow"
                 (mouseleave)="close()"
             >
                 <div class="arrow"></div>
@@ -139,7 +139,7 @@ const EMPTY = [];
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class ExploreDeviceInfoComponent extends AsyncHandler implements OnInit {
     /** Name of the user associated with the mac address */

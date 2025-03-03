@@ -6,11 +6,11 @@ import { first } from 'rxjs/operators';
 @Component({
     selector: 'points-topbar',
     template: `
-        <div class="flex items-center bg-base-100 h-20 px-8 py-4 space-x-2">
+        <div class="flex h-20 items-center space-x-2 bg-base-100 px-8 py-4">
             <h2 class="text-2xl font-medium">
                 {{ 'APP.CONCIERGE.POINTS_HEADER' | translate }}
             </h2>
-            <div class="flex-1 w-px"></div>
+            <div class="w-px flex-1"></div>
             <!-- <searchbar class="mr-2"></searchbar> -->
             <date-options></date-options>
             <div class="pl-2">
@@ -26,7 +26,7 @@ import { first } from 'rxjs/operators';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class PointsTopbarComponent extends AsyncHandler {
     constructor(private _org: OrganisationService) {

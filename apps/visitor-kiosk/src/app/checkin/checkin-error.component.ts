@@ -5,9 +5,9 @@ import { CheckinStateService } from './checkin-state.service';
     selector: 'checkin-error',
     template: `
         <div
-            class="bg-base-100 rounded shadow overflow-hidden relative flex flex-col items-center m-4 py-4 px-16 text-center space-y-4"
+            class="relative m-4 flex flex-col items-center space-y-4 overflow-hidden rounded bg-base-100 px-16 py-4 text-center shadow"
         >
-            <h3 class="text-2xl pb-2">Please see reception.</h3>
+            <h3 class="pb-2 text-2xl">Please see reception.</h3>
             <p *ngIf="error | async">{{ error | async }}</p>
             <p>Our staff at reception will assist you.</p>
             <a btn matRipple class="w-32" [routerLink]="['/welcome']">
@@ -23,7 +23,7 @@ import { CheckinStateService } from './checkin-state.service';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class CheckinErrorComponent {
     public readonly error = this._checkin.error;

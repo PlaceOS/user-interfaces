@@ -24,7 +24,7 @@ export class RunSurveyService {
     constructor(
         private _survey: SurveyService,
         private _settings: SettingsService,
-        private _org: OrganisationService
+        private _org: OrganisationService,
     ) {}
 
     public async loadSurvey(survey_id: string) {
@@ -32,7 +32,7 @@ export class RunSurveyService {
         const init = await this._org.initialised
             .pipe(
                 filter((res) => !!res),
-                first()
+                first(),
             )
             .toPromise();
         const uiSurvey = await this._survey.getSurveyDetails(survey_id);
@@ -64,7 +64,7 @@ export class RunSurveyService {
         let answers = [];
         let questions = [];
         pages.forEach(
-            (p) => (questions = [...questions, ...(p.elements || [])])
+            (p) => (questions = [...questions, ...(p.elements || [])]),
         );
         questions.forEach((q) => {
             if (answersMap[q.id]) {
@@ -88,7 +88,7 @@ export class RunSurveyService {
                     notifyError('Failed to save survey answers');
                     return of(null);
                 }),
-                finalize(() => (this.loading = ''))
+                finalize(() => (this.loading = '')),
             )
             .toPromise();
         if (res) notifySuccess('Survey answers have been recorded');

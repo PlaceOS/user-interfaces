@@ -31,7 +31,7 @@ import { addDays, endOfDay } from 'date-fns';
             (confirm)="postForm()"
         >
             <form [formGroup]="form">
-                <div class="flex items-center space-x-2 mb-4" *ngIf="!user">
+                <div class="mb-4 flex items-center space-x-2" *ngIf="!user">
                     <a-user-search-field
                         name="user"
                         formControlName="user"
@@ -87,7 +87,7 @@ import { addDays, endOfDay } from 'date-fns';
                     class="flex items-center space-x-2"
                     *ngIf="!form.value.all_day"
                 >
-                    <div class="flex-1 w-1/3">
+                    <div class="w-1/3 flex-1">
                         <label for="start-time">
                             {{ 'FORM.TIME_START' | translate }}<span>*</span>
                         </label>
@@ -102,7 +102,7 @@ import { addDays, endOfDay } from 'date-fns';
                             [use_24hr]="use_24hr"
                         ></a-time-field>
                     </div>
-                    <div class="flex-1 w-1/3 relative" *ngIf="!hide_end">
+                    <div class="relative w-1/3 flex-1" *ngIf="!hide_end">
                         <label for="end-time">
                             {{ 'FORM.TIME_END' | translate }}<span>*</span>
                         </label>

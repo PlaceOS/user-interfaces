@@ -31,29 +31,29 @@ import { GroupEventDetailsModalComponent } from '../../../events/src/lib/group-e
         <h4 class="mb-2 flex items-center" *ngIf="booking">
             <span *ngIf="show_day" day>{{ day }},&nbsp;</span>
             {{ booking?.date | date: time_format }}
-            <span class="text-xs px-2"
+            <span class="px-2 text-xs"
                 >({{ booking?.date | date: 'zzzz' }})</span
             >
         </h4>
         <a
             name="view-booking-details"
-            class="w-full cursor-pointer overflow-hidden relative"
+            class="relative w-full cursor-pointer overflow-hidden"
             [routerLink]="['./']"
             [queryParams]="{ booking: booking?.id }"
             (click)="viewDetails()"
             *ngIf="booking"
         >
             <div
-                class="w-full bg-base-100 border border-base-300 rounded-xl shadow py-4 relative"
+                class="relative w-full rounded-xl border border-base-300 bg-base-100 py-4 shadow"
             >
                 <h4 class="px-4 text-lg">{{ booking?.title }}</h4>
-                <div class="flex mx-4 my-2">
+                <div class="mx-4 my-2 flex">
                     <status-pill [status]="status">{{ period }}</status-pill>
                 </div>
                 <div
-                    class="flex flex-wrap flex-col sm:flex-row sm:divide-x divide-base-200-500 py-2 space-y-2 sm:space-y-0"
+                    class="divide-base-200-500 flex flex-col flex-wrap space-y-2 py-2 sm:flex-row sm:space-y-0 sm:divide-x"
                 >
-                    <div class="flex items-center px-4 max-w-[33%]">
+                    <div class="flex max-w-[33%] items-center px-4">
                         @switch (type) {
                             @case ('desk') {
                                 <app-icon
@@ -91,7 +91,7 @@ import { GroupEventDetailsModalComponent } from '../../../events/src/lib/group-e
                                 <app-icon>book</app-icon>
                             }
                         }
-                        <div class="mx-2 truncate flex-1 w-1/2">
+                        <div class="mx-2 w-1/2 flex-1 truncate">
                             {{
                                 raw_description ||
                                     booking?.asset_name ||
@@ -105,12 +105,12 @@ import { GroupEventDetailsModalComponent } from '../../../events/src/lib/group-e
                     </div>
                 </div>
                 <app-icon
-                    class="absolute top-1/2 right-1 text-4xl -translate-y-1/2"
+                    class="absolute right-1 top-1/2 -translate-y-1/2 text-4xl"
                 >
                     chevron_right
                 </app-icon>
                 <div
-                    class="absolute top-2 right-2 bg-warning/50 rounded-xl px-2 py-1 text-xs"
+                    class="bg-warning/50 absolute right-2 top-2 rounded-xl px-2 py-1 text-xs"
                     *ngIf="
                         !for_current_user &&
                         booking?.booking_type !== 'group-event'
@@ -119,13 +119,13 @@ import { GroupEventDetailsModalComponent } from '../../../events/src/lib/group-e
                     {{ 'BOOKINGS.ASSOCIATE' | translate }}
                 </div>
                 <div
-                    class="absolute top-2 right-2 bg-warning/50 rounded-xl px-2 py-1 text-xs"
+                    class="bg-warning/50 absolute right-2 top-2 rounded-xl px-2 py-1 text-xs"
                     *ngIf="booking?.booking_type === 'group-event'"
                 >
                     {{ 'BOOKINGS.EVENT' | translate }}
                 </div>
                 <div
-                    class="absolute top-2 right-2 bg-warning/50 rounded-xl px-2 py-1 text-xs"
+                    class="bg-warning/50 absolute right-2 top-2 rounded-xl px-2 py-1 text-xs"
                     *ngIf="is_reserved_parking_space | async"
                 >
                     {{

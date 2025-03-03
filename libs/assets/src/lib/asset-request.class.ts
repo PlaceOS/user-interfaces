@@ -90,7 +90,7 @@ export class AssetRequest {
             [];
         this.item_count = this.items.reduce(
             (amount, item) => amount + item.quantity,
-            0
+            0,
         );
         this._status =
             data[`${this.event_id}_status`] ||
@@ -100,7 +100,7 @@ export class AssetRequest {
             'in_storage';
         this.event = data.event || data || null;
         const booking = this.event?.linked_bookings?.find(
-            (_) => _.extension_data.request_id === this.id
+            (_) => _.extension_data.request_id === this.id,
         );
         this._booking = booking || data.booking || null;
         this._changed = !!data._changed || !booking;

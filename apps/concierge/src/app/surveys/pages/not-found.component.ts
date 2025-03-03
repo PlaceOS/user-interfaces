@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
     selector: 'placeos-not-found',
     styles: [``],
     template: `<div
-        class="flex flex-col items-center justify-center z-0 border border-base-300 shadow w-[32rem] h-[24rem] rounded-xl my-8 mx-auto space-y-4"
+        class="z-0 mx-auto my-8 flex h-[24rem] w-[32rem] flex-col items-center justify-center space-y-4 rounded-xl border border-base-300 shadow"
     >
         <div class="mx-3 flex flex-row">
             <img
@@ -17,13 +17,13 @@ import { Router } from '@angular/router';
         <div class="text-3xl font-bold">Page not found</div>
         <div>
             The page
-            <span class="font-bold font-mono">
+            <span class="font-mono font-bold">
                 {{ router.url }}
             </span>
             was not found.
         </div>
     </div> `,
-    standalone: false
+    standalone: false,
 })
 export class NotFoundComponent {
     constructor(public router: Router) {}

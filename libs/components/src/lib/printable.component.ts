@@ -18,12 +18,12 @@ import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
         <ng-template cdk-portal>
             <div
                 printable-view
-                class="fixed top-0 left-0 flex-col items-end hidden print:flex pointer-events-none"
+                class="pointer-events-none fixed left-0 top-0 hidden flex-col items-end print:flex"
                 [innerHTML]="content | sanitize"
             ></div>
         </ng-template>
     `,
-    standalone: false
+    standalone: false,
 })
 export class PrintableComponent
     extends AsyncHandler

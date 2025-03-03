@@ -18,9 +18,9 @@ import { Clipboard } from '@angular/cdk/clipboard';
 @Component({
     selector: 'email-template-manage',
     template: `
-        <div class="absolute inset-0 bg-base-100 overflow-auto">
+        <div class="absolute inset-0 overflow-auto bg-base-100">
             <header
-                class="sticky flex items-center justify-between top-0 px-4 py-2 mx-auto my-2 max-w-[40rem] w-full border-none z-10 bg-base-200 rounded"
+                class="sticky top-0 z-10 mx-auto my-2 flex w-full max-w-[40rem] items-center justify-between rounded border-none bg-base-200 px-4 py-2"
             >
                 <h2 class="text-xl font-medium">
                     {{
@@ -40,11 +40,11 @@ import { Clipboard } from '@angular/cdk/clipboard';
                 </a>
             </header>
             <form
-                class="mx-auto my-2 max-w-[40rem] w-full z-0 p-4 overflow-visible"
+                class="z-0 mx-auto my-2 w-full max-w-[40rem] overflow-visible p-4"
                 [formGroup]="form"
             >
                 <div class="flex items-center space-x-4">
-                    <div class="flex-1 space-y-2 w-1/4">
+                    <div class="w-1/4 flex-1 space-y-2">
                         <label for="zone">
                             {{ 'RESOURCE.BUILDING' | translate }}
                         </label>
@@ -89,19 +89,19 @@ import { Clipboard } from '@angular/cdk/clipboard';
                             <mat-error>A category is required</mat-error>
                         </mat-form-field>
                     </div> -->
-                    <div class="flex-1 space-y-2 w-1/4 pb-6">
+                    <div class="w-1/4 flex-1 space-y-2 pb-6">
                         <label for="trigger">
                             {{ 'COMMON.TRIGGER' | translate }}
                         </label>
                         <button
                             duration-field
-                            class="flex items-center justify-between border border-neutral rounded h-12 w-full px-2"
+                            class="flex h-12 w-full items-center justify-between rounded border border-neutral px-2"
                             matRipple
                             [matMenuTriggerFor]="trigger_menu"
                             (click)="form.controls.trigger.markAsTouched()"
                         >
                             <div
-                                class="flex flex-col leading-tight px-2 text-left flex-1 w-1/2"
+                                class="flex w-1/2 flex-1 flex-col px-2 text-left leading-tight"
                             >
                                 <div class="truncate">
                                     {{
@@ -110,7 +110,7 @@ import { Clipboard } from '@angular/cdk/clipboard';
                                     }}
                                 </div>
                                 <div
-                                    class="opacity-30 truncate"
+                                    class="truncate opacity-30"
                                     *ngIf="!active_trigger"
                                 >
                                     {{ 'COMMON.TRIGGER_SELECT' | translate }}
@@ -142,7 +142,7 @@ import { Clipboard } from '@angular/cdk/clipboard';
                                         class="flex items-center space-x-2 pl-2"
                                     >
                                         <div
-                                            class="flex flex-col-reverse leading-tight my-2 flex-1"
+                                            class="my-2 flex flex-1 flex-col-reverse leading-tight"
                                         >
                                             <div class="text-xs opacity-30">
                                                 {{ tmpl.description }}
@@ -170,7 +170,7 @@ import { Clipboard } from '@angular/cdk/clipboard';
                     <button
                         btn
                         matRipple
-                        class="flex-1 mt-2"
+                        class="mt-2 flex-1"
                         matTooltip="Values that get replaced in the email template when sent"
                         [disabled]="!form.value.trigger"
                         [matMenuTriggerFor]="tracking_menu"
@@ -237,7 +237,7 @@ import { Clipboard } from '@angular/cdk/clipboard';
                     </mat-form-field>
                 </div>
                 <mat-form-field appearance="outline" class="w-full">
-                    <app-icon matPrefix class="text-2xl relative -left-1">
+                    <app-icon matPrefix class="relative -left-1 text-2xl">
                         description
                     </app-icon>
                     <input
@@ -256,11 +256,11 @@ import { Clipboard } from '@angular/cdk/clipboard';
                         'APP.CONCIERGE.EMAIL_TEMPLATES_BODY' | translate
                     "
                     [images_allowed]="true"
-                    class="min-h-[calc(100vh-32rem)] block"
+                    class="block min-h-[calc(100vh-32rem)]"
                 ></rich-text-input>
             </form>
             <footer
-                class="fixed bottom-0 left-1/2 -translate-x-1/2 px-4 py-2 mx-auto my-2 max-w-[640px] w-full border-none z-10 bg-base-200 rounded flex items-center justify-end"
+                class="fixed bottom-0 left-1/2 z-10 mx-auto my-2 flex w-full max-w-[640px] -translate-x-1/2 items-center justify-end rounded border-none bg-base-200 px-4 py-2"
                 *ngIf="!loading"
             >
                 <button btn matRipple class="w-40" (click)="save()">
@@ -271,7 +271,7 @@ import { Clipboard } from '@angular/cdk/clipboard';
         <ng-template #load_state>
             <div class="absolute inset-0 bg-base-100">
                 <div
-                    class="h-full w-full flex flex-col items-center justify-center space-y-2"
+                    class="flex h-full w-full flex-col items-center justify-center space-y-2"
                 >
                     <mat-spinner [diameter]="32"></mat-spinner>
                     <p>{{ loading }}</p>
@@ -280,7 +280,7 @@ import { Clipboard } from '@angular/cdk/clipboard';
         </ng-template>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class EmailTemplateManageComponent extends AsyncHandler {
     public loading = '';

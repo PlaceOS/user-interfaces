@@ -19,7 +19,7 @@ class LockerLocationsModule {
 
 export const createLockerLocationsModule = (
     details?: HashMap,
-    overrides: HashMap = {}
+    overrides: HashMap = {},
 ) =>
     new LockerLocationsModule({
         ...details,

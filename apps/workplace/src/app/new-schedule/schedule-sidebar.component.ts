@@ -12,7 +12,7 @@ import { startOfDay } from 'date-fns';
     selector: 'schedule-sidebar',
     template: `
         <div
-            class="flex flex-col w-[18rem] h-full overflow-hidden bg-base-100[#1F2021] border-r border-base-200"
+            class="bg-base-100[#1F2021] flex h-full w-[18rem] flex-col overflow-hidden border-r border-base-200"
         >
             <div class="flex items-center space-x-2 p-2">
                 <button
@@ -41,7 +41,7 @@ import { startOfDay } from 'date-fns';
                 (ngModelChange)="setDate($event)"
                 [offset_weekday]="offset_weekday"
             ></date-calendar>
-            <div class="px-2 w-full" *ngIf="period === 'week'">
+            <div class="w-full px-2" *ngIf="period === 'week'">
                 <mat-form-field
                     appearance="outline"
                     class="no-subscript w-full"
@@ -58,7 +58,7 @@ import { startOfDay } from 'date-fns';
                         >
                             {{ option.name }}
                             <span
-                                class="text-xs text-info px-1"
+                                class="px-1 text-xs text-info"
                                 *ngIf="option.this_week"
                                 [matTooltip]="'COMMON.WEEK_THIS' | translate"
                                 >(C)</span
@@ -70,16 +70,16 @@ import { startOfDay } from 'date-fns';
             <h3 class="mx-4 mt-4 font-medium">
                 {{ 'APP.WORKPLACE.SCHEDULE_FILTERS' | translate }}
             </h3>
-            <div class="p-4 space-y-4 flex-1 h-1/2 overflow-auto">
+            <div class="h-1/2 flex-1 space-y-4 overflow-auto p-4">
                 <button
                     matRipple
                     name="schedule-toggle-event-filter"
-                    class="flex items-center space-x-2 w-full text-left"
+                    class="flex w-full items-center space-x-2 text-left"
                     *ngIf="hasFeature('spaces')"
                     (click)="toggleType('event')"
                 >
                     <div
-                        class="h-10 w-10 rounded-full flex items-center justify-center bg-base-200 text-2xl"
+                        class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200 text-2xl"
                     >
                         <app-icon>place</app-icon>
                     </div>
@@ -101,12 +101,12 @@ import { startOfDay } from 'date-fns';
                 <button
                     matRipple
                     name="schedule-toggle-desk-filter"
-                    class="flex items-center space-x-2 w-full text-left"
+                    class="flex w-full items-center space-x-2 text-left"
                     *ngIf="hasFeature('desks')"
                     (click)="toggleType('desk')"
                 >
                     <div
-                        class="h-10 w-10 rounded-full flex items-center justify-center bg-base-200 text-2xl"
+                        class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200 text-2xl"
                     >
                         <img src="assets/icons/desk-outline.svg" class="w-6" />
                     </div>
@@ -128,12 +128,12 @@ import { startOfDay } from 'date-fns';
                 <button
                     matRipple
                     name="schedule-toggle-parking-filter"
-                    class="flex items-center space-x-2 w-full text-left"
+                    class="flex w-full items-center space-x-2 text-left"
                     *ngIf="hasFeature('parking')"
                     (click)="toggleType('parking')"
                 >
                     <div
-                        class="h-10 w-10 rounded-full flex items-center justify-center bg-base-200 text-2xl"
+                        class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200 text-2xl"
                     >
                         <app-icon>drive_eta</app-icon>
                     </div>
@@ -155,12 +155,12 @@ import { startOfDay } from 'date-fns';
                 <button
                     matRipple
                     name="schedule-toggle-visitor-filter"
-                    class="flex items-center space-x-2 w-full text-left"
+                    class="flex w-full items-center space-x-2 text-left"
                     *ngIf="hasFeature('visitor-invite')"
                     (click)="toggleType('visitor')"
                 >
                     <div
-                        class="h-10 w-10 rounded-full flex items-center justify-center bg-base-200 text-2xl"
+                        class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200 text-2xl"
                     >
                         <app-icon>people</app-icon>
                     </div>
@@ -184,12 +184,12 @@ import { startOfDay } from 'date-fns';
                 <button
                     matRipple
                     name="schedule-toggle-locker-filter"
-                    class="flex items-center space-x-2 w-full text-left"
+                    class="flex w-full items-center space-x-2 text-left"
                     *ngIf="hasFeature('lockers')"
                     (click)="toggleType('locker')"
                 >
                     <div
-                        class="h-10 w-10 rounded-full flex items-center justify-center bg-base-200 text-2xl"
+                        class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200 text-2xl"
                     >
                         <app-icon>lock</app-icon>
                     </div>
@@ -213,12 +213,12 @@ import { startOfDay } from 'date-fns';
                 <button
                     matRipple
                     name="schedule-toggle-locker-filter"
-                    class="flex items-center space-x-2 w-full text-left"
+                    class="flex w-full items-center space-x-2 text-left"
                     *ngIf="hasFeature('group-events')"
                     (click)="toggleType('group-event')"
                 >
                     <div
-                        class="h-10 w-10 rounded-full flex items-center justify-center bg-base-200 text-2xl"
+                        class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200 text-2xl"
                     >
                         <app-icon>event_available</app-icon>
                     </div>
@@ -251,7 +251,7 @@ import { startOfDay } from 'date-fns';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class ScheduleSidebarComponent extends AsyncHandler implements OnInit {
     public readonly filters = this._state.filters;

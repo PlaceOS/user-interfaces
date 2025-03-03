@@ -11,17 +11,17 @@ import { EventsStateService } from './events-state.service';
     selector: 'room-bookings-approvals',
     template: `
         <div
-            class="flex flex-col h-full overflow-hidden border-l border-base-200 w-[20rem]"
+            class="flex h-full w-[20rem] flex-col overflow-hidden border-l border-base-200"
             [style.width]="show ? '' : '0px'"
         >
             <div
-                class="flex items-center p-2 justify-center border-b border-base-200 space-x-2 relative"
+                class="relative flex items-center justify-center space-x-2 border-b border-base-200 p-2"
             >
                 <button
                     btn
                     icon
                     matRipple
-                    class="absolute top-3 left-2 bg-base-200"
+                    class="absolute left-2 top-3 bg-base-200"
                     [matTooltip]="
                         'APP.CONCIERGE.ROOMS_PENDING_HIDE' | translate
                     "
@@ -43,24 +43,24 @@ import { EventsStateService } from './events-state.service';
                     }}
                 </h3>
             </div>
-            <div class="border-b border-base-200 relative -mt-px">
+            <div class="relative -mt-px border-b border-base-200">
                 <input
                     type="text"
                     [placeholder]="'COMMON.SEARCH' | translate"
-                    class="w-full py-4 pr-4 pl-10"
+                    class="w-full py-4 pl-10 pr-4"
                     [ngModel]="search | async"
                     (ngModelChange)="search.next($event)"
                 />
                 <app-icon
-                    class="absolute top-1/2 left-2 -translate-y-1/2 text-2xl pointer-events-none"
+                    class="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-2xl"
                 >
                     search
                 </app-icon>
             </div>
-            <div class="flex-1 overflow-auto p-3 space-y-2">
+            <div class="flex-1 space-y-2 overflow-auto p-3">
                 <div
                     *ngIf="!(filtered_pending | async)?.length"
-                    class="w-full h-full flex flex-col items-center justify-center space-y-2"
+                    class="flex h-full w-full flex-col items-center justify-center space-y-2"
                 >
                     <img src="assets/icons/no-pending.svg" />
                     <p class="opacity-30">
@@ -69,31 +69,31 @@ import { EventsStateService } from './events-state.service';
                 </div>
                 <div
                     *ngFor="let event of filtered_pending | async"
-                    class="relative border border-base-300 p-2 w-full rounded"
+                    class="relative w-full rounded border border-base-300 p-2"
                 >
                     @let space =
                         (event.resources.length
                             ? (event.resources[0]?.email | space | async)
                             : (event.mailbox | space | async)) || event.system;
                     <h3>{{ event.title }}</h3>
-                    <p class="opacity-30 text-xs mb-2">
+                    <p class="mb-2 text-xs opacity-30">
                         {{ event.date | date: 'mediumDate' : tz }}
                         {{ event.date | date: time_format : tz }}
                         <span *ngIf="tz">{{
                             event.date | date: 'zzzz' : tz
                         }}</span>
                     </p>
-                    <div class="w-64 h-32 overflow-hidden mb-2 bg-base-200">
+                    <div class="mb-2 h-32 w-64 overflow-hidden bg-base-200">
                         <img
                             auth
-                            class="object-cover min-w-full min-h-full"
+                            class="min-h-full min-w-full object-cover"
                             [source]="space?.images[0]"
                             *ngIf="space"
                         />
                     </div>
-                    <div class="flex items-center space-x-2 mb-2">
+                    <div class="mb-2 flex items-center space-x-2">
                         <div
-                            class="h-8 w-8 bg-base-200 rounded-full flex items-center justify-center"
+                            class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
                         >
                             <app-icon class="text-xl">place</app-icon>
                         </div>
@@ -105,9 +105,9 @@ import { EventsStateService } from './events-state.service';
                             }}
                         </div>
                     </div>
-                    <div class="flex items-center space-x-2 mb-2">
+                    <div class="mb-2 flex items-center space-x-2">
                         <div
-                            class="h-8 w-8 bg-base-200 rounded-full flex items-center justify-center"
+                            class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
                         >
                             <app-icon class="text-xl">person</app-icon>
                         </div>
@@ -119,7 +119,7 @@ import { EventsStateService } from './events-state.service';
                         <button
                             btn
                             matRipple
-                            class="border-success bg-success-light text-black flex flex-1 items-center space-x-2"
+                            class="flex flex-1 items-center space-x-2 border-success bg-success-light text-black"
                             [disabled]="status[event.id] === 'accept'"
                             (click)="approve(event)"
                         >
@@ -136,7 +136,7 @@ import { EventsStateService } from './events-state.service';
                         <button
                             btn
                             matRipple
-                            class="border-error bg-error-light text-black flex flex-1 items-center space-x-2 "
+                            class="flex flex-1 items-center space-x-2 border-error bg-error-light text-black"
                             [disabled]="status[event.id] === 'decline'"
                             (click)="reject(event)"
                         >
@@ -154,10 +154,10 @@ import { EventsStateService } from './events-state.service';
                 </div>
             </div>
             <div
-                class="absolute bottom-0 left-0 right-0 top-14 p-2 flex flex-col items-center justify-center space-y-2"
+                class="absolute bottom-0 left-0 right-0 top-14 flex flex-col items-center justify-center space-y-2 p-2"
                 *ngIf="loading"
             >
-                <div class="absolute inset-0 bg-base-100 opacity-80 z-0"></div>
+                <div class="absolute inset-0 z-0 bg-base-100 opacity-80"></div>
                 <mat-spinner diameter="32"></mat-spinner>
                 <p class="relative z-10">
                     {{ 'APP.CONCIERGE.ROOMS_PENDING_LOADING' | translate }}
@@ -168,7 +168,7 @@ import { EventsStateService } from './events-state.service';
             btn
             icon
             matRipple
-            class="bg-warning absolute top-3 -left-8 shadow text-warning-content"
+            class="absolute -left-8 top-3 bg-warning text-warning-content shadow"
             *ngIf="!show"
             (click)="show = !show"
             [matTooltip]="'APP.CONCIERGE.ROOMS_PENDING_SHOW' | translate"

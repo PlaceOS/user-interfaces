@@ -9,22 +9,22 @@ import { formatDuration } from '@placeos/common';
 @Component({
     selector: 'panel-booking-list',
     template: `
-        <h2 class="w-full px-4 py-2 mb-2 font-medium" *ngIf="current | async">
+        <h2 class="mb-2 w-full px-4 py-2 font-medium" *ngIf="current | async">
             Current
             <span
-                class="text-xs shadow px-2 py-1 ml-8 rounded bg-base-200"
+                class="ml-8 rounded bg-base-200 px-2 py-1 text-xs shadow"
                 *ngIf="!(started | async) && (starting_in | async)"
             >
                 Starting in {{ starting_in | async }}
             </span>
             <span
-                class="text-xs shadow px-2 py-1 ml-8 rounded bg-error text-white"
+                class="ml-8 rounded bg-error px-2 py-1 text-xs text-white shadow"
                 *ngIf="(started | async) && !(pending | async)"
             >
                 In Progress
             </span>
             <span
-                class="text-xs shadow px-2 py-1 ml-8 rounded bg-warning text-white"
+                class="ml-8 rounded bg-warning px-2 py-1 text-xs text-white shadow"
                 *ngIf="
                     ((current | async)?.state === 'upcoming' ||
                         (current | async)?.state === 'in_progress') &&
@@ -37,17 +37,17 @@ import { formatDuration } from '@placeos/common';
         <div class="mb-4 w-full" *ngIf="current | async; else empty_state">
             <div
                 current
-                class="flex items-center bg-base-100 rounded-lg px-4 h-24 text-lg shadow-md w-full border border-base-200 relative max-w-full"
+                class="relative flex h-24 w-full max-w-full items-center rounded-lg border border-base-200 bg-base-100 px-4 text-lg shadow-md"
                 [class.text-white]="started | async"
             >
                 <div
                     color
-                    class="absolute -left-2 -right-2 top-2 bottom-2 bg-primary rounded z-0"
+                    class="absolute -left-2 -right-2 bottom-2 top-2 z-0 rounded bg-primary"
                     [class.opacity-100]="started | async"
                     [class.opacity-0]="!(started | async)"
                 ></div>
                 <div
-                    class="relative opacity-80 w-24 text-base z-10"
+                    class="relative z-10 w-24 text-base opacity-80"
                     *ngIf="!(started | async)"
                 >
                     <span [class.opacity-60]="started | async">{{
@@ -60,7 +60,7 @@ import { formatDuration } from '@placeos/common';
                     }}</span>
                 </div>
                 <div
-                    class="relative opacity-80 w-24 text-base z-10 flex flex-col"
+                    class="relative z-10 flex w-24 flex-col text-base opacity-80"
                     *ngIf="started | async"
                 >
                     <div class="text-xs">Ends at:</div>
@@ -72,27 +72,27 @@ import { formatDuration } from '@placeos/common';
                         }}
                     </div>
                 </div>
-                <div class="relative truncate z-10">
+                <div class="relative z-10 truncate">
                     {{ (current | async)?.title || '&lt;Private Event&gt;' }}
                 </div>
             </div>
         </div>
         <h2
-            class="w-full px-4 py-2 mb-2 font-medium"
+            class="mb-2 w-full px-4 py-2 font-medium"
             *ngIf="(upcoming | async)?.length"
         >
             Upcoming
         </h2>
         <ul
-            class="list-style-none p-0 m-0 bg-base-100 rounded text-base shadow divide-y divide-base-200 w-full border border-base-200 max-w-full"
+            class="list-style-none m-0 w-full max-w-full divide-y divide-base-200 rounded border border-base-200 bg-base-100 p-0 text-base shadow"
             *ngIf="(upcoming | async)?.length"
         >
             <li
                 upcoming
-                class="flex items-center w-full p-4"
+                class="flex w-full items-center p-4"
                 *ngFor="let event of upcoming | async | slice: 0 : 2"
             >
-                <div class="opacity-60 w-24">
+                <div class="w-24 opacity-60">
                     {{ event?.date | date: 'shortTime' }}
                 </div>
                 <div class="truncate">
@@ -101,13 +101,13 @@ import { formatDuration } from '@placeos/common';
             </li>
             <li
                 upcoming
-                class="flex items-center w-full p-4"
+                class="flex w-full items-center p-4"
                 *ngIf="(upcoming | async)?.length > 2"
             ></li>
         </ul>
         <ng-template #empty_state>
             <div
-                class="flex items-center justify-center bg-base-100 rounded px-4 py-8 shadow-md w-full border border-base-200"
+                class="flex w-full items-center justify-center rounded border border-base-200 bg-base-100 px-4 py-8 shadow-md"
             >
                 <p class="opacity-50">No upcoming events for today</p>
             </div>
@@ -132,7 +132,7 @@ import { formatDuration } from '@placeos/common';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class PanelBookingListComponent {
     /** List of current and future events for the current day */

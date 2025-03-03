@@ -47,7 +47,7 @@ const RESOURCE_MAP: Record<string, any> = {};
             *ngIf="focus && !show_directions && options?.controls"
             btn
             matRipple
-            class="absolute bottom-2 left-2 bg-base-100 text-base-content shadow z-10 border-base-200 space-x-2"
+            class="absolute bottom-2 left-2 z-10 space-x-2 border-base-200 bg-base-100 text-base-content shadow"
             (click)="toggleDirections()"
         >
             <app-icon>place</app-icon>
@@ -58,7 +58,7 @@ const RESOURCE_MAP: Record<string, any> = {};
         </button>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
     @Input() public zone: BuildingLevel;

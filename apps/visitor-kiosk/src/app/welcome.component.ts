@@ -6,15 +6,15 @@ import { AsyncHandler, LocaleService, SettingsService } from '@placeos/common';
 @Component({
     selector: 'app-welcome',
     template: `
-        <div class="absolute inset-0 p-8 flex items-center">
+        <div class="absolute inset-0 flex items-center p-8">
             <img
                 auth
                 [source]="background"
-                class="absolute min-h-[100%] min-w-[100%] top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2"
+                class="absolute left-1/2 top-1/2 min-h-[100%] min-w-[100%] -translate-x-1/2 -translate-y-1/2"
             />
-            <div class="flex flex-col justify-center space-y-8 z-10 w-[60%]">
+            <div class="z-10 flex w-[60%] flex-col justify-center space-y-8">
                 <h3
-                    class="mb-4 text-white text-6xl space-y-4"
+                    class="mb-4 space-y-4 text-6xl text-white"
                     [innerHTML]="
                         welcome_message ||
                             ('APP.VISITOR_KIOSK.WELCOME_MESSAGE' | translate)
@@ -65,17 +65,17 @@ import { AsyncHandler, LocaleService, SettingsService } from '@placeos/common';
                     </a>
                 </div>
             </div>
-            <div class="absolute top-4 right-4 text-2xl text-white">
+            <div class="absolute right-4 top-4 text-2xl text-white">
                 {{ now | date: 'mediumDate' }} {{ now | date: 'shortTime' }}
             </div>
             <button
-                class="absolute top-4 left-4"
+                class="absolute left-4 top-4"
                 *ngIf="locales.length > 1"
                 [matMenuTriggerFor]="menu"
             >
                 <div class="flex items-center justify-between">
                     <app-icon class="text-2xl text-white">language</app-icon>
-                    <div class="text-white text-left ml-2 leading-tight">
+                    <div class="ml-2 text-left leading-tight text-white">
                         <div>{{ 'COMMON.LANGUAGE' | translate }}</div>
                         <div
                             *ngIf="
@@ -87,7 +87,7 @@ import { AsyncHandler, LocaleService, SettingsService } from '@placeos/common';
                         </div>
                     </div>
                     <div
-                        class="text-sm px-2 py-1 rounded bg-base-200 max-w-24 truncate ml-4"
+                        class="ml-4 max-w-24 truncate rounded bg-base-200 px-2 py-1 text-sm"
                         [matTooltip]="active_locale | translate"
                     >
                         {{ active_locale | translate }}
@@ -101,7 +101,7 @@ import { AsyncHandler, LocaleService, SettingsService } from '@placeos/common';
                     (click)="setLocale(lang.id)"
                 >
                     <div
-                        class="flex items-center justify-between space-x-8 h-14 min-w-[24rem]"
+                        class="flex h-14 min-w-[24rem] items-center justify-between space-x-8"
                     >
                         <div
                             class="leading-tight"
@@ -123,7 +123,7 @@ import { AsyncHandler, LocaleService, SettingsService } from '@placeos/common';
             </mat-menu>
             <img
                 src="assets/img/building.png"
-                class="absolute w-[60%] bottom-0 right-0"
+                class="absolute bottom-0 right-0 w-[60%]"
             />
         </div>
     `,

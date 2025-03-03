@@ -10,29 +10,29 @@ const EMPTY_FAVS: string[] = [];
     selector: 'asset-select-modal',
     template: `
         <div
-            class="w-[100vw] h-[100vh] sm:relative sm:w-auto sm:h-auto flex flex-col bg-base-100"
+            class="flex h-[100vh] w-[100vw] flex-col bg-base-100 sm:relative sm:h-auto sm:w-auto"
         >
-            <header class="flex items-center space-x-4 w-full">
+            <header class="flex w-full items-center space-x-4">
                 <button icon mat-dialog-close class="bg-base-200">
                     <app-icon>close</app-icon>
                 </button>
                 <h3>Add Assets</h3>
             </header>
             <main
-                class="flex-1 flex items-center divide-x divide-base-200 min-h-[65vh] h-[65vh] sm:max-h-[65vh] sm:max-w-[95vw] w-full overflow-hidden"
+                class="flex h-[65vh] min-h-[65vh] w-full flex-1 items-center divide-x divide-base-200 overflow-hidden sm:max-h-[65vh] sm:max-w-[95vw]"
             >
                 <div
-                    class="flex flex-col items-center flex-1 w-1/2 h-full sm:h-[65vh]"
+                    class="flex h-full w-1/2 flex-1 flex-col items-center sm:h-[65vh]"
                 >
                     <asset-filters
-                        class="h-full hidden sm:block"
+                        class="hidden h-full sm:block"
                         [(at_time)]="exact_time"
                         [(offset)]="offset"
                         [(offset_day)]="offset_day"
                     ></asset-filters>
                 </div>
                 <div
-                    class="flex flex-col items-center flex-1 w-1/2 h-full sm:min-w-[20rem] sm:h-[65vh]"
+                    class="flex h-full w-1/2 flex-1 flex-col items-center sm:h-[65vh] sm:min-w-[20rem]"
                 >
                     <asset-filters-display
                         class="w-full border-b border-base-200"
@@ -44,12 +44,12 @@ const EMPTY_FAVS: string[] = [];
                         [requested]="requested"
                         (toggleFav)="toggleFavourite($event)"
                         (onSelect)="displayed = $event"
-                        class="flex-1 h-1/2 w-full overflow-hidden"
+                        class="h-1/2 w-full flex-1 overflow-hidden"
                     ></asset-list>
                 </div>
                 <asset-details
                     [item]="displayed!"
-                    class="h-full w-full sm:h-[65vh] absolute sm:relative sm:flex sm:max-w-[20rem] bg-base-100  z-20"
+                    class="absolute z-20 h-full w-full bg-base-100 sm:relative sm:flex sm:h-[65vh] sm:max-w-[20rem]"
                     [class.hidden]="!displayed"
                     [class.inset-0]="displayed"
                     [active]="selected_ids.includes(displayed?.id || '')"
@@ -64,13 +64,13 @@ const EMPTY_FAVS: string[] = [];
                 ></asset-details>
             </main>
             <footer
-                class="flex sm:hidden flex-col-reverse items-center justify-end p-2 border-t border-base-200"
+                class="flex flex-col-reverse items-center justify-end border-t border-base-200 p-2 sm:hidden"
             >
                 <button
                     btn
                     matRipple
                     back-btn
-                    class="inverse sm:hidden w-full sm:w-auto"
+                    class="inverse w-full sm:hidden sm:w-auto"
                     *ngIf="displayed"
                     (click)="displayed = null"
                 >
@@ -82,13 +82,13 @@ const EMPTY_FAVS: string[] = [];
                     save
                     [mat-dialog-close]="selected"
                     [class.mb-2]="displayed"
-                    class="w-full sm:w-auto sm:mb-0"
+                    class="w-full sm:mb-0 sm:w-auto"
                 >
                     View List
                 </button>
             </footer>
             <footer
-                class="hidden sm:flex items-center justify-between p-2 border-t border-base-200 w-full"
+                class="hidden w-full items-center justify-between border-t border-base-200 p-2 sm:flex"
             >
                 <button
                     btn
@@ -101,7 +101,7 @@ const EMPTY_FAVS: string[] = [];
                         <div class="mr-1 underline">Back to form</div>
                     </div>
                 </button>
-                <p class="opacity-60 text-sm">{{ count }} asset(s) added</p>
+                <p class="text-sm opacity-60">{{ count }} asset(s) added</p>
                 <button
                     btn
                     matRipple
@@ -126,7 +126,7 @@ const EMPTY_FAVS: string[] = [];
         </div>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class AssetSelectModalComponent {
     public displayed: AssetGroup | null = null;
@@ -163,16 +163,16 @@ export class AssetSelectModalComponent {
             offset?: number;
             offset_day?: number;
             requested: Record<string, number>;
-        }
+        },
     ) {
         const { duration } = this._data.details;
         this._state.setOptions(this._data.details);
         this.offset = Math.min(
             Math.max(
                 this._settings.get('app.assets.min_offset'),
-                this._data.offset || 0
+                this._data.offset || 0,
             ),
-            (duration || 60) - this._settings.get('app.assets.end_offset')
+            (duration || 60) - this._settings.get('app.assets.end_offset'),
         );
         this.offset_day = this._data.offset_day || 0;
     }
@@ -203,7 +203,7 @@ export class AssetSelectModalComponent {
         } else {
             this._settings.saveUserSetting(
                 'favourite_assets',
-                fav_list.filter((_) => _ !== asset.id)
+                fav_list.filter((_) => _ !== asset.id),
             );
         }
     }

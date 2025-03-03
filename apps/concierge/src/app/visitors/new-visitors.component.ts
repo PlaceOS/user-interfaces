@@ -12,14 +12,14 @@ import { SettingsService } from '@placeos/common';
     selector: '[app-new-visitors]',
     template: `
         <app-topbar></app-topbar>
-        <div class="flex flex-1 h-px">
+        <div class="flex h-px flex-1">
             <app-sidebar></app-sidebar>
-            <main class="flex flex-col flex-1 w-1/2 h-full">
-                <div class="flex items-center px-8 py-4 space-x-2">
+            <main class="flex h-full w-1/2 flex-1 flex-col">
+                <div class="flex items-center space-x-2 px-8 py-4">
                     <h2 class="text-2xl font-medium">
                         {{ 'RESOURCE.VISITORS' | translate }}
                     </h2>
-                    <div class="flex-1 w-2"></div>
+                    <div class="w-2 flex-1"></div>
                     <searchbar
                         class="mr-2"
                         (modelChange)="setSearch($event)"
@@ -66,10 +66,10 @@ import { SettingsService } from '@placeos/common';
                             </mat-option>
                         </mat-select>
                     </mat-form-field>
-                    <div class="flex-1 w-2"></div>
+                    <div class="w-2 flex-1"></div>
                     <date-options (dateChange)="setDate($event)"></date-options>
                 </div>
-                <div class="mx-8 flex-1 h-1/2 overflow-auto">
+                <div class="mx-8 h-1/2 flex-1 overflow-auto">
                     <guest-listings></guest-listings>
                 </div>
                 <mat-progress-bar
@@ -91,7 +91,7 @@ import { SettingsService } from '@placeos/common';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class NewVisitorsComponent implements OnInit, OnDestroy {
     public readonly loading = this._state.loading;

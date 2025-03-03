@@ -9,7 +9,7 @@ export class SourceSelectModalData {
     selector: 'source-select-modal',
     template: `
         <div
-            class="bg-base-100 flex flex-col items-center py-16 px-8 overflow-auto"
+            class="flex flex-col items-center overflow-auto bg-base-100 px-8 py-16"
             [style.max-height]="simple ? '80vh' : ''"
             [class.fixed]="!simple"
             [class.inset-0]="!simple"
@@ -35,7 +35,7 @@ export class SourceSelectModalData {
             </button>
         </div>
     `,
-    standalone: false
+    standalone: false,
 })
 export class SourceSelectModalComponent {
     public simple = false;
@@ -43,7 +43,7 @@ export class SourceSelectModalComponent {
 
     constructor(
         @Inject(MAT_DIALOG_DATA) private _data: SourceSelectModalData,
-        private _dialog_ref: MatDialogRef<SourceSelectModalComponent>
+        private _dialog_ref: MatDialogRef<SourceSelectModalComponent>,
     ) {}
 
     public close() {

@@ -2,7 +2,7 @@ import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
     name: 'thumbnail',
-    standalone: false
+    standalone: false,
 })
 export class ThumbnailPipe implements PipeTransform {
     private _thumbnail_cache: Record<string, string> = {};

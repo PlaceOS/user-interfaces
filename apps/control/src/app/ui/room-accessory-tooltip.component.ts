@@ -8,14 +8,14 @@ import { ControlStateService } from '../control-state.service';
     selector: 'room-accessory-tooltip',
     template: `
         <div
-            class="p-4 my-2 bg-base-100 shadow rounded flex flex-col items-center space-y-2"
+            class="my-2 flex flex-col items-center space-y-2 rounded bg-base-100 p-4 shadow"
         >
             <h3 class="mb-2 text-xl font-medium">
                 {{ 'APP.CONTROL.ACCESSORIES' | translate }}
             </h3>
             <ng-container *ngIf="(list | async)?.length; else empty_state">
                 <div
-                    class="flex items-center space-x-2 w-full"
+                    class="flex w-full items-center space-x-2"
                     *ngFor="let item of list | async"
                 >
                     <div class="flex-1 pr-8 font-medium">{{ item.name }}</div>
@@ -24,7 +24,7 @@ import { ControlStateService } from '../control-state.service';
                         icon
                         matRipple
                         *ngFor="let ctrl of item.controls"
-                        class="border border-solid border-primary text-primary rounded"
+                        class="rounded border border-solid border-primary text-primary"
                         (click)="
                             performAction(
                                 item.module,

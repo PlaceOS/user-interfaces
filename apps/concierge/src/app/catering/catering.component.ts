@@ -6,15 +6,15 @@ import { AsyncHandler } from '@placeos/common';
     selector: '[app-catering]',
     template: `
         <sidebar></sidebar>
-        <main class="relative w-full flex flex-col bg-base-200">
+        <main class="relative flex w-full flex-col bg-base-200">
             <catering-topbar class="relative z-10"></catering-topbar>
             <div
-                class="p-2 flex items-center justify-center bg-info text-info-content text-sm"
+                class="flex items-center justify-center bg-info p-2 text-sm text-info-content"
                 *ngIf="page === 'menu'"
             >
                 {{ 'CATERING.MENU_EDIT_INFO' | translate }}
             </div>
-            <div class="flex flex-1 h-1/2 w-full overflow-auto">
+            <div class="flex h-1/2 w-full flex-1 overflow-auto">
                 <ng-container [ngSwitch]="page">
                     <catering-order-list
                         *ngSwitchCase="'orders'"
@@ -30,46 +30,46 @@ import { AsyncHandler } from '@placeos/common';
                     >
                         <a
                             matRipple
-                            class="rounded flex flex-col items-center bg-base-100 shadow text-black"
+                            class="flex flex-col items-center rounded bg-base-100 text-black shadow"
                             [routerLink]="['/book', 'catering', 'menu']"
                         >
                             <div
                                 name="img"
-                                class="relative w-full flex flex-1 items-center justify-center text-2xl text-white bg-center bg-cover"
+                                class="relative flex w-full flex-1 items-center justify-center bg-cover bg-center text-2xl text-white"
                                 [style.background-image]="
                                     'url(assets/menus.jpg)'
                                 "
                             >
                                 <div
-                                    class="absolute inset-0 bg-neutral opacity-60 z-0"
+                                    class="absolute inset-0 z-0 bg-neutral opacity-60"
                                 ></div>
                                 <span class="z-10">Menus and Pricing</span>
                             </div>
                             <div
-                                class="p-2 h-14 w-full text-sm text-center flex items-center justify-center"
+                                class="flex h-14 w-full items-center justify-center p-2 text-center text-sm"
                             >
                                 View and Edit Menus and Pricing
                             </div>
                         </a>
                         <a
                             matRipple
-                            class="rounded flex flex-col items-center bg-base-100 shadow text-black"
+                            class="flex flex-col items-center rounded bg-base-100 text-black shadow"
                             [routerLink]="['/book', 'catering', 'orders']"
                         >
                             <div
                                 name="img"
-                                class="relative w-full flex flex-1 items-center justify-center text-2xl text-white bg-center bg-cover"
+                                class="relative flex w-full flex-1 items-center justify-center bg-cover bg-center text-2xl text-white"
                                 [style.background-image]="
                                     'url(assets/orders.jpg)'
                                 "
                             >
                                 <div
-                                    class="absolute inset-0 bg-neutral opacity-60 z-0"
+                                    class="absolute inset-0 z-0 bg-neutral opacity-60"
                                 ></div>
                                 <span class="z-10">Today's Orders</span>
                             </div>
                             <div
-                                class="p-2 h-14 w-full text-sm text-center flex items-center justify-center"
+                                class="flex h-14 w-full items-center justify-center p-2 text-center text-sm"
                             >
                                 View Catering Orders and their statuses upon
                                 arrival
@@ -105,7 +105,7 @@ import { AsyncHandler } from '@placeos/common';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class CateringComponent extends AsyncHandler implements OnInit {
     /** Page being displayed */

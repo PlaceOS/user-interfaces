@@ -61,7 +61,7 @@ describe('SpaceFlowConfirmComponent', () => {
         (service.postForm as any).mockImplementation(async () =>
             timer(1)
                 .pipe(switchMap(() => throwError('Error')))
-                .toPromise()
+                .toPromise(),
         );
         spectator.click('button[confirm]');
         expect(spectator.component.loading).toBeTruthy();

@@ -2,10 +2,9 @@ import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
     name: 'toFixed',
-    standalone: false
+    standalone: false,
 })
 export class FixedPipe implements PipeTransform {
-
     /**
      * Fixed a number to x decimal places
      * @param value number to convert

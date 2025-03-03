@@ -11,21 +11,21 @@ import { uploadFiles } from '@placeos/cloud-uploads';
     selector: 'upload-file',
     template: `
         <div
-            class="bg-base-200 hover:bg-base-200 cursor-pointer p-2 rounded border border-base-200 w-full relative"
+            class="relative w-full cursor-pointer rounded border border-base-200 bg-base-200 p-2 hover:bg-base-200"
         >
             <input
                 type="file"
-                class="absolute inset-0 opacity-0 max-w-full z-10"
+                class="absolute inset-0 z-10 max-w-full opacity-0"
                 (change)="onFileEvent($event)"
             />
             <div
                 item
                 *ngIf="item; else empty_state"
-                class="w-full flex items-center border border-base-200 rounded bg-base-100 hover:bg-base-200 relative z-50"
+                class="relative z-50 flex w-full items-center rounded border border-base-200 bg-base-100 hover:bg-base-200"
                 [class.!bg-error]="item.progress < 1"
                 [class.!bg-opacity-20]="item.progress < 1"
             >
-                <div class="flex-1 w-px font-mono truncate px-2 text-sm">
+                <div class="w-px flex-1 truncate px-2 font-mono text-sm">
                     {{ item.name }}
                 </div>
                 <ng-container *ngIf="item.progress >= 0 && item.progress < 100">
@@ -37,7 +37,7 @@ import { uploadFiles } from '@placeos/cloud-uploads';
                         ></mat-progress-spinner>
 
                         <div
-                            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-sm font-bold"
+                            class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-sm font-bold"
                         >
                             {{ item.progress }}
                         </div>
@@ -60,7 +60,7 @@ import { uploadFiles } from '@placeos/cloud-uploads';
         </div>
         <ng-template #empty_state>
             <div
-                class="h-full w-full flex flex-col justify-center items-center z-0"
+                class="z-0 flex h-full w-full flex-col items-center justify-center"
             >
                 <p class="opacity-30">Drop file or click to upload file</p>
             </div>
@@ -74,7 +74,7 @@ import { uploadFiles } from '@placeos/cloud-uploads';
             multi: true,
         },
     ],
-    standalone: false
+    standalone: false,
 })
 export class UploadFileFieldComponent implements ControlValueAccessor {
     public item: Attachment;

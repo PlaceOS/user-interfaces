@@ -10,9 +10,9 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
     template: `
         <div>
             <header
-                class="sticky top-0 p-2 m-2 w-[calc(100%-1rem)] border-none z-10 bg-base-200 rounded"
+                class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded border-none bg-base-200 p-2"
             >
-                <h2 class="text-xl font-medium px-2">
+                <h2 class="px-2 text-xl font-medium">
                     {{
                         'APP.CONCIERGE.AVAILABLE_ROOMS_HEADER'
                             | translate: { type: type }
@@ -23,7 +23,7 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
                 </button>
             </header>
             <main
-                class="max-h-[65vh] overflow-auto w-[32rem]"
+                class="max-h-[65vh] w-[32rem] overflow-auto"
                 *ngIf="!loading; else load_state"
             >
                 <table class="min-w-[32rem]">
@@ -68,7 +68,7 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
                             <td>{{ space.display_name || space.name }}</td>
                             <td class="text-center">
                                 <div
-                                    class="ml-auto px-3 py-2 rounded-full text-white w-24 text-sm"
+                                    class="ml-auto w-24 rounded-full px-3 py-2 text-sm text-white"
                                     [class.bg-success]="
                                         !disabled_rooms?.includes(space.id)
                                     "
@@ -89,7 +89,7 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
                 </table>
             </main>
             <footer
-                class="flex items-center px-4 py-2 justify-end space-x-4 border-t border-base-200"
+                class="flex items-center justify-end space-x-4 border-t border-base-200 px-4 py-2"
             >
                 <button btn matRipple (click)="enableSelected()">
                     {{ 'APP.CONCIERGE.AVAILABLE_ROOMS_ENABLE' | translate }}
@@ -101,7 +101,7 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
         </div>
         <ng-template #load_state>
             <main
-                class="w-64 h-48 p-8 flex flex-col items-center justify-center space-y-2"
+                class="flex h-48 w-64 flex-col items-center justify-center space-y-2 p-8"
             >
                 <mat-spinner diameter="32"></mat-spinner>
                 <p>
@@ -120,7 +120,7 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class AvailableRoomsStateModalComponent {
     @Output() public change = new EventEmitter<string[]>();

@@ -49,7 +49,7 @@ export class CustomTooltipData<T = any> {
             </div>
         </ng-template>
     `,
-    standalone: false
+    standalone: false,
 })
 export class CustomTooltipComponent<T = any>
     extends AsyncHandler
@@ -88,7 +88,7 @@ export class CustomTooltipComponent<T = any>
     constructor(
         private _element: ElementRef<HTMLElement>,
         private _overlay: Overlay,
-        private _injector: Injector
+        private _injector: Injector,
     ) {
         super();
     }
@@ -134,8 +134,8 @@ export class CustomTooltipComponent<T = any>
                                     (this.y_pos === 'top'
                                         ? 'bottom'
                                         : this.y_pos == 'bottom'
-                                        ? 'top'
-                                        : this.y_pos) || default_y,
+                                          ? 'top'
+                                          : this.y_pos) || default_y,
                                 overlayX: this.x_pos || default_x,
                                 overlayY: this.y_pos || default_y,
                             },
@@ -147,11 +147,11 @@ export class CustomTooltipComponent<T = any>
                         'backdrop',
                         this._overlay_ref
                             .backdropClick()
-                            .subscribe(() => this.close())
+                            .subscribe(() => this.close()),
                     );
                 }
             },
-            50
+            50,
         );
     }
 
@@ -168,8 +168,8 @@ export class CustomTooltipComponent<T = any>
             typeof this.content === 'string'
                 ? 'html'
                 : this.content instanceof TemplateRef
-                ? 'template'
-                : 'component';
+                  ? 'template'
+                  : 'component';
     }
 
     private _updateInjector() {

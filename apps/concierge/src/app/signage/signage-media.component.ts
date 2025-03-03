@@ -12,17 +12,17 @@ import { CdkDragDrop } from '@angular/cdk/drag-drop';
 @Component({
     selector: 'signage-media',
     template: `
-        <div class="relative h-full w-full overflow-visible flex space-x-4">
+        <div class="relative flex h-full w-full space-x-4 overflow-visible">
             <div
                 sidebar
-                class="w-64 h-full flex flex-col space-y-4 py-4 overflow-auto"
+                class="flex h-full w-64 flex-col space-y-4 overflow-auto py-4"
             >
-                <h3 class="text-xl font-medium text-center">
+                <h3 class="text-center text-xl font-medium">
                     {{ 'APP.CONCIERGE.SIGNAGE_PLAYLISTS' | translate }}
                 </h3>
                 <mat-form-field
                     appearance="outline"
-                    class="w-full no-subscript"
+                    class="no-subscript w-full"
                 >
                     <input
                         matInput
@@ -33,7 +33,7 @@ import { CdkDragDrop } from '@angular/cdk/drag-drop';
                 </mat-form-field>
                 <a
                     matRipple
-                    class="w-full px-6 rounded-3xl min-h-12 flex items-center hover:bg-base-200"
+                    class="flex min-h-12 w-full items-center rounded-3xl px-6 hover:bg-base-200"
                     [class.!bg-secondary]="!selected_playlist"
                     [class.text-secondary-content]="!selected_playlist"
                     [routerLink]="[]"
@@ -46,7 +46,7 @@ import { CdkDragDrop } from '@angular/cdk/drag-drop';
                     @for (playlist of playlists | async; track playlist.id) {
                         <a
                             matRipple
-                            class="w-full px-6 rounded-3xl h-12 min-h-12 flex items-center hover:bg-base-200"
+                            class="flex h-12 min-h-12 w-full items-center rounded-3xl px-6 hover:bg-base-200"
                             [class.!bg-secondary]="
                                 selected_playlist === playlist.id
                             "
@@ -74,7 +74,7 @@ import { CdkDragDrop } from '@angular/cdk/drag-drop';
                     }
                 } @else {
                     <div
-                        class="flex flex-col items-center justify-center p-8 space-y-2 opacity-30"
+                        class="flex flex-col items-center justify-center space-y-2 p-8 opacity-30"
                     >
                         <app-icon class="text-6xl">hide_image</app-icon>
                         <p class="text-center">
@@ -93,7 +93,7 @@ import { CdkDragDrop } from '@angular/cdk/drag-drop';
                         class="inverse"
                         (click)="addPlaylist()"
                     >
-                        <div class="flex items-center justify-center w-full">
+                        <div class="flex w-full items-center justify-center">
                             <app-icon class="text-2xl">add</app-icon>
                             <span class="ml-2 mr-4">{{
                                 'APP.CONCIERGE.SIGNAGE_PLAYLISTS_ADD'
@@ -104,7 +104,7 @@ import { CdkDragDrop } from '@angular/cdk/drag-drop';
                 }
             </div>
             <div
-                class="relative flex-1 w-1/2 h-full overflow-hidden rounded-lg border border-base-300 shadow"
+                class="relative h-full w-1/2 flex-1 overflow-hidden rounded-lg border border-base-300 shadow"
                 (dragover)="onEnter($event)"
                 (dragenter)="onEnter($event)"
                 (window:drop)="hideOverlay($event)"
@@ -130,7 +130,7 @@ import { CdkDragDrop } from '@angular/cdk/drag-drop';
                         class="absolute inset-0 bg-base-content opacity-60"
                     ></div>
                     <div
-                        class="absolute inset-4 border-4 border-dashed border-base-300 flex flex-col items-center justify-center rounded-2xl text-base-100 space-y-4"
+                        class="absolute inset-4 flex flex-col items-center justify-center space-y-4 rounded-2xl border-4 border-dashed border-base-300 text-base-100"
                     >
                         <app-icon class="text-6xl">cloud_upload</app-icon>
                         <p>
@@ -156,7 +156,7 @@ import { CdkDragDrop } from '@angular/cdk/drag-drop';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class SignageMediaComponent extends AsyncHandler implements OnInit {
     public readonly search = new BehaviorSubject<string>('');

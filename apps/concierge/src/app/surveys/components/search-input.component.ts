@@ -44,7 +44,7 @@ import { debounceTime, distinctUntilChanged, map } from 'rxjs/operators';
             </button>
         </mat-form-field>
     `,
-    standalone: false
+    standalone: false,
 })
 export class SearchInputComponent
     extends AsyncHandler

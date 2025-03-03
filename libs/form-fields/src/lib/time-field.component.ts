@@ -31,19 +31,19 @@ import {
     template: `
         <button
             time-field
-            class="flex items-center justify-between border border-neutral rounded h-12 w-full px-2"
+            class="flex h-12 w-full items-center justify-between rounded border border-neutral px-2"
             [disabled]="disabled"
             [class.opacity-30]="disabled"
             matRipple
             [matMenuTriggerFor]="menu"
         >
             <div
-                class="flex flex-col leading-tight px-2 text-left flex-1 w-1/2"
+                class="flex w-1/2 flex-1 flex-col px-2 text-left leading-tight"
             >
                 <div class="truncate">
                     {{ active_time | date: time_format }}
                 </div>
-                <div class="text-xs opacity-30 truncate" *ngIf="timezone && tz">
+                <div class="truncate text-xs opacity-30" *ngIf="timezone && tz">
                     {{ active_time | date: time_format + ' (z)' : tz }}
                 </div>
             </div>
@@ -57,7 +57,7 @@ import {
                 class="text-left"
                 (click)="setValue(force_time)"
             >
-                <div class=" flex items-center justify-between">
+                <div class="flex items-center justify-between">
                     <div class="flex flex-col leading-tight">
                         <div class="">
                             {{ force_time | date: time_format }}
@@ -68,7 +68,7 @@ import {
                     </div>
                     <app-icon
                         *ngIf="active_time === force_time"
-                        class="text-2xl ml-2"
+                        class="ml-2 text-2xl"
                     >
                         done
                     </app-icon>
@@ -81,7 +81,7 @@ import {
                 class="text-left"
                 (click)="setValue(option.id)"
             >
-                <div class=" flex items-center justify-between">
+                <div class="flex items-center justify-between">
                     <div class="flex flex-col leading-tight">
                         <div class="">
                             {{ option.date | date: time_format }}
@@ -93,7 +93,7 @@ import {
                     </div>
                     <app-icon
                         *ngIf="active_time === option.date"
-                        class="text-2xl ml-2"
+                        class="ml-2 text-2xl"
                     >
                         done
                     </app-icon>

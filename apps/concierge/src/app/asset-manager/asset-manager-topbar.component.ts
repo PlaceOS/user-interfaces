@@ -10,7 +10,7 @@ import { OrganisationService } from '@placeos/organisation';
     selector: 'asset-manager-topbar',
     template: `
         <div
-            class="w-full px-8 pt-4 pb-2 bg-base-100 flex items-center space-x-2"
+            class="flex w-full items-center space-x-2 bg-base-100 px-8 pb-2 pt-4"
         >
             <h2 class="text-2xl font-medium">
                 {{
@@ -20,9 +20,9 @@ import { OrganisationService } from '@placeos/organisation';
                     ) | translate
                 }}
             </h2>
-            <div class="flex-1 w-px"></div>
+            <div class="w-px flex-1"></div>
             <mat-form-field appearance="outline" class="no-subscript">
-                <app-icon matPrefix class="text-2xl relative top-1 -left-1">
+                <app-icon matPrefix class="relative -left-1 top-1 text-2xl">
                     search
                 </app-icon>
                 <input
@@ -59,7 +59,7 @@ import { OrganisationService } from '@placeos/organisation';
             </a>
         </div>
         <div
-            class="flex items-center px-8 space-x-2 mb-2"
+            class="mb-2 flex items-center space-x-2 px-8"
             *ngIf="active === 'items'"
         >
             <mat-button-toggle-group
@@ -70,7 +70,7 @@ import { OrganisationService } from '@placeos/organisation';
                     value="grid"
                     [matTooltip]="'COMMON.VIEW_AS_GRID' | translate"
                 >
-                    <div class="flex items-center justify-center h-12 w-8">
+                    <div class="flex h-12 w-8 items-center justify-center">
                         <app-icon class="text-2xl">view_module</app-icon>
                     </div>
                 </mat-button-toggle>
@@ -78,7 +78,7 @@ import { OrganisationService } from '@placeos/organisation';
                     value="list"
                     [matTooltip]="'COMMON.VIEW_AS_LIST' | translate"
                 >
-                    <div class="flex items-center justify-center h-12 w-8">
+                    <div class="flex h-12 w-8 items-center justify-center">
                         <app-icon class="text-2xl">view_list</app-icon>
                     </div>
                 </mat-button-toggle>
@@ -87,7 +87,7 @@ import { OrganisationService } from '@placeos/organisation';
             <button
                 icon
                 matRipple
-                class="bg-secondary text-secondary-content rounded h-12 w-12"
+                class="h-12 w-12 rounded bg-secondary text-secondary-content"
                 [matTooltip]="'APP.CONCIERGE.ASSETS_MANAGE_CONFIG' | translate"
                 (click)="editConfig()"
             >
@@ -96,7 +96,7 @@ import { OrganisationService } from '@placeos/organisation';
             <button
                 icon
                 matRipple
-                class="bg-secondary text-secondary-content rounded h-12 w-12"
+                class="h-12 w-12 rounded bg-secondary text-secondary-content"
                 [matTooltip]="
                     'APP.CONCIERGE.ASSETS_MANAGE_BOOKING_RULES' | translate
                 "
@@ -108,7 +108,7 @@ import { OrganisationService } from '@placeos/organisation';
                 icon
                 matRipple
                 *ngIf="active === 'items'"
-                class="bg-secondary text-secondary-content rounded h-12 w-12"
+                class="h-12 w-12 rounded bg-secondary text-secondary-content"
                 [matTooltip]="
                     'APP.CONCIERGE.ASSETS_MANAGE_CATEGORIES' | translate
                 "
@@ -138,7 +138,7 @@ import { OrganisationService } from '@placeos/organisation';
         </div>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class AssetManagerTopbarComponent extends AsyncHandler {
     @Input() public active = '';

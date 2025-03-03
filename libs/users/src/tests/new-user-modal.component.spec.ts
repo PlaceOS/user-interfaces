@@ -20,7 +20,7 @@ describe('NewUserModalComponent', () => {
         providers: [
             {
                 provide: MAT_DIALOG_DATA,
-                useValue: { },
+                useValue: {},
             },
         ],
         imports: [MatProgressSpinnerModule],

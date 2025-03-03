@@ -20,7 +20,7 @@ const routes: Routes = [
         path: 'week-view',
         loadChildren: () =>
             import('./week-view/week-view.module').then(
-                (m) => m.WeekViewModule
+                (m) => m.WeekViewModule,
             ),
         canActivate: [AuthorisedUserGuard],
         canLoad: [AuthorisedUserGuard],
@@ -29,7 +29,7 @@ const routes: Routes = [
         path: 'facilities',
         loadChildren: () =>
             import('./facilities/facilities.module').then(
-                (m) => m.FacilitiesModule
+                (m) => m.FacilitiesModule,
             ),
         canActivate: [AuthorisedUserGuard],
         canLoad: [AuthorisedUserGuard],
@@ -45,7 +45,7 @@ const routes: Routes = [
         path: 'book/assets',
         loadChildren: () =>
             import('./asset-manager/asset-manager.module').then(
-                (m) => m.AppAssetManangerModule
+                (m) => m.AppAssetManangerModule,
             ),
         canActivate: [AuthorisedUserGuard],
         canLoad: [AuthorisedUserGuard],
@@ -117,7 +117,7 @@ const routes: Routes = [
         path: 'room-management',
         loadChildren: () =>
             import('./room-manager/room-manager.module').then(
-                (m) => m.RoomManagerModule
+                (m) => m.RoomManagerModule,
             ),
         canActivate: [AuthorisedUserGuard],
         canLoad: [AuthorisedUserGuard],
@@ -126,7 +126,7 @@ const routes: Routes = [
         path: 'level-management',
         loadChildren: () =>
             import('./level-manager/level-manager.module').then(
-                (m) => m.LevelManagerModule
+                (m) => m.LevelManagerModule,
             ),
         canActivate: [AuthorisedUserGuard],
         canLoad: [AuthorisedUserGuard],
@@ -135,7 +135,7 @@ const routes: Routes = [
         path: 'building-management',
         loadChildren: () =>
             import('./building-manager/building-manager.module').then(
-                (m) => m.BuildingManagerModule
+                (m) => m.BuildingManagerModule,
             ),
         canActivate: [AuthorisedUserGuard],
         canLoad: [AuthorisedUserGuard],
@@ -144,7 +144,7 @@ const routes: Routes = [
         path: 'region-management',
         loadChildren: () =>
             import('./region-manager/region-manager.module').then(
-                (m) => m.RegionManagerModule
+                (m) => m.RegionManagerModule,
             ),
         canActivate: [AuthorisedUserGuard],
         canLoad: [AuthorisedUserGuard],
@@ -153,14 +153,14 @@ const routes: Routes = [
         path: 'email-templates',
         loadChildren: () =>
             import('./email-templates/email-templates.module').then(
-                (m) => m.EmailTemplatesModule
+                (m) => m.EmailTemplatesModule,
             ),
     },
     {
         path: 'points-of-interest',
         loadChildren: () =>
             import('./poi-manager/poi-manager.module').then(
-                (m) => m.POIManagerModule
+                (m) => m.POIManagerModule,
             ),
         canActivate: [AuthorisedUserGuard],
         canLoad: [AuthorisedUserGuard],
@@ -169,7 +169,7 @@ const routes: Routes = [
         path: 'url-management',
         loadChildren: () =>
             import('./url-management/url-manager.module').then(
-                (m) => m.UrlManagerModule
+                (m) => m.UrlManagerModule,
             ),
         canActivate: [AuthorisedUserGuard],
         canLoad: [AuthorisedUserGuard],

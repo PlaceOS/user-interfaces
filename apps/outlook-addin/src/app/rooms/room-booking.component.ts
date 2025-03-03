@@ -15,7 +15,7 @@ import { currentUser } from '@placeos/common';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class RoomBookingComponent implements OnInit {
     public show_spaces = false;
@@ -35,7 +35,7 @@ export class RoomBookingComponent implements OnInit {
         @Inject(DOCUMENT) private _document: Document,
         private router: Router,
         private _state: EventFormService,
-        private _featuresFilterService: FeaturesFilterService
+        private _featuresFilterService: FeaturesFilterService,
     ) {}
 
     ngOnInit(): void {

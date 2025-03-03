@@ -13,7 +13,7 @@ import { Clipboard } from '@angular/cdk/clipboard';
             class="w-full"
         ></mat-progress-bar>
         <simple-table
-            class="min-w-[52rem] block text-sm"
+            class="block min-w-[52rem] text-sm"
             [data]="locker_banks"
             [columns]="[
                 {
@@ -47,13 +47,13 @@ import { Clipboard } from '@angular/cdk/clipboard';
             [sortable]="true"
             [empty_message]="'APP.CONCIERGE.LOCKERS_BANK_EMPTY' | translate"
         ></simple-table>
-        <div class="w-full h-20"></div>
+        <div class="h-20 w-full"></div>
         <ng-template #height_template let-data="data">
             <div class="px-4 font-mono">{{ data || 1 }}u</div>
         </ng-template>
         <ng-template #id_template let-row="row" let-data="data">
             <button
-                class="px-4 py-2 text-left leading-tight font-mono"
+                class="px-4 py-2 text-left font-mono leading-tight"
                 (click)="copyToClipboard(data)"
             >
                 {{ data }}
@@ -69,7 +69,7 @@ import { Clipboard } from '@angular/cdk/clipboard';
             >
                 <div class="">{{ data }}</div>
                 <div
-                    class="text-[0.625rem] opacity-30 font-mono"
+                    class="font-mono text-[0.625rem] opacity-30"
                     *ngIf="row.id !== row.map_id"
                 >
                     {{ row.id }}
@@ -77,7 +77,7 @@ import { Clipboard } from '@angular/cdk/clipboard';
             </button>
         </ng-template>
         <ng-template #action_template let-row="row" let-data="data">
-            <div class="flex items-center justify-end space-x-2 w-full px-2">
+            <div class="flex w-full items-center justify-end space-x-2 px-2">
                 <button icon matRipple [matMenuTriggerFor]="menu">
                     <app-icon>more_vert</app-icon>
                 </button>
@@ -190,30 +190,30 @@ import { Clipboard } from '@angular/cdk/clipboard';
                     <div class="">{{ row.assigned_name || data }}</div>
                     <div
                         *ngIf="row.assigned_name"
-                        class="text-[0.625rem] opacity-30 font-mono"
+                        class="font-mono text-[0.625rem] opacity-30"
                     >
                         {{ data }}
                     </div>
                 </button>
             </ng-template>
             <ng-template #pos_template let-data="data">
-                <div class="w-full flex space-x-2 p-2">
+                <div class="flex w-full space-x-2 p-2">
                     <div class="flex flex-col">
-                        <div class="opacity-30 text-xs">
+                        <div class="text-xs opacity-30">
                             {{ 'COMMON.COLUMN' | translate }}
                         </div>
                         <div
-                            class="bg-base-200 rounded px-2 py-1 w-12 text-center"
+                            class="w-12 rounded bg-base-200 px-2 py-1 text-center"
                         >
                             {{ data[0] + 1 }}u
                         </div>
                     </div>
                     <div class="flex flex-col">
-                        <div class="opacity-30 text-xs">
+                        <div class="text-xs opacity-30">
                             {{ 'COMMON.ROW' | translate }}
                         </div>
                         <div
-                            class="bg-base-200 rounded px-2 py-1 w-12 text-center"
+                            class="w-12 rounded bg-base-200 px-2 py-1 text-center"
                         >
                             {{ data[1] + 1 }}u
                         </div>
@@ -221,23 +221,23 @@ import { Clipboard } from '@angular/cdk/clipboard';
                 </div>
             </ng-template>
             <ng-template #size_template let-data="data">
-                <div class="w-full flex space-x-2 p-2">
+                <div class="flex w-full space-x-2 p-2">
                     <div class="flex flex-col">
-                        <div class="opacity-30 text-xs">
+                        <div class="text-xs opacity-30">
                             {{ 'COMMON.WIDTH' | translate }}
                         </div>
                         <div
-                            class="bg-base-200 rounded px-2 py-1 w-12 text-center"
+                            class="w-12 rounded bg-base-200 px-2 py-1 text-center"
                         >
                             {{ data[0] }}u
                         </div>
                     </div>
                     <div class="flex flex-col">
-                        <div class="opacity-30 text-xs">
+                        <div class="text-xs opacity-30">
                             {{ 'COMMON.HEIGHT' | translate }}
                         </div>
                         <div
-                            class="bg-base-200 rounded px-2 py-1 w-12 text-center"
+                            class="w-12 rounded bg-base-200 px-2 py-1 text-center"
                         >
                             {{ data[1] }}u
                         </div>
@@ -245,10 +245,10 @@ import { Clipboard } from '@angular/cdk/clipboard';
                 </div>
             </ng-template>
             <ng-template #accessible_template let-data="data">
-                <div class="w-full flex items-center justify-center p-2">
+                <div class="flex w-full items-center justify-center p-2">
                     <div
                         *ngIf="data"
-                        class="flex items-center justify-center h-8 w-8 rounded bg-info text-info-content"
+                        class="flex h-8 w-8 items-center justify-center rounded bg-info text-info-content"
                         [matTooltip]="
                             'APP.CONCIERGE.LOCKERS_ACCESSIBLE_INFO' | translate
                         "
@@ -260,7 +260,7 @@ import { Clipboard } from '@angular/cdk/clipboard';
             <ng-template #bool_template let-data="data">
                 <div
                     *ngIf="data"
-                    class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-success text-success-content mx-auto"
+                    class="mx-auto flex h-8 w-8 items-center justify-center rounded bg-success text-2xl text-success-content"
                     [matTooltip]="'COMMON.BOOKABLE' | translate"
                 >
                     <app-icon>done</app-icon>
@@ -268,7 +268,7 @@ import { Clipboard } from '@angular/cdk/clipboard';
             </ng-template>
             <ng-template #locker_action_template let-row="row">
                 <div
-                    class="flex items-center justify-end space-x-2 w-full px-2"
+                    class="flex w-full items-center justify-end space-x-2 px-2"
                 >
                     <button icon matRipple [matMenuTriggerFor]="locker_menu">
                         <app-icon>more_vert</app-icon>

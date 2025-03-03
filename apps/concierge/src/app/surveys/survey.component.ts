@@ -4,7 +4,7 @@ import { Component } from '@angular/core';
     selector: '[app-survey]',
     template: `
         <sidebar></sidebar>
-        <main class="relative w-full flex flex-col bg-base-200">
+        <main class="relative flex w-full flex-col bg-base-200">
             <router-outlet></router-outlet>
         </main>
     `,
@@ -18,6 +18,6 @@ import { Component } from '@angular/core';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class SurveyComponent {}

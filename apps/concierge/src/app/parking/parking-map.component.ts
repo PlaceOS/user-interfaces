@@ -9,7 +9,7 @@ import { first, take } from 'rxjs/operators';
     selector: 'parking-map',
     template: `
         <div
-            class="relative w-full h-[calc(100%-1.5rem)] my-2 bg-base-200 rounded-xl shadow"
+            class="relative my-2 h-[calc(100%-1.5rem)] w-full rounded-xl bg-base-200 shadow"
         >
             <interactive-map
                 [src]="url | async"
@@ -24,7 +24,7 @@ import { first, take } from 'rxjs/operators';
     `,
     styles: [``],
     providers: [ExploreParkingService],
-    standalone: false
+    standalone: false,
 })
 export class ParkingMapComponent extends AsyncHandler implements OnInit {
     public url = this._explore.map_url;

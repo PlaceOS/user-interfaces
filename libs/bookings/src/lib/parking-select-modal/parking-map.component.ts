@@ -21,7 +21,7 @@ import { SpaceLocationPinComponent } from 'libs/spaces/src/lib/space-select-moda
 @Component({
     selector: 'parking-space-map',
     template: `
-        <div class="bg-base-100 p-2 border-b border-base-200 w-full">
+        <div class="w-full border-b border-base-200 bg-base-100 p-2">
             <mat-form-field
                 levels
                 appearance="outline"
@@ -40,7 +40,7 @@ import { SpaceLocationPinComponent } from 'libs/spaces/src/lib/space-select-moda
                         [value]="lvl"
                     >
                         <div class="flex flex-col-reverse">
-                            <div class="opacity-30 text-xs" *ngIf="use_region">
+                            <div class="text-xs opacity-30" *ngIf="use_region">
                                 {{ (lvl.parent_id | building)?.display_name }}
                                 <span class="opacity-0"> - </span>
                             </div>
@@ -52,7 +52,7 @@ import { SpaceLocationPinComponent } from 'libs/spaces/src/lib/space-select-moda
                 </mat-select>
             </mat-form-field>
         </div>
-        <div class="relative flex-1 w-full">
+        <div class="relative w-full flex-1">
             <interactive-map
                 [src]="map_url"
                 [(zoom)]="zoom"

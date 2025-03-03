@@ -6,9 +6,9 @@ import { ControlStateService } from '../control-state.service';
     selector: 'join-room-tooltip',
     template: `
         <div
-            class="p-4 my-2 bg-base-100 shadow rounded flex flex-col items-center space-y-2"
+            class="my-2 flex flex-col items-center space-y-2 rounded bg-base-100 p-4 shadow"
         >
-            <h3 class="mb-2 font-medium text-center">
+            <h3 class="mb-2 text-center font-medium">
                 {{ 'APP.CONTROL.ACTION_JOIN_ROOMS' | translate }}
             </h3>
             <button

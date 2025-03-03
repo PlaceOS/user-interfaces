@@ -78,7 +78,7 @@ import { SettingsService } from 'libs/common/src/lib/settings.service';
             multi: true,
         },
     ],
-    standalone: false
+    standalone: false,
 })
 export class RecurrenceFieldComponent
     implements ControlValueAccessor, OnChanges

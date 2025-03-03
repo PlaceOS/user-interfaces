@@ -12,7 +12,7 @@ export interface PopoutAction extends ApplicationIcon {
         <button
             icon
             matRipple
-            class="small absolute text-base center shadow"
+            class="small center absolute text-base shadow"
             *ngFor="let item of actions; let i = index"
             [style.top]="show ? -110 * i - 60 + '%' : ''"
             (click)="action.emit(item.id); show = false"
@@ -53,11 +53,13 @@ export interface PopoutAction extends ApplicationIcon {
             }
 
             button.small {
-                transition: top 200ms, left 200ms;
+                transition:
+                    top 200ms,
+                    left 200ms;
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class PopoutMenuComponent extends AsyncHandler {
     /** List of available actions */

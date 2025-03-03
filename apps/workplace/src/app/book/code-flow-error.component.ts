@@ -8,9 +8,9 @@ const VALID_TYPES = ['not_started', 'wrong_resource', 'other'];
 @Component({
     selector: 'code-flow-success',
     template: `
-        <div class="absolute inset-0 bg-base-100 flex flex-col z-50">
+        <div class="absolute inset-0 z-50 flex flex-col bg-base-100">
             <main
-                class="flex-1 flex flex-col items-center justify-center space-y-2 p-8"
+                class="flex flex-1 flex-col items-center justify-center space-y-2 p-8"
             >
                 <h2 class="text-2xl font-medium">
                     {{ 'APP.WORKPLACE.RESOURCE_CHECKED_IN_FAILED' | translate }}
@@ -18,7 +18,7 @@ const VALID_TYPES = ['not_started', 'wrong_resource', 'other'];
                 <div class="py-4">
                     <img src="assets/icons/not-found.svg" class="h-64" />
                 </div>
-                <p class="text-center max-w-[32rem]" [ngSwitch]="type">
+                <p class="max-w-[32rem] text-center" [ngSwitch]="type">
                     <ng-container *ngSwitchCase="'not_started'">
                         Booking has not started yet. Please try again once the
                         booking has commenced.
@@ -33,7 +33,7 @@ const VALID_TYPES = ['not_started', 'wrong_resource', 'other'];
                 </p>
             </main>
             <footer
-                class="p-2 w-full border-t border-base-200 mt-4 flex items-center justify-center space-x-2"
+                class="mt-4 flex w-full items-center justify-center space-x-2 border-t border-base-200 p-2"
             >
                 <a
                     btn
@@ -58,7 +58,7 @@ const VALID_TYPES = ['not_started', 'wrong_resource', 'other'];
                 <a
                     btn
                     matRipple
-                    class="w-full max-w-[32rem] inverse"
+                    class="inverse w-full max-w-[32rem]"
                     [routerLink]="['/']"
                 >
                     {{ 'COMMON.CONTINUE' | translate }}

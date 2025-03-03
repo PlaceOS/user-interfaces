@@ -38,7 +38,7 @@ describe('DeskListComponent', () => {
     it('should show loading list state', () => {
         expect('[loading]').not.toExist();
         (spectator.inject(BookingFormService).loading as any).next(
-            'Loading available spaces...'
+            'Loading available spaces...',
         );
         spectator.detectChanges();
         expect('[loading]').toExist();
@@ -47,7 +47,7 @@ describe('DeskListComponent', () => {
     it('should show empty list state', () => {
         expect('[empty]').not.toExist();
         (spectator.inject(BookingFormService).available_resources as any).next(
-            []
+            [],
         );
         spectator.detectChanges();
         expect('[empty]').toExist();

@@ -13,22 +13,22 @@ import { Observable } from 'rxjs';
     selector: '[filter-space]',
     templateUrl: './filter-space.component.html',
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class FilterSpaceComponent implements OnInit {
     readonly buildings = this._org.building_list;
     readonly building = this._org.active_building;
     minDate: Date = new Date();
     features$: Observable<Array<{}>>;
-    
-    public readonly setBuilding = (b) => this._org.building = b;
+
+    public readonly setBuilding = (b) => (this._org.building = b);
 
     constructor(
         @Inject(MAT_BOTTOM_SHEET_DATA) public data: { data },
         private _bottomsheetRef: MatBottomSheetRef<any>,
         private _featuresFilterService: FeaturesFilterService,
         private _state: EventFormService,
-        private _org: OrganisationService
+        private _org: OrganisationService,
     ) {}
 
     ngOnInit() {

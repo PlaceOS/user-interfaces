@@ -7,9 +7,9 @@ import { ParkingStateService } from './parking-state.service';
     selector: 'app-new-parking',
     template: `
         <app-topbar></app-topbar>
-        <div class="flex flex-1 h-px">
+        <div class="flex h-px flex-1">
             <app-sidebar></app-sidebar>
-            <main class="flex flex-col flex-1 w-1/2 h-full relative">
+            <main class="relative flex h-full w-1/2 flex-1 flex-col">
                 <parking-topbar></parking-topbar>
                 <div class="px-8 pb-2" *ngIf="path !== 'events'">
                     <nav mat-tab-nav-bar [tabPanel]="tabPanel">
@@ -49,17 +49,17 @@ import { ParkingStateService } from './parking-state.service';
                     </nav>
                     <mat-tab-nav-panel #tabPanel></mat-tab-nav-panel>
                 </div>
-                <div class="relative flex-1 h-1/2 w-full overflow-auto px-8">
-                    <div class="w-full h-full overflow-auto">
+                <div class="relative h-1/2 w-full flex-1 overflow-auto px-8">
+                    <div class="h-full w-full overflow-auto">
                         <router-outlet></router-outlet>
                     </div>
                 </div>
                 <div
                     *ngIf="!(levels | async)?.length"
-                    class="absolute inset-0 flex flex-col items-center justify-center z-50"
+                    class="absolute inset-0 z-50 flex flex-col items-center justify-center"
                 >
                     <div
-                        class="absolute inset-0 bg-base-100 opacity-80 z-0"
+                        class="absolute inset-0 z-0 bg-base-100 opacity-80"
                     ></div>
                     <p class="z-10 opacity-60">
                         {{ 'APP.CONCIERGE.PARKING_UNAVAILABLE' | translate }}
@@ -91,7 +91,7 @@ import { ParkingStateService } from './parking-state.service';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class NewParkingComponent extends AsyncHandler implements OnInit {
     /** List of levels for the active building */

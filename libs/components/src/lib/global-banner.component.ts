@@ -14,7 +14,7 @@ export interface BannerDetails {
     selector: 'global-banner',
     template: `
         <div
-            class="flex items-center w-full p-4 space-x-4 print:hidden"
+            class="flex w-full items-center space-x-4 p-4 print:hidden"
             [class.bg-info]="
                 (banner | async).type === 'info' || !(banner | async).type
             "
@@ -43,7 +43,7 @@ export interface BannerDetails {
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class GlobalBannerComponent {
     private _change = new BehaviorSubject(0);

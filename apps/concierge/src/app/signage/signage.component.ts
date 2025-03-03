@@ -8,10 +8,10 @@ import { AsyncHandler, i18n } from '@placeos/common';
     selector: '[app-new-staff]',
     template: `
         <app-topbar></app-topbar>
-        <div class="flex flex-1 h-px">
+        <div class="flex h-px flex-1">
             <app-sidebar></app-sidebar>
-            <main class="flex flex-col flex-1 w-1/2 h-full">
-                <div class="p-8 h-28 flex items-center justify-between">
+            <main class="flex h-full w-1/2 flex-1 flex-col">
+                <div class="flex h-28 items-center justify-between p-8">
                     <h2 class="text-2xl font-medium">
                         {{ 'APP.CONCIERGE.SIGNAGE_HEADER' | translate }}
                     </h2>
@@ -50,7 +50,7 @@ import { AsyncHandler, i18n } from '@placeos/common';
                     </nav>
                 </div>
                 <mat-tab-nav-panel
-                    class="flex-1 h-1/2 overflow-auto px-8 py-4"
+                    class="h-1/2 flex-1 overflow-auto px-8 py-4"
                     #tabPanel
                 >
                     <router-outlet></router-outlet>
@@ -69,7 +69,7 @@ import { AsyncHandler, i18n } from '@placeos/common';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class SignageComponent extends AsyncHandler implements OnInit {
     public readonly loading = this._state.loading;

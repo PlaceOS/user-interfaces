@@ -34,13 +34,13 @@ import { openConfirmModal } from '@placeos/components';
     selector: 'room-bookings-timeline',
     template: `
         <div
-            class="mx-2 mt-2 p-2 w-[calc(100%-1rem)] bg-info text-info-content rounded-lg text-center text-xs"
+            class="mx-2 mt-2 w-[calc(100%-1rem)] rounded-lg bg-info p-2 text-center text-xs text-info-content"
             *ngIf="timezone && tz"
         >
             {{ 'APP.CONCIERGE.TIMEZONE_DIFF' | translate }}
         </div>
         <div
-            class="relative flex items-center justify-center p-2 space-x-2 border-b border-base-200 z-20"
+            class="relative z-20 flex items-center justify-center space-x-2 border-b border-base-200 p-2"
         >
             <date-options
                 [date]="date | async"
@@ -49,52 +49,52 @@ import { openConfirmModal } from '@placeos/components';
                 [hide_today]="true"
             ></date-options>
             <div
-                class="absolute top-1/2 -translate-y-1/2 left-4 text-info text-sm"
+                class="absolute left-4 top-1/2 -translate-y-1/2 text-sm text-info"
                 *ngIf="is_today | async"
             >
                 {{ 'COMMON.TODAY' | translate }}
             </div>
-            <div class="absolute top-1/2 -translate-y-1/2 right-8">
+            <div class="absolute right-8 top-1/2 -translate-y-1/2">
                 <room-booking-search
                     (selected)="viewEvent($event, $event.system?.id, true)"
                 ></room-booking-search>
             </div>
         </div>
-        <div timeline class="grid overflow-auto w-full h-1/2 flex-1 z-0">
+        <div timeline class="z-0 grid h-1/2 w-full flex-1 overflow-auto">
             <div
                 timezone
-                class="sticky top-0 left-0 z-30 bg-base-100 flex items-center justify-center"
+                class="sticky left-0 top-0 z-30 flex items-center justify-center bg-base-100"
             >
                 <div class="text-xs opacity-30">
                     {{ date | async | date: 'zzzz' : tz }}
                 </div>
                 <div
-                    class="absolute h-2 w-px right-0 bottom-0 bg-base-300"
+                    class="absolute bottom-0 right-0 h-2 w-px bg-base-300"
                 ></div>
                 <div
-                    class="absolute w-2 h-px right-0 bottom-0 bg-base-300"
+                    class="absolute bottom-0 right-0 h-px w-2 bg-base-300"
                 ></div>
             </div>
             <div
                 space-headers
-                class="sticky top-0 z-20 border-b border-base-300 flex items-center bg-base-100"
+                class="sticky top-0 z-20 flex items-center border-b border-base-300 bg-base-100"
                 [style.width]="(spaces | async)?.length * block_width + 'rem'"
             >
                 <div
                     *ngFor="let space of spaces | async"
-                    class="relative h-full w-56 flex items-center justify-center"
+                    class="relative flex h-full w-56 items-center justify-center"
                 >
                     <div class="truncate">
                         {{ space.display_name || space.name }}
                     </div>
                     <div
-                        class="absolute h-2 w-px -left-px bottom-0 bg-base-300"
+                        class="absolute -left-px bottom-0 h-2 w-px bg-base-300"
                     ></div>
                 </div>
             </div>
             <div
                 hour-blocks
-                class="sticky left-0 z-10 border-r border-base-300 bg-base-100 overflow-visible"
+                class="sticky left-0 z-10 overflow-visible border-r border-base-300 bg-base-100"
                 [style.height]="block_range * block_height + 'rem'"
             >
                 <div
@@ -103,7 +103,7 @@ import { openConfirmModal } from '@placeos/components';
                     [style.height]="block_height + 'rem'"
                 >
                     <div
-                        class="absolute -top-px right-0 w-2 h-px bg-base-300"
+                        class="absolute -top-px right-0 h-px w-2 bg-base-300"
                     ></div>
                     <div
                         class="absolute -top-px right-3 -translate-y-1/2 text-xs opacity-60"
@@ -113,7 +113,7 @@ import { openConfirmModal } from '@placeos/components';
                     </div>
                 </div>
                 <div
-                    class="absolute bg-secondary right-0 translate-x-1/2 -translate-y-1/2 h-2 w-2 rounded-full"
+                    class="absolute right-0 h-2 w-2 -translate-y-1/2 translate-x-1/2 rounded-full bg-secondary"
                     *ngIf="(show_time | async) && timeToOffset(now) < 100"
                     [style.top]="'calc(' + timeToOffset(now) + '% + 1px)'"
                 ></div>
@@ -126,7 +126,7 @@ import { openConfirmModal } from '@placeos/components';
                 ></div>
                 <div
                     *ngFor="let space of spaces | async; let i = index"
-                    class="absolute w-px h-full bg-base-200 top-0"
+                    class="absolute top-0 h-full w-px bg-base-200"
                     [style.left]="'calc(' + i * block_width + 'rem - 1px)'"
                 ></div>
 
@@ -139,7 +139,7 @@ import { openConfirmModal } from '@placeos/components';
                         <button
                             event
                             matRipple
-                            class="absolute w-52 hover:opacity-90 text-left"
+                            class="absolute w-52 text-left hover:opacity-90"
                             [style.left]="i * block_width + 0.25 + 'rem'"
                             [style.top]="timeToOffset(event.date) + '%'"
                             [style.height]="endToOffset(event.duration) + '%'"
@@ -151,7 +151,7 @@ import { openConfirmModal } from '@placeos/components';
                             "
                         >
                             <div
-                                class="relative w-full h-full shadow bg-base-100 border border-base-200 hover:bg-base-200 rounded-lg overflow-hidden px-3 py-1 text-xs"
+                                class="relative h-full w-full overflow-hidden rounded-lg border border-base-200 bg-base-100 px-3 py-1 text-xs shadow hover:bg-base-200"
                                 [class.opacity-60]="event.state === 'done'"
                                 [class.!rounded-none]="event.is_system_event"
                                 [class.!border-secondary]="
@@ -165,7 +165,7 @@ import { openConfirmModal } from '@placeos/components';
                                 </ng-container>
                                 <ng-container *ngIf="!event.is_system_event">
                                     <div
-                                        class="absolute left-0 inset-y-0 w-1 "
+                                        class="absolute inset-y-0 left-0 w-1"
                                         [class.bg-secondary]="
                                             event.status !== 'cancelled'
                                         "

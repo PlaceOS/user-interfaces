@@ -17,7 +17,7 @@ import {
     selector: 'induction-settings-modal',
     template: `
         <header
-            class="flex items-center justify-between border-b border-gray-300 p-4"
+            class="border-gray-300 flex items-center justify-between border-b p-4"
         >
             <h3 class="text-xl font-medium">
                 {{ 'APP.CONCIERGE.INDUCTION_HEADER' | translate }}
@@ -27,12 +27,12 @@ import {
             </button>
         </header>
         <main
-            class="p-4 flex flex-col space-y-2"
+            class="flex flex-col space-y-2 p-4"
             *ngIf="!loading; else load_state"
         >
             <mat-form-field
                 appearance="outline"
-                class="w-[36rem] max-w-[80vw] h-[50vh]"
+                class="h-[50vh] w-[36rem] max-w-[80vw]"
             >
                 <textarea
                     matInput
@@ -40,19 +40,19 @@ import {
                     [placeholder]="
                         'APP.CONCIERGE.INDUCTION_DETAILS' | translate
                     "
-                    class="w-[34rem] max-w-[calc(80vw-2rem)] h-[calc(50vh-2rem)] resize-none"
+                    class="h-[calc(50vh-2rem)] w-[34rem] max-w-[calc(80vw-2rem)] resize-none"
                 ></textarea>
             </mat-form-field>
             <mat-checkbox [(ngModel)]="is_enabled">
                 {{ 'APP.CONCIERGE.INDUCTION_ENABLE' | translate }}
             </mat-checkbox>
         </main>
-        <footer class="px-4 pb-4 flex justify-end" *ngIf="!loading">
+        <footer class="flex justify-end px-4 pb-4" *ngIf="!loading">
             <button btn matRipple class="w-32" (click)="save()">Save</button>
         </footer>
         <ng-template #load_state>
             <main
-                class="flex flex-col items-center justify-center p-32 space-y-2"
+                class="flex flex-col items-center justify-center space-y-2 p-32"
             >
                 <mat-spinner [diameter]="48"></mat-spinner>
                 <p>{{ loading }}</p>
@@ -60,7 +60,7 @@ import {
         </ng-template>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class InductionSettingsModalComponent implements OnInit {
     public loading = '';

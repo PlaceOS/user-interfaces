@@ -15,11 +15,11 @@ import { PanelStateService } from '../panel-state.service';
     selector: 'panel-timeline',
     template: `
         <div
-            class="flex items-center relative w-full h-16 bg-secondary text-white"
+            class="relative flex h-16 w-full items-center bg-secondary text-white"
         >
             <div
                 block
-                class="flex-1 h-full relative border-dashed border-opacity-50 flex items-end"
+                class="relative flex h-full flex-1 items-end border-dashed border-opacity-50"
                 [class.bg-error]="!block.free"
                 [class.border-l]="block.on_half"
                 [class.border-base-200]="block.on_half"
@@ -27,11 +27,11 @@ import { PanelStateService } from '../panel-state.service';
                 (click)="block.free ? newBooking(block) : ''"
             >
                 <div
-                    class="w-px h-1/2 bg-base-100 relative"
+                    class="relative h-1/2 w-px bg-base-100"
                     *ngIf="block.on_hour"
                 >
                     <p
-                        class="absolute transform -translate-x-1/2 -translate-y-full"
+                        class="absolute -translate-x-1/2 -translate-y-full transform"
                     >
                         {{ block.hour }}
                     </p>
@@ -39,13 +39,13 @@ import { PanelStateService } from '../panel-state.service';
             </div>
             <div
                 cover
-                class="absolute top-0 left-0 bottom-0 w-1/6 bg-neutral bg-opacity-40"
+                class="absolute bottom-0 left-0 top-0 w-1/6 bg-neutral bg-opacity-40"
             >
                 <div
-                    class="absolute top-0 right-0 bottom-0 transform translate-x-1/2 bg-primary"
+                    class="absolute bottom-0 right-0 top-0 translate-x-1/2 transform bg-primary"
                 >
                     <div
-                        class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary h-2 w-2"
+                        class="absolute left-1/2 top-0 h-2 w-2 -translate-x-1/2 -translate-y-1/2 transform rounded-full bg-primary"
                     ></div>
                 </div>
             </div>
@@ -58,7 +58,7 @@ import { PanelStateService } from '../panel-state.service';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class PanelTimelineComponent {
     @Input() public step = 10;
@@ -73,7 +73,7 @@ export class PanelTimelineComponent {
                 roundToNearestMinutes(new Date(), {
                     nearestTo: this.step as any,
                 }),
-                -120
+                -120,
             ).valueOf();
             const end = addMinutes(start, 12 * 60).valueOf();
             while (start < end) {
@@ -88,15 +88,15 @@ export class PanelTimelineComponent {
                             start,
                             start,
                             bkn.date,
-                            bkn.date + bkn.duration * 60 * 1000
-                        )
+                            bkn.date + bkn.duration * 60 * 1000,
+                        ),
                     ),
                 });
 
                 start = addMinutes(start, this.step).valueOf();
             }
             return blocks;
-        })
+        }),
     );
 
     public readonly newBooking = (blk) => this._state.newBooking(blk.time);

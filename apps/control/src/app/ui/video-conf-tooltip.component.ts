@@ -7,16 +7,16 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
     selector: 'video-conf-tooltip',
     template: `
         <div
-            class=" my-2 bg-base-100 shadow rounded flex flex-col items-center"
+            class="my-2 flex flex-col items-center rounded bg-base-100 shadow"
             *ngIf="!(call | async); else enabled_state"
         >
             <video-call-dial-view (close)="close()"></video-call-dial-view>
         </div>
         <ng-template #enabled_state>
             <div
-                class=" my-2 p-2 bg-base-100 shadow rounded flex flex-col items-center space-y-2"
+                class="my-2 flex flex-col items-center space-y-2 rounded bg-base-100 p-2 shadow"
             >
-                <h3 class="p-2 w-full text-center font-medium">
+                <h3 class="w-full p-2 text-center font-medium">
                     {{ 'APP.CONTROL.VC_IN_CALL' | translate }}
                 </h3>
                 <a

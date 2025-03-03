@@ -23,7 +23,6 @@ describe('SourceSelectModalComponent', () => {
             },
             { provide: MatDialogRef, useValue: { close: jest.fn() } },
         ],
-
     });
 
     beforeEach(() => (spectator = createComponent()));

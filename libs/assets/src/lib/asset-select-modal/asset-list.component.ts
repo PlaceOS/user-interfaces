@@ -13,9 +13,9 @@ import { map } from 'rxjs/operators';
 @Component({
     selector: 'asset-list',
     template: `
-        <div class="w-full h-full overflow-auto py-2 bg-base-200">
-            <h3 class="font-bold px-2">Results</h3>
-            <p count class="text-sm opacity-60 mb-4 px-2">
+        <div class="h-full w-full overflow-auto bg-base-200 py-2">
+            <h3 class="px-2 font-bold">Results</h3>
+            <p count class="mb-4 px-2 text-sm opacity-60">
                 {{ (assets | async)?.length || 0 }} result(s) found
             </p>
             <ng-container *ngIf="!(loading | async); else load_state">
@@ -27,18 +27,18 @@ import { map } from 'rxjs/operators';
                         asset
                         *ngFor="let asset of assets | async"
                         matRipple
-                        class="relative p-2 rounded-lg w-full shadow border bg-base-100 border-base-200"
+                        class="relative w-full rounded-lg border border-base-200 bg-base-100 p-2 shadow"
                     >
                         <button
                             select
-                            class="w-full h-full flex items-center pr-10"
+                            class="flex h-full w-full items-center pr-10"
                             (click)="selectAsset(asset)"
                         >
                             <div
-                                class="relative w-16 h-16 rounded-xl bg-base-200 mr-4 flex items-center justify-center overflow-hidden border border-base-200"
+                                class="relative mr-4 flex h-16 w-16 items-center justify-center overflow-hidden rounded-xl border border-base-200 bg-base-200"
                             >
                                 <div
-                                    class="absolute top-1 left-1 border border-base-300 bg-base-200 rounded-full h-6 w-6 flex items-center justify-center"
+                                    class="absolute left-1 top-1 flex h-6 w-6 items-center justify-center rounded-full border border-base-300 bg-base-200"
                                     *ngIf="selected.includes(asset.id)"
                                 >
                                     <span class="text-xs">
@@ -51,7 +51,7 @@ import { map } from 'rxjs/operators';
                                         asset.images?.length;
                                         else placeholder
                                     "
-                                    class="object-cover h-full"
+                                    class="h-full object-cover"
                                     [source]="asset.images[0]"
                                 />
                                 <ng-template #placeholder>
@@ -61,17 +61,17 @@ import { map } from 'rxjs/operators';
                                     />
                                 </ng-template>
                             </div>
-                            <div class="space-y-2 text-left flex-1">
+                            <div class="flex-1 space-y-2 text-left">
                                 <div
-                                    class="font-medium flex items-center justify-between"
+                                    class="flex items-center justify-between font-medium"
                                 >
                                     <div>{{ asset.name || 'Asset' }}</div>
-                                    <div class="opacity-60 text-xs">
+                                    <div class="text-xs opacity-60">
                                         {{ asset.category }}
                                     </div>
                                 </div>
                                 <div
-                                    class="flex items-center text-sm space-x-2"
+                                    class="flex items-center space-x-2 text-sm"
                                 >
                                     <p>
                                         {{
@@ -88,7 +88,7 @@ import { map } from 'rxjs/operators';
                             icon
                             matRipple
                             fav
-                            class="absolute top-1 right-1"
+                            class="absolute right-1 top-1"
                             [class.text-info]="isFavourite(asset.id)"
                             (click)="toggleFav.emit(asset)"
                         >
@@ -105,9 +105,9 @@ import { map } from 'rxjs/operators';
         <ng-template #empty_state>
             <div
                 empty
-                class="p-16 flex flex-col items-center justify-center space-y-2"
+                class="flex flex-col items-center justify-center space-y-2 p-16"
             >
-                <p class="opacity-30 text-center">
+                <p class="text-center opacity-30">
                     No available assets for selected time and/or filters
                 </p>
             </div>
@@ -115,7 +115,7 @@ import { map } from 'rxjs/operators';
         <ng-template #load_state>
             <div
                 loading
-                class="p-16 flex flex-col items-center justify-center space-y-2"
+                class="flex flex-col items-center justify-center space-y-2 p-16"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
                 <p class="opacity-30">Finding available assets...</p>
@@ -130,7 +130,7 @@ import { map } from 'rxjs/operators';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class AssetListComponent {
     @Input() public selected: string = '';
@@ -154,22 +154,22 @@ export class AssetListComponent {
             for (const item of assets) {
                 item.quantity = counts[item.id] || 0;
                 const selected = this.selected_items.find(
-                    (i) => i.id === item.id
+                    (i) => i.id === item.id,
                 );
                 if (selected) selected.assets = item.assets;
                 if (requested[item.id] !== undefined) {
                     (item as any).available = Math.max(
                         (item.assets?.length || 0) - requested[item.id],
-                        0
+                        0,
                     );
                 }
             }
             return assets.filter(
                 (_: any) =>
                     (_.available != null && _.available > 0) ||
-                    (_.available == null && _.assets?.length > 0)
+                    (_.available == null && _.assets?.length > 0),
             );
-        })
+        }),
     );
 
     constructor(private _asset_state: AssetStateService) {}

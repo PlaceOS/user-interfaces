@@ -52,7 +52,7 @@ describe('CateringItemDetailsComponent', () => {
         spectator.component.activeChange.subscribe((state) => {
             if (state)
                 setTimeout(() =>
-                    spectator.click('[name="select-catering-item-details"]')
+                    spectator.click('[name="select-catering-item-details"]'),
                 );
             else done();
         });

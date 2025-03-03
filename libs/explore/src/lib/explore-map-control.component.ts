@@ -9,11 +9,11 @@ import { ExploreStateService } from './explore-state.service';
 @Component({
     selector: 'explore-map-controls',
     template: `
-        <div class="flex space-x-2 w-full">
+        <div class="flex w-full space-x-2">
             <mat-form-field
                 overlay
                 buildings
-                class="flex-1 min-w-[10.5rem] no-subscript"
+                class="no-subscript min-w-[10.5rem] flex-1"
                 has-bld="true"
                 *ngIf="(buildings | async)?.length > 1"
                 appearance="outline"
@@ -34,7 +34,7 @@ import { ExploreStateService } from './explore-state.service';
             <mat-form-field
                 overlay
                 levels
-                class="flex-1 min-w-[10.25rem] no-subscript"
+                class="no-subscript min-w-[10.25rem] flex-1"
                 [attr.has-bld]="(buildings | async)?.length > 1"
                 *ngIf="(levels | async)?.length"
                 appearance="outline"
@@ -65,7 +65,7 @@ import { ExploreStateService } from './explore-state.service';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class ExploreMapControlComponent extends AsyncHandler implements OnInit {
     /** List of available buildings */

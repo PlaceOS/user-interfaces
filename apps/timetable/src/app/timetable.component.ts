@@ -12,7 +12,7 @@ import { debounceTime, first, map } from 'rxjs/operators';
         <div class="absolute inset-0 flex flex-col">
             <div
                 topbar
-                class="bg-secondary w-full shadow z-20 p-2 h-16 flex items-center relative"
+                class="relative z-20 flex h-16 w-full items-center bg-secondary p-2 shadow"
             >
                 <img
                     auth
@@ -21,25 +21,25 @@ import { debounceTime, first, map } from 'rxjs/operators';
                     [source]="(logo | async)?.src || (logo | async)"
                 />
                 <div class="flex-1"></div>
-                <div class="text-white p-2 text-xl">
+                <div class="p-2 text-xl text-white">
                     <span>{{ time | date: 'mediumDate' }}</span>
                     <span class="mx-2">•</span>
                     <span class="ml-1">{{ time | date: 'shortTime' }}</span>
                 </div>
             </div>
             <div
-                class="flex items-center overflow-auto h-1/2 flex-1 w-full bg-[#424242] z-10 relative flex-wrap"
+                class="relative z-10 flex h-1/2 w-full flex-1 flex-wrap items-center overflow-auto bg-[#424242]"
             >
                 <div
-                    class="sticky left-0 min-h-full w-16 min-w-[4rem] border-r border-white/50 bg-[#212121] flex flex-col z-20"
+                    class="sticky left-0 z-20 flex min-h-full w-16 min-w-[4rem] flex-col border-r border-white/50 bg-[#212121]"
                 >
                     <div
-                        class="w-full min-h-[3rem] border-b border-white/50"
+                        class="min-h-[3rem] w-full border-b border-white/50"
                     ></div>
-                    <div class="w-full flex flex-col flex-1 h-1/2 relative">
+                    <div class="relative flex h-1/2 w-full flex-1 flex-col">
                         <div
                             now
-                            class="absolute left-0 w-screen h-[2px] bg-primary -translate-y-1/2 z-20"
+                            class="absolute left-0 z-20 h-[2px] w-screen -translate-y-1/2 bg-primary"
                             [style.top]="current_offset + '%'"
                         >
                             <div
@@ -49,16 +49,16 @@ import { debounceTime, first, map } from 'rxjs/operators';
                         <div
                             *ngFor="let hr of hours"
                             hour
-                            class="w-full flex-1 min-h-[2rem] border-b border-white/50 relative z-10"
+                            class="relative z-10 min-h-[2rem] w-full flex-1 border-b border-white/50"
                         >
                             <div
                                 text
-                                class="text-white bg-[#212121] w-8 text-center absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2"
+                                class="absolute left-1/2 top-0 w-8 -translate-x-1/2 -translate-y-1/2 bg-[#212121] text-center text-white"
                             >
                                 {{ hr }}
                             </div>
                             <div
-                                class="absolute top-1/2 inset-x-0 w-full border-b border-white/50"
+                                class="absolute inset-x-0 top-1/2 w-full border-b border-white/50"
                             ></div>
                         </div>
                     </div>
@@ -66,7 +66,7 @@ import { debounceTime, first, map } from 'rxjs/operators';
                 <ng-container *ngIf="spaces.length; else empty_state">
                     <space-timetable
                         *ngFor="let space of spaces"
-                        class="flex-1 min-w-[24vw] border-r border-white/50 relative z-10"
+                        class="relative z-10 min-w-[24vw] flex-1 border-r border-white/50"
                         [space]="space"
                     ></space-timetable>
                 </ng-container>
@@ -74,7 +74,7 @@ import { debounceTime, first, map } from 'rxjs/operators';
         </div>
         <ng-template #empty_state>
             <div
-                class="flex-1 min-w-[30vw] flex flex-col items-center justify-center text-white opacity-60"
+                class="flex min-w-[30vw] flex-1 flex-col items-center justify-center text-white opacity-60"
             >
                 <p>No spaces have been selected</p>
             </div>
@@ -95,7 +95,7 @@ import { debounceTime, first, map } from 'rxjs/operators';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class AppTimetableComponent extends AsyncHandler {
     public spaces: Space[] = [];

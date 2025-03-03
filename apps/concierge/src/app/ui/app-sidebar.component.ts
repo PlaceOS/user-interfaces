@@ -14,13 +14,13 @@ import { debounceTime, filter, first } from 'rxjs/operators';
     selector: 'app-sidebar',
     template: `
         <div
-            class="w-64 h-full border-r border-base-200 py-2 pr-3 overflow-auto"
+            class="h-full w-64 overflow-auto border-r border-base-200 py-2 pr-3"
         >
             <ng-container *ngFor="let link of filtered_links">
                 <ng-container *ngIf="!link.children; else group_view">
                     <a
                         matRipple
-                        class="flex items-center space-x-2 rounded-r-full p-1 my-1 hover:bg-base-200 w-full"
+                        class="my-1 flex w-full items-center space-x-2 rounded-r-full p-1 hover:bg-base-200"
                         [routerLink]="link.route"
                         routerLinkActive="active"
                     >
@@ -34,7 +34,7 @@ import { debounceTime, filter, first } from 'rxjs/operators';
                     <button
                         matRipple
                         *ngIf="link.children?.length"
-                        class="flex items-center space-x-2 rounded-r-full p-1 my-1 hover:bg-base-200 w-full"
+                        class="my-1 flex w-full items-center space-x-2 rounded-r-full p-1 hover:bg-base-200"
                         (click)="
                             show_block[link.id || link._id] =
                                 !show_block[link.id || link._id]
@@ -43,20 +43,20 @@ import { debounceTime, filter, first } from 'rxjs/operators';
                         <app-icon class="text-2xl opacity-60">
                             {{ link.icon }}
                         </app-icon>
-                        <div class="font-medium flex-1 text-left">
+                        <div class="flex-1 text-left font-medium">
                             {{ link.name }}
                         </div>
                         <app-icon class="text-2xl">arrow_drop_down</app-icon>
                     </button>
                     <section
-                        class="overflow-hidden w-full"
+                        class="w-full overflow-hidden"
                         *ngIf="link.children?.length"
                         [@show]="
                             !show_block[link.id || link._id] ? 'show' : 'hide'
                         "
                     >
                         <a
-                            class="flex items-center space-x-2 rounded-r-full p-1 my-1 hover:bg-base-200 w-full"
+                            class="my-1 flex w-full items-center space-x-2 rounded-r-full p-1 hover:bg-base-200"
                             *ngFor="let child of link.children"
                             [routerLink]="child.route"
                             routerLinkActive="active"

@@ -31,6 +31,6 @@ import { Component } from '@angular/core';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class WeekViewComponent {}

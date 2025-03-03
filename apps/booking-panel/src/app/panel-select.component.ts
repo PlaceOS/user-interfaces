@@ -9,18 +9,18 @@ import { currentBooking } from './panel-state.service';
     selector: 'app-booking-panel-select',
     template: `
         <div
-            class="absolute inset-0 flex items-center justify-center flex-wrap bg-base-300"
+            class="absolute inset-0 flex flex-wrap items-center justify-center bg-base-300"
             (window:mousedown)="reset()"
             (window:touchstart)="reset()"
         >
             <div
-                class="flex items-center justify-center flex-wrap w-full h-full p-8"
+                class="flex h-full w-full flex-wrap items-center justify-center p-8"
             >
                 <ng-container *ngIf="systems && systems.length > 0; else none">
                     <button
                         matRipple
-                        class="item text-white flex flex-col items-center justify-center rounded m-2 p-2"
-                        *ngFor="let id of systems | slice: 0:8; let i = index"
+                        class="item m-2 flex flex-col items-center justify-center rounded p-2 text-white"
+                        *ngFor="let id of systems | slice: 0 : 8; let i = index"
                         (click)="showPanel(id)"
                     >
                         <div class="bindings" *ngIf="id">
@@ -49,7 +49,7 @@ import { currentBooking } from './panel-state.service';
                         <div
                             state
                             [class]="
-                                'h-36 w-36 flex items-center justify-center text-6xl bg-base-100 bg-opacity-10 rounded' +
+                                'flex h-36 w-36 items-center justify-center rounded bg-base-100 bg-opacity-10 text-6xl' +
                                 (system_status[id]
                                     ? ' ' + system_status[id]
                                     : '')
@@ -65,7 +65,7 @@ import { currentBooking } from './panel-state.service';
                             ></mat-spinner>
                         </div>
                         <div
-                            class="truncate text-sm p-3 text-white w-full text"
+                            class="text w-full truncate p-3 text-sm text-white"
                         >
                             {{ system_name[id] || id + ' connecting...' }}
                         </div>
@@ -80,7 +80,7 @@ import { currentBooking } from './panel-state.service';
                     [system_id]="active_system"
                 ></app-booking-panel>
                 <div
-                    class="absolute top-0 left-1/2 transform -translate-x-1/2 flex items-center bg-base-100 rounded-b p-2"
+                    class="absolute left-1/2 top-0 flex -translate-x-1/2 transform items-center rounded-b bg-base-100 p-2"
                 >
                     <button
                         icon
@@ -93,7 +93,7 @@ import { currentBooking } from './panel-state.service';
                     </button>
                     <button
                         widget
-                        class="action countdown w-12 h-10"
+                        class="action countdown h-10 w-12"
                         (contextmenu)="$event.preventDefault()"
                     >
                         {{ countdown }}
@@ -116,7 +116,8 @@ import { currentBooking } from './panel-state.service';
                 height: 11.5em;
                 width: 10em;
                 background-color: var(--bg-dark);
-                box-shadow: 0 1px 3px 0 rgba(#000, 0.2),
+                box-shadow:
+                    0 1px 3px 0 rgba(#000, 0.2),
                     0 1px 1px 0 rgba(#000, 0.14),
                     0 2px 1px -1px rgba(#000, 0.12);
             }
@@ -135,7 +136,7 @@ import { currentBooking } from './panel-state.service';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class BookingPanelSelectComponent
     extends AsyncHandler
@@ -165,7 +166,7 @@ export class BookingPanelSelectComponent
                 if (params.has('system_ids')) {
                     this.systems = (params.get('system_ids') || '').split(',');
                 }
-            })
+            }),
         );
     }
 
@@ -185,7 +186,7 @@ export class BookingPanelSelectComponent
      */
     public updateStatus(id: string, bookings: HashMap[]) {
         const current = currentBooking(
-            (bookings || []).map((i) => new CalendarEvent(i))
+            (bookings || []).map((i) => new CalendarEvent(i)),
         );
         this.system_status[id] = current ? 'unavailable' : 'available';
     }

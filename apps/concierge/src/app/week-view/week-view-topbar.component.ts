@@ -37,7 +37,7 @@ import { EventsStateService } from '../day-view/events-state.service';
             (ngModelChange)="setWeekends($event)"
             ><div class="text-xs">Show weekends</div></mat-slide-toggle
         >
-        <div class="flex-1 w-0"></div>
+        <div class="w-0 flex-1"></div>
         <!-- <searchbar class="mr-2"></searchbar> -->
         <date-options (dateChange)="setDate($event)"></date-options>
     `,
@@ -63,7 +63,7 @@ import { EventsStateService } from '../day-view/events-state.service';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class WeekViewTopbarComponent extends AsyncHandler implements OnInit {
     /** List of selected levels */

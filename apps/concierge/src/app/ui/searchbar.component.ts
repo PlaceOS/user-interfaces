@@ -14,7 +14,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
         </mat-form-field>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class SearchbarComponent {
     /** Currently selected date */

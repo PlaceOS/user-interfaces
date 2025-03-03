@@ -31,10 +31,10 @@ import { User } from 'libs/users/src/lib/user.class';
     template: `
         <ng-container *ngIf="!sent; else send_state">
             <div
-                class="relative flex flex-col bg-base-100 overflow-auto max-h-full"
+                class="relative flex max-h-full flex-col overflow-auto bg-base-100"
                 *ngIf="!(loading | async) && !loading_many; else load_state"
             >
-                <div class="w-full border-b border-base-200 sm:px-16 px-4 py-4">
+                <div class="w-full border-b border-base-200 px-4 py-4 sm:px-16">
                     <h2 class="text-2xl font-medium">
                         {{ 'BOOKINGS.VISITOR_INVITE_TITLE' | translate }}
                     </h2>
@@ -42,7 +42,7 @@ import { User } from 'libs/users/src/lib/user.class';
                 <form
                     *ngIf="form"
                     [formGroup]="form"
-                    class="sm:px-16 px-4 py-4"
+                    class="px-4 py-4 sm:px-16"
                 >
                     <div class="flex flex-col" *ngIf="buildings?.length > 1">
                         <label for="building">
@@ -77,7 +77,7 @@ import { User } from 'libs/users/src/lib/user.class';
                         ></a-date-field>
                     </div>
                     <div class="flex items-center space-x-2">
-                        <div class="flex-1 flex flex-col w-1/3">
+                        <div class="flex w-1/3 flex-1 flex-col">
                             <label for="start-time">
                                 {{ 'FORM.TIME_START' | translate }}
                                 <span>*</span>
@@ -93,7 +93,7 @@ import { User } from 'libs/users/src/lib/user.class';
                                 [use_24hr]="use_24hr"
                             ></a-time-field>
                         </div>
-                        <div class="flex-1 flex flex-col w-1/3">
+                        <div class="flex w-1/3 flex-1 flex-col">
                             <label for="end-time">
                                 {{ 'FORM.TIME_END' | translate }}
                                 <span>*</span>
@@ -109,7 +109,7 @@ import { User } from 'libs/users/src/lib/user.class';
                     </div>
                     <div
                         *ngIf="can_book_for_others"
-                        class="w-full flex flex-col"
+                        class="flex w-full flex-col"
                     >
                         <label for="host">
                             {{ 'FORM.HOST' | translate }}<span>*</span>
@@ -239,7 +239,7 @@ import { User } from 'libs/users/src/lib/user.class';
                     </div>
                 </form>
                 <div
-                    class="sticky sm:px-16 px-4 py-4 border-t bg-base-100 border-base-200 bottom-0"
+                    class="sticky bottom-0 border-t border-base-200 bg-base-100 px-4 py-4 sm:px-16"
                 >
                     <button
                         btn
@@ -256,9 +256,9 @@ import { User } from 'libs/users/src/lib/user.class';
         <ng-template #send_state>
             <div
                 sent
-                class="absolute inset-0 bg-base-100 flex flex-col items-center justify-center text-center"
+                class="absolute inset-0 flex flex-col items-center justify-center bg-base-100 text-center"
             >
-                <div class="w-full max-w-[32rem] flex-1 h-1/2 space-y-2 m-8">
+                <div class="m-8 h-1/2 w-full max-w-[32rem] flex-1 space-y-2">
                     <h2 class="text-3xl">
                         {{
                             (multiple
@@ -293,14 +293,14 @@ import { User } from 'libs/users/src/lib/user.class';
                         }}
                     </p>
                     <div
-                        class="flex flex-col items-center space-y-4 p-4 relative"
+                        class="relative flex flex-col items-center space-y-4 p-4"
                         *ngIf="show_links"
                     >
                         <a
                             btn
                             matRipple
                             name="desk-outlook-link"
-                            class="flex items-center p-2 space-x-2 pr-4 w-64 rounded inverse"
+                            class="inverse flex w-64 items-center space-x-2 rounded p-2 pr-4"
                             [href]="outlook_link | sanitize: 'url'"
                             target="_blank"
                             rel="noopener noreferer"
@@ -314,7 +314,7 @@ import { User } from 'libs/users/src/lib/user.class';
                             btn
                             matRipple
                             name="desk-google-link"
-                            class="flex items-center p-2 space-x-2 pr-4 w-64 rounded inverse"
+                            class="inverse flex w-64 items-center space-x-2 rounded p-2 pr-4"
                             [href]="google_link | sanitize: 'url'"
                             target="_blank"
                             rel="noopener noreferer"
@@ -328,7 +328,7 @@ import { User } from 'libs/users/src/lib/user.class';
                             btn
                             matRipple
                             name="desk-ical-link"
-                            class="flex items-center p-2 space-x-2 pr-4 w-64 rounded inverse"
+                            class="inverse flex w-64 items-center space-x-2 rounded p-2 pr-4"
                             [href]="ical_link | safe: 'url'"
                             target="_blank"
                             rel="noopener noreferer"
@@ -338,9 +338,9 @@ import { User } from 'libs/users/src/lib/user.class';
                         </a>
                     </div>
                 </div>
-                <div class="w-full p-2 border-t border-base-200">
+                <div class="w-full border-t border-base-200 p-2">
                     <div
-                        class="mx-auto flex items-center space-x-2 w-full max-w-[32rem]"
+                        class="mx-auto flex w-full max-w-[32rem] items-center space-x-2"
                     >
                         <button btn matRipple class="flex-1" (click)="onDone()">
                             {{ 'APP.WORKPLACE.BOOKING_FINISHED' | translate }}
@@ -360,7 +360,7 @@ import { User } from 'libs/users/src/lib/user.class';
         <ng-template #load_state>
             <div
                 loading
-                class="relative flex flex-col items-center justify-center rounded overflow-hidden w-full h-full min-h-[18rem]"
+                class="relative flex h-full min-h-[18rem] w-full flex-col items-center justify-center overflow-hidden rounded"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
                 <p>{{ 'BOOKINGS.VISITOR_SENDING' | translate }}</p>

@@ -10,7 +10,7 @@ import { SettingsService } from '@placeos/common';
             class="sticky left-0 w-full"
         ></mat-progress-bar>
         <simple-table
-            class="min-w-[76rem] block text-sm"
+            class="block min-w-[76rem] text-sm"
             [data]="events"
             [columns]="[
                 {
@@ -80,7 +80,7 @@ import { SettingsService } from '@placeos/common';
                 <div>{{ row.user_name || row.user_email }}</div>
                 <div
                     *ngIf="row.user_name && row.user_email"
-                    class="opacity-30 text-xs"
+                    class="text-xs opacity-30"
                 >
                     {{ row.user_email }}
                 </div>
@@ -91,7 +91,7 @@ import { SettingsService } from '@placeos/common';
                 <div>{{ row.booked_by_name || row.booked_by_email }}</div>
                 <div
                     *ngIf="row.booked_by_name && row.booked_by_email"
-                    class="opacity-30 text-xs"
+                    class="text-xs opacity-30"
                 >
                     {{ row.booked_by_email }}
                 </div>
@@ -100,7 +100,7 @@ import { SettingsService } from '@placeos/common';
         <ng-template #state_template let-row="row">
             <div
                 *ngIf="!row?.checked_in && row.checked_out_at"
-                class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-base-300 text-base-100 mx-auto"
+                class="mx-auto flex h-8 w-8 items-center justify-center rounded bg-base-300 text-2xl text-base-100"
                 [matTooltip]="
                     'APP.CONCIERGE.PARKING_CHECKED_OUT_AT'
                         | translate
@@ -116,7 +116,7 @@ import { SettingsService } from '@placeos/common';
             </div>
             <div
                 *ngIf="!row?.checked_in && !row.checked_out_at"
-                class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-warning text-warning-content mx-auto"
+                class="mx-auto flex h-8 w-8 items-center justify-center rounded bg-warning text-2xl text-warning-content"
                 [matTooltip]="
                     'APP.CONCIERGE.PARKING_NOT_CHECKED_IN' | translate
                 "
@@ -126,7 +126,7 @@ import { SettingsService } from '@placeos/common';
             </div>
             <div
                 *ngIf="row?.checked_in"
-                class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-success text-success-content mx-auto"
+                class="mx-auto flex h-8 w-8 items-center justify-center rounded bg-success text-2xl text-success-content"
                 [matTooltip]="'APP.CONCIERGE.PARKING_CHECKED_IN' | translate"
                 matTooltipPosition="right"
             >
@@ -148,7 +148,7 @@ import { SettingsService } from '@placeos/common';
             <div class="px-4">
                 <button
                     matRipple
-                    class="rounded-3xl border-none w-[7.5rem] h-10"
+                    class="h-10 w-[7.5rem] rounded-3xl border-none"
                     [class.text-success-content]="row?.status === 'approved'"
                     [class.bg-success]="row?.status === 'approved'"
                     [class.text-error-content]="row?.status === 'declined'"
@@ -161,7 +161,7 @@ import { SettingsService } from '@placeos/common';
                     [matMenuTriggerFor]="menu"
                     [disabled]="row?.status === 'ended'"
                 >
-                    <div class="flex items-center pl-4 pr-2 space-x-2">
+                    <div class="flex items-center space-x-2 pl-4 pr-2">
                         <div class="flex-1 text-left">
                             {{
                                 (row?.status === 'ended'
@@ -198,7 +198,7 @@ import { SettingsService } from '@placeos/common';
             </mat-menu>
         </ng-template>
         <ng-template #action_template let-row="row">
-            <div class="flex items-center justify-end space-x-2 mx-auto">
+            <div class="mx-auto flex items-center justify-end space-x-2">
                 <button
                     icon
                     matRipple
@@ -215,10 +215,10 @@ import { SettingsService } from '@placeos/common';
                 </button>
             </div>
         </ng-template>
-        <div class="w-full h-20"></div>
+        <div class="h-20 w-full"></div>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class ParkingBookingsListComponent {
     public readonly events = this._state.bookings;

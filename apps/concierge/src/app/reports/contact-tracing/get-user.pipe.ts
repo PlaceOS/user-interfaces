@@ -7,7 +7,7 @@ const USER_LIST = {};
 
 @Pipe({
     name: 'user',
-    standalone: false
+    standalone: false,
 })
 export class GetUserPipe implements PipeTransform {
     /**
@@ -19,8 +19,8 @@ export class GetUserPipe implements PipeTransform {
         if (!USER_LIST[id]) {
             USER_LIST[id] = searchStaff(id).pipe(
                 map((_) => _[0] || new StaffUser({ id, name: id })),
-                catchError(_ => of(new StaffUser({ id, name: id }))),
-                shareReplay(1)
+                catchError((_) => of(new StaffUser({ id, name: id }))),
+                shareReplay(1),
             );
         }
         return USER_LIST[id];

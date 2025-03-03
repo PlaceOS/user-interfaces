@@ -19,7 +19,7 @@ export interface BookingModalData {
     template: `
         <header>
             <h2>{{ form?.value.id ? 'Edit' : 'New' }} Booking</h2>
-            <div class="flex-1 w-0"></div>
+            <div class="w-0 flex-1"></div>
             <button icon mat-dialog-close>
                 <app-icon>close</app-icon>
             </button>
@@ -40,7 +40,7 @@ export interface BookingModalData {
         </main>
         <footer
             *ngIf="!(loading | async)"
-            class="flex justify-center items-center p-2 border-t border-base-200"
+            class="flex items-center justify-center border-t border-base-200 p-2"
         >
             <button btn matRipple class="w-32" (click)="save()">Save</button>
         </footer>

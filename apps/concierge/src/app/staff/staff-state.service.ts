@@ -53,9 +53,9 @@ export class StaffStateService extends AsyncHandler {
                     (!filter ||
                         i.name.toLowerCase().includes(filter) ||
                         i.email.toLowerCase().includes(filter)) &&
-                    (!options.only_onsite || this._onsite[i.email])
+                    (!options.only_onsite || this._onsite[i.email]),
             );
-        })
+        }),
     );
 
     public readonly user_events = combineLatest([this._filters]).pipe(
@@ -74,7 +74,7 @@ export class StaffStateService extends AsyncHandler {
                         now,
                         now,
                         bkn.date,
-                        bkn.date + bkn.duration * 60 * 1000
+                        bkn.date + bkn.duration * 60 * 1000,
                     )
                 ) {
                     checkin_map[bkn.asset_id] = bkn.checked_in;
@@ -85,7 +85,7 @@ export class StaffStateService extends AsyncHandler {
             this._loading.next(false);
             return checkin_map;
         }),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     constructor(private _org: OrganisationService) {
@@ -107,7 +107,7 @@ export class StaffStateService extends AsyncHandler {
         this.interval(
             'poll',
             () => this.setFilters(this._filters.getValue()),
-            delay
+            delay,
         );
     }
 

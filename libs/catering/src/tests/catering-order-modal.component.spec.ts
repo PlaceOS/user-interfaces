@@ -57,11 +57,11 @@ describe('CateringOrderModalComponent', () => {
         expect('[item]').toExist();
         spectator.component.updateItemQuantity(
             new CateringItem({ id: '1', name: 'Coffee' }),
-            2
+            2,
         );
         spectator.detectChanges();
         expect(
-            spectator.component.order.items.find((_) => _.id === '1')
+            spectator.component.order.items.find((_) => _.id === '1'),
         ).toBeTruthy();
         expect(spectator.component.order.items[0].quantity).toBe(2);
         spectator.click('button[confirm]');
@@ -74,7 +74,7 @@ describe('CateringOrderModalComponent', () => {
         spectator.detectChanges();
         spectator.component.updateItemQuantity(
             new CateringItem({ id: '1', name: 'Coffee' }),
-            2
+            2,
         );
         spectator.detectChanges();
         spectator.click('button[confirm]');
@@ -94,7 +94,7 @@ describe('CateringOrderModalComponent', () => {
         });
         spectator.component.updateItemQuantity(
             new CateringItem({ id: '1', name: 'Coffee' }),
-            2
+            2,
         );
         spectator.detectChanges();
         spectator.click('button[confirm]');

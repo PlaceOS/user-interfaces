@@ -56,7 +56,7 @@ describe('UserSearchFieldComponent', () => {
         spectator.triggerEventHandler(
             'input',
             'ngModelChange',
-            user_list[0].name
+            user_list[0].name,
         );
         spectator.tick(401);
         spectator.detectChanges();
@@ -73,7 +73,7 @@ describe('UserSearchFieldComponent', () => {
         spectator.triggerEventHandler(
             'input',
             'ngModelChange',
-            user_list[0].name
+            user_list[0].name,
         );
         spectator.tick(401);
         spectator.detectChanges();

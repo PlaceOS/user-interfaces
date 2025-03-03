@@ -1,9 +1,8 @@
-import { HashMap, randomInt } from "@placeos/common";
+import { HashMap, randomInt } from '@placeos/common';
 
 let interval;
 
 export class CaptureModule {
-
     status: 'playing' | 'stopped' | 'paused' = 'stopped';
     title: string;
     live: boolean = false;
@@ -38,7 +37,6 @@ export class CaptureModule {
         this.current = 0;
         clearInterval(interval);
     }
-
 }
 
 export const createCaptureModule = (space: HashMap, overrides: HashMap = {}) =>

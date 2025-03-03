@@ -8,11 +8,11 @@ import { Router } from '@angular/router';
     selector: 'app-asset-purchase-order-list',
     template: `
         <div
-            class="relative -left-4 w-[calc(100%+2rem)] mt-4 h-[calc(100%-1rem)] flex flex-col"
+            class="relative -left-4 mt-4 flex h-[calc(100%-1rem)] w-[calc(100%+2rem)] flex-col"
         >
-            <div class="w-full overflow-auto h-1/2 flex-1 p-4">
+            <div class="h-1/2 w-full flex-1 overflow-auto p-4">
                 <simple-table
-                    class="min-w-[52rem] block text-sm"
+                    class="block min-w-[52rem] text-sm"
                     purchase-orders
                     [data]="purchase_orders"
                     [columns]="[
@@ -79,7 +79,7 @@ import { Router } from '@angular/router';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class AssetPurchaseOrderListComponent {
     public readonly now = Date.now();

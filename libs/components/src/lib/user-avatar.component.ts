@@ -5,13 +5,13 @@ import { User } from 'libs/users/src/lib/user.class';
     selector: 'a-user-avatar',
     template: `
         <div
-            class="h-[2.5em] w-[2.5em] flex items-center justify-center border-2 border-base-100 bg-base-200 rounded-full overflow-hidden"
+            class="flex h-[2.5em] w-[2.5em] items-center justify-center overflow-hidden rounded-full border-2 border-base-100 bg-base-200"
             *ngIf="user"
             [attr.user-id]="user.id"
         >
             <div
                 initials
-                class="text-base-content opacity-60 uppercase text-[1em]"
+                class="text-[1em] uppercase text-base-content opacity-60"
                 *ngIf="!user.photo; else image_state"
             >
                 {{ initials }}
@@ -22,7 +22,7 @@ import { User } from 'libs/users/src/lib/user.class';
         </ng-template>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class UserAvatarComponent {
     /** User to display avatar for */

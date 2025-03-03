@@ -12,9 +12,9 @@ import { DesksStateService } from '../desks/desks-state.service';
     selector: 'points-asset-modal',
     template: `
         <header
-            class="sticky top-0 p-2 m-2 w-[calc(100%-1rem)] border-none z-10 bg-base-200 rounded"
+            class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded border-none bg-base-200 p-2"
         >
-            <h2 class="text-xl font-medium px-2">
+            <h2 class="px-2 text-xl font-medium">
                 {{
                     (form?.value?.id
                         ? 'APP.CONCIERGE.POINTS_ASSETS_EDIT'
@@ -33,7 +33,7 @@ import { DesksStateService } from '../desks/desks-state.service';
         >
             <div class="flex flex-col">
                 <label>{{ 'APP.CONCIERGE.POINTS_TYPE' | translate }}</label>
-                <mat-form-field appearance="outline" class="flex-1 h-[3.25rem]">
+                <mat-form-field appearance="outline" class="h-[3.25rem] flex-1">
                     <mat-select
                         formControlName="type"
                         placeholder="Select asset type"
@@ -49,7 +49,7 @@ import { DesksStateService } from '../desks/desks-state.service';
             </div>
             <div class="flex flex-col">
                 <label>{{ 'RESOURCE.ASSET' | translate }}</label>
-                <mat-form-field appearance="outline" class="flex-1 h-[3.25rem]">
+                <mat-form-field appearance="outline" class="h-[3.25rem] flex-1">
                     <app-icon
                         matPrefix
                         class="text-2xl"
@@ -88,15 +88,15 @@ import { DesksStateService } from '../desks/desks-state.service';
                     </mat-option>
                 </mat-autocomplete>
             </div>
-            <div class="flex items-center mb-4">
+            <div class="mb-4 flex items-center">
                 <settings-toggle
                     [name]="'APP.CONCIERGE.POINTS_ACCEPT' | translate"
                     formControlName="accept_points"
                     class="w-full"
                 ></settings-toggle>
             </div>
-            <div class="flex space-x-4 mb-4">
-                <div class="flex flex-col flex-1">
+            <div class="mb-4 flex space-x-4">
+                <div class="flex flex-1 flex-col">
                     <label>{{
                         'APP.CONCIERGE.POINTS_STANDARD_RATE' | translate
                     }}</label>
@@ -109,7 +109,7 @@ import { DesksStateService } from '../desks/desks-state.service';
                         [render_fn]="renderPrice"
                     ></a-counter>
                 </div>
-                <div class="flex flex-col flex-1">
+                <div class="flex flex-1 flex-col">
                     <label>{{
                         'APP.CONCIERGE.POINTS_DISCOUNT_CAP' | translate
                     }}</label>
@@ -135,7 +135,7 @@ import { DesksStateService } from '../desks/desks-state.service';
                             let rule of form.get('custom_rates')?.value || []
                         "
                     >
-                        <div class="flex items-center flex-1 w-1/2 space-x-2">
+                        <div class="flex w-1/2 flex-1 items-center space-x-2">
                             <mat-form-field
                                 appearance="outline"
                                 class="flex-2 h-[3.25rem] w-32"
@@ -165,12 +165,12 @@ import { DesksStateService } from '../desks/desks-state.service';
                                 </mat-select>
                             </mat-form-field>
                             <a-time-field
-                                class="flex-1 mt-2 w-40"
+                                class="mt-2 w-40 flex-1"
                                 [(ngModel)]="rule.first"
                                 [ngModelOptions]="{ standalone: true }"
                             ></a-time-field>
                             <a-time-field
-                                class="flex-1 mt-2 w-40"
+                                class="mt-2 w-40 flex-1"
                                 [(ngModel)]="rule.second"
                                 [from]="rule.first"
                                 [ngModelOptions]="{ standalone: true }"
@@ -179,7 +179,7 @@ import { DesksStateService } from '../desks/desks-state.service';
                         </div>
                         <span class="mx-2">&#64;</span>
                         <a-counter
-                            class="border border-base-200 rounded"
+                            class="rounded border border-base-200"
                             [(ngModel)]="rule.rate"
                             [ngModelOptions]="{ standalone: true }"
                             [min]="0"
@@ -190,7 +190,7 @@ import { DesksStateService } from '../desks/desks-state.service';
                     </div>
                 </div>
                 <button btn matRipple class="clear w-full" (click)="newRule()">
-                    <div class="flex items-center justify-center w-full">
+                    <div class="flex w-full items-center justify-center">
                         <app-icon class="text-lg">add</app-icon>
                         <span class="underline">{{
                             'APP.CONCIERGE.POINTS_RATE_RULES_NEW' | translate
@@ -200,7 +200,7 @@ import { DesksStateService } from '../desks/desks-state.service';
             </div>
         </main>
         <footer
-            class="flex items-center justify-end p-2 space-x-2 border-t border-base-200"
+            class="flex items-center justify-end space-x-2 border-t border-base-200 p-2"
         >
             <button
                 btn
@@ -222,7 +222,7 @@ import { DesksStateService } from '../desks/desks-state.service';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class PointsAssetModalComponent extends AsyncHandler {
     @Output() public event = new EventEmitter<DialogEvent>();

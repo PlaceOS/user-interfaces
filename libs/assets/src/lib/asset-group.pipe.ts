@@ -17,7 +17,7 @@ export function updateAssetGroupList(assetgroup_list: AssetGroup[]) {
 
 @Pipe({
     name: 'assetgroup',
-    standalone: false
+    standalone: false,
 })
 export class AssetGroupPipe {
     /**

@@ -43,7 +43,7 @@ export enum ZoomDirection {
                     ></joystick>
                     <div
                         zoom
-                        class="flex flex-col items-center border border-base-200 rounded"
+                        class="flex flex-col items-center rounded border border-base-200"
                     >
                         <button
                             zoom-in
@@ -57,7 +57,7 @@ export enum ZoomDirection {
                             <app-icon>add</app-icon>
                         </button>
                         <div
-                            class="text-xs h-10 w-10 flex items-center justify-center border-t border-b border-base-200"
+                            class="flex h-10 w-10 items-center justify-center border-b border-t border-base-200 text-xs"
                         >
                             {{ 'APP.CONTROL.ZOOM' | translate }}
                         </div>
@@ -77,7 +77,7 @@ export enum ZoomDirection {
                 </div>
             </div>
             <div
-                class="absolute inset-0 bg-base-100 bg-opacity-75 flex items-center justify-center"
+                class="absolute inset-0 flex items-center justify-center bg-base-100 bg-opacity-75"
                 *ngIf="!active_camera"
             >
                 <p>{{ 'APP.CONTROL.CAMERA_SELECT_MSG' | translate }}</p>

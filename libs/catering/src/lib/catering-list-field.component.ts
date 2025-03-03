@@ -30,7 +30,7 @@ const EMPTY_FAVS = [];
             <div
                 order
                 *ngFor="let order of orders"
-                class="border shadow bg-base-100 rounded-xl overflow-hidden"
+                class="overflow-hidden rounded-xl border bg-base-100 shadow"
                 [class.border-error]="end_time < order.deliver_at"
                 [class.border-base-300]="end_time >= order.deliver_at"
             >
@@ -52,7 +52,7 @@ const EMPTY_FAVS = [];
                                 }}
                             </div>
                             <div
-                                class="flex items-center justify-center h-6 w-6 rounded-full bg-error text-error-content"
+                                class="flex h-6 w-6 items-center justify-center rounded-full bg-error text-error-content"
                                 [matTooltip]="err_tooltip"
                                 *ngIf="end_time < order.deliver_at"
                             >
@@ -126,17 +126,17 @@ const EMPTY_FAVS = [];
                     </button>
                 </div>
                 <div
-                    class="flex flex-col bg-base-200 divide-y divide-base-100"
+                    class="flex flex-col divide-y divide-base-100 bg-base-200"
                     [@show]="show_order[order.id] ? 'show' : 'hide'"
                 >
                     <div
-                        class="flex items-center px-4 py-1 space-x-2 hover:opacity-90"
+                        class="flex items-center space-x-2 px-4 py-1 hover:opacity-90"
                         *ngFor="let item of order.items"
                     >
-                        <div class="flex items-center flex-1">
+                        <div class="flex flex-1 items-center">
                             {{ item.name || 'Item' }}
                             <span
-                                class="text-xs opacity-60 ml-4 font-normal"
+                                class="ml-4 text-xs font-normal opacity-60"
                                 *ngIf="item.option_list?.length"
                                 [matTooltip]="optionList(item)"
                             >
@@ -152,12 +152,12 @@ const EMPTY_FAVS = [];
                             </span>
                         </div>
                         <div
-                            class="rounded bg-success text-success-content text-xs px-2 py-1"
+                            class="rounded bg-success px-2 py-1 text-xs text-success-content"
                         >
                             x{{ item.quantity }}
                         </div>
                         <div
-                            class="rounded bg-info text-info-content text-xs px-2 py-1"
+                            class="rounded bg-info px-2 py-1 text-xs text-info-content"
                         >
                             {{
                                 item.unit_price_with_options / 100
@@ -202,7 +202,7 @@ const EMPTY_FAVS = [];
             btn
             matRipple
             name="add-catering-item"
-            class="w-full inverse mt-2"
+            class="inverse mt-2 w-full"
             [disabled]="disabled"
             (click)="editOrder()"
         >

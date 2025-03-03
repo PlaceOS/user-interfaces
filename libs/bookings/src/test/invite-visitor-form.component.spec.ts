@@ -34,7 +34,7 @@ describe('InviteVisitorFormComponent', () => {
                 initialised: of(true),
                 building_list: new BehaviorSubject([]),
             }),
-            MockProvider(SettingsService, { get: jest.fn() })
+            MockProvider(SettingsService, { get: jest.fn() }),
         ],
         declarations: [
             MockComponent(DateFieldComponent),

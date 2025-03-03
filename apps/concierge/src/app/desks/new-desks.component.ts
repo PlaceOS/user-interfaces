@@ -24,11 +24,11 @@ import { DeskQrCodeModalComponent } from './desk-qr-code-modal.component';
 @Component({
     selector: '[app-new-desks]',
     template: `
-        <app-topbar class=" print:hidden"></app-topbar>
-        <div class="flex flex-1 h-px print:hidden">
+        <app-topbar class="print:hidden"></app-topbar>
+        <div class="flex h-px flex-1 print:hidden">
             <app-sidebar></app-sidebar>
-            <main class="flex flex-col flex-1 w-1/2 h-full">
-                <div class="flex items-center w-full py-4 px-8 space-x-2">
+            <main class="flex h-full w-1/2 flex-1 flex-col">
+                <div class="flex w-full items-center space-x-2 px-8 py-4">
                     <h2 class="text-2xl font-medium">
                         {{
                             (manage
@@ -37,7 +37,7 @@ import { DeskQrCodeModalComponent } from './desk-qr-code-modal.component';
                             ) | translate
                         }}
                     </h2>
-                    <div class="flex-1 w-px"></div>
+                    <div class="w-px flex-1"></div>
                     <searchbar
                         class="mr-2"
                         [model]="(filters | async)?.search"
@@ -47,7 +47,7 @@ import { DeskQrCodeModalComponent } from './desk-qr-code-modal.component';
                         btn
                         matRipple
                         *ngIf="path !== 'manage'"
-                        class="space-x-2 w-44"
+                        class="w-44 space-x-2"
                         (click)="newDeskBooking()"
                     >
                         <div class="pl-2">
@@ -59,7 +59,7 @@ import { DeskQrCodeModalComponent } from './desk-qr-code-modal.component';
                         btn
                         matRipple
                         *ngIf="path === 'manage'"
-                        class="space-x-2 w-44"
+                        class="w-44 space-x-2"
                         (click)="editDesk()"
                     >
                         <div class="pl-2">
@@ -68,7 +68,7 @@ import { DeskQrCodeModalComponent } from './desk-qr-code-modal.component';
                         <app-icon class="text-2xl">add</app-icon>
                     </button>
                 </div>
-                <div class="w-full flex items-center px-8 space-x-2 mb-4">
+                <div class="mb-4 flex w-full items-center space-x-2 px-8">
                     <mat-form-field
                         appearance="outline"
                         class="no-subscript w-60"
@@ -138,7 +138,7 @@ import { DeskQrCodeModalComponent } from './desk-qr-code-modal.component';
                             </mat-option>
                         </mat-select>
                     </mat-form-field>
-                    <div class="flex-1 w-px"></div>
+                    <div class="w-px flex-1"></div>
                     <ng-container *ngIf="path === 'events'">
                         <date-options
                             (dateChange)="setDate($event)"
@@ -173,7 +173,7 @@ import { DeskQrCodeModalComponent } from './desk-qr-code-modal.component';
                             btn
                             icon
                             matRipple
-                            class="bg-secondary text-secondary-content rounded h-12 w-12"
+                            class="h-12 w-12 rounded bg-secondary text-secondary-content"
                             [matTooltip]="
                                 'APP.CONCIERGE.DESKS_VIEW_QR_CODE_LIST'
                                     | translate
@@ -186,7 +186,7 @@ import { DeskQrCodeModalComponent } from './desk-qr-code-modal.component';
                             btn
                             icon
                             matRipple
-                            class="bg-secondary text-secondary-content rounded h-12 w-12"
+                            class="h-12 w-12 rounded bg-secondary text-secondary-content"
                             [matTooltip]="
                                 'APP.CONCIERGE.DESKS_LIST_UPLOAD' | translate
                             "
@@ -202,7 +202,7 @@ import { DeskQrCodeModalComponent } from './desk-qr-code-modal.component';
                             btn
                             icon
                             matRipple
-                            class="bg-secondary text-secondary-content rounded h-12 w-12"
+                            class="h-12 w-12 rounded bg-secondary text-secondary-content"
                             (click)="downloadTemplate()"
                             [matTooltip]="
                                 'APP.CONCIERGE.DESKS_LIST_DOWNLOAD' | translate
@@ -213,7 +213,7 @@ import { DeskQrCodeModalComponent } from './desk-qr-code-modal.component';
                         <button
                             icon
                             matRipple
-                            class="bg-secondary text-secondary-content rounded h-12 w-12"
+                            class="h-12 w-12 rounded bg-secondary text-secondary-content"
                             (click)="manageRestrictions()"
                             [matTooltip]="
                                 'APP.CONCIERGE.DESKS_BOOKING_RULES' | translate
@@ -223,7 +223,7 @@ import { DeskQrCodeModalComponent } from './desk-qr-code-modal.component';
                         </button>
                     </ng-container>
                 </div>
-                <div class="flex-1 h-1/2 px-8 w-full relative overflow-auto">
+                <div class="relative h-1/2 w-full flex-1 overflow-auto px-8">
                     <router-outlet></router-outlet>
                 </div>
                 <mat-progress-bar
@@ -245,7 +245,7 @@ import { DeskQrCodeModalComponent } from './desk-qr-code-modal.component';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class NewDesksComponent
     extends AsyncHandler

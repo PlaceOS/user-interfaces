@@ -18,8 +18,8 @@ describe('VirtualKeyboardComponent', () => {
         () =>
             (spectator = createDirective(
                 '<input keyboard [keyset]="keyset" />',
-                { hostProps: { keyset: undefined } }
-            ))
+                { hostProps: { keyset: undefined } },
+            )),
     );
 
     afterEach(() => (VirtualKeyboardComponent.enabled = false));

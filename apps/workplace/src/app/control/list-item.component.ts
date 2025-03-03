@@ -8,13 +8,13 @@ import { Space } from '@placeos/spaces';
     selector: 'a-control-space-list-item',
     template: `
         <div
-            class="flex flex-wrap items-center sm:space-x-4 bg-base-100 hover:bg-base-200 overflow-hidden p-2 pl-4 mb-2"
+            class="mb-2 flex flex-wrap items-center overflow-hidden bg-base-100 p-2 pl-4 hover:bg-base-200 sm:space-x-4"
             *ngIf="space"
             [class.with-image]="show_image"
         >
-            <div class="flex flex-col flex-1">
+            <div class="flex flex-1 flex-col">
                 <div class="text-xl">{{ space.name }}</div>
-                <div class="flex items-center w-full text-sm">
+                <div class="flex w-full items-center text-sm">
                     <div class="flex-1">{{ location }}</div>
                     <div class="flex items-center text-lg">
                         <app-icon>account_circle</app-icon>
@@ -23,7 +23,7 @@ import { Space } from '@placeos/spaces';
                 </div>
             </div>
             <div
-                class="flex w-full sm:w-auto sm:flex-col items-center space-x-2 sm:space-x-0 sm:space-y-2 mt-4 sm:mt-0"
+                class="mt-4 flex w-full items-center space-x-2 sm:mt-0 sm:w-auto sm:flex-col sm:space-x-0 sm:space-y-2"
             >
                 <a
                     btn
@@ -38,7 +38,7 @@ import { Space } from '@placeos/spaces';
                     btn
                     matRipple
                     locate
-                    class="w-32 flex-1 sm:flex-none inverse"
+                    class="inverse w-32 flex-1 sm:flex-none"
                     [routerLink]="['/explore']"
                     [queryParams]="{ space: space.id }"
                 >
@@ -48,7 +48,7 @@ import { Space } from '@placeos/spaces';
         </div>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class ControlSpaceListItemComponent {
     /** Space to display */
@@ -65,7 +65,7 @@ export class ControlSpaceListItemComponent {
         }
         const level = this.space.level;
         const bld = this._org.buildings.find(
-            (building) => building.id === level.parent_id
+            (building) => building.id === level.parent_id,
         );
         return `${bld ? (bld.display_name || bld.name) + ', ' : ''}${
             level?.display_name || level?.name || '<No Level>'
@@ -74,6 +74,6 @@ export class ControlSpaceListItemComponent {
 
     constructor(
         private _settings: SettingsService,
-        private _org: OrganisationService
+        private _org: OrganisationService,
     ) {}
 }

@@ -30,7 +30,7 @@ class ContactTracingModule {
                 .map((_) => ({
                     mac_address: randomString(10),
                     contact_time: getUnixTime(
-                        setHours(date, randomInt(11) + 7)
+                        setHours(date, randomInt(11) + 7),
                     ),
                     duration: randomInt(60) * 60,
                     username: MOCK_STAFF[randomInt(MOCK_STAFF.length)].email,
@@ -45,5 +45,5 @@ class ContactTracingModule {
 
 export const createContactTracingModule = (
     space: HashMap,
-    overrides: HashMap = {}
+    overrides: HashMap = {},
 ) => new ContactTracingModule({ ...space, ...overrides });

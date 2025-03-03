@@ -32,7 +32,7 @@ describe('BookingPanelArrayComponent', () => {
     it('should display four panels', () => {
         spectator.setRouteQueryParam(
             'system_ids',
-            'sys-A0,sys-A1,sys-A2,sys-A3'
+            'sys-A0,sys-A1,sys-A2,sys-A3',
         );
         spectator.detectChanges();
         expect('[panel]').toHaveLength(4);
@@ -43,7 +43,7 @@ describe('BookingPanelArrayComponent', () => {
         spectator.detectChanges();
         expect('[panel]').toHaveLength(0);
         expect('div').toContainText(
-            'No systems are set for displaying on the panel array'
+            'No systems are set for displaying on the panel array',
         );
     });
 });

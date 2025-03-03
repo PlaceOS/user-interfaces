@@ -27,8 +27,8 @@ export interface SupportRequestType {
         </header>
         <main class="w-[32rem] max-w-[85vw]" *ngIf="!loading; else load_state">
             <form class="p-2" [formGroup]="form">
-                <div class="flex items-center sm:space-x-2 flex-wrap">
-                    <div class="flex flex-col flex-1">
+                <div class="flex flex-wrap items-center sm:space-x-2">
+                    <div class="flex flex-1 flex-col">
                         <label
                             >{{ 'FORM.NAME' | translate }}<span>*</span></label
                         >
@@ -43,7 +43,7 @@ export interface SupportRequestType {
                             }}</mat-error>
                         </mat-form-field>
                     </div>
-                    <div class="flex flex-col flex-1">
+                    <div class="flex flex-1 flex-col">
                         <label
                             >{{ 'FORM.EMAIL' | translate }}<span>*</span></label
                         >
@@ -105,7 +105,7 @@ export interface SupportRequestType {
                         [placeholder]="'COMMON.SUPPORT_DESCRIPTION' | translate"
                         formControlName="description"
                     ></rich-text-input>
-                    <mat-error class="text-xs my-2" *ngIf="desc_error">
+                    <mat-error class="my-2 text-xs" *ngIf="desc_error">
                         {{ 'COMMON.SUPPORT_DESCRIPTION_REQUIRED' | translate }}
                     </mat-error>
                 </div>
@@ -118,12 +118,12 @@ export interface SupportRequestType {
                     ></image-list-field>
                 </div>
             </form>
-            <div class="italic text-center text-xs mb-2">
+            <div class="mb-2 text-center text-xs italic">
                 {{ 'COMMON.SUPPORT_MSG' | translate }}
             </div>
         </main>
         <footer
-            class="p-2 border-t border-base-200 flex items-center justify-center"
+            class="flex items-center justify-center border-t border-base-200 p-2"
             *ngIf="!loading"
         >
             <button btn matRipple class="w-32" (click)="submit()">
@@ -132,7 +132,7 @@ export interface SupportRequestType {
         </footer>
         <ng-template #load_state>
             <main
-                class="w-[32rem] min-h-[24rem] max-w-[100vw] flex flex-col items-center justify-center space-y-2"
+                class="flex min-h-[24rem] w-[32rem] max-w-[100vw] flex-col items-center justify-center space-y-2"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
                 <p>{{ 'COMMON.SUPPORT_LOADING' | translate }}</p>
@@ -146,7 +146,7 @@ export interface SupportRequestType {
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class SupportTicketModalComponent {
     public loading = false;

@@ -16,7 +16,7 @@ export class PointsStateService {
 
     constructor(private _dialog: MatDialog) {
         this._assets.next(
-            JSON.parse(localStorage.getItem('PLACEOS.point_assets') || '[]')
+            JSON.parse(localStorage.getItem('PLACEOS.point_assets') || '[]'),
         );
         this.assets.subscribe((list) => {
             localStorage.setItem('PLACEOS.point_assets', JSON.stringify(list));
@@ -46,7 +46,7 @@ export class PointsStateService {
 
     public removeAsset(asset_id: string) {
         this._assets.next(
-            this._assets.getValue().filter((_) => _.id !== asset_id)
+            this._assets.getValue().filter((_) => _.id !== asset_id),
         );
     }
 }

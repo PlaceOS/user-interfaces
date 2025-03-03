@@ -5,7 +5,7 @@ import { BaseQuestionComponent } from './base-question.component';
     selector: 'single-line-text',
     styles: [],
     template: `
-        <div class="flex flex-col w-full" *ngIf="preview">
+        <div class="flex w-full flex-col" *ngIf="preview">
             <mat-form-field apppearance="outline">
                 <input matInput type="text" />
                 <mat-hint>{{
@@ -14,7 +14,7 @@ import { BaseQuestionComponent } from './base-question.component';
             </mat-form-field>
         </div>
     `,
-    standalone: false
+    standalone: false,
 })
 export class SingleLineTextComponent extends BaseQuestionComponent {
     constructor() {

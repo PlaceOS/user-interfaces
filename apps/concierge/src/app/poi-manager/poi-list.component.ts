@@ -11,7 +11,7 @@ import { generateQRCode } from 'libs/common/src/lib/qr-code';
     template: `
         <div class="absolute inset-0 overflow-auto px-8">
             <simple-table
-                class="min-w-[48rem] block text-sm"
+                class="block min-w-[48rem] text-sm"
                 [data]="features"
                 empty_message="No Points of Interest found."
                 [columns]="[
@@ -44,7 +44,7 @@ import { generateQRCode } from 'libs/common/src/lib/qr-code';
                 ]"
                 [sortable]="true"
             ></simple-table>
-            <div class="w-full h-12"></div>
+            <div class="h-12 w-full"></div>
         </div>
         <ng-template #level_template let-row="row">
             <div class="p-4">
@@ -54,13 +54,13 @@ import { generateQRCode } from 'libs/common/src/lib/qr-code';
         <ng-template #bool_template let-data="data">
             <div
                 *ngIf="data"
-                class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-success text-success-content mx-auto"
+                class="mx-auto flex h-8 w-8 items-center justify-center rounded bg-success text-2xl text-success-content"
             >
                 <app-icon>done</app-icon>
             </div>
         </ng-template>
         <ng-template #action_template let-row="row">
-            <div class="w-full flex justify-end space-x-2 px-4 py-2 mx-auto">
+            <div class="mx-auto flex w-full justify-end space-x-2 px-4 py-2">
                 <div [matTooltip]="'APP.CONCIERGE.POI_PRIVATE_QR' | translate">
                     <button
                         icon
@@ -85,18 +85,18 @@ import { generateQRCode } from 'libs/common/src/lib/qr-code';
                     </button>
                 </div>
                 <ng-template #qr_menu>
-                    <div class="bg-base-100 py-2 shadow rounded">
+                    <div class="rounded bg-base-100 py-2 shadow">
                         <div class="" printable>
                             <a
                                 [href]="row.qr_link | safe: 'url'"
                                 target="_blank"
                                 ref="noopener noreferrer"
-                                class="block p-2 mx-4 my-2 rounded-lg border border-base-200 bg-base-100"
+                                class="mx-4 my-2 block rounded-lg border border-base-200 bg-base-100 p-2"
                             >
                                 <img class="w-48" [src]="row.qr_code" />
                             </a>
                             <div
-                                class="w-[calc(100%-2rem)] text-center mt-2 font-mono text-sm bg-base-200 rounded p-2 mx-4"
+                                class="mx-4 mt-2 w-[calc(100%-2rem)] rounded bg-base-200 p-2 text-center font-mono text-sm"
                             >
                                 {{ row.name || row.id }}
                             </div>
@@ -104,7 +104,7 @@ import { generateQRCode } from 'libs/common/src/lib/qr-code';
                         <button
                             btn
                             matRipple
-                            class="w-[calc(100%-2rem)] mx-4 my-2"
+                            class="mx-4 my-2 w-[calc(100%-2rem)]"
                             (click)="print()"
                         >
                             {{ 'APP.CONCIERGE.POI_PRINT_QR' | translate }}
@@ -124,7 +124,7 @@ import { generateQRCode } from 'libs/common/src/lib/qr-code';
                         </div>
                     </button>
                     <button mat-menu-item (click)="remove(row)">
-                        <div class="flex items-center space-x-2 text-red-500">
+                        <div class="text-red-500 flex items-center space-x-2">
                             <app-icon class="text-error">delete</app-icon>
                             <span>{{
                                 'APP.CONCIERGE.POI_REMOVE' | translate
@@ -136,7 +136,7 @@ import { generateQRCode } from 'libs/common/src/lib/qr-code';
         </ng-template>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class POIListComponent {
     public readonly features = this._manager.filtered_features;

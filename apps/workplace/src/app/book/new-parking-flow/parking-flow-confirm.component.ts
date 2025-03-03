@@ -7,9 +7,9 @@ import { OrganisationService } from '@placeos/organisation';
 @Component({
     selector: 'new-parking-flow-confirm',
     template: ` <header
-            class="flex items-center justify-between p-2 h-12 m-2 rounded bg-base-200"
+            class="m-2 flex h-12 items-center justify-between rounded bg-base-200 p-2"
         >
-            <h2 class="text-xl font-medium px-2">
+            <h2 class="px-2 text-xl font-medium">
                 {{ 'APP.WORKPLACE.PARKING_CONFIRM_TITLE' | translate }}
             </h2>
             <div class="">
@@ -28,9 +28,9 @@ import { OrganisationService } from '@placeos/organisation';
                 </button>
             </div>
         </header>
-        <section period class="flex space-x-1 py-4 px-2 text-base">
-            <app-icon class="text-success text-2xl">done</app-icon>
-            <div details class="text-base space-y-2">
+        <section period class="flex space-x-1 px-2 py-4 text-base">
+            <app-icon class="text-2xl text-success">done</app-icon>
+            <div details class="space-y-2 text-base">
                 <h3 class="text-xl">{{ booking.title || '~Untitled~' }}</h3>
                 <div class="flex items-center space-x-2">
                     <app-icon>calendar_today</app-icon>
@@ -53,11 +53,11 @@ import { OrganisationService } from '@placeos/organisation';
         </section>
         <section
             resource
-            class="flex space-x-1 py-4 px-2 border-t text-base"
+            class="flex space-x-1 border-t px-2 py-4 text-base"
             *ngIf="booking_asset?.id"
         >
-            <app-icon class="text-success text-2xl">done</app-icon>
-            <div details class="text-base space-y-2">
+            <app-icon class="text-2xl text-success">done</app-icon>
+            <div details class="space-y-2 text-base">
                 <h3 class="text-xl">
                     {{ booking_asset?.name || booking_asset?.id || '' }}
                 </h3>
@@ -77,7 +77,7 @@ import { OrganisationService } from '@placeos/organisation';
                 </ng-container>
             </div>
         </section>
-        <footer class="p-2 w-full border-t border-base-200 mt-4">
+        <footer class="mt-4 w-full border-t border-base-200 p-2">
             <button
                 confirm
                 btn
@@ -103,7 +103,7 @@ import { OrganisationService } from '@placeos/organisation';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class NewParkingFlowConfirmComponent extends AsyncHandler {
     @Input() public show_close: boolean = false;

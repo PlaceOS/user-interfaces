@@ -34,9 +34,9 @@ describe('DirectoryUserListComponent', () => {
         (users_mod as any).searchStaff = jest.fn((q) =>
             of(
                 [{ name: 'User 1' }, { name: 'User 2' }].filter((_) =>
-                    _.name.includes(q)
-                )
-            )
+                    _.name.includes(q),
+                ),
+            ),
         );
     });
 

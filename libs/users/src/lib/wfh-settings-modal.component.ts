@@ -14,7 +14,7 @@ import { showUser, updateUser } from '@placeos/ts-client';
     selector: `wfh-settings-modal`,
     template: `
         <header class="relative flex items-center justify-between">
-            <h2 class="font-medium text-xl">
+            <h2 class="text-xl font-medium">
                 {{ 'COMMON.WORK_LOCATION_SETTINGS' | translate }}
             </h2>
             <button
@@ -28,12 +28,12 @@ import { showUser, updateUser } from '@placeos/ts-client';
             </button>
         </header>
         <main
-            class="relative flex flex-col rounded w-[40rem] max-w-full p-4 space-y-2 max-h-[65vh] overflow-auto"
+            class="relative flex max-h-[65vh] w-[40rem] max-w-full flex-col space-y-2 overflow-auto rounded p-4"
             *ngIf="!loading; else load_state"
         >
             <h3>{{ 'COMMON.WORK_DAYS' | translate }}</h3>
             <div
-                class="flex items-center justify-between w-full pb-4 space-x-2"
+                class="flex w-full items-center justify-between space-x-2 pb-4"
             >
                 <mat-checkbox
                     *ngFor="let day of days"
@@ -48,12 +48,12 @@ import { showUser, updateUser } from '@placeos/ts-client';
                 <ng-container *ngFor="let day of days">
                     <ng-container *ngIf="weekdays_enabled[day.getDay()]">
                         <div
-                            class="flex w-full space-x-2 hover:bg-base-200 rounded px-2 pt-1"
+                            class="flex w-full space-x-2 rounded px-2 pt-1 hover:bg-base-200"
                         >
                             <label class="w-12 min-w-0 px-2 pt-3">
                                 {{ day | date: 'EEE' }}
                             </label>
-                            <div class="flex-1 w-1/2">
+                            <div class="w-1/2 flex-1">
                                 <div
                                     class="flex items-center space-x-2"
                                     *ngFor="
@@ -80,7 +80,7 @@ import { showUser, updateUser } from '@placeos/ts-client';
                                                     : 0) || 0
                                             )
                                         "
-                                        class="flex-1 w-1/4 h-[3.25rem]"
+                                        class="h-[3.25rem] w-1/4 flex-1"
                                     ></a-time-field>
                                     <a-time-field
                                         [ngModel]="timeFrom(block.end_time)"
@@ -94,11 +94,11 @@ import { showUser, updateUser } from '@placeos/ts-client';
                                         [from]="
                                             timeFrom(block.start_time + 0.25)
                                         "
-                                        class="flex-1 w-1/4 h-[3.25rem]"
+                                        class="h-[3.25rem] w-1/4 flex-1"
                                     ></a-time-field>
                                     <mat-form-field
                                         appearance="outline"
-                                        class="flex-1 w-1/4 h-[3.25rem]"
+                                        class="h-[3.25rem] w-1/4 flex-1"
                                     >
                                         <mat-select
                                             [(ngModel)]="block.location"
@@ -147,7 +147,7 @@ import { showUser, updateUser } from '@placeos/ts-client';
             </ng-container>
             <ng-template #empty_state>
                 <div
-                    class="flex flex-col items-center justify-center px-8 py-16 space-y-4"
+                    class="flex flex-col items-center justify-center space-y-4 px-8 py-16"
                 >
                     <img src="assets/icons/no-results.svg" class="m-auto" />
                     <p class="opacity-30">
@@ -157,7 +157,7 @@ import { showUser, updateUser } from '@placeos/ts-client';
             </ng-template>
         </main>
         <footer
-            class="flex justify-end px-4 py-2 border-t border-base-200"
+            class="flex justify-end border-t border-base-200 px-4 py-2"
             *ngIf="!loading"
         >
             <button btn matRipple class="w-48" (click)="saveChanges()">
@@ -167,7 +167,7 @@ import { showUser, updateUser } from '@placeos/ts-client';
         <ng-template #load_state>
             <div
                 loading
-                class="relative bg-base-100 flex flex-col justify-center items-center rounded overflow-hidden w-[24rem] h-[18rem] text-center space-y-2"
+                class="relative flex h-[18rem] w-[24rem] flex-col items-center justify-center space-y-2 overflow-hidden rounded bg-base-100 text-center"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
                 <p class="opacity-30">
@@ -177,7 +177,7 @@ import { showUser, updateUser } from '@placeos/ts-client';
         </ng-template>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class WFHSettingsModalComponent implements OnInit {
     public options = [];

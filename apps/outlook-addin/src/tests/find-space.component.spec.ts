@@ -234,7 +234,7 @@ describe('FindSpaceComponent', () => {
         const map_service: any = spectator.inject(MapService);
         const event_service: any = spectator.inject(EventFormService);
         const feature_filter_service: any = spectator.inject(
-            FeaturesFilterService
+            FeaturesFilterService,
         );
 
         org_service.levelsForBuilding.mockImplementation((bld) => {
@@ -310,11 +310,11 @@ describe('FindSpaceComponent', () => {
         (mat_bottom_sheet.open as any).mockImplementation(
             (template, config) => {
                 return '' as any;
-            }
+            },
         );
         const component_filter_spy = jest.spyOn(
             spectator.component,
-            'openFilter'
+            'openFilter',
         );
 
         expect(component_filter_spy).not.toHaveBeenCalled();
@@ -331,11 +331,11 @@ describe('FindSpaceComponent', () => {
         const room_confirm_service = spectator.inject(RoomConfirmService);
         const room_confirm_service_spy = jest.spyOn(
             room_confirm_service,
-            'openRoomDetail'
+            'openRoomDetail',
         );
         const component_open_spy = jest.spyOn(
             spectator.component,
-            'openRoomDetails'
+            'openRoomDetails',
         );
 
         spectator.component.selected_space = mockSpace;
@@ -345,7 +345,7 @@ describe('FindSpaceComponent', () => {
         spectator.component.show_room_details$ = of(true);
         spectator.detectChanges();
         const button = spectator.debugElement.query(
-            By.css('button.open-details-button')
+            By.css('button.open-details-button'),
         );
         expect(button.nativeElement.innerHTML).toContain('View Room');
         button.nativeElement.click();
@@ -364,11 +364,11 @@ describe('FindSpaceComponent', () => {
         expect(spectator.component.space_view).toBe('listView');
         expect(spaceItems.length).toBeTruthy();
         expect(spectator.debugElement.nativeElement.innerHTML).toContain(
-            'find-space-item'
+            'find-space-item',
         );
         expect(mapItems.length).toBe(0);
         expect(spectator.debugElement.nativeElement.innerHTML).not.toContain(
-            'svg'
+            'svg',
         );
     });
 
@@ -401,13 +401,13 @@ describe('FindSpaceComponent', () => {
         spectator.detectChanges();
 
         expect(spectator.debugElement.nativeElement.outerHTML).toContain(
-            '3 results found'
+            '3 results found',
         );
 
         (spectator.component.spaces$ as any) = of([mockSpace]);
         spectator.detectChanges();
         expect(spectator.debugElement.nativeElement.outerHTML).toContain(
-            '1 results found'
+            '1 results found',
         );
     });
 });

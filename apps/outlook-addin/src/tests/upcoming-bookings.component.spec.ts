@@ -36,7 +36,7 @@ describe('UpcomingBookingsComponent', () => {
     afterEach(() => {
         (spectator.inject(ScheduleStateService).loading as any).next(false);
         (spectator.inject(ScheduleStateService).filtered_bookings as any).next(
-            []
+            [],
         );
     });
 

@@ -7,7 +7,7 @@ const ALLOWED_ALPHANUMERIC = 'abcdefghijklmnopqrstuvwxyz0123456789'.split('');
 
 @Directive({
     selector: '[limitInput]',
-    standalone: false
+    standalone: false,
 })
 export class LimitInputDirective {
     @Input() restriction:
@@ -25,7 +25,7 @@ export class LimitInputDirective {
         const key = e.key;
         if (
             ['ArrowLeft', 'ArrowRight', 'Tab', 'Backspace', 'Home'].indexOf(
-                key
+                key,
             ) !== -1 ||
             // Allow: Ctrl+A
             (e.key === 'a' && (e.ctrlKey || e.metaKey)) ||

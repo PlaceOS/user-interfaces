@@ -30,11 +30,11 @@ const EMPTY = [];
     selector: 'app-event-manage',
     template: `
         <div
-            class="absolute inset-0 bg-base-100 overflow-auto"
+            class="absolute inset-0 overflow-auto bg-base-100"
             *ngIf="!loading; else load_state"
         >
             <header
-                class="sticky flex items-center justify-between top-0 px-4 py-2 mx-auto my-2 max-w-[640px] w-full border-none z-10 bg-base-200 rounded"
+                class="sticky top-0 z-10 mx-auto my-2 flex w-full max-w-[640px] items-center justify-between rounded border-none bg-base-200 px-4 py-2"
             >
                 <h2 class="text-xl font-medium">
                     {{
@@ -54,7 +54,7 @@ const EMPTY = [];
                 </a>
             </header>
             <form
-                class="flex flex-col w-[40rem] max-w-full mx-auto px-4 my-2 pb-16"
+                class="mx-auto my-2 flex w-[40rem] max-w-full flex-col px-4 pb-16"
                 [formGroup]="form"
             >
                 <section class="flex flex-col space-y-2">
@@ -108,7 +108,7 @@ const EMPTY = [];
                                 />
                             </mat-chip-grid>
                         </mat-form-field>
-                        <div class="py-4 flex items-center space-x-4">
+                        <div class="flex items-center space-x-4 py-4">
                             <settings-toggle
                                 class="flex-1"
                                 [name]="
@@ -136,13 +136,13 @@ const EMPTY = [];
                         </div>
                     </ng-container>
                     <!-- END BASIC DETAILS -->
-                    <div class="w-full h-px bg-base-200"></div>
+                    <div class="h-px w-full bg-base-200"></div>
                     <h3 class="py-4 text-2xl font-medium">
                         {{ 'APP.CONCIERGE.EVENTS_DATE_TIME' | translate }}
                     </h3>
                     <ng-container>
-                        <div class="flex items-center flex-wrap sm:space-x-2">
-                            <div class="flex-1 min-w-[256px] relative">
+                        <div class="flex flex-wrap items-center sm:space-x-2">
+                            <div class="relative min-w-[256px] flex-1">
                                 <label for="date">
                                     {{ 'FORM.DATE' | translate }}<span>*</span>
                                 </label>
@@ -154,7 +154,7 @@ const EMPTY = [];
                                     {{ 'FORM.DATE_ERROR' | translate }}
                                 </a-date-field>
                             </div>
-                            <div class="flex-1 min-w-[256px] relative">
+                            <div class="relative min-w-[256px] flex-1">
                                 <label for="date">
                                     {{ 'FORM.DATE_END' | translate }}
                                     <span>*</span>
@@ -173,7 +173,7 @@ const EMPTY = [];
                             class="flex items-center space-x-2"
                             *ngIf="!form.value.all_day"
                         >
-                            <div class="flex-1 w-1/3">
+                            <div class="w-1/3 flex-1">
                                 <label for="start-time">
                                     {{ 'FORM.TIME_START' | translate }}
                                     <span>*</span>
@@ -189,7 +189,7 @@ const EMPTY = [];
                                     [use_24hr]="use_24hr"
                                 ></a-time-field>
                             </div>
-                            <div class="flex-1 w-1/3">
+                            <div class="w-1/3 flex-1">
                                 <label for="end-time">
                                     {{ 'FORM.TIME_END' | translate }}
                                     <span>*</span>
@@ -248,7 +248,7 @@ const EMPTY = [];
                         </div>
                     </ng-container>
                     <!-- END DATE TIME -->
-                    <div class="w-full h-px bg-base-200"></div>
+                    <div class="h-px w-full bg-base-200"></div>
                     <h3 class="py-4 text-2xl font-medium">
                         {{ 'COMMON.LOCATION' | translate }}
                     </h3>
@@ -347,7 +347,7 @@ const EMPTY = [];
                                 </mat-select>
                             </mat-form-field>
                             <div class="flex space-x-2">
-                                <div class="flex flex-col flex-[2]">
+                                <div class="flex flex-[2] flex-col">
                                     <label for="level">{{
                                         'RESOURCE.LEVEL' | translate
                                     }}</label>
@@ -378,7 +378,7 @@ const EMPTY = [];
                                         </mat-select>
                                     </mat-form-field>
                                 </div>
-                                <div class="flex flex-col flex-[3]">
+                                <div class="flex flex-[3] flex-col">
                                     <label for="level">{{
                                         'RESOURCE.ROOM' | translate
                                     }}</label>
@@ -420,7 +420,7 @@ const EMPTY = [];
                         </ng-container>
                     </ng-container>
                     <!-- END LOCATION -->
-                    <div class="w-full h-px bg-base-200"></div>
+                    <div class="h-px w-full bg-base-200"></div>
                     <h3 class="py-4 text-2xl font-medium">
                         {{ 'APP.CONCIERGE.EVENTS_INFO' | translate }}
                     </h3>
@@ -442,7 +442,7 @@ const EMPTY = [];
                     </ng-container>
                 </section>
                 <footer
-                    class="fixed bottom-0 left-1/2 -translate-x-1/2 px-4 py-2 mx-auto my-2 max-w-[640px] w-full border-none z-10 bg-base-200 rounded flex items-center justify-end"
+                    class="fixed bottom-0 left-1/2 z-10 mx-auto my-2 flex w-full max-w-[640px] -translate-x-1/2 items-center justify-end rounded border-none bg-base-200 px-4 py-2"
                     *ngIf="!loading"
                 >
                     <button btn matRipple class="w-32" (click)="save()">
@@ -453,7 +453,7 @@ const EMPTY = [];
         </div>
         <ng-template #load_state>
             <div
-                class="absolute inset-0 bg-base-100 flex flex-col items-center justify-center space-y-4"
+                class="absolute inset-0 flex flex-col items-center justify-center space-y-4 bg-base-100"
             >
                 <mat-spinner diameter="48"></mat-spinner>
                 <p>{{ 'APP.CONCIERGE.EVENTS_SAVING' | translate }}</p>

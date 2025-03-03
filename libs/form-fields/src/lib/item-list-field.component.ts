@@ -66,7 +66,7 @@ export function removeChipItem<T = string>(
                     *ngFor="let item of value"
                     (removed)="remove(item)"
                 >
-                    <span class="truncate max-w-md">{{ item }}</span>
+                    <span class="max-w-md truncate">{{ item }}</span>
                     <button matChipRemove [attr.aria-label]="'Remove ' + item">
                         <app-icon>cancel</app-icon>
                     </button>
@@ -90,7 +90,7 @@ export function removeChipItem<T = string>(
             multi: true,
         },
     ],
-    standalone: false
+    standalone: false,
 })
 export class ItemListFieldComponent<T = any> implements ControlValueAccessor {
     @Input() public separators: number[] = [ENTER, COMMA];

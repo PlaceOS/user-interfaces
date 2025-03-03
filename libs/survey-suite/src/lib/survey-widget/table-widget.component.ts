@@ -14,17 +14,18 @@ import { BaseWidget } from './base-widget.component';
                 padding-bottom: 0.5rem;
             }
 
-            blockquote:after, blockquote:before {
-                font-size: 1.3rem;  
-            } 
+            blockquote:after,
+            blockquote:before {
+                font-size: 1.3rem;
+            }
 
-            blockquote:after {                                                       
+            blockquote:after {
                 content: close-quote;
                 vertical-align: bottom;
                 margin-left: 0.25rem;
             }
 
-            blockquote:before {                                     
+            blockquote:before {
                 content: open-quote;
                 vertical-align: top;
                 margin-right: 0.25rem;
@@ -33,24 +34,27 @@ import { BaseWidget } from './base-widget.component';
     ],
     template: `
         <div
-            class="flex flex-col min-h-0 max-h-[22rem] h-full w-full overflow-y-auto relative"
+            class="relative flex h-full max-h-[22rem] min-h-0 w-full flex-col overflow-y-auto"
         >
             <ng-container *ngIf="chart_data$ | async as data">
-                <div *ngFor="let d of data" class="flex flex-1 p-2 border-b mx-4">
+                <div
+                    *ngFor="let d of data"
+                    class="mx-4 flex flex-1 border-b p-2"
+                >
                     <blockquote>
-                        <span class="text-gray-700">{{d}}</span>
+                        <span class="text-gray-700">{{ d }}</span>
                     </blockquote>
                 </div>
             </ng-container>
         </div>
     `,
-    standalone: false
+    standalone: false,
 })
 export class TableWidgetComponent extends BaseWidget {
     public chart_data$ = this.data$.pipe(
         map((data: UISurveyAnswer[]) =>
-            data.reduce((acc, curr) => (acc.push(curr.answer_json), acc), [])
-        )
+            data.reduce((acc, curr) => (acc.push(curr.answer_json), acc), []),
+        ),
     );
 
     constructor() {

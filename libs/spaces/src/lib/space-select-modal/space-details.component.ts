@@ -34,7 +34,7 @@ import { Space } from '../space.class';
                     matRipple
                     name="close-space-details"
                     (click)="close.emit()"
-                    class="absolute top-2 left-2 bg-neutral sm:hidden text-white"
+                    class="absolute left-2 top-2 bg-neutral text-white sm:hidden"
                 >
                     <app-icon>arrow_back</app-icon>
                 </button>
@@ -45,21 +45,21 @@ import { Space } from '../space.class';
                     [class.text-white]="!fav"
                     [class.text-info]="fav"
                     (click)="toggleFav.emit()"
-                    class="absolute top-2 right-2 bg-neutral"
+                    class="absolute right-2 top-2 bg-neutral"
                 >
                     <app-icon>{{
                         fav ? 'favorite' : 'favorite_border'
                     }}</app-icon>
                 </button>
             </section>
-            <div class="p-2 space-y-2 flex-1 h-1/2 overflow-auto">
+            <div class="h-1/2 flex-1 space-y-2 overflow-auto p-2">
                 <section actions class="z-0">
-                    <h2 class="text-xl font-medium mb-2 mt-4">
+                    <h2 class="mb-2 mt-4 text-xl font-medium">
                         {{ space.display_name || space.name }}
                     </h2>
                 </section>
                 <div
-                    class="my-2 px-2 py-1 text-xs rounded"
+                    class="my-2 rounded px-2 py-1 text-xs"
                     *ngIf="alert"
                     [class.bg-info]="alert[0] === 'info'"
                     [class.text-info-content]="alert[0] === 'info'"
@@ -120,7 +120,7 @@ import { Space } from '../space.class';
                 </section>
                 <section
                     map
-                    class="w-full mx-auto h-64 sm:h-48 relative border border-base-200 overflow-hidden rounded"
+                    class="relative mx-auto h-64 w-full overflow-hidden rounded border border-base-200 sm:h-48"
                     *ngIf="!hide_map"
                 >
                     <interactive-map
@@ -133,7 +133,7 @@ import { Space } from '../space.class';
                 </section>
             </div>
             <div
-                class="px-2 pt-2 pb-[5.5rem] border-t border-base-200 shadow sm:hidden"
+                class="border-t border-base-200 px-2 pb-[5.5rem] pt-2 shadow sm:hidden"
             >
                 <button
                     btn
@@ -162,9 +162,9 @@ import { Space } from '../space.class';
         <ng-template #empty_state>
             <div
                 empty
-                class="p-16 flex flex-col items-center justify-center space-y-2"
+                class="flex flex-col items-center justify-center space-y-2 p-16"
             >
-                <p class="opacity-30 text-center">
+                <p class="text-center opacity-30">
                     {{ 'CALENDAR_EVENT.SPACE_LIST_INFO' | translate }}
                 </p>
             </div>
@@ -183,7 +183,7 @@ import { Space } from '../space.class';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class SpaceDetailsComponent implements OnChanges {
     @Input() public space?: Space;

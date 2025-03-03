@@ -23,30 +23,30 @@ import { LockersReportService } from './lockers-report.service';
     selector: 'lockers-report-charts',
     template: `
         <div
-            class="flex items-center space-x-4 w-full px-4"
+            class="flex w-full items-center space-x-4 px-4"
             [class.is-print]="print"
             (window:resize)="updateCharts()"
         >
             <div
-                class="bg-base-100 border border-base-200 rounded flex-1 w-1/2 h-[18rem]"
+                class="h-[18rem] w-1/2 flex-1 rounded border border-base-200 bg-base-100"
             >
                 <div class="border-b border-base-200 p-4 text-xl font-bold">
                     {{ 'APP.CONCIERGE.REPORTS_DAILY_HEADER' | translate }}
                 </div>
                 <div
                     id="daily-chart"
-                    class="ct-chart ct-octave max-w-full w-full h-56 mx-auto relative top-2 -left-2"
+                    class="ct-chart ct-octave relative -left-2 top-2 mx-auto h-56 w-full max-w-full"
                 ></div>
             </div>
             <div
-                class="bg-base-100 border border-base-200 rounded flex-1 w-1/2 h-[18rem]"
+                class="h-[18rem] w-1/2 flex-1 rounded border border-base-200 bg-base-100"
             >
                 <div class="border-b border-base-200 p-4 text-xl font-bold">
                     {{ 'APP.CONCIERGE.REPORTS_LEVEL_UTIL_HEADER' | translate }}
                 </div>
                 <div
                     id="level-chart"
-                    class="ct-chart ct-octave max-w-full w-[24rem] h-56 mx-auto"
+                    class="ct-chart ct-octave mx-auto h-56 w-[24rem] max-w-full"
                 ></div>
             </div>
         </div>
@@ -62,7 +62,7 @@ import { LockersReportService } from './lockers-report.service';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class LockersReportChartsComponent
     extends AsyncHandler

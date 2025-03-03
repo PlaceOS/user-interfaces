@@ -10,9 +10,9 @@ import { Component } from '@angular/core';
                 class="clear h-[2.75rem] text-white"
                 [routerLink]="['/book', 'desks', 'map']"
             >
-                <div class="flex items-center justify-center h-full">
+                <div class="flex h-full items-center justify-center">
                     <app-icon class="text-xl">arrow_back</app-icon>
-                    <span class="ml-2 mx-4">Back</span>
+                    <span class="mx-4 ml-2">Back</span>
                 </div>
             </a>
         </div>
@@ -31,6 +31,6 @@ import { Component } from '@angular/core';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class DeskFlowConfirmComponent {}

@@ -12,9 +12,9 @@ import { addDays, addMinutes, roundToNearestMinutes, setHours } from 'date-fns';
 @Component({
     selector: 'space-flow-form',
     template: `
-        <section form class="flex-1 min-h-[50%]">
+        <section form class="min-h-[50%] flex-1">
             <h2
-                class="text-xl uppercase font-medium mb-2 mt-4 w-[640px] max-w-[calc(100%-2rem)] mx-auto"
+                class="mx-auto mb-2 mt-4 w-[640px] max-w-[calc(100%-2rem)] text-xl font-medium uppercase"
             >
                 {{ is_edit ? 'Edit' : 'Detailed' }} Space Booking
             </h2>
@@ -25,10 +25,10 @@ import { addDays, addMinutes, roundToNearestMinutes, setHours } from 'date-fns';
                 [features]="features | async"
             ></detailed-book-space-form>
             <div
-                class="flex flex-col sm:flex-row items-center justify-center space-x-0 space-y-2 sm:space-y-0 sm:space-x-2 w-[640px] max-w-[calc(100%-2rem)] mx-auto mb-4"
+                class="mx-auto mb-4 flex w-[640px] max-w-[calc(100%-2rem)] flex-col items-center justify-center space-x-0 space-y-2 sm:flex-row sm:space-x-2 sm:space-y-0"
             >
                 <button
-                    class="sm:flex-1 w-full sm:w-auto h-[2.75rem] inverse"
+                    class="inverse h-[2.75rem] w-full sm:w-auto sm:flex-1"
                     btn
                     matRipple
                     clear
@@ -36,13 +36,13 @@ import { addDays, addMinutes, roundToNearestMinutes, setHours } from 'date-fns';
                 >
                     <div class="flex items-center justify-center">
                         <app-icon class="text-xl">clear</app-icon>
-                        <span class="ml-2 mx-4">{{
+                        <span class="mx-4 ml-2">{{
                             is_edit ? 'Cancel Edit' : 'Clear Form'
                         }}</span>
                     </div>
                 </button>
                 <button
-                    class="sm:flex-1 w-full sm:w-auto h-[2.75rem]"
+                    class="h-[2.75rem] w-full sm:w-auto sm:flex-1"
                     btn
                     matRipple
                     find-space
@@ -50,13 +50,13 @@ import { addDays, addMinutes, roundToNearestMinutes, setHours } from 'date-fns';
                 >
                     <div class="flex items-center justify-center">
                         <app-icon class="text-xl">search</app-icon>
-                        <span class="ml-2 mx-4">{{
+                        <span class="mx-4 ml-2">{{
                             is_edit ? 'Update Spaces' : 'Find Space'
                         }}</span>
                     </div>
                 </button>
                 <button
-                    class="sm:flex-1 w-full sm:w-auto h-[2.75rem]"
+                    class="h-[2.75rem] w-full sm:w-auto sm:flex-1"
                     btn
                     matRipple
                     standalone
@@ -65,7 +65,7 @@ import { addDays, addMinutes, roundToNearestMinutes, setHours } from 'date-fns';
                 >
                     <div class="flex items-center justify-center">
                         <app-icon class="text-xl">event_available</app-icon>
-                        <span class="ml-2 mx-4">{{
+                        <span class="mx-4 ml-2">{{
                             is_edit ? 'Confirm changes' : 'Book without Space'
                         }}</span>
                     </div>

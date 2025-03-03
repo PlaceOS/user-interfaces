@@ -5,19 +5,19 @@ import { DashboardStateService } from './dashboard-state.service';
 @Component({
     selector: 'a-dashboard-availability',
     template: `
-        <h3 class="m-0 font-medium text-xl">Available Now</h3>
+        <h3 class="m-0 text-xl font-medium">Available Now</h3>
         <div
-            class="flex flex-col items-center p-2 bg-base-100 shadow my-4 rounded-lg"
+            class="my-4 flex flex-col items-center rounded-lg bg-base-100 p-2 shadow"
         >
-            <div class="flex items-center w-full mb-2">
+            <div class="mb-2 flex w-full items-center">
                 <div>Building Levels</div>
             </div>
-            <div free-levels class="items space-y-2 w-full">
+            <div free-levels class="items w-full space-y-2">
                 <a
                     btn
                     matRipple
                     class="w-full"
-                    *ngFor="let lvl of levels_free | async | slice: 0:2"
+                    *ngFor="let lvl of levels_free | async | slice: 0 : 2"
                     [routerLink]="['/explore']"
                     [queryParams]="{ level: lvl.id }"
                 >
@@ -27,25 +27,25 @@ import { DashboardStateService } from './dashboard-state.service';
                 </a>
                 <span
                     *ngIf="!(levels_free | async).length"
-                    class="text-black/30/30 text-sm mb-2"
+                    class="text-black/30/30 mb-2 text-sm"
                     >No free spaces in building</span
                 >
             </div>
         </div>
         <div
             free-spaces
-            class="flex items-center flex-col rounded-lg bg-base-100 shadow my-4 p-2"
+            class="my-4 flex flex-col items-center rounded-lg bg-base-100 p-2 shadow"
             *ngIf="(space_list | async)?.length"
         >
-            <div class="flex items-center w-full mb-2">
+            <div class="mb-2 flex w-full items-center">
                 <div>Spaces</div>
             </div>
-            <div class="items space-y-2 w-full">
+            <div class="items w-full space-y-2">
                 <a
                     btn
                     matRipple
                     class="w-full"
-                    *ngFor="let space of space_list | async | slice: 0:3"
+                    *ngFor="let space of space_list | async | slice: 0 : 3"
                     [routerLink]="['/explore']"
                     [queryParams]="{ space: space.id }"
                 >
@@ -55,7 +55,7 @@ import { DashboardStateService } from './dashboard-state.service';
                 </a>
                 <span
                     *ngIf="!(space_list | async).length"
-                    class="text-dark-fade text-sm mb-2"
+                    class="text-dark-fade mb-2 text-sm"
                     >No free spaces</span
                 >
             </div>
@@ -69,7 +69,7 @@ import { DashboardStateService } from './dashboard-state.service';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class DashboardAvailabilityComponent implements OnInit, OnDestroy {
     public readonly space_list = this._state.free_spaces;

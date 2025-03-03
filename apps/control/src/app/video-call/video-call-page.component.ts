@@ -9,14 +9,14 @@ import { VideoCallStateService } from './video-call-state.service';
 @Component({
     selector: '[video-call-page]',
     template: `
-        <div class="p-2 h-full w-full" *ngIf="!loading; else load_state">
+        <div class="h-full w-full p-2" *ngIf="!loading; else load_state">
             <div class="flex h-1/2 flex-1">
                 <div
-                    class="flex-1 p-2 flex flex-col items-center justify-center space-y-2"
+                    class="flex flex-1 flex-col items-center justify-center space-y-2 p-2"
                 >
                     <mat-form-field
                         appearance="outline"
-                        class="w-full h-12"
+                        class="h-12 w-full"
                         *ngIf="(camera_list | async)?.length > 1"
                     >
                         <mat-select
@@ -35,7 +35,7 @@ import { VideoCallStateService } from './video-call-state.service';
                     <mat-form-field
                         appearance="outline"
                         *ngIf="present_output && (presentables$ | async)"
-                        class="w-full h-[3.5rem]"
+                        class="h-[3.5rem] w-full"
                     >
                         <mat-select
                             ngModel
@@ -54,7 +54,7 @@ import { VideoCallStateService } from './video-call-state.service';
                     </p>
                     <mat-form-field
                         appearance="outline"
-                        class="w-full h-[3.5rem]"
+                        class="h-[3.5rem] w-full"
                     >
                         <mat-select
                             [ngModel]="presentation_mode | async"
@@ -77,7 +77,7 @@ import { VideoCallStateService } from './video-call-state.service';
                     </p>
                     <mat-form-field
                         appearance="outline"
-                        class="w-full h-[3.5rem]"
+                        class="h-[3.5rem] w-full"
                     >
                         <mat-select
                             [ngModel]="video_layout | async"
@@ -95,14 +95,14 @@ import { VideoCallStateService } from './video-call-state.service';
                         </mat-select>
                     </mat-form-field>
                 </div>
-                <div class="flex-1 p-2 flex items-center justify-center">
+                <div class="flex flex-1 items-center justify-center p-2">
                     <dialpad
                         [backspace]="false"
                         (pressed)="sentDTMF($event)"
                     ></dialpad>
                 </div>
                 <div
-                    class="flex-1 p-2 flex flex-col items-center justify-center space-y-4"
+                    class="flex flex-1 flex-col items-center justify-center space-y-4 p-2"
                 >
                     <button
                         btn
@@ -183,7 +183,7 @@ import { VideoCallStateService } from './video-call-state.service';
         </div>
         <ng-template #load_state>
             <div
-                class="w-full h-full flex flex-col items-center justify-center space-y-2 text-black p-24"
+                class="flex h-full w-full flex-col items-center justify-center space-y-2 p-24 text-black"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
                 <p>{{ loading }}</p>

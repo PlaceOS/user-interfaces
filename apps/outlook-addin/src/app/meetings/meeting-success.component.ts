@@ -5,7 +5,7 @@ import { EventFormService } from '@placeos/events';
     selector: 'meeting-booking-success',
     template: `
         <div
-            class="absolute inset-0 bg-base-100 flex flex-col items-center justify-center space-y-4 p-4 text-center"
+            class="absolute inset-0 flex flex-col items-center justify-center space-y-4 bg-base-100 p-4 text-center"
         >
             <h3 class="text-3xl">Booking Confirmed!</h3>
             <img src="assets/tick_success.svg" />
@@ -41,7 +41,7 @@ import { EventFormService } from '@placeos/events';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class MeetingBookingSuccessComponent {
     public readonly last_success = this._service.last_success;

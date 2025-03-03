@@ -22,7 +22,7 @@ const PLAYLIST_ITEM_COUNTS = {};
             </h3>
             <div
                 *ngIf="extra"
-                class="px-2 py-1 text-xs font-mono bg-base-200 rounded-lg uppercase"
+                class="rounded-lg bg-base-200 px-2 py-1 font-mono text-xs uppercase"
             >
                 {{ extra }}
             </div>
@@ -31,22 +31,22 @@ const PLAYLIST_ITEM_COUNTS = {};
         @if ((active_playlists | async).length > 0 && item) {
             <div
                 cdkDropList
-                class="flex-1 h-1/2 overflow-auto flex flex-col space-y-2 mt-4"
+                class="mt-4 flex h-1/2 flex-1 flex-col space-y-2 overflow-auto"
                 (cdkDropListDropped)="ondrop.next($event)"
             >
                 @for (item of active_playlists | async; track item.id) {
                     <div
                         cdkDrag
-                        class="w-full bg-base-100 h-20 rounded-lg flex items-center p-2 space-x-2 border border-base-300"
+                        class="flex h-20 w-full items-center space-x-2 rounded-lg border border-base-300 bg-base-100 p-2"
                     >
                         <div
-                            class="h-20 w-full border-4 border-dashed border-base-400 bg-base-300 rounded-xl"
+                            class="h-20 w-full rounded-xl border-4 border-dashed border-base-400 bg-base-300"
                             *cdkDragPlaceholder
                         ></div>
                         <button
                             matRipple
                             cdkDragHandle
-                            class="flex items-center justify-center w-6 h-full rounded hover:bg-base-200"
+                            class="flex h-full w-6 items-center justify-center rounded hover:bg-base-200"
                             [matTooltip]="
                                 'APP.CONCIERGE.SIGNAGE_MEDIA_REORDER'
                                     | translate
@@ -54,7 +54,7 @@ const PLAYLIST_ITEM_COUNTS = {};
                         >
                             <app-icon>drag_handle</app-icon>
                         </button>
-                        <div class="text-base-content flex-1 w-1/2">
+                        <div class="w-1/2 flex-1 text-base-content">
                             <div class="truncate">
                                 {{ item.name }}
                             </div>
@@ -116,7 +116,7 @@ const PLAYLIST_ITEM_COUNTS = {};
             </button>
         } @else {
             <div
-                class="flex flex-col items-center justify-center p-8 space-y-2 mx-auto flex-1"
+                class="mx-auto flex flex-1 flex-col items-center justify-center space-y-2 p-8"
             >
                 <div
                     class="flex flex-col items-center justify-center opacity-30"
@@ -143,7 +143,7 @@ const PLAYLIST_ITEM_COUNTS = {};
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class SignageItemPlaylistsComponent implements OnChanges {
     @Input() public item: any;

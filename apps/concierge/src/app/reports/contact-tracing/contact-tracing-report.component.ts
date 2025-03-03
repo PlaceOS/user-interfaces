@@ -13,11 +13,11 @@ import { debounceTime, map } from 'rxjs/operators';
             class="print:hidden"
         ></contact-tracing-options>
         <div
-            class="relative flex-1 h-1/2 w-full overflow-auto print:overflow-visible print:h-auto"
+            class="relative h-1/2 w-full flex-1 overflow-auto print:h-auto print:overflow-visible"
         >
             <div class="w-full">
                 <div
-                    class="flex items-center m-4 p-4 rounded bg-base-200 overflow-hidden"
+                    class="m-4 flex items-center overflow-hidden rounded bg-base-200 p-4"
                 >
                     <img
                         auth
@@ -25,7 +25,7 @@ import { debounceTime, map } from 'rxjs/operators';
                         [source]="(logo | async)?.src || (logo | async)"
                     />
                     <div class="flex-1"></div>
-                    <h2 class="text-2xl font-medium px-2">
+                    <h2 class="px-2 text-2xl font-medium">
                         {{
                             'APP.CONCIERGE.REPORTS_CONTACTS_HEADER' | translate
                         }}
@@ -35,17 +35,17 @@ import { debounceTime, map } from 'rxjs/operators';
             <ng-container *ngIf="!(loading | async); else load_state">
                 <ng-container *ngIf="(options | async)?.user; else empty_state">
                     <div
-                        class="w-[64rem] max-w-[calc(100%-2rem)] mx-auto my-2 rounded-lg border border-base-200"
+                        class="mx-auto my-2 w-[64rem] max-w-[calc(100%-2rem)] rounded-lg border border-base-200"
                     >
                         <div
-                            class="border-b border-base-200 flex items-center justify-between px-4"
+                            class="flex items-center justify-between border-b border-base-200 px-4"
                         >
                             <h2 class="py-2 text-xl font-medium">
                                 Contact Events
                             </h2>
                         </div>
                         <simple-table
-                            class="w-full block text-sm"
+                            class="block w-full text-sm"
                             [data]="tracing_events"
                             [columns]="[
                                 {
@@ -106,7 +106,7 @@ import { debounceTime, map } from 'rxjs/operators';
         </div>
         <ng-template #load_state>
             <div
-                class="p-8 flex flex-col items-center justify-center space-y-2"
+                class="flex flex-col items-center justify-center space-y-2 p-8"
             >
                 <map-spinner diameter="32"></map-spinner>
                 <p class="opacity-30">{{ loading | async }}</p>
@@ -114,7 +114,7 @@ import { debounceTime, map } from 'rxjs/operators';
         </ng-template>
         <ng-template #empty_state>
             <div
-                class="p-8 flex flex-col items-center justify-center space-y-2 screen-only"
+                class="screen-only flex flex-col items-center justify-center space-y-2 p-8"
             >
                 <p class="opacity-30">Select a user from the topbar to begin</p>
             </div>
@@ -130,7 +130,7 @@ import { debounceTime, map } from 'rxjs/operators';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class ContactTracingReportComponent {
     public printing = false;

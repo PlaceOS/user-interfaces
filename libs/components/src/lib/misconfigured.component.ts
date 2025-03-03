@@ -5,7 +5,7 @@ import { Component } from '@angular/core';
     template: `
         <div
             content
-            class="rounded m-4 text-center bg-base-100 text-black border border-base-200 p-4 shadow"
+            class="m-4 rounded border border-base-200 bg-base-100 p-4 text-center text-black shadow"
         >
             <h3 class="text-2xl">
                 {{ 'COMMON.MISCONFIGURED_TITLE' | translate }}
@@ -37,6 +37,6 @@ import { Component } from '@angular/core';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class MisconfiguredComponent {}

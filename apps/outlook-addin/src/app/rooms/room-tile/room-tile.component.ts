@@ -10,14 +10,14 @@ import { RoomConfirmService } from '../room-confirm.service';
     selector: 'placeos-room-tile',
     templateUrl: './room-tile.component.html',
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class RoomTileComponent implements OnInit {
     space: Space;
     constructor(
         @Inject(MAT_BOTTOM_SHEET_DATA) public data: any,
         private _bottomSheetRef: MatBottomSheetRef<RoomTileComponent>,
-        private _roomConfirmService: RoomConfirmService
+        private _roomConfirmService: RoomConfirmService,
     ) {}
 
     ngOnInit() {

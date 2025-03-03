@@ -10,12 +10,12 @@ import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component'
     selector: '[app-new-lockers]',
     template: `
         <app-topbar></app-topbar>
-        <div class="flex flex-1 h-px">
+        <div class="flex h-px flex-1">
             <app-sidebar></app-sidebar>
-            <main class="flex flex-col flex-1 w-1/2 h-full relative">
+            <main class="relative flex h-full w-1/2 flex-1 flex-col">
                 <lockers-topbar class="w-full"></lockers-topbar>
-                <div class="relative flex-1 h-1/2 w-full overflow-auto px-8">
-                    <div class="w-full h-full overflow-auto">
+                <div class="relative h-1/2 w-full flex-1 overflow-auto px-8">
+                    <div class="h-full w-full overflow-auto">
                         <router-outlet></router-outlet>
                     </div>
                 </div>
@@ -38,7 +38,7 @@ import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component'
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class NewLockersComponent extends AsyncHandler implements OnInit {
     public readonly loading = this._state.loading;

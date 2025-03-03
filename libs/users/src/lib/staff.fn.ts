@@ -24,8 +24,8 @@ export function searchStaff(q: string): Observable<StaffUser[]> {
     });
     return get(`${STAFF_ENDPOINT}${q ? '?' + query : ''}`).pipe(
         map((list) =>
-            list.map((item: Record<string, any>) => new StaffUser(item))
-        )
+            list.map((item: Record<string, any>) => new StaffUser(item)),
+        ),
     );
 }
 
@@ -35,7 +35,7 @@ export function searchStaff(q: string): Observable<StaffUser[]> {
  */
 export function showStaff(id: string) {
     return get(`${STAFF_ENDPOINT}/${encodeURIComponent(id)}`).pipe(
-        map((item) => new StaffUser(item))
+        map((item) => new StaffUser(item)),
     );
 }
 
@@ -45,6 +45,6 @@ export function showStaff(id: string) {
  */
 export function locateStaff(email: string) {
     return get(`${STAFF_ENDPOINT}/${email}`).pipe(
-        map((item) => new StaffUser(item))
+        map((item) => new StaffUser(item)),
     );
 }

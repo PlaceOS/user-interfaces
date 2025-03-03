@@ -11,25 +11,25 @@ const EMPTY_FAVS: string[] = [];
     selector: 'new-catering-order-modal',
     template: `
         <div
-            class="w-[100vw] h-[100vh] sm:relative sm:w-auto sm:h-auto flex flex-col bg-base-100"
+            class="flex h-[100vh] w-[100vw] flex-col bg-base-100 sm:relative sm:h-auto sm:w-auto"
         >
-            <header class="flex items-center justify-between space-x-4 w-full">
+            <header class="flex w-full items-center justify-between space-x-4">
                 <h3>{{ 'CATERING.ORDER' | translate }}</h3>
                 <button icon matRipple [mat-dialog-close]="selected">
                     <app-icon>close</app-icon>
                 </button>
             </header>
             <main
-                class="flex-1 flex items-center divide-x divide-base-200 min-h-[65vh] h-[65vh] sm:max-h-[65vh] sm:max-w-[95vw] w-full overflow-hidden"
+                class="flex h-[65vh] min-h-[65vh] w-full flex-1 items-center divide-x divide-base-200 overflow-hidden sm:max-h-[65vh] sm:max-w-[95vw]"
             >
                 <catering-item-filters
-                    class="h-full hidden sm:block sm:max-w-[12rem] sm:h-[65vh] sm:max-h-full"
+                    class="hidden h-full sm:block sm:h-[65vh] sm:max-h-full sm:max-w-[12rem]"
                     [(at_time)]="exact_time"
                     [(offset)]="offset"
                     [(offset_day)]="offset_day"
                 ></catering-item-filters>
                 <div
-                    class="flex flex-col items-center flex-1 w-1/2 h-full sm:h-[65vh]"
+                    class="flex h-full w-1/2 flex-1 flex-col items-center sm:h-[65vh]"
                 >
                     <catering-item-filters
                         class="w-full border-b border-base-200"
@@ -42,12 +42,12 @@ const EMPTY_FAVS: string[] = [];
                         [favorites]="favorites"
                         (toggleFav)="toggleFavourite($event)"
                         (onSelect)="displayed = $event"
-                        class="flex-1 h-1/2 w-full overflow-hidden"
+                        class="h-1/2 w-full flex-1 overflow-hidden"
                     ></catering-item-list>
                 </div>
                 <catering-item-details
                     [item]="displayed!"
-                    class="h-full w-full sm:h-[65vh] absolute sm:relative sm:flex sm:max-w-[16rem] z-20 bg-base-100"
+                    class="absolute z-20 h-full w-full bg-base-100 sm:relative sm:flex sm:h-[65vh] sm:max-w-[16rem]"
                     [class.hidden]="!displayed"
                     [class.inset-0]="displayed"
                     [active]="selected_ids.includes(displayed?.custom_id || '')"
@@ -62,13 +62,13 @@ const EMPTY_FAVS: string[] = [];
                 ></catering-item-details>
             </main>
             <footer
-                class="flex sm:hidden flex-col-reverse items-center justify-end px-2 pt-2 pb-[5.5rem] border-t border-base-200 w-full"
+                class="flex w-full flex-col-reverse items-center justify-end border-t border-base-200 px-2 pb-[5.5rem] pt-2 sm:hidden"
             >
                 <button
                     btn
                     matRipple
                     name="catering-item-return"
-                    class="inverse sm:hidden w-full sm:w-auto"
+                    class="inverse w-full sm:hidden sm:w-auto"
                     *ngIf="displayed"
                     (click)="displayed = null"
                 >
@@ -80,13 +80,13 @@ const EMPTY_FAVS: string[] = [];
                     name="save-catering-item"
                     [mat-dialog-close]="selected"
                     [class.mb-2]="displayed"
-                    class="w-full sm:w-auto sm:mb-0"
+                    class="w-full sm:mb-0 sm:w-auto"
                 >
                     {{ 'COMMON.VIEW_LIST' | translate }}
                 </button>
             </footer>
             <footer
-                class="hidden sm:flex items-center justify-between p-2 border-t border-base-200 w-full"
+                class="hidden w-full items-center justify-between border-t border-base-200 p-2 sm:flex"
             >
                 <button
                     btn
@@ -102,7 +102,7 @@ const EMPTY_FAVS: string[] = [];
                         </div>
                     </div>
                 </button>
-                <p class="opacity-60 text-sm">
+                <p class="text-sm opacity-60">
                     {{
                         'CATERING.ORDER_ITEM_COUNT'
                             | translate: { count: count }
@@ -139,7 +139,7 @@ const EMPTY_FAVS: string[] = [];
         </div>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class NewCateringOrderModalComponent {
     public displayed: CateringItem | null = null;

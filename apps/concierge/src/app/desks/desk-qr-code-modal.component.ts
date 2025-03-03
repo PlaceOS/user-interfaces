@@ -8,9 +8,9 @@ import { map } from 'rxjs/operators';
 @Component({
     selector: 'desk-qr-code-modal',
     template: `
-        <div class="relative w-screen min-h-screen bg-base-100 rounded-none">
+        <div class="relative min-h-screen w-screen rounded-none bg-base-100">
             <div
-                class="sticky top-0 flex items-center justify-between print:hidden p-4 w-full"
+                class="sticky top-0 flex w-full items-center justify-between p-4 print:hidden"
             >
                 <button btn matRipple (click)="print()">
                     {{ 'APP.CONCIERGE.DESKS_ACTION_PRINT_QR_LIST' | translate }}
@@ -20,22 +20,22 @@ import { map } from 'rxjs/operators';
                 </button>
             </div>
             <div
-                class="flex flex-wrap overflow-auto print:h-auto h-[calc(100vh-5rem)]"
+                class="flex h-[calc(100vh-5rem)] flex-wrap overflow-auto print:h-auto"
             >
                 <a
                     [href]="desk.qr_link | safe: 'url'"
                     target="_blank"
                     ref="noopener noreferrer"
                     *ngFor="let desk of desks | async"
-                    class="flex flex-col items-center justify-center w-[28%] landscape:w-[21%] print:landscape:h-[33.33vh] print:h-[25vh] mx-auto"
+                    class="mx-auto flex w-[28%] flex-col items-center justify-center landscape:w-[21%] print:h-[25vh] print:landscape:h-[33.33vh]"
                 >
                     <div
-                        class="block p-2 mx-4 my-2 rounded-lg border border-base-200 bg-base-100"
+                        class="mx-4 my-2 block rounded-lg border border-base-200 bg-base-100 p-2"
                     >
                         <img class="w-48" [src]="desk.qr_code" />
                     </div>
                     <div
-                        class="w-[calc(100%-2rem)] text-center my-1 font-mono text-sm bg-base-200 rounded p-1 mx-4"
+                        class="mx-4 my-1 w-[calc(100%-2rem)] rounded bg-base-200 p-1 text-center font-mono text-sm"
                     >
                         {{ desk.name || desk.id }}
                     </div>
@@ -44,7 +44,7 @@ import { map } from 'rxjs/operators';
         </div>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class DeskQrCodeModalComponent {
     public readonly print = () => window.print();

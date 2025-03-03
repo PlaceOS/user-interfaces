@@ -24,12 +24,12 @@ const QR_CODES = {};
     selector: 'desks-manage',
     template: `
         <div
-            class="overflow-auto h-full w-full pb-4"
+            class="h-full w-full overflow-auto pb-4"
             (dragenter)="handleDrag('enter', $event)"
             (window:dragend)="handleDrag('end', $event)"
         >
             <simple-table
-                class="min-w-[72rem] w-full block text-sm"
+                class="block w-full min-w-[72rem] text-sm"
                 [filter]="(filters | async)?.search"
                 [data]="desks"
                 [columns]="[
@@ -92,7 +92,7 @@ const QR_CODES = {};
                     <div>{{ row.id || row.map_id }}</div>
                     <div
                         *ngIf="row.id && row.map_id !== row.id"
-                        class="text-[0.625rem] opacity-30 font-mono"
+                        class="font-mono text-[0.625rem] opacity-30"
                     >
                         {{ row.map_id }}
                     </div>
@@ -101,7 +101,7 @@ const QR_CODES = {};
             <ng-template #item_list_template let-data="data">
                 <div class="flex flex-wrap p-2">
                     <span
-                        class="m-1 py-1 px-2 rounded-2xl text-xs font-mono bg-info text-info-content"
+                        class="m-1 rounded-2xl bg-info px-2 py-1 font-mono text-xs text-info-content"
                         *ngFor="let item of data"
                     >
                         {{ item }}
@@ -112,7 +112,7 @@ const QR_CODES = {};
                 <div
                     [class.bg-error]="!data"
                     [class.bg-success]="data"
-                    class="rounded h-8 w-8 flex items-center justify-center text-2xl text-white mx-auto"
+                    class="mx-auto flex h-8 w-8 items-center justify-center rounded text-2xl text-white"
                 >
                     <app-icon>{{ data ? 'done' : 'close' }}</app-icon>
                 </div>
@@ -129,7 +129,7 @@ const QR_CODES = {};
                     <div class="">{{ row.assigned_name || data }}</div>
                     <div
                         *ngIf="row.assigned_name"
-                        class="text-[0.625rem] opacity-30 font-mono"
+                        class="font-mono text-[0.625rem] opacity-30"
                     >
                         {{ data }}
                     </div>
@@ -170,18 +170,18 @@ const QR_CODES = {};
                         <app-icon class="text-error">delete</app-icon>
                     </button>
                     <ng-template #qr_menu>
-                        <div class="bg-base-100 py-2 shadow rounded">
+                        <div class="rounded bg-base-100 py-2 shadow">
                             <div class="" printable>
                                 <a
                                     [href]="row.qr_link | safe: 'url'"
                                     target="_blank"
                                     ref="noopener noreferrer"
-                                    class="block p-2 mx-4 my-2 rounded-lg border border-base-200 bg-base-100"
+                                    class="mx-4 my-2 block rounded-lg border border-base-200 bg-base-100 p-2"
                                 >
                                     <img class="w-48" [src]="row.qr_code" />
                                 </a>
                                 <div
-                                    class="w-[calc(100%-2rem)] text-center mt-2 font-mono text-sm bg-base-200 rounded p-2 mx-4"
+                                    class="mx-4 mt-2 w-[calc(100%-2rem)] rounded bg-base-200 p-2 text-center font-mono text-sm"
                                 >
                                     {{ row.name || row.id }}
                                 </div>
@@ -189,7 +189,7 @@ const QR_CODES = {};
                             <button
                                 btn
                                 matRipple
-                                class="w-[calc(100%-2rem)] mx-4 my-2"
+                                class="mx-4 my-2 w-[calc(100%-2rem)]"
                                 (click)="print()"
                             >
                                 {{
@@ -210,11 +210,11 @@ const QR_CODES = {};
             </div>
             <div
                 *ngIf="dragging"
-                class="absolute inset-0 bg-neutral flex items-center justify-center"
+                class="absolute inset-0 flex items-center justify-center bg-neutral"
             >
-                <div class="bg-base-100 p-4 rounded shadow">
+                <div class="rounded bg-base-100 p-4 shadow">
                     <div
-                        class="border-4 border-base-200 border-dashed rounded flex flex-col items-center justify-center w-64 h-64"
+                        class="flex h-64 w-64 flex-col items-center justify-center rounded border-4 border-dashed border-base-200"
                     >
                         {{ 'APP.CONCIERGE.DESKS_DROP_TEMPLATE' | translate }}
                     </div>

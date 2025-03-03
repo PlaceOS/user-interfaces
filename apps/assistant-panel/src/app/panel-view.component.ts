@@ -12,35 +12,35 @@ declare let loadVosklet: any;
 @Component({
     selector: 'app-panel-view',
     template: `
-        <div class="flex items-center justify-center h-full w-full">
+        <div class="flex h-full w-full items-center justify-center">
             <button
-                class="relative flex items-center justify-center flex-1 h-full bg-base-300 p-8"
+                class="relative flex h-full flex-1 items-center justify-center bg-base-300 p-8"
                 (click)="startListening()"
             >
                 <canvas
                     #waveform_canvas
-                    class="w-64 h-32"
+                    class="h-32 w-64"
                     width="256"
                     height="128"
                 ></canvas>
 
-                <div class="absolute top-0 inset-x-0 p-8 text-center">
+                <div class="absolute inset-x-0 top-0 p-8 text-center">
                     <div class="text-sm">{{ current_text || last_text }}</div>
                 </div>
 
-                <div class="absolute bottom-0 inset-x-0 p-4 text-center"></div>
+                <div class="absolute inset-x-0 bottom-0 p-4 text-center"></div>
                 <div
-                    class="absolute top-2 left-1/2 -translate-x-1/2 px-4 py-2 text-center rounded-3xl bg-error text-error-content text-xs"
+                    class="absolute left-1/2 top-2 -translate-x-1/2 rounded-3xl bg-error px-4 py-2 text-center text-xs text-error-content"
                     *ngIf="error.speech_recognition || error.speech_synthesis"
                 >
                     <div
-                        class="flex items-center justify-center w-full h-full"
+                        class="flex h-full w-full items-center justify-center"
                         *ngIf="error.speech_recognition"
                     >
                         Speech Recognition is not supported
                     </div>
                     <div
-                        class="flex items-center justify-center w-full h-full"
+                        class="flex h-full w-full items-center justify-center"
                         *ngIf="error.speech_synthesis"
                     >
                         Speech Synthesis is not supported
@@ -51,12 +51,12 @@ declare let loadVosklet: any;
                     autoplay
                     playsinline
                     [class.opacity-0]="!debug"
-                    class="absolute bottom-4 left-4 w-48 h-48 object-cover rounded-xl bg-base-200 border-[0.25rem]"
+                    class="absolute bottom-4 left-4 h-48 w-48 rounded-xl border-[0.25rem] bg-base-200 object-cover"
                     [class.border-success]="person_in_view"
                     [class.border-base-200]="!person_in_view"
                 ></video>
                 <div
-                    class="absolute bottom-4 right-4 bg-success text-success-content h-12 w-12 rounded-full flex items-center justify-center"
+                    class="absolute bottom-4 right-4 flex h-12 w-12 items-center justify-center rounded-full bg-success text-success-content"
                     *ngIf="listening"
                 >
                     <app-icon class="text-2xl">mic</app-icon>
@@ -65,11 +65,11 @@ declare let loadVosklet: any;
                     #canvas
                     width="640"
                     height="640"
-                    class="absolute opacity-0 pointer-events-none"
+                    class="pointer-events-none absolute opacity-0"
                 ></canvas>
             </button>
             <div
-                class="relative w-[24rem] h-full overflow-auto bg-base-100 flex flex-col justify-end"
+                class="relative flex h-full w-[24rem] flex-col justify-end overflow-auto bg-base-100"
             >
                 <div
                     class="absolute inset-0 flex flex-col items-center justify-center space-y-4"
@@ -83,9 +83,9 @@ declare let loadVosklet: any;
                         {{ 'APP.BOOKING_PANEL.NO_MESSAGES' | translate }}
                     </p>
                 </div>
-                <div class="max-h-full overflow-auto w-full" #message_element>
+                <div class="max-h-full w-full overflow-auto" #message_element>
                     <div
-                        class="my-2 p-2 flex space-x-4 hover:bg-base-200"
+                        class="my-2 flex space-x-4 p-2 hover:bg-base-200"
                         *ngFor="let message of messages | async"
                         (click)="show_time[message.id] = !show_time[message.id]"
                         [class.waiting-margin]="waiting | async"
@@ -110,7 +110,7 @@ declare let loadVosklet: any;
                                     }}
                                 </div>
                                 <div
-                                    class="text-xs text-base-content opacity-40 px-2 py-1 w-full text-right"
+                                    class="w-full px-2 py-1 text-right text-xs text-base-content opacity-40"
                                 >
                                     {{ message.timestamp + offset | dateFrom }}
                                 </div>
@@ -124,10 +124,10 @@ declare let loadVosklet: any;
                     </div>
                     <div class="p-4" *ngIf="progress | async">
                         <button
-                            class="block p-2 rounded border-base-300 bg-info text-info-content w-full"
+                            class="block w-full rounded border-base-300 bg-info p-2 text-info-content"
                             (click)="show_info = !show_info"
                         >
-                            <div class=" flex items-center space-x-2">
+                            <div class="flex items-center space-x-2">
                                 <app-icon class="text-2xl">{{
                                     icons[(progress | async).function] || 'info'
                                 }}</app-icon>
@@ -139,13 +139,13 @@ declare let loadVosklet: any;
                                 </p>
                             </div>
                             <div
-                                class="relative overflow-hidden w-full rounded"
+                                class="relative w-full overflow-hidden rounded"
                             >
                                 <div
                                     class="absolute inset-0 bg-base-100 opacity-10"
                                 ></div>
                                 <div
-                                    class="text-xs text-mono text-left p-2 break-words"
+                                    class="text-mono break-words p-2 text-left text-xs"
                                     *ngIf="show_info"
                                     [innerHTML]="
                                         (progress | async).content | sanitize
@@ -155,18 +155,18 @@ declare let loadVosklet: any;
                         </button>
                     </div>
                     <div
-                        class="absolute right-2 flex items-center justify-center space-x-2 p-1 rounded-2xl bg-base-100 border border-neutral"
+                        class="absolute right-2 flex items-center justify-center space-x-2 rounded-2xl border border-neutral bg-base-100 p-1"
                         [style.bottom]="'8px'"
                         *ngIf="waiting | async"
                     >
                         <div
-                            class="h-2 w-2 bg-neutral rounded-full animate-bounce"
+                            class="h-2 w-2 animate-bounce rounded-full bg-neutral"
                         ></div>
                         <div
-                            class="h-2 w-2 bg-neutral rounded-full animate-bounce anim-delay-1"
+                            class="anim-delay-1 h-2 w-2 animate-bounce rounded-full bg-neutral"
                         ></div>
                         <div
-                            class="h-2 w-2 bg-neutral rounded-full animate-bounce anim-delay-2"
+                            class="anim-delay-2 h-2 w-2 animate-bounce rounded-full bg-neutral"
                         ></div>
                         <span class="sr-only">Waiting for reply...</span>
                     </div>
@@ -176,7 +176,7 @@ declare let loadVosklet: any;
         <button
             icon
             matRipple
-            class="absolute top-2 left-2 bg-error text-error-content shadow h-12 w-12"
+            class="absolute left-2 top-2 h-12 w-12 bg-error text-error-content shadow"
             *ngIf="setup"
             (click)="endService()"
         >
@@ -185,11 +185,11 @@ declare let loadVosklet: any;
         <button
             splash
             matRipple
-            class="absolute inset-0 text-white flex flex-col items-center justify-center z-20"
+            class="absolute inset-0 z-20 flex flex-col items-center justify-center text-white"
             *ngIf="!setup"
             (click)="setup = true"
         >
-            <h2 class="font-light text-4xl mb-4">Touch to Start</h2>
+            <h2 class="mb-4 text-4xl font-light">Touch to Start</h2>
         </button>
     `,
     styles: [
@@ -200,7 +200,7 @@ declare let loadVosklet: any;
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class PanelViewComponent extends AsyncHandler {
     public scale = 1;

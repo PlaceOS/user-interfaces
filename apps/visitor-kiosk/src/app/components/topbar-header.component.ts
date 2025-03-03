@@ -13,17 +13,17 @@ import { debounceTime, map } from 'rxjs/operators';
             <a
                 matRipple
                 [routerLink]="['/']"
-                class="h-full flex flex-col justify-center px-4"
+                class="flex h-full flex-col justify-center px-4"
             >
                 <img
                     auth
-                    class="h-10 my-2"
+                    class="my-2 h-10"
                     alt="Logo"
                     [source]="(logo | async)?.src || (logo | async)"
                 />
             </a>
             <div
-                class="ml-auto h-full flex flex-col justify-center text-white px-4"
+                class="ml-auto flex h-full flex-col justify-center px-4 text-white"
             >
                 {{ time | date: 'fullDate' }}
             </div>
@@ -45,7 +45,7 @@ import { debounceTime, map } from 'rxjs/operators';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class TopbarHeaderComponent {
     public date: number;

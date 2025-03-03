@@ -12,20 +12,20 @@ const SYS_ID_KEY = 'PLACEOS.ASSISTANT.system';
 @Component({
     selector: 'app-bootstrap',
     template: `
-        <div class="absolute inset-0 bg-base-200 z-0"></div>
+        <div class="absolute inset-0 z-0 bg-base-200"></div>
         <div
-            class="relative bg-base-100 mx-auto my-8 border border-base-300 rounded-lg w-[28rem] z-10 overflow-hidden"
+            class="relative z-10 mx-auto my-8 w-[28rem] overflow-hidden rounded-lg border border-base-300 bg-base-100"
         >
             <header
-                class="px-4 py-3 bg-secondary text-secondary-content text-xl font-medium flex items-center justify-between w-full"
+                class="flex w-full items-center justify-between bg-secondary px-4 py-3 text-xl font-medium text-secondary-content"
             >
                 <div>{{ 'COMMON.BOOTSTRAP_ASSISTANT' | translate }}</div>
-                <div class="px-2 py-1 rounded text-sm font-mono uppercase">
+                <div class="rounded px-2 py-1 font-mono text-sm uppercase">
                     {{ 'COMMON.BOOTSTRAP_SETUP' | translate }}
                 </div>
             </header>
             <main
-                class="p-4 w-full flex flex-col space-y-2"
+                class="flex w-full flex-col space-y-2 p-4"
                 *ngIf="!loading; else load_state"
             >
                 <label for="system-id">
@@ -55,7 +55,7 @@ const SYS_ID_KEY = 'PLACEOS.ASSISTANT.system';
                     >
                         <div class="leading-tight">
                             <div class="name">{{ option.name }}</div>
-                            <div class="text-xs text-dark-fade">
+                            <div class="text-dark-fade text-xs">
                                 {{ option.id }}
                             </div>
                         </div>
@@ -72,7 +72,7 @@ const SYS_ID_KEY = 'PLACEOS.ASSISTANT.system';
                 </mat-autocomplete>
             </main>
             <footer
-                class="w-full px-4 py-2 flex items-center justify-end border-t border-base-300"
+                class="flex w-full items-center justify-end border-t border-base-300 px-4 py-2"
                 *ngIf="!loading"
             >
                 <button
@@ -87,7 +87,7 @@ const SYS_ID_KEY = 'PLACEOS.ASSISTANT.system';
             </footer>
         </div>
         <ng-template #load_state>
-            <main class="flex flex-col items-center justify-center p-8 w-full">
+            <main class="flex w-full flex-col items-center justify-center p-8">
                 <mat-spinner [diameter]="48" />
                 <p>{{ 'COMMON.BOOTSTRAP_LOADING' | translate }}</p>
             </main>

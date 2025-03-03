@@ -11,7 +11,7 @@ import { map } from 'rxjs/operators';
     selector: 'catering-menu',
     template: `
         <simple-table
-            class="w-full min-w-[32rem] block text-sm"
+            class="block w-full min-w-[32rem] text-sm"
             [data]="menu"
             [columns]="[
                 {
@@ -59,13 +59,13 @@ import { map } from 'rxjs/operators';
         </ng-template>
         <ng-template #price_template let-data="data">
             <div
-                class="px-2 py-1 font-mono text-xs flex items-center mx-auto bg-secondary text-secondary-content rounded"
+                class="mx-auto flex items-center rounded bg-secondary px-2 py-1 font-mono text-xs text-secondary-content"
             >
                 {{ data / 100 | currency: (symbol | async) }}
             </div>
         </ng-template>
         <ng-template #actions_template let-row="row">
-            <div class="p-2 flex items-center mx-auto space-x-2">
+            <div class="mx-auto flex items-center space-x-2 p-2">
                 <button
                     icon
                     matRipple
@@ -135,7 +135,7 @@ import { map } from 'rxjs/operators';
         </ng-template>
         <ng-template #child_template let-row="row">
             <div
-                class="flex p-2 items-center border-b border-solid border-base-200 relative space-x-2"
+                class="relative flex items-center space-x-2 border-b border-solid border-base-200 p-2"
                 *ngFor="let option of row.options"
             >
                 <div
@@ -179,7 +179,7 @@ import { map } from 'rxjs/operators';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class CateringMenuComponent {
     public show_children: Record<string, boolean> = {};

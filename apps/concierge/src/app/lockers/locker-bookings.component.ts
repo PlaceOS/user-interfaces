@@ -8,14 +8,14 @@ import { SettingsService } from '@placeos/common';
     selector: 'locker-bookings',
     template: `
         @let more_pages = has_more_pages | async;
-        <div class="w-full h-4"></div>
+        <div class="h-4 w-full"></div>
         <div
-            class="flex flex-col h-full w-full pt-4"
+            class="flex h-full w-full flex-col pt-4"
             [class.pb-16]="!loading && more_pages"
             [class.pb-4]="!(!loading && more_pages)"
         >
             <simple-table
-                class="min-w-[72rem] block text-sm w-full flex-1 overflow-auto mr-4"
+                class="mr-4 block w-full min-w-[72rem] flex-1 overflow-auto text-sm"
                 [data]="bookings"
                 [columns]="[
                     {
@@ -63,7 +63,7 @@ import { SettingsService } from '@placeos/common';
             ></simple-table>
             <ng-template #date_template let-date="data">
                 <div
-                    class="flex flex-col items-center justify-center w-full py-2"
+                    class="flex w-full flex-col items-center justify-center py-2"
                 >
                     <div class="opacity-60">{{ date | date: 'MMM' }}</div>
                     <div class="text-xl">{{ date | date: 'dd' }}</div>
@@ -100,7 +100,7 @@ import { SettingsService } from '@placeos/common';
                         "
                     >
                         <div
-                            class="text-xs py-2 px-4 bg-error rounded-3xl text-white"
+                            class="rounded-3xl bg-error px-4 py-2 text-xs text-white"
                         >
                             {{
                                 (row.status === 'ended'
@@ -129,7 +129,7 @@ import { SettingsService } from '@placeos/common';
                     </div>
                     <div
                         *ngIf="row.user_name"
-                        class="text-xs opacity-30 select-all"
+                        class="select-all text-xs opacity-30"
                     >
                         {{ row.user_email }}
                     </div>
@@ -139,7 +139,7 @@ import { SettingsService } from '@placeos/common';
                 <div class="px-2">
                     <button
                         matRipple
-                        class="rounded-3xl bg-warning text-warning-content border-none w-[7.5rem] h-10"
+                        class="h-10 w-[7.5rem] rounded-3xl border-none bg-warning text-warning-content"
                         [class.!text-success-content]="
                             row?.status === 'approved'
                         "
@@ -152,7 +152,7 @@ import { SettingsService } from '@placeos/common';
                         [matMenuTriggerFor]="menu"
                         [disabled]="row?.status === 'ended'"
                     >
-                        <div class="flex items-center pl-4 pr-2 space-x-2">
+                        <div class="flex items-center space-x-2 pl-4 pr-2">
                             <div class="flex-1 text-left">
                                 {{
                                     (row?.status === 'ended'
@@ -200,7 +200,7 @@ import { SettingsService } from '@placeos/common';
                 <div class="px-2">
                     <button
                         matRipple
-                        class="rounded-3xl bg-warning text-warning-content border-none w-24 h-10"
+                        class="h-10 w-24 rounded-3xl border-none bg-warning text-warning-content"
                         [matMenuTriggerFor]="checkinMenu"
                         [class.!bg-neutral]="!data"
                         [class.!text-neutral-content]="!data"
@@ -214,7 +214,7 @@ import { SettingsService } from '@placeos/common';
                                 : 'Check-in or check-out locker'
                         "
                     >
-                        <div class="flex items-center pl-4 pr-2 space-x-2">
+                        <div class="flex items-center space-x-2 pl-4 pr-2">
                             <div class="flex-1 text-left">
                                 {{
                                     (data ? 'COMMON.TRUE' : 'COMMON.FALSE')
@@ -246,7 +246,7 @@ import { SettingsService } from '@placeos/common';
         <button
             btn
             matRipple
-            class="absolute bottom-2 left-4 w-32 z-20"
+            class="absolute bottom-2 left-4 z-20 w-32"
             *ngIf="!loading && more_pages"
             (click)="loadMore()"
         >

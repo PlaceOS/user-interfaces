@@ -88,7 +88,7 @@ function degreesToRadians(degrees: number): number {
             <mat-spinner [diameter]="48"></mat-spinner>
         </div>
         <div
-            class="absolute inset-0 flex flex-col space-y-2 items-center justify-center"
+            class="absolute inset-0 flex flex-col items-center justify-center space-y-2"
             *ngIf="geolocation_error_message"
         >
             <img
@@ -97,12 +97,12 @@ function degreesToRadians(degrees: number): number {
                 width="200px"
                 class="items-center"
             />
-            <p class="opacity-60 text-sm text-center mt-10">
+            <p class="mt-10 text-center text-sm opacity-60">
                 {{ geolocation_error_message | translate }}
             </p>
         </div>
         <div
-            class="absolute flex flex-col h-min w-min top-2 left-2 bg-base-100 text-base-content rounded-lg z-50 p-2 shadow"
+            class="absolute left-2 top-2 z-50 flex h-min w-min flex-col rounded-lg bg-base-100 p-2 text-base-content shadow"
         >
             <mat-form-field appearance="outline" class="map no-subscript">
                 <input
@@ -113,7 +113,7 @@ function degreesToRadians(degrees: number): number {
                     placeholder="Search"
                     (keyup.enter)="onSearch()"
                 />
-                <div matSuffix class="h-10 relative">
+                <div matSuffix class="relative h-10">
                     <button
                         icon
                         name="indoor-map-search"
@@ -123,7 +123,7 @@ function degreesToRadians(degrees: number): number {
                         matTooltip="Search..."
                         (click)="onSearch()"
                     >
-                        <app-icon matPrefix class="text-2xl relative">
+                        <app-icon matPrefix class="relative text-2xl">
                             search
                         </app-icon>
                     </button>
@@ -132,9 +132,9 @@ function degreesToRadians(degrees: number): number {
 
             <ng-container *ngIf="search_result_items?.length">
                 <div
-                    class="flex items-center justify-between px-2 my-2 space-x-2"
+                    class="my-2 flex items-center justify-between space-x-2 px-2"
                 >
-                    <h3 class="font-medium text-lg">
+                    <h3 class="text-lg font-medium">
                         Results ({{ search_result_items.length || '0' }})
                     </h3>
                     <button
@@ -148,19 +148,19 @@ function degreesToRadians(degrees: number): number {
                     </button>
                 </div>
                 <ul
-                    class="list-none m-0 p-0 w-full space-y-2 max-h-[65vh] overflow-auto"
+                    class="m-0 max-h-[65vh] w-full list-none space-y-2 overflow-auto p-0"
                 >
                     <li
-                        class="w-full even:bg-base-200 hover:bg-base-300 rounded border border-base-200"
+                        class="w-full rounded border border-base-200 even:bg-base-200 hover:bg-base-300"
                         *ngFor="let item of search_result_items | slice: 0 : 10"
                     >
                         <button
-                            class="flex items-center w-full p-2 space-x-2 text-left"
+                            class="flex w-full items-center space-x-2 p-2 text-left"
                             (click)="getRoute(item); search_result_items = []"
                         >
-                            <div class="flex flex-col flex-1">
+                            <div class="flex flex-1 flex-col">
                                 <div>{{ item.properties.name }}</div>
-                                <div class="opacity-30 text-xs">
+                                <div class="text-xs opacity-30">
                                     {{ item.properties.roomId }}, Level
                                     {{ item.properties.floorName }}
                                 </div>
@@ -185,7 +185,7 @@ function degreesToRadians(degrees: number): number {
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class IndoorMapsComponent
     extends AsyncHandler

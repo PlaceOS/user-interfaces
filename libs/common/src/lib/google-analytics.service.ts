@@ -63,12 +63,12 @@ export class GoogleAnalyticsService {
     public load(tracking_id: string) {
         if (!this.enabled) {
             throw new Error(
-                'Google Analytics needs to be enabled before being initialised'
+                'Google Analytics needs to be enabled before being initialised',
             );
         }
         if (!this.service) {
             throw new Error(
-                "Google Analytics hasn't been installed on this page"
+                "Google Analytics hasn't been installed on this page",
             );
         }
         log('Analytics', 'Service', `Setup with tracking ID: ${tracking_id}`);
@@ -81,7 +81,7 @@ export class GoogleAnalyticsService {
     public setUser(id: string) {
         if (!this.service) {
             throw new Error(
-                "Google Analytics hasn't been installed on this page"
+                "Google Analytics hasn't been installed on this page",
             );
         }
         if (this.enabled) {
@@ -92,7 +92,7 @@ export class GoogleAnalyticsService {
                     this.service('set', 'userId', id);
                     this.event('authentication', 'user-id available');
                 },
-                100
+                100,
             );
         }
     }
@@ -100,7 +100,7 @@ export class GoogleAnalyticsService {
     public send(type: string, value: Record<string, any>) {
         if (!this.service) {
             throw new Error(
-                "Google Analytics hasn't been installed on this page"
+                "Google Analytics hasn't been installed on this page",
             );
         }
         if (this.enabled) {
@@ -124,11 +124,11 @@ export class GoogleAnalyticsService {
         category: string,
         action: string,
         label?: string,
-        value?: string
+        value?: string,
     ) {
         if (!this.service) {
             throw new Error(
-                "Google Analytics hasn't been installed on this page"
+                "Google Analytics hasn't been installed on this page",
             );
         }
         if (this.enabled) {
@@ -141,7 +141,7 @@ export class GoogleAnalyticsService {
                         'Service',
                         `Event: ${category}, ${action}${l}${
                             value ? ', ' + value : ''
-                        }`
+                        }`,
                     );
                     const prefix = this.app_prefix ? this.app_prefix + '_' : '';
                     this.push({
@@ -151,7 +151,7 @@ export class GoogleAnalyticsService {
                         label: label,
                     });
                 },
-                100
+                100,
             );
         }
     }
@@ -164,7 +164,7 @@ export class GoogleAnalyticsService {
     public screen(name: string, app_name?: string) {
         if (!this.service) {
             throw new Error(
-                "Google Analytics hasn't been installed on this page"
+                "Google Analytics hasn't been installed on this page",
             );
         }
         if (name && this.enabled) {
@@ -174,7 +174,7 @@ export class GoogleAnalyticsService {
                     log(
                         'Analytics',
                         'Service',
-                        `Screen: ${name}${app_name ? ', ' + app_name : ''}`
+                        `Screen: ${name}${app_name ? ', ' + app_name : ''}`,
                     );
                     this.push({
                         event: 'screenview',
@@ -182,7 +182,7 @@ export class GoogleAnalyticsService {
                         screenName: name,
                     });
                 },
-                100
+                100,
             );
         }
     }
@@ -195,7 +195,7 @@ export class GoogleAnalyticsService {
     public page(route: string, origin: boolean = false) {
         if (!this.service) {
             throw new Error(
-                "Google Analytics hasn't been installed on this page"
+                "Google Analytics hasn't been installed on this page",
             );
         }
         if (this.enabled) {
@@ -209,7 +209,7 @@ export class GoogleAnalyticsService {
                         url: `${origin ? location.origin : ''}${route}`,
                     });
                 },
-                100
+                100,
             );
         }
     }
@@ -225,11 +225,11 @@ export class GoogleAnalyticsService {
         category: string,
         variable: string,
         value: string,
-        label?: string
+        label?: string,
     ) {
         if (!this.service) {
             throw new Error(
-                "Google Analytics hasn't been installed on this page"
+                "Google Analytics hasn't been installed on this page",
             );
         }
         if (this.enabled) {
@@ -241,7 +241,7 @@ export class GoogleAnalyticsService {
                         'Service',
                         `Timing: ${category}, ${variable}, ${value}${
                             label ? ', ' + label : ''
-                        }`
+                        }`,
                     );
                     this.push({
                         event: 'timing',
@@ -251,7 +251,7 @@ export class GoogleAnalyticsService {
                         label,
                     });
                 },
-                100
+                100,
             );
         }
     }

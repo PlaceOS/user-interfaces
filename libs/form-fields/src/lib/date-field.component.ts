@@ -27,7 +27,7 @@ export enum TimezoneDiffRange {
     selector: 'a-date-field',
     template: `
         <button
-            class="flex items-center justify-between border border-neutral rounded h-12 w-full"
+            class="flex h-12 w-full items-center justify-between rounded border border-neutral"
             customTooltip
             [content]="calendar_picker"
             yPosition="top"
@@ -36,9 +36,9 @@ export enum TimezoneDiffRange {
             matRipple
         >
             <div
-                class="flex flex-col px-4 py-2 flex-1 truncate w-1/2 text-left leading-tight"
+                class="flex w-1/2 flex-1 flex-col truncate px-4 py-2 text-left leading-tight"
             >
-                <div class="font-normal text-base">
+                <div class="text-base font-normal">
                     @if (date) {
                         {{ date | date: date_format }}
                     } @else {
@@ -47,13 +47,13 @@ export enum TimezoneDiffRange {
                         }}</span>
                     }
                 </div>
-                <div class="text-xs opacity-30 truncate" *ngIf="timezone && tz">
+                <div class="truncate text-xs opacity-30" *ngIf="timezone && tz">
                     <span *ngIf="range !== 2">{{ start_of_day }}</span>
                     <span *ngIf="range === 0"> - </span>
                     <span *ngIf="range !== 1">{{ end_of_day }}</span>
                 </div>
             </div>
-            <div class="h-10 w-10 flex items-center justify-center text-2xl">
+            <div class="flex h-10 w-10 items-center justify-center text-2xl">
                 <app-icon>today</app-icon>
             </div>
         </button>

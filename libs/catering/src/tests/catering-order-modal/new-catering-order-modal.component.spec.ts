@@ -63,13 +63,13 @@ describe('NewCateringOrderModalComponent', () => {
         spectator.component.toggleFavourite({ id: '1' } as any);
         expect(settings.saveUserSetting).toBeCalledWith(
             'favourite_menu_items',
-            ['1']
+            ['1'],
         );
         (settings.get as any).mockImplementation(() => ['1']);
         spectator.component.toggleFavourite({ id: '1' } as any);
         expect(settings.saveUserSetting).toBeCalledWith(
             'favourite_menu_items',
-            []
+            [],
         );
     });
 });

@@ -25,15 +25,15 @@ import { combineLatest } from 'rxjs';
     template: `
         <div
             *ngIf="(loading$ | async).length"
-            class="flex absolute inset-0 opacity-60 bg-base-100 z-10"
+            class="absolute inset-0 z-10 flex bg-base-100 opacity-60"
         >
-            <div class="flex flex-col m-auto items-center">
+            <div class="m-auto flex flex-col items-center">
                 <mat-spinner [diameter]="32"></mat-spinner>
                 <p>{{ loading$ | async }}</p>
             </div>
         </div>
         <header
-            class="flex justify-between items-center w-full pt-8 pb-4 pl-4 pr-8"
+            class="flex w-full items-center justify-between pb-4 pl-4 pr-8 pt-8"
         >
             <div class="flex items-center">
                 <a
@@ -60,8 +60,8 @@ import { combineLatest } from 'rxjs';
                 {{ 'COMMON.SAVE' | translate }}
             </button>
         </header>
-        <div class="flex items-center space-x-4 px-8 mb-4">
-            <mat-form-field appearance="outline" class="flex-1 no-subscript">
+        <div class="mb-4 flex items-center space-x-4 px-8">
+            <mat-form-field appearance="outline" class="no-subscript flex-1">
                 <mat-select
                     [placeholder]="'COMMON.BUILDING_SELECT' | translate"
                     [value]="(options$ | async).building_id"
@@ -74,7 +74,7 @@ import { combineLatest } from 'rxjs';
                     >
                 </mat-select>
             </mat-form-field>
-            <mat-form-field appearance="outline" class="flex-1 no-subscript">
+            <mat-form-field appearance="outline" class="no-subscript flex-1">
                 <mat-select
                     [placeholder]="'COMMON.LEVEL_ALL' | translate"
                     [value]="(options$ | async).zone_id"
@@ -91,7 +91,7 @@ import { combineLatest } from 'rxjs';
                     </mat-option>
                 </mat-select>
             </mat-form-field>
-            <mat-form-field appearance="outline" class="flex-1 no-subscript">
+            <mat-form-field appearance="outline" class="no-subscript flex-1">
                 <mat-select
                     [placeholder]="'COMMON.NONE' | translate"
                     [value]="(options$ | async).trigger"
@@ -106,11 +106,11 @@ import { combineLatest } from 'rxjs';
                 </mat-select>
             </mat-form-field>
         </div>
-        <div class="flex items-center space-x-4 px-8 mb-4" *ngIf="survey">
+        <div class="mb-4 flex items-center space-x-4 px-8" *ngIf="survey">
             <mat-form-field
                 name="title"
                 appearance="outline"
-                class="flex-1 no-subscript"
+                class="no-subscript flex-1"
             >
                 <input
                     matInput
@@ -122,7 +122,7 @@ import { combineLatest } from 'rxjs';
             <mat-form-field
                 name="desc"
                 appearance="outline"
-                class="flex-1 no-subscript"
+                class="no-subscript flex-1"
             >
                 <input
                     matInput
@@ -134,10 +134,10 @@ import { combineLatest } from 'rxjs';
         <div
             *ngIf="survey"
             cdkDropListGroup
-            class="flex flex-col w-full h-1/2 flex-1 bg-base-100"
+            class="flex h-1/2 w-full flex-1 flex-col bg-base-100"
         >
             <nav
-                class="flex bg-base-200 border-b border-base-400"
+                class="flex border-b border-base-400 bg-base-200"
                 mat-tab-nav-bar
                 [tabPanel]="tabPanel"
             >
@@ -160,17 +160,17 @@ import { combineLatest } from 'rxjs';
             <div
                 mat-tab-nav-panel
                 #tabPanel
-                class="flex min-h-0 h-full w-full bg-base-200"
+                class="flex h-full min-h-0 w-full bg-base-200"
             >
                 <div
                     *ngIf="view === 'design'"
-                    class="mt-0 flex min-h-0 h-full w-full"
+                    class="mt-0 flex h-full min-h-0 w-full"
                 >
                     <div
-                        class="flex flex-col h-full w-1/2 space-y-3 overflow-y-auto flex-1"
+                        class="flex h-full w-1/2 flex-1 flex-col space-y-3 overflow-y-auto"
                     >
                         <div
-                            class="flex flex-row items-center justify-end w-full space-x-2 pr-2"
+                            class="flex w-full flex-row items-center justify-end space-x-2 pr-2"
                         >
                             <nav
                                 class="max-w-xl"
@@ -206,12 +206,12 @@ import { combineLatest } from 'rxjs';
                             </button>
                         </div>
                         <div
-                            class="flex flex-col py-2 px-6 pt-0 w-full overflow-x-hidden"
+                            class="flex w-full flex-col overflow-x-hidden px-6 py-2 pt-0"
                             #pagePanel
                         >
                             <ng-container *ngIf="selectedPage">
                                 <div
-                                    class="flex flex-row items-center justify-end space-x-2 w-full mb-4"
+                                    class="mb-4 flex w-full flex-row items-center justify-end space-x-2"
                                 >
                                     <mat-form-field
                                         class="flex-1"
@@ -231,7 +231,7 @@ import { combineLatest } from 'rxjs';
                                     <button
                                         btn
                                         matRipple
-                                        class="inverse text-error border-error"
+                                        class="inverse border-error text-error"
                                         *ngIf="selectedPageIndex > 0"
                                         (click)="
                                             removeSurveyPage(selectedPageIndex)
@@ -249,7 +249,7 @@ import { combineLatest } from 'rxjs';
                                     (cdkDropListDropped)="
                                         onDrop($event, selectedPage)
                                     "
-                                    class="flex flex-col w-full space-y-3"
+                                    class="flex w-full flex-col space-y-3"
                                 >
                                     <div
                                         cdkDrag
@@ -257,9 +257,9 @@ import { combineLatest } from 'rxjs';
                                             let q of selectedPage.elements;
                                             let i = index
                                         "
-                                        class="flex flex-row rounded-md items-start w-full bg-base-200 py-1"
+                                        class="flex w-full flex-row items-start rounded-md bg-base-200 py-1"
                                     >
-                                        <div class="flex flex-col px-2 h-full">
+                                        <div class="flex h-full flex-col px-2">
                                             <span class="text-lg">{{
                                                 i + 1
                                             }}</span>
@@ -271,7 +271,7 @@ import { combineLatest } from 'rxjs';
                                         >
                                         </placeos-question>
                                         <div
-                                            class="flex flex-col items-center h-full py-2"
+                                            class="flex h-full flex-col items-center py-2"
                                         >
                                             <app-icon
                                                 cdkDragHandle
@@ -307,14 +307,14 @@ import { combineLatest } from 'rxjs';
                             </ng-container>
                         </div>
                     </div>
-                    <div class="flex flex-col w-[20rem] min-w-[20rem]">
+                    <div class="flex w-[20rem] min-w-[20rem] flex-col">
                         <question-bank class="w-full"></question-bank>
                     </div>
                 </div>
 
                 <div
                     *ngIf="view === 'preview'"
-                    class="flex flex-col h-full w-full px-6 overflow-y-auto"
+                    class="flex h-full w-full flex-col overflow-y-auto px-6"
                 >
                     <survey
                         *ngIf="service.surveyModel"
@@ -325,7 +325,7 @@ import { combineLatest } from 'rxjs';
         </div>
 
         <ng-template #empty_template>
-            <div class="flex flex-col m-auto h-52 justify-center space-y-2">
+            <div class="m-auto flex h-52 flex-col justify-center space-y-2">
                 <img
                     src="assets/icons/dragdrop.svg"
                     class="h-12 opacity-60"

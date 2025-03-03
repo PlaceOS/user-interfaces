@@ -8,7 +8,7 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
     selector: `parking-space-list`,
     template: `
         <h3 class="font-bold">{{ 'COMMON.RESULTS' | translate }}</h3>
-        <p count class="text-sm opacity-60 mb-4">
+        <p count class="mb-4 text-sm opacity-60">
             {{
                 'COMMON.RESULTS_COUNT'
                     | translate: { count: (assets | async)?.length || 0 }
@@ -23,19 +23,19 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
                     space
                     *ngFor="let space of assets | async"
                     [class.!border-info]="active === space.id"
-                    class="relative p-2 rounded-lg w-full shadow border bg-base-100 border-base-200"
+                    class="relative w-full rounded-lg border border-base-200 bg-base-100 p-2 shadow"
                 >
                     <button
                         matRipple
                         select
-                        class="w-full h-full flex items-center"
+                        class="flex h-full w-full items-center"
                         (click)="selectSpace(space)"
                     >
                         <div
-                            class="relative w-20 h-20 rounded-xl bg-base-200 mr-4 overflow-hidden flex items-center justify-center"
+                            class="relative mr-4 flex h-20 w-20 items-center justify-center overflow-hidden rounded-xl bg-base-200"
                         >
                             <div
-                                class="absolute top-1 left-1 border border-neutral bg-base-200 rounded-full h-6 w-6 flex items-center justify-center text-white"
+                                class="absolute left-1 top-1 flex h-6 w-6 items-center justify-center rounded-full border border-neutral bg-base-200 text-white"
                                 *ngIf="selected.includes(space.id)"
                             >
                                 <app-icon>done</app-icon>
@@ -43,7 +43,7 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
                             <img
                                 auth
                                 *ngIf="space.images?.length; else placeholder"
-                                class="object-cover h-full"
+                                class="h-full object-cover"
                                 [source]="space.images[0]"
                             />
                             <ng-template #placeholder>
@@ -54,10 +54,10 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
                             </ng-template>
                         </div>
                         <div class="space-y-2">
-                            <div class="font-medium truncate mr-10">
+                            <div class="mr-10 truncate font-medium">
                                 {{ space.name || 'Meeting Space' }}
                             </div>
-                            <div class="flex items-center text-sm space-x-2">
+                            <div class="flex items-center space-x-2 text-sm">
                                 <app-icon class="text-info">place</app-icon>
                                 <p>
                                     {{
@@ -75,7 +75,7 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
                         icon
                         matRipple
                         fav
-                        class="absolute top-1 right-1"
+                        class="absolute right-1 top-1"
                         [class.text-info]="isFavourite(space.id)"
                         (click)="toggleFav.emit(space)"
                     >
@@ -91,9 +91,9 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
         <ng-template #empty_state>
             <div
                 empty
-                class="p-16 flex flex-col items-center justify-center space-y-2"
+                class="flex flex-col items-center justify-center space-y-2 p-16"
             >
-                <p class="opacity-30 text-center">
+                <p class="text-center opacity-30">
                     {{ 'BOOKINGS.PARKING_LIST_EMPTY' | translate }}
                 </p>
             </div>
@@ -101,7 +101,7 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
         <ng-template #load_state>
             <div
                 loading
-                class="p-16 flex flex-col items-center justify-center space-y-2"
+                class="flex flex-col items-center justify-center space-y-2 p-16"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
                 <p class="opacity-30">
@@ -120,7 +120,7 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class ParkingSpaceListComponent {
     @Input() public active: string = '';

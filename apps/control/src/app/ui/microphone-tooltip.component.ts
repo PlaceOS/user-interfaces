@@ -8,7 +8,7 @@ import { ControlStateService } from '../control-state.service';
     selector: 'microphone-tooltip',
     template: `
         <div
-            class="p-4 my-2 bg-base-100 shadow rounded flex flex-col items-center space-y-2 max-h-[65vh] overflow-x-hidden overflow-y-auto"
+            class="my-2 flex max-h-[65vh] flex-col items-center space-y-2 overflow-y-auto overflow-x-hidden rounded bg-base-100 p-4 shadow"
         >
             <h3 class="mb-2 text-xl font-medium">
                 {{ 'APP.CONTROL.ACTION_MICS' | translate }}
@@ -22,7 +22,7 @@ import { ControlStateService } from '../control-state.service';
                 <div *ngFor="let mic of mic_list | async">
                     <label [for]="mic.id">{{ mic.name }}</label>
                     <div
-                        class="flex items-center space-x-2 w-64"
+                        class="flex w-64 items-center space-x-2"
                         [attr.name]="mic.id"
                     >
                         <button
@@ -72,7 +72,7 @@ import { ControlStateService } from '../control-state.service';
                 <div *ngFor="let mic of microphones | async; let i = index">
                     <label [for]="mic.name">{{ mic.name }}</label>
                     <div
-                        class="flex items-center space-x-2 w-64"
+                        class="flex w-64 items-center space-x-2"
                         [attr.name]="mic.name"
                     >
                         <button

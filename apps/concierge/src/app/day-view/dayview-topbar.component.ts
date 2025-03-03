@@ -10,13 +10,13 @@ import { BookingUIOptions, EventsStateService } from './events-state.service';
     selector: 'dayview-topbar',
     template: `
         <div
-            class="flex items-center px-4 h-20 bg-base-100 border-b border-base-200"
+            class="flex h-20 items-center border-b border-base-200 bg-base-100 px-4"
         >
             <button
                 btn
                 matRipple
                 new
-                class="w-12 xl:w-auto overflow-hidden"
+                class="w-12 overflow-hidden xl:w-auto"
                 (click)="newBooking()"
             >
                 <div class="flex items-center">
@@ -63,7 +63,7 @@ import { BookingUIOptions, EventsStateService } from './events-state.service';
             >
                 <div class="text-xs">Setup / Breakdown</div>
             </mat-slide-toggle>
-            <div class="flex-1 w-0"></div>
+            <div class="w-0 flex-1"></div>
             <!-- <searchbar class="mr-2"></searchbar> -->
             <date-options (dateChange)="setDate($event)"></date-options>
         </div>
@@ -88,7 +88,7 @@ import { BookingUIOptions, EventsStateService } from './events-state.service';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class DayviewTopbarComponent extends AsyncHandler {
     /** List of selected levels */

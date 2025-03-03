@@ -10,7 +10,7 @@ import { SignageStateService } from './signage-state.service';
     selector: 'signage-topbar',
     template: `
         <div
-            class="flex items-center bg-base-100 h-20 px-4 border-b border-base-200 space-x-2"
+            class="flex h-20 items-center space-x-2 border-b border-base-200 bg-base-100 px-4"
         >
             <!-- <mat-form-field appearance="outline">
                 <mat-select
@@ -48,7 +48,7 @@ import { SignageStateService } from './signage-state.service';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class SignageTopbarComponent extends AsyncHandler implements OnInit {
     /** List of selected levels */

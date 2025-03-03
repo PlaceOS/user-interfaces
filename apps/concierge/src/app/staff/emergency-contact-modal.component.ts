@@ -18,9 +18,9 @@ import { CustomTooltipComponent } from '@placeos/components';
     selector: 'emergency-contact-modal',
     template: `
         <header
-            class="sticky top-0 p-2 m-2 w-[calc(100%-1rem)] border-none z-10 bg-base-200 rounded"
+            class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded border-none bg-base-200 p-2"
         >
-            <h2 class="text-xl font-medium px-2">
+            <h2 class="px-2 text-xl font-medium">
                 {{
                     (contact
                         ? 'APP.CONCIERGE.CONTACTS_EDIT'
@@ -32,7 +32,7 @@ import { CustomTooltipComponent } from '@placeos/components';
                 <app-icon>close</app-icon>
             </button>
         </header>
-        <main class="p-4 w-[36rem]" *ngIf="!loading; else load_state">
+        <main class="w-[36rem] p-4" *ngIf="!loading; else load_state">
             <form [formGroup]="form">
                 <a-user-search-field
                     ngModel
@@ -51,7 +51,7 @@ import { CustomTooltipComponent } from '@placeos/components';
                     </mat-form-field>
                 </div>
                 <div class="flex items-center space-x-4">
-                    <div class="flex flex-col flex-1">
+                    <div class="flex flex-1 flex-col">
                         <label for="email">{{
                             'FORM.EMAIL' | translate
                         }}</label>
@@ -64,7 +64,7 @@ import { CustomTooltipComponent } from '@placeos/components';
                             />
                         </mat-form-field>
                     </div>
-                    <div class="flex flex-col flex-1">
+                    <div class="flex flex-1 flex-col">
                         <label for="email">{{
                             'FORM.PHONE' | translate
                         }}</label>
@@ -149,7 +149,7 @@ import { CustomTooltipComponent } from '@placeos/components';
         </main>
         <footer
             *ngIf="!loading"
-            class="flex justify-end items-center px-4 py-2 border-t border-base-200"
+            class="flex items-center justify-end border-t border-base-200 px-4 py-2"
         >
             <button btn matRipple class="w-32" (click)="save()">
                 {{ 'COMMON.SAVE' | translate }}
@@ -158,14 +158,14 @@ import { CustomTooltipComponent } from '@placeos/components';
         <ng-template #load_state>
             <main
                 loading
-                class="h-64 flex flex-col items-center justify-center"
+                class="flex h-64 flex-col items-center justify-center"
             >
                 <mat-spinner [diameter]="48" class="mb-4"></mat-spinner>
                 <p>{{ 'APP.CONCIERGE.CONTACTS_SAVING' | translate }}</p>
             </main>
         </ng-template>
         <ng-template #role_form>
-            <div class="bg-base-100 p-4 rounded ">
+            <div class="rounded bg-base-100 p-4">
                 <mat-form-field appearance="outline">
                     <input
                         matInput
@@ -182,7 +182,7 @@ import { CustomTooltipComponent } from '@placeos/components';
         </ng-template>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class EmergencyContactModalComponent {
     private _changes = new BehaviorSubject(0);

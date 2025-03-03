@@ -123,7 +123,7 @@ import { SelectPOIMapModalComponent } from './select-poi-map-modal.component';
                         <button
                             icon
                             matRipple
-                            class="rounded border border-secondary text-secondary h-12 w-12"
+                            class="h-12 w-12 rounded border border-secondary text-secondary"
                             [matTooltip]="
                                 'APP.CONCIERGE.POI_MAP_SELECT' | translate
                             "
@@ -183,7 +183,7 @@ import { SelectPOIMapModalComponent } from './select-poi-map-modal.component';
         </fullscreen-modal-shell>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class POIModalComponent extends AsyncHandler {
     public loading = false;

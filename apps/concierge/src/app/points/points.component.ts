@@ -7,7 +7,7 @@ import { PointsStateService } from './points-state.service';
     selector: 'placeos-points',
     template: `
         <sidebar></sidebar>
-        <main class="relative w-full flex flex-col bg-base-200">
+        <main class="relative flex w-full flex-col bg-base-200">
             <points-topbar class="relative z-10">
                 <button
                     *ngIf="page === 'assets'"
@@ -34,7 +34,7 @@ import { PointsStateService } from './points-state.service';
                     {{ 'APP.CONCIERGE.POINTS_TAB_ASSETS' | translate }}
                 </a>
             </nav>
-            <div class="flex-1 w-full h-1/2 overflow-auto">
+            <div class="h-1/2 w-full flex-1 overflow-auto">
                 <router-outlet></router-outlet>
             </div>
         </main>
@@ -48,7 +48,7 @@ import { PointsStateService } from './points-state.service';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class PointsComponent extends AsyncHandler implements OnInit {
     /** Page being displayed */

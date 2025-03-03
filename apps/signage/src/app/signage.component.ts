@@ -19,7 +19,7 @@ import { ActivatedRoute, Router } from '@angular/router';
             width: 100%;
         }
     `,
-    standalone: false
+    standalone: false,
 })
 export class SignagePanelComponent extends AsyncHandler {
     public readonly playlist = this._signage.playlist;

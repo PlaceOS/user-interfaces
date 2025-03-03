@@ -52,5 +52,5 @@ describe('WeekViewTimelineComponent', () => {
         (service.event as any).next(new CalendarEvent());
         spectator.detectChanges();
         expect('view-event-details').toExist();
-    })
+    });
 });

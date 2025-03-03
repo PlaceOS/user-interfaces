@@ -44,7 +44,7 @@ import { getUnixTime } from 'date-fns';
                         'FORM.NAME_REQUIRED' | translate
                     }}</mat-error>
                 </mat-form-field>
-                <div class="flex items-center space-x-4 mb-4">
+                <div class="mb-4 flex items-center space-x-4">
                     <settings-toggle
                         class="flex-1"
                         [name]="'COMMON.ENABLED' | translate"
@@ -64,7 +64,7 @@ import { getUnixTime } from 'date-fns';
                 <div class="flex items-center space-x-4">
                     <label
                         for="default-duration"
-                        class="w-auto min-w-0 m-0 space-x-2 flex items-center"
+                        class="m-0 flex w-auto min-w-0 items-center space-x-2"
                     >
                         <div>Default Play Time</div>
                         <app-icon
@@ -74,7 +74,7 @@ import { getUnixTime } from 'date-fns';
                             info
                         </app-icon>
                     </label>
-                    <div class="text-xs font-mono">
+                    <div class="font-mono text-xs">
                         {{ form.value.default_duration / 1000 | mediaDuration }}
                     </div>
                 </div>
@@ -205,7 +205,7 @@ import { getUnixTime } from 'date-fns';
         </fullscreen-modal-shell>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class SignagePlaylistModalComponent {
     public loading = false;

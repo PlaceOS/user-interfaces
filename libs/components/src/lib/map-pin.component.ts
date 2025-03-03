@@ -12,12 +12,12 @@ export interface MapPinData {
     selector: '[map-pin]',
     template: `
         <div
-            class="absolute bottom-1/2 left-1/2 -translate-x-1/2 w-[24rem] flex flex-col items-center -z-1"
+            class="-z-1 absolute bottom-1/2 left-1/2 flex w-[24rem] -translate-x-1/2 flex-col items-center"
         >
             <div
                 name="message"
                 *ngIf="message && show_message"
-                class="p-2 m-2 rounded bg-base-100 text-gray-700 shadow"
+                class="text-gray-700 m-2 rounded bg-base-100 p-2 shadow"
             >
                 {{ message }}
             </div>
@@ -61,7 +61,7 @@ export interface MapPinData {
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class MapPinComponent implements OnInit {
     /** Message to display above the pin */

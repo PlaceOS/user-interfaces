@@ -30,7 +30,7 @@ describe('[Booking API]', () => {
             expect(bookings).toHaveLength(1);
             expect(bookings[0]).toBeInstanceOf(Booking);
             expect(ts_client.get).toHaveBeenCalledWith(
-                `/api/staff/v1/bookings?period_start=1&period_end=2&type=desk`
+                `/api/staff/v1/bookings?period_start=1&period_end=2&type=desk`,
             );
             spy.mockReset();
         });
@@ -44,7 +44,7 @@ describe('[Booking API]', () => {
             const booking = await showBooking('1').toPromise();
             expect(booking).toBeInstanceOf(Booking);
             expect(ts_client.get).toHaveBeenCalledWith(
-                `/api/staff/v1/bookings/1`
+                `/api/staff/v1/bookings/1`,
             );
             spy.mockReset();
         });
@@ -59,7 +59,7 @@ describe('[Booking API]', () => {
             expect(booking).toBeInstanceOf(Booking);
             expect(ts_client.post).toHaveBeenCalledWith(
                 `/api/staff/v1/bookings`,
-                {}
+                {},
             );
             spy.mockReset();
         });
@@ -74,7 +74,7 @@ describe('[Booking API]', () => {
             expect(booking).toBeInstanceOf(Booking);
             expect(ts_client.patch).toHaveBeenCalledWith(
                 `/api/staff/v1/bookings/1`,
-                {}
+                {},
             );
             spy.mockReset();
         });
@@ -86,7 +86,7 @@ describe('[Booking API]', () => {
             expect(booking).toBeInstanceOf(Booking);
             expect(ts_client.put).toHaveBeenCalledWith(
                 `/api/staff/v1/bookings/1`,
-                {}
+                {},
             );
             spy.mockReset();
         });
@@ -120,7 +120,7 @@ describe('[Booking API]', () => {
             expect(booking).toBeInstanceOf(Booking);
             expect(ts_client.post).toHaveBeenCalledWith(
                 `/api/staff/v1/bookings/1/approve`,
-                ''
+                '',
             );
             spy.mockReset();
         });
@@ -135,7 +135,7 @@ describe('[Booking API]', () => {
             expect(booking).toBeInstanceOf(Booking);
             expect(ts_client.post).toHaveBeenCalledWith(
                 `/api/staff/v1/bookings/1/reject`,
-                ''
+                '',
             );
             spy.mockReset();
         });
@@ -150,7 +150,7 @@ describe('[Booking API]', () => {
             expect(booking).toBeInstanceOf(Booking);
             expect(ts_client.post).toHaveBeenCalledWith(
                 `/api/staff/v1/bookings/1/check_in?state=true`,
-                ''
+                '',
             );
             spy.mockReset();
         });

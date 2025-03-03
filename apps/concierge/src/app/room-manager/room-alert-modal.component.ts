@@ -20,7 +20,7 @@ import { PlaceSystem, showMetadata, updateMetadata } from '@placeos/ts-client';
             </button>
         </header>
         <main
-            class="max-h-[65vh] overflow-y-auto overflow-x-hidden p-4 min-w-[24rem] flex flex-col"
+            class="flex max-h-[65vh] min-w-[24rem] flex-col overflow-y-auto overflow-x-hidden p-4"
             *ngIf="!loading; else load_state"
             [formGroup]="form"
         >
@@ -53,7 +53,7 @@ import { PlaceSystem, showMetadata, updateMetadata } from '@placeos/ts-client';
             </mat-form-field>
         </main>
         <footer
-            class="p-2 flex justify-end border-t border-base-200"
+            class="flex justify-end border-t border-base-200 p-2"
             *ngIf="!loading"
         >
             <button btn class="w-32" (click)="save()">
@@ -61,7 +61,7 @@ import { PlaceSystem, showMetadata, updateMetadata } from '@placeos/ts-client';
             </button>
         </footer>
         <ng-template #load_state>
-            <div class="flex flex-col items-center justify-center w-64 h-64">
+            <div class="flex h-64 w-64 flex-col items-center justify-center">
                 <mat-spinner diameter="32"></mat-spinner>
                 <p class="mt-4">
                     {{ 'APP.CONCIERGE.ROOMS_SAVING' | translate }}
@@ -70,7 +70,7 @@ import { PlaceSystem, showMetadata, updateMetadata } from '@placeos/ts-client';
         </ng-template>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class RoomAlertModalComponent {
     public loading = false;

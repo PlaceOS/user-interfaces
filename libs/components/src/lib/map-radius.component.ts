@@ -18,7 +18,7 @@ export interface MapRadiusData {
         <ng-container *ngIf="show && radius" (window:resize)="updateRadius()">
             <div
                 radius
-                class="center border-4 rounded-full border-dashed"
+                class="center rounded-full border-4 border-dashed"
                 [style.border-color]="stroke"
                 [style.background-color]="fill + '40'"
                 [style.width]="radius * zoom + 'px'"
@@ -28,7 +28,7 @@ export interface MapRadiusData {
                 *ngIf="message && show_message"
                 message
                 [style.top]="'-' + (radius / 2) * zoom + 'px'"
-                class="p-2 m-2 rounded bg-base-100 text-gray-700 shadow absolute top-0 whitespace-no-wrap flex flex-col w-64"
+                class="text-gray-700 whitespace-no-wrap absolute top-0 m-2 flex w-64 flex-col rounded bg-base-100 p-2 shadow"
             >
                 {{ message }}
                 <span *ngIf="last_seen" class="text-xs">
@@ -62,7 +62,7 @@ export interface MapRadiusData {
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class MapRadiusComponent implements OnInit {
     public zoom = 1;

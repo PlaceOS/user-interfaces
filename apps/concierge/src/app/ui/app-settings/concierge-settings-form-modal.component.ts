@@ -14,9 +14,9 @@ import { VERSION } from '@placeos/common';
 @Component({
     selector: 'concierge-settings-form-modal',
     template: `
-        <div class="w-screen h-screen bg-base-100 flex flex-col overflow-auto">
+        <div class="flex h-screen w-screen flex-col overflow-auto bg-base-100">
             <header
-                class="sticky top-0 px-4 py-2 mx-auto my-2 max-w-[640px] w-full border-none z-10 bg-base-200 rounded"
+                class="sticky top-0 z-10 mx-auto my-2 w-full max-w-[640px] rounded border-none bg-base-200 px-4 py-2"
             >
                 <h2 class="text-xl font-medium">
                     Concierge Settings - {{ zone.display_name || zone.name }}
@@ -26,20 +26,20 @@ import { VERSION } from '@placeos/common';
                 </button>
             </header>
             <main
-                class="h-1/2 flex-1 p-4 space-y-8 z-0 max-w-[640px] w-full mx-auto"
+                class="z-0 mx-auto h-1/2 w-full max-w-[640px] flex-1 space-y-8 p-4"
             >
                 <form
                     [formGroup]="form"
                     class="flex flex-col space-y-8"
                     *ngIf="!loading; else load_state"
                 >
-                    <section general class="bg-base-100 rounded space-y-2">
+                    <section general class="space-y-2 rounded bg-base-100">
                         <div>
                             <label for="logo_light">Light Mode Logo</label>
-                            <div class="flex items-center space-x-2 mb-4">
+                            <div class="mb-4 flex items-center space-x-2">
                                 <mat-form-field
                                     appearance="outline"
-                                    class="w-full no-subscript"
+                                    class="no-subscript w-full"
                                 >
                                     <input
                                         matInput
@@ -58,10 +58,10 @@ import { VERSION } from '@placeos/common';
                         </div>
                         <div>
                             <label for="logo_dark">Dark Mode Logo</label>
-                            <div class="flex items-center space-x-2 mb-4">
+                            <div class="mb-4 flex items-center space-x-2">
                                 <mat-form-field
                                     appearance="outline"
-                                    class="w-full no-subscript"
+                                    class="no-subscript w-full"
                                 >
                                     <input
                                         matInput
@@ -173,10 +173,10 @@ import { VERSION } from '@placeos/common';
                             </mat-form-field>
                         </div>
                         <div
-                            class="relative border border-base-300 rounded px-4 pb-2 pt-4"
+                            class="relative rounded border border-base-300 px-4 pb-2 pt-4"
                         >
                             <h3
-                                class="absolute top-0 left-4 -translate-y-1/2 rounded px-2 py-1 font-medium bg-base-100"
+                                class="absolute left-4 top-0 -translate-y-1/2 rounded bg-base-100 px-2 py-1 font-medium"
                             >
                                 Banner
                             </h3>
@@ -312,7 +312,7 @@ import { VERSION } from '@placeos/common';
                                 </mat-hint>
                             </mat-form-field>
                         </div>
-                        <div class="flex items-center flex-wrap -mx-2">
+                        <div class="-mx-2 flex flex-wrap items-center">
                             <settings-toggle
                                 name="Use 24 hour time"
                                 formControlName="use_24_hour_time"
@@ -337,12 +337,12 @@ import { VERSION } from '@placeos/common';
                     </section>
                     <section
                         spaces
-                        class="relative border border-base-300 rounded px-4 pb-2 pt-4"
+                        class="relative rounded border border-base-300 px-4 pb-2 pt-4"
                         *ngIf="form.value.features.includes('spaces')"
                         formGroupName="events"
                     >
                         <h3
-                            class="absolute top-0 left-4 -translate-y-1/2 rounded px-2 py-1 font-medium bg-base-100"
+                            class="absolute left-4 top-0 -translate-y-1/2 rounded bg-base-100 px-2 py-1 font-medium"
                         >
                             Room Bookings
                         </h3>
@@ -584,7 +584,7 @@ import { VERSION } from '@placeos/common';
                             </div>
                         </div>
 
-                        <div class="flex items-center flex-wrap -mx-2">
+                        <div class="-mx-2 flex flex-wrap items-center">
                             <settings-toggle
                                 name="Allow all day bookings"
                                 formControlName="allow_all_day"
@@ -637,12 +637,12 @@ import { VERSION } from '@placeos/common';
                     </section>
                     <section
                         visitors
-                        class="relative border border-base-300 rounded px-4 pb-2 pt-4"
+                        class="relative rounded border border-base-300 px-4 pb-2 pt-4"
                         *ngIf="form.value.features.includes('visitors')"
                         formGroupName="visitors"
                     >
                         <h3
-                            class="absolute top-0 left-4 -translate-y-1/2 rounded px-2 py-1 font-medium bg-base-100"
+                            class="absolute left-4 top-0 -translate-y-1/2 rounded bg-base-100 px-2 py-1 font-medium"
                         >
                             Visitors
                         </h3>
@@ -679,7 +679,7 @@ import { VERSION } from '@placeos/common';
                             </mat-hint>
                         </mat-form-field>
 
-                        <div class="flex items-center flex-wrap -mx-2">
+                        <div class="-mx-2 flex flex-wrap items-center">
                             <settings-toggle
                                 name="Allow booking parking for visitors"
                                 formControlName="has_parking"
@@ -692,7 +692,7 @@ import { VERSION } from '@placeos/common';
                     </section>
                     <section
                         bookings
-                        class="relative border border-base-300 rounded px-4 pb-2 pt-4"
+                        class="relative rounded border border-base-300 px-4 pb-2 pt-4"
                         *ngIf="
                             form.value.features.includes('visitors') ||
                             form.value.features.includes('parking') ||
@@ -701,7 +701,7 @@ import { VERSION } from '@placeos/common';
                         formGroupName="bookings"
                     >
                         <h3
-                            class="absolute top-0 left-4 -translate-y-1/2 rounded px-2 py-1 font-medium bg-base-100"
+                            class="absolute left-4 top-0 -translate-y-1/2 rounded bg-base-100 px-2 py-1 font-medium"
                         >
                             PlaceOS Bookings
                         </h3>
@@ -841,7 +841,7 @@ import { VERSION } from '@placeos/common';
                             </mat-form-field>
                         </div>
 
-                        <div class="flex items-center flex-wrap -mx-2">
+                        <div class="-mx-2 flex flex-wrap items-center">
                             <settings-toggle
                                 name="Allow all day bookings"
                                 formControlName="allow_all_day"
@@ -858,12 +858,12 @@ import { VERSION } from '@placeos/common';
                     </section>
                     <section
                         parking
-                        class="relative border border-base-300 rounded px-4 pb-2 pt-4"
+                        class="relative rounded border border-base-300 px-4 pb-2 pt-4"
                         *ngIf="form.value.features.includes('parking')"
                         formGroupName="parking"
                     >
                         <h3
-                            class="absolute top-0 left-4 -translate-y-1/2 rounded px-2 py-1 font-medium bg-base-100"
+                            class="absolute left-4 top-0 -translate-y-1/2 rounded bg-base-100 px-2 py-1 font-medium"
                         >
                             Parking
                         </h3>
@@ -1003,7 +1003,7 @@ import { VERSION } from '@placeos/common';
                             </mat-form-field>
                         </div>
 
-                        <div class="flex items-center flex-wrap -mx-2">
+                        <div class="-mx-2 flex flex-wrap items-center">
                             <settings-toggle
                                 name="Allow all day bookings"
                                 formControlName="allow_all_day"
@@ -1012,16 +1012,16 @@ import { VERSION } from '@placeos/common';
                     </section>
                     <section
                         lockers
-                        class="relative border border-base-300 rounded px-4 pb-2 pt-4"
+                        class="relative rounded border border-base-300 px-4 pb-2 pt-4"
                         *ngIf="form.value.features.includes('lockers')"
                         formGroupName="lockers"
                     >
                         <h3
-                            class="absolute top-0 left-4 -translate-y-1/2 rounded px-2 py-1 font-medium bg-base-100"
+                            class="absolute left-4 top-0 -translate-y-1/2 rounded bg-base-100 px-2 py-1 font-medium"
                         >
                             Locker Bookings
                         </h3>
-                        <div class="flex items-center flex-wrap -mx-2">
+                        <div class="-mx-2 flex flex-wrap items-center">
                             <settings-toggle
                                 name="Default bookings to all day"
                                 formControlName="all_day_default"
@@ -1048,7 +1048,7 @@ import { VERSION } from '@placeos/common';
                 <div class="h-16 w-full"></div>
             </main>
             <footer
-                class="fixed bottom-0 left-1/2 -translate-x-1/2 px-4 py-2 mx-auto my-2 max-w-[640px] w-full border-none z-10 bg-base-200 rounded flex items-center justify-end"
+                class="fixed bottom-0 left-1/2 z-10 mx-auto my-2 flex w-full max-w-[640px] -translate-x-1/2 items-center justify-end rounded border-none bg-base-200 px-4 py-2"
                 *ngIf="!loading"
             >
                 <button btn matRipple class="w-32" (click)="save()">
@@ -1058,7 +1058,7 @@ import { VERSION } from '@placeos/common';
         </div>
         <ng-template #load_state>
             <div
-                class="w-full flex-1 h-1/2 flex flex-col items-center justify-center p-12"
+                class="flex h-1/2 w-full flex-1 flex-col items-center justify-center p-12"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
                 <p class="text-center">{{ loading }}</p>

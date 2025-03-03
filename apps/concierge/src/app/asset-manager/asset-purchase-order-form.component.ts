@@ -81,7 +81,7 @@ import { OrganisationService } from '@placeos/organisation';
                     </mat-form-field>
                 </div>
                 <div class="flex space-x-2">
-                    <div class="flex-1 flex flex-col space-y-2">
+                    <div class="flex flex-1 flex-col space-y-2">
                         <label for="purchase-date">{{
                             'APP.CONCIERGE.ASSETS_PURCHASE_DATE' | translate
                         }}</label>
@@ -91,7 +91,7 @@ import { OrganisationService } from '@placeos/organisation';
                             formControlName="purchase_date"
                         ></a-date-field>
                     </div>
-                    <div class="flex-1 flex flex-col space-y-2">
+                    <div class="flex flex-1 flex-col space-y-2">
                         <label for="unit-price">{{
                             'APP.CONCIERGE.ASSETS_PURCHASE_PRICE' | translate
                         }}</label>
@@ -106,7 +106,7 @@ import { OrganisationService } from '@placeos/organisation';
                     </div>
                 </div>
                 <div class="flex space-x-2">
-                    <div class="flex flex-col space-y-2 flex-1">
+                    <div class="flex flex-1 flex-col space-y-2">
                         <label for="depreciation-start-date">
                             {{
                                 'APP.CONCIERGE.ASSETS_PURCHASE_START'
@@ -119,7 +119,7 @@ import { OrganisationService } from '@placeos/organisation';
                             formControlName="expected_service_start_date"
                         ></a-date-field>
                     </div>
-                    <div class="flex flex-col space-y-2 flex-1">
+                    <div class="flex flex-1 flex-col space-y-2">
                         <label for="depreciation-end-date">
                             {{
                                 'APP.CONCIERGE.ASSETS_PURCHASE_END' | translate
@@ -131,7 +131,7 @@ import { OrganisationService } from '@placeos/organisation';
                         ></a-date-field>
                     </div>
                 </div>
-                <h3 *ngIf="item?.id" class="font-medium mb-2">
+                <h3 *ngIf="item?.id" class="mb-2 font-medium">
                     {{
                         'APP.CONCIERGE.ASSETS_PURCHASE_ASSETS'
                             | translate
@@ -139,7 +139,7 @@ import { OrganisationService } from '@placeos/organisation';
                     }}
                 </h3>
                 <simple-table
-                    class="w-full block text-sm"
+                    class="block w-full text-sm"
                     *ngIf="item?.id"
                     [data]="(asset_list | async) || []"
                     [columns]="[
@@ -170,7 +170,7 @@ import { OrganisationService } from '@placeos/organisation';
         </fullscreen-modal-shell>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class AssetPurchaseOrderFormComponent
     extends AsyncHandler

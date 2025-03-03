@@ -7,16 +7,16 @@ import { ControlStateService } from '../control-state.service';
     selector: 'power-tooltip',
     template: `
         <div
-            class="p-4 my-2 bg-base-100 shadow rounded flex flex-col items-center space-y-2"
+            class="my-2 flex flex-col items-center space-y-2 rounded bg-base-100 p-4 shadow"
         >
             <h3
-                class="mb-2 font-medium text-center"
+                class="mb-2 text-center font-medium"
                 [innerHTML]="'APP.CONTROL.POWER_MSG' | translate | sanitize"
             ></h3>
             <button btn matRipple class="w-64" (click)="shutdown(true)">
                 {{ 'APP.CONTROL.POWER_CONFIRM' | translate }}
             </button>
-            <button btn matRipple class="w-64 inverse" (click)="close()">
+            <button btn matRipple class="inverse w-64" (click)="close()">
                 {{ 'APP.CONTROL.POWER_CANCEL' | translate }}
             </button>
         </div>

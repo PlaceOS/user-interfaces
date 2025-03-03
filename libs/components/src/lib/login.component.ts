@@ -9,7 +9,7 @@ import { debounceTime, first, map } from 'rxjs/operators';
     template: `
         <div class="fixed inset-0 overflow-auto">
             <form
-                class="flex flex-col items-center overflow-hidden mx-auto my-4 bg-base-100 rounded shadow p-4"
+                class="mx-auto my-4 flex flex-col items-center overflow-hidden rounded bg-base-100 p-4 shadow"
             >
                 <div class="flex items-center justify-center">
                     <img
@@ -19,7 +19,7 @@ import { debounceTime, first, map } from 'rxjs/operators';
                         [source]="(logo | async)?.src || (logo | async)"
                     />
                 </div>
-                <div class="w-full relative h-1/3 flex-1">
+                <div class="relative h-1/3 w-full flex-1">
                     <ng-container *ngIf="!loading; else loading_state">
                         <div class="flex flex-col">
                             <label
@@ -55,7 +55,7 @@ import { debounceTime, first, map } from 'rxjs/operators';
                     </ng-container>
                 </div>
                 <div
-                    class="flex items-center justify-center w-full"
+                    class="flex w-full items-center justify-center"
                     *ngIf="!loading"
                 >
                     <button btn matRipple color="primary" (click)="login()">
@@ -91,7 +91,7 @@ import { debounceTime, first, map } from 'rxjs/operators';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class LoginComponent implements OnInit {
     /** Whether the user credentials are being checked */

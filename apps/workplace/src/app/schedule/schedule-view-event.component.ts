@@ -31,26 +31,26 @@ import { CateringItem } from '@placeos/catering';
                 matRipple
                 [routerLink]="['/schedule']"
             >
-                <div class="flex items-center justify-center h-full">
+                <div class="flex h-full items-center justify-center">
                     <app-icon class="text-xl">arrow_back</app-icon>
-                    <span class="ml-2 mx-4">Back</span>
+                    <span class="mx-4 ml-2">Back</span>
                 </div>
             </a>
         </div>
         <div
-            class="flex-1 w-full flex flex-col items-center bg-base-200 p-4 overflow-auto"
+            class="flex w-full flex-1 flex-col items-center overflow-auto bg-base-200 p-4"
         >
             <div
-                class="max-w-full w-[28rem] bg-base-100 border border-base-200 px-4 pb-4 divide-y divide-base-200"
+                class="w-[28rem] max-w-full divide-y divide-base-200 border border-base-200 bg-base-100 px-4 pb-4"
                 *ngIf="event; else load_state"
             >
-                <h2 class="text-xl uppercase font-medium w-full my-4">
+                <h2 class="my-4 w-full text-xl font-medium uppercase">
                     {{ event.title }}
                 </h2>
                 <div
-                    class="flex items-center py-2 space-x-2 w-full !border-none"
+                    class="flex w-full items-center space-x-2 !border-none py-2"
                 >
-                    <div class="p-2 rounded-full bg-base-200 mr-2">
+                    <div class="mr-2 rounded-full bg-base-200 p-2">
                         <app-icon>event</app-icon>
                     </div>
                     <div class="flex-1 truncate">
@@ -64,15 +64,15 @@ import { CateringItem } from '@placeos/catering';
                         >
                     </div>
                 </div>
-                <div class="flex items-center py-2 space-x-2 w-full">
-                    <div class="p-2 rounded-full bg-base-200 mr-2">
+                <div class="flex w-full items-center space-x-2 py-2">
+                    <div class="mr-2 rounded-full bg-base-200 p-2">
                         <app-icon>schedule</app-icon>
                     </div>
                     <div class="flex-1 truncate">{{ duration }}</div>
                 </div>
                 <div class="w-full">
-                    <div class="flex items-center py-2 space-x-2 ">
-                        <div class="p-2 rounded-full bg-base-200 mr-2">
+                    <div class="flex items-center space-x-2 py-2">
+                        <div class="mr-2 rounded-full bg-base-200 p-2">
                             <app-icon>place</app-icon>
                         </div>
                         <div class="flex-1 truncate">
@@ -97,7 +97,7 @@ import { CateringItem } from '@placeos/catering';
                         class="overflow-hidden"
                     >
                         <div
-                            class="flex items-center h-10 pl-12"
+                            class="flex h-10 items-center pl-12"
                             *ngFor="let space of event.resources"
                         >
                             <span class="flex-1 truncate">
@@ -107,7 +107,7 @@ import { CateringItem } from '@placeos/catering';
                                 }}]
                             </span>
                             <span
-                                class="h-2 w-2 rounded mr-2"
+                                class="mr-2 h-2 w-2 rounded"
                                 [class.bg-success]="
                                     space.response_status === 'accepted'
                                 "
@@ -121,7 +121,7 @@ import { CateringItem } from '@placeos/catering';
                             <button
                                 matRipple
                                 locate
-                                class="bg-transparent border-none underline text-black"
+                                class="bg-transparent border-none text-black underline"
                                 (click)="viewLocation(space)"
                                 *ngIf="can_view_location"
                             >
@@ -131,8 +131,8 @@ import { CateringItem } from '@placeos/catering';
                     </div>
                 </div>
                 <div class="w-full">
-                    <div class="flex items-center py-2 space-x-2 ">
-                        <div class="p-2 rounded-full bg-base-200 mr-2">
+                    <div class="flex items-center space-x-2 py-2">
+                        <div class="mr-2 rounded-full bg-base-200 p-2">
                             <app-icon>group</app-icon>
                         </div>
                         <div class="flex-1 truncate">
@@ -158,7 +158,7 @@ import { CateringItem } from '@placeos/catering';
                         class="overflow-hidden"
                     >
                         <div
-                            class="flex items-center h-12 pl-12 pr-2 space-x-2"
+                            class="flex h-12 items-center space-x-2 pl-12 pr-2"
                             *ngFor="let user of event.attendees"
                         >
                             <a-user-avatar
@@ -169,7 +169,7 @@ import { CateringItem } from '@placeos/catering';
                                 user.name || user.email
                             }}</span>
                             <span
-                                class="h-2 w-2 rounded mr-4"
+                                class="mr-4 h-2 w-2 rounded"
                                 [class.bg-success]="
                                     user.response_status === 'accepted'
                                 "
@@ -187,9 +187,9 @@ import { CateringItem } from '@placeos/catering';
                     class="w-full"
                     *ngIf="event.extension_data.catering?.length"
                 >
-                    <div class="border-b border-base-200 w-full">
-                        <div class="flex items-center py-2 space-x-2 ">
-                            <div class="p-2 rounded-full bg-base-200 mr-2">
+                    <div class="w-full border-b border-base-200">
+                        <div class="flex items-center space-x-2 py-2">
+                            <div class="mr-2 rounded-full bg-base-200 p-2">
                                 <app-icon>group</app-icon>
                             </div>
                             <div class="flex-1 truncate">
@@ -220,14 +220,14 @@ import { CateringItem } from '@placeos/catering';
                             class="overflow-hidden"
                         >
                             <div
-                                class="flex items-center h-12 pl-12 space-x-2"
+                                class="flex h-12 items-center space-x-2 pl-12"
                                 *ngFor="
                                     let item of event.extension_data.catering[0]
                                         ?.items
                                 "
                             >
-                                <div class="flex-1 w-1/2">
-                                    <div class="flex-1 w-1/2">
+                                <div class="w-1/2 flex-1">
+                                    <div class="w-1/2 flex-1">
                                         {{ item.name }}
                                     </div>
                                     <div
@@ -242,12 +242,12 @@ import { CateringItem } from '@placeos/catering';
                                     </div>
                                 </div>
                                 <div
-                                    class="bg-primary text-xs rounded px-4 py-2 mx-2 text-white font-medium"
+                                    class="mx-2 rounded bg-primary px-4 py-2 text-xs font-medium text-white"
                                 >
                                     {{ item.total_cost / 100 | currency }}
                                 </div>
                                 <div
-                                    class="m-2 bg-neutral-500 text-white h-8 w-8 rounded-full flex items-center justify-center text-sm"
+                                    class="bg-neutral-500 m-2 flex h-8 w-8 items-center justify-center rounded-full text-sm text-white"
                                 >
                                     {{ item.quantity }}
                                 </div>
@@ -257,21 +257,21 @@ import { CateringItem } from '@placeos/catering';
                 </div>
                 <div class="w-full">
                     <div
-                        class="flex items-center py-2 space-x-2 w-full"
+                        class="flex w-full items-center space-x-2 py-2"
                         *ngIf="event.body"
                     >
-                        <div class="p-2 rounded-full bg-base-200 mr-2">
+                        <div class="mr-2 rounded-full bg-base-200 p-2">
                             <app-icon>event_note</app-icon>
                         </div>
                         <div
-                            class="flex-1 w-1/2 overflow-auto"
+                            class="w-1/2 flex-1 overflow-auto"
                             notes
                             [innerHTML]="event.body | sanitize"
                         ></div>
                     </div>
                 </div>
                 <div
-                    class="flex items-center justify-center space-x-2 mt-4 !border-none"
+                    class="mt-4 flex items-center justify-center space-x-2 !border-none"
                     *ngIf="event.state !== 'done'"
                 >
                     <button
@@ -287,7 +287,7 @@ import { CateringItem } from '@placeos/catering';
                     <button
                         matRipple
                         remove
-                        class="w-32 error inverse"
+                        class="error inverse w-32"
                         [disabled]="loading"
                         (click)="confirmDelete()"
                     >
@@ -298,7 +298,7 @@ import { CateringItem } from '@placeos/catering';
         </div>
         <ng-template #load_state>
             <div
-                class="h-full w-full flex flex-col items-center justify-center space-y-2"
+                class="flex h-full w-full flex-col items-center justify-center space-y-2"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
                 <p>Loading event data...</p>
@@ -323,7 +323,7 @@ import { CateringItem } from '@placeos/catering';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class ScheduleViewEventComponent extends AsyncHandler {
     @Input() public event: CalendarEvent;

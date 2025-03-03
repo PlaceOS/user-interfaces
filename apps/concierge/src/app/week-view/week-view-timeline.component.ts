@@ -4,7 +4,7 @@ import { EventsStateService } from '../day-view/events-state.service';
 @Component({
     selector: 'week-view-timeline',
     template: `
-        <div class="flex divide-x border-base-200 h-full">
+        <div class="flex h-full divide-x border-base-200">
             <ng-container *ngFor="let i of weekdays">
                 <ng-container
                     *ngIf="
@@ -37,7 +37,7 @@ import { EventsStateService } from '../day-view/events-state.service';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class WeekViewTimelineComponent implements OnInit, OnDestroy {
     public readonly weekdays = [0, 1, 2, 3, 4, 5, 6];

@@ -21,14 +21,14 @@ export interface DurationOption {
     template: `
         <button
             duration-field
-            class="flex items-center justify-between border border-neutral rounded h-12 w-full px-2"
+            class="flex h-12 w-full items-center justify-between rounded border border-neutral px-2"
             [disabled]="disabled"
             [class.opacity-30]="disabled"
             matRipple
             [matMenuTriggerFor]="menu"
         >
             <div
-                class="flex flex-col leading-tight px-2 text-left flex-1 w-1/2"
+                class="flex w-1/2 flex-1 flex-col px-2 text-left leading-tight"
             >
                 <div class="truncate">
                     {{
@@ -41,20 +41,20 @@ export interface DurationOption {
                             : ''
                     }}{{ selected?.name }}{{ selected?.date ? ')' : '' }}
                 </div>
-                <div class="text-xs opacity-30 truncate" *ngIf="timezone && tz">
+                <div class="truncate text-xs opacity-30" *ngIf="timezone && tz">
                     {{ selected?.date | date: time_format + ' (z)' : tz }}
                 </div>
             </div>
             <app-icon class="text-2xl">arrow_drop_down</app-icon>
         </button>
-        <mat-menu #menu="matMenu" class="max-h-[15rem] min-w-[18rem] ">
+        <mat-menu #menu="matMenu" class="max-h-[15rem] min-w-[18rem]">
             <button
                 mat-menu-item
                 class="text-left"
                 *ngFor="let option of duration_options"
                 (click)="setValue(option.id)"
             >
-                <div class=" flex items-center justify-between">
+                <div class="flex items-center justify-between">
                     <ng-container *ngIf="!force">
                         <div class="flex flex-col leading-tight">
                             <div class="truncate">
@@ -69,7 +69,7 @@ export interface DurationOption {
                                 }}{{ option.name }}{{ option.date ? ')' : '' }}
                             </div>
                             <div
-                                class="text-xs opacity-30 truncate"
+                                class="truncate text-xs opacity-30"
                                 *ngIf="timezone && tz"
                             >
                                 {{
@@ -82,7 +82,7 @@ export interface DurationOption {
                     <div>{{ force }}</div>
                     <app-icon
                         *ngIf="selected?.id === option.id"
-                        class="text-2xl ml-2"
+                        class="ml-2 text-2xl"
                     >
                         done
                     </app-icon>
@@ -109,7 +109,7 @@ export interface DurationOption {
             multi: true,
         },
     ],
-    standalone: false
+    standalone: false,
 })
 export class DurationFieldComponent
     implements OnInit, OnChanges, ControlValueAccessor

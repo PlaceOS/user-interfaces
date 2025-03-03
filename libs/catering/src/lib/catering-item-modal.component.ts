@@ -20,9 +20,9 @@ export interface CateringItemModalData {
     selector: 'catering-item-modal',
     template: `
         <header
-            class="sticky top-0 p-2 m-2 w-[calc(100%-1rem)] border-none z-10 bg-base-200 rounded"
+            class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded border-none bg-base-200 p-2"
         >
-            <h2 class="text-xl font-medium px-2">
+            <h2 class="px-2 text-xl font-medium">
                 {{
                     (item.id ? 'CATERING.ITEM_EDIT' : 'CATERING.ITEM_NEW')
                         | translate
@@ -33,12 +33,12 @@ export interface CateringItemModalData {
             </button>
         </header>
         <form
-            class="px-4 overflow-auto max-h-[65vh] max-w-xl"
+            class="max-h-[65vh] max-w-xl overflow-auto px-4"
             *ngIf="form && !loading; else load_state"
             [formGroup]="form"
         >
-            <div class="flex items-center space-x-2 w-full">
-                <div class="flex flex-col flex-1" *ngIf="form.controls.name">
+            <div class="flex w-full items-center space-x-2">
+                <div class="flex flex-1 flex-col" *ngIf="form.controls.name">
                     <label
                         for="title"
                         [class.error]="
@@ -61,9 +61,9 @@ export interface CateringItemModalData {
                     </mat-form-field>
                 </div>
             </div>
-            <div class="flex items-center space-x-2 w-full">
+            <div class="flex w-full items-center space-x-2">
                 <div
-                    class="flex flex-col flex-1"
+                    class="flex flex-1 flex-col"
                     *ngIf="form.controls.category"
                 >
                     <label
@@ -88,7 +88,7 @@ export interface CateringItemModalData {
                         }}</mat-error>
                     </mat-form-field>
                 </div>
-                <div class="flex flex-col flex-1" *ngIf="form.controls.caterer">
+                <div class="flex flex-1 flex-col" *ngIf="form.controls.caterer">
                     <label
                         for="caterer"
                         [class.error]="
@@ -112,7 +112,7 @@ export interface CateringItemModalData {
             </div>
             <div class="flex space-x-4">
                 <div
-                    class="flex flex-col flex-1"
+                    class="flex flex-1 flex-col"
                     *ngIf="form.controls.unit_price"
                 >
                     <label
@@ -132,7 +132,7 @@ export interface CateringItemModalData {
                         [render_fn]="renderPrice"
                     ></a-counter>
                 </div>
-                <div class="flex items-center py-4 flex-1">
+                <div class="flex flex-1 items-center py-4">
                     <settings-toggle
                         class="w-full"
                         [name]="'CATERING.ITEM_POINTS' | translate"
@@ -142,7 +142,7 @@ export interface CateringItemModalData {
                 </div>
             </div>
             <div class="mb-4 space-y-2">
-                <label class="flex-1 w-24 min-w-0">{{
+                <label class="w-24 min-w-0 flex-1">{{
                     'CATERING.ITEM_DISCOUNT' | translate
                 }}</label>
                 <div class="max-w-[calc(50%-0.5rem)]">
@@ -206,7 +206,7 @@ export interface CateringItemModalData {
                 </mat-form-field>
             </div>
             <label>{{ 'CATERING.TAGS' | translate }}</label>
-            <div class="flex items-center flex-wrap -mx-2 pb-2" list>
+            <div class="-mx-2 flex flex-wrap items-center pb-2" list>
                 <settings-toggle
                     class="min-w-[40%] flex-1 p-2"
                     [name]="'CATERING.TAG_GLUTEN_FREE' | translate"
@@ -254,7 +254,7 @@ export interface CateringItemModalData {
                 >
                 </settings-toggle>
                 <settings-toggle
-                    class="min-w-[40%] p-2 w-1/2"
+                    class="w-1/2 min-w-[40%] p-2"
                     [name]="'CATERING.TAG_NUTS' | translate"
                     [ngModel]="hasTag('Contains Nuts')"
                     (ngModelChange)="
@@ -276,7 +276,7 @@ export interface CateringItemModalData {
         </form>
         <footer
             *ngIf="!loading"
-            class="flex px-4 py-2 items-center justify-end border-t border-solid border-base-200"
+            class="flex items-center justify-end border-t border-solid border-base-200 px-4 py-2"
         >
             <button
                 btn
@@ -289,7 +289,7 @@ export interface CateringItemModalData {
             </button>
         </footer>
         <ng-template #load_state>
-            <div class="flex flex-col items-center p-8 space-y-2 w-64">
+            <div class="flex w-64 flex-col items-center space-y-2 p-8">
                 <mat-spinner diameter="32"></mat-spinner>
                 <p>{{ 'CATERING.ITEM_SAVING' | translate }}</p>
             </div>

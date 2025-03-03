@@ -133,7 +133,7 @@ const DENIED_FILE_TYPES = [
                         class="leading-tight"
                     >
                         {{ user.name }}<br />
-                        <span class="text-xs w-full"
+                        <span class="w-full text-xs"
                             >{{ user.email }}
                             <span
                                 *ngIf="
@@ -151,7 +151,7 @@ const DENIED_FILE_TYPES = [
                 </mat-autocomplete>
             </div>
             <div
-                class="flex items-center space-x-2 -mt-4"
+                class="-mt-4 flex items-center space-x-2"
                 actions
                 *ngIf="!hide_actions"
             >
@@ -167,7 +167,7 @@ const DENIED_FILE_TYPES = [
                         <span class="hidden sm:inline">
                             {{ 'FORM.USER_BTN_ADD_EXTERNAL' | translate }}
                         </span>
-                        <span class="sm:hidden inline">
+                        <span class="inline sm:hidden">
                             {{
                                 'FORM.USER_BTN_ADD_EXTERNAL_SIMPLE' | translate
                             }}
@@ -179,18 +179,18 @@ const DENIED_FILE_TYPES = [
                     matRipple
                     type="button"
                     name="upload-csv"
-                    class="relative inverse flex-1 sm:flex-none"
+                    class="inverse relative flex-1 sm:flex-none"
                 >
                     <div class="flex items-center justify-center">
                         <span class="hidden sm:inline">
                             {{ 'FORM.USER_BTN_UPLOAD' | translate }}
                         </span>
-                        <span class="sm:hidden inline">
+                        <span class="inline sm:hidden">
                             {{ 'FORM.USER_BTN_UPLOAD_SIMPLE' | translate }}
                         </span>
                     </div>
                     <input
-                        class="opacity-0 absolute inset-0"
+                        class="absolute inset-0 opacity-0"
                         type="file"
                         (change)="addUsersFromFile($event)"
                     />
@@ -207,7 +207,7 @@ const DENIED_FILE_TYPES = [
                         <span class="hidden sm:inline">
                             {{ 'FORM.USER_BTN_TEMPLATE' | translate }}
                         </span>
-                        <span class="sm:hidden inline">
+                        <span class="inline sm:hidden">
                             {{ 'FORM.USER_BTN_TEMPLATE_SIMPLE' | translate }}
                         </span>
                     </div>

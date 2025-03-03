@@ -15,14 +15,14 @@ import {
 @Component({
     selector: 'signage-zones',
     template: `
-        <div class="relative h-full w-full overflow-visible flex space-x-4">
-            <div sidebar class="w-64 h-full flex flex-col space-y-4 py-4">
-                <h3 class="text-xl font-medium text-center">
+        <div class="relative flex h-full w-full space-x-4 overflow-visible">
+            <div sidebar class="flex h-full w-64 flex-col space-y-4 py-4">
+                <h3 class="text-center text-xl font-medium">
                     {{ 'APP.CONCIERGE.SIGNAGE_ZONES' | translate }}
                 </h3>
                 <mat-form-field
                     appearance="outline"
-                    class="w-full no-subscript"
+                    class="no-subscript w-full"
                 >
                     <input
                         matInput
@@ -32,11 +32,11 @@ import {
                     />
                 </mat-form-field>
                 @if ((zones | async)?.length > 0) {
-                    <div class="h-1/2 flex-1 w-full overflow-auto space-y-2">
+                    <div class="h-1/2 w-full flex-1 space-y-2 overflow-auto">
                         @for (zone of zones | async; track zone.id) {
                             <a
                                 matRipple
-                                class="w-full px-6 rounded-3xl min-h-12 flex items-center hover:bg-base-200 truncate z-10"
+                                class="z-10 flex min-h-12 w-full items-center truncate rounded-3xl px-6 hover:bg-base-200"
                                 [class.!bg-secondary]="
                                     selected.getValue() === zone.id
                                 "
@@ -57,16 +57,16 @@ import {
                                     track trigger.id
                                 ) {
                                     <div
-                                        class="relative flex items-center space-x-2 z-0"
+                                        class="relative z-0 flex items-center space-x-2"
                                     >
                                         <div class="w-6">
                                             <div
-                                                class="absolute h-16 w-4 border-b-2 border-l-2 border-base-300 top-1/2 left-6 -translate-y-full"
+                                                class="absolute left-6 top-1/2 h-16 w-4 -translate-y-full border-b-2 border-l-2 border-base-300"
                                             ></div>
                                         </div>
                                         <a
                                             matRipple
-                                            class="w-full px-6 rounded-3xl min-h-12 flex items-center hover:bg-base-200 truncate"
+                                            class="flex min-h-12 w-full items-center truncate rounded-3xl px-6 hover:bg-base-200"
                                             [class.!bg-secondary]="
                                                 selected_trigger.getValue() ===
                                                 trigger?.id
@@ -94,7 +94,7 @@ import {
                     </div>
                 } @else {
                     <div
-                        class="flex flex-col items-center justify-center p-8 space-y-2 opacity-30"
+                        class="flex flex-col items-center justify-center space-y-2 p-8 opacity-30"
                     >
                         <app-icon class="text-6xl">hide_image</app-icon>
                         <p class="text-center">
@@ -109,11 +109,11 @@ import {
                 }
             </div>
             <div
-                class="relative flex flex-col flex-1 w-1/2 h-full overflow-auto rounded-lg border border-base-300 p-4 shadow space-y-4"
+                class="relative flex h-full w-1/2 flex-1 flex-col space-y-4 overflow-auto rounded-lg border border-base-300 p-4 shadow"
             >
                 @if (active_zone | async) {
                     <signage-item-playlists
-                        class="flex flex-col flex-1"
+                        class="flex flex-1 flex-col"
                         [item]="
                             (active_trigger | async) || (active_zone | async)
                         "
@@ -144,7 +144,7 @@ import {
         </div>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class SignageZonesComponent extends AsyncHandler implements OnInit {
     public adding = false;

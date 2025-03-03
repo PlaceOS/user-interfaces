@@ -111,16 +111,16 @@ Plug your laptop into the HDMI to stream it to the screen, or access the CMS to 
             (t) =>
                 (this[`${t}`] = this.env_sources
                     .filter((_) => _.type === t)
-                    .map((_) => _.id))
+                    .map((_) => _.id)),
         );
         this.env_sources.forEach(
-            (source) => (this[`${source.type}/${source.id}`] = source)
+            (source) => (this[`${source.type}/${source.id}`] = source),
         );
         this.inputs.forEach(
-            (key) => (this[`input/${key}`] = this.input_list[key])
+            (key) => (this[`input/${key}`] = this.input_list[key]),
         );
         this.outputs.forEach(
-            (key) => (this[`output/${key}`] = this.output_list[key])
+            (key) => (this[`output/${key}`] = this.output_list[key]),
         );
     }
 

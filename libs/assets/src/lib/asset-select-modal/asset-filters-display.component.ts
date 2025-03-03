@@ -1,11 +1,9 @@
-import { Component } from "@angular/core";
+import { Component } from '@angular/core';
 
 @Component({
     selector: 'asset-filters-display',
     template: ``,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
-export class AssetFiltersDisplayComponent {
-    
-}
+export class AssetFiltersDisplayComponent {}

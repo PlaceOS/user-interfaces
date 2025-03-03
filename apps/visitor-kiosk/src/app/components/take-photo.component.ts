@@ -12,7 +12,7 @@ import {
     template: `
         <div
             name="camera"
-            class="flex flex-col items-center justify-center rounded overflow-hidden relative"
+            class="relative flex flex-col items-center justify-center overflow-hidden rounded"
         >
             <mat-spinner diameter="32"></mat-spinner>
             <div class="text">Please wait...</div>
@@ -32,7 +32,7 @@ import {
                 height="400"
             ></canvas>
         </div>
-        <div class="flex items-center justify-center mt-4 space-x-2">
+        <div class="mt-4 flex items-center justify-center space-x-2">
             <button
                 class="take-photo"
                 *ngIf="!hasPhoto; else accept_state"
@@ -68,7 +68,7 @@ import {
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class TakePhotoComponent implements OnInit, OnDestroy {
     @Output() public photoAccepted = new EventEmitter();
@@ -136,7 +136,7 @@ export class TakePhotoComponent implements OnInit, OnDestroy {
             0,
             0,
             this.canvas.width,
-            this.canvas.height
+            this.canvas.height,
         );
         this.hasPhoto = true;
         this.stopCapture();
@@ -147,7 +147,7 @@ export class TakePhotoComponent implements OnInit, OnDestroy {
             0,
             0,
             this.canvas.width,
-            this.canvas.height
+            this.canvas.height,
         );
         this.hasPhoto = false;
         this.startCapture();
@@ -160,7 +160,7 @@ export class TakePhotoComponent implements OnInit, OnDestroy {
         } catch (err) {
             console.error(
                 'TakePhotoComponent::acceptPhoto Error converting image',
-                err
+                err,
             );
             this.photoAccepted.emit(null);
             this.cancelPhoto();

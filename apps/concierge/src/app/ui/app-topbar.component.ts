@@ -25,7 +25,7 @@ import { debounceTime, first, map } from 'rxjs/operators';
                     placeholder="Search for bookings, people or locations"
                 />
             </mat-form-field> -->
-            <div class="flex-1 flex items-center justify-end space-x-2">
+            <div class="flex flex-1 items-center justify-end space-x-2">
                 <button btn icon matRipple>
                     <app-icon class="text-2xl">notifications</app-icon>
                 </button>
@@ -33,7 +33,7 @@ import { debounceTime, first, map } from 'rxjs/operators';
                     matRipple
                     avatar
                     name="user-controls"
-                    class="h-10 w-10 rounded-full mr-2 bg-base-200 flex items-center justify-center"
+                    class="mr-2 flex h-10 w-10 items-center justify-center rounded-full bg-base-200"
                     customTooltip
                     [content]="user_controls"
                 >

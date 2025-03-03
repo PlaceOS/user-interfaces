@@ -35,5 +35,5 @@ describe('ScheduleListItemComponent', () => {
         });
         spectator.detectChanges();
         expect('[date]').toExist();
-    })
+    });
 });

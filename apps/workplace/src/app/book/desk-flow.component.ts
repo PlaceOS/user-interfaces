@@ -8,7 +8,7 @@ import { first } from 'rxjs/operators';
 @Component({
     selector: 'placeos-book-desk-flow',
     template: `
-        <div class="bg-base-100 h-full w-full">
+        <div class="h-full w-full bg-base-100">
             <ng-container [ngSwitch]="view">
                 <ng-container *ngSwitchCase="'map'">
                     <desk-flow-map></desk-flow-map>
@@ -43,7 +43,7 @@ import { first } from 'rxjs/operators';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class BookDeskFlowComponent extends AsyncHandler implements OnInit {
     public get view() {
@@ -56,7 +56,7 @@ export class BookDeskFlowComponent extends AsyncHandler implements OnInit {
     constructor(
         private _state: BookingFormService,
         private _route: ActivatedRoute,
-        private _org: OrganisationService
+        private _org: OrganisationService,
     ) {
         super();
     }
@@ -71,14 +71,14 @@ export class BookDeskFlowComponent extends AsyncHandler implements OnInit {
             this._route.paramMap.subscribe((param) => {
                 if (param.has('step'))
                     this._state.setView(param.get('step') as any);
-            })
+            }),
         );
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((param) => {
                 if (param.has('success'))
                     this._state.setView(param.get('success') as any);
-            })
+            }),
         );
     }
 }

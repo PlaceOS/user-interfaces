@@ -18,9 +18,9 @@ import { showUser } from '@placeos/ts-client';
     template: `
         <div class="w-[28rem]">
             <header
-                class="sticky top-0 p-2 m-2 w-[calc(100%-1rem)] border-none z-10 bg-base-200 rounded"
+                class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded border-none bg-base-200 p-2"
             >
-                <h2 class="text-xl font-medium px-2">
+                <h2 class="px-2 text-xl font-medium">
                     {{
                         (id
                             ? 'APP.CONCIERGE.PARKING_SPACE_EDIT'
@@ -34,7 +34,7 @@ import { showUser } from '@placeos/ts-client';
             </header>
             <main
                 *ngIf="!loading; else load_state"
-                class="p-4 flex flex-col"
+                class="flex flex-col p-4"
                 [formGroup]="form"
             >
                 <label for="name">{{
@@ -68,7 +68,7 @@ import { showUser } from '@placeos/ts-client';
                 <label for="user">{{
                     'APP.CONCIERGE.USER_ASSIGNED' | translate
                 }}</label>
-                <div class="flex items-center space-x-2 mb-4">
+                <div class="mb-4 flex items-center space-x-2">
                     <a-user-search-field
                         name="user"
                         formControlName="assigned_user"
@@ -103,7 +103,7 @@ import { showUser } from '@placeos/ts-client';
                 </mat-form-field>
             </main>
             <footer
-                class="flex items-center justify-end space-x-2 px-4 py-2 border-t border-base-300"
+                class="flex items-center justify-end space-x-2 border-t border-base-300 px-4 py-2"
             >
                 <button btn matRipple class="w-32" (click)="postForm()">
                     {{ 'COMMON.SAVE' | translate }}
@@ -112,7 +112,7 @@ import { showUser } from '@placeos/ts-client';
         </div>
         <ng-template #load_state>
             <main
-                class="p-8 flex flex-col items-center justify-center space-y-2"
+                class="flex flex-col items-center justify-center space-y-2 p-8"
             >
                 <mat-spinner diameter="32"></mat-spinner>
                 <p>{{ 'APP.CONCIERGE.PARKING_SPACE_SAVE' | translate }}</p>
@@ -120,7 +120,7 @@ import { showUser } from '@placeos/ts-client';
         </ng-template>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class ParkingSpaceModalComponent implements OnInit {
     @Output() public readonly event = new EventEmitter<DialogEvent>();

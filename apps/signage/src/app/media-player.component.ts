@@ -28,34 +28,34 @@ export type MediaPlayerState = 'PAUSED' | 'PLAYING';
 @Component({
     selector: 'media-player',
     template: `
-        <div #previous_container class="absolute top-0 left-0 h-full w-full">
+        <div #previous_container class="absolute left-0 top-0 h-full w-full">
             <img
                 #previous_image_el
-                class="absolute top-0 left-0 h-full w-full object-contain object-center hidden"
+                class="absolute left-0 top-0 hidden h-full w-full object-contain object-center"
             />
             <video
                 #previous_video_el
-                class="absolute top-0 left-0 h-full w-full object-contain object-center hidden"
+                class="absolute left-0 top-0 hidden h-full w-full object-contain object-center"
             ></video>
         </div>
-        <div #media_container class="absolute top-0 left-0 h-full w-full">
+        <div #media_container class="absolute left-0 top-0 h-full w-full">
             <img
                 #img_el
-                class="absolute top-0 left-0 h-full w-full object-contain object-center"
+                class="absolute left-0 top-0 h-full w-full object-contain object-center"
             />
             <video
                 #video_el
-                class="absolute top-0 left-0 h-full w-full object-contain object-center"
+                class="absolute left-0 top-0 h-full w-full object-contain object-center"
             ></video>
         </div>
         @if (controls) {
             <div
-                class="absolute bottom-[4.5rem] left-1/2 -translate-x-1/2 w-56 rounded-full overflow-hidden p-1 border border-base-300 bg-base-100"
+                class="absolute bottom-[4.5rem] left-1/2 w-56 -translate-x-1/2 overflow-hidden rounded-full border border-base-300 bg-base-100 p-1"
                 [matTooltip]="duration | mediaDuration"
                 matTooltipPosition="above"
             >
                 <mat-progress-bar
-                    class="rounded-full overflow-hidden"
+                    class="overflow-hidden rounded-full"
                     mode="determinate"
                     [value]="progress"
                 ></mat-progress-bar>
@@ -65,7 +65,7 @@ export type MediaPlayerState = 'PAUSED' | 'PLAYING';
                 ></div>
             </div>
             <div
-                class="absolute bottom-2 left-1/2 -translate-x-1/2 rounded-full p-2 flex items-center space-x-2 text-lg overflow-hidden border border-base-300 bg-base-100"
+                class="absolute bottom-2 left-1/2 flex -translate-x-1/2 items-center space-x-2 overflow-hidden rounded-full border border-base-300 bg-base-100 p-2 text-lg"
             >
                 <button
                     icon
@@ -163,7 +163,7 @@ export type MediaPlayerState = 'PAUSED' | 'PLAYING';
                 </button>
             </div>
             <div
-                class="absolute flex flex-col top-4 bottom-24 right-4 bg-base-100 border border-base-300 overflow-auto rounded-xl p-2 space-y-2"
+                class="absolute bottom-24 right-4 top-4 flex flex-col space-y-2 overflow-auto rounded-xl border border-base-300 bg-base-100 p-2"
                 *ngIf="show_playlist"
             >
                 <div class="flex items-center space-x-4 p-2">
@@ -176,26 +176,26 @@ export type MediaPlayerState = 'PAUSED' | 'PLAYING';
                     @for (item of playlist_items; track item) {
                         <button
                             matRipple
-                            class="flex items-center p-2 space-x-2 w-[20rem] text-left hover:bg-base-200 rounded-lg"
+                            class="flex w-[20rem] items-center space-x-2 rounded-lg p-2 text-left hover:bg-base-200"
                             [class.overflow-visible]="$index === index"
                             [class.pointer-events-none]="$index === index"
                             (click)="setPlaylistItem($index)"
                         >
                             <div
-                                class="h-10 w-10 rounded-full flex items-center justify-center"
+                                class="flex h-10 w-10 items-center justify-center rounded-full"
                                 [class.bg-info]="$index === index"
                                 [class.text-info-content]="$index === index"
                                 [class.bg-base-300]="$index !== index"
                             >
                                 <div
-                                    class="h-7 w-7 relative flex items-center justify-center"
+                                    class="relative flex h-7 w-7 items-center justify-center"
                                 >
                                     <span
                                         *ngIf="$index === index"
-                                        class="animate-ping absolute inline-flex h-full w-full rounded-full bg-info opacity-75 z-0"
+                                        class="absolute z-0 inline-flex h-full w-full animate-ping rounded-full bg-info opacity-75"
                                     ></span>
                                     <app-icon
-                                        class="text-2xl relative z-10"
+                                        class="relative z-10 text-2xl"
                                         [class.opacity-30]="$index !== index"
                                         >{{
                                             $index === index
@@ -205,14 +205,14 @@ export type MediaPlayerState = 'PAUSED' | 'PLAYING';
                                     >
                                 </div>
                             </div>
-                            <div class="flex flex-col flex-1 w-1/2">
+                            <div class="flex w-1/2 flex-1 flex-col">
                                 <div class="truncate">{{ item.name }}</div>
                                 <div class="text-xs opacity-30">
                                     {{ item.playlist_name }}
                                 </div>
                             </div>
                             <div
-                                class="px-2 py-1 rounded bg-info text-info-content font-mono text-xs"
+                                class="rounded bg-info px-2 py-1 font-mono text-xs text-info-content"
                             >
                                 {{ item.duration / 1000 | mediaDuration }}
                             </div>
@@ -221,7 +221,7 @@ export type MediaPlayerState = 'PAUSED' | 'PLAYING';
                 </div>
                 <div class="flex flex-col justify-end">
                     <div
-                        class="p-2 opacity-30 bg-base-300 text-xs rounded-lg text-center"
+                        class="rounded-lg bg-base-300 p-2 text-center text-xs opacity-30"
                     >
                         {{ 'APP.SIGNAGE.MEDIA_LIST_END' | translate }}
                     </div>
@@ -230,7 +230,7 @@ export type MediaPlayerState = 'PAUSED' | 'PLAYING';
             <button
                 icon
                 matRipple
-                class="absolute top-6 right-6 bg-base-100 border border-base-200 shadow"
+                class="absolute right-6 top-6 border border-base-200 bg-base-100 shadow"
                 (click)="show_playlist = !show_playlist"
             >
                 <app-icon>{{
@@ -250,7 +250,7 @@ export type MediaPlayerState = 'PAUSED' | 'PLAYING';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class MediaPlayerComponent
     extends AsyncHandler

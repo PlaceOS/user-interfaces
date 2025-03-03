@@ -12,7 +12,7 @@ describe('BookCodeFlowComponent', () => {
     const createComponent = createRoutingFactory({
         component: BookCodeFlowComponent,
         providers: [
-            MockProvider(Router, { navigate: jest.fn() } ),
+            MockProvider(Router, { navigate: jest.fn() }),
             MockProvider(EventFormService),
             MockProvider(BookingFormService),
         ],

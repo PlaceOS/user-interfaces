@@ -9,12 +9,12 @@ import { SpaceFiltersComponent } from './space-filters.component';
 @Component({
     selector: `space-filters-display`,
     template: `
-        <section actions class="sm:hidden space-x-2 flex items-center p-2">
+        <section actions class="flex items-center space-x-2 p-2 sm:hidden">
             <button
                 btn
                 matRipple
                 name="edit-space-filters"
-                class="flex-1 w-1/2"
+                class="w-1/2 flex-1"
                 (click)="editFilters()"
             >
                 {{ 'COMMON.FILTERS' | translate }}
@@ -34,7 +34,7 @@ import { SpaceFiltersComponent } from './space-filters.component';
                     btn
                     matRipple
                     name="view-space-list"
-                    class="rounded-r rounded-l-none"
+                    class="rounded-l-none rounded-r"
                     [class.inverse]="view !== 'list'"
                     (click)="view = 'list'; viewChange.emit(view)"
                 >
@@ -44,13 +44,13 @@ import { SpaceFiltersComponent } from './space-filters.component';
         </section>
         <section
             filters
-            class="flex items-center flex-wrap p-2 w-[35rem] max-w-full sm:max-w-[35rem]"
+            class="flex w-[35rem] max-w-full flex-wrap items-center p-2 sm:max-w-[35rem]"
         >
             <button
                 btn
                 matRipple
                 name="clear-space-filters"
-                class="min-h-[2rem] mb-2 mr-2"
+                class="mb-2 mr-2 min-h-[2rem]"
                 *ngIf="(options | async)?.features?.length > 1"
                 (click)="removeAllFeatures()"
             >

@@ -5,7 +5,7 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
     selector: 'view-locker-bank-modal',
     template: `
         <header
-            class="sticky top-0 px-4 py-2 mx-4 mt-4 mb-2 w-[calc(100%-2rem)] border-none z-10 bg-base-200 rounded"
+            class="sticky top-0 z-10 mx-4 mb-2 mt-4 w-[calc(100%-2rem)] rounded border-none bg-base-200 px-4 py-2"
         >
             <h2 class="text-xl font-medium">
                 View Locker Bank - {{ bank.name }}
@@ -14,12 +14,12 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
                 <app-icon>close</app-icon>
             </button>
         </header>
-        <main class="w-[65vw] h-[65vh] px-2 pb-2 overflow-auto">
+        <main class="h-[65vh] w-[65vw] overflow-auto px-2 pb-2">
             <locker-grid [bank]="bank"></locker-grid>
         </main>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class ViewLockerBankModalComponent {
     public readonly bank = this._data.bank;

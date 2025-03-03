@@ -6,7 +6,7 @@ import { EventFormService } from '@placeos/events';
 @Component({
     selector: 'placeos-book-space-flow',
     template: `
-        <div class="bg-base-100 h-full w-full">
+        <div class="h-full w-full bg-base-100">
             <ng-container [ngSwitch]="view">
                 <ng-container *ngSwitchCase="'find'">
                     <space-flow-find></space-flow-find>
@@ -34,7 +34,7 @@ import { EventFormService } from '@placeos/events';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class BookSpaceFlowComponent extends AsyncHandler implements OnInit {
     public get view() {
@@ -46,7 +46,7 @@ export class BookSpaceFlowComponent extends AsyncHandler implements OnInit {
 
     constructor(
         private _state: EventFormService,
-        private _route: ActivatedRoute
+        private _route: ActivatedRoute,
     ) {
         super();
     }
@@ -58,14 +58,14 @@ export class BookSpaceFlowComponent extends AsyncHandler implements OnInit {
             this._route.paramMap.subscribe((param) => {
                 if (param.has('step'))
                     this._state.setView(param.get('step') as any);
-            })
+            }),
         );
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((param) => {
                 if (param.has('success'))
                     this._state.setView(param.get('success') as any);
-            })
+            }),
         );
     }
 }

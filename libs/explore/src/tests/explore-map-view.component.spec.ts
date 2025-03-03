@@ -102,7 +102,7 @@ describe('ExploreMapViewComponent', () => {
         spectator.triggerEventHandler(
             'mat-slide-toggle',
             'ngModelChange',
-            true
+            true,
         );
         expect(state.setOptions).toHaveBeenCalledWith({ disable: undefined });
     });

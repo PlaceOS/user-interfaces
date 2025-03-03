@@ -34,13 +34,13 @@ export interface MapPolygonData {
     template: `
         <canvas
             #canvas
-            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+            class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
             [style.width]="width * svg_ratio * zoom + '%'"
             [style.height]="width * svg_ratio * ratio * zoom + '%'"
         ></canvas>
     `,
     styles: [],
-    standalone: false
+    standalone: false,
 })
 export class MapCanvasComponent extends AsyncHandler implements OnInit {
     public zoom = 1;
@@ -67,21 +67,21 @@ export class MapCanvasComponent extends AsyncHandler implements OnInit {
                 this._data.zoom$,
                 this._data.svg_ratio$,
             ]).subscribe(([ratio, zoom, sr]) =>
-                this._handleMapChange(ratio, zoom, sr)
-            )
+                this._handleMapChange(ratio, zoom, sr),
+            ),
         );
         this.subscription(
             'polygons',
             this._data.polygons$.subscribe((list) =>
-                this._handleStateChange(list)
-            )
+                this._handleStateChange(list),
+            ),
         );
     }
 
     private async _handleMapChange(
         ratio: number,
         zoom: number,
-        svg_ratio: number
+        svg_ratio: number,
     ) {
         const old_ratio = this.ratio;
         this.zoom = zoom;
@@ -145,7 +145,7 @@ export class MapCanvasComponent extends AsyncHandler implements OnInit {
         if (this._data.draw_labels !== false) {
             const center = points.reduce(
                 (acc, [x, y]) => [acc[0] + x, acc[1] + y],
-                [0, 0]
+                [0, 0],
             );
             center[0] /= points.length;
             center[1] /= points.length;
@@ -156,7 +156,7 @@ export class MapCanvasComponent extends AsyncHandler implements OnInit {
             ctx.fillText(
                 polygon.name,
                 center[0] * width + 1,
-                center[1] * height + 2
+                center[1] * height + 2,
             );
             ctx.fillStyle = '#000';
             ctx.fillText(polygon.name, center[0] * width, center[1] * height);

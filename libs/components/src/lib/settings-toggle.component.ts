@@ -6,7 +6,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
     template: `
         <button
             matRipple
-            class="relative flex items-center space-x-2 pl-2 pr-1 py-1 border rounded flex-1 overflow-hidden"
+            class="relative flex flex-1 items-center space-x-2 overflow-hidden rounded border py-1 pl-2 pr-1"
             [class.border-base-300]="!value"
             [class.border-info]="value"
             (click)="setValue(!value)"
@@ -15,7 +15,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
                 class="absolute inset-0 bg-info opacity-10"
                 *ngIf="value"
             ></div>
-            <div class="ml-2 flex-1 text-left flex items-center space-x-2">
+            <div class="ml-2 flex flex-1 items-center space-x-2 text-left">
                 <div>{{ name }}</div>
                 <app-icon *ngIf="info" [matTooltip]="info">info</app-icon>
             </div>

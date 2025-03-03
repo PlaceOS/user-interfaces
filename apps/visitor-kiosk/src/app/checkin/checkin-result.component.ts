@@ -21,7 +21,7 @@ const DEFAULT_TEMPLATE = `
     selector: 'checkin-results',
     template: `
         <div
-            class="bg-base-100 rounded shadow overflow-hidden relative flex flex-col items-center w-[36rem] p-4 space-y-4 print:hidden"
+            class="relative flex w-[36rem] flex-col items-center space-y-4 overflow-hidden rounded bg-base-100 p-4 shadow print:hidden"
             *ngIf="event | async"
         >
             @let details = event | async;
@@ -39,11 +39,11 @@ const DEFAULT_TEMPLATE = `
             ></div>
             <div
                 printable
-                class="relative w-[24rem] h-[14rem] rounded-xl border border-neutral m-4 p-4 bg-base-100 print-only"
+                class="print-only relative m-4 h-[14rem] w-[24rem] rounded-xl border border-neutral bg-base-100 p-4"
             >
-                <div class="flex flex-col h-full leading-tight">
+                <div class="flex h-full flex-col leading-tight">
                     <div
-                        class="h-[4.75rem] w-[4.75rem] rounded-full bg-base-200 print:border-2 border-base-400 flex items-center justify-center mb-2 text-3xl overflow-hidden"
+                        class="mb-2 flex h-[4.75rem] w-[4.75rem] items-center justify-center overflow-hidden rounded-full border-base-400 bg-base-200 text-3xl print:border-2"
                     >
                         <a-user-avatar
                             [user]="{
@@ -75,18 +75,18 @@ const DEFAULT_TEMPLATE = `
                     </div>
                 </div>
                 <div
-                    class="absolute bottom-4 left-4 rounded-lg border border-black text-black px-2 py-1 text-sm mt-2 w-32 text-center font-medium uppercase"
+                    class="absolute bottom-4 left-4 mt-2 w-32 rounded-lg border border-black px-2 py-1 text-center text-sm font-medium uppercase text-black"
                 >
                     {{ 'APP.VISITOR_KIOSK.VISITOR' | translate }}
                 </div>
-                <div class="absolute top-4 right-4 flex flex-col items-end">
+                <div class="absolute right-4 top-4 flex flex-col items-end">
                     <img
                         auth
                         class="h-10"
                         alt="Logo"
                         [src]="logo?.src || logo"
                     />
-                    <div class="text-xs text-right" *ngIf="zones | level">
+                    <div class="text-right text-xs" *ngIf="zones | level">
                         {{
                             'APP.VISITOR_KIOSK.LABEL_LOCATION'
                                 | translate
@@ -121,7 +121,7 @@ const DEFAULT_TEMPLATE = `
                         class="relative h-16 w-16 rounded-lg border border-base-200 p-2"
                     >
                         <img
-                            class="h-12 w-12 object-center object-contain"
+                            class="h-12 w-12 object-contain object-center"
                             *ngIf="qr_code"
                             [src]="qr_code"
                         />

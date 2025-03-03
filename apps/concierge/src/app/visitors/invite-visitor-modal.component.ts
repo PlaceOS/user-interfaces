@@ -4,7 +4,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 @Component({
     selector: 'invite-visitor-modal',
     template: `
-        <main class="relative min-w-[40rem] min-h-[40rem]">
+        <main class="relative min-h-[40rem] min-w-[40rem]">
             <invite-visitor-form
                 [date]="date"
                 (done)="onDone()"
@@ -12,7 +12,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
         </main>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class InviteVisitorModalComponent {
     public readonly date = this._data.date;

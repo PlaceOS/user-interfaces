@@ -13,7 +13,7 @@ import { i18n, notifySuccess } from '@placeos/common';
             class="w-full"
         ></mat-progress-bar>
         <simple-table
-            class="min-w-[68rem] block text-sm"
+            class="block min-w-[68rem] text-sm"
             [data]="user_list"
             [columns]="[
                 {
@@ -54,7 +54,7 @@ import { i18n, notifySuccess } from '@placeos/common';
                 (click)="copyToClipboard(row.id)"
             >
                 <div class="">{{ data }}</div>
-                <div class="text-[0.625rem] opacity-30 font-mono">
+                <div class="font-mono text-[0.625rem] opacity-30">
                     {{ row.email }}
                 </div>
             </button>
@@ -62,7 +62,7 @@ import { i18n, notifySuccess } from '@placeos/common';
         <ng-template #denied_template let-data="data">
             <div
                 *ngIf="data"
-                class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-error text-error-content mx-auto"
+                class="mx-auto flex h-8 w-8 items-center justify-center rounded bg-error text-2xl text-error-content"
             >
                 <app-icon>close</app-icon>
             </div>
@@ -76,7 +76,7 @@ import { i18n, notifySuccess } from '@placeos/common';
             </div>
         </ng-template>
         <ng-template #action_template let-row="row">
-            <div class="flex items-center space-x-2 mx-auto">
+            <div class="mx-auto flex items-center space-x-2">
                 <button
                     icon
                     matRipple
@@ -97,10 +97,10 @@ import { i18n, notifySuccess } from '@placeos/common';
                 </button>
             </div>
         </ng-template>
-        <div class="w-full h-20"></div>
+        <div class="h-20 w-full"></div>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class ParkingUsersListComponent {
     public readonly options = this._state.options;

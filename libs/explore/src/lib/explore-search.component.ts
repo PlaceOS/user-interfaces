@@ -17,7 +17,7 @@ import { ExploreSearchService, SearchResult } from './explore-search.service';
             #button
             icon
             matRipple
-            class="bg-base-200 m-2"
+            class="m-2 bg-base-200"
             (window:resize)="checkButtonPosition()"
             (click)="show ? closeSearch($event) : showSearch()"
         >
@@ -27,7 +27,7 @@ import { ExploreSearchService, SearchResult } from './explore-search.service';
             role="search"
             tabindex="0"
             matRipple
-            class="absolute top-1/2 -translate-y-1/2 bg-base-100 flex items-center z-10 overflow-hidden outline-none px-4 max-w-[calc(100vw-7rem)]"
+            class="absolute top-1/2 z-10 flex max-w-[calc(100vw-7rem)] -translate-y-1/2 items-center overflow-hidden bg-base-100 px-4 outline-none"
             [class.right-0]="right_size"
             [class.-translate-x-14]="right_size"
             [class.left-0]="!right_size"
@@ -40,7 +40,7 @@ import { ExploreSearchService, SearchResult } from './explore-search.service';
             <input
                 #input
                 keyboard
-                class="flex-1 text-base border-none outline-none"
+                class="flex-1 border-none text-base outline-none"
                 [(ngModel)]="search_str"
                 (ngModelChange)="setFilter($event)"
                 [placeholder]="'COMMON.SEARCH' | translate"
@@ -71,14 +71,14 @@ import { ExploreSearchService, SearchResult } from './explore-search.service';
                     (click)="select(option)"
                 >
                     <div
-                        class="flex items-center leading-tight w-[22rem] max-w-[calc(100vw-2rem)]"
+                        class="flex w-[22rem] max-w-[calc(100vw-2rem)] items-center leading-tight"
                     >
-                        <div class="flex-1 w-1/2 overflow-hidden">
-                            <div class="truncate w-full">{{ option.name }}</div>
+                        <div class="w-1/2 flex-1 overflow-hidden">
+                            <div class="w-full truncate">{{ option.name }}</div>
                             <div class="text-xs">{{ option.description }}</div>
                         </div>
                         <div
-                            class="text-xs font-bold p-2 capitalize text-white bg-base-300 rounded"
+                            class="rounded bg-base-300 p-2 text-xs font-bold capitalize text-white"
                         >
                             {{ option.type }}
                         </div>
@@ -111,7 +111,7 @@ import { ExploreSearchService, SearchResult } from './explore-search.service';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class ExploreSearchComponent extends AsyncHandler implements OnInit {
     public show = false;

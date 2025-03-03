@@ -13,16 +13,16 @@ export interface AvailabilityBlock {
     selector: 'user-availability-list',
     template: `
         <div
-            class="relative w-[120rem] h-32 inset-y-0 border-b border-base-200 "
+            class="relative inset-y-0 h-32 w-[120rem] border-b border-base-200"
         >
             <div
                 event
                 *ngFor="let event of availability"
-                class="absolute inset-y-0 bg-error text-white p-2 overflow-hidden border border-red-700 rounded"
+                class="border-red-700 absolute inset-y-0 overflow-hidden rounded border bg-error p-2 text-white"
                 [style.left]="event.start + '%'"
                 [style.width]="event.size + '%'"
             >
-                <div class="text-xs max-w-full">
+                <div class="max-w-full text-xs">
                     {{ event.date | date: 'shortTime' }} -
                     {{
                         event.date.valueOf() + event.duration * 60 * 1000
@@ -39,7 +39,7 @@ export interface AvailabilityBlock {
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class UserAvailabilityComponent {
     @Input() public user: User;

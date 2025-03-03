@@ -9,7 +9,7 @@ import { ControlStateService } from './control-state.service';
         <div
             recording
             *ngIf="!!(capture_mod | async)"
-            class="text-xs divide-x divide-base-200 text-white flex items-center"
+            class="flex items-center divide-x divide-base-200 text-xs text-white"
         >
             <div hidden>
                 <i
@@ -49,16 +49,16 @@ import { ControlStateService } from './control-state.service';
                 ></i>
             </div>
             <div
-                class="h-12 p-2 w-24 flex items-center justify-center text-center"
+                class="flex h-12 w-24 items-center justify-center p-2 text-center"
             >
                 {{ rec_title || '~Unnamed Recording~' }}
             </div>
-            <div class="h-12 w-12 flex items-center justify-center">
+            <div class="flex h-12 w-12 items-center justify-center">
                 <button icon matRipple mute class="rounded-none">
                     <app-icon>fiber_manual_record</app-icon>
                 </button>
             </div>
-            <div class="h-12 w-12 flex items-center justify-center">
+            <div class="flex h-12 w-12 items-center justify-center">
                 <button
                     [attr.place-action]="
                         rec_status === 'playing' ? 'pause' : 'start'
@@ -77,9 +77,9 @@ import { ControlStateService } from './control-state.service';
                     }}</app-icon>
                 </button>
             </div>
-            <div class="h-12 flex flex-col p-2 w-32">
+            <div class="flex h-12 w-32 flex-col p-2">
                 <div
-                    class="p-2 rounded uppercase text-center"
+                    class="rounded p-2 text-center uppercase"
                     [class.bg-error]="rec_status === 'playing'"
                     [class.bg-warning]="rec_status === 'paused'"
                     [class.bg-base-300]="rec_status === 'stopped'"
@@ -105,7 +105,7 @@ import { ControlStateService } from './control-state.service';
         </div>
         <div class="flex-1"></div>
         <div
-            class="flex items-center space-x-2 w-[32rem] max-w-[50%] py-2 px-4 text-base-content"
+            class="flex w-[32rem] max-w-[50%] items-center space-x-2 px-4 py-2 text-base-content"
         >
             <button icon matRipple (click)="toggleMute()">
                 <app-icon>{{

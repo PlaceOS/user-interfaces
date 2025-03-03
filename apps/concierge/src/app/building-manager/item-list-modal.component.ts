@@ -13,7 +13,7 @@ import { showMetadata, updateMetadata } from '@placeos/ts-client';
                 <app-icon>close</app-icon>
             </button>
         </header>
-        <main class="w-[36rem] overflow-auto h-[50vh] p-2 space-y-2">
+        <main class="h-[50vh] w-[36rem] space-y-2 overflow-auto p-2">
             <button
                 btn
                 matRipple
@@ -23,12 +23,12 @@ import { showMetadata, updateMetadata } from '@placeos/ts-client';
                 {{ 'APP.CONCIERGE.SUPPORT_TYPES_ADD' | translate }}
             </button>
             <div
-                class="w-full flex items-center space-x-2"
+                class="flex w-full items-center space-x-2"
                 *ngFor="let item of item_list; let i = index; trackBy: identify"
             >
                 <input
                     type="text"
-                    class="flex-1 border border-base-200 px-4 py-3 rounded"
+                    class="flex-1 rounded border border-base-200 px-4 py-3"
                     [placeholder]="
                         'APP.CONCIERGE.SUPPORT_TYPES_NAME' | translate
                     "
@@ -36,7 +36,7 @@ import { showMetadata, updateMetadata } from '@placeos/ts-client';
                 />
                 <input
                     type="email"
-                    class="flex-[2] border border-base-200 px-4 py-3 rounded"
+                    class="flex-[2] rounded border border-base-200 px-4 py-3"
                     [placeholder]="
                         'APP.CONCIERGE.SUPPORT_TYPES_EMAIL' | translate
                     "
@@ -48,7 +48,7 @@ import { showMetadata, updateMetadata } from '@placeos/ts-client';
                     [matTooltip]="
                         'APP.CONCIERGE.SUPPORT_TYPES_REMOVE' | translate
                     "
-                    class="text-error border border-error rounded h-12 w-12"
+                    class="h-12 w-12 rounded border border-error text-error"
                     (click)="item_list.splice(i, 1)"
                 >
                     <app-icon class="text-2xl">delete</app-icon>
@@ -56,13 +56,13 @@ import { showMetadata, updateMetadata } from '@placeos/ts-client';
             </div>
         </main>
         <footer
-            class="flex items-center justify-end p-2 border-t border-base-200"
+            class="flex items-center justify-end border-t border-base-200 p-2"
         >
             <button btn matRipple class="w-32" (click)="save()">Save</button>
         </footer>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class ItemListModalComponent implements OnInit {
     public item_list: { name: string; email: string }[] = [];

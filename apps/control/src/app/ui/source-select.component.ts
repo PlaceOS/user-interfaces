@@ -20,7 +20,7 @@ import { ControlStateService, RoomInput } from '../control-state.service';
             [class.p-4]="!simple"
         >
             @let source = details | async;
-            <h3 class="font-medium text-xl mb-2">
+            <h3 class="mb-2 text-xl font-medium">
                 {{
                     'APP.CONTROL.SOURCE_INPUT_SELECT'
                         | translate: { name: source?.name || '= No Name =' }
@@ -28,7 +28,7 @@ import { ControlStateService, RoomInput } from '../control-state.service';
             </h3>
             <ng-container *ngIf="!loading; else load_state">
                 <div
-                    class="flex divide"
+                    class="divide flex"
                     [class.flex-col]="simple"
                     [class.flex-wrap]="!simple"
                     *ngIf="(input_types | async)?.length; else empty_state"
@@ -36,7 +36,7 @@ import { ControlStateService, RoomInput } from '../control-state.service';
                     <div
                         group
                         *ngFor="let type of input_types | async"
-                        class="flex flex-col p-2 space-y-2"
+                        class="flex flex-col space-y-2 p-2"
                     >
                         <h4 class="text-center underline">{{ type }}</h4>
                         <button
@@ -57,7 +57,7 @@ import { ControlStateService, RoomInput } from '../control-state.service';
             </ng-container>
         </div>
         <ng-template #empty_state>
-            <div class="flex flex-col items-center justify-center p-8 m-auto">
+            <div class="m-auto flex flex-col items-center justify-center p-8">
                 <p>
                     {{
                         'APP.CONTROL.SOURCE_INPUTS_EMPTY'
@@ -68,7 +68,7 @@ import { ControlStateService, RoomInput } from '../control-state.service';
         </ng-template>
         <ng-template #load_state>
             <div
-                class="flex flex-col items-center justify-center space-y-2 p-8 m-auto"
+                class="m-auto flex flex-col items-center justify-center space-y-2 p-8"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
                 <p>{{ 'APP.CONTROL.SOURCE_SWITCHING' | translate }}</p>

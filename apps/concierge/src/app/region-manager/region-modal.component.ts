@@ -69,7 +69,7 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
         </fullscreen-modal-shell>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class RegionModalComponent extends AsyncHandler {
     public loading = false;

@@ -23,7 +23,7 @@ import { AsyncHandler } from '@placeos/common';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class DayviewSpaceComponent extends AsyncHandler implements OnInit {
     /** Space to display events for */
@@ -34,9 +34,9 @@ export class DayviewSpaceComponent extends AsyncHandler implements OnInit {
     public readonly events = this._state.filtered.pipe(
         map((bookings) => {
             return bookings.filter((bkn) =>
-                bkn.resources.find((space) => this.space.email === space.email)
+                bkn.resources.find((space) => this.space.email === space.email),
             );
-        })
+        }),
     );
 
     constructor(private _state: EventsStateService) {

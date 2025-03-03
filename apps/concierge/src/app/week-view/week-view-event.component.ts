@@ -13,7 +13,7 @@ import { SettingsService } from '@placeos/common';
             *ngIf="event"
             (click)="view(event)"
             [class]="
-                'm-2 p-2 bg-base-100 shadow rounded border-2 text-black text-left font-normal ' +
+                'm-2 rounded border-2 bg-base-100 p-2 text-left font-normal text-black shadow ' +
                 (event?.state === 'done' ? 'done' : event?.type)
             "
         >
@@ -58,7 +58,7 @@ import { SettingsService } from '@placeos/common';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class WeekViewEventComponent {
     @Input() public event: CalendarEvent;
@@ -71,6 +71,6 @@ export class WeekViewEventComponent {
 
     constructor(
         private _state: EventsStateService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {}
 }

@@ -8,26 +8,26 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 @Component({
     selector: 'asset-location-modal',
     template: `
-        <div class="p-6 relative">
+        <div class="relative p-6">
             <button
                 icon
                 matRipple
                 mat-dialog-close
-                class="absolute top-4 right-4"
+                class="absolute right-4 top-4"
             >
                 <app-icon>close</app-icon>
             </button>
-            <h2 class="font-medium mb-2">
+            <h2 class="mb-2 font-medium">
                 {{ (asset | async)?.name }} in use location:
                 {{ (requests | async)?.length }}
             </h2>
-            <mat-form-field appearance="outline" class="h-[3.5rem] mb-2">
+            <mat-form-field appearance="outline" class="mb-2 h-[3.5rem]">
                 <app-icon matPrefix>search</app-icon>
                 <input matInput placeholder="Search..." />
             </mat-form-field>
-            <div class="flex items-center space-x-4 w-[90vw] text-sm">
+            <div class="flex w-[90vw] items-center space-x-4 text-sm">
                 <div
-                    class="flex-1 h-[60vh] w-1/2 border border-base-200 bg-base-200 overflow-auto"
+                    class="h-[60vh] w-1/2 flex-1 overflow-auto border border-base-200 bg-base-200"
                 >
                     <simple-table
                         class="block w-full"
@@ -36,15 +36,15 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                             {
                                 key: 'zone',
                                 name: 'Level',
-                                content: level_template
+                                content: level_template,
                             },
                             { key: 'description', name: 'Space' },
                             {
                                 key: 'tracking',
                                 name: 'Tracking',
-                                content: tracking_template
+                                content: tracking_template,
                             },
-                            { key: 'user_name', name: 'Requestee' }
+                            { key: 'user_name', name: 'Requestee' },
                         ]"
                         [sortable]="true"
                         empty_message="No requested assets for this product"
@@ -52,10 +52,10 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                     ></simple-table>
                 </div>
                 <div
-                    class="flex-1 h-[60vh] w-1/2 border border-base-200 bg-base-200 relative flex items-center justify-center"
+                    class="relative flex h-[60vh] w-1/2 flex-1 items-center justify-center border border-base-200 bg-base-200"
                 >
                     <div
-                        class="absolute top-4 left-4 bg-base-100 px-4 py-2 rounded-3xl border border-base-200"
+                        class="absolute left-4 top-4 rounded-3xl border border-base-200 bg-base-100 px-4 py-2"
                         *ngIf="selected"
                     >
                         {{ level(selected.zone)?.display_name || 'N/A' }}
@@ -65,7 +65,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                         [src]="level(selected.zone)?.map_id || ''"
                         [styles]="{
                             '#Zones': { display: 'none' },
-                            '#zones': { display: 'none' }
+                            '#zones': { display: 'none' },
                         }"
                         [features]="selected_feature"
                     ></interactive-map>
@@ -86,12 +86,12 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
             <div class="px-4 py-2">
                 <button
                     matRipple
-                    class="bg-none w-full flex items-center px-2 py-1 text-left rounded"
+                    class="flex w-full items-center rounded bg-none px-2 py-1 text-left"
                     [matMenuTriggerFor]="tracking_menu"
                     (click)="$event.stopPropagation()"
                     [disabled]="loading[row.id]"
                 >
-                    <div class="capitalize flex-1 min-w-32">
+                    <div class="min-w-32 flex-1 capitalize">
                         {{
                             (row.extension_data?.tracking | splitjoin) ||
                                 'In Storage'
@@ -123,7 +123,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
         </ng-template>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class AssetLocationModalComponent {
     public readonly asset = this._state.active_product;
@@ -138,7 +138,7 @@ export class AssetLocationModalComponent {
 
     public async updateFeatures() {
         const space = await this._space.transform(
-            this.selected.extension_data?.location_id
+            this.selected.extension_data?.location_id,
         );
         this.selected_feature = this.selected
             ? [
@@ -164,7 +164,7 @@ export class AssetLocationModalComponent {
 
     constructor(
         private _state: AssetManagerStateService,
-        private _org: OrganisationService
+        private _org: OrganisationService,
     ) {}
 
     public level(zones) {

@@ -36,16 +36,16 @@ import { map, tap } from 'rxjs/operators';
         >
             <form [formGroup]="form">
                 <section class="p-2">
-                    <h3 class="space-x-2 flex items-center">
+                    <h3 class="flex items-center space-x-2">
                         <div
-                            class="bg-base-200 rounded-full h-6 w-6 flex items-center justify-center"
+                            class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
                         >
                             1
                         </div>
                         <div class="text-xl">
                             {{ 'BOOKINGS.DETAILS' | translate }}
                         </div>
-                        <div class="flex-1 w-px"></div>
+                        <div class="w-px flex-1"></div>
                         <button
                             icon
                             name="toggle-details-meeting"
@@ -70,20 +70,20 @@ import { map, tap } from 'rxjs/operators';
                     </div>
                 </section>
                 <section class="p-2" *ngIf="!hide_attendees">
-                    <h3 class="space-x-2 flex items-center">
+                    <h3 class="flex items-center space-x-2">
                         <div
-                            class="bg-base-200 rounded-full h-6 w-6 flex items-center justify-center"
+                            class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
                         >
                             2
                         </div>
                         <div class="text-xl">
                             {{ 'CALENDAR_EVENT.ATTENDEES' | translate }}
                         </div>
-                        <div class="flex-1 w-px"></div>
+                        <div class="w-px flex-1"></div>
                         <button
                             matRipple
                             name="find-attendee-availability"
-                            class="bg-none underline text-xs text-info"
+                            class="bg-none text-xs text-info underline"
                             (click)="findAvailableTime()"
                         >
                             {{ 'COMMON.AVAILABILITY' | translate }}
@@ -115,16 +115,16 @@ import { map, tap } from 'rxjs/operators';
                     </div>
                 </section>
                 <section class="p-2">
-                    <h3 class="space-x-2 flex items-center">
+                    <h3 class="flex items-center space-x-2">
                         <div
-                            class="bg-base-200 rounded-full h-6 w-6 flex items-center justify-center"
+                            class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
                         >
                             3
                         </div>
                         <div class="text-xl">
                             {{ 'RESOURCE.ROOM' | translate }}
                         </div>
-                        <div class="flex-1 w-px"></div>
+                        <div class="w-px flex-1"></div>
                         <button
                             icon
                             name="toggle-spaces-meeting"
@@ -141,7 +141,7 @@ import { map, tap } from 'rxjs/operators';
                         </button>
                     </h3>
                     <div
-                        class="overflow-hidden flex flex-col items-center"
+                        class="flex flex-col items-center overflow-hidden"
                         [@show]="hide_block.resources ? 'hide' : 'show'"
                     >
                         <div
@@ -150,7 +150,7 @@ import { map, tap } from 'rxjs/operators';
                                 total_capacity &&
                                 total_capacity <= form.value.attendees?.length
                             "
-                            class="bg-warning text-warning-content rounded shadow p-2 text-xs mx-auto my-2 inline-flex"
+                            class="mx-auto my-2 inline-flex rounded bg-warning p-2 text-xs text-warning-content shadow"
                         >
                             {{ 'CALENDAR_EVENT.CAPACITY_WARNING' | translate }}
                         </div>
@@ -162,16 +162,16 @@ import { map, tap } from 'rxjs/operators';
                     </div>
                 </section>
                 <section class="p-2" *ngIf="has_catering | async">
-                    <h3 class="space-x-2 flex items-center">
+                    <h3 class="flex items-center space-x-2">
                         <div
-                            class="bg-base-200 rounded-full h-6 w-6 flex items-center justify-center"
+                            class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
                         >
                             4
                         </div>
                         <div class="text-xl">
                             {{ 'CALENDAR_EVENT.CATERING' | translate }}
                         </div>
-                        <div class="flex-1 w-px"></div>
+                        <div class="w-px flex-1"></div>
                         <button
                             icon
                             name="toggle-catering-meeting"
@@ -202,7 +202,7 @@ import { map, tap } from 'rxjs/operators';
                         ></catering-list-field>
                         <mat-form-field
                             appearance="outline"
-                            class="w-full mt-2"
+                            class="mt-2 w-full"
                             *ngIf="
                                 form.value.catering?.length && has_codes | async
                             "
@@ -217,7 +217,7 @@ import { map, tap } from 'rxjs/operators';
                             >
                                 <input
                                     #input
-                                    class="sticky top-0 bg-base-100 px-4 py-3 text-base border-x-0 border-t-0 border-b focus:border-b border-base-200 w-full rounded-none z-50"
+                                    class="sticky top-0 z-50 w-full rounded-none border-x-0 border-b border-t-0 border-base-200 bg-base-100 px-4 py-3 text-base focus:border-b"
                                     [ngModel]="code_filter.getValue()"
                                     (ngModelChange)="code_filter.next($event)"
                                     [ngModelOptions]="{ standalone: true }"
@@ -269,16 +269,16 @@ import { map, tap } from 'rxjs/operators';
                     </div>
                 </section>
                 <section class="p-2" *ngIf="has_assets">
-                    <h3 class="space-x-2 flex items-center">
+                    <h3 class="flex items-center space-x-2">
                         <div
-                            class="bg-base-200 rounded-full h-6 w-6 flex items-center justify-center"
+                            class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
                         >
                             {{ !(has_catering | async) ? '4' : '5' }}
                         </div>
                         <div class="text-xl">
                             {{ 'RESOURCE.ASSETS' | translate }}
                         </div>
-                        <div class="flex-1 w-px"></div>
+                        <div class="w-px flex-1"></div>
                         <button
                             icon
                             name="toggle-assets-meeting"
@@ -310,9 +310,9 @@ import { map, tap } from 'rxjs/operators';
                     </div>
                 </section>
                 <section class="p-2" *ngIf="!hide_notes">
-                    <h3 class="space-x-2 flex items-center mb-4">
+                    <h3 class="mb-4 flex items-center space-x-2">
                         <div
-                            class="bg-base-200 rounded-full h-6 w-6 flex items-center justify-center"
+                            class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
                         >
                             {{
                                 !(has_catering | async) || !has_assets
@@ -326,7 +326,7 @@ import { map, tap } from 'rxjs/operators';
                             {{ 'CALENDAR_EVENT.NOTES_HEADER' | translate }}
                         </div>
                     </h3>
-                    <div class="w-full flex flex-col">
+                    <div class="flex w-full flex-col">
                         <label for="notes">
                             {{ 'CALENDAR_EVENT.NOTES_INFO' | translate }}
                         </label>

@@ -5,11 +5,11 @@ import { BaseQuestionComponent } from './base-question.component';
     selector: 'rating',
     styles: [],
     template: `
-        <div class="flex flex-col w-full p-4">
-            <div class="flex flex-row items-center mb-4 space-x-2">
+        <div class="flex w-full flex-col p-4">
+            <div class="mb-4 flex flex-row items-center space-x-2">
                 <div
                     *ngFor="let i of generateArray(question.rateMax)"
-                    class="flex justify-center items-center h-10 w-10 border rounded-full"
+                    class="flex h-10 w-10 items-center justify-center rounded-full border"
                 >
                     <span class="font-semibold">{{ i }}</span>
                 </div>
@@ -26,7 +26,7 @@ import { BaseQuestionComponent } from './base-question.component';
             </div>
         </div>
     `,
-    standalone: false
+    standalone: false,
 })
 export class RatingsComponent extends BaseQuestionComponent implements OnInit {
     constructor() {

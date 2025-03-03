@@ -84,7 +84,7 @@ export function initSentry(dsn: string, sample_rate = 0.1) {
     selector: 'app-root',
     template: `
         <global-banner></global-banner>
-        <div class="flex-1 w-full relative h-1/2">
+        <div class="relative h-1/2 w-full flex-1">
             <router-outlet></router-outlet>
         </div>
         <global-chat *ngIf="has_chat"></global-chat>

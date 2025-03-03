@@ -16,8 +16,8 @@ function registerMocks() {
                 events = events.filter(
                     (event) =>
                         !!event.attendees.find(
-                            (user) => user.email === ACTIVE_USER.email
-                        )
+                            (user) => user.email === ACTIVE_USER.email,
+                        ),
                 );
             }
             if (_.query_params.period_start) {
@@ -26,8 +26,8 @@ function registerMocks() {
                         +_.query_params.period_start,
                         +_.query_params.period_end,
                         e.event_start,
-                        e.event_end
-                    )
+                        e.event_end,
+                    ),
                 );
             }
             return events;
@@ -71,7 +71,7 @@ function registerMocks() {
         method: 'GET',
         callback: (request) => {
             const item = MOCK_EVENTS.find(
-                (event) => event.id === request.route_params.id
+                (event) => event.id === request.route_params.id,
             );
             if (item) {
                 return item;
@@ -86,14 +86,14 @@ function registerMocks() {
         method: 'DELETE',
         callback: (request) => {
             const index = MOCK_EVENTS.findIndex(
-                (event) => event.id === request.route_params.id
+                (event) => event.id === request.route_params.id,
             );
             if (index > 0) {
                 if (MOCK_EVENTS[index].host === ACTIVE_USER.email) {
                     MOCK_EVENTS.splice(index, 1);
                 } else {
                     const user = MOCK_EVENTS[index].attendees.find(
-                        (_) => _.email === ACTIVE_USER.email
+                        (_) => _.email === ACTIVE_USER.email,
                     );
                     user.response_status = 'declined';
                 }
@@ -109,7 +109,7 @@ function registerMocks() {
         method: 'PATCH',
         callback: (request) => {
             const index = MOCK_EVENTS.findIndex(
-                (event) => event.id === request.route_params.id
+                (event) => event.id === request.route_params.id,
             );
             if (index >= 0) {
                 return MOCK_EVENTS.splice(index, 1, request.body);
@@ -124,7 +124,7 @@ function registerMocks() {
         method: 'POST',
         callback: (request) => {
             const event = MOCK_EVENTS.find(
-                (event) => event.id === request.route_params.id
+                (event) => event.id === request.route_params.id,
             );
             if (event) {
                 const checked_in =

@@ -16,12 +16,12 @@ import { take } from 'rxjs/operators';
 @Component({
     selector: 'parking-flow-form',
     template: `
-        <div class="h-full w-full bg-base-200 overflow-auto">
+        <div class="h-full w-full overflow-auto bg-base-200">
             <div
-                class="max-w-full w-[48rem] mx-auto sm:my-4 bg-base-100 border border-base-200"
+                class="mx-auto w-[48rem] max-w-full border border-base-200 bg-base-100 sm:my-4"
             >
                 <h2
-                    class="w-full p-4 sm:py-4 sm:px-16 text-2xl font-medium border-b border-base-200"
+                    class="w-full border-b border-base-200 p-4 text-2xl font-medium sm:px-16 sm:py-4"
                 >
                     {{
                         (form.value.id
@@ -31,20 +31,20 @@ import { take } from 'rxjs/operators';
                     }}
                 </h2>
                 <form
-                    class="p-0 sm:py-4 sm:px-16 divide-y divide-base-200 space-y-2"
+                    class="space-y-2 divide-y divide-base-200 p-0 sm:px-16 sm:py-4"
                     [formGroup]="form"
                 >
                     <section class="p-2">
-                        <h3 class="space-x-2 flex items-center">
+                        <h3 class="flex items-center space-x-2">
                             <div
-                                class="bg-base-200 rounded-full h-6 w-6 flex items-center justify-center"
+                                class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
                             >
                                 1
                             </div>
                             <div class="text-xl">
                                 {{ 'BOOKINGS.DETAILS' | translate }}
                             </div>
-                            <div class="flex-1 w-px"></div>
+                            <div class="w-px flex-1"></div>
                             <button
                                 icon
                                 matRipple
@@ -70,16 +70,16 @@ import { take } from 'rxjs/operators';
                         </div>
                     </section>
                     <section class="p-2">
-                        <h3 class="space-x-2 flex items-center">
+                        <h3 class="flex items-center space-x-2">
                             <div
-                                class="bg-base-200 rounded-full h-6 w-6 flex items-center justify-center"
+                                class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
                             >
                                 2
                             </div>
                             <div class="text-xl">
                                 {{ 'RESOURCE.PARKING_SPACE' | translate }}
                             </div>
-                            <div class="flex-1 w-px"></div>
+                            <div class="w-px flex-1"></div>
                             <button
                                 icon
                                 matRipple
@@ -102,13 +102,13 @@ import { take } from 'rxjs/operators';
                         </div>
                     </section>
                     <section
-                        class="flex flex-col sm:flex-row items-center sm:space-x-2 p-2"
+                        class="flex flex-col items-center p-2 sm:flex-row sm:space-x-2"
                     >
                         <button
                             btn
                             matRipple
                             confirm
-                            class="mb-2 sm:mb-0 w-full sm:w-auto"
+                            class="mb-2 w-full sm:mb-0 sm:w-auto"
                             (click)="viewConfirm()"
                         >
                             {{ 'BOOKINGS.PARKING_CONFIRM' | translate }}
@@ -132,7 +132,7 @@ import { take } from 'rxjs/operators';
     `,
     styles: [``],
     animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
-    standalone: false
+    standalone: false,
 })
 export class ParkingFlowFormComponent extends AsyncHandler {
     public hide_block: Record<string, boolean> = {};

@@ -28,19 +28,19 @@ export class AuthorisedUserGuard {
         private _router: Router,
         private _settings: SettingsService,
         private _org: OrganisationService,
-        @Optional() private _access: PLACEOS_APP_ACCESS
+        @Optional() private _access: PLACEOS_APP_ACCESS,
     ) {}
 
     public async canActivate(
         next?: ActivatedRouteSnapshot,
-        state?: RouterStateSnapshot
+        state?: RouterStateSnapshot,
     ): Promise<boolean | UrlTree> {
         return this.checkUser();
     }
 
     public async canLoad(
         route?: Route,
-        segments?: UrlSegment[]
+        segments?: UrlSegment[],
     ): Promise<boolean> {
         return this.checkUser();
     }

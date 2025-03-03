@@ -16,9 +16,9 @@ import { map } from 'rxjs/operators';
     template: `
         <div class="w-[32rem]">
             <header
-                class="sticky top-0 p-2 m-2 w-[calc(100%-1rem)] border-none z-10 bg-base-200 rounded"
+                class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded border-none bg-base-200 p-2"
             >
-                <h2 class="text-xl font-medium px-2">
+                <h2 class="px-2 text-xl font-medium">
                     {{
                         (id
                             ? 'APP.CONCIERGE.LOCKERS_BANK_EDIT'
@@ -32,7 +32,7 @@ import { map } from 'rxjs/operators';
             </header>
             <main
                 *ngIf="!loading; else load_state"
-                class="p-4 flex flex-col max-h-[65vh] overflow-auto"
+                class="flex max-h-[65vh] flex-col overflow-auto p-4"
                 [formGroup]="form"
             >
                 <label for="name">{{ 'RESOURCE.LEVEL' | translate }}</label>
@@ -65,7 +65,7 @@ import { map } from 'rxjs/operators';
                     </mat-select>
                 </mat-form-field>
                 <div class="flex space-x-4">
-                    <div class="flex-1 flex flex-col">
+                    <div class="flex flex-1 flex-col">
                         <label for="name">{{ 'FORM.NAME' | translate }}</label>
                         <mat-form-field appearance="outline">
                             <input
@@ -79,7 +79,7 @@ import { map } from 'rxjs/operators';
                             }}</mat-error>
                         </mat-form-field>
                     </div>
-                    <div class="flex-1 flex flex-col">
+                    <div class="flex flex-1 flex-col">
                         <label for="map-id">{{
                             'EXPLORE.MAP_ID' | translate
                         }}</label>
@@ -120,7 +120,7 @@ import { map } from 'rxjs/operators';
                             *ngFor="let item of tag_list"
                             (removed)="removeTag(item)"
                         >
-                            <div class="truncate max-w-md">{{ item }}</div>
+                            <div class="max-w-md truncate">{{ item }}</div>
                             <button
                                 matChipRemove
                                 [attr.aria-label]="
@@ -141,7 +141,7 @@ import { map } from 'rxjs/operators';
                 </mat-form-field>
             </main>
             <footer
-                class="flex items-center justify-end space-x-2 px-4 py-2 border-t border-base-300"
+                class="flex items-center justify-end space-x-2 border-t border-base-300 px-4 py-2"
             >
                 <button btn matRipple class="w-32" (click)="postForm()">
                     {{ 'COMMON.SAVE' | translate }}
@@ -150,7 +150,7 @@ import { map } from 'rxjs/operators';
         </div>
         <ng-template #load_state>
             <main
-                class="p-8 flex flex-col items-center justify-center space-y-2"
+                class="flex flex-col items-center justify-center space-y-2 p-8"
             >
                 <mat-spinner diameter="32"></mat-spinner>
                 <p>{{ 'APP.CONCIERGE.LOCKERS_BANK_SAVING' | translate }}</p>
@@ -158,7 +158,7 @@ import { map } from 'rxjs/operators';
         </ng-template>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class LockerBankModalComponent {
     @Output() public readonly event = new EventEmitter<DialogEvent>();

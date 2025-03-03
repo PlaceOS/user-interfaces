@@ -8,9 +8,9 @@ import { ActivatedRoute, Router } from '@angular/router';
 @Component({
     selector: 'event-calendar',
     template: `
-        <div class="flex items-center border-y border-base-200 w-full">
+        <div class="flex w-full items-center border-y border-base-200">
             <div class="flex-1 px-2 py-4">
-                <span *ngIf="is_today | async" class="text-info text-xs">{{
+                <span *ngIf="is_today | async" class="text-xs text-info">{{
                     ((period | async) === 'week'
                         ? 'COMMON.WEEK_THIS'
                         : 'COMMON.MONTH_THIS'
@@ -18,7 +18,7 @@ import { ActivatedRoute, Router } from '@angular/router';
                 }}</span>
             </div>
             <div class="flex-2 flex items-center justify-center space-x-2">
-                <div class="font-medium pl-4">
+                <div class="pl-4 font-medium">
                     {{ (options | async)?.date | date: 'MMM yyyy' }}
                 </div>
                 <button icon matRipple (click)="previousPeriod()">
@@ -28,7 +28,7 @@ import { ActivatedRoute, Router } from '@angular/router';
                     <app-icon>chevron_right</app-icon>
                 </button>
             </div>
-            <div class="flex-1 flex items-center justify-end space-x-2 py-2">
+            <div class="flex flex-1 items-center justify-end space-x-2 py-2">
                 <button
                     btn
                     matRipple
@@ -49,8 +49,8 @@ import { ActivatedRoute, Router } from '@angular/router';
                 </button>
             </div>
         </div>
-        <div class="w-full h-4"></div>
-        <div class="relative flex-1 h-1/2 w-full overflow-auto">
+        <div class="h-4 w-full"></div>
+        <div class="relative h-1/2 w-full flex-1 overflow-auto">
             <event-week-view
                 *ngIf="(period | async) !== 'month'; else month_calendar"
             ></event-week-view>
@@ -69,7 +69,7 @@ import { ActivatedRoute, Router } from '@angular/router';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class EventCalendarComponent {
     public readonly period = this._state.options.pipe(map((_) => _.period));

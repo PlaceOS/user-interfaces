@@ -4,7 +4,7 @@ import { Component } from '@angular/core';
     selector: 'app-unauthorised',
     template: `
         <div
-            class="unauthorised rounded m-4 text-center bg-base-100 text-black border border-base-200 p-4 shadow"
+            class="unauthorised m-4 rounded border border-base-200 bg-base-100 p-4 text-center text-black shadow"
         >
             <h1 class="text-4xl">403</h1>
             <h3>{{ 'COMMON.FORBIDDEN' | translate }}</h3>
@@ -37,6 +37,6 @@ import { Component } from '@angular/core';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class UnauthorisedComponent {}

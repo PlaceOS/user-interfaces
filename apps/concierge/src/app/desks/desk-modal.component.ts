@@ -12,9 +12,9 @@ const CHARS = '0123456789ABCDEF';
     template: `
         <div class="w-[32rem]">
             <header
-                class="sticky top-0 p-2 m-2 w-[calc(100%-1rem)] border-none z-10 bg-base-200 rounded"
+                class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded border-none bg-base-200 p-2"
             >
-                <h2 class="text-xl font-medium px-2">
+                <h2 class="px-2 text-xl font-medium">
                     {{
                         (id
                             ? 'APP.CONCIERGE.DESKS_EDIT'
@@ -28,7 +28,7 @@ const CHARS = '0123456789ABCDEF';
             </header>
             <main
                 *ngIf="!loading; else load_state"
-                class="p-4 flex flex-col max-h-[65vh] overflow-auto"
+                class="flex max-h-[65vh] flex-col overflow-auto p-4"
                 [formGroup]="form"
             >
                 <div class="w-full" *ngIf="!id">
@@ -49,7 +49,7 @@ const CHARS = '0123456789ABCDEF';
                     </mat-form-field>
                 </div>
                 <div class="flex space-x-4">
-                    <div class="flex-1 w-1/3">
+                    <div class="w-1/3 flex-1">
                         <label for="name">
                             {{ 'APP.CONCIERGE.DESKS_NAME' | translate }}
                             <span>*</span>
@@ -66,7 +66,7 @@ const CHARS = '0123456789ABCDEF';
                             }}</mat-error>
                         </mat-form-field>
                     </div>
-                    <div class="flex-1 w-1/3">
+                    <div class="w-1/3 flex-1">
                         <label for="map-id">
                             {{ 'EXPLORE.MAP_ID' | translate }}<span>*</span>
                         </label>
@@ -89,7 +89,7 @@ const CHARS = '0123456789ABCDEF';
                 <label for="user">{{
                     'APP.CONCIERGE.USER_ASSIGNED' | translate
                 }}</label>
-                <div class="flex items-center space-x-2 mb-4">
+                <div class="mb-4 flex items-center space-x-2">
                     <a-user-search-field
                         name="user"
                         formControlName="assigned_user"
@@ -113,7 +113,7 @@ const CHARS = '0123456789ABCDEF';
                         </app-icon>
                     </button>
                 </div>
-                <div class="flex pb-4 space-x-4">
+                <div class="flex space-x-4 pb-4">
                     <settings-toggle
                         formControlName="bookable"
                         class="flex-1"
@@ -158,7 +158,7 @@ const CHARS = '0123456789ABCDEF';
                 </mat-form-field>
             </main>
             <footer
-                class="flex items-center justify-end space-x-2 px-4 py-2 border-t border-base-300"
+                class="flex items-center justify-end space-x-2 border-t border-base-300 px-4 py-2"
             >
                 <button btn matRipple class="w-32" (click)="postForm()">
                     {{ 'COMMON.SAVE' | translate }}
@@ -167,7 +167,7 @@ const CHARS = '0123456789ABCDEF';
         </div>
         <ng-template #load_state>
             <main
-                class="p-8 flex flex-col items-center justify-center space-y-2"
+                class="flex flex-col items-center justify-center space-y-2 p-8"
             >
                 <mat-spinner diameter="32"></mat-spinner>
                 <p>{{ 'APP.CONCIERGE.DESKS_SAVING' | translate }}</p>

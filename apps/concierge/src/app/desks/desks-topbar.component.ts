@@ -23,7 +23,7 @@ import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component'
     selector: 'desks-topbar',
     template: `
         <div
-            class="flex items-center bg-base-100 h-20 px-4 border-b border-base-200 space-x-2"
+            class="flex h-20 items-center space-x-2 border-b border-base-200 bg-base-100 px-4"
         >
             <mat-form-field appearance="outline">
                 <mat-select
@@ -61,7 +61,7 @@ import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component'
                 icon
                 matRipple
                 *ngIf="manage"
-                class="bg-primary mx-2 text-white rounded"
+                class="mx-2 rounded bg-primary text-white"
                 (click)="newDesk()"
                 [matTooltip]="'APP.CONCIERGE.DESKS_NEW' | translate"
             >
@@ -72,7 +72,7 @@ import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component'
                 icon
                 matRipple
                 *ngIf="manage"
-                class="bg-primary relative text-white rounded"
+                class="relative rounded bg-primary text-white"
                 [matTooltip]="'APP.CONCIERGE.DESKS_LIST_UPLOAD' | translate"
             >
                 <app-icon>cloud_upload</app-icon>
@@ -87,7 +87,7 @@ import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component'
                 icon
                 matRipple
                 *ngIf="manage"
-                class="bg-primary mx-2 text-white rounded"
+                class="mx-2 rounded bg-primary text-white"
                 (click)="downloadTemplate()"
                 [matTooltip]="'APP.CONCIERGE.DESKS_LIST_DOWNLOAD' | translate"
             >
@@ -98,13 +98,13 @@ import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component'
                 icon
                 matRipple
                 *ngIf="manage"
-                class="bg-primary mx-2 text-white rounded"
+                class="mx-2 rounded bg-primary text-white"
                 (click)="manageRestrictions()"
                 [matTooltip]="'APP.CONCIERGE.DESKS_BOOKING_RULES' | translate"
             >
                 <app-icon>lock_open</app-icon>
             </button>
-            <div class="flex-1 w-2"></div>
+            <div class="w-2 flex-1"></div>
             <searchbar
                 class="mr-2"
                 [model]="(filters | async)?.search"
@@ -121,7 +121,7 @@ import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component'
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class DesksTopbarComponent extends AsyncHandler implements OnInit {
     /** List of levels for the active building */

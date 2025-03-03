@@ -13,18 +13,18 @@ import { debounceTime, map } from 'rxjs/operators';
 @Component({
     selector: 'sidebar',
     template: `
-        <div class="flex flex-col bg-secondary w-48 text-white h-full">
-            <div class="logo w-full flex items-center justify-center p-3 mb-4">
+        <div class="flex h-full w-48 flex-col bg-secondary text-white">
+            <div class="logo mb-4 flex w-full items-center justify-center p-3">
                 <img
                     auth
                     class="w-full"
                     [source]="(logo | async)?.src || (logo | async)"
                 />
             </div>
-            <div class="flex-1 overflow-auto space-y-2">
+            <div class="flex-1 space-y-2 overflow-auto">
                 <ng-container *ngFor="let tile of links">
                     <a
-                        class="flex items-center mx-2 space-x-2 hover:bg-base-100/20 px-2 py-1 rounded"
+                        class="hover:bg-base-100/20 mx-2 flex items-center space-x-2 rounded px-2 py-1"
                         [routerLink]="['/' + tile.route]"
                         routerLinkActive="active"
                     >
@@ -38,7 +38,7 @@ import { debounceTime, map } from 'rxjs/operators';
             </div>
             <button
                 mat-ripple
-                class="w-full flex items-center space-x-2 p-3 border-t border-base-200-500 hover:bg-base-100/20"
+                class="border-base-200-500 hover:bg-base-100/20 flex w-full items-center space-x-2 border-t p-3"
                 *ngIf="(regions | async).length > 1"
                 [matMenuTriggerFor]="region"
             >
@@ -52,7 +52,7 @@ import { debounceTime, map } from 'rxjs/operators';
             </button>
             <button
                 mat-ripple
-                class="w-full flex items-center space-x-2 p-3 border-t border-base-200-500 hover:bg-base-100/20"
+                class="border-base-200-500 hover:bg-base-100/20 flex w-full items-center space-x-2 border-t p-3"
                 *ngIf="(buildings | async).length > 1"
                 [matMenuTriggerFor]="menu"
             >
@@ -64,17 +64,17 @@ import { debounceTime, map } from 'rxjs/operators';
                     }}
                 </div>
             </button>
-            <div class="p-2 border-t border-base-200-500">
-                <div class="text-xs opacity-60 w-full">
+            <div class="border-base-200-500 border-t p-2">
+                <div class="w-full text-xs opacity-60">
                     <ng-container>Version: </ng-container>
                     <button
-                        class="underline p-0 m-0 bg-none border-none text-xs"
+                        class="m-0 border-none bg-none p-0 text-xs underline"
                         (click)="viewChangelog()"
                     >
                         {{ version.hash }}
                     </button>
                 </div>
-                <div class="text-xs opacity-60 w-full">
+                <div class="w-full text-xs opacity-60">
                     {{ version.time | date: 'longDate' }}
                     ({{ version.time | date: time_format }})
                 </div>
@@ -123,7 +123,7 @@ import { debounceTime, map } from 'rxjs/operators';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class SidebarComponent {
     public get links(): ApplicationLinkInternal[] {

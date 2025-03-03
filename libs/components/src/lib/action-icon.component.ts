@@ -49,7 +49,7 @@ import { ApplicationIcon } from 'libs/common/src/lib/types';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class ActionIconComponent {
     /** Icon to display */

@@ -16,18 +16,18 @@ import { queryUsers } from '@placeos/ts-client';
     selector: `select-user-modal`,
     template: ` <div class="w-[28rem]">
         <header
-            class="sticky top-0 p-2 m-2 w-[calc(100%-1rem)] border-none z-10 bg-base-200 rounded"
+            class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded border-none bg-base-200 p-2"
         >
-            <h2 class="text-xl font-medium px-2">
+            <h2 class="px-2 text-xl font-medium">
                 {{ 'COMMON.SELECT_USER_TITLE' | translate }}
             </h2>
             <button icon matRipple mat-dialog-close>
                 <app-icon>close</app-icon>
             </button>
         </header>
-        <main class="px-2 pb-2 h-[60vh] overflow-auto">
+        <main class="h-[60vh] overflow-auto px-2 pb-2">
             <mat-form-field
-                class="sticky top-0 no-subscript mb-2 w-full bg-base-100 z-10"
+                class="no-subscript sticky top-0 z-10 mb-2 w-full bg-base-100"
                 appearance="outline"
             >
                 <app-icon class="relative -left-2 text-2xl" matPrefix
@@ -40,9 +40,9 @@ import { queryUsers } from '@placeos/ts-client';
                     (ngModelChange)="search.next($event)"
                 />
             </mat-form-field>
-            <div class="relative w-full space-y-2 z-0">
+            <div class="relative z-0 w-full space-y-2">
                 <button
-                    class="p-2 rounded border border-base-300 hover:bg-base-200 w-full text-left"
+                    class="w-full rounded border border-base-300 p-2 text-left hover:bg-base-200"
                     matRipple
                     *ngFor="let user of users | async"
                     (click)="select(user)"
@@ -51,7 +51,7 @@ import { queryUsers } from '@placeos/ts-client';
                     <div class="text-xs opacity-30">{{ user.email }}</div>
                 </button>
                 <div
-                    class="w-full h-32 flex items-center justify-center p-8 opacity-30"
+                    class="flex h-32 w-full items-center justify-center p-8 opacity-30"
                     *ngIf="!(users | async).length"
                 >
                     {{

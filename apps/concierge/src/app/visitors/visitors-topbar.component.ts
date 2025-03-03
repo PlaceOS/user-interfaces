@@ -10,7 +10,7 @@ import { VisitorsStateService } from './visitors-state.service';
     selector: 'visitors-topbar',
     template: `
         <div
-            class="flex items-center bg-base-100 h-20 px-4 border-b border-base-200 space-x-2"
+            class="flex h-20 items-center space-x-2 border-b border-base-200 bg-base-100 px-4"
         >
             <mat-form-field appearance="outline">
                 <mat-select
@@ -38,7 +38,7 @@ import { VisitorsStateService } from './visitors-state.service';
                     <mat-option [value]="30">Show Month</mat-option>
                 </mat-select>
             </mat-form-field>
-            <div class="flex-1 w-2"></div>
+            <div class="w-2 flex-1"></div>
             <searchbar
                 class="mr-2"
                 (modelChange)="setSearch($event)"
@@ -54,7 +54,7 @@ import { VisitorsStateService } from './visitors-state.service';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class VisitorsTopbarComponent extends AsyncHandler implements OnInit {
     /** List of selected levels */

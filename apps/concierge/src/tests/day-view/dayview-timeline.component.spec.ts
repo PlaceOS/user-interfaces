@@ -62,7 +62,7 @@ describe('DayviewTimelineComponent', () => {
         spectator.detectChanges();
         expect('dayview-space').not.toExist();
         (client.querySystems as any).mockImplementation(() =>
-            of({ data: [{}, {}] })
+            of({ data: [{}, {}] }),
         );
         (spectator.inject(OrganisationService).active_building as any).next({
             id: 'bld-1',

@@ -6,19 +6,19 @@ import { CustomTooltipData } from '@placeos/components';
     selector: 'language-select',
     template: `
         <div
-            class="flex flex-col w-[18.5rem] rounded bg-base-100 shadow relative -top-12 -right-1"
+            class="relative -right-1 -top-12 flex w-[18.5rem] flex-col rounded bg-base-100 shadow"
             (click)="close()"
         >
-            <div class="flex items-center space-x-2  p-2">
+            <div class="flex items-center space-x-2 p-2">
                 <app-icon class="text-2xl">arrow_back</app-icon>
                 <div class="">{{ 'COMMON.LANGUAGE' | translate }}</div>
             </div>
-            <div class="text-xs opacity-60 px-8 mb-2">
+            <div class="mb-2 px-8 text-xs opacity-60">
                 {{ 'COMMON.LANGUAGE_SELECT' | translate }}
             </div>
             <button
                 *ngFor="let lang of locales"
-                class="w-full px-4 h-14 border-t border-base-200 text-left flex items-center justify-between"
+                class="flex h-14 w-full items-center justify-between border-t border-base-200 px-4 text-left"
                 (click)="setLocale(lang.id)"
             >
                 <div>

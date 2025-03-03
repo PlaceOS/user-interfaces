@@ -28,7 +28,7 @@ describe('CalendarService', () => {
 
     beforeEach(() => {
         (cal_fn as any).queryCalendars = jest.fn(() => of([new Calendar()]));
-        spectator = createService()
+        spectator = createService();
     });
 
     it('should create service', () => {
@@ -59,7 +59,7 @@ describe('CalendarService', () => {
                 period_end: getUnixTime(endOfDay(0)),
                 calendars: 'CAL-1',
             },
-            spectator.inject(OrganisationService)
+            spectator.inject(OrganisationService),
         );
     });
 
@@ -69,7 +69,7 @@ describe('CalendarService', () => {
         const is_free = await spectator.service.checkSpacesAvailability(
             ['sys-1'],
             1,
-            2
+            2,
         );
         expect(is_free).toBeTruthy();
         expect(cal_fn.queryCalendarAvailability).toHaveBeenCalledWith({

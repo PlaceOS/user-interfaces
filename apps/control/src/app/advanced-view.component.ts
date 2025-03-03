@@ -7,11 +7,11 @@ import { ControlStateService } from './control-state.service';
     selector: 'control-advanced-view',
     template: `
         <div
-            class="w-full flex-1 h-1/2 flex items-center flex-col sm:flex-row sm:justify-center sm:flex-wrap overflow-auto"
+            class="flex h-1/2 w-full flex-1 flex-col items-center overflow-auto sm:flex-row sm:flex-wrap sm:justify-center"
             *ngIf="(outputs | async)?.length; else empty_state"
         >
             <output-display
-                class="w-full sm:w-auto min-w-[33%]"
+                class="w-full min-w-[33%] sm:w-auto"
                 *ngFor="
                     let output of outputs
                         | async
@@ -21,7 +21,7 @@ import { ControlStateService } from './control-state.service';
             ></output-display>
         </div>
         <div
-            class="w-full h-12 flex items-center justify-center px-2 pb-2 space-x-2"
+            class="flex h-12 w-full items-center justify-center space-x-2 px-2 pb-2"
             *ngIf="(page_count | async)?.length > 1"
         >
             <button

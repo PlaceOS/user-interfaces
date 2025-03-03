@@ -9,7 +9,7 @@ const EMPTY_USER = new User();
 
 @Pipe({
     name: 'user',
-    standalone: false
+    standalone: false,
 })
 export class UserPipe {
     /**
@@ -19,7 +19,7 @@ export class UserPipe {
     public async transform(user_id: string): Promise<User> {
         if (!user_id) return EMPTY_USER;
         let user = USER_LIST.find(
-            ({ id, email }) => id === user_id || email === user_id
+            ({ id, email }) => id === user_id || email === user_id,
         );
         if (user) return user;
         user = await showStaff(user_id)

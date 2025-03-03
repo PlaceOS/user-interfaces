@@ -5,7 +5,7 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
     selector: 'signage-media-preview-modal',
     template: `
         <header
-            class="flex items-center justify-between p-2 border-b border-base-300"
+            class="flex items-center justify-between border-b border-base-300 p-2"
         >
             <h1 class="px-2">
                 {{
@@ -19,17 +19,17 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
         </header>
         <main class="bg-base-200" *ngIf="!loading; else load_state">
             <div
-                class="max-w-[80vw] max-h-[65vh] w-[80vw] h-[65vh] flex items-center justify-center"
+                class="flex h-[65vh] max-h-[65vh] w-[80vw] max-w-[80vw] items-center justify-center"
             >
                 <img
                     *ngIf="type === 'image'"
-                    class="w-full h-full object-contain object-center"
+                    class="h-full w-full object-contain object-center"
                     auth
                     [source]="resource.toString()"
                 />
                 <video
                     *ngIf="type === 'video'"
-                    class="w-full h-full object-contain object-center"
+                    class="h-full w-full object-contain object-center"
                     auth
                     [source]="resource.toString()"
                     autoplay
@@ -39,7 +39,7 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
         </main>
         <footer
             *ngIf="can_save && !loading"
-            class="p-2 flex items-center justify-end space-x-2 border-t border-base-300"
+            class="flex items-center justify-end space-x-2 border-t border-base-300 p-2"
         >
             <button btn matRipple class="w-32" (click)="save.emit()">
                 {{ 'APP.CONCIERGE.SIGNAGE_MEDIA_SAVE' | translate }}
@@ -47,7 +47,7 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
         </footer>
         <ng-template #load_state>
             <main
-                class="flex flex-col items-center justify-center p-8 w-[28rem] h-[20rem] max-w-[80vw] max-h-[65vh]"
+                class="flex h-[20rem] max-h-[65vh] w-[28rem] max-w-[80vw] flex-col items-center justify-center p-8"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
                 <p>{{ loading }}</p>
@@ -55,7 +55,7 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
         </ng-template>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class SignageMediaPreviewModalComponent {
     @Output() public readonly save = new EventEmitter<any>();

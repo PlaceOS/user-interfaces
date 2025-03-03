@@ -12,8 +12,8 @@ import {
 @Component({
     selector: 'asset-filters',
     template: `
-        <div class="px-4 mt-3 mb-2" [class.sm:hidden]="!search">
-            <mat-form-field appearance="outline" class="w-full h-14">
+        <div class="mb-2 mt-3 px-4" [class.sm:hidden]="!search">
+            <mat-form-field appearance="outline" class="h-14 w-full">
                 <app-icon matPrefix class="text-xl">search</app-icon>
                 <input
                     matInput
@@ -23,7 +23,7 @@ import {
                 />
             </mat-form-field>
         </div>
-        <h3 class="hidden sm:block font-medium px-2 py-2" *ngIf="!search">
+        <h3 class="hidden px-2 py-2 font-medium sm:block" *ngIf="!search">
             Options
         </h3>
         <div class="flex flex-col px-2" *ngIf="!search">
@@ -38,7 +38,7 @@ import {
                 <label>Deliver Date:</label>
                 <mat-form-field
                     appearance="outline"
-                    class="w-full no-subscript mb-4"
+                    class="no-subscript mb-4 w-full"
                 >
                     <mat-select
                         [(ngModel)]="offset_day"
@@ -66,7 +66,7 @@ import {
                 [use_24hr]="use_24hr"
             ></a-duration-field>
         </div>
-        <h3 class="hidden sm:block font-medium px-2 py-4" *ngIf="!search">
+        <h3 class="hidden px-2 py-4 font-medium sm:block" *ngIf="!search">
             Catergories
         </h3>
         <div
@@ -93,7 +93,7 @@ import {
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class AssetFiltersComponent extends AsyncHandler {
     @Input() public search = false;

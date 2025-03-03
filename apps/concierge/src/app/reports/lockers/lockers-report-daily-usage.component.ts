@@ -7,10 +7,10 @@ import { LockersReportService } from './lockers-report.service';
     selector: 'lockers-report-daily-usage',
     template: `
         <div
-            class="m-4 rounded bg-base-100 border border-base-200 overflow-hidden"
+            class="m-4 overflow-hidden rounded border border-base-200 bg-base-100"
         >
-            <div class="border-b border-base-200 px-4 py-2 flex items-center">
-                <h3 class="font-bold text-xl flex-1">
+            <div class="flex items-center border-b border-base-200 px-4 py-2">
+                <h3 class="flex-1 text-xl font-bold">
                     {{ 'APP.CONCIERGE.REPORTS_DAILY_HEADER' | translate }}
                 </h3>
                 <button
@@ -26,7 +26,7 @@ import { LockersReportService } from './lockers-report.service';
                 </button>
             </div>
             <simple-table
-                class="w-full block text-sm"
+                class="block w-full text-sm"
                 [data]="daily_stats"
                 [columns]="[
                     {
@@ -65,7 +65,7 @@ import { LockersReportService } from './lockers-report.service';
         </div>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class LockersReportDailyUsageComponent {
     @Input() public print = false;

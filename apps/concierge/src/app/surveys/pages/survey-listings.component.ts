@@ -11,10 +11,10 @@ import { querySurveys } from '@placeos/ts-client';
 @Component({
     selector: 'survey-listings',
     template: `
-        <div class="flex items-center justify-between px-8 py-4 w-full">
+        <div class="flex w-full items-center justify-between px-8 py-4">
             <div class="flex">
                 <a icon matRipple [routerLink]="['/surveys']">
-                    <app-icon class="flex mr-2">arrow_back</app-icon>
+                    <app-icon class="mr-2 flex">arrow_back</app-icon>
                 </a>
                 <div class="flex flex-col">
                     <span class="text-2xl">{{
@@ -38,9 +38,9 @@ import { querySurveys } from '@placeos/ts-client';
                 <app-icon class="text-xl">add</app-icon>
             </a>
         </div>
-        <div class="flex flex-1 h-1/2 w-full overflow-auto px-8">
+        <div class="flex h-1/2 w-full flex-1 overflow-auto px-8">
             <simple-table
-                class="min-w-[36rem] w-full block text-sm"
+                class="block w-full min-w-[36rem] text-sm"
                 [data]="surveys$"
                 [columns]="[
                     { key: 'title', name: 'FORM.TITLE' | translate },
@@ -81,7 +81,7 @@ import { querySurveys } from '@placeos/ts-client';
             </div>
         </ng-template>
         <ng-template #action_template let-row="row">
-            <div class="flex items-center space-x-2 mx-auto p-1">
+            <div class="mx-auto flex items-center space-x-2 p-1">
                 <button
                     icon
                     matRipple
@@ -116,7 +116,7 @@ import { querySurveys } from '@placeos/ts-client';
                     </a>
                     <button mat-menu-item (click)="onDelete(row.id)">
                         <div class="flex items-center space-x-2">
-                            <app-icon class="text-error text-xl">
+                            <app-icon class="text-xl text-error">
                                 delete
                             </app-icon>
                             <span>{{
@@ -139,7 +139,7 @@ import { querySurveys } from '@placeos/ts-client';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class SurveyListingsComponent extends AsyncHandler implements OnInit {
     private _building_id = new BehaviorSubject('');

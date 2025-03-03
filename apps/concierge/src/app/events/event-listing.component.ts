@@ -14,7 +14,7 @@ import { CalendarEvent } from '@placeos/events';
             mode="indeterminate"
         ></mat-progress-bar>
         <simple-table
-            class="min-w-[72rem] w-full block text-sm"
+            class="block w-full min-w-[72rem] text-sm"
             [data]="event_list"
             empty_message="No group events for selected period"
             [columns]="[
@@ -70,22 +70,22 @@ import { CalendarEvent } from '@placeos/events';
             ]"
             [sortable]="true"
         ></simple-table>
-        <div class="w-full h-20"></div>
+        <div class="h-20 w-full"></div>
         <ng-template #event_template let-item="row">
             <div class="flex items-center space-x-2 px-3 py-2">
-                <div date class="flex flex-col items-center leading-tight w-8">
+                <div date class="flex w-8 flex-col items-center leading-tight">
                     <div
                         month
-                        class="text-sm font-medium relative top-0.5 opacity-60"
+                        class="relative top-0.5 text-sm font-medium opacity-60"
                     >
                         {{ item.date | date: 'MMM' }}
                     </div>
-                    <div day class="text-2xl font-light relative -top-0.5">
+                    <div day class="relative -top-0.5 text-2xl font-light">
                         {{ item.date | date: 'd' }}
                     </div>
                 </div>
                 <div
-                    class="flex items-center justify-center h-12 w-12 rounded overflow-hidden bg-base-200 border border-base-200"
+                    class="flex h-12 w-12 items-center justify-center overflow-hidden rounded border border-base-200 bg-base-200"
                 >
                     <img
                         *ngIf="item.images?.length"
@@ -139,14 +139,14 @@ import { CalendarEvent } from '@placeos/events';
                 matRipple
                 customTooltip
                 [content]="view_attendees"
-                class="rounded h-12 w-12 mx-auto"
+                class="mx-auto h-12 w-12 rounded"
                 [disabled]="!item.attendees?.length"
             >
                 {{ item.attendees?.length || 0 }}
             </button>
             <ng-template #view_attendees>
                 <div
-                    class="relative w-[20rem] h-[28rem] overflow-auto bg-white rounded shadow"
+                    class="relative h-[28rem] w-[20rem] overflow-auto rounded bg-white shadow"
                 >
                     <attendee-list
                         [list]="item.attendees"
@@ -166,14 +166,14 @@ import { CalendarEvent } from '@placeos/events';
                 matRipple
                 customTooltip
                 [content]="view_attendees"
-                class="rounded h-12 w-12 mx-auto"
+                class="mx-auto h-12 w-12 rounded"
                 [disabled]="!checkedInCount(item.attendees)"
             >
                 {{ checkedInCount(item.attendees) }}
             </button>
             <ng-template #view_attendees>
                 <div
-                    class="relative w-[20rem] h-[28rem] overflow-auto bg-white rounded shadow"
+                    class="relative h-[28rem] w-[20rem] overflow-auto rounded bg-white shadow"
                 >
                     <attendee-list
                         [show_host]="false"
@@ -187,7 +187,7 @@ import { CalendarEvent } from '@placeos/events';
         <ng-template #published_template let-data="data">
             <div
                 *ngIf="data === 'OPEN' || data === 'open'"
-                class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-success text-success-content mx-auto"
+                class="mx-auto flex h-8 w-8 items-center justify-center rounded bg-success text-2xl text-success-content"
             >
                 <app-icon>done</app-icon>
             </div>
@@ -195,7 +195,7 @@ import { CalendarEvent } from '@placeos/events';
         <ng-template #status_template let-item="row">
             <div class="p-4">
                 <div
-                    class="px-4 py-1 rounded-full"
+                    class="rounded-full px-4 py-1"
                     [class.bg-success]="
                         item.state !== 'done' &&
                         item.state !== 'in_progress' &&
@@ -231,7 +231,7 @@ import { CalendarEvent } from '@placeos/events';
             <button
                 icon
                 matRipple
-                class="h-12 w-12 rounded mx-2"
+                class="mx-2 h-12 w-12 rounded"
                 [matMenuTriggerFor]="menu"
                 [disabled]="row.state === 'done'"
             >
@@ -292,7 +292,7 @@ import { CalendarEvent } from '@placeos/events';
         </ng-template>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class EventListingComponent {
     public readonly loading = this._state.loading;

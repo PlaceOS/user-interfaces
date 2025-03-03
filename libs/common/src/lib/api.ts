@@ -12,7 +12,7 @@ export function toQueryString(map: HashMap) {
         for (const key in map) {
             if (key in map && !IGNORE_VALUES.includes(map[key])) {
                 str += `${str ? '&' : ''}${key}=${encodeURIComponent(
-                    map[key]
+                    map[key],
                 )}`;
             }
         }

@@ -3,35 +3,35 @@ import { Component } from '@angular/core';
 @Component({
     selector: 'facilities-status',
     template: `
-        <div class="rounded-lg flex-1 w-full shadow-sm p-6 bg-base-100">
-            <h3 class="mt-0 mb-4">People Count</h3>
+        <div class="w-full flex-1 rounded-lg bg-base-100 p-6 shadow-sm">
+            <h3 class="mb-4 mt-0">People Count</h3>
             <div
-                class="w-full flex items-center border border-base-200 mb-2 rounded-lg"
+                class="mb-2 flex w-full items-center rounded-lg border border-base-200"
             >
                 <div name="status" class="rounded-full">
                     <app-icon>account_circle</app-icon>
                 </div>
-                <div class="flex-1 text-bold text-xs">
+                <div class="text-bold flex-1 text-xs">
                     {{ 'Admin Services' }}
                 </div>
                 <div class="text-bold p-4">{{ '24' }}</div>
             </div>
-            <div class="text-right text-bold mr-4">Total: {{ total || 0 }}</div>
+            <div class="text-bold mr-4 text-right">Total: {{ total || 0 }}</div>
         </div>
-        <div class="rounded w-full shadow-sm p-6 bg-base-100">
-            <h3 class="mt-0 mb-2">Mood</h3>
+        <div class="w-full rounded bg-base-100 p-6 shadow-sm">
+            <h3 class="mb-2 mt-0">Mood</h3>
             <div
                 name="mood"
-                class="flex items-center w-full border border-base-200 rounded-lg overflow-hidden"
+                class="flex w-full items-center overflow-hidden rounded-lg border border-base-200"
             >
                 <app-icon
-                    class="bg-light text-2xl px-1"
+                    class="bg-light px-1 text-2xl"
                     [icon]="{
                         class: 'material-icons',
-                        content: 'sentiment_very_satisfied'
+                        content: 'sentiment_very_satisfied',
                     }"
                 ></app-icon>
-                <div class="px-4 text-sm text-bold">4/5 Satisfied</div>
+                <div class="text-bold px-4 text-sm">4/5 Satisfied</div>
             </div>
             <h4>Feedback:</h4>
             <p>{{ feedback }}</p>
@@ -61,7 +61,7 @@ import { Component } from '@angular/core';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class FacilitiesStatusComponent {
     public feedback: string;

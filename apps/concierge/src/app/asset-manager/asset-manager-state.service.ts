@@ -92,7 +92,7 @@ export class AssetManagerStateService extends AsyncHandler {
             return getGroupsWithAssets({ zone_id: this._org.building?.id });
         }),
         tap((_) => this._loading.next(false)),
-        shareReplay(1)
+        shareReplay(1),
     ) as any;
     /** List of available assets */
     public readonly purchase_orders: Observable<AssetPurchaseOrder[]> =
@@ -102,7 +102,7 @@ export class AssetManagerStateService extends AsyncHandler {
                 return queryAssetPurchaseOrders();
             }),
             tap(() => this._loading.next(false)),
-            shareReplay(1)
+            shareReplay(1),
         ) as any;
     /** List of requests made by users for assets */
     public readonly requests = combineLatest([
@@ -137,10 +137,10 @@ export class AssetManagerStateService extends AsyncHandler {
                                 extension_data: {
                                     ...b.extension_data,
                                     space: this._spaces.find(
-                                        b.extension_data.space_id
+                                        b.extension_data.space_id,
                                     ),
                                 },
-                            })
+                            }),
                     ).filter((b) => {
                         const event: any =
                             b.linked_event || b.linked_bookings[0];
@@ -164,11 +164,11 @@ export class AssetManagerStateService extends AsyncHandler {
                             request?.deliver_at < end &&
                             request?.deliver_at < event_end
                         );
-                    })
-                )
+                    }),
+                ),
             );
         }),
-        shareReplay(1)
+        shareReplay(1),
     );
     /** Filtered list of asset requests */
     public readonly filtered_requests = combineLatest([
@@ -186,13 +186,13 @@ export class AssetManagerStateService extends AsyncHandler {
                               ?.toLowerCase()
                               .includes(search) ||
                           i.extension_data.assets?.find((_) =>
-                              _.name.toLowerCase().includes(search)
+                              _.name.toLowerCase().includes(search),
                           ) ||
                           i.status.includes(search) ||
-                          i.extension_data.tracking?.includes(search)
+                          i.extension_data.tracking?.includes(search),
                   )
                 : list;
-        })
+        }),
     );
     public readonly categories = combineLatest([
         this._options,
@@ -203,7 +203,7 @@ export class AssetManagerStateService extends AsyncHandler {
             new AssetCategory({ id: '', name: 'Uncategorised' }),
             ...list,
         ]),
-        shareReplay(1)
+        shareReplay(1),
     );
     /** Currently active asset */
     public readonly active_product = combineLatest([
@@ -215,9 +215,9 @@ export class AssetManagerStateService extends AsyncHandler {
         map(([options, t]) => [options.active_item, t] as any),
         distinctUntilChanged(),
         switchMap(([active_item]) =>
-            showGroupFull(active_item, { zone_id: this._org.building.id })
+            showGroupFull(active_item, { zone_id: this._org.building.id }),
         ),
-        shareReplay(1)
+        shareReplay(1),
     );
     /** List of requests for the currently active asset */
     public readonly active_product_requests = this.active_product.pipe(
@@ -225,12 +225,12 @@ export class AssetManagerStateService extends AsyncHandler {
             return this.requests.pipe(
                 map((_) =>
                     _.filter((i) =>
-                        item.assets.find((asset) => asset.id === i.asset_id)
-                    )
-                )
+                        item.assets.find((asset) => asset.id === i.asset_id),
+                    ),
+                ),
             );
         }),
-        map((_) => _.filter((i) => i.status !== 'declined'))
+        map((_) => _.filter((i) => i.status !== 'declined')),
     );
     /** list of filtered assets */
     public readonly filtered_products = combineLatest([
@@ -242,10 +242,10 @@ export class AssetManagerStateService extends AsyncHandler {
                 ? list.filter((i) =>
                       i.name
                           .toLowerCase()
-                          .includes(options.search.toLowerCase())
+                          .includes(options.search.toLowerCase()),
                   )
-                : list
-        )
+                : list,
+        ),
     );
     /** Mapping of available assets to categories */
     public readonly product_mapping = combineLatest([
@@ -257,17 +257,17 @@ export class AssetManagerStateService extends AsyncHandler {
             products.forEach(
                 (item) =>
                     (item.category_id = category_list.find(
-                        (_) => _.id === item.category_id
+                        (_) => _.id === item.category_id,
                     )
                         ? item.category_id
-                        : '')
+                        : ''),
             );
             const categories = unique(products.map((i) => i.category_id));
             for (const group of categories) {
                 map[group] = products.filter((i) => i.category_id === group);
             }
             return map;
-        })
+        }),
     );
 
     public readonly settings = combineLatest([
@@ -277,14 +277,14 @@ export class AssetManagerStateService extends AsyncHandler {
         filter(([_]) => !!_),
         switchMap(([_]) =>
             showMetadata(_.id, 'assets-settings').pipe(
-                catchError((_) => of({} as PlaceMetadata))
-            )
+                catchError((_) => of({} as PlaceMetadata)),
+            ),
         ),
         map((_) => (_.details as Record<string, any>) || {}),
-        shareReplay(1)
+        shareReplay(1),
     );
     public readonly availability = this.settings.pipe(
-        map((_) => _.disabled_rooms || [])
+        map((_) => _.disabled_rooms || []),
     );
 
     public get form() {
@@ -305,7 +305,7 @@ export class AssetManagerStateService extends AsyncHandler {
         private _spaces: SpacesService,
         private _org: OrganisationService,
         private _dialog: MatDialog,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         super();
     }
@@ -330,14 +330,14 @@ export class AssetManagerStateService extends AsyncHandler {
         this.subscription(
             'category_modal',
             ref.componentInstance.changed.subscribe(() =>
-                this._change.next(Date.now())
-            )
+                this._change.next(Date.now()),
+            ),
         );
         ref.afterClosed().subscribe(() => this.unsub('category_modal'));
     }
 
     public async editCategory(
-        category: Partial<AssetCategory> = {}
+        category: Partial<AssetCategory> = {},
     ): Promise<AssetCategory | null> {
         const ref = this._dialog.open(AssetCategoryFormComponent, {
             data: { category },
@@ -438,12 +438,12 @@ export class AssetManagerStateService extends AsyncHandler {
         if (details?.reason !== 'done') return;
         this.updateConfig(this._org.building.id, details.metadata).then(
             () => ref.close(),
-            () => (ref.componentInstance.loading = false)
+            () => (ref.componentInstance.loading = false),
         );
     }
 
     public async getConfig(
-        zone_id: string = this._org.building.id
+        zone_id: string = this._org.building.id,
     ): Promise<AttachedResourceRuleset[]> {
         const rules = (await showMetadata(zone_id, 'assets_config').toPromise())
             .details;

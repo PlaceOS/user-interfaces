@@ -6,11 +6,11 @@ import { StaffStateService } from './staff-state.service';
     selector: '[app-new-staff]',
     template: `
         <app-topbar></app-topbar>
-        <div class="flex flex-1 h-px">
+        <div class="flex h-px flex-1">
             <app-sidebar></app-sidebar>
-            <main class="flex flex-col flex-1 w-1/2 h-full">
+            <main class="flex h-full w-1/2 flex-1 flex-col">
                 <staff-topbar class="w-full"></staff-topbar>
-                <staff-listings class="w-full flex-1 h-0"></staff-listings>
+                <staff-listings class="h-0 w-full flex-1"></staff-listings>
                 <mat-progress-bar
                     class="w-full"
                     *ngIf="loading | async"
@@ -30,7 +30,7 @@ import { StaffStateService } from './staff-state.service';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class NewStaffComponent implements OnInit, OnDestroy {
     public readonly loading = this._state.loading;

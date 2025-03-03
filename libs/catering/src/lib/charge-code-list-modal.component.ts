@@ -8,9 +8,9 @@ import { CateringStateService } from './catering-state.service';
     selector: 'charge-code-list-modal',
     template: `
         <header
-            class="sticky top-0 p-2 m-2 w-[calc(100%-1rem)] border-none z-10 bg-base-200 rounded"
+            class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded border-none bg-base-200 p-2"
         >
-            <h2 class="text-xl font-medium px-2">
+            <h2 class="px-2 text-xl font-medium">
                 {{ 'CATERING.CHARGE_CODES_EDIT' | translate }}
             </h2>
             <button icon matRipple mat-dialog-close *ngIf="!loading">
@@ -19,15 +19,15 @@ import { CateringStateService } from './catering-state.service';
         </header>
         <main
             *ngIf="!loading; else load_state"
-            class="overflow-auto max-h-[65vh] min-h-[20rem] flex flex-col"
+            class="flex max-h-[65vh] min-h-[20rem] flex-col overflow-auto"
         >
             @for (code of charge_codes; track i; let i = $index) {
                 <div
-                    class="flex items-center space-x-2 w-full hover:bg-base-200 px-2 py-1"
+                    class="flex w-full items-center space-x-2 px-2 py-1 hover:bg-base-200"
                 >
                     <mat-form-field
                         appearance="outline"
-                        class="flex-1 no-subscript"
+                        class="no-subscript flex-1"
                     >
                         <input
                             matInput
@@ -50,13 +50,13 @@ import { CateringStateService } from './catering-state.service';
             }
         </main>
         <footer
-            class="flex items-center p-2 space-x-2 border-t border-base-200"
+            class="flex items-center space-x-2 border-t border-base-200 p-2"
             *ngIf="!loading"
         >
-            <button btn matRipple class="w-48 inverse relative">
+            <button btn matRipple class="inverse relative w-48">
                 {{ 'CATERING.CHARGE_CODES_IMPORT' | translate }}
                 <input
-                    class="opacity-0 absolute inset-0"
+                    class="absolute inset-0 opacity-0"
                     type="file"
                     (change)="addCodesFromFile($event)"
                 />
@@ -70,7 +70,7 @@ import { CateringStateService } from './catering-state.service';
         </footer>
         <ng-template #load_state>
             <main
-                class="flex flex-col items-center justify-center p-20 space-y-2"
+                class="flex flex-col items-center justify-center space-y-2 p-20"
             >
                 <mat-spinner diameter="32"></mat-spinner>
                 <p>Saving changes to charge codes...</p>

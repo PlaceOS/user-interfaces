@@ -22,7 +22,7 @@ import { loadLockerBanks, loadLockers } from '../booking.utilities';
     ],
     template: `
         <h3 class="font-bold">{{ 'COMMON.RESULTS' | translate }}</h3>
-        <p count class="text-sm opacity-60 mb-4">
+        <p count class="mb-4 text-sm opacity-60">
             {{
                 'COMMON.RESULTS_COUNT'
                     | translate: { count: (locker_banks | async)?.length || 0 }
@@ -36,20 +36,20 @@ import { loadLockerBanks, loadLockers } from '../booking.utilities';
                 <li
                     locker_bank
                     *ngFor="let locker_bank of locker_banks | async"
-                    class="relative rounded-lg w-full shadow border bg-base-100 border-base-200 overflow-hidden"
+                    class="relative w-full overflow-hidden rounded-lg border border-base-200 bg-base-100 shadow"
                     [class.!border-blue-400]="active === locker_bank.id"
                 >
                     <button
                         name="select-locker_bank"
                         matRipple
-                        class="w-full h-full flex p-2"
+                        class="flex h-full w-full p-2"
                         (click)="selectLockerBank(locker_bank)"
                     >
                         <div
-                            class="relative w-20 h-20 rounded-xl bg-base-200 mr-4 flex items-center justify-center"
+                            class="relative mr-4 flex h-20 w-20 items-center justify-center rounded-xl bg-base-200"
                         >
                             <div
-                                class="absolute top-1 left-1 border border-neutral bg-base-200 rounded-full h-6 w-6 flex items-center justify-center text-white"
+                                class="absolute left-1 top-1 flex h-6 w-6 items-center justify-center rounded-full border border-neutral bg-base-200 text-white"
                                 *ngIf="selected.includes(locker_bank.id)"
                             >
                                 <app-icon>done</app-icon>
@@ -60,7 +60,7 @@ import { loadLockerBanks, loadLockers } from '../booking.utilities';
                                     locker_bank.images?.length;
                                     else placeholder
                                 "
-                                class="object-cover h-full"
+                                class="h-full object-cover"
                                 [source]="locker_bank.images[0]"
                             />
                             <ng-template #placeholder>
@@ -70,7 +70,7 @@ import { loadLockerBanks, loadLockers } from '../booking.utilities';
                                 />
                             </ng-template>
                         </div>
-                        <div class="space-y-2 pt-2 flex-1 text-left">
+                        <div class="flex-1 space-y-2 pt-2 text-left">
                             <span class="font-medium">
                                 {{
                                     locker_bank.name ||
@@ -78,7 +78,7 @@ import { loadLockerBanks, loadLockers } from '../booking.utilities';
                                         'Locker_bank'
                                 }}
                             </span>
-                            <div class="flex items-center text-sm space-x-2">
+                            <div class="flex items-center space-x-2 text-sm">
                                 <app-icon class="text-blue-500">place</app-icon>
                                 <p class="text-xs">
                                     {{
@@ -90,7 +90,7 @@ import { loadLockerBanks, loadLockers } from '../booking.utilities';
                                     }}
                                 </p>
                             </div>
-                            <div class="flex items-center text-sm space-x-2">
+                            <div class="flex items-center space-x-2 text-sm">
                                 <app-icon class="text-blue-500"
                                     >people</app-icon
                                 >
@@ -126,7 +126,7 @@ import { loadLockerBanks, loadLockers } from '../booking.utilities';
                         }}</app-icon>
                     </button> -->
                     <div
-                        class="absolute bottom-2 right-2 bg-base-200 rounded text-xs px-2 py-1 font-mono"
+                        class="absolute bottom-2 right-2 rounded bg-base-200 px-2 py-1 font-mono text-xs"
                         *ngIf="locker_bank.tags?.length"
                     >
                         {{ locker_bank.tags[0] }}
@@ -137,7 +137,7 @@ import { loadLockerBanks, loadLockers } from '../booking.utilities';
         <ng-template #load_state>
             <div
                 loading
-                class="p-16 flex flex-col items-center justify-center space-y-2"
+                class="flex flex-col items-center justify-center space-y-2 p-16"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
                 <p class="opacity-30">
@@ -148,9 +148,9 @@ import { loadLockerBanks, loadLockers } from '../booking.utilities';
         <ng-template #empty_state>
             <div
                 empty
-                class="p-16 flex flex-col items-center justify-center space-y-2"
+                class="flex flex-col items-center justify-center space-y-2 p-16"
             >
-                <p class="opacity-30 text-center">
+                <p class="text-center opacity-30">
                     {{ 'BOOKINGS.LOCKER_LIST_EMPTY' | translate }}
                 </p>
             </div>

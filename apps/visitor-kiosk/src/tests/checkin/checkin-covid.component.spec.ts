@@ -36,13 +36,13 @@ describe('CheckinCovidComponent', () => {
         (common_mod.notifyError as any) = jest.fn();
         spectator.component.confirm();
         expect(common_mod.notifyError).toBeCalledWith(
-            'Please select yes or no for each question'
+            'Please select yes or no for each question',
         );
         spectator.component.contact = 'true';
         spectator.component.symptoms = 'false';
         spectator.component.confirm();
         expect(spectator.inject(CheckinStateService).setError).toBeCalledTimes(
-            1
+            1,
         );
         spectator.component.contact = 'false';
         spectator.component.confirm();

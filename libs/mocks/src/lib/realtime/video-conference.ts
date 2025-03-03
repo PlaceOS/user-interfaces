@@ -87,5 +87,5 @@ class VideoConferenceModule {
 
 export const createVideoConferenceModule = (
     space: HashMap = {},
-    overrides: HashMap = {}
+    overrides: HashMap = {},
 ) => new VideoConferenceModule({ ...space, ...overrides });

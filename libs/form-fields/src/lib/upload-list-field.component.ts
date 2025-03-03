@@ -12,34 +12,34 @@ import { uploadFiles } from '@placeos/cloud-uploads';
     template: `
         <div class="flex items-center space-x-2">
             <div
-                class="w-52 h-48 relative border-2 border-dashed border-base-200 flex flex-col items-center justify-center rounded hover:bg-neutral cursor-pointer"
+                class="relative flex h-48 w-52 cursor-pointer flex-col items-center justify-center rounded border-2 border-dashed border-base-200 hover:bg-neutral"
             >
-                <app-icon class="text-3xl mb-2">upload_file</app-icon>
+                <app-icon class="mb-2 text-3xl">upload_file</app-icon>
                 <p class="text-center">Drop files</p>
-                <p class="text-center text-xs my-1">or</p>
+                <p class="my-1 text-center text-xs">or</p>
                 <button btn matRipple class="w-28">Browse</button>
                 <input
                     multiple="true"
                     type="file"
-                    class="absolute inset-0 opacity-0 max-w-full"
+                    class="absolute inset-0 max-w-full opacity-0"
                     (change)="onFileEvent($event)"
                 />
             </div>
-            <div class="w-1/2 h-48 flex-1 flex flex-col items-center">
+            <div class="flex h-48 w-1/2 flex-1 flex-col items-center">
                 <div
                     list
-                    class="space-y-2 w-full h-full overflow-auto"
+                    class="h-full w-full space-y-2 overflow-auto"
                     *ngIf="list?.length; else empty_state"
                 >
                     <div
                         item
                         *ngFor="let item of list"
-                        class="w-full flex items-center border border-base-200 rounded bg-base-100 hover:bg-base-200"
+                        class="flex w-full items-center rounded border border-base-200 bg-base-100 hover:bg-base-200"
                         [class.!bg-error]="item.progress < 1"
                         [class.!bg-opacity-20]="item.progress < 1"
                     >
                         <div
-                            class="flex-1 w-px font-mono truncate px-2 text-sm"
+                            class="w-px flex-1 truncate px-2 font-mono text-sm"
                         >
                             {{ item.name }}
                         </div>
@@ -54,7 +54,7 @@ import { uploadFiles } from '@placeos/cloud-uploads';
                                 ></mat-progress-spinner>
 
                                 <div
-                                    class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-sm font-bold"
+                                    class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-sm font-bold"
                                 >
                                     {{ item.progress }}
                                 </div>
@@ -79,7 +79,7 @@ import { uploadFiles } from '@placeos/cloud-uploads';
         </div>
         <ng-template #empty_state>
             <div
-                class="h-full w-full flex flex-col justify-center items-center"
+                class="flex h-full w-full flex-col items-center justify-center"
             >
                 <p class="opacity-30">No uploaded files</p>
             </div>
@@ -93,7 +93,7 @@ import { uploadFiles } from '@placeos/cloud-uploads';
             multi: true,
         },
     ],
-    standalone: false
+    standalone: false,
 })
 export class UploadListFieldComponent implements ControlValueAccessor {
     public list: Attachment[] = [];

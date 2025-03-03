@@ -6,7 +6,7 @@ import { AsyncHandler, SettingsService } from '@placeos/common';
     template: `
         <button
             matRipple
-            class="flex items-center justify-between hover:bg-base-200 w-full p-2 rounded"
+            class="flex w-full items-center justify-between rounded p-2 hover:bg-base-200"
             (click)="setDarkMode(!dark_mode)"
         >
             <div>Dark Mode</div>

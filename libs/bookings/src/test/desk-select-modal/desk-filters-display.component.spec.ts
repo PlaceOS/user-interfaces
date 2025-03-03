@@ -63,7 +63,7 @@ describe('DeskFiltersDisplayComponent', () => {
         spectator.detectChanges();
         expect(spectator.inject(BookingFormService).setFeature).toBeCalledWith(
             'standing',
-            false
+            false,
         );
     });
 });

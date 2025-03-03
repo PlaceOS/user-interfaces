@@ -126,7 +126,7 @@ import { OrganisationService } from '@placeos/organisation';
         </fullscreen-modal-shell>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class AssetBulkFormComponent extends AsyncHandler implements OnInit {
     public readonly form = generateAssetForm();

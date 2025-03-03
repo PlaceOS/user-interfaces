@@ -8,7 +8,7 @@ import { DialogEvent, notifyError } from '@placeos/common';
         <div *ngIf="!failure; else fail_state" class="relative">
             <h2 class="p-4 text-xl">COVID-19 Questionnaire</h2>
             <main class="p-4" [formGroup]="form">
-                <div class="flex flex-col mb-4">
+                <div class="mb-4 flex flex-col">
                     <label>
                         Have you travelled overseas within the last 14
                         days?<span>*</span>
@@ -21,7 +21,7 @@ import { DialogEvent, notifyError } from '@placeos/common';
                         <mat-radio-button [value]="false">No</mat-radio-button>
                     </mat-radio-group>
                 </div>
-                <div class="flex flex-col mb-4">
+                <div class="mb-4 flex flex-col">
                     <label>
                         Are you unwell or experiencing any cold or flu-like
                         symptoms?<span>*</span>
@@ -45,7 +45,7 @@ import { DialogEvent, notifyError } from '@placeos/common';
                     </mat-radio-group>
                 </div>
             </main>
-            <footer class="flex justify-center items-center p-2">
+            <footer class="flex items-center justify-center p-2">
                 <button btn matRipple (click)="submit()">Submit</button>
             </footer>
             <button close icon matRipple mat-dialog-close>
@@ -53,7 +53,7 @@ import { DialogEvent, notifyError } from '@placeos/common';
             </button>
         </div>
         <ng-template #fail_state>
-            <main failure class="pt-8 relative">
+            <main failure class="relative pt-8">
                 <p class="p-4">
                     Your request to work from the office has been rejected based
                     on your response to the compulsory Covid-19 questions.
@@ -80,7 +80,7 @@ import { DialogEvent, notifyError } from '@placeos/common';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class DeskQuestionsModalComponent {
     @Output() public event = new EventEmitter<DialogEvent>();

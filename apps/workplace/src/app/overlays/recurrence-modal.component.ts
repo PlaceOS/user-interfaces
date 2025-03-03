@@ -91,7 +91,7 @@ export const RECURRENCE_METADATA = {
         </ng-template>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class RecurrenceModalComponent extends AsyncHandler implements OnInit {
     /** Emitter for user action on the modal */
@@ -133,7 +133,7 @@ export class RecurrenceModalComponent extends AsyncHandler implements OnInit {
         this.selected_pattern = this.patterns.find(
             (i) =>
                 i.interval === details?.interval &&
-                i.pattern === details?.pattern
+                i.pattern === details?.pattern,
         );
     }
 

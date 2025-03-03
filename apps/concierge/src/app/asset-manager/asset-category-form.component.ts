@@ -13,9 +13,9 @@ import { i18n, notifyError } from '@placeos/common';
     selector: 'asset-category-form',
     template: `
         <header
-            class="sticky top-0 p-2 m-2 w-[calc(100%-1rem)] border-none z-10 bg-base-200 rounded"
+            class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded border-none bg-base-200 p-2"
         >
-            <h2 class="text-xl font-medium px-2">
+            <h2 class="px-2 text-xl font-medium">
                 {{
                     (form.value.id
                         ? 'APP.CONCIERGE.ASSETS_CATEGORY_EDIT'
@@ -28,7 +28,7 @@ import { i18n, notifyError } from '@placeos/common';
             </button>
         </header>
         <main
-            class="flex-1 h-1/2 overflow-auto p-2 w-[24rem] max-w-[80vw]"
+            class="h-1/2 w-[24rem] max-w-[80vw] flex-1 overflow-auto p-2"
             [formGroup]="form"
             *ngIf="!loading; else load_state"
         >
@@ -72,7 +72,7 @@ import { i18n, notifyError } from '@placeos/common';
             </div>
         </main>
         <footer
-            class="flex justify-end space-x-2 p-2 border-t border-base-200"
+            class="flex justify-end space-x-2 border-t border-base-200 p-2"
             *ngIf="!loading"
         >
             <button btn matRipple class="w-32" (click)="save()">
@@ -89,7 +89,7 @@ import { i18n, notifyError } from '@placeos/common';
         </ng-template>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class AssetCategoryFormComponent {
     public loading = false;

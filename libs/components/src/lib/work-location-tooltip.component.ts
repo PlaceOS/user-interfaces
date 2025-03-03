@@ -19,7 +19,7 @@ import { WFHSettingsModalComponent } from 'libs/users/src/lib/wfh-settings-modal
     selector: 'work-location-tooltip',
     template: `
         <div
-            class="flex flex-col w-[18.5rem] rounded bg-base-100 shadow relative -top-12 -right-1 overflow-hidden"
+            class="relative -right-1 -top-12 flex w-[18.5rem] flex-col overflow-hidden rounded bg-base-100 shadow"
         >
             <div class="flex items-center justify-between px-2">
                 <h3 class="px-2 py-4 font-medium">
@@ -37,7 +37,7 @@ import { WFHSettingsModalComponent } from 'libs/users/src/lib/wfh-settings-modal
                 </button>
             </div>
 
-            <h3 class="px-4 font-medium text-sm">
+            <h3 class="px-4 text-sm font-medium">
                 {{ now | date: 'fullDate' }}
             </h3>
             <div
@@ -53,7 +53,7 @@ import { WFHSettingsModalComponent } from 'libs/users/src/lib/wfh-settings-modal
                     [class.opacity-30]="now > timeFrom(block.end_time)"
                 >
                     <div
-                        class="rounded-full h-10 w-10 flex items-center justify-center bg-base-200 z-20"
+                        class="z-20 flex h-10 w-10 items-center justify-center rounded-full bg-base-200"
                         [class.bg-base-200]="
                             now < timeFrom(block.start_time) ||
                             now > timeFrom(block.end_time)
@@ -71,10 +71,10 @@ import { WFHSettingsModalComponent } from 'libs/users/src/lib/wfh-settings-modal
                             location_icon(timeFrom(block.start_time))
                         }}</app-icon>
                     </div>
-                    <div class="flex-1 ml-2">
+                    <div class="ml-2 flex-1">
                         <button
                             matRipple
-                            class="font-medium flex items-center space-x-2 rounded hover:bg-base-200 px-2 py-1"
+                            class="flex items-center space-x-2 rounded px-2 py-1 font-medium hover:bg-base-200"
                             [matMenuTriggerFor]="menu"
                         >
                             <div>
@@ -98,7 +98,7 @@ import { WFHSettingsModalComponent } from 'libs/users/src/lib/wfh-settings-modal
                                 </div>
                             </button>
                         </mat-menu>
-                        <div class="text-xs opacity-60 px-2">
+                        <div class="px-2 text-xs opacity-60">
                             {{ timeFrom(block.start_time) | date: 'shortTime' }}
                             &ndash;
                             {{ timeFrom(block.end_time) | date: 'shortTime' }}
@@ -106,14 +106,14 @@ import { WFHSettingsModalComponent } from 'libs/users/src/lib/wfh-settings-modal
                     </div>
                     <div
                         *ngIf="i > 0"
-                        class="absolute -top-2 left-7 h-4 w-0 border-l-2 border-dashed border-base-200 -translate-x-px"
+                        class="absolute -top-2 left-7 h-4 w-0 -translate-x-px border-l-2 border-dashed border-base-200"
                     ></div>
                 </div>
             </div>
         </div>
         <ng-template #empty_state>
             <div
-                class="flex flex-col items-center justify-center p-8 space-y-2 w-full opacity-30"
+                class="flex w-full flex-col items-center justify-center space-y-2 p-8 opacity-30"
             >
                 <app-icon class="text-6xl">event_busy</app-icon>
                 <p class="text-center text-sm">
@@ -126,7 +126,7 @@ import { WFHSettingsModalComponent } from 'libs/users/src/lib/wfh-settings-modal
         </ng-template>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class WorkLocationTooltipComponent implements OnInit {
     public locations = [];

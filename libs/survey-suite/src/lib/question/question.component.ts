@@ -14,7 +14,7 @@ import { Question, QuestionType, QuestionTypeOptions } from '../types';
     template: `
         <div
             #container_el
-            class="flex flex-col w-full items-center justify-between px-4 py-2 pt-4"
+            class="flex w-full flex-col items-center justify-between px-4 py-2 pt-4"
         >
             <ng-container *ngIf="!preview; else previewTitle">
                 <mat-form-field class="w-full" appearance="outline">
@@ -36,12 +36,12 @@ import { Question, QuestionType, QuestionTypeOptions } from '../types';
             </ng-container>
 
             <ng-template #previewTitle>
-                <span class="text-xl w-full mb-4">{{
+                <span class="mb-4 w-full text-xl">{{
                     question.title || 'No question'
                 }}</span>
             </ng-template>
 
-            <div class="flex flex-col w-full mb-4" [ngSwitch]="question.type">
+            <div class="mb-4 flex w-full flex-col" [ngSwitch]="question.type">
                 <ng-container *ngSwitchCase="QuestionType.Comment_Box">
                     <multi-line-text
                         [question]="question"
@@ -83,7 +83,7 @@ import { Question, QuestionType, QuestionTypeOptions } from '../types';
             </div>
 
             <div
-                class="flex flex-row w-full items-center justify-end space-x-4"
+                class="flex w-full flex-row items-center justify-end space-x-4"
                 *ngIf="!preview"
             >
                 <!-- <mat-form-field appearance="outline" class="h-[2rem]">

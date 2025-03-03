@@ -24,8 +24,8 @@ import { openConfirmModal } from '@placeos/components';
     selector: 'landing-upcoming',
     template: `
         <div class="py-2">
-            <div class="flex items-center justify-between mb-2 sm:mb-4 px-4">
-                <div class="sm:text-lg font-medium">
+            <div class="mb-2 flex items-center justify-between px-4 sm:mb-4">
+                <div class="font-medium sm:text-lg">
                     {{ 'APP.WORKPLACE.UPCOMING' | translate }}
                 </div>
                 <a
@@ -38,7 +38,7 @@ import { openConfirmModal } from '@placeos/components';
                 </a>
                 <a
                     name="upcoming-view-all-mobile"
-                    class="inverse flex sm:hidden text-blue-500 underline relative top-8"
+                    class="inverse text-blue-500 relative top-8 flex underline sm:hidden"
                     [routerLink]="['/your-bookings']"
                 >
                     {{ 'APP.WORKPLACE.UPCOMING_VIEW' | translate }}
@@ -77,7 +77,7 @@ import { openConfirmModal } from '@placeos/components';
         </div>
         <ng-template #empty_state>
             <div
-                class="w-full p-8 flex flex-col items-center justify-center space-y-4"
+                class="flex w-full flex-col items-center justify-center space-y-4 p-8"
             >
                 <img src="assets/img/no-events.svg" class="mr-4" />
                 <p class="opacity-30">

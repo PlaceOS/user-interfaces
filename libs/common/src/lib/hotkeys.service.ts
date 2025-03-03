@@ -64,7 +64,7 @@ export class HotkeysService {
     public listen(combo: string | string[], next: () => void): Subscription {
         combo = combo instanceof Array ? combo : combo.split('+');
         const combination: string[] = combo.map((i) =>
-            this.mapKey(i.toLowerCase())
+            this.mapKey(i.toLowerCase()),
         );
         if (combination.length > 0 && this.validCombination(combination)) {
             this.registered_combos.push(combination);
@@ -93,7 +93,7 @@ export class HotkeysService {
                     }
                     const total = presses.reduce(
                         (a, v) => a + (v > 0 ? 1 : -1),
-                        0
+                        0,
                     );
                     if (total >= combination.length) {
                         next();

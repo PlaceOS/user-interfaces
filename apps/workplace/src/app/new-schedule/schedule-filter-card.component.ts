@@ -7,26 +7,26 @@ import { SettingsService } from '@placeos/common';
     selector: 'schedule-filter-card',
     template: `
         <div
-            class="flex items-center border-b border-base-200 space-x-2 mb-4 text-xl"
+            class="mb-4 flex items-center space-x-2 border-b border-base-200 text-xl"
         >
             <button icon matRipple (click)="dismiss()">
                 <app-icon>chevron_left</app-icon>
             </button>
-            <h2 class="flex-1 w-1/2 text-center">
+            <h2 class="w-1/2 flex-1 text-center">
                 {{ 'APP.WORKPLACE.SCHEDULE_FILTERS' | translate }}
             </h2>
             <app-icon></app-icon>
         </div>
-        <div class="space-y-4 border-b border-base-200 mb-4 pb-4 px-2">
+        <div class="mb-4 space-y-4 border-b border-base-200 px-2 pb-4">
             <button
                 matRipple
                 name="schedule-toggle-event-filter"
-                class="flex items-center space-x-2 w-full text-left"
+                class="flex w-full items-center space-x-2 text-left"
                 *ngIf="hasFeature('spaces')"
                 (click)="toggleType('event')"
             >
                 <div
-                    class="h-10 w-10 rounded-full flex items-center justify-center bg-base-200 text-2xl"
+                    class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200 text-2xl"
                 >
                     <app-icon>place</app-icon>
                 </div>
@@ -45,12 +45,12 @@ import { SettingsService } from '@placeos/common';
             <button
                 matRipple
                 name="schedule-toggle-desk-filter"
-                class="flex items-center space-x-2 w-full text-left"
+                class="flex w-full items-center space-x-2 text-left"
                 *ngIf="hasFeature('desks')"
                 (click)="toggleType('desk')"
             >
                 <div
-                    class="h-10 w-10 rounded-full flex items-center justify-center bg-base-200 text-2xl"
+                    class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200 text-2xl"
                 >
                     <img src="assets/icons/desk-outline.svg" class="w-6" />
                 </div>
@@ -67,12 +67,12 @@ import { SettingsService } from '@placeos/common';
             <button
                 matRipple
                 name="schedule-toggle-parking-filter"
-                class="flex items-center space-x-2 w-full text-left"
+                class="flex w-full items-center space-x-2 text-left"
                 *ngIf="hasFeature('parking')"
                 (click)="toggleType('parking')"
             >
                 <div
-                    class="h-10 w-10 rounded-full flex items-center justify-center bg-base-200 text-2xl"
+                    class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200 text-2xl"
                 >
                     <app-icon>drive_eta</app-icon>
                 </div>
@@ -93,12 +93,12 @@ import { SettingsService } from '@placeos/common';
             <button
                 matRipple
                 name="schedule-toggle-visitor-filter"
-                class="flex items-center space-x-2 w-full text-left"
+                class="flex w-full items-center space-x-2 text-left"
                 *ngIf="hasFeature('visitor-invite')"
                 (click)="toggleType('visitor')"
             >
                 <div
-                    class="h-10 w-10 rounded-full flex items-center justify-center bg-base-200 text-2xl"
+                    class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200 text-2xl"
                 >
                     <app-icon>people</app-icon>
                 </div>
@@ -121,12 +121,12 @@ import { SettingsService } from '@placeos/common';
             <button
                 matRipple
                 name="schedule-toggle-locker-filter"
-                class="flex items-center space-x-2 w-full text-left"
+                class="flex w-full items-center space-x-2 text-left"
                 *ngIf="hasFeature('lockers')"
                 (click)="toggleType('locker')"
             >
                 <div
-                    class="h-10 w-10 rounded-full flex items-center justify-center bg-base-200 text-2xl"
+                    class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200 text-2xl"
                 >
                     <app-icon>door_back</app-icon>
                 </div>
@@ -149,12 +149,12 @@ import { SettingsService } from '@placeos/common';
             <button
                 matRipple
                 name="schedule-toggle-locker-filter"
-                class="flex items-center space-x-2 w-full text-left"
+                class="flex w-full items-center space-x-2 text-left"
                 *ngIf="hasFeature('group-events')"
                 (click)="toggleType('group-event')"
             >
                 <div
-                    class="h-10 w-10 rounded-full flex items-center justify-center bg-base-200 text-2xl"
+                    class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200 text-2xl"
                 >
                     <app-icon>door_back</app-icon>
                 </div>
@@ -192,7 +192,7 @@ import { SettingsService } from '@placeos/common';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class ScheduleFilterCardComponent {
     public readonly filters = this._state.filters;

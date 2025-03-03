@@ -39,7 +39,7 @@ describe('DeskFlow', () => {
                     levelsForBuilding: jest.fn(() => []),
                 },
             },
-            { provide: SettingsService, useValue: { get: jest.fn() } }
+            { provide: SettingsService, useValue: { get: jest.fn() } },
         ],
         declarations: [
             MockComponent(DeskFlowDetailedFormComponent),

@@ -1,9 +1,15 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { DomSanitizer, SafeHtml, SafeResourceUrl, SafeScript, SafeStyle } from '@angular/platform-browser';
+import {
+    DomSanitizer,
+    SafeHtml,
+    SafeResourceUrl,
+    SafeScript,
+    SafeStyle,
+} from '@angular/platform-browser';
 
 @Pipe({
     name: 'safe',
-    standalone: false
+    standalone: false,
 })
 export class SafePipe implements PipeTransform {
     constructor(private sanitizer: DomSanitizer) {}
@@ -15,7 +21,7 @@ export class SafePipe implements PipeTransform {
      */
     public transform(
         value: string,
-        type: 'resource' | 'url' | 'script' | 'style' | 'html' = 'html'
+        type: 'resource' | 'url' | 'script' | 'style' | 'html' = 'html',
     ): SafeHtml | SafeResourceUrl | SafeScript | SafeStyle {
         switch (type) {
             case 'resource':

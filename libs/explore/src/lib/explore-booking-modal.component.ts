@@ -28,7 +28,7 @@ export interface ExploreBookingModalData {
             </button>
         </header>
         <ng-container *ngIf="!(loading | async); else load_state">
-            <main *ngIf="form" [formGroup]="form" class="p-4 max-w-[85vw]">
+            <main *ngIf="form" [formGroup]="form" class="max-w-[85vw] p-4">
                 <div class="flex flex-col">
                     <label for="title">Title<span>*</span>:</label>
                     <mat-form-field appearance="outline">
@@ -57,7 +57,7 @@ export interface ExploreBookingModalData {
                     <label>{{ 'EXPLORE.BOOKING_SPACE' | translate }}:</label>
                     <div
                         name="space"
-                        class="px-4 py-3 border border-base-200 rounded w-full mb-4"
+                        class="mb-4 w-full rounded border border-base-200 px-4 py-3"
                     >
                         {{
                             form.controls.resources?.value[0]?.display_name ||
@@ -65,7 +65,7 @@ export interface ExploreBookingModalData {
                         }}
                     </div>
                     <div
-                        class="mb-4 -mt-2 px-2 py-1 text-xs rounded"
+                        class="-mt-2 mb-4 rounded px-2 py-1 text-xs"
                         *ngIf="alert"
                         [class.bg-info]="alert[0] === 'info'"
                         [class.text-info-content]="alert[0] === 'info'"
@@ -77,21 +77,21 @@ export interface ExploreBookingModalData {
                         {{ alert[1] }}
                     </div>
                 </div>
-                <div class="flex sm:space-x-4 flex-wrap">
+                <div class="flex flex-wrap sm:space-x-4">
                     <div
-                        class="flex flex-col flex-1 w-full sm:w-auto"
+                        class="flex w-full flex-1 flex-col sm:w-auto"
                         *ngIf="form.controls.date"
                     >
                         <label>{{ 'FORM.DATE' | translate }}:</label>
                         <div
-                            class="px-4 py-3 border border-base-200 rounded w-full mb-4"
+                            class="mb-4 w-full rounded border border-base-200 px-4 py-3"
                         >
                             {{ form.value.date | date: 'mediumDate' }} at
                             {{ form.value.date | date: time_format }}
                         </div>
                     </div>
                     <div
-                        class="flex flex-col w-full sm:w-auto"
+                        class="flex w-full flex-col sm:w-auto"
                         *ngIf="form.controls.duration"
                     >
                         <label>{{ 'FORM.DURATION' | translate }}:</label>
@@ -105,14 +105,14 @@ export interface ExploreBookingModalData {
                     </div>
                 </div>
             </main>
-            <footer class="flex justify-center p-2 border-t border-base-200">
+            <footer class="flex justify-center border-t border-base-200 p-2">
                 <button btn matRipple class="w-32" (click)="save()">
                     {{ 'COMMON.SAVE' | translate }}
                 </button>
             </footer>
         </ng-container>
         <ng-template #load_state>
-            <div load class="h-64 flex flex-col items-center justify-center">
+            <div load class="flex h-64 flex-col items-center justify-center">
                 <mat-spinner class="m-4" [diameter]="48"></mat-spinner>
                 <p>{{ loading | async }}</p>
             </div>

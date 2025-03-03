@@ -40,7 +40,7 @@ describe('DesksTopbarComponent', () => {
             }),
             MockProvider(MatDialog, {
                 open: jest.fn(
-                    () => ({ afterClosed: jest.fn(() => of()) } as any)
+                    () => ({ afterClosed: jest.fn(() => of()) }) as any,
                 ),
             }),
         ],

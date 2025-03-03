@@ -7,9 +7,9 @@ import { startOfMinute } from 'date-fns';
     selector: 'app-landing',
     template: `
         <topbar class="z-10" *ngIf="!hide_nav"></topbar>
-        <div class="flex flex-1 h-1/2 bg-base-200">
+        <div class="flex h-1/2 flex-1 bg-base-200">
             <div
-                class="relative hidden sm:flex flex-col w-[18rem] h-full overflow-hidden bg-base-100 border-r border-base-300"
+                class="relative hidden h-full w-[18rem] flex-col overflow-hidden border-r border-base-300 bg-base-100 sm:flex"
                 *ngIf="!hide_landing_sidebar"
             >
                 <div class="flex items-center space-x-2 p-2">
@@ -43,7 +43,7 @@ import { startOfMinute } from 'date-fns';
                         </div>
                     </button>
                 </div>
-                <div class="flex-1 w-full h-1/2">
+                <div class="h-1/2 w-full flex-1">
                     <landing-colleagues
                         *ngIf="tab === 'people' && !hide_colleagues"
                     ></landing-colleagues>
@@ -52,12 +52,12 @@ import { startOfMinute } from 'date-fns';
                     ></landing-favourites>
                 </div>
             </div>
-            <div class="flex-1 h-full w-1/2 sm:px-4 overflow-auto z-0">
+            <div class="z-0 h-full w-1/2 flex-1 overflow-auto sm:px-4">
                 <header
-                    class="sticky top-0 z-50 bg-ternary px-4 mb-4 sm:rounded-b flex items-center justify-between overflow-hidden"
+                    class="sticky top-0 z-50 mb-4 flex items-center justify-between overflow-hidden bg-ternary px-4 sm:rounded-b"
                 >
                     <div class="">
-                        <div class="sm:text-xl font-medium">
+                        <div class="font-medium sm:text-xl">
                             {{
                                 'APP.WORKPLACE.WELCOME_MESSAGE'
                                     | translate: { name: user?.name }
@@ -86,7 +86,7 @@ import { startOfMinute } from 'date-fns';
                 ></landing-quick-links>
                 <landing-availability></landing-availability>
                 <div
-                    class="mx-4 w-[calc(100%-2rem)] h-px bg-base-200 mb-2"
+                    class="mx-4 mb-2 h-px w-[calc(100%-2rem)] bg-base-200"
                 ></div>
                 <landing-upcoming></landing-upcoming>
             </div>

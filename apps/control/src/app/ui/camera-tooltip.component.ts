@@ -16,7 +16,7 @@ export enum ZoomDirection {
     selector: 'camera-tooltip',
     template: `
         <div
-            class="my-2 bg-base-100 shadow rounded flex flex-col"
+            class="my-2 flex flex-col rounded bg-base-100 shadow"
             *ngIf="(camera_list | async)?.length; else empty_state"
         >
             <mat-form-field appearance="outline" class="m-4 h-12">
@@ -33,11 +33,11 @@ export enum ZoomDirection {
                     </mat-option>
                 </mat-select>
             </mat-form-field>
-            <div class="flex relative border-t border-base-200 mt-1">
+            <div class="relative mt-1 flex border-t border-base-200">
                 <div
-                    class="flex flex-col items-center border-r border-base-200 p-4 space-y-2 relative"
+                    class="relative flex flex-col items-center space-y-2 border-r border-base-200 p-4"
                 >
-                    <h3 class="mb-2 text-xl font-medium pr-12">
+                    <h3 class="mb-2 pr-12 text-xl font-medium">
                         {{ 'APP.CONTROL.CAMERA_PRESETS' | translate }}
                     </h3>
                     <ng-container *ngIf="presets?.length; else no_presets">
@@ -59,7 +59,7 @@ export enum ZoomDirection {
                                 icon
                                 matRipple
                                 *ngIf="presets?.length > 1"
-                                class="rounded border border-error bg-base-100 text-error h-12 w-12"
+                                class="h-12 w-12 rounded border border-error bg-base-100 text-error"
                                 (click)="removePreset(name)"
                             >
                                 <app-icon>delete</app-icon>
@@ -74,16 +74,16 @@ export enum ZoomDirection {
                     <button
                         icon
                         matRipple
-                        class="absolute top-1 right-4"
+                        class="absolute right-4 top-1"
                         [matMenuTriggerFor]="menu"
                     >
                         <app-icon>add</app-icon>
                     </button>
                     <mat-menu #menu="matMenu">
-                        <div class="px-2 w-full flex flex-col">
+                        <div class="flex w-full flex-col px-2">
                             <mat-form-field
                                 appearance="outline"
-                                class="w-full h-[3.5rem]"
+                                class="h-[3.5rem] w-full"
                                 (click)="$event.stopPropagation()"
                             >
                                 <input
@@ -123,7 +123,7 @@ export enum ZoomDirection {
                         ></joystick>
                         <div
                             zoom
-                            class="flex flex-col items-center border border-base-200 rounded"
+                            class="flex flex-col items-center rounded border border-base-200"
                         >
                             <button
                                 zoom-in
@@ -137,7 +137,7 @@ export enum ZoomDirection {
                                 <app-icon>add</app-icon>
                             </button>
                             <div
-                                class="text-xs h-10 w-10 flex items-center justify-center border-t border-b border-base-200"
+                                class="flex h-10 w-10 items-center justify-center border-b border-t border-base-200 text-xs"
                             >
                                 {{ 'APP.CONTROL.ZOOM' | translate }}
                             </div>
@@ -157,7 +157,7 @@ export enum ZoomDirection {
                     </div>
                 </div>
                 <div
-                    class="absolute inset-0 bg-base-100 bg-opacity-75 flex items-center justify-center"
+                    class="absolute inset-0 flex items-center justify-center bg-base-100 bg-opacity-75"
                     *ngIf="!active_camera"
                 >
                     <p>{{ 'APP.CONTROLS.CAMERA_SELECT_MSG' | translate }}</p>
@@ -179,7 +179,7 @@ export enum ZoomDirection {
         </div>
         <ng-template #empty_state>
             <div
-                class="my-2 bg-base-100 shadow rounded flex flex-col p-8 text-center"
+                class="my-2 flex flex-col rounded bg-base-100 p-8 text-center shadow"
             >
                 <p>{{ 'APP.CONTROL.CAMERAS_EMPTY' | translate }}</p>
             </div>

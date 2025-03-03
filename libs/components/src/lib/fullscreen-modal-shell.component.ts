@@ -4,10 +4,10 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
     selector: 'fullscreen-modal-shell,[fs-modal-shell]',
     template: `
         <div
-            class="fixed top-0 left-0 right-0 bottom-0 bg-base-100 flex flex-col overflow-auto"
+            class="fixed bottom-0 left-0 right-0 top-0 flex flex-col overflow-auto bg-base-100"
         >
             <header
-                class="sticky h-14 flex items-center justify-between top-0 px-4 py-2 mx-auto my-2 max-w-[640px] w-full border-none z-10 bg-base-200 rounded"
+                class="sticky top-0 z-10 mx-auto my-2 flex h-14 w-full max-w-[640px] items-center justify-between rounded border-none bg-base-200 px-4 py-2"
             >
                 <h2 class="text-xl font-medium capitalize">
                     {{ heading }}
@@ -23,15 +23,15 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
                 }
             </header>
             <main
-                class="h-1/2 flex-1 px-4 py-2 space-y-8 z-0 max-w-[640px] w-full mx-auto"
+                class="z-0 mx-auto h-1/2 w-full max-w-[640px] flex-1 space-y-8 px-4 py-2"
             >
                 <ng-container *ngIf="!loading; else load_state">
                     <ng-content></ng-content>
-                    <div class="w-full h-10"></div>
+                    <div class="h-10 w-full"></div>
                 </ng-container>
             </main>
             <footer
-                class="fixed bottom-0 left-1/2 -translate-x-1/2 px-4 py-2 mx-auto my-2 max-w-[640px] w-full border-none z-10 bg-base-200 rounded flex items-center justify-end"
+                class="fixed bottom-0 left-1/2 z-10 mx-auto my-2 flex w-full max-w-[640px] -translate-x-1/2 items-center justify-end rounded border-none bg-base-200 px-4 py-2"
                 *ngIf="!loading && !hide_confirm"
             >
                 <button btn matRipple class="w-32" (click)="confirm.emit()">
@@ -41,7 +41,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
         </div>
         <ng-template #load_state>
             <div
-                class="w-full flex-1 h-1/2 flex flex-col items-center justify-center p-12 space-y-4"
+                class="flex h-1/2 w-full flex-1 flex-col items-center justify-center space-y-4 p-12"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
                 <p class="text-center opacity-50">{{ loading }}</p>

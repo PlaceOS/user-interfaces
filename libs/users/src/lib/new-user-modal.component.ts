@@ -9,9 +9,9 @@ import { generateUserForm } from './user.utilities';
     selector: 'new-user-modal',
     template: `
         <header
-            class="sticky top-0 p-2 m-2 w-[calc(100%-1rem)] border-none z-10 bg-base-200 rounded"
+            class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded border-none bg-base-200 p-2"
         >
-            <h2 class="text-xl font-medium px-2">
+            <h2 class="px-2 text-xl font-medium">
                 {{
                     (user?.id ? 'COMMON.USER_EDIT' : 'COMMON.USER_NEW')
                         | translate
@@ -22,13 +22,13 @@ import { generateUserForm } from './user.utilities';
             </button>
         </header>
         <main
-            class="flex flex-col items-center w-full px-4 min-w-[24rem]"
+            class="flex w-full min-w-[24rem] flex-col items-center px-4"
             *ngIf="!loading; else load_state"
         >
             <user-form [form]="form"></user-form>
         </main>
         <footer
-            class="flex items-center justify-end w-full p-2 border-t border-base-200 space-x-2"
+            class="flex w-full items-center justify-end space-x-2 border-t border-base-200 p-2"
             *ngIf="!loading"
         >
             <button btn matRipple class="inverse" mat-dialog-close>
@@ -39,7 +39,7 @@ import { generateUserForm } from './user.utilities';
             </button>
         </footer>
         <ng-template #load_state>
-            <main class="flex flex-col items-center w-full p-2 space-y-2">
+            <main class="flex w-full flex-col items-center space-y-2 p-2">
                 <mat-spinner diameter="32"></mat-spinner>
                 <p>{{ 'COMMON.USER_SAVING' | translate }}</p>
             </main>

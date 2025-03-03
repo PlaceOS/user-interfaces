@@ -5,9 +5,9 @@ import { VisitorsStateService } from './visitors-state.service';
     selector: '[app-visitors]',
     template: `
         <sidebar></sidebar>
-        <main class="relative w-full flex flex-col bg-base-200">
+        <main class="relative flex w-full flex-col bg-base-200">
             <visitors-topbar class="w-full"></visitors-topbar>
-            <guest-listings class="w-full flex-1 h-0"></guest-listings>
+            <guest-listings class="h-0 w-full flex-1"></guest-listings>
             <mat-progress-bar
                 class="w-full"
                 *ngIf="loading | async"
@@ -24,7 +24,7 @@ import { VisitorsStateService } from './visitors-state.service';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class VisitorsComponent implements OnInit, OnDestroy {
     public readonly loading = this._state.loading;

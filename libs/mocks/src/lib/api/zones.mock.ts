@@ -55,7 +55,7 @@ function registerMocks() {
                 return MOCK_LEVELS;
             } else if (request.query_params.tags) {
                 return MOCK_ZONES.filter((_) =>
-                    _.tags.includes(request.query_params.tags)
+                    _.tags.includes(request.query_params.tags),
                 );
             }
             throw { status: 404, message: 'Zones not found' };
@@ -222,7 +222,7 @@ function registerMocks() {
                     groups:
                         predictableRandomInt(9999) % 4 === 0 ? ['test-1'] : [],
                     features: DESK_FEATURES.filter(
-                        (_) => predictableRandomInt(99999) % 3 === 0
+                        (_) => predictableRandomInt(99999) % 3 === 0,
                     ),
                 })),
             },
@@ -236,7 +236,7 @@ function registerMocks() {
                     details: new Array(18 * 6).fill(0).map((_, idx) => {
                         const position = padString(
                             (idx % 18) + Math.floor(idx / 18) * 100,
-                            3
+                            3,
                         );
                         const assignee =
                             predictableRandomInt(9999) % 4 === 0
@@ -280,7 +280,7 @@ function registerMocks() {
                             lockers: new Array(18).fill(0).map((_, idx2) => ({
                                 id: `locker-${position}.${padString(
                                     idx2 + 1,
-                                    3
+                                    3,
                                 )}`,
                                 name: `Locker ${idx2 + 1}`,
                                 accessible:
@@ -303,7 +303,7 @@ function registerMocks() {
         method: 'GET',
         callback: (request) => {
             const zone = MOCK_BUILDINGS.find(
-                (_) => _.id === request.route_params.id
+                (_) => _.id === request.route_params.id,
             );
             if (!zone)
                 throw {
@@ -320,10 +320,10 @@ function registerMocks() {
                             request.query_params.name === 'parking-spaces'
                                 ? generateParkingSpaces(id)
                                 : request.query_params.name === 'lockers'
-                                ? generateLockers(id)
-                                : generateMockDeskMetadata(id),
+                                  ? generateLockers(id)
+                                  : generateMockDeskMetadata(id),
                     };
-                }
+                },
             );
         },
     });

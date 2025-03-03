@@ -12,9 +12,9 @@ import { endOfDay, startOfDay } from 'date-fns';
     selector: 'reports-options',
     template: `
         <div
-            class="bg-base-100 h-20 w-full flex items-center space-x-2 p-4 z-20 border-b border-base-200 print:hidden"
+            class="z-20 flex h-20 w-full items-center space-x-2 border-b border-base-200 bg-base-100 p-4 print:hidden"
         >
-            <mat-form-field appearance="outline" class="w-60 no-subscript">
+            <mat-form-field appearance="outline" class="no-subscript w-60">
                 <mat-select
                     [(ngModel)]="zones"
                     (ngModelChange)="setZones($event)"

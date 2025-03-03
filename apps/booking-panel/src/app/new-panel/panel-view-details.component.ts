@@ -8,14 +8,14 @@ import { PanelStateService } from '../panel-state.service';
 @Component({
     selector: 'panel-view-details',
     template: `
-        <div class="h-full w-full bg-black relative text-white">
+        <div class="relative h-full w-full bg-black text-white">
             <div
-                class="bg-cover bg-center absolute inset-0"
+                class="absolute inset-0 bg-cover bg-center"
                 [style.background-image]="'url(' + room_image + ')'"
                 *ngIf="room_image"
             ></div>
             <div class="absolute inset-0 bg-black opacity-50"></div>
-            <div name class="absolute top-4 left-4 text-4xl font-medium">
+            <div name class="absolute left-4 top-4 text-4xl font-medium">
                 {{
                     (system | async)?.display_name ||
                         (system | async)?.name ||
@@ -25,7 +25,7 @@ import { PanelStateService } from '../panel-state.service';
             <div
                 qr-checkin
                 *ngIf="checkin"
-                class="absolute top-4 right-4 text-xl w-40 space-y-4 z-50"
+                class="absolute right-4 top-4 z-50 w-40 space-y-4 text-xl"
             >
                 <img class="w-full" [src]="qr_code" />
                 <div class="w-full text-lg" *ngIf="!custom_qr">
@@ -38,7 +38,7 @@ import { PanelStateService } from '../panel-state.service';
                     !hide_meeting_details &&
                     !hide_meeting_title
                 "
-                class="absolute bottom-0 inset-x-0 text-white p-4 text-center text-3xl"
+                class="absolute inset-x-0 bottom-0 p-4 text-center text-3xl text-white"
             >
                 <div class="absolute inset-0 bg-neutral opacity-30"></div>
                 <div class="relative">
@@ -49,7 +49,7 @@ import { PanelStateService } from '../panel-state.service';
                 </div>
             </div>
             <div
-                class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 font-normal space-y-4 text-center"
+                class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 space-y-4 text-center font-normal"
                 [class.pb-8]="
                     (current | async) &&
                     !hide_meeting_details &&
@@ -79,7 +79,7 @@ import { PanelStateService } from '../panel-state.service';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class PanelViewDetailsComponent {
     public readonly system = this._state.space;

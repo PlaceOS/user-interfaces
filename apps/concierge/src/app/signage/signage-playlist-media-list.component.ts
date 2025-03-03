@@ -24,15 +24,15 @@ import { getUnixTime, startOfMinute } from 'date-fns';
 @Component({
     selector: 'signage-playlist-media-list',
     template: `
-        <div class="flex flex-col space-y-4 relative p-4 h-full w-full">
-            <h3 class="text-xl font-medium text-center">
+        <div class="relative flex h-full w-full flex-col space-y-4 p-4">
+            <h3 class="text-center text-xl font-medium">
                 Playlist - {{ (selected_playlist | async)?.name }}
             </h3>
             <button
                 icon
                 matRipple
                 [matMenuTriggerFor]="menu"
-                class="absolute top-2 right-2 !m-0"
+                class="absolute right-2 top-2 !m-0"
             >
                 <app-icon>more_vert</app-icon>
             </button>
@@ -60,9 +60,9 @@ import { getUnixTime, startOfMinute } from 'date-fns';
                     </div>
                 </button>
             </mat-menu>
-            <div details class="flex items-center flex-wrap">
+            <div details class="flex flex-wrap items-center">
                 <div
-                    class="ml-2 text-xs px-2 py-1 m-1 rounded"
+                    class="m-1 ml-2 rounded px-2 py-1 text-xs"
                     [class.bg-success]="(selected_playlist | async)?.enabled"
                     [class.text-success-content]="
                         (selected_playlist | async)?.enabled
@@ -80,18 +80,18 @@ import { getUnixTime, startOfMinute } from 'date-fns';
                     }}
                 </div>
                 <div
-                    class="ml-2 text-xs px-2 py-1 m-1 rounded bg-secondary text-secondary-content"
+                    class="m-1 ml-2 rounded bg-secondary px-2 py-1 text-xs text-secondary-content"
                     *ngIf="(selected_playlist | async)?.random"
                 >
                     {{ 'APP.CONCIERGE.SIGNAGE_SHUFFLE' | translate }}
                 </div>
                 <div
-                    class="text-xs px-2 py-2 m-1 rounded bg-base-200"
+                    class="m-1 rounded bg-base-200 px-2 py-2 text-xs"
                     matTooltip="Default Transition Animation"
                 >
                     {{ 'APP.CONCIERGE.SIGNAGE_ANIMATION' | translate }}
                     <span
-                        class="ml-1 uppercase bg-base-300 px-2 py-1 rounded"
+                        class="ml-1 rounded bg-base-300 px-2 py-1 uppercase"
                         >{{
                             animation_name(
                                 (selected_playlist | async)?.default_animation
@@ -100,12 +100,12 @@ import { getUnixTime, startOfMinute } from 'date-fns';
                     >
                 </div>
                 <div
-                    class="text-xs px-2 py-2 m-1 rounded bg-base-200"
+                    class="m-1 rounded bg-base-200 px-2 py-2 text-xs"
                     matTooltip="Default Playback Duration"
                 >
                     {{ 'APP.CONCIERGE.SIGNAGE_DURATION' | translate }}
                     <span
-                        class="ml-1 font-mono bg-base-300 px-2 py-1 rounded"
+                        class="ml-1 rounded bg-base-300 px-2 py-1 font-mono"
                         >{{
                             (selected_playlist | async)?.default_duration / 1000
                                 | mediaDuration
@@ -113,12 +113,12 @@ import { getUnixTime, startOfMinute } from 'date-fns';
                     >
                 </div>
                 <div
-                    class="text-xs px-2 py-2 m-1 rounded bg-base-200"
+                    class="m-1 rounded bg-base-200 px-2 py-2 text-xs"
                     matTooltip="Prefered Orientation"
                 >
                     {{ 'APP.CONCIERGE.SIGNAGE_ORIENTATION' | translate }}
                     <span
-                        class="ml-1 uppercase bg-base-300 px-2 py-1 rounded"
+                        class="ml-1 rounded bg-base-300 px-2 py-1 uppercase"
                         >{{ (selected_playlist | async)?.orientation }}</span
                     >
                 </div>
@@ -126,7 +126,7 @@ import { getUnixTime, startOfMinute } from 'date-fns';
             @if ((media | async).length > 0) {
                 <div
                     cdkDropList
-                    class="flex-1 h-1/2 overflow-auto flex flex-col space-y-2"
+                    class="flex h-1/2 flex-1 flex-col space-y-2 overflow-auto"
                     id="playlist-list"
                     [cdkDropListData]="media | async"
                     [cdkDropListConnectedTo]="playlist_ids"
@@ -135,21 +135,21 @@ import { getUnixTime, startOfMinute } from 'date-fns';
                     <ng-container *ngFor="let item of media | async">
                         <div
                             cdkDrag
-                            class="relative w-full bg-base-100 h-20 rounded-lg flex items-center p-2 space-x-2 border border-base-300"
+                            class="relative flex h-20 w-full items-center space-x-2 rounded-lg border border-base-300 bg-base-100 p-2"
                         >
                             @if (item.valid_from && now < item.valid_from) {
                                 <div
-                                    class="absolute inset-0 z-0 bg-warning opacity-10 rounded-lg"
+                                    class="absolute inset-0 z-0 rounded-lg bg-warning opacity-10"
                                 ></div>
                             } @else if (
                                 item.valid_until && now > item.valid_until
                             ) {
                                 <div
-                                    class="absolute inset-0 z-0 bg-error opacity-10 rounded-lg"
+                                    class="absolute inset-0 z-0 rounded-lg bg-error opacity-10"
                                 ></div>
                             }
                             <div
-                                class="min-h-10 min-w-10 border-4 rounded-2xl border-base-400 bg-base-300 border-dashed flex items-center justify-center"
+                                class="flex min-h-10 min-w-10 items-center justify-center rounded-2xl border-4 border-dashed border-base-400 bg-base-300"
                                 *cdkDragPlaceholder
                             >
                                 <app-icon class="text-2xl text-base-100">
@@ -159,23 +159,23 @@ import { getUnixTime, startOfMinute } from 'date-fns';
                             <button
                                 matRipple
                                 cdkDragHandle
-                                class="flex items-center justify-center w-6 h-full rounded hover:bg-base-200"
+                                class="flex h-full w-6 items-center justify-center rounded hover:bg-base-200"
                                 matTooltip="Drag to reorder"
                             >
                                 <app-icon>drag_handle</app-icon>
                             </button>
                             <div
                                 preview
-                                class="w-[4.5rem] h-16 bg-base-200 rounded-lg overflow-hidden"
+                                class="h-16 w-[4.5rem] overflow-hidden rounded-lg bg-base-200"
                             >
                                 <img
                                     auth
                                     [source]="item.thumbnail_url"
-                                    class="w-full h-full object-contain"
+                                    class="h-full w-full object-contain"
                                 />
                             </div>
                             <div
-                                class="text-base-content truncate flex-1 w-1/2"
+                                class="w-1/2 flex-1 truncate text-base-content"
                             >
                                 {{ item.name }}
                             </div>
@@ -239,7 +239,7 @@ import { getUnixTime, startOfMinute } from 'date-fns';
                 </div>
             } @else {
                 <div
-                    class="flex flex-col items-center justify-center p-8 space-y-2 opacity-30 mx-auto flex-1"
+                    class="mx-auto flex flex-1 flex-col items-center justify-center space-y-2 p-8 opacity-30"
                 >
                     <app-icon class="text-6xl">hide_image</app-icon>
                     <p>
@@ -259,7 +259,7 @@ import { getUnixTime, startOfMinute } from 'date-fns';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class SignagePlaylistMediaListComponent {
     @Input() public playlist = '';

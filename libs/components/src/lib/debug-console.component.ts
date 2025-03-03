@@ -38,11 +38,11 @@ const URL_STARTS = [
     selector: `debug-console`,
     template: `
         <div
-            class="absolute bottom-2 left-2 max-w-[80vw] w-[40rem] border border-base-300 bg-base-200 text-base-content shadow rounded overflow-hidden h-[24rem] max-h-[65vh] flex flex-col z-[998]"
+            class="absolute bottom-2 left-2 z-[998] flex h-[24rem] max-h-[65vh] w-[40rem] max-w-[80vw] flex-col overflow-hidden rounded border border-base-300 bg-base-200 text-base-content shadow"
             *ngIf="show"
         >
             <div
-                class="flex items-center justify-between bg-base-100 border-b border-base-300"
+                class="flex items-center justify-between border-b border-base-300 bg-base-100"
             >
                 <div class="p-2">{{ 'COMMON.CONSOLE' | translate }}</div>
                 <button icon matRipple (click)="show = false">
@@ -52,23 +52,23 @@ const URL_STARTS = [
             <cdk-virtual-scroll-viewport
                 itemSize="32"
                 *ngIf="(filtered_logs | async)?.length; else empty_state"
-                class="flex-1 h-[30rem] max-h-full w-full"
+                class="h-[30rem] max-h-full w-full flex-1"
             >
                 <div
-                    class="font-mono h-8 truncate p-2 text-sm flex items-center max-w-full hover:bg-base-100 space-x-1"
+                    class="flex h-8 max-w-full items-center space-x-1 truncate p-2 font-mono text-sm hover:bg-base-100"
                     *cdkVirtualFor="
                         let log of filtered_logs | async;
                         trackBy: trackByFn
                     "
                 >
                     <div
-                        class="uppercase text-xs p-1 bg-base-100/10 rounded font-mono"
+                        class="bg-base-100/10 rounded p-1 font-mono text-xs uppercase"
                     >
                         {{ log.timestamp | date: 'MMM d HH:mm:ss' }}
                     </div>
                     <div
                         [class]="
-                            'uppercase text-xs p-1 ' +
+                            'p-1 text-xs uppercase ' +
                             colors[log.type] +
                             ' rounded font-mono'
                         "
@@ -77,15 +77,15 @@ const URL_STARTS = [
                     </div>
                     <div
                         [class]="
-                            'capitalize text-xs p-1 ' +
+                            'p-1 text-xs capitalize ' +
                             colors[log.subtype] +
-                            ' rounded font-mono w-16 text-center'
+                            ' w-16 rounded text-center font-mono'
                         "
                     >
                         {{ log.subtype }}
                     </div>
                     <div
-                        class="font-mono pl-1"
+                        class="pl-1 font-mono"
                         *ngFor="let obj of log.data"
                         [attr.data-type]="type(obj)"
                     >
@@ -101,7 +101,7 @@ const URL_STARTS = [
                             </ng-container>
                             <ng-container *ngSwitchCase="'object'">
                                 [<span
-                                    class="underline font-mono hover:text-info"
+                                    class="font-mono underline hover:text-info"
                                     customTooltip
                                     xPosition="center"
                                     yPosition="bottom"
@@ -121,13 +121,13 @@ const URL_STARTS = [
                 <div class="h-8 w-full"></div>
             </cdk-virtual-scroll-viewport>
             <div
-                class="absolute bottom-1 right-1 rounded-lg p-1 flex items-center w-[20rem] overflow-hidden"
+                class="absolute bottom-1 right-1 flex w-[20rem] items-center overflow-hidden rounded-lg p-1"
             >
                 <div
-                    class="absolute inset-0 bg-base-content opacity-60 z-0"
+                    class="absolute inset-0 z-0 bg-base-content opacity-60"
                 ></div>
                 <div
-                    class="absolute inset-1 bg-base-content opacity-90 rounded z-0"
+                    class="absolute inset-1 z-0 rounded bg-base-content opacity-90"
                 ></div>
                 <input
                     #search_input
@@ -135,10 +135,10 @@ const URL_STARTS = [
                     [ngModel]="filter | async"
                     (ngModelChange)="filter.next($event)"
                     placeholder="Filter logs..."
-                    class="relative border-none flex-1 text-sm px-2 py-1 font-mono rounded text-base-100"
+                    class="relative flex-1 rounded border-none px-2 py-1 font-mono text-sm text-base-100"
                 />
                 <div
-                    class="relative font-mono text-xs px-2 text-center text-base-100"
+                    class="relative px-2 text-center font-mono text-xs text-base-100"
                 >
                     <span class="font-mono" *ngIf="(filter | async)?.length">
                         {{ (filtered_logs | async)?.length || '0' }} of
@@ -158,7 +158,7 @@ const URL_STARTS = [
         ></button>
         <ng-template #empty_state>
             <div
-                class="flex-1 flex flex-col items-center justify-center h-[30rem] w-full"
+                class="flex h-[30rem] w-full flex-1 flex-col items-center justify-center"
             >
                 <div class="text-2xl opacity-30">
                     No {{ filter.getValue() ? 'matching' : '' }} logs
@@ -167,7 +167,7 @@ const URL_STARTS = [
         </ng-template>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class DebugConsoleComponent extends AsyncHandler implements OnInit {
     @Input() public show = false;

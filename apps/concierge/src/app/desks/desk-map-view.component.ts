@@ -8,7 +8,7 @@ import { OrganisationService } from '@placeos/organisation';
 @Component({
     selector: 'desk-map-view',
     template: `
-        <div map class="h-full w-full relative">
+        <div map class="relative h-full w-full">
             <interactive-map
                 [src]="url | async"
                 [zoom]="(positions | async).zoom"
@@ -20,7 +20,7 @@ import { OrganisationService } from '@placeos/organisation';
             <explore-zoom-controls
                 class="absolute bottom-2 right-2"
             ></explore-zoom-controls>
-            <div class="absolute top-0 left-0 p-2 text-black">
+            <div class="absolute left-0 top-0 p-2 text-black">
                 <a-user-search-field
                     [ngModel]="null"
                     (ngModelChange)="setHost($event)"
@@ -30,7 +30,7 @@ import { OrganisationService } from '@placeos/organisation';
             </div>
             <div
                 info
-                class="absolute bottom-0 rounded p-2 m-2 bg-base-100 shadow text-center"
+                class="absolute bottom-0 m-2 rounded bg-base-100 p-2 text-center shadow"
             >
                 Click or Tap an available desk to book it.
             </div>
@@ -53,7 +53,7 @@ import { OrganisationService } from '@placeos/organisation';
         `,
     ],
     providers: [ExploreDesksService],
-    standalone: false
+    standalone: false,
 })
 export class DeskMapViewComponent extends AsyncHandler implements OnInit {
     /** Observable for the active map */

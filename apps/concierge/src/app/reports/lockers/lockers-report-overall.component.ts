@@ -8,21 +8,21 @@ import { formatDuration } from '@placeos/common';
     selector: 'lockers-report-overall',
     template: `
         <div
-            class="m-4 p-4 rounded bg-base-100 border border-base-200 flex justify-center items-center space-x-2"
+            class="m-4 flex items-center justify-center space-x-2 rounded border border-base-200 bg-base-100 p-4"
         >
-            <div class="flex flex-col items-center flex-1">
+            <div class="flex flex-1 flex-col items-center">
                 <h3 class="text-sm">
                     {{ 'APP.CONCIERGE.REPORTS_BUSINESS_DAYS' | translate }}
                 </h3>
                 <p class="text-2xl">{{ (business_days | async) || 0 }}</p>
             </div>
-            <div class="flex flex-col items-center flex-1">
+            <div class="flex flex-1 flex-col items-center">
                 <h3 class="text-sm">
                     {{ 'APP.CONCIERGE.REPORTS_TOTAL_BOOKINGS' | translate }}
                 </h3>
                 <p class="text-2xl">{{ (total_count | async) || 0 }}</p>
             </div>
-            <div class="flex flex-col items-center flex-1">
+            <div class="flex flex-1 flex-col items-center">
                 <h3 class="text-sm">
                     {{ 'APP.CONCIERGE.REPORTS_AVERAGE_LENGTH' | translate }}
                 </h3>
@@ -31,7 +31,7 @@ import { formatDuration } from '@placeos/common';
         </div>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class LockersReportOverallComponent {
     public readonly total_count = this._state.bookings$.pipe(

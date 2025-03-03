@@ -25,44 +25,44 @@ import { addDays, endOfDay, getUnixTime, set } from 'date-fns';
             able to check-in.
         </div> -->
         <div
-            class="divide-y divide-base-200 space-y-2"
+            class="space-y-2 divide-y divide-base-200"
             *ngIf="form"
             [formGroup]="form"
         >
             <section class="flex items-center" *ngIf="allow_groups">
                 <button
                     matRipple
-                    class="relative h-16 flex items-center justify-center flex-1 space-x-2"
+                    class="relative flex h-16 flex-1 items-center justify-center space-x-2"
                     [class.text-secondary]="!(options | async)?.group"
                     (click)="setOptions({ group: false, members: [] })"
                 >
                     <app-icon class="text-2xl">person</app-icon>
                     <div class="">{{ 'BOOKINGS.DESK_LONE' | translate }}</div>
                     <div
-                        class="absolute h-1 inset-x-0 bottom-0 !m-0"
+                        class="absolute inset-x-0 bottom-0 !m-0 h-1"
                         [class.bg-base-200]="(options | async)?.group"
                         [class.bg-secondary]="!(options | async)?.group"
                     ></div>
                 </button>
                 <button
                     matRipple
-                    class="relative h-16 flex items-center justify-center flex-1 space-x-2"
+                    class="relative flex h-16 flex-1 items-center justify-center space-x-2"
                     [class.text-secondary]="(options | async)?.group"
                     (click)="setOptions({ group: true })"
                 >
                     <app-icon class="text-2xl">group_add</app-icon>
                     <div class="">{{ 'BOOKINGS.DESK_GROUP' | translate }}</div>
                     <div
-                        class="absolute h-1 inset-x-0 bottom-0 !m-0"
+                        class="absolute inset-x-0 bottom-0 !m-0 h-1"
                         [class.bg-base-200]="!(options | async)?.group"
                         [class.bg-secondary]="(options | async)?.group"
                     ></div>
                 </button>
             </section>
             <section class="p-2" [class.!border-none]="allow_groups">
-                <h3 class="space-x-2 flex items-center mb-4">
+                <h3 class="mb-4 flex items-center space-x-2">
                     <div
-                        class="bg-base-200 rounded-full h-6 w-6 flex items-center justify-center"
+                        class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
                     >
                         1
                     </div>
@@ -82,8 +82,8 @@ import { addDays, endOfDay, getUnixTime, set } from 'date-fns';
                         class="mb-4"
                     ></a-user-search-field>
                 </div>
-                <div class="flex items-center flex-wrap sm:space-x-2">
-                    <div class="flex-1 min-w-[256px]">
+                <div class="flex flex-wrap items-center sm:space-x-2">
+                    <div class="min-w-[256px] flex-1">
                         <label for="title"
                             >{{ 'FORM.TITLE' | translate }}<span>*</span></label
                         >
@@ -102,7 +102,7 @@ import { addDays, endOfDay, getUnixTime, set } from 'date-fns';
                             }}</mat-error>
                         </mat-form-field>
                     </div>
-                    <div class="flex-1 min-w-[256px] relative">
+                    <div class="relative min-w-[256px] flex-1">
                         <label for="date">
                             {{ 'FORM.DATE' | translate }}<span>*</span>
                         </label>
@@ -127,7 +127,7 @@ import { addDays, endOfDay, getUnixTime, set } from 'date-fns';
                     class="flex items-center space-x-2"
                     *ngIf="!form.value.all_day && allow_time_changes"
                 >
-                    <div class="flex-1 w-1/3">
+                    <div class="w-1/3 flex-1">
                         <label for="start-time">
                             {{ 'FORM.TIME_START' | translate }}<span>*</span>
                         </label>
@@ -140,7 +140,7 @@ import { addDays, endOfDay, getUnixTime, set } from 'date-fns';
                             [timezone]="timezone"
                         ></a-time-field>
                     </div>
-                    <div class="flex-1 w-1/3">
+                    <div class="w-1/3 flex-1">
                         <label for="end-time">
                             {{ 'FORM.TIME_END' | translate }}<span>*</span>
                         </label>
@@ -179,7 +179,7 @@ import { addDays, endOfDay, getUnixTime, set } from 'date-fns';
                     class="flex items-center space-x-2"
                     *ngIf="can_book_lockers"
                 >
-                    <div class="flex-1 w-1/3">
+                    <div class="w-1/3 flex-1">
                         <mat-checkbox
                             [ngModel]="!!form.value.secondary_resource"
                             (ngModelChange)="
@@ -195,16 +195,16 @@ import { addDays, endOfDay, getUnixTime, set } from 'date-fns';
                 </div>
             </section>
             <section class="p-2" *ngIf="(options | async)?.group">
-                <h3 class="space-x-2 flex items-center">
+                <h3 class="flex items-center space-x-2">
                     <div
-                        class="bg-base-200 rounded-full h-6 w-6 flex items-center justify-center"
+                        class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
                     >
                         2
                     </div>
                     <div class="text-xl">
                         {{ 'BOOKINGS.DESK_GROUP_MEMBERS' | translate }}
                     </div>
-                    <div class="flex-1 w-px"></div>
+                    <div class="w-px flex-1"></div>
                 </h3>
                 <div class="overflow-hidden">
                     <a-user-list-field
@@ -216,9 +216,9 @@ import { addDays, endOfDay, getUnixTime, set } from 'date-fns';
                 </div>
             </section>
             <section class="p-2" *ngIf="form.contains('resources')">
-                <h3 class="space-x-2 flex items-center mb-4">
+                <h3 class="mb-4 flex items-center space-x-2">
                     <div
-                        class="bg-base-200 rounded-full h-6 w-6 flex items-center justify-center"
+                        class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
                     >
                         {{ (options | async)?.group ? 3 : 2 }}
                     </div>
@@ -227,15 +227,15 @@ import { addDays, endOfDay, getUnixTime, set } from 'date-fns';
                 <desk-list-field formControlName="resources"></desk-list-field>
                 <p
                     *ngIf="(options | async)?.group"
-                    class="text-center rounded px-2 py-1 bg-warning shadow text-xs"
+                    class="rounded bg-warning px-2 py-1 text-center text-xs shadow"
                 >
                     {{ 'BOOKINGS.DESK_GROUP_INFO' | translate }}
                 </p>
             </section>
             <section class="p-2" *ngIf="has_assets">
-                <h3 class="space-x-2 flex items-center mb-4">
+                <h3 class="mb-4 flex items-center space-x-2">
                     <div
-                        class="bg-base-200 rounded-full h-6 w-6 flex items-center justify-center"
+                        class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
                     >
                         {{ (options | async)?.group ? 4 : 3 }}
                     </div>

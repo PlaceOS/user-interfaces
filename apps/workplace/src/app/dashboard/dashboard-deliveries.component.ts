@@ -6,8 +6,8 @@ import { DashboardDeliveryModalComponent } from './dashboard-delivery-modal.comp
 @Component({
     selector: 'dashboard-deliveries',
     template: `
-        <h3 class="m-0 my-2 font-medium text-xl">Deliveries</h3>
-        <div class="bg-base-100 shadow p-2 rounded">
+        <h3 class="m-0 my-2 text-xl font-medium">Deliveries</h3>
+        <div class="rounded bg-base-100 p-2 shadow">
             <div class="divide-y" *ngIf="deliveries?.length; else empty_state">
                 <div
                     class="flex items-center py-2"
@@ -33,7 +33,7 @@ import { DashboardDeliveryModalComponent } from './dashboard-delivery-modal.comp
                 </div>
                 <button
                     matRipple
-                    class="w-full mt-2"
+                    class="mt-2 w-full"
                     (click)="registerDelivery()"
                 >
                     Register Delivery
@@ -41,13 +41,13 @@ import { DashboardDeliveryModalComponent } from './dashboard-delivery-modal.comp
             </div>
         </div>
         <ng-template #empty_state>
-            <div class="p-8 flex items-center justify-center opacity-40">
+            <div class="flex items-center justify-center p-8 opacity-40">
                 No registered deliveries
             </div>
         </ng-template>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class DashboardDeliveriesComponent {
     public deliveries = [

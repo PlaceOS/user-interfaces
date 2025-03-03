@@ -20,7 +20,7 @@ interface CateringOptionGroup {
     selector: 'catering-item-details',
     template: `
         <ng-container *ngIf="item; else empty_state">
-            <section image class="relative w-full h-64 sm:h-40 bg-base-200">
+            <section image class="relative h-64 w-full bg-base-200 sm:h-40">
                 <image-carousel
                     [images]="item.images"
                     class="absolute inset-0"
@@ -30,7 +30,7 @@ interface CateringOptionGroup {
                     matRipple
                     name="close-catering-item-details"
                     (click)="close.emit()"
-                    class="absolute top-2 left-2 bg-neutral sm:hidden text-white"
+                    class="absolute left-2 top-2 bg-neutral text-white sm:hidden"
                 >
                     <app-icon>arrow_back</app-icon>
                 </button>
@@ -41,17 +41,17 @@ interface CateringOptionGroup {
                     [class.text-white]="!fav"
                     [class.text-info]="fav"
                     (click)="toggleFav.emit()"
-                    class="absolute top-2 right-2"
+                    class="absolute right-2 top-2"
                 >
                     <app-icon>{{
                         fav ? 'favorite' : 'favorite_border'
                     }}</app-icon>
                 </button>
             </section>
-            <div class="p-2 space-y-2 flex-1 h-1/2 overflow-auto">
+            <div class="h-1/2 flex-1 space-y-2 overflow-auto p-2">
                 <section actions class="z-0 flex items-center justify-between">
                     <div>
-                        <h2 class="text-xl font-medium mb-2 mt-4">
+                        <h2 class="mb-2 mt-4 text-xl font-medium">
                             {{ item.name }}
                         </h2>
                         <p *ngIf="item.unit_price">
@@ -67,9 +67,9 @@ interface CateringOptionGroup {
                         [max]="item.count || 10"
                     ></a-counter>
                 </section>
-                <section class="flex items-center flex-wrap">
+                <section class="flex flex-wrap items-center">
                     <div
-                        class="px-2 py-1 rounded-2xl bg-base-200 text-sm capitalize m-1"
+                        class="m-1 rounded-2xl bg-base-200 px-2 py-1 text-sm capitalize"
                         *ngFor="let tag of item.tags"
                     >
                         {{ tag }}
@@ -83,7 +83,7 @@ interface CateringOptionGroup {
                             *ngFor="let group of groups"
                             [attr.group]="group.name"
                         >
-                            <div class="font-medium p-2 capitalize">
+                            <div class="p-2 font-medium capitalize">
                                 {{ group.name }}
                             </div>
                             <div class="flex flex-col pl-4">
@@ -101,7 +101,7 @@ interface CateringOptionGroup {
                                     >
                                         <mat-radio-button class="m-0" value="">
                                             <div
-                                                class="font-medium p-2 opacity-60"
+                                                class="p-2 font-medium opacity-60"
                                             >
                                                 {{ 'COMMON.NONE' | translate }}
                                             </div>
@@ -112,15 +112,15 @@ interface CateringOptionGroup {
                                             [value]="opt.id"
                                         >
                                             <div
-                                                class="flex items-center justify-center max-w-[calc(100vw-4rem)] sm:max-w-[15rem]"
+                                                class="flex max-w-[calc(100vw-4rem)] items-center justify-center sm:max-w-[15rem]"
                                             >
                                                 <div
-                                                    class="font-medium p-2 flex-1 w-1/2 whitespace-normal capitalize"
+                                                    class="w-1/2 flex-1 whitespace-normal p-2 font-medium capitalize"
                                                 >
                                                     {{ opt.name }}
                                                 </div>
                                                 <div
-                                                    class="opacity-60 text-xs"
+                                                    class="text-xs opacity-60"
                                                     *ngIf="opt.unit_price"
                                                 >
                                                     +{{
@@ -145,12 +145,12 @@ interface CateringOptionGroup {
                                             class="flex items-center justify-center"
                                         >
                                             <div
-                                                class="font-medium p-2 flex-1 w-1/2"
+                                                class="w-1/2 flex-1 p-2 font-medium"
                                             >
                                                 {{ opt.name }}
                                             </div>
                                             <div
-                                                class="opacity-60 text-xs"
+                                                class="text-xs opacity-60"
                                                 *ngIf="opt.unit_price"
                                             >
                                                 +{{
@@ -167,7 +167,7 @@ interface CateringOptionGroup {
                 </section>
             </div>
             <div
-                class="px-2 pt-2 pb-[5.5rem] border-t border-base-200 shadow sm:hidden"
+                class="border-t border-base-200 px-2 pb-[5.5rem] pt-2 shadow sm:hidden"
             >
                 <button
                     btn
@@ -196,9 +196,9 @@ interface CateringOptionGroup {
         <ng-template #empty_state>
             <div
                 empty
-                class="p-16 flex flex-col items-center justify-center space-y-2"
+                class="flex flex-col items-center justify-center space-y-2 p-16"
             >
-                <p class="opacity-30 text-center">
+                <p class="text-center opacity-30">
                     {{ 'CATERING.ORDER_ITEM_SELECT' | translate }}
                 </p>
             </div>
@@ -216,7 +216,7 @@ interface CateringOptionGroup {
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class CateringItemDetailsComponent implements OnChanges {
     @Input() public item?: CateringItem;

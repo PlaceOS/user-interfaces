@@ -5,14 +5,17 @@ export interface RoomConfiguration {
     capacity?: number;
 }
 
-export const mergeRoomConfig = (a: RoomConfiguration, b: RoomConfiguration): RoomConfiguration => {
+export const mergeRoomConfig = (
+    a: RoomConfiguration,
+    b: RoomConfiguration,
+): RoomConfiguration => {
     const c: RoomConfiguration = { ...a, ...b };
     return c;
 };
 
 export const roomConfigBuilder = (
     buildingConfigs: RoomConfiguration[] = [],
-    roomConfigs: RoomConfiguration[] = []
+    roomConfigs: RoomConfiguration[] = [],
 ): RoomConfiguration[] => {
     const map = {};
     buildingConfigs.forEach((f) => (map[f.id] = f));

@@ -11,12 +11,12 @@ describe('MapRadiusComponent', () => {
     const createComponent = createComponentFactory({
         component: MapRadiusComponent,
         providers: [
-            { 
-                provide: MAP_FEATURE_DATA, 
-                useValue: { 
-                    message: 'Test', 
-                    zoom: of(1) 
-                } 
+            {
+                provide: MAP_FEATURE_DATA,
+                useValue: {
+                    message: 'Test',
+                    zoom: of(1),
+                },
             },
         ],
     });
@@ -48,7 +48,7 @@ describe('MapRadiusComponent', () => {
         spectator.component.ngOnInit();
         spectator.tick(1100);
         (spectator.component as any).last_seen = getUnixTime(
-            subMinutes(new Date(), 60)
+            subMinutes(new Date(), 60),
         );
         expect('[message] span').not.toExist();
         spectator.detectChanges();

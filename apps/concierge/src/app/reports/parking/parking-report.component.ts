@@ -16,17 +16,17 @@ import { OrganisationService } from '@placeos/organisation';
             (generate)="generateReport()"
         ></reports-options>
         <div
-            class="relative flex-1 h-1/2 w-full overflow-auto print:overflow-visible print:h-auto"
+            class="relative h-1/2 w-full flex-1 overflow-auto print:h-auto print:overflow-visible"
         >
             <div class="w-full">
-                <div class="flex items-center m-4 p-4 rounded bg-base-200">
+                <div class="m-4 flex items-center rounded bg-base-200 p-4">
                     <img
                         auth
                         class="h-12"
                         [source]="(logo | async)?.src || (logo | async)"
                     />
                     <div class="flex-1"></div>
-                    <h2 class="text-2xl font-medium px-2">
+                    <h2 class="px-2 text-2xl font-medium">
                         {{ 'APP.CONCIERGE.REPORTS_PARKING_HEADER' | translate }}
                     </h2>
                 </div>
@@ -45,7 +45,7 @@ import { OrganisationService } from '@placeos/organisation';
             </ng-container>
         </div>
         <ng-template #load_state>
-            <div class="h-full w-full flex flex-col items-center p-8">
+            <div class="flex h-full w-full flex-col items-center p-8">
                 <mat-spinner [diameter]="32" class="mb-4"></mat-spinner>
                 <p class="opacity-30">
                     {{ 'APP.CONCIERGE.REPORTS_LOADING' | translate }}
@@ -54,7 +54,7 @@ import { OrganisationService } from '@placeos/organisation';
         </ng-template>
         <ng-template #empty_state>
             <div
-                class="h-full w-full flex flex-col items-center p-8 screen-only"
+                class="screen-only flex h-full w-full flex-col items-center p-8"
             >
                 <p class="opacity-30">
                     {{ 'APP.CONCIERGE.REPORTS_EMPTY' | translate }}

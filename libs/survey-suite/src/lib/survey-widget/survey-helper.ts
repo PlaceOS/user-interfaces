@@ -9,7 +9,7 @@ export interface SelectionStats {
 
 export function parseSelectionAnswers(
     data: UISurveyAnswer[],
-    choices?: string[]
+    choices?: string[],
 ): SelectionStats[] {
     if (!data?.length) return [];
     const type = data[0].type;
@@ -42,8 +42,8 @@ export function parseSelectionAnswers(
             a.percentage < b.percentage
                 ? 1
                 : a.percentage > b.percentage
-                ? -1
-                : 0
+                  ? -1
+                  : 0,
         );
     return stats;
 }
@@ -53,11 +53,11 @@ export function calcSelectionAnswers() {}
 export function parseRatingAnswers(data: UISurveyAnswer[], rateMax: number) {
     const list = data.reduce(
         (acc, curr) => (acc.push(curr.answer_json), acc),
-        []
+        [],
     );
     let arr = Array.from({ length: rateMax }, (_, i) => 0);
     list.forEach((e) => {
-        arr[e-1] += 1;
+        arr[e - 1] += 1;
     });
     const total = list.length;
     arr.forEach((e, i) => (arr[i] = Math.round((e / total) * 1000) / 10));
@@ -67,7 +67,7 @@ export function parseRatingAnswers(data: UISurveyAnswer[], rateMax: number) {
 export function parseRatingStats(data: UISurveyAnswer[], rateMax: number) {
     const list = data.reduce(
         (acc, curr) => (acc.push(curr.answer_json), acc),
-        []
+        [],
     );
     const sum = list.reduce((acc, curr) => acc + curr);
     const average = Math.round((sum / list.length) * 10) / 10;

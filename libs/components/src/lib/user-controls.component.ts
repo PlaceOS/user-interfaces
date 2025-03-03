@@ -29,16 +29,16 @@ export interface AppLocale {
     selector: 'user-controls',
     template: `
         <div
-            class="rounded bg-base-100 shadow mt-1 flex flex-col relative divide-y divide-base-200"
+            class="relative mt-1 flex flex-col divide-y divide-base-200 rounded bg-base-100 shadow"
         >
-            <div avatar class="flex flex-col items-center p-2 w-[18rem]">
+            <div avatar class="flex w-[18rem] flex-col items-center p-2">
                 <a-user-avatar
                     class="text-2xl"
                     [user]="user"
                     [matTooltip]="groups"
                 ></a-user-avatar>
                 <div class="">{{ user?.name }}</div>
-                <div class="text-xs opacity-60 truncate">{{ user?.email }}</div>
+                <div class="truncate text-xs opacity-60">{{ user?.email }}</div>
             </div>
             <div
                 customTooltip
@@ -46,20 +46,20 @@ export interface AppLocale {
                 [content]="region_select"
                 class="relative"
             >
-                <button btn matRipple class="clear w-full text-left h-[3.5rem]">
-                    <div class="w-full flex items-center space-x-2">
+                <button btn matRipple class="clear h-[3.5rem] w-full text-left">
+                    <div class="flex w-full items-center space-x-2">
                         <div
-                            class="flex items-center justify-center rounded-full w-8 h-8 bg-base-200"
+                            class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
                         >
                             <app-icon>layers</app-icon>
                         </div>
-                        <div class="flex-1 truncate w-px">
+                        <div class="w-px flex-1 truncate">
                             {{
                                 (region | async)?.display_name ||
                                     (region | async)?.name
                             }}
                         </div>
-                        <app-icon class="opacity-60 text-2xl">
+                        <app-icon class="text-2xl opacity-60">
                             chevron_right
                         </app-icon>
                     </div>
@@ -71,20 +71,20 @@ export interface AppLocale {
                 class="relative"
                 *ngIf="!disable_building_select && !use_region"
             >
-                <button btn matRipple class="clear w-full text-left h-[3.5rem]">
-                    <div class="w-full flex items-center space-x-2">
+                <button btn matRipple class="clear h-[3.5rem] w-full text-left">
+                    <div class="flex w-full items-center space-x-2">
                         <div
-                            class="flex items-center justify-center rounded-full w-8 h-8 bg-base-200"
+                            class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
                         >
                             <app-icon>business</app-icon>
                         </div>
-                        <div class="flex-1 truncate w-px">
+                        <div class="w-px flex-1 truncate">
                             {{
                                 (building | async)?.display_name ||
                                     (building | async)?.name
                             }}
                         </div>
-                        <app-icon class="opacity-60 text-2xl">
+                        <app-icon class="text-2xl opacity-60">
                             chevron_right
                         </app-icon>
                     </div>
@@ -95,17 +95,17 @@ export interface AppLocale {
                 [content]="help_tooltip"
                 *ngIf="features.includes('help')"
             >
-                <button btn matRipple class="clear w-full text-left h-[3.5rem]">
-                    <div class="w-full flex items-center space-x-2">
+                <button btn matRipple class="clear h-[3.5rem] w-full text-left">
+                    <div class="flex w-full items-center space-x-2">
                         <div
-                            class="flex items-center justify-center rounded-full w-8 h-8 bg-base-200"
+                            class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
                         >
                             <app-icon>help</app-icon>
                         </div>
                         <div class="flex-1">
                             {{ 'COMMON.CONTROLS_HELP' | translate }}
                         </div>
-                        <app-icon class="opacity-60 text-2xl">
+                        <app-icon class="text-2xl opacity-60">
                             chevron_right
                         </app-icon>
                     </div>
@@ -116,17 +116,17 @@ export interface AppLocale {
                 customTooltip
                 [content]="work_location_tooltip"
             >
-                <button btn matRipple class="clear w-full text-left h-[3.5rem]">
-                    <div class="w-full flex items-center space-x-2">
+                <button btn matRipple class="clear h-[3.5rem] w-full text-left">
+                    <div class="flex w-full items-center space-x-2">
                         <div
-                            class="flex items-center justify-center rounded-full w-8 h-8 bg-base-200"
+                            class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
                         >
                             <app-icon>share_location</app-icon>
                         </div>
                         <div class="flex-1">
                             {{ 'COMMON.CONTROLS_WORK_LOCATION' | translate }}
                         </div>
-                        <app-icon class="opacity-60 text-2xl"
+                        <app-icon class="text-2xl opacity-60"
                             >chevron_right</app-icon
                         >
                     </div>
@@ -137,17 +137,17 @@ export interface AppLocale {
                 [content]="accessibility_tooltip"
                 [class.!border-b]="!locales?.length || !desk_height"
             >
-                <button btn matRipple class="clear w-full text-left h-[3.5rem]">
-                    <div class="w-full flex items-center space-x-2">
+                <button btn matRipple class="clear h-[3.5rem] w-full text-left">
+                    <div class="flex w-full items-center space-x-2">
                         <div
-                            class="flex items-center justify-center rounded-full w-8 h-8 bg-base-200"
+                            class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
                         >
                             <app-icon>mode_night</app-icon>
                         </div>
                         <div class="flex-1">
                             {{ 'COMMON.CONTROLS_ACCESSIBILITY' | translate }}
                         </div>
-                        <app-icon class="opacity-60 text-2xl"
+                        <app-icon class="text-2xl opacity-60"
                             >chevron_right</app-icon
                         >
                     </div>
@@ -159,17 +159,17 @@ export interface AppLocale {
                 [class.!border-b]="!locales?.length"
                 *ngIf="desk_height"
             >
-                <button btn matRipple class="clear w-full text-left h-[3.5rem]">
-                    <div class="w-full flex items-center space-x-2">
+                <button btn matRipple class="clear h-[3.5rem] w-full text-left">
+                    <div class="flex w-full items-center space-x-2">
                         <div
-                            class="flex items-center justify-center rounded-full w-8 h-8 bg-base-200"
+                            class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
                         >
                             <app-icon>desk</app-icon>
                         </div>
                         <div class="flex-1">
                             {{ 'COMMON.CONTROLS_DESKS' | translate }}
                         </div>
-                        <app-icon class="opacity-60 text-2xl">
+                        <app-icon class="text-2xl opacity-60">
                             chevron_right
                         </app-icon>
                     </div>
@@ -184,15 +184,15 @@ export interface AppLocale {
                 *ngIf="locales?.length > 1"
                 class="!border-b"
             >
-                <button btn matRipple class="clear w-full text-left h-[3.5rem]">
-                    <div class="w-full flex items-center space-x-2">
+                <button btn matRipple class="clear h-[3.5rem] w-full text-left">
+                    <div class="flex w-full items-center space-x-2">
                         <div
-                            class="flex items-center justify-center rounded-full w-8 h-8 bg-base-200"
+                            class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
                         >
                             <app-icon>language</app-icon>
                         </div>
                         <div
-                            class="flex-1 flex items-center justify-between space-x-4"
+                            class="flex flex-1 items-center justify-between space-x-4"
                         >
                             <div>
                                 <div>{{ 'COMMON.LANGUAGE' | translate }}</div>
@@ -207,13 +207,13 @@ export interface AppLocale {
                                 </div>
                             </div>
                             <div
-                                class="text-sm px-2 py-1 rounded bg-base-200 max-w-24 truncate"
+                                class="max-w-24 truncate rounded bg-base-200 px-2 py-1 text-sm"
                                 [matTooltip]="active_locale | translate"
                             >
                                 {{ active_locale | translate }}
                             </div>
                         </div>
-                        <app-icon class="opacity-60 text-2xl">
+                        <app-icon class="text-2xl opacity-60">
                             chevron_right
                         </app-icon>
                     </div>
@@ -223,13 +223,13 @@ export interface AppLocale {
             <button
                 btn
                 matRipple
-                class="clear w-full text-left h-[3.5rem]"
+                class="clear h-[3.5rem] w-full text-left"
                 *ngIf="features.includes('support-ticket')"
                 (click)="newSupportTicket()"
             >
-                <div class="w-full flex items-center space-x-2">
+                <div class="flex w-full items-center space-x-2">
                     <div
-                        class="flex items-center justify-center rounded-full w-8 h-8 bg-base-200"
+                        class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
                     >
                         <app-icon>support_agent</app-icon>
                     </div>
@@ -239,7 +239,7 @@ export interface AppLocale {
                 </div>
             </button>
             <div class="flex flex-col items-center p-4">
-                <div class="flex items-center justify-center space-x-2 mb-4">
+                <div class="mb-4 flex items-center justify-center space-x-2">
                     <button btn matRipple class="inverse" (click)="logout()">
                         {{ 'COMMON.CONTROLS_SIGN_OUT' | translate }}
                     </button>
@@ -252,18 +252,18 @@ export interface AppLocale {
                         {{ 'COMMON.CONTROLS_NEW_VERSION' | translate }}
                     </button>
                 </div>
-                <div class="text-xs opacity-60 w-full">
+                <div class="w-full text-xs opacity-60">
                     <ng-container>
                         {{ 'COMMON.CONTROLS_VERSION' | translate }}:
                     </ng-container>
                     <button
-                        class="underline p-0 m-0 bg-none border-none text-xs"
+                        class="m-0 border-none bg-none p-0 text-xs underline"
                         (click)="viewChangelog()"
                     >
                         {{ version.hash }}
                     </button>
                 </div>
-                <div class="text-xs opacity-60 w-full">
+                <div class="w-full text-xs opacity-60">
                     {{ version.time | date: 'longDate' }}
                     ({{ version.time | date: 'shortTime' }})
                 </div>

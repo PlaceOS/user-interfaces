@@ -49,16 +49,16 @@ export interface FindAvailabilityData {
                 icon
                 matRipple
                 mat-dialog-close
-                class="absolute top-1/2 left-1 -translate-y-1/2"
+                class="absolute left-1 top-1/2 -translate-y-1/2"
             >
                 <app-icon>close</app-icon>
             </button>
         </header>
         <main
-            class="flex flex-col h-[calc(100vh-7rem)] sm:h-[65vh] overflow-hidden"
+            class="flex h-[calc(100vh-7rem)] flex-col overflow-hidden sm:h-[65vh]"
         >
             <div
-                class="w-full flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 p-2"
+                class="flex w-full flex-col space-y-2 p-2 sm:flex-row sm:space-x-2 sm:space-y-0"
             >
                 <a-date-field
                     [(ngModel)]="date"
@@ -72,16 +72,16 @@ export interface FindAvailabilityData {
                 ></a-user-search-field>
             </div>
             <div
-                class="grid flex-1 h-1/2 w-full border-t border-base-200 relative overflow-hidden divide-x divide-y divide-base-200 max-w-[100vw] sm:max-w-[80vw]"
+                class="relative grid h-1/2 w-full max-w-[100vw] flex-1 divide-x divide-y divide-base-200 overflow-hidden border-t border-base-200 sm:max-w-[80vw]"
             >
                 <div
                     times
-                    class="col-start-2 h-10 flex overflow-hidden border-l border-base-200"
+                    class="col-start-2 flex h-10 overflow-hidden border-l border-base-200"
                 >
                     <div
                         hour
                         *ngFor="let hr of hours; let hour = index"
-                        class="relative border-r border-base-200 h-10 min-w-[5rem] p-2 text-sm"
+                        class="relative h-10 min-w-[5rem] border-r border-base-200 p-2 text-sm"
                         [attr.disabled]="today && current_hour > hour"
                         [style.left]="-offset_x + 'px'"
                     >
@@ -91,7 +91,7 @@ export interface FindAvailabilityData {
                 <div users class="row-start-2 w-24 overflow-hidden">
                     <div
                         host
-                        class="flex flex-col items-center justify-center h-32 w-24 relative border-b border-base-200 py-2"
+                        class="relative flex h-32 w-24 flex-col items-center justify-center border-b border-base-200 py-2"
                         [style.top]="-offset_y + 'px'"
                     >
                         <a-user-avatar
@@ -99,14 +99,14 @@ export interface FindAvailabilityData {
                             [user]="host"
                         ></a-user-avatar>
                         <div
-                            class="text-xs break-words overflow-hidden max-w-full px-2 text-center"
+                            class="max-w-full overflow-hidden break-words px-2 text-center text-xs"
                         >
                             {{ host.name || host.email }}
                         </div>
                     </div>
                     <div
                         person
-                        class="flex flex-col items-center justify-center h-32 w-24 relative border-b border-base-200 py-2"
+                        class="relative flex h-32 w-24 flex-col items-center justify-center border-b border-base-200 py-2"
                         [style.top]="-offset_y + 'px'"
                         *ngFor="let user of users | async"
                     >
@@ -115,13 +115,13 @@ export interface FindAvailabilityData {
                             [user]="user"
                         ></a-user-avatar>
                         <div
-                            class="text-xs break-words max-w-full px-2 text-center"
+                            class="max-w-full break-words px-2 text-center text-xs"
                         >
                             {{ user.name || host.email }}
                         </div>
                         <button
                             icon
-                            class="absolute -top-1 -left-1"
+                            class="absolute -left-1 -top-1"
                             (click)="removeUser(user)"
                         >
                             <app-icon>close</app-icon>
@@ -139,7 +139,7 @@ export interface FindAvailabilityData {
                         ></div>
                         <div
                             selection
-                            class="absolute inset-y-0 !border-x-2 !border-info z-20 cursor-grab active:cursor-grabbing"
+                            class="absolute inset-y-0 z-20 cursor-grab !border-x-2 !border-info active:cursor-grabbing"
                             [style.left]="
                                 'calc(' +
                                 selection_left +
@@ -156,22 +156,22 @@ export interface FindAvailabilityData {
                             ></div>
                             <div
                                 handle
-                                class="absolute top-1/2 -left-px -translate-x-1/2 -translate-y-1/2 h-3 w-3 rounded-full bg-info"
+                                class="absolute -left-px top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-info"
                             ></div>
                             <div
                                 handle
-                                class="absolute top-1/2 -right-px translate-x-1/2 -translate-y-1/2 h-3 w-3 rounded-full bg-info hover:h-4 hover:w-4 active:bg-secondary"
+                                class="absolute -right-px top-1/2 h-3 w-3 -translate-y-1/2 translate-x-1/2 rounded-full bg-info hover:h-4 hover:w-4 active:bg-secondary"
                                 (mousedown)="startMoveDuration($event)"
                                 (touchstart)="startMoveDuration($event)"
                             ></div>
                             <div
-                                class="bg-base-100 border border-base-200 p-2 absolute top-2 left-1/2 -translate-x-1/2 shadow text-xs whitespace-nowrap rounded"
+                                class="absolute left-1/2 top-2 -translate-x-1/2 whitespace-nowrap rounded border border-base-200 bg-base-100 p-2 text-xs shadow"
                             >
                                 {{ duration | duration }}
                             </div>
                             <div
                                 *ngIf="move_time"
-                                class="bg-base-100 border border-base-200 p-2 absolute top-12 left-1/2 -translate-x-1/2 shadow text-xs whitespace-nowrap rounded"
+                                class="absolute left-1/2 top-12 -translate-x-1/2 whitespace-nowrap rounded border border-base-200 bg-base-100 p-2 text-xs shadow"
                             >
                                 {{ date | date: 'shortTime' }}
                             </div>
@@ -211,7 +211,7 @@ export interface FindAvailabilityData {
             </div>
         </main>
         <footer
-            class="flex items-center justify-between p-2 border-t border-base-200 w-full"
+            class="flex w-full items-center justify-between border-t border-base-200 p-2"
         >
             <button
                 btn
@@ -244,7 +244,7 @@ export interface FindAvailabilityData {
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class FindAvailabilityModalComponent
     extends AsyncHandler

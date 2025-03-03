@@ -9,11 +9,11 @@ import { BookingFormService } from '../booking-form.service';
 @Component({
     selector: `parking-space-filters-display`,
     template: `
-        <section actions class="sm:hidden space-x-2 flex items-center p-2">
+        <section actions class="flex items-center space-x-2 p-2 sm:hidden">
             <button
                 matRipple
                 filters
-                class="flex-1 w-1/2"
+                class="w-1/2 flex-1"
                 (click)="editFilters()"
             >
                 {{ 'COMMON.FILTERS' | translate }}
@@ -31,7 +31,7 @@ import { BookingFormService } from '../booking-form.service';
                 <button
                     matRipple
                     list
-                    class="rounded-r rounded-l-none"
+                    class="rounded-l-none rounded-r"
                     [class.inverse]="view !== 'list'"
                     (click)="view = 'list'; viewChange.emit(view)"
                 >
@@ -41,7 +41,7 @@ import { BookingFormService } from '../booking-form.service';
         </section>
         <section
             filters
-            class="flex items-center flex-wrap p-2 w-[35rem] max-w-full sm:max-w-[35rem]"
+            class="flex w-[35rem] max-w-full flex-wrap items-center p-2 sm:max-w-[35rem]"
         >
             <div filter-item zone *ngIf="location">
                 {{ location }}
@@ -95,7 +95,7 @@ import { BookingFormService } from '../booking-form.service';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class ParkingSpaceFiltersDisplayComponent extends AsyncHandler {
     @Input() public view: 'map' | 'list' = 'list';

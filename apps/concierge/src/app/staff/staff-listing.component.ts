@@ -9,11 +9,11 @@ const CHARS = '#abcdefghijklmnopqrstuvwxyz'.split('');
 @Component({
     selector: 'staff-listings',
     template: `
-        <div class="w-full p-2 flex items-center justify-center">
+        <div class="flex w-full items-center justify-center p-2">
             <div
                 letter
                 *ngFor="let group of groups"
-                class="capitalize h-6 w-6 flex items-center justify-center text-xs cursor-pointer"
+                class="flex h-6 w-6 cursor-pointer items-center justify-center text-xs capitalize"
                 [class.disabled]="(user_list | async)[group].length <= 0"
                 [class.active]="group === active_group"
                 (click)="scrollTo(group)"
@@ -22,7 +22,7 @@ const CHARS = '#abcdefghijklmnopqrstuvwxyz'.split('');
             </div>
         </div>
         <div
-            class="flex-1 overflow-auto w-full relative bg-base-200"
+            class="relative w-full flex-1 overflow-auto bg-base-200"
             style="height: 50%"
             #container
             (scroll)="onScroll($event)"
@@ -33,7 +33,7 @@ const CHARS = '#abcdefghijklmnopqrstuvwxyz'.split('');
                         <div
                             group
                             [id]="'letter-' + (group === '#' ? '0' : group)"
-                            class="capitalize bg-base-200 border-b text-sm font-medium sticky top-0 z-10"
+                            class="sticky top-0 z-10 border-b bg-base-200 text-sm font-medium capitalize"
                         >
                             {{ group }}
                         </div>
@@ -98,7 +98,7 @@ const CHARS = '#abcdefghijklmnopqrstuvwxyz'.split('');
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class StaffListingComponent extends AsyncHandler {
     public active_group = '#';

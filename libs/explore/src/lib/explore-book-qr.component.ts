@@ -20,11 +20,11 @@ const DEFAULT_PATH = `workplace/#/explore?space={{id}}`;
             </button>
         </header>
         <main class="p-4">
-            <img class="w-64 h-64 m-auto" [src]="qr_code" />
+            <img class="m-auto h-64 w-64" [src]="qr_code" />
         </main>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class ExploreBookQrComponent {
     public readonly space = this._data.space;

@@ -98,7 +98,7 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
         </form>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class BuildingFormComponent
     extends AsyncHandler

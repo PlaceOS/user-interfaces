@@ -7,7 +7,7 @@ import { AsyncHandler } from '@placeos/common';
     selector: 'asset-listing',
     template: `
         <asset-manager-topbar [active]="active"></asset-manager-topbar>
-        <div class="flex flex-col flex-1 h-1/2 w-full px-8">
+        <div class="flex h-1/2 w-full flex-1 flex-col px-8">
             <nav
                 mat-tab-nav-bar
                 *ngIf="!is_new || active !== 'requests'"
@@ -41,7 +41,7 @@ import { AsyncHandler } from '@placeos/common';
                 </a>
             </nav>
             <mat-tab-nav-panel
-                class="flex-1 h-1/2 w-full overflow-visible"
+                class="h-1/2 w-full flex-1 overflow-visible"
                 #tabPanel
             >
                 <router-outlet></router-outlet>
@@ -58,7 +58,7 @@ import { AsyncHandler } from '@placeos/common';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class AssetListingComponent extends AsyncHandler {
     public active = 'requests';

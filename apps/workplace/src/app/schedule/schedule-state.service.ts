@@ -54,7 +54,7 @@ export class ScheduleStateService extends AsyncHandler {
 
     public readonly calendars = timer(1000).pipe(
         switchMap((_) => queryCalendars()),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     public readonly events: Observable<BookingLike[]> = combineLatest([
@@ -80,16 +80,16 @@ export class ScheduleStateService extends AsyncHandler {
                                 query.period_start * 1000,
                                 query.period_end * 1000,
                                 _.date,
-                                _.date + _.duration * 60 * 1000
-                            )
-                    )
+                                _.date + _.duration * 60 * 1000,
+                            ),
+                    ),
             );
             return forkJoin([
                 this._settings.get('app.events.use_bookings') === true
                     ? queryBookings({ ...query, type: 'room' }).pipe(
                           map((_) =>
-                              _.map((i) => newCalendarEventFromBooking(i))
-                          )
+                              _.map((i) => newCalendarEventFromBooking(i)),
+                          ),
                       )
                     : queryEvents({ ...query }),
                 queryBookings({ ...query, type: 'desk' }),
@@ -109,7 +109,7 @@ export class ScheduleStateService extends AsyncHandler {
         }),
         catchError((_) => []),
         tap((_) => this._loading.next('')),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     constructor(private _settings: SettingsService) {

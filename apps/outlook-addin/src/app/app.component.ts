@@ -31,7 +31,7 @@ declare let OfficeRuntime: any;
         <debug-console></debug-console>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class AppComponent extends AsyncHandler implements OnInit {
     title = 'outlook-addin';

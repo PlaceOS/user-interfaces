@@ -15,7 +15,7 @@ import { take } from 'rxjs/operators';
 @Component({
     selector: `group-events-sidebar`,
     template: `
-        <div class="flex flex-col bg-base-100 sm:w-[18rem] sm:h-full">
+        <div class="flex flex-col bg-base-100 sm:h-full sm:w-[18rem]">
             <div class="flex items-center space-x-2 p-2">
                 <button
                     btn
@@ -36,10 +36,10 @@ import { take } from 'rxjs/operators';
                     {{ 'COMMON.MONTH' | translate }}
                 </button>
             </div>
-            <div class="flex flex-col items-center space-y-2 pb-2 px-2">
+            <div class="flex flex-col items-center space-y-2 px-2 pb-2">
                 <mat-form-field
                     appearance="outline"
-                    class="w-full no-subscript"
+                    class="no-subscript w-full"
                 >
                     <mat-select
                         [(ngModel)]="selected_range"
@@ -56,16 +56,16 @@ import { take } from 'rxjs/operators';
                 </mat-form-field>
             </div>
             <hr
-                class="border-base-200 w-[calc(100%-1rem)] mx-auto hidden sm:block"
+                class="mx-auto hidden w-[calc(100%-1rem)] border-base-200 sm:block"
             />
-            <div class="flex-col flex-1 overflow-auto hidden sm:flex">
+            <div class="hidden flex-1 flex-col overflow-auto sm:flex">
                 <date-calendar
                     [ngModel]="(options | async).date"
                     (ngModelChange)="setPeriodFromDate($event)"
                 ></date-calendar>
-                <hr class="border-base-200 w-[calc(100%-1rem)] mx-auto" />
-                <div class="flex flex-col flex-1 overflow-auto">
-                    <h2 class="text-lg font-medium p-4">
+                <hr class="mx-auto w-[calc(100%-1rem)] border-base-200" />
+                <div class="flex flex-1 flex-col overflow-auto">
+                    <h2 class="p-4 text-lg font-medium">
                         {{ 'COMMON.FILTERS' | translate }}
                     </h2>
                     <div
@@ -75,7 +75,7 @@ import { take } from 'rxjs/operators';
                         <h3>{{ 'COMMON.TAGS' | translate }}</h3>
                         <button
                             matRipple
-                            class="flex items-center rounded w-full text-left"
+                            class="flex w-full items-center rounded text-left"
                             *ngFor="let tag of tags | async"
                             (click)="toggleTag(tag)"
                         >
@@ -93,7 +93,7 @@ import { take } from 'rxjs/operators';
         </div>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class GroupEventsSidebarComponent
     extends AsyncHandler

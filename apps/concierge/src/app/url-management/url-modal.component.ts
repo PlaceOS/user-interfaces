@@ -59,7 +59,7 @@ import {
                     ></rich-text-input>
                 </div>
                 <div
-                    class="flex item-center space-x-4 pb-4"
+                    class="item-center flex space-x-4 pb-4"
                     *ngIf="form.controls.enabled"
                 >
                     <settings-toggle
@@ -87,7 +87,7 @@ import {
         </fullscreen-modal-shell>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class ShortUrlModalComponent extends AsyncHandler {
     public loading = false;

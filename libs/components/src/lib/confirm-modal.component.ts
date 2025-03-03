@@ -64,17 +64,17 @@ export async function openConfirmModal(
     selector: 'confirm-modal',
     template: `
         <header class="px-4 py-3">
-            <h3 class="font-medium text-xl">{{ title | translate }}</h3>
+            <h3 class="text-xl font-medium">{{ title | translate }}</h3>
         </header>
         <main
             *ngIf="!loading; else load_state"
-            class="flex flex-col items-center space-y-4 p-4 max-w-[80vw]"
+            class="flex max-w-[80vw] flex-col items-center space-y-4 p-4"
         >
             <app-icon [icon]="icon" class="text-5xl"></app-icon>
             <p content class="text-center" [innerHTML]="content"></p>
         </main>
         <footer
-            class="flex items-center justify-center p-4 space-x-4"
+            class="flex items-center justify-center space-x-4 p-4"
             *ngIf="!loading"
         >
             <button btn matRipple class="inverse flex-1" mat-dialog-close>
@@ -93,7 +93,7 @@ export async function openConfirmModal(
         <ng-template #load_state>
             <main loading>
                 <div
-                    class="w-full h-48 flex flex-col items-center justify-center space-y-4"
+                    class="flex h-48 w-full flex-col items-center justify-center space-y-4"
                 >
                     <mat-spinner diameter="32"></mat-spinner>
                     <p>{{ loading }}</p>
@@ -102,7 +102,7 @@ export async function openConfirmModal(
         </ng-template>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class ConfirmModalComponent extends AsyncHandler implements OnInit {
     /** Loading state */

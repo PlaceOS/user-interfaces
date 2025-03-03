@@ -21,10 +21,10 @@ import { combineLatest } from 'rxjs';
     selector: 'asset-view',
     template: `
         <div
-            class="h-full w-full flex flex-col"
+            class="flex h-full w-full flex-col"
             *ngIf="!loading && (item | async); else loading_state"
         >
-            <div class="w-full pr-8 pl-4 pt-8 pb-4 bg-base-100 flex space-x-2">
+            <div class="flex w-full space-x-2 bg-base-100 pb-4 pl-4 pr-8 pt-8">
                 <a
                     icon
                     matRipple
@@ -42,7 +42,7 @@ import { combineLatest } from 'rxjs';
                 <a
                     btn
                     matRipple
-                    class="h-12 w-32 "
+                    class="h-12 w-32"
                     [routerLink]="[base_route, 'manage', 'group']"
                     [queryParams]="{ id: (item | async)?.id }"
                 >
@@ -55,7 +55,7 @@ import { combineLatest } from 'rxjs';
                     btn
                     matRipple
                     customTooltip
-                    class="h-12 w-32 bg-base-100 border-error text-error"
+                    class="h-12 w-32 border-error bg-base-100 text-error"
                     [content]="delete_tooltip"
                 >
                     <div class="flex items-center space-x-2">
@@ -66,18 +66,18 @@ import { combineLatest } from 'rxjs';
                     </div>
                 </button>
             </div>
-            <div class="flex items-center px-8 space-x-4 mb-4">
+            <div class="mb-4 flex items-center space-x-4 px-8">
                 <div
-                    class="bg-base-200 flex-1 h-64 w-[24rem] rounded-xl overflow-hidden"
+                    class="h-64 w-[24rem] flex-1 overflow-hidden rounded-xl bg-base-200"
                 >
                     <image-carousel
                         [images]="(item | async)?.images || []"
                     ></image-carousel>
                 </div>
                 <div
-                    class="w-1/2 flex-1 p-4 flex flex-col space-y-4 h-64 rounded-lg border border-base-300"
+                    class="flex h-64 w-1/2 flex-1 flex-col space-y-4 rounded-lg border border-base-300 p-4"
                 >
-                    <div class="w-full flex-1 h-1/2 overflow-auto">
+                    <div class="h-1/2 w-full flex-1 overflow-auto">
                         <ng-container
                             *ngIf="
                                 (item | async)?.description;
@@ -96,9 +96,9 @@ import { combineLatest } from 'rxjs';
                         </ng-template>
                     </div>
                     <div
-                        class="rounded bg-base-100 border border-base-200 w-full divide-y divide-base-200"
+                        class="w-full divide-y divide-base-200 rounded border border-base-200 bg-base-100"
                     >
-                        <div class="flex items-center justify-between p-2 h-16">
+                        <div class="flex h-16 items-center justify-between p-2">
                             <div class="pl-2">
                                 {{
                                     'APP.CONCIERGE.ASSETS_ITEM_AVAILABLE'
@@ -124,7 +124,7 @@ import { combineLatest } from 'rxjs';
                                 Assign to Location
                             </button> -->
                         </div>
-                        <div class="flex items-center justify-between p-2 h-16">
+                        <div class="flex h-16 items-center justify-between p-2">
                             <div class="pl-2">
                                 {{
                                     'APP.CONCIERGE.ASSETS_ITEM_IN_USE'
@@ -156,12 +156,12 @@ import { combineLatest } from 'rxjs';
                 </div>
             </div>
 
-            <mat-tab-group class="flex-1 h-px">
+            <mat-tab-group class="h-px flex-1">
                 <mat-tab
                     [label]="'APP.CONCIERGE.ASSETS_ITEM_TAB_ASSETS' | translate"
                 >
-                    <div class="max-w-[768px] mx-auto px-8 py-4">
-                        <div class="flex w-full items-center space-x-2 mb-2">
+                    <div class="mx-auto max-w-[768px] px-8 py-4">
+                        <div class="mb-2 flex w-full items-center space-x-2">
                             <a
                                 btn
                                 matRipple
@@ -192,7 +192,7 @@ import { combineLatest } from 'rxjs';
                             </a>
                         </div>
                         <simple-table
-                            class="min-w-[40rem] block text-sm"
+                            class="block min-w-[40rem] text-sm"
                             [data]="asset_list"
                             [columns]="[
                                 {
@@ -270,7 +270,7 @@ import { combineLatest } from 'rxjs';
                 <mat-tab
                     [label]="'APP.CONCIERGE.ASSETS_ITEM_TAB_SPECS' | translate"
                 >
-                    <div class="max-w-[768px] mx-auto px-8 py-4">
+                    <div class="mx-auto max-w-[768px] px-8 py-4">
                         <h3 class="p-2">
                             {{
                                 'APP.CONCIERGE.ASSETS_ITEM_GENERAL' | translate
@@ -278,7 +278,7 @@ import { combineLatest } from 'rxjs';
                         </h3>
                         <div
                             data-table
-                            class="bg-base-100 border border-base-200"
+                            class="border border-base-200 bg-base-100"
                         >
                             <div
                                 class="flex items-center justify-between p-2 even:bg-base-200"
@@ -302,7 +302,7 @@ import { combineLatest } from 'rxjs';
                             | translate
                     "
                 >
-                    <div class="max-w-[768px] mx-auto px-8 py-4">
+                    <div class="mx-auto max-w-[768px] px-8 py-4">
                         <a
                             btn
                             matRipple
@@ -319,7 +319,7 @@ import { combineLatest } from 'rxjs';
                             }}
                         </a>
                         <simple-table
-                            class="min-w-[40rem] block text-sm"
+                            class="block min-w-[40rem] text-sm"
                             asset-purchases
                             [data]="(item | async)?.purchase_orders"
                             [columns]="[
@@ -399,7 +399,7 @@ import { combineLatest } from 'rxjs';
         </div>
         <ng-template #loading_state>
             <div
-                class="h-full w-full flex flex-col items-center justify-center"
+                class="flex h-full w-full flex-col items-center justify-center"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
                 <p>{{ 'APP.CONCIERGE.ASSETS_ITEM_LOADING' | translate }}</p>
@@ -415,15 +415,15 @@ import { combineLatest } from 'rxjs';
         </ng-template>
         <ng-template #delete_tooltip>
             <div
-                class="p-4 bg-base-100 rounded my-2 text-center w-[18rem]"
+                class="my-2 w-[18rem] rounded bg-base-100 p-4 text-center"
                 *ngIf="!deleting; else delete_loading"
             >
                 <p>{{ 'APP.CONCIERGE.ASSETS_ITEM_DELETE_MSG' | translate }}</p>
-                <div class="flex items-center space-x-2 mt-6">
+                <div class="mt-6 flex items-center space-x-2">
                     <button
                         btn
                         matRipple
-                        class="inverse flex-1 w-24"
+                        class="inverse w-24 flex-1"
                         (click)="closeTooltip()"
                     >
                         {{ 'COMMON.FALSE' | translate }}
@@ -431,7 +431,7 @@ import { combineLatest } from 'rxjs';
                     <button
                         btn
                         matRipple
-                        class="error flex-1 w-24"
+                        class="error w-24 flex-1"
                         (click)="deleteAsset()"
                     >
                         {{
@@ -443,8 +443,7 @@ import { combineLatest } from 'rxjs';
             </div>
             <ng-template #delete_loading>
                 <div
-                    class="p-4 bg-base-100 rounded my-2 w-64 h-36 flex
-                    l  flex-col items-center justify-center space-y-2"
+                    class="l my-2 flex h-36 w-64 flex-col items-center justify-center space-y-2 rounded bg-base-100 p-4"
                 >
                     <mat-spinner [diameter]="32"></mat-spinner>
                     <p>
@@ -464,7 +463,7 @@ import { combineLatest } from 'rxjs';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class AssetViewComponent extends AsyncHandler {
     public loading = false;

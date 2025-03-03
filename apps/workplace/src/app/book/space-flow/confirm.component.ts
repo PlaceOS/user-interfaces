@@ -15,22 +15,22 @@ import { OrganisationService } from '@placeos/organisation';
                 matRipple
                 [routerLink]="['/book', 'spaces', 'find']"
             >
-                <div class="flex items-center justify-center h-full">
+                <div class="flex h-full items-center justify-center">
                     <app-icon class="text-xl">arrow_back</app-icon>
-                    <span class="ml-2 mx-4">Back</span>
+                    <span class="mx-4 ml-2">Back</span>
                 </div>
             </a>
         </div>
         <div
-            class="flex flex-col items-center space-y-2 w-[640px] max-w-[calc(100%-2rem)] mx-auto mb-4"
+            class="mx-auto mb-4 flex w-[640px] max-w-[calc(100%-2rem)] flex-col items-center space-y-2"
         >
-            <h2 class="text-xl uppercase font-medium w-full my-4">
+            <h2 class="my-4 w-full text-xl font-medium uppercase">
                 Your meeting details
             </h2>
             <div
-                class="flex items-center py-2 space-x-2 border-b border-base-200 w-full"
+                class="flex w-full items-center space-x-2 border-b border-base-200 py-2"
             >
-                <div class="p-2 rounded-full bg-base-200 mr-2">
+                <div class="mr-2 rounded-full bg-base-200 p-2">
                     <app-icon>event</app-icon>
                 </div>
                 <div class="flex-1 truncate">
@@ -52,9 +52,9 @@ import { OrganisationService } from '@placeos/organisation';
                 >
             </div>
             <div
-                class="flex items-center py-2 space-x-2 border-b border-base-200 w-full"
+                class="flex w-full items-center space-x-2 border-b border-base-200 py-2"
             >
-                <div class="p-2 rounded-full bg-base-200 mr-2">
+                <div class="mr-2 rounded-full bg-base-200 p-2">
                     <app-icon>schedule</app-icon>
                 </div>
                 <div class="flex-1 truncate">
@@ -73,9 +73,9 @@ import { OrganisationService } from '@placeos/organisation';
                     Edit
                 </a>
             </div>
-            <div class="border-b border-base-200 w-full">
-                <div class="flex items-center py-2 space-x-2 ">
-                    <div class="p-2 rounded-full bg-base-200 mr-2">
+            <div class="w-full border-b border-base-200">
+                <div class="flex items-center space-x-2 py-2">
+                    <div class="mr-2 rounded-full bg-base-200 p-2">
                         <app-icon>place</app-icon>
                     </div>
                     <div class="flex-1 truncate">
@@ -107,7 +107,7 @@ import { OrganisationService } from '@placeos/organisation';
                     class="overflow-hidden"
                 >
                     <div
-                        class="flex items-center h-10 pl-12"
+                        class="flex h-10 items-center pl-12"
                         *ngFor="let space of form.get('resources')?.value"
                     >
                         <span
@@ -126,9 +126,9 @@ import { OrganisationService } from '@placeos/organisation';
                     </div>
                 </div>
             </div>
-            <div class="border-b border-base-200 w-full">
-                <div class="flex items-center py-2 space-x-2 ">
-                    <div class="p-2 rounded-full bg-base-200 mr-2">
+            <div class="w-full border-b border-base-200">
+                <div class="flex items-center space-x-2 py-2">
+                    <div class="mr-2 rounded-full bg-base-200 p-2">
                         <app-icon>group</app-icon>
                     </div>
                     <div class="flex-1 truncate">
@@ -161,7 +161,7 @@ import { OrganisationService } from '@placeos/organisation';
                     class="overflow-hidden"
                 >
                     <div
-                        class="flex items-center h-12 pl-12 space-x-2"
+                        class="flex h-12 items-center space-x-2 pl-12"
                         *ngFor="let user of form.get('attendees')?.value"
                     >
                         <a-user-avatar
@@ -173,11 +173,11 @@ import { OrganisationService } from '@placeos/organisation';
                 </div>
             </div>
             <div
-                class="border-b border-base-200 w-full"
+                class="w-full border-b border-base-200"
                 *ngIf="form.value.catering?.length"
             >
-                <div class="flex items-center py-2 space-x-2 ">
-                    <div class="p-2 rounded-full bg-base-200 mr-2">
+                <div class="flex items-center space-x-2 py-2">
+                    <div class="mr-2 rounded-full bg-base-200 p-2">
                         <app-icon>group</app-icon>
                     </div>
                     <div class="flex-1 truncate">
@@ -209,11 +209,11 @@ import { OrganisationService } from '@placeos/organisation';
                     class="overflow-hidden"
                 >
                     <div
-                        class="flex items-center h-12 pl-12 space-x-2"
+                        class="flex h-12 items-center space-x-2 pl-12"
                         *ngFor="let item of form.value.catering[0]?.items"
                     >
-                        <div class="flex-1 w-1/2">
-                            <div class="flex-1 w-1/2">{{ item.name }}</div>
+                        <div class="w-1/2 flex-1">
+                            <div class="w-1/2 flex-1">{{ item.name }}</div>
                             <div
                                 class="text-xs underline"
                                 *ngIf="item.options.length"
@@ -226,7 +226,7 @@ import { OrganisationService } from '@placeos/organisation';
                             </div>
                         </div>
                         <div
-                            class="bg-primary text-xs rounded px-4 py-2 mx-2 text-white font-medium"
+                            class="mx-2 rounded bg-primary px-4 py-2 text-xs font-medium text-white"
                         >
                             {{ item.total_cost / 100 | currency: code }}
                         </div>
@@ -269,7 +269,7 @@ import { OrganisationService } from '@placeos/organisation';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class SpaceFlowConfirmComponent {
     public show_spaces = false;
@@ -283,8 +283,8 @@ export class SpaceFlowConfirmComponent {
             .postForm()
             .catch((_) =>
                 notifyError(
-                    _ instanceof Object ? _.message || 'Bad Request' : _
-                )
+                    _ instanceof Object ? _.message || 'Bad Request' : _,
+                ),
             );
         this.loading = false;
     };
@@ -308,6 +308,6 @@ export class SpaceFlowConfirmComponent {
     constructor(
         private _org: OrganisationService,
         private _state: EventFormService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {}
 }

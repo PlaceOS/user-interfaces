@@ -17,7 +17,7 @@ import { parseRatingAnswers, parseRatingStats } from './survey-helper';
         <ng-container *ngIf="chart_data$ | async as data">
             <div class="flex flex-row space-x-4 p-4">
                 <div
-                    class="flex flex-col w-1/3 relative justify-center items-center space-y-4"
+                    class="relative flex w-1/3 flex-col items-center justify-center space-y-4"
                 >
                     <ng-container *ngIf="stats$ | async as stats">
                         <div class="flex flex-row items-end">
@@ -29,9 +29,9 @@ import { parseRatingAnswers, parseRatingStats } from './survey-helper';
                             >
                         </div>
 
-                        <div class="progress-bar bg-base-200 h-5">
+                        <div class="progress-bar h-5 bg-base-200">
                             <span
-                                class="progress-bar-fill bg-warning h-5 rounded-lg"
+                                class="progress-bar-fill h-5 rounded-lg bg-warning"
                                 [ngStyle]="{ width: stats.percentage + '%' }"
                             ></span>
                         </div>
@@ -41,18 +41,18 @@ import { parseRatingAnswers, parseRatingStats } from './survey-helper';
                 <div class="flex w-2/3 flex-col-reverse">
                     <div
                         *ngFor="let d of data; let i = index"
-                        class="flex flex-row w-full items-center space-x-4"
+                        class="flex w-full flex-row items-center space-x-4"
                     >
-                        <div class="w-3 flex justify-end">
+                        <div class="flex w-3 justify-end">
                             <span> {{ i + 1 }}</span>
                         </div>
-                        <div class="progress-bar bg-base-200 h-3">
+                        <div class="progress-bar h-3 bg-base-200">
                             <span
-                                class="progress-bar-fill bg-warning h-3"
+                                class="progress-bar-fill h-3 bg-warning"
                                 [ngStyle]="{ width: d + '%' }"
                             ></span>
                         </div>
-                        <div class="min-w-[1.5rem] flex justify-end">
+                        <div class="flex min-w-[1.5rem] justify-end">
                             <span> {{ d / 100 | percent }}</span>
                         </div>
                     </div>
@@ -60,17 +60,17 @@ import { parseRatingAnswers, parseRatingStats } from './survey-helper';
             </div>
         </ng-container>
     `,
-    standalone: false
+    standalone: false,
 })
 export class RatingsWidgetComponent extends BaseWidget {
     public chart_data$ = this.data$.pipe(
         map((data: UISurveyAnswer[]) => parseRatingAnswers(data, this.maxRate)),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     public stats$ = this.data$.pipe(
         map((data: UISurveyAnswer[]) => parseRatingStats(data, this.maxRate)),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     get maxRate() {

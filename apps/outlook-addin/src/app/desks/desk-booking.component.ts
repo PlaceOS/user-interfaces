@@ -7,12 +7,12 @@ import { BookingFormService } from '@placeos/bookings';
     template: `
         <div class="absolute inset-0 bg-base-200">
             <div
-                class="mx-auto w-full max-w-[32rem] overflow-auto max-h-screen"
+                class="mx-auto max-h-screen w-full max-w-[32rem] overflow-auto"
             >
-                <h3 class="text-2xl p-4 font-medium">Book Desk</h3>
+                <h3 class="p-4 text-2xl font-medium">Book Desk</h3>
                 <desk-booking-form></desk-booking-form>
                 <div
-                    class="flex flex-col p-4 space-y-2 border-t border-base-200"
+                    class="flex flex-col space-y-2 border-t border-base-200 p-4"
                 >
                     <button
                         btn
@@ -26,7 +26,7 @@ import { BookingFormService } from '@placeos/bookings';
                     <button
                         btn
                         matRipple
-                        class="w-full inverse"
+                        class="inverse w-full"
                         (click)="clearForm()"
                     >
                         Clear Form
@@ -36,7 +36,7 @@ import { BookingFormService } from '@placeos/bookings';
         </div>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class DeskBookingComponent {
     public readonly clearForm = () => this._service.clearForm();
@@ -47,7 +47,7 @@ export class DeskBookingComponent {
 
     constructor(
         private _service: BookingFormService,
-        private _router: Router
+        private _router: Router,
     ) {}
 
     public async makeBooking() {

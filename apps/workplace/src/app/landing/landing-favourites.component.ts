@@ -24,7 +24,7 @@ const EMPTY = [];
     selector: 'landing-favourites',
     template: `
         <div
-            class="flex items-center justify-between p-2 mx-2 bg-base-200 text-sm rounded"
+            class="mx-2 flex items-center justify-between rounded bg-base-200 p-2 text-sm"
         >
             <h2>
                 {{
@@ -39,7 +39,7 @@ const EMPTY = [];
             </h2>
         </div>
         <div
-            class="flex-1 h-1/2 w-full space-y-2 overflow-auto pt-4 divide-y divide-base-200"
+            class="h-1/2 w-full flex-1 space-y-2 divide-y divide-base-200 overflow-auto pt-4"
         >
             <ng-container
                 *ngIf="
@@ -50,15 +50,15 @@ const EMPTY = [];
                 <ng-container *ngFor="let item of spaces">
                     @let space = item | space | async;
                     <div
-                        class="flex flex-col items-center mx-2 pt-2 space-y-2 relative"
+                        class="relative mx-2 flex flex-col items-center space-y-2 pt-2"
                         item
                         *ngIf="space?.id"
                     >
                         <div
-                            class="flex w-full items-center space-x-2 relative"
+                            class="relative flex w-full items-center space-x-2"
                         >
                             <div
-                                class="w-16 h-16 overflow-hidden rounded relative flex items-center justify-center bg-base-300"
+                                class="relative flex h-16 w-16 items-center justify-center overflow-hidden rounded bg-base-300"
                             >
                                 <img
                                     auth
@@ -66,7 +66,7 @@ const EMPTY = [];
                                         space.images.length;
                                         else space_placeholder
                                     "
-                                    class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 object-cover min-w-full min-h-full"
+                                    class="absolute left-1/2 top-1/2 min-h-full min-w-full -translate-x-1/2 -translate-y-1/2 object-cover"
                                     [source]="space.images[0]"
                                 />
                                 <ng-template #space_placeholder>
@@ -77,23 +77,23 @@ const EMPTY = [];
                                 </ng-template>
                             </div>
                             <div
-                                class="h-16 flex-1 w-1/2 flex flex-col justify-center space-y-1"
+                                class="flex h-16 w-1/2 flex-1 flex-col justify-center space-y-1"
                             >
-                                <div class="truncate w-full pr-12">
+                                <div class="w-full truncate pr-12">
                                     {{ space.display_name || space.name }}
                                 </div>
                                 <div
-                                    class="flex items-center text-xs opacity-60 space-x-1"
+                                    class="flex items-center space-x-1 text-xs opacity-60"
                                 >
                                     <app-icon class="text-blue-500"
                                         >place</app-icon
                                     >
-                                    <div class="flex-1 w-1/2 truncate">
+                                    <div class="w-1/2 flex-1 truncate">
                                         {{ level(space)?.display_name }}
                                     </div>
                                 </div>
                                 <div
-                                    class="flex items-center text-xs opacity-60 truncate space-x-2"
+                                    class="flex items-center space-x-2 truncate text-xs opacity-60"
                                 >
                                     <app-icon class="text-blue-500">
                                         people
@@ -116,7 +116,7 @@ const EMPTY = [];
                             btn
                             name="book-favourite"
                             matRipple
-                            class="w-full inverse"
+                            class="inverse w-full"
                             [disabled]="isClosed(item)"
                             (click)="newSpaceMeeting(item)"
                         >
@@ -126,7 +126,7 @@ const EMPTY = [];
                             icon
                             name="favourite-more"
                             [matMenuTriggerFor]="menu"
-                            class="absolute top-2 right-0 bg-base-200 !rounded !m-0"
+                            class="absolute right-0 top-2 !m-0 !rounded bg-base-200"
                         >
                             <app-icon>more_horiz</app-icon>
                         </button>
@@ -159,13 +159,13 @@ const EMPTY = [];
                     </div>
                 </ng-container>
                 <div
-                    class="flex flex-col items-center mx-2 pt-2 space-y-2 relative"
+                    class="relative mx-2 flex flex-col items-center space-y-2 pt-2"
                     item
                     *ngFor="let item of assets | async"
                 >
-                    <div class="flex w-full items-center space-x-2 relative">
+                    <div class="relative flex w-full items-center space-x-2">
                         <div
-                            class="w-16 h-16 overflow-hidden rounded relative flex items-center justify-center bg-base-300"
+                            class="relative flex h-16 w-16 items-center justify-center overflow-hidden rounded bg-base-300"
                         >
                             <img
                                 auth
@@ -173,7 +173,7 @@ const EMPTY = [];
                                     item?.images?.length;
                                     else asset_placeholder
                                 "
-                                class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 object-cover min-w-full min-h-full"
+                                class="absolute left-1/2 top-1/2 min-h-full min-w-full -translate-x-1/2 -translate-y-1/2 object-cover"
                                 [source]="item?.images[0]"
                             />
                             <ng-template #asset_placeholder>
@@ -190,7 +190,7 @@ const EMPTY = [];
                             </ng-template>
                         </div>
                         <div
-                            class="h-16 flex-1 w-1/2 flex flex-col justify-center space-y-1"
+                            class="flex h-16 w-1/2 flex-1 flex-col justify-center space-y-1"
                         >
                             <div class="truncate">
                                 {{
@@ -198,10 +198,10 @@ const EMPTY = [];
                                 }}
                             </div>
                             <div
-                                class="flex items-center text-xs opacity-60 space-x-1"
+                                class="flex items-center space-x-1 text-xs opacity-60"
                             >
                                 <app-icon class="text-blue-500">place</app-icon>
-                                <div class="flex-1 w-1/2 truncate">
+                                <div class="w-1/2 flex-1 truncate">
                                     {{ item?.zone?.display_name }}
                                 </div>
                             </div>
@@ -211,7 +211,7 @@ const EMPTY = [];
                         btn
                         name="book-favourite"
                         matRipple
-                        class="w-full inverse"
+                        class="inverse w-full"
                         (click)="newBooking(item.type, item)"
                     >
                         {{ 'COMMON.BOOK' | translate }}
@@ -220,7 +220,7 @@ const EMPTY = [];
                         icon
                         name="favourite-more"
                         [matMenuTriggerFor]="menu"
-                        class="absolute top-22 right-0 bg-base-200 !rounded !m-0"
+                        class="top-22 absolute right-0 !m-0 !rounded bg-base-200"
                     >
                         <app-icon>more_horiz</app-icon>
                     </button>
@@ -257,10 +257,10 @@ const EMPTY = [];
         </div>
         <ng-template #empty_state>
             <div
-                class="w-full h-full flex flex-col items-center justify-center space-y-2 p-8"
+                class="flex h-full w-full flex-col items-center justify-center space-y-2 p-8"
             >
                 <img src="assets/icons/no-favourites.svg" />
-                <p class="opacity-60 text-sm text-center">
+                <p class="text-center text-sm opacity-60">
                     {{ 'APP.WORKPLACE.FAVOURITES_EMPTY' | translate }}
                 </p>
             </div>

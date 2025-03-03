@@ -16,7 +16,7 @@ export interface LockerBankInfoData {
     selector: 'explore-locker-bank-info',
     template: `
         <button
-            class="h-full w-full pointer-events-auto relative"
+            class="pointer-events-auto relative h-full w-full"
             (click)="openBankModal()"
         >
             <div
@@ -27,7 +27,7 @@ export interface LockerBankInfoData {
                 [yPosition]="'center'"
                 [hover]="true"
                 [delay]="3000"
-                class="h-full w-full pointer-events-auto relative"
+                class="pointer-events-auto relative h-full w-full"
             ></div>
         </button>
         <ng-template #desk_tooltip>
@@ -35,7 +35,7 @@ export interface LockerBankInfoData {
                 name="space-info"
                 [id]="map_id"
                 [class]="
-                    'absolute rounded bg-base-100 p-4 top-0 left-0 shadow pointer-events-none ' +
+                    'pointer-events-none absolute left-0 top-0 rounded bg-base-100 p-4 shadow ' +
                     x_pos +
                     ' ' +
                     y_pos
@@ -56,7 +56,7 @@ export interface LockerBankInfoData {
         >
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class ExploreLockerBankInfoComponent implements OnInit {
     public bank: LockerBank = this._details.bank;

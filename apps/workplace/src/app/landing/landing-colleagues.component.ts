@@ -16,7 +16,7 @@ import { LandingStateService } from './landing-state.service';
     selector: 'landing-colleagues',
     template: `
         <div
-            class="flex items-center justify-between p-2 mx-2 bg-base-200 text-sm rounded"
+            class="mx-2 flex items-center justify-between rounded bg-base-200 p-2 text-sm"
         >
             <h2>
                 {{
@@ -25,17 +25,17 @@ import { LandingStateService } from './landing-state.service';
                 }}
             </h2>
         </div>
-        <div class="flex-1 h-1/2 w-full space-y-4 overflow-auto pt-4">
+        <div class="h-1/2 w-full flex-1 space-y-4 overflow-auto pt-4">
             <ng-container *ngIf="(contacts | async)?.length; else empty_state">
                 <div
-                    class="flex items-center px-2 space-x-2 relative"
+                    class="relative flex items-center space-x-2 px-2"
                     user
                     *ngFor="let user of contacts | async"
                 >
-                    <div class="text-xl relative">
+                    <div class="relative text-xl">
                         <a-user-avatar [user]="user"></a-user-avatar>
                         <div
-                            class="rounded-full h-3 w-3 border border-white absolute bottom-1 right-1"
+                            class="absolute bottom-1 right-1 h-3 w-3 rounded-full border border-white"
                             [class.bg-error]="
                                 user.location === 'aol' ||
                                 user.location === 'ooo'
@@ -47,17 +47,17 @@ import { LandingStateService } from './landing-state.service';
                             *ngIf="!user.outsideHours()"
                         ></div>
                     </div>
-                    <div class="leading-tight flex-1 w-1/2">
+                    <div class="w-1/2 flex-1 leading-tight">
                         <div class="truncate" [matTooltip]="user.name">
                             {{ user.name }}
                         </div>
                         <div
-                            class="text-sm truncate"
+                            class="truncate text-sm"
                             [matTooltip]="user.organisation"
                         >
                             {{ user.organisation }}
                         </div>
-                        <div class="text-xs opacity-60 truncate">
+                        <div class="truncate text-xs opacity-60">
                             {{ user.location_name }}
                         </div>
                     </div>
@@ -108,7 +108,7 @@ import { LandingStateService } from './landing-state.service';
             btn
             name="open-colleague-search"
             matRipple
-            class="inverse w-[calc(100%-1rem)] m-2"
+            class="inverse m-2 w-[calc(100%-1rem)]"
             (click)="openSearch()"
         >
             {{ 'APP.WORKPLACE.COLLEAGUE_ADD' | translate }}
@@ -116,7 +116,7 @@ import { LandingStateService } from './landing-state.service';
         <div
             search
             [class.hidden]="!show_search"
-            class="absolute inset-x-2 top-2 bottom-16 rounded overflow-hidden flex flex-col bg-base-100 border border-base-200"
+            class="absolute inset-x-2 bottom-16 top-2 flex flex-col overflow-hidden rounded border border-base-200 bg-base-100"
         >
             <input
                 #search_input
@@ -128,13 +128,13 @@ import { LandingStateService } from './landing-state.service';
             <button
                 icon
                 name="close-colleague-search"
-                class="absolute top-0 right-0"
+                class="absolute right-0 top-0"
                 (click)="show_search = false"
             >
                 <app-icon>close</app-icon>
             </button>
             <div
-                class="overflow-auto flex-1 h-1/2 flex flex-col space-y-2"
+                class="flex h-1/2 flex-1 flex-col space-y-2 overflow-auto"
                 *ngIf="!(loading | async); else load_state"
             >
                 <ng-container
@@ -143,11 +143,11 @@ import { LandingStateService } from './landing-state.service';
                     <button
                         matRipple
                         name="add-colleague"
-                        class="flex items-center p-1 space-x-2 w-full text-left min-h-12"
+                        class="flex min-h-12 w-full items-center space-x-2 p-1 text-left"
                         *ngFor="let user of search_results | async"
                         (click)="addUser(user)"
                     >
-                        <div class="text-base relative">
+                        <div class="relative text-base">
                             <a-user-avatar [user]="user"></a-user-avatar>
                             <!-- <div
                                 class="rounded-full h-3 w-3 border border-white absolute bottom-1 right-1"
@@ -155,9 +155,9 @@ import { LandingStateService } from './landing-state.service';
                                 [class.bg-success]="user.location"
                             ></div> -->
                         </div>
-                        <div class="leading-tight flex-1">
+                        <div class="flex-1 leading-tight">
                             <div class="truncate">{{ user.name }}</div>
-                            <div class="text-xs truncate opacity-60">
+                            <div class="truncate text-xs opacity-60">
                                 {{ user.organisation || user.email }}
                             </div>
                         </div>
@@ -167,19 +167,19 @@ import { LandingStateService } from './landing-state.service';
         </div>
         <ng-template #empty_state>
             <div
-                class="w-full h-full flex flex-col items-center justify-center space-y-2 p-8"
+                class="flex h-full w-full flex-col items-center justify-center space-y-2 p-8"
             >
                 <img src="assets/icons/no-contacts.svg" />
-                <p class="opacity-60 text-sm text-center">
+                <p class="text-center text-sm opacity-60">
                     {{ 'APP.WORKPLACE.COLLEAGUES_EMPTY' | translate }}
                 </p>
             </div>
         </ng-template>
         <ng-template #search_empty>
             <div
-                class="w-full h-full flex flex-col items-center justify-center space-y-2 p-8"
+                class="flex h-full w-full flex-col items-center justify-center space-y-2 p-8"
             >
-                <p class="opacity-60 text-sm text-center">
+                <p class="text-center text-sm opacity-60">
                     {{
                         !(options | async)?.search
                             ? ('APP.WORKPLACE.COLLEAGUE_SEARCH_EMPTY'
@@ -192,10 +192,10 @@ import { LandingStateService } from './landing-state.service';
         </ng-template>
         <ng-template #load_state>
             <div
-                class="w-full h-full flex flex-col items-center justify-center space-y-2 p-8"
+                class="flex h-full w-full flex-col items-center justify-center space-y-2 p-8"
             >
                 <mat-spinner diameter="32"></mat-spinner>
-                <p class="opacity-60 text-sm text-center">
+                <p class="text-center text-sm opacity-60">
                     {{ 'APP.WORKPLACE.COLLEAGUE_SEARCH_LOADING' | translate }}
                 </p>
             </div>

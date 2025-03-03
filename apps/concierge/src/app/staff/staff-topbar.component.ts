@@ -10,7 +10,7 @@ import { StaffStateService } from './staff-state.service';
     selector: 'staff-topbar',
     template: `
         <div
-            class="flex items-center bg-base-100 h-20 px-4 border-b border-base-200 space-x-2"
+            class="flex h-20 items-center space-x-2 border-b border-base-200 bg-base-100 px-4"
         >
             <mat-form-field appearance="outline">
                 <mat-select
@@ -35,7 +35,7 @@ import { StaffStateService } from './staff-state.service';
                     {{ 'APP.CONCIERGE.DIRECTORY_ONSITE_ONLY' | translate }}
                 </div></mat-slide-toggle
             >
-            <div class="flex-1 w-2"></div>
+            <div class="w-2 flex-1"></div>
             <searchbar
                 class="mr-2"
                 (modelChange)="setSearch($event)"
@@ -50,7 +50,7 @@ import { StaffStateService } from './staff-state.service';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class StaffTopbarComponent extends AsyncHandler implements OnInit {
     /** List of selected levels */

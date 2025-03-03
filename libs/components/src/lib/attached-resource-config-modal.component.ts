@@ -43,9 +43,9 @@ export interface AttachedResourceConfigModalData {
     selector: 'attached-resource-config-modal',
     template: `
         <header
-            class="sticky top-0 p-2 m-2 w-[calc(100%-1rem)] border-none z-10 bg-base-200 rounded"
+            class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded border-none bg-base-200 p-2"
         >
-            <h2 class="text-xl font-medium px-2">
+            <h2 class="px-2 text-xl font-medium">
                 {{
                     'RESOURCE.RULESET_HEADER'
                         | translate: { name: resource_name }
@@ -56,7 +56,7 @@ export interface AttachedResourceConfigModalData {
             </button>
         </header>
         <main
-            class="overflow-auto text-center max-w-lg min-w-[36rem] px-4 pt-2 pb-4 space-y-4"
+            class="min-w-[36rem] max-w-lg space-y-4 overflow-auto px-4 pb-4 pt-2 text-center"
         >
             <settings-toggle
                 *ngIf="can_save_notes"
@@ -76,9 +76,9 @@ export interface AttachedResourceConfigModalData {
                 *ngFor="let set of rulesets; let i = index"
                 class="ruleset mb-2"
             >
-                <div class="flex items-center mb-2 space-x-2">
+                <div class="mb-2 flex items-center space-x-2">
                     <mat-form-field
-                        class="flex-1 no-subscript"
+                        class="no-subscript flex-1"
                         appearance="outline"
                     >
                         <input
@@ -161,14 +161,14 @@ export interface AttachedResourceConfigModalData {
                     "
                 >
                     <div
-                        class="flex items-center pl-7 h-16 space-x-2 relative"
+                        class="relative flex h-16 items-center space-x-2 pl-7"
                         *ngFor="let rule of set.rules; let i = index"
                     >
                         <div
-                            class="absolute left-3 top-1/2 -translate-y-full w-4 h-32 border-b-2 border-l-2 border-base-200"
+                            class="absolute left-3 top-1/2 h-32 w-4 -translate-y-full border-b-2 border-l-2 border-base-200"
                         ></div>
                         <mat-form-field
-                            class="flex-1 no-subscript"
+                            class="no-subscript flex-1"
                             appearance="outline"
                         >
                             <mat-select
@@ -185,7 +185,7 @@ export interface AttachedResourceConfigModalData {
                             </mat-select>
                         </mat-form-field>
                         <mat-form-field
-                            class="flex-1 no-subscript"
+                            class="no-subscript flex-1"
                             appearance="outline"
                         >
                             <input
@@ -202,7 +202,7 @@ export interface AttachedResourceConfigModalData {
                         <button
                             icon
                             matRipple
-                            class="text-error h-12 w-12 rounded border border-error"
+                            class="h-12 w-12 rounded border border-error text-error"
                             (click)="set.rules.splice(i, 1)"
                         >
                             <app-icon>delete</app-icon>
@@ -212,7 +212,7 @@ export interface AttachedResourceConfigModalData {
             </div>
         </main>
         <footer
-            class="flex py-2 px-4 items-center justify-end border-t border-solid border-base-200"
+            class="flex items-center justify-end border-t border-solid border-base-200 px-4 py-2"
         >
             <button btn matRipple class="w-36" (click)="saveChanges()">
                 {{ 'COMMON.SAVE' | translate }}

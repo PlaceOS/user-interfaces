@@ -40,7 +40,7 @@ function registerMocks() {
         method: 'GET',
         callback: (_) => {
             const event = MOCK_CATEGORIES.find(
-                (e) => e.id === _.route_params.id
+                (e) => e.id === _.route_params.id,
             );
             if (!event)
                 throw {
@@ -79,7 +79,7 @@ function registerMocks() {
         method: 'DELETE',
         callback: (req) => {
             const index = MOCK_CATEGORIES.findIndex(
-                (e) => e.id === req.route_params.id
+                (e) => e.id === req.route_params.id,
             );
             if (index < 0)
                 throw {
@@ -144,7 +144,7 @@ function registerMocks() {
         method: 'DELETE',
         callback: (req) => {
             const index = MOCK_PRODUCTS.findIndex(
-                (e) => e.id === req.route_params.id
+                (e) => e.id === req.route_params.id,
             );
             if (index < 0)
                 throw {
@@ -172,7 +172,7 @@ function registerMocks() {
         method: 'GET',
         callback: (_) => {
             const event = MOCK_PURCHASE_ORDERS.find(
-                (e) => e.id === _.route_params.id
+                (e) => e.id === _.route_params.id,
             );
             if (!event)
                 throw {
@@ -211,7 +211,7 @@ function registerMocks() {
         method: 'DELETE',
         callback: (req) => {
             const index = MOCK_PURCHASE_ORDERS.findIndex(
-                (e) => e.id === req.route_params.id
+                (e) => e.id === req.route_params.id,
             );
             if (index < 0)
                 throw {
@@ -276,7 +276,7 @@ function registerMocks() {
         method: 'DELETE',
         callback: (req) => {
             const index = MOCK_ASSETS.findIndex(
-                (e) => e.id === req.route_params.id
+                (e) => e.id === req.route_params.id,
             );
             if (index < 0)
                 throw {

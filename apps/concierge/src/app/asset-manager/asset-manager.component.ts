@@ -4,7 +4,7 @@ import { Component } from '@angular/core';
     selector: '[asset-manager]',
     template: `
         <sidebar></sidebar>
-        <main class="relative w-1/2 flex-1 bg-base-100 overflow-hidden">
+        <main class="relative w-1/2 flex-1 overflow-hidden bg-base-100">
             <router-outlet></router-outlet>
         </main>
     `,
@@ -18,6 +18,6 @@ import { Component } from '@angular/core';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class AssetManagerComponent {}

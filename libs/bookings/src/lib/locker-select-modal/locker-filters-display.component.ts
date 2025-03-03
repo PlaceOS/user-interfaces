@@ -34,13 +34,13 @@ import { endOfDay } from 'date-fns';
     template: `
         <section
             actions
-            class="sm:hidden space-x-2 flex flex-row items-center p-2"
+            class="flex flex-row items-center space-x-2 p-2 sm:hidden"
         >
             <button
                 btn
                 matRipple
                 name="edit-locker-filters"
-                class="flex-1 w-1/2"
+                class="w-1/2 flex-1"
                 (click)="editFilter()"
             >
                 {{ 'COMMON.FILTERS' | translate }}
@@ -60,7 +60,7 @@ import { endOfDay } from 'date-fns';
                     btn
                     matRipple
                     name="view-locker-list"
-                    class="rounded-r rounded-l-none"
+                    class="rounded-l-none rounded-r"
                     [class.inverse]="view !== 'list'"
                     (click)="view = 'list'; viewChange.emit(view)"
                 >
@@ -70,7 +70,7 @@ import { endOfDay } from 'date-fns';
         </section>
         <section
             filters
-            class="flex items-center flex-wrap p-2 w-[35rem] max-w-full sm:max-w-[35rem]"
+            class="flex w-[35rem] max-w-full flex-wrap items-center p-2 sm:max-w-[35rem]"
         >
             <!-- TODO: filter chips -->
             <div filter-item date>{{ start | date: 'mediumDate' }}</div>
@@ -120,7 +120,7 @@ import { endOfDay } from 'date-fns';
             </div>
         </section>
     `,
-    standalone: false
+    standalone: false,
 })
 export class LockerFiltersDisplayComponent extends AsyncHandler {
     @Input() public view: 'map' | 'list' = 'list';

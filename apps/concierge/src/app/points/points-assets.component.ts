@@ -21,7 +21,7 @@ export interface PointAsset {
     selector: 'points-assets',
     template: `
         <simple-table
-            class="block min-w-[32rem] w-full"
+            class="block w-full min-w-[32rem]"
             [data]="asset_list"
             [columns]="[
                 { key: 'name', name: 'FORM.NAME' | translate },
@@ -60,13 +60,13 @@ export interface PointAsset {
         </simple-table>
         <ng-template #type_template let-data="data">
             <div class="p-2">
-                <span class="bg-base-200 rounded capitalize px-2 py-1 text-sm">
+                <span class="rounded bg-base-200 px-2 py-1 text-sm capitalize">
                     {{ data }}
                 </span>
             </div>
         </ng-template>
         <ng-template #price_template let-data="data">
-            <span class="text-xs p-4 font-mono">
+            <span class="p-4 font-mono text-xs">
                 {{ data / 100 | currency: code }} p/h
             </span>
         </ng-template>
@@ -74,16 +74,16 @@ export interface PointAsset {
             <div
                 [class.bg-error]="!data"
                 [class.bg-success]="data"
-                class="rounded h-8 w-8 flex items-center justify-center text-2xl text-white mx-auto"
+                class="mx-auto flex h-8 w-8 items-center justify-center rounded text-2xl text-white"
             >
                 <app-icon>{{ data ? 'done' : 'close' }}</app-icon>
             </div>
         </ng-template>
         <ng-template #discount_template let-data="data">
-            <div class="text-right p-4">{{ data }}%</div>
+            <div class="p-4 text-right">{{ data }}%</div>
         </ng-template>
         <ng-template #action_template let-row="row">
-            <div class="flex items-center justify-end p-2 mx-auto">
+            <div class="mx-auto flex items-center justify-end p-2">
                 <button icon matRipple (click)="edit(row)">
                     <app-icon>edit</app-icon>
                 </button>
@@ -103,7 +103,7 @@ export interface PointAsset {
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class PointsAssetsComponent {
     public asset_list = this._state.assets;

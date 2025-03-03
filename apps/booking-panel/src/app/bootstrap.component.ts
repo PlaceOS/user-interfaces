@@ -12,9 +12,9 @@ import { OrganisationService } from '@placeos/organisation';
     selector: '[app-bootstrap]',
     template: `
         <div
-            class="rounded shadow m-4 bg-base-100 border border-base-200 overflow-hidden mx-auto text-center flex flex-col items-center"
+            class="m-4 mx-auto flex flex-col items-center overflow-hidden rounded border border-base-200 bg-base-100 text-center shadow"
         >
-            <h2 class="bg-error text-white py-2 px-4 m-0 w-full text-2xl">
+            <h2 class="m-0 w-full bg-error px-4 py-2 text-2xl text-white">
                 {{ 'APP.BOOKING_PANEL.BOOTSTRAP_TITLE' | translate }}
             </h2>
             <ng-container
@@ -47,7 +47,7 @@ import { OrganisationService } from '@placeos/organisation';
                     >
                         <div class="leading-tight">
                             <div class="name">{{ option.name }}</div>
-                            <div class="text-xs text-dark-fade">
+                            <div class="text-dark-fade text-xs">
                                 {{ option.id }}
                             </div>
                         </div>
@@ -109,7 +109,7 @@ import { OrganisationService } from '@placeos/organisation';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class BootstrapComponent extends AsyncHandler implements OnInit {
     /** List of available systems */

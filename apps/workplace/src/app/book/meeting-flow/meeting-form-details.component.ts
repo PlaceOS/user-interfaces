@@ -17,8 +17,8 @@ import {
     selector: 'meeting-form-details',
     template: `
         <div *ngIf="form" [formGroup]="form">
-            <div class="flex items-center flex-wrap sm:space-x-2">
-                <div class="flex-1 min-w-[256px]">
+            <div class="flex flex-wrap items-center sm:space-x-2">
+                <div class="min-w-[256px] flex-1">
                     <label for="title">{{ 'FORM.TITLE' | translate }}</label>
                     <mat-form-field appearance="outline" class="w-full">
                         <input
@@ -35,7 +35,7 @@ import {
                     </mat-form-field>
                 </div>
                 <div
-                    class="flex-1 min-w-[256px] relative"
+                    class="relative min-w-[256px] flex-1"
                     *ngIf="!allow_multiday"
                 >
                     <label for="date">
@@ -60,10 +60,10 @@ import {
                 </div>
             </div>
             <div
-                class="flex items-center flex-wrap sm:space-x-2"
+                class="flex flex-wrap items-center sm:space-x-2"
                 *ngIf="allow_multiday"
             >
-                <div class="flex-1 min-w-[256px] relative">
+                <div class="relative min-w-[256px] flex-1">
                     <label for="date">
                         {{ 'FORM.DATE' | translate }}<span>*</span>
                     </label>
@@ -85,7 +85,7 @@ import {
                         {{ 'COMMON.ALL_DAY' | translate }}
                     </mat-checkbox>
                 </div>
-                <div class="flex-1 min-w-[256px] relative">
+                <div class="relative min-w-[256px] flex-1">
                     <label for="date">
                         {{ 'FORM.DATE_END' | translate }}<span>*</span>
                     </label>
@@ -106,7 +106,7 @@ import {
                 class="flex items-center space-x-2"
                 *ngIf="!form.value.all_day"
             >
-                <div class="flex-1 w-1/3">
+                <div class="w-1/3 flex-1">
                     <label for="start-time">
                         {{ 'FORM.TIME_START' | translate }}
                         <span>*</span>
@@ -120,7 +120,7 @@ import {
                         [timezone]="timezone"
                     ></a-time-field>
                 </div>
-                <div class="flex-1 w-1/3" *ngIf="allow_multiday">
+                <div class="w-1/3 flex-1" *ngIf="allow_multiday">
                     <label for="end-time">
                         {{ 'FORM.TIME_END' | translate }}<span>*</span>
                     </label>
@@ -135,7 +135,7 @@ import {
                         [timezone]="timezone"
                     ></a-time-field>
                 </div>
-                <div class="flex-1 w-1/3" *ngIf="!allow_multiday">
+                <div class="w-1/3 flex-1" *ngIf="!allow_multiday">
                     <label for="end-time">
                         {{ 'FORM.TIME_END' | translate }}<span>*</span>
                     </label>
@@ -149,7 +149,7 @@ import {
                     ></a-duration-field>
                 </div>
             </div>
-            <div *ngIf="can_book_for_anyone" class="w-full flex flex-col">
+            <div *ngIf="can_book_for_anyone" class="flex w-full flex-col">
                 <label for="host">
                     {{ 'FORM.HOST' | translate }}<span>*</span>
                 </label>
@@ -158,7 +158,7 @@ import {
                     formControlName="organiser"
                 ></a-user-search-field>
             </div>
-            <div *ngIf="can_book_for_others" class="w-full flex flex-col">
+            <div *ngIf="can_book_for_others" class="flex w-full flex-col">
                 <label for="host">
                     {{ 'FORM.HOST' | translate }}<span>*</span>
                 </label>
@@ -167,7 +167,7 @@ import {
                     formControlName="organiser"
                 ></host-select-field>
             </div>
-            <div *ngIf="allow_recurrence" class="w-full flex flex-col">
+            <div *ngIf="allow_recurrence" class="flex w-full flex-col">
                 <label for="recurrence">
                     {{ 'FORM.RECURRENCE' | translate }}<span>*</span>
                 </label>

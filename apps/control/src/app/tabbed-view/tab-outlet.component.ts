@@ -17,15 +17,15 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
             [(model)]="join_code"
         ></i>
         <div
-            class="h-full w-full flex flex-col items-center overflow-auto px-2 py-2 space-y-2"
+            class="flex h-full w-full flex-col items-center space-y-2 overflow-auto px-2 py-2"
         >
             <div
-                class="flex items-center w-full px-1 !pt-2 -mb-2 overflow-hidden relative"
+                class="relative -mb-2 flex w-full items-center overflow-hidden px-1 !pt-2"
                 [style.padding-right]="(join_code ? 6 : 0) + 'rem'"
             >
                 <a
                     matRipple
-                    class="h-24 w-32 rounded-t rounded-b-none shadow mx-1 bg-base-100 opacity-60 text-base-content flex flex-col items-center justify-center leading-tight overflow-hidden"
+                    class="mx-1 flex h-24 w-32 flex-col items-center justify-center overflow-hidden rounded-b-none rounded-t bg-base-100 leading-tight text-base-content opacity-60 shadow"
                     [routerLink]="['/tabbed', id, tab.id || tab.name]"
                     routerLinkActive="!opacity-100 !text-secondary"
                     queryParamsHandling="merge"
@@ -35,33 +35,33 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
                     <app-icon class="text-5xl">{{ tab.icon }}</app-icon>
                     <p>{{ tab.name }}</p>
                 </a>
-                <div class="absolute top-0 bottom-2 right-0 flex space-x-2">
+                <div class="absolute bottom-2 right-0 top-0 flex space-x-2">
                     <voice-assistant
                         [system_id]="id"
                         [enabled]="(system$ | async)?.voice_control"
                     ></voice-assistant>
                     <div
-                        class="w-20 p-2 flex flex-col bg-base-100 rounded shadow"
+                        class="flex w-20 flex-col rounded bg-base-100 p-2 shadow"
                         *ngIf="join_code"
                     >
                         <img
-                            class="w-16 min-h-[4rem] rounded overflow-hidden border border-[hsl(217,62%,38%)]"
+                            class="min-h-[4rem] w-16 overflow-hidden rounded border border-[hsl(217,62%,38%)]"
                             src="assets/loop.png"
                         />
-                        <p class="text-base-content text-center">
+                        <p class="text-center text-base-content">
                             {{ join_code }}
                         </p>
                     </div>
                 </div>
             </div>
             <div
-                class="flex-1 h-1/2 w-full bg-base-100 rounded shadow flex items-center divide-x divide-base-200 text-base-content"
+                class="flex h-1/2 w-full flex-1 items-center divide-x divide-base-200 rounded bg-base-100 text-base-content shadow"
             >
                 <div
-                    class="w-64 h-full space-y-2 px-4 pt-2 pb-4 overflow-auto"
+                    class="h-full w-64 space-y-2 overflow-auto px-4 pb-4 pt-2"
                     *ngIf="(inputs | async)?.length > 1"
                 >
-                    <h3 class="text-center p-2 font-medium text-lg">
+                    <h3 class="p-2 text-center text-lg font-medium">
                         {{ 'APP.CONTROL.INPUTS_AVAILABLE' | translate }}
                     </h3>
                     <button
@@ -78,7 +78,7 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
                         {{ input?.name }}
                     </button>
                     <div
-                        class="flex-1 h-1/2 w-full p-8 flex items-center justify-center opacity-30"
+                        class="flex h-1/2 w-full flex-1 items-center justify-center p-8 opacity-30"
                         *ngIf="!(inputs | async)?.length"
                     >
                         {{ 'APP.CONTROL.INPUT_CATEGORY_EMPTY' | translate }}
@@ -86,7 +86,7 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
                 </div>
                 <div
                     style="flex: 2"
-                    class="h-full relative overflow-auto min-h-full"
+                    class="relative h-full min-h-full overflow-auto"
                 >
                     <ng-container [ngSwitch]="(tab | async)?.controls">
                         <ng-container *ngSwitchCase="'vidconf-controls'">
@@ -126,7 +126,7 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
                             ></div>
                             <div
                                 *ngIf="!(help | async)"
-                                class="h-full w-full flex items-center justify-center opacity-60"
+                                class="flex h-full w-full items-center justify-center opacity-60"
                             >
                                 <p>
                                     {{
@@ -140,10 +140,10 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
                         *ngIf="(tab | async)?.help && (tab | async)?.controls"
                         btn
                         matRipple
-                        class="absolute top-4 right-4 w-32 inverse black"
+                        class="inverse black absolute right-4 top-4 w-32"
                         (click)="viewHelp()"
                     >
-                        <div class="flex items-center justify-center mr-2">
+                        <div class="mr-2 flex items-center justify-center">
                             <app-icon>help</app-icon>
                             <div class="mx-2">
                                 {{ 'APP.CONTROL.ACTION_HELP' | translate }}

@@ -81,7 +81,7 @@ import { FormControl, FormGroup } from '@angular/forms';
                 </div>
                 <div class="flex space-x-2">
                     <div
-                        class="flex flex-col flex-1"
+                        class="flex flex-1 flex-col"
                         *ngIf="form.controls.name"
                     >
                         <label
@@ -107,7 +107,7 @@ import { FormControl, FormGroup } from '@angular/forms';
                         </mat-form-field>
                     </div>
                     <div
-                        class="flex flex-col flex-1"
+                        class="flex flex-1 flex-col"
                         *ngIf="form.controls.email"
                     >
                         <label
@@ -134,7 +134,7 @@ import { FormControl, FormGroup } from '@angular/forms';
                 </div>
                 <div class="flex space-x-2">
                     <div
-                        class="flex flex-col flex-1"
+                        class="flex flex-1 flex-col"
                         *ngIf="form.controls.display_name"
                     >
                         <label for="display-name">{{
@@ -150,7 +150,7 @@ import { FormControl, FormGroup } from '@angular/forms';
                         </mat-form-field>
                     </div>
                     <div
-                        class="flex flex-col flex-1"
+                        class="flex flex-1 flex-col"
                         *ngIf="form.controls.display_name"
                     >
                         <label for="code-name">{{
@@ -169,7 +169,7 @@ import { FormControl, FormGroup } from '@angular/forms';
                     </div>
                 </div>
                 <div class="flex space-x-2" [formGroup]="settings_form">
-                    <div class="flex-1 flex flex-col space-y-2">
+                    <div class="flex flex-1 flex-col space-y-2">
                         <label for="setup" class="flex items-center">
                             {{
                                 'APP.CONCIERGE.ROOMS_DEFAULT_SETUP' | translate
@@ -189,7 +189,7 @@ import { FormControl, FormGroup } from '@angular/forms';
                             [min]="0"
                         ></a-duration-field>
                     </div>
-                    <div class="flex-1 flex flex-col space-y-2">
+                    <div class="flex flex-1 flex-col space-y-2">
                         <label for="breakdown" class="flex items-center">
                             {{
                                 'APP.CONCIERGE.ROOMS_DEFAULT_BREAKDOWN'
@@ -212,9 +212,9 @@ import { FormControl, FormGroup } from '@angular/forms';
                         ></a-duration-field>
                     </div>
                 </div>
-                <div class="flex space-x-2 mb-4">
+                <div class="mb-4 flex space-x-2">
                     <div
-                        class="flex flex-col flex-1"
+                        class="flex flex-1 flex-col"
                         *ngIf="form.controls.capacity"
                     >
                         <label
@@ -235,7 +235,7 @@ import { FormControl, FormGroup } from '@angular/forms';
                         ></a-counter>
                     </div>
                     <div
-                        class="flex flex-col pt-4 flex-1"
+                        class="flex flex-1 flex-col pt-4"
                         *ngIf="form.controls.bookable"
                     >
                         <settings-toggle
@@ -355,7 +355,7 @@ import { FormControl, FormGroup } from '@angular/forms';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class RoomModalComponent
     extends AsyncHandler

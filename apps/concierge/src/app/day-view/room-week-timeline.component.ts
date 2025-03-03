@@ -30,13 +30,13 @@ import { DatePipe } from '@angular/common';
     selector: 'room-week-bookings-timeline',
     template: `
         <div
-            class="mx-2 mt-2 p-2 w-[calc(100%-1rem)] bg-info text-info-content rounded-lg text-center text-xs"
+            class="mx-2 mt-2 w-[calc(100%-1rem)] rounded-lg bg-info p-2 text-center text-xs text-info-content"
             *ngIf="timezone && tz"
         >
             {{ 'APP.CONCIERGE.TIMEZONE_DIFF' | translate }}
         </div>
         <div
-            class="relative flex items-center justify-center p-2 space-x-2 border-b border-base-200 z-20"
+            class="relative z-20 flex items-center justify-center space-x-2 border-b border-base-200 p-2"
         >
             <date-options
                 [date]="date | async"
@@ -46,58 +46,58 @@ import { DatePipe } from '@angular/common';
                 [hide_today]="true"
             ></date-options>
             <div
-                class="absolute top-1/2 -translate-y-1/2 left-4 text-info text-sm"
+                class="absolute left-4 top-1/2 -translate-y-1/2 text-sm text-info"
                 *ngIf="this_week | async"
             >
                 {{ 'COMMON.WEEK_THIS' | translate }}
             </div>
-            <div class="absolute top-1/2 -translate-y-1/2 right-8">
+            <div class="absolute right-8 top-1/2 -translate-y-1/2">
                 <room-booking-search
                     (selected)="viewEvent($event, $event.system?.id, true)"
                 ></room-booking-search>
             </div>
         </div>
-        <div timeline class="grid overflow-auto w-full h-1/2 flex-1 z-0">
+        <div timeline class="z-0 grid h-1/2 w-full flex-1 overflow-auto">
             <div
                 timezone
-                class="sticky top-0 left-0 z-30 bg-base-100 flex items-center justify-center"
+                class="sticky left-0 top-0 z-30 flex items-center justify-center bg-base-100"
             >
                 <div class="text-xs opacity-30">
                     {{ date | async | date: 'zzzz' : tz }}
                 </div>
                 <div
-                    class="absolute h-2 w-px right-0 bottom-0 bg-base-300"
+                    class="absolute bottom-0 right-0 h-2 w-px bg-base-300"
                 ></div>
                 <div
-                    class="absolute w-2 h-px right-0 bottom-0 bg-base-300"
+                    class="absolute bottom-0 right-0 h-px w-2 bg-base-300"
                 ></div>
             </div>
             <div
                 day-headers
-                class="sticky top-0 z-20 border-b border-base-300 flex items-center bg-base-100 min-w-[calc(100%-3rem)]"
+                class="sticky top-0 z-20 flex min-w-[calc(100%-3rem)] items-center border-b border-base-300 bg-base-100"
                 [style.width]="(days | async)?.length * 12 + 'rem'"
             >
                 <div
                     *ngFor="let date of days | async"
-                    class="relative flex-1 h-full min-w-48 flex flex-col items-center justify-center leading-tight"
+                    class="relative flex h-full min-w-48 flex-1 flex-col items-center justify-center leading-tight"
                 >
                     <div class="truncate">
                         {{ date | date: 'EEE, MMM d' : tz }}
                     </div>
                     <div
-                        class="text-info text-xs absolute bottom-1 left-1/2 -translate-x-1/2"
+                        class="absolute bottom-1 left-1/2 -translate-x-1/2 text-xs text-info"
                         *ngIf="isToday(date)"
                     >
                         {{ 'COMMON.TODAY' | translate }}
                     </div>
                     <div
-                        class="absolute h-2 w-px -left-px bottom-0 bg-base-300"
+                        class="absolute -left-px bottom-0 h-2 w-px bg-base-300"
                     ></div>
                 </div>
             </div>
             <div
                 empty-block
-                class="sticky left-0 z-10 border-r border-base-300 bg-base-100 min-h-full"
+                class="sticky left-0 z-10 min-h-full border-r border-base-300 bg-base-100"
                 [style.height]="
                     (event_max_count | async)
                         ? (event_max_count | async) * 5.375 + 'rem'
@@ -106,31 +106,31 @@ import { DatePipe } from '@angular/common';
             ></div>
             <div
                 date-blocks
-                class="relative overflow-hidden min-w-[calc(100%-3rem)] flex"
+                class="relative flex min-w-[calc(100%-3rem)] overflow-hidden"
                 [style.width]="(days | async)?.length * 12 + 'rem'"
             >
                 <div
-                    class="flex-1 min-w-48 overflow-hidden p-2 border-r border-base-200"
+                    class="min-w-48 flex-1 overflow-hidden border-r border-base-200 p-2"
                     *ngFor="let date of days | async; let i = index"
                 >
                     <button
                         matRipple
                         *ngFor="let event of (events | async)[date] || []"
-                        class="flex p-2 w-full space-x-2 hover:bg-base-200 rounded text-left"
+                        class="flex w-full space-x-2 rounded p-2 text-left hover:bg-base-200"
                         (click)="viewEvent(event)"
                     >
                         <div
-                            class="h-2 w-2 rounded-full my-1.5"
+                            class="my-1.5 h-2 w-2 rounded-full"
                             [style.background-color]="typeColor(event.type)"
                         ></div>
-                        <div class="flex-1 w-1/2">
+                        <div class="w-1/2 flex-1">
                             <div
-                                class="text-sm truncate"
+                                class="truncate text-sm"
                                 [class.line-through]="event.state === 'done'"
                             >
                                 {{ event.title }}
                             </div>
-                            <div class="text-xs opacity-60 flex-1">
+                            <div class="flex-1 text-xs opacity-60">
                                 {{ event.date | date: time_format : tz }}
                                 &ndash;
                                 {{ event.date_end | date: time_format : tz }}
@@ -138,10 +138,10 @@ import { DatePipe } from '@angular/common';
                                     event.date_end | date: 'zzzz' : tz
                                 }}</span>
                             </div>
-                            <div class="text-xs truncate opacity-30">
+                            <div class="truncate text-xs opacity-30">
                                 {{ event.system?.display_name }}
                             </div>
-                            <div class="text-xs truncate opacity-30">
+                            <div class="truncate text-xs opacity-30">
                                 {{ (event.host | user)?.name || event.host }}
                             </div>
                         </div>

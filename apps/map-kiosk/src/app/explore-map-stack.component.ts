@@ -42,7 +42,9 @@ import { OrganisationService } from '@placeos/organisation';
             }
 
             interactive-map {
-                transition: transform 200ms, opacity 200ms;
+                transition:
+                    transform 200ms,
+                    opacity 200ms;
                 opacity: 0.1;
                 pointer-events: none;
                 height: 100vw;
@@ -55,7 +57,7 @@ import { OrganisationService } from '@placeos/organisation';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class ExploreMapStackComponent {
     public readonly levels = this._orgs.active_levels;
@@ -76,7 +78,7 @@ export class ExploreMapStackComponent {
         const index = this._orgs
             .levelsForBuilding(this._orgs.building)
             .findIndex(
-                (lvl) => this._state.active_level?.map_id === lvl.map_id
+                (lvl) => this._state.active_level?.map_id === lvl.map_id,
             );
         return Math.max(0, index);
     }
@@ -86,6 +88,6 @@ export class ExploreMapStackComponent {
         private _state: ExploreStateService,
         private _s: ExploreSpacesService,
         private _desks: ExploreDesksService,
-        private _zones: ExploreZonesService
+        private _zones: ExploreZonesService,
     ) {}
 }

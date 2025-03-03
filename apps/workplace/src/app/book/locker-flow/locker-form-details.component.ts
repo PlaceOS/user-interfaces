@@ -20,14 +20,14 @@ import { first } from 'rxjs/operators';
     styles: [],
     template: `
         <div
-            class="p-0 sm:py-4 sm:px-16 divide-y divide-base-200 space-y-2"
+            class="space-y-2 divide-y divide-base-200 p-0 sm:px-16 sm:py-4"
             *ngIf="form"
             [formGroup]="form"
         >
             <section class="p-2" [class.!border-none]="allow_groups">
-                <h3 class="space-x-2 flex items-center mb-4">
+                <h3 class="mb-4 flex items-center space-x-2">
                     <div
-                        class="bg-base-200 rounded-full h-6 w-6 flex items-center justify-center"
+                        class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
                     >
                         1
                     </div>
@@ -35,8 +35,8 @@ import { first } from 'rxjs/operators';
                         {{ 'BOOKINGS.DETAILS' | translate }}
                     </div>
                 </h3>
-                <div class="flex items-center flex-wrap sm:space-x-2">
-                    <div class="flex-1 min-w-[256px]">
+                <div class="flex flex-wrap items-center sm:space-x-2">
+                    <div class="min-w-[256px] flex-1">
                         <label for="date">
                             {{ 'RESOURCE.BUILDING' | translate }}<span>*</span>
                         </label>
@@ -55,7 +55,7 @@ import { first } from 'rxjs/operators';
                             </mat-select>
                         </mat-form-field>
                     </div>
-                    <div class="relative flex-1 min-w-[256px]">
+                    <div class="relative min-w-[256px] flex-1">
                         <label for="date">
                             {{ 'FORM.DATE' | translate }}<span>*</span>
                         </label>
@@ -81,7 +81,7 @@ import { first } from 'rxjs/operators';
                     class="flex items-center space-x-2"
                     *ngIf="!form.value.all_day"
                 >
-                    <div class="flex-1 w-1/3">
+                    <div class="w-1/3 flex-1">
                         <label for="start-time">
                             {{ 'FORM.TIME_START' | translate }}<span>*</span>
                         </label>
@@ -99,7 +99,7 @@ import { first } from 'rxjs/operators';
                             [timezone]="timezone"
                         ></a-time-field>
                     </div>
-                    <div class="flex-1 w-1/3 relative" *ngIf="!hide_end">
+                    <div class="relative w-1/3 flex-1" *ngIf="!hide_end">
                         <label for="end-time">
                             {{ 'FORM.TIME_END' | translate }}<span>*</span>
                         </label>
@@ -119,9 +119,9 @@ import { first } from 'rxjs/operators';
                 </div>
             </section>
             <section class="p-2" *ngIf="form.contains('resources')">
-                <h3 class="space-x-2 flex items-center mb-4">
+                <h3 class="mb-4 flex items-center space-x-2">
                     <div
-                        class="bg-base-200 rounded-full h-6 w-6 flex items-center justify-center"
+                        class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
                     >
                         {{ (options | async)?.group ? 3 : 2 }}
                     </div>

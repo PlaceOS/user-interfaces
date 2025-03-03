@@ -7,10 +7,10 @@ import { SettingsService } from '@placeos/common';
     selector: 'catering-report-orders',
     template: `
         <div
-            class="w-[64rem] max-w-[calc(100%-2rem)] rounded overflow-hidden bg-base-100  border border-base-200 mx-auto my-2"
+            class="mx-auto my-2 w-[64rem] max-w-[calc(100%-2rem)] overflow-hidden rounded border border-base-200 bg-base-100"
         >
             <div
-                class="border-b border-base-200 flex items-center justify-between px-4"
+                class="flex items-center justify-between border-b border-base-200 px-4"
             >
                 <h2 class="py-2 text-xl font-medium">
                     {{
@@ -30,7 +30,7 @@ import { SettingsService } from '@placeos/common';
                 </button>
             </div>
             <simple-table
-                class="w-full block text-sm"
+                class="block w-full text-sm"
                 [data]="orders"
                 [columns]="[
                     {
@@ -69,7 +69,7 @@ import { SettingsService } from '@placeos/common';
         </div>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class CateringReportOrdersComponent {
     @Input() public print = false;

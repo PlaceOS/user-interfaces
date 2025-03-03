@@ -6,7 +6,7 @@ import { MAP_FEATURE_DATA } from '@placeos/components';
     selector: `explore-icon`,
     template: `
         <div
-            class="flex items-center justify-center h-8 w-8 shadow rounded-full border border-base-200"
+            class="flex h-8 w-8 items-center justify-center rounded-full border border-base-200 shadow"
             [style.background-color]="color"
             [style.color]="text_color"
         >
@@ -24,7 +24,7 @@ import { MAP_FEATURE_DATA } from '@placeos/components';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class ExploreIconComponent {
     public readonly icon = this._details.icon || { content: 'done' };

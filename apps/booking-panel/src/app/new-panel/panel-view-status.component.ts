@@ -7,9 +7,9 @@ import { currentPeriod, nextPeriod } from './helpers';
 @Component({
     selector: 'panel-view-status',
     template: `
-        <div class="flex items-center justify-center h-full w-full">
+        <div class="flex h-full w-full items-center justify-center">
             <div
-                class="flex-1 h-full text-white flex flex-col items-center justify-center relative"
+                class="relative flex h-full flex-1 flex-col items-center justify-center text-white"
                 [class.bg-error]="(state | async) === 'busy'"
                 [class.bg-success]="(state | async) === 'free'"
                 [class.bg-warning]="(state | async) === 'pending'"
@@ -27,10 +27,10 @@ import { currentPeriod, nextPeriod } from './helpers';
                         ) | safe
                     "
                 ></div>
-                <h3 class="text-4xl uppercase font-medium mt-4">
+                <h3 class="mt-4 text-4xl font-medium uppercase">
                     {{ 'APP.BOOKING_PANEL.NOW' | translate }}
                 </h3>
-                <p class="text-2xl font-light mt-4">
+                <p class="mt-4 text-2xl font-light">
                     <ng-container
                         *ngIf="
                             (event_state | async)?.current?.length;
@@ -147,7 +147,7 @@ import { currentPeriod, nextPeriod } from './helpers';
                     </ng-template>
                 </p>
                 <div
-                    class="absolute top-0 inset-x-0 flex items-center justify-center text-2xl bg-[#0008] p-4 space-x-4"
+                    class="absolute inset-x-0 top-0 flex items-center justify-center space-x-4 bg-[#0008] p-4 text-2xl"
                     *ngIf="(state | async) === 'pending' && can_book"
                 >
                     <p class="uppercase">
@@ -156,7 +156,7 @@ import { currentPeriod, nextPeriod } from './helpers';
                     <app-icon>arrow_forward</app-icon>
                 </div>
                 <div
-                    class="absolute top-0 inset-x-0 flex items-center justify-center text-2xl bg-[#0008] p-4 space-x-4"
+                    class="absolute inset-x-0 top-0 flex items-center justify-center space-x-4 bg-[#0008] p-4 text-2xl"
                     *ngIf="(state | async) === 'free' && can_book"
                 >
                     <p class="uppercase">
@@ -165,7 +165,7 @@ import { currentPeriod, nextPeriod } from './helpers';
                     <app-icon>arrow_forward</app-icon>
                 </div>
                 <div
-                    class="absolute top-0 inset-x-0 flex items-center justify-center text-2xl bg-[#0008] p-4 space-x-4"
+                    class="absolute inset-x-0 top-0 flex items-center justify-center space-x-4 bg-[#0008] p-4 text-2xl"
                     *ngIf="(state | async) === 'busy' && can_end"
                 >
                     <p class="uppercase">
@@ -175,7 +175,7 @@ import { currentPeriod, nextPeriod } from './helpers';
                 </div>
             </div>
             <div
-                class="flex-1 h-full bg-base-100 text-base-content flex flex-col items-center justify-center space-y-4"
+                class="flex h-full flex-1 flex-col items-center justify-center space-y-4 bg-base-100 text-base-content"
             >
                 <div
                     [innerHTML]="
@@ -183,7 +183,7 @@ import { currentPeriod, nextPeriod } from './helpers';
                             | safe
                     "
                 ></div>
-                <h3 class="text-4xl uppercase font-medium">
+                <h3 class="text-4xl font-medium uppercase">
                     {{ 'APP.BOOKING_PANEL.NEXT' | translate }}
                 </h3>
                 <p class="text-2xl font-light">
@@ -202,7 +202,7 @@ import { currentPeriod, nextPeriod } from './helpers';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class PanelViewStatusComponent {
     public readonly state = this._state.status;

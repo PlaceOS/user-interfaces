@@ -25,7 +25,6 @@ describe('ControlAdvancedViewComponent', () => {
 
     beforeEach(() => {
         spectator = createComponent();
-
     });
 
     it('should create component', () => {
@@ -36,13 +35,15 @@ describe('ControlAdvancedViewComponent', () => {
         const service: any = spectator.inject(ControlStateService);
         expect('output-display').toHaveLength(0);
         expect('p').toExist();
-        service.output_list.next([{ id: '1' }, { id: '2' }]);        spectator.detectChanges();
+        service.output_list.next([{ id: '1' }, { id: '2' }]);
+        spectator.detectChanges();
         expect('output-display').toHaveLength(2);
     }));
 
     it('should paginate outputs', waitForAsync(async () => {
         const service: any = spectator.inject(ControlStateService);
-        service.output_list.next([{ id: '1' }, { id: '2' }]);        spectator.detectChanges();
+        service.output_list.next([{ id: '1' }, { id: '2' }]);
+        spectator.detectChanges();
         expect('output-display').toHaveLength(2);
         expect('button').toHaveLength(0);
         service.output_list.next([
@@ -54,7 +55,8 @@ describe('ControlAdvancedViewComponent', () => {
             { id: '6' },
             { id: '7' },
             { id: '8' },
-        ]);        spectator.detectChanges();
+        ]);
+        spectator.detectChanges();
         expect('output-display').toHaveLength(6);
         expect('button').toHaveLength(2);
     }));

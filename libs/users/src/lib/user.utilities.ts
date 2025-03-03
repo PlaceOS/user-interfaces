@@ -24,7 +24,7 @@ const USER_EMAILS: string[] = [];
 export function generateMockUser(
     id?: string,
     name?: string,
-    external?: boolean
+    external?: boolean,
 ): HashMap {
     if (!id) {
         id = `user-${USER_COUNT++}`;
@@ -39,7 +39,7 @@ export function generateMockUser(
     let delegates: string[] = [];
     const delegate_count = Math.min(
         predictableRandomInt(4) + 1,
-        USER_EMAILS.length
+        USER_EMAILS.length,
     );
     for (let i = 0; i < delegate_count; i++) {
         delegates.push(USER_EMAILS[predictableRandomInt(USER_EMAILS.length)]);
@@ -85,11 +85,11 @@ export function generateUserForm(user?: User) {
         ]),
         organisation: new FormControl(
             user.organisation || '',
-            Validators.required
+            Validators.required,
         ),
         phone: new FormControl(
             user.phone || '',
-            Validators.pattern(/^\+?(\d[\d\s\-\(\)]{5,13}\d)$/)
+            Validators.pattern(/^\+?(\d[\d\s\-\(\)]{5,13}\d)$/),
         ),
         assistance_required: new FormControl(user.assistance_required || false),
         visit_expected: new FormControl(user.visit_expected ?? true),
@@ -102,7 +102,7 @@ export function generateUserForm(user?: User) {
 
 export function generateGuestForm(
     user: GuestUser = new GuestUser(),
-    host: string = ''
+    host: string = '',
 ) {
     const fields = {
         name: new FormControl(user.name || ''),
@@ -112,7 +112,7 @@ export function generateGuestForm(
         ]),
         organisation: new FormControl(
             user.organisation || '',
-            Validators.required
+            Validators.required,
         ),
         phone: new FormControl(user.phone || ''),
         host: new FormControl(host || '', [Validators.required]),

@@ -36,12 +36,12 @@ import { openConfirmModal } from '@placeos/components';
     template: `
         <topbar *ngIf="!hide_nav"></topbar>
         <div
-            class="flex flex-col sm:flex-row flex-1 h-1/2 bg-base-200 relative"
+            class="relative flex h-1/2 flex-1 flex-col bg-base-200 sm:flex-row"
         >
             <schedule-sidebar
-                class="hidden sm:block bg-base-100"
+                class="hidden bg-base-100 sm:block"
             ></schedule-sidebar>
-            <div class="w-full bg-base-100 border-b border-neutral sm:hidden">
+            <div class="w-full border-b border-neutral bg-base-100 sm:hidden">
                 <div class="flex items-center space-x-2 px-2 pt-2">
                     <button
                         btn
@@ -67,7 +67,7 @@ import { openConfirmModal } from '@placeos/components';
                     (ngModelChange)="setDate($event)"
                     *ngIf="period === 'day'"
                 ></schedule-mobile-calendar>
-                <div class="px-2 w-full my-2" *ngIf="period === 'week'">
+                <div class="my-2 w-full px-2" *ngIf="period === 'week'">
                     <mat-form-field
                         appearance="outline"
                         class="no-subscript w-full"
@@ -84,7 +84,7 @@ import { openConfirmModal } from '@placeos/components';
                             >
                                 {{ option.name }}
                                 <span
-                                    class="text-xs text-info px-1"
+                                    class="px-1 text-xs text-info"
                                     *ngIf="option.this_week"
                                     [matTooltip]="
                                         'COMMON.WEEK_THIS' | translate
@@ -96,7 +96,7 @@ import { openConfirmModal } from '@placeos/components';
                     </mat-form-field>
                 </div>
             </div>
-            <div class="flex-1 h-full p-4 overflow-auto space-y-2">
+            <div class="h-full flex-1 space-y-2 overflow-auto p-4">
                 <schedule-filters></schedule-filters>
                 <ng-container
                     *ngIf="(booking_dates | async)?.length; else empty_state"
@@ -104,7 +104,7 @@ import { openConfirmModal } from '@placeos/components';
                     <ng-container
                         *ngFor="let date_block of booking_dates | async"
                     >
-                        <h3 class="font-medium my-2">
+                        <h3 class="my-2 font-medium">
                             {{ date_block.date | date: 'EEE dd LLL yyyy' }}
                             <span *ngIf="date_block.is_today">
                                 ({{ 'COMMON.TODAY' | translate }})
@@ -143,7 +143,7 @@ import { openConfirmModal } from '@placeos/components';
         <footer-menu *ngIf="!hide_nav"></footer-menu>
         <ng-template #empty_state>
             <div
-                class="w-full p-8 flex flex-col items-center justify-center space-y-4"
+                class="flex w-full flex-col items-center justify-center space-y-4 p-8"
             >
                 <img src="assets/img/no-events.svg" class="mr-4" />
                 <p class="opacity-30">

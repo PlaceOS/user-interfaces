@@ -9,13 +9,13 @@ import { AsyncHandler } from '@placeos/common';
         <div class="absolute inset-0 flex flex-col">
             <panel-topbar class="w-full"></panel-topbar>
             <div
-                class="flex items-center justify-center flex-wrap w-full flex-1 h-1/2"
+                class="flex h-1/2 w-full flex-1 flex-wrap items-center justify-center"
             >
                 <ng-container *ngIf="systems?.length > 0; else none">
                     <div
                         panel
-                        class="relative flex-1 border border-base-200 overflow-hidden"
-                        *ngFor="let id of systems | slice: 0:4; let i = index"
+                        class="relative flex-1 overflow-hidden border border-base-200"
+                        *ngFor="let id of systems | slice: 0 : 4; let i = index"
                         [style.height]="systems.length >= 2 ? '50%' : '100%'"
                     >
                         <app-booking-panel
@@ -53,7 +53,7 @@ import { AsyncHandler } from '@placeos/common';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class BookingPanelArrayComponent extends AsyncHandler implements OnInit {
     /** List of systems to show panels for */
@@ -72,7 +72,7 @@ export class BookingPanelArrayComponent extends AsyncHandler implements OnInit {
                         .split(',')
                         .filter((_) => !!_);
                 }
-            })
+            }),
         );
     }
 }

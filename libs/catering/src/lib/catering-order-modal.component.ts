@@ -42,11 +42,11 @@ export interface CateringOrderModalData {
                             <div class="list">
                                 <div
                                     item
-                                    class="flex items-center p-2 border-b border-base-200"
+                                    class="flex items-center border-b border-base-200 p-2"
                                     *ngFor="let item of (menu_items || {})[cat]"
                                 >
-                                    <div class="flex-1 w-1/2">
-                                        <div class="flex-1 w-1/2">
+                                    <div class="w-1/2 flex-1">
+                                        <div class="w-1/2 flex-1">
                                             {{ item.name }}
                                         </div>
                                         <div
@@ -60,7 +60,7 @@ export interface CateringOrderModalData {
                                         </div>
                                     </div>
                                     <div
-                                        class="bg-primary text-xs rounded px-4 py-2 mx-2 text-white font-medium"
+                                        class="mx-2 rounded bg-primary px-4 py-2 text-xs font-medium text-white"
                                     >
                                         {{
                                             item.unit_price / 100
@@ -95,7 +95,7 @@ export interface CateringOrderModalData {
                                             </button>
                                         </div>
                                         <div
-                                            class="count h-12 w-12 flex items-center justify-center"
+                                            class="count flex h-12 w-12 items-center justify-center"
                                         >
                                             {{ item.quantity }}
                                         </div>
@@ -116,7 +116,7 @@ export interface CateringOrderModalData {
         </div>
         <footer
             *ngIf="!loading"
-            class="flex items-center justify-center space-x-2 p-2 border-t border-base-200"
+            class="flex items-center justify-center space-x-2 border-t border-base-200 p-2"
         >
             <ng-container *ngIf="!show_order_details; else order_actions">
                 <button btn matRipple class="inverse" mat-dialog-close>
@@ -149,7 +149,7 @@ export interface CateringOrderModalData {
             </ng-template>
         </footer>
         <ng-template #load_state>
-            <div class="flex flex-col w-64 p-8 items-center space-y-2">
+            <div class="flex w-64 flex-col items-center space-y-2 p-8">
                 <mat-spinner diameter="32"></mat-spinner>
                 <p>{{ loading }}</p>
             </div>
@@ -163,11 +163,11 @@ export interface CateringOrderModalData {
             <div class="list">
                 <div
                     item
-                    class="flex items-center p-2 border-b border-base-200"
+                    class="flex items-center border-b border-base-200 p-2"
                     *ngFor="let item of order.items"
                 >
-                    <div class="flex-1 w-1/2">
-                        <div class="flex-1 w-1/2">{{ item.name }}</div>
+                    <div class="w-1/2 flex-1">
+                        <div class="w-1/2 flex-1">{{ item.name }}</div>
                         <div
                             class="text-xs underline"
                             *ngIf="item.options.length"
@@ -180,7 +180,7 @@ export interface CateringOrderModalData {
                         </div>
                     </div>
                     <div
-                        class="bg-primary text-xs rounded px-4 py-2 mx-2 text-white font-medium"
+                        class="mx-2 rounded bg-primary px-4 py-2 text-xs font-medium text-white"
                     >
                         {{ item.total_cost / 100 | currency: code }}
                     </div>
@@ -228,7 +228,7 @@ export interface CateringOrderModalData {
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class CateringOrderModalComponent
     extends AsyncHandler

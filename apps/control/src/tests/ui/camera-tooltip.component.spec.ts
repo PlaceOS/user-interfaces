@@ -46,7 +46,7 @@ describe('CameraTooltipComponent', () => {
             {
                 provide: CustomTooltipData,
                 useValue: { close: jest.fn() },
-            }
+            },
         ],
         imports: [
             MockModule(MatSelectModule),

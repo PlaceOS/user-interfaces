@@ -30,21 +30,21 @@ import { DatePipe } from '@angular/common';
         <h4 class="mb-2 flex items-center" *ngIf="event" date>
             <span *ngIf="show_day" day>{{ day }},&nbsp;</span>
             {{ event?.date | date: time_format }}
-            <span class="text-xs px-2">({{ event?.date | date: 'zzzz' }})</span>
+            <span class="px-2 text-xs">({{ event?.date | date: 'zzzz' }})</span>
         </h4>
         <a
             name="view-event-details"
-            class="w-full cursor-pointer relative"
+            class="relative w-full cursor-pointer"
             [routerLink]="['./']"
             [queryParams]="{ event: event?.id }"
             (click)="viewDetails()"
             *ngIf="event"
         >
             <div
-                class="w-full bg-base-100 border border-base-300 rounded-xl shadow py-4 relative"
+                class="relative w-full rounded-xl border border-base-300 bg-base-100 py-4 shadow"
             >
                 <h4 class="px-4 text-lg">{{ event?.title }}</h4>
-                <div class="flex mx-4 my-2">
+                <div class="mx-4 my-2 flex">
                     <status-pill [status]="status">
                         <div
                             class="flex flex-col leading-tight"
@@ -52,7 +52,7 @@ import { DatePipe } from '@angular/common';
                         >
                             <div>{{ period }}</div>
                             <div
-                                class="opacity-30 text-xs"
+                                class="text-xs opacity-30"
                                 *ngIf="timezone && tz"
                             >
                                 {{ period_tz }}
@@ -61,7 +61,7 @@ import { DatePipe } from '@angular/common';
                     </status-pill>
                 </div>
                 <div
-                    class="flex flex-wrap flex-col sm:flex-row sm:divide-x divide-base-200-500 py-2 space-y-2 sm:space-y-0"
+                    class="divide-base-200-500 flex flex-col flex-wrap space-y-2 py-2 sm:flex-row sm:space-y-0 sm:divide-x"
                 >
                     <div class="flex items-center px-4">
                         <app-icon
@@ -106,12 +106,12 @@ import { DatePipe } from '@angular/common';
                     </div>
                 </div>
                 <app-icon
-                    class="absolute top-1/2 right-1 text-4xl -translate-y-1/2"
+                    class="absolute right-1 top-1/2 -translate-y-1/2 text-4xl"
                 >
                     chevron_right
                 </app-icon>
                 <div
-                    class="absolute bottom-2 right-2 sm:bottom-auto sm:top-2 text-sm sm:text-base flex items-center pr-4"
+                    class="absolute bottom-2 right-2 flex items-center pr-4 text-sm sm:bottom-auto sm:top-2 sm:text-base"
                     *ngIf="event?.attendees?.length"
                 >
                     <div
@@ -127,7 +127,7 @@ import { DatePipe } from '@angular/common';
                     </div>
                     <div class="h-10 w-6" *ngIf="event?.attendees?.length > 6">
                         <div
-                            class="bg-secondary rounded-full h-10 w-10 border-2 border-base-100 flex items-center justify-center text-secondary-content"
+                            class="flex h-10 w-10 items-center justify-center rounded-full border-2 border-base-100 bg-secondary text-secondary-content"
                         >
                             +{{ event?.attendees?.length - 5 }}
                         </div>

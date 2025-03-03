@@ -6,21 +6,21 @@ import { DashboardStateService } from './dashboard-state.service';
 @Component({
     selector: 'a-dashboard-contacts',
     template: `
-        <h3 class="m-0 mb-2 font-medium text-xl">Colleagues</h3>
+        <h3 class="m-0 mb-2 text-xl font-medium">Colleagues</h3>
         <div
             name="contact-list"
-            class="bg-base-300 border border-base-200 shadow rounded-lg p-2 pl-0 space-y-2 flex flex-wrap"
+            class="flex flex-wrap space-y-2 rounded-lg border border-base-200 bg-base-300 p-2 pl-0 shadow"
         >
             <div
                 name="contact"
                 *ngFor="let user of contacts | async"
-                class="bg-base-100 rounded-lg flex-1 flex flex-col items-center p-2 relative"
+                class="relative flex flex-1 flex-col items-center rounded-lg bg-base-100 p-2"
             >
                 <a-user-avatar
-                    class="text-2xl mb-2"
+                    class="mb-2 text-2xl"
                     [user]="user"
                 ></a-user-avatar>
-                <div name="contact-name" class="text-sm mb-2">
+                <div name="contact-name" class="mb-2 text-sm">
                     {{ user.name }}
                 </div>
                 <!-- <div name="location" class="flex items-center text-sm">
@@ -37,20 +37,20 @@ import { DashboardStateService } from './dashboard-state.service';
                 name="contact"
                 btn
                 matRipple
-                class="rounded-lg flex-1 w-full"
+                class="w-full flex-1 rounded-lg"
                 [matMenuTriggerFor]="menu"
                 (menuOpened)="focusInput()"
                 (menuClosed)="clearInput()"
             >
-                <div class="flex flex-col items-center p-4 text-black w-full">
+                <div class="flex w-full flex-col items-center p-4 text-black">
                     <app-icon
                         class="text-2xl"
                         [icon]="{
                             class: 'material-icons',
-                            content: 'person_add'
+                            content: 'person_add',
                         }"
                     ></app-icon>
-                    <span class="w-full leading-tight whitespace-normal"
+                    <span class="w-full whitespace-normal leading-tight"
                         >Click to add a person to contacts</span
                     >
                 </div>
@@ -79,17 +79,17 @@ import { DashboardStateService } from './dashboard-state.service';
             </button>
             <button
                 mat-menu-item
-                *ngFor="let user of search_results | async | slice: 0:8"
+                *ngFor="let user of search_results | async | slice: 0 : 8"
                 (click)="addUser(user)"
             >
                 <div class="flex items-center leading-tight">
                     <a-user-avatar
-                        class="text-xl mr-2"
+                        class="mr-2 text-xl"
                         [user]="user"
                     ></a-user-avatar>
                     <div class="flex-1">
                         <div>{{ user.name }}</div>
-                        <div class="text-xs text-dark-fade">
+                        <div class="text-dark-fade text-xs">
                             {{ user.email }}
                         </div>
                     </div>
@@ -145,7 +145,7 @@ import { DashboardStateService } from './dashboard-state.service';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class DashboardContactsComponent extends AsyncHandler {
     public readonly contacts = this._state.contacts;
@@ -168,7 +168,7 @@ export class DashboardContactsComponent extends AsyncHandler {
 
     constructor(
         private _state: DashboardStateService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         super();
     }

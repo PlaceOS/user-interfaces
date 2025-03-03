@@ -22,7 +22,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
     selector: 'auto-release-modal',
     template: `
         <header
-            class="flex items-center justify-between border-b border-gray-300 p-4"
+            class="border-gray-300 flex items-center justify-between border-b p-4"
         >
             <h3 class="text-xl font-medium">
                 {{ 'APP.CONCIERGE.AUTO_RELEASE_HEADER' | translate }}
@@ -31,7 +31,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
                 <app-icon class="text-2xl">close</app-icon>
             </button>
         </header>
-        <main class="px-2 w-[20rem]" *ngIf="!loading; else load_state">
+        <main class="w-[20rem] px-2" *ngIf="!loading; else load_state">
             <label>
                 {{ 'APP.CONCIERGE.AUTO_RELEASE_NOTIFY' | translate }}
             </label>
@@ -72,14 +72,14 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
                 </mat-select>
             </mat-form-field>
         </main>
-        <footer class="p-4 flex justify-end" *ngIf="!loading">
+        <footer class="flex justify-end p-4" *ngIf="!loading">
             <button btn matRipple class="w-32" (click)="save()">
                 {{ 'COMMON.SAVE' | translate }}
             </button>
         </footer>
         <ng-template #load_state>
             <main
-                class="flex flex-col items-center justify-center p-32 space-y-2"
+                class="flex flex-col items-center justify-center space-y-2 p-32"
             >
                 <mat-spinner [diameter]="48"></mat-spinner>
                 <p>{{ loading }}</p>

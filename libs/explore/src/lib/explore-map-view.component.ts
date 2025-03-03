@@ -44,7 +44,7 @@ const EMPTY = [];
         <div
             *ngIf="!(use_mapsindoors$ | async)"
             controls
-            class="absolute top-2 left-2 max-w-[calc(100vw-1rem)] bg-base-100 border border-base-200 rounded p-2 space-y-2 overflow-hidden"
+            class="absolute left-2 top-2 max-w-[calc(100vw-1rem)] space-y-2 overflow-hidden rounded border border-base-200 bg-base-100 p-2"
         >
             <explore-map-controls></explore-map-controls>
             <div class="flex items-center space-x-2" *ngIf="!hide_zones">
@@ -62,7 +62,7 @@ const EMPTY = [];
         <div
             legend
             *ngIf="show_legend && legend.length"
-            class="absolute bottom-2 left-2 p-2 rounded bg-base-100 border border-base-200"
+            class="absolute bottom-2 left-2 rounded border border-base-200 bg-base-100 p-2"
         >
             <h3 class="mb-2 font-medium">{{ 'EXPLORE.LEGEND' | translate }}</h3>
             <div
@@ -70,14 +70,14 @@ const EMPTY = [];
                 *ngFor="let pair of legend"
             >
                 <div
-                    class="w-3 h-3 rounded-full border border-base-200"
+                    class="h-3 w-3 rounded-full border border-base-200"
                     [style.background-color]="pair[1]"
                 ></div>
                 <div class="text-sm">{{ pair[0] }}</div>
             </div>
         </div>
         <button
-            class="absolute top-2 right-2 bg-base-100 shadow border border-base-300 h-12 min-w-32 px-4 rounded-lg"
+            class="absolute right-2 top-2 h-12 min-w-32 rounded-lg border border-base-300 bg-base-100 px-4 shadow"
             matRipple
             *ngIf="locate"
             (click)="clearLocate()"
@@ -105,7 +105,7 @@ const EMPTY = [];
         ExploreLockersService,
         SpacePipe,
     ],
-    standalone: false
+    standalone: false,
 })
 export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
     /** Observable for the active map */

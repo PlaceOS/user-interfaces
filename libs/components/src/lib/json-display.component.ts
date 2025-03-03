@@ -5,10 +5,10 @@ import { CustomTooltipData } from './custom-tooltip.component';
     selector: 'json-display',
     template: `
         <div
-            class="bg-base-100 shadow rounded overflow-auto max-w-[80vw] max-h-[80vh] p-2 border border-base-300"
+            class="max-h-[80vh] max-w-[80vw] overflow-auto rounded border border-base-300 bg-base-100 p-2 shadow"
         >
             <pre
-                class="font-mono text-sm bg-base-200 p-2 rounded break-all w-full"
+                class="w-full break-all rounded bg-base-200 p-2 font-mono text-sm"
                 >{{ formatted_json }}</pre
             >
         </div>
@@ -24,7 +24,7 @@ import { CustomTooltipData } from './custom-tooltip.component';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class JsonDisplayComponent {
     @Input() public json: Object;

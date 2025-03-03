@@ -7,18 +7,18 @@ import { startOfMinute } from 'date-fns';
     template: `
         <!-- <a-topbar-header class="w-full screen-only"></a-topbar-header> -->
         <div
-            class="absolute inset-0 p-8 flex items-center print:hidden"
+            class="absolute inset-0 flex items-center p-8 print:hidden"
             [style.background-image]="'url(' + background + ')'"
         >
-            <div class="flex flex-col justify-center space-y-8 z-10 w-full">
+            <div class="z-10 flex w-full flex-col justify-center space-y-8">
                 <router-outlet></router-outlet>
             </div>
-            <div class="absolute top-4 right-4 text-2xl text-white">
+            <div class="absolute right-4 top-4 text-2xl text-white">
                 {{ now | date: 'mediumDate' }} {{ now | date: 'shortTime' }}
             </div>
             <img
                 src="assets/img/building.png"
-                class="absolute w-[60%] bottom-0 right-0"
+                class="absolute bottom-0 right-0 w-[60%]"
             />
         </div>
     `,
@@ -32,7 +32,7 @@ import { startOfMinute } from 'date-fns';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class CheckinComponent {
     public get now() {

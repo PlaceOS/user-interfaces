@@ -5,7 +5,7 @@ export class MapLocation {
     /** Source that the location was generated */
     public type: 'desk' | 'wireless' | 'meeting' | 'other';
     /** Details of the location */
-    public position: string | { x: number, y: number };
+    public position: string | { x: number; y: number };
     /** Accuracy of the location data */
     public variance: number;
     /** Unix epoch in seconds that the data was last updated */
@@ -26,7 +26,8 @@ export class MapLocation {
     constructor(_data: HashMap = {}) {
         this.type = _data.type || _data.location || 'other';
         this.position = _data.position ||
-            _data.map_id || _data.asset_id || {
+            _data.map_id ||
+            _data.asset_id || {
                 x: _data.x / _data.map_width || 0,
                 y: _data.y / _data.map_height || 0,
             };

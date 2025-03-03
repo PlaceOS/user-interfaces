@@ -13,12 +13,12 @@ import { MeetingFlowConfirmComponent } from 'apps/workplace/src/app/book/meeting
     template: `
         <div class="absolute inset-0 bg-base-200">
             <div
-                class="mx-auto w-full max-w-[32rem] overflow-auto max-h-screen"
+                class="mx-auto max-h-screen w-full max-w-[32rem] overflow-auto"
             >
-                <h3 class="text-2xl p-4 font-medium">Book Meeting</h3>
+                <h3 class="p-4 text-2xl font-medium">Book Meeting</h3>
                 <meeting-booking-form></meeting-booking-form>
                 <div
-                    class="flex flex-col p-4 space-y-2 border-t border-base-200"
+                    class="flex flex-col space-y-2 border-t border-base-200 p-4"
                 >
                     <button
                         btn
@@ -31,7 +31,7 @@ import { MeetingFlowConfirmComponent } from 'apps/workplace/src/app/book/meeting
                     <button
                         btn
                         matRipple
-                        class="w-full inverse"
+                        class="inverse w-full"
                         (click)="clearForm()"
                     >
                         Clear Form
@@ -41,7 +41,7 @@ import { MeetingFlowConfirmComponent } from 'apps/workplace/src/app/book/meeting
         </div>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class MeetingBookingComponent {
     public sheet_ref: MatBottomSheetRef;
@@ -55,7 +55,7 @@ export class MeetingBookingComponent {
     constructor(
         private _service: EventFormService,
         private _router: Router,
-        private _bottom_sheet: MatBottomSheet
+        private _bottom_sheet: MatBottomSheet,
     ) {}
 
     public makeBooking() {
@@ -64,8 +64,8 @@ export class MeetingBookingComponent {
         if (!this.form.valid)
             return notifyError(
                 `Some fields are invalid. [${getInvalidFields(this.form).join(
-                    ', '
-                )}]`
+                    ', ',
+                )}]`,
             );
         this.sheet_ref = this._bottom_sheet.open(MeetingFlowConfirmComponent);
         this.sheet_ref.instance.show_close = true;

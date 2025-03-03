@@ -25,7 +25,7 @@ export class CalendarService extends AsyncHandler {
     /** Observable for the list of calendars */
     public readonly calendar_list = queryCalendars().pipe(
         tap((l) => this._calendars.next(l)),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     /* istanbul ignore next */
@@ -39,7 +39,7 @@ export class CalendarService extends AsyncHandler {
 
     constructor(
         private _org: OrganisationService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         super();
         this._org.initialised
@@ -67,7 +67,7 @@ export class CalendarService extends AsyncHandler {
                 period_end: getUnixTime(endOfDay(date)),
                 calendars,
             },
-            this._org
+            this._org,
         );
     }
 
@@ -76,7 +76,7 @@ export class CalendarService extends AsyncHandler {
         system_ids: string[],
         period_start: number,
         period_end: number,
-        old_booking?: CalendarEvent
+        old_booking?: CalendarEvent,
     ) {
         const result = await queryCalendarAvailability({
             period_start,

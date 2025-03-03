@@ -18,9 +18,9 @@ export interface CateringItemOptionModalData {
     selector: 'catering-option-modal',
     template: `
         <header
-            class="sticky top-0 p-2 m-2 w-[calc(100%-1rem)] border-none z-10 bg-base-200 rounded"
+            class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded border-none bg-base-200 p-2"
         >
-            <h2 class="text-xl font-medium px-2">
+            <h2 class="px-2 text-xl font-medium">
                 {{
                     (option.id
                         ? 'CATERING.ITEM_OPTION_EDIT'
@@ -33,7 +33,7 @@ export interface CateringItemOptionModalData {
             </button>
         </header>
         <form
-            class="px-4 overflow-auto max-h-[65vh] w-[28rem]"
+            class="max-h-[65vh] w-[28rem] overflow-auto px-4"
             *ngIf="form && !loading; else load_state"
             [formGroup]="form"
         >
@@ -83,7 +83,7 @@ export interface CateringItemOptionModalData {
                     }}</mat-error>
                 </mat-form-field>
             </div>
-            <div class="flex flex-col mb-4" *ngIf="form.controls.multiple">
+            <div class="mb-4 flex flex-col" *ngIf="form.controls.multiple">
                 <settings-toggle
                     [name]="'CATERING.ITEM_OPTION_SELECT_MULTIPLE' | translate"
                     formControlName="multiple"
@@ -107,7 +107,7 @@ export interface CateringItemOptionModalData {
         </form>
         <footer
             *ngIf="!loading"
-            class="flex px-4 py-2 items-center justify-end border-t border-solid border-base-200"
+            class="flex items-center justify-end border-t border-solid border-base-200 px-4 py-2"
         >
             <button
                 btn
@@ -120,7 +120,7 @@ export interface CateringItemOptionModalData {
             </button>
         </footer>
         <ng-template #load_state>
-            <div loading class="flex flex-col items-center p-8 space-y-2 w-64">
+            <div loading class="flex w-64 flex-col items-center space-y-2 p-8">
                 <mat-spinner diameter="32"></mat-spinner>
                 <p>{{ 'CATREING.ITEM_OPTION_SAVING' | translate }}</p>
             </div>

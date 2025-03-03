@@ -8,48 +8,48 @@ import { queryAnswers, querySurveys } from '@placeos/ts-client';
 @Component({
     selector: 'building-list',
     template: `
-        <div class="flex flex-col h-full w-full">
-            <header class="flex items-center justify-between px-8 pt-8 pb-2">
+        <div class="flex h-full w-full flex-col">
+            <header class="flex items-center justify-between px-8 pb-2 pt-8">
                 <h2 class="text-2xl font-medium">
                     {{ 'APP.CONCIERGE.SURVEY_HEADER' | translate }}
                 </h2>
             </header>
-            <div class=" px-8  mb-8">
+            <div class="mb-8 px-8">
                 {{
                     'APP.CONCIERGE.SURVEY_BUILDING_COUNT'
                         | translate: { count: (buildings$ | async)?.length }
                 }}
             </div>
-            <div class="h-1/2 w-full overflow-auto flex-1 px-8 space-y-4">
+            <div class="h-1/2 w-full flex-1 space-y-4 overflow-auto px-8">
                 @for (building of buildings$ | async; track building.id) {
                     @let stats = (stats$ | async)[building.id];
                     <a
                         matRipple
-                        class="relative flex rounded-xl bg-base-100 overflow-hidden border border-base-300 shadow hover:border-info space-x-4"
+                        class="relative flex space-x-4 overflow-hidden rounded-xl border border-base-300 bg-base-100 shadow hover:border-info"
                         [routerLink]="['/surveys', 'survey-list', building.id]"
                     >
                         <div
-                            class="w-32 h-40 bg-base-300 flex items-center justify-center"
+                            class="flex h-40 w-32 items-center justify-center bg-base-300"
                         >
                             <img
                                 auth
                                 *ngIf="building.images?.length"
-                                class="h-full w-full object-center object-cover"
+                                class="h-full w-full object-cover object-center"
                                 [source]="building.images[0]"
                             />
                             <app-icon
                                 *ngIf="!building.images?.length"
-                                class="text-base-100 text-6xl"
+                                class="text-6xl text-base-100"
                                 >domain</app-icon
                             >
                         </div>
-                        <div class="py-4 flex-1">
-                            <h3 class="text-2xl font-medium mb-4">
+                        <div class="flex-1 py-4">
+                            <h3 class="mb-4 text-2xl font-medium">
                                 {{ building.display_name || building.name }}
                             </h3>
                             <div class="flex items-center space-x-4">
                                 <div
-                                    class="w-24 h-20 space-y-2 flex flex-col items-center justify-center rounded-xl border border-base-200"
+                                    class="flex h-20 w-24 flex-col items-center justify-center space-y-2 rounded-xl border border-base-200"
                                 >
                                     <div class="text-4xl">
                                         {{ stats?.live || 0 }}
@@ -62,7 +62,7 @@ import { queryAnswers, querySurveys } from '@placeos/ts-client';
                                     </div>
                                 </div>
                                 <div
-                                    class="w-24 h-20 space-y-2 flex flex-col items-center justify-center rounded-xl border border-base-200"
+                                    class="flex h-20 w-24 flex-col items-center justify-center space-y-2 rounded-xl border border-base-200"
                                 >
                                     <div class="text-4xl">
                                         {{ stats?.drafts || 0 }}
@@ -75,7 +75,7 @@ import { queryAnswers, querySurveys } from '@placeos/ts-client';
                                     </div>
                                 </div>
                                 <div
-                                    class="w-24 h-20 space-y-2 flex flex-col items-center justify-center rounded-xl border border-base-200"
+                                    class="flex h-20 w-24 flex-col items-center justify-center space-y-2 rounded-xl border border-base-200"
                                 >
                                     <div class="text-4xl">
                                         {{ stats?.answers || 0 }}
@@ -111,7 +111,7 @@ import { queryAnswers, querySurveys } from '@placeos/ts-client';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class BuildingListComponent {
     public readonly buildings$ = this._org.building_list;

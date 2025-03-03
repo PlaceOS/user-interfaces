@@ -10,7 +10,7 @@ import { EventsStateService } from '../day-view/events-state.service';
     selector: 'facilities-topbar',
     template: `
         <div
-            class="flex items-center bg-base-100 h-20 px-4 border-b border-base-200 space-x-2"
+            class="flex h-20 items-center space-x-2 border-b border-base-200 bg-base-100 px-4"
         >
             <mat-form-field appearance="outline">
                 <mat-select
@@ -58,7 +58,7 @@ import { EventsStateService } from '../day-view/events-state.service';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class FacilitiesTopbarComponent extends AsyncHandler {
     /** List of selected levels */

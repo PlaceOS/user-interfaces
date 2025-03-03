@@ -36,7 +36,7 @@ export interface TableColumn {
                 <div
                     *ngIf="selectable"
                     id="column-selector"
-                    class="sticky top-0 flex items-center justify-between px-2 border-r border-b border-base-200 bg-base-300 min-h-full z-20"
+                    class="sticky top-0 z-20 flex min-h-full items-center justify-between border-b border-r border-base-200 bg-base-300 px-2"
                     [style.gridColumn]="'1 / 2'"
                 >
                     <mat-checkbox
@@ -55,7 +55,7 @@ export interface TableColumn {
                         header
                         matRipple
                         [id]="'column-' + column.key"
-                        class="sticky top-0 flex items-center justify-between p-4 border-b border-base-200 bg-base-300 min-h-full z-20"
+                        class="sticky top-0 z-20 flex min-h-full items-center justify-between border-b border-base-200 bg-base-300 p-4"
                         [style.gridColumn]="
                             1 +
                             i +
@@ -99,7 +99,7 @@ export interface TableColumn {
                 <div
                     *ngIf="selectable"
                     id="column-selector"
-                    class="flex items-center justify-between px-2 border-r border-base-200 min-h-full z-10"
+                    class="z-10 flex min-h-full items-center justify-between border-r border-base-200 px-2"
                     [style.gridColumn]="'1 / 2'"
                     [class.border-b]="i !== (data_view$ | async)?.length - 1"
                     (mouseenter)="active_row = i"
@@ -112,7 +112,7 @@ export interface TableColumn {
                 </div>
                 <div
                     *ngFor="let column of active_columns; let j = index"
-                    class="flex items-center justify-between border-base-200 min-h-full z-10"
+                    class="z-10 flex min-h-full items-center justify-between border-base-200"
                     [style.gridColumn]="
                         1 +
                         j +
@@ -175,7 +175,7 @@ export interface TableColumn {
                     child-node
                     *ngIf="show_children[row.id] && child_template"
                     [style.gridColumn]="'span ' + active_columns.length"
-                    class="border-b last:border-t last:border-b-0 border-base-200"
+                    class="border-b border-base-200 last:border-b-0 last:border-t"
                 >
                     <ng-container
                         *ngTemplateOutlet="
@@ -203,7 +203,7 @@ export interface TableColumn {
         </div>
         <div
             *ngIf="page_size"
-            class="sticky bottom-0 w-full flex items-center justify-end space-x-2 p-2 bg-base-200 z-30"
+            class="sticky bottom-0 z-30 flex w-full items-center justify-end space-x-2 bg-base-200 p-2"
         >
             <div class="px-4 py-2">
                 {{ page * (page_size || 9999) + 1 }} &ndash;

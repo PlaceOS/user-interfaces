@@ -4,10 +4,10 @@ import { Component } from '@angular/core';
     selector: '[app-facilities]',
     template: `
         <sidebar></sidebar>
-        <main class="relative w-full flex flex-col bg-base-200">
+        <main class="relative flex w-full flex-col bg-base-200">
             <facilities-topbar></facilities-topbar>
             <div class="flex flex-1">
-                <facilities-map class="flex-1 h-full"></facilities-map>
+                <facilities-map class="h-full flex-1"></facilities-map>
                 <facilities-status class="h-full space-y-4"></facilities-status>
             </div>
         </main>
@@ -25,6 +25,6 @@ import { Component } from '@angular/core';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class FacilitiesComponent {}

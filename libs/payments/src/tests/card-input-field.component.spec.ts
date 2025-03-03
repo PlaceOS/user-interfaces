@@ -1,8 +1,8 @@
-import { ReactiveFormsModule } from "@angular/forms";
-import { MatFormFieldModule } from "@angular/material/form-field";
-import { MatSelectModule } from "@angular/material/select";
-import { createComponentFactory, Spectator } from "@ngneat/spectator/jest";
-import { MockComponent, MockModule } from "ng-mocks";
+import { ReactiveFormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { MockComponent, MockModule } from 'ng-mocks';
 import { CardInputFieldComponent } from '../lib/card-input-field.component';
 
 describe('CardInputFieldComponent', () => {
@@ -14,12 +14,12 @@ describe('CardInputFieldComponent', () => {
         imports: [
             MockModule(MatFormFieldModule),
             MockModule(MatSelectModule),
-            ReactiveFormsModule
-        ]
+            ReactiveFormsModule,
+        ],
     });
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should create component', () => expect(spectator.component).toBeTruthy());
-
+    it('should create component', () =>
+        expect(spectator.component).toBeTruthy());
 });

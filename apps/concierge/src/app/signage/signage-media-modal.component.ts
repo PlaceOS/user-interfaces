@@ -27,7 +27,7 @@ import { addYears, endOfDay, getUnixTime, startOfDay } from 'date-fns';
                 <div class="flex flex-col">
                     <button
                         matRipple
-                        class="relative w-full h-48 mx-auto bg-base-300 rounded-xl overflow-hidden mb-4"
+                        class="relative mx-auto mb-4 h-48 w-full overflow-hidden rounded-xl bg-base-300"
                         (click)="preview()"
                     >
                         <img
@@ -36,7 +36,7 @@ import { addYears, endOfDay, getUnixTime, startOfDay } from 'date-fns';
                             [source]="thumbnail || url"
                         />
                         <div
-                            class="absolute top-2 left-2 px-2 py-1 rounded text-xs bg-base-400 capitalize"
+                            class="absolute left-2 top-2 rounded bg-base-400 px-2 py-1 text-xs capitalize"
                         >
                             {{ media_type }}
                         </div>
@@ -57,10 +57,10 @@ import { addYears, endOfDay, getUnixTime, startOfDay } from 'date-fns';
                         <div class="flex items-center space-x-4">
                             <label
                                 for="start-time"
-                                class="w-auto min-w-0 m-0"
+                                class="m-0 w-auto min-w-0"
                                 >{{ 'FORM.TIME_START' | translate }}</label
                             >
-                            <div class="text-xs font-mono">
+                            <div class="font-mono text-xs">
                                 {{
                                     form.value.start_time / 1000
                                         | mediaDuration: true
@@ -80,13 +80,13 @@ import { addYears, endOfDay, getUnixTime, startOfDay } from 'date-fns';
                         </mat-slider>
                     }
                     <div class="flex items-center space-x-4">
-                        <label for="play-time" class="w-auto min-w-0 m-0">
+                        <label for="play-time" class="m-0 w-auto min-w-0">
                             {{
                                 'APP.CONCIERGE.SIGNAGE_MEDIA_PLAY_TIME'
                                     | translate
                             }}</label
                         >
-                        <div class="text-xs font-mono">
+                        <div class="font-mono text-xs">
                             @if (form.value.play_time) {
                                 {{
                                     form.value.play_time / 1000
@@ -192,7 +192,7 @@ import { addYears, endOfDay, getUnixTime, startOfDay } from 'date-fns';
         </fullscreen-modal-shell>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class SignageMediaModalComponent implements OnDestroy {
     public loading = false;

@@ -29,13 +29,13 @@ const DATE_PIPE = new DatePipe('en-us', '');
                 <label for="card-number">Card Number</label>
                 <div
                     tabindex="0"
-                    class="border border-base-200 p-2 h-12 mb-4 focus-within:shadow focus-within:border-base-200 flex items-center font-mono w-full rounded relative"
+                    class="relative mb-4 flex h-12 w-full items-center rounded border border-base-200 p-2 font-mono focus-within:border-base-200 focus-within:shadow"
                     (focus)="focusInput()"
                 >
                     <pre class="flex-1">{{ card_display }}</pre>
                     <input
                         #input
-                        class="hidden absolute"
+                        class="absolute hidden"
                         type="tel"
                         [value]="details.value.card_number?.trim()"
                         (keydown)="(false)"
@@ -48,7 +48,7 @@ const DATE_PIPE = new DatePipe('en-us', '');
                     />
                 </div>
             </div>
-            <div class="flex flex-col flex-1">
+            <div class="flex flex-1 flex-col">
                 <label for="cardholder">Name on Card</label>
                 <mat-form-field appearance="outline">
                     <input
@@ -61,7 +61,7 @@ const DATE_PIPE = new DatePipe('en-us', '');
                 </mat-form-field>
             </div>
             <div class="flex items-center space-x-2">
-                <div class="flex flex-col flex-1 w-1/4">
+                <div class="flex w-1/4 flex-1 flex-col">
                     <label for="cardholder">Expiry Month</label>
                     <mat-form-field appearance="outline">
                         <mat-select
@@ -78,7 +78,7 @@ const DATE_PIPE = new DatePipe('en-us', '');
                         <mat-error>Expiry month is required</mat-error>
                     </mat-form-field>
                 </div>
-                <div class="flex flex-col flex-1 w-1/4">
+                <div class="flex w-1/4 flex-1 flex-col">
                     <label for="cardholder">Expiry Year</label>
                     <mat-form-field appearance="outline">
                         <mat-select
@@ -124,7 +124,7 @@ const DATE_PIPE = new DatePipe('en-us', '');
             multi: true,
         },
     ],
-    standalone: false
+    standalone: false,
 })
 export class CardInputFieldComponent
     extends AsyncHandler

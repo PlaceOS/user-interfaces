@@ -15,7 +15,7 @@ describe('PaymentModalComponent', () => {
             MockProvider(OrganisationService, {}),
         ],
         declarations: [MockComponent(CardInputFieldComponent)],
-        imports: [FormsModule]
+        imports: [FormsModule],
     });
 
     beforeEach(() => (spectator = createComponent()));

@@ -7,21 +7,21 @@ import { Desk } from '@placeos/organisation';
     selector: 'desk-booking-form',
     template: `
         <div
-            class="divide-y divide-base-200 space-y-2"
+            class="space-y-2 divide-y divide-base-200"
             *ngIf="form"
             [formGroup]="form"
         >
             <section class="p-4">
-                <h3 class="space-x-2 flex items-center mb-4">
+                <h3 class="mb-4 flex items-center space-x-2">
                     <div
-                        class="border border-base-200 rounded-full h-6 w-6 flex items-center justify-center"
+                        class="flex h-6 w-6 items-center justify-center rounded-full border border-base-200"
                     >
                         1
                     </div>
                     <div class="text-xl">Details</div>
                 </h3>
-                <div class="flex items-center flex-wrap sm:space-x-2">
-                    <div class="flex-1 min-w-[256px]">
+                <div class="flex flex-wrap items-center sm:space-x-2">
+                    <div class="min-w-[256px] flex-1">
                         <label for="title">Add Title<span>*</span></label>
                         <mat-form-field appearance="outline" class="w-full">
                             <input
@@ -33,7 +33,7 @@ import { Desk } from '@placeos/organisation';
                             <mat-error>Booking title is required.</mat-error>
                         </mat-form-field>
                     </div>
-                    <div class="flex-1 min-w-[256px]">
+                    <div class="min-w-[256px] flex-1">
                         <label for="date">Date<span>*</span></label>
                         <a-date-field name="date" formControlName="date">
                             Date and time must be in the future
@@ -41,7 +41,7 @@ import { Desk } from '@placeos/organisation';
                     </div>
                 </div>
                 <div class="flex items-center space-x-2">
-                    <div class="flex-1 w-1/3">
+                    <div class="w-1/3 flex-1">
                         <label for="start-time">Start Time<span>*</span></label>
                         <a-time-field
                             name="start-time"
@@ -50,7 +50,7 @@ import { Desk } from '@placeos/organisation';
                             [ngModelOptions]="{ standalone: true }"
                         ></a-time-field>
                     </div>
-                    <div class="flex-1 w-1/3 relative">
+                    <div class="relative w-1/3 flex-1">
                         <label for="end-time">End Time<span>*</span></label>
                         <a-duration-field
                             name="end-time"
@@ -64,7 +64,7 @@ import { Desk } from '@placeos/organisation';
                         <mat-checkbox
                             formControlName="all_day"
                             *ngIf="allow_all_day"
-                            class="absolute top-0 right-0"
+                            class="absolute right-0 top-0"
                         >
                             All Day
                         </mat-checkbox>
@@ -74,7 +74,7 @@ import { Desk } from '@placeos/organisation';
                     class="flex items-center space-x-2"
                     *ngIf="can_book_lockers"
                 >
-                    <div class="flex-1 w-1/3">
+                    <div class="w-1/3 flex-1">
                         <mat-checkbox
                             [ngModel]="!!form.value.secondary_resource"
                             (ngModelChange)="
@@ -91,9 +91,9 @@ import { Desk } from '@placeos/organisation';
             </section>
 
             <section class="p-4">
-                <h3 class="space-x-2 flex items-center mb-4">
+                <h3 class="mb-4 flex items-center space-x-2">
                     <div
-                        class="border border-base-200 rounded-full h-6 w-6 flex items-center justify-center"
+                        class="flex h-6 w-6 items-center justify-center rounded-full border border-base-200"
                     >
                         2
                     </div>
@@ -102,9 +102,9 @@ import { Desk } from '@placeos/organisation';
                 <desk-list-field formControlName="resources"></desk-list-field>
             </section>
             <section class="p-4" *ngIf="allow_assets">
-                <h3 class="space-x-2 flex items-center mb-4">
+                <h3 class="mb-4 flex items-center space-x-2">
                     <div
-                        class="border border-base-200 rounded-full h-6 w-6 flex items-center justify-center"
+                        class="flex h-6 w-6 items-center justify-center rounded-full border border-base-200"
                     >
                         3
                     </div>
@@ -119,7 +119,7 @@ import { Desk } from '@placeos/organisation';
         </div>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class DeskBookingFormComponent extends AsyncHandler {
     public readonly form = this._service.form;

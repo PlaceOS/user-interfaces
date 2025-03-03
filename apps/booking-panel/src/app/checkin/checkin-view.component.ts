@@ -12,16 +12,16 @@ import { PanelStateService } from '../panel-state.service';
 @Component({
     selector: 'checkin-view',
     template: `
-        <div class="bg-black relative text-white p-4 h-32">
+        <div class="relative h-32 bg-black p-4 text-white">
             <div
-                class="bg-cover bg-center absolute inset-0"
+                class="absolute inset-0 bg-cover bg-center"
                 *ngIf="room_image"
                 [style.background-image]="'url(' + room_image + ')'"
             ></div>
             <div class="absolute inset-0 bg-black opacity-50"></div>
             <div
                 name
-                class="absolute bottom-4 left-4 text-3xl font-medium z-10"
+                class="absolute bottom-4 left-4 z-10 text-3xl font-medium"
             >
                 {{
                     (system | async)?.display_name ||
@@ -33,15 +33,15 @@ import { PanelStateService } from '../panel-state.service';
         <h3 class="p-4 text-xl font-medium">
             {{ 'APP.BOOKING_PANEL.UPCOMING' | translate }}
         </h3>
-        <div class="bg-base-100 divide-y divide-base-200">
+        <div class="divide-y divide-base-200 bg-base-100">
             <div class="flex items-center p-2">
                 <div
-                    class="w-2 h-full min-h-[3rem] rounded"
+                    class="h-full min-h-[3rem] w-2 rounded"
                     [class.bg-error]="(state | async) === 'busy'"
                     [class.bg-success]="(state | async) === 'free'"
                     [class.bg-warning]="(state | async) === 'pending'"
                 ></div>
-                <div class="text-sm  flex-1 px-2">
+                <div class="flex-1 px-2 text-sm">
                     <div class="font-medium uppercase">
                         {{ 'APP.BOOKING_PANEL.NOW' | translate }}
                     </div>
@@ -173,11 +173,11 @@ import { PanelStateService } from '../panel-state.service';
             </div>
             <div class="flex items-center p-2">
                 <div
-                    class="w-2 h-full min-h-[3rem] rounded bg-error"
+                    class="h-full min-h-[3rem] w-2 rounded bg-error"
                     [class.bg-error]="(event_state | async)?.next"
                     [class.bg-success]="!(event_state | async)?.next"
                 ></div>
-                <div class="text-sm flex-1 px-2">
+                <div class="flex-1 px-2 text-sm">
                     <div class="font-medium uppercase">
                         {{ 'APP.BOOKING_PANEL.NEXT' | translate }}
                     </div>
@@ -199,7 +199,7 @@ import { PanelStateService } from '../panel-state.service';
         <h3 class="p-4 text-xl font-medium">
             {{ 'APP.BOOKING_PANEL.SCHEDULE' | translate }}
         </h3>
-        <div class="bg-base-100 overflow-auto">
+        <div class="overflow-auto bg-base-100">
             <checkin-timetable
                 [events]="bookings | async"
                 (event)="newBooking($event)"
@@ -209,41 +209,41 @@ import { PanelStateService } from '../panel-state.service';
             {{ 'APP.BOOKING_PANEL.FEATURES' | translate }}
         </h3>
         <div
-            class="bg-base-100 overflow-auto flex-1 h-px divide-y divide-base-200"
+            class="h-px flex-1 divide-y divide-base-200 overflow-auto bg-base-100"
             *ngIf="false"
         >
-            <button btn matRipple class="flex items-center p-4 w-full">
-                <div class="text-black/40 bg-neutral rounded-full p-2 text-2xl">
+            <button btn matRipple class="flex w-full items-center p-4">
+                <div class="rounded-full bg-neutral p-2 text-2xl text-black/40">
                     <app-icon>lightbulb</app-icon>
                 </div>
-                <div class="flex-1 px-4 font-medium text-left">
+                <div class="flex-1 px-4 text-left font-medium">
                     {{ 'APP.BOOKING_PANEL.LIGHTS_BLINDS' | translate }}
                 </div>
                 <app-icon class="text-2xl opacity-40">chevron_right</app-icon>
             </button>
-            <button btn matRipple class="flex items-center p-4 w-full">
-                <div class="text-black/40 bg-neutral rounded-full p-2 text-2xl">
+            <button btn matRipple class="flex w-full items-center p-4">
+                <div class="rounded-full bg-neutral p-2 text-2xl text-black/40">
                     <app-icon>add_to_queue</app-icon>
                 </div>
-                <div class="flex-1 px-4 font-medium text-left">
+                <div class="flex-1 px-4 text-left font-medium">
                     {{ 'APP.BOOKING_PANEL.TV' | translate }}
                 </div>
                 <app-icon class="text-2xl opacity-40">chevron_right</app-icon>
             </button>
-            <button btn matRipple class="flex items-center p-4 w-full">
-                <div class="text-black/40 bg-neutral rounded-full p-2 text-2xl">
+            <button btn matRipple class="flex w-full items-center p-4">
+                <div class="rounded-full bg-neutral p-2 text-2xl text-black/40">
                     <app-icon>restaurant</app-icon>
                 </div>
-                <div class="flex-1 px-4 font-medium text-left">
+                <div class="flex-1 px-4 text-left font-medium">
                     {{ 'APP.BOOKING_PANEL.CATERING' | translate }}
                 </div>
                 <app-icon class="text-2xl opacity-40">chevron_right</app-icon>
             </button>
-            <button btn matRipple class="flex items-center p-4 w-full">
-                <div class="text-black/40 bg-neutral rounded-full p-2 text-2xl">
+            <button btn matRipple class="flex w-full items-center p-4">
+                <div class="rounded-full bg-neutral p-2 text-2xl text-black/40">
                     <app-icon>help</app-icon>
                 </div>
-                <div class="flex-1 px-4 font-medium text-left">
+                <div class="flex-1 px-4 text-left font-medium">
                     {{ 'APP.BOOKING_PANEL.HELP' | translate }}
                 </div>
                 <app-icon class="text-2xl opacity-40">chevron_right</app-icon>
@@ -263,7 +263,7 @@ import { PanelStateService } from '../panel-state.service';
         `,
     ],
     providers: [PanelStateService],
-    standalone: false
+    standalone: false,
 })
 export class CheckinViewComponent extends AsyncHandler implements OnInit {
     public readonly state = this._state.status;

@@ -11,15 +11,15 @@ import { OrganisationService } from '@placeos/organisation';
         <form *ngIf="form" [formGroup]="form">
             <section class="mb-4 border-b border-base-200">
                 <div
-                    class="flex flex-col sm:flex-row space-x-0 sm:space-x-2 w-[640px] max-w-[calc(100%-2rem)] mx-auto"
+                    class="mx-auto flex w-[640px] max-w-[calc(100%-2rem)] flex-col space-x-0 sm:flex-row sm:space-x-2"
                 >
-                    <div class="flex flex-col flex-1 w-full sm:w-1/3">
+                    <div class="flex w-full flex-1 flex-col sm:w-1/3">
                         <label for="date">Date</label>
                         <a-date-field name="date" formControlName="date">
                             Date and time must be in the future
                         </a-date-field>
                     </div>
-                    <div class="flex flex-col flex-1 w-full sm:w-1/3">
+                    <div class="flex w-full flex-1 flex-col sm:w-1/3">
                         <label for="start-time">Start Time</label>
                         <a-time-field
                             name="start-time"
@@ -28,7 +28,7 @@ import { OrganisationService } from '@placeos/organisation';
                             [ngModelOptions]="{ standalone: true }"
                         ></a-time-field>
                     </div>
-                    <div class="flex flex-col flex-1 w-full sm:w-1/3 relative">
+                    <div class="relative flex w-full flex-1 flex-col sm:w-1/3">
                         <label for="end-time">End Time</label>
                         <a-duration-field
                             name="end-time"
@@ -40,24 +40,24 @@ import { OrganisationService } from '@placeos/organisation';
                         <mat-checkbox
                             formControlName="all_day"
                             *ngIf="allow_all_day"
-                            class="absolute top-0 right-0"
+                            class="absolute right-0 top-0"
                         >
                             All Day
                         </mat-checkbox>
                     </div>
                 </div>
                 <div
-                    class="flex flex-col sm:flex-row space-x-0 sm:space-x-2 w-[640px] max-w-[calc(100%-2rem)] mx-auto"
+                    class="mx-auto flex w-[640px] max-w-[calc(100%-2rem)] flex-col space-x-0 sm:flex-row sm:space-x-2"
                 >
                     <div
-                        class="flex flex-col flex-1 w-full"
+                        class="flex w-full flex-1 flex-col"
                         *ngIf="show_features && features?.length"
                     >
                         <label for="building">Building</label>
                         <mat-form-field
                             overlay
                             buildings
-                            class="w-full h-[3.25rem]"
+                            class="h-[3.25rem] w-full"
                             *ngIf="(buildings | async)?.length > 1"
                             appearance="outline"
                         >
@@ -77,12 +77,12 @@ import { OrganisationService } from '@placeos/organisation';
                         </mat-form-field>
                     </div>
                     <div
-                        class="flex flex-col flex-1 w-full"
+                        class="flex w-full flex-1 flex-col"
                         *ngIf="show_features && features?.length"
                     >
                         <label for="features">Features</label>
                         <mat-form-field
-                            class="w-full h-[3.25rem]"
+                            class="h-[3.25rem] w-full"
                             overlay
                             appearance="outline"
                         >
@@ -111,7 +111,7 @@ import { OrganisationService } from '@placeos/organisation';
                 *ngIf="can_book_for_others || !hide_attendees"
             >
                 <div
-                    class="flex flex-col w-[640px] max-w-[calc(100%-2rem)] mx-auto"
+                    class="mx-auto flex w-[640px] max-w-[calc(100%-2rem)] flex-col"
                     *ngIf="can_book_for_others"
                 >
                     <label for="host">Host<span>*</span></label>
@@ -121,7 +121,7 @@ import { OrganisationService } from '@placeos/organisation';
                     ></host-select-field>
                 </div>
                 <div
-                    class="flex flex-col w-[640px] max-w-[calc(100%-2rem)] mx-auto mb-2"
+                    class="mx-auto mb-2 flex w-[640px] max-w-[calc(100%-2rem)] flex-col"
                     *ngIf="!hide_attendees"
                 >
                     <label for="attendees">Attendees</label>
@@ -133,7 +133,7 @@ import { OrganisationService } from '@placeos/organisation';
                 </div>
             </section>
             <section class="mb-4 border-b border-base-200">
-                <div class="w-[640px] max-w-[calc(100%-2rem)] mx-auto">
+                <div class="mx-auto w-[640px] max-w-[calc(100%-2rem)]">
                     <div class="flex flex-col">
                         <label for="title"
                             >Meeting Subject <span>*</span></label
@@ -149,7 +149,7 @@ import { OrganisationService } from '@placeos/organisation';
                         </mat-form-field>
                     </div>
                     <div
-                        class="flex flex-col resize-y mb-4"
+                        class="mb-4 flex resize-y flex-col"
                         *ngIf="!hide_notes"
                     >
                         <label for="notes">Notes</label>
@@ -159,7 +159,7 @@ import { OrganisationService } from '@placeos/organisation';
                             placeholder="Add meeting notes here..."
                         ></rich-text-input>
                     </div>
-                    <div class="flex flex-col mb-4" *ngIf="has_catering">
+                    <div class="mb-4 flex flex-col" *ngIf="has_catering">
                         <label>Catering</label>
                         <an-action-field (onAction)="editCatering()">
                             <div
@@ -172,11 +172,11 @@ import { OrganisationService } from '@placeos/organisation';
                                 class="flex items-center"
                                 *ngIf="form?.value.catering?.length"
                             >
-                                <div class="flex-1 w-1/2">
+                                <div class="w-1/2 flex-1">
                                     {{ form?.value.catering[0].item_count }}
                                     item(s)
                                 </div>
-                                <div class="text-xs opacity-60 px-4">
+                                <div class="px-4 text-xs opacity-60">
                                     {{
                                         form?.value.catering[0].total_cost / 100
                                             | currency: code
@@ -190,7 +190,7 @@ import { OrganisationService } from '@placeos/organisation';
         </form>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class DetailBookSpaceFormComponent {
     @Input() public form: FormGroup;

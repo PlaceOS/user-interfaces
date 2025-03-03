@@ -21,7 +21,7 @@ import { first } from 'rxjs/operators';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class DeskBookingComponent extends AsyncHandler implements OnInit {
     public get countdown_time() {

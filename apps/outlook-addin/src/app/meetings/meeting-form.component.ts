@@ -14,19 +14,19 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
     selector: 'meeting-booking-form',
     template: `
         <div
-            class="divide-y divide-base-200 space-y-2"
+            class="space-y-2 divide-y divide-base-200"
             *ngIf="form"
             [formGroup]="form"
         >
             <section class="p-4">
-                <h3 class="space-x-2 flex items-center">
+                <h3 class="flex items-center space-x-2">
                     <div
-                        class="bg-neutral rounded-full h-6 w-6 flex items-center justify-center"
+                        class="flex h-6 w-6 items-center justify-center rounded-full bg-neutral"
                     >
                         1
                     </div>
                     <div class="text-xl">Details</div>
-                    <div class="flex-1 w-px"></div>
+                    <div class="w-px flex-1"></div>
                     <button
                         icon
                         matRipple
@@ -42,7 +42,7 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                     [@show]="hide_block.details ? 'hide' : 'show'"
                 >
                     <div
-                        class="flex-1 min-w-[256px]"
+                        class="min-w-[256px] flex-1"
                         *ngIf="(buildings | async)?.length > 1"
                     >
                         <label for="title">Building</label>
@@ -66,8 +66,8 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                             </mat-select>
                         </mat-form-field>
                     </div>
-                    <div class="flex items-center flex-wrap space-x-2">
-                        <div class="flex-1 w-1/3">
+                    <div class="flex flex-wrap items-center space-x-2">
+                        <div class="w-1/3 flex-1">
                             <label for="title">Add Title<span>*</span></label>
                             <mat-form-field appearance="outline" class="w-full">
                                 <input
@@ -81,7 +81,7 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                                 >
                             </mat-form-field>
                         </div>
-                        <div class="flex-1 w-1/3">
+                        <div class="w-1/3 flex-1">
                             <label for="date">Date<span>*</span></label>
                             <a-date-field name="date" formControlName="date">
                                 Date and time must be in the future
@@ -89,7 +89,7 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                         </div>
                     </div>
                     <div class="flex items-center space-x-2">
-                        <div class="flex-1 w-1/3">
+                        <div class="w-1/3 flex-1">
                             <label for="start-time"
                                 >Start Time<span>*</span></label
                             >
@@ -102,7 +102,7 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                                 [ngModelOptions]="{ standalone: true }"
                             ></a-time-field>
                         </div>
-                        <div class="flex-1 w-1/3 relative">
+                        <div class="relative w-1/3 flex-1">
                             <label for="end-time">End Time<span>*</span></label>
                             <a-duration-field
                                 name="end-time"
@@ -130,17 +130,17 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                 </div>
             </section>
             <section class="p-4" *ngIf="!hide_attendees">
-                <h3 class="space-x-2 flex items-center">
+                <h3 class="flex items-center space-x-2">
                     <div
-                        class="bg-neutral rounded-full h-6 w-6 flex items-center justify-center"
+                        class="flex h-6 w-6 items-center justify-center rounded-full bg-neutral"
                     >
                         2
                     </div>
                     <div class="text-xl">Attendees</div>
-                    <div class="flex-1 w-px"></div>
+                    <div class="w-px flex-1"></div>
                     <button
                         matRipple
-                        class="bg-none underline text-xs text-blue-500"
+                        class="text-blue-500 bg-none text-xs underline"
                         (click)="findAvailableTime()"
                     >
                         Availability
@@ -166,14 +166,14 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                 </div>
             </section>
             <section class="p-4">
-                <h3 class="space-x-2 flex items-center">
+                <h3 class="flex items-center space-x-2">
                     <div
-                        class="bg-neutral rounded-full h-6 w-6 flex items-center justify-center"
+                        class="flex h-6 w-6 items-center justify-center rounded-full bg-neutral"
                     >
                         3
                     </div>
                     <div class="text-xl">Room</div>
-                    <div class="flex-1 w-px"></div>
+                    <div class="w-px flex-1"></div>
                     <button
                         icon
                         matRipple
@@ -195,14 +195,14 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                 </div>
             </section>
             <section class="p-4" *ngIf="has_catering">
-                <h3 class="space-x-2 flex items-center">
+                <h3 class="flex items-center space-x-2">
                     <div
-                        class="bg-neutral rounded-full h-6 w-6 flex items-center justify-center"
+                        class="flex h-6 w-6 items-center justify-center rounded-full bg-neutral"
                     >
                         4
                     </div>
                     <div class="text-xl">Catering</div>
-                    <div class="flex-1 w-px"></div>
+                    <div class="w-px flex-1"></div>
                     <button
                         icon
                         matRipple
@@ -228,14 +228,14 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                 </div>
             </section>
             <section class="p-4">
-                <h3 class="space-x-2 flex items-center">
+                <h3 class="flex items-center space-x-2">
                     <div
-                        class="bg-neutral rounded-full h-6 w-6 flex items-center justify-center"
+                        class="flex h-6 w-6 items-center justify-center rounded-full bg-neutral"
                     >
                         {{ !has_catering ? '4' : '5' }}
                     </div>
                     <div class="text-xl">Assets</div>
-                    <div class="flex-1 w-px"></div>
+                    <div class="w-px flex-1"></div>
                     <button
                         icon
                         matRipple
@@ -258,15 +258,15 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                 </div>
             </section>
             <section class="p-4" *ngIf="!hide_notes">
-                <h3 class="space-x-2 flex items-center mb-4">
+                <h3 class="mb-4 flex items-center space-x-2">
                     <div
-                        class="bg-neutral rounded-full h-6 w-6 flex items-center justify-center"
+                        class="flex h-6 w-6 items-center justify-center rounded-full bg-neutral"
                     >
                         {{ !has_catering ? '5' : '6' }}
                     </div>
                     <div class="text-xl">Notes</div>
                 </h3>
-                <div class="w-full flex flex-col">
+                <div class="flex w-full flex-col">
                     <label for="notes">General information for attendees</label>
                     <rich-text-input
                         name="notes"
@@ -279,7 +279,7 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
     `,
     styles: [``],
     animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
-    standalone: false
+    standalone: false,
 })
 export class MeetingBookingFormComponent extends AsyncHandler {
     public readonly form = this._service.form;

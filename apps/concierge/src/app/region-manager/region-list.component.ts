@@ -15,7 +15,7 @@ import { VisitorKioskSettingsFormModalComponent } from '../ui/app-settings/visit
     template: `
         <div class="absolute inset-0 overflow-auto px-8">
             <simple-table
-                class="min-w-[32rem] block text-sm"
+                class="block min-w-[32rem] text-sm"
                 [data]="regions"
                 [empty_message]="'APP.CONCIERGE.REGIONS_EMPTY' | translate"
                 [columns]="[
@@ -39,7 +39,7 @@ import { VisitorKioskSettingsFormModalComponent } from '../ui/app-settings/visit
                 ]"
                 [sortable]="true"
             ></simple-table>
-            <div class="w-full h-20"></div>
+            <div class="h-20 w-full"></div>
         </div>
         <ng-template #name_template let-row="row" let-data="data">
             <button
@@ -47,13 +47,13 @@ import { VisitorKioskSettingsFormModalComponent } from '../ui/app-settings/visit
                 (click)="copyToClipboard(row.id)"
             >
                 <div class="">{{ data }}</div>
-                <div class="text-[0.625rem] opacity-30 font-mono">
+                <div class="font-mono text-[0.625rem] opacity-30">
                     {{ row.id }}
                 </div>
             </button>
         </ng-template>
         <ng-template #action_template let-row="row">
-            <div class="w-full flex justify-end space-x-2 p-1">
+            <div class="flex w-full justify-end space-x-2 p-1">
                 <button
                     icon
                     matRipple
@@ -145,8 +145,8 @@ import { VisitorKioskSettingsFormModalComponent } from '../ui/app-settings/visit
                         </div>
                     </button>
                     <button mat-menu-item (click)="removeRegion(row)">
-                        <div class="flex items-center space-x-2 text-red-500">
-                            <app-icon class="text-error text-xl">
+                        <div class="text-red-500 flex items-center space-x-2">
+                            <app-icon class="text-xl text-error">
                                 delete
                             </app-icon>
                             <div>

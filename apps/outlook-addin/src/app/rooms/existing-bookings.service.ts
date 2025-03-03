@@ -12,12 +12,12 @@ import { getUnixTime, startOfDay, endOfDay } from 'date-fns';
 })
 export class ExistingBookingsService extends AsyncHandler {
     private _loading: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(
-        null
+        null,
     );
     public loading$: Observable<boolean> = this._loading.asObservable();
 
     private _date: BehaviorSubject<number> = new BehaviorSubject<number>(
-        Date.now()
+        Date.now(),
     );
 
     date$: Observable<number> = this._date.asObservable();
@@ -44,8 +44,8 @@ export class ExistingBookingsService extends AsyncHandler {
                 queryEvents({
                     period_start: getUnixTime(startOfDay(this.date)),
                     period_end: getUnixTime(endOfDay(this.date)),
-                })
-            )
+                }),
+            ),
         );
         this._loading.next(false);
     }

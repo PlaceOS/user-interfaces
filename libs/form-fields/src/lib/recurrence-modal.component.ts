@@ -14,7 +14,7 @@ import { RecurrenceDetails } from 'libs/events/src/lib/event.interfaces';
             </button>
         </header>
         <main class="p-4">
-            <div class="flex items-center space-x-2 mb-4">
+            <div class="mb-4 flex items-center space-x-2">
                 <div>{{ 'FORM.RECURRENCE_REPEAT_EVERY' | translate }}</div>
                 <mat-form-field appearance="outline" class="w-16">
                     <input matInput type="number" [(ngModel)]="data.interval" />
@@ -40,7 +40,7 @@ import { RecurrenceDetails } from 'libs/events/src/lib/event.interfaces';
                 {{ 'FORM.RECURRENCE_REPEAT_ON' | translate }}
             </h2>
             <div
-                class="flex items-center space-x-2 mb-4"
+                class="mb-4 flex items-center space-x-2"
                 name="repeat-on"
                 *ngIf="data.pattern === 'weekly'"
             >
@@ -140,7 +140,7 @@ import { RecurrenceDetails } from 'libs/events/src/lib/event.interfaces';
             </mat-radio-group>
         </main>
         <footer
-            class="px-4 py-2 flex items-center justify-end border-t border-base-200"
+            class="flex items-center justify-end border-t border-base-200 px-4 py-2"
         >
             <button
                 btn
@@ -168,7 +168,7 @@ import { RecurrenceDetails } from 'libs/events/src/lib/event.interfaces';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class RecurrenceModalComponent {
     public data: RecurrenceDetails = {

@@ -9,14 +9,14 @@ import { BookingLike } from '../schedule/schedule-state.service';
         <a
             btn
             matRipple
-            class="rounded-none my-1 mx-4 w-[calc(100%-2rem)] h-24 bg-base-100 hover:shadow p-0"
+            class="mx-4 my-1 h-24 w-[calc(100%-2rem)] rounded-none bg-base-100 p-0 hover:shadow"
             [class.opacity-50]="has_ended"
             [routerLink]="['/schedule', 'view', item?.id, type]"
         >
-            <div class="flex items-center border border-base-200 rounded-lg">
+            <div class="flex items-center rounded-lg border border-base-200">
                 <div
                     status
-                    class="h-24 w-20 flex flex-col items-center justify-center text-white leading-tight"
+                    class="flex h-24 w-20 flex-col items-center justify-center leading-tight text-white"
                     [class.bg-success]="status === 'approved'"
                     [class.bg-warning]="status === 'tentative'"
                     [class.bg-error]="status === 'declined'"
@@ -29,16 +29,16 @@ import { BookingLike } from '../schedule/schedule-state.service';
                                 : (item?.date | date: 'shortTime')
                         }}
                     </div>
-                    <div class="capitalize text-xs font-medium">
+                    <div class="text-xs font-medium capitalize">
                         ({{ status }})
                     </div>
                 </div>
-                <div class="flex-1 flex flex-col text-left p-2">
-                    <div class="text-xl pl-1">
+                <div class="flex flex-1 flex-col p-2 text-left">
+                    <div class="pl-1 text-xl">
                         {{ item?.title || 'Untitled Event' }}
                     </div>
                     <div
-                        class="flex items-center font-normal leading-normal space-x-1"
+                        class="flex items-center space-x-1 font-normal leading-normal"
                     >
                         <app-icon class="text-lg">today</app-icon>
                         <span class="text-sm">{{
@@ -46,14 +46,14 @@ import { BookingLike } from '../schedule/schedule-state.service';
                         }}</span>
                     </div>
                     <div
-                        class="flex items-center font-normal leading-normal space-x-1"
+                        class="flex items-center space-x-1 font-normal leading-normal"
                         *ngIf="item?.location || item?.description"
                     >
                         <app-icon class="text-lg">place</app-icon>
                         <span>
                             {{
                                 item?.location || item?.description
-                                    | slice: 0:255
+                                    | slice: 0 : 255
                             }}
                         </span>
                     </div>
@@ -62,7 +62,7 @@ import { BookingLike } from '../schedule/schedule-state.service';
         </a>
     `,
     styles: [],
-    standalone: false
+    standalone: false,
 })
 export class DashboardScheduledItemComponent {
     @Input() public item: BookingLike;

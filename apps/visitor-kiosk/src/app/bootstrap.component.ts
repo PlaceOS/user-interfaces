@@ -14,26 +14,26 @@ import { first } from 'rxjs/operators';
 @Component({
     selector: '[bootstrap]',
     template: `
-        <div class="absolute inset-0 bg-base-200 z-0"></div>
+        <div class="absolute inset-0 z-0 bg-base-200"></div>
         <div
             form
-            class="relative my-8 mx-auto bg-base-100 overflow-hidden shadow rounded-lg border border-base-300 w-[28rem] max-w-[calc(100%-2rem)] z-10"
+            class="relative z-10 mx-auto my-8 w-[28rem] max-w-[calc(100%-2rem)] overflow-hidden rounded-lg border border-base-300 bg-base-100 shadow"
         >
             <header
-                class="px-4 py-3 bg-secondary text-secondary-content w-full text-xl font-medium flex items-center justify-between"
+                class="flex w-full items-center justify-between bg-secondary px-4 py-3 text-xl font-medium text-secondary-content"
             >
                 <div>{{ 'APP.VISITOR_KIOSK.APP' | translate }}</div>
-                <div class="px-2 py-1 rounded  relative overflow-hidden">
+                <div class="relative overflow-hidden rounded px-2 py-1">
                     <div
-                        class="absolute inset-0 bg-base-100 opacity-10 z-0"
+                        class="absolute inset-0 z-0 bg-base-100 opacity-10"
                     ></div>
-                    <div class="relative text-sm font-mono uppercase z-10">
+                    <div class="relative z-10 font-mono text-sm uppercase">
                         {{ 'COMMON.BOOTSTRAP_SETUP' | translate }}
                     </div>
                 </div>
             </header>
             <div
-                class="px-4 flex flex-col space-y-2"
+                class="flex flex-col space-y-2 px-4"
                 *ngIf="!loading; else load_state"
             >
                 <ng-container *ngIf="(regions | async)?.length > 1">
@@ -60,7 +60,7 @@ import { first } from 'rxjs/operators';
                                         }}
                                     </div>
                                     <div
-                                        class="text-[0.625rem] font-mono !mr-4 bg-base-200 rounded px-1.5"
+                                        class="!mr-4 rounded bg-base-200 px-1.5 font-mono text-[0.625rem]"
                                     >
                                         {{ active_region?.id }}
                                     </div>
@@ -75,7 +75,7 @@ import { first } from 'rxjs/operators';
                                         {{ option.display_name || option.name }}
                                     </div>
                                     <div
-                                        class="text-[0.625rem] opacity-30 font-mono"
+                                        class="font-mono text-[0.625rem] opacity-30"
                                     >
                                         <span class="hidden">&nbsp;[</span
                                         >{{ option.id
@@ -111,7 +111,7 @@ import { first } from 'rxjs/operators';
                                         }}
                                     </div>
                                     <div
-                                        class="text-[0.625rem] font-mono !mr-4 bg-base-200 rounded px-1.5"
+                                        class="!mr-4 rounded bg-base-200 px-1.5 font-mono text-[0.625rem]"
                                     >
                                         {{ active_building?.id }}
                                     </div>
@@ -126,7 +126,7 @@ import { first } from 'rxjs/operators';
                                         {{ option.display_name || option.name }}
                                     </div>
                                     <div
-                                        class="text-[0.625rem] opacity-60 font-mono"
+                                        class="font-mono text-[0.625rem] opacity-60"
                                     >
                                         <span class="hidden">&nbsp;[</span
                                         >{{ option.id
@@ -162,7 +162,7 @@ import { first } from 'rxjs/operators';
                                         }}
                                     </div>
                                     <div
-                                        class="text-[0.625rem] font-mono !mr-4 bg-base-200 rounded px-1.5"
+                                        class="!mr-4 rounded bg-base-200 px-1.5 font-mono text-[0.625rem]"
                                     >
                                         {{ active_level?.id }}
                                     </div>
@@ -177,7 +177,7 @@ import { first } from 'rxjs/operators';
                                         {{ option.display_name || option.name }}
                                     </div>
                                     <div
-                                        class="text-[0.625rem] opacity-30 font-mono"
+                                        class="font-mono text-[0.625rem] opacity-30"
                                     >
                                         <span class="hidden">&nbsp;[</span
                                         >{{ option.id
@@ -215,7 +215,7 @@ import { first } from 'rxjs/operators';
                                         {{ option.display_name || option.name }}
                                     </div>
                                     <div
-                                        class="text-[0.625rem] opacity-30 font-mono"
+                                        class="font-mono text-[0.625rem] opacity-30"
                                     >
                                         <span class="hidden">&nbsp;[</span
                                         >{{ option.id
@@ -251,7 +251,7 @@ import { first } from 'rxjs/operators';
                                         {{ option.display_name || option.name }}
                                     </div>
                                     <div
-                                        class="text-[0.625rem] opacity-30 font-mono"
+                                        class="font-mono text-[0.625rem] opacity-30"
                                     >
                                         <span class="hidden">&nbsp;[</span
                                         >{{ option.id
@@ -264,7 +264,7 @@ import { first } from 'rxjs/operators';
                 </ng-container>
             </div>
             <div
-                class="w-full px-4 py-2 !mt-4 flex items-center justify-end border-t border-base-300"
+                class="!mt-4 flex w-full items-center justify-end border-t border-base-300 px-4 py-2"
                 *ngIf="!loading"
             >
                 <button
@@ -279,7 +279,7 @@ import { first } from 'rxjs/operators';
             </div>
         </div>
         <ng-template #load_state>
-            <div class="flex flex-col items-center p-8 m-auto">
+            <div class="m-auto flex flex-col items-center p-8">
                 <mat-spinner [diameter]="32"></mat-spinner>
                 <p>{{ loading }}</p>
             </div>

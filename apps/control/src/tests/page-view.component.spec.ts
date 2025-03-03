@@ -33,5 +33,5 @@ describe('ControlPageViewComponent', () => {
         spectator.component.view = 'basic';
         spectator.detectChanges();
         expect('control-advanced-view').not.toExist();
-    })
+    });
 });

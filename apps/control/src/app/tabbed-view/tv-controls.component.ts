@@ -23,12 +23,12 @@ import { ControlStateService } from '../control-state.service';
             ></i>
         </div>
         <div
-            class="flex flex-wrap p-8 items-center justify-center"
+            class="flex flex-wrap items-center justify-center p-8"
             *ngIf="channel_list?.length"
         >
             <button
                 matRipple
-                class="w-32 h-28 m-2 flex flex-col items-center justify-center border border-base-200 rounded space-y-2"
+                class="m-2 flex h-28 w-32 flex-col items-center justify-center space-y-2 rounded border border-base-200"
                 [class.bg-base-200]="channel_url !== item.channel"
                 [class.bg-primary]="channel_url === item.channel"
                 [class.text-white]="channel_url === item.channel"
@@ -44,7 +44,7 @@ import { ControlStateService } from '../control-state.service';
             </button>
         </div>
     `,
-    standalone: false
+    standalone: false,
 })
 export class TVControlsComponent extends AsyncHandler {
     @Input() public mod = '';

@@ -13,7 +13,7 @@ import { AsyncHandler } from '@placeos/common';
                     else assigned_state
                 "
             >
-                <div class="bg-base-100 h-full w-full z-50" [ngSwitch]="view">
+                <div class="z-50 h-full w-full bg-base-100" [ngSwitch]="view">
                     <parking-flow-success *ngSwitchCase="'success'">
                     </parking-flow-success>
                     <parking-flow-confirm *ngSwitchCase="'confirm'">
@@ -24,9 +24,9 @@ import { AsyncHandler } from '@placeos/common';
         </ng-container>
         <ng-template #assigned_state>
             <div
-                class="bg-base-100 flex flex-col items-center justify-center h-full w-full z-50 space-y-4"
+                class="z-50 flex h-full w-full flex-col items-center justify-center space-y-4 bg-base-100"
             >
-                <img src="assets/icons/parking-success.svg" class="w-64 h-64" />
+                <img src="assets/icons/parking-success.svg" class="h-64 w-64" />
                 <p>
                     {{
                         'APP.WORKPLACE.PARKING_ASSIGNED'
@@ -41,9 +41,9 @@ import { AsyncHandler } from '@placeos/common';
         </ng-template>
         <ng-template #deny_state>
             <div
-                class="bg-base-100 flex flex-col items-center justify-center h-full w-full z-50 space-y-4"
+                class="z-50 flex h-full w-full flex-col items-center justify-center space-y-4 bg-base-100"
             >
-                <img src="assets/img/parking-space.svg" class="w-64 h-64" />
+                <img src="assets/img/parking-space.svg" class="h-64 w-64" />
                 <p>
                     Your user account is not allowed to book parking in this
                     building.

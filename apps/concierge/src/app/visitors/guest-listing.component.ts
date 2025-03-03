@@ -16,7 +16,7 @@ import { User } from '@placeos/users';
     selector: 'guest-listings',
     template: `
         <simple-table
-            class="block text-sm z-0"
+            class="z-0 block text-sm"
             [style.min-width]="64 + extra_width + 'rem'"
             [data]="guests"
             [columns]="[
@@ -103,7 +103,7 @@ import { User } from '@placeos/users';
         <ng-template #state_template let-row="row">
             <div
                 *ngIf="!row?.checked_in && row.checked_out_at"
-                class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-base-400 text-neutral-content mx-auto"
+                class="mx-auto flex h-8 w-8 items-center justify-center rounded bg-base-400 text-2xl text-neutral-content"
                 [matTooltip]="
                     'APP.CONCIERGE.VISITOR_STATUS_CHECKED_OUT'
                         | translate
@@ -119,7 +119,7 @@ import { User } from '@placeos/users';
             </div>
             <div
                 *ngIf="!row?.checked_in && !row.checked_out_at"
-                class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-warning text-warning-content mx-auto"
+                class="mx-auto flex h-8 w-8 items-center justify-center rounded bg-warning text-2xl text-warning-content"
                 [matTooltip]="
                     'APP.CONCIERGE.VISITOR_STATUS_NOT_CHECKED_IN' | translate
                 "
@@ -129,7 +129,7 @@ import { User } from '@placeos/users';
             </div>
             <div
                 *ngIf="row?.checked_in"
-                class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-success text-success-content mx-auto"
+                class="mx-auto flex h-8 w-8 items-center justify-center rounded bg-success text-2xl text-success-content"
                 [matTooltip]="
                     'APP.CONCIERGE.VISITOR_STATUS_CHECKED_IN'
                         | translate
@@ -149,7 +149,7 @@ import { User } from '@placeos/users';
                 <div>{{ row.asset_name || row.asset_id }}</div>
                 <div
                     *ngIf="row.asset_name && row.asset_id"
-                    class="opacity-30 text-xs"
+                    class="text-xs opacity-30"
                 >
                     {{ row.asset_id }}
                 </div>
@@ -160,7 +160,7 @@ import { User } from '@placeos/users';
                 <div>{{ row.user_name || row.user_email }}</div>
                 <div
                     *ngIf="row.user_name && row.user_email"
-                    class="opacity-30 text-xs"
+                    class="text-xs opacity-30"
                 >
                     {{ row.user_email }}
                 </div>
@@ -171,7 +171,7 @@ import { User } from '@placeos/users';
                 <button
                     matRipple
                     *ngIf="row.extension_data?.id_data?.url"
-                    class="bg-success rounded-3xl px-4 py-2 text-white"
+                    class="rounded-3xl bg-success px-4 py-2 text-white"
                 >
                     {{
                         row.extension_data?.id_confirmed
@@ -184,11 +184,11 @@ import { User } from '@placeos/users';
             </div>
             <ng-template #id_confirmation>
                 <div
-                    class="bg-base-100 rounded p-2 flex flex-col space-y-2 my-2 w-[20rem]"
+                    class="my-2 flex w-[20rem] flex-col space-y-2 rounded bg-base-100 p-2"
                 >
                     <img
                         [src]="row.extension_data?.id_data?.url"
-                        class="max-w-[20rem] max-h-[20rem] object-contain"
+                        class="max-h-[20rem] max-w-[20rem] object-contain"
                     />
                     <button
                         matRipple
@@ -215,14 +215,14 @@ import { User } from '@placeos/users';
         <ng-template #parking_template let-row="row">
             <div
                 *ngIf="row.extension_data.parking_booking_id"
-                class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-success text-success-content mx-auto"
+                class="mx-auto flex h-8 w-8 items-center justify-center rounded bg-success text-2xl text-success-content"
             >
                 <app-icon>done</app-icon>
             </div>
         </ng-template>
         <ng-template #induction_template let-data="data">
             <div
-                class="rounded h-8 w-8 flex items-center justify-center text-2xl mx-auto"
+                class="mx-auto flex h-8 w-8 items-center justify-center rounded text-2xl"
                 [class.bg-success]="data === 'accepted'"
                 [class.text-success-content]="data === 'accepted'"
                 [class.bg-warning]="data !== 'accepted' && data !== 'declined'"
@@ -247,7 +247,7 @@ import { User } from '@placeos/users';
             <div class="px-4">
                 <button
                     matRipple
-                    class="rounded-3xl border-none w-[7.5rem] h-10"
+                    class="h-10 w-[7.5rem] rounded-3xl border-none"
                     [class.text-success-content]="row?.status === 'approved'"
                     [class.bg-success]="row?.status === 'approved'"
                     [class.text-error-content]="row?.status === 'declined'"
@@ -271,7 +271,7 @@ import { User } from '@placeos/users';
                         (row.checked_in && !row.checked_out_at)
                     "
                 >
-                    <div class="flex items-center pl-4 pr-2 space-x-2">
+                    <div class="flex items-center space-x-2 pl-4 pr-2">
                         <div class="flex-1 text-left">
                             {{
                                 (row?.status === 'ended'
@@ -501,7 +501,7 @@ import { User } from '@placeos/users';
             </div>
         </ng-template>
         <ng-template #notes_template let-row="row">
-            <div class="relative p-4 mx-auto">
+            <div class="relative mx-auto p-4">
                 <button
                     [matTooltip]="
                         'APP.CONCIERGE.VISITORS_NOTES_EDIT' | translate
@@ -514,7 +514,7 @@ import { User } from '@placeos/users';
                     <app-icon class="text-2xl">edit_square</app-icon>
                 </button>
                 <div
-                    class="absolute top-1 right-1 bg-info text-info-content rounded-full h-4 w-4 flex items-center justify-center"
+                    class="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-info text-info-content"
                     *ngIf="row.extension_data?.notes?.length"
                     [matTooltip]="
                         'APP.CONCIERGE.VISITORS_NOTES_AVAILABLE' | translate
@@ -530,7 +530,7 @@ import { User } from '@placeos/users';
             </div>
         </ng-template>
         <button
-            class="bg-secondary hover:shadow-lg shadow absolute bottom-4 right-4 text-white h-12 w-12 z-20"
+            class="absolute bottom-4 right-4 z-20 h-12 w-12 bg-secondary text-white shadow hover:shadow-lg"
             [matTooltip]="'APP.CONCIERGE.VISITORS_DOWNLOAD' | translate"
             matTooltipPosition="left"
             icon
@@ -540,7 +540,7 @@ import { User } from '@placeos/users';
         >
             <app-icon>download</app-icon>
         </button>
-        <div class="w-full h-8"></div>
+        <div class="h-8 w-full"></div>
     `,
     styles: [``],
     standalone: false,

@@ -28,7 +28,7 @@ describe('HostSelectFieldComponent', () => {
 
     beforeEach(() => {
         (user_mod.showStaff as any) = jest.fn((id) =>
-            of(new StaffUser({ id }))
+            of(new StaffUser({ id })),
         );
         (cal_fns.queryCalendars as any) = jest.fn(() => of([]));
         spectator = createComponent();

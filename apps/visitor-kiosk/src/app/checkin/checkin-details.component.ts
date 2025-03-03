@@ -10,9 +10,9 @@ import { SettingsService } from '@placeos/common';
         <form
             *ngIf="(form | async) && !loading; else load_state"
             [formGroup]="form | async"
-            class="bg-base-100 rounded shadow overflow-hidden relative flex flex-col items-center w-[36rem] p-4"
+            class="relative flex w-[36rem] flex-col items-center overflow-hidden rounded bg-base-100 p-4 shadow"
         >
-            <h3 class="text-2xl m-4">Confirm Details</h3>
+            <h3 class="m-4 text-2xl">Confirm Details</h3>
             <div field class="flex flex-col">
                 <label form="host">{{
                     'APP.VISITOR_KIOSK.HOST' | translate
@@ -94,7 +94,7 @@ import { SettingsService } from '@placeos/common';
             <a
                 icon
                 matRipple
-                class="absolute top-0 right-0"
+                class="absolute right-0 top-0"
                 [routerLink]="['/welcome']"
             >
                 <app-icon>close</app-icon>
@@ -105,7 +105,7 @@ import { SettingsService } from '@placeos/common';
                 class="absolute inset-0 flex flex-col items-center justify-center"
             >
                 <div
-                    class="flex flex-col items-center space-y-2 bg-base-100 rounded shadow p-16"
+                    class="flex flex-col items-center space-y-2 rounded bg-base-100 p-16 shadow"
                 >
                     <mat-spinner [diameter]="48"></mat-spinner>
                     <div class="my-4 text-lg">

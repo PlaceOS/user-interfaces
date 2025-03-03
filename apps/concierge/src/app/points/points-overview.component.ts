@@ -4,15 +4,15 @@ import { Component, OnInit } from '@angular/core';
     selector: 'points-overview',
     template: `
         <h2
-            class="px-4 py-3 bg-secondary text-white w-full rounded font-medium text-lg shadow"
+            class="w-full rounded bg-secondary px-4 py-3 text-lg font-medium text-white shadow"
         >
             {{ 'APP.CONCIERGE.POINTS_OVERVIEW_HEADER' | translate }}
         </h2>
-        <section class="bg-base-100 w-full">
-            <h2 class="p-2 underline font-medium text-lg">
+        <section class="w-full bg-base-100">
+            <h2 class="p-2 text-lg font-medium underline">
                 {{ 'APP.CONCIERGE.POINTS_VALUE_HEADER' | translate }}
             </h2>
-            <div class="flex items-center space-x-2 p-4 mb-4">
+            <div class="mb-4 flex items-center space-x-2 p-4">
                 <span class="font-mono"
                     >{{ 'APP.CONCIERGE.POINTS_ONE_POINT' | translate }} =</span
                 >
@@ -31,13 +31,13 @@ import { Component, OnInit } from '@angular/core';
                 </app-icon>
             </div>
         </section>
-        <section class="bg-base-100 w-full flex-1">
-            <h2 class="p-2 underline font-medium text-lg">
+        <section class="w-full flex-1 bg-base-100">
+            <h2 class="p-2 text-lg font-medium underline">
                 {{ 'APP.CONCIERGE.POINTS_AUTO_REWARDS' | translate }}
             </h2>
             <div class="p-4">
                 <div
-                    class="flex items-center space-x-4 p-2 border-b border-base-200"
+                    class="flex items-center space-x-4 border-b border-base-200 p-2"
                 >
                     <a-counter
                         [(ngModel)]="points.desk_checkin"
@@ -48,7 +48,7 @@ import { Component, OnInit } from '@angular/core';
                     }}</span>
                 </div>
                 <div
-                    class="flex items-center space-x-4 p-2 border-b border-base-200"
+                    class="flex items-center space-x-4 border-b border-base-200 p-2"
                 >
                     <a-counter
                         [(ngModel)]="points.room_checkin"
@@ -59,7 +59,7 @@ import { Component, OnInit } from '@angular/core';
                     }}</span>
                 </div>
                 <div
-                    class="flex items-center space-x-4 p-2 border-b border-base-200"
+                    class="flex items-center space-x-4 border-b border-base-200 p-2"
                 >
                     <a-counter
                         [(ngModel)]="points.booking_cancel"
@@ -69,7 +69,7 @@ import { Component, OnInit } from '@angular/core';
                         'APP.CONCIERGE.POINTS_REWARD_CANCEL' | translate
                     }}</span>
                 </div>
-                <div class="flex items-center space-x-4 p-2 ">
+                <div class="flex items-center space-x-4 p-2">
                     <a-counter
                         [(ngModel)]="points.wellness_card"
                         (ngModelChange)="storePoints()"
@@ -89,7 +89,7 @@ import { Component, OnInit } from '@angular/core';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class PointsOverviewComponent implements OnInit {
     public points = {

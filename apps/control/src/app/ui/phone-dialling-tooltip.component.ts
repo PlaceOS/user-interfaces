@@ -6,9 +6,9 @@ import { ControlStateService } from '../control-state.service';
     selector: 'phone-dialling-tooltip',
     template: `
         <div
-            class="p-4 my-2 bg-base-100 shadow rounded flex flex-col items-center space-y-2"
+            class="my-2 flex flex-col items-center space-y-2 rounded bg-base-100 p-4 shadow"
         >
-            <mat-form-field appearance="outline" class="w-full h-[3.25rem]">
+            <mat-form-field appearance="outline" class="h-[3.25rem] w-full">
                 <input
                     matInput
                     readonly
@@ -41,7 +41,7 @@ import { ControlStateService } from '../control-state.service';
                 *ngIf="(system | async)?.offhook || (system | async)?.ringing"
                 btn
                 matRipple
-                class="w-full inverse"
+                class="inverse w-full"
                 (click)="hangup()"
             >
                 {{ 'APP.CONTROL.PHONE_HANGUP' | translate }}

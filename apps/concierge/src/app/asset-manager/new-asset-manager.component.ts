@@ -4,9 +4,9 @@ import { Component } from '@angular/core';
     selector: '[asset-manager]',
     template: `
         <app-topbar></app-topbar>
-        <div class="flex flex-1 h-px">
+        <div class="flex h-px flex-1">
             <app-sidebar></app-sidebar>
-            <main class="flex flex-col flex-1 w-1/2 h-full">
+            <main class="flex h-full w-1/2 flex-1 flex-col">
                 <router-outlet></router-outlet>
             </main>
         </div>
@@ -22,6 +22,6 @@ import { Component } from '@angular/core';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class NewAssetManagerComponent {}

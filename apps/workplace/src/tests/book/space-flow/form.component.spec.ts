@@ -26,11 +26,14 @@ describe('SpaceFlowFormComponent', () => {
                         get: jest.fn(),
                         markAllAsTouched: jest.fn(),
                         valid: true,
-                        value: { host: 'yep' }
+                        value: { host: 'yep' },
                     },
                 },
             },
-            { provide: SettingsService, useValue: { get: jest.fn(() => true) } }
+            {
+                provide: SettingsService,
+                useValue: { get: jest.fn(() => true) },
+            },
         ],
         declarations: [
             MockComponent(DetailBookSpaceFormComponent),

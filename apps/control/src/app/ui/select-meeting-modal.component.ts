@@ -14,12 +14,12 @@ import { openConfirmModal } from '@placeos/components';
                 icon
                 matRipple
                 mat-dialog-close
-                class="absolute top-2 right-2"
+                class="absolute right-2 top-2"
             >
                 <app-icon>close</app-icon>
             </button>
-            <div class="w-[40rem] max-w-full p-2 mx-auto">
-                <h2 class="w-full text-center my-4 text-2xl font-medium">
+            <div class="mx-auto w-[40rem] max-w-full p-2">
+                <h2 class="my-4 w-full text-center text-2xl font-medium">
                     {{ 'APP.CONTROL.MEETING_SELECT' | translate }}
                 </h2>
                 <div class="w-full">
@@ -41,7 +41,7 @@ import { openConfirmModal } from '@placeos/components';
                         </mat-hint>
                     </mat-form-field>
                 </div>
-                <h3 class="w-full my-4 font-medium">
+                <h3 class="my-4 w-full font-medium">
                     {{
                         'APP.CONTROL.MEETING_COUNT'
                             | translate
@@ -50,17 +50,17 @@ import { openConfirmModal } from '@placeos/components';
                 </h3>
                 <ng-container *ngIf="!loading; else load_state">
                     <div
-                        class="overflow-auto space-y-2"
+                        class="space-y-2 overflow-auto"
                         *ngIf="(events | async)?.length; else empty_state"
                     >
                         <button
                             btn
                             matRipple
-                            class="flex items-center p-4 w-full border border-base-200 rounded"
+                            class="flex w-full items-center rounded border border-base-200 p-4"
                             *ngFor="let event of events | async"
                             (click)="select(event)"
                         >
-                            <div class="flex-1 text-left truncate w-1/2">
+                            <div class="w-1/2 flex-1 truncate text-left">
                                 {{ event?.title }}
                             </div>
                             <div class="text-sm opacity-60">
@@ -73,14 +73,14 @@ import { openConfirmModal } from '@placeos/components';
         </div>
         <ng-template #empty_state>
             <div
-                class="w-full flex items-center justify-center opacity-40 h-32"
+                class="flex h-32 w-full items-center justify-center opacity-40"
             >
                 {{ 'APP.CONTROL.MEETINGS_EMPTY' | translate }}
             </div>
         </ng-template>
         <ng-template #load_state>
             <div
-                class="w-full flex items-center justify-center opacity-40 h-32"
+                class="flex h-32 w-full items-center justify-center opacity-40"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
                 <p>{{ 'APP.CONTROL.MEETINGS_LOADING' | translate }}</p>

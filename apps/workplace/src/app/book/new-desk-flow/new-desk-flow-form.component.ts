@@ -20,22 +20,22 @@ import { NewDeskFlowConfirmComponent } from './new-desk-flow-confirm.component';
     selector: 'new-desk-flow-form',
     styles: [],
     template: `
-        <div class="h-full w-full bg-base-200 overflow-auto">
+        <div class="h-full w-full overflow-auto bg-base-200">
             <div
-                class="max-w-full w-[48rem] mx-auto sm:my-4 bg-base-100 border border-base-200"
+                class="mx-auto w-[48rem] max-w-full border border-base-200 bg-base-100 sm:my-4"
             >
                 <h2
-                    class="w-full p-4 sm:py-4 sm:px-16 text-2xl font-medium border-b border-base-200"
+                    class="w-full border-b border-base-200 p-4 text-2xl font-medium sm:px-16 sm:py-4"
                 >
                     {{ 'BOOKINGS.DESK_TITLE' | translate }}
                 </h2>
                 <new-desk-form-details
-                    class="p-0 sm:py-4 sm:px-16 block"
+                    class="block p-0 sm:px-16 sm:py-4"
                     [form]="form"
                 ></new-desk-form-details>
-                <div class="sm:mb-2 border-b border-base-200 w-full"></div>
+                <div class="w-full border-b border-base-200 sm:mb-2"></div>
                 <section
-                    class="flex flex-col sm:flex-row items-center sm:space-x-2 p-2 sm:px-16 sm:mb-2"
+                    class="flex flex-col items-center p-2 sm:mb-2 sm:flex-row sm:space-x-2 sm:px-16"
                 >
                     <button
                         btn
@@ -51,7 +51,7 @@ import { NewDeskFlowConfirmComponent } from './new-desk-flow-confirm.component';
             </div>
         </div>
     `,
-    standalone: false
+    standalone: false,
 })
 export class NewDeskFlowFormComponent implements OnInit {
     public sheet_ref: MatBottomSheetRef<NewDeskFlowConfirmComponent>;

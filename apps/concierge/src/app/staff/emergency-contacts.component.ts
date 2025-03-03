@@ -28,10 +28,10 @@ export interface EmergencyContactData {
     selector: '[app-emergency-contacts]',
     template: `
         <app-topbar></app-topbar>
-        <div class="flex flex-1 h-px">
+        <div class="flex h-px flex-1">
             <app-sidebar></app-sidebar>
-            <main class="flex flex-col flex-1 w-1/2 h-full">
-                <section topbar class="px-8 py-4 flex flex-col">
+            <main class="flex h-full w-1/2 flex-1 flex-col">
+                <section topbar class="flex flex-col px-8 py-4">
                     <div class="flex items-center justify-between">
                         <h2 class="text-2xl font-medium">
                             {{ 'APP.CONCIERGE.CONTACTS_HEADER' | translate }}
@@ -68,7 +68,7 @@ export interface EmergencyContactData {
                             </button>
                         </div>
                     </div>
-                    <div class="flex items-center justify-between py-2 mt-2">
+                    <div class="mt-2 flex items-center justify-between py-2">
                         <mat-form-field
                             class="no-subscript"
                             appearance="outline"
@@ -97,7 +97,7 @@ export interface EmergencyContactData {
                             <button
                                 icon
                                 matRipple
-                                class="h-12 w-12 bg-secondary text-secondary-content rounded"
+                                class="h-12 w-12 rounded bg-secondary text-secondary-content"
                                 [matTooltip]="
                                     'APP.CONCIERGE.CONTACTS_ROLES_MANAGE'
                                         | translate
@@ -109,9 +109,9 @@ export interface EmergencyContactData {
                         </div>
                     </div>
                 </section>
-                <section class="w-full h-1/2 flex-1 overflow-auto px-8">
+                <section class="h-1/2 w-full flex-1 overflow-auto px-8">
                     <simple-table
-                        class="min-w-[52rem] block text-sm"
+                        class="block min-w-[52rem] text-sm"
                         [data]="filtered_contacts"
                         [filter]="search"
                         [empty_message]="
@@ -150,14 +150,14 @@ export interface EmergencyContactData {
                         ]"
                         [sortable]="true"
                     ></simple-table>
-                    <div class="w-full h-12"></div>
+                    <div class="h-12 w-full"></div>
                     <ng-template #person_template let-row="row">
                         <button
                             class="px-4 py-2 text-left leading-tight"
                             (click)="copyToClipboard(row.email)"
                         >
                             <div class="">{{ row.name }}</div>
-                            <div class="text-[0.625rem] opacity-30 font-mono">
+                            <div class="font-mono text-[0.625rem] opacity-30">
                                 {{ row.email }}
                             </div>
                         </button>
@@ -165,7 +165,7 @@ export interface EmergencyContactData {
                     <ng-template #roles_template let-data="data">
                         <div class="flex flex-wrap p-2">
                             <span
-                                class="m-1 py-1 px-2 rounded-2xl text-xs font-mono bg-info text-info-content"
+                                class="m-1 rounded-2xl bg-info px-2 py-1 font-mono text-xs text-info-content"
                                 *ngFor="let role of data"
                             >
                                 {{ role }}
@@ -179,7 +179,7 @@ export interface EmergencyContactData {
                     </ng-template>
                     <ng-template #actions_template let-row="row">
                         <div
-                            class="flex items-center justify-end w-full space-x-2 p-2"
+                            class="flex w-full items-center justify-end space-x-2 p-2"
                         >
                             <button
                                 icon
@@ -219,7 +219,7 @@ export interface EmergencyContactData {
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class EmergencyContactsComponent {
     private _change = new BehaviorSubject<number>(0);

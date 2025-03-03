@@ -20,7 +20,7 @@ describe('Calendar API Methods', () => {
             expect(list).toHaveLength(1);
             expect(list[0]).toBeInstanceOf(Calendar);
             expect(ts_client.get).toHaveBeenCalledWith(
-                `/api/staff/v1/calendars`
+                `/api/staff/v1/calendars`,
             );
             (ts_client as any).get.mockReset();
         });
@@ -35,7 +35,7 @@ describe('Calendar API Methods', () => {
             expect(list).toHaveLength(1);
             expect(list[0]).toBeInstanceOf(Calendar);
             expect(ts_client.get).toHaveBeenCalledWith(
-                `/api/staff/v1/calendars/availability?period_start=1&period_end=2`
+                `/api/staff/v1/calendars/availability?period_start=1&period_end=2`,
             );
             (ts_client as any).get.mockReset();
         });
@@ -43,7 +43,7 @@ describe('Calendar API Methods', () => {
     describe('querySpaceAvailability', () => {
         it('should GET space availability from API', async () => {
             (ts_client as any).get = jest.fn(() =>
-                of([{ resource: { bookable: true } }])
+                of([{ resource: { bookable: true } }]),
             );
             const list = await querySpaceCalendarAvailability({
                 period_start: 1,
@@ -51,7 +51,7 @@ describe('Calendar API Methods', () => {
             }).toPromise();
             expect(list).toHaveLength(1);
             expect(ts_client.get).toHaveBeenCalledWith(
-                `/api/staff/v1/calendars/availability?period_start=1&period_end=2`
+                `/api/staff/v1/calendars/availability?period_start=1&period_end=2`,
             );
             (ts_client as any).get.mockReset();
         });
@@ -59,7 +59,7 @@ describe('Calendar API Methods', () => {
     describe('querySpaceFreeBusy', () => {
         it('should GET space availability status from API', async () => {
             (ts_client as any).get = jest.fn(() =>
-                of([{ resource: { bookable: true } }])
+                of([{ resource: { bookable: true } }]),
             );
             const list = await querySpaceFreeBusy({
                 period_start: 1,
@@ -67,7 +67,7 @@ describe('Calendar API Methods', () => {
             }).toPromise();
             expect(list).toHaveLength(1);
             expect(ts_client.get).toHaveBeenCalledWith(
-                `/api/staff/v1/calendars/free_busy?period_start=1&period_end=2`
+                `/api/staff/v1/calendars/free_busy?period_start=1&period_end=2`,
             );
             (ts_client as any).get.mockReset();
         });

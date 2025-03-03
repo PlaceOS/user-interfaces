@@ -5,7 +5,7 @@ import { SettingsService } from '@placeos/common';
 @Component({
     selector: 'contact-tracing-options',
     template: `
-        <div class="flex items-center space-x-2 w-full p-4 bg-base-100 shadow">
+        <div class="flex w-full items-center space-x-2 bg-base-100 p-4 shadow">
             <date-range-field [week_start]="week_start">
                 <input
                     #startDate
@@ -62,7 +62,7 @@ import { SettingsService } from '@placeos/common';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class ContactTracingOptionsComponent {
     @Output() public printing = new EventEmitter<boolean>();

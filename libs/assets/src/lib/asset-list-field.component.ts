@@ -24,7 +24,7 @@ const EMPTY_FAVS: string[] = [];
             <div
                 request
                 *ngFor="let request of asset_requests"
-                class="border shadow bg-base-100 rounded-xl overflow-hidden"
+                class="overflow-hidden rounded-xl border bg-base-100 shadow"
                 [class.border-error]="end_time < request.deliver_at"
                 [class.border-base-300]="end_time >= request.deliver_at"
             >
@@ -46,7 +46,7 @@ const EMPTY_FAVS: string[] = [];
                                 }}
                             </div>
                             <div
-                                class="flex items-center justify-center h-6 w-6 rounded-full bg-error text-error-content"
+                                class="flex h-6 w-6 items-center justify-center rounded-full bg-error text-error-content"
                                 [matTooltip]="err_tooltip(request)"
                                 *ngIf="
                                     end_time <= request.deliver_at ||
@@ -106,18 +106,18 @@ const EMPTY_FAVS: string[] = [];
                     </button>
                 </div>
                 <div
-                    class="flex flex-col bg-base-200 divide-y divide-base-100"
+                    class="flex flex-col divide-y divide-base-100 bg-base-200"
                     [@show]="show_request[request.id] ? 'show' : 'hide'"
                 >
                     <div
-                        class="flex items-center px-4 py-1 space-x-2 hover:opacity-90"
+                        class="flex items-center space-x-2 px-4 py-1 hover:opacity-90"
                         *ngFor="let item of request.items"
                     >
-                        <div class="flex items-center flex-1">
+                        <div class="flex flex-1 items-center">
                             {{ item.name || 'Item' }}
                         </div>
                         <div
-                            class="rounded bg-success text-success-content text-xs px-2 py-1"
+                            class="rounded bg-success px-2 py-1 text-xs text-success-content"
                         >
                             x{{ item.quantity }}
                         </div>
@@ -157,7 +157,7 @@ const EMPTY_FAVS: string[] = [];
             btn
             matRipple
             add-space
-            class="w-full inverse mt-2"
+            class="inverse mt-2 w-full"
             [disabled]="disabled"
             (click)="editRequest()"
         >
@@ -177,7 +177,7 @@ const EMPTY_FAVS: string[] = [];
         },
     ],
     animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
-    standalone: false
+    standalone: false,
 })
 export class AssetListFieldComponent implements ControlValueAccessor {
     @Input() public options: {

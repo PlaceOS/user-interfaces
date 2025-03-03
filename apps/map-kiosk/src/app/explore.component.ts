@@ -38,9 +38,9 @@ import { first, map, take } from 'rxjs/operators';
     template: `
         <div
             topbar
-            class="relative flex items-center justify-between px-4 py-2 border-b border-base-300 bg-base-100 text-base-content"
+            class="relative flex items-center justify-between border-b border-base-300 bg-base-100 px-4 py-2 text-base-content"
         >
-            <a matRipple routerLink="/" class="text-2xl rounded p-2">
+            <a matRipple routerLink="/" class="rounded p-2 text-2xl">
                 <img
                     auth
                     class="h-12"
@@ -49,7 +49,7 @@ import { first, map, take } from 'rxjs/operators';
                 />
             </a>
             <div
-                class="absolute top-1/2 -translate-y-1/2 right-2 flex items-center"
+                class="absolute right-2 top-1/2 flex -translate-y-1/2 items-center"
             >
                 <explore-search *ngIf="can_search"></explore-search>
                 <button
@@ -57,12 +57,12 @@ import { first, map, take } from 'rxjs/operators';
                     matRipple
                     customTooltip
                     [content]="accessibility_controls"
-                    class="bg-base-200 flex sm:hidden"
+                    class="flex bg-base-200 sm:hidden"
                 >
                     <app-icon>accessible</app-icon>
                 </button>
                 <ng-template #accessibility_controls>
-                    <div class="bg-base-100 rounded p-2 w-[18rem]">
+                    <div class="w-[18rem] rounded bg-base-100 p-2">
                         <accessibility-controls></accessibility-controls>
                     </div>
                 </ng-template>
@@ -71,7 +71,7 @@ import { first, map, take } from 'rxjs/operators';
         <ng-container *ngIf="(levels | async)?.length || legend.length">
             <div
                 options
-                class="flex sm:hidden items-center bg-base-content text-base-100 p-2 space-x-2"
+                class="flex items-center space-x-2 bg-base-content p-2 text-base-100 sm:hidden"
             >
                 <ng-container *ngIf="(levels | async)?.length">
                     <button
@@ -109,7 +109,7 @@ import { first, map, take } from 'rxjs/operators';
                     </button>
                     <mat-menu #legendMenu="matMenu">
                         <div
-                            class="flex items-center py-2 px-4 rounded hover:bg-base-200 w-full space-x-4"
+                            class="flex w-full items-center space-x-4 rounded px-4 py-2 hover:bg-base-200"
                             *ngFor="let value of legend"
                         >
                             <div
@@ -124,16 +124,16 @@ import { first, map, take } from 'rxjs/operators';
                 </ng-container>
             </div>
         </ng-container>
-        <div class="flex flex-1 h-1/2">
+        <div class="flex h-1/2 flex-1">
             <div
                 sidebar
-                class="w-[20rem] hidden sm:block bg-base-100 text-base-content border-r border-base-300 px-2 py-4"
+                class="hidden w-[20rem] border-r border-base-300 bg-base-100 px-2 py-4 text-base-content sm:block"
             >
                 <ng-container *ngIf="(levels | async)?.length">
                     <button
                         btn
                         matRipple
-                        class="flex items clear w-full space-x-4 hover:bg-base-200"
+                        class="items clear flex w-full space-x-4 hover:bg-base-200"
                         (click)="show_levels = !show_levels"
                     >
                         <app-icon class="text-2xl">corporate_fare</app-icon>
@@ -145,30 +145,30 @@ import { first, map, take } from 'rxjs/operators';
                         }}</app-icon>
                     </button>
                     <div class="px-8" [@show]="show_levels ? 'show' : 'hide'">
-                        <div class="py-4 space-y-2">
+                        <div class="space-y-2 py-4">
                             <button
                                 *ngFor="let lvl of levels | async"
                                 btn
                                 matRipple
-                                class="clear hover:bg-base-200 hover:opacity-100 w-full"
+                                class="clear w-full hover:bg-base-200 hover:opacity-100"
                                 [class.opacity-30]="
                                     lvl.id !== (level | async)?.id
                                 "
                                 (click)="setLevel(lvl)"
                             >
-                                <div class="text-left w-full">
+                                <div class="w-full text-left">
                                     {{ lvl.display_name || lvl.name }}
                                 </div>
                             </button>
                         </div>
                     </div>
-                    <hr class="w-[calc(100%-4rem)] mx-auto" />
+                    <hr class="mx-auto w-[calc(100%-4rem)]" />
                 </ng-container>
                 <ng-container *ngIf="legend.length && legend_visible">
                     <button
                         btn
                         matRipple
-                        class="flex items clear w-full space-x-4 hover:bg-base-200"
+                        class="items clear flex w-full space-x-4 hover:bg-base-200"
                         (click)="show_legend = !show_legend"
                     >
                         <app-icon class="text-2xl">place</app-icon>
@@ -180,9 +180,9 @@ import { first, map, take } from 'rxjs/operators';
                         }}</app-icon>
                     </button>
                     <div class="px-8" [@show]="show_legend ? 'show' : 'hide'">
-                        <div class="py-4 space-y-2">
+                        <div class="space-y-2 py-4">
                             <div
-                                class="flex items-center py-2 px-4 rounded hover:bg-base-200 w-full space-x-4"
+                                class="flex w-full items-center space-x-4 rounded px-4 py-2 hover:bg-base-200"
                                 *ngFor="let value of legend"
                             >
                                 <div
@@ -195,12 +195,12 @@ import { first, map, take } from 'rxjs/operators';
                             </div>
                         </div>
                     </div>
-                    <hr class="w-[calc(100%-4rem)] mx-auto" />
+                    <hr class="mx-auto w-[calc(100%-4rem)]" />
                 </ng-container>
                 <button
                     btn
                     matRipple
-                    class="flex items clear w-full space-x-4 hover:bg-base-200"
+                    class="items clear flex w-full space-x-4 hover:bg-base-200"
                     (click)="show_accessibility = !show_accessibility"
                 >
                     <app-icon class="text-2xl">accessible</app-icon>
@@ -217,13 +217,13 @@ import { first, map, take } from 'rxjs/operators';
                     class="px-8"
                     [@show]="show_accessibility ? 'show' : 'hide'"
                 >
-                    <div class=" py-4 space-y-2">
+                    <div class="space-y-2 py-4">
                         <accessibility-controls></accessibility-controls>
                     </div>
                 </div>
-                <hr class="w-[calc(100%-4rem)] mx-auto" />
+                <hr class="mx-auto w-[calc(100%-4rem)]" />
             </div>
-            <div class="relative flex-1 h-full">
+            <div class="relative h-full flex-1">
                 <interactive-map
                     [src]="url | async"
                     [zoom]="(positions | async)?.zoom"

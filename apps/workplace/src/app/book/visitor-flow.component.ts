@@ -4,9 +4,9 @@ import { Router } from '@angular/router';
 @Component({
     selector: 'placeos-book-space-flow',
     template: `
-        <div class="bg-base-200 h-full w-full overflow-auto">
+        <div class="h-full w-full overflow-auto bg-base-200">
             <div
-                class="w-full h-full sm:h-auto max-w-[48rem] mx-auto sm:my-4 bg-base-100 shadow border border-base-200 overflow-hidden"
+                class="mx-auto h-full w-full max-w-[48rem] overflow-hidden border border-base-200 bg-base-100 shadow sm:my-4 sm:h-auto"
             >
                 <invite-visitor-form (done)="onDone()"></invite-visitor-form>
             </div>
@@ -21,7 +21,7 @@ import { Router } from '@angular/router';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class VisitorFlowComponent {
     constructor(private _router: Router) {}

@@ -5,7 +5,7 @@ import { CateringReportStateService } from './catering-report-state.service';
 @Component({
     selector: 'catering-report-overall',
     template: `
-        <div item class="flex flex-col flex-1 items-center justify-center">
+        <div item class="flex flex-1 flex-col items-center justify-center">
             <div count class="text-3xl">
                 {{ (stats | async)?.order_count || '0' }}
             </div>
@@ -13,7 +13,7 @@ import { CateringReportStateService } from './catering-report-state.service';
                 {{ 'APP.CONCIERGE.REPORTS_CATERING_ORDERS_HEADER' | translate }}
             </div>
         </div>
-        <div item class="flex flex-col flex-1 items-center justify-center">
+        <div item class="flex flex-1 flex-col items-center justify-center">
             <div unique class="text-3xl">
                 {{ (stats | async)?.unique_items || '0' }}
             </div>
@@ -21,7 +21,7 @@ import { CateringReportStateService } from './catering-report-state.service';
                 {{ 'APP.CONCIERGE.REPORTS_CATERING_ITEMS_UNIQUE' | translate }}
             </div>
         </div>
-        <div item class="flex flex-col flex-1 items-center justify-center">
+        <div item class="flex flex-1 flex-col items-center justify-center">
             <div items class="text-3xl">
                 {{ (stats | async)?.item_count || '0' }}
             </div>
@@ -29,7 +29,7 @@ import { CateringReportStateService } from './catering-report-state.service';
                 {{ 'APP.CONCIERGE.REPORTS_CATERING_ITEMS_HEADER' | translate }}
             </div>
         </div>
-        <div item class="flex flex-col flex-1 items-center justify-center">
+        <div item class="flex flex-1 flex-col items-center justify-center">
             <div total class="text-3xl">
                 {{ (stats | async)?.total_cost / 100 || 0 | currency: code }}
             </div>
@@ -37,7 +37,7 @@ import { CateringReportStateService } from './catering-report-state.service';
                 {{ 'CATERING.TOTAL_COST' | translate }}
             </div>
         </div>
-        <div item class="flex flex-col flex-1 items-center justify-center">
+        <div item class="flex flex-1 flex-col items-center justify-center">
             <div average class="text-3xl">
                 {{ (stats | async)?.avg_cost / 100 || 0 | currency: code }}
             </div>
@@ -71,7 +71,7 @@ import { CateringReportStateService } from './catering-report-state.service';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class CateringReportOverallComponent {
     public readonly stats = this._report.stats;

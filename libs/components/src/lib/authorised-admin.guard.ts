@@ -1,5 +1,12 @@
 import { Injectable } from '@angular/core';
-import { Route, UrlSegment, ActivatedRouteSnapshot, RouterStateSnapshot, UrlTree, Router } from '@angular/router';
+import {
+    Route,
+    UrlSegment,
+    ActivatedRouteSnapshot,
+    RouterStateSnapshot,
+    UrlTree,
+    Router,
+} from '@angular/router';
 import { onlineState } from '@placeos/ts-client';
 import { current_user } from '@placeos/common';
 import { first } from 'rxjs/operators';
@@ -7,19 +14,19 @@ import { first } from 'rxjs/operators';
 @Injectable({
     providedIn: 'root',
 })
-export class AuthorisedAdminGuard  {
+export class AuthorisedAdminGuard {
     constructor(private _router: Router) {}
 
     public async canActivate(
         next?: ActivatedRouteSnapshot,
-        state?: RouterStateSnapshot
+        state?: RouterStateSnapshot,
     ): Promise<boolean | UrlTree> {
         return this.checkUser();
     }
 
     public async canLoad(
         route?: Route,
-        segments?: UrlSegment[]
+        segments?: UrlSegment[],
     ): Promise<boolean> {
         return this.checkUser();
     }

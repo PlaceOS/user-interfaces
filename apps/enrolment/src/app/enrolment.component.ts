@@ -9,7 +9,7 @@ import { OrganisationService } from '@placeos/organisation';
     selector: 'app-enrolment',
     template: `
         <div class="absolute inset-0 flex flex-col bg-[#424242]">
-            <div class="w-full h-16 p-2 bg-secondary shadow z-20">
+            <div class="z-20 h-16 w-full bg-secondary p-2 shadow">
                 <img
                     auth
                     class="h-10"
@@ -18,7 +18,7 @@ import { OrganisationService } from '@placeos/organisation';
                 />
             </div>
             <div
-                class="w-full h-1/2 flex-1 relative z-10 flex flex-col items-center overflow-auto"
+                class="relative z-10 flex h-1/2 w-full flex-1 flex-col items-center overflow-auto"
             >
                 <ng-container *ngIf="!(loading | async); else load_state">
                     <ng-container [ngSwitch]="view | async">
@@ -29,7 +29,7 @@ import { OrganisationService } from '@placeos/organisation';
                             *ngSwitchCase="'guest'"
                         ></enrolment-guest-confirm>
                         <div
-                            class="bg-base-100 rounded p-4 border border-base-200 shadow m-4"
+                            class="m-4 rounded border border-base-200 bg-base-100 p-4 shadow"
                             *ngSwitchCase="'complete'"
                         >
                             <app-icon class="text-7xl text-success"
@@ -49,7 +49,7 @@ import { OrganisationService } from '@placeos/organisation';
         </div>
         <ng-template #load_state>
             <div
-                class="p-16 flex flex-col items-center justify-center space-y-2 h-full w-full text-white"
+                class="flex h-full w-full flex-col items-center justify-center space-y-2 p-16 text-white"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
                 <p>{{ loading | async }}</p>
@@ -57,7 +57,7 @@ import { OrganisationService } from '@placeos/organisation';
         </ng-template>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class EnrolmentComponent extends AsyncHandler {
     public loading = this._state.loading;

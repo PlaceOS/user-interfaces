@@ -29,7 +29,7 @@ setInterval(() => {
 
 @Pipe({
     name: 'space',
-    standalone: false
+    standalone: false,
 })
 export class SpacePipe {
     constructor(@Optional() private _org?: OrganisationService) {}
@@ -44,7 +44,7 @@ export class SpacePipe {
         const is_email = space_id?.includes('@');
         if (!space_id) return EMPTY_SPACE;
         let space = SPACE_LIST.find(
-            ({ id, email }) => id === space_id || email === space_id
+            ({ id, email }) => id === space_id || email === space_id,
         );
         if (space) return space;
         if (ATTEMPT_COUNT[space_id]) return EMPTY_SPACE;

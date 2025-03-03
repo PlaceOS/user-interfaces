@@ -31,7 +31,7 @@ describe('CateringItemListComponent', () => {
     it('should allow list available assets', () => {
         expect('[empty]').toExist();
         (spectator.inject(CateringOrderStateService).filtered_menu as any).next(
-            [{ id: '1' }] as any
+            [{ id: '1' }] as any,
         );
         spectator.detectChanges();
         expect('[empty]').not.toExist();
@@ -40,7 +40,7 @@ describe('CateringItemListComponent', () => {
 
     it('should allow selecting the asset', (done) => {
         (spectator.inject(CateringOrderStateService).filtered_menu as any).next(
-            [{ id: '1' }] as any
+            [{ id: '1' }] as any,
         );
         spectator.detectChanges();
         spectator.component.onSelect.subscribe((a) => {

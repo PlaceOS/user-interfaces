@@ -77,7 +77,7 @@ describe('MapService', () => {
         room_service.selected_space$ = of(mockSpace);
 
         spectator.service.selected_space$.subscribe((space) =>
-            expect(space).toBe(of(mockSpace))
+            expect(space).toBe(of(mockSpace)),
         );
     });
     it('should return a list of map IDs with no duplicates', async () => {
@@ -136,7 +136,7 @@ describe('MapService', () => {
     it('should contain a method to open a room tile when clicked', async () => {
         const mat_bottom_sheet = spectator.inject(MatBottomSheet);
         (mat_bottom_sheet as any).open.mockImplementation(
-            (RoomDetailsComponent) => {}
+            (RoomDetailsComponent) => {},
         );
         (mat_bottom_sheet as any).afterDismissed.mockImplementation(() => ({
             value: of(true),
@@ -145,7 +145,7 @@ describe('MapService', () => {
 
         const room_confirm_service_spy = jest.spyOn(
             room_confirm_service,
-            'handleBookEvent'
+            'handleBookEvent',
         );
 
         await spectator.service.openRoomTile(mockSpace);
@@ -158,7 +158,7 @@ describe('MapService', () => {
 
         const process_features_spy = jest.spyOn(
             spectator.service,
-            'processFeature'
+            'processFeature',
         );
 
         const available_spaces = of([mockSpace, mockSpace]);

@@ -7,19 +7,19 @@ import { formatDuration } from '@placeos/common';
 @Component({
     selector: 'report-spaces-overall',
     template: ` <div
-            class="m-4 p-4 rounded bg-base-100 border border-base-200 flex justify-center items-center space-x-2"
+            class="m-4 flex items-center justify-center space-x-2 rounded border border-base-200 bg-base-100 p-4"
         >
-            <div class="flex flex-col items-center flex-1">
+            <div class="flex flex-1 flex-col items-center">
                 <h3>{{ 'APP.CONCIERGE.REPORTS_BUSINESS_DAYS' | translate }}</h3>
                 <p>{{ (business_days | async) || 0 }}</p>
             </div>
-            <div class="flex flex-col items-center flex-1">
+            <div class="flex flex-1 flex-col items-center">
                 <h3>
                     {{ 'APP.CONCIERGE.REPORTS_TOTAL_BOOKINGS' | translate }}
                 </h3>
                 <p>{{ (total_count | async) || 0 }}</p>
             </div>
-            <div class="flex flex-col items-center flex-1">
+            <div class="flex flex-1 flex-col items-center">
                 <h3>
                     {{ 'APP.CONCIERGE.REPORTS_AVERAGE_LENGTH' | translate }}
                 </h3>
@@ -27,20 +27,20 @@ import { formatDuration } from '@placeos/common';
             </div>
         </div>
         <div
-            class="m-4 p-4 rounded bg-base-100 flex justify-center items-center space-x-2"
+            class="m-4 flex items-center justify-center space-x-2 rounded bg-base-100 p-4"
             *ngIf="has_attendance | async"
         >
-            <div class="flex-1 flex flex-col items-center justify-center">
+            <div class="flex flex-1 flex-col items-center justify-center">
                 <h3>{{ 'APP.CONCIERGE.REPORTS_NO_SHOWS' | translate }}</h3>
                 <p>{{ (no_shows | async) || 0 }}</p>
             </div>
-            <div class="flex-1 flex flex-col items-center justify-center">
+            <div class="flex flex-1 flex-col items-center justify-center">
                 <h3>
                     {{ 'APP.CONCIERGE.REPORTS_NO_SHOWS_PERCENT' | translate }}
                 </h3>
                 <p>{{ (no_show_percent | async) || 0 }}%</p>
             </div>
-            <div class="flex-1 flex flex-col items-center justify-center">
+            <div class="flex flex-1 flex-col items-center justify-center">
                 <h3>
                     {{ 'APP.CONCIERGE.REPORTS_TOTAL_ATTENDEES' | translate }}
                 </h3>
@@ -58,7 +58,7 @@ import { formatDuration } from '@placeos/common';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class ReportSpacesOverallComponent {
     public readonly business_days = this._state.options.pipe(

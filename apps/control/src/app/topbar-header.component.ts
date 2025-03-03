@@ -45,7 +45,7 @@ enum TOOLTIP {
             {{ (system | async).name }}
         </div>
         <div
-            class="flex-1 p-4 items-center justify-end space-x-2 hidden sm:flex"
+            class="hidden flex-1 items-center justify-end space-x-2 p-4 sm:flex"
         >
             <ng-container *ngFor="let item of action_list">
                 <div
@@ -77,7 +77,7 @@ enum TOOLTIP {
             icon
             matRipple
             [matMenuTriggerFor]="menu"
-            class="sm:hidden mr-2 bg-none"
+            class="mr-2 bg-none sm:hidden"
         >
             <app-icon>more_vert</app-icon>
         </button>

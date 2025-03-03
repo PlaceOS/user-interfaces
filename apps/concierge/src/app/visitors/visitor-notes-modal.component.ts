@@ -10,7 +10,7 @@ import { i18n, notifyError, notifySuccess } from '@placeos/common';
             <h2>
                 {{ 'APP.CONCIERGE.VISITORS_NOTES_HEADERS' | translate }}
                 <span
-                    class="font-medium px-2 py-1 text-sm bg-base-200 rounded ml-2"
+                    class="ml-2 rounded bg-base-200 px-2 py-1 text-sm font-medium"
                 >
                     {{ item?.asset_name }}
                 </span>
@@ -20,14 +20,14 @@ import { i18n, notifyError, notifySuccess } from '@placeos/common';
             </button>
         </header>
         <main
-            class="p-4 w-[36rem] max-h-[65vh] overflow-auto"
+            class="max-h-[65vh] w-[36rem] overflow-auto p-4"
             *ngIf="!loading; else loading_template"
         >
-            <mat-form-field appearance="outline" class="w-full no-subscript">
+            <mat-form-field appearance="outline" class="no-subscript w-full">
                 <textarea
                     matInput
                     [(ngModel)]="notes"
-                    class="resize-none h-[60vh] max-h-[64rem]"
+                    class="h-[60vh] max-h-[64rem] resize-none"
                     [placeholder]="
                         'APP.CONCIERGE.VISITORS_NOTES_HEADERS' | translate
                     "
@@ -35,7 +35,7 @@ import { i18n, notifyError, notifySuccess } from '@placeos/common';
             </mat-form-field>
         </main>
         <footer
-            class="flex justify-end space-x-2 p-2 border-t border-base-200"
+            class="flex justify-end space-x-2 border-t border-base-200 p-2"
             *ngIf="!loading"
         >
             <button btn matRipple class="w-32" (click)="save()">
@@ -45,7 +45,7 @@ import { i18n, notifyError, notifySuccess } from '@placeos/common';
         <ng-template #loading_template>
             <div
                 loading
-                class="absolute inset-0 bg-base-100 flex flex-col items-center justify-center space-y-2"
+                class="absolute inset-0 flex flex-col items-center justify-center space-y-2 bg-base-100"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
                 <p>{{ 'APP.CONCIERGE.VISITORS_NOTES_SAVING' | translate }}</p>
@@ -53,7 +53,7 @@ import { i18n, notifyError, notifySuccess } from '@placeos/common';
         </ng-template>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class VisitorNotesModalComponent {
     public item: Booking = this._data.item;

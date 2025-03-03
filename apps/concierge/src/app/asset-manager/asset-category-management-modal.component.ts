@@ -7,19 +7,19 @@ import { Observable } from 'rxjs';
     selector: 'asset-category-management-modal',
     template: `
         <header
-            class="sticky top-0 p-2 m-2 w-[calc(100%-1rem)] border-none z-10 bg-base-200 rounded"
+            class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded border-none bg-base-200 p-2"
         >
-            <h2 class="text-xl font-medium px-2">
+            <h2 class="px-2 text-xl font-medium">
                 {{ 'APP.CONCIERGE.ASSETS_MANAGE_CATEGORIES' | translate }}
             </h2>
             <button icon matRipple mat-dialog-close>
                 <app-icon>close</app-icon>
             </button>
         </header>
-        <main class="min-w-[28rem] max-h-[65vh] h-[32rem]">
+        <main class="h-[32rem] max-h-[65vh] min-w-[28rem]">
             @for (category of list | async; track category) {
                 <div
-                    class="flex items-center space-x-2 hover:bg-base-200:bg-base-300 p-2 m-2 rounded border border-base-200"
+                    class="hover:bg-base-200:bg-base-300 m-2 flex items-center space-x-2 rounded border border-base-200 p-2"
                     *ngIf="category.id"
                 >
                     <div class="flex-1 truncate px-2">{{ category.name }}</div>
@@ -29,7 +29,7 @@ import { Observable } from 'rxjs';
                         [matTooltip]="
                             'APP.CONCIERGE.ASSETS_CATEGORY_EDIT' | translate
                         "
-                        class="border border-secondary text-secondary rounded h-12 w-12"
+                        class="h-12 w-12 rounded border border-secondary text-secondary"
                         (click)="edit(category)"
                     >
                         <app-icon>edit</app-icon>
@@ -40,7 +40,7 @@ import { Observable } from 'rxjs';
                         [matTooltip]="
                             'APP.CONCIERGE.ASSETS_CATEGORY_REMOVE' | translate
                         "
-                        class="border border-error text-error rounded h-12 w-12"
+                        class="h-12 w-12 rounded border border-error text-error"
                         (click)="remove(category)"
                     >
                         <app-icon>delete</app-icon>
@@ -51,7 +51,7 @@ import { Observable } from 'rxjs';
         <button
             btn
             matRipple
-            class="flex items-center justify-center space-x-2 w-[calc(100%-1rem)] m-2"
+            class="m-2 flex w-[calc(100%-1rem)] items-center justify-center space-x-2"
             (click)="edit()"
         >
             <div class="truncate pl-2">
@@ -61,7 +61,7 @@ import { Observable } from 'rxjs';
         </button>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class AssetCategoryManagementModalComponent {
     public readonly changed = new EventEmitter();

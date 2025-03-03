@@ -9,7 +9,7 @@ import { notifyError, uploadFile } from '@placeos/common';
             icon
             matRipple
             [disabled]="uploading"
-            class="bg-secondary text-secondary-content rounded h-12 w-12"
+            class="h-12 w-12 rounded bg-secondary text-secondary-content"
             [title]="value"
         >
             <app-icon *ngIf="!uploading">cloud_upload</app-icon>
@@ -33,7 +33,7 @@ import { notifyError, uploadFile } from '@placeos/common';
             multi: true,
         },
     ],
-    standalone: false
+    standalone: false,
 })
 export class UploadButtonComponent {
     @Input() public type: string = 'image';

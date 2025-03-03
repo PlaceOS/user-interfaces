@@ -18,19 +18,19 @@ import { parseSelectionAnswers } from './survey-helper';
     ],
     template: `
         <div
-            class="flex flex-col min-h-0 max-h-[22rem] h-full w-full overflow-y-auto relative p-2"
+            class="relative flex h-full max-h-[22rem] min-h-0 w-full flex-col overflow-y-auto p-2"
         >
-            <div class="flex flex-1 justify-end mx-4">
+            <div class="mx-4 flex flex-1 justify-end">
                 <span>{{ (data$ | async)?.length || 0 }} answers</span>
             </div>
             <ng-container *ngIf="chart_data$ | async as data">
                 <div
                     *ngFor="let d of data"
-                    class="flex flex-1 mx-4 pt-2 pb-3 space-x-4"
+                    class="mx-4 flex flex-1 space-x-4 pb-3 pt-2"
                 >
                     <div class="flex flex-1 flex-col space-y-1">
                         <span>{{ d.name }}</span>
-                        <div class="progress-bar bg-base-200 h-1">
+                        <div class="progress-bar h-1 bg-base-200">
                             <span
                                 class="progress-bar-fill h-1 rounded-lg"
                                 [ngClass]="{
@@ -39,13 +39,13 @@ import { parseSelectionAnswers } from './survey-helper';
                                         d.percentage > 25 && d.percentage <= 50,
                                     'bg-info':
                                         d.percentage > 50 && d.percentage <= 75,
-                                    'bg-success': d.percentage > 75
+                                    'bg-success': d.percentage > 75,
                                 }"
                                 [ngStyle]="{ width: d.percentage + '%' }"
                             ></span>
                         </div>
                     </div>
-                    <div class="flex items-center w-12">
+                    <div class="flex w-12 items-center">
                         <span class="text-2xl font-thin">{{
                             d.percentage / 100 | percent
                         }}</span>
@@ -54,16 +54,16 @@ import { parseSelectionAnswers } from './survey-helper';
             </ng-container>
         </div>
     `,
-    standalone: false
+    standalone: false,
 })
 export class SelectionWidgetComponent extends BaseWidget {
     chart_data$ = this.data$.pipe(
         map((data: UISurveyAnswer[]) =>
             parseSelectionAnswers(
                 data,
-                this.question?.choices?.map((_) => _.text) || []
-            )
-        )
+                this.question?.choices?.map((_) => _.text) || [],
+            ),
+        ),
     );
 
     constructor() {

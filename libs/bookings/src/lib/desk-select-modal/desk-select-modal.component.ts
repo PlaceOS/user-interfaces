@@ -14,14 +14,14 @@ export const FAV_DESK_KEY = 'favourite_desks';
     styles: [],
     template: `
         <div
-            class="w-[100vw] h-[100vh] sm:relative sm:w-auto sm:h-auto flex flex-col bg-base-100"
+            class="flex h-[100vh] w-[100vw] flex-col bg-base-100 sm:relative sm:h-auto sm:w-auto"
         >
-            <header class="flex items-center space-x-4 w-full">
+            <header class="flex w-full items-center space-x-4">
                 <button icon mat-dialog-close class="bg-base-200">
                     <app-icon>close</app-icon>
                 </button>
                 <h3>{{ 'BOOKINGS.DESK_FIND' | translate }}</h3>
-                <div class="hidden sm:flex items-center justify-end flex-1">
+                <div class="hidden flex-1 items-center justify-end sm:flex">
                     <button
                         btn
                         matRipple
@@ -36,7 +36,7 @@ export const FAV_DESK_KEY = 'favourite_desks';
                         btn
                         matRipple
                         name="view-desk-list"
-                        class="rounded-r rounded-l-none"
+                        class="rounded-l-none rounded-r"
                         [class.inverse]="view !== 'list'"
                         (click)="view = 'list'"
                     >
@@ -45,14 +45,14 @@ export const FAV_DESK_KEY = 'favourite_desks';
                 </div>
             </header>
             <main
-                class="flex items-center divide-x divide-base-200 h-[65vh] w-[calc(100vw-4rem)] overflow-hidden"
+                class="flex h-[65vh] w-[calc(100vw-4rem)] items-center divide-x divide-base-200 overflow-hidden"
             >
                 <desk-filters
-                    class="h-full hidden sm:flex max-w-[20rem] sm:h-[65vh] sm:max-h-full"
+                    class="hidden h-full max-w-[20rem] sm:flex sm:h-[65vh] sm:max-h-full"
                     [hide_levels]="view !== 'list'"
                 ></desk-filters>
                 <div
-                    class="flex flex-col items-center flex-1 w-1/2 h-full sm:h-[65vh]"
+                    class="flex h-full w-1/2 flex-1 flex-col items-center sm:h-[65vh]"
                 >
                     <desk-filters-display
                         class="w-full border-b border-base-200"
@@ -65,12 +65,12 @@ export const FAV_DESK_KEY = 'favourite_desks';
                         [favorites]="favorites"
                         (toggleFav)="toggleFavourite($event)"
                         (onSelect)="displayed = $event"
-                        class="flex-1 h-1/2 bg-base-200"
+                        class="h-1/2 flex-1 bg-base-200"
                     ></desk-list>
                 </div>
                 <desk-details
                     [desk]="displayed"
-                    class="h-full w-full sm:h-[65vh] absolute sm:relative sm:flex sm:max-w-[20rem] z-20 bg-base-100 block"
+                    class="absolute z-20 block h-full w-full bg-base-100 sm:relative sm:flex sm:h-[65vh] sm:max-w-[20rem]"
                     [class.hidden]="!displayed"
                     [class.inset-0]="displayed"
                     [active]="selected_ids.includes(displayed?.id)"
@@ -82,13 +82,13 @@ export const FAV_DESK_KEY = 'favourite_desks';
                 ></desk-details>
             </main>
             <footer
-                class="flex sm:hidden flex-col-reverse items-center justify-end px-2 pt-2 pb-[5.5rem] border-t border-base-200 w-full"
+                class="flex w-full flex-col-reverse items-center justify-end border-t border-base-200 px-2 pb-[5.5rem] pt-2 sm:hidden"
             >
                 <button
                     btn
                     matRipple
                     name="desk-return"
-                    class="inverse sm:hidden w-full"
+                    class="inverse w-full sm:hidden"
                     *ngIf="displayed"
                     (click)="displayed = null"
                 >
@@ -100,13 +100,13 @@ export const FAV_DESK_KEY = 'favourite_desks';
                     name="save-desks"
                     [mat-dialog-close]="selected"
                     [class.mb-2]="displayed"
-                    class="w-full sm:w-32 sm:mb-0"
+                    class="w-full sm:mb-0 sm:w-32"
                 >
                     {{ 'COMMON.VIEW_LIST' | translate }}
                 </button>
             </footer>
             <footer
-                class="hidden sm:flex items-center justify-between p-2 border-t border-base-200 w-full"
+                class="hidden w-full items-center justify-between border-t border-base-200 p-2 sm:flex"
             >
                 <button
                     btn
@@ -122,7 +122,7 @@ export const FAV_DESK_KEY = 'favourite_desks';
                         </div>
                     </div>
                 </button>
-                <p class="opacity-60 text-sm">
+                <p class="text-sm opacity-60">
                     {{
                         'BOOKINGS.DESK_ADDED_COUNT'
                             | translate: { count: selected.length }
@@ -154,7 +154,7 @@ export const FAV_DESK_KEY = 'favourite_desks';
         </div>
         <ng-template #map_view>
             <desk-map
-                class="flex-1 h-1/2 w-full"
+                class="h-1/2 w-full flex-1"
                 [is_displayed]="!!displayed"
                 [active]="displayed?.id"
                 (onSelect)="displayed = $event"
@@ -162,7 +162,7 @@ export const FAV_DESK_KEY = 'favourite_desks';
             </desk-map>
         </ng-template>
     `,
-    standalone: false
+    standalone: false,
 })
 export class DeskSelectModalComponent {
     public displayed?: BookingAsset;

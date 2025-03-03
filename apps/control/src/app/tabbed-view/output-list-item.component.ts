@@ -10,18 +10,18 @@ import { ICON_MAP } from '../ui/output-display.component';
     template: `
         <button
             matRipple
-            class="m-2 rounded bg-base-100 shadow h-40 w-full flex-1 border p-2"
+            class="m-2 h-40 w-full flex-1 rounded border bg-base-100 p-2 shadow"
             [class.border-base-200]="!active"
             [class.border-primary]="active"
             *ngIf="item || true"
             (click)="setActiveOutput()"
         >
             <div
-                class="bg-info rounded w-full h-full relative flex flex-col items-center justify-center"
+                class="relative flex h-full w-full flex-col items-center justify-center rounded bg-info"
                 [class.!bg-base-300]="!(input | async)"
             >
                 <div
-                    class="absolute top-1 left-1 p-1 text-sm rounded bg-base-300 text-white"
+                    class="absolute left-1 top-1 rounded bg-base-300 p-1 text-sm text-white"
                     [class.!bg-primary]="active"
                 >
                     {{ item?.name || 'Display' }}
@@ -34,7 +34,7 @@ import { ICON_MAP } from '../ui/output-display.component';
                     }}
                 </app-icon>
                 <span
-                    class="text-white text-sm"
+                    class="text-sm text-white"
                     [class.opacity-60]="!(input | async)"
                 >
                     {{

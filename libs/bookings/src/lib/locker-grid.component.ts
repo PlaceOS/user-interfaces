@@ -7,7 +7,7 @@ import { Locker, LockerBank } from './locker.class';
     selector: 'locker-grid',
     template: `
         <div
-            class="flex-1 grid gap-2 p-2"
+            class="grid flex-1 gap-2 p-2"
             [style.width]="columns * 2.5 + 'rem'"
             [style.grid-template-columns]="'repeat(' + columns + ', 5rem)'"
             [style.grid-template-rows]="'repeat(' + bank?.height + ', 5rem)'"
@@ -15,7 +15,7 @@ import { Locker, LockerBank } from './locker.class';
             <button
                 *ngFor="let locker of bank?.lockers || []"
                 matRipple
-                class="relative border border-base-200 rounded overflow-hidden"
+                class="relative overflow-hidden rounded border border-base-200"
                 [class.opacity-60]="selected && selected !== locker.id"
                 [style.grid-column-start]="locker.position[0] + 1"
                 [style.grid-row-start]="locker.position[1] + 1"
@@ -32,28 +32,28 @@ import { Locker, LockerBank } from './locker.class';
             >
                 <div
                     handle
-                    class="absolute top-1/2 -translate-y-1/2 left-2 w-1 h-6 bg-base-400 rounded opacity-60"
+                    class="absolute left-2 top-1/2 h-6 w-1 -translate-y-1/2 rounded bg-base-400 opacity-60"
                 ></div>
                 <div
                     vent
-                    class="absolute left-1/2 -translate-x-1/2 top-2 w-12 h-1 bg-base-400 rounded-t opacity-60"
+                    class="absolute left-1/2 top-2 h-1 w-12 -translate-x-1/2 rounded-t bg-base-400 opacity-60"
                 ></div>
                 <div
                     vent
-                    class="absolute left-1/2 -translate-x-1/2 top-4 w-12 h-1 bg-base-400 rounded-t opacity-60"
+                    class="absolute left-1/2 top-4 h-1 w-12 -translate-x-1/2 rounded-t bg-base-400 opacity-60"
                 ></div>
                 <div
                     vent
-                    class="absolute left-1/2 -translate-x-1/2 top-6 w-12 h-1 bg-base-400 rounded-t opacity-60"
+                    class="absolute left-1/2 top-6 h-1 w-12 -translate-x-1/2 rounded-t bg-base-400 opacity-60"
                 ></div>
                 <div
-                    class="absolute left-1/2 -translate-x-1/2 top-8 text-[0.6rem] font-medium text-base-content opacity-60"
+                    class="absolute left-1/2 top-8 -translate-x-1/2 text-[0.6rem] font-medium text-base-content opacity-60"
                 >
                     {{ locker.name }}
                 </div>
 
                 <div
-                    class="absolute inset-0 hover:bg-base-content opacity-10"
+                    class="absolute inset-0 opacity-10 hover:bg-base-content"
                 ></div>
             </button>
         </div>
@@ -72,7 +72,7 @@ import { Locker, LockerBank } from './locker.class';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class LockerGridComponent {
     @Input() public show_name = true;

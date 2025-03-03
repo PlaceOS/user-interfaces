@@ -14,8 +14,8 @@ export class TimetableStateService extends AsyncHandler {
             map((_) =>
                 (_ || [])
                     .map((b) => new CalendarEvent(b))
-                    .filter((_) => isSameDay(Date.now(), _.date))
-            )
+                    .filter((_) => isSameDay(Date.now(), _.date)),
+            ),
         );
     }
 

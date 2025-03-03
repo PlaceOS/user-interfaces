@@ -32,7 +32,7 @@ import {
     template: `
         <div class="flex flex-col space-y-2" [formGroup]="form">
             <div class="flex items-center space-x-4">
-                <div class="flex flex-col flex-1">
+                <div class="flex flex-1 flex-col">
                     <label for="zone"
                         >{{ 'COMMON.ZONE' | translate }}<span>*</span>:</label
                     >
@@ -53,7 +53,7 @@ import {
                         }}</mat-error>
                     </mat-form-field>
                 </div>
-                <div class="flex flex-col flex-1">
+                <div class="flex flex-1 flex-col">
                     <label for="name"
                         >{{ 'FORM.NAME' | translate }}<span>*</span></label
                     >
@@ -71,7 +71,7 @@ import {
                 </div>
             </div>
             <div class="flex items-center space-x-4 pb-4" formGroupName="rules">
-                <div class="flex flex-col flex-1">
+                <div class="flex flex-1 flex-col">
                     <settings-toggle
                         formControlName="hidden"
                         [name]="'BOOKINGS.PREVENT' | translate"
@@ -79,7 +79,7 @@ import {
                     >
                     </settings-toggle>
                 </div>
-                <div class="flex flex-col flex-1">
+                <div class="flex flex-1 flex-col">
                     <settings-toggle
                         *ngIf="!form.value.rules.hidden"
                         formControlName="auto_approve"
@@ -192,7 +192,7 @@ import {
                 formGroupName="conditions"
             >
                 <div
-                    class="flex flex-col flex-1"
+                    class="flex flex-1 flex-col"
                     *ngIf="available_conditions.includes('min_length')"
                 >
                     <label for="min_length">
@@ -212,7 +212,7 @@ import {
                     ></a-duration-field>
                 </div>
                 <div
-                    class="flex flex-col flex-1"
+                    class="flex flex-1 flex-col"
                     *ngIf="available_conditions.includes('max_length')"
                 >
                     <label for="max_length">
@@ -340,7 +340,7 @@ import {
                         ) | translate
                     }}
                 </label>
-                <div class="flex items-center space-x-2 w-full">
+                <div class="flex w-full items-center space-x-2">
                     <mat-form-field appearance="outline" class="flex-1">
                         <mat-select
                             name="start-time"

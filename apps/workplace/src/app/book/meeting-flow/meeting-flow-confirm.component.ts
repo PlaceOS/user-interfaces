@@ -37,7 +37,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
             <mat-spinner diameter="32" *ngIf="loading | async"></mat-spinner>
         </header>
         <section period class="flex space-x-1 px-2">
-            <app-icon class="text-success mt-1">done</app-icon>
+            <app-icon class="mt-1 text-success">done</app-icon>
             <div details class="leading-6">
                 <h3>{{ event.title || 'Meeting Details' }}</h3>
                 <div class="flex items-center space-x-2">
@@ -67,7 +67,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
             class="flex space-x-1 px-2"
             *ngIf="event.attendees?.length"
         >
-            <app-icon class="text-success mt-1">done</app-icon>
+            <app-icon class="mt-1 text-success">done</app-icon>
             <div details class="leading-6">
                 <h3>
                     {{
@@ -88,7 +88,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
             </div>
         </section>
         <section spaces class="flex space-x-1 px-2" *ngIf="space?.id">
-            <app-icon class="text-success mt-1">done</app-icon>
+            <app-icon class="mt-1 text-success">done</app-icon>
             <div details class="leading-6">
                 <h3>{{ 'APP.WORKPLACE.MEETING_BOOKED_ROOM' | translate }}</h3>
                 <ng-container *ngFor="let s of event.resources">
@@ -106,7 +106,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                 </div>
             </div>
         </section>
-        <footer class="p-2 w-full border-t border-base-200 mt-4">
+        <footer class="mt-4 w-full border-t border-base-200 p-2">
             <button
                 btn
                 name="confirm-meeting"

@@ -6,7 +6,7 @@ import { BaseQuestionComponent } from './base-question.component';
     selector: 'multi-line-text',
     styles: [],
     template: `
-        <div class="flex flex-col w-full" *ngIf="preview">
+        <div class="flex w-full flex-col" *ngIf="preview">
             <mat-form-field appearance="outline">
                 <textarea matInput cols="30" rows="5"></textarea>
                 <mat-hint>{{
@@ -15,7 +15,7 @@ import { BaseQuestionComponent } from './base-question.component';
             </mat-form-field>
         </div>
     `,
-    standalone: false
+    standalone: false,
 })
 export class MultiLineTextComponent extends BaseQuestionComponent {
     constructor() {

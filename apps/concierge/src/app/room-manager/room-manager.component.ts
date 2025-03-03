@@ -4,9 +4,9 @@ import { Component } from '@angular/core';
     selector: '[app-room-manager]',
     template: `
         <sidebar></sidebar>
-        <main class="relative overflow-hidden flex flex-col">
+        <main class="relative flex flex-col overflow-hidden">
             <room-manager-topbar class="block w-full"></room-manager-topbar>
-            <room-list class="block w-full relative flex-1 h-1/2"></room-list>
+            <room-list class="relative block h-1/2 w-full flex-1"></room-list>
         </main>
     `,
     styles: [
@@ -31,6 +31,6 @@ import { Component } from '@angular/core';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class RoomManagerComponent {}

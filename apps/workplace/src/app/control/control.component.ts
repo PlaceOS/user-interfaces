@@ -5,9 +5,9 @@ import { SettingsService } from '@placeos/common';
     selector: '[app-control]',
     template: `
         <topbar></topbar>
-        <div class="flex-1 flex sm:flex-row flex-col-reverse h-1/2">
+        <div class="flex h-1/2 flex-1 flex-col-reverse sm:flex-row">
             <main
-                class="relative z-0 flex flex-col flex-1 h-1/2 sm:h-auto overflow-hidden"
+                class="relative z-0 flex h-1/2 flex-1 flex-col overflow-hidden sm:h-auto"
             >
                 <a-control-space-list></a-control-space-list>
             </main>
@@ -25,7 +25,7 @@ import { SettingsService } from '@placeos/common';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class ControlComponent implements OnInit {
     constructor(private _settings: SettingsService) {}

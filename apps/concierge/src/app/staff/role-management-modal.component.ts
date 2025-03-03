@@ -10,25 +10,25 @@ import { filter, map, shareReplay, switchMap, take } from 'rxjs/operators';
     selector: 'role-management-modal',
     template: `
         <header
-            class="sticky top-0 p-2 m-2 w-[calc(100%-1rem)] border-none z-10 bg-base-200 rounded"
+            class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded border-none bg-base-200 p-2"
         >
-            <h2 class="text-xl font-medium px-2">
+            <h2 class="px-2 text-xl font-medium">
                 {{ 'APP.CONCIERGE.CONTACTS_ROLES_MANAGE' | translate }}
             </h2>
             <button icon matRipple mat-dialog-close *ngIf="!loading">
                 <app-icon>close</app-icon>
             </button>
         </header>
-        <main class="overflow-y-auto min-w-[28rem] max-h-[65vh] h-[32rem]">
+        <main class="h-[32rem] max-h-[65vh] min-w-[28rem] overflow-y-auto">
             <ng-container *ngFor="let role of roles | async">
                 <div
-                    class="flex items-center space-x-2 hover:bg-base-200:bg-base-300 p-2 m-2 rounded border border-base-200"
+                    class="hover:bg-base-200:bg-base-300 m-2 flex items-center space-x-2 rounded border border-base-200 p-2"
                 >
                     <div class="flex-1 truncate px-2">{{ role }}</div>
                     <button
                         icon
                         matRipple
-                        class="border border-secondary text-secondary rounded h-12 w-12"
+                        class="h-12 w-12 rounded border border-secondary text-secondary"
                         (click)="active = role; role_name = role"
                         customTooltip
                         [content]="role_form"
@@ -38,7 +38,7 @@ import { filter, map, shareReplay, switchMap, take } from 'rxjs/operators';
                     <button
                         icon
                         matRipple
-                        class="text-error border border-error rounded h-12 w-12"
+                        class="h-12 w-12 rounded border border-error text-error"
                         (click)="removeRole(role)"
                     >
                         <app-icon>delete</app-icon>
@@ -50,7 +50,7 @@ import { filter, map, shareReplay, switchMap, take } from 'rxjs/operators';
             <button
                 btn
                 matRipple
-                class="flex items-center justify-center space-x-2 w-[calc(100%-1rem)] m-2"
+                class="m-2 flex w-[calc(100%-1rem)] items-center justify-center space-x-2"
                 customTooltip
                 (click)="active = ''; role_name = ''"
                 [content]="role_form"
@@ -62,7 +62,7 @@ import { filter, map, shareReplay, switchMap, take } from 'rxjs/operators';
             </button>
         </footer>
         <ng-template #role_form>
-            <div class="bg-base-100 p-4 rounded ">
+            <div class="rounded bg-base-100 p-4">
                 <mat-form-field appearance="outline">
                     <input
                         matInput
@@ -79,7 +79,7 @@ import { filter, map, shareReplay, switchMap, take } from 'rxjs/operators';
         </ng-template>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class RoleManagementModalComponent {
     private _changes = new BehaviorSubject(0);

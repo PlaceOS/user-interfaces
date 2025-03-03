@@ -62,14 +62,14 @@ import { MAP_FEATURE_DATA } from '@placeos/components';
                 </defs>
             </svg>
             <div
-                class="absolute top-0 left-0 w-full h-3/4 flex items-center justify-center"
+                class="absolute left-0 top-0 flex h-3/4 w-full items-center justify-center"
             >
                 <div
-                    class="relative z-10 h-4 w-4 rounded-full bg-base-100 border-2 border-[#0B421D]"
+                    class="relative z-10 h-4 w-4 rounded-full border-2 border-[#0B421D] bg-base-100"
                     *ngIf="!selected"
                 ></div>
                 <app-icon
-                    class="relative text-white z-10 text-2xl"
+                    class="relative z-10 text-2xl text-white"
                     *ngIf="selected"
                 >
                     done
@@ -78,7 +78,7 @@ import { MAP_FEATURE_DATA } from '@placeos/components';
         </div>
     `,
     styles: [],
-    standalone: false
+    standalone: false,
 })
 export class ParkingSpaceLocationPinComponent {
     public get selected() {

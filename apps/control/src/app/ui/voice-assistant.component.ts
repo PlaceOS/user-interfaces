@@ -9,14 +9,14 @@ import { ControlStateService } from '../control-state.service';
     template: `
         <ng-container *ngIf="available | async">
             <div
-                class="h-12 w-12 rounded-full m-4 flex items-center justify-center overflow-visible"
+                class="m-4 flex h-12 w-12 items-center justify-center overflow-visible rounded-full"
                 [class.bg-base-400]="!(active | async)"
                 [class.bg-success]="active | async"
                 [class.bg-error]="error.speech_recognition"
             >
                 <span
                     *ngIf="active | async"
-                    class="animate-ping absolute inline-flex h-10 w-10 rounded-full bg-success opacity-75"
+                    class="absolute inline-flex h-10 w-10 animate-ping rounded-full bg-success opacity-75"
                 ></span>
                 <app-icon class="text-2xl">{{
                     error.speech_recognition ? 'mic_off' : 'mic'
@@ -28,14 +28,14 @@ import { ControlStateService } from '../control-state.service';
                 ></button>
             </div>
             <div
-                class="absolute max-w-[30vw] text-xs bg-info text-info-content top-1/2 left-2 -translate-x-full -translate-y-1/2 rounded-xl shadow p-2"
+                class="absolute left-2 top-1/2 max-w-[30vw] -translate-x-full -translate-y-1/2 rounded-xl bg-info p-2 text-xs text-info-content shadow"
                 *ngIf="(active | async) && (progress | async)"
             >
-                <div class=" flex items-center space-x-2">
+                <div class="flex items-center space-x-2">
                     <app-icon class="text-2xl">{{
                         icons[(progress | async)?.function] || 'info'
                     }}</app-icon>
-                    <p class="text-sm truncate pr-4">
+                    <p class="truncate pr-4 text-sm">
                         {{
                             (progress | async)?.message ||
                                 (progress | async)?.function ||
@@ -56,7 +56,7 @@ import { ControlStateService } from '../control-state.service';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class VoiceAssistantComponent {
     @Input() public system_id: string;

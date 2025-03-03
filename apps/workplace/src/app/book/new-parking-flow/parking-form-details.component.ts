@@ -8,8 +8,8 @@ import { addDays, endOfDay } from 'date-fns';
     selector: 'parking-form-details',
     template: `
         <div *ngIf="form" [formGroup]="form">
-            <div class="flex items-center flex-wrap sm:space-x-2">
-                <div class="flex-1 min-w-[256px]">
+            <div class="flex flex-wrap items-center sm:space-x-2">
+                <div class="min-w-[256px] flex-1">
                     <label for="title">
                         {{ 'RESOURCE.BUILDING' | translate }}<span>*</span>
                     </label>
@@ -30,8 +30,8 @@ import { addDays, endOfDay } from 'date-fns';
                     </mat-form-field>
                 </div>
             </div>
-            <div class="flex items-center flex-wrap sm:space-x-2">
-                <div class="flex-1 min-w-[256px]">
+            <div class="flex flex-wrap items-center sm:space-x-2">
+                <div class="min-w-[256px] flex-1">
                     <label for="title">
                         {{ 'FORM.TITLE' | translate }}<span>*</span>
                     </label>
@@ -47,7 +47,7 @@ import { addDays, endOfDay } from 'date-fns';
                         }}</mat-error>
                     </mat-form-field>
                 </div>
-                <div class="flex-1 min-w-[256px] relative">
+                <div class="relative min-w-[256px] flex-1">
                     <label for="date">
                         {{ 'FORM.DATE' | translate }}<span>*</span>
                     </label>
@@ -72,7 +72,7 @@ import { addDays, endOfDay } from 'date-fns';
                 class="flex items-center space-x-2"
                 *ngIf="!form.value.all_day"
             >
-                <div class="flex-1 w-1/3">
+                <div class="w-1/3 flex-1">
                     <label for="start-time"
                         >{{ 'FORM.TIME_START' | translate
                         }}<span>*</span></label
@@ -86,7 +86,7 @@ import { addDays, endOfDay } from 'date-fns';
                         [timezone]="timezone"
                     ></a-time-field>
                 </div>
-                <div class="flex-1 w-1/3 relative">
+                <div class="relative w-1/3 flex-1">
                     <label for="end-time">
                         {{ 'FORM.TIME_START' | translate }}<span>*</span>
                     </label>
@@ -101,7 +101,7 @@ import { addDays, endOfDay } from 'date-fns';
                     </a-duration-field>
                 </div>
             </div>
-            <div *ngIf="can_book_for_others" class="w-full flex flex-col">
+            <div *ngIf="can_book_for_others" class="flex w-full flex-col">
                 <label for="host">
                     {{ 'FORM.HOST' | translate }}<span>*</span>
                 </label>

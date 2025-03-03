@@ -11,17 +11,17 @@ import { combineLatest } from 'rxjs';
 @Component({
     selector: 'room-manager-topbar',
     template: `
-        <div class="flex items-center px-8 pt-4 space-x-2">
+        <div class="flex items-center space-x-2 px-8 pt-4">
             <h2 class="text-2xl font-medium">
                 {{ 'APP.CONCIERGE.ROOMS_HEADER' | translate }}
             </h2>
-            <div class="flex-1 w-2"></div>
+            <div class="w-2 flex-1"></div>
             <searchbar (modelChange)="setSearch($event)"></searchbar>
             <button btn (click)="newRoom()" class="w-40">
                 {{ 'APP.CONCIERGE.ROOMS_ADD' | translate }}
             </button>
         </div>
-        <div class="flex items-center bg-base-100 h-20 px-8 space-x-2">
+        <div class="flex h-20 items-center space-x-2 bg-base-100 px-8">
             <mat-form-field appearance="outline" class="no-subscript w-60">
                 <mat-select
                     [ngModel]="(filters | async)?.zones"
@@ -45,12 +45,12 @@ import { combineLatest } from 'rxjs';
                     </mat-option>
                 </mat-select>
             </mat-form-field>
-            <div class="flex-1 w-2"></div>
+            <div class="w-2 flex-1"></div>
             <button
                 btn
                 icon
                 matRipple
-                class="bg-secondary text-secondary-content rounded h-12 w-12"
+                class="h-12 w-12 rounded bg-secondary text-secondary-content"
                 (click)="manageRestrictions()"
                 [matTooltip]="'APP.CONCIERGE.ROOMS_BOOKING_RULES' | translate"
             >
@@ -65,7 +65,7 @@ import { combineLatest } from 'rxjs';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class RoomManagerTopbarComponent extends AsyncHandler implements OnInit {
     /** List of levels for the active building */

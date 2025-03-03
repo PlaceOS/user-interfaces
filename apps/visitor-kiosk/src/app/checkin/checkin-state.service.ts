@@ -106,7 +106,7 @@ export class CheckinStateService {
         const form = this._form.getValue();
         if (!guest || !form) return;
         const booking = this._booking.getValue() || guest.extension_data.event;
-        if (!booking || this.metadata) return;
+        if (!booking || this.metadata || !form.value) return;
         const updated_booking = await updateBooking(
             booking.id,
             new Booking({

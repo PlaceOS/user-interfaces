@@ -17,7 +17,7 @@ const routes: Routes = [
         canLoad: [AuthorisedUserGuard],
         loadChildren: () =>
             import('./dashboard/dashboard.module').then(
-                (m) => m.DashboardModule
+                (m) => m.DashboardModule,
             ),
     },
     {
@@ -54,7 +54,7 @@ const routes: Routes = [
         canLoad: [AuthorisedUserGuard],
         loadChildren: () =>
             import('./directory/directory.module').then(
-                (m) => m.DirectoryModule
+                (m) => m.DirectoryModule,
             ),
     },
     {
@@ -63,7 +63,7 @@ const routes: Routes = [
         canLoad: [AuthorisedUserGuard],
         loadChildren: () =>
             import('./new-schedule/schedule.module').then(
-                (m) => m.AppScheduleModule
+                (m) => m.AppScheduleModule,
             ),
     },
     {
@@ -72,7 +72,7 @@ const routes: Routes = [
         canLoad: [AuthorisedUserGuard],
         loadChildren: () =>
             import('./schedule/schedule.module').then(
-                (m) => m.AppScheduleModule
+                (m) => m.AppScheduleModule,
             ),
     },
     {
@@ -81,7 +81,7 @@ const routes: Routes = [
         canLoad: [AuthorisedUserGuard],
         loadChildren: () =>
             import('./events/group-events.module').then(
-                (m) => m.GroupEventsModule
+                (m) => m.GroupEventsModule,
             ),
     },
     { path: '**', redirectTo: '-', pathMatch: 'full' },

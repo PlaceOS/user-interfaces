@@ -11,17 +11,17 @@ import { map } from 'rxjs/operators';
             <button
                 icon
                 matRipple
-                class="bg-base-100 rounded-full border border-base-300 shadow"
+                class="rounded-full border border-base-300 bg-base-100 shadow"
                 (click)="toggleChat()"
             >
                 <app-icon>chat</app-icon>
             </button>
             <div
-                class="absolute bottom-2 right-2 bg-base-200 rounded-xl border border-base-300 shadow overflow-hidden w-[40rem] max-w-[calc(100vw-1rem)]"
+                class="absolute bottom-2 right-2 w-[40rem] max-w-[calc(100vw-1rem)] overflow-hidden rounded-xl border border-base-300 bg-base-200 shadow"
                 *ngIf="show"
             >
                 <div
-                    class="flex items-center justify-between bg-base-100 w-full p-2 border-b border-base-300"
+                    class="flex w-full items-center justify-between border-b border-base-300 bg-base-100 p-2"
                 >
                     <h3 class="pl-4">
                         {{ 'APP.WORKPLACE.CHAT_TITLE' | translate }}
@@ -32,7 +32,7 @@ import { map } from 'rxjs/operators';
                 </div>
                 <div class="h-[32rem] max-h-[60vh] overflow-auto" #container>
                     <div
-                        class="w-full flex flex-col items-center justify-center p-8 space-y-2"
+                        class="flex w-full flex-col items-center justify-center space-y-2 p-8"
                     >
                         <app-icon class="text-8xl">forum</app-icon>
                         <p class="text-center text-xl">
@@ -45,13 +45,13 @@ import { map } from 'rxjs/operators';
                         </p>
                     </div>
                     <div
-                        class="m-2 bg-base-100 border-base-300 p-4 rounded shadow text-sm"
+                        class="m-2 rounded border-base-300 bg-base-100 p-4 text-sm shadow"
                         *ngIf="hint | async"
                     >
                         {{ hint | async }}
                     </div>
                     <div
-                        class="flex flex-col m-2"
+                        class="m-2 flex flex-col"
                         *ngFor="let message of messages | async"
                         [class.pr-4]="message.user_id !== user.id"
                         [class.pl-4]="message.user_id === user.id"
@@ -62,29 +62,29 @@ import { map } from 'rxjs/operators';
                     >
                         <div class="flex items-center space-x-2">
                             <div
-                                class="text-sm text-base-content opacity-60 px-2 py-1"
+                                class="px-2 py-1 text-sm text-base-content opacity-60"
                                 *ngIf="message.user_id !== user.id"
                             >
                                 {{ 'APP.WORKPLACE.CHAT_ASSISTANT' | translate }}
                             </div>
                             <div
-                                class="text-xs  text-base-content opacity-40 px-2 py-1"
+                                class="px-2 py-1 text-xs text-base-content opacity-40"
                             >
                                 {{ message.timestamp + offset | dateFrom }}
                             </div>
                         </div>
                         <div
                             message
-                            class="bg-base-100 border-base-300 p-4 rounded shadow text-sm markdown selectable"
+                            class="markdown selectable rounded border-base-300 bg-base-100 p-4 text-sm shadow"
                             [innerHTML]="message.content | sanitize"
                         ></div>
                     </div>
                     <div class="p-4" *ngIf="progress | async">
                         <button
-                            class="block p-2 rounded border-base-300 bg-info text-info-content w-full"
+                            class="block w-full rounded border-base-300 bg-info p-2 text-info-content"
                             (click)="show_info = !show_info"
                         >
-                            <div class=" flex items-center space-x-2">
+                            <div class="flex items-center space-x-2">
                                 <app-icon class="text-2xl">{{
                                     icons[(progress | async).function] || 'info'
                                 }}</app-icon>
@@ -96,13 +96,13 @@ import { map } from 'rxjs/operators';
                                 </p>
                             </div>
                             <div
-                                class="relative overflow-hidden w-full rounded"
+                                class="relative w-full overflow-hidden rounded"
                             >
                                 <div
                                     class="absolute inset-0 bg-base-100 opacity-10"
                                 ></div>
                                 <div
-                                    class="text-xs text-mono text-left p-2 break-words"
+                                    class="text-mono break-words p-2 text-left text-xs"
                                     *ngIf="show_info"
                                     [innerHTML]="
                                         (progress | async).content | sanitize
@@ -113,32 +113,32 @@ import { map } from 'rxjs/operators';
                     </div>
                 </div>
                 <div
-                    class="absolute right-2 flex items-center justify-center space-x-2 p-1 rounded-2xl bg-base-100 border border-neutral"
+                    class="absolute right-2 flex items-center justify-center space-x-2 rounded-2xl border border-neutral bg-base-100 p-1"
                     [style.bottom]="height + 8 + 'px'"
                     *ngIf="waiting | async"
                 >
                     <div
-                        class="h-2 w-2 bg-neutral rounded-full animate-bounce"
+                        class="h-2 w-2 animate-bounce rounded-full bg-neutral"
                     ></div>
                     <div
-                        class="h-2 w-2 bg-neutral rounded-full animate-bounce anim-delay-1"
+                        class="anim-delay-1 h-2 w-2 animate-bounce rounded-full bg-neutral"
                     ></div>
                     <div
-                        class="h-2 w-2 bg-neutral rounded-full animate-bounce anim-delay-2"
+                        class="anim-delay-2 h-2 w-2 animate-bounce rounded-full bg-neutral"
                     ></div>
                     <span class="sr-only">{{
                         'APP.WORKPLACE.CHAT_WAITING' | translate
                     }}</span>
                 </div>
                 <div
-                    class="flex bg-base-100 focus-within:outline outline-info border-t border-base-300 max-h-[10rem] overflow-y-auto"
+                    class="flex max-h-[10rem] overflow-y-auto border-t border-base-300 bg-base-100 outline-info focus-within:outline"
                 >
                     <textarea
                         #input
                         [placeholder]="
                             'APP.WORKPLACE.CHAT_MESSAGE_PLACEHOLDER' | translate
                         "
-                        class="p-4 flex-1 w-1/2 focus:outline-none resize-none overflow-hidden"
+                        class="w-1/2 flex-1 resize-none overflow-hidden p-4 focus:outline-none"
                         [style.height]="height + 'px'"
                         [(ngModel)]="message"
                         (ngModelChange)="resizeInput()"
@@ -171,7 +171,7 @@ import { map } from 'rxjs/operators';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class ChatComponent extends AsyncHandler implements OnInit {
     public show = false;

@@ -26,7 +26,7 @@ import { map, tap } from 'rxjs/operators';
                     }}</mat-error>
                 </mat-form-field>
             </div>
-            <div class="flex flex-col relative">
+            <div class="relative flex flex-col">
                 <label for="date"
                     >{{ 'FORM.DATE' | translate }}<span>*</span>:</label
                 >
@@ -40,7 +40,7 @@ import { map, tap } from 'rxjs/operators';
                 </mat-checkbox>
             </div>
             <div class="flex space-x-2" *ngIf="!form.value.all_day">
-                <div class="flex flex-col flex-1">
+                <div class="flex flex-1 flex-col">
                     <label for="start-time"
                         >{{ 'FORM.TIME_START' | translate
                         }}<span>*</span>:</label
@@ -53,7 +53,7 @@ import { map, tap } from 'rxjs/operators';
                         [use_24hr]="use_24hr_time"
                     ></a-time-field>
                 </div>
-                <div class="flex flex-col flex-1">
+                <div class="flex flex-1 flex-col">
                     <label for="duration"
                         >{{ 'FORM.DURATION' | translate }}<span>*</span>:</label
                     >
@@ -65,7 +65,7 @@ import { map, tap } from 'rxjs/operators';
                     ></a-duration-field>
                 </div>
             </div>
-            <div class="flex flex-col flex-1">
+            <div class="flex flex-1 flex-col">
                 <label for="organiser"
                     >{{ 'FORM.HOST' | translate }}<span>*</span>:</label
                 >
@@ -75,7 +75,7 @@ import { map, tap } from 'rxjs/operators';
                     class="mb-4"
                 ></a-user-search-field>
             </div>
-            <div class="flex flex-col flex-1">
+            <div class="flex flex-1 flex-col">
                 <label for="attendees">
                     {{ 'CALENDAR_EVENT.ATTENDEES' | translate
                     }}<span>*</span>:</label
@@ -85,7 +85,7 @@ import { map, tap } from 'rxjs/operators';
                     formControlName="attendees"
                 ></a-user-list-field>
             </div>
-            <div class="flex flex-col flex-1">
+            <div class="flex flex-1 flex-col">
                 <label for="space">
                     {{ 'RESOURCE.ROOM' | translate }}<span>*</span>
                 </label>
@@ -111,7 +111,7 @@ import { map, tap } from 'rxjs/operators';
                 ></catering-list-field>
                 <mat-form-field
                     appearance="outline"
-                    class="w-full mt-2"
+                    class="mt-2 w-full"
                     *ngIf="form.value.catering?.length && has_codes | async"
                     (openedChange)="focusInput()"
                 >
@@ -121,7 +121,7 @@ import { map, tap } from 'rxjs/operators';
                     >
                         <input
                             #input
-                            class="sticky top-0 bg-base-100 px-4 py-3 text-base border-x-0 border-t-0 border-b focus:border-b border-base-200 w-full rounded-none z-50"
+                            class="sticky top-0 z-50 w-full rounded-none border-x-0 border-b border-t-0 border-base-200 bg-base-100 px-4 py-3 text-base focus:border-b"
                             [ngModel]="code_filter.getValue()"
                             (ngModelChange)="code_filter.next($event)"
                             [ngModelOptions]="{ standalone: true }"
@@ -153,7 +153,7 @@ import { map, tap } from 'rxjs/operators';
                     <mat-error> Catering Order notes are required </mat-error>
                 </mat-form-field>
             </div>
-            <div class="flex flex-col flex-1 mb-4" *ngIf="has_assets">
+            <div class="mb-4 flex flex-1 flex-col" *ngIf="has_assets">
                 <label for="space">Assets:</label>
                 <asset-list-field
                     [date]="form.value.date"
@@ -162,7 +162,7 @@ import { map, tap } from 'rxjs/operators';
                 ></asset-list-field>
             </div>
             <div class="flex space-x-2">
-                <div class="flex flex-col space-y-2 flex-1">
+                <div class="flex flex-1 flex-col space-y-2">
                     <label for="setup">Setup Duration</label>
                     <a-duration-field
                         name="setup"
@@ -171,7 +171,7 @@ import { map, tap } from 'rxjs/operators';
                         [custom_options]="[5, 10]"
                     ></a-duration-field>
                 </div>
-                <div class="flex flex-col space-y-2 flex-1">
+                <div class="flex flex-1 flex-col space-y-2">
                     <label for="breakdown">Breakdown Duration</label>
                     <a-duration-field
                         name="breakdown"
@@ -184,7 +184,7 @@ import { map, tap } from 'rxjs/operators';
         </form>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class EventFormComponent {
     @Input() public form: FormGroup;

@@ -55,7 +55,7 @@ interface ITimelineBlock {
     selector: 'event-timeline',
     templateUrl: './event-timeline.component.html',
     styleUrls: ['./event-timeline.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class EventTimelineComponent
     extends AsyncHandler

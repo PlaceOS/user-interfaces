@@ -8,14 +8,14 @@ import { currentUser, notifyError, notifySuccess } from '@placeos/common';
 @Component({
     selector: 'setup-breakdown-modal',
     template: `
-        <header class="space-x-4 min-h-16">
+        <header class="min-h-16 space-x-4">
             <h2>Set Event's Setup and Breakdown</h2>
             <button btn icon mat-dialog-close matRipple *ngIf="!loading">
                 <app-icon>close</app-icon>
             </button>
         </header>
         <main
-            class="p-4 min-w-[20rem] w-full"
+            class="w-full min-w-[20rem] p-4"
             [formGroup]="form"
             *ngIf="!loading; else load_state"
         >
@@ -40,21 +40,21 @@ import { currentUser, notifyError, notifySuccess } from '@placeos/common';
         </main>
         <footer
             *ngIf="!loading"
-            class="flex justify-end px-4 py-2 border-t border-base-200"
+            class="flex justify-end border-t border-base-200 px-4 py-2"
         >
             <button btn matRipple (click)="save()">Save Changes</button>
         </footer>
         <ng-template #load_state>
-            <div class="flex flex-col items-center justify-center h-64 w-64">
+            <div class="flex h-64 w-64 flex-col items-center justify-center">
                 <mat-spinner [diameter]="32"></mat-spinner>
-                <p class="text-center p-4">
+                <p class="p-4 text-center">
                     Saving setup and breakdown durations...
                 </p>
             </div>
         </ng-template>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class SetupBreakdownModalComponent {
     public loading = false;

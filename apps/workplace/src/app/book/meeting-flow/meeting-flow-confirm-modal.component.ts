@@ -27,7 +27,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
     template: `
         <div
             header
-            class="p-4 flex items-center justify-center border-b border-base-200 relative"
+            class="relative flex items-center justify-center border-b border-base-200 p-4"
         >
             <button
                 icon
@@ -49,16 +49,16 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
             ></mat-spinner>
         </div>
         <main
-            class="flex-1 min-w-[48rem] divide-y divide-base-200 p-4 space-y-4 max-h-[65vh] overflow-auto"
+            class="max-h-[65vh] min-w-[48rem] flex-1 space-y-4 divide-y divide-base-200 overflow-auto p-4"
         >
             <div class="flex divide-x divide-base-200">
-                <div class="pr-4 py-4 pl-16 relative space-y-2 flex-1">
+                <div class="relative flex-1 space-y-2 py-4 pl-16 pr-4">
                     <div
-                        class="absolute top-4 left-4 flex items-center justify-center rounded-full border border-success text-success text-2xl"
+                        class="absolute left-4 top-4 flex items-center justify-center rounded-full border border-success text-2xl text-success"
                     >
                         <app-icon>done</app-icon>
                     </div>
-                    <h3 class="text-xl !mt-0">
+                    <h3 class="!mt-0 text-xl">
                         {{ event.title || 'Meeting Details' }}
                     </h3>
                     <div class="flex items-center space-x-2">
@@ -83,15 +83,15 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                     </div>
                 </div>
                 <div
-                    class="pr-4 py-4 pl-16 relative space-y-2 flex-1"
+                    class="relative flex-1 space-y-2 py-4 pl-16 pr-4"
                     *ngIf="event.resources?.length"
                 >
                     <div
-                        class="absolute top-4 left-4 flex items-center justify-center rounded-full border border-success text-success text-2xl"
+                        class="absolute left-4 top-4 flex items-center justify-center rounded-full border border-success text-2xl text-success"
                     >
                         <app-icon>done</app-icon>
                     </div>
-                    <h3 class="text-xl !mt-0">
+                    <h3 class="!mt-0 text-xl">
                         {{ 'APP.WORKPLACE.MEETING_BOOKED_ROOM' | translate }}
                     </h3>
                     <ng-container *ngFor="let s of event.resources">
@@ -110,15 +110,15 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                 </div>
             </div>
             <div
-                class="pr-4 py-4 pl-16 relative space-y-2"
+                class="relative space-y-2 py-4 pl-16 pr-4"
                 *ngIf="event.attendees?.length"
             >
                 <div
-                    class="absolute top-4 left-4 flex items-center justify-center rounded-full border border-success text-success text-2xl"
+                    class="absolute left-4 top-4 flex items-center justify-center rounded-full border border-success text-2xl text-success"
                 >
                     <app-icon>done</app-icon>
                 </div>
-                <h3 class="text-xl !mt-0">
+                <h3 class="!mt-0 text-xl">
                     {{
                         'CALENDAR_EVENT.ATTENDEE_COUNT'
                             | translate: { count: event.attendees?.length }
@@ -140,29 +140,29 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                 *ngIf="event.catering?.length || event.assets?.length"
             >
                 <div
-                    class="pr-4 py-4 pl-16 relative space-y-2 flex-1"
+                    class="relative flex-1 space-y-2 py-4 pl-16 pr-4"
                     *ngIf="event.catering?.length"
                 >
                     <div
-                        class="absolute top-4 left-4 flex items-center justify-center rounded-full border border-success text-success text-2xl"
+                        class="absolute left-4 top-4 flex items-center justify-center rounded-full border border-success text-2xl text-success"
                     >
                         <app-icon>done</app-icon>
                     </div>
-                    <h3 class="text-xl !mt-0">
+                    <h3 class="!mt-0 text-xl">
                         {{ 'RESOURCE.CATERING' | translate }}
                     </h3>
                     <div class="flex flex-col space-y-2">
                         <div
                             order
                             *ngFor="let order of catering_orders"
-                            class="border bg-base-100 rounded-xl overflow-hidden"
+                            class="overflow-hidden rounded-xl border bg-base-100"
                             [class.border-error]="end_time < order.deliver_at"
                             [class.border-base-300]="
                                 end_time >= order.deliver_at
                             "
                         >
                             <div class="flex items-center space-x-2 p-3">
-                                <div class="flex-1 flex items-center space-x-2">
+                                <div class="flex flex-1 items-center space-x-2">
                                     <div class="text-sm">
                                         {{
                                             'CALENDAR_EVENT.CATERING_ORDER_AT'
@@ -177,7 +177,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                                         }}
                                     </div>
                                     <div
-                                        class="flex items-center justify-center h-6 w-6 rounded-full bg-error text-error-content"
+                                        class="flex h-6 w-6 items-center justify-center rounded-full bg-error text-error-content"
                                         [matTooltip]="err_tooltip"
                                         *ngIf="end_time < order.deliver_at"
                                     >
@@ -185,7 +185,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                                     </div>
                                     <div class="flex-1"></div>
                                     <div
-                                        class="text-xs bg-success text-success-content px-2 py-1 rounded"
+                                        class="rounded bg-success px-2 py-1 text-xs text-success-content"
                                     >
                                         {{
                                             'COMMON.ITEM_COUNT'
@@ -196,7 +196,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                                         }}
                                     </div>
                                     <div
-                                        class="text-xs bg-info text-info-content px-2 py-1 rounded"
+                                        class="rounded bg-info px-2 py-1 text-xs text-info-content"
                                     >
                                         Total:
                                         {{
@@ -207,18 +207,18 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                                 </div>
                             </div>
                             <div
-                                class="flex flex-col bg-base-200 divide-y divide-base-100"
+                                class="flex flex-col divide-y divide-base-100 bg-base-200"
                             >
                                 <div
-                                    class="flex items-center px-3 py-1 space-x-2 hover:opacity-90"
+                                    class="flex items-center space-x-2 px-3 py-1 hover:opacity-90"
                                     *ngFor="let item of order.items"
                                 >
-                                    <div class="flex items-center flex-1">
+                                    <div class="flex flex-1 items-center">
                                         <span class="text-sm">{{
                                             item.name || 'Item'
                                         }}</span>
                                         <span
-                                            class="text-xs opacity-60 ml-4 font-normal"
+                                            class="ml-4 text-xs font-normal opacity-60"
                                             *ngIf="item.option_list?.length"
                                             [matTooltip]="optionList(item)"
                                         >
@@ -236,12 +236,12 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                                         </span>
                                     </div>
                                     <div
-                                        class="rounded bg-success text-success-content text-xs px-2 py-1"
+                                        class="rounded bg-success px-2 py-1 text-xs text-success-content"
                                     >
                                         x{{ item.quantity }}
                                     </div>
                                     <div
-                                        class="rounded bg-info text-info-content text-xs px-2 py-1"
+                                        class="rounded bg-info px-2 py-1 text-xs text-info-content"
                                     >
                                         {{
                                             item.unit_price_with_options / 100
@@ -250,7 +250,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                                         ea
                                     </div>
                                     <div
-                                        class="rounded bg-info text-info-content text-xs px-2 py-1"
+                                        class="rounded bg-info px-2 py-1 text-xs text-info-content"
                                     >
                                         {{
                                             item.total_cost / 100
@@ -263,11 +263,11 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                     </div>
                 </div>
                 <div
-                    class="pr-4 py-4 pl-16 relative space-y-2 flex-1"
+                    class="relative flex-1 space-y-2 py-4 pl-16 pr-4"
                     *ngIf="assets?.length"
                 >
                     <div
-                        class="absolute top-4 left-4 flex items-center justify-center rounded-full border border-success text-success text-2xl"
+                        class="absolute left-4 top-4 flex items-center justify-center rounded-full border border-success text-2xl text-success"
                         [class.!border-error]="has_conflict"
                         [class.!text-error]="has_conflict"
                     >
@@ -275,16 +275,16 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                             has_conflict ? 'close' : 'done'
                         }}</app-icon>
                     </div>
-                    <h3 class="text-xl !mt-0">{{ 'RESOURCE.ASSETS' }}</h3>
+                    <h3 class="!mt-0 text-xl">{{ 'RESOURCE.ASSETS' }}</h3>
                     <div
                         request
                         *ngFor="let request of assets"
-                        class="border bg-base-100 rounded-xl overflow-hidden"
+                        class="overflow-hidden rounded-xl border bg-base-100"
                         [class.border-error]="end_time < request.deliver_at"
                         [class.border-base-300]="end_time >= request.deliver_at"
                     >
                         <div class="flex items-center space-x-2 p-3">
-                            <div class="flex-1 flex items-center space-x-2">
+                            <div class="flex flex-1 items-center space-x-2">
                                 <div class="text-sm">
                                     {{
                                         'CALENDAR_EVENT.ASSETS_REQUESTED_FOR'
@@ -299,7 +299,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                                     }}
                                 </div>
                                 <div
-                                    class="flex items-center justify-center h-6 w-6 rounded-full bg-error text-error-content"
+                                    class="flex h-6 w-6 items-center justify-center rounded-full bg-error text-error-content"
                                     [matTooltip]="err_tooltip(request)"
                                     *ngIf="
                                         end_time < request.deliver_at ||
@@ -310,7 +310,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                                 </div>
                                 <div class="flex-1"></div>
                                 <div
-                                    class="text-xs bg-success text-success-content px-2 py-1 rounded"
+                                    class="rounded bg-success px-2 py-1 text-xs text-success-content"
                                 >
                                     {{
                                         'COMMON.ITEM_COUNT'
@@ -321,19 +321,19 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                             </div>
                         </div>
                         <div
-                            class="flex flex-col bg-base-200 divide-y divide-base-100"
+                            class="flex flex-col divide-y divide-base-100 bg-base-200"
                         >
                             <div
-                                class="flex items-center px-3 py-1 space-x-2 hover:opacity-90"
+                                class="flex items-center space-x-2 px-3 py-1 hover:opacity-90"
                                 *ngFor="let item of request.items"
                             >
-                                <div class="flex items-center flex-1">
+                                <div class="flex flex-1 items-center">
                                     <span class="text-sm">{{
                                         item.name || 'Item'
                                     }}</span>
                                 </div>
                                 <div
-                                    class="rounded bg-success text-success-content text-xs px-2 py-1"
+                                    class="rounded bg-success px-2 py-1 text-xs text-success-content"
                                 >
                                     x{{ item.quantity }}
                                 </div>
@@ -342,20 +342,20 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                     </div>
                 </div>
             </div>
-            <div class="pr-4 py-4 pl-16 relative space-y-2" *ngIf="event.body">
+            <div class="relative space-y-2 py-4 pl-16 pr-4" *ngIf="event.body">
                 <div
-                    class="absolute top-4 left-4 flex items-center justify-center rounded-full border border-success text-success text-2xl"
+                    class="absolute left-4 top-4 flex items-center justify-center rounded-full border border-success text-2xl text-success"
                 >
                     <app-icon>done</app-icon>
                 </div>
-                <h3 class="text-xl !mt-0">
+                <h3 class="!mt-0 text-xl">
                     {{ 'CALENDAR_EVENT.NOTES_HEADER' | translate }}
                 </h3>
                 <div [innerHTML]="event.body | sanitize"></div>
             </div>
         </main>
         <footer
-            class="p-2 border-t border-base-200 flex items-center justify-end"
+            class="flex items-center justify-end border-t border-base-200 p-2"
             *ngIf="!(loading | async)"
         >
             <button

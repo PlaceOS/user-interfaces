@@ -92,7 +92,7 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
         </fullscreen-modal-shell>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class LevelModalComponent {
     public loading = false;

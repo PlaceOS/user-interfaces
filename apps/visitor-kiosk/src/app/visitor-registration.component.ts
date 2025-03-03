@@ -17,24 +17,24 @@ import { OrganisationService } from '@placeos/organisation';
 @Component({
     selector: 'visitor-registration',
     template: `
-        <div class="absolute inset-0 p-8 flex items-center">
+        <div class="absolute inset-0 flex items-center p-8">
             <img
                 [src]="background"
-                class="absolute min-h-[100%] min-w-[100%] top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2"
+                class="absolute left-1/2 top-1/2 min-h-[100%] min-w-[100%] -translate-x-1/2 -translate-y-1/2"
             />
             <img
                 src="assets/img/building.png"
-                class="absolute w-[60%] bottom-0 right-0"
+                class="absolute bottom-0 right-0 w-[60%]"
             />
             <div
-                class="absolute top-1/2 left-4 -translate-y-1/2 bg-base-100 rounded shadow overflow-auto max-h-[80vh] max-w-[calc(100%-2rem)] w-[32rem]"
+                class="absolute left-4 top-1/2 max-h-[80vh] w-[32rem] max-w-[calc(100%-2rem)] -translate-y-1/2 overflow-auto rounded bg-base-100 shadow"
                 [formGroup]="form"
                 *ngIf="!loading; else load_state"
             >
                 <div
-                    class="flex items-center justify-between space-x-4 px-4 py-2 border-b border-base-300"
+                    class="flex items-center justify-between space-x-4 border-b border-base-300 px-4 py-2"
                 >
-                    <h3 class="text-lg font-medium py-2">
+                    <h3 class="py-2 text-lg font-medium">
                         {{ 'APP.VISITOR_KIOSK.REGISTRATION' | translate }}
                     </h3>
                     <a icon matRipple [routerLink]="['/welcome']">
@@ -104,20 +104,20 @@ import { OrganisationService } from '@placeos/organisation';
                     </mat-form-field>
                 </div>
                 <div
-                    class="flex justify-end px-4 py-2 space-x-4 border-t border-base-300"
+                    class="flex justify-end space-x-4 border-t border-base-300 px-4 py-2"
                 >
                     <button btn matRipple class="w-40" (click)="register()">
                         {{ 'APP.VISITOR_KIOSK.REGISTER' | translate }}
                     </button>
                 </div>
             </div>
-            <div class="absolute top-4 right-4 text-2xl text-white">
+            <div class="absolute right-4 top-4 text-2xl text-white">
                 {{ now | date: 'mediumDate' }} {{ now | date: 'shortTime' }}
             </div>
         </div>
         <ng-template #load_state>
             <div
-                class="absolute top-1/2 left-4 -translate-y-1/2 bg-base-100 rounded shadow flex flex-col items-center justify-center space-y-4 p-16 w-[24rem]"
+                class="absolute left-4 top-1/2 flex w-[24rem] -translate-y-1/2 flex-col items-center justify-center space-y-4 rounded bg-base-100 p-16 shadow"
             >
                 <mat-spinner diameter="32"></mat-spinner>
                 <p>{{ 'APP.VISITOR_KIOSK.REGISTERING' | translate }}</p>

@@ -61,7 +61,7 @@ describe('SpaceListFieldComponent', () => {
                         ],
                     },
                     afterClosed: () => of({}),
-                } as any)
+                }) as any,
         );
         spectator.click('button[name="add-space"]');
         spectator.tick(1301);

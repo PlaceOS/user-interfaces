@@ -7,14 +7,14 @@ import { statusList } from './catering.vars';
 @Component({
     selector: 'catering-order-list',
     template: `
-        <div class="flex flex-col h-full w-full overflow-auto">
+        <div class="flex h-full w-full flex-col overflow-auto">
             <mat-progress-bar
                 [class.opacity-0]="!(loading | async)"
-                class="sticky top-0 left-0 w-full"
+                class="sticky left-0 top-0 w-full"
                 mode="indeterminate"
             ></mat-progress-bar>
             <simple-table
-                class="min-w-[72rem] w-full block text-sm"
+                class="block w-full min-w-[72rem] text-sm"
                 [data]="order_list"
                 [columns]="[
                     {
@@ -79,7 +79,7 @@ import { statusList } from './catering.vars';
             <ng-template #state_template let-data="data">
                 <div class="p-2">
                     <div
-                        class="rounded-full bg-base-200 p-2 text-2xl flex items-center justify-center"
+                        class="flex items-center justify-center rounded-full bg-base-200 p-2 text-2xl"
                     >
                         <app-icon>room_service</app-icon>
                     </div>
@@ -135,11 +135,11 @@ import { statusList } from './catering.vars';
                     <button
                         status
                         matRipple
-                        class="rounded-3xl text-base border-none h-10 px-4 flex items-center text-white w-36"
+                        class="flex h-10 w-36 items-center rounded-3xl border-none px-4 text-base text-white"
                         [style.background]="status(data)?.colour"
                         [matMenuTriggerFor]="menu"
                     >
-                        <div class="flex text-center capitalize mx-2">
+                        <div class="mx-2 flex text-center capitalize">
                             {{ status(data)?.name }}
                         </div>
                         <app-icon class="pl-2">arrow_drop_down</app-icon>
@@ -154,7 +154,7 @@ import { statusList } from './catering.vars';
                     >
                         <div class="flex items-center space-x-2">
                             <div
-                                class="rounded-full h-4 w-4 mr-2"
+                                class="mr-2 h-4 w-4 rounded-full"
                                 [style.background-color]="status.colour"
                             ></div>
                             <span class="mr-2 w-20">{{ status.name }}</span>
@@ -163,7 +163,7 @@ import { statusList } from './catering.vars';
                 </mat-menu>
             </ng-template>
             <ng-template #actions_template let-row="row">
-                <div class="flex items-center space-x-2 p-2 mx-auto">
+                <div class="mx-auto flex items-center space-x-2 p-2">
                     <button
                         icon
                         matRipple
@@ -178,12 +178,12 @@ import { statusList } from './catering.vars';
                     </button>
                     <ng-template #notes_template>
                         <div
-                            class="p-2 rounded-lg bg-base-100 text-base-content max-w-[32rem] min-w-[8rem] shadow border border-base-200"
+                            class="min-w-[8rem] max-w-[32rem] rounded-lg border border-base-200 bg-base-100 p-2 text-base-content shadow"
                         >
                             <div class="mb-2">
                                 {{ 'FORM.NOTES' | translate }}
                             </div>
-                            <p class="text-sm px-4 py-2 bg-base-200 rounded">
+                            <p class="rounded bg-base-200 px-4 py-2 text-sm">
                                 {{ row.notes }}
                             </p>
                         </div>
@@ -206,7 +206,7 @@ import { statusList } from './catering.vars';
             <ng-template #child_template let-row="row">
                 <ul
                     *ngIf="row?.items.length"
-                    class="list-none p-0 m-0 w-full relative z-0"
+                    class="relative z-0 m-0 w-full list-none p-0"
                 >
                     <li
                         catering-order-item

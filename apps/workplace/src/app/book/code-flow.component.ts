@@ -30,33 +30,33 @@ import QrScanner from 'qr-scanner';
     selector: 'book-code-flow',
     template: `
         <div
-            class="flex-1 overflow-hidden flex items-center justify-center bg-neutral relative"
+            class="relative flex flex-1 items-center justify-center overflow-hidden bg-neutral"
             *ngIf="!loading; else load_state"
         >
             <video
-                class="min-w-full min-h-full object-cover"
+                class="min-h-full min-w-full object-cover"
                 id="video"
                 #video
             ></video>
             <div
-                class="absolute text-white text-center inset-0 flex flex-col items-center justify-center"
+                class="absolute inset-0 flex flex-col items-center justify-center text-center text-white"
             >
                 <div
-                    class="flex flex-col z-10 justify-end items-center relative"
+                    class="relative z-10 flex flex-col items-center justify-end"
                     *ngIf="is_scanning"
                 >
-                    <h2 class="text-3xl mb-1 uppercase subpixel-antialiased">
+                    <h2 class="mb-1 text-3xl uppercase subpixel-antialiased">
                         Scan QR Code
                     </h2>
-                    <span class=" mb-4 ">
+                    <span class="mb-4">
                         Scan the QR code outisde a PlaceOS room or space.
                     </span>
                 </div>
                 <div
-                    class="flex flex-col z-10 justify-end items-center relative"
+                    class="relative z-10 flex flex-col items-center justify-end"
                     *ngIf="!is_scanning"
                 >
-                    <h2 class="text-3xl mb-1 uppercase subpixel-antialiased">
+                    <h2 class="mb-1 text-3xl uppercase subpixel-antialiased">
                         Enter Room ID
                     </h2>
                     <span class="mb-4">
@@ -67,13 +67,13 @@ import QrScanner from 'qr-scanner';
                 <div class="flex items-center justify-center">
                     <div
                         box
-                        class="rounded-2xl h-64 w-64 transition-all flex items-center justify-center p-8 m-8 space-x-2"
+                        class="m-8 flex h-64 w-64 items-center justify-center space-x-2 rounded-2xl p-8 transition-all"
                         [class.input]="!is_scanning"
                     >
                         <span class="uppercase">Booking ID</span>
                         <input
                             matInput
-                            class="border-none bg-none w-full text-3xl text-left"
+                            class="w-full border-none bg-none text-left text-3xl"
                             [(ngModel)]="room_code"
                             name="booking-id"
                             placeholder="e.g. 12102910"
@@ -81,15 +81,15 @@ import QrScanner from 'qr-scanner';
                     </div>
                 </div>
                 <div
-                    class="m-4 p-2 flex items-center space-x-2 bg-base-100 bg-opacity-50 rounded"
+                    class="m-4 flex items-center space-x-2 rounded bg-base-100 bg-opacity-50 p-2"
                 >
                     <button
                         matRipple
                         [class]="
-                            'flex-1 text-black border-none w-40 ' +
+                            'w-40 flex-1 border-none text-black ' +
                             (is_scanning
                                 ? 'bg-base-100'
-                                : 'bg-transparent hover:bg-base-100 bg-opacity-50')
+                                : 'bg-transparent bg-opacity-50 hover:bg-base-100')
                         "
                         (click)="is_scanning = true"
                     >
@@ -98,10 +98,10 @@ import QrScanner from 'qr-scanner';
                     <button
                         matRipple
                         [class]="
-                            'flex-1 text-black border-none w-40 ' +
+                            'w-40 flex-1 border-none text-black ' +
                             (!is_scanning
                                 ? 'bg-base-100'
-                                : 'bg-transparent hover:bg-base-100 bg-opacity-50')
+                                : 'bg-transparent bg-opacity-50 hover:bg-base-100')
                         "
                         (click)="is_scanning = false"
                     >
@@ -160,7 +160,7 @@ import QrScanner from 'qr-scanner';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class BookCodeFlowComponent
     extends AsyncHandler

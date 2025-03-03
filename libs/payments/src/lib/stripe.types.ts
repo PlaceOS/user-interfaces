@@ -1,4 +1,3 @@
-
 export interface StripeCustomer {
     id?: string;
     name: string;

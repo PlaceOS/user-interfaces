@@ -25,9 +25,9 @@ import { validateURL } from '@placeos/spaces';
 @Component({
     selector: `booking-panel-settings-modal`,
     template: `
-        <div class="w-screen h-screen bg-base-100 flex flex-col overflow-auto">
+        <div class="flex h-screen w-screen flex-col overflow-auto bg-base-100">
             <header
-                class="sticky top-0 px-4 py-2 mx-auto my-2 max-w-[640px] w-full border-none z-10 bg-base-200 rounded"
+                class="sticky top-0 z-10 mx-auto my-2 w-full max-w-[640px] rounded border-none bg-base-200 px-4 py-2"
             >
                 <h2 class="text-xl font-medium">
                     Booking Panel Settings -
@@ -38,7 +38,7 @@ import { validateURL } from '@placeos/spaces';
                 </button>
             </header>
             <main
-                class="h-1/2 flex-1 p-4 space-y-8 z-0 max-w-[640px] w-full mx-auto"
+                class="z-0 mx-auto h-1/2 w-full max-w-[640px] flex-1 space-y-8 p-4"
             >
                 <form
                     [formGroup]="form"
@@ -46,14 +46,14 @@ import { validateURL } from '@placeos/spaces';
                     *ngIf="!loading; else load_state"
                 >
                     <div
-                        class="relative flex flex-col p-2 border border-base-300 rounded mb-4"
+                        class="relative mb-4 flex flex-col rounded border border-base-300 p-2"
                     >
                         <h4
-                            class="absolute top-0 left-8 -translate-y-1/2 bg-base-100 text-sm p-2"
+                            class="absolute left-8 top-0 -translate-y-1/2 bg-base-100 p-2 text-sm"
                         >
                             Booking Settings
                         </h4>
-                        <div class="flex items-center flex-wrap -mx-2">
+                        <div class="-mx-2 flex flex-wrap items-center">
                             <settings-toggle
                                 name="Disable booking"
                                 formControlName="disable_book_now"
@@ -64,7 +64,7 @@ import { validateURL } from '@placeos/spaces';
                             ></settings-toggle>
                         </div>
                         <div class="flex space-x-4">
-                            <div class="flex-1 h-20">
+                            <div class="h-20 flex-1">
                                 <label for="min-duration"
                                     >Minimum Booking Duration</label
                                 >
@@ -78,7 +78,7 @@ import { validateURL } from '@placeos/spaces';
                                     [max]="form.value.max_duration"
                                 ></a-duration-field>
                             </div>
-                            <div class="flex-1 h-20">
+                            <div class="h-20 flex-1">
                                 <label for="max-duration"
                                     >Maximum Booking Duration</label
                                 >
@@ -122,7 +122,7 @@ import { validateURL } from '@placeos/spaces';
                             ></a-duration-field>
                         </div>
                     </div>
-                    <div class="flex items-center flex-wrap -mx-2">
+                    <div class="-mx-2 flex flex-wrap items-center">
                         <settings-toggle
                             name="Disable auto-ending bookings"
                             formControlName="disable_end_meeting"
@@ -188,7 +188,7 @@ don't detect presence in room after a period of time"
                                     icon
                                     matRipple
                                     [disabled]="uploading"
-                                    class="bg-secondary text-secondary-content rounded h-12 w-12"
+                                    class="h-12 w-12 rounded bg-secondary text-secondary-content"
                                 >
                                     <app-icon>cloud_upload</app-icon>
                                     <input
@@ -222,7 +222,7 @@ don't detect presence in room after a period of time"
                                     icon
                                     matRipple
                                     [disabled]="uploading"
-                                    class="relative bg-secondary text-secondary-content rounded h-12 w-12"
+                                    class="relative h-12 w-12 rounded bg-secondary text-secondary-content"
                                 >
                                     <app-icon>cloud_upload</app-icon>
                                     <input
@@ -240,7 +240,7 @@ don't detect presence in room after a period of time"
                 <div class="h-16 w-full"></div>
             </main>
             <footer
-                class="fixed bottom-0 left-1/2 -translate-x-1/2 px-4 py-2 mx-auto my-2 max-w-[640px] w-full border-none z-10 bg-base-200 rounded flex items-center justify-end"
+                class="fixed bottom-0 left-1/2 z-10 mx-auto my-2 flex w-full max-w-[640px] -translate-x-1/2 items-center justify-end rounded border-none bg-base-200 px-4 py-2"
                 *ngIf="!loading"
             >
                 <button btn matRipple class="w-32" (click)="save()">
@@ -250,7 +250,7 @@ don't detect presence in room after a period of time"
         </div>
         <ng-template #load_state>
             <div
-                class="w-full flex-1 h-1/2 flex flex-col items-center justify-center p-12"
+                class="flex h-1/2 w-full flex-1 flex-col items-center justify-center p-12"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
                 <p class="text-center">{{ loading }}</p>

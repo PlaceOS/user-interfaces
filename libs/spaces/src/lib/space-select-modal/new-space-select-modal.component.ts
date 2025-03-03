@@ -11,14 +11,14 @@ import { Space } from '../space.class';
     selector: 'new-space-select-modal',
     template: `
         <div
-            class="w-[100vw] h-[100vh] sm:relative sm:w-auto sm:h-auto flex flex-col bg-base-100"
+            class="flex h-[100vh] w-[100vw] flex-col bg-base-100 sm:relative sm:h-auto sm:w-auto"
         >
-            <header class="flex items-center space-x-4 w-full">
+            <header class="flex w-full items-center space-x-4">
                 <button icon matRipple mat-dialog-close class="bg-base-200">
                     <app-icon>close</app-icon>
                 </button>
                 <h3>{{ 'CALENDAR_EVENT.SPACE_SELECT_FIND' | translate }}</h3>
-                <div class="hidden sm:flex items-center justify-end flex-1">
+                <div class="hidden flex-1 items-center justify-end sm:flex">
                     <button
                         btn
                         matRipple
@@ -33,7 +33,7 @@ import { Space } from '../space.class';
                         btn
                         matRipple
                         list
-                        class="rounded-r rounded-l-none"
+                        class="rounded-l-none rounded-r"
                         [class.inverse]="view !== 'list'"
                         (click)="view = 'list'"
                     >
@@ -42,16 +42,16 @@ import { Space } from '../space.class';
                 </div>
             </header>
             <main
-                class="flex-1 flex items-center divide-x divide-base-200 min-h-[65vh] h-[65vh] sm:max-h-[65vh] sm:max-w-[95vw] w-full overflow-hidden"
+                class="flex h-[65vh] min-h-[65vh] w-full flex-1 items-center divide-x divide-base-200 overflow-hidden sm:max-h-[65vh] sm:max-w-[95vw]"
             >
                 <space-filters
-                    class="h-full hidden sm:flex max-w-[20rem] sm:h-[65vh] sm:max-h-full"
+                    class="hidden h-full max-w-[20rem] sm:flex sm:h-[65vh] sm:max-h-full"
                     [multiday]="multiday"
                     [hide_levels]="view !== 'list'"
                     [viewing_map]="view === 'map'"
                 ></space-filters>
                 <div
-                    class="flex flex-col items-center flex-1 w-1/2 h-full sm:h-[65vh]"
+                    class="flex h-full w-1/2 flex-1 flex-col items-center sm:h-[65vh]"
                 >
                     <space-filters-display
                         class="w-full border-b border-base-200"
@@ -64,13 +64,13 @@ import { Space } from '../space.class';
                         [favorites]="favorites"
                         (toggleFav)="toggleFavourite($event)"
                         (onSelect)="displayed = $event"
-                        class="flex-1 h-1/2 bg-base-200"
+                        class="h-1/2 flex-1 bg-base-200"
                     ></space-list>
                 </div>
                 <space-details
                     [space]="displayed"
                     [alert]="(room_alerts | async)[displayed?.id]"
-                    class="h-full w-full min-w-[20rem] sm:h-[65vh] absolute sm:relative flex sm:flex-col sm:max-w-[20rem] z-20 bg-base-100"
+                    class="absolute z-20 flex h-full w-full min-w-[20rem] bg-base-100 sm:relative sm:h-[65vh] sm:max-w-[20rem] sm:flex-col"
                     [class.hidden]="!displayed"
                     [class.inset-0]="displayed"
                     [hide_map]="view === 'map'"
@@ -82,13 +82,13 @@ import { Space } from '../space.class';
                 ></space-details>
             </main>
             <footer
-                class="flex sm:hidden flex-col-reverse items-center justify-end px-2 pt-2 pb-[5.5rem] border-t border-base-200 w-full"
+                class="flex w-full flex-col-reverse items-center justify-end border-t border-base-200 px-2 pb-[5.5rem] pt-2 sm:hidden"
             >
                 <button
                     btn
                     matRipple
                     name="spaces-return"
-                    class="inverse sm:hidden w-full"
+                    class="inverse w-full sm:hidden"
                     *ngIf="displayed"
                     (click)="displayed = null"
                 >
@@ -100,13 +100,13 @@ import { Space } from '../space.class';
                     name="save-spaces"
                     [mat-dialog-close]="selected"
                     [class.mb-2]="displayed"
-                    class="w-full sm:w-32 sm:mb-0"
+                    class="w-full sm:mb-0 sm:w-32"
                 >
                     {{ 'COMMON.VIEW_LIST' | translate }}
                 </button>
             </footer>
             <footer
-                class="hidden sm:flex items-center justify-between p-2 border-t border-base-200 w-full"
+                class="hidden w-full items-center justify-between border-t border-base-200 p-2 sm:flex"
             >
                 <button
                     btn
@@ -122,7 +122,7 @@ import { Space } from '../space.class';
                         </div>
                     </div>
                 </button>
-                <p class="opacity-60 text-sm">
+                <p class="text-sm opacity-60">
                     {{
                         'CALENDAR_EVENT.SPACE_SELECT_COUNT'
                             | translate: { count: selected.length }
@@ -154,7 +154,7 @@ import { Space } from '../space.class';
         </div>
         <ng-template #map_view>
             <space-map
-                class="flex-1 h-1/2 w-full"
+                class="h-1/2 w-full flex-1"
                 [selected]="selected_ids"
                 [is_displayed]="!!displayed"
                 [active]="displayed?.id"

@@ -15,7 +15,7 @@ import { OrganisationService } from '@placeos/organisation';
         <ng-container *ngIf="(system | async).connected; else load_state">
             <div
                 *ngIf="(system | async).active; else power_off_state"
-                class="relative h-full w-full flex flex-col bg-base-100 divide divide-base-200"
+                class="divide relative flex h-full w-full flex-col divide-base-200 bg-base-100"
             >
                 <topbar-header></topbar-header>
                 <div class="h-1/2 flex-1 bg-base-200" tab-outlet></div>
@@ -24,9 +24,9 @@ import { OrganisationService } from '@placeos/organisation';
             <div
                 lockout
                 *ngIf="!(join_status | async)[0] && (join_status | async)[1]"
-                class="absolute inset-0 flex flex-col items-center justify-center space-y-2 p-16 bg-base-100"
+                class="absolute inset-0 flex flex-col items-center justify-center space-y-2 bg-base-100 p-16"
             >
-                <div class="absolute top-4 left-4 z-0">
+                <div class="absolute left-4 top-4 z-0">
                     <img
                         auth
                         class="h-10"
@@ -34,10 +34,10 @@ import { OrganisationService } from '@placeos/organisation';
                         [source]="(logo | async)?.src || (logo | async)"
                     />
                 </div>
-                <app-icon class="relative text-8xl text-base-content z-10"
+                <app-icon class="relative z-10 text-8xl text-base-content"
                     >lock</app-icon
                 >
-                <p class="relative text-base-content z-10 text-2xl">
+                <p class="relative z-10 text-2xl text-base-content">
                     {{ 'APP.CONTROL.ROOMS_JOINED' | translate }}
                 </p>
             </div>
@@ -45,25 +45,25 @@ import { OrganisationService } from '@placeos/organisation';
         <ng-template #power_off_state>
             <div
                 name="splash"
-                class="absolute inset-0 text-white flex flex-col items-center justify-center"
+                class="absolute inset-0 flex flex-col items-center justify-center text-white"
                 (click)="powerOn()"
                 (touchend)="powerOn()"
             >
-                <h2 class="font-light text-4xl mb-4">
+                <h2 class="mb-4 text-4xl font-light">
                     {{ 'APP.CONTROL.TOUCH_TO_START' | translate }}
                 </h2>
                 <p class="text-lg">{{ (system | async).name }}</p>
                 <div class="absolute bottom-0 left-0 p-2">
-                    <div class="text-xs opacity-60 w-full">
+                    <div class="w-full text-xs opacity-60">
                         <ng-container>Version: </ng-container>
                         <button
-                            class="underline p-0 m-0 bg-none border-none text-xs"
+                            class="m-0 border-none bg-none p-0 text-xs underline"
                             (click)="viewChangelog()"
                         >
                             {{ version.hash }}
                         </button>
                     </div>
-                    <div class="text-xs opacity-60 w-full">
+                    <div class="w-full text-xs opacity-60">
                         {{ version.time | date: 'longDate' }}
                         ({{ version.time | date: 'shortTime' }})
                     </div>
@@ -79,10 +79,10 @@ import { OrganisationService } from '@placeos/organisation';
         <ng-template #load_state>
             <div
                 name="loader"
-                class="absolute inset-0 bg-base-100 text-black flex flex-col items-center justify-center"
+                class="absolute inset-0 flex flex-col items-center justify-center bg-base-100 text-black"
             >
                 <mat-spinner class="mb-4" [diameter]="64"></mat-spinner>
-                <div class="text-2xl my-4">
+                <div class="my-4 text-2xl">
                     {{ 'APP.CONTROL.CONNECTING' | translate: { id: id } }}
                 </div>
                 <div class="text-base"></div>

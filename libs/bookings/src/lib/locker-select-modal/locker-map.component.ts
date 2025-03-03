@@ -21,11 +21,11 @@ import { loadLockerBanks, loadLockers } from '../booking.utilities';
 @Component({
     selector: 'locker-map',
     template: `
-        <div class="bg-base-100 p-2 border-b border-base-200 w-full">
+        <div class="w-full border-b border-base-200 bg-base-100 p-2">
             <mat-form-field
                 levels
                 appearance="outline"
-                class="w-full no-subscript"
+                class="no-subscript w-full"
                 *ngIf="(levels | async)?.length"
             >
                 <mat-select
@@ -40,7 +40,7 @@ import { loadLockerBanks, loadLockers } from '../booking.utilities';
                         [value]="lvl"
                     >
                         <div class="flex flex-col-reverse">
-                            <div class="opacity-30 text-xs" *ngIf="use_region">
+                            <div class="text-xs opacity-30" *ngIf="use_region">
                                 {{ (lvl.parent_id | building)?.display_name }}
                                 <span class="opacity-0"> - </span>
                             </div>
@@ -52,7 +52,7 @@ import { loadLockerBanks, loadLockers } from '../booking.utilities';
                 </mat-select>
             </mat-form-field>
         </div>
-        <div class="relative flex-1 w-full">
+        <div class="relative w-full flex-1">
             <interactive-map
                 [src]="map_url"
                 [(zoom)]="zoom"
@@ -78,7 +78,7 @@ import { loadLockerBanks, loadLockers } from '../booking.utilities';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class LockerMapComponent
     extends AsyncHandler

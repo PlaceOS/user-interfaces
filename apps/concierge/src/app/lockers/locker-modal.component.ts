@@ -34,9 +34,9 @@ function validateNoOverlap(box: Box, check_boxes: Box[]): boolean {
     template: `
         <div class="w-[32rem]">
             <header
-                class="sticky top-0 p-2 m-2 w-[calc(100%-1rem)] border-none z-10 bg-base-200 rounded"
+                class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded border-none bg-base-200 p-2"
             >
-                <h2 class="text-xl font-medium px-2">
+                <h2 class="px-2 text-xl font-medium">
                     {{
                         (id
                             ? 'APP.CONCIERGE.LOCKERS_EDIT'
@@ -50,7 +50,7 @@ function validateNoOverlap(box: Box, check_boxes: Box[]): boolean {
             </header>
             <main
                 *ngIf="!loading; else load_state"
-                class="p-4 flex flex-col max-h-[65vh] overflow-auto"
+                class="flex max-h-[65vh] flex-col overflow-auto p-4"
                 [formGroup]="form"
             >
                 <label for="name">{{ 'FORM.NAME' | translate }}</label>
@@ -68,7 +68,7 @@ function validateNoOverlap(box: Box, check_boxes: Box[]): boolean {
                 <label for="user">{{
                     'APP.CONCIERGE.USER_ASSIGNED' | translate
                 }}</label>
-                <div class="flex items-center space-x-2 mb-4">
+                <div class="mb-4 flex items-center space-x-2">
                     <a-user-search-field
                         name="user"
                         formControlName="assigned_user"
@@ -92,7 +92,7 @@ function validateNoOverlap(box: Box, check_boxes: Box[]): boolean {
                         </app-icon>
                     </button>
                 </div>
-                <div class="flex space-x-4 mb-4">
+                <div class="mb-4 flex space-x-4">
                     <settings-toggle
                         class="flex-1"
                         [name]="'APP.CONCIERGE.LOCKERS_ACCESSIBLE' | translate"
@@ -104,7 +104,7 @@ function validateNoOverlap(box: Box, check_boxes: Box[]): boolean {
                         formControlName="bookable"
                     ></settings-toggle>
                 </div>
-                <div class="flex space-x-4 mb-1">
+                <div class="mb-1 flex space-x-4">
                     <div class="flex-1">
                         <label for="row">Start Column</label>
                         <a-counter
@@ -141,13 +141,13 @@ function validateNoOverlap(box: Box, check_boxes: Box[]): boolean {
                     </div>
                 </div>
                 <div
-                    class="text-xs text-error mb-4"
+                    class="mb-4 text-xs text-error"
                     [class.opacity-100]="form.get('position').invalid"
                     [class.opacity-0]="!form.get('position').invalid"
                 >
                     {{ 'APP.CONCIERGE.LOCKERS_POSITION_INVALID' | translate }}
                 </div>
-                <div class="flex space-x-4 mb-1">
+                <div class="mb-1 flex space-x-4">
                     <div class="flex-1">
                         <label for="row">{{
                             'COMMON.WIDTH' | translate
@@ -186,7 +186,7 @@ function validateNoOverlap(box: Box, check_boxes: Box[]): boolean {
                     </div>
                 </div>
                 <div
-                    class="text-xs text-error mb-4"
+                    class="mb-4 text-xs text-error"
                     [class.opacity-100]="form.get('size').invalid"
                     [class.opacity-0]="!form.get('size').invalid"
                 >
@@ -214,7 +214,7 @@ function validateNoOverlap(box: Box, check_boxes: Box[]): boolean {
                             *ngFor="let item of tag_list"
                             (removed)="removeTag(item)"
                         >
-                            <div class="truncate max-w-md">{{ item }}</div>
+                            <div class="max-w-md truncate">{{ item }}</div>
                             <button
                                 matChipRemove
                                 [attr.aria-label]="
@@ -235,7 +235,7 @@ function validateNoOverlap(box: Box, check_boxes: Box[]): boolean {
                 </mat-form-field>
             </main>
             <footer
-                class="flex items-center justify-end space-x-2 px-4 py-2 border-t border-base-300"
+                class="flex items-center justify-end space-x-2 border-t border-base-300 px-4 py-2"
             >
                 <button btn matRipple class="w-32" (click)="postForm()">
                     {{ 'COMMON.SAVE' | translate }}
@@ -244,7 +244,7 @@ function validateNoOverlap(box: Box, check_boxes: Box[]): boolean {
         </div>
         <ng-template #load_state>
             <main
-                class="p-8 flex flex-col items-center justify-center space-y-2"
+                class="flex flex-col items-center justify-center space-y-2 p-8"
             >
                 <mat-spinner diameter="32"></mat-spinner>
                 <p>{{ 'APP.CONCIERGE.LOCKERS_SAVING' | translate }}</p>
@@ -252,7 +252,7 @@ function validateNoOverlap(box: Box, check_boxes: Box[]): boolean {
         </ng-template>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class LockerModalComponent extends AsyncHandler implements OnInit {
     @Output() public readonly event = new EventEmitter<DialogEvent>();

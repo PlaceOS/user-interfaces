@@ -5,7 +5,7 @@ import { FormGroup } from '@angular/forms';
     selector: 'user-form',
     template: `
         <form user-form *ngIf="form" [formGroup]="form" class="w-full">
-            <div class="flex flex-col w-full" *ngIf="form.controls.name">
+            <div class="flex w-full flex-col" *ngIf="form.controls.name">
                 <label for="name" [class.error]="hasError('name')">
                     Name<span>*</span>:
                 </label>
@@ -19,7 +19,7 @@ import { FormGroup } from '@angular/forms';
                     <mat-error>Name is required</mat-error>
                 </mat-form-field>
             </div>
-            <div class="flex flex-col w-full" *ngIf="form.controls.email">
+            <div class="flex w-full flex-col" *ngIf="form.controls.email">
                 <label for="email" [class.error]="hasError('email')">
                     Email<span>*</span>:
                 </label>
@@ -34,7 +34,7 @@ import { FormGroup } from '@angular/forms';
                 </mat-form-field>
             </div>
             <div
-                class="flex flex-col w-full"
+                class="flex w-full flex-col"
                 *ngIf="form.controls.organisation"
             >
                 <label for="org" [class.error]="hasError('organisation')">
@@ -52,7 +52,7 @@ import { FormGroup } from '@angular/forms';
                     </mat-error>
                 </mat-form-field>
             </div>
-            <div class="flex flex-col w-full" *ngIf="form.controls.phone">
+            <div class="flex w-full flex-col" *ngIf="form.controls.phone">
                 <label for="phone" [class.error]="hasError('phone')">
                     Phone:
                 </label>
@@ -68,7 +68,7 @@ import { FormGroup } from '@angular/forms';
                 </mat-form-field>
             </div>
             <div
-                class="flex flex-col w-full"
+                class="flex w-full flex-col"
                 *ngIf="form.controls.assistance_required"
             >
                 <mat-checkbox
@@ -80,7 +80,7 @@ import { FormGroup } from '@angular/forms';
                 </mat-checkbox>
             </div>
             <div
-                class="flex flex-col w-full"
+                class="flex w-full flex-col"
                 *ngIf="form.controls.visit_expected"
             >
                 <mat-checkbox
@@ -101,7 +101,7 @@ import { FormGroup } from '@angular/forms';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class UserFormComponent {
     /** Group of form fields used for creating the system */

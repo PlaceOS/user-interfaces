@@ -51,7 +51,7 @@ describe('CateringOrderOptionsModalComponent', () => {
         });
         spectator.component.updateGroupOption(
             spectator.component.groups[0],
-            '1'
+            '1',
         );
         expect(spectator.component.option_state['1']).toBeTruthy();
         expect(spectator.component.option_state['2']).toBeFalsy();

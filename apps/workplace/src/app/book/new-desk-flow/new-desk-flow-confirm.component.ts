@@ -19,9 +19,9 @@ import { map, take } from 'rxjs/operators';
     selector: 'new-desk-flow-confirm',
     template: `
         <header
-            class="flex items-center justify-between p-2 h-12 m-2 rounded bg-base-200"
+            class="m-2 flex h-12 items-center justify-between rounded bg-base-200 p-2"
         >
-            <h2 class="text-xl font-medium px-2">
+            <h2 class="px-2 text-xl font-medium">
                 {{ 'APP.WORKPLACE.DESK_CONFIRM_TITLE' | translate }}
             </h2>
             <div class="">
@@ -40,8 +40,8 @@ import { map, take } from 'rxjs/operators';
                 </button>
             </div>
         </header>
-        <section period class="flex space-x-1 py-4 px-2 text-base">
-            <app-icon class="text-success text-2xl">done</app-icon>
+        <section period class="flex space-x-1 px-2 py-4 text-base">
+            <app-icon class="text-2xl text-success">done</app-icon>
             <div details class="space-y-2">
                 <h3 class="text-xl">{{ booking.title || '~Untitled~' }}</h3>
                 <div class="flex items-center space-x-2">
@@ -71,10 +71,10 @@ import { map, take } from 'rxjs/operators';
         </section>
         <section
             desk
-            class="text-base flex space-x-1 py-4 px-2 border-t border-neutral"
+            class="flex space-x-1 border-t border-neutral px-2 py-4 text-base"
             *ngIf="booking_asset?.id"
         >
-            <app-icon class="text-success text-2xl">done</app-icon>
+            <app-icon class="text-2xl text-success">done</app-icon>
             <div details class="space-y-2">
                 <h3 class="text-xl">
                     {{ booking_asset?.name || booking_asset?.id || '' }}
@@ -104,21 +104,21 @@ import { map, take } from 'rxjs/operators';
         </section>
         <section
             assets
-            class="flex space-x-1 py-4 px-2 border-t max-h-[50vh] overflow-auto"
+            class="flex max-h-[50vh] space-x-1 overflow-auto border-t px-2 py-4"
             *ngIf="assets.length"
         >
             <app-icon class="text-success">done</app-icon>
-            <div details class="flex-1 leading-6 w-1/2 pr-2">
+            <div details class="w-1/2 flex-1 pr-2 leading-6">
                 <h3>{{ 'BOOKINGS.DESK_ASSETS_REQUESTED' | translate }}</h3>
                 <div
                     request
                     *ngFor="let request of assets"
-                    class="border bg-base-100 rounded-xl overflow-hidden"
+                    class="overflow-hidden rounded-xl border bg-base-100"
                     [class.border-error]="end_time < request.deliver_at"
                     [class.border-base-300]="end_time >= request.deliver_at"
                 >
                     <div class="flex items-center space-x-2 p-3">
-                        <div class="flex-1 flex items-center space-x-2">
+                        <div class="flex flex-1 items-center space-x-2">
                             <div class="text-sm">
                                 {{
                                     'FORM.ASSETS_REQUESTED_FOR'
@@ -133,7 +133,7 @@ import { map, take } from 'rxjs/operators';
                                 }}
                             </div>
                             <div
-                                class="flex items-center justify-center h-6 w-6 rounded-full bg-error text-error-content"
+                                class="flex h-6 w-6 items-center justify-center rounded-full bg-error text-error-content"
                                 [matTooltip]="err_tooltip(request)"
                                 *ngIf="
                                     end_time < request.deliver_at ||
@@ -144,7 +144,7 @@ import { map, take } from 'rxjs/operators';
                             </div>
                             <div class="flex-1"></div>
                             <div
-                                class="text-xs bg-success text-success-content px-2 py-1 rounded"
+                                class="rounded bg-success px-2 py-1 text-xs text-success-content"
                             >
                                 {{
                                     'COMMON.ITEM_COUNT'
@@ -155,19 +155,19 @@ import { map, take } from 'rxjs/operators';
                         </div>
                     </div>
                     <div
-                        class="flex flex-col bg-base-200 divide-y divide-base-100"
+                        class="flex flex-col divide-y divide-base-100 bg-base-200"
                     >
                         <div
-                            class="flex items-center px-3 py-1 space-x-2 hover:opacity-90"
+                            class="flex items-center space-x-2 px-3 py-1 hover:opacity-90"
                             *ngFor="let item of request.items"
                         >
-                            <div class="flex items-center flex-1">
+                            <div class="flex flex-1 items-center">
                                 <span class="text-sm">{{
                                     item.name || 'Item'
                                 }}</span>
                             </div>
                             <div
-                                class="rounded bg-success text-success-content text-xs px-2 py-1"
+                                class="rounded bg-success px-2 py-1 text-xs text-success-content"
                             >
                                 x{{ item.quantity }}
                             </div>
@@ -178,7 +178,7 @@ import { map, take } from 'rxjs/operators';
         </section>
         <section
             locker
-            class="flex space-x-1 py-4 px-2 border-t"
+            class="flex space-x-1 border-t px-2 py-4"
             *ngIf="needs_locker"
         >
             <app-icon class="text-success">done</app-icon>
@@ -189,7 +189,7 @@ import { map, take } from 'rxjs/operators';
                 </div>
             </div>
         </section>
-        <footer class="p-2 w-full border-t border-base-200 mt-4">
+        <footer class="mt-4 w-full border-t border-base-200 p-2">
             <button
                 name="confirm-desk"
                 btn

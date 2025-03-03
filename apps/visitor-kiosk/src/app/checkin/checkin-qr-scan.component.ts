@@ -16,16 +16,16 @@ import { take } from 'rxjs/operators';
     selector: '[checkin-qr-scan]',
     template: `
         <div
-            class="bg-base-100 rounded shadow overflow-hidden relative flex flex-col items-center w-[36rem] p-4"
+            class="relative flex w-[36rem] flex-col items-center overflow-hidden rounded bg-base-100 p-4 shadow"
             [class.hidden]="checking_code"
         >
             <p class="my-4">
                 {{ 'APP.VISITOR_KIOSK.QR_CODE_MSG' | translate }}
             </p>
-            <div class="flex items-center space-x-2 w-full">
+            <div class="flex w-full items-center space-x-2">
                 <mat-form-field
                     appearance="outline"
-                    class="w-px flex-1 no-subscript"
+                    class="no-subscript w-px flex-1"
                 >
                     <input
                         matInput
@@ -45,10 +45,10 @@ import { take } from 'rxjs/operators';
                 </button>
             </div>
             <div
-                class="relative rounded mt-4 bg-base-200 border border-base-200 overflow-hidden"
+                class="relative mt-4 overflow-hidden rounded border border-base-200 bg-base-200"
             >
                 <div
-                    class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-30 flex flex-col items-center space-y-2 z-0"
+                    class="absolute left-1/2 top-1/2 z-0 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center space-y-2 opacity-30"
                 >
                     <app-icon class="text-6xl">videocam_off</app-icon>
                     <p class="text-center">
@@ -62,20 +62,20 @@ import { take } from 'rxjs/operators';
                     width="640"
                     height="480"
                     autoplay
-                    class="object-cover relative z-10"
+                    class="relative z-10 object-cover"
                 ></video>
             </div>
             <a
                 icon
                 matRipple
-                class="absolute top-0 right-0"
+                class="absolute right-0 top-0"
                 [routerLink]="['/welcome']"
             >
                 <app-icon>close</app-icon>
             </a>
         </div>
         <div
-            class="bg-base-100 rounded shadow overflow-hidden relative flex flex-col items-center p-16"
+            class="relative flex flex-col items-center overflow-hidden rounded bg-base-100 p-16 shadow"
             [class.hidden]="!checking_code"
         >
             <mat-spinner diameter="32"></mat-spinner>

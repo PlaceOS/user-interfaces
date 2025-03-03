@@ -79,7 +79,7 @@ describe('Booking Desks', () => {
                                     })
                                     .then(() => {
                                         cy.get('new-desk-flow-confirm').should(
-                                            'exist'
+                                            'exist',
                                         );
                                         cy.get('new-desk-flow-confirm')
                                             .contains('div', 'All Day')
@@ -89,7 +89,7 @@ describe('Booking Desks', () => {
                                             .then(() => {
                                                 cy.url().should(
                                                     'include',
-                                                    'success'
+                                                    'success',
                                                 );
                                             });
                                     });
@@ -118,35 +118,35 @@ describe('Booking Desks', () => {
                             .click({ force: true })
                             .then(() => {
                                 cy.get(
-                                    'desk-select-modal button[name="select-desk"]'
+                                    'desk-select-modal button[name="select-desk"]',
                                 )
                                     .eq(1)
                                     .click({ force: true })
                                     .then(() => {
                                         cy.get(
-                                            'button[name="toggle-desk"]'
+                                            'button[name="toggle-desk"]',
                                         ).click({
                                             force: true,
                                         });
                                         cy.wait(5000);
                                         cy.get(
-                                            'button[name="open-desk-confirm"]'
+                                            'button[name="open-desk-confirm"]',
                                         )
                                             .click({
                                                 force: true,
                                             })
                                             .then(() => {
                                                 cy.get(
-                                                    'new-desk-flow-confirm'
+                                                    'new-desk-flow-confirm',
                                                 ).should('exist');
                                                 cy.get(
-                                                    'button[name="confirm-desk"]'
+                                                    'button[name="confirm-desk"]',
                                                 )
                                                     .click({ force: true })
                                                     .then(() => {
                                                         cy.url().should(
                                                             'include',
-                                                            'success'
+                                                            'success',
                                                         );
                                                     });
                                             });
@@ -248,13 +248,13 @@ describe('Booking Desks', () => {
                                 cy.wait(6000);
 
                                 cy.get(
-                                    'desk-select-modal button[name="select-desk"]'
+                                    'desk-select-modal button[name="select-desk"]',
                                 )
                                     .first()
                                     .click({ force: true })
                                     .then(() => {
                                         cy.get(
-                                            'button[name="toggle-desk"]'
+                                            'button[name="toggle-desk"]',
                                         ).click({
                                             force: true,
                                         });
@@ -267,7 +267,7 @@ describe('Booking Desks', () => {
                             })
                             .then(() => {
                                 cy.get('new-desk-flow-confirm').should(
-                                    'not.exist'
+                                    'not.exist',
                                 );
                             });
 
@@ -328,7 +328,7 @@ describe('Booking Desks', () => {
                                     })
                                     .then(() => {
                                         cy.get('new-desk-flow-confirm').should(
-                                            'exist'
+                                            'exist',
                                         );
                                         cy.get('new-desk-flow-confirm')
                                             .contains('div', 'All Day')
@@ -338,7 +338,7 @@ describe('Booking Desks', () => {
                                             .then(() => {
                                                 cy.url().should(
                                                     'include',
-                                                    'success'
+                                                    'success',
                                                 );
                                             });
                                     });
@@ -378,35 +378,35 @@ describe('Booking Desks', () => {
                             .click({ force: true })
                             .then(() => {
                                 cy.get(
-                                    'desk-select-modal button[name="select-desk"]'
+                                    'desk-select-modal button[name="select-desk"]',
                                 )
                                     .eq(1)
                                     .click({ force: true })
                                     .then(() => {
                                         cy.get(
-                                            'button[name="toggle-desk"]'
+                                            'button[name="toggle-desk"]',
                                         ).click({
                                             force: true,
                                         });
                                         cy.wait(5000);
                                         cy.get(
-                                            'button[name="open-desk-confirm"]'
+                                            'button[name="open-desk-confirm"]',
                                         )
                                             .click({
                                                 force: true,
                                             })
                                             .then(() => {
                                                 cy.get(
-                                                    'new-desk-flow-confirm'
+                                                    'new-desk-flow-confirm',
                                                 ).should('exist');
                                                 cy.get(
-                                                    'button[name="confirm-desk"]'
+                                                    'button[name="confirm-desk"]',
                                                 )
                                                     .click({ force: true })
                                                     .then(() => {
                                                         cy.url().should(
                                                             'include',
-                                                            'success'
+                                                            'success',
                                                         );
                                                     });
                                             });

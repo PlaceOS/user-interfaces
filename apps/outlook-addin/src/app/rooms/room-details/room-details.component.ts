@@ -11,7 +11,7 @@ import { scan } from 'rxjs/operators';
     selector: 'placeos-room-details',
     templateUrl: './room-details.component.html',
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class RoomDetailsComponent implements OnInit {
     space: Space | any;
@@ -19,7 +19,7 @@ export class RoomDetailsComponent implements OnInit {
 
     constructor(
         @Inject(MAT_BOTTOM_SHEET_DATA) public data: any,
-        private _bottomSheetRef: MatBottomSheetRef<RoomDetailsComponent>
+        private _bottomSheetRef: MatBottomSheetRef<RoomDetailsComponent>,
     ) {}
 
     ngOnInit() {

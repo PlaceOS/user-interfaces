@@ -45,7 +45,7 @@ describe('ScheduleListComponent', () => {
             MatDatepickerModule,
             MatNativeDateModule,
             MatProgressSpinnerModule,
-            FormsModule
+            FormsModule,
         ],
         declarations: [
             MockComponent(ScheduleListItemComponent),

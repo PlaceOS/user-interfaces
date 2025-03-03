@@ -18,9 +18,9 @@ interface ImportItem {
     selector: 'catering-import-menu-modal',
     template: `
         <header
-            class="sticky top-0 p-2 m-2 w-[calc(100%-1rem)] border-none z-10 bg-base-200 rounded"
+            class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded border-none bg-base-200 p-2"
         >
-            <h2 class="text-xl font-medium px-2">
+            <h2 class="px-2 text-xl font-medium">
                 {{ 'CATERING.MENU_IMPORT' | translate }}
             </h2>
             <button icon matRipple mat-dialog-close *ngIf="!loading">
@@ -29,10 +29,10 @@ interface ImportItem {
         </header>
         <main *ngIf="!loading; else load_state">
             <div
-                class="relative flex flex-col items-center justify-center space-y-4 h-[24rem] w-[24rem] border-4 border-base-300 border-dashed rounded-xl hover:bg-base-200 mx-2 p-4 cursor-pointer"
+                class="relative mx-2 flex h-[24rem] w-[24rem] cursor-pointer flex-col items-center justify-center space-y-4 rounded-xl border-4 border-dashed border-base-300 p-4 hover:bg-base-200"
             >
                 <app-icon class="text-8xl opacity-30">cloud_upload</app-icon>
-                <p class="opacity-30 text-center px-4">
+                <p class="px-4 text-center opacity-30">
                     {{ 'CATERING.MENU_IMPORT_FILE_SELECT' | translate }}
                 </p>
                 <input
@@ -54,7 +54,7 @@ interface ImportItem {
         </main>
         <ng-template #load_state>
             <main
-                class="flex flex-col items-center justify-center space-y-2 p-8 h-[24rem] w-[24rem]"
+                class="flex h-[24rem] w-[24rem] flex-col items-center justify-center space-y-2 p-8"
             >
                 <mat-spinner diameter="32"></mat-spinner>
                 <p>{{ loading }}</p>

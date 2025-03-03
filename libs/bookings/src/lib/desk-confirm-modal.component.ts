@@ -45,7 +45,7 @@ export interface DeskConfirmModalData {
                         [(ngModel)]="date"
                     ></a-date-field>
                 </div>
-                <div reason class="flex flex-col mb-4" *ngIf="!hide_reason">
+                <div reason class="mb-4 flex flex-col" *ngIf="!hide_reason">
                     <label>Reason</label>
                     <mat-form-field appearance="outline">
                         <input
@@ -66,7 +66,7 @@ export interface DeskConfirmModalData {
             </footer>
         </ng-container>
         <ng-template #load_state>
-            <main load class="flex flex-col p-12 items-center justify-center">
+            <main load class="flex flex-col items-center justify-center p-12">
                 <mat-spinner [diameter]="48" class="mb-4"></mat-spinner>
                 <p>{{ loading }}</p>
             </main>
@@ -80,7 +80,7 @@ export interface DeskConfirmModalData {
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class DeskConfirmModalComponent {
     @Output() public event = new EventEmitter<DialogEvent>();

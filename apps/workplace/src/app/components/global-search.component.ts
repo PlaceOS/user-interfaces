@@ -6,7 +6,7 @@ import { ExploreSearchService } from '@placeos/explore';
 @Component({
     selector: 'global-search',
     template: `
-        <div class="h-full w-12 relative">
+        <div class="relative h-full w-12">
             <button
                 icon
                 name="global-search"
@@ -18,7 +18,7 @@ import { ExploreSearchService } from '@placeos/explore';
             </button>
             <div
                 search
-                class="flex items-center absolute top-1/2 right-2 -translate-y-1/2 max-w-[calc(100vw-4rem)] bg-base-100 shadow h-12 px-2 rounded-[24px] space-x-2 border-2 border-neutral z-50"
+                class="absolute right-2 top-1/2 z-50 flex h-12 max-w-[calc(100vw-4rem)] -translate-y-1/2 items-center space-x-2 rounded-[24px] border-2 border-neutral bg-base-100 px-2 shadow"
                 [ngClass]="{
                     'w-[32rem]': show,
                     'w-px': !show,
@@ -32,7 +32,7 @@ import { ExploreSearchService } from '@placeos/explore';
                 <input
                     #input
                     [placeholder]="'APP.WORKPLACE.GLOBAL_SEARCH' | translate"
-                    class="flex-1 w-1/2 py-2 outline-none"
+                    class="w-1/2 flex-1 py-2 outline-none"
                     [(ngModel)]="filter_str"
                     (ngModelChange)="setFilter($event)"
                     (blur)="hideInput()"
@@ -44,7 +44,7 @@ import { ExploreSearchService } from '@placeos/explore';
             </div>
             <div
                 search
-                class="flex flex-col items-center absolute bottom-0 right-2 translate-y-[calc(100%-1rem)] max-w-[calc(100vw-4rem)] max-h-[40vh] bg-base-100 shadow rounded-b pt-4 overflow-auto border border-base-200"
+                class="absolute bottom-0 right-2 flex max-h-[40vh] max-w-[calc(100vw-4rem)] translate-y-[calc(100%-1rem)] flex-col items-center overflow-auto rounded-b border border-base-200 bg-base-100 pt-4 shadow"
                 [ngClass]="{
                     'w-[32rem]': show,
                     'w-px': !show,
@@ -56,7 +56,7 @@ import { ExploreSearchService } from '@placeos/explore';
             >
                 <div
                     empty
-                    class="p-4 w-full text-center opacity-60"
+                    class="w-full p-4 text-center opacity-60"
                     *ngIf="
                         !(results | async)?.length && filter_str;
                         else empty_state
@@ -80,10 +80,10 @@ import { ExploreSearchService } from '@placeos/explore';
                                         zone: option.zone,
                                     }
                         "
-                        class="w-full h-14 min-h-14 flex items-center leading-tight px-4 py-2 hover:bg-base-200"
+                        class="flex h-14 min-h-14 w-full items-center px-4 py-2 leading-tight hover:bg-base-200"
                     >
                         <div class="flex-1 overflow-hidden">
-                            <div class="truncate w-full">
+                            <div class="w-full truncate">
                                 {{ option.name }}
                             </div>
                             <div class="text-xs opacity-60">
@@ -91,7 +91,7 @@ import { ExploreSearchService } from '@placeos/explore';
                             </div>
                         </div>
                         <div
-                            class="text-xs font-medium p-2 capitalize text-white bg-secondary text-secondary-content rounded"
+                            class="rounded bg-secondary p-2 text-xs font-medium capitalize text-secondary-content text-white"
                         >
                             {{ option.type }}
                         </div>
@@ -103,7 +103,7 @@ import { ExploreSearchService } from '@placeos/explore';
             <div
                 empty
                 *ngIf="!(results | async)?.length"
-                class="p-4 w-full text-center opacity-60"
+                class="w-full p-4 text-center opacity-60"
             >
                 {{ 'APP.WORKPLACE.GLOBAL_SEARCH_START' | translate }}
             </div>
@@ -118,7 +118,7 @@ import { ExploreSearchService } from '@placeos/explore';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class GlobalSearchComponent extends AsyncHandler {
     public readonly results = this._service.search_results;

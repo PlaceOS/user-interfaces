@@ -27,11 +27,11 @@ export interface PaymentData {
         >
             <ng-container *ngIf="!success; else success_state">
                 <main
-                    class="px-4 pt-8 w-[24rem] space-y-2 flex flex-col items-center relative"
+                    class="relative flex w-[24rem] flex-col items-center space-y-2 px-4 pt-8"
                 >
                     <h2 class="text-2xl font-medium">Booking Payment</h2>
                     <img src="assets/icons/cost.svg" class="w-1/2" />
-                    <p class="text-sm text-center pb-2">
+                    <p class="pb-2 text-center text-sm">
                         You are requesting a {{ details.type }} booking in
                         {{ details.resource_name }} for
                         {{ details.date | date: 'mediumDate' }}
@@ -44,7 +44,7 @@ export interface PaymentData {
                         </ng-container>
                     </p>
                     <p class="text-sm">You booking will cost:</p>
-                    <p class="text-lg font-medium text-center">
+                    <p class="text-center text-lg font-medium">
                         <strong>{{
                             details.amount / 100 | currency: code
                         }}</strong>
@@ -63,7 +63,7 @@ export interface PaymentData {
                     icon
                     matRipple
                     mat-dialog-close
-                    class="absolute top-1 left-1"
+                    class="absolute left-1 top-1"
                 >
                     <i class="material-icons text-2xl">close</i>
                 </button>
@@ -71,16 +71,16 @@ export interface PaymentData {
         </div>
         <ng-template #load_state>
             <div
-                class="w-full h-full flex flex-col items-center justify-center p-8"
+                class="flex h-full w-full flex-col items-center justify-center p-8"
             >
                 <mat-spinner diameter="32"></mat-spinner>
                 <p>{{ loading | async }}</p>
             </div>
         </ng-template>
         <ng-template #success_state>
-            <main class="px-8 pt-8 w-[24rem] flex flex-col relative">
+            <main class="relative flex w-[24rem] flex-col px-8 pt-8">
                 <h2 class="text-2xl font-medium">Payment Successful</h2>
-                <h3 class="text-xl font-medium mb-2">
+                <h3 class="mb-2 text-xl font-medium">
                     Ref #{{ transaction_id }}
                 </h3>
                 <p>{{ details.amount / 100 | currency: code }} paid.</p>
@@ -95,7 +95,7 @@ export interface PaymentData {
                 </p>
             </main>
             <img src="assets/icons/payment-confirmed.svg" class="w-full" />
-            <footer class="p-4 border-t border-base-200">
+            <footer class="border-t border-base-200 p-4">
                 <button btn matRipple mat-dialog-close class="w-full">
                     Great, thanks.
                 </button>
@@ -103,7 +103,7 @@ export interface PaymentData {
         </ng-template>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class PaymentModalComponent {
     @Output() public readonly event = new EventEmitter();

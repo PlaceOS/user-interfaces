@@ -9,11 +9,11 @@ import { EventsStateService } from '../day-view/events-state.service';
     selector: 'week-view-day',
     template: `
         <header
-            class="flex items-center justify-center border-b border-base-200 bg-base-300 w-full py-3 text-white"
+            class="flex w-full items-center justify-center border-b border-base-200 bg-base-300 py-3 text-white"
         >
             {{ date | async | date: 'EEE, MMM d, y' }}
         </header>
-        <div class="flex-1 h-1/2 overflow-auto w-full">
+        <div class="h-1/2 w-full flex-1 overflow-auto">
             <ng-container *ngIf="(events | async)?.length; else empty_state">
                 <week-view-event
                     *ngFor="let event of events | async"
@@ -22,7 +22,7 @@ import { EventsStateService } from '../day-view/events-state.service';
             </ng-container>
         </div>
         <ng-template #empty_state>
-            <p class="text-center p-2">No events</p>
+            <p class="p-2 text-center">No events</p>
         </ng-template>
     `,
     styles: [
@@ -35,7 +35,7 @@ import { EventsStateService } from '../day-view/events-state.service';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class WeekViewDayComponent implements OnChanges {
     @Input() public index: number;
@@ -43,7 +43,7 @@ export class WeekViewDayComponent implements OnChanges {
     private _index = new BehaviorSubject<number>(0);
 
     public readonly date = this._state.date.pipe(
-        map((date) => addDays(startOfWeek(date), this.index).valueOf())
+        map((date) => addDays(startOfWeek(date), this.index).valueOf()),
     );
 
     public readonly events = combineLatest([
@@ -59,10 +59,10 @@ export class WeekViewDayComponent implements OnChanges {
                     start,
                     end,
                     bkn.date,
-                    bkn.date + bkn.duration * 60 * 1000
-                )
+                    bkn.date + bkn.duration * 60 * 1000,
+                ),
             );
-        })
+        }),
     );
 
     constructor(private _state: EventsStateService) {}

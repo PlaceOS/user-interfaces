@@ -9,7 +9,7 @@ import { startOfDay } from 'date-fns';
     template: `
         <button
             matRipple
-            class="flex items-center rounded px-4 py-2 border border-neutral hover:border-base-content focus:outline-2 outline-base-content space-x-2 min-w-max"
+            class="flex min-w-max items-center space-x-2 rounded border border-neutral px-4 py-2 outline-base-content hover:border-base-content focus:outline-2"
             type="button"
             role="date-picker"
             customTooltip
@@ -45,7 +45,7 @@ import { startOfDay } from 'date-fns';
         </ng-template>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class DateRangeFieldComponent extends AsyncHandler {
     /** Earliest date available the user is allowed to pick */

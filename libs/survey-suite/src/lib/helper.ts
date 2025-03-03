@@ -1,60 +1,78 @@
-import { Question, QuestionType, UISurveyObj, UISurveyPage } from "./types";
+import { Question, QuestionType, UISurveyObj, UISurveyPage } from './types';
 import { Survey, SurveyQuestion } from '@placeos/ts-client';
 
-export function generateNewQuestion(): Question{
+export function generateNewQuestion(): Question {
     return {
         title: '',
         name: '',
         tags: [],
         type: QuestionType.Single_Line_Text,
         isRequired: false,
-        deleted:false
+        deleted: false,
     };
 }
 
-export function generateNewSurvey(){
+export function generateNewSurvey() {
     return {
-        title:'New Survey Title',
+        title: 'New Survey Title',
         description: '',
-        pages:[
+        pages: [
             {
-                title:'',
-                elements:[]
-            }
-        ]
+                title: '',
+                elements: [],
+            },
+        ],
     } as UISurveyObj;
 }
 
-export function translateToSurveyPage(pages: UISurveyPage[]){
-    if(!pages) return [];
+export function translateToSurveyPage(pages: UISurveyPage[]) {
+    if (!pages) return [];
     let surveyPages = [];
-    pages.forEach(p => {
+    pages.forEach((p) => {
         const { title, description } = p;
-        const question_order = (p.elements || []).map(e => e.id);
-        surveyPages.push({title,description,question_order})
-    })
+        const question_order = (p.elements || []).map((e) => e.id);
+        surveyPages.push({ title, description, question_order });
+    });
     return surveyPages;
 }
 
-export function translateToUISurveyObj(survey: Survey, questions: Question[]){
-    const {id, title, description, trigger, zone_id, building_id, pages} = survey;
+export function translateToUISurveyObj(survey: Survey, questions: Question[]) {
+    const { id, title, description, trigger, zone_id, building_id, pages } =
+        survey;
     let questSet = new Map();
-    questions.forEach(e => questSet.set(e.id, e));
+    questions.forEach((e) => questSet.set(e.id, e));
 
-    let transPages:UISurveyPage[] = [];
-    pages.forEach(p => {
-        const {title, description, question_order} = p;
+    let transPages: UISurveyPage[] = [];
+    pages.forEach((p) => {
+        const { title, description, question_order } = p;
         let elements = [];
-        question_order.forEach(q => elements.push(questSet.get(q)));
-        transPages.push({title,description, elements});
-    })
+        question_order.forEach((q) => elements.push(questSet.get(q)));
+        transPages.push({ title, description, elements });
+    });
 
-    return { id, title, description, trigger, zone_id, building_id, pages: transPages} as UISurveyObj
-
+    return {
+        id,
+        title,
+        description,
+        trigger,
+        zone_id,
+        building_id,
+        pages: transPages,
+    } as UISurveyObj;
 }
 
 export function translateToSurveyQuestion(q: Question) {
-    const { id, title, description, type, isRequired, options, tags, rateMax, choices } = q;
+    const {
+        id,
+        title,
+        description,
+        type,
+        isRequired,
+        options,
+        tags,
+        rateMax,
+        choices,
+    } = q;
     return {
         id,
         title,
@@ -64,7 +82,7 @@ export function translateToSurveyQuestion(q: Question) {
         choices,
         tags,
         required: isRequired,
-        max_rating: rateMax
+        max_rating: rateMax,
     } as Partial<SurveyQuestion>;
 }
 
@@ -79,7 +97,7 @@ export function translateToQuestion(q: SurveyQuestion) {
         choices: q.choices || [],
         isRequired: q.required || false,
         tags: q.tags || [],
-        deleted: q.deleted || false
+        deleted: q.deleted || false,
     } as Question;
 }
 
@@ -97,7 +115,7 @@ export function getEnumOptions<T>(targetEnum: T) {
 export function getEnumMap<T>(targetEnum: T) {
     let emap = {};
     filterStringEnumItems(targetEnum).forEach(
-        (e) => (emap[e[1]] = underToSpace(e[0]))
+        (e) => (emap[e[1]] = underToSpace(e[0])),
     );
     return emap;
 }
@@ -106,12 +124,14 @@ export function filterStringEnumItems<T>(targetEnum: T) {
     return Object.entries(targetEnum).filter((e) => isNaN(Number(e[0])));
 }
 
-export function makeHTMLId(length: number){
-    let result           = '';
-    const characters       = 'abcdefghijklmnopqrstuvwxyz0123456789';
+export function makeHTMLId(length: number) {
+    let result = '';
+    const characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
     const charactersLength = characters.length;
-    for ( let i = 0; i < length; i++ ) {
-        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    for (let i = 0; i < length; i++) {
+        result += characters.charAt(
+            Math.floor(Math.random() * charactersLength),
+        );
     }
     return result;
 }

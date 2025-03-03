@@ -48,7 +48,7 @@ describe('CateringItemFiltersComponent', () => {
     it('should allow updating search string', () => {
         spectator.triggerEventHandler('input', 'ngModelChange', 'test');
         expect(
-            spectator.inject(CateringOrderStateService).setFilters
+            spectator.inject(CateringOrderStateService).setFilters,
         ).toBeCalledWith({ search: 'test' });
     });
 

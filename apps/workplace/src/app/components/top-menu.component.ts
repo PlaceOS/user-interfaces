@@ -23,13 +23,13 @@ import { OrganisationService } from '@placeos/organisation';
             [class.opacity-0]="mobile_menu || checking"
             [class.!h-0]="mobile_menu"
             (window:resize)="checkMenu()"
-            class="flex items-center justify-center h-full w-full overflow-hidden text-base-content min-w-full"
+            class="flex h-full w-full min-w-full items-center justify-center overflow-hidden text-base-content"
         >
             <ng-container *ngFor="let route of routes">
                 <a
                     matRipple
                     [name]="'nav-' + route.id"
-                    class="flex items-center justify-center space-x-2 relative px-8"
+                    class="relative flex items-center justify-center space-x-2 px-8"
                     [routerLink]="[route.route]"
                     routerLinkActive="text-secondary active"
                     [matTooltip]="route.name"
@@ -40,7 +40,7 @@ import { OrganisationService } from '@placeos/organisation';
                     <app-icon
                         outline
                         className="material-icons-outlined"
-                        class="text-xl !m-0"
+                        class="!m-0 text-xl"
                     >
                         {{ route.icon }}
                     </app-icon>
@@ -49,13 +49,13 @@ import { OrganisationService } from '@placeos/organisation';
                     }}</span>
                     <div
                         bar
-                        class="absolute bottom-0 inset-x-0 h-0.5 bg-secondary"
+                        class="absolute inset-x-0 bottom-0 h-0.5 bg-secondary"
                     ></div>
                 </a>
             </ng-container>
         </div>
         <div
-            class="absolute inset-y-0 left-0 -right-16 flex items-center justify-end"
+            class="absolute inset-y-0 -right-16 left-0 flex items-center justify-end"
             *ngIf="mobile_menu"
         >
             <button icon matRipple [matMenuTriggerFor]="menu">
@@ -77,7 +77,7 @@ import { OrganisationService } from '@placeos/organisation';
                         <app-icon
                             outline
                             className="material-icons-outlined"
-                            class="text-xl !m-0"
+                            class="!m-0 text-xl"
                         >
                             {{ route.icon }}
                         </app-icon>
@@ -122,7 +122,7 @@ import { OrganisationService } from '@placeos/organisation';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class TopMenuComponent
     extends AsyncHandler

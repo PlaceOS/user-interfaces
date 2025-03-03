@@ -40,7 +40,7 @@ import {
             [hide_confirm]="true"
         >
             <div
-                class=" w-[calc(100%+2rem)] p-4 text-center bg-info text-info-content text-xs -mx-4 -my-2 rounded"
+                class="-mx-4 -my-2 w-[calc(100%+2rem)] rounded bg-info p-4 text-center text-xs text-info-content"
             >
                 {{ 'APP.CONCIERGE.BOOKING_RULES_NOTE' | translate }}
             </div>
@@ -51,9 +51,9 @@ import {
                     (rulesetChange)="save($event)"
                     *ngSwitchCase="'form'"
                 ></booking-rules-form>
-                <div class="overflow-auto -mx-4 w-[calc(100%+2rem)]">
+                <div class="-mx-4 w-[calc(100%+2rem)] overflow-auto">
                     <simple-table
-                        class="w-full min-w-[48rem] block text-sm"
+                        class="block w-full min-w-[48rem] text-sm"
                         *ngSwitchCase="'list'"
                         [data]="booking_rules"
                         [columns]="[
@@ -102,7 +102,7 @@ import {
                     ></simple-table>
                 </div>
                 <ng-template #index_template let-index="index">
-                    <div class="p-4 m-auto font-medium">
+                    <div class="m-auto p-4 font-medium">
                         {{ (index || 0) + 1 }}
                     </div>
                 </ng-template>
@@ -136,7 +136,7 @@ import {
                     <div
                         [class.bg-error]="!row.rules[key]"
                         [class.bg-success]="row.rules[key]"
-                        class="rounded h-8 w-8 flex items-center justify-center text-2xl text-white mx-auto"
+                        class="mx-auto flex h-8 w-8 items-center justify-center rounded text-2xl text-white"
                     >
                         <app-icon>{{
                             row.rules[key] ? 'done' : 'close'
@@ -145,7 +145,7 @@ import {
                 </ng-template>
                 <ng-template #actions_template let-row="row">
                     <div
-                        class="w-full flex items-center mx-auto space-x-2 px-2"
+                        class="mx-auto flex w-full items-center space-x-2 px-2"
                     >
                         <button
                             icon
@@ -194,7 +194,7 @@ import {
                 </ng-template>
             </ng-container>
             <footer
-                class="fixed bottom-0 left-1/2 -translate-x-1/2 px-4 py-2 mx-auto my-2 max-w-[640px] w-full border-none z-10 bg-base-200 rounded flex items-center justify-end space-x-4"
+                class="fixed bottom-0 left-1/2 z-10 mx-auto my-2 flex w-full max-w-[640px] -translate-x-1/2 items-center justify-end space-x-4 rounded border-none bg-base-200 px-4 py-2"
                 *ngIf="!loading"
             >
                 <button
@@ -228,7 +228,7 @@ import {
         </fullscreen-modal-shell>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class BookingRulesModalComponent {
     public loading = false;

@@ -13,15 +13,15 @@ import { first, take } from 'rxjs/operators';
     selector: 'space-ping',
     template: `
         <div
-            class="absolute inset-0 pointer-events-auto"
+            class="pointer-events-auto absolute inset-0"
             [style.transform]="'scale(' + zoom * ratio + ')'"
         >
             <div
-                class="absolute inset-0 animate-ping border-4 border-green-600"
+                class="border-green-600 absolute inset-0 animate-ping border-4"
             ></div>
         </div>
     `,
-    standalone: false
+    standalone: false,
 })
 class SpacePingComponent extends AsyncHandler {
     public zoom = 1;
@@ -30,11 +30,11 @@ class SpacePingComponent extends AsyncHandler {
         super();
         this.subscription(
             'zoom',
-            this._details.zoom$?.subscribe((_) => (this.zoom = _))
+            this._details.zoom$?.subscribe((_) => (this.zoom = _)),
         );
         this.subscription(
             'ratio',
-            this._details.ratio$?.subscribe((_) => (this.ratio = _))
+            this._details.ratio$?.subscribe((_) => (this.ratio = _)),
         );
     }
 }
@@ -43,17 +43,17 @@ class SpacePingComponent extends AsyncHandler {
     selector: 'parking-flow-map',
     template: `
         <div
-            class="w-full h-full flex flex-col items-center relative"
+            class="relative flex h-full w-full flex-col items-center"
             *ngIf="!(loading | async); else load_state"
         >
             <div
-                class="p-4 flex items-center justify-center bg-secondary w-full shadow z-10 text-white space-x-2"
+                class="z-10 flex w-full items-center justify-center space-x-2 bg-secondary p-4 text-white shadow"
             >
                 <button
                     matRipple
                     *ngFor="let date of dates"
                     [class.selected]="date.id === (options | async)?.date"
-                    class="border border-white flex flex-col items-center justify-center h-24 w-28 rounded"
+                    class="flex h-24 w-28 flex-col items-center justify-center rounded border border-white"
                     (click)="setDate(date.id)"
                 >
                     <p class="mb-2 font-medium">{{ date.name }}</p>
@@ -63,17 +63,17 @@ class SpacePingComponent extends AsyncHandler {
                     <p class="text-sm">Available</p>
                 </button>
             </div>
-            <div class="flex w-full h-1/2 flex-1 z-0">
+            <div class="z-0 flex h-1/2 w-full flex-1">
                 <div
-                    class="p-2 sm:w-[18rem] w-full h-full bg-base-200 shadow border-r border-base-200 z-10 overflow-auto space-y-2"
+                    class="z-10 h-full w-full space-y-2 overflow-auto border-r border-base-200 bg-base-200 p-2 shadow sm:w-[18rem]"
                 >
                     <div
-                        class="bg-base-100 sticky top-0 w-full z-10"
+                        class="sticky top-0 z-10 w-full bg-base-100"
                         *ngIf="(levels | async)?.length > 1"
                     >
                         <mat-form-field
                             appearance="outline"
-                            class="w-full h-[3.25rem]"
+                            class="h-[3.25rem] w-full"
                         >
                             <mat-select
                                 [ngModel]="level | async"
@@ -91,7 +91,7 @@ class SpacePingComponent extends AsyncHandler {
                     <p>{{ (available | async)?.length }} space(s) available</p>
                     <button
                         matRipple
-                        class="flex items-center justify-between bg-base-100 rounded-lg border border-base-200 p-2 w-full"
+                        class="flex w-full items-center justify-between rounded-lg border border-base-200 bg-base-100 p-2"
                         [class.active]="(active_space | async)?.id === space.id"
                         (click)="setActive(space)"
                         *ngFor="let space of available | async"
@@ -103,7 +103,7 @@ class SpacePingComponent extends AsyncHandler {
                     </button>
                 </div>
                 <div
-                    class="bg-base-200 flex-1 w-1/2 h-full z-0 relative hidden sm:block"
+                    class="relative z-0 hidden h-full w-1/2 flex-1 bg-base-200 sm:block"
                 >
                     <interactive-map
                         [src]="url | async"
@@ -120,14 +120,14 @@ class SpacePingComponent extends AsyncHandler {
                 </div>
                 <div
                     *ngIf="active_space | async"
-                    class="absolute left-1/2 bottom-2 -translate-x-1/2 bg-base-100 shadow rounded p-4 flex flex-col space-y-2"
+                    class="absolute bottom-2 left-1/2 flex -translate-x-1/2 flex-col space-y-2 rounded bg-base-100 p-4 shadow"
                 >
                     <p>
                         Parking Bay No.
                         {{ (active_space | async).name }} selected.
                     </p>
                     <p
-                        class="p-2 rounded text-sm max-w-[20rem] text-center text-pending leading-tight"
+                        class="text-pending max-w-[20rem] rounded p-2 text-center text-sm leading-tight"
                         *ngIf="(existing | async)?.length"
                     >
                         Note that your existing parking space reservation will
@@ -138,7 +138,7 @@ class SpacePingComponent extends AsyncHandler {
                     </button>
                 </div>
                 <div
-                    class="absolute inset-0 bg-base-100/80 flex flex-col items-center justify-center z-50"
+                    class="bg-base-100/80 absolute inset-0 z-50 flex flex-col items-center justify-center"
                     *ngIf="!(levels | async)?.length"
                 >
                     <p>
@@ -153,7 +153,7 @@ class SpacePingComponent extends AsyncHandler {
         </div>
         <ng-template #load_state>
             <div
-                class="absolute inset-0 bg-base-100/80 flex flex-col items-center justify-center z-50 space-y-2"
+                class="bg-base-100/80 absolute inset-0 z-50 flex flex-col items-center justify-center space-y-2"
                 *ngIf="!(levels | async)?.length"
             >
                 <mat-spinner diameter="32"></mat-spinner>
@@ -175,7 +175,7 @@ class SpacePingComponent extends AsyncHandler {
         `,
     ],
     providers: [ExploreParkingService],
-    standalone: false
+    standalone: false,
 })
 export class ParkingFlowMapComponent extends AsyncHandler {
     /** Observable for the active map */
@@ -247,7 +247,7 @@ export class ParkingFlowMapComponent extends AsyncHandler {
         private _parking: ExploreParkingService,
         private _org: OrganisationService,
         private _booking: BookingFormService,
-        private _router: Router
+        private _router: Router,
     ) {
         super();
     }
@@ -259,7 +259,7 @@ export class ParkingFlowMapComponent extends AsyncHandler {
             'levels',
             this._parking.levels.subscribe((levels) => {
                 this._state.setLevel(levels[0]?.id);
-            })
+            }),
         );
         this.subscription(
             'spaces',
@@ -270,9 +270,9 @@ export class ParkingFlowMapComponent extends AsyncHandler {
                         id: _.map_id,
                         action: 'click',
                         callback: () => this.setActive(_),
-                    }))
+                    })),
                 );
-            })
+            }),
         );
         this.subscription(
             'active_space',
@@ -286,7 +286,7 @@ export class ParkingFlowMapComponent extends AsyncHandler {
                         z_index: 0,
                     },
                 ]);
-            })
+            }),
         );
     }
 }

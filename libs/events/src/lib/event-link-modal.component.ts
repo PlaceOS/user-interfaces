@@ -12,12 +12,12 @@ import { notifyError } from '@placeos/common';
 @Component({
     selector: 'event-link-modal',
     template: `
-        <div class="p-4 w-full pb-2">Add event to your calendar</div>
-        <div class="flex flex-col items-center space-y-4 p-4 relative">
+        <div class="w-full p-4 pb-2">Add event to your calendar</div>
+        <div class="relative flex flex-col items-center space-y-4 p-4">
             <a
                 btn
                 matRipple
-                class="flex items-center p-2 space-x-2 pr-4 w-64 rounded inverse"
+                class="inverse flex w-64 items-center space-x-2 rounded p-2 pr-4"
                 [href]="outlook_link | sanitize: 'url'"
                 target="_blank"
                 rel="noopener noreferer"
@@ -29,7 +29,7 @@ import { notifyError } from '@placeos/common';
             <a
                 btn
                 matRipple
-                class="flex items-center p-2 space-x-2 pr-4 w-64 rounded inverse"
+                class="inverse flex w-64 items-center space-x-2 rounded p-2 pr-4"
                 [href]="google_link | sanitize: 'url'"
                 target="_blank"
                 rel="noopener noreferer"
@@ -41,7 +41,7 @@ import { notifyError } from '@placeos/common';
             <a
                 btn
                 matRipple
-                class="flex items-center p-2 space-x-2 pr-4 w-64 rounded inverse"
+                class="inverse flex w-64 items-center space-x-2 rounded p-2 pr-4"
                 [href]="ical_link | safe: 'url'"
                 target="_blank"
                 rel="noopener noreferer"
@@ -56,7 +56,7 @@ import { notifyError } from '@placeos/common';
             icon
             matRipple
             [mat-dialog-close]="has_actioned"
-            class="absolute top-2 right-0"
+            class="absolute right-0 top-2"
         >
             <app-icon>close</app-icon>
         </button>
@@ -68,7 +68,7 @@ import { notifyError } from '@placeos/common';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class EventLinkModalComponent {
     public readonly outlook_link = generateMicrosoftCalendarLink(

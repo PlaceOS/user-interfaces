@@ -17,10 +17,10 @@ function registerMocks() {
                         +_.query_params.period_start,
                         +_.query_params.period_end,
                         event.booking_start,
-                        event.booking_end
+                        event.booking_end,
                     ) &&
                     (event.type === _.query_params.type ||
-                        event.booking_type === _.query_params.type)
+                        event.booking_type === _.query_params.type),
             );
             return events;
         },
@@ -78,7 +78,7 @@ function registerMocks() {
                 };
             }
             const guest = event.attendees.find(
-                (_) => _.email === decodeURIComponent(email)
+                (_) => _.email === decodeURIComponent(email),
             );
             if (!guest) {
                 throw {
@@ -105,7 +105,7 @@ function registerMocks() {
                 };
             }
             event.attendees = event.attendees.filter(
-                (_) => _.email !== decodeURIComponent(email)
+                (_) => _.email !== decodeURIComponent(email),
             );
             return event;
         },
@@ -192,7 +192,7 @@ function registerMocks() {
         method: 'DELETE',
         callback: (req) => {
             const index = MOCK_BOOKINGS.findIndex(
-                (e) => e.id === req.route_params.id
+                (e) => e.id === req.route_params.id,
             );
             if (index < 0)
                 throw {

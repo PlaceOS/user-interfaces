@@ -10,7 +10,7 @@ import {
     selector: 'lighting-tooltip',
     template: `
         <div
-            class="p-4 my-2 bg-base-100 shadow rounded flex flex-col items-center space-y-2"
+            class="my-2 flex flex-col items-center space-y-2 rounded bg-base-100 p-4 shadow"
         >
             <div hidden *ngIf="!!(lights | async)[0]">
                 <i

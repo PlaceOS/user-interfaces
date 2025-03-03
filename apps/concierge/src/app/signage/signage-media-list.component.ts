@@ -8,11 +8,11 @@ import { getUnixTime, startOfMinute } from 'date-fns';
 @Component({
     selector: 'signage-media-list',
     template: `
-        <div class="p-4 relative">
-            <h3 class="text-xl font-medium text-center mb-4">
+        <div class="relative p-4">
+            <h3 class="mb-4 text-center text-xl font-medium">
                 {{ 'APP.CONCIERGE.SIGNAGE_MEDIA' | translate }}
             </h3>
-            <mat-form-field appearance="outline" class="w-full no-subscript">
+            <mat-form-field appearance="outline" class="no-subscript w-full">
                 <input
                     matInput
                     [placeholder]="'COMMON.SEARCH' | translate"
@@ -23,7 +23,7 @@ import { getUnixTime, startOfMinute } from 'date-fns';
             <button
                 icon
                 matRipple
-                class="absolute top-2 right-2 border border-base-300"
+                class="absolute right-2 top-2 border border-base-300"
                 [matTooltip]="'APP.CONCIERGE.SIGNAGE_MEDIA_UPLOAD' | translate"
                 matTooltipPosition="left"
             >
@@ -37,7 +37,7 @@ import { getUnixTime, startOfMinute } from 'date-fns';
         </div>
         @if ((media | async)?.length > 0) {
             <div
-                class="grid w-full gap-4 md:grid-cols-2 lg:grid-cols-3 p-4"
+                class="grid w-full gap-4 p-4 md:grid-cols-2 lg:grid-cols-3"
                 cdkDropList
                 id="media-list"
                 [cdkDropListData]="media | async"
@@ -46,22 +46,22 @@ import { getUnixTime, startOfMinute } from 'date-fns';
             >
                 @for (media of media | async; track media.id) {
                     <div
-                        class="relative bg-base-100 rounded-lg flex flex-col items-center justify-center p-3 hover:opacity-80 border border-base-300"
+                        class="relative flex flex-col items-center justify-center rounded-lg border border-base-300 bg-base-100 p-3 hover:opacity-80"
                         cdkDrag
                     >
                         @if (media.valid_from && now < media.valid_from) {
                             <div
-                                class="absolute inset-0 z-0 bg-warning opacity-10 rounded-lg"
+                                class="absolute inset-0 z-0 rounded-lg bg-warning opacity-10"
                             ></div>
                         } @else if (
                             media.valid_until && now > media.valid_until
                         ) {
                             <div
-                                class="absolute inset-0 z-0 bg-error opacity-10 rounded-lg"
+                                class="absolute inset-0 z-0 rounded-lg bg-error opacity-10"
                             ></div>
                         }
                         <div
-                            class="min-h-10 min-w-10 border-4 rounded-2xl border-base-400 bg-base-300 border-dashed flex items-center justify-center"
+                            class="flex min-h-10 min-w-10 items-center justify-center rounded-2xl border-4 border-dashed border-base-400 bg-base-300"
                             *cdkDragPlaceholder
                         >
                             <app-icon class="text-2xl text-base-100">
@@ -70,16 +70,16 @@ import { getUnixTime, startOfMinute } from 'date-fns';
                         </div>
                         <div
                             preview
-                            class="relative w-full h-36 bg-base-200 rounded-lg overflow-hidden"
+                            class="relative h-36 w-full overflow-hidden rounded-lg bg-base-200"
                         >
                             <img
                                 auth
                                 [source]="media.thumbnail_url"
                                 *ngIf="media.thumbnail_url"
-                                class="w-full h-full object-contain rounded-lg"
+                                class="h-full w-full rounded-lg object-contain"
                             />
                             <div
-                                class="absolute top-1 left-1 px-2 py-1 text-xs rounded-lg capitalize font-mono"
+                                class="absolute left-1 top-1 rounded-lg px-2 py-1 font-mono text-xs capitalize"
                                 [class.bg-info]="media.media_type === 'video'"
                                 [class.text-info-content]="
                                     media.media_type === 'video'
@@ -99,17 +99,17 @@ import { getUnixTime, startOfMinute } from 'date-fns';
                                 }}
                             </div>
                             <div
-                                class="absolute bottom-1 right-1 px-2 py-1 text-xs rounded-lg bg-info text-info-content capitalize font-mono"
+                                class="absolute bottom-1 right-1 rounded-lg bg-info px-2 py-1 font-mono text-xs capitalize text-info-content"
                                 *ngIf="media.play_time"
                             >
                                 {{ media.play_time / 1000 | mediaDuration }}
                             </div>
                         </div>
                         <div
-                            class="flex items-center justify-between w-full relative top-1"
+                            class="relative top-1 flex w-full items-center justify-between"
                         >
                             <div
-                                class="text-base-content truncate flex-1 w-1/2"
+                                class="w-1/2 flex-1 truncate text-base-content"
                                 [matTooltip]="media.name"
                             >
                                 {{ media.name }}
@@ -126,7 +126,7 @@ import { getUnixTime, startOfMinute } from 'date-fns';
                                 <div class="px-2">
                                     <mat-form-field
                                         appearance="outline"
-                                        class="w-full no-subscript"
+                                        class="no-subscript w-full"
                                         (click)="$event.stopPropagation()"
                                     >
                                         <input
@@ -235,7 +235,7 @@ import { getUnixTime, startOfMinute } from 'date-fns';
             </div>
         } @else {
             <div
-                class="flex flex-col items-center justify-center p-8 space-y-2 opacity-30 mx-auto flex-1"
+                class="mx-auto flex flex-1 flex-col items-center justify-center space-y-2 p-8 opacity-30"
             >
                 <app-icon class="text-6xl">hide_image</app-icon>
                 <p>{{ 'APP.CONCIERGE.SIGNAGE_MEDIA_EMPTY' | translate }}</p>
@@ -251,7 +251,7 @@ import { getUnixTime, startOfMinute } from 'date-fns';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class SignageMediaListComponent implements OnChanges {
     @Input() public playlist_count = 0;

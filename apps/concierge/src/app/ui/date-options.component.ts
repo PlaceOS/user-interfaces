@@ -22,7 +22,7 @@ import {
         <button
             icon
             matRipple
-            class="rounded relative"
+            class="relative rounded"
             *ngIf="is_new"
             customTooltip
             [content]="calendar_picker"
@@ -39,10 +39,10 @@ import {
             <app-icon>keyboard_arrow_right</app-icon>
         </button>
         <div
-            class="display mx-4 flex items-center justify-center leading-none h-12 w-28 relative"
+            class="display relative mx-4 flex h-12 w-28 items-center justify-center leading-none"
         >
             <div
-                class="text-xs text-info absolute top-0 left-1/2 -translate-x-1/2"
+                class="absolute left-1/2 top-0 -translate-x-1/2 text-xs text-info"
                 *ngIf="is_today"
             >
                 {{ 'COMMON.TODAY' | translate }}
@@ -57,7 +57,7 @@ import {
         <button
             icon
             matRipple
-            class="rounded relative border border-base-200"
+            class="relative rounded border border-base-200"
             *ngIf="!is_new"
             customTooltip
             [content]="calendar_picker"
@@ -90,7 +90,7 @@ import {
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class DateOptionsComponent extends AsyncHandler {
     @Input() public is_new = false;

@@ -10,7 +10,7 @@ import { BookingPanelSettingsModalComponent } from '../ui/app-settings/booking-p
     template: `
         <div class="absolute inset-0 overflow-auto px-8">
             <simple-table
-                class="min-w-[48rem] block text-sm"
+                class="block min-w-[48rem] text-sm"
                 [data]="levels"
                 [empty_message]="'APP.CONCIERGE.LEVELS_EMPTY' | translate"
                 [columns]="[
@@ -46,7 +46,7 @@ import { BookingPanelSettingsModalComponent } from '../ui/app-settings/booking-p
                 ]"
                 [sortable]="true"
             ></simple-table>
-            <div class="w-full h-20"></div>
+            <div class="h-20 w-full"></div>
         </div>
         <ng-template #name_template let-row="row" let-data="data">
             <button
@@ -54,7 +54,7 @@ import { BookingPanelSettingsModalComponent } from '../ui/app-settings/booking-p
                 (click)="copyToClipboard(row.id)"
             >
                 <div class="">{{ data }}</div>
-                <div class="text-[0.625rem] opacity-30 font-mono">
+                <div class="font-mono text-[0.625rem] opacity-30">
                     {{ row.id }}
                 </div>
             </button>
@@ -62,13 +62,13 @@ import { BookingPanelSettingsModalComponent } from '../ui/app-settings/booking-p
         <ng-template #parking_template let-row="row">
             <div
                 *ngIf="row.tags?.includes('parking')"
-                class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-success text-success-content mx-auto"
+                class="mx-auto flex h-8 w-8 items-center justify-center rounded bg-success text-2xl text-success-content"
             >
                 <app-icon>done</app-icon>
             </div>
         </ng-template>
         <ng-template #action_template let-row="row">
-            <div class="w-full flex justify-center space-x-2 p-1">
+            <div class="flex w-full justify-center space-x-2 p-1">
                 <button
                     icon
                     matRipple
@@ -118,7 +118,7 @@ import { BookingPanelSettingsModalComponent } from '../ui/app-settings/booking-p
         </ng-template>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class LevelListComponent {
     public readonly levels = this._manager.filtered_levels;

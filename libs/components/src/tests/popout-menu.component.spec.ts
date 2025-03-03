@@ -31,7 +31,7 @@ describe('PopoutMenuComponent', () => {
         spectator.detectChanges();
         expect(spectator.query('button.small')).toHaveAttribute(
             'style',
-            'top: -60%;'
+            'top: -60%;',
         );
     });
 

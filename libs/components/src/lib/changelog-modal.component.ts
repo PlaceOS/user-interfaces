@@ -17,19 +17,19 @@ export interface ChangelogModalData {
             </button>
         </header>
         <main
-            class="p-4 markdown max-h-[65vh] max-w-[80vw] overflow-auto"
+            class="markdown max-h-[65vh] max-w-[80vw] overflow-auto p-4"
             *ngIf="changelog; else empty_state"
             [innerHTML]="changelog | safe: 'html'"
         ></main>
         <ng-template #empty_state>
-            <div class="flex items-center justify-center flex-col space-y-2">
+            <div class="flex flex-col items-center justify-center space-y-2">
                 <app-icon class="text-3xl">close</app-icon>
                 <div class="text">No changelog</div>
             </div>
         </ng-template>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class ChangelogModalComponent {
     /** Whether the changelog is loading */

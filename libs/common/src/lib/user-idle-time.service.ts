@@ -17,11 +17,11 @@ export class UserIdleTimeService {
         interval(1000),
     ]).pipe(
         throttleTime(300),
-        map(([last_action]) => last_action)
+        map(([last_action]) => last_action),
     );
 
     public readonly idle_time = this.last_action.pipe(
-        map((time) => Date.now() - time)
+        map((time) => Date.now() - time),
     );
 
     private _onUserInteraction() {
@@ -32,7 +32,7 @@ export class UserIdleTimeService {
         const stop = this.startListening();
         return this.idle_time.pipe(
             first((t) => t >= time_ms),
-            tap(() => stop())
+            tap(() => stop()),
         );
     }
 

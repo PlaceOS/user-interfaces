@@ -71,7 +71,7 @@ export interface MapMetadata {
         <div
             zoom
             *ngIf="options?.controls"
-            class="absolute bottom-16 right-1 border border-base-200 divide-y divide-base-200 shadow flex flex-col bg-base-100 text-base-content rounded overflow-hidden"
+            class="absolute bottom-16 right-1 flex flex-col divide-y divide-base-200 overflow-hidden rounded border border-base-200 bg-base-100 text-base-content shadow"
         >
             <button
                 icon

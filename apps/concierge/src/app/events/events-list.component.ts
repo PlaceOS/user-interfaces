@@ -33,7 +33,7 @@ import { distinctUntilChanged, map, take } from 'rxjs/operators';
                     <app-icon class="text-2xl">chevron_right</app-icon>
                 </a>
             </div>
-            <div filters class="flex items-center px-8 space-x-2 pb-4">
+            <div filters class="flex items-center space-x-2 px-8 pb-4">
                 <button
                     btn
                     matRipple
@@ -61,9 +61,9 @@ import { distinctUntilChanged, map, take } from 'rxjs/operators';
                     </div>
                 </button>
                 <div class="h-full px-2">
-                    <div class="w-px h-full bg-base-300"></div>
+                    <div class="h-full w-px bg-base-300"></div>
                 </div>
-                <mat-form-field appearance="outline" class="w-32 no-subscript">
+                <mat-form-field appearance="outline" class="no-subscript w-32">
                     <mat-select
                         [ngModel]="period | async"
                         (ngModelChange)="setPeriodType($event)"
@@ -76,7 +76,7 @@ import { distinctUntilChanged, map, take } from 'rxjs/operators';
                         }}</mat-option>
                     </mat-select>
                 </mat-form-field>
-                <mat-form-field appearance="outline" class="w-64 no-subscript">
+                <mat-form-field appearance="outline" class="no-subscript w-64">
                     <mat-select
                         [(ngModel)]="selected_range"
                         (ngModelChange)="setPeriod($event)"
@@ -90,9 +90,9 @@ import { distinctUntilChanged, map, take } from 'rxjs/operators';
                     </mat-select>
                 </mat-form-field>
             </div>
-            <div class="h-1/2 flex-1 w-full px-8 overflow-y-auto relative">
+            <div class="relative h-1/2 w-full flex-1 overflow-y-auto px-8">
                 <div
-                    class="w-full min-h-full overflow-x-auto"
+                    class="min-h-full w-full overflow-x-auto"
                     *ngIf="view === 'list'"
                 >
                     <event-listing class="block"></event-listing>
@@ -105,10 +105,10 @@ import { distinctUntilChanged, map, take } from 'rxjs/operators';
         </div>
         <div
             *ngIf="!has_calendar"
-            class="absolute inset-0 flex items-center justify-center z-50"
+            class="absolute inset-0 z-50 flex items-center justify-center"
         >
             <div class="absolute inset-0 bg-base-100 opacity-80"></div>
-            <p class="opacity-60 text-lg max-w-[32rem]">
+            <p class="max-w-[32rem] text-lg opacity-60">
                 {{ 'APP.CONCIERGE.EVENTS_CONFIG_ERROR' | translate }}
             </p>
         </div>
@@ -120,7 +120,7 @@ import { distinctUntilChanged, map, take } from 'rxjs/operators';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class EventsListComponent extends AsyncHandler implements OnInit {
     public readonly period = this._state.options.pipe(

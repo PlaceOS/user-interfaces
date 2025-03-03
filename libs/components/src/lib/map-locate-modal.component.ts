@@ -28,7 +28,7 @@ export interface Locatable {
             </header>
             <div
                 body
-                class="relative overflow-hidden h-[65vh] w-full sm:max-h-[65vh]"
+                class="relative h-[65vh] w-full overflow-hidden sm:max-h-[65vh]"
                 *ngIf="level"
             >
                 <interactive-map
@@ -44,13 +44,13 @@ export interface Locatable {
                     <mat-spinner diameter="64"></mat-spinner
                 ></interactive-map>
                 <div
-                    class="absolute top-2 right-2 py-2 px-4 bg-base-100 rounded-3xl shadow border border-base-200"
+                    class="absolute right-2 top-2 rounded-3xl border border-base-200 bg-base-100 px-4 py-2 shadow"
                 >
                     {{ level?.display_name || level?.name }}
                 </div>
             </div>
             <footer
-                class="w-full border-t border-base-200 flex items-center justify-center p-2"
+                class="flex w-full items-center justify-center border-t border-base-200 p-2"
             >
                 <button btn matRipple class="inverse w-32" mat-dialog-close>
                     {{ 'COMMON.BACK' | translate }}
@@ -65,7 +65,7 @@ export interface Locatable {
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class MapLocateModalComponent extends AsyncHandler implements OnInit {
     /** Emitter for user action on the modal */

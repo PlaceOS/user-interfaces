@@ -68,7 +68,7 @@ export class AsyncHandler implements OnDestroy {
             throw new Error(
                 name
                     ? 'Cannot create named timeout without a name'
-                    : 'Cannot create a timeout without a callback'
+                    : 'Cannot create a timeout without a callback',
             );
         }
     }
@@ -98,7 +98,7 @@ export class AsyncHandler implements OnDestroy {
             throw new Error(
                 name
                     ? 'Cannot create named interval without a name'
-                    : 'Cannot create a interval without a callback'
+                    : 'Cannot create a interval without a callback',
             );
         }
     }
@@ -149,7 +149,7 @@ export class AsyncHandler implements OnDestroy {
     /** Unsubscribe to the items with names containing the given string */
     protected unsubWith(contains: string) {
         const subs = Object.keys(this._subscriptions).filter((k) =>
-            k.includes(contains)
+            k.includes(contains),
         );
         for (const key of subs) {
             this.unsub(key);

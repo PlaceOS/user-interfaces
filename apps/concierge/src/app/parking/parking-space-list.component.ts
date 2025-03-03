@@ -14,7 +14,7 @@ import { Clipboard } from '@angular/cdk/clipboard';
             class="w-full"
         ></mat-progress-bar>
         <simple-table
-            class="min-w-[52rem] block text-sm"
+            class="block min-w-[52rem] text-sm"
             [data]="spaces"
             [columns]="[
                 {
@@ -48,7 +48,7 @@ import { Clipboard } from '@angular/cdk/clipboard';
         ></simple-table>
         <ng-template #status_template let-row="row">
             <div
-                class="flex items-center justify-center h-8 w-8 rounded  mx-auto"
+                class="mx-auto flex h-8 w-8 items-center justify-center rounded"
                 [class.bg-warning]="
                     !space_status[row.id]?.includes('free') &&
                     !space_status[row.id]?.includes('busy')
@@ -85,7 +85,7 @@ import { Clipboard } from '@angular/cdk/clipboard';
                 (click)="copyToClipboard(row.id)"
             >
                 <div class="">{{ data }}</div>
-                <div class="text-[0.625rem] opacity-30 font-mono">
+                <div class="font-mono text-[0.625rem] opacity-30">
                     {{ row.map_id || row.id }}
                 </div>
             </button>
@@ -102,14 +102,14 @@ import { Clipboard } from '@angular/cdk/clipboard';
                 <div class="">{{ row.assigned_name || data }}</div>
                 <div
                     *ngIf="row.assigned_name"
-                    class="text-[0.625rem] opacity-30 font-mono"
+                    class="font-mono text-[0.625rem] opacity-30"
                 >
                     {{ data }}
                 </div>
             </button>
         </ng-template>
         <ng-template #action_template let-row="row">
-            <div class="flex items-center space-x-2 mx-auto">
+            <div class="mx-auto flex items-center space-x-2">
                 <button
                     icon
                     matRipple
@@ -133,10 +133,10 @@ import { Clipboard } from '@angular/cdk/clipboard';
                 </button>
             </div>
         </ng-template>
-        <div class="w-full h-20"></div>
+        <div class="h-20 w-full"></div>
     `,
     styles: [],
-    standalone: false
+    standalone: false,
 })
 export class ParkingSpaceListComponent extends AsyncHandler {
     public readonly spaces = this._state.spaces;

@@ -8,9 +8,9 @@ import { Booking } from '@placeos/bookings';
 @Component({
     selector: 'app-asset-request-list',
     template: `
-        <div class="relative w-full h-[calc(100%-1rem)] flex flex-col">
+        <div class="relative flex h-[calc(100%-1rem)] w-full flex-col">
             <div class="flex items-center justify-between">
-                <div class="opacity-60 text-sm p-4">
+                <div class="p-4 text-sm opacity-60">
                     {{
                         'APP.CONCIERGE.ASSETS_REQUESTS_COUNT'
                             | translate: { count: (requests | async)?.length }
@@ -21,7 +21,7 @@ import { Booking } from '@placeos/bookings';
                     (dateChange)="setDate($event)"
                 ></date-options>
             </div>
-            <div class="w-full overflow-auto h-1/2 flex-1 pt-2">
+            <div class="h-1/2 w-full flex-1 overflow-auto pt-2">
                 <simple-table
                     class="block min-w-[82rem] text-sm"
                     asset-requests
@@ -87,7 +87,7 @@ import { Booking } from '@placeos/bookings';
                     [sortable]="true"
                     (row_clicked)="request = $event"
                 ></simple-table>
-                <div class="w-full h-20"></div>
+                <div class="h-20 w-full"></div>
             </div>
         </div>
         <ng-template #user_template let-row="row">
@@ -141,7 +141,7 @@ import { Booking } from '@placeos/bookings';
             <div class="px-4 py-2">
                 <button
                     matRipple
-                    class="rounded-3xl !bg-opacity-20 flex items-center px-2 py-1 w-full text-left space-x-2"
+                    class="flex w-full items-center space-x-2 rounded-3xl !bg-opacity-20 px-2 py-1 text-left"
                     [class.bg-success]="row.status === 'approved'"
                     [class.bg-error]="row.status === 'declined'"
                     [class.bg-warning]="row.status === 'tentative'"
@@ -161,7 +161,7 @@ import { Booking } from '@placeos/bookings';
                                   : 'warning'
                         }}
                     </app-icon>
-                    <div class="capitalize flex-1">{{ row.status }}</div>
+                    <div class="flex-1 capitalize">{{ row.status }}</div>
                     <app-icon class="text-2xl">expand_more</app-icon>
                 </button>
             </div>
@@ -194,12 +194,12 @@ import { Booking } from '@placeos/bookings';
             <div class="px-4 py-2">
                 <button
                     matRipple
-                    class="bg-none w-full flex items-center px-2 py-1 text-left rounded"
+                    class="flex w-full items-center rounded bg-none px-2 py-1 text-left"
                     [matMenuTriggerFor]="tracking_menu"
                     (click)="$event.stopPropagation()"
                     [disabled]="loading[row.id]"
                 >
-                    <div class="capitalize flex-1 min-w-32">
+                    <div class="min-w-32 flex-1 capitalize">
                         {{
                             (row.extension_data?.tracking | splitjoin) ||
                                 'In Storage'
@@ -255,7 +255,7 @@ import { Booking } from '@placeos/bookings';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class AssetRequestListComponent extends AsyncHandler implements OnInit {
     public readonly requests = this._state.filtered_requests;

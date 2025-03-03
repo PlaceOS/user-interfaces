@@ -42,7 +42,7 @@ import {
     template: `
         <ng-container *ngIf="has_id; else invalid_template">
             <header
-                class="flex justify-between items-center w-full pt-8 pb-4 pl-4 pr-8"
+                class="flex w-full items-center justify-between pb-4 pl-4 pr-8 pt-8"
             >
                 <div class="flex flex-row">
                     <a
@@ -57,7 +57,7 @@ import {
                         <app-icon class="flex">arrow_back</app-icon>
                     </a>
                     <div class="space-y-2">
-                        <div class="text-2xl mt-1">
+                        <div class="mt-1 text-2xl">
                             {{
                                 'APP.CONCIERGE.SURVEY_ANSWERS_HEADER'
                                     | translate
@@ -83,7 +83,7 @@ import {
             </header>
             <div class="flex justify-end space-x-4 px-8">
                 <div
-                    class="flex flex-col items-center flex-1 rounded border border-base-300 p-4"
+                    class="flex flex-1 flex-col items-center rounded border border-base-300 p-4"
                 >
                     <h3>
                         {{
@@ -95,7 +95,7 @@ import {
                     </p>
                 </div>
                 <div
-                    class="flex flex-col items-center flex-1 rounded border border-base-300 p-4"
+                    class="flex flex-1 flex-col items-center rounded border border-base-300 p-4"
                 >
                     <h3>
                         {{ 'APP.CONCIERGE.SURVEY_ANSWERS_ANSWERS' | translate }}
@@ -105,12 +105,12 @@ import {
                     </p>
                 </div>
                 <div
-                    class="flex flex-col items-center flex-1 space-y-2 rounded border border-base-300 p-4"
+                    class="flex flex-1 flex-col items-center space-y-2 rounded border border-base-300 p-4"
                 >
                     <h3>
                         {{ 'APP.CONCIERGE.SURVEY_ANSWERS_TRIGGER' | translate }}
                     </h3>
-                    <p class="text-xl capitalize font-mono">
+                    <p class="font-mono text-xl capitalize">
                         {{ (survey$ | async)?.trigger }}
                     </p>
                 </div>
@@ -122,7 +122,7 @@ import {
             >
                 <ng-container *ngFor="let p of question_pages; let i = index">
                     <div
-                        class="flex w-full px-3 pt-2 font-thin text-xl"
+                        class="flex w-full px-3 pt-2 text-xl font-thin"
                         *ngIf="question_pages.length > 1"
                     >
                         {{
@@ -137,7 +137,7 @@ import {
                                       }
                         }}
                     </div>
-                    <div class="flex flex-wrap w-full py-2 px-6">
+                    <div class="flex w-full flex-wrap px-6 py-2">
                         <survey-widget
                             class="w-full lg:w-1/2 2xl:w-1/3"
                             *ngFor="let r of p.responses"
@@ -150,7 +150,7 @@ import {
 
         <ng-template #invalid_template>
             <div
-                class="flex flex-col w-full h-full items-center justify-center"
+                class="flex h-full w-full flex-col items-center justify-center"
             >
                 <span class="text-lg opacity-30">{{
                     'APP.CONCIERGE.SURVEY_ANSWERS_ID_INVALID' | translate
@@ -159,7 +159,7 @@ import {
         </ng-template>
         <ng-template #empty_template>
             <div
-                class="flex flex-col w-full min-h-[10rem] items-center justify-center"
+                class="flex min-h-[10rem] w-full flex-col items-center justify-center"
             >
                 <span class="text-lg opacity-30">{{
                     'APP.CONCIERGE.SURVEY_ANSWERS_EMPTY' | translate
@@ -168,15 +168,15 @@ import {
         </ng-template>
         <div
             *ngIf="loading$ | async"
-            class="flex absolute inset-0 opacity-60 bg-base-100 z-10"
+            class="absolute inset-0 z-10 flex bg-base-100 opacity-60"
         >
-            <div class="flex flex-col m-auto items-center space-y-4">
+            <div class="m-auto flex flex-col items-center space-y-4">
                 <mat-spinner [diameter]="32"></mat-spinner>
                 <p>{{ 'APP.CONCIERGE.SURVEY_ANSWERS_LOADING' | translate }}</p>
             </div>
         </div>
     `,
-    standalone: false
+    standalone: false,
 })
 export class SurveyResponsesComponent extends AsyncHandler implements OnInit {
     private _survey_id = new BehaviorSubject('');

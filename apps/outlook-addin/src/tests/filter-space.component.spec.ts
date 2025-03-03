@@ -95,7 +95,7 @@ describe('FindSpaceComponent', () => {
                     mockSpace,
                     mockSpace,
                     mockSpace,
-                    mockSpaceWithViews
+                    mockSpaceWithViews,
                 ),
                 options: of(mockEventFlowOptions),
             } as any),
@@ -144,11 +144,11 @@ describe('FindSpaceComponent', () => {
 
         const get_features_spy = jest.spyOn(
             filter_service,
-            'getSelectedFeatures'
+            'getSelectedFeatures',
         );
         const update_features_spy = jest.spyOn(filter_service, 'applyFilter');
         const check_boxes = spectator.debugElement.queryAll(
-            By.css('mat-checkbox')
+            By.css('mat-checkbox'),
         );
 
         spectator.component.ngOnInit();
@@ -159,7 +159,7 @@ describe('FindSpaceComponent', () => {
         spectator.detectChanges();
         expect(check_boxes).toBeTruthy();
         expect(spectator.debugElement.nativeElement.innerHTML).toContain(
-            'mat-checkbox'
+            'mat-checkbox',
         );
 
         spectator.click('button.filter-button');

@@ -164,7 +164,10 @@ export interface AnalyticsSettings {
 }
 
 /** Metadata for creating legend items for a map */
-export type MapLegendItem = MapLegendColourItem | MapLegendIconItem | BasicMapLegendItem;
+export type MapLegendItem =
+    | MapLegendColourItem
+    | MapLegendIconItem
+    | BasicMapLegendItem;
 
 /** Metadata for creating legend items for a map */
 export interface BasicMapLegendItem {

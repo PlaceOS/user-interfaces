@@ -33,7 +33,7 @@ import { BookingAsset } from '../booking-form.service';
                     matRipple
                     close
                     (click)="close.emit()"
-                    class="absolute top-2 left-2 bg-base-200 sm:hidden"
+                    class="absolute left-2 top-2 bg-base-200 sm:hidden"
                 >
                     <app-icon>arrow_back</app-icon>
                 </button>
@@ -44,16 +44,16 @@ import { BookingAsset } from '../booking-form.service';
                     [class.text-info-content]="fav"
                     [class.!bg-info]="fav"
                     (click)="toggleFav.emit()"
-                    class="absolute top-2 right-2 bg-base-200"
+                    class="absolute right-2 top-2 bg-base-200"
                 >
                     <app-icon>{{
                         fav ? 'favorite' : 'favorite_border'
                     }}</app-icon>
                 </button>
             </section>
-            <div class="p-2 space-y-2 flex-1 h-1/2 overflow-auto">
+            <div class="h-1/2 flex-1 space-y-2 overflow-auto p-2">
                 <section actions class="z-0">
-                    <h2 class="text-xl font-medium mb-2 mt-4">
+                    <h2 class="mb-2 mt-4 text-xl font-medium">
                         {{ space.display_name || space.name }}
                     </h2>
                 </section>
@@ -82,7 +82,7 @@ import { BookingAsset } from '../booking-form.service';
                 <hr />
                 <section
                     map
-                    class="w-full mx-auto h-64 sm:h-48 relative border border-base-200 overflow-hidden rounded"
+                    class="relative mx-auto h-64 w-full overflow-hidden rounded border border-base-200 sm:h-48"
                     *ngIf="!map_open"
                 >
                     <interactive-map
@@ -94,7 +94,7 @@ import { BookingAsset } from '../booking-form.service';
                     ></interactive-map>
                 </section>
             </div>
-            <div class="p-2 border-t border-base-200 shadow sm:hidden">
+            <div class="border-t border-base-200 p-2 shadow sm:hidden">
                 <button
                     btn
                     matRipple
@@ -121,9 +121,9 @@ import { BookingAsset } from '../booking-form.service';
         <ng-template #empty_state>
             <div
                 empty
-                class="p-16 flex flex-col items-center justify-center space-y-2"
+                class="flex flex-col items-center justify-center space-y-2 p-16"
             >
-                <p class="opacity-30 text-center">
+                <p class="text-center opacity-30">
                     {{ 'BOOKINGS.PARKING_SELECT_MSG' | translate }}
                 </p>
             </div>

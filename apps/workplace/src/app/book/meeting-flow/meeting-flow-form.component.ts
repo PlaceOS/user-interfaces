@@ -37,12 +37,12 @@ import { openConfirmModal } from '@placeos/components';
 @Component({
     selector: 'meeting-flow-form',
     template: `
-        <div class="h-full w-full bg-base-200 overflow-auto">
+        <div class="h-full w-full overflow-auto bg-base-200">
             <div
-                class="max-w-full w-[48rem] mx-auto sm:my-4 bg-base-100 border border-base-300"
+                class="mx-auto w-[48rem] max-w-full border border-base-300 bg-base-100 sm:my-4"
             >
                 <h2
-                    class="w-full p-4 sm:py-4 sm:px-16 text-2xl font-medium border-b border-base-300"
+                    class="w-full border-b border-base-300 p-4 text-2xl font-medium sm:px-16 sm:py-4"
                 >
                     {{
                         (!!form.value.id
@@ -52,21 +52,21 @@ import { openConfirmModal } from '@placeos/components';
                     }}
                 </h2>
                 <form
-                    class="p-0 sm:py-4 sm:px-16 divide-y divide-base-200 space-y-2"
+                    class="space-y-2 divide-y divide-base-200 p-0 sm:px-16 sm:py-4"
                     [formGroup]="form"
                     *ngIf="form"
                 >
                     <section class="p-2">
-                        <h3 class="space-x-2 flex items-center">
+                        <h3 class="flex items-center space-x-2">
                             <div
-                                class="bg-base-200 rounded-full h-6 w-6 flex items-center justify-center"
+                                class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
                             >
                                 1
                             </div>
                             <div class="text-xl">
                                 {{ 'CALENDAR_EVENT.DETAILS' | translate }}
                             </div>
-                            <div class="flex-1 w-px"></div>
+                            <div class="w-px flex-1"></div>
                             <button
                                 icon
                                 name="toggle-details-meeting"
@@ -93,20 +93,20 @@ import { openConfirmModal } from '@placeos/components';
                         </div>
                     </section>
                     <section class="p-2" *ngIf="!hide_attendees">
-                        <h3 class="space-x-2 flex items-center">
+                        <h3 class="flex items-center space-x-2">
                             <div
-                                class="bg-base-200 rounded-full h-6 w-6 flex items-center justify-center"
+                                class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
                             >
                                 2
                             </div>
                             <div class="text-xl">
                                 {{ 'CALENDAR_EVENT.ATTENDEES' | translate }}
                             </div>
-                            <div class="flex-1 w-px"></div>
+                            <div class="w-px flex-1"></div>
                             <button
                                 matRipple
                                 name="find-attendee-availability"
-                                class="bg-none underline text-xs text-info"
+                                class="bg-none text-xs text-info underline"
                                 (click)="findAvailableTime()"
                             >
                                 {{ 'COMMON.AVAILABILITY' | translate }}
@@ -139,16 +139,16 @@ import { openConfirmModal } from '@placeos/components';
                         </div>
                     </section>
                     <section class="p-2">
-                        <h3 class="space-x-2 flex items-center">
+                        <h3 class="flex items-center space-x-2">
                             <div
-                                class="bg-base-200 rounded-full h-6 w-6 flex items-center justify-center"
+                                class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
                             >
                                 3
                             </div>
                             <div class="text-xl">
                                 {{ 'RESOURCE.ROOM' | translate }}
                             </div>
-                            <div class="flex-1 w-px"></div>
+                            <div class="w-px flex-1"></div>
                             <button
                                 icon
                                 name="toggle-spaces-meeting"
@@ -165,7 +165,7 @@ import { openConfirmModal } from '@placeos/components';
                             </button>
                         </h3>
                         <div
-                            class="overflow-hidden flex flex-col items-center"
+                            class="flex flex-col items-center overflow-hidden"
                             [@show]="hide_block.resources ? 'hide' : 'show'"
                         >
                             <div
@@ -175,7 +175,7 @@ import { openConfirmModal } from '@placeos/components';
                                     total_capacity <=
                                         form.value.attendees?.length
                                 "
-                                class="bg-warning text-warning-content rounded shadow p-2 text-xs mx-auto my-2 inline-flex"
+                                class="mx-auto my-2 inline-flex rounded bg-warning p-2 text-xs text-warning-content shadow"
                             >
                                 {{
                                     'CALENDAR_EVENT.CAPACITY_WARNING'
@@ -190,16 +190,16 @@ import { openConfirmModal } from '@placeos/components';
                         </div>
                     </section>
                     <section class="p-2" *ngIf="has_catering | async">
-                        <h3 class="space-x-2 flex items-center">
+                        <h3 class="flex items-center space-x-2">
                             <div
-                                class="bg-base-200 rounded-full h-6 w-6 flex items-center justify-center"
+                                class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
                             >
                                 4
                             </div>
                             <div class="text-xl">
                                 {{ 'CALENDAR_EVENT.CATERING' | translate }}
                             </div>
-                            <div class="flex-1 w-px"></div>
+                            <div class="w-px flex-1"></div>
                             <button
                                 icon
                                 name="toggle-catering-meeting"
@@ -233,7 +233,7 @@ import { openConfirmModal } from '@placeos/components';
                             ></catering-list-field>
                             <mat-form-field
                                 appearance="outline"
-                                class="w-full mt-2"
+                                class="mt-2 w-full"
                                 *ngIf="
                                     form.value.catering?.length && has_codes
                                         | async
@@ -249,7 +249,7 @@ import { openConfirmModal } from '@placeos/components';
                                 >
                                     <input
                                         #input
-                                        class="sticky top-0 bg-base-100 px-4 py-3 text-base border-x-0 border-t-0 border-b focus:border-b border-base-200 w-full rounded-none z-50"
+                                        class="sticky top-0 z-50 w-full rounded-none border-x-0 border-b border-t-0 border-base-200 bg-base-100 px-4 py-3 text-base focus:border-b"
                                         [ngModel]="code_filter.getValue()"
                                         (ngModelChange)="
                                             code_filter.next($event)
@@ -306,16 +306,16 @@ import { openConfirmModal } from '@placeos/components';
                         </div>
                     </section>
                     <section class="p-2" *ngIf="has_assets">
-                        <h3 class="space-x-2 flex items-center">
+                        <h3 class="flex items-center space-x-2">
                             <div
-                                class="bg-base-200 rounded-full h-6 w-6 flex items-center justify-center"
+                                class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
                             >
                                 {{ !(has_catering | async) ? '4' : '5' }}
                             </div>
                             <div class="text-xl">
                                 {{ 'RESOURCE.ASSETS' | translate }}
                             </div>
-                            <div class="flex-1 w-px"></div>
+                            <div class="w-px flex-1"></div>
                             <button
                                 icon
                                 name="toggle-assets-meeting"
@@ -349,9 +349,9 @@ import { openConfirmModal } from '@placeos/components';
                         </div>
                     </section>
                     <section class="p-2" *ngIf="!hide_notes">
-                        <h3 class="space-x-2 flex items-center mb-4">
+                        <h3 class="mb-4 flex items-center space-x-2">
                             <div
-                                class="bg-base-200 rounded-full h-6 w-6 flex items-center justify-center"
+                                class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
                             >
                                 {{
                                     !(has_catering | async) || !has_assets
@@ -365,7 +365,7 @@ import { openConfirmModal } from '@placeos/components';
                                 {{ 'CALENDAR_EVENT.NOTES_HEADER' | translate }}
                             </div>
                         </h3>
-                        <div class="w-full flex flex-col">
+                        <div class="flex w-full flex-col">
                             <label for="notes">
                                 {{ 'CALENDAR_EVENT.NOTES_INFO' | translate }}
                             </label>
@@ -379,14 +379,14 @@ import { openConfirmModal } from '@placeos/components';
                         </div>
                     </section>
                     <section
-                        class="flex flex-col sm:flex-row items-center sm:space-x-2 p-2"
+                        class="flex flex-col items-center p-2 sm:flex-row sm:space-x-2"
                     >
                         <button
                             btn
                             name="open-meeting-confirm"
                             matRipple
                             confirm
-                            class="mb-2 sm:mb-0 w-full sm:w-auto"
+                            class="mb-2 w-full sm:mb-0 sm:w-auto"
                             (click)="viewConfirm()"
                         >
                             {{ 'CALENDAR_EVENT.CONFIRM_DETAILS' | translate }}

@@ -7,10 +7,10 @@ import { CateringReportStateService } from './catering-report-state.service';
     selector: 'catering-report-items',
     template: `
         <div
-            class="w-[64rem] max-w-[calc(100%-2rem)] rounded overflow-hidden bg-base-100 border border-base-200 mx-auto my-2"
+            class="mx-auto my-2 w-[64rem] max-w-[calc(100%-2rem)] overflow-hidden rounded border border-base-200 bg-base-100"
         >
             <div
-                class="border-b border-base-200 flex items-center justify-between px-4"
+                class="flex items-center justify-between border-b border-base-200 px-4"
             >
                 <h2 class="py-2 text-xl font-medium">
                     {{
@@ -20,7 +20,7 @@ import { CateringReportStateService } from './catering-report-state.service';
                 </h2>
             </div>
             <simple-table
-                class="w-full block text-sm"
+                class="block w-full text-sm"
                 [data]="items"
                 [columns]="[
                     { key: 'name', name: 'FORM.NAME' | translate },
@@ -59,7 +59,7 @@ import { CateringReportStateService } from './catering-report-state.service';
             <ng-template #option_template let-data="data">
                 <div class="p-4">
                     <span
-                        class="text-xs px-2 py-1 rounded bg-base-200"
+                        class="rounded bg-base-200 px-2 py-1 text-xs"
                         *ngIf="data.length"
                         [matTooltip]="options(data)"
                     >
@@ -76,7 +76,7 @@ import { CateringReportStateService } from './catering-report-state.service';
         </div>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class CateringReportItemsComponent {
     @Input() public print = false;

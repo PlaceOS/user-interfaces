@@ -13,12 +13,12 @@ import { CateringOrderStateService } from './catering-order-state.service';
 @Component({
     selector: 'catering-item-list',
     template: `
-        <div class="w-full h-full overflow-auto py-2">
+        <div class="h-full w-full overflow-auto py-2">
             <ng-container *ngIf="(list | async)?.length">
-                <h3 class="font-bold px-2">
+                <h3 class="px-2 font-bold">
                     {{ 'CATERING.ORDER_SELECTED_HEADER' | translate }}
                 </h3>
-                <p count class="text-sm opacity-60 mb-2 px-2">
+                <p count class="mb-2 px-2 text-sm opacity-60">
                     {{
                         'CATERING.ORDER_SELECTED_COUNT'
                             | translate: { count: (list | async)?.length || 0 }
@@ -38,8 +38,8 @@ import { CateringOrderStateService } from './catering-order-state.service';
                     ></catering-item-list-item>
                 </ul>
             </ng-container>
-            <h3 class="font-bold px-2">{{ 'COMMON.RESULTS' | translate }}</h3>
-            <p count class="text-sm opacity-60 mb-2 px-2">
+            <h3 class="px-2 font-bold">{{ 'COMMON.RESULTS' | translate }}</h3>
+            <p count class="mb-2 px-2 text-sm opacity-60">
                 {{
                     'COMMON.RESULTS_COUNT'
                         | translate: { count: (item_list | async)?.length || 0 }
@@ -67,9 +67,9 @@ import { CateringOrderStateService } from './catering-order-state.service';
         <ng-template #empty_state>
             <div
                 empty
-                class="p-16 flex flex-col items-center justify-center space-y-2"
+                class="flex flex-col items-center justify-center space-y-2 p-16"
             >
-                <p class="opacity-30 text-center">
+                <p class="text-center opacity-30">
                     {{ 'CATERING.ORDER_ITEMS_EMPTY' | translate }}
                 </p>
             </div>
@@ -77,7 +77,7 @@ import { CateringOrderStateService } from './catering-order-state.service';
         <ng-template #load_state>
             <div
                 loading
-                class="p-16 flex flex-col items-center justify-center space-y-2"
+                class="flex flex-col items-center justify-center space-y-2 p-16"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
                 <p class="opacity-30">
@@ -87,7 +87,7 @@ import { CateringOrderStateService } from './catering-order-state.service';
         </ng-template>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class CateringItemListComponent implements OnChanges {
     @Input() public active = '';

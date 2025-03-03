@@ -15,7 +15,7 @@ import { VideoCallStateService } from './video-call-state.service';
                     <p class="px-2 pt-4">
                         {{ 'APP.CONTROL.VC_ENTER_CODE' | translate }}
                     </p>
-                    <div class="p-2 w-full">
+                    <div class="w-full p-2">
                         <mat-form-field
                             appearance="outline"
                             class="h-12 w-full"
@@ -29,7 +29,7 @@ import { VideoCallStateService } from './video-call-state.service';
                             />
                         </mat-form-field>
                     </div>
-                    <div class="p-2 w-full">
+                    <div class="w-full p-2">
                         <button
                             btn
                             matRipple
@@ -40,7 +40,7 @@ import { VideoCallStateService } from './video-call-state.service';
                             {{ 'APP.CONTROL.JOIN' | translate }}
                         </button>
                     </div>
-                    <div class="px-2 w-full">
+                    <div class="w-full px-2">
                         <button
                             btn
                             matRipple
@@ -67,7 +67,7 @@ import { VideoCallStateService } from './video-call-state.service';
         </div>
         <ng-template #load_state>
             <div
-                class="flex flex-col items-center justify-center p-16 space-y-2"
+                class="flex flex-col items-center justify-center space-y-2 p-16"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
                 <p>{{ 'APP.CONTROL.VC_JOINING' | translate }}</p>

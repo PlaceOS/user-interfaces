@@ -62,7 +62,7 @@ describe('WeekViewTopbarComponent', () => {
     it('should allow user to make new bookings', () => {
         spectator.click('button[new]');
         expect(
-            spectator.inject(EventsStateService).newBooking
+            spectator.inject(EventsStateService).newBooking,
         ).toHaveBeenCalled();
     });
 });

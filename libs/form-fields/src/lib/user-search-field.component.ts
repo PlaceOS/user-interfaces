@@ -26,7 +26,7 @@ import { authority, queryUsers } from '@placeos/ts-client';
 @Component({
     selector: 'a-user-search-field',
     template: `
-        <mat-form-field appearance="outline" class="w-full no-subscript">
+        <mat-form-field appearance="outline" class="no-subscript w-full">
             <input
                 #input
                 matInput
@@ -43,7 +43,7 @@ import { authority, queryUsers } from '@placeos/ts-client';
                 (blur)="resetSearchString()"
                 (focus)="cancelReset()"
             />
-            <app-icon matPrefix class="text-2xl relative">search</app-icon>
+            <app-icon matPrefix class="relative text-2xl">search</app-icon>
             <mat-spinner *ngIf="loading" matSuffix diameter="16"></mat-spinner>
         </mat-form-field>
         <mat-autocomplete
@@ -55,7 +55,7 @@ import { authority, queryUsers } from '@placeos/ts-client';
                 (click)="setValue(option); blurInput()"
             >
                 <div class="leading-tight">{{ option.name }}</div>
-                <div class="text-xs opacity-60 w-full">
+                <div class="w-full text-xs opacity-60">
                     {{ option.email }}
                     <span
                         *ngIf="
@@ -69,10 +69,10 @@ import { authority, queryUsers } from '@placeos/ts-client';
             </mat-option>
             <mat-option
                 *ngIf="search_str && validate && validate(search_str)"
-                class="relative pointer-events-none"
+                class="pointer-events-none relative"
             >
                 <div
-                    class="absolute inset-0 px-4 pointer-events-auto"
+                    class="pointer-events-auto absolute inset-0 px-4"
                     (mousedown)="
                         $event.stopPropagation(); $event.preventDefault()
                     "

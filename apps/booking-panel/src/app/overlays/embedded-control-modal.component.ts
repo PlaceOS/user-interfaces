@@ -25,8 +25,8 @@ export interface EmbeddedControlModalData {
                 ></iframe>
             </div>
         </div>
-        <div class="absolute top-0 left-0 flex items-center h-12">
-            <div countdown class="text-2xl mx-2">{{ countdown }}</div>
+        <div class="absolute left-0 top-0 flex h-12 items-center">
+            <div countdown class="mx-2 text-2xl">{{ countdown }}</div>
             <button
                 icon
                 matRipple
@@ -34,7 +34,7 @@ export interface EmbeddedControlModalData {
                 (click)="close()"
                 (contextmenu)="$event.preventDefault()"
             >
-                <app-icon class="text-2xl mx-2">close</app-icon>
+                <app-icon class="mx-2 text-2xl">close</app-icon>
             </button>
         </div>
     `,
@@ -70,7 +70,7 @@ export interface EmbeddedControlModalData {
             ]),
         ]),
     ],
-    standalone: false
+    standalone: false,
 })
 export class EmbeddedControlModalComponent
     extends AsyncHandler
@@ -83,7 +83,7 @@ export class EmbeddedControlModalComponent
 
     constructor(
         private _dialog_ref: MatDialogRef<EmbeddedControlModalComponent>,
-        @Inject(MAT_DIALOG_DATA) private _data: EmbeddedControlModalData
+        @Inject(MAT_DIALOG_DATA) private _data: EmbeddedControlModalData,
     ) {
         super();
         this.countdown = 30;

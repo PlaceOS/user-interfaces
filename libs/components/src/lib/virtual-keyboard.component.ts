@@ -26,7 +26,7 @@ const DEFAULT_KEYS = [
         <ng-template cdk-portal>
             <div
                 keyboard-view
-                class="w-screen flex flex-col space-y-4 bg-base-200 p-2 border-t border-base-200"
+                class="flex w-screen flex-col space-y-4 border-t border-base-200 bg-base-200 p-2"
             >
                 <div
                     row
@@ -37,7 +37,7 @@ const DEFAULT_KEYS = [
                         <div
                             [attr.key]="key"
                             tabindex="0"
-                            class="rounded-xl p-2 border border-base-200 relative cursor-pointer bg-base-100"
+                            class="relative cursor-pointer rounded-xl border border-base-200 bg-base-100 p-2"
                             [class.special]="key[0] === '{' && key.length > 1"
                             [class.space]="key === '{space}'"
                             (focus)="focusInput()"
@@ -47,15 +47,15 @@ const DEFAULT_KEYS = [
                                 key === '{space}'
                                     ? 'Space'
                                     : key === '{caps}'
-                                    ? 'Caps Lock'
-                                    : key === '{backspace}'
-                                    ? 'Backspace'
-                                    : key
+                                      ? 'Caps Lock'
+                                      : key === '{backspace}'
+                                        ? 'Backspace'
+                                        : key
                             }}
                             <div
                                 *ngIf="key === '{caps}'"
                                 dot
-                                class="absolute top-2 right-2 h-2 w-2 rounded-full bg-base-200"
+                                class="absolute right-2 top-2 h-2 w-2 rounded-full bg-base-200"
                                 [class.bg-success]="state === 'shift'"
                             ></div>
                         </div>
@@ -69,7 +69,9 @@ const DEFAULT_KEYS = [
             [key] {
                 height: 3.5rem;
                 width: 4rem;
-                transition: box-shadow 200ms, top 200ms;
+                transition:
+                    box-shadow 200ms,
+                    top 200ms;
                 box-shadow: 0 4px 0 0.04px rgba(0, 0, 0, 0.1);
             }
 
@@ -94,7 +96,7 @@ const DEFAULT_KEYS = [
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class VirtualKeyboardComponent
     extends AsyncHandler
@@ -121,7 +123,7 @@ export class VirtualKeyboardComponent
 
     constructor(
         private _element: ElementRef<HTMLInputElement | HTMLTextAreaElement>,
-        private _overlay: Overlay
+        private _overlay: Overlay,
     ) {
         super();
     }
@@ -173,14 +175,14 @@ export class VirtualKeyboardComponent
             case '{backspace}':
                 this._element.nativeElement.value = `${str.substr(
                     0,
-                    cursor_pos - 1
+                    cursor_pos - 1,
                 )}${str.substr(cursor_pos, str.length)}`;
                 cursor_pos = Math.max(0, cursor_pos - 1);
                 break;
             case '{space}':
                 this._element.nativeElement.value = `${str.substr(
                     0,
-                    cursor_pos
+                    cursor_pos,
                 )}${' '}${str.substr(cursor_pos, str.length)}`;
                 cursor_pos += 1;
                 break;
@@ -188,7 +190,7 @@ export class VirtualKeyboardComponent
                 if (this.state === 'shift') this.state = 'normal';
                 this._element.nativeElement.value = `${str.substr(
                     0,
-                    cursor_pos
+                    cursor_pos,
                 )}${key}${str.substr(cursor_pos, str.length)}`;
                 cursor_pos += 1;
         }
@@ -201,7 +203,7 @@ export class VirtualKeyboardComponent
                 this._element.nativeElement.selectionStart = cursor_pos;
                 this._element.nativeElement.selectionEnd = cursor_pos;
             },
-            50
+            50,
         );
     }
 
@@ -214,8 +216,8 @@ export class VirtualKeyboardComponent
                           this.state !== 'normal'
                               ? 'toUpperCase'
                               : 'toLowerCase'
-                      ]()
-            )
+                      ](),
+            ),
         );
     }
 }

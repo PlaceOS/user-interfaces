@@ -11,7 +11,7 @@ import { getModule } from '@placeos/ts-client';
 @Component({
     selector: 'email-templates-list',
     template: ` <div class="absolute inset-0 flex flex-col">
-        <div class="flex items-center justify-between p-8 space-x-2">
+        <div class="flex items-center justify-between space-x-2 p-8">
             <h2 class="text-2xl font-medium">
                 {{ 'APP.CONCIERGE.EMAIL_TEMPLATES_HEADER' | translate }}
             </h2>
@@ -34,10 +34,10 @@ import { getModule } from '@placeos/ts-client';
                 <app-icon class="text-2xl">add</app-icon>
             </a>
         </div>
-        <div class="h-1/2 flex-1 w-full px-8 overflow-y-auto relative">
-            <div class="w-full min-h-full overflow-x-auto">
+        <div class="relative h-1/2 w-full flex-1 overflow-y-auto px-8">
+            <div class="min-h-full w-full overflow-x-auto">
                 <simple-table
-                    class="min-w-[56rem] w-full block text-sm"
+                    class="block w-full min-w-[56rem] text-sm"
                     [data]="templates"
                     empty_message="No group events for selected period"
                     [columns]="[
@@ -75,7 +75,7 @@ import { getModule } from '@placeos/ts-client';
                 >
                 </simple-table>
                 <ng-template #date_template let-data="data">
-                    <div class="opacity-60 p-4">
+                    <div class="p-4 opacity-60">
                         {{ data * 1000 | date: 'mediumDate' }}
                     </div>
                 </ng-template>
@@ -153,7 +153,7 @@ import { getModule } from '@placeos/ts-client';
         </div>
     </div>`,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class EmailTemplatesListComponent {
     public sending_email: string;

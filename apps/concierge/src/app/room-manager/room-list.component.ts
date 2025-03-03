@@ -8,7 +8,7 @@ import { i18n, notifySuccess, SettingsService } from '@placeos/common';
     template: `
         <div class="absolute inset-0 overflow-auto px-8">
             <simple-table
-                class="min-w-[48rem] block text-sm"
+                class="block min-w-[48rem] text-sm"
                 [data]="rooms"
                 empty_message="No rooms for selected level or building"
                 [columns]="[
@@ -56,7 +56,7 @@ import { i18n, notifySuccess, SettingsService } from '@placeos/common';
                 ]"
                 [sortable]="true"
             ></simple-table>
-            <div class="w-full h-20"></div>
+            <div class="h-20 w-full"></div>
         </div>
         <ng-template #name_template let-row="row" let-data="data">
             <button
@@ -64,7 +64,7 @@ import { i18n, notifySuccess, SettingsService } from '@placeos/common';
                 (click)="copyToClipboard(row.id)"
             >
                 <div class="">{{ data }}</div>
-                <div class="text-[0.625rem] opacity-30 font-mono">
+                <div class="font-mono text-[0.625rem] opacity-30">
                     {{ row.id }}
                 </div>
             </button>
@@ -78,7 +78,7 @@ import { i18n, notifySuccess, SettingsService } from '@placeos/common';
             <div
                 [class.bg-error]="!data"
                 [class.bg-success]="data"
-                class="rounded h-8 w-8 flex items-center justify-center text-2xl text-white mx-auto"
+                class="mx-auto flex h-8 w-8 items-center justify-center rounded text-2xl text-white"
             >
                 <app-icon>{{ data ? 'done' : 'close' }}</app-icon>
             </div>
@@ -90,7 +90,7 @@ import { i18n, notifySuccess, SettingsService } from '@placeos/common';
                 [class.bg-info]="data.status === 'info'"
                 *ngIf="data"
                 [matTooltip]="data.message"
-                class="rounded h-8 w-8 flex items-center justify-center text-2xl text-white mx-auto"
+                class="mx-auto flex h-8 w-8 items-center justify-center rounded text-2xl text-white"
             >
                 <app-icon>{{
                     data.status === 'warn'

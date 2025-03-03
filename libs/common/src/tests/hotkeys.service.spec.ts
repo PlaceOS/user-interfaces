@@ -8,9 +8,9 @@ function keypress(code: string, hold_duration: number = 10) {
     setTimeout(
         () =>
             window.dispatchEvent(
-                new KeyboardEvent('keyup', { code, repeat: false })
+                new KeyboardEvent('keyup', { code, repeat: false }),
             ),
-        hold_duration
+        hold_duration,
     );
 }
 

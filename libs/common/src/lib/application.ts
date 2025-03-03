@@ -42,7 +42,7 @@ async function activateUpdate(cache: SwUpdate) {
         notifyInfo(
             'Newer version of the application is available',
             'Refresh',
-            () => location.reload()
+            () => location.reload(),
         );
     }
 }

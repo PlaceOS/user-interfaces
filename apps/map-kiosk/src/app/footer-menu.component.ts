@@ -4,12 +4,12 @@ import { Component } from '@angular/core';
     selector: 'footer-menu',
     template: `
         <div
-            class="flex items-center bg-base-100 divide-x border-t border-solid border-base-200 w-full"
+            class="flex w-full items-center divide-x border-t border-solid border-base-200 bg-base-100"
         >
             <a
                 btn
                 matRipple
-                class="flex-1 h-16 !rounded-none"
+                class="h-16 flex-1 !rounded-none"
                 [routerLink]="['/desks']"
                 routerLinkActive="!bg-primary !text-white"
             >
@@ -21,7 +21,7 @@ import { Component } from '@angular/core';
             <a
                 btn
                 matRipple
-                class="flex-1 h-16 !rounded-none"
+                class="h-16 flex-1 !rounded-none"
                 [routerLink]="['/explore']"
                 routerLinkActive="!bg-primary !text-white"
             >
@@ -32,6 +32,6 @@ import { Component } from '@angular/core';
             </a>
         </div>
     `,
-    standalone: false
+    standalone: false,
 })
 export class FooterMenuComponent {}

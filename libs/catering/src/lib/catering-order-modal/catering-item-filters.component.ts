@@ -63,8 +63,8 @@ const ICONS = {
 @Component({
     selector: 'catering-item-filters',
     template: `
-        <div class="px-2 mt-2 mb-2" [class.sm:hidden]="!search">
-            <mat-form-field appearance="outline" class="w-full h-14">
+        <div class="mb-2 mt-2 px-2" [class.sm:hidden]="!search">
+            <mat-form-field appearance="outline" class="h-14 w-full">
                 <app-icon matPrefix class="text-xl">search</app-icon>
                 <input
                     matInput
@@ -76,10 +76,10 @@ const ICONS = {
         </div>
         <div
             *ngIf="!search && (caterers | async)?.length > 1"
-            class="hidden sm:block px-2 py-2"
+            class="hidden px-2 py-2 sm:block"
         >
             <label>{{ 'CATERING.CATERER' | translate }}</label>
-            <mat-form-field appearance="outline" class="w-full h-14">
+            <mat-form-field appearance="outline" class="h-14 w-full">
                 <mat-select
                     [ngModel]="
                         (filters | async)?.caterer || (caterers | async)[0]
@@ -95,7 +95,7 @@ const ICONS = {
                 </mat-select>
             </mat-form-field>
         </div>
-        <h3 class="hidden sm:block font-medium px-2 py-2" *ngIf="!search">
+        <h3 class="hidden px-2 py-2 font-medium sm:block" *ngIf="!search">
             {{ 'COMMON.FILTERS' | translate }}
         </h3>
         <div class="flex flex-col px-2" *ngIf="!search">
@@ -110,7 +110,7 @@ const ICONS = {
                 <label>{{ 'CATERING.ORDERS_DELIVER_DATE' | translate }}</label>
                 <mat-form-field
                     appearance="outline"
-                    class="w-full no-subscript mb-4"
+                    class="no-subscript mb-4 w-full"
                 >
                     <mat-select
                         [(ngModel)]="offset_day"
@@ -138,11 +138,11 @@ const ICONS = {
                 [use_24hr]="use_24hr"
             ></a-duration-field>
         </div>
-        <h3 class="hidden sm:block font-medium px-2 py-4" *ngIf="!search">
+        <h3 class="hidden px-2 py-4 font-medium sm:block" *ngIf="!search">
             {{ 'COMMON.CATEGORIES' | translate }}
         </h3>
         <div
-            class="flex flex-col px-2 space-y-2"
+            class="flex flex-col space-y-2 px-2"
             [class.sm:hidden]="search"
             [class.sm:pt-1]="!search"
         >
@@ -164,7 +164,7 @@ const ICONS = {
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class CateringItemFiltersComponent
     extends AsyncHandler

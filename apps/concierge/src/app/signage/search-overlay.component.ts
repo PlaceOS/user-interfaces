@@ -12,29 +12,29 @@ import { BehaviorSubject } from 'rxjs';
     selector: 'search-overlay',
     template: `
         <div
-            class="absolute inset-0 flex flex-col p-8 items-center"
+            class="absolute inset-0 flex flex-col items-center p-8"
             (click)="close.next()"
             (window:keydown.esc)="close.next()"
         >
-            <div class="absolute inset-0 bg-base-content opacity-70 z-0"></div>
+            <div class="absolute inset-0 z-0 bg-base-content opacity-70"></div>
             <div
-                class="relative mb-4 w-[32rem] max-w-[calc(100%-2rem)] mx-auto z-10"
+                class="relative z-10 mx-auto mb-4 w-[32rem] max-w-[calc(100%-2rem)]"
                 (click)="$event.stopPropagation()"
             >
                 <input
-                    class="rounded-[4rem] text-xl text-base-content bg-base-100 border border-base-300 shadow pl-14 pr-6 py-4 w-full"
+                    class="w-full rounded-[4rem] border border-base-300 bg-base-100 py-4 pl-14 pr-6 text-xl text-base-content shadow"
                     [ngModel]="search.getValue()"
                     (ngModelChange)="search.next($event)"
                     [placeholder]="'COMMON.SEARCH' | translate"
                 />
                 <app-icon
-                    class="absolute left-3 top-1/2 -translate-y-1/2 text-3xl pointer-events-none"
+                    class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-3xl"
                 >
                     search
                 </app-icon>
             </div>
             <div
-                class="overflow-auto max-h-[65%] w-[32rem] max-w-[calc(100%-2rem)] mx-auto rounded z-10"
+                class="z-10 mx-auto max-h-[65%] w-[32rem] max-w-[calc(100%-2rem)] overflow-auto rounded"
                 (click)="$event.stopPropagation()"
             >
                 @for (item of item_list; track item) {
@@ -52,7 +52,7 @@ import { BehaviorSubject } from 'rxjs';
                             ></ng-container>
                         } @else {
                             <div
-                                class="p-4 w-full bg-base-100 hover:bg-base-200 border border-base-300"
+                                class="w-full border border-base-300 bg-base-100 p-4 hover:bg-base-200"
                             >
                                 {{ item.name || item }}
                             </div>
@@ -76,14 +76,14 @@ import { BehaviorSubject } from 'rxjs';
             <button
                 icon
                 matRipple
-                class="absolute top-10 right-8 text-base-100 text-xl h-12 w-12"
+                class="absolute right-8 top-10 h-12 w-12 text-xl text-base-100"
             >
                 <app-icon>close</app-icon>
             </button>
         </div>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class SearchOverlayComponent<T extends {} = any> {
     @Input() public item_list: T[] = [];

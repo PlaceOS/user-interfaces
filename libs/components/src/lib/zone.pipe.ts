@@ -6,7 +6,7 @@ const EMPTY_ZONE = new PlaceZone();
 
 @Pipe({
     name: 'zone',
-    standalone: false
+    standalone: false,
 })
 export class ZonePipe implements PipeTransform {
     public async transform(id: string): Promise<PlaceZone> {

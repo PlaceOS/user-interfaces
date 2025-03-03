@@ -14,13 +14,13 @@ import { OrganisationService } from '@placeos/organisation';
     selector: '[checkin-induction]',
     template: `
         <div
-            class="relative bg-base-100 rounded shadow overflow-hidden flex flex-col items-center w-[32rem] p-4"
+            class="relative flex w-[32rem] flex-col items-center overflow-hidden rounded bg-base-100 p-4 shadow"
         >
             <p class="my-4">
                 {{ 'APP.VISITOR_KIOSK.INDUCTION_MSG' | translate }}
             </p>
             <div
-                class="rounded border border-base-300 w-full p-4 opacity-60 text-sm overflow-y-auto overflow-x-hidden max-h-[50vh] whitespace-pre-wrap"
+                class="max-h-[50vh] w-full overflow-y-auto overflow-x-hidden whitespace-pre-wrap rounded border border-base-300 p-4 text-sm opacity-60"
             >
                 {{ induction_details }}
             </div>
@@ -31,7 +31,7 @@ import { OrganisationService } from '@placeos/organisation';
                 <button
                     btn
                     matRipple
-                    class="w-32 clear underline"
+                    class="clear w-32 underline"
                     (click)="decline()"
                 >
                     {{ 'APP.VISITOR_KIOSK.DECLINE' | translate }}

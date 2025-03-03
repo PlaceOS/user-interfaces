@@ -3,10 +3,10 @@ import { Component, Input } from '@angular/core';
 @Component({
     selector: 'image-carousel',
     template: `
-        <div class="h-full w-full relative overflow-hidden flex">
+        <div class="relative flex h-full w-full overflow-hidden">
             <div
                 image
-                class="h-full min-w-full relative flex items-center justify-center overflow-hidden"
+                class="relative flex h-full min-w-full items-center justify-center overflow-hidden"
                 *ngFor="let image of images"
                 [style.transform]="'translateX(-' + offset * 100 + '%)'"
             >
@@ -18,7 +18,7 @@ import { Component, Input } from '@angular/core';
                 />
             </div>
             <div
-                class="h-full w-full relative flex flex-col items-center justify-center opacity-30 space-y-2"
+                class="relative flex h-full w-full flex-col items-center justify-center space-y-2 opacity-30"
                 *ngIf="!images?.length"
             >
                 <app-icon class="text-6xl">image_not_supported</app-icon>
@@ -26,39 +26,39 @@ import { Component, Input } from '@angular/core';
             </div>
             <button
                 *ngIf="images?.length"
-                class="opacity-0 hover:opacity-100 flex items-center justify-center absolute left-0 inset-y-0 w-1/3"
+                class="absolute inset-y-0 left-0 flex w-1/3 items-center justify-center opacity-0 hover:opacity-100"
                 [disabled]="offset === 0"
                 (click)="offset = offset - 1"
             >
                 <div
                     matRipple
-                    class=" h-10 w-10 absolute top-1/2 left-4 -translate-y-1/2 bg-base-100 text-base-content rounded-full border border-base-300 shadow"
+                    class="absolute left-4 top-1/2 h-10 w-10 -translate-y-1/2 rounded-full border border-base-300 bg-base-100 text-base-content shadow"
                 >
                     <app-icon class="text-3xl">chevron_left</app-icon>
                 </div>
             </button>
             <button
                 *ngIf="images?.length"
-                class="opacity-0 hover:opacity-100 flex items-center justify-center absolute right-0 inset-y-0 w-1/3 text-white"
+                class="absolute inset-y-0 right-0 flex w-1/3 items-center justify-center text-white opacity-0 hover:opacity-100"
                 [disabled]="offset >= images?.length - 1"
                 (click)="offset = offset + 1"
             >
                 <div
                     matRipple
-                    class=" h-10 w-10 absolute top-1/2 right-4 -translate-y-1/2 bg-base-100 text-base-content rounded-full border border-base-300 shadow"
+                    class="absolute right-4 top-1/2 h-10 w-10 -translate-y-1/2 rounded-full border border-base-300 bg-base-100 text-base-content shadow"
                 >
                     <app-icon class="text-3xl">chevron_right</app-icon>
                 </div>
             </button>
             <div
-                class="absolute bottom-2 left-1/2 flex items-center -translate-x-1/2 text-sm space-x-2"
+                class="absolute bottom-2 left-1/2 flex -translate-x-1/2 items-center space-x-2 text-sm"
                 *ngIf="images?.length"
             >
                 <button
                     matRipple
                     *ngFor="let img of images; let i = index"
                     (click)="offset = i"
-                    class="h-4 w-4 flex items-center justify-center"
+                    class="flex h-4 w-4 items-center justify-center"
                 >
                     <div
                         class="rounded-full bg-base-100 shadow transition-all"
@@ -90,7 +90,7 @@ import { Component, Input } from '@angular/core';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class ImageCarouselComponent {
     @Input() public images: string[] = [];

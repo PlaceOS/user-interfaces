@@ -16,21 +16,21 @@ import { combineLatest } from 'rxjs';
 @Component({
     selector: 'catering-topbar',
     template: `
-        <div class="flex items-center w-full pt-4 pb-2 px-8 space-x-2">
+        <div class="flex w-full items-center space-x-2 px-8 pb-2 pt-4">
             <h2 class="text-2xl font-medium">
                 {{
                     (page === 'menu' ? 'CATERING.MENU' : 'CATERING.ORDER_LIST')
                         | translate
                 }}
             </h2>
-            <div class="flex-1 w-px"></div>
+            <div class="w-px flex-1"></div>
             <searchbar
                 class="mr-2"
                 [model]="filters?.search"
                 (modelChange)="setSearch($event)"
             ></searchbar>
         </div>
-        <div class="flex items-center bg-base-100 h-20 px-8 space-x-2">
+        <div class="flex h-20 items-center space-x-2 bg-base-100 px-8">
             <mat-form-field appearance="outline" class="no-subscript w-60">
                 <mat-select
                     [ngModel]="filters?.zones"
@@ -80,7 +80,7 @@ import { combineLatest } from 'rxjs';
                     </mat-option>
                 </mat-select>
             </mat-form-field>
-            <div *ngIf="page === 'menu'" class="flex-1 w-2"></div>
+            <div *ngIf="page === 'menu'" class="w-2 flex-1"></div>
             <button
                 *ngIf="
                     page === 'menu' && (!zones[0] || zones[0] === building?.id)
@@ -88,7 +88,7 @@ import { combineLatest } from 'rxjs';
                 icon
                 matRipple
                 [matTooltip]="'CATERING.MENU_ADD' | translate"
-                class="bg-secondary text-secondary-content rounded h-12 w-12"
+                class="h-12 w-12 rounded bg-secondary text-secondary-content"
                 (click)="addItem()"
             >
                 <app-icon class="text-2xl">add</app-icon>
@@ -98,7 +98,7 @@ import { combineLatest } from 'rxjs';
                 icon
                 matRipple
                 [matTooltip]="'CATERING.BOOKING_RULES' | translate"
-                class="bg-secondary text-secondary-content rounded h-12 w-12"
+                class="h-12 w-12 rounded bg-secondary text-secondary-content"
                 (click)="editConfig()"
             >
                 <app-icon class="text-2xl">menu_book</app-icon>
@@ -108,7 +108,7 @@ import { combineLatest } from 'rxjs';
                 icon
                 matRipple
                 [matTooltip]="'CATERING.MENU_IMPORT' | translate"
-                class="bg-secondary text-secondary-content rounded h-12 w-12"
+                class="h-12 w-12 rounded bg-secondary text-secondary-content"
                 (click)="importMenu()"
             >
                 <app-icon class="text-2xl">cloud_upload</app-icon>
@@ -118,7 +118,7 @@ import { combineLatest } from 'rxjs';
                 icon
                 matRipple
                 [matTooltip]="'CATERING.ROOM_AVAILABILITY' | translate"
-                class="bg-secondary text-secondary-content rounded h-12 w-12"
+                class="h-12 w-12 rounded bg-secondary text-secondary-content"
                 (click)="setRoomAvailability()"
             >
                 <app-icon class="text-2xl">event_available</app-icon>
@@ -128,12 +128,12 @@ import { combineLatest } from 'rxjs';
                 icon
                 matRipple
                 [matTooltip]="'CATERING.CHARGE_CODES' | translate"
-                class="bg-secondary text-secondary-content rounded h-12 w-12"
+                class="h-12 w-12 rounded bg-secondary text-secondary-content"
                 (click)="setChargeCodes()"
             >
                 <app-icon class="text-2xl">payments</app-icon>
             </button>
-            <div *ngIf="page !== 'menu'" class="flex-1 w-2"></div>
+            <div *ngIf="page !== 'menu'" class="w-2 flex-1"></div>
             <!-- <searchbar class="mr-2"></searchbar> -->
             <date-options
                 *ngIf="page !== 'menu'"
@@ -149,7 +149,7 @@ import { combineLatest } from 'rxjs';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class CateringTopbarComponent extends AsyncHandler implements OnInit {
     /** List of selected levels */

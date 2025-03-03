@@ -38,7 +38,7 @@ export type UploadPermissions = 'none' | 'support' | 'admin';
 export function uploadFile(
     file: File,
     pub: boolean = true,
-    permissions: UploadPermissions = 'none'
+    permissions: UploadPermissions = 'none',
 ): Observable<UploadDetails> {
     return new Observable((observer) => {
         const fileReader = new FileReader();
@@ -68,7 +68,7 @@ export function uploadFile(
                             ? `${
                                   location.origin
                               }/api/engine/v2/uploads/${encodeURIComponent(
-                                  upload.id
+                                  upload.id,
                               )}/url`
                             : upload.access_url;
                     }

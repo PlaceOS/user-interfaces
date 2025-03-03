@@ -289,7 +289,7 @@ describe('workplace', () => {
                     .then(() => {
                         cy.wait(3000);
                         cy.get(
-                            'input[placeholder="Search for people or spaces..."]'
+                            'input[placeholder="Search for people or spaces..."]',
                         ).should('be.visible');
                     });
             });

@@ -14,7 +14,7 @@ export class KeepAliveService extends AsyncHandler {
     private _status = this._system_id.pipe(
         filter((_) => !!_),
         switchMap((id) => combineLatest([of(id), this._bindTo(id, 'poll')])),
-        tap(() => this.timeout('poll', () => location.reload(), this._delay))
+        tap(() => this.timeout('poll', () => location.reload(), this._delay)),
     );
 
     constructor() {

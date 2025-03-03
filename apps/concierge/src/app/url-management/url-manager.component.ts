@@ -5,11 +5,11 @@ import { UrlManagementService } from './url-management.service';
     selector: '[app-short-url-manager]',
     template: `
         <app-topbar></app-topbar>
-        <div class="flex flex-1 h-px">
+        <div class="flex h-px flex-1">
             <app-sidebar></app-sidebar>
-            <main class="flex flex-col flex-1 w-1/2 h-full">
+            <main class="flex h-full w-1/2 flex-1 flex-col">
                 <header
-                    class="flex items-center justify-between mb-2 px-8 py-4"
+                    class="mb-2 flex items-center justify-between px-8 py-4"
                 >
                     <h2 class="text-2xl font-medium">
                         {{ 'APP.CONCIERGE.URLS_HEADER' | translate }}
@@ -19,7 +19,7 @@ import { UrlManagementService } from './url-management.service';
                     </button>
                 </header>
                 <short-url-list
-                    class="block w-full relative flex-1 h-1/2"
+                    class="relative block h-1/2 w-full flex-1"
                 ></short-url-list>
             </main>
         </div>
@@ -47,7 +47,7 @@ import { UrlManagementService } from './url-management.service';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class UrlManagerComponent {
     public readonly new = () => this._state.editURL();

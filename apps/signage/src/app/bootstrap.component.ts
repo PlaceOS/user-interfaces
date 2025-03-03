@@ -25,10 +25,10 @@ const STORE_BUILDING_KEY = `${STORE_PREFIX}.building`;
         <div class="absolute inset-0 bg-base-300">
             <div
                 form
-                class="absolute top-2 left-1/2 transform -translate-x-1/2 bg-base-100 overflow-hidden flex flex-col items-center shadow rounded w-[30rem] max-w-[calc(100vw-2rem)]"
+                class="absolute left-1/2 top-2 flex w-[30rem] max-w-[calc(100vw-2rem)] -translate-x-1/2 transform flex-col items-center overflow-hidden rounded bg-base-100 shadow"
             >
                 <header
-                    class="px-4 py-3 bg-secondary text-secondary-content w-full text-lg font-medium mb-2"
+                    class="mb-2 w-full bg-secondary px-4 py-3 text-lg font-medium text-secondary-content"
                 >
                     {{ 'APP.SIGNAGE.BOOTSTRAP_TITLE' | translate }}
                 </header>
@@ -100,7 +100,7 @@ const STORE_BUILDING_KEY = `${STORE_PREFIX}.building`;
             </div>
         </div>
         <ng-template #load_state>
-            <div class="flex flex-col items-center p-8 m-auto">
+            <div class="m-auto flex flex-col items-center p-8">
                 <mat-spinner [diameter]="32"></mat-spinner>
                 <p>{{ loading }}</p>
             </div>
@@ -117,7 +117,7 @@ const STORE_BUILDING_KEY = `${STORE_PREFIX}.building`;
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class BootstrapComponent extends AsyncHandler implements OnInit {
     /** Loading state of the bootstrap */

@@ -22,33 +22,33 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
     selector: 'booking-details-modal',
     template: `
         <div
-            class="w-[100vw] h-[100vh] sm:relative sm:inset-auto sm:w-[51rem] sm:h-auto sm:max-h-[80vh] bg-base-100 sm:bg-base-200 sm:rounded overflow-auto space-y-2 pb-2"
+            class="h-[100vh] w-[100vw] space-y-2 overflow-auto bg-base-100 pb-2 sm:relative sm:inset-auto sm:h-auto sm:max-h-[80vh] sm:w-[51rem] sm:rounded sm:bg-base-200"
         >
             <div
-                class="sm:flex flex-col items-center pb-4 max-h-screen sm:max-h-[80vh] sm:px-16 sm:border-b bg-base-100 border-base-200"
+                class="max-h-screen flex-col items-center border-base-200 bg-base-100 pb-4 sm:flex sm:max-h-[80vh] sm:border-b sm:px-16"
             >
                 <div
-                    class="h-8 w-full sm:hidden block"
+                    class="block h-8 w-full sm:hidden"
                     *ngIf="!booking?.extension_data?.images?.length"
                 ></div>
                 <div
-                    class="bg-neutral w-full h-64 sm:rounded-b overflow-hidden"
+                    class="h-64 w-full overflow-hidden bg-neutral sm:rounded-b"
                     *ngIf="booking?.extension_data?.images?.length"
                 >
                     <image-carousel
                         [images]="booking?.extension_data?.images"
-                        class="w-full h-64"
+                        class="h-64 w-full"
                     ></image-carousel>
                 </div>
                 <h3
                     title
-                    class="px-3 mt-2 text-xl font-medium w-full"
+                    class="mt-2 w-full px-3 text-xl font-medium"
                     [class.pt-4]="!booking?.extension_data?.images"
                 >
                     {{ booking.title }}
                 </h3>
-                <div class="sm:flex items-center justify-between w-full">
-                    <div class="flex m-2">
+                <div class="w-full items-center justify-between sm:flex">
+                    <div class="m-2 flex">
                         <status-pill [status]="booking_status">
                             {{ period }}
                         </status-pill>
@@ -62,7 +62,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                             <button
                                 btn
                                 matRipple
-                                class="flex-1 h-10 border-none"
+                                class="h-10 flex-1 border-none"
                                 [class.bg-success]="booking.checked_in"
                                 [class.text-success-content]="
                                     booking.checked_in
@@ -80,7 +80,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                                 (click)="toggleCheckedIn()"
                             >
                                 <div
-                                    class="flex items-center space-x-2 justify-center"
+                                    class="flex items-center justify-center space-x-2"
                                     *ngIf="!checking_in; else loading_state"
                                 >
                                     <app-icon>{{
@@ -109,36 +109,36 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                             icon
                             matRipple
                             [matMenuTriggerFor]="menu"
-                            class="bg-secondary rounded text-white h-12 w-12"
+                            class="h-12 w-12 rounded bg-secondary text-white"
                         >
                             <app-icon>more_horiz</app-icon>
                         </button>
                     </div>
                 </div>
             </div>
-            <div class="sm:flex flex-wrap sm:px-12">
+            <div class="flex-wrap sm:flex sm:px-12">
                 <div
-                    class="sm:p-4 sm:bg-base-100 rounded sm:m-2 sm:border border-base-200 flex-grow-[4] min-w-1/3 sm:w-[16rem]"
+                    class="min-w-1/3 flex-grow-[4] rounded border-base-200 sm:m-2 sm:w-[16rem] sm:border sm:bg-base-100 sm:p-4"
                 >
-                    <h3 class="px-3 mt-2 text-lg font-medium mb-2">
+                    <h3 class="mb-2 mt-2 px-3 text-lg font-medium">
                         {{ 'BOOKINGS.DETAILS' | translate }}
                     </h3>
-                    <div class="flex items-center px-2 space-x-2">
+                    <div class="flex items-center space-x-2 px-2">
                         <app-icon>event</app-icon>
                         <div>{{ booking.date | date: 'EEEE, dd LLLL y' }}</div>
                     </div>
-                    <div class="flex items-center px-2 space-x-2">
+                    <div class="flex items-center space-x-2 px-2">
                         <app-icon>schedule</app-icon>
                         <div>{{ period }}</div>
                     </div>
-                    <div class="flex items-center px-2 space-x-2">
+                    <div class="flex items-center space-x-2 px-2">
                         <app-icon>map</app-icon>
                         <div>
                             {{ level?.display_name || level?.name }},
                             {{ booking.asset_name || booking.asset_id }}
                         </div>
                     </div>
-                    <div class="flex items-center px-2 space-x-2">
+                    <div class="flex items-center space-x-2 px-2">
                         <app-icon>place</app-icon>
                         <div>
                             {{ building?.display_name || building?.name }}
@@ -150,7 +150,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                 </div>
                 <ng-container *ngIf="has_assets">
                     <div
-                        class="mt-4 sm:p-4 sm:bg-base-100 rounded sm:m-2 sm:border border-base-200 flex-grow-[3] min-w-1/3 sm:w-[16rem]"
+                        class="min-w-1/3 mt-4 flex-grow-[3] rounded border-base-200 sm:m-2 sm:w-[16rem] sm:border sm:bg-base-100 sm:p-4"
                     >
                         <h3 class="mx-3 py-2 text-lg font-medium">
                             {{ 'BOOKINGS.ASSETS' }} ({{
@@ -161,11 +161,11 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                             <div
                                 request
                                 *ngFor="let request of booking.valid_assets"
-                                class="border border-base-300 bg-base-100 rounded-xl overflow-hidden"
+                                class="overflow-hidden rounded-xl border border-base-300 bg-base-100"
                             >
                                 <button
                                     matRipple
-                                    class="flex items-center space-x-2 p-3 w-full"
+                                    class="flex w-full items-center space-x-2 p-3"
                                     (click)="
                                         show_request[request.id] =
                                             !show_request[request.id]
@@ -187,7 +187,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                                         </div>
                                     </div>
                                     <div
-                                        class="flex items-center justify-center rounded-full w-8 h-8"
+                                        class="flex h-8 w-8 items-center justify-center rounded-full"
                                         [class.bg-success]="
                                             request.state === 'approved'
                                         "
@@ -224,7 +224,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                                         </app-icon>
                                     </div>
                                     <div
-                                        class="flex items-center justify-center rounded-full w-8 h-8"
+                                        class="flex h-8 w-8 items-center justify-center rounded-full"
                                     >
                                         <app-icon class="text-2xl">
                                             {{
@@ -236,7 +236,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                                     </div>
                                 </button>
                                 <div
-                                    class="flex flex-col bg-base-200 divide-y divide-base-100"
+                                    class="flex flex-col divide-y divide-base-100 bg-base-200"
                                     [@show]="
                                         show_request[request.id]
                                             ? 'show'
@@ -244,16 +244,16 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                                     "
                                 >
                                     <div
-                                        class="flex items-center px-3 py-1 space-x-2 hover:opacity-90"
+                                        class="flex items-center space-x-2 px-3 py-1 hover:opacity-90"
                                         *ngFor="let item of request.items"
                                     >
-                                        <div class="flex items-center flex-1">
+                                        <div class="flex flex-1 items-center">
                                             <span class="text-sm">{{
                                                 item.name || 'Item'
                                             }}</span>
                                         </div>
                                         <div
-                                            class="rounded bg-success text-success-content text-xs px-2 py-1"
+                                            class="rounded bg-success px-2 py-1 text-xs text-success-content"
                                         >
                                             x{{ item.quantity }}
                                         </div>
@@ -265,7 +265,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                 </ng-container>
                 <button
                     map
-                    class="mt-4 sm:my-2 h-64 sm:h-48 relative border border-base-200 overflow-hidden rounded sm:bg-base-100 m-2 flex-grow-[3] min-w-1/3 w-[calc(100%-1rem)] p-2 sm:w-[16rem]"
+                    class="min-w-1/3 relative m-2 mt-4 h-64 w-[calc(100%-1rem)] flex-grow-[3] overflow-hidden rounded border border-base-200 p-2 sm:my-2 sm:h-48 sm:w-[16rem] sm:bg-base-100"
                     (click)="viewLocation()"
                     *ngIf="level?.map_id"
                 >
@@ -286,7 +286,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                 icon
                 matRipple
                 mat-dialog-close
-                class="absolute top-0 left-2 bg-neutral text-white"
+                class="absolute left-2 top-0 bg-neutral text-white"
             >
                 <app-icon>close</app-icon>
             </button>

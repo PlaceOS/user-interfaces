@@ -8,11 +8,15 @@ import { TimetableStateService } from './timetable-state.service';
     selector: 'space-timetable',
     template: `
         <div
-            class="w-full min-h-[3rem] bg-[#212121] border-b border-white/50 flex items-center justify-center text-white text-xl font-medium"
+            class="flex min-h-[3rem] w-full items-center justify-center border-b border-white/50 bg-[#212121] text-xl font-medium text-white"
         >
             {{ space?.display_name || space?.name }}
         </div>
-        <div space class="w-full h-1/2 flex-1 relative" *ngIf="space?.id && bookings">
+        <div
+            space
+            class="relative h-1/2 w-full flex-1"
+            *ngIf="space?.id && bookings"
+        >
             <space-event-details
                 *ngFor="let event of bookings | async"
                 [event]="event"
@@ -29,7 +33,7 @@ import { TimetableStateService } from './timetable-state.service';
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class SpaceTimetableComponent {
     @Input() public space?: Space;

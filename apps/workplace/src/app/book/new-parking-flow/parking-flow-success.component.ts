@@ -12,13 +12,13 @@ import { OrganisationService } from '@placeos/organisation';
     selector: 'parking-flow-success',
     template: `
         <div
-            class="absolute inset-0 bg-base-100 flex flex-col z-50 overflow-auto"
+            class="absolute inset-0 z-50 flex flex-col overflow-auto bg-base-100"
         >
             <main
-                class="flex-1 flex flex-col items-center justify-center space-y-2 p-8"
+                class="flex flex-1 flex-col items-center justify-center space-y-2 p-8"
             >
                 <h2 class="text-2xl font-medium"></h2>
-                <p class="text-center max-w-[32rem]">
+                <p class="max-w-[32rem] text-center">
                     {{
                         'APP.WORKPLACE.PARKING_SUCCESS_MSG'
                             | translate
@@ -39,14 +39,14 @@ import { OrganisationService } from '@placeos/organisation';
                 </p>
                 <img src="assets/icons/parking-success.svg" />
                 <div
-                    class="flex flex-col items-center space-y-4 p-4 relative"
+                    class="relative flex flex-col items-center space-y-4 p-4"
                     *ngIf="show_links"
                 >
                     <a
                         btn
                         matRipple
                         name="desk-outlook-link"
-                        class="flex items-center p-2 space-x-2 pr-4 w-64 rounded inverse"
+                        class="inverse flex w-64 items-center space-x-2 rounded p-2 pr-4"
                         [href]="outlook_link | sanitize: 'url'"
                         target="_blank"
                         rel="noopener noreferer"
@@ -58,7 +58,7 @@ import { OrganisationService } from '@placeos/organisation';
                         btn
                         matRipple
                         name="desk-google-link"
-                        class="flex items-center p-2 space-x-2 pr-4 w-64 rounded inverse"
+                        class="inverse flex w-64 items-center space-x-2 rounded p-2 pr-4"
                         [href]="google_link | sanitize: 'url'"
                         target="_blank"
                         rel="noopener noreferer"
@@ -70,7 +70,7 @@ import { OrganisationService } from '@placeos/organisation';
                         btn
                         matRipple
                         name="desk-ical-link"
-                        class="flex items-center p-2 space-x-2 pr-4 w-64 rounded inverse"
+                        class="inverse flex w-64 items-center space-x-2 rounded p-2 pr-4"
                         [href]="ical_link | safe: 'url'"
                         target="_blank"
                         rel="noopener noreferer"
@@ -81,7 +81,7 @@ import { OrganisationService } from '@placeos/organisation';
                 </div>
             </main>
             <footer
-                class="sticky bottom-0 bg-base-100 p-2 w-full border-t border-base-200 mt-4 flex items-center justify-center"
+                class="sticky bottom-0 mt-4 flex w-full items-center justify-center border-t border-base-200 bg-base-100 p-2"
             >
                 <a
                     btn

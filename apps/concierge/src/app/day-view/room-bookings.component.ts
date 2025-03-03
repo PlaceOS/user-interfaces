@@ -11,11 +11,11 @@ const EMPTY = [];
     selector: 'room-bookings',
     template: `
         <div class="absolute inset-0 flex flex-col overflow-hidden pl-8">
-            <div class="flex items-center w-full py-4 pr-8 space-x-4">
+            <div class="flex w-full items-center space-x-4 py-4 pr-8">
                 <h2 class="text-2xl font-medium">
                     {{ 'APP.CONCIERGE.ROOM_BOOKINGS' | translate }}
                 </h2>
-                <div class="flex-1 w-px"></div>
+                <div class="w-px flex-1"></div>
                 <mat-form-field appearance="outline" class="no-subscript w-32">
                     <mat-select
                         [ngModel]="period | async"
@@ -36,7 +36,7 @@ const EMPTY = [];
                     <app-icon class="text-2xl">add</app-icon>
                 </button>
             </div>
-            <div class="w-full flex items-center">
+            <div class="flex w-full items-center">
                 <mat-form-field appearance="outline" class="no-subscript w-52">
                     <mat-select
                         [ngModel]="zones | async"
@@ -68,7 +68,7 @@ const EMPTY = [];
                 </mat-form-field>
                 <ng-container *ngIf="allow_setup_breakdown">
                     <div
-                        class="border-l h-full ml-8 mr-4"
+                        class="ml-8 mr-4 h-full border-l"
                         *ngIf="!use_region"
                     ></div>
                     <mat-slide-toggle
@@ -83,9 +83,9 @@ const EMPTY = [];
                         </div>
                     </mat-slide-toggle>
                 </ng-container>
-                <div class="border-l h-full ml-8 mr-4"></div>
+                <div class="ml-8 mr-4 h-full border-l"></div>
                 <div
-                    class="flex items-center space-x-2 max-w-[calc(100%-16rem)] flex-1"
+                    class="flex max-w-[calc(100%-16rem)] flex-1 items-center space-x-2"
                 >
                     <button
                         btn
@@ -100,7 +100,7 @@ const EMPTY = [];
                     </button>
                     <mat-menu #menu="matMenu" class="">
                         <div
-                            class="flex flex-col space-y-2 overflow-hidden w-48"
+                            class="flex w-48 flex-col space-y-2 overflow-hidden"
                         >
                             <mat-checkbox
                                 *ngFor="let type of types"
@@ -112,15 +112,15 @@ const EMPTY = [];
                         </div>
                     </mat-menu>
                     <div
-                        class="flex items-center overflow-x-auto flex-1 w-px space-x-2 px-2"
+                        class="flex w-px flex-1 items-center space-x-2 overflow-x-auto px-2"
                     >
                         @for (type of types; track type.id) {
                             <div
-                                class="flex items-center border border-base-200 rounded-3xl"
+                                class="flex items-center rounded-3xl border border-base-200"
                                 *ngIf="!type_list.includes(type.id)"
                             >
                                 <div
-                                    class="h-4 w-4 m-2 rounded-full"
+                                    class="m-2 h-4 w-4 rounded-full"
                                     [style.background-color]="type.color"
                                 ></div>
                                 <div class="truncate">
@@ -138,14 +138,14 @@ const EMPTY = [];
                     </div>
                 </div>
             </div>
-            <div class="flex w-full flex-1 h-px border-t mt-4 border-base-200">
+            <div class="mt-4 flex h-px w-full flex-1 border-t border-base-200">
                 <room-bookings-timeline
                     *ngIf="(period | async) === 'day'"
-                    class="relative flex-1 w-1/2 z-0"
+                    class="relative z-0 w-1/2 flex-1"
                 />
                 <room-week-bookings-timeline
                     *ngIf="(period | async) === 'week'"
-                    class="relative flex-1 w-1/2 z-0"
+                    class="relative z-0 w-1/2 flex-1"
                 />
                 <room-bookings-approvals
                     class="relative z-10"
@@ -155,7 +155,7 @@ const EMPTY = [];
         </div>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class RoomBookingsComponent extends AsyncHandler implements OnInit {
     public readonly zones = this._state.zones;

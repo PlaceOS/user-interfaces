@@ -20,9 +20,7 @@ describe('DashboardComponent', () => {
             MockComponent(DashboardUpcomingComponent),
             MockComponent(DashboardContactsComponent),
         ],
-        providers: [
-            { provide: SettingsService, useValue: { get: jest.fn() } }
-        ]
+        providers: [{ provide: SettingsService, useValue: { get: jest.fn() } }],
     });
 
     beforeEach(() => (spectator = createComponent()));

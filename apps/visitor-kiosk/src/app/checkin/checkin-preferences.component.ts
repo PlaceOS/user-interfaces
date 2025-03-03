@@ -16,10 +16,10 @@ import { updateBooking } from '@placeos/bookings';
     selector: 'checkin-preferences',
     template: `
         <div
-            class="bg-base-100 rounded shadow overflow-hidden relative flex flex-col items-center w-[36rem] p-4"
+            class="relative flex w-[36rem] flex-col items-center overflow-hidden rounded bg-base-100 p-4 shadow"
             *ngIf="!loading; else load_state"
         >
-            <h3 class="text-xl mb-2 w-full">
+            <h3 class="mb-2 w-full text-xl">
                 {{ 'APP.VISITOR_KIOSK.BEVERAGE_MSG' | translate }}
             </h3>
             <div class="w-full">
@@ -39,7 +39,7 @@ import { updateBooking } from '@placeos/bookings';
                     </mat-select>
                 </mat-form-field>
             </div>
-            <div class="flex items-center justify-end w-full">
+            <div class="flex w-full items-center justify-end">
                 <button btn matRipple class="w-32" (click)="update()">
                     {{
                         (beverage
@@ -52,7 +52,7 @@ import { updateBooking } from '@placeos/bookings';
             <a
                 icon
                 matRipple
-                class="absolute top-2 right-2"
+                class="absolute right-2 top-2"
                 [routerLink]="['/welcome']"
             >
                 <app-icon>close</app-icon>
@@ -60,7 +60,7 @@ import { updateBooking } from '@placeos/bookings';
         </div>
         <ng-template #load_state>
             <div
-                class="bg-base-100 rounded shadow overflow-hidden relative flex flex-col items-center justify-center w-[28rem] h-[20rem] p-8 space-y-2"
+                class="relative flex h-[20rem] w-[28rem] flex-col items-center justify-center space-y-2 overflow-hidden rounded bg-base-100 p-8 shadow"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
                 <div>

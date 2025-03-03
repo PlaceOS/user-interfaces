@@ -46,7 +46,7 @@ export class FeaturesFilterService {
 
     async getSelectedFeatures() {
         this.selected_features$ = this.features$.pipe(
-            map((arr) => arr.filter((item) => item.value == true))
+            map((arr) => arr.filter((item) => item.value == true)),
         );
         await this.selected_features$.pipe(take(1)).toPromise();
         this.selected_features$?.subscribe(this._selected_features);
@@ -55,17 +55,17 @@ export class FeaturesFilterService {
         await this.selected_features$.pipe(take(1)).toPromise();
 
         const requested_features = await this.sortSelectedFeatures(
-            this.selected_features
+            this.selected_features,
         );
 
         this.updated_spaces$ = this.spaces$.pipe(
             map((spaces: Space[]) =>
                 spaces.filter((space: Space) => {
                     return this._sort_and_join(space.feature_list).includes(
-                        requested_features
+                        requested_features,
                     );
-                })
-            )
+                }),
+            ),
         );
         await this.updated_spaces$?.pipe(take(1)).toPromise();
         this.updated_spaces_emitter.next(true);

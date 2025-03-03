@@ -8,14 +8,14 @@ import { debounceTime, map } from 'rxjs/operators';
     selector: 'panel-topbar',
     template: `
         <div
-            class="w-full flex items-center justify-between h-16 border-b border-base-200 bg-secondary text-white"
+            class="flex h-16 w-full items-center justify-between border-b border-base-200 bg-secondary text-white"
         >
             <img
                 [src]="(logo | async)?.src || (logo | async)"
                 alt="Logo"
-                class="h-12 mx-2"
+                class="mx-2 h-12"
             />
-            <div time class="flex items-center space-x-2 mx-4 text-xl">
+            <div time class="mx-4 flex items-center space-x-2 text-xl">
                 <span>{{ time | date: 'shortTime' }}</span>
                 <span> • </span>
                 <span>{{ time | date: 'mediumDate' }}</span>
@@ -23,7 +23,7 @@ import { debounceTime, map } from 'rxjs/operators';
         </div>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class PanelTopbarComponent {
     public readonly logo = this._org.active_building.pipe(

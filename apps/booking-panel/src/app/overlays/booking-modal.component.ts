@@ -50,9 +50,9 @@ export async function openBookingModal(
     selector: 'booking-modal',
     template: `
         <header
-            class="sticky top-0 p-2 m-2 w-[calc(100%-1rem)] border-none z-10 bg-base-200 rounded"
+            class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded border-none bg-base-200 p-2"
         >
-            <h2 class="text-xl font-medium px-2">
+            <h2 class="px-2 text-xl font-medium">
                 {{ 'APP.BOOKING_PANEL.BOOKING_NEW' | translate }}
             </h2>
             <button icon matRipple mat-dialog-close *ngIf="!loading">
@@ -113,7 +113,7 @@ export async function openBookingModal(
         </form>
         <footer
             *ngIf="!loading"
-            class="flex items-center justify-end px-4 py-2 w-full border-t border-base-200 space-x-2"
+            class="flex w-full items-center justify-end space-x-2 border-t border-base-200 px-4 py-2"
         >
             <button btn matRipple name="save" class="w-32" (click)="save()">
                 {{ 'COMMON.SAVE' | translate }}

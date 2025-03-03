@@ -9,7 +9,7 @@ import { ParkingUser } from './parking-state.service';
     selector: 'parking-user-modal',
     template: `
         <div class="w-[28rem]">
-            <header class="flex items-center justify-between px-2 w-full">
+            <header class="flex w-full items-center justify-between px-2">
                 <h2 class="px-2">
                     {{
                         (id
@@ -24,10 +24,10 @@ import { ParkingUser } from './parking-state.service';
             </header>
             <main
                 *ngIf="!loading; else load_state"
-                class="p-4 flex flex-col max-h-[65vh] overflow-auto"
+                class="flex max-h-[65vh] flex-col overflow-auto p-4"
                 [formGroup]="form"
             >
-                <div class="flex items-center space-x-2 mb-4">
+                <div class="mb-4 flex items-center space-x-2">
                     <a-user-search-field
                         name="user"
                         formControlName="user"
@@ -77,7 +77,7 @@ import { ParkingUser } from './parking-state.service';
                     }}</mat-error>
                 </mat-form-field>
                 <div class="flex items-center space-x-2">
-                    <div class="flex-1 w-1/3">
+                    <div class="w-1/3 flex-1">
                         <label for="plate-number">{{
                             'EXPLORE.PARKING_PLATE_NUMBER' | translate
                         }}</label>
@@ -92,7 +92,7 @@ import { ParkingUser } from './parking-state.service';
                             />
                         </mat-form-field>
                     </div>
-                    <div class="flex-1 w-1/3">
+                    <div class="w-1/3 flex-1">
                         <label for="car-color">{{
                             'APP.CONCIERGE.PARKING_CAR_COLOUR' | translate
                         }}</label>
@@ -118,7 +118,7 @@ import { ParkingUser } from './parking-state.service';
                         [placeholder]="'FORM.NOTES' | translate"
                     ></textarea>
                 </mat-form-field>
-                <div class="flex items-center mb-4">
+                <div class="mb-4 flex items-center">
                     <settings-toggle
                         class="flex-1"
                         [name]="
@@ -132,7 +132,7 @@ import { ParkingUser } from './parking-state.service';
             </main>
             <footer
                 *ngIf="!loading"
-                class="flex items-center justify-end space-x-2 p-2 border-t border-base-200"
+                class="flex items-center justify-end space-x-2 border-t border-base-200 p-2"
             >
                 <button btn matRipple class="w-32" (click)="postForm()">
                     {{ 'COMMON.SAVE' | translate }}
@@ -141,7 +141,7 @@ import { ParkingUser } from './parking-state.service';
         </div>
         <ng-template #load_state>
             <main
-                class="p-8 flex flex-col items-center justify-center user-y-2"
+                class="user-y-2 flex flex-col items-center justify-center p-8"
             >
                 <mat-spinner diameter="32"></mat-spinner>
                 <p>{{ 'APP.CONCIERGE.PARKING_USER_SAVE' | translate }}</p>
