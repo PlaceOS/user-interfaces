@@ -22,9 +22,10 @@ export interface CateringItemOptionModalData {
         >
             <h2 class="text-xl font-medium px-2">
                 {{
-                    option.id
+                    (option.id
                         ? 'CATERING.ITEM_OPTION_EDIT'
-                        : ('CATERING.ITEM_OPTION_NEW' | translate)
+                        : 'CATERING.ITEM_OPTION_NEW'
+                    ) | translate
                 }}
             </h2>
             <button icon matRipple mat-dialog-close *ngIf="!loading">
@@ -131,7 +132,7 @@ export interface CateringItemOptionModalData {
         </mat-autocomplete>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class CateringItemOptionModalComponent {
     /** Emitter for events on the modal */
