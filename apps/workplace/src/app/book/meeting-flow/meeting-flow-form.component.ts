@@ -28,7 +28,7 @@ import { Space } from '@placeos/spaces';
 import { FindAvailabilityModalComponent } from '@placeos/users';
 import { CateringOrderStateService } from 'libs/catering/src/lib/catering-order-modal/catering-order-state.service';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
-import { debounceTime, first, map, switchMap, tap } from 'rxjs/operators';
+import { debounceTime, first, map, switchMap, take, tap } from 'rxjs/operators';
 import { MeetingFlowConfirmModalComponent } from './meeting-flow-confirm-modal.component';
 import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
 import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
@@ -622,7 +622,7 @@ export class MeetingFlowFormComponent extends AsyncHandler implements OnInit {
         return this._settings.get('app.events.allow_daily_allday_recurrence');
     }
 
-    public readonly viewConfirm = () => {
+    public readonly viewConfirm = async () => {
         if (!this.form.value.host)
             this.form.patchValue({ host: currentUser()?.email });
         if (
@@ -637,6 +637,11 @@ export class MeetingFlowFormComponent extends AsyncHandler implements OnInit {
             this.form.value.recurrence?.pattern === 'daily'
         ) {
             return notifyError(i18n('CALENDAR_EVENT.DAILY_RECURR_ERROR'));
+        }
+        const has_codes = await this.has_codes.pipe(take(1)).toPromise();
+        if (!has_codes) {
+            this.form.get('catering_charge_code').setValidators([]);
+            this.form.updateValueAndValidity();
         }
         this.form.markAllAsTouched();
         if (!this.form.valid)
