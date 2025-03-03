@@ -21,7 +21,7 @@ import { CateringStateService } from './catering-state.service';
             *ngIf="!loading; else load_state"
             class="overflow-auto max-h-[65vh] min-h-[20rem] flex flex-col"
         >
-            @for (code of charge_codes; track code; let i = $index) {
+            @for (code of charge_codes; track i; let i = $index) {
                 <div
                     class="flex items-center space-x-2 w-full hover:bg-base-200 px-2 py-1"
                 >
@@ -78,7 +78,7 @@ import { CateringStateService } from './catering-state.service';
         </ng-template>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class ChargeCodeListModalComponent implements OnInit {
     public charge_codes: string[] = [];
