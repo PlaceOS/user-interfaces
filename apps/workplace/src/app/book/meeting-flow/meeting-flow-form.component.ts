@@ -544,7 +544,11 @@ export class MeetingFlowFormComponent extends AsyncHandler implements OnInit {
                                 date_end !== event.date_end));
                     if (time_changed) {
                         this.form.patchValue({ assets: [] });
-                        notifyWarn(i18n('CALENDAR_EVENT.ASSETS_UNAVAILABLE'));
+                        if (this.has_assets) {
+                            notifyWarn(
+                                i18n('CALENDAR_EVENT.ASSETS_UNAVAILABLE'),
+                            );
+                        }
                     }
                     return false;
                 }),
@@ -600,7 +604,11 @@ export class MeetingFlowFormComponent extends AsyncHandler implements OnInit {
                                 date_end !== event.date_end));
                     if (time_changed) {
                         this.form.patchValue({ catering: [] });
-                        notifyWarn(i18n('CALENDAR_EVENT.CATERING_UNAVAILABLE'));
+                        if (has_catering) {
+                            notifyWarn(
+                                i18n('CALENDAR_EVENT.CATERING_UNAVAILABLE'),
+                            );
+                        }
                     }
                     return false;
                 }),
