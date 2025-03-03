@@ -1,55 +1,55 @@
-<div class="flex flex-1 flex-col z-0 m-0 bg-base-200 h-full overflow-y-auto">
+<div class="z-0 m-0 flex h-full flex-1 flex-col overflow-y-auto bg-base-200">
     <form *ngIf="form" [formGroup]="form">
         <section
-            class="flex flex-col border-b border-base-200 py-5 items-center"
+            class="flex flex-col items-center border-b border-base-200 py-5"
         >
             <div
-                class="flex flex-col w-[calc(100%-2rem)] max-w-[22.5rem] self-center"
+                class="flex w-[calc(100%-2rem)] max-w-[22.5rem] flex-col self-center"
             >
-                <span class="flex text-xl font-bold mb-2"> Book Room</span>
+                <span class="mb-2 flex text-xl font-bold"> Book Room</span>
 
                 <div class="flex flex-row">
                     <div
-                        class="border border-base-200 rounded-full w-7 h-7 text-center"
+                        class="h-7 w-7 rounded-full border border-base-200 text-center"
                     >
                         <span>1</span>
                     </div>
-                    <div class="ml-2 mb-4 text-base">Details</div>
+                    <div class="mb-4 ml-2 text-base">Details</div>
                 </div>
 
                 <div class="flex flex-col">
-                    <label class="text-sm font-bold mb-1">Add Title*</label>
+                    <label class="mb-1 text-sm font-bold">Add Title*</label>
                     <mat-form-field appearance="outline">
                         <input
                             matInput
                             placeholder="e.g Team meeting"
                             formControlName="title"
-                            class="text-sm max-w-[22.5rem]"
+                            class="max-w-[22.5rem] text-sm"
                         />
                     </mat-form-field>
                 </div>
                 <div class="flex flex-col">
-                    <label class="text-sm font-bold mb-1">Date*</label>
+                    <label class="mb-1 text-sm font-bold">Date*</label>
                     <a-date-field
                         [from]="min_date"
                         formControlName="date"
-                        class="text-sm max-w-[22.5rem]"
+                        class="max-w-[22.5rem] text-sm"
                     ></a-date-field>
                 </div>
-                <div class="flex flex-row -mb-5 space-x-2">
-                    <div class="flex flex-col w-1/2">
-                        <label class="text-sm font-bold mb-1">
+                <div class="-mb-5 flex flex-row space-x-2">
+                    <div class="flex w-1/2 flex-col">
+                        <label class="mb-1 text-sm font-bold">
                             Start Time*
                         </label>
                         <a-time-field
                             [ngModel]="form.value.date"
                             (ngModelChange)="form.patchValue({ date: $event })"
                             [ngModelOptions]="{ standalone: true }"
-                            class="text-sm max-w-[175px]"
+                            class="max-w-[175px] text-sm"
                         ></a-time-field>
                     </div>
-                    <div class="flex flex-col w-1/2 ml-auto">
-                        <label class="text-sm font-bold mb-1">
+                    <div class="ml-auto flex w-1/2 flex-col">
+                        <label class="mb-1 text-sm font-bold">
                             End Time*
                         </label>
                         <a-duration-field
@@ -58,7 +58,7 @@
                             [min]="60"
                             [step]="60"
                             formControlName="duration"
-                            class="text-sm max-w-[175px]"
+                            class="max-w-[175px] text-sm"
                         ></a-duration-field>
                     </div>
                 </div>
@@ -66,28 +66,28 @@
         </section>
 
         <section
-            class="flex flex-col py-3 border-b border-base-200 items-center"
+            class="flex flex-col items-center border-b border-base-200 py-3"
         >
             <div
-                class="flex flex-col w-[calc(100%-2rem)] max-w-[22.5rem] self-center"
+                class="flex w-[calc(100%-2rem)] max-w-[22.5rem] flex-col self-center"
             >
                 <div class="flex flex-row">
                     <div
-                        class="border border-base-200 rounded-full w-7 h-7 text-center"
+                        class="h-7 w-7 rounded-full border border-base-200 text-center"
                     >
                         <span>2</span>
                     </div>
-                    <div class="ml-2 mb-4 text-base">Attendees</div>
+                    <div class="mb-4 ml-2 text-base">Attendees</div>
                 </div>
 
                 <div class="flex flex-col">
-                    <label class="text-sm font-bold mb-1">
+                    <label class="mb-1 text-sm font-bold">
                         Add Attendees
                     </label>
 
                     <a-user-list-field
                         formControlName="attendees"
-                        class="text-sm max-w-[22.5rem]"
+                        class="max-w-[22.5rem] text-sm"
                         [custom_template]="true"
                         (download)="downloadTemplate()"
                     ></a-user-list-field>
@@ -95,13 +95,13 @@
             </div>
         </section>
 
-        <section class="flex flex-col py-3 items-center justify-center">
+        <section class="flex flex-col items-center justify-center py-3">
             <button
                 btn
                 matRipple
                 type="submit"
                 (click)="findSpace()"
-                class="text-sm bg-secondary border-secondary min-w-[300px] max-w-[calc(100% - 2rem)] mx-auto"
+                class="max-w-[calc(100% - 2rem)] mx-auto min-w-[300px] border-secondary bg-secondary text-sm"
             >
                 <span class="text-sm">Find room</span>
             </button>
@@ -109,7 +109,7 @@
                 btn
                 matRipple
                 (click)="clearForm()"
-                class="text-sm bg-transparent text-secondary border-secondary my-2 min-w-[300px] max-w-[calc(100% - 2rem)] mx-auto"
+                class="bg-transparent max-w-[calc(100% - 2rem)] mx-auto my-2 min-w-[300px] border-secondary text-sm text-secondary"
             >
                 <span class="text-sm">Clear form</span>
             </button>

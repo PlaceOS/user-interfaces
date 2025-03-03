@@ -1,4 +1,8 @@
-<div class="timeline" (window:mouseup)="resetMove()" (window:touchend)="resetMove()">
+<div
+    class="timeline"
+    (window:mouseup)="resetMove()"
+    (window:touchend)="resetMove()"
+>
     <div class="content" (mousemove)="move($event)" (touchmove)="move($event)">
         <div class="timeblocks">
             <div class="blk" *ngFor="let item of blocks">
@@ -20,7 +24,11 @@
                 [style.top]="active_start * 100 + '%'"
                 [style.height]="active_length * 100 + '%'"
             >
-                <div class="inner" (mousedown)="setMove('top')" (touchstart)="setMove('top')">
+                <div
+                    class="inner"
+                    (mousedown)="setMove('top')"
+                    (touchstart)="setMove('top')"
+                >
                     {{ display }}
                 </div>
                 <div

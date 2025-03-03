@@ -1,5 +1,9 @@
 <div [class]="'event-timeline' + (klass ? ' ' + klass : '')">
-    <div class="times" (window:mouseup)="resetMove()" (window:touchend)="resetMove()">
+    <div
+        class="times"
+        (window:mouseup)="resetMove()"
+        (window:touchend)="resetMove()"
+    >
         <div class="row divider">
             <div class="header"></div>
             <div class="line">
@@ -14,14 +18,23 @@
     <div class="content">
         <div class="overlay row">
             <div class="header"></div>
-            <div class="line" #overlay (mousemove)="move($event)" (touchmove)="move($event)">
+            <div
+                class="line"
+                #overlay
+                (mousemove)="move($event)"
+                (touchmove)="move($event)"
+            >
                 <div
                     class="mini-block"
                     *ngFor="let blk of model.blocks || []"
                     [class.unavailable]="blk.unavailable"
                     (click)="setTime(blk)"
                 >
-                    <div class="bar" [class.hour]="blk.hour" [class.divider]="blk.divider"></div>
+                    <div
+                        class="bar"
+                        [class.hour]="blk.hour"
+                        [class.divider]="blk.divider"
+                    ></div>
                 </div>
                 <div
                     class="current-time"
@@ -55,7 +68,11 @@
                 </div>
             </div>
         </div>
-        <div class="row" *ngFor="let grp of this.model.groups || []" [class.divider]="grp.divider">
+        <div
+            class="row"
+            *ngFor="let grp of this.model.groups || []"
+            [class.divider]="grp.divider"
+        >
             <div class="header">
                 <div class="text">{{ grp.name }}</div>
                 <div class="icon" *ngIf="grp.remove" (click)="grp.remove()">
@@ -67,8 +84,12 @@
                     <div
                         class="item"
                         *ngFor="let event of blk.events"
-                        [style.width]="vertical ? '' : (event.duration / 5) * 100 + '%'"
-                        [style.height]="vertical ? (event.duration / 5) * 100 + '%' : ''"
+                        [style.width]="
+                            vertical ? '' : (event.duration / 5) * 100 + '%'
+                        "
+                        [style.height]="
+                            vertical ? (event.duration / 5) * 100 + '%' : ''
+                        "
                     >
                         <div class="text">{{ event.text }}</div>
                     </div>
