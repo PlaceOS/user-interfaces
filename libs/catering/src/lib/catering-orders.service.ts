@@ -221,10 +221,10 @@ export class CateringOrdersService extends AsyncHandler {
         return this._settings.get('app.catering.use_bookings') == true;
     }
     /** Filtered list of catering orders */
-    public readonly filtered = this.orders.pipe(
-        map((list) =>
+    public readonly filtered = combineLatest([this.orders, this._filters]).pipe(
+        map(([list, filters]) =>
             list
-                .filter((order) => checkOrder(order, this._filters.getValue()))
+                .filter((order) => checkOrder(order, filters))
                 .sort((a, b) => a.deliver_at - b.deliver_at),
         ),
     );

@@ -266,7 +266,16 @@
         "BOOKING": "Booking",
         "BOOKINGS": "Bookings",
         "ZONE": "Zone",
-        "ZONE_ALL": "All Zones"
+        "ZONE_ALL": "All Zones",
+        "REQUIRE_NOTES": "Require notes for orders",
+        "RULESET_HEADER": "Edit {{ name }} Configuration",
+        "RULESET_NEW": "New Ruleset",
+        "RULESET_ADD_RULE": "Add Rule",
+        "RULESET_SHOW_RULES": "Show Rules",
+        "RULESET_HIDE_RULES": "Hide Rules",
+        "RULESET_REMOVE_RULES": "Remove Rule",
+        "RULESET_NAME_REQUIRED": "A ruleset name is required",
+        "RULESET_VALUE_REQUIRED": "A rule value is required"
     },
     "FORM": {
         "INVALID_FIELDS": "Some fields are invalid. [{{ field_list }}]",
