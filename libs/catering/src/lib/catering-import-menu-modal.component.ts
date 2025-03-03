@@ -2,6 +2,18 @@ import { Component, EventEmitter, Output } from '@angular/core';
 import { csvToJson, DialogEvent, downloadFile } from '@placeos/common';
 import { CateringItem } from './catering-item.class';
 
+interface ImportItem {
+    id: string;
+    type: 'item' | 'option';
+    name: string;
+    unit_price: number;
+    category: string;
+    caterer: string;
+    description: string;
+    tags: string;
+    multiple: boolean;
+}
+
 @Component({
     selector: 'catering-import-menu-modal',
     template: `
@@ -50,7 +62,7 @@ import { CateringItem } from './catering-item.class';
         </ng-template>
     `,
     styles: [``],
-    standalone: false
+    standalone: false,
 })
 export class CateringImportMenuModalComponent {
     @Output() public event = new EventEmitter<DialogEvent>();
@@ -67,40 +79,47 @@ export class CateringImportMenuModalComponent {
         const fileReader = new FileReader();
         fileReader.addEventListener('loadend', (e: any) => {
             const contents = e.target.result;
-            const data = csvToJson(contents);
+            const data = csvToJson(contents) as any;
+            const new_items = this._processData(data);
             this.loading = '';
             this.event.emit({
                 reason: 'done',
-                metadata: data
-                    .filter((_) => (_.type || '').toLowerCase() === 'item')
-                    .map(
-                        (i) =>
-                            new CateringItem({
-                                ...i,
-                                options: data
-                                    .filter(
-                                        (_) =>
-                                            (_.type || '').toLowerCase() ===
-                                                'option' && _.tags === i.id,
-                                    )
-                                    .map((_) => ({
-                                        id: _.id,
-                                        name: _.name,
-                                        group: _.category,
-                                        multiple: _.multiple,
-                                        unit_price: _.unit_price,
-                                    })),
-                            }),
-                    ),
+                metadata: new_items,
             });
         });
         fileReader.readAsText(file);
     }
 
+    private _processData(list: ImportItem[]): CateringItem[] {
+        const items = [];
+        const isType = (i, t) => i.type.toLowerCase() === t;
+        for (const item of list) {
+            if (!isType(item, 'item')) continue;
+            const opt_list = list.filter(
+                (o) =>
+                    isType(o, 'option') &&
+                    (o.tags === item.id || o.description === item.id),
+            );
+            items.push(
+                new CateringItem({
+                    ...(item as any),
+                    options: opt_list.map((o) => ({
+                        id: o.id,
+                        name: o.name,
+                        group: o.category,
+                        multiple: o.multiple,
+                        unit_price: o.unit_price,
+                    })),
+                }),
+            );
+        }
+        return items;
+    }
+
     public downloadTemplate() {
         const template = `ID,Type,Name,Unit Price,Category,Caterer,Description,Tags,Multiple
 item-1,item,Coffee,200,Drink,Wake Up Cafe,Wake Up,,
-option-1,option,1 Sugar,20,Sugars,,item-1,false`;
+option-1,option,1 Sugar,20,Sugars,,,item-1,false`;
         downloadFile('import-menu-template.csv', template);
     }
 }
