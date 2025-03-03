@@ -7,7 +7,7 @@ import {
     CateringStateService,
 } from '@placeos/catering';
 import { i18n, log, notifyError, notifySuccess } from '@placeos/common';
-import { first, map } from 'rxjs/operators';
+import { first, map, tap } from 'rxjs/operators';
 import { CheckinStateService } from './checkin-state.service';
 import { CalendarEvent, showEvent, updateEvent } from '@placeos/events';
 import { updateBooking } from '@placeos/bookings';
@@ -64,7 +64,12 @@ import { updateBooking } from '@placeos/bookings';
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
                 <div>
-                    {{ 'APP.VISITOR_KIOSK.BEVERAGE_LOADING' | translate }}
+                    {{
+                        (type === 'menu'
+                            ? 'APP.VISITOR_KIOSK.BEVERAGE_MENU_LOADING'
+                            : 'APP.VISITOR_KIOSK.BEVERAGE_LOADING'
+                        ) | translate
+                    }}
                 </div>
             </div>
         </ng-template>
@@ -80,6 +85,7 @@ import { updateBooking } from '@placeos/bookings';
 })
 export class CheckinPreferencesComponent implements OnInit {
     public loading = false;
+    public type = 'menu';
     public beverage: CateringItem;
     public readonly event = this._checkin.event;
 
@@ -94,6 +100,7 @@ export class CheckinPreferencesComponent implements OnInit {
                 ),
             );
         }),
+        tap(() => (this.loading = false)),
     );
 
     constructor(
@@ -103,6 +110,8 @@ export class CheckinPreferencesComponent implements OnInit {
     ) {}
 
     public ngOnInit(): void {
+        this.loading = true;
+        this.type = 'menu';
         this.event.pipe(first()).subscribe((event) => {
             if (event) {
                 if (!event.linked_event) {
@@ -118,6 +127,7 @@ export class CheckinPreferencesComponent implements OnInit {
     }
 
     public async update() {
+        this.type = 'save';
         if (!this.beverage) return this.next();
         this.loading = true;
         const booking = await this._checkin.event

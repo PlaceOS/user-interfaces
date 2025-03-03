@@ -1883,6 +1883,7 @@
             "SAVE": "Save",
             "BEVERAGE_MSG": "Would you like a drink?",
             "BEVERAGE_SELECT": "Select a drink",
+            "BEVERAGE_MENU_LOADING": "Loading beverage list...",
             "BEVERAGE_LOADING": "Requesting drink...",
             "BEVERAGE_SUCCESS": "Successfully requested drink. Your request should show up at your meeting shortly after the start time.",
             "ERROR_PRINT": "Failed to print visitor pass.",

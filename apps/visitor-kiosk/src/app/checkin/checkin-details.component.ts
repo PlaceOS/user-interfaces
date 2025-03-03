@@ -153,15 +153,15 @@ export class CheckinDetailsComponent implements OnInit {
         const form = await this.form.pipe(first()).toPromise();
         const event = await this._checkin.event.pipe(first()).toPromise();
         if (this._checkin.metadata === 'registered') {
-            this.updateGuest();
+            this.updateGuest(false);
         } else {
             !form || !form.value.email ? this.previous() : '';
         }
     }
 
-    public async updateGuest() {
+    public async updateGuest(update = true) {
         this.loading = true;
-        await this._checkin.updateGuest();
+        if (update) await this._checkin.updateGuest();
         const result = await this._checkin
             .checkinGuest()
             .then(() => true)

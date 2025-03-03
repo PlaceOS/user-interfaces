@@ -106,20 +106,23 @@ export class CheckinStateService {
         const form = this._form.getValue();
         if (!guest || !form) return;
         const booking = this._booking.getValue() || guest.extension_data.event;
-        if (!booking) return;
-        const updated_booking = await updateBooking(booking.id, {
-            ...booking,
-            asset_id: form.value.email || booking.asset_id,
-            asset_name: form.value.name || booking.asset_name,
-            description: form.value.name || booking.description,
-            extension_data: {
-                ...booking.extension_data,
-                organisation:
-                    form.value.organisation ||
-                    booking.extension_data.organisation,
-                phone: form.value.phone || booking.extension_data.phone,
-            },
-        }).toPromise();
+        if (!booking || this.metadata) return;
+        const updated_booking = await updateBooking(
+            booking.id,
+            new Booking({
+                ...booking,
+                asset_id: form.value.email || booking.asset_id,
+                asset_name: form.value.name || booking.asset_name,
+                description: form.value.name || booking.description,
+                extension_data: {
+                    ...booking.extension_data,
+                    organisation:
+                        form.value.organisation ||
+                        booking.extension_data.organisation,
+                    phone: form.value.phone || booking.extension_data.phone,
+                },
+            }).toJSON(),
+        ).toPromise();
         this.setBooking(updated_booking);
     }
 
