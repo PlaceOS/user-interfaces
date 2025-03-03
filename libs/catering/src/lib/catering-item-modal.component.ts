@@ -302,6 +302,9 @@ export interface CateringItemModalData {
         <mat-autocomplete #caterer_auto="matAutocomplete">
             <mat-option *ngFor="let option of caterers" [value]="option">
                 {{ option }}
+                <i *ngIf="!option">{{
+                    'CATERING.CATERER_EMPTY' | translate
+                }}</i>
             </mat-option>
         </mat-autocomplete>
     `,
@@ -312,7 +315,7 @@ export interface CateringItemModalData {
             }
         `,
     ],
-    standalone: false
+    standalone: false,
 })
 export class CateringItemModalComponent {
     /** Emitter for events on the modal */
