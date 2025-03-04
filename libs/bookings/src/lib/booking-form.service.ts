@@ -720,8 +720,10 @@ export class BookingFormService extends AsyncHandler {
             if (!available[i]) continue;
             const user = group_members[i];
             const asset = resources[i];
+            const assets = user.email == currentUser().email ? form.assets : [];
             this.form.patchValue({
                 ...form,
+                assets,
                 parent_id: id,
                 user: user as any,
                 user_email: user.email,
