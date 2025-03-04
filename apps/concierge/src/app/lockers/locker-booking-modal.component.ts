@@ -276,7 +276,6 @@ export class LockerBookingModalComponent
             this.timeout(
                 'init_date',
                 () => this.form.patchValue({ date: this._data.date }),
-
                 300,
             );
         }

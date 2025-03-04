@@ -232,7 +232,10 @@ import { addDays, endOfDay, getUnixTime, set } from 'date-fns';
                     {{ 'BOOKINGS.DESK_GROUP_INFO' | translate }}
                 </p>
             </section>
-            <section class="p-2" *ngIf="has_assets">
+            <section
+                class="p-2"
+                *ngIf="has_assets && !(options | async)?.group"
+            >
                 <h3 class="mb-4 flex items-center space-x-2">
                     <div
                         class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
