@@ -6,7 +6,13 @@ import {
     CateringOrder,
     CateringStateService,
 } from '@placeos/catering';
-import { i18n, log, notifyError, notifySuccess } from '@placeos/common';
+import {
+    AsyncHandler,
+    i18n,
+    log,
+    notifyError,
+    notifySuccess,
+} from '@placeos/common';
 import { first, map, tap } from 'rxjs/operators';
 import { CheckinStateService } from './checkin-state.service';
 import { CalendarEvent, showEvent, updateEvent } from '@placeos/events';
@@ -83,7 +89,10 @@ import { updateBooking } from '@placeos/bookings';
     ],
     standalone: false,
 })
-export class CheckinPreferencesComponent implements OnInit {
+export class CheckinPreferencesComponent
+    extends AsyncHandler
+    implements OnInit
+{
     public loading = false;
     public type = 'menu';
     public beverage: CateringItem;
@@ -107,7 +116,9 @@ export class CheckinPreferencesComponent implements OnInit {
         private _router: Router,
         private _checkin: CheckinStateService,
         private _catering: CateringStateService,
-    ) {}
+    ) {
+        super();
+    }
 
     public ngOnInit(): void {
         this.loading = true;
@@ -124,6 +135,7 @@ export class CheckinPreferencesComponent implements OnInit {
                 }
             } else this.next();
         });
+        this.subscription('menu', this.menu.subscribe());
     }
 
     public async update() {
