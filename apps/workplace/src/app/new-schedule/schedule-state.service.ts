@@ -515,7 +515,6 @@ export class ScheduleStateService extends AsyncHandler {
                                 Do you wish to keep this ${wording}?`,
                                 icon: { content: 'event_busy' },
                                 confirm_text: 'Keep',
-                                cancel_text: 'Dismiss',
                                 close_delay: close_after,
                             },
                             this._dialog,
