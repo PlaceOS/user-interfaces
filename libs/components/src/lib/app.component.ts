@@ -207,33 +207,9 @@ export class AppComponent extends AsyncHandler implements OnInit {
         this._initAnalytics();
         initSentry(this._settings.get('app.sentry_dsn'));
         try {
-            const tkn = token();
-            if (isMobileSafari()) {
-                setCustomHeaders(
-                    tkn === 'x-api-key'
-                        ? { 'x-api-key': apiKey() }
-                        : { Authorization: `Bearer ${tkn}` },
-                );
-            }
-            if (this._settings.get('app.has_uploads')) {
-                this.timeout('init_uploads', () => {
-                    initialiseUploadService({
-                        auto_start: true,
-                        token: token(),
-                        endpoint: '/api/engine/v2/uploads',
-                        worker_url: 'assets/md5_worker.js',
-                        providers: [Amazon, Azure, Google, OpenStack] as any,
-                    });
-                });
-            }
-            if (isFixedDevice()) {
-                this.interval(
-                    'auto-update-version',
-                    () => this._checkReload(),
-                    15 * 1000,
-                );
-                await requestScreenWakeLock();
-            }
+            this._setSafariHeaders();
+            this._initUploads();
+            this._initFixedDevice();
         } catch {}
     }
 
@@ -294,5 +270,46 @@ export class AppComponent extends AsyncHandler implements OnInit {
             'reload',
             () => (location.href = `${location.origin}${location.pathname}`),
         );
+    }
+
+    private _setSafariHeaders() {
+        if (isMobileSafari()) return;
+        const tkn = token();
+        setCustomHeaders(
+            tkn === 'x-api-key'
+                ? { 'x-api-key': apiKey() }
+                : { Authorization: `Bearer ${tkn}` },
+        );
+    }
+
+    private _initUploads(tries = 1) {
+        if (!this._settings.get('app.has_uploads')) return;
+        this.timeout('init_uploads', () => {
+            try {
+                initialiseUploadService({
+                    auto_start: true,
+                    token: token(),
+                    endpoint: '/api/engine/v2/uploads',
+                    worker_url: 'assets/md5_worker.js',
+                    providers: [Amazon, Azure, Google, OpenStack] as any,
+                });
+            } catch (e) {
+                this.timeout(
+                    'init_uploads',
+                    () => this._initUploads((tries += 1)),
+                    1000 * tries,
+                );
+            }
+        });
+    }
+
+    private async _initFixedDevice() {
+        if (!isFixedDevice()) return;
+        this.interval(
+            'auto-update-version',
+            () => this._checkReload(),
+            15 * 1000,
+        );
+        await requestScreenWakeLock();
     }
 }
