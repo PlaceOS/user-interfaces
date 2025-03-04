@@ -86,6 +86,7 @@ export class ParkingStateService extends AsyncHandler {
         this._org.active_region,
         this._org.active_building,
     ]).pipe(
+        filter(([_, bld]) => !!bld),
         map(([_, bld]) => {
             const levels = this._org.levels.filter((_) =>
                 _.tags.includes('parking'),
