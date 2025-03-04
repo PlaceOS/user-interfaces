@@ -1,6 +1,9 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { Validators } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import {
+    MAT_DIALOG_DATA,
+    MatDialog,
+    MatDialogRef,
+} from '@angular/material/dialog';
 import { Booking, BookingFormService, Locker } from '@placeos/bookings';
 import {
     AsyncHandler,
@@ -11,9 +14,10 @@ import {
     notifySuccess,
     SettingsService,
 } from '@placeos/common';
-import { BuildingLevel } from '@placeos/organisation';
+import { BuildingLevel, OrganisationService } from '@placeos/organisation';
 import { User } from '@placeos/users';
 import { addDays, endOfDay } from 'date-fns';
+import { combineLatest } from 'rxjs';
 
 @Component({
     selector: 'locker-booking-modal',
@@ -72,7 +76,10 @@ import { addDays, endOfDay } from 'date-fns';
                         </mat-form-field>
                     </div>
                 </div>
-                <div class="relative">
+                <div
+                    class="relative"
+                    [class.pointer-events-none]="disable_date"
+                >
                     <label for="date">{{ 'FORM.DATE' | translate }}</label>
                     <a-date-field formControlName="date"></a-date-field>
                     <mat-checkbox
@@ -206,6 +213,8 @@ export class LockerBookingModalComponent
         private _booking_form: BookingFormService,
         private _dialog_ref: MatDialogRef<LockerBookingModalComponent>,
         private _settings: SettingsService,
+        private _org: OrganisationService,
+        private _dialog: MatDialog,
     ) {
         super();
     }
@@ -297,6 +306,27 @@ export class LockerBookingModalComponent
                 );
             }
         }
+        this.subscription(
+            'bld',
+            combineLatest([
+                this._org.active_building,
+                this.form.controls.duration.valueChanges,
+            ]).subscribe(() => {
+                this.timeout(
+                    'disable',
+                    () => {
+                        if (this.only_duration) {
+                            this.form.patchValue({ all_day: false });
+                            this.form.controls.date.disable();
+                        } else this.form.controls.date.enable();
+                        if (this.disable_date) {
+                            this.form.controls.date.disable();
+                        }
+                    },
+                    50,
+                );
+            }),
+        );
     }
 
     public async postForm() {
