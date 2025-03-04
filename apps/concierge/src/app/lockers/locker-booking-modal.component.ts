@@ -257,8 +257,6 @@ export class LockerBookingModalComponent
                 user_name: this._data.user.name,
                 attendees: [this._data.user],
             });
-            this.form.controls.user_name.disable();
-            this.form.controls.user_email.disable();
         }
         if (this._data.booking?.id) {
             this.form.controls.user.disable();
@@ -277,34 +275,10 @@ export class LockerBookingModalComponent
         if (this._data.date) {
             this.timeout(
                 'init_date',
-                () => {
-                    this.form.patchValue({ date: this._data.date });
-                    if (!this._data.allow_time_changes) {
-                        this.form.get('date').disable();
-                        this.form.get('duration').disable();
-                    }
-                },
+                () => this.form.patchValue({ date: this._data.date }),
+
                 300,
             );
-            if (!this._data.allow_time_changes) {
-                this.subscription(
-                    'form_change',
-                    this.form.valueChanges.subscribe((v) => {
-                        this.timeout(
-                            'disable_date',
-                            () => {
-                                this.form
-                                    .get('date')
-                                    .disable({ emitEvent: false });
-                                this.form
-                                    .get('duration')
-                                    .disable({ emitEvent: false });
-                            },
-                            50,
-                        );
-                    }),
-                );
-            }
         }
         this.subscription(
             'bld',
