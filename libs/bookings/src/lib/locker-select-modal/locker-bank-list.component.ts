@@ -213,7 +213,6 @@ export class LockerBankListComponent {
                     };
                 });
         }),
-        tap((list) => console.log('Bank List:', list)),
     );
     public readonly loading = this._state.loading;
 

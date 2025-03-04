@@ -123,8 +123,8 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
     standalone: false,
 })
 export class ParkingSpaceListComponent {
-    @Input() public active: string = '';
-    @Input() public selected: string = '';
+    @Input() public active = '';
+    @Input() public selected = '';
     @Input() public favorites: string[] = [];
     @Output() public onSelect = new EventEmitter<BookingAsset>();
     @Output() public toggleFav = new EventEmitter<BookingAsset>();
@@ -134,7 +134,13 @@ export class ParkingSpaceListComponent {
         this._form.available_resources,
     ]).pipe(
         map(([{ show_fav }, _]) =>
-            _.filter((i) => !show_fav || this.isFavourite(i.id)),
+            _.filter((i) => !show_fav || this.isFavourite(i.id)).sort(
+                (a, b) => {
+                    const a_fav = this.isFavourite(a.id) ? 1 : 0;
+                    const b_fav = this.isFavourite(b.id) ? 1 : 0;
+                    return b_fav - a_fav;
+                },
+            ),
         ),
     );
     public readonly loading = this._form.loading;

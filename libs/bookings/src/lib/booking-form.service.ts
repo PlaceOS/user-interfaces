@@ -201,7 +201,6 @@ export class BookingFormService extends AsyncHandler {
             this._loading.next(i18n('BOOKINGS.LOADING_AVAILABILITY', { type })),
         ),
         switchMap(([options, resources, restrictions]) => {
-            console.log('Resources:', resources);
             let { all_day, date, duration, user } = this.form.getRawValue();
             if (all_day) {
                 date = startOfDay(date).valueOf();
