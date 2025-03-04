@@ -265,8 +265,11 @@ export class FooterMenuComponent {
         return !!this._settings.get('app.new_features');
     }
 
-    public get dark_mode(): boolean {
-        return !!this._settings.get('dark_mode');
+    public get dark_mode() {
+        return (
+            this._settings.get('app.allow_dark_mode') &&
+            this._settings.theme === 'dark'
+        );
     }
 
     constructor(private _settings: SettingsService) {}

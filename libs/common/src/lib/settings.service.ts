@@ -47,6 +47,12 @@ export class SettingsService extends AsyncHandler {
         this._applyCssVariables();
     }
 
+    public get theme() {
+        const allow_dark_mode = this.get('app.allow_dark_mode');
+        const theme = allow_dark_mode ? this.theme : 'light';
+        return theme;
+    }
+
     /** Get observable for key */
     public listen<T = any>(name: string): Observable<T> {
         if (!this._observables[name]) {
@@ -177,7 +183,7 @@ export class SettingsService extends AsyncHandler {
     }
 
     public setTheme(theme: string) {
-        const current_theme = this.get('theme');
+        const current_theme = this.theme;
         if (current_theme === theme) return;
         this.saveUserSetting('theme', theme);
         this._applyTheme();
@@ -223,7 +229,8 @@ export class SettingsService extends AsyncHandler {
     }
 
     private _applyTheme() {
-        const theme = this.get('theme');
+        const allow_dark_mode = this.get('app.allow_dark_mode');
+        const theme = allow_dark_mode ? this.theme : 'light';
         const class_list = document.body.classList.value.split(' ');
         for (const item of class_list) {
             if (item.startsWith('theme-')) {
@@ -238,7 +245,7 @@ export class SettingsService extends AsyncHandler {
     }
 
     private _initDarkMode() {
-        if (this.get('theme') || true) return;
+        if (this.theme || true) return;
         const os_dark = window?.matchMedia
             ? window?.matchMedia('(prefers-color-scheme: dark)')?.matches
             : false;

@@ -89,7 +89,7 @@ import { CustomTooltipData } from '@placeos/components';
 })
 export class AccessibilityTooltipComponent extends AsyncHandler {
     public get dark_mode() {
-        return this._settings.get('theme') === 'dark';
+        return this._settings.theme === 'dark';
     }
 
     public get can_change_dark_mode() {
@@ -121,7 +121,7 @@ export class AccessibilityTooltipComponent extends AsyncHandler {
     }
 
     public setDarkMode(state: boolean) {
-        const theme = this._settings.get('theme');
+        const theme = this._settings.theme;
         if (state && theme !== 'dark') this._settings.setTheme('dark');
         else if (!state && theme === 'dark') this._settings.setTheme('light');
     }

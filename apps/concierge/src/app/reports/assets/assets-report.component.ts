@@ -92,7 +92,7 @@ export class AssetsReportComponent extends AsyncHandler {
         debounceTime(500),
         map(
             () =>
-                (this._settings.get('theme') === 'dark'
+                (this._settings.theme === 'dark'
                     ? this._settings.get('app.logo_dark')
                     : this._settings.get('app.logo_light')) || {},
         ),
