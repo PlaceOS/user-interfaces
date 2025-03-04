@@ -396,7 +396,12 @@ import { User } from '@placeos/users';
                             {{ item.name }}
                         </a>
                     </mat-menu>
-                    <button mat-menu-item (click)="setExt(row, 'remote', true)">
+                    <button
+                        mat-menu-item
+                        (click)="
+                            setExt(row, 'remote', !row.extension_data.remote)
+                        "
+                    >
                         <div class="flex items-center space-x-2">
                             <app-icon class="text-2xl">
                                 {{
