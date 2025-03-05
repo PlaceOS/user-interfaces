@@ -67,8 +67,6 @@ import { Locker, LockerBank } from './locker.class';
             }
             button[disabled] {
                 pointer-events: none;
-                opacity: 0.75;
-                background-color: #ccc !important;
             }
         `,
     ],
