@@ -137,9 +137,10 @@ import { combineLatest } from 'rxjs';
                     <label>{{ 'FORM.DATE' | translate }}</label>
                     <a-date-field
                         name="date"
-                        [ngModel]="form.value.date"
+                        [ngModel]="form.getRawValue().date"
                         (ngModelChange)="form.patchValue({ date: $event })"
                         [ngModelOptions]="{ standalone: true }"
+                        [disabled]="form.controls.date.disabled"
                         [to]="end_date"
                         [timezone]="timezone"
                     >
@@ -147,7 +148,10 @@ import { combineLatest } from 'rxjs';
                     </a-date-field>
                 </div>
                 <!-- All Day -->
-                <div *ngIf="allow_all_day" class="-mt-2 mb-2 flex justify-end">
+                <div
+                    *ngIf="allow_all_day && !form.controls.date.disabled"
+                    class="-mt-2 mb-2 flex justify-end"
+                >
                     <mat-checkbox
                         [ngModel]="form.value.all_day"
                         (ngModelChange)="form.patchValue({ all_day: $event })"

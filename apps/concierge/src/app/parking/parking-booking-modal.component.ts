@@ -272,17 +272,6 @@ export class ParkingBookingModalComponent
             this.form.patchValue({ resources: [this._data.space] });
         }
         if (this._data.date) {
-            this.timeout(
-                'init_date',
-                () => {
-                    this.form.patchValue({ date: this._data.date });
-                    if (!this._data.allow_time_changes) {
-                        this.form.get('date').disable();
-                        this.form.get('duration').disable();
-                    }
-                },
-                300,
-            );
             if (!this._data.allow_time_changes) {
                 this.subscription(
                     'form_change',
@@ -302,6 +291,18 @@ export class ParkingBookingModalComponent
                     }),
                 );
             }
+            console.log('Date:', this._data.date);
+            this.timeout(
+                'init_date',
+                () => {
+                    this.form.patchValue({ date: this._data.date });
+                    if (!this._data.allow_time_changes) {
+                        this.form.get('date').disable();
+                        this.form.get('duration').disable();
+                    }
+                },
+                300,
+            );
         }
     }
 

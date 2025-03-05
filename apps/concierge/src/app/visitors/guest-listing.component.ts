@@ -662,6 +662,7 @@ export class GuestListingComponent extends AsyncHandler {
     }
 
     public async reserveParking(item: Booking) {
+        console.log('Item:', item);
         const id = await this._parking.editReservation(undefined, {
             parent_id: item.id,
             user: new User({ email: item.asset_id, name: item.asset_name }),
