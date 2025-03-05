@@ -357,12 +357,9 @@ import { FormControl, FormGroup } from '@angular/forms';
     ],
     standalone: false,
 })
-export class RoomModalComponent
-    extends AsyncHandler
-    implements OnInit, OnChanges
-{
+export class RoomModalComponent extends AsyncHandler implements OnInit {
     public loading = false;
-    public timezones: string[] = [];
+    public timezones: string[] = TIMEZONES_IANA;
     public filtered_timezones: string[] = [];
     /** List of levels for the active building */
     public readonly levels = this._org.active_levels;
@@ -406,21 +403,11 @@ export class RoomModalComponent
         if (this._data.room.id && overflow[this._data.room.id]) {
             this.settings_form.patchValue(overflow[this._data.room.id]);
         }
-    }
-
-    public ngOnChanges(changes: SimpleChanges): void {
-        if (changes.form) {
-            this.updateTimezoneList();
-            this.subscription(
-                'tz-change',
-                this.form.valueChanges.subscribe(
-                    ({ timezone }) =>
-                        (this.filtered_timezones = this.timezones.filter((_) =>
-                            _.toLowerCase().includes(timezone.toLowerCase()),
-                        )),
-                ),
-            );
-        }
+        this._updateTimezoneList();
+        this.subscription(
+            'tz-change',
+            this.form.valueChanges.subscribe(() => this._updateTimezoneList()),
+        );
     }
 
     /**
@@ -456,14 +443,6 @@ export class RoomModalComponent
             feature_list.splice(index, 1);
             this.form.controls.features.setValue(feature_list);
         }
-    }
-
-    public updateTimezoneList() {
-        const timezone = this.form?.value?.timezone || '';
-        this.timezones = TIMEZONES_IANA;
-        this.filtered_timezones = this.timezones.filter((_) =>
-            _.toLowerCase().includes(timezone.toLowerCase()),
-        );
     }
 
     public async save() {
@@ -512,5 +491,13 @@ export class RoomModalComponent
         this._dialog_ref.disableClose = false;
         this._dialog_ref.close(true);
         this.loading = false;
+    }
+
+    private _updateTimezoneList() {
+        const timezone = this.form?.value?.timezone || '';
+        this.timezones = TIMEZONES_IANA;
+        this.filtered_timezones = this.timezones.filter((_) =>
+            _.toLowerCase().includes(timezone.toLowerCase()),
+        );
     }
 }
