@@ -101,12 +101,7 @@ export class RegionModalComponent extends AsyncHandler {
         this._updateTimezoneList();
         this.subscription(
             'tz-change',
-            this.form.valueChanges.subscribe(
-                ({ timezone }) =>
-                    (this.filtered_timezones = this.timezones.filter((_) =>
-                        _.toLowerCase().includes(timezone.toLowerCase()),
-                    )),
-            ),
+            this.form.valueChanges.subscribe(() => this._updateTimezoneList()),
         );
     }
 

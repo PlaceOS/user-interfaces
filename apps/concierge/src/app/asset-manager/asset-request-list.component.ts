@@ -4,6 +4,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
 import { OrganisationService } from '@placeos/organisation';
 import { startOfDay } from 'date-fns';
 import { Booking } from '@placeos/bookings';
+import { map } from 'rxjs/operators';
 
 @Component({
     selector: 'app-asset-request-list',
@@ -50,11 +51,10 @@ import { Booking } from '@placeos/bookings';
                             sortable: false,
                         },
                         {
-                            key: 'zones',
+                            key: 'level',
                             name: 'RESOURCE.LEVEL' | translate,
                             content: level_template,
                             size: '9rem',
-                            sortable: false,
                         },
                         {
                             key: 'description',
@@ -131,10 +131,10 @@ import { Booking } from '@placeos/bookings';
                 }}
             </div>
         </ng-template>
-        <ng-template #level_template let-data="data">
+        <ng-template #level_template let-row="row">
             <div class="p-4">
-                {{ level(data)?.display_name }}
-                <span class="opacity-30" *ngIf="!level(data)">N/A</span>
+                {{ level(row)?.display_name }}
+                <span class="opacity-30" *ngIf="!level(row)">N/A</span>
             </div>
         </ng-template>
         <ng-template #approval_template let-row="row">
@@ -258,7 +258,12 @@ import { Booking } from '@placeos/bookings';
     standalone: false,
 })
 export class AssetRequestListComponent extends AsyncHandler implements OnInit {
-    public readonly requests = this._state.filtered_requests;
+    public readonly requests = this._state.filtered_requests.pipe(
+        map((l) => {
+            l.forEach((r) => this.level(r));
+            return l;
+        }),
+    );
     public readonly filters = this._state.options;
     public request;
 
@@ -296,8 +301,11 @@ export class AssetRequestListComponent extends AsyncHandler implements OnInit {
         super();
     }
 
-    public level(zones) {
-        return this._org.levelWithID(zones);
+    public level(item) {
+        const zones = item.zones;
+        const level = this._org.levelWithID(zones);
+        item.level = level?.display_name || level?.name || zones[0] || '';
+        return level;
     }
 
     public ngOnInit() {
