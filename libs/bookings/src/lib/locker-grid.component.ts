@@ -76,6 +76,7 @@ import { Locker, LockerBank } from './locker.class';
 })
 export class LockerGridComponent {
     @Input() public show_name = true;
+    @Input() public default_status = 'busy';
     @Input() public bank: LockerBank;
     @Input() public bank_status: Record<string, string> = {};
     @Input() public selected = '';
@@ -102,10 +103,10 @@ export class LockerGridComponent {
     }
 
     public status(locker: Locker) {
-        if (!locker) return this.color('busy');
+        if (!locker) return this.color('not-bookable');
         let value = this.bank_status[locker.id] || 'free';
         if (!this.bank_status[locker.id] && !locker?.available) {
-            value = 'busy';
+            value = this.default_status;
         }
         return this.color(value);
     }

@@ -15,7 +15,10 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
             </button>
         </header>
         <main class="h-[65vh] w-[65vw] overflow-auto px-2 pb-2">
-            <locker-grid [bank]="bank"></locker-grid>
+            <locker-grid
+                [bank]="bank"
+                default_status="not-bookable"
+            ></locker-grid>
         </main>
     `,
     styles: [``],
