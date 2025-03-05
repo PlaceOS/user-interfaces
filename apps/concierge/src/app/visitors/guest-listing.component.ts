@@ -387,6 +387,21 @@ import { VisitorsStateService } from './visitors-state.service';
                             </div>
                         </div>
                     </button>
+                    <button
+                        mat-menu-item
+                        *ngIf="can_email_visitors"
+                        (click)="emailVisitor(row)"
+                    >
+                        <div class="flex items-center space-x-2">
+                            <app-icon class="text-2xl">attach_email</app-icon>
+                            <div>
+                                {{
+                                    'APP.CONCIERGE.VISITORS_ACTION_EMAIL'
+                                        | translate
+                                }}
+                            </div>
+                        </div>
+                    </button>
                     <mat-menu #menu="matMenu">
                         <a
                             *ngFor="let item of row.attachments"
@@ -606,11 +621,17 @@ export class GuestListingComponent extends AsyncHandler {
         this._state.poll();
     };
 
+    public readonly emailVisitor = (item) => this._state.emailVisitor(item);
+
     public get has_parking() {
         return (
             this._settings.get('app.features')?.includes('parking') &&
             this._settings.get('app.visitors.has_parking')
         );
+    }
+
+    public get can_email_visitors() {
+        return !!this._org.module('visitor_access', 'VisitorAccess');
     }
 
     public get time_format() {

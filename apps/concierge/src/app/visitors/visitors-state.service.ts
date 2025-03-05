@@ -26,6 +26,7 @@ import {
     AsyncHandler,
     SettingsService,
     downloadFile,
+    i18n,
     jsonToCsv,
     notifyError,
     notifySuccess,
@@ -301,5 +302,18 @@ export class VisitorsStateService extends AsyncHandler {
             data: { item },
         });
         ref.afterClosed().subscribe(() => this.poll());
+    }
+
+    public async emailVisitor(item: Booking) {
+        const mod = this._org.module('visitor_access', 'VisitorAccess');
+        if (!mod) return;
+        await mod.execute('grant_and_notify_access', [
+            item.asset_id,
+            item.asset_name,
+            item.booked_by_email,
+            item.title,
+            item.booking_start,
+        ]);
+        notifySuccess(i18n('APP.CONCIERGE.VISITOR_EMAIL_SUCCESS'));
     }
 }
