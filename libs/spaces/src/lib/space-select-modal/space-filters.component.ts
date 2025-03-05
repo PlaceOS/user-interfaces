@@ -100,8 +100,8 @@ import { SpacesService } from '../spaces.service';
                     >
                         <mat-select
                             name="location"
-                            [ngModel]="(options | async)?.zone_ids"
-                            (ngModelChange)="setOptions({ zone_ids: $event })"
+                            [ngModel]="(options | async)?.zones"
+                            (ngModelChange)="setOptions({ zones: $event })"
                             [ngModelOptions]="{ standalone: true }"
                             [placeholder]="
                                 'CALENDAR_EVENT.SPACE_LEVEL_ANY' | translate
