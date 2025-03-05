@@ -36,7 +36,7 @@ import { map } from 'rxjs/operators';
                 {{ 'APP.CONCIERGE.AUTO_RELEASE_NOTIFY' | translate }}
             </label>
             <a-duration-field
-                [min]="0"
+                [min]="-15"
                 [max]="60"
                 [step]="5"
                 [(ngModel)]="settings.time_before"

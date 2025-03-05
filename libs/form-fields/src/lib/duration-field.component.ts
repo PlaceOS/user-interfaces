@@ -266,7 +266,7 @@ export class DurationFieldComponent
                                 days: Math.floor(time / (24 * 60)),
                             })}`
                           : `${formatDuration({
-                                hours: Math.floor(time / 60),
+                                hours: Math.floor(Math.abs(time) / 60),
                                 minutes: time % 60,
                             })}`,
             });
