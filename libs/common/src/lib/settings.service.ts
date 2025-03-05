@@ -49,7 +49,7 @@ export class SettingsService extends AsyncHandler {
 
     public get theme() {
         const allow_dark_mode = this.get('app.allow_dark_mode');
-        const theme = allow_dark_mode ? this.theme : 'light';
+        const theme = allow_dark_mode ? this.get('theme') : 'light';
         return theme;
     }
 
