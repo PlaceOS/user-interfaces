@@ -43,7 +43,7 @@ import { AsyncHandler } from '@placeos/common';
             <div
                 class="z-50 flex h-full w-full flex-col items-center justify-center space-y-4 bg-base-100"
             >
-                <img src="assets/img/parking-space.svg" class="h-64 w-64" />
+                <img src="assets/icons/permission-none.svg" class="h-64 w-64" />
                 <p>
                     Your user account is not allowed to book parking in this
                     building.
