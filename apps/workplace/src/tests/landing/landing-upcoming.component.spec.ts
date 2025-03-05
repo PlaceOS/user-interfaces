@@ -1,12 +1,12 @@
+import { MatDialog } from '@angular/material/dialog';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { BookingCardComponent } from '@placeos/bookings';
+import { SettingsService } from '@placeos/common';
+import { EventCardComponent } from '@placeos/events';
 import { MockComponent } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
-import { BookingCardComponent } from '@placeos/bookings';
-import { EventCardComponent } from '@placeos/events';
 import { LandingStateService } from '../../app/landing/landing-state.service';
 import { LandingUpcomingComponent } from '../../app/landing/landing-upcoming.component';
-import { MatDialog } from '@angular/material/dialog';
-import { SettingsService } from '@placeos/common';
 
 describe('LandingUpcomingComponent', () => {
     let spectator: SpectatorRouting<LandingUpcomingComponent>;

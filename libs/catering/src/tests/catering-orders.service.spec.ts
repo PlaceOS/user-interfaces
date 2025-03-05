@@ -5,9 +5,9 @@ import { CateringOrdersService } from '../lib/catering-orders.service';
 
 jest.mock('libs/events/src/lib/events.fn');
 
+import { SettingsService } from '@placeos/common';
 import * as event_fn from 'libs/events/src/lib/events.fn';
 import { MockProvider } from 'ng-mocks';
-import { SettingsService } from '@placeos/common';
 
 describe('CateringOrdersService', () => {
     let spectator: SpectatorService<CateringOrdersService>;

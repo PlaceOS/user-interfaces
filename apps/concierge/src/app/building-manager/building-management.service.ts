@@ -1,16 +1,16 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { i18n, notifyError, notifySuccess } from '@placeos/common';
+import { openConfirmModal } from '@placeos/components';
 import { Building, OrganisationService } from '@placeos/organisation';
 import { PlaceZone, removeZone } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { BuildingModalComponent } from './building-modal.component';
 import { AppSettingsModalComponent } from '../ui/app-settings-modal.component';
 import { AutoReleaseSettingsModalComponent } from './auto-release-settings-modal.component';
+import { BuildingModalComponent } from './building-modal.component';
 import { InductionSettingsModalComponent } from './induction-settings-modal.component';
 import { ItemListModalComponent } from './item-list-modal.component';
-import { openConfirmModal } from '@placeos/components';
 
 export interface BuildingListOptions {
     zone?: string;

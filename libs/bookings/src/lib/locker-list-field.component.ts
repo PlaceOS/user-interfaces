@@ -5,8 +5,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { BookingAsset } from './booking-form.service';
 import {
-    LockerSelectModalComponent,
     FAV_LOCKER_KEY,
+    LockerSelectModalComponent,
 } from './locker-select-modal/locker-select-modal.component';
 
 const EMPTY_FAVS: string[] = [];

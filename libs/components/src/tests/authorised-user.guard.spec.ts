@@ -5,16 +5,16 @@ import { of } from 'rxjs';
 jest.mock('@placeos/ts-client');
 jest.mock('@placeos/common');
 
-import * as ts_client from '@placeos/ts-client';
 import * as common_lib from '@placeos/common';
+import * as ts_client from '@placeos/ts-client';
 
+import { OrganisationService } from '@placeos/organisation';
+import { SettingsService } from 'libs/common/src/lib/settings.service';
+import { MockProvider } from 'ng-mocks';
 import {
     AuthorisedUserGuard,
     PLACEOS_APP_ACCESS,
 } from '../lib/authorised-user.guard';
-import { MockProvider } from 'ng-mocks';
-import { SettingsService } from 'libs/common/src/lib/settings.service';
-import { OrganisationService } from '@placeos/organisation';
 
 describe('AuthorisedUserGuard', () => {
     let spectator: SpectatorService<AuthorisedUserGuard>;

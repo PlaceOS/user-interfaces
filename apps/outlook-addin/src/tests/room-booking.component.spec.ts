@@ -1,19 +1,18 @@
-import { RoomBookingComponent } from '../app/rooms/room-booking.component';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { Location } from '@angular/common';
-import { MockComponent, MockProvider } from 'ng-mocks';
 import {
+    FormBuilder,
     FormsModule,
     ReactiveFormsModule,
-    FormBuilder,
     Validators,
 } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { BookModule } from '../app/rooms/book.module';
-import { EventFormService } from '@placeos/events';
-import { FindSpaceComponent } from '../app/rooms/find-space/find-space.component';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { SettingsService } from '@placeos/common';
-import { Router } from '@angular/router';
+import { EventFormService } from '@placeos/events';
+import { MockComponent, MockProvider } from 'ng-mocks';
+import { BookModule } from '../app/rooms/book.module';
+import { FindSpaceComponent } from '../app/rooms/find-space/find-space.component';
+import { RoomBookingComponent } from '../app/rooms/room-booking.component';
 
 describe('RoomBookingComponent', () => {
     const formModel = {

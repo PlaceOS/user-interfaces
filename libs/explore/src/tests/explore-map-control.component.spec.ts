@@ -7,9 +7,9 @@ import { SpectatorRouting, createRoutingFactory } from '@ngneat/spectator/jest';
 import { OrganisationService } from '@placeos/organisation';
 import { BehaviorSubject, of } from 'rxjs';
 
+import { MockProvider } from 'ng-mocks';
 import { ExploreMapControlComponent } from '../lib/explore-map-control.component';
 import { ExploreStateService } from '../lib/explore-state.service';
-import { MockProvider } from 'ng-mocks';
 
 describe('ExploreMapControlComponent', () => {
     let spectator: SpectatorRouting<ExploreMapControlComponent>;

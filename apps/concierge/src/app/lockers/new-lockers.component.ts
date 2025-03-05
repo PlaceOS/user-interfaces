@@ -1,8 +1,8 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { LockerStateService } from './locker-state.service';
-import { MatDialog } from '@angular/material/dialog';
 
 import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';
 

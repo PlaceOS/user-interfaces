@@ -9,9 +9,9 @@ jest.mock('@placeos/events');
 jest.mock('@placeos/bookings');
 jest.mock('@placeos/users');
 
-import * as placeos from '@placeos/ts-client';
-import * as events_mod from '@placeos/events';
 import * as booking_mod from '@placeos/bookings';
+import * as events_mod from '@placeos/events';
+import * as placeos from '@placeos/ts-client';
 import * as users_mod from '@placeos/users';
 
 describe('CheckinStateService', () => {

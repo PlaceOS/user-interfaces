@@ -1,9 +1,9 @@
 import { Component, Inject } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { notifyError, notifySuccess } from '@placeos/common';
 import { CalendarEvent } from './event.class';
 import { saveEvent, updateEventMetadata } from './events.fn';
-import { currentUser, notifyError, notifySuccess } from '@placeos/common';
 
 @Component({
     selector: 'setup-breakdown-modal',

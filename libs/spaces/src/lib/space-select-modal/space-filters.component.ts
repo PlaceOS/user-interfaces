@@ -8,13 +8,13 @@ import {
 } from '@placeos/common';
 import { addDays, endOfDay, startOfDay } from 'date-fns';
 import { combineLatest } from 'rxjs';
-import { map, take } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 
-import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
-import { Building } from 'libs/organisation/src/lib/building.class';
-import { SpacesService } from '../spaces.service';
 import { Region } from '@placeos/organisation';
+import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
+import { Building } from 'libs/organisation/src/lib/building.class';
+import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
+import { SpacesService } from '../spaces.service';
 
 @Component({
     selector: `space-filters`,

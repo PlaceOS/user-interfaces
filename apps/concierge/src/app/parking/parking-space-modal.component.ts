@@ -1,17 +1,9 @@
-import {
-    Component,
-    EventEmitter,
-    Inject,
-    Input,
-    OnInit,
-    Output,
-} from '@angular/core';
+import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { DialogEvent } from '@placeos/common';
 import { showStaff, User } from '@placeos/users';
 import { ParkingSpace } from './parking-state.service';
-import { showUser } from '@placeos/ts-client';
 
 @Component({
     selector: 'parking-space-modal',

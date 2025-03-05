@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
 import { querySystems, showSystem } from '@placeos/ts-client';
-import { first, map } from 'rxjs/operators';
 import { BehaviorSubject } from 'rxjs';
+import { first, map } from 'rxjs/operators';
 
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 
-import { Space } from './space.class';
 import { flatten, SettingsService, unique } from '@placeos/common';
+import { Space } from './space.class';
 import { SpacePipe } from './space.pipe';
 
 let SPACE_PIPE: SpacePipe;

@@ -1,12 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { RoomManagementService } from './room-management.service';
-import { OrganisationService } from '@placeos/organisation';
+import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AsyncHandler, SettingsService } from '@placeos/common';
-import { first, map, take } from 'rxjs/operators';
-import { MatDialog } from '@angular/material/dialog';
-import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';
+import { OrganisationService } from '@placeos/organisation';
 import { combineLatest } from 'rxjs';
+import { first, map } from 'rxjs/operators';
+import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';
+import { RoomManagementService } from './room-management.service';
 
 @Component({
     selector: 'room-manager-topbar',

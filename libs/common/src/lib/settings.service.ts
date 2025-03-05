@@ -1,18 +1,18 @@
 import { Injectable, Optional } from '@angular/core';
 import { Title } from '@angular/platform-browser';
-import { BehaviorSubject, Observable } from 'rxjs';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
 import { format, isSameDay } from 'date-fns';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { first } from 'rxjs/operators';
 
-import { log, getItemWithKeys, setAppName } from './general';
+import { AsyncHandler } from './async-handler.class';
+import { getItemWithKeys, log, setAppName } from './general';
 import { DEFAULT_SETTINGS } from './settings';
 import { HashMap } from './types';
-import { AsyncHandler } from './async-handler.class';
 
-import { VERSION } from './version';
-import { currentUser, current_user } from './user-state';
 import { GoogleAnalyticsService } from './google-analytics.service';
+import { currentUser, current_user } from './user-state';
+import { VERSION } from './version';
 
 declare global {
     interface Window {

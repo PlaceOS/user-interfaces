@@ -1,15 +1,15 @@
 import { Injectable } from '@angular/core';
+import { endOfDay, format, getUnixTime, startOfDay } from 'date-fns';
 import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
 import {
-    map,
-    switchMap,
-    debounceTime,
-    tap,
-    shareReplay,
     catchError,
+    debounceTime,
     filter,
+    map,
+    shareReplay,
+    switchMap,
+    tap,
 } from 'rxjs/operators';
-import { startOfDay, endOfDay, getUnixTime, format } from 'date-fns';
 
 import {
     AsyncHandler,
@@ -18,18 +18,18 @@ import {
     SettingsService,
     unique,
 } from '@placeos/common';
-import {
-    queryEvents,
-    showEventMetadata,
-    updateEventMetadata,
-} from 'libs/events/src/lib/events.fn';
-import { CalendarEvent } from 'libs/events/src/lib/event.class';
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { Booking } from 'libs/bookings/src/lib/booking.class';
 import {
     queryBookings,
     updateBooking,
 } from 'libs/bookings/src/lib/bookings.fn';
+import { CalendarEvent } from 'libs/events/src/lib/event.class';
+import {
+    queryEvents,
+    showEventMetadata,
+    updateEventMetadata,
+} from 'libs/events/src/lib/events.fn';
+import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 
 import { CateringOrder } from './catering-order.class';

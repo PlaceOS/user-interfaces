@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
 import {
@@ -8,11 +9,10 @@ import {
     SettingsService,
     unique,
 } from '@placeos/common';
+import { OrganisationService } from '@placeos/organisation';
+import { User } from '@placeos/users';
 import { startOfMinute } from 'date-fns';
 import { CheckinStateService } from './checkin/checkin-state.service';
-import { Validators } from '@angular/forms';
-import { User } from '@placeos/users';
-import { OrganisationService } from '@placeos/organisation';
 
 @Component({
     selector: 'visitor-registration',

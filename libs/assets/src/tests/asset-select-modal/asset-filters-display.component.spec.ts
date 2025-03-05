@@ -1,5 +1,4 @@
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { MockComponent } from 'ng-mocks';
 import { AssetFiltersDisplayComponent } from '../../lib/asset-select-modal/asset-filters-display.component';
 
 describe('AssetFiltersDisplayComponent', () => {

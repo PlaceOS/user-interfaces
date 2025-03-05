@@ -1,8 +1,5 @@
+import { Clipboard } from '@angular/cdk/clipboard';
 import { Component } from '@angular/core';
-import {
-    EmailTemplate,
-    EmailTemplatesStateService,
-} from './email-templates-state.service';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
@@ -13,7 +10,10 @@ import {
 } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { take } from 'rxjs/operators';
-import { Clipboard } from '@angular/cdk/clipboard';
+import {
+    EmailTemplate,
+    EmailTemplatesStateService,
+} from './email-templates-state.service';
 
 @Component({
     selector: 'email-template-manage',

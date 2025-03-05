@@ -1,18 +1,17 @@
-import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { stringToMinutes } from '@placeos/common';
+import { AttachedResourceRuleset } from '@placeos/components';
+import { CalendarEvent } from '@placeos/events';
+import { showMetadata } from '@placeos/ts-client';
+import { isAfter, isBefore, setHours, subHours } from 'date-fns';
+import { Observable, of } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 import {
     Asset,
     AssetCategory,
     AssetGroup,
     AssetPurchaseOrder,
 } from './asset.class';
-import { flatten, stringToMinutes } from '@placeos/common';
-import { AttachedResourceRuleset } from '@placeos/components';
-import { CalendarEvent } from '@placeos/events';
-import { isAfter, isBefore, setHours, subHours } from 'date-fns';
-import { catchError, map } from 'rxjs/operators';
-import { showMetadata } from '@placeos/ts-client';
-import { Observable, of } from 'rxjs';
-import { AssetRequest } from './asset-request.class';
 
 export function generateAssetCategoryForm(category: AssetCategory = {} as any) {
     return new FormGroup({

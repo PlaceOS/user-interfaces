@@ -3,9 +3,6 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 
-import { AssetSelectModalComponent } from 'libs/assets/src/lib/asset-select-modal/asset-select-modal.component';
-import { AssetStateService } from './asset-state.service';
-import { AssetItem, AssetRequest } from './asset-request.class';
 import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
     i18n,
@@ -14,6 +11,9 @@ import {
     randomString,
 } from '@placeos/common';
 import { endOfDay, startOfDay } from 'date-fns';
+import { AssetSelectModalComponent } from 'libs/assets/src/lib/asset-select-modal/asset-select-modal.component';
+import { AssetItem, AssetRequest } from './asset-request.class';
+import { AssetStateService } from './asset-state.service';
 
 const EMPTY_FAVS: string[] = [];
 

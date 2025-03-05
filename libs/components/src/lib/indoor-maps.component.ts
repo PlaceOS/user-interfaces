@@ -1,12 +1,12 @@
 import {
-    Component,
-    ViewChild,
-    ElementRef,
-    OnInit,
-    Input,
-    SimpleChanges,
-    OnChanges,
     AfterViewInit,
+    Component,
+    ElementRef,
+    Input,
+    OnChanges,
+    OnInit,
+    SimpleChanges,
+    ViewChild,
 } from '@angular/core';
 import {
     AsyncHandler,
@@ -15,12 +15,12 @@ import {
     log,
     notifyError,
 } from '@placeos/common';
-import { ViewerStyles, ViewAction } from '@placeos/svg-viewer';
-import { ExploreStateService } from '../../../explore/src/lib/explore-state.service';
 import { OrganisationService } from '@placeos/organisation';
-import { combineLatest } from 'rxjs';
-import { filter, map, first, take } from 'rxjs/operators';
+import { ViewAction, ViewerStyles } from '@placeos/svg-viewer';
 import { MapService } from 'libs/common/src/lib/mapspeople.service';
+import { combineLatest } from 'rxjs';
+import { filter, first, map } from 'rxjs/operators';
+import { ExploreStateService } from '../../../explore/src/lib/explore-state.service';
 
 declare let mapsindoors: any;
 declare let google: any;

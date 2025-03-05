@@ -1,5 +1,4 @@
 import { Component, ElementRef, Inject, OnInit } from '@angular/core';
-import { SettingsService } from '@placeos/common';
 
 import { MAP_FEATURE_DATA } from 'libs/components/src/lib/interactive-map.component';
 

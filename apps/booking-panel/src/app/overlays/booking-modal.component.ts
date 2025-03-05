@@ -1,21 +1,21 @@
-import { Component, EventEmitter, Output, Inject } from '@angular/core';
-import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { Component, EventEmitter, Inject, Output } from '@angular/core';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 
 import {
-    DialogEvent,
-    HashMap,
     AsyncHandler,
     currentUser,
-    log,
-    i18n,
+    DialogEvent,
     getInvalidFields,
+    HashMap,
+    i18n,
+    log,
 } from '@placeos/common';
 import { Space } from '@placeos/spaces';
-import { first, shareReplay, switchMap } from 'rxjs/operators';
+import { getModule } from '@placeos/ts-client';
 import { User } from '@placeos/users';
 import { of } from 'rxjs';
-import { getModule } from '@placeos/ts-client';
+import { first, shareReplay, switchMap } from 'rxjs/operators';
 
 export interface BookingModalData extends HashMap {
     title?: string;

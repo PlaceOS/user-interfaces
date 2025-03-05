@@ -1,7 +1,7 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import {
-    MatBottomSheetRef,
     MAT_BOTTOM_SHEET_DATA,
+    MatBottomSheetRef,
 } from '@angular/material/bottom-sheet';
 import { Space } from '@placeos/spaces';
 import { RoomConfirmService } from '../room-confirm.service';

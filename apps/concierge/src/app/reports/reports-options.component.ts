@@ -4,9 +4,8 @@ import { first, map } from 'rxjs/operators';
 
 import { AsyncHandler, Identity, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
-import { ReportsStateService } from './reports-state.service';
-import { combineLatest } from 'rxjs';
 import { endOfDay, startOfDay } from 'date-fns';
+import { combineLatest } from 'rxjs';
 
 @Component({
     selector: 'reports-options',

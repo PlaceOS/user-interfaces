@@ -10,7 +10,6 @@ import { MOCK_SPACES } from './spaces.data';
 
 import { MOCK_GUESTS, MOCK_STAFF } from './users.data';
 import { MOCK_BUILDINGS, MOCK_LEVELS } from './zone.data';
-import { PARKING_SPACES } from './zones.mock';
 
 let EVENT_TIME = set(subDays(Date.now(), 3), {
     hours: 7,

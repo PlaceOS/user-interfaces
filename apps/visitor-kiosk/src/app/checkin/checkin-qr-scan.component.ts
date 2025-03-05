@@ -9,8 +9,8 @@ import { Router } from '@angular/router';
 import { AsyncHandler, SettingsService, notifyError } from '@placeos/common';
 import QrScanner from 'qr-scanner';
 
-import { CheckinStateService } from './checkin-state.service';
 import { take } from 'rxjs/operators';
+import { CheckinStateService } from './checkin-state.service';
 
 @Component({
     selector: '[checkin-qr-scan]',

@@ -1,9 +1,9 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { listSignagePlaylistMedia, SignageMedia } from '@placeos/ts-client';
+import { getUnixTime, startOfMinute } from 'date-fns';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { SignageStateService } from './signage-state.service';
-import { listSignagePlaylistMedia, SignageMedia } from '@placeos/ts-client';
-import { getUnixTime, startOfMinute } from 'date-fns';
 
 @Component({
     selector: 'signage-media-list',

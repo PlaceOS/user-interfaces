@@ -1,9 +1,9 @@
-import { Component, OnInit, Output, EventEmitter, Inject } from '@angular/core';
-import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
-import { RecurrenceDetails } from '@placeos/events';
 import { AsyncHandler, DialogEvent, Identity } from '@placeos/common';
+import { RecurrenceDetails } from '@placeos/events';
 
 export interface RecurrenceModalData {
     /** Current recurrence details */

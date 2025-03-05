@@ -1,14 +1,14 @@
+import { Clipboard } from '@angular/cdk/clipboard';
 import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { Clipboard } from '@angular/cdk/clipboard';
 import { notifySuccess } from '@placeos/common';
 
 import { RegionManagementService } from './region-management.service';
 
-import { WorkplaceSettingsFormModalComponent } from '../ui/app-settings/workplace-settings-form-modal.component';
-import { ConciergeSettingsFormModalComponent } from '../ui/app-settings/concierge-settings-form-modal.component';
 import { BookingPanelSettingsModalComponent } from '../ui/app-settings/booking-panel-settings-modal.component';
+import { ConciergeSettingsFormModalComponent } from '../ui/app-settings/concierge-settings-form-modal.component';
 import { VisitorKioskSettingsFormModalComponent } from '../ui/app-settings/visitor-kiosk-settings-form-modal.component';
+import { WorkplaceSettingsFormModalComponent } from '../ui/app-settings/workplace-settings-form-modal.component';
 
 @Component({
     selector: 'region-list',

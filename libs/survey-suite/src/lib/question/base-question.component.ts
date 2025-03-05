@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { Question, QuestionType } from '../types';
+import { Question } from '../types';
 
 @Component({
     selector: 'base-question',

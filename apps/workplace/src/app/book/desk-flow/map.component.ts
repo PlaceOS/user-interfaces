@@ -8,7 +8,7 @@ import {
 import { ExploreStateService } from '@placeos/explore';
 import { Desk } from '@placeos/organisation';
 import { format } from 'date-fns';
-import { BehaviorSubject, combineLatest, of } from 'rxjs';
+import { BehaviorSubject, combineLatest } from 'rxjs';
 import { debounceTime, map, startWith } from 'rxjs/operators';
 
 @Component({

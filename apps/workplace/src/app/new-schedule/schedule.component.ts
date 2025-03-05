@@ -16,6 +16,7 @@ import {
     notifySuccess,
     SettingsService,
 } from '@placeos/common';
+import { openConfirmModal } from '@placeos/components';
 import {
     CalendarEvent,
     EventFormService,
@@ -23,13 +24,12 @@ import {
     removeEvent,
 } from '@placeos/events';
 import { format, isSameDay, parse } from 'date-fns';
+import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 import {
     ScheduleOptions,
     ScheduleStateService,
 } from './schedule-state.service';
-import { combineLatest } from 'rxjs';
-import { openConfirmModal } from '@placeos/components';
 
 @Component({
     selector: 'app-schedule',

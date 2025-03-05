@@ -1,11 +1,9 @@
 import { Injectable } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
-import { queryBookings } from '@placeos/bookings';
-import { queryEvents } from '@placeos/events';
-import { Observable, BehaviorSubject } from 'rxjs';
-import { switchMap, take } from 'rxjs/operators';
-import { CalendarEvent } from '@placeos/events';
-import { getUnixTime, startOfDay, endOfDay } from 'date-fns';
+import { CalendarEvent, queryEvents } from '@placeos/events';
+import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 
 @Injectable({
     providedIn: 'root',

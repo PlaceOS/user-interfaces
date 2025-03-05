@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { PlaceSystem, querySystems, showMetadata } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
@@ -10,9 +11,8 @@ import {
     shareReplay,
     switchMap,
 } from 'rxjs/operators';
-import { RoomModalComponent } from './room-modal.component';
-import { SettingsService } from '@placeos/common';
 import { RoomAlertModalComponent } from './room-alert-modal.component';
+import { RoomModalComponent } from './room-modal.component';
 
 export interface RoomListOptions {
     zones?: string[];

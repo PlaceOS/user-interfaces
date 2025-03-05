@@ -1,11 +1,11 @@
 import {
     Component,
+    ElementRef,
+    EventEmitter,
+    OnDestroy,
     OnInit,
     Output,
-    EventEmitter,
     ViewChild,
-    ElementRef,
-    OnDestroy,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {

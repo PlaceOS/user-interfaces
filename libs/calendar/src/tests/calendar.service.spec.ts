@@ -1,8 +1,8 @@
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
-import { BehaviorSubject, of } from 'rxjs';
-import { first } from 'rxjs/operators';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { MockProvider } from 'ng-mocks';
+import { BehaviorSubject, of } from 'rxjs';
+import { first } from 'rxjs/operators';
 
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { Space } from 'libs/spaces/src/lib/space.class';
@@ -10,9 +10,9 @@ import { CalendarService } from '../lib/calendar.service';
 
 jest.mock('../lib/calendar.fn.ts');
 
-import * as cal_fn from '../lib/calendar.fn';
-import { Calendar } from '../lib/calendar.class';
 import { SettingsService } from '@placeos/common';
+import { Calendar } from '../lib/calendar.class';
+import * as cal_fn from '../lib/calendar.fn';
 
 describe('CalendarService', () => {
     let spectator: SpectatorService<CalendarService>;

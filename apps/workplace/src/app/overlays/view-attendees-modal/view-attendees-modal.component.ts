@@ -1,4 +1,4 @@
-import { Component, OnInit, OnChanges, Inject } from '@angular/core';
+import { Component, Inject, OnChanges, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import { AsyncHandler } from '@placeos/common';

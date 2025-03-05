@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
+import { queryUsers } from '@placeos/ts-client';
 import { BehaviorSubject, of } from 'rxjs';
 import {
     catchError,
@@ -8,9 +9,7 @@ import {
     startWith,
     switchMap,
 } from 'rxjs/operators';
-import { searchStaff } from './staff.fn';
 import { StaffUser } from './user.class';
-import { queryUsers } from '@placeos/ts-client';
 
 @Component({
     selector: `select-user-modal`,

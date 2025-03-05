@@ -3,7 +3,6 @@ import {
     Component,
     ElementRef,
     Input,
-    OnInit,
     ViewChild,
 } from '@angular/core';
 import { Question, QuestionType, QuestionTypeOptions } from '../types';

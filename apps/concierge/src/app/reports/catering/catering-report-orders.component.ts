@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
+import { SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { CateringReportStateService } from './catering-report-state.service';
-import { SettingsService } from '@placeos/common';
 
 @Component({
     selector: 'catering-report-orders',

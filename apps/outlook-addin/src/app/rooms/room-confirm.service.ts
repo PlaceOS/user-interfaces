@@ -1,13 +1,13 @@
 import { Injectable } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
-import { Observable, BehaviorSubject } from 'rxjs';
 import { Router } from '@angular/router';
-import { Space, SpacesService } from '@placeos/spaces';
-import { EventFormService } from '@placeos/events';
 import { HashMap } from '@placeos/common';
-import { RoomDetailsComponent } from './room-details/room-details.component';
-import { RoomConfirmComponent } from './room-confirm/room-confirm.component';
+import { EventFormService } from '@placeos/events';
+import { Space, SpacesService } from '@placeos/spaces';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { RoomConfirmComponent } from './room-confirm/room-confirm.component';
+import { RoomDetailsComponent } from './room-details/room-details.component';
 
 @Injectable({
     providedIn: 'root',

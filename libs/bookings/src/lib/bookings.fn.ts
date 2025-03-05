@@ -2,12 +2,12 @@ import { del, get, patch, post, put, query } from '@placeos/ts-client';
 import { Observable, of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 
-import { toQueryString } from 'libs/common/src/lib/api';
-import { Booking, BookingType } from './booking.class';
-import { GuestUser } from 'libs/users/src/lib/user.class';
-import { addMinutes, getUnixTime } from 'date-fns';
-import { CalendarEvent } from '@placeos/events';
 import { BookableResource, flatten, unique } from '@placeos/common';
+import { CalendarEvent } from '@placeos/events';
+import { addMinutes, getUnixTime } from 'date-fns';
+import { toQueryString } from 'libs/common/src/lib/api';
+import { GuestUser } from 'libs/users/src/lib/user.class';
+import { Booking, BookingType } from './booking.class';
 
 export interface BookingsQueryParams {
     /** Comma seperated list of zone ids to check availability */

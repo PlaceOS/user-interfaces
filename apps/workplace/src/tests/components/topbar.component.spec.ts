@@ -6,11 +6,11 @@ import {
     IconComponent,
     UserAvatarComponent,
 } from '@placeos/components';
+import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { MockComponent, MockDirective, MockProvider } from 'ng-mocks';
 import { GlobalSearchComponent } from '../../app/components/global-search.component';
-import { TopbarComponent } from '../../app/components/topbar.component';
 import { TopMenuComponent } from '../../app/components/top-menu.component';
-import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
+import { TopbarComponent } from '../../app/components/topbar.component';
 
 describe('TopbarComponent', () => {
     let spectator: SpectatorRouting<TopbarComponent>;

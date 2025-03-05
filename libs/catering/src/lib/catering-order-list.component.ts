@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 
-import { CateringOrdersService } from './catering-orders.service';
 import { AsyncHandler, SettingsService } from '@placeos/common';
+import { CateringOrdersService } from './catering-orders.service';
 import { statusList } from './catering.vars';
 
 @Component({

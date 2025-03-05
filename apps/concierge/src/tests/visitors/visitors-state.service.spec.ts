@@ -1,8 +1,8 @@
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
 import { MatDialog } from '@angular/material/dialog';
-import { BehaviorSubject, Observable, of } from 'rxjs';
-import { take } from 'rxjs/operators';
+import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
 import { MockProvider } from 'ng-mocks';
+import { of } from 'rxjs';
+import { take } from 'rxjs/operators';
 
 import { SettingsService } from '@placeos/common';
 
@@ -12,9 +12,9 @@ jest.mock('@placeos/events');
 jest.mock('@placeos/bookings');
 jest.mock('@placeos/common');
 
-import * as event_mod from '@placeos/events';
 import * as booking_mod from '@placeos/bookings';
 import * as common_mod from '@placeos/common';
+import * as event_mod from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
 
 describe('VisitorStateService', () => {

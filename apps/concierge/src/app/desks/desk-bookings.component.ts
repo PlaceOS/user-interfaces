@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
-import { DesksStateService } from './desks-state.service';
 import { SettingsService } from '@placeos/common';
+import { DesksStateService } from './desks-state.service';
 
 @Component({
     selector: 'desk-bookings',

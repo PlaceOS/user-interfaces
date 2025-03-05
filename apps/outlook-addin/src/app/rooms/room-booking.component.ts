@@ -1,9 +1,9 @@
-import { Component, OnInit, Inject } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
+import { Component, Inject, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { currentUser } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
 import { FeaturesFilterService } from './features-filter.service';
-import { currentUser } from '@placeos/common';
 
 @Component({
     selector: 'room-booking',

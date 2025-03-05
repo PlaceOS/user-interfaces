@@ -1,30 +1,30 @@
 import { CommonModule } from '@angular/common';
-import { NgModule, Type } from '@angular/core';
+import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ComponentsModule } from '@placeos/components';
 
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { OverlayModule } from '@angular/cdk/overlay';
 import { PortalModule } from '@angular/cdk/portal';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
-import { FormFieldsModule } from 'libs/form-fields/src/lib/form-fields.module';
 import { SharedBookingsModule } from 'libs/bookings/src/lib/bookings.module';
+import { FormFieldsModule } from 'libs/form-fields/src/lib/form-fields.module';
 
-import { ExploreMapControlComponent } from './explore-map-control.component';
-import { ExploreMapViewComponent } from './explore-map-view.component';
-import { ExploreSearchComponent } from './explore-search.component';
-import { ExploreSpaceInfoComponent } from './explore-space-info.component';
-import { ExploreZoomControlComponent } from './explore-zoom-control.component';
-import { ExploreDeviceInfoComponent } from './explore-device-info.component';
+import { ExploreBookQrComponent } from './explore-book-qr.component';
 import { ExploreBookingModalComponent } from './explore-booking-modal.component';
 import { ExploreDeskInfoComponent } from './explore-desk-info.component';
-import { SetDatetimeModalComponent } from './set-datetime-modal.component';
-import { ExploreBookQrComponent } from './explore-book-qr.component';
-import { ExploreSensorInfoComponent } from './explore-sensor-info.component';
+import { ExploreDeviceInfoComponent } from './explore-device-info.component';
+import { ExploreIconComponent } from './explore-icon.component';
 import { ExploreLockerBankInfoComponent } from './explore-locker-bank-info.component';
 import { ExploreLockerBankModalComponent } from './explore-locker-bank-modal.component';
+import { ExploreMapControlComponent } from './explore-map-control.component';
+import { ExploreMapViewComponent } from './explore-map-view.component';
 import { ExploreParkingInfoComponent } from './explore-parking-info.component';
-import { ExploreIconComponent } from './explore-icon.component';
+import { ExploreSearchComponent } from './explore-search.component';
+import { ExploreSensorInfoComponent } from './explore-sensor-info.component';
+import { ExploreSpaceInfoComponent } from './explore-space-info.component';
+import { ExploreZoomControlComponent } from './explore-zoom-control.component';
+import { SetDatetimeModalComponent } from './set-datetime-modal.component';
 
 const COMPONENTS = [
     ExploreMapControlComponent,

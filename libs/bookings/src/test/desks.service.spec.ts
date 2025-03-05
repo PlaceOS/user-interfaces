@@ -7,11 +7,11 @@ import { DesksService } from '../lib/desk.service';
 jest.mock('@placeos/common');
 jest.mock('../lib/bookings.fn');
 
-import * as booking_fn from '../lib/bookings.fn';
 import * as common_mod from '@placeos/common';
-import { of } from 'rxjs';
 import { StaffUser, User } from '@placeos/users';
+import { of } from 'rxjs';
 import { Booking } from '../lib/booking.class';
+import * as booking_fn from '../lib/bookings.fn';
 
 describe('DesksService', () => {
     let spectator: SpectatorService<DesksService>;

@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { UrlManagementService } from './url-management.service';
 import { SettingsService, ShortURL, getShortUrlQRCode } from '@placeos/common';
+import { UrlManagementService } from './url-management.service';
 
 @Component({
     selector: 'short-url-list',

@@ -1,11 +1,11 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { combineLatest, Observable } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
-import { BookingFormService, BookingAsset } from '../booking-form.service';
-import { Locker, LockerBank } from '../locker.class';
-import { OrganisationService } from '@placeos/organisation';
 import { SettingsService } from '@placeos/common';
+import { OrganisationService } from '@placeos/organisation';
+import { combineLatest, Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { BookingAsset, BookingFormService } from '../booking-form.service';
 import { loadLockerBanks, loadLockers } from '../booking.utilities';
+import { Locker, LockerBank } from '../locker.class';
 
 @Component({
     selector: 'locker-bank-list',

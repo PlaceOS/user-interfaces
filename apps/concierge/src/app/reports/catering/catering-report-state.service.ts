@@ -2,10 +2,10 @@ import { Injectable } from '@angular/core';
 import { CateringItem, CateringOrder } from '@placeos/catering';
 import { downloadFile, flatten, jsonToCsv } from '@placeos/common';
 import { CalendarEvent } from '@placeos/events';
+import { endOfDay, format, startOfDay } from 'date-fns';
 import { combineLatest } from 'rxjs';
 import { map, shareReplay, take } from 'rxjs/operators';
 import { ReportsStateService } from '../reports-state.service';
-import { endOfDay, format, startOfDay } from 'date-fns';
 
 @Injectable({
     providedIn: 'root',

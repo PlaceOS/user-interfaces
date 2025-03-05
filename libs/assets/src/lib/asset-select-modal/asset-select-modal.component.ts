@@ -1,8 +1,8 @@
 import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { SettingsService } from '@placeos/common';
-import { AssetGroup } from '../asset.class';
 import { AssetStateService } from '../asset-state.service';
+import { AssetGroup } from '../asset.class';
 
 const EMPTY_FAVS: string[] = [];
 

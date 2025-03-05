@@ -1,13 +1,13 @@
 import { Component, OnInit } from '@angular/core';
+import { MatTabChangeEvent } from '@angular/material/tabs';
 import { ActivatedRoute } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
-import { map, shareReplay } from 'rxjs/operators';
-import { SurveyOptions, SurveyService } from '../services/survey.service';
-import { SurveyBuilderService } from '../services/survey-builder.service';
 import { OrganisationService } from '@placeos/organisation';
 import { TriggerOptions, UISurveyPage } from '@placeos/survey-suite';
-import { MatTabChangeEvent } from '@angular/material/tabs';
 import { combineLatest } from 'rxjs';
+import { map, shareReplay } from 'rxjs/operators';
+import { SurveyBuilderService } from '../services/survey-builder.service';
+import { SurveyOptions, SurveyService } from '../services/survey.service';
 
 @Component({
     selector: 'mod-survey',

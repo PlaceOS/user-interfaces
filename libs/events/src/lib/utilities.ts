@@ -1,23 +1,9 @@
 import {
-    FormGroup,
-    FormControl,
-    Validators,
     AbstractControl,
+    FormControl,
+    FormGroup,
+    Validators,
 } from '@angular/forms';
-import {
-    add,
-    formatDuration,
-    differenceInMinutes,
-    getTime,
-    isSameDay,
-    format,
-    startOfMinute,
-    setHours,
-    setMinutes,
-    addMinutes,
-    roundToNearestMinutes,
-    startOfDay,
-} from 'date-fns';
 import {
     LOCAL_TIMEZONE,
     SettingsService,
@@ -25,12 +11,26 @@ import {
     timePeriodsIntersect,
     unique,
 } from '@placeos/common';
+import {
+    add,
+    addMinutes,
+    differenceInMinutes,
+    format,
+    formatDuration,
+    getTime,
+    isSameDay,
+    roundToNearestMinutes,
+    setHours,
+    setMinutes,
+    startOfDay,
+    startOfMinute,
+} from 'date-fns';
 
-import { CalendarEvent } from './event.class';
-import { endInFuture } from './validators';
-import { getNextFreeTimeSlot } from './helpers';
-import { User } from 'libs/users/src/lib/user.class';
 import { Booking } from 'libs/bookings/src/lib/booking.class';
+import { User } from 'libs/users/src/lib/user.class';
+import { CalendarEvent } from './event.class';
+import { getNextFreeTimeSlot } from './helpers';
+import { endInFuture } from './validators';
 
 let BOOKING_DATE = add(setMinutes(setHours(new Date(), 6), 0), { days: -1 });
 

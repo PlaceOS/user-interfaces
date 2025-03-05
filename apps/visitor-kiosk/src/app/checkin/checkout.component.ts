@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { CheckinStateService } from './checkin-state.service';
-import { i18n, notifySuccess } from '@placeos/common';
 import { Router } from '@angular/router';
+import { i18n, notifySuccess } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { first } from 'rxjs/operators';
+import { CheckinStateService } from './checkin-state.service';
 
 @Component({
     selector: 'app-checkout',

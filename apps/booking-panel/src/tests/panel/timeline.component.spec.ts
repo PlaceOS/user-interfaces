@@ -1,4 +1,3 @@
-import { fakeAsync } from '@angular/core/testing';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { addMinutes } from 'date-fns';
 import { BehaviorSubject } from 'rxjs';

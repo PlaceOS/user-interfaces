@@ -1,16 +1,16 @@
 import {
     Directive,
+    ElementRef,
+    EventEmitter,
     Input,
-    SimpleChanges,
-    OnInit,
     OnChanges,
     OnDestroy,
-    ElementRef,
-    Renderer2,
-    EventEmitter,
+    OnInit,
     Output,
+    Renderer2,
+    SimpleChanges,
 } from '@angular/core';
-import { onlineState, authority, getModule } from '@placeos/ts-client';
+import { authority, getModule, onlineState } from '@placeos/ts-client';
 
 import { AsyncHandler } from '@placeos/common';
 import { filter, first } from 'rxjs/operators';

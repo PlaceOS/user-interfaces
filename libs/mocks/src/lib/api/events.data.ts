@@ -1,8 +1,8 @@
 import { predictableRandomInt, unique } from '@placeos/common';
+import { addMinutes, getUnixTime, setHours, startOfDay } from 'date-fns';
 import { generateCateringOrder } from './catering.data';
 import { MOCK_SPACES } from './spaces.data';
 import { ACTIVE_USER, MOCK_GUESTS, MOCK_STAFF } from './users.data';
-import { addMinutes, getUnixTime, setHours, startOfDay } from 'date-fns';
 
 let EVENT_TIME = setHours(startOfDay(Date.now()), 7);
 

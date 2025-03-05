@@ -1,36 +1,30 @@
+import { ErrorHandler, LOCALE_ID, NgModule } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import {
-    ErrorHandler,
-    LOCALE_ID,
-    NgModule,
-    inject,
-    provideAppInitializer,
-} from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ServiceWorkerModule } from '@angular/service-worker';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatNativeDateModule } from '@angular/material/core';
 
 import { AppComponent } from 'libs/components/src/lib/app.component';
 
-import { AppRoutingModule } from './app-routing.module';
 import { environment } from '../environments/environment';
+import { AppRoutingModule } from './app-routing.module';
 import { SharedOverlaysModule } from './overlays/overlays.module';
 
 import * as Sentry from '@sentry/angular';
 
-import { SharedComponentModule } from './components/shared.module';
 import { SharedBookingsModule } from '@placeos/bookings';
+import { SharedComponentModule } from './components/shared.module';
 
-import localeFr from '@angular/common/locales/fr';
-import localeJa from '@angular/common/locales/ja';
-import localeAr from '@angular/common/locales/ar';
-import localeZh from '@angular/common/locales/zh';
-import localeEs from '@angular/common/locales/es';
-import localeIt from '@angular/common/locales/it';
 import { registerLocaleData } from '@angular/common';
+import localeAr from '@angular/common/locales/ar';
+import localeEs from '@angular/common/locales/es';
+import localeFr from '@angular/common/locales/fr';
+import localeIt from '@angular/common/locales/it';
+import localeJa from '@angular/common/locales/ja';
+import localeZh from '@angular/common/locales/zh';
 import { LocaleService } from '@placeos/common';
 
 @NgModule({

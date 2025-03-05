@@ -1,19 +1,19 @@
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatBadgeModule } from '@angular/material/badge';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatTabsModule } from '@angular/material/tabs';
-import { MatBadgeModule } from '@angular/material/badge';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { CounterComponent } from 'libs/form-fields/src/lib/counter.component';
 
-import { CateringOrderModalComponent } from '../lib/catering-order-modal.component';
-import { CateringOrder } from '../lib/catering-order.class';
+import { OrganisationService } from '@placeos/organisation';
 import { BehaviorSubject } from 'rxjs';
 import { CateringItem } from '../lib/catering-item.class';
-import { OrganisationService } from '@placeos/organisation';
+import { CateringOrderModalComponent } from '../lib/catering-order-modal.component';
+import { CateringOrder } from '../lib/catering-order.class';
 
 describe('CateringOrderModalComponent', () => {
     let spectator: Spectator<CateringOrderModalComponent>;

@@ -23,14 +23,14 @@ import {
 } from 'rxjs/operators';
 
 import { notifyError } from 'libs/common/src/lib/notifications';
-import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { RoomConfiguration } from 'libs/common/src/lib/room-configuration.interface';
+import { SettingsService } from 'libs/common/src/lib/settings.service';
 
+import { log, unique } from '@placeos/common';
 import { Building } from './building.class';
 import { BuildingLevel } from './level.class';
 import { Organisation } from './organisation.class';
 import { Region } from './region.class';
-import { log, unique } from '@placeos/common';
 
 import * as yaml from 'js-yaml';
 

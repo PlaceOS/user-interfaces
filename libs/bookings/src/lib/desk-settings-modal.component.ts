@@ -2,7 +2,6 @@ import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { SettingsService, notifyError, notifySuccess } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
-import { getModule } from '@placeos/ts-client';
 
 @Component({
     selector: 'desk-settings-modal',

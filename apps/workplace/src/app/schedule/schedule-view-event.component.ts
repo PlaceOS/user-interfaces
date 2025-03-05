@@ -1,13 +1,16 @@
 import { Component, Input } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
+import { removeBooking, showBooking } from '@placeos/bookings';
+import { CateringItem } from '@placeos/catering';
 import {
     AsyncHandler,
+    formatDuration,
     notifyError,
     notifySuccess,
     SettingsService,
-    formatDuration,
 } from '@placeos/common';
+import { MapLocateModalComponent, openConfirmModal } from '@placeos/components';
 import {
     CalendarEvent,
     EventFormService,
@@ -16,10 +19,7 @@ import {
     showEvent,
 } from '@placeos/events';
 import { Space, SpacesService } from '@placeos/spaces';
-import { MapLocateModalComponent, openConfirmModal } from '@placeos/components';
-import { removeBooking, showBooking } from '@placeos/bookings';
 import { map } from 'rxjs/operators';
-import { CateringItem } from '@placeos/catering';
 
 @Component({
     selector: 'schedule-view-event',

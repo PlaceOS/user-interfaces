@@ -1,13 +1,13 @@
 import { Component, Inject } from '@angular/core';
-import { AssetManagerStateService } from './asset-manager-state.service';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import {
     AssetCategory,
     generateAssetCategoryForm,
     saveAssetCategory,
 } from '@placeos/assets';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { map } from 'rxjs/operators';
 import { i18n, notifyError } from '@placeos/common';
+import { map } from 'rxjs/operators';
+import { AssetManagerStateService } from './asset-manager-state.service';
 
 @Component({
     selector: 'asset-category-form',

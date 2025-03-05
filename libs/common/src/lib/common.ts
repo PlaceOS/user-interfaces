@@ -1,10 +1,10 @@
 export { AsyncHandler as AsyncHandler } from './async-handler.class';
 export { GoogleAnalyticsService } from './google-analytics.service';
 export { HotkeysService } from './hotkeys.service';
-export { SettingsService } from './settings.service';
-export { VorlonService } from './vorlon.service';
-export { VERSION } from './version';
 export { MapsPeopleService } from './mapspeople.service';
+export { SettingsService } from './settings.service';
+export { VERSION } from './version';
+export { VorlonService } from './vorlon.service';
 
 export * from './angular-animations';
 export * from './api';
@@ -15,7 +15,7 @@ export * from './notifications';
 export * from './placeos';
 export * from './room-configuration.interface';
 export * from './settings';
-export * from './types';
-export * from './user-state';
 export * from './spec-helpers';
 export * from './timezones';
+export * from './types';
+export * from './user-state';

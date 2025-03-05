@@ -1,8 +1,8 @@
 import { Component, Input } from '@angular/core';
 
+import { SettingsService } from '@placeos/common';
 import { CalendarEvent } from '@placeos/events';
 import { EventsStateService } from '../day-view/events-state.service';
-import { SettingsService } from '@placeos/common';
 
 @Component({
     selector: 'week-view-event',

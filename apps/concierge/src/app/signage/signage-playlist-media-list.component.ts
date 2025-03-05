@@ -1,6 +1,13 @@
+import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { Component, Input, SimpleChanges } from '@angular/core';
+import { Router } from '@angular/router';
+import {
+    listSignagePlaylistMedia,
+    MediaAnimation,
+    SignageMedia,
+} from '@placeos/ts-client';
+import { getUnixTime, startOfMinute } from 'date-fns';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
-import { SignageStateService } from './signage-state.service';
 import {
     catchError,
     debounceTime,
@@ -11,15 +18,7 @@ import {
     switchMap,
     take,
 } from 'rxjs/operators';
-import {
-    listSignagePlaylistMedia,
-    MediaAnimation,
-    SignageMedia,
-    SignagePlaylist,
-} from '@placeos/ts-client';
-import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
-import { Router } from '@angular/router';
-import { getUnixTime, startOfMinute } from 'date-fns';
+import { SignageStateService } from './signage-state.service';
 
 @Component({
     selector: 'signage-playlist-media-list',

@@ -1,12 +1,12 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { VisitorsStateService } from './visitors-state.service';
-import { OrganisationService } from '@placeos/organisation';
-import { ActivatedRoute, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
-import { InviteVisitorModalComponent } from './invite-visitor-modal.component';
+import { ActivatedRoute, Router } from '@angular/router';
+import { SettingsService } from '@placeos/common';
+import { OrganisationService } from '@placeos/organisation';
 import { combineLatest } from 'rxjs';
 import { map, take } from 'rxjs/operators';
-import { SettingsService } from '@placeos/common';
+import { InviteVisitorModalComponent } from './invite-visitor-modal.component';
+import { VisitorsStateService } from './visitors-state.service';
 
 @Component({
     selector: '[app-new-visitors]',

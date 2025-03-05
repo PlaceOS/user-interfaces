@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { AssetManagerStateService } from './asset-manager-state.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
     AssetGroup,
@@ -16,6 +15,7 @@ import {
     notifySuccess,
 } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
+import { AssetManagerStateService } from './asset-manager-state.service';
 
 @Component({
     selector: 'asset-bulk-form',

@@ -1,4 +1,4 @@
-import { addSeconds, format, isBefore, subSeconds } from 'date-fns';
+import { addSeconds, subSeconds } from 'date-fns';
 
 import { HashMap, timePeriodsIntersect } from '@placeos/common';
 import { MOCK_EVENTS } from '../api/events.data';

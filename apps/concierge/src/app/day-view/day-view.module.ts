@@ -1,29 +1,29 @@
+import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule, Route } from '@angular/router';
+import { Route, RouterModule } from '@angular/router';
 
 import { UIModule } from '../ui/ui.module';
 
 import { DayViewComponent } from './day-view.component';
-import { DayviewTopbarComponent } from './dayview-topbar.component';
-import { DayviewTimelineComponent } from './dayview-timeline.component';
-import { DayviewSpaceComponent } from './dayview-space.component';
 import { DayviewEventComponent } from './dayview-event.component';
+import { DayviewSpaceComponent } from './dayview-space.component';
+import { DayviewTimelineComponent } from './dayview-timeline.component';
+import { DayviewTopbarComponent } from './dayview-topbar.component';
 
-import { BookingModalComponent } from './booking-modal.component';
-import { EventFormComponent } from './event-form.component';
+import { SharedCateringModule } from '@placeos/catering';
 import { SharedSpacesModule } from '@placeos/spaces';
 import { SharedUsersModule } from '@placeos/users';
-import { SharedCateringModule } from '@placeos/catering';
+import { MeetingFormDetailsComponent } from 'apps/workplace/src/app/book/meeting-flow/meeting-form-details.component';
+import { BookingModalComponent } from './booking-modal.component';
+import { EventBookModalComponent } from './event-book-modal.component';
+import { EventFormComponent } from './event-form.component';
+import { NewDayViewComponent } from './new-dayview.component';
+import { RoomBookingsApprovalsComponent } from './room-approvals.component';
+import { RoomBookingSearchComponent } from './room-booking-search.component';
 import { RoomBookingsComponent } from './room-bookings.component';
 import { RoomBookingsTimelineComponent } from './room-timeline.component';
-import { RoomBookingsApprovalsComponent } from './room-approvals.component';
-import { NewDayViewComponent } from './new-dayview.component';
-import { MeetingFormDetailsComponent } from 'apps/workplace/src/app/book/meeting-flow/meeting-form-details.component';
-import { EventBookModalComponent } from './event-book-modal.component';
 import { RoomWeekBookingsTimelineComponent } from './room-week-timeline.component';
-import { RoomBookingSearchComponent } from './room-booking-search.component';
 
 const ROUTES: Route[] = [
     { path: '', component: DayViewComponent },

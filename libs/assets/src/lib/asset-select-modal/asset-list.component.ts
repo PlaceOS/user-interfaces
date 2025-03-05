@@ -5,10 +5,10 @@ import {
     Output,
     SimpleChanges,
 } from '@angular/core';
-import { AssetStateService } from '../asset-state.service';
-import { AssetGroup } from '../asset.class';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { AssetStateService } from '../asset-state.service';
+import { AssetGroup } from '../asset.class';
 
 @Component({
     selector: 'asset-list',

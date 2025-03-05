@@ -10,8 +10,8 @@ import { IconComponent } from '@placeos/components';
 import { MockComponent } from 'ng-mocks';
 import { CateringItem } from '../lib/catering-item.class';
 
-import { CateringItemOptionModalComponent } from '../lib/catering-option-modal.component';
 import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
+import { CateringItemOptionModalComponent } from '../lib/catering-option-modal.component';
 
 describe('CateringItemOptionModalComponent', () => {
     let spectator: Spectator<CateringItemOptionModalComponent>;

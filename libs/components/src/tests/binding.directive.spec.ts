@@ -8,10 +8,8 @@ import { BindingDirective } from '../lib/binding.directive';
 
 jest.mock('@placeos/ts-client');
 
-import * as ts_client from '@placeos/ts-client';
 import { fakeAsync } from '@angular/core/testing';
-import { exec } from 'child_process';
-import { model } from '@angular/core';
+import * as ts_client from '@placeos/ts-client';
 
 describe('BindingDirective', () => {
     let spectator: SpectatorDirective<BindingDirective>;

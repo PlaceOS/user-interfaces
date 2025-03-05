@@ -1,16 +1,16 @@
+import { Component, ElementRef, Inject, ViewChild } from '@angular/core';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import {
     MAT_DIALOG_DATA,
     MatDialog,
     MatDialogRef,
 } from '@angular/material/dialog';
-import { SignageStateService } from './signage-state.service';
-import { Component, ElementRef, Inject, ViewChild } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { BehaviorSubject } from 'rxjs';
 import { notifyError } from '@placeos/common';
-import { MediaAnimation } from '@placeos/ts-client/dist/esm/signage/media.class';
 import { SignagePlaylist } from '@placeos/ts-client';
+import { MediaAnimation } from '@placeos/ts-client/dist/esm/signage/media.class';
 import { getUnixTime } from 'date-fns';
+import { BehaviorSubject } from 'rxjs';
+import { SignageStateService } from './signage-state.service';
 
 @Component({
     selector: 'signage-playlist-modal',

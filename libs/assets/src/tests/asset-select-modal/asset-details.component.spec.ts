@@ -5,7 +5,7 @@ import { CounterComponent } from 'libs/form-fields/src/lib/counter.component';
 import { MockComponent } from 'ng-mocks';
 
 import { AssetDetailsComponent } from '../../lib/asset-select-modal/asset-details.component';
-import { Asset, AssetGroup } from '../../lib/asset.class';
+import { AssetGroup } from '../../lib/asset.class';
 
 describe('AssetDetailsComponent', () => {
     let spectator: Spectator<AssetDetailsComponent>;

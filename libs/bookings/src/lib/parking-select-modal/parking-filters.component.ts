@@ -4,9 +4,9 @@ import { SettingsService } from '@placeos/common';
 import { addDays, endOfDay } from 'date-fns';
 
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
-import { BookingFormService } from '../booking-form.service';
-import { map } from 'rxjs/operators';
 import { combineLatest } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { BookingFormService } from '../booking-form.service';
 
 @Component({
     selector: 'parking-space-filters',

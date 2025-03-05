@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Output } from '@angular/core';
-import { ContactTracingStateService } from './contact-tracing-state.service';
 import { SettingsService } from '@placeos/common';
+import { ContactTracingStateService } from './contact-tracing-state.service';
 
 @Component({
     selector: 'contact-tracing-options',

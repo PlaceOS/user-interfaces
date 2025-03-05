@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { downloadFile, jsonToCsv, formatDuration } from '@placeos/common';
+import { downloadFile, formatDuration, jsonToCsv } from '@placeos/common';
 import { combineLatest } from 'rxjs';
 import { debounceTime, map, shareReplay, take } from 'rxjs/operators';
 import { ReportsStateService } from '../reports-state.service';

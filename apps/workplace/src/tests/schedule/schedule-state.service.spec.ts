@@ -8,8 +8,8 @@ jest.mock('@placeos/events');
 jest.mock('@placeos/bookings');
 
 import * as booking_mod from '@placeos/bookings';
-import * as event_mod from '@placeos/events';
 import { SettingsService } from '@placeos/common';
+import * as event_mod from '@placeos/events';
 
 describe('ScheduleStateService', () => {
     let spectator: SpectatorService<ScheduleStateService>;

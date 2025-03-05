@@ -1,16 +1,16 @@
 import { Component } from '@angular/core';
+import { Booking, saveBooking } from '@placeos/bookings';
 import {
     AsyncHandler,
     SettingsService,
     getTimezoneOffsetString,
     notifyError,
 } from '@placeos/common';
-import { VisitorsStateService } from './visitors-state.service';
-import { Booking, saveBooking } from '@placeos/bookings';
-import { showMetadata } from '@placeos/ts-client';
 import { OrganisationService } from '@placeos/organisation';
-import { ParkingStateService } from '../parking/parking-state.service';
+import { showMetadata } from '@placeos/ts-client';
 import { User } from '@placeos/users';
+import { ParkingStateService } from '../parking/parking-state.service';
+import { VisitorsStateService } from './visitors-state.service';
 
 @Component({
     selector: 'guest-listings',

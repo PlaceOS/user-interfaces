@@ -1,20 +1,20 @@
 import {
+    MAT_DIALOG_DATA,
     MatDialogModule,
     MatDialogRef,
-    MAT_DIALOG_DATA,
 } from '@angular/material/dialog';
 import { createRoutingFactory, Spectator } from '@ngneat/spectator/jest';
 import { SettingsService } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
+import { EventFormService } from '@placeos/events';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
+import { BehaviorSubject } from 'rxjs';
 import { NewSpaceSelectModalComponent } from '../../lib/space-select-modal/new-space-select-modal.component';
 import { SpaceDetailsComponent } from '../../lib/space-select-modal/space-details.component';
 import { SpaceFiltersDisplayComponent } from '../../lib/space-select-modal/space-filters-display.component';
 import { SpaceFiltersComponent } from '../../lib/space-select-modal/space-filters.component';
 import { SpaceListComponent } from '../../lib/space-select-modal/space-list.component';
 import { Space } from '../../lib/spaces';
-import { EventFormService } from '@placeos/events';
-import { BehaviorSubject } from 'rxjs';
 
 describe('NewSpaceSelectModalComponent', () => {
     let spectator: Spectator<NewSpaceSelectModalComponent>;

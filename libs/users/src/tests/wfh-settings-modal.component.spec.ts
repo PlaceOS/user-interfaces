@@ -11,13 +11,13 @@ import { WFHSettingsModalComponent } from '../lib/wfh-settings-modal.component';
 
 jest.mock('libs/bookings/src/lib/bookings.fn');
 
-import * as bkn_fn from 'libs/bookings/src/lib/bookings.fn';
-import { of } from 'rxjs';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
+import * as bkn_fn from 'libs/bookings/src/lib/bookings.fn';
 import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.component';
+import { of } from 'rxjs';
 
 describe('WFHSettingsModalComponent', () => {
     let spectator: Spectator<WFHSettingsModalComponent>;

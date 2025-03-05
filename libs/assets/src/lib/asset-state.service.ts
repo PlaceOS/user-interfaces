@@ -1,4 +1,15 @@
 import { Injectable } from '@angular/core';
+import { OrganisationService } from '@placeos/organisation';
+import { PlaceMetadata, showMetadata } from '@placeos/ts-client';
+import {
+    addMinutes,
+    endOfDay,
+    endOfMinute,
+    getUnixTime,
+    startOfDay,
+    startOfMinute,
+} from 'date-fns';
+import { queryBookings } from 'libs/bookings/src/lib/bookings.fn';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import {
     catchError,
@@ -9,26 +20,14 @@ import {
     switchMap,
     tap,
 } from 'rxjs/operators';
+import { updateAssetGroupList } from './asset-group.pipe';
+import { AssetGroup } from './asset.class';
+import { assetAvailable, getAssetRulesForZone } from './asset.utilities';
 import {
     queryAssetCategories,
     queryAssets,
     queryGroupAvailability,
 } from './assets.fn';
-import { queryBookings } from 'libs/bookings/src/lib/bookings.fn';
-import {
-    addMinutes,
-    endOfDay,
-    endOfMinute,
-    getUnixTime,
-    startOfDay,
-    startOfMinute,
-} from 'date-fns';
-import { AssetGroup } from './asset.class';
-import { updateAssetGroupList } from './asset-group.pipe';
-import { OrganisationService } from '@placeos/organisation';
-import { assetAvailable, getAssetRulesForZone } from './asset.utilities';
-import { PlaceMetadata, showMetadata } from '@placeos/ts-client';
-import { unique } from '@placeos/common';
 
 export interface AssetOptions {
     zone?: string;

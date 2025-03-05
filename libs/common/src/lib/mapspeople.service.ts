@@ -1,17 +1,10 @@
 import { Injectable } from '@angular/core';
-import { SettingsService } from './settings.service';
 import { OrganisationService } from '@placeos/organisation';
 import { BehaviorSubject, combineLatest } from 'rxjs';
-import {
-    map,
-    tap,
-    filter,
-    debounce,
-    debounceTime,
-    shareReplay,
-} from 'rxjs/operators';
+import { debounceTime, filter, map, shareReplay, tap } from 'rxjs/operators';
 import { AsyncHandler } from './async-handler.class';
 import { log } from './general';
+import { SettingsService } from './settings.service';
 
 export enum MapService {
     GoogleMaps,

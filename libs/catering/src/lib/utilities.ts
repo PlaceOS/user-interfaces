@@ -1,12 +1,12 @@
 import { isAfter, isBefore, setHours, subHours } from 'date-fns';
 
-import { CalendarEvent } from 'libs/events/src/lib/event.class';
-import { CateringItem } from './catering-item.class';
-import { Observable, of } from 'rxjs';
-import { showMetadata } from '@placeos/ts-client';
-import { catchError, map } from 'rxjs/operators';
 import { stringToMinutes } from '@placeos/common';
 import { AttachedResourceRuleset } from '@placeos/components';
+import { showMetadata } from '@placeos/ts-client';
+import { CalendarEvent } from 'libs/events/src/lib/event.class';
+import { Observable, of } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
+import { CateringItem } from './catering-item.class';
 
 const RULE_REQUESTS: Record<string, Observable<AttachedResourceRuleset[]>> = {};
 

@@ -1,6 +1,6 @@
-import { Component, EventEmitter, Inject, Output } from '@angular/core';
-import { CurrencyPipe } from '@angular/common';
 import { COMMA, ENTER, SPACE } from '@angular/cdk/keycodes';
+import { CurrencyPipe } from '@angular/common';
+import { Component, EventEmitter, Inject, Output } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatChipInputEvent } from '@angular/material/chips';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';

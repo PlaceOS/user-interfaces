@@ -6,9 +6,9 @@ import {
     Output,
     SimpleChanges,
 } from '@angular/core';
+import { ViewerFeature } from '@placeos/svg-viewer';
 import { MapPinComponent } from 'libs/components/src/lib/map-pin.component';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
-import { ViewerFeature } from '@placeos/svg-viewer';
 import { Space } from '../space.class';
 
 @Component({

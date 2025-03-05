@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
-import { OrganisationService } from '@placeos/organisation';
-import { CalendarEvent } from '@placeos/events';
 import { getTimezoneOffsetString, SettingsService } from '@placeos/common';
+import { CalendarEvent } from '@placeos/events';
+import { OrganisationService } from '@placeos/organisation';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 

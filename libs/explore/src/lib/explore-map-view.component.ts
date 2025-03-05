@@ -1,9 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { getModule } from '@placeos/ts-client';
 import { Point } from '@placeos/svg-viewer';
-import { first, take } from 'rxjs/operators';
 import { Observable } from 'rxjs';
+import { first, take } from 'rxjs/operators';
 
 import {
     AsyncHandler,
@@ -14,18 +13,18 @@ import {
 } from '@placeos/common';
 import { MapLocation, showStaff, User } from '@placeos/users';
 
-import { SpacesService } from 'libs/spaces/src/lib/spaces.service';
+import { MapsPeopleService } from 'libs/common/src/lib/mapspeople.service';
 import { MapPinComponent } from 'libs/components/src/lib/map-pin.component';
 import { MapRadiusComponent } from 'libs/components/src/lib/map-radius.component';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
-import { ExploreStateService } from './explore-state.service';
-import { ExploreSpacesService } from './explore-spaces.service';
-import { ExploreZonesService } from './explore-zones.service';
+import { SpacesService } from 'libs/spaces/src/lib/spaces.service';
 import { ExploreDesksService } from './explore-desks.service';
-import { ExploreParkingService } from './explore-parking.service';
 import { ExploreLockersService } from './explore-lockers.service';
-import { MapsPeopleService } from 'libs/common/src/lib/mapspeople.service';
+import { ExploreParkingService } from './explore-parking.service';
+import { ExploreSpacesService } from './explore-spaces.service';
+import { ExploreStateService } from './explore-state.service';
+import { ExploreZonesService } from './explore-zones.service';
 
 const EMPTY = [];
 

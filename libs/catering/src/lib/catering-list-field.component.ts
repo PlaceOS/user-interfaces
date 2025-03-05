@@ -15,11 +15,11 @@ import {
     SettingsService,
 } from '@placeos/common';
 
+import { OrganisationService } from '@placeos/organisation';
+import { endOfDay, startOfDay } from 'date-fns';
 import { CateringItem } from 'libs/catering/src/lib/catering-item.class';
 import { NewCateringOrderModalComponent } from 'libs/catering/src/lib/catering-order-modal/new-catering-order-modal.component';
 import { CateringOrder } from './catering-order.class';
-import { OrganisationService } from '@placeos/organisation';
-import { endOfDay, startOfDay } from 'date-fns';
 
 const EMPTY_FAVS = [];
 

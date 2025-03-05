@@ -1,17 +1,13 @@
-import { Router } from '@angular/router';
-import { fakeAsync, tick } from '@angular/core/testing';
-import { SpectatorService, createServiceFactory } from '@ngneat/spectator/jest';
-import { FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { BehaviorSubject, of, Subject } from 'rxjs';
-import { NavigationEnd } from '@angular/router';
+import { Router } from '@angular/router';
+import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
 import { MockProvider } from 'ng-mocks';
-import { endOfYear } from 'date-fns';
+import { BehaviorSubject, of, Subject } from 'rxjs';
 
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
-import { SettingsService } from 'libs/common/src/lib/settings.service';
-import { PaymentsService } from 'libs/payments/src/lib/payments.service';
 import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
+import { SettingsService } from 'libs/common/src/lib/settings.service';
+import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
+import { PaymentsService } from 'libs/payments/src/lib/payments.service';
 
 import { OldEventFormService } from '../lib/event-form.service';
 
@@ -21,7 +17,6 @@ jest.mock('@placeos/ts-client');
 
 import * as ts_client from '@placeos/ts-client';
 import * as cal_mod from 'libs/calendar/src/lib/calendar.fn';
-import * as event_mod from 'libs/events/src/lib/events.fn';
 
 describe('EventFormService', () => {
     let spectator: SpectatorService<OldEventFormService>;

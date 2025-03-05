@@ -5,12 +5,12 @@ import { catchError, map, switchMap } from 'rxjs/operators';
 import { toQueryString } from 'libs/common/src/lib/api';
 import { GuestUser } from 'libs/users/src/lib/user.class';
 
-import { CalendarEvent } from './event.class';
 import { addMinutes, getUnixTime } from 'date-fns';
 import {
     queryCalendarAvailability,
     querySpaceFreeBusy,
 } from 'libs/calendar/src/lib/calendar.fn';
+import { CalendarEvent } from './event.class';
 import { EventExtensionData } from './event.interfaces';
 
 export interface CalendarEventQueryParams {

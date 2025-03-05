@@ -11,8 +11,8 @@ import { ExploreSearchService } from '../lib/explore-search.service';
 jest.mock('@placeos/ts-client');
 jest.mock('@placeos/users');
 
-import { MockProvider } from 'ng-mocks';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
+import { MockProvider } from 'ng-mocks';
 import { ExploreStateService } from '../lib/explore-state.service';
 
 describe('ExploreSearchService', () => {

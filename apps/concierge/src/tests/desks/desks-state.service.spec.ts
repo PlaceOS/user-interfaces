@@ -3,9 +3,9 @@ import { SpectatorService, createServiceFactory } from '@ngneat/spectator/jest';
 import { OrganisationService } from '@placeos/organisation';
 import { of } from 'rxjs';
 
-import { DesksStateService } from '../../app/desks/desks-state.service';
-import { MockProvider } from 'ng-mocks';
 import { SettingsService } from '@placeos/common';
+import { MockProvider } from 'ng-mocks';
+import { DesksStateService } from '../../app/desks/desks-state.service';
 
 describe('DesksStateService', () => {
     let spectator: SpectatorService<DesksStateService>;

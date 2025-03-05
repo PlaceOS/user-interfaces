@@ -1,13 +1,13 @@
 import {
     Component,
-    OnInit,
-    Input,
-    Output,
-    ViewChild,
     ElementRef,
     EventEmitter,
+    Input,
     OnChanges,
+    OnInit,
+    Output,
     SimpleChanges,
+    ViewChild,
 } from '@angular/core';
 import {
     addMinutes,

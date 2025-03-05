@@ -1,11 +1,11 @@
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { SettingsService } from '@placeos/common';
 import { SpacesService } from '@placeos/spaces';
-import { of } from 'rxjs';
 import { MockComponent } from 'ng-mocks';
+import { of } from 'rxjs';
 
-import { AppTimetableComponent } from '../app/timetable.component';
 import { SpaceTimetableComponent } from '../app/space-timetable.component';
+import { AppTimetableComponent } from '../app/timetable.component';
 
 describe('AppTimetableComponent', () => {
     let spectator: SpectatorRouting<AppTimetableComponent>;

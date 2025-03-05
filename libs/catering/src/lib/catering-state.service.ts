@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
-    updateMetadata,
-    showMetadata,
     PlaceMetadata,
+    showMetadata,
+    updateMetadata,
 } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import {
@@ -17,41 +17,41 @@ import {
     tap,
 } from 'rxjs/operators';
 
-import { i18n } from 'libs/common/src/lib/locale.service';
-import { flatten, unique } from 'libs/common/src/lib/general';
-import { SettingsService } from 'libs/common/src/lib/settings.service';
-import { notifyError, notifySuccess } from 'libs/common/src/lib/notifications';
 import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
+import { flatten, unique } from 'libs/common/src/lib/general';
+import { i18n } from 'libs/common/src/lib/locale.service';
+import { notifyError, notifySuccess } from 'libs/common/src/lib/notifications';
+import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { currentUser } from 'libs/common/src/lib/user-state';
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { Building } from 'libs/organisation/src/lib/building.class';
+import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 
+import { CateringImportMenuModalComponent } from './catering-import-menu-modal.component';
 import {
     CateringItemModalComponent,
     CateringItemModalData,
 } from './catering-item-modal.component';
+import { CateringItem } from './catering-item.class';
 import {
     CateringItemOptionModalComponent,
     CateringItemOptionModalData,
 } from './catering-option-modal.component';
-import { CateringItem } from './catering-item.class';
-import { CateringOrder } from './catering-order.class';
 import {
     CateringOrderModalComponent,
     CateringOrderModalData,
 } from './catering-order-modal.component';
-import { CateringOption } from './catering.interfaces';
 import {
     CateringOrderOptionsModalComponent,
     CateringOrderOptionsModalData,
 } from './catering-order-options-modal.component';
-import { CateringImportMenuModalComponent } from './catering-import-menu-modal.component';
+import { CateringOrder } from './catering-order.class';
 import { CateringOrdersService } from './catering-orders.service';
+import { CateringOption } from './catering.interfaces';
 
 import {
     AttachedResourceConfigModalComponent,
-    AttachedResourceRuleset,
     AttachedResourceConfigModalData,
+    AttachedResourceRuleset,
 } from 'libs/components/src/lib/attached-resource-config-modal.component';
 import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
 

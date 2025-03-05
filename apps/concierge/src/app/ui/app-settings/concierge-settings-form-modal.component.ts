@@ -1,10 +1,10 @@
 import { Component, Inject } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
-import { map } from 'rxjs/operators';
 import { currentUser, notifySuccess, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
+import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
+import { map } from 'rxjs/operators';
 
 import { DEFAULT_SETTINGS } from 'apps/concierge/src/environments/settings';
 import { format } from 'date-fns';

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { first } from 'rxjs/operators';
-import { authority, isOnline, token } from '@placeos/ts-client';
 import { AsyncHandler, SettingsService } from '@placeos/common';
+import { authority, isOnline, token } from '@placeos/ts-client';
+import { first } from 'rxjs/operators';
 
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 

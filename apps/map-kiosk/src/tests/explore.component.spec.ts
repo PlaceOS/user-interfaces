@@ -18,15 +18,15 @@ import { Building, OrganisationService, Region } from '@placeos/organisation';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 import { BehaviorSubject, of } from 'rxjs';
 
-import { ExploreComponent } from '../app/explore.component';
-import { ExploreLevelSelectComponent } from '../app/explore-level-select.component';
+import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { SpacesService } from '@placeos/spaces';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { FormsModule } from '@angular/forms';
-import { MatMenuModule } from '@angular/material/menu';
 import { AccessibilityControlsComponent } from '../app/accessibility-controls.component';
+import { ExploreLevelSelectComponent } from '../app/explore-level-select.component';
+import { ExploreComponent } from '../app/explore.component';
 
 describe('ExploreComponent', () => {
     let spectator: SpectatorRouting<ExploreComponent>;

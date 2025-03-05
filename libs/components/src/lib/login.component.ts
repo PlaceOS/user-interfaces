@@ -1,6 +1,6 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { ApplicationIcon, SettingsService } from '@placeos/common';
+import { SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { debounceTime, first, map } from 'rxjs/operators';
 

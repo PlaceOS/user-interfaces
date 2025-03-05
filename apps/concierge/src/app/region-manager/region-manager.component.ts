@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
-import { RegionManagementService } from './region-management.service';
 import { MatDialog } from '@angular/material/dialog';
-import { WorkplaceSettingsFormModalComponent } from '../ui/app-settings/workplace-settings-form-modal.component';
-import { ConciergeSettingsFormModalComponent } from '../ui/app-settings/concierge-settings-form-modal.component';
-import { BookingPanelSettingsModalComponent } from '../ui/app-settings/booking-panel-settings-modal.component';
-import { VisitorKioskSettingsFormModalComponent } from '../ui/app-settings/visitor-kiosk-settings-form-modal.component';
 import { OrganisationService } from '@placeos/organisation';
+import { BookingPanelSettingsModalComponent } from '../ui/app-settings/booking-panel-settings-modal.component';
+import { ConciergeSettingsFormModalComponent } from '../ui/app-settings/concierge-settings-form-modal.component';
+import { VisitorKioskSettingsFormModalComponent } from '../ui/app-settings/visitor-kiosk-settings-form-modal.component';
+import { WorkplaceSettingsFormModalComponent } from '../ui/app-settings/workplace-settings-form-modal.component';
+import { RegionManagementService } from './region-management.service';
 
 @Component({
     selector: '[app-region-manager]',

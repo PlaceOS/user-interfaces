@@ -1,14 +1,10 @@
 import { Router } from '@angular/router';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
-import { of } from 'rxjs';
-import { take } from 'rxjs/operators';
 import { MockProvider } from 'ng-mocks';
+import { of } from 'rxjs';
 
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { OrganisationService } from '../lib/organisation.service';
-import { Organisation } from '../lib/organisation.class';
-import { BuildingLevel } from '../lib/level.class';
-import { Building } from '../lib/building.class';
 
 jest.mock('@placeos/ts-client');
 

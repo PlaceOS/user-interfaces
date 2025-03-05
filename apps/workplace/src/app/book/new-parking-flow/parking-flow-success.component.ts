@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
 import { BookingFormService } from '@placeos/bookings';
-import { SettingsService } from '@placeos/common';
 import {
     generateCalendarFileLink,
     generateGoogleCalendarLink,
     generateMicrosoftCalendarLink,
+    SettingsService,
 } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 

@@ -1,17 +1,11 @@
-import {
-    ChangeDetectorRef,
-    Component,
-    Input,
-    OnDestroy,
-    forwardRef,
-} from '@angular/core';
+import { Component, Input, OnDestroy, forwardRef } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 
-import { SettingsService } from 'libs/common/src/lib/settings.service';
-import { Space } from 'libs/spaces/src/lib/space.class';
-import { NewSpaceSelectModalComponent } from 'libs/spaces/src/lib/space-select-modal/new-space-select-modal.component';
 import { OrganisationService } from '@placeos/organisation';
+import { SettingsService } from 'libs/common/src/lib/settings.service';
+import { NewSpaceSelectModalComponent } from 'libs/spaces/src/lib/space-select-modal/new-space-select-modal.component';
+import { Space } from 'libs/spaces/src/lib/space.class';
 import { BehaviorSubject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 

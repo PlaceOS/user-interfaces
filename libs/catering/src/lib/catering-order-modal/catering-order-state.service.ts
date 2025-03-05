@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { SettingsService, unique } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { PlaceMetadata, showMetadata } from '@placeos/ts-client';
+import { Space } from 'libs/spaces/src/lib/space.class';
 import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
 import {
     catchError,
@@ -13,9 +14,8 @@ import {
     tap,
 } from 'rxjs/operators';
 import { CateringItem } from '../catering-item.class';
-import { cateringItemAvailable, getCateringRulesForZone } from '../utilities';
 import { CateringSettings } from '../catering-state.service';
-import { Space } from 'libs/spaces/src/lib/space.class';
+import { cateringItemAvailable, getCateringRulesForZone } from '../utilities';
 
 export interface CateringOrderOptions {
     // Affects backend requests

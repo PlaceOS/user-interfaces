@@ -7,11 +7,7 @@ import {
     notifySuccess,
 } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
-import {
-    querySettings,
-    showMetadata,
-    updateMetadata,
-} from '@placeos/ts-client';
+import { showMetadata, updateMetadata } from '@placeos/ts-client';
 
 @Component({
     selector: 'induction-settings-modal',

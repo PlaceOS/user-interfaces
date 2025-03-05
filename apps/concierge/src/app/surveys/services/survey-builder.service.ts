@@ -2,10 +2,10 @@ import { CdkDragDrop } from '@angular/cdk/drag-drop';
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { SettingsService } from '@placeos/common';
+import { openConfirmModal } from '@placeos/components';
 import { Question, UISurveyObj, UISurveyPage } from '@placeos/survey-suite';
 import { Model } from 'survey-core';
 import { QuestionBankService } from './question-bank.service';
-import { openConfirmModal } from '@placeos/components';
 
 @Injectable()
 export class SurveyBuilderService {

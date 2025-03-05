@@ -3,10 +3,10 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { debounceTime, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 
 import { AsyncHandler } from '@placeos/common';
-import { Space } from '@placeos/spaces';
-import { BehaviorSubject, combineLatest, of } from 'rxjs';
-import { querySystems } from '@placeos/ts-client';
 import { OrganisationService } from '@placeos/organisation';
+import { Space } from '@placeos/spaces';
+import { querySystems } from '@placeos/ts-client';
+import { BehaviorSubject, combineLatest, of } from 'rxjs';
 
 @Component({
     selector: '[app-bootstrap]',

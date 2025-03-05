@@ -12,8 +12,8 @@ import {
 } from '@placeos/organisation';
 import { MockProvider } from 'ng-mocks';
 import { BehaviorSubject, of } from 'rxjs';
-import { BootstrapComponent } from '../app/bootstrap.component';
 import { take } from 'rxjs/operators';
+import { BootstrapComponent } from '../app/bootstrap.component';
 
 describe('BootstrapComponent', () => {
     let spectator: SpectatorRouting<BootstrapComponent>;

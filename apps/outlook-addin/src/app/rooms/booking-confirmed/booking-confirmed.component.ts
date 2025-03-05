@@ -1,8 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { EventFormService } from '@placeos/events';
-import { CalendarEvent } from '@placeos/events';
-import { of, Observable } from 'rxjs';
+import { CalendarEvent, EventFormService } from '@placeos/events';
+import { Observable, of } from 'rxjs';
 
 @Component({
     selector: 'booking-confirmed',

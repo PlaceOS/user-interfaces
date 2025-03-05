@@ -2,8 +2,8 @@ import { createRoutingFactory, Spectator } from '@ngneat/spectator/jest';
 import { IconComponent } from '@placeos/components';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
-import { CateringItemListComponent } from '../../lib/catering-order-modal/catering-item-list.component';
 import { CateringItemListItemComponent } from '../../lib/catering-order-modal/catering-item-list-item.component';
+import { CateringItemListComponent } from '../../lib/catering-order-modal/catering-item-list.component';
 import { CateringOrderStateService } from '../../lib/catering-order-modal/catering-order-state.service';
 
 describe('CateringItemListComponent', () => {

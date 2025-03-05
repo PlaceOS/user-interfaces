@@ -8,6 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSliderModule } from '@angular/material/slider';
+import { ComponentsModule } from '@placeos/components';
 import { MultiLineTextComponent } from './question/multi-line-text.component';
 import { QuestionComponent } from './question/question.component';
 import { RatingsComponent } from './question/rating.component';
@@ -17,7 +18,6 @@ import { RatingsWidgetComponent } from './survey-widget/ratings-widget.component
 import { SelectionWidgetComponent } from './survey-widget/selection.widget.component';
 import { SurveyWidgetComponent } from './survey-widget/survey-widget.component';
 import { TableWidgetComponent } from './survey-widget/table-widget.component';
-import { ComponentsModule } from '@placeos/components';
 
 @NgModule({
     imports: [

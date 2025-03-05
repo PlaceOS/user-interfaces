@@ -3,8 +3,8 @@ import { RouterModule, Routes } from '@angular/router';
 import {
     AuthorisedUserGuard,
     MisconfiguredComponent,
-    UnauthorisedComponent,
     RedirectComponent,
+    UnauthorisedComponent,
 } from '@placeos/components';
 
 const routes: Routes = [

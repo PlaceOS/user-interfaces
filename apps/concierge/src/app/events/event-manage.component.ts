@@ -12,17 +12,17 @@ import {
     notifyError,
     unique,
 } from '@placeos/common';
+import { EventFormService, showEvent } from '@placeos/events';
 import {
     Building,
     BuildingLevel,
     OrganisationService,
 } from '@placeos/organisation';
+import { Space, SpacePipe } from '@placeos/spaces';
+import { StaffUser } from '@placeos/users';
+import { differenceInMinutes, format, startOfDay } from 'date-fns';
 import { first } from 'rxjs/operators';
 import { EventStateService } from './event-state.service';
-import { differenceInMinutes, format, startOfDay } from 'date-fns';
-import { EventFormService, showEvent } from '@placeos/events';
-import { StaffUser } from '@placeos/users';
-import { Space, SpacePipe } from '@placeos/spaces';
 
 const EMPTY = [];
 

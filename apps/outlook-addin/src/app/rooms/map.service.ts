@@ -1,14 +1,14 @@
 import { Injectable } from '@angular/core';
-import { Observable, BehaviorSubject } from 'rxjs';
-import { map, take, first } from 'rxjs/operators';
-import { BuildingLevel } from '@placeos/organisation';
-import { ViewerFeature, ViewerStyles, ViewAction } from '@placeos/svg-viewer';
-import { MapPinComponent } from '@placeos/components';
-import { Space } from '@placeos/spaces';
-import { AsyncHandler } from '@placeos/common';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
-import { RoomTileComponent } from './room-tile/room-tile.component';
+import { AsyncHandler } from '@placeos/common';
+import { MapPinComponent } from '@placeos/components';
+import { BuildingLevel } from '@placeos/organisation';
+import { Space } from '@placeos/spaces';
+import { ViewAction, ViewerFeature, ViewerStyles } from '@placeos/svg-viewer';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { first, map, take } from 'rxjs/operators';
 import { RoomConfirmService } from './room-confirm.service';
+import { RoomTileComponent } from './room-tile/room-tile.component';
 
 export interface Locatable {
     id: string;

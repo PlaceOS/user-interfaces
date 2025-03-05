@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
-import { VisitorsReportService } from './visitors-report.service';
-import { map } from 'rxjs/operators';
-import { differenceInBusinessDays, endOfDay, startOfDay } from 'date-fns';
 import { formatDuration } from '@placeos/common';
+import { differenceInBusinessDays, endOfDay, startOfDay } from 'date-fns';
+import { map } from 'rxjs/operators';
+import { VisitorsReportService } from './visitors-report.service';
 
 @Component({
     selector: 'visitor-report-overall',

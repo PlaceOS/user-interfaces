@@ -1,13 +1,12 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 
-import { SignageStateService } from './signage-state.service';
-import { AsyncHandler, unique } from '@placeos/common';
+import { CdkDragDrop } from '@angular/cdk/drag-drop';
 import { ActivatedRoute, Router } from '@angular/router';
+import { AsyncHandler } from '@placeos/common';
+import { listSignagePlaylistMedia, SignagePlaylist } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { SignageMediaListComponent } from './signage-media-list.component';
-import { listSignagePlaylistMedia, SignagePlaylist } from '@placeos/ts-client';
-import { CdkDragDrop } from '@angular/cdk/drag-drop';
+import { SignageStateService } from './signage-state.service';
 
 @Component({
     selector: 'signage-media',

@@ -1,11 +1,11 @@
-import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
 import { MockComponent } from 'ng-mocks';
 
+import { ConfirmModalComponent } from '../lib/confirm-modal.component';
 import { IconComponent } from '../lib/icon.component';
 import { SafePipe } from '../lib/safe.pipe';
-import { ConfirmModalComponent } from '../lib/confirm-modal.component';
 
 describe('ConfirmModalComponent', () => {
     let spectator: Spectator<ConfirmModalComponent>;

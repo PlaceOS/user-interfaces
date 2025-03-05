@@ -1,15 +1,15 @@
 import { DateFieldComponent } from '../lib/date-field.component';
 
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { MockComponent, MockProvider } from 'ng-mocks';
-import { CustomTooltipComponent, IconComponent } from '@placeos/components';
+import { fakeAsync } from '@angular/core/testing';
+import { FormsModule, NgControl } from '@angular/forms';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { FormsModule, NgControl } from '@angular/forms';
-import { addDays, format } from 'date-fns';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { randomInt } from '@placeos/common';
-import { fakeAsync } from '@angular/core/testing';
+import { CustomTooltipComponent, IconComponent } from '@placeos/components';
+import { addDays, format } from 'date-fns';
+import { MockComponent, MockProvider } from 'ng-mocks';
 
 describe('DateFieldComponent', () => {
     let spectator: Spectator<DateFieldComponent>;

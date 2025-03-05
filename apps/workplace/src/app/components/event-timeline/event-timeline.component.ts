@@ -1,27 +1,27 @@
 import {
     Component,
-    OnInit,
-    Input,
-    SimpleChanges,
-    OnChanges,
-    Output,
-    EventEmitter,
-    ViewChild,
     ElementRef,
+    EventEmitter,
+    Input,
+    OnChanges,
+    OnInit,
+    Output,
+    SimpleChanges,
+    ViewChild,
 } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
 import {
-    startOfDay,
-    set,
-    addMinutes,
     addDays,
-    differenceInSeconds,
-    isBefore,
-    isAfter,
-    isSameMinute,
-    format,
-    startOfMinute,
+    addMinutes,
     differenceInMinutes,
+    differenceInSeconds,
+    format,
+    isAfter,
+    isBefore,
+    isSameMinute,
+    set,
+    startOfDay,
+    startOfMinute,
 } from 'date-fns';
 
 export interface ITimelineEventGroup {

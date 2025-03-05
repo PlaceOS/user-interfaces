@@ -5,9 +5,9 @@ import { ActivatedRoute } from '@angular/router';
 import { AsyncHandler, SettingsService, VERSION } from '@placeos/common';
 import { ChangelogModalComponent } from '@placeos/components';
 
-import { ControlStateService } from '../control-state.service';
-import { debounceTime, map } from 'rxjs/operators';
 import { OrganisationService } from '@placeos/organisation';
+import { debounceTime, map } from 'rxjs/operators';
+import { ControlStateService } from '../control-state.service';
 
 @Component({
     selector: 'app-control-tabbed-view',

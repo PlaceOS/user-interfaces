@@ -3,9 +3,9 @@ import { registerMockEndpoint } from '@placeos/ts-client';
 import { MOCK_MENU } from './catering.data';
 import { MOCK_STAFF } from './users.data';
 import {
-    MOCK_ORGS,
-    MOCK_LEVELS,
     MOCK_BUILDINGS,
+    MOCK_LEVELS,
+    MOCK_ORGS,
     MOCK_ZONES,
 } from './zone.data';
 

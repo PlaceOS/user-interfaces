@@ -1,7 +1,5 @@
+import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { Component, OnInit } from '@angular/core';
-import { BehaviorSubject, combineLatest } from 'rxjs';
-import { SignageStateService } from './signage-state.service';
-import { map, shareReplay, switchMap, take, tap } from 'rxjs/operators';
 import { ActivatedRoute } from '@angular/router';
 import {
     AsyncHandler,
@@ -9,13 +7,15 @@ import {
     notifySuccess,
     SettingsService,
 } from '@placeos/common';
-import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import {
     listSystemTriggers,
     SignagePlaylist,
     updateSystem,
     updateTrigger,
 } from '@placeos/ts-client';
+import { BehaviorSubject, combineLatest } from 'rxjs';
+import { map, shareReplay, switchMap, take, tap } from 'rxjs/operators';
+import { SignageStateService } from './signage-state.service';
 
 @Component({
     selector: 'signage-displays',

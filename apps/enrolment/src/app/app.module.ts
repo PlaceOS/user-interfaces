@@ -1,9 +1,4 @@
-import {
-    ErrorHandler,
-    NgModule,
-    inject,
-    provideAppInitializer,
-} from '@angular/core';
+import { ErrorHandler, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
@@ -11,22 +6,22 @@ import { Route, Router, RouterModule } from '@angular/router';
 import { ComponentsModule } from '@placeos/components';
 import { FormFieldsModule } from '@placeos/form-fields';
 
+import { ServiceWorkerModule } from '@angular/service-worker';
+import { environment } from '../environments/environment';
 import { AppComponent } from './app.component';
 import { EnrolmentErrorComponent } from './enrolment-error.component';
 import { EnrolmentEventDetailsComponent } from './enrolment-event-details.component';
 import { EnrolmentGuestConfirmComponent } from './enrolment-guest-confirm.component';
 import { EnrolmentComponent } from './enrolment.component';
-import { ServiceWorkerModule } from '@angular/service-worker';
-import { environment } from '../environments/environment';
 
-import * as Sentry from '@sentry/angular';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { PaymentsModule } from '@placeos/payments';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { AssetsModule } from '@placeos/assets';
-import { SharedSpacesModule } from '@placeos/spaces';
 import { SharedExploreModule } from '@placeos/explore';
+import { PaymentsModule } from '@placeos/payments';
+import { SharedSpacesModule } from '@placeos/spaces';
+import * as Sentry from '@sentry/angular';
 
 const ROUTES: Route[] = [
     { path: '', component: EnrolmentComponent },

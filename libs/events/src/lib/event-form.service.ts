@@ -1,7 +1,20 @@
 import { Injectable } from '@angular/core';
-import { Event, NavigationEnd, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
+import { Event, NavigationEnd, Router } from '@angular/router';
+import {
+    AsyncHandler,
+    BookingRuleset,
+    currentUser,
+    filterResourcesFromRules,
+    flatten,
+    getInvalidFields,
+    i18n,
+    notifyError,
+    unique,
+} from '@placeos/common';
 import { getModule, showMetadata } from '@placeos/ts-client';
+import { differenceInDays, startOfDay } from 'date-fns';
+import { SettingsService } from 'libs/common/src/lib/settings.service';
 import {
     BehaviorSubject,
     combineLatest,
@@ -23,42 +36,29 @@ import {
     switchMap,
     tap,
 } from 'rxjs/operators';
-import { differenceInDays, startOfDay } from 'date-fns';
-import {
-    AsyncHandler,
-    BookingRuleset,
-    currentUser,
-    filterResourcesFromRules,
-    flatten,
-    getInvalidFields,
-    i18n,
-    notifyError,
-    unique,
-} from '@placeos/common';
-import { SettingsService } from 'libs/common/src/lib/settings.service';
 
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
+import { AssetRequest } from 'libs/assets/src/lib/asset-request.class';
+import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
+import { validateAssetRequestsForResource } from 'libs/assets/src/lib/assets.fn';
+import { newBookingFromCalendarEvent } from 'libs/bookings/src/lib/booking.utilities';
 import {
     createBookingsForEvent,
     queryResourceAvailability,
     saveBooking,
 } from 'libs/bookings/src/lib/bookings.fn';
-import { newBookingFromCalendarEvent } from 'libs/bookings/src/lib/booking.utilities';
+import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { PaymentsService } from 'libs/payments/src/lib/payments.service';
 import { Space } from 'libs/spaces/src/lib/space.class';
-import { requestSpacesForZone } from 'libs/spaces/src/lib/space.utilities';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
-import { validateAssetRequestsForResource } from 'libs/assets/src/lib/assets.fn';
+import { requestSpacesForZone } from 'libs/spaces/src/lib/space.utilities';
 import { User } from 'libs/users/src/lib/user.class';
-import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
-import { AssetRequest } from 'libs/assets/src/lib/asset-request.class';
 
 import { CalendarEvent } from './event.class';
 import {
     querySpaceAvailability,
+    removeEvent,
     saveEvent,
     showEvent,
-    removeEvent,
 } from './events.fn';
 import { periodInFreeTimeSlot } from './helpers';
 import { generateEventForm, newCalendarEventFromBooking } from './utilities';

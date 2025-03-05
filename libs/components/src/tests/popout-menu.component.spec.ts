@@ -1,8 +1,8 @@
 import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
 import { MockComponent } from 'ng-mocks';
 
-import { PopoutMenuComponent } from '../lib/popout-menu.component';
 import { IconComponent } from '../lib/icon.component';
+import { PopoutMenuComponent } from '../lib/popout-menu.component';
 
 describe('PopoutMenuComponent', () => {
     let spectator: Spectator<PopoutMenuComponent>;

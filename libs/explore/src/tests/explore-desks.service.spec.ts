@@ -1,12 +1,8 @@
+import { fakeAsync } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
-import { fakeAsync, tick } from '@angular/core/testing';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator';
 import { SettingsService } from '@placeos/common';
-import {
-    Building,
-    BuildingLevel,
-    OrganisationService,
-} from '@placeos/organisation';
+import { Building, OrganisationService } from '@placeos/organisation';
 import { BehaviorSubject, of } from 'rxjs';
 
 import { BookingFormService } from 'libs/bookings/src/lib/booking-form.service';
@@ -19,7 +15,6 @@ jest.mock('@placeos/ts-client');
 jest.mock('@placeos/bookings');
 
 import * as ts_client from '@placeos/ts-client';
-import * as booking_mod from '@placeos/bookings';
 import { MockProvider } from 'ng-mocks';
 
 describe('ExploreDesksService', () => {

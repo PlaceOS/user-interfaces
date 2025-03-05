@@ -1,4 +1,4 @@
-import { Component, Inject, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Observable } from 'rxjs';
 
@@ -10,12 +10,12 @@ import {
     unique,
 } from '@placeos/common';
 
+import { AttachedResourceRuleset } from '@placeos/components';
+import { OrganisationService } from '@placeos/organisation';
 import { CateringItem } from './catering-item.class';
 import { CateringOrder } from './catering-order.class';
 import { CateringOption } from './catering.interfaces';
-import { OrganisationService } from '@placeos/organisation';
 import { cateringItemAvailable } from './utilities';
-import { AttachedResourceRuleset } from '@placeos/components';
 
 export interface CateringOrderModalData {
     order: CateringOrder;

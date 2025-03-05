@@ -1,11 +1,6 @@
 import { Component, Inject, ViewChild } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { EmergencyContact } from './emergency-contacts.component';
 import { FormControl, FormGroup } from '@angular/forms';
-import { OrganisationService } from '@placeos/organisation';
-import { showMetadata, updateMetadata } from '@placeos/ts-client';
-import { BehaviorSubject, combineLatest } from 'rxjs';
-import { filter, map, shareReplay, switchMap, take } from 'rxjs/operators';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import {
     i18n,
     notifyError,
@@ -13,6 +8,11 @@ import {
     randomString,
 } from '@placeos/common';
 import { CustomTooltipComponent } from '@placeos/components';
+import { OrganisationService } from '@placeos/organisation';
+import { showMetadata, updateMetadata } from '@placeos/ts-client';
+import { BehaviorSubject, combineLatest } from 'rxjs';
+import { filter, map, shareReplay, switchMap, take } from 'rxjs/operators';
+import { EmergencyContact } from './emergency-contacts.component';
 
 @Component({
     selector: 'emergency-contact-modal',

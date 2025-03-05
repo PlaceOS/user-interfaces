@@ -6,10 +6,10 @@ import {
     Output,
     SimpleChanges,
 } from '@angular/core';
-import { BehaviorSubject, combineLatest } from 'rxjs';
-import { SignageStateService } from './signage-state.service';
-import { map, startWith, tap } from 'rxjs/operators';
 import { SignagePlaylist } from '@placeos/ts-client';
+import { BehaviorSubject, combineLatest } from 'rxjs';
+import { map, startWith, tap } from 'rxjs/operators';
+import { SignageStateService } from './signage-state.service';
 
 const PLAYLIST_ITEM_COUNTS = {};
 

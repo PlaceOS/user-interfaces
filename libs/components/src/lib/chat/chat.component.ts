@@ -1,8 +1,8 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { AsyncHandler, SettingsService, current_user } from '@placeos/common';
-import { ChatService } from './chat.service';
 import { StaffUser } from '@placeos/users';
 import { map } from 'rxjs/operators';
+import { ChatService } from './chat.service';
 
 @Component({
     selector: 'global-chat',

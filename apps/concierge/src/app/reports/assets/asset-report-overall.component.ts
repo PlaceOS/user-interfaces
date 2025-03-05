@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
-import { AssetsReportService } from './assets-report.service';
-import { map } from 'rxjs/operators';
+import { formatDuration } from '@placeos/common';
 import { differenceInBusinessDays, endOfDay, startOfDay } from 'date-fns';
-import { formatDuration, i18n } from '@placeos/common';
+import { map } from 'rxjs/operators';
+import { AssetsReportService } from './assets-report.service';
 
 @Component({
     selector: 'asset-report-overall',

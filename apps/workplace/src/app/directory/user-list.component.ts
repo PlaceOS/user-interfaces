@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { Subject, Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import {
-    switchMap,
     debounceTime,
     distinctUntilChanged,
     map,
+    switchMap,
 } from 'rxjs/operators';
 
 import { AsyncHandler, SettingsService } from '@placeos/common';

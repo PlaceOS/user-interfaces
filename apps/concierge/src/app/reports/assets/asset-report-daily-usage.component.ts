@@ -1,9 +1,8 @@
 import { Component, Input } from '@angular/core';
 import { downloadFile, jsonToCsv } from '@placeos/common';
+import { format } from 'date-fns';
 import { map, take } from 'rxjs/operators';
 import { AssetsReportService } from './assets-report.service';
-import { formatDate } from '@angular/common';
-import { format } from 'date-fns';
 
 @Component({
     selector: 'asset-report-daily-usage',

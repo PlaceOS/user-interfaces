@@ -10,13 +10,13 @@ import {
 import {
     AsyncHandler,
     currentUser,
+    formatDuration,
     notifyError,
     notifySuccess,
     SettingsService,
-    formatDuration,
 } from '@placeos/common';
-import { addMinutes, isAfter } from 'date-fns';
 import { MapLocateModalComponent, openConfirmModal } from '@placeos/components';
+import { addMinutes, isAfter } from 'date-fns';
 
 @Component({
     selector: 'schedule-view-booking',

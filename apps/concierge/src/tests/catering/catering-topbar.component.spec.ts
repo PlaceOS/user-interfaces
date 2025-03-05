@@ -8,10 +8,10 @@ import { OrganisationService } from '@placeos/organisation';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { BehaviorSubject, of } from 'rxjs';
 
+import { SettingsService } from '@placeos/common';
 import { CateringTopbarComponent } from '../../app/catering/catering-topbar.component';
 import { DateOptionsComponent } from '../../app/ui/date-options.component';
 import { SearchbarComponent } from '../../app/ui/searchbar.component';
-import { SettingsService } from '@placeos/common';
 
 describe('CateringTopbarComponent', () => {
     let spectator: SpectatorRouting<CateringTopbarComponent>;

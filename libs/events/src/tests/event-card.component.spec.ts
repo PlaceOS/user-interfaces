@@ -1,14 +1,14 @@
 import { MatDialog } from '@angular/material/dialog';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { SettingsService } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
 import { CalendarEvent } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
 import { set } from 'date-fns';
+import { StatusPillComponent } from 'libs/components/src/lib/status-pill.component';
+import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { EventCardComponent } from '../lib/event-card.component';
-import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
-import { SettingsService } from '@placeos/common';
-import { StatusPillComponent } from 'libs/components/src/lib/status-pill.component';
 
 describe('EventCardComponent', () => {
     let spectator: SpectatorRouting<EventCardComponent>;

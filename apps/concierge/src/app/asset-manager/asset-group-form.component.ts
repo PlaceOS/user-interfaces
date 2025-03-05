@@ -1,16 +1,16 @@
 import { Component } from '@angular/core';
-import { AssetManagerStateService } from './asset-manager-state.service';
+import { MatDialog } from '@angular/material/dialog';
+import { ActivatedRoute, Router } from '@angular/router';
 import {
     AssetCategory,
     generateAssetGroupForm,
     saveAssetGroup,
     showAssetGroup,
 } from '@placeos/assets';
-import { ActivatedRoute, Router } from '@angular/router';
-import { MatDialog } from '@angular/material/dialog';
 import { AsyncHandler, notifyError, unique } from '@placeos/common';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { AssetManagerStateService } from './asset-manager-state.service';
 
 @Component({
     selector: 'asset-group-form',

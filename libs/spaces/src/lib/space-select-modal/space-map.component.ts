@@ -3,12 +3,12 @@ import { AsyncHandler, SettingsService } from '@placeos/common';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { debounceTime, map } from 'rxjs/operators';
 
-import { DEFAULT_COLOURS } from 'libs/explore/src/lib/explore-spaces.service';
 import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
+import { DEFAULT_COLOURS } from 'libs/explore/src/lib/explore-spaces.service';
 import { BuildingLevel } from 'libs/organisation/src/lib/level.class';
-import { SpaceLocationPinComponent } from './space-location-pin.component';
+import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { Space } from '../space.class';
+import { SpaceLocationPinComponent } from './space-location-pin.component';
 
 @Component({
     selector: `space-map`,

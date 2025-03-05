@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
 import { Booking } from '@placeos/bookings';
 import { MapPinComponent } from '@placeos/components';
-import { AssetManagerStateService } from './asset-manager-state.service';
 import { OrganisationService } from '@placeos/organisation';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
+import { AssetManagerStateService } from './asset-manager-state.service';
 
 @Component({
     selector: 'asset-location-modal',

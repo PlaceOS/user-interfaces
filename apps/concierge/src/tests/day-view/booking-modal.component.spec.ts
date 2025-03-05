@@ -1,4 +1,4 @@
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { IconComponent } from '@placeos/components';
@@ -6,10 +6,10 @@ import { EventFormService } from '@placeos/events';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 
+import { FormGroup } from '@angular/forms';
+import { SettingsService } from '@placeos/common';
 import { BookingModalComponent } from '../../app/day-view/booking-modal.component';
 import { EventFormComponent } from '../../app/day-view/event-form.component';
-import { SettingsService } from '@placeos/common';
-import { FormGroup } from '@angular/forms';
 
 describe('BookingModalComponent', () => {
     let spectator: Spectator<BookingModalComponent>;

@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
-import { AsyncHandler, SettingsService } from '@placeos/common';
-import { ParkingReportService } from './parking-report.service';
 import { ActivatedRoute } from '@angular/router';
-import { debounceTime, map } from 'rxjs/operators';
+import { AsyncHandler, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
+import { debounceTime, map } from 'rxjs/operators';
+import { ParkingReportService } from './parking-report.service';
 
 @Component({
     selector: '[parking-report]',

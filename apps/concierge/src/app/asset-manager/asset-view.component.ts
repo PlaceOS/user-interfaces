@@ -1,12 +1,6 @@
 import { Component, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AsyncHandler, unique } from '@placeos/common';
-import { CustomTooltipComponent, openConfirmModal } from '@placeos/components';
-import { OrganisationService } from '@placeos/organisation';
-import { first, map } from 'rxjs/operators';
-import { AssetLocationModalComponent } from './asset-location-modal.component';
-import { AssetManagerStateService } from './asset-manager-state.service';
 import {
     Asset,
     AssetPurchaseOrder,
@@ -14,8 +8,14 @@ import {
     deleteAssetPurchaseOrder,
     removeAssetRequests,
 } from '@placeos/assets';
+import { AsyncHandler, unique } from '@placeos/common';
+import { CustomTooltipComponent, openConfirmModal } from '@placeos/components';
+import { OrganisationService } from '@placeos/organisation';
 import { addMinutes } from 'date-fns';
 import { combineLatest } from 'rxjs';
+import { first, map } from 'rxjs/operators';
+import { AssetLocationModalComponent } from './asset-location-modal.component';
+import { AssetManagerStateService } from './asset-manager-state.service';
 
 @Component({
     selector: 'asset-view',

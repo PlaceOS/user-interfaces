@@ -3,9 +3,9 @@ import { debounceTime, map } from 'rxjs/operators';
 
 import { AsyncHandler, SettingsService } from '@placeos/common';
 
-import { AssetsReportService } from './assets-report.service';
 import { ActivatedRoute } from '@angular/router';
 import { OrganisationService } from '@placeos/organisation';
+import { AssetsReportService } from './assets-report.service';
 
 @Component({
     selector: '[report-assets]',

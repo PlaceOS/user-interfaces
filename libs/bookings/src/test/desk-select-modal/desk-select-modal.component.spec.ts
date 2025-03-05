@@ -1,7 +1,7 @@
 import {
+    MAT_DIALOG_DATA,
     MatDialogModule,
     MatDialogRef,
-    MAT_DIALOG_DATA,
 } from '@angular/material/dialog';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { SettingsService } from '@placeos/common';

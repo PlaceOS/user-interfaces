@@ -1,7 +1,7 @@
 import { flatten, predictableRandomInt } from '@placeos/common';
 import { registerMockEndpoint } from '@placeos/ts-client';
-import { MOCK_BUILDINGS } from './zone.data';
 import { getUnixTime } from 'date-fns';
+import { MOCK_BUILDINGS } from './zone.data';
 
 export const SURVEY_MOCKS = registerMocks();
 

@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
-import { ScheduleStateService } from './schedule-state.service';
 import { SettingsService } from '@placeos/common';
+import { ScheduleStateService } from './schedule-state.service';
 
 @Component({
     selector: 'schedule-filter-card',

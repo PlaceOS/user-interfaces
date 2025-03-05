@@ -1,6 +1,4 @@
-import { Space } from '@placeos/spaces';
-import { User } from '@placeos/users';
-import { format, addMinutes, getUnixTime, addDays } from 'date-fns';
+import { addMinutes, format } from 'date-fns';
 import {
     eventStatus,
     formatRecurrence,

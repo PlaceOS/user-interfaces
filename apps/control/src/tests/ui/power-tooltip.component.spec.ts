@@ -2,8 +2,8 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { CustomTooltipData, SanitizePipe } from '@placeos/components';
 import { ControlStateService } from '../../app/control-state.service';
 
-import { PowerTooltipComponent } from '../../app/ui/power-tooltip.component';
 import { MockPipe } from 'ng-mocks';
+import { PowerTooltipComponent } from '../../app/ui/power-tooltip.component';
 
 describe('PowerTooltipComponent', () => {
     let spectator: Spectator<PowerTooltipComponent>;

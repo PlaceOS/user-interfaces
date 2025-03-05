@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
-import { LockersReportService } from './lockers-report.service';
-import { map } from 'rxjs/operators';
-import { differenceInBusinessDays, endOfDay, startOfDay } from 'date-fns';
 import { formatDuration } from '@placeos/common';
+import { differenceInBusinessDays, endOfDay, startOfDay } from 'date-fns';
+import { map } from 'rxjs/operators';
+import { LockersReportService } from './lockers-report.service';
 
 @Component({
     selector: 'lockers-report-overall',

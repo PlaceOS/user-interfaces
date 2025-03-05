@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
-import { ContactTracingStateService } from './contact-tracing-state.service';
 import { formatDuration, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { debounceTime, map } from 'rxjs/operators';
+import { ContactTracingStateService } from './contact-tracing-state.service';
 
 @Component({
     selector: 'app-contact-tracing-report',

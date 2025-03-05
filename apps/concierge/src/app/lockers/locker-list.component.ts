@@ -1,9 +1,9 @@
+import { Clipboard } from '@angular/cdk/clipboard';
 import { Component, OnInit } from '@angular/core';
-import { LockerStateService } from './locker-state.service';
+import { Booking, Locker } from '@placeos/bookings';
 import { AsyncHandler, i18n, notifySuccess } from '@placeos/common';
 import { combineLatest } from 'rxjs';
-import { Booking, Locker } from '@placeos/bookings';
-import { Clipboard } from '@angular/cdk/clipboard';
+import { LockerStateService } from './locker-state.service';
 
 @Component({
     selector: 'locker-list',

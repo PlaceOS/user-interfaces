@@ -7,7 +7,7 @@ import { ExploreParkingService, ExploreStateService } from '@placeos/explore';
 import { OrganisationService } from '@placeos/organisation';
 import { addDays, format, startOfDay } from 'date-fns';
 import { BehaviorSubject } from 'rxjs';
-import { first, take } from 'rxjs/operators';
+import { first } from 'rxjs/operators';
 
 @Component({
     selector: 'space-ping',

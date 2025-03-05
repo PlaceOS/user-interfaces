@@ -5,6 +5,7 @@ import {
     showMetadata,
     updateMetadata,
 } from '@placeos/ts-client';
+import { addHours, endOfDay, getUnixTime, set, startOfDay } from 'date-fns';
 import { BehaviorSubject, combineLatest, Observable, of, Subject } from 'rxjs';
 import {
     catchError,
@@ -18,14 +19,6 @@ import {
     take,
     tap,
 } from 'rxjs/operators';
-import {
-    addHours,
-    endOfDay,
-    format,
-    getUnixTime,
-    set,
-    startOfDay,
-} from 'date-fns';
 
 import {
     approveBooking,
@@ -50,10 +43,10 @@ import {
 } from '@placeos/common';
 import { Desk, OrganisationService } from '@placeos/organisation';
 
-import { generateQRCode } from 'libs/common/src/lib/qr-code';
-import { QueryResponse } from '@placeos/ts-client/dist/esm/resources/functions';
-import { DeskModalComponent } from './desk-modal.component';
 import { openConfirmModal } from '@placeos/components';
+import { QueryResponse } from '@placeos/ts-client/dist/esm/resources/functions';
+import { generateQRCode } from 'libs/common/src/lib/qr-code';
+import { DeskModalComponent } from './desk-modal.component';
 
 function addQRCodeToBooking(booking: Booking): Booking {
     return new Booking({

@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 import { AsyncHandler, log, shuffleArray } from '@placeos/common';
 import {
+    responseHeaders,
     showSignage,
     SignageMedia,
     SignagePlaylist,
-    responseHeaders,
 } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import {

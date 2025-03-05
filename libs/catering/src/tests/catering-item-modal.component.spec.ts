@@ -12,11 +12,11 @@ import { MockComponent, MockProvider } from 'ng-mocks';
 import { CateringItemModalComponent } from '../lib/catering-item-modal.component';
 import { CateringItem } from '../lib/catering-item.class';
 
+import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
 import { CounterComponent } from 'libs/form-fields/src/lib/counter.component';
 import { ImageListFieldComponent } from 'libs/form-fields/src/lib/image-list-field.component';
-import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
-import { SettingsService } from 'libs/common/src/lib/settings.service';
 
 describe('CateringItemModalComponent', () => {
     let spectator: Spectator<CateringItemModalComponent>;

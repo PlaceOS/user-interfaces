@@ -8,11 +8,11 @@ import {
     queryBookings,
     saveBooking,
 } from '@placeos/bookings';
-import { map, shareReplay, switchMap } from 'rxjs/operators';
-import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { AsyncHandler, timePeriodsIntersect } from '@placeos/common';
-import { HashMap } from '@placeos/ts-client/dist/esm/utilities/types';
 import { OrganisationService } from '@placeos/organisation';
+import { HashMap } from '@placeos/ts-client/dist/esm/utilities/types';
+import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
+import { map, shareReplay, switchMap } from 'rxjs/operators';
 
 export interface StaffFilters {
     date?: number;

@@ -7,10 +7,10 @@ import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { MockComponent, MockDirective, MockPipe, MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 
+import { AuthenticatedImageDirective } from '../lib/authenticated-image.directive';
 import { IconComponent } from '../lib/icon.component';
 import { LoginComponent } from '../lib/login.component';
 import { SafePipe } from '../lib/safe.pipe';
-import { AuthenticatedImageDirective } from '../lib/authenticated-image.directive';
 
 describe('LoginComponent', () => {
     let spectator: Spectator<LoginComponent>;

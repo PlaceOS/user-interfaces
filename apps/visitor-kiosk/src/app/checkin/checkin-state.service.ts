@@ -1,8 +1,4 @@
 import { Injectable } from '@angular/core';
-import { HashMap, i18n, notifyError, notifySuccess } from '@placeos/common';
-import { GuestUser, generateGuestForm, showGuest } from '@placeos/users';
-import { addMinutes, getUnixTime, isSameDay } from 'date-fns';
-import { BehaviorSubject } from 'rxjs';
 import {
     Booking,
     checkinBooking,
@@ -11,7 +7,11 @@ import {
     updateBooking,
     updateBookingInductionStatus,
 } from '@placeos/bookings';
+import { HashMap, i18n, notifyError, notifySuccess } from '@placeos/common';
 import { SpacePipe } from '@placeos/spaces';
+import { GuestUser, generateGuestForm, showGuest } from '@placeos/users';
+import { addMinutes, getUnixTime, isSameDay } from 'date-fns';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
     providedIn: 'root',

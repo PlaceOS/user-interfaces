@@ -1,9 +1,9 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { startOfDay, differenceInMinutes, format, addMinutes } from 'date-fns';
+import { addMinutes, differenceInMinutes, format, startOfDay } from 'date-fns';
 
+import { SettingsService } from '@placeos/common';
 import { CalendarEvent } from '@placeos/events';
 import { EventsStateService } from './events-state.service';
-import { SettingsService } from '@placeos/common';
 
 const DAY_IN_MINUTES = 24 * 60;
 

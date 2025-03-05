@@ -1,3 +1,5 @@
+import { Component, Inject, OnInit } from '@angular/core';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import {
     SettingsService,
     i18n,
@@ -13,10 +15,8 @@ import {
     updateMetadata,
     updateSettings,
 } from '@placeos/ts-client';
-import { map } from 'rxjs/operators';
 import * as yaml from 'js-yaml';
-import { Component, Inject, OnInit } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { map } from 'rxjs/operators';
 
 @Component({
     selector: 'auto-release-modal',

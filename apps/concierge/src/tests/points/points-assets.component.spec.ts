@@ -3,9 +3,9 @@ import { CustomTableComponent, IconComponent } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
+import { SimpleTableComponent } from 'libs/components/src/lib/simple-table.component';
 import { PointsAssetsComponent } from '../../app/points/points-assets.component';
 import { PointsStateService } from '../../app/points/points-state.service';
-import { SimpleTableComponent } from 'libs/components/src/lib/simple-table.component';
 
 describe('PointsAssetsComponent', () => {
     let spectator: Spectator<PointsAssetsComponent>;

@@ -4,9 +4,9 @@ import { CalendarEvent } from '@placeos/events';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 
+import { SettingsService } from '@placeos/common';
 import { DayviewEventComponent } from '../../app/day-view/dayview-event.component';
 import { EventsStateService } from '../../app/day-view/events-state.service';
-import { SettingsService } from '@placeos/common';
 
 describe('DayviewEventComponent', () => {
     let spectator: Spectator<DayviewEventComponent>;

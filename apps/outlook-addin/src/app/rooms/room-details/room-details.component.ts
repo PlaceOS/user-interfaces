@@ -1,11 +1,9 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import {
-    MatBottomSheetRef,
     MAT_BOTTOM_SHEET_DATA,
+    MatBottomSheetRef,
 } from '@angular/material/bottom-sheet';
-import { Observable, of } from 'rxjs';
 import { Space } from '@placeos/spaces';
-import { scan } from 'rxjs/operators';
 
 @Component({
     selector: 'placeos-room-details',

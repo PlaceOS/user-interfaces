@@ -1,13 +1,12 @@
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
-import { MatDialog } from '@angular/material/dialog';
 import { MockComponent } from 'ng-mocks';
 
 import { PanelStateService } from '../../app/panel-state.service';
+import { PanelBookingListComponent } from '../../app/panel/panel-booking-list.component';
+import { PanelDetailsComponent } from '../../app/panel/panel-details.component';
+import { PanelStatusComponent } from '../../app/panel/panel-status.component';
 import { BookingPanelComponent } from '../../app/panel/panel.component';
 import { PanelTopbarComponent } from '../../app/panel/topbar.component';
-import { PanelStatusComponent } from '../../app/panel/panel-status.component';
-import { PanelDetailsComponent } from '../../app/panel/panel-details.component';
-import { PanelBookingListComponent } from '../../app/panel/panel-booking-list.component';
 
 describe('BookingPanelComponent', () => {
     let spectator: SpectatorRouting<BookingPanelComponent>;

@@ -12,18 +12,18 @@ import { ActivatedRoute } from '@angular/router';
 import {
     SettingsService,
     currentUser,
-    i18n,
     formatDuration,
+    i18n,
 } from '@placeos/common';
 import { addMinutes, format, isSameDay } from 'date-fns';
 import { map } from 'rxjs/operators';
 
-import { Booking } from './booking.class';
-import { BookingDetailsModalComponent } from './booking-details-modal.component';
 import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
-import { ParkingService } from './parking.service';
 import { GroupEventDetailsModalComponent } from '../../../events/src/lib/group-event-details-modal.component';
+import { BookingDetailsModalComponent } from './booking-details-modal.component';
+import { Booking } from './booking.class';
+import { ParkingService } from './parking.service';
 
 @Component({
     selector: 'booking-card',

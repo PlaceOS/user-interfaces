@@ -4,13 +4,11 @@ import { CalendarEvent } from '../lib/event.class';
 import {
     approveEvent,
     checkinEventGuest,
-    createEvent,
     queryEventGuests,
     queryEvents,
     rejectEvent,
     saveEvent,
     showEvent,
-    updateEvent,
 } from '../lib/events.fn';
 
 jest.mock('@placeos/ts-client');

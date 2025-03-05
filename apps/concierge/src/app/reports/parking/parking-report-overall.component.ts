@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
-import { ParkingReportService } from './parking-report.service';
-import { map } from 'rxjs/operators';
-import { differenceInBusinessDays, endOfDay, startOfDay } from 'date-fns';
 import { formatDuration } from '@placeos/common';
+import { differenceInBusinessDays, endOfDay, startOfDay } from 'date-fns';
+import { map } from 'rxjs/operators';
+import { ParkingReportService } from './parking-report.service';
 
 @Component({
     selector: 'parking-report-overall',

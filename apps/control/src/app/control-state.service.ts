@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { getModule, PlaceSystem, showSystem } from '@placeos/ts-client';
+import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
 import {
     catchError,
     debounceTime,
@@ -12,17 +13,16 @@ import {
     take,
     tap,
 } from 'rxjs/operators';
-import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
 
-import { AsyncHandler, currentUser, HashMap, log } from '@placeos/common';
-import { Calendar, CalendarService } from '@placeos/calendar';
-import { SourceSelectModalComponent } from './ui/source-select-modal.component';
-import { CalendarEvent, queryEvents } from '@placeos/events';
-import { endOfDay, getUnixTime } from 'date-fns';
-import { SelectMeetingModalComponent } from './ui/select-meeting-modal.component';
-import { HelpModalComponent } from './ui/help-modal.component';
-import { Space, SpacesService } from '@placeos/spaces';
 import { Router } from '@angular/router';
+import { Calendar, CalendarService } from '@placeos/calendar';
+import { AsyncHandler, currentUser, HashMap, log } from '@placeos/common';
+import { CalendarEvent, queryEvents } from '@placeos/events';
+import { Space, SpacesService } from '@placeos/spaces';
+import { endOfDay, getUnixTime } from 'date-fns';
+import { HelpModalComponent } from './ui/help-modal.component';
+import { SelectMeetingModalComponent } from './ui/select-meeting-modal.component';
+import { SourceSelectModalComponent } from './ui/source-select-modal.component';
 
 export interface EnvironmentSource {
     name: string;

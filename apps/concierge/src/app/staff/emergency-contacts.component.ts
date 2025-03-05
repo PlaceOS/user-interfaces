@@ -1,14 +1,14 @@
+import { Clipboard } from '@angular/cdk/clipboard';
 import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { notifySuccess } from '@placeos/common';
+import { openConfirmModal } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
-import { BehaviorSubject, combineLatest, of } from 'rxjs';
+import { BehaviorSubject, combineLatest } from 'rxjs';
 import { filter, map, shareReplay, switchMap, take } from 'rxjs/operators';
 import { EmergencyContactModalComponent } from './emergency-contact-modal.component';
-import { notifySuccess } from '@placeos/common';
 import { RoleManagementModalComponent } from './role-management-modal.component';
-import { Clipboard } from '@angular/cdk/clipboard';
-import { openConfirmModal } from '@placeos/components';
 
 export interface EmergencyContact {
     id: string;

@@ -1,27 +1,27 @@
 /* eslint-disable @typescript-eslint/member-ordering */
 import {
     Component,
-    OnInit,
+    ElementRef,
     forwardRef,
     Input,
+    OnInit,
     ViewChild,
-    ElementRef,
 } from '@angular/core';
-import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
-import { Subject, Observable, of, forkJoin } from 'rxjs';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { forkJoin, Observable, of, Subject } from 'rxjs';
 import {
-    switchMap,
+    catchError,
     debounceTime,
     distinctUntilChanged,
     map,
-    catchError,
+    switchMap,
 } from 'rxjs/operators';
 
 import { AsyncHandler, flatten, SettingsService } from '@placeos/common';
+import { authority, queryUsers } from '@placeos/ts-client';
 import { searchGuests } from 'libs/users/src/lib/guests.fn';
 import { searchStaff } from 'libs/users/src/lib/staff.fn';
 import { User } from 'libs/users/src/lib/user.class';
-import { authority, queryUsers } from '@placeos/ts-client';
 
 @Component({
     selector: 'a-user-search-field',

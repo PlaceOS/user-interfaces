@@ -8,8 +8,6 @@ import {
     SimpleChanges,
     ViewChild,
 } from '@angular/core';
-import { BuildingLevel, OrganisationService } from '@placeos/organisation';
-import { MapMetadata } from './interactive-map.component';
 import {
     AsyncHandler,
     MapsPeopleService,
@@ -20,8 +18,10 @@ import {
     notifyWarn,
     randomString,
 } from '@placeos/common';
+import { BuildingLevel, OrganisationService } from '@placeos/organisation';
 import { MapService } from 'libs/common/src/lib/mapspeople.service';
 import { take } from 'rxjs/operators';
+import { MapMetadata } from './interactive-map.component';
 
 declare let mapsindoors: any;
 declare let google: any;

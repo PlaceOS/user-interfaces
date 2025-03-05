@@ -1,10 +1,10 @@
-import { Component } from '@angular/core';
-import { ParkingStateService } from './parking-state.service';
-import { AsyncHandler, i18n, notifySuccess } from '@placeos/common';
-import { combineLatest } from 'rxjs';
-import { ParkingSpace } from '@placeos/explore';
-import { Booking } from '@placeos/bookings';
 import { Clipboard } from '@angular/cdk/clipboard';
+import { Component } from '@angular/core';
+import { Booking } from '@placeos/bookings';
+import { AsyncHandler, i18n, notifySuccess } from '@placeos/common';
+import { ParkingSpace } from '@placeos/explore';
+import { combineLatest } from 'rxjs';
+import { ParkingStateService } from './parking-state.service';
 
 @Component({
     selector: 'parking-space-list',

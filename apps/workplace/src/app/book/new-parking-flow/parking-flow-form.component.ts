@@ -10,8 +10,8 @@ import {
     notifyError,
     SettingsService,
 } from '@placeos/common';
-import { NewParkingFlowConfirmComponent } from './parking-flow-confirm.component';
 import { take } from 'rxjs/operators';
+import { NewParkingFlowConfirmComponent } from './parking-flow-confirm.component';
 
 @Component({
     selector: 'parking-flow-form',

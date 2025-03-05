@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { Router } from '@angular/router';
+import { OrganisationService } from '@placeos/organisation';
 import {
     connectionState,
     getModule,
@@ -7,8 +9,6 @@ import {
     PlaceSystem,
     showSystem,
 } from '@placeos/ts-client';
-import { Router } from '@angular/router';
-import { OrganisationService } from '@placeos/organisation';
 import { BehaviorSubject, combineLatest, interval, Observable, of } from 'rxjs';
 import {
     catchError,
@@ -23,8 +23,6 @@ import {
     tap,
 } from 'rxjs/operators';
 
-import { CalendarEvent, EventFormService } from '@placeos/events';
-import { Space, SpacesService } from '@placeos/spaces';
 import {
     AsyncHandler,
     currentUser,
@@ -35,9 +33,10 @@ import {
     SettingsService,
     timePeriodsIntersect,
 } from '@placeos/common';
+import { CalendarEvent, EventFormService } from '@placeos/events';
+import { Space, SpacesService } from '@placeos/spaces';
 
-import { openBookingModal } from './overlays/booking-modal.component';
-import { EmbeddedControlModalComponent } from './overlays/embedded-control-modal.component';
+import { openConfirmModal } from '@placeos/components';
 import {
     addMinutes,
     differenceInMinutes,
@@ -47,7 +46,8 @@ import {
     startOfMinute,
 } from 'date-fns';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
-import { openConfirmModal } from '@placeos/components';
+import { openBookingModal } from './overlays/booking-modal.component';
+import { EmbeddedControlModalComponent } from './overlays/embedded-control-modal.component';
 
 export interface PanelSettings {
     /** Name of the room */

@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
-import { EventStateService } from './event-state.service';
+import { MatDialog } from '@angular/material/dialog';
+import { Router } from '@angular/router';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import {
-    format,
     addDays,
+    format,
     isSameDay,
     isSameMonth,
     startOfDay,
@@ -11,8 +12,7 @@ import {
     startOfWeek,
 } from 'date-fns';
 import { map, shareReplay, startWith } from 'rxjs/operators';
-import { MatDialog } from '@angular/material/dialog';
-import { Router } from '@angular/router';
+import { EventStateService } from './event-state.service';
 
 @Component({
     selector: 'event-month-view',

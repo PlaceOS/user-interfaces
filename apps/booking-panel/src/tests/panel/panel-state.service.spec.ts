@@ -1,12 +1,12 @@
 import { MatDialog } from '@angular/material/dialog';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
+import { KeepAliveService, SettingsService } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
 import { SpacesService } from '@placeos/spaces';
 import { MockProvider } from 'ng-mocks';
 import { BehaviorSubject, of } from 'rxjs';
 import { PanelStateService } from '../../app/panel-state.service';
-import { KeepAliveService, SettingsService } from '@placeos/common';
 
 describe('PanelStateService', () => {
     let spectator: SpectatorService<PanelStateService>;

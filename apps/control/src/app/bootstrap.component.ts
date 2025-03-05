@@ -1,19 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import {
-    debounceTime,
-    first,
-    map,
-    shareReplay,
-    switchMap,
-    tap,
-} from 'rxjs/operators';
+import { debounceTime, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 
 import { AsyncHandler } from '@placeos/common';
-import { Space } from '@placeos/spaces';
-import { BehaviorSubject, of } from 'rxjs';
-import { querySystems } from '@placeos/ts-client';
 import { OrganisationService } from '@placeos/organisation';
+import { Space } from '@placeos/spaces';
+import { querySystems } from '@placeos/ts-client';
+import { BehaviorSubject, of } from 'rxjs';
 
 const STORE_KEY = 'PLACEOS.CONTROL.system';
 

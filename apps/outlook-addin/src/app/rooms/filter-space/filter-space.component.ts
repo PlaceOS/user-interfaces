@@ -1,13 +1,13 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 
 import {
     MAT_BOTTOM_SHEET_DATA,
     MatBottomSheetRef,
 } from '@angular/material/bottom-sheet';
 import { EventFormService } from '@placeos/events';
-import { FeaturesFilterService } from '../features-filter.service';
 import { OrganisationService } from '@placeos/organisation';
 import { Observable } from 'rxjs';
+import { FeaturesFilterService } from '../features-filter.service';
 
 @Component({
     selector: '[filter-space]',

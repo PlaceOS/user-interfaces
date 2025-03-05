@@ -1,18 +1,18 @@
-import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterModule, Route } from '@angular/router';
+import { Route, RouterModule } from '@angular/router';
 
 import { UIModule } from '../ui/ui.module';
 
-import { VisitorsComponent } from './visitors.component';
-import { VisitorsTopbarComponent } from './visitors-topbar.component';
-import { GuestListingComponent } from './guest-listing.component';
-import { NewVisitorsComponent } from './new-visitors.component';
-import { InviteVisitorModalComponent } from './invite-visitor-modal.component';
 import { SharedBookingsModule } from '@placeos/bookings';
+import { GuestListingComponent } from './guest-listing.component';
+import { InviteVisitorModalComponent } from './invite-visitor-modal.component';
+import { NewVisitorsComponent } from './new-visitors.component';
 import { VisitorInductionModalComponent } from './visitor-induction-modal.component';
 import { VisitorNotesModalComponent } from './visitor-notes-modal.component';
+import { VisitorsTopbarComponent } from './visitors-topbar.component';
+import { VisitorsComponent } from './visitors.component';
 
 const ROUTES: Route[] = [
     { path: '', component: VisitorsComponent },

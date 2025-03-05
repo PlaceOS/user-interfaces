@@ -7,6 +7,7 @@ import {
 } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { showMetadata } from '@placeos/ts-client';
+import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { BehaviorSubject, combineLatest, forkJoin, of } from 'rxjs';
 import {
     catchError,
@@ -17,7 +18,6 @@ import {
     tap,
 } from 'rxjs/operators';
 import { queryBookings } from './bookings.fn';
-import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 
 export interface ParkingSpace {
     id: string;

@@ -1,13 +1,13 @@
-import { createRoutingFactory, Spectator } from '@ngneat/spectator/jest';
-import { MatBottomSheet } from '@angular/material/bottom-sheet';
-import { MockComponent, MockProvider } from 'ng-mocks';
-import { SpaceFiltersDisplayComponent } from '../../lib/space-select-modal/space-filters-display.component';
-import { EventFormService } from '@placeos/events';
 import { FormGroup } from '@angular/forms';
-import { BehaviorSubject } from 'rxjs';
-import { Building, OrganisationService } from '@placeos/organisation';
-import { IconComponent } from '@placeos/components';
+import { MatBottomSheet } from '@angular/material/bottom-sheet';
+import { createRoutingFactory, Spectator } from '@ngneat/spectator/jest';
 import { SettingsService } from '@placeos/common';
+import { IconComponent } from '@placeos/components';
+import { EventFormService } from '@placeos/events';
+import { Building, OrganisationService } from '@placeos/organisation';
+import { MockComponent, MockProvider } from 'ng-mocks';
+import { BehaviorSubject } from 'rxjs';
+import { SpaceFiltersDisplayComponent } from '../../lib/space-select-modal/space-filters-display.component';
 
 describe('SpaceFiltersDisplayComponent', () => {
     let spectator: Spectator<SpaceFiltersDisplayComponent>;

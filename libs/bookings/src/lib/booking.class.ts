@@ -3,7 +3,6 @@ import {
     capitalizeFirstLetter,
     removeEmptyFields,
 } from '@placeos/common';
-import { User } from 'libs/users/src/lib/user.class';
 import {
     add,
     addHours,
@@ -18,6 +17,7 @@ import {
     startOfDay,
 } from 'date-fns';
 import { AssetRequest } from 'libs/assets/src/lib/asset-request.class';
+import { User } from 'libs/users/src/lib/user.class';
 
 export type BookingType =
     | 'desk'

@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { combineLatest, interval } from 'rxjs';
-import { map, shareReplay, take } from 'rxjs/operators';
+import { map, shareReplay } from 'rxjs/operators';
 import { PanelStateService } from '../panel-state.service';
 import { currentPeriod, nextPeriod } from './helpers';
 

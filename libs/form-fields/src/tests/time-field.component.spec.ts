@@ -1,6 +1,5 @@
 import { fakeAsync, flush } from '@angular/core/testing';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { MockComponent } from 'ng-mocks';
 import {
     addMinutes,
     format,
@@ -9,6 +8,7 @@ import {
     startOfMinute,
     subMinutes,
 } from 'date-fns';
+import { MockComponent } from 'ng-mocks';
 
 import { IconComponent } from '@placeos/components';
 import { TimeFieldComponent } from '../lib/time-field.component';

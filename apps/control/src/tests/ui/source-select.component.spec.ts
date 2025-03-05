@@ -1,6 +1,5 @@
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { sub } from 'date-fns';
 import { BehaviorSubject } from 'rxjs';
 import { ControlStateService } from '../../app/control-state.service';
 

@@ -1,7 +1,7 @@
-import { Component, Inject } from '@angular/core';
-import { POIManagementService } from './poi-management.service';
-import { Building, OrganisationService } from '@placeos/organisation';
+import { Component } from '@angular/core';
 import { SettingsService } from '@placeos/common';
+import { Building, OrganisationService } from '@placeos/organisation';
+import { POIManagementService } from './poi-management.service';
 
 @Component({
     selector: '[app-poi-manager]',

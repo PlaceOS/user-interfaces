@@ -1,13 +1,13 @@
 import { NgModule } from '@angular/core';
-import { Routes, RouterModule } from '@angular/router';
+import { RouterModule, Routes } from '@angular/router';
 
 import { BootstrapComponent } from './bootstrap.component';
-import { BookingPanelComponent } from './panel/panel.component';
-import { BookingPanelArrayComponent } from './panel-array.component';
-import { BookingPanelSelectComponent } from './panel-select.component';
-import { PanelViewComponent } from './new-panel/panel-view.component';
 import { CheckinViewComponent } from './checkin/checkin-view.component';
 import { EventPanelComponent } from './event-panel.component';
+import { PanelViewComponent } from './new-panel/panel-view.component';
+import { BookingPanelArrayComponent } from './panel-array.component';
+import { BookingPanelSelectComponent } from './panel-select.component';
+import { BookingPanelComponent } from './panel/panel.component';
 
 const routes: Routes = [
     { path: 'bootstrap', component: BootstrapComponent },

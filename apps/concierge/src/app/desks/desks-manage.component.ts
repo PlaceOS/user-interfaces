@@ -1,3 +1,4 @@
+import { Clipboard } from '@angular/cdk/clipboard';
 import { Component, ElementRef } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
@@ -10,13 +11,12 @@ import {
     notifySuccess,
     randomInt,
 } from '@placeos/common';
+import { openConfirmModal } from '@placeos/components';
 import { Desk, OrganisationService } from '@placeos/organisation';
 import { updateMetadata } from '@placeos/ts-client';
 import { generateQRCode } from 'libs/common/src/lib/qr-code';
 import { take } from 'rxjs/operators';
 import { DesksStateService } from './desks-state.service';
-import { Clipboard } from '@angular/cdk/clipboard';
-import { openConfirmModal } from '@placeos/components';
 
 const QR_CODES = {};
 

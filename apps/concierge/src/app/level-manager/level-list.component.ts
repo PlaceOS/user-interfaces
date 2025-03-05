@@ -1,9 +1,9 @@
-import { Component } from '@angular/core';
-import { LevelManagementService } from './level-management.service';
-import { i18n, notifySuccess } from '@placeos/common';
 import { Clipboard } from '@angular/cdk/clipboard';
+import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { i18n, notifySuccess } from '@placeos/common';
 import { BookingPanelSettingsModalComponent } from '../ui/app-settings/booking-panel-settings-modal.component';
+import { LevelManagementService } from './level-management.service';
 
 @Component({
     selector: 'level-list',

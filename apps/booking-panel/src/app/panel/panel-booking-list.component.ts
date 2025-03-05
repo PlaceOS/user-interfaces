@@ -3,8 +3,8 @@ import { differenceInSeconds, isAfter, isSameDay } from 'date-fns';
 import { combineLatest, interval } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { PanelStateService } from '../panel-state.service';
 import { formatDuration } from '@placeos/common';
+import { PanelStateService } from '../panel-state.service';
 
 @Component({
     selector: 'panel-booking-list',

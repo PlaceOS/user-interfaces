@@ -1,26 +1,14 @@
 import { Injectable } from '@angular/core';
-import { getModule, PlaceMetadata, showMetadata } from '@placeos/ts-client';
-import {
-    catchError,
-    filter,
-    map,
-    shareReplay,
-    switchMap,
-} from 'rxjs/operators';
-import { BehaviorSubject, combineLatest, forkJoin, Observable, of } from 'rxjs';
+import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 import {
-    AsyncHandler,
-    flatten,
-    SettingsService,
-    unique,
-} from '@placeos/common';
-import {
-    LockerBank,
-    Locker,
     loadLockerBanks,
     loadLockers,
+    Locker,
+    LockerBank,
 } from '@placeos/bookings';
+import { AsyncHandler, SettingsService, unique } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 
 import { ExploreLockerBankInfoComponent } from './explore-locker-bank-info.component';

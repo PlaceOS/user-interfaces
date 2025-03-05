@@ -1,5 +1,5 @@
-import { searchStaff, showStaff, locateStaff } from '../lib/staff.fn';
 import { of } from 'rxjs';
+import { locateStaff, searchStaff, showStaff } from '../lib/staff.fn';
 
 jest.mock('@placeos/ts-client');
 

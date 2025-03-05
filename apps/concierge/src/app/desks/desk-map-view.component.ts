@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { ExploreDesksService, ExploreStateService } from '@placeos/explore';
 
-import { DesksStateService } from './desks-state.service';
 import { AsyncHandler } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
+import { DesksStateService } from './desks-state.service';
 
 @Component({
     selector: 'desk-map-view',

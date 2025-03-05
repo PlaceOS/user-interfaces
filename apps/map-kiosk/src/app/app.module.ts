@@ -1,41 +1,36 @@
-import { BrowserModule } from '@angular/platform-browser';
+import { ErrorHandler, NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import {
-    ErrorHandler,
-    NgModule,
-    inject,
-    provideAppInitializer,
-} from '@angular/core';
 import { Router } from '@angular/router';
 import { ServiceWorkerModule } from '@angular/service-worker';
 
-import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatRippleModule } from '@angular/material/core';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatRippleModule } from '@angular/material/core';
-import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { ComponentsModule } from '@placeos/components';
 import { SharedExploreModule } from '@placeos/explore';
 import { FormFieldsModule } from '@placeos/form-fields';
 
-import * as Sentry from '@sentry/angular';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { PaymentsModule } from '@placeos/payments';
 import { AssetsModule } from '@placeos/assets';
 import { SharedBookingsModule } from '@placeos/bookings';
+import { PaymentsModule } from '@placeos/payments';
+import * as Sentry from '@sentry/angular';
 
-import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from 'libs/components/src/lib/app.component';
 import { environment } from '../environments/environment';
+import { AccessibilityControlsComponent } from './accessibility-controls.component';
+import { AppRoutingModule } from './app-routing.module';
 import { BootstrapComponent } from './bootstrap.component';
-import { ExploreComponent } from './explore.component';
+import { DeskBookingComponent } from './desk-booking.component';
 import { ExploreLevelSelectComponent } from './explore-level-select.component';
 import { ExploreMapStackComponent } from './explore-map-stack.component';
+import { ExploreComponent } from './explore.component';
 import { FooterMenuComponent } from './footer-menu.component';
-import { DeskBookingComponent } from './desk-booking.component';
-import { AccessibilityControlsComponent } from './accessibility-controls.component';
 
 @NgModule({
     declarations: [

@@ -1,26 +1,21 @@
-import {
-    ErrorHandler,
-    NgModule,
-    inject,
-    provideAppInitializer,
-} from '@angular/core';
+import { ErrorHandler, NgModule } from '@angular/core';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { Router, RouterModule } from '@angular/router';
 import { ServiceWorkerModule } from '@angular/service-worker';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { ComponentsModule } from '@placeos/components';
 
 import { AppComponent } from '../../../../libs/components/src/lib/app.component';
-import { AppTimetableComponent } from './timetable.component';
-import { SpaceTimetableComponent } from './space-timetable.component';
-import { SpaceEventDetailsComponent } from './space-event-details.component';
 import { environment } from '../environments/environment';
+import { SpaceEventDetailsComponent } from './space-event-details.component';
+import { SpaceTimetableComponent } from './space-timetable.component';
+import { AppTimetableComponent } from './timetable.component';
 
-import * as Sentry from '@sentry/angular';
-import { PaymentsModule } from '@placeos/payments';
 import { AssetsModule } from '@placeos/assets';
 import { SharedExploreModule } from '@placeos/explore';
+import { PaymentsModule } from '@placeos/payments';
+import * as Sentry from '@sentry/angular';
 
 @NgModule({
     declarations: [

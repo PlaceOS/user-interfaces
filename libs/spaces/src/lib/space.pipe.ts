@@ -1,9 +1,9 @@
 import { Optional, Pipe } from '@angular/core';
-import { showSystem, querySystemsWithEmails } from '@placeos/ts-client';
+import { querySystemsWithEmails, showSystem } from '@placeos/ts-client';
 
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
-import { Space } from './space.class';
 import { first } from 'rxjs/operators';
+import { Space } from './space.class';
 
 const SPACE_LIST: Space[] = [];
 const ATTEMPT_COUNT: Record<string, number> = {};

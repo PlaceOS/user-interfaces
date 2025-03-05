@@ -1,11 +1,5 @@
-import {
-    Component,
-    Inject,
-    OnChanges,
-    OnInit,
-    SimpleChanges,
-} from '@angular/core';
-import { SPACE, ENTER, COMMA } from '@angular/cdk/keycodes';
+import { COMMA, ENTER, SPACE } from '@angular/cdk/keycodes';
+import { Component, Inject, OnInit } from '@angular/core';
 import { MatChipInputEvent } from '@angular/material/chips';
 import {
     EncryptionLevel,
@@ -17,6 +11,8 @@ import {
 } from '@placeos/ts-client';
 import { map } from 'rxjs/operators';
 
+import { FormControl, FormGroup } from '@angular/forms';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import {
     AsyncHandler,
     TIMEZONES_IANA,
@@ -27,10 +23,8 @@ import {
     notifyWarn,
     unique,
 } from '@placeos/common';
-import { Space, generateSystemsFormFields } from '@placeos/spaces';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { OrganisationService } from '@placeos/organisation';
-import { FormControl, FormGroup } from '@angular/forms';
+import { Space, generateSystemsFormFields } from '@placeos/spaces';
 
 @Component({
     selector: 'room-form-modal',

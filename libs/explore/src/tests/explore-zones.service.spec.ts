@@ -2,7 +2,6 @@ import { createServiceFactory, SpectatorService } from '@ngneat/spectator';
 import { SettingsService } from '@placeos/common';
 import {
     Building,
-    BuildingLevel,
     Organisation,
     OrganisationService,
 } from '@placeos/organisation';

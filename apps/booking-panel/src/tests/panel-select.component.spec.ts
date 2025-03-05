@@ -1,12 +1,12 @@
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
-import { MockComponent, MockDirective } from 'ng-mocks';
 import { subMinutes } from 'date-fns';
+import { MockComponent, MockDirective } from 'ng-mocks';
 
+import { BindingDirective, IconComponent } from '@placeos/components';
+import { setMockBookingStartDatetime } from '@placeos/events';
 import { BookingPanelSelectComponent } from '../app/panel-select.component';
 import { BookingPanelComponent } from '../app/panel/panel.component';
-import { setMockBookingStartDatetime } from '@placeos/events';
-import { BindingDirective, IconComponent } from '@placeos/components';
 
 describe('BookingPanelSelectComponent', () => {
     let spectator: SpectatorRouting<BookingPanelSelectComponent>;

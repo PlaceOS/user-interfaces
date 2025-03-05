@@ -3,8 +3,8 @@ import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { take } from 'rxjs/operators';
-import { ParkingSpaceFiltersComponent } from './parking-filters.component';
 import { BookingFormService } from '../booking-form.service';
+import { ParkingSpaceFiltersComponent } from './parking-filters.component';
 
 @Component({
     selector: `parking-space-filters-display`,

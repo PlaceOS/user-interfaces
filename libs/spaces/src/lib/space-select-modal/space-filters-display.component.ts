@@ -3,7 +3,6 @@ import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
-import { take } from 'rxjs/operators';
 import { SpaceFiltersComponent } from './space-filters.component';
 
 @Component({

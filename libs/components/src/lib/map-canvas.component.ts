@@ -5,10 +5,10 @@ import {
     OnInit,
     ViewChild,
 } from '@angular/core';
-import { Observable, combineLatest } from 'rxjs';
-import { MAP_FEATURE_DATA } from './interactive-map.component';
-import { take } from 'rxjs/operators';
 import { AsyncHandler, shiftColorTowards } from '@placeos/common';
+import { Observable, combineLatest } from 'rxjs';
+import { take } from 'rxjs/operators';
+import { MAP_FEATURE_DATA } from './interactive-map.component';
 
 export interface Polygon {
     /** Name of the region */

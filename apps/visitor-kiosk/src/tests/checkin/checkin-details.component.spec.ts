@@ -10,9 +10,9 @@ import { generateGuestForm } from '@placeos/users';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 
+import { SettingsService } from '@placeos/common';
 import { CheckinDetailsComponent } from '../../app/checkin/checkin-details.component';
 import { CheckinStateService } from '../../app/checkin/checkin-state.service';
-import { SettingsService } from '@placeos/common';
 
 describe('CheckinDetailsComponent', () => {
     let spectator: SpectatorRouting<CheckinDetailsComponent>;

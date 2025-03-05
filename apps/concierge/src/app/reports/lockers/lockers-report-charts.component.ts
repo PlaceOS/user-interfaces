@@ -6,15 +6,15 @@ import {
     SimpleChanges,
 } from '@angular/core';
 
-import { LineChart, PieChart } from 'chartist';
 import {
     AsyncHandler,
     flatten,
     SettingsService,
     unique,
 } from '@placeos/common';
-import { format, parse } from 'date-fns';
 import { OrganisationService } from '@placeos/organisation';
+import { LineChart, PieChart } from 'chartist';
+import { format, parse } from 'date-fns';
 import { combineLatest } from 'rxjs';
 import { map, take } from 'rxjs/operators';
 import { LockersReportService } from './lockers-report.service';

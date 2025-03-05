@@ -1,8 +1,8 @@
 import { Component, Input } from '@angular/core';
 import { downloadFile, i18n, jsonToCsv } from '@placeos/common';
+import { format } from 'date-fns';
 import { map, take } from 'rxjs/operators';
 import { ParkingReportService } from './parking-report.service';
-import { format } from 'date-fns';
 
 @Component({
     selector: 'parking-report-list',

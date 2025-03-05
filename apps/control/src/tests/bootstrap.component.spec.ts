@@ -1,16 +1,16 @@
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { Router } from '@angular/router';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { MockModule, MockProvider } from 'ng-mocks';
 
-import { BootstrapComponent } from '../app/bootstrap.component';
+import { SettingsService } from '@placeos/common';
 import { SpacesService } from '@placeos/spaces';
 import { of } from 'rxjs';
-import { SettingsService } from '@placeos/common';
+import { BootstrapComponent } from '../app/bootstrap.component';
 
 describe('BootstrapComponent', () => {
     let spectator: SpectatorRouting<BootstrapComponent>;

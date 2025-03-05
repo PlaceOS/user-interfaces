@@ -8,11 +8,11 @@ import {
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 
+import { addDays, addYears, endOfDay } from 'date-fns';
+import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { RecurrenceDetails } from 'libs/events/src/lib/event.interfaces';
 import { formatRecurrence } from 'libs/events/src/lib/helpers';
 import { RecurrenceModalComponent } from './recurrence-modal.component';
-import { addDays, addYears, endOfDay } from 'date-fns';
-import { SettingsService } from 'libs/common/src/lib/settings.service';
 
 @Component({
     selector: 'recurrence-field',

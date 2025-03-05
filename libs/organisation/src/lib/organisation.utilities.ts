@@ -1,4 +1,3 @@
-import { getModule } from '@placeos/ts-client';
 import { generateMockBuilding } from './building.utilities';
 
 let ORG_COUNT = 0;

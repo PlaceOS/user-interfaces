@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
-import { GroupEventsStateService } from './group-events-state.service';
 import { differenceInDays, endOfDay, startOfDay } from 'date-fns';
-import { map, take, tap } from 'rxjs/operators';
+import { map, take } from 'rxjs/operators';
+import { GroupEventsStateService } from './group-events-state.service';
 
 @Component({
     selector: 'group-events-filters-list',

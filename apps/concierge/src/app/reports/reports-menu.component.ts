@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import { SettingsService } from '@placeos/common';
-import { first } from 'rxjs/operators';
 
 const DEFAULT_FEATURES = ['desks', 'spaces', 'catering', 'contact-tracing'];
 

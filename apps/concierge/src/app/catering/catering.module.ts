@@ -1,16 +1,16 @@
-import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterModule, Route } from '@angular/router';
+import { Route, RouterModule } from '@angular/router';
 
-import { MatTabsModule } from '@angular/material/tabs';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatTabsModule } from '@angular/material/tabs';
 
 import { UIModule } from '../ui/ui.module';
 
-import { CateringComponent } from './catering.component';
-import { CateringTopbarComponent } from './catering-topbar.component';
 import { SharedCateringModule } from '@placeos/catering';
+import { CateringTopbarComponent } from './catering-topbar.component';
+import { CateringComponent } from './catering.component';
 import { NewCateringComponent } from './new-catering.component';
 
 const ROUTES: Route[] = [

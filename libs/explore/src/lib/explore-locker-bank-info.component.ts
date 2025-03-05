@@ -1,9 +1,9 @@
 import { Component, ElementRef, Inject, OnInit } from '@angular/core';
-import { MAP_FEATURE_DATA } from '@placeos/components';
 import { MatDialog } from '@angular/material/dialog';
+import { MAP_FEATURE_DATA } from '@placeos/components';
 
-import { ExploreLockerBankModalComponent } from './explore-locker-bank-modal.component';
 import { Locker, LockerBank } from 'libs/bookings/src/lib/locker.class';
+import { ExploreLockerBankModalComponent } from './explore-locker-bank-modal.component';
 
 export interface LockerBankInfoData {
     bank: LockerBank;

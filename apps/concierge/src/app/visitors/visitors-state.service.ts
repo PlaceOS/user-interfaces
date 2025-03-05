@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { addDays, format, getUnixTime, startOfDay } from 'date-fns';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import {
     catchError,
@@ -10,16 +11,7 @@ import {
     take,
     tap,
 } from 'rxjs/operators';
-import { startOfDay, getUnixTime, addDays, format } from 'date-fns';
 
-import {
-    AsyncHandler,
-    SettingsService,
-    downloadFile,
-    jsonToCsv,
-    notifyError,
-    notifySuccess,
-} from '@placeos/common';
 import { MatDialog } from '@angular/material/dialog';
 import {
     Booking,
@@ -30,10 +22,18 @@ import {
     updateBooking,
     updateBookingInductionStatus,
 } from '@placeos/bookings';
+import {
+    AsyncHandler,
+    SettingsService,
+    downloadFile,
+    jsonToCsv,
+    notifyError,
+    notifySuccess,
+} from '@placeos/common';
+import { openConfirmModal } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
 import { VisitorInductionModalComponent } from './visitor-induction-modal.component';
 import { VisitorNotesModalComponent } from './visitor-notes-modal.component';
-import { openConfirmModal } from '@placeos/components';
 
 export interface VisitorFilters {
     date?: number;

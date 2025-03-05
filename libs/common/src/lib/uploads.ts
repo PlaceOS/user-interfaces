@@ -1,7 +1,7 @@
 import {
-    uploadFiles,
     Upload,
     humanReadableByteCount,
+    uploadFiles,
 } from '@placeos/cloud-uploads';
 import { Observable } from 'rxjs';
 import { takeWhile } from 'rxjs/operators';

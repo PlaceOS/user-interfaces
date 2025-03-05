@@ -1,7 +1,6 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { SettingsService, notify, notifyError } from '@placeos/common';
-import { Building } from '@placeos/organisation';
+import { SettingsService, notifyError } from '@placeos/common';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
 
 @Component({

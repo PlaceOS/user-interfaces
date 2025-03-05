@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
-import { AssetManagerStateService } from './asset-manager-state.service';
+import { Router } from '@angular/router';
 import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { Router } from '@angular/router';
+import { AssetManagerStateService } from './asset-manager-state.service';
 
 @Component({
     selector: 'app-asset-purchase-order-list',

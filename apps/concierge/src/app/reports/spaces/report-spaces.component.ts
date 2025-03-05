@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
 import { debounceTime, map } from 'rxjs/operators';
 
-import { ReportsStateService } from '../reports-state.service';
-import { AsyncHandler, SettingsService } from '@placeos/common';
 import { ActivatedRoute } from '@angular/router';
+import { AsyncHandler, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
+import { ReportsStateService } from '../reports-state.service';
 
 @Component({
     selector: '[report-spaces]',

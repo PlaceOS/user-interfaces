@@ -1,5 +1,5 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import {
     currentUser,
     i18n,
@@ -8,9 +8,9 @@ import {
     SettingsService,
 } from '@placeos/common';
 
-import { Space } from 'libs/spaces/src/lib/space.class';
-import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
 import { Router } from '@angular/router';
+import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
+import { Space } from 'libs/spaces/src/lib/space.class';
 
 export interface ExploreBookingModalData {
     space: Space;

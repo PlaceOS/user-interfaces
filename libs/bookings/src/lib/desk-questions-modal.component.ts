@@ -1,6 +1,6 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { DialogEvent, notifyError } from '@placeos/common';
+import { Component, EventEmitter, Output } from '@angular/core';
+import { FormControl, FormGroup } from '@angular/forms';
+import { DialogEvent } from '@placeos/common';
 
 @Component({
     selector: 'desk-question-modal',

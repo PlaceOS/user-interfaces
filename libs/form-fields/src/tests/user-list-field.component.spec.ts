@@ -2,19 +2,19 @@ import { FormsModule } from '@angular/forms';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDialog } from '@angular/material/dialog';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { MockComponent, MockPipe, MockProvider } from 'ng-mocks';
+import * as common_lib from '@placeos/common';
+import { SettingsService } from '@placeos/common';
 import { IconComponent, UserAvatarComponent } from '@placeos/components';
 import { generateMockUser, User } from '@placeos/users';
-import { SettingsService } from '@placeos/common';
+import { MockComponent, MockPipe, MockProvider } from 'ng-mocks';
 
 jest.mock('@placeos/common');
-import * as common_lib from '@placeos/common';
 
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { PlaceUserPipe } from '../lib/place-user.pipe';
 import { UserListFieldComponent } from '../lib/user-list-field.component';
 import { UserSearchFieldComponent } from '../lib/user-search-field.component';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { PlaceUserPipe } from '../lib/place-user.pipe';
 
 describe('UserListFieldComponent', () => {
     let spectator: Spectator<UserListFieldComponent>;

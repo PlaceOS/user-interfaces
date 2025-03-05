@@ -1,23 +1,23 @@
 import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 
-import { ChangelogModalComponent } from './changelog-modal.component';
 import { logout } from '@placeos/ts-client';
 import { AccessibilityTooltipComponent } from './accessibility-tooltip.component';
 import { BuildingSelectComponent } from './building-select.component';
+import { ChangelogModalComponent } from './changelog-modal.component';
 import { HelpTooltipComponent } from './help-tooltip.component';
 import { LanguageSelectComponent } from './language-tooltip.component';
 import { RegionSelectComponent } from './region-select.component';
 import { WorkLocationTooltipComponent } from './work-location-tooltip.component';
 
-import { currentUser } from 'libs/common/src/lib/user-state';
-import { LocaleService } from 'libs/common/src/lib/locale.service';
-import { VERSION } from 'libs/common/src/lib/version';
 import { hasNewVersion } from 'libs/common/src/lib/application';
+import { LocaleService } from 'libs/common/src/lib/locale.service';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
-import { WFHSettingsModalComponent } from 'libs/users/src/lib/wfh-settings-modal.component';
+import { currentUser } from 'libs/common/src/lib/user-state';
+import { VERSION } from 'libs/common/src/lib/version';
 import { SupportTicketModalComponent } from 'libs/form-fields/src/lib/support-ticket-modal.component';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
+import { WFHSettingsModalComponent } from 'libs/users/src/lib/wfh-settings-modal.component';
 
 export interface AppLocale {
     id: string;

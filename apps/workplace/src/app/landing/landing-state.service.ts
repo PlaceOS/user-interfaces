@@ -18,10 +18,10 @@ import {
     map,
     shareReplay,
     switchMap,
-    take,
     tap,
 } from 'rxjs/operators';
 
+import { CalendarService } from '@placeos/calendar';
 import {
     AsyncHandler,
     BookingRuleset,
@@ -31,12 +31,11 @@ import {
     SettingsService,
     unique,
 } from '@placeos/common';
+import { BuildingLevel, OrganisationService } from '@placeos/organisation';
 import { requestSpacesForZone } from '@placeos/spaces';
 import { searchStaff, StaffUser, User } from '@placeos/users';
-import { BuildingLevel, OrganisationService } from '@placeos/organisation';
-import { CalendarService } from '@placeos/calendar';
-import { ScheduleStateService } from '../new-schedule/schedule-state.service';
 import { isSameDay } from 'date-fns';
+import { ScheduleStateService } from '../new-schedule/schedule-state.service';
 
 export interface LandingOptions {
     search?: string;

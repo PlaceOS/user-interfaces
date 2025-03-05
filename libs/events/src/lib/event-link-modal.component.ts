@@ -1,13 +1,12 @@
 import { Component, Inject } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { SettingsService } from 'libs/common/src/lib/settings.service';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { notifyError } from '@placeos/common';
 import {
     generateCalendarFileLink,
     generateGoogleCalendarLink,
     generateMicrosoftCalendarLink,
 } from 'libs/common/src/lib/calendar-links';
 import { CalendarEvent } from './event.class';
-import { notifyError } from '@placeos/common';
 
 @Component({
     selector: 'event-link-modal',

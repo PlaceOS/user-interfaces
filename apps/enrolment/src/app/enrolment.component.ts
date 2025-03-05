@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { AsyncHandler, SettingsService } from '@placeos/common';
-import { EnrolmentStateService } from './enrolment-state.service';
-import { debounceTime, map } from 'rxjs/operators';
 import { OrganisationService } from '@placeos/organisation';
+import { debounceTime, map } from 'rxjs/operators';
+import { EnrolmentStateService } from './enrolment-state.service';
 
 @Component({
     selector: 'app-enrolment',

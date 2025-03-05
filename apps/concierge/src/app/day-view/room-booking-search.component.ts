@@ -6,11 +6,11 @@ import {
     Output,
     ViewChild,
 } from '@angular/core';
-import { EventsStateService } from './events-state.service';
-import { BehaviorSubject, combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
 import { AsyncHandler, i18n, SettingsService } from '@placeos/common';
 import { CalendarEvent } from '@placeos/events';
+import { BehaviorSubject, combineLatest } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { EventsStateService } from './events-state.service';
 
 @Component({
     selector: 'room-booking-search',

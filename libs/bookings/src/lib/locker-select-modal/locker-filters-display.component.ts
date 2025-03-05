@@ -2,9 +2,9 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 
-import { LockerFiltersComponent } from './locker-filters.component';
-import { BookingFormService } from '../booking-form.service';
 import { endOfDay } from 'date-fns';
+import { BookingFormService } from '../booking-form.service';
+import { LockerFiltersComponent } from './locker-filters.component';
 
 @Component({
     selector: 'locker-filters-display',

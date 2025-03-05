@@ -3,7 +3,7 @@ import { FormGroup } from '@angular/forms';
 import { BookingFormService } from '@placeos/bookings';
 import { SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
-import { addDays, endOfDay, format } from 'date-fns';
+import { addDays, endOfDay } from 'date-fns';
 
 @Component({
     selector: 'detailed-book-desks-form',

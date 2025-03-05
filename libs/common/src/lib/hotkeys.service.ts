@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, Subscription } from 'rxjs';
 
-import { HashMap } from './types';
 import { unique } from './general';
+import { HashMap } from './types';
 
 /** List of keys that cannot be in a combination by themselves or with each other */
 const INVALID_STANDALONE_KEYS: string[] = [

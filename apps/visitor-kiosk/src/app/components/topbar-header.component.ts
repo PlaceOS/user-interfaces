@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
-import { format, startOfMinute } from 'date-fns';
+import { startOfMinute } from 'date-fns';
 import { debounceTime, map } from 'rxjs/operators';
 
 @Component({

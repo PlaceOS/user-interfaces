@@ -1,9 +1,9 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { MockComponent, ngMocks } from 'ng-mocks';
-import { BehaviorSubject } from 'rxjs';
-import { CalendarEvent, EventCardComponent } from '@placeos/events';
-import { BookingCardComponent } from '@placeos/bookings';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { BookingCardComponent } from '@placeos/bookings';
+import { CalendarEvent, EventCardComponent } from '@placeos/events';
+import { MockComponent } from 'ng-mocks';
+import { BehaviorSubject } from 'rxjs';
 
 import { ScheduleStateService } from 'apps/workplace/src/app/new-schedule/schedule-state.service';
 import { UpcomingBookingsComponent } from '../app/rooms/upcoming-bookings/upcoming-bookings.component';

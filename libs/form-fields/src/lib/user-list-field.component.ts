@@ -1,13 +1,15 @@
+import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import {
     Component,
-    forwardRef,
-    Output,
-    EventEmitter,
-    Input,
-    ViewChild,
     ElementRef,
+    EventEmitter,
+    forwardRef,
+    Input,
+    Output,
+    ViewChild,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import {
     AsyncHandler,
     csvToJson,
@@ -17,6 +19,7 @@ import {
     SettingsService,
     unique,
 } from '@placeos/common';
+import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import {
     catchError,
     debounceTime,
@@ -25,16 +28,13 @@ import {
     switchMap,
     tap,
 } from 'rxjs/operators';
-import { MatDialog } from '@angular/material/dialog';
-import { COMMA, ENTER } from '@angular/cdk/keycodes';
-import { BehaviorSubject, combineLatest, of, zip } from 'rxjs';
 
-import { NewUserModalComponent } from 'libs/users/src/lib/new-user-modal.component';
+import { authority, queryUsers } from '@placeos/ts-client';
 import { searchGuests } from 'libs/users/src/lib/guests.fn';
+import { NewUserModalComponent } from 'libs/users/src/lib/new-user-modal.component';
 import { searchStaff } from 'libs/users/src/lib/staff.fn';
 import { User } from 'libs/users/src/lib/user.class';
 import { USER_DOMAIN } from 'libs/users/src/lib/user.utilities';
-import { authority, queryUsers } from '@placeos/ts-client';
 
 function validateEmail(email) {
     const re =

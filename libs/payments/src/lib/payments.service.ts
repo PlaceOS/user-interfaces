@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { getModule } from '@placeos/ts-client';
 import { BehaviorSubject, of } from 'rxjs';
 import { shareReplay, switchMap, tap } from 'rxjs/operators';
 

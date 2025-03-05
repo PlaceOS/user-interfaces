@@ -3,7 +3,7 @@ import { Component, Input, OnInit, Optional } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { addMinutes, endOfDay, startOfDay } from 'date-fns';
 import { BehaviorSubject, combineLatest } from 'rxjs';
-import { debounce, debounceTime, map, tap } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 
 import { validateAssetRequestsForResource } from '@placeos/assets';
 import { CateringItem, CateringOrder } from '@placeos/catering';

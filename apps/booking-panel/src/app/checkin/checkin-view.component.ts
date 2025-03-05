@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { getNextFreeTimeSlot } from '@placeos/events';
 import { AsyncHandler } from '@placeos/common';
+import { getNextFreeTimeSlot } from '@placeos/events';
 import { startOfMinute } from 'date-fns';
 import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';

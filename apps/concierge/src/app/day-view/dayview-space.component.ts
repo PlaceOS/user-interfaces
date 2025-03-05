@@ -1,10 +1,10 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { map } from 'rxjs/operators';
 
+import { AsyncHandler } from '@placeos/common';
 import { CalendarEvent } from '@placeos/events';
 import { Space } from '@placeos/spaces';
 import { EventsStateService } from './events-state.service';
-import { AsyncHandler } from '@placeos/common';
 
 @Component({
     selector: 'dayview-space',

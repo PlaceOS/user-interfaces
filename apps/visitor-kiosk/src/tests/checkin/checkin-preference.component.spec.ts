@@ -7,9 +7,9 @@ import { IconComponent } from '@placeos/components';
 import { MockComponent, MockModule } from 'ng-mocks';
 import { of } from 'rxjs';
 
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { CheckinPreferencesComponent } from '../../app/checkin/checkin-preferences.component';
 import { CheckinStateService } from '../../app/checkin/checkin-state.service';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 describe('CheckinPreferencesComponent', () => {
     let spectator: SpectatorRouting<CheckinPreferencesComponent>;

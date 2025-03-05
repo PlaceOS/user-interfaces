@@ -5,12 +5,7 @@ import {
 } from '@angular/material/bottom-sheet';
 import { Router } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
-import {
-    getInvalidFields,
-    i18n,
-    notifyError,
-    SettingsService,
-} from '@placeos/common';
+import { getInvalidFields, i18n, notifyError } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { isBefore, startOfMinute } from 'date-fns';
 import { first } from 'rxjs/operators';

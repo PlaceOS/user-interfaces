@@ -3,9 +3,9 @@ import { MockComponent, MockModule } from 'ng-mocks';
 
 import { IconComponent } from '@placeos/components';
 
-import { ExploreZoomControlComponent } from '../lib/explore-zoom-control.component';
-import { ExploreStateService } from '../lib/explore-state.service';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { ExploreStateService } from '../lib/explore-state.service';
+import { ExploreZoomControlComponent } from '../lib/explore-zoom-control.component';
 
 describe('ExploreZoomControlComponent', () => {
     let spectator: Spectator<ExploreZoomControlComponent>;

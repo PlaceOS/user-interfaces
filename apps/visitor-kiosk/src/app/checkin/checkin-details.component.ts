@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { SettingsService } from '@placeos/common';
 import { first } from 'rxjs/operators';
 import { CheckinStateService } from './checkin-state.service';
-import { SettingsService } from '@placeos/common';
 
 @Component({
     selector: '[checkin-details]',

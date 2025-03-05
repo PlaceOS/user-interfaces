@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
 
-import { CateringStateService } from './catering-state.service';
-import { CateringItem } from './catering-item.class';
 import { unique } from '@placeos/common';
-import { CateringOrdersService } from './catering-orders.service';
 import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { CateringItem } from './catering-item.class';
+import { CateringOrdersService } from './catering-orders.service';
+import { CateringStateService } from './catering-state.service';
 
 @Component({
     selector: 'catering-menu',

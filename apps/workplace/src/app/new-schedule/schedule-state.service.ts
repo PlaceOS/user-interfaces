@@ -3,12 +3,12 @@ import { MatDialog } from '@angular/material/dialog';
 import {
     Booking,
     BookingType,
-    Locker,
-    LockerBank,
-    ParkingService,
     checkinBooking,
     loadLockerBanks,
     loadLockers,
+    Locker,
+    LockerBank,
+    ParkingService,
     queryBookings,
 } from '@placeos/bookings';
 import {

@@ -1,8 +1,7 @@
 import { Component, Input, SimpleChanges } from '@angular/core';
-import { VoiceAssistantService } from './voice-assistant.service';
 import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { ControlStateService } from '../control-state.service';
+import { VoiceAssistantService } from './voice-assistant.service';
 
 @Component({
     selector: 'voice-assistant',

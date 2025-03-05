@@ -10,7 +10,7 @@ import {
 import { OrganisationService } from '@placeos/organisation';
 import { getModule } from '@placeos/ts-client';
 import { StaffUser } from '@placeos/users';
-import { getUnixTime, format, startOfDay, endOfDay } from 'date-fns';
+import { endOfDay, format, getUnixTime, startOfDay } from 'date-fns';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import {
     distinctUntilChanged,

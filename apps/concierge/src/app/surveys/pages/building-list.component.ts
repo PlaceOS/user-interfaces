@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
 import { flatten, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
-import { map, shareReplay, startWith, switchMap } from 'rxjs/operators';
-import { combineLatest, forkJoin } from 'rxjs';
 import { queryAnswers, querySurveys } from '@placeos/ts-client';
+import { combineLatest, forkJoin } from 'rxjs';
+import { map, shareReplay, startWith, switchMap } from 'rxjs/operators';
 
 @Component({
     selector: 'building-list',

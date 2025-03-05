@@ -18,6 +18,7 @@ import {
     roundToNearestMinutes,
     startOfDay,
 } from 'date-fns';
+import { AssetRequest } from 'libs/assets/src/lib/asset-request.class';
 import { CateringOrder } from 'libs/catering/src/lib/catering-order.class';
 import { Space } from 'libs/spaces/src/lib/space.class';
 import { GuestUser, User } from 'libs/users/src/lib/user.class';
@@ -27,7 +28,6 @@ import {
     RecurrenceDetails,
 } from './event.interfaces';
 import { eventStatus, parseRecurrence } from './helpers';
-import { AssetRequest } from 'libs/assets/src/lib/asset-request.class';
 
 let _default_user: Identity = { id: 'default', name: 'Default User' };
 

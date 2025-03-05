@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { Routes, RouterModule } from '@angular/router';
+import { RouterModule, Routes } from '@angular/router';
 
 import { BootstrapComponent } from './bootstrap.component';
 import { ControlMainViewComponent } from './main-view.component';

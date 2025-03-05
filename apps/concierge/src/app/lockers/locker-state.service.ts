@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { addHours, endOfDay, getUnixTime, set, startOfDay } from 'date-fns';
 import { BehaviorSubject, combineLatest, Observable, of, Subject } from 'rxjs';
 import {
     debounceTime,
@@ -12,7 +13,6 @@ import {
     take,
     tap,
 } from 'rxjs/operators';
-import { addHours, endOfDay, getUnixTime, set, startOfDay } from 'date-fns';
 
 import {
     approveBooking,
@@ -41,16 +41,16 @@ import {
 } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 
-import { QueryResponse } from '@placeos/ts-client/dist/esm/resources/functions';
-import { updateMetadata } from '@placeos/ts-client';
-import { LockerModalComponent } from './locker-modal.component';
-import { User } from '@sentry/angular';
-import { LockerBookingModalComponent } from './locker-booking-modal.component';
-import { LockerBankModalComponent } from './locker-bank-modal.component';
-import { ViewLockerBankModalComponent } from './view-locker-bank-modal.component';
-import { StaffUser } from '@placeos/users';
-import { SelectUserModalComponent } from 'libs/users/src/lib/select-user-modal.component';
 import { openConfirmModal } from '@placeos/components';
+import { updateMetadata } from '@placeos/ts-client';
+import { QueryResponse } from '@placeos/ts-client/dist/esm/resources/functions';
+import { StaffUser } from '@placeos/users';
+import { User } from '@sentry/angular';
+import { SelectUserModalComponent } from 'libs/users/src/lib/select-user-modal.component';
+import { LockerBankModalComponent } from './locker-bank-modal.component';
+import { LockerBookingModalComponent } from './locker-booking-modal.component';
+import { LockerModalComponent } from './locker-modal.component';
+import { ViewLockerBankModalComponent } from './view-locker-bank-modal.component';
 
 export interface LockerFilters {
     date?: number;

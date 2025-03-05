@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { first, take } from 'rxjs/operators';
 
+import { MatDialog } from '@angular/material/dialog';
+import { showBooking } from '@placeos/bookings';
 import {
     AsyncHandler,
     csvToJson,
@@ -10,14 +12,12 @@ import {
     loadTextFileFromInputEvent,
     notifyError,
     notifyInfo,
+    randomInt,
 } from '@placeos/common';
 import { Desk, OrganisationService } from '@placeos/organisation';
-import { DesksStateService } from './desks-state.service';
-import { showBooking } from '@placeos/bookings';
-import { randomInt } from '@placeos/common';
-import { MatDialog } from '@angular/material/dialog';
-import { DeskBookModalComponent } from './desk-book-modal.component';
 import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';
+import { DeskBookModalComponent } from './desk-book-modal.component';
+import { DesksStateService } from './desks-state.service';
 
 @Component({
     selector: 'desks-topbar',

@@ -1,16 +1,16 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { MatRadioModule } from '@angular/material/radio';
-import { MatDialog } from '@angular/material/dialog';
 import { FormsModule } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
+import { MatRadioModule } from '@angular/material/radio';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 
-import { SpaceListFieldComponent } from '../lib/space-list-field.component';
-import { Space } from 'libs/spaces/src/lib/space.class';
-import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { fakeAsync } from '@angular/core/testing';
 import { OrganisationService } from '@placeos/organisation';
+import { SettingsService } from 'libs/common/src/lib/settings.service';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { Space } from 'libs/spaces/src/lib/space.class';
+import { SpaceListFieldComponent } from '../lib/space-list-field.component';
 
 describe('SpaceListFieldComponent', () => {
     let spectator: Spectator<SpaceListFieldComponent>;

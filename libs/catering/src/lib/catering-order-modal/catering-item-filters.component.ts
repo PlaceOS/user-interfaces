@@ -1,6 +1,4 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { take } from 'rxjs/operators';
-import { CateringOrderStateService } from './catering-order-state.service';
 import { AsyncHandler, i18n, SettingsService } from '@placeos/common';
 import {
     addDays,
@@ -9,6 +7,8 @@ import {
     endOfDay,
     startOfDay,
 } from 'date-fns';
+import { take } from 'rxjs/operators';
+import { CateringOrderStateService } from './catering-order-state.service';
 
 const ICONS = {
     coffee: `<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">

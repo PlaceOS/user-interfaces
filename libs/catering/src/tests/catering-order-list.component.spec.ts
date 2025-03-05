@@ -1,12 +1,12 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 
+import { SettingsService } from '@placeos/common';
+import { SimpleTableComponent } from 'libs/components/src/lib/simple-table.component';
 import { CateringOrderListComponent } from '../lib/catering-order-list.component';
 import { CateringOrdersService } from '../lib/catering-orders.service';
-import { SimpleTableComponent } from 'libs/components/src/lib/simple-table.component';
-import { SettingsService } from '@placeos/common';
 
 describe('CateringOrderListComponent', () => {
     let spectator: Spectator<CateringOrderListComponent>;

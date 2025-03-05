@@ -1,9 +1,4 @@
-import {
-    FormControl,
-    FormGroup,
-    FormsModule,
-    ReactiveFormsModule,
-} from '@angular/forms';
+import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormField, MatFormFieldModule } from '@angular/material/form-field';
@@ -18,13 +13,13 @@ import {
     UserListFieldComponent,
     UserSearchFieldComponent,
 } from '@placeos/form-fields';
-import { Building, Desk, OrganisationService } from '@placeos/organisation';
+import { Building, OrganisationService } from '@placeos/organisation';
 import { NewDeskFormDetailsComponent } from 'apps/workplace/src/app/book/new-desk-flow/new-desk-form-details.component';
-import { DeskListFieldComponent } from 'libs/bookings/src/lib/desk-list-field.component';
 import { AssetListFieldComponent } from 'libs/assets/src/lib/asset-list-field.component';
+import { DeskListFieldComponent } from 'libs/bookings/src/lib/desk-list-field.component';
+import { RecurrenceFieldComponent } from 'libs/form-fields/src/lib/recurrence-field.component';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 import { BehaviorSubject, of } from 'rxjs';
-import { RecurrenceFieldComponent } from 'libs/form-fields/src/lib/recurrence-field.component';
 
 describe('NewDeskFormDetailsComponent', () => {
     let spectator: Spectator<NewDeskFormDetailsComponent>;

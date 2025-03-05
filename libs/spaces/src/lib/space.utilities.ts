@@ -1,3 +1,9 @@
+import {
+    AbstractControl,
+    FormControl,
+    FormGroup,
+    Validators,
+} from '@angular/forms';
 import { HashMap, predictableRandomInt } from '@placeos/common';
 import { PlaceSystem, PlaceZone, querySystems } from '@placeos/ts-client';
 import { Observable, of } from 'rxjs';
@@ -5,12 +11,6 @@ import { map, shareReplay, tap } from 'rxjs/operators';
 import { USER_DOMAIN } from '../../../users/src/lib/user.utilities';
 import { Space } from './space.class';
 import { updateSpaceList } from './space.pipe';
-import {
-    AbstractControl,
-    FormControl,
-    FormGroup,
-    Validators,
-} from '@angular/forms';
 
 const SPACE_LIST_REQUESTS: Record<string, Observable<Space[]>> = {};
 

@@ -22,17 +22,17 @@ import {
     SettingsService,
     UserIdleTimeService,
 } from '@placeos/common';
+import { openConfirmModal } from '@placeos/components';
 import { EventFormService } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
 import { Space } from '@placeos/spaces';
 import { FindAvailabilityModalComponent } from '@placeos/users';
+import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
 import { CateringOrderStateService } from 'libs/catering/src/lib/catering-order-modal/catering-order-state.service';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import { debounceTime, first, map, switchMap, take, tap } from 'rxjs/operators';
 import { MeetingFlowConfirmModalComponent } from './meeting-flow-confirm-modal.component';
 import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
-import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
-import { openConfirmModal } from '@placeos/components';
 
 @Component({
     selector: 'meeting-flow-form',

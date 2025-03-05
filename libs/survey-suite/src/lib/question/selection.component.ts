@@ -1,10 +1,5 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    Input,
-    OnInit,
-} from '@angular/core';
-import { Question, QuestionType } from '../types';
+import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { QuestionType } from '../types';
 import { BaseQuestionComponent } from './base-question.component';
 
 @Component({

@@ -1,9 +1,9 @@
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
-import { of } from 'rxjs';
 import { MockComponent } from 'ng-mocks';
+import { of } from 'rxjs';
 
-import { SpaceTimetableComponent } from '../app/space-timetable.component';
 import { SpaceEventDetailsComponent } from '../app/space-event-details.component';
+import { SpaceTimetableComponent } from '../app/space-timetable.component';
 import { TimetableStateService } from '../app/timetable-state.service';
 
 describe('SpaceTimetableComponent', () => {

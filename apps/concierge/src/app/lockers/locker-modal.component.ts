@@ -5,7 +5,7 @@ import {
     FormGroup,
     Validators,
 } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { Locker, LockerBank } from '@placeos/bookings';
 import { AsyncHandler, DialogEvent } from '@placeos/common';
 import { showStaff, User } from '@placeos/users';

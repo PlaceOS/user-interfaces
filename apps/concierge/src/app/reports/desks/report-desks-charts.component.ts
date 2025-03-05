@@ -7,10 +7,10 @@ import {
 } from '@angular/core';
 import { ReportsStateService } from '../reports-state.service';
 
-import { LineChart, PieChart } from 'chartist';
 import { AsyncHandler, SettingsService } from '@placeos/common';
-import { format } from 'date-fns';
 import { OrganisationService } from '@placeos/organisation';
+import { LineChart, PieChart } from 'chartist';
+import { format } from 'date-fns';
 import { combineLatest } from 'rxjs';
 import { take } from 'rxjs/operators';
 

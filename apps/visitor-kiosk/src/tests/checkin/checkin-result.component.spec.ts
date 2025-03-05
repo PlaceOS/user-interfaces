@@ -1,13 +1,13 @@
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { of } from 'rxjs';
 
-import { CheckinResultsComponent } from '../../app/checkin/checkin-result.component';
-import { CheckinStateService } from '../../app/checkin/checkin-state.service';
-import { MockComponent, MockDirective, MockPipe, MockProvider } from 'ng-mocks';
 import { SettingsService } from '@placeos/common';
 import { SanitizePipe, UserAvatarComponent } from '@placeos/components';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { LevelPipe } from 'libs/components/src/lib/level.pipe';
+import { MockComponent, MockDirective, MockPipe, MockProvider } from 'ng-mocks';
+import { CheckinResultsComponent } from '../../app/checkin/checkin-result.component';
+import { CheckinStateService } from '../../app/checkin/checkin-state.service';
 
 describe('CheckinComponent', () => {
     let spectator: SpectatorRouting<CheckinResultsComponent>;

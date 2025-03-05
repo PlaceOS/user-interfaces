@@ -1,9 +1,9 @@
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 
-import { PanelStateService } from '../../app/panel-state.service';
-import { BehaviorSubject } from 'rxjs';
-import { PanelBookingListComponent } from '../../app/panel/panel-booking-list.component';
 import { addMinutes, subMinutes } from 'date-fns';
+import { BehaviorSubject } from 'rxjs';
+import { PanelStateService } from '../../app/panel-state.service';
+import { PanelBookingListComponent } from '../../app/panel/panel-booking-list.component';
 
 describe('PanelBookingListComponent', () => {
     let spectator: Spectator<PanelBookingListComponent>;

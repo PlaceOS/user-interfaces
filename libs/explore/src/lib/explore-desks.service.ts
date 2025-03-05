@@ -1,6 +1,6 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { getModule, showMetadata } from '@placeos/ts-client';
+import { showMetadata } from '@placeos/ts-client';
 import { addDays, endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
 import {
@@ -15,7 +15,6 @@ import {
     tap,
 } from 'rxjs/operators';
 
-import { BookingFormService } from 'libs/bookings/src/lib/booking-form.service';
 import {
     AsyncHandler,
     BookingRuleset,
@@ -26,16 +25,17 @@ import {
     rulesForResource,
     SettingsService,
 } from '@placeos/common';
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
+import { BookingFormService } from 'libs/bookings/src/lib/booking-form.service';
 import { Desk } from 'libs/organisation/src/lib/desk.class';
+import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { StaffUser } from 'libs/users/src/lib/user.class';
 
+import { queryBookings } from 'libs/bookings/src/lib/bookings.fn';
 import { SetDatetimeModalComponent } from 'libs/explore/src/lib/set-datetime-modal.component';
 import { ExploreDeskInfoComponent } from './explore-desk-info.component';
 import { ExploreDeviceInfoComponent } from './explore-device-info.component';
 import { DEFAULT_COLOURS } from './explore-spaces.service';
 import { ExploreStateService } from './explore-state.service';
-import { queryBookings } from 'libs/bookings/src/lib/bookings.fn';
 
 export interface DeskOptions {
     enable_booking?: boolean;

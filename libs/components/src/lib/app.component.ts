@@ -1,8 +1,8 @@
-import { Component, OnInit, Optional } from '@angular/core';
-import { SwUpdate } from '@angular/service-worker';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { Clipboard } from '@angular/cdk/clipboard';
-import { first } from 'rxjs/operators';
+import { Component, OnInit, Optional } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ActivatedRoute, Router } from '@angular/router';
+import { SwUpdate } from '@angular/service-worker';
 import {
     apiKey,
     clientId,
@@ -14,34 +14,32 @@ import {
     setAPI_Key,
     token,
 } from '@placeos/ts-client';
-import { ActivatedRoute, Router } from '@angular/router';
 import { addHours } from 'date-fns';
+import { first } from 'rxjs/operators';
 
 import {
     AsyncHandler,
     current_user,
     currentUser,
+    GoogleAnalyticsService,
+    hasNewVersion,
     HotkeysService,
+    isMobileSafari,
+    LocaleService,
+    log,
     notifySuccess,
+    requestScreenWakeLock,
     setAppName,
     setNotifyOutlet,
     SettingsService,
+    setTranslationService,
     setupCache,
     setupPlace,
-    log,
-    GoogleAnalyticsService,
-    isMobileSafari,
-    hasNewVersion,
-    requestScreenWakeLock,
-    setTranslationService,
-    LocaleService,
 } from '@placeos/common';
 import { MapsPeopleService } from 'libs/common/src/lib/mapspeople.service';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { setInternalUserDomain } from 'libs/users/src/lib/user.utilities';
 
-import * as Sentry from '@sentry/angular';
-import { MOCKS } from '@placeos/mocks';
 import {
     Amazon,
     Azure,
@@ -49,7 +47,9 @@ import {
     initialiseUploadService,
     OpenStack,
 } from '@placeos/cloud-uploads';
+import { MOCKS } from '@placeos/mocks';
 import { setCustomHeaders } from '@placeos/svg-viewer';
+import * as Sentry from '@sentry/angular';
 
 const START_QUERY = location.search;
 

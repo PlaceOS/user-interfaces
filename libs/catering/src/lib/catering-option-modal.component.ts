@@ -1,9 +1,9 @@
-import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
-import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { Component, EventEmitter, Inject, Output } from '@angular/core';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
-import { DialogEvent } from 'libs/common/src/lib/types';
 import { randomInt } from 'libs/common/src/lib/general';
+import { DialogEvent } from 'libs/common/src/lib/types';
 
 import { CateringItem } from './catering-item.class';
 import { CateringOption } from './catering.interfaces';

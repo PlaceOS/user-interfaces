@@ -9,7 +9,7 @@ import {
     SimpleChanges,
     ViewChild,
 } from '@angular/core';
-import { AsyncHandler, log, shuffleArrayWithFirstItem } from '@placeos/common';
+import { AsyncHandler, shuffleArrayWithFirstItem } from '@placeos/common';
 import { MediaAnimation } from '@placeos/ts-client';
 
 export interface MediaPlayerItem {

@@ -1,13 +1,5 @@
+import { DatePipe } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import {
-    addDays,
-    isSameDay,
-    isSameWeek,
-    startOfMinute,
-    startOfWeek,
-    setHours,
-} from 'date-fns';
-import { EventsStateService } from './events-state.service';
 import { MatDialog } from '@angular/material/dialog';
 import {
     AsyncHandler,
@@ -16,15 +8,23 @@ import {
     i18n,
     SettingsService,
 } from '@placeos/common';
-import { map, shareReplay, startWith } from 'rxjs/operators';
-import { combineLatest } from 'rxjs';
 import {
     CalendarEvent,
     EventDetailsModalComponent,
     SetupBreakdownModalComponent,
 } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
-import { DatePipe } from '@angular/common';
+import {
+    addDays,
+    isSameDay,
+    isSameWeek,
+    setHours,
+    startOfMinute,
+    startOfWeek,
+} from 'date-fns';
+import { combineLatest } from 'rxjs';
+import { map, shareReplay, startWith } from 'rxjs/operators';
+import { EventsStateService } from './events-state.service';
 
 @Component({
     selector: 'room-week-bookings-timeline',

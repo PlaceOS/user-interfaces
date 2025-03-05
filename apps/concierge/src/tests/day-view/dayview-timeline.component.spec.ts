@@ -12,8 +12,8 @@ import { ViewEventDetailsComponent } from '../../app/ui/view-event-details.compo
 
 jest.mock('@placeos/ts-client');
 
-import * as client from '@placeos/ts-client';
 import { fakeAsync } from '@angular/core/testing';
+import * as client from '@placeos/ts-client';
 
 describe('DayviewTimelineComponent', () => {
     let spectator: Spectator<DayviewTimelineComponent>;

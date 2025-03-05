@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { i18n, notifySuccess } from '@placeos/common';
+import { openConfirmModal } from '@placeos/components';
 import { CalendarEvent } from '@placeos/events';
 import { format } from 'date-fns';
 import { ControlStateService } from '../control-state.service';
-import { openConfirmModal } from '@placeos/components';
 
 @Component({
     selector: 'select-meeting-modal',

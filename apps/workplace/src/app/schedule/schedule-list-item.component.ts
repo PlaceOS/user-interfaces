@@ -1,6 +1,5 @@
 import { Component, Input } from '@angular/core';
 import { Booking } from '@placeos/bookings';
-import { CalendarEvent } from '@placeos/events';
 import { isAfter } from 'date-fns';
 import { BookingLike } from './schedule-state.service';
 

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { ApplicationLink, SettingsService } from '@placeos/common';
+import { SettingsService } from '@placeos/common';
 
 @Component({
     selector: 'footer-menu',

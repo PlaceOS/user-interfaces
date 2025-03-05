@@ -5,10 +5,10 @@ import { first, take } from 'rxjs/operators';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 
-import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';
 import { MatDialog } from '@angular/material/dialog';
-import { LockerStateService } from './locker-state.service';
 import { timer } from 'rxjs';
+import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';
+import { LockerStateService } from './locker-state.service';
 
 @Component({
     selector: 'lockers-topbar',

@@ -1,11 +1,10 @@
 import { Component, Input } from '@angular/core';
-import { format, addMinutes } from 'date-fns';
+import { addMinutes, format } from 'date-fns';
 
-import { CalendarEvent } from '@placeos/events';
-import { SpacesService } from '@placeos/spaces';
-import { EventsStateService } from '../day-view/events-state.service';
-import { OrganisationService } from '@placeos/organisation';
 import { SettingsService } from '@placeos/common';
+import { CalendarEvent } from '@placeos/events';
+import { OrganisationService } from '@placeos/organisation';
+import { EventsStateService } from '../day-view/events-state.service';
 
 @Component({
     selector: 'view-event-details',

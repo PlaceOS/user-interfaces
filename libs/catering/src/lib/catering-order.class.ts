@@ -3,9 +3,9 @@ import { addDays, addMinutes, set, startOfDay, startOfMinute } from 'date-fns';
 import { CateringItem } from './catering-item.class';
 import { CateringOrderStatus } from './catering.interfaces';
 
+import { cleanObject } from '@placeos/ts-client';
 import { randomInt } from 'libs/common/src/lib/general';
 import { CalendarEvent } from 'libs/events/src/lib/event.class';
-import { cleanObject } from '@placeos/ts-client';
 
 function deliverAtTime(order: CateringOrder) {
     let date = order.event?.date || (order as any)._time;

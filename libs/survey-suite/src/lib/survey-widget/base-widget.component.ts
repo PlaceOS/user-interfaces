@@ -1,8 +1,8 @@
 import { Component, Input } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
-import { Question, UISurveyAnswer } from '../types';
 import { AsyncHandler } from '@placeos/common';
+import { BehaviorSubject } from 'rxjs';
 import { makeHTMLId } from '../helper';
+import { Question, UISurveyAnswer } from '../types';
 
 @Component({
     selector: 'base-widget',

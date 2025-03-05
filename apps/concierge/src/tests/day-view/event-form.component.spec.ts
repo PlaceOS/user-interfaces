@@ -13,12 +13,12 @@ import {
 } from '@placeos/form-fields';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
-import { EventFormComponent } from '../../app/day-view/event-form.component';
+import { SettingsService } from '@placeos/common';
+import { generateEventForm } from '@placeos/events';
 import { AssetListFieldComponent } from 'libs/assets/src/lib/asset-list-field.component';
 import { CateringListFieldComponent } from 'libs/catering/src/lib/catering-list-field.component';
-import { SettingsService } from '@placeos/common';
 import { SpaceListFieldComponent } from 'libs/form-fields/src/lib/space-list-field.component';
-import { generateEventForm } from '@placeos/events';
+import { EventFormComponent } from '../../app/day-view/event-form.component';
 
 describe('EventFormComponent', () => {
     let spectator: Spectator<EventFormComponent>;

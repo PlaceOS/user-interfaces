@@ -1,12 +1,11 @@
-import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
 import { CdkTableModule } from '@angular/cdk/table';
+import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
 import { MockComponent } from 'ng-mocks';
 
-import { IconComponent } from '../lib/icon.component';
-import { CustomTableComponent } from '../lib/custom-table.component';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
-import { fakeAsync } from '@angular/core/testing';
+import { CustomTableComponent } from '../lib/custom-table.component';
+import { IconComponent } from '../lib/icon.component';
 
 describe('CustomTableComponent', () => {
     let spectator: Spectator<CustomTableComponent>;

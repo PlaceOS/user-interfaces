@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
+import { Booking } from '@placeos/bookings';
 import { AsyncHandler, SettingsService } from '@placeos/common';
-import { AssetManagerStateService } from './asset-manager-state.service';
 import { OrganisationService } from '@placeos/organisation';
 import { startOfDay } from 'date-fns';
-import { Booking } from '@placeos/bookings';
 import { map } from 'rxjs/operators';
+import { AssetManagerStateService } from './asset-manager-state.service';
 
 @Component({
     selector: 'app-asset-request-list',

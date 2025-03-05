@@ -1,9 +1,8 @@
 import { Component } from '@angular/core';
 import { SettingsService } from '@placeos/common';
-import { EventStateService } from './event-state.service';
-import { User } from '@placeos/users';
-import { tap } from 'rxjs/operators';
 import { CalendarEvent } from '@placeos/events';
+import { User } from '@placeos/users';
+import { EventStateService } from './event-state.service';
 
 @Component({
     selector: 'event-listing',

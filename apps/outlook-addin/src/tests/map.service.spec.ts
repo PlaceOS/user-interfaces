@@ -1,18 +1,18 @@
-import { MapService } from '../app/rooms/map.service';
+import { CommonModule } from '@angular/common';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import {
+    MatBottomSheet,
+    MatBottomSheetModule,
+} from '@angular/material/bottom-sheet';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
 import { MockComponent, ngMocks } from 'ng-mocks';
 import { of } from 'rxjs';
 import { take } from 'rxjs/operators';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { BookModule } from '../app/rooms/book.module';
-import { CommonModule } from '@angular/common';
-import { BrowserModule } from '@angular/platform-browser';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import {
-    MatBottomSheetModule,
-    MatBottomSheet,
-} from '@angular/material/bottom-sheet';
+import { MapService } from '../app/rooms/map.service';
 
 import { ComponentsModule, MapPinComponent } from '@placeos/components';
 import { RoomConfirmService } from '../app/rooms/room-confirm.service';

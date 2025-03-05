@@ -6,7 +6,8 @@ import {
     showMetadata,
     updateMetadata,
 } from '@placeos/ts-client';
-import { BehaviorSubject, combineLatest, of } from 'rxjs';
+import { differenceInMinutes, endOfDay } from 'date-fns';
+import { BehaviorSubject, of } from 'rxjs';
 import {
     catchError,
     debounceTime,
@@ -17,8 +18,9 @@ import {
     switchMap,
     take,
 } from 'rxjs/operators';
-import { differenceInMinutes, endOfDay } from 'date-fns';
 
+import { Booking, queryBookings } from '@placeos/bookings';
+import { CalendarService } from '@placeos/calendar';
 import {
     AsyncHandler,
     currentUser,
@@ -26,17 +28,15 @@ import {
     SettingsService,
     unique,
 } from '@placeos/common';
-import { Space } from '@placeos/spaces';
 import {
     CalendarEvent,
     EventFormService,
     newCalendarEventFromBooking,
     queryEvents,
 } from '@placeos/events';
-import { searchStaff, User } from '@placeos/users';
 import { BuildingLevel, OrganisationService } from '@placeos/organisation';
-import { CalendarService } from '@placeos/calendar';
-import { Booking, queryBookings } from '@placeos/bookings';
+import { Space } from '@placeos/spaces';
+import { searchStaff, User } from '@placeos/users';
 
 export interface DashboardOptions {
     search?: string;

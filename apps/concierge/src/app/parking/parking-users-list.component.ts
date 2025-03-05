@@ -1,9 +1,9 @@
-import { Component } from '@angular/core';
-import { ParkingStateService } from './parking-state.service';
-import { FormGroup } from '@angular/forms';
-import { BehaviorSubject } from 'rxjs';
 import { Clipboard } from '@angular/cdk/clipboard';
+import { Component } from '@angular/core';
+import { FormGroup } from '@angular/forms';
 import { i18n, notifySuccess } from '@placeos/common';
+import { BehaviorSubject } from 'rxjs';
+import { ParkingStateService } from './parking-state.service';
 
 @Component({
     selector: 'parking-users-list',

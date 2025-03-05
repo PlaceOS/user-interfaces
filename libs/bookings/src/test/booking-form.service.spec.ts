@@ -1,8 +1,7 @@
-import { Router } from '@angular/router';
-import { SpectatorService, createServiceFactory } from '@ngneat/spectator/jest';
 import { FormGroup } from '@angular/forms';
-import { NavigationEnd } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
+import { NavigationEnd, Router } from '@angular/router';
+import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
 import { PaymentsService } from '@placeos/payments';
 import { BehaviorSubject, of, Subject } from 'rxjs';
 
@@ -14,10 +13,8 @@ jest.mock('@placeos/ts-client');
 jest.mock('libs/bookings/src/lib/bookings.fn');
 
 import * as ts_client from '@placeos/ts-client';
-import * as booking_mod from 'libs/bookings/src/lib/bookings.fn';
-import { MockProvider } from 'ng-mocks';
 import { endOfYear } from 'date-fns';
-import { fakeAsync, tick } from '@angular/core/testing';
+import { MockProvider } from 'ng-mocks';
 
 describe('BookingFormService', () => {
     let spectator: SpectatorService<BookingFormService>;

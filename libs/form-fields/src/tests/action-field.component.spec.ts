@@ -1,9 +1,9 @@
 import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
-import { first } from 'rxjs/operators';
 import { MockComponent } from 'ng-mocks';
+import { first } from 'rxjs/operators';
 
-import { ActionFieldComponent } from '../lib/action-field.component';
 import { IconComponent, SafePipe } from '@placeos/components';
+import { ActionFieldComponent } from '../lib/action-field.component';
 
 describe('ActionFieldComponent', () => {
     let spectator: Spectator<ActionFieldComponent>;

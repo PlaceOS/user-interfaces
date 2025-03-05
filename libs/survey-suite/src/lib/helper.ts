@@ -1,5 +1,5 @@
-import { Question, QuestionType, UISurveyObj, UISurveyPage } from './types';
 import { Survey, SurveyQuestion } from '@placeos/ts-client';
+import { Question, QuestionType, UISurveyObj, UISurveyPage } from './types';
 
 export function generateNewQuestion(): Question {
     return {

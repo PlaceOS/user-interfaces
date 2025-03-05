@@ -1,5 +1,5 @@
-import { CateringOrder } from 'libs/catering/src/lib/catering-order.class';
 import { AssetRequest } from 'libs/assets/src/lib/asset-request.class';
+import { CateringOrder } from 'libs/catering/src/lib/catering-order.class';
 
 export interface FileDetails {
     /** Name of the file */

@@ -1,9 +1,9 @@
-import { Component, Input } from '@angular/core';
-import { SettingsService } from '@placeos/common';
-import { EventStateService } from './event-state.service';
-import { map, shareReplay, take } from 'rxjs/operators';
-import { addMonths, addWeeks, format } from 'date-fns';
+import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { SettingsService } from '@placeos/common';
+import { addMonths, addWeeks, format } from 'date-fns';
+import { map, shareReplay, take } from 'rxjs/operators';
+import { EventStateService } from './event-state.service';
 
 @Component({
     selector: 'event-calendar',

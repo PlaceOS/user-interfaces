@@ -1,21 +1,21 @@
-import { mockSystem, registerSystem } from '@placeos/ts-client';
 import { HashMap } from '@placeos/common';
+import { mockSystem, registerSystem } from '@placeos/ts-client';
 
+import { createCameraModule } from './realtime/camera';
+import { createCaptureModule } from './realtime/capture';
+import { createContactTracingModule } from './realtime/contact-tracing';
 import { createSystemModule } from './realtime/control';
-import { createBookingsModule } from './realtime/events';
 import {
     createAreaManagementModule,
     MockLocationServicesModule,
 } from './realtime/desks';
-import { createCameraModule } from './realtime/camera';
 import { createDisplayModule } from './realtime/display';
-import { createMicrophoneModule } from './realtime/microphone';
-import { createCaptureModule } from './realtime/capture';
-import { createMeetingPushModule } from './realtime/meeting';
-import { createVideoConferenceModule } from './realtime/video-conference';
-import { createContactTracingModule } from './realtime/contact-tracing';
-import { createPaymentsModule } from './realtime/payments';
+import { createBookingsModule } from './realtime/events';
 import { createLockerLocationsModule } from './realtime/locker-locations';
+import { createMeetingPushModule } from './realtime/meeting';
+import { createMicrophoneModule } from './realtime/microphone';
+import { createPaymentsModule } from './realtime/payments';
+import { createVideoConferenceModule } from './realtime/video-conference';
 
 export function createSystem(space: HashMap) {
     registerSystem(space.id, {

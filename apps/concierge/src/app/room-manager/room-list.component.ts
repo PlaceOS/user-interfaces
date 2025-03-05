@@ -1,7 +1,7 @@
-import { Component } from '@angular/core';
-import { RoomManagementService } from './room-management.service';
 import { Clipboard } from '@angular/cdk/clipboard';
+import { Component } from '@angular/core';
 import { i18n, notifySuccess, SettingsService } from '@placeos/common';
+import { RoomManagementService } from './room-management.service';
 
 @Component({
     selector: 'room-list',

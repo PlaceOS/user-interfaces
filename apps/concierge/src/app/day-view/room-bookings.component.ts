@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { OrganisationService } from '@placeos/organisation';
-import { EventsStateService } from './events-state.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AsyncHandler, i18n, SettingsService } from '@placeos/common';
-import { debounceTime, filter, map, take } from 'rxjs/operators';
+import { OrganisationService } from '@placeos/organisation';
 import { combineLatest } from 'rxjs';
+import { debounceTime, filter, map, take } from 'rxjs/operators';
+import { EventsStateService } from './events-state.service';
 
 const EMPTY = [];
 @Component({

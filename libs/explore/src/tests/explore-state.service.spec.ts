@@ -1,7 +1,7 @@
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator';
 import { SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
-import { Space, SpacesService } from '@placeos/spaces';
+import { SpacesService } from '@placeos/spaces';
 import { BehaviorSubject, of } from 'rxjs';
 import { take } from 'rxjs/operators';
 
@@ -9,7 +9,6 @@ import { ExploreStateService } from '../lib/explore-state.service';
 
 jest.mock('@placeos/ts-client');
 
-import * as client from '@placeos/ts-client';
 import { MockProvider } from 'ng-mocks';
 
 describe('ExploreStateService', () => {

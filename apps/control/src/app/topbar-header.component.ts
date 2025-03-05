@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { AsyncHandler, i18n, SettingsService } from '@placeos/common';
+import { OrganisationService } from '@placeos/organisation';
 import { isTrusted } from '@placeos/ts-client';
 import { combineLatest } from 'rxjs';
+import { debounceTime, map } from 'rxjs/operators';
 import { ControlStateService } from './control-state.service';
-import { RoomAccessoryTooltipComponent } from './ui/room-accessory-tooltip.component';
 import { CameraTooltipComponent } from './ui/camera-tooltip.component';
 import { JoinRoomTooltipComponent } from './ui/join-room-tooltip.component';
 import { LightingSceneTooltipComponent } from './ui/lighting-scene-tooltip.component';
@@ -11,10 +12,9 @@ import { LightingTooltipComponent } from './ui/lighting-tooltip.component';
 import { MicrophoneTooltipComponent } from './ui/microphone-tooltip.component';
 import { PhoneDiallingTooltipComponent } from './ui/phone-dialling-tooltip.component';
 import { PowerTooltipComponent } from './ui/power-tooltip.component';
+import { RoomAccessoryTooltipComponent } from './ui/room-accessory-tooltip.component';
 import { VideoConferenceTooltipComponent } from './ui/video-conf-tooltip.component';
 import { VideoCallStateService } from './video-call/video-call-state.service';
-import { OrganisationService } from '@placeos/organisation';
-import { debounceTime, map } from 'rxjs/operators';
 
 enum TOOLTIP {
     PHONE,

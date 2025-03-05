@@ -1,5 +1,5 @@
+import { formatDate } from '@angular/common';
 import { Injectable } from '@angular/core';
-import { showMetadata } from '@placeos/ts-client';
 import { Booking, queryAllBookings } from '@placeos/bookings';
 import {
     downloadFile,
@@ -14,6 +14,8 @@ import {
 } from '@placeos/common';
 import { CalendarEvent, queryAllEvents } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
+import { requestSpacesForZone } from '@placeos/spaces';
+import { showMetadata } from '@placeos/ts-client';
 import {
     addDays,
     endOfDay,
@@ -23,6 +25,7 @@ import {
     setDay,
     startOfDay,
 } from 'date-fns';
+import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 import {
     BehaviorSubject,
     combineLatest,
@@ -42,9 +45,6 @@ import {
     generateReportForBookings,
     generateReportForDeskBookings,
 } from './reports.utilities';
-import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
-import { requestSpacesForZone } from '@placeos/spaces';
-import { formatDate } from '@angular/common';
 
 export interface ReportOptions {
     type?: 'desks' | 'events' | 'parking' | 'lockers' | 'assets';

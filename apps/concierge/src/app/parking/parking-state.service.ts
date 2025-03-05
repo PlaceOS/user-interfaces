@@ -18,12 +18,14 @@ import {
     i18n,
     notifyError,
     notifySuccess,
+    randomInt,
     SettingsService,
     unique,
 } from '@placeos/common';
+import { openConfirmModal } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
-import { randomInt } from '@placeos/common';
+import { User } from '@placeos/users';
 import { addHours, endOfDay, getUnixTime, set, startOfDay } from 'date-fns';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import {
@@ -36,11 +38,9 @@ import {
     take,
     tap,
 } from 'rxjs/operators';
+import { ParkingBookingModalComponent } from './parking-booking-modal.component';
 import { ParkingSpaceModalComponent } from './parking-space-modal.component';
 import { ParkingUserModalComponent } from './parking-user-modal.component';
-import { ParkingBookingModalComponent } from './parking-booking-modal.component';
-import { User } from '@placeos/users';
-import { openConfirmModal } from '@placeos/components';
 
 export interface ParkingOptions {
     date: number;

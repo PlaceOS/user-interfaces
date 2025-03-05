@@ -1,33 +1,5 @@
 import { Injectable } from '@angular/core';
-import {
-    Booking,
-    approveBooking,
-    queryBookings,
-    rejectBooking,
-    updateBooking,
-} from '@placeos/bookings';
-import {
-    AsyncHandler,
-    SettingsService,
-    flatten,
-    notifySuccess,
-    unique,
-} from '@placeos/common';
-import { SpacesService } from '@placeos/spaces';
-import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
-import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
-import {
-    catchError,
-    debounceTime,
-    distinctUntilChanged,
-    filter,
-    first,
-    map,
-    shareReplay,
-    switchMap,
-    take,
-    tap,
-} from 'rxjs/operators';
+import { MatDialog } from '@angular/material/dialog';
 import {
     Asset,
     AssetCategory,
@@ -42,21 +14,49 @@ import {
     showGroupFull,
 } from '@placeos/assets';
 import {
-    PlaceMetadata,
-    cleanObject,
-    showMetadata,
-    updateMetadata,
-} from '@placeos/ts-client';
-import { OrganisationService } from '@placeos/organisation';
-import { MatDialog } from '@angular/material/dialog';
-import { AssetCategoryManagementModalComponent } from './asset-category-management-modal.component';
-import { AssetCategoryFormComponent } from './asset-category-form.component';
+    Booking,
+    approveBooking,
+    queryBookings,
+    rejectBooking,
+    updateBooking,
+} from '@placeos/bookings';
+import {
+    AsyncHandler,
+    SettingsService,
+    flatten,
+    notifySuccess,
+    unique,
+} from '@placeos/common';
 import {
     AttachedResourceConfigModalComponent,
     AttachedResourceConfigModalData,
     AttachedResourceRuleset,
 } from '@placeos/components';
+import { OrganisationService } from '@placeos/organisation';
+import { SpacesService } from '@placeos/spaces';
+import {
+    PlaceMetadata,
+    cleanObject,
+    showMetadata,
+    updateMetadata,
+} from '@placeos/ts-client';
+import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { AssetRequest } from 'libs/assets/src/lib/asset-request.class';
+import { BehaviorSubject, Observable, combineLatest, of } from 'rxjs';
+import {
+    catchError,
+    debounceTime,
+    distinctUntilChanged,
+    filter,
+    first,
+    map,
+    shareReplay,
+    switchMap,
+    take,
+    tap,
+} from 'rxjs/operators';
+import { AssetCategoryFormComponent } from './asset-category-form.component';
+import { AssetCategoryManagementModalComponent } from './asset-category-management-modal.component';
 
 export interface AssetOptions {
     date?: number;

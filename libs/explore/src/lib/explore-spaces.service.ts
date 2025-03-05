@@ -1,7 +1,8 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { getModule, showMetadata } from '@placeos/ts-client';
 import { ViewAction, ViewerFeature } from '@placeos/svg-viewer';
+import { getModule, showMetadata } from '@placeos/ts-client';
+import { combineLatest, Observable, of } from 'rxjs';
 import {
     catchError,
     filter,
@@ -10,7 +11,6 @@ import {
     switchMap,
     take,
 } from 'rxjs/operators';
-import { combineLatest, Observable, of } from 'rxjs';
 
 import {
     AsyncHandler,
@@ -22,16 +22,16 @@ import {
     SettingsService,
 } from '@placeos/common';
 import { notifyError } from 'libs/common/src/lib/notifications';
-import { Space } from 'libs/spaces/src/lib/space.class';
 import { CalendarEvent } from 'libs/events/src/lib/event.class';
 import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
+import { Space } from 'libs/spaces/src/lib/space.class';
 
-import { ExploreStateService } from './explore-state.service';
-import { ExploreSpaceInfoComponent } from './explore-space-info.component';
-import { ExploreBookingModalComponent } from './explore-booking-modal.component';
 import { ExploreBookQrComponent } from './explore-book-qr.component';
+import { ExploreBookingModalComponent } from './explore-booking-modal.component';
 import { ExploreIconComponent } from './explore-icon.component';
+import { ExploreSpaceInfoComponent } from './explore-space-info.component';
+import { ExploreStateService } from './explore-state.service';
 
 export const DEFAULT_COLOURS = {
     free: '#43a047',

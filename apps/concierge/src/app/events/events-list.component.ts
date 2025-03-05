@@ -1,18 +1,18 @@
 import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AsyncHandler, SettingsService } from '@placeos/common';
-import { EventStateService } from './event-state.service';
 import {
     addDays,
     addMonths,
+    addWeeks,
     endOfDay,
+    format,
     startOfMonth,
     startOfWeek,
-    format,
-    addWeeks,
     subMonths,
 } from 'date-fns';
-import { ActivatedRoute, Router } from '@angular/router';
 import { distinctUntilChanged, map, take } from 'rxjs/operators';
+import { EventStateService } from './event-state.service';
 
 @Component({
     selector: 'app-event-list',

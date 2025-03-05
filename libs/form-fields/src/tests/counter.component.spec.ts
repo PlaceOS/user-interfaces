@@ -2,8 +2,8 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { IconComponent, SafePipe } from '@placeos/components';
 import { MockComponent } from 'ng-mocks';
 
-import { CounterComponent } from '../lib/counter.component';
 import { FormsModule } from '@angular/forms';
+import { CounterComponent } from '../lib/counter.component';
 
 describe('CounterComponent', () => {
     let spectator: Spectator<CounterComponent>;

@@ -1,9 +1,9 @@
 import {
-    trigger,
-    transition,
-    style,
     animate,
     state,
+    style,
+    transition,
+    trigger,
 } from '@angular/animations';
 
 export const ANIMATION_SHOW_ENTER_LEAVE = trigger('show', [

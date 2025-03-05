@@ -1,19 +1,17 @@
 import { Component, OnInit } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
-import { EventFormService } from '@placeos/events';
-import { Space, SpacesService } from '@placeos/spaces';
-import { OrganisationService } from '@placeos/organisation';
-import { HashMap, i18n } from '@placeos/common';
-import { Observable, combineLatest, of, BehaviorSubject } from 'rxjs';
-import { first, take, filter, map, tap } from 'rxjs/operators';
-import { FilterSpaceComponent } from '../filter-space/filter-space.component';
-import { FeaturesFilterService } from '../features-filter.service';
-import { MapService, Locatable } from '../map.service';
-import { ViewerFeature, ViewAction, ViewerStyles } from '@placeos/svg-viewer';
-import { RoomConfirmService } from '../room-confirm.service';
-import { AsyncHandler } from '@placeos/common';
-import { MapsList } from '../map.service';
 import { Router } from '@angular/router';
+import { AsyncHandler, HashMap, i18n } from '@placeos/common';
+import { EventFormService } from '@placeos/events';
+import { OrganisationService } from '@placeos/organisation';
+import { Space, SpacesService } from '@placeos/spaces';
+import { ViewAction, ViewerFeature, ViewerStyles } from '@placeos/svg-viewer';
+import { BehaviorSubject, Observable, combineLatest, of } from 'rxjs';
+import { filter, first, map, take, tap } from 'rxjs/operators';
+import { FeaturesFilterService } from '../features-filter.service';
+import { FilterSpaceComponent } from '../filter-space/filter-space.component';
+import { Locatable, MapService, MapsList } from '../map.service';
+import { RoomConfirmService } from '../room-confirm.service';
 
 @Component({
     selector: 'find-space',

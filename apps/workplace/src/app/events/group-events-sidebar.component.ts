@@ -9,8 +9,8 @@ import {
     startOfWeek,
 } from 'date-fns';
 import { BehaviorSubject } from 'rxjs';
-import { GroupEventsStateService } from './group-events-state.service';
 import { take } from 'rxjs/operators';
+import { GroupEventsStateService } from './group-events-state.service';
 
 @Component({
     selector: `group-events-sidebar`,

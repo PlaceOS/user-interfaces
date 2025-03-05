@@ -1,12 +1,11 @@
 import { Component } from '@angular/core';
+import { currentUser, i18n, notifyError, notifySuccess } from '@placeos/common';
+import { OrganisationService } from '@placeos/organisation';
 import {
     EmailTemplate,
     EmailTemplatesFilters,
     EmailTemplatesStateService,
 } from './email-templates-state.service';
-import { OrganisationService } from '@placeos/organisation';
-import { currentUser, i18n, notifyError, notifySuccess } from '@placeos/common';
-import { getModule } from '@placeos/ts-client';
 
 @Component({
     selector: 'email-templates-list',

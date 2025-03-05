@@ -2,8 +2,8 @@ import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { BehaviorSubject } from 'rxjs';
 
-import { UploadDetails, UploadPermissions, uploadFile } from './uploads';
 import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-permissions-modal.component';
+import { UploadDetails, UploadPermissions, uploadFile } from './uploads';
 
 @Injectable({
     providedIn: 'root',

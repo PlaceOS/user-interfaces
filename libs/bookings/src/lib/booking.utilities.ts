@@ -1,20 +1,20 @@
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { current_user, currentUser, flatten } from '@placeos/common';
-import { CalendarEvent } from 'libs/events/src/lib/event.class';
-import { endInFuture } from 'libs/events/src/lib/validators';
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import {
     createViewer,
     getViewer,
     Point,
     removeViewer,
 } from '@placeos/svg-viewer';
-import { Booking } from './booking.class';
+import { PlaceMetadata, showMetadata } from '@placeos/ts-client';
 import {
     addMinutes,
     differenceInMinutes,
     roundToNearestMinutes,
 } from 'date-fns';
+import { CalendarEvent } from 'libs/events/src/lib/event.class';
+import { endInFuture } from 'libs/events/src/lib/validators';
+import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { combineLatest, forkJoin, Observable, of } from 'rxjs';
 import {
     catchError,
@@ -23,7 +23,7 @@ import {
     shareReplay,
     switchMap,
 } from 'rxjs/operators';
-import { PlaceMetadata, showMetadata } from '@placeos/ts-client';
+import { Booking } from './booking.class';
 import { Locker, LockerBank } from './locker.class';
 
 function setBookingAsset(form: FormGroup, resource: any) {

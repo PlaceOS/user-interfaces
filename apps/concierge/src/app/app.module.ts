@@ -1,31 +1,31 @@
-import { BrowserModule } from '@angular/platform-browser';
 import {
     provideHttpClient,
     withInterceptorsFromDi,
 } from '@angular/common/http';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { ServiceWorkerModule } from '@angular/service-worker';
 import { ErrorHandler, LOCALE_ID, NgModule } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { Router } from '@angular/router';
+import { ServiceWorkerModule } from '@angular/service-worker';
 
-import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { MAT_CHIPS_DEFAULT_OPTIONS } from '@angular/material/chips';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
+import { MAT_CHIPS_DEFAULT_OPTIONS } from '@angular/material/chips';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
-import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from '../../../../libs/components/src/lib/app.component';
 import { environment } from '../environments/environment';
+import { AppRoutingModule } from './app-routing.module';
 import { UIModule } from './ui/ui.module';
 
 import * as Sentry from '@sentry/angular';
 
-import localeFr from '@angular/common/locales/fr';
-import localeJa from '@angular/common/locales/ja';
-import localeAr from '@angular/common/locales/ar';
-import localeZh from '@angular/common/locales/zh';
-import localeEs from '@angular/common/locales/es';
-import localeIt from '@angular/common/locales/it';
 import { registerLocaleData } from '@angular/common';
+import localeAr from '@angular/common/locales/ar';
+import localeEs from '@angular/common/locales/es';
+import localeFr from '@angular/common/locales/fr';
+import localeIt from '@angular/common/locales/it';
+import localeJa from '@angular/common/locales/ja';
+import localeZh from '@angular/common/locales/zh';
 import { LocaleService } from '@placeos/common';
 
 @NgModule({

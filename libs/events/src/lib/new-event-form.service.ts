@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { Event, NavigationEnd, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
+import { Event, NavigationEnd, Router } from '@angular/router';
 import { startOfDay } from 'date-fns';
 import { BehaviorSubject, combineLatest, forkJoin, Observable, of } from 'rxjs';
 import {
@@ -18,10 +18,10 @@ import {
 
 import { showMetadata } from '@placeos/ts-client';
 
-import { generateEventForm, newCalendarEventFromBooking } from './utilities';
-import { querySpaceAvailability, removeEvent, saveEvent } from './events.fn';
-import { CalendarEvent, setDefaultCreator } from './event.class';
 import { EventLinkModalComponent } from './event-link-modal.component';
+import { CalendarEvent, setDefaultCreator } from './event.class';
+import { querySpaceAvailability, removeEvent, saveEvent } from './events.fn';
+import { generateEventForm, newCalendarEventFromBooking } from './utilities';
 
 import {
     AsyncHandler,
@@ -35,21 +35,21 @@ import {
     SettingsService,
     unique,
 } from '@placeos/common';
-import { Space } from 'libs/spaces/src/lib/space.class';
-import { requestSpacesForZone } from 'libs/spaces/src/lib/space.utilities';
-import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
+import { newBookingFromCalendarEvent } from 'libs/bookings/src/lib/booking.utilities';
 import {
     createBookingsForEvent,
     queryResourceAvailability,
     saveBooking,
 } from 'libs/bookings/src/lib/bookings.fn';
-import { newBookingFromCalendarEvent } from 'libs/bookings/src/lib/booking.utilities';
+import { Space } from 'libs/spaces/src/lib/space.class';
+import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
+import { requestSpacesForZone } from 'libs/spaces/src/lib/space.utilities';
 
-import { User } from 'libs/users/src/lib/user.class';
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { AssetRequest } from 'libs/assets/src/lib/asset-request.class';
-import { validateAssetRequestsForResource } from 'libs/assets/src/lib/assets.fn';
 import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
+import { validateAssetRequestsForResource } from 'libs/assets/src/lib/assets.fn';
+import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
+import { User } from 'libs/users/src/lib/user.class';
 
 const BOOKING_URLS = [
     'book/rooms',

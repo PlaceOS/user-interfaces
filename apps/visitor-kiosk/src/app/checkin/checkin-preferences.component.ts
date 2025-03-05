@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 
+import { updateBooking } from '@placeos/bookings';
 import {
     CateringItem,
     CateringOrder,
@@ -13,10 +14,9 @@ import {
     notifyError,
     notifySuccess,
 } from '@placeos/common';
+import { CalendarEvent, showEvent, updateEvent } from '@placeos/events';
 import { first, map, tap } from 'rxjs/operators';
 import { CheckinStateService } from './checkin-state.service';
-import { CalendarEvent, showEvent, updateEvent } from '@placeos/events';
-import { updateBooking } from '@placeos/bookings';
 
 @Component({
     selector: 'checkin-preferences',

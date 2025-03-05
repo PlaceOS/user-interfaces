@@ -1,27 +1,27 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
-    startOfDay,
+    addMinutes,
     endOfDay,
-    startOfWeek,
-    endOfWeek,
-    startOfMonth,
     endOfMonth,
+    endOfWeek,
     format,
     getUnixTime,
-    addMinutes,
+    startOfDay,
+    startOfMonth,
+    startOfWeek,
 } from 'date-fns';
-import { BehaviorSubject, of, combineLatest, Observable, forkJoin } from 'rxjs';
+import { BehaviorSubject, Observable, combineLatest, forkJoin, of } from 'rxjs';
 import {
-    map,
-    switchMap,
-    debounceTime,
     catchError,
+    debounceTime,
+    distinctUntilKeyChanged,
     filter,
     first,
-    tap,
+    map,
     shareReplay,
-    distinctUntilKeyChanged,
+    switchMap,
+    tap,
 } from 'rxjs/operators';
 
 import {
@@ -35,11 +35,11 @@ import {
     timePeriodsIntersect,
 } from '@placeos/common';
 import { CalendarEvent, declineEvent, queryEvents } from '@placeos/events';
-import { Space, requestSpacesForZone } from '@placeos/spaces';
 import { OrganisationService } from '@placeos/organisation';
+import { Space, requestSpacesForZone } from '@placeos/spaces';
 
-import { EventBookModalComponent } from './event-book-modal.component';
 import { openConfirmModal } from '@placeos/components';
+import { EventBookModalComponent } from './event-book-modal.component';
 
 export type BookingType =
     | 'internal'

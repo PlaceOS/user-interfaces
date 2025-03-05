@@ -2,8 +2,8 @@ import { Injectable } from '@angular/core';
 
 import * as DEFAULT_LOCALE from 'shared/assets/locale/en-AU.json';
 
-import { log } from './general';
 import { showMetadata } from '@placeos/ts-client';
+import { log } from './general';
 
 let _service: LocaleService;
 

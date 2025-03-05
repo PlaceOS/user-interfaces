@@ -1,34 +1,34 @@
-import { Component, OnInit } from '@angular/core';
-import { SwUpdate } from '@angular/service-worker';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { Clipboard } from '@angular/cdk/clipboard';
-import { first } from 'rxjs/operators';
+import { Component, OnInit } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { SwUpdate } from '@angular/service-worker';
 import {
     Amazon,
     Azure,
     Google,
-    OpenStack,
     initialiseUploadService,
+    OpenStack,
 } from '@placeos/cloud-uploads';
+import { first } from 'rxjs/operators';
 
 import {
     AsyncHandler,
     currentUser,
+    log,
     setAppName,
     setNotifyOutlet,
     SettingsService,
     setupCache,
     setupPlace,
-    log,
 } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { setInternalUserDomain } from 'libs/users/src/lib/user.utilities';
 
 import { SpacesService } from 'libs/spaces/src/lib/spaces.service';
 
-import * as Sentry from '@sentry/angular';
 import * as MOCKS from '@placeos/mocks';
 import { PlaceAuthority, token } from '@placeos/ts-client';
+import * as Sentry from '@sentry/angular';
 
 export function initSentry(dsn: string, sample_rate: number = 0.2) {
     if (!dsn) return;

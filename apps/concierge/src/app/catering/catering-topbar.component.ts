@@ -1,16 +1,16 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { first, map, take, tap } from 'rxjs/operators';
+import { first, map, take } from 'rxjs/operators';
 
-import { AsyncHandler, SettingsService } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import { MatDialog } from '@angular/material/dialog';
 import {
     CateringOrdersService,
     CateringStateService,
     ChargeCodeListModalComponent,
 } from '@placeos/catering';
-import { MatDialog } from '@angular/material/dialog';
+import { AsyncHandler, SettingsService } from '@placeos/common';
 import { AvailableRoomsStateModalComponent } from '@placeos/components';
+import { OrganisationService } from '@placeos/organisation';
 import { combineLatest } from 'rxjs';
 
 @Component({

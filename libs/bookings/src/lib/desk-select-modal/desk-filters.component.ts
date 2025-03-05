@@ -1,13 +1,12 @@
 import { Component, Input, Optional } from '@angular/core';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { SettingsService } from '@placeos/common';
-import { addDays, endOfDay, set } from 'date-fns';
+import { addDays, endOfDay } from 'date-fns';
 
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
-import { BookingFormService } from '../booking-form.service';
-import { map } from 'rxjs/operators';
 import { combineLatest } from 'rxjs';
-import { Region } from '@placeos/organisation';
+import { map } from 'rxjs/operators';
+import { BookingFormService } from '../booking-form.service';
 
 @Component({
     selector: 'desk-filters',

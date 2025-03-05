@@ -1,10 +1,10 @@
 import { del, get, patch } from '@placeos/ts-client';
 import { map } from 'rxjs/operators';
 
-import { CalendarEvent } from '../../../events/src/lib/event.class';
 import { toQueryString } from 'libs/common/src/lib/api';
-import { GuestUser } from './user.class';
 import { Observable } from 'rxjs';
+import { CalendarEvent } from '../../../events/src/lib/event.class';
+import { GuestUser } from './user.class';
 
 const GUEST_ENDPOINT = '/api/staff/v1/guests';
 

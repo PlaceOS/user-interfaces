@@ -4,13 +4,13 @@ import { currentUser, i18n, reloadUserData } from '@placeos/common';
 import { updateUser } from '@placeos/ts-client';
 import { WorktimePreference } from '@placeos/users';
 import {
+    addDays,
     format,
+    isBefore,
     parse,
     set,
-    startOfMinute,
-    isBefore,
-    addDays,
     startOfDay,
+    startOfMinute,
 } from 'date-fns';
 
 import { WFHSettingsModalComponent } from 'libs/users/src/lib/wfh-settings-modal.component';

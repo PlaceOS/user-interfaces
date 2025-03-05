@@ -1,9 +1,9 @@
 import {
     Component,
-    Input,
-    SimpleChanges,
     forwardRef,
+    Input,
     OnChanges,
+    SimpleChanges,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { AsyncHandler, SettingsService } from '@placeos/common';

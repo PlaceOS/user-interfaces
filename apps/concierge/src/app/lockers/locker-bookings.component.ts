@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 
-import { LockerStateService } from './locker-state.service';
-import { map } from 'rxjs/operators';
 import { SettingsService } from '@placeos/common';
+import { map } from 'rxjs/operators';
+import { LockerStateService } from './locker-state.service';
 
 @Component({
     selector: 'locker-bookings',

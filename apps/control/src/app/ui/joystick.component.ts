@@ -7,8 +7,8 @@ import {
     Renderer2,
     ViewChild,
 } from '@angular/core';
-import { Point } from '@placeos/svg-viewer';
 import { AsyncHandler } from '@placeos/common';
+import { Point } from '@placeos/svg-viewer';
 
 /**
  * Grab point details from mouse or touch event

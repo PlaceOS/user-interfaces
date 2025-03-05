@@ -1,18 +1,18 @@
+import { of } from 'rxjs';
 import {
-    searchGuests,
+    listGuestMeetings,
     queryGuests,
+    removeGuest,
+    searchGuests,
     showGuest,
     updateGuest,
-    removeGuest,
-    listGuestMeetings,
 } from '../lib/guests.fn';
-import { of } from 'rxjs';
 
 jest.mock('@placeos/ts-client');
 
+import { CalendarEvent } from '@placeos/events';
 import * as ts_client from '@placeos/ts-client';
 import { GuestUser } from '../lib/user.class';
-import { CalendarEvent } from '@placeos/events';
 
 describe('[Guest API]', () => {
     describe('searchGuests', () => {

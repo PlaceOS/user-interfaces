@@ -1,8 +1,8 @@
-import { Component, OnInit, EventEmitter, Output, Inject } from '@angular/core';
+import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { endOfDay, getUnixTime, isBefore, set, startOfDay } from 'date-fns';
 import { BehaviorSubject } from 'rxjs';
 import { debounceTime, switchMap } from 'rxjs/operators';
-import { endOfDay, getUnixTime, isBefore, set, startOfDay } from 'date-fns';
 
 import { AsyncHandler, DialogEvent } from '@placeos/common';
 import { StaffUser } from '@placeos/users';

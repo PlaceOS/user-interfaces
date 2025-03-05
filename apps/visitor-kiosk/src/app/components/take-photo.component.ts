@@ -1,10 +1,10 @@
 import {
     Component,
-    OnInit,
+    EventEmitter,
     HostBinding,
     OnDestroy,
+    OnInit,
     Output,
-    EventEmitter,
 } from '@angular/core';
 
 @Component({

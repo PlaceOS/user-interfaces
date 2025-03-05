@@ -1,7 +1,7 @@
 import { FormGroup } from '@angular/forms';
 
-import { HashMap } from './types';
 import { i18n } from './locale.service';
+import { HashMap } from './types';
 
 /** Available console output streams. */
 export type ConsoleStream = 'debug' | 'warn' | 'log' | 'error' | 'info';

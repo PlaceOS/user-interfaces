@@ -1,8 +1,8 @@
-import { Component, Inject, Output, EventEmitter } from '@angular/core';
+import { Component, EventEmitter, Inject, Output } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
-import { DialogEvent, HashMap } from 'libs/common/src/lib/types';
 import { unique } from 'libs/common/src/lib/general';
+import { DialogEvent, HashMap } from 'libs/common/src/lib/types';
 
 import { CateringOption, CateringOptionGroup } from './catering.interfaces';
 

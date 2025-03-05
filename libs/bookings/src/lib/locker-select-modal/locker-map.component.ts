@@ -10,12 +10,12 @@ import {
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { map } from 'rxjs/operators';
 
-import { BookingAsset, BookingFormService } from '../booking-form.service';
-import { BehaviorSubject, combineLatest } from 'rxjs';
+import { ExploreDeskInfoComponent } from 'libs/explore/src/lib/explore-desk-info.component';
 import { DEFAULT_COLOURS } from 'libs/explore/src/lib/explore-spaces.service';
 import { BuildingLevel } from 'libs/organisation/src/lib/level.class';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
-import { ExploreDeskInfoComponent } from 'libs/explore/src/lib/explore-desk-info.component';
+import { BehaviorSubject, combineLatest } from 'rxjs';
+import { BookingAsset, BookingFormService } from '../booking-form.service';
 import { loadLockerBanks, loadLockers } from '../booking.utilities';
 
 @Component({

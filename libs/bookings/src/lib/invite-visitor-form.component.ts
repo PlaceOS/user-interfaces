@@ -19,12 +19,12 @@ import {
     generateGoogleCalendarLink,
     generateMicrosoftCalendarLink,
 } from '@placeos/common';
-import { notifyError } from 'libs/common/src/lib/notifications';
 import { getInvalidFields, randomString } from 'libs/common/src/lib/general';
+import { notifyError } from 'libs/common/src/lib/notifications';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
+import { User } from 'libs/users/src/lib/user.class';
 import { BookingFormService } from './booking-form.service';
 import { Booking } from './booking.class';
-import { User } from 'libs/users/src/lib/user.class';
 
 @Component({
     selector: `invite-visitor-form`,

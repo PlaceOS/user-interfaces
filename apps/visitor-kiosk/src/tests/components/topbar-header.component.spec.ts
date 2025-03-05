@@ -1,8 +1,8 @@
 import { SpectatorRouting, createRoutingFactory } from '@ngneat/spectator/jest';
-import { TopbarHeaderComponent } from '../../app/components/topbar-header.component';
-import { MockDirective, MockProvider } from 'ng-mocks';
 import { SettingsService } from '@placeos/common';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
+import { MockDirective, MockProvider } from 'ng-mocks';
+import { TopbarHeaderComponent } from '../../app/components/topbar-header.component';
 
 describe('TopbarHeaderComponent', () => {
     let spectator: SpectatorRouting<TopbarHeaderComponent>;

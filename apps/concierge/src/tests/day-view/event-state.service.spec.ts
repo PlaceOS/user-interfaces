@@ -1,17 +1,17 @@
 import { MatDialog } from '@angular/material/dialog';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
 import { SpacesService } from '@placeos/spaces';
-import { BehaviorSubject, of, timer } from 'rxjs';
-import { take } from 'rxjs/operators';
 import {
     endOfDay,
-    endOfWeek,
     endOfMonth,
+    endOfWeek,
     getUnixTime,
+    startOfDay,
     startOfMonth,
     startOfWeek,
-    startOfDay,
 } from 'date-fns';
+import { BehaviorSubject, of, timer } from 'rxjs';
+import { take } from 'rxjs/operators';
 import { EventsStateService } from '../../app/day-view/events-state.service';
 
 jest.mock('@placeos/events');
@@ -20,8 +20,8 @@ import * as events_mod from '@placeos/events';
 import { MockProvider } from 'ng-mocks';
 
 import { SettingsService } from 'libs/common/src/lib/settings.service';
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { Building } from 'libs/organisation/src/lib/building.class';
+import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { Region } from 'libs/organisation/src/lib/region.class';
 
 describe('EventsStateService', () => {

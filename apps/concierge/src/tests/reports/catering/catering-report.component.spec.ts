@@ -1,17 +1,17 @@
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { MockComponent, MockDirective, MockProvider } from 'ng-mocks';
 
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { Router } from '@angular/router';
+import { SettingsService } from '@placeos/common';
 import { CateringReportItemsComponent } from 'apps/concierge/src/app/reports/catering/catering-report-items.component';
 import { CateringReportOrdersComponent } from 'apps/concierge/src/app/reports/catering/catering-report-orders.component';
 import { CateringReportOverallComponent } from 'apps/concierge/src/app/reports/catering/catering-report-overall.component';
 import { CateringReportComponent } from 'apps/concierge/src/app/reports/catering/catering-report.component';
-import { ReportsStateService } from 'apps/concierge/src/app/reports/reports-state.service';
-import { BehaviorSubject } from 'rxjs';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { Router } from '@angular/router';
 import { ReportsOptionsComponent } from 'apps/concierge/src/app/reports/reports-options.component';
-import { SettingsService } from '@placeos/common';
+import { ReportsStateService } from 'apps/concierge/src/app/reports/reports-state.service';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
+import { BehaviorSubject } from 'rxjs';
 
 describe('CateringReportComponent', () => {
     let spectator: SpectatorRouting<CateringReportComponent>;

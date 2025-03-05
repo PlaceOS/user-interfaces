@@ -2,11 +2,11 @@ import { Component, Input } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { SettingsService } from '@placeos/common';
 
-import { GroupEventDetailsModalComponent } from './group-event-details-modal.component';
+import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { Space } from 'libs/spaces/src/lib/space.class';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { CalendarEvent } from './event.class';
+import { GroupEventDetailsModalComponent } from './group-event-details-modal.component';
 
 @Component({
     selector: 'group-event-card',

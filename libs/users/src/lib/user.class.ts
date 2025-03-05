@@ -1,8 +1,8 @@
+import { i18n } from '@placeos/common';
+import { format } from 'date-fns';
+import { Booking } from 'libs/bookings/src/lib/booking.class';
 import { randomString } from 'libs/common/src/lib/general';
 import { USER_DOMAIN } from './user.utilities';
-import { Booking } from 'libs/bookings/src/lib/booking.class';
-import { format } from 'date-fns';
-import { i18n } from '@placeos/common';
 
 export interface Attachment {
     id?: string;

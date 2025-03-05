@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
 import { ExploreParkingService, ExploreStateService } from '@placeos/explore';
-import { ParkingStateService } from './parking-state.service';
 import { OrganisationService } from '@placeos/organisation';
 import { first, take } from 'rxjs/operators';
+import { ParkingStateService } from './parking-state.service';
 
 @Component({
     selector: 'parking-map',

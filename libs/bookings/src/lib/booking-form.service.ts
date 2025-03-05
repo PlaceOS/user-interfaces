@@ -20,7 +20,7 @@ import {
     PlaceZone,
     showMetadata,
 } from '@placeos/ts-client';
-import { format, getUnixTime, addMinutes, startOfDay } from 'date-fns';
+import { addMinutes, format, getUnixTime, startOfDay } from 'date-fns';
 import {
     BehaviorSubject,
     combineLatest,
@@ -45,21 +45,21 @@ import {
 
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { User } from 'libs/users/src/lib/user.class';
+import { BookingLinkModalComponent } from './booking-link-modal.component';
 import { Booking, BookingType } from './booking.class';
 import {
+    findNearbyFeature,
     generateBookingForm,
     loadLockerBanks,
     loadLockers,
 } from './booking.utilities';
 import { bookedResourceList, queryBookings, saveBooking } from './bookings.fn';
 import { DeskQuestionsModalComponent } from './desk-questions-modal.component';
-import { findNearbyFeature } from './booking.utilities';
-import { BookingLinkModalComponent } from './booking-link-modal.component';
 
-import { PaymentsService } from 'libs/payments/src/lib/payments.service';
-import { validateAssetRequestsForResource } from 'libs/assets/src/lib/assets.fn';
 import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
+import { validateAssetRequestsForResource } from 'libs/assets/src/lib/assets.fn';
 import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
+import { PaymentsService } from 'libs/payments/src/lib/payments.service';
 
 export type BookingFlowView = 'form' | 'map' | 'confirm' | 'success';
 

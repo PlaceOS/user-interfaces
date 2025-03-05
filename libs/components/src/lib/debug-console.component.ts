@@ -2,15 +2,15 @@ import { Component, Input, OnInit } from '@angular/core';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { first, map } from 'rxjs/operators';
 
-import { HotkeysService } from 'libs/common/src/lib/hotkeys.service';
+import { SettingsService } from '@placeos/common';
+import { OrganisationService } from '@placeos/organisation';
 import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
+import { HotkeysService } from 'libs/common/src/lib/hotkeys.service';
 import {
     ClientEvent,
     RemoteLoggingService,
 } from 'libs/common/src/lib/remote-logging.service';
 import { JsonDisplayComponent } from './json-display.component';
-import { OrganisationService } from '@placeos/organisation';
-import { SettingsService } from '@placeos/common';
 
 const COLOR_MAP = {
     console: 'bg-success-light text-black',

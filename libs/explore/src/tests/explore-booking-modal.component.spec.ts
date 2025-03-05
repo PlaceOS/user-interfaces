@@ -1,7 +1,7 @@
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { SpectatorRouting, createRoutingFactory } from '@ngneat/spectator/jest';
 import { MockComponent, MockProvider } from 'ng-mocks';
@@ -13,7 +13,6 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { DurationFieldComponent } from 'libs/form-fields/src/lib/duration-field.component';
 
 import { ExploreBookingModalComponent } from '../lib/explore-booking-modal.component';
-import { fakeAsync } from '@angular/core/testing';
 
 describe('ExploreBookingModalComponent', () => {
     let spectator: SpectatorRouting<ExploreBookingModalComponent>;

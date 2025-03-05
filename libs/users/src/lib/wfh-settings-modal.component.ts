@@ -6,9 +6,9 @@ import {
     notifyError,
     reloadUserData,
 } from '@placeos/common';
+import { showUser, updateUser } from '@placeos/ts-client';
 import { addDays, set, startOfMinute, startOfWeek } from 'date-fns';
 import { WorktimeBlock, WorktimePreference } from './user.class';
-import { showUser, updateUser } from '@placeos/ts-client';
 
 @Component({
     selector: `wfh-settings-modal`,

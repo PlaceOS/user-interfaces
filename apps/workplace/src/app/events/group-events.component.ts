@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
-import { GroupEventsStateService } from './group-events-state.service';
-import { combineLatest } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
 import { AsyncHandler } from '@placeos/common';
+import { combineLatest } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { GroupEventsStateService } from './group-events-state.service';
 
 @Component({
     selector: '[group-events]',

@@ -9,7 +9,6 @@ import {
     SettingsService,
 } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
-import { getModule } from '@placeos/ts-client';
 
 export interface SupportRequestType {
     name: string;

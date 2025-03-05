@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
-import { AssetManagerStateService } from './asset-manager-state.service';
 import { AsyncHandler } from '@placeos/common';
+import { AssetManagerStateService } from './asset-manager-state.service';
 
 @Component({
     selector: 'asset-listing',

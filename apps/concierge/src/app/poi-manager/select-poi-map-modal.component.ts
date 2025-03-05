@@ -1,4 +1,5 @@
 import { Component, Inject } from '@angular/core';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { AsyncHandler, MapsPeopleService, unique } from '@placeos/common';
 import { BuildingLevel, OrganisationService } from '@placeos/organisation';
 import { Rect } from '@placeos/svg-viewer/dist/types';
@@ -13,7 +14,6 @@ import {
 } from 'rxjs/operators';
 import { MapShowElementComponent } from './map-show-element.component';
 import { PointOfInterest } from './poi-management.service';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 type BoundsMap = Record<string, Rect>;
 

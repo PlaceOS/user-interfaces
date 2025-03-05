@@ -1,26 +1,26 @@
 import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
-import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import { getUnixTime } from 'date-fns';
 
-import { CalendarEvent } from './event.class';
-import { MapPinComponent } from 'libs/components/src/lib/map-pin.component';
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
-import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
-import { Building } from 'libs/organisation/src/lib/building.class';
-import { BuildingLevel } from 'libs/organisation/src/lib/level.class';
+import { DatePipe } from '@angular/common';
 import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
-    notifyError,
-    SettingsService,
     getTimezoneOffsetString,
     i18n,
+    notifyError,
+    SettingsService,
 } from '@placeos/common';
-import { Space } from 'libs/spaces/src/lib/space.class';
 import { getModule } from '@placeos/ts-client';
-import { MapLocateModalComponent } from 'libs/components/src/lib/map-locate-modal.component';
 import { CateringItem } from 'libs/catering/src/lib/catering-item.class';
+import { MapLocateModalComponent } from 'libs/components/src/lib/map-locate-modal.component';
+import { MapPinComponent } from 'libs/components/src/lib/map-pin.component';
+import { Building } from 'libs/organisation/src/lib/building.class';
+import { BuildingLevel } from 'libs/organisation/src/lib/level.class';
+import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
+import { Space } from 'libs/spaces/src/lib/space.class';
+import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
+import { CalendarEvent } from './event.class';
 import { getEventMetadata } from './events.fn';
-import { DatePipe } from '@angular/common';
 
 const EMPTY_ACTIONS = [];
 

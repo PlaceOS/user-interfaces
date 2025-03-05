@@ -3,8 +3,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { MockComponent } from 'ng-mocks';
-import { of } from 'rxjs';
 import {
     Booking,
     BookingFormService,
@@ -19,6 +17,8 @@ import {
 } from '@placeos/form-fields';
 import { OrganisationService } from '@placeos/organisation';
 import { DeskFlowDetailedFormComponent } from 'apps/workplace/src/app/book/desk-flow/detailed-form.component';
+import { MockComponent } from 'ng-mocks';
+import { of } from 'rxjs';
 
 describe('DetailBookSpaceFormComponent', () => {
     let spectator: Spectator<DeskFlowDetailedFormComponent>;

@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
-import { PanelViewComponent } from './panel-view.component';
 import { BootstrapComponent } from './bootstrap.component';
+import { PanelViewComponent } from './panel-view.component';
 
 export const routes: Routes = [
     { path: 'bootstrap', component: BootstrapComponent },

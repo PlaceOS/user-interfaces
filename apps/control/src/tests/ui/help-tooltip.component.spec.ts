@@ -3,8 +3,8 @@ import { CustomTooltipData, SanitizePipe } from '@placeos/components';
 import { BehaviorSubject } from 'rxjs';
 import { ControlStateService } from '../../app/control-state.service';
 
-import { HelpTooltipComponent } from '../../app/ui/help-tooltip.component';
 import { MockPipe } from 'ng-mocks';
+import { HelpTooltipComponent } from '../../app/ui/help-tooltip.component';
 
 describe('HelpTooltipComponent', () => {
     let spectator: Spectator<HelpTooltipComponent>;

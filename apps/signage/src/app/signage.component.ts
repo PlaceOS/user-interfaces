@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
-import { SignageService } from './signage.service';
-import { AsyncHandler, SettingsService } from '@placeos/common';
 import { ActivatedRoute, Router } from '@angular/router';
+import { AsyncHandler, SettingsService } from '@placeos/common';
+import { SignageService } from './signage.service';
 
 @Component({
     selector: 'signage-panel',

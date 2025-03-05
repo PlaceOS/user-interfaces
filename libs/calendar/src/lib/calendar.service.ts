@@ -1,20 +1,20 @@
 import { Injectable } from '@angular/core';
+import { addMinutes, endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { BehaviorSubject } from 'rxjs';
 import { first, shareReplay, tap } from 'rxjs/operators';
-import { addMinutes, endOfDay, getUnixTime, startOfDay } from 'date-fns';
 
 import { Calendar } from './calendar.class';
 
 import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { CalendarEvent } from 'libs/events/src/lib/event.class';
-import { CalendarAvailabilityQueryParams } from './calendar.interfaces';
+import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import {
     queryCalendarAvailability,
     queryCalendars,
     querySpaceFreeBusy,
 } from './calendar.fn';
+import { CalendarAvailabilityQueryParams } from './calendar.interfaces';
 
 @Injectable({
     providedIn: 'root',

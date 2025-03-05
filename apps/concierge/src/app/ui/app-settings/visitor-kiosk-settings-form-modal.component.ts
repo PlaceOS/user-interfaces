@@ -1,11 +1,15 @@
 import { Component, Inject } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import {
+    currentUser,
+    notifySuccess,
+    SettingsService,
+    VERSION,
+} from '@placeos/common';
+import { OrganisationService } from '@placeos/organisation';
 import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
 import { map } from 'rxjs/operators';
-import { currentUser, notifySuccess, SettingsService } from '@placeos/common';
-import { VERSION } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
 
 import { DEFAULT_SETTINGS } from 'apps/visitor-kiosk/src/environments/settings';
 

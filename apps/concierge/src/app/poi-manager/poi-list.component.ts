@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
+import { SettingsService } from '@placeos/common';
+import { generateQRCode } from 'libs/common/src/lib/qr-code';
 import {
     POIManagementService,
     PointOfInterest,
 } from './poi-management.service';
-import { SettingsService } from '@placeos/common';
-import { generateQRCode } from 'libs/common/src/lib/qr-code';
 
 @Component({
     selector: 'poi-list',

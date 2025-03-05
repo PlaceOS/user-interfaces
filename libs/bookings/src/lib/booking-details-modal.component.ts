@@ -1,12 +1,12 @@
 import { Component, EventEmitter, Inject, Output } from '@angular/core';
-import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
+    formatDuration,
     i18n,
     notifyError,
     notifySuccess,
     SettingsService,
-    formatDuration,
 } from '@placeos/common';
 import { addMinutes, format } from 'date-fns';
 

@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { DesksStateService } from './desks-state.service';
 import { SettingsService } from '@placeos/common';
+import { DesksStateService } from './desks-state.service';
 
 import { generateQRCode } from 'libs/common/src/lib/qr-code';
 import { map } from 'rxjs/operators';

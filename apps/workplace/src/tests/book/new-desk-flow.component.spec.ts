@@ -3,7 +3,7 @@ import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { BookingFormService } from '@placeos/bookings';
 import { OrganisationService } from '@placeos/organisation';
 import { MockComponent, MockProvider } from 'ng-mocks';
-import { BehaviorSubject, of } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import { NewDeskFlowComponent } from '../../app/book/new-desk-flow.component';
 import { NewDeskFlowFormComponent } from '../../app/book/new-desk-flow/new-desk-flow-form.component';
 import { NewDeskFlowSuccessComponent } from '../../app/book/new-desk-flow/new-desk-flow-success.component';

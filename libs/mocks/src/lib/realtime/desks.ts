@@ -1,7 +1,7 @@
-import { Md5 } from 'ts-md5';
 import { HashMap, predictableRandomInt, randomInt } from '@placeos/common';
-import { MOCK_LEVELS } from '../api/zone.data';
+import { Md5 } from 'ts-md5';
 import { MOCK_STAFF } from '../api/users.data';
+import { MOCK_LEVELS } from '../api/zone.data';
 
 export interface ZoneOverview {
     /** Desk count based on `desks` metadata in the zone

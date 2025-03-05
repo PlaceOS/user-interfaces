@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { Building } from '@placeos/organisation';
 import { BuildingManagementService } from './building-management.service';
 
 @Component({

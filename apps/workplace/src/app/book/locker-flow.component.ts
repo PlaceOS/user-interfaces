@@ -7,11 +7,10 @@ import {
     queryBookings,
 } from '@placeos/bookings';
 import { AsyncHandler, currentUser, SettingsService } from '@placeos/common';
-import { EventFormService } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
 import { addHours, endOfDay, getUnixTime, startOfDay } from 'date-fns';
-import { combineLatest, Observable } from 'rxjs';
-import { map, shareReplay, tap } from 'rxjs/operators';
+import { combineLatest } from 'rxjs';
+import { map, shareReplay } from 'rxjs/operators';
 
 @Component({
     selector: 'placeos-book-locker-flow',

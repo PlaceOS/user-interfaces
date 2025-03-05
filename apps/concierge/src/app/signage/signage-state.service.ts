@@ -28,7 +28,7 @@ import {
     updateSystem,
 } from '@placeos/ts-client';
 import { Attachment } from '@placeos/users';
-import { BehaviorSubject, Observable, combineLatest, of } from 'rxjs';
+import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
 import {
     catchError,
     debounceTime,
@@ -39,11 +39,11 @@ import {
 } from 'rxjs/operators';
 
 import { MatDialog } from '@angular/material/dialog';
+import { openConfirmModal } from '@placeos/components';
+import { SignageDisplayModalComponent } from './signage-display-modal.component';
+import { SignageMediaModalComponent } from './signage-media-modal.component';
 import { SignageMediaPreviewModalComponent } from './signage-media-preview-modal.component';
 import { SignagePlaylistModalComponent } from './signage-playlist-modal.component';
-import { SignageMediaModalComponent } from './signage-media-modal.component';
-import { SignageDisplayModalComponent } from './signage-display-modal.component';
-import { openConfirmModal } from '@placeos/components';
 
 function dataURLtoBlob(dataURL) {
     // Split the data URL to get the mime type and the data

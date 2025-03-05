@@ -1,12 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { AsyncHandler, SettingsService } from '@placeos/common';
+import { OrganisationService } from '@placeos/organisation';
+import { startOfDay } from 'date-fns';
+import { debounceTime, filter, map } from 'rxjs/operators';
 import {
     ScheduleOptions,
     ScheduleStateService,
 } from './schedule-state.service';
-import { OrganisationService } from '@placeos/organisation';
-import { debounceTime, filter, map } from 'rxjs/operators';
-import { startOfDay } from 'date-fns';
 
 @Component({
     selector: 'schedule-sidebar',

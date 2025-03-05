@@ -10,7 +10,7 @@ import { OrganisationService } from '@placeos/organisation';
 import { apiKey, getModule, token } from '@placeos/ts-client';
 import { BehaviorSubject, Observable, combineLatest } from 'rxjs';
 import { filter, map, shareReplay, switchMap } from 'rxjs/operators';
-import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
+import { WebSocketSubject, webSocket } from 'rxjs/webSocket';
 
 import * as marked from 'marked';
 

@@ -1,22 +1,22 @@
 import { Component, OnInit } from '@angular/core';
-import { SwUpdate } from '@angular/service-worker';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { first } from 'rxjs/operators';
-import { invalidateToken, isMock, setToken, token } from '@placeos/ts-client';
+import { SwUpdate } from '@angular/service-worker';
 import {
     AsyncHandler,
     current_user,
     currentUser,
+    log,
     setAppName,
     setNotifyOutlet,
     SettingsService,
     setupCache,
     setupPlace,
-    log,
 } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
-import { setInternalUserDomain } from 'libs/users/src/lib/user.utilities';
+import { invalidateToken, isMock, setToken, token } from '@placeos/ts-client';
 import { setDefaultCreator } from 'libs/events/src/lib/event.class';
+import { setInternalUserDomain } from 'libs/users/src/lib/user.utilities';
+import { first } from 'rxjs/operators';
 
 import * as MOCKS from '@placeos/mocks';
 

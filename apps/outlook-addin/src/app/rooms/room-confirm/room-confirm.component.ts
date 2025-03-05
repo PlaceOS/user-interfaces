@@ -1,13 +1,12 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import {
-    MatBottomSheetRef,
     MAT_BOTTOM_SHEET_DATA,
+    MatBottomSheetRef,
 } from '@angular/material/bottom-sheet';
+import { CalendarEvent, EventFormService } from '@placeos/events';
 import { Space } from '@placeos/spaces';
-import { EventFormService } from '@placeos/events';
-import { RoomConfirmService } from '../room-confirm.service';
-import { CalendarEvent } from '@placeos/events';
 import { User } from '@placeos/users';
+import { RoomConfirmService } from '../room-confirm.service';
 
 @Component({
     selector: 'room-confirm',

@@ -5,39 +5,39 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { RouterModule } from '@angular/router';
 
-import { ComponentsModule } from '@placeos/components';
-import { FormFieldsModule } from '@placeos/form-fields';
-import { SharedEventsModule } from '@placeos/events';
-import { SharedBookingsModule } from '@placeos/bookings';
-import { SharedSpacesModule } from '@placeos/spaces';
-import { PaymentsModule } from '@placeos/payments';
 import { AssetsModule } from '@placeos/assets';
+import { SharedBookingsModule } from '@placeos/bookings';
+import { ComponentsModule } from '@placeos/components';
+import { SharedEventsModule } from '@placeos/events';
+import { FormFieldsModule } from '@placeos/form-fields';
+import { PaymentsModule } from '@placeos/payments';
+import { SharedSpacesModule } from '@placeos/spaces';
 
-import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatDialogModule } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSelectModule } from '@angular/material/select';
+import { MatBadgeModule } from '@angular/material/badge';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatRippleModule } from '@angular/material/core';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatRadioModule } from '@angular/material/radio';
+import { MatSelectModule } from '@angular/material/select';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatSliderModule } from '@angular/material/slider';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatRadioModule } from '@angular/material/radio';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatExpansionModule } from '@angular/material/expansion';
-import { MatBadgeModule } from '@angular/material/badge';
-import { MatSliderModule } from '@angular/material/slider';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
-import { GlobalSearchComponent } from './global-search.component';
-import { TopbarComponent } from './topbar.component';
 import { EventTimelineComponent } from './event-timeline/event-timeline.component';
-import { VerticalTimelineComponent } from './vertical-timeline/vertical-timeline.component';
-import { TopMenuComponent } from './top-menu.component';
 import { FooterMenuComponent } from './footer-menu.component';
+import { GlobalSearchComponent } from './global-search.component';
+import { TopMenuComponent } from './top-menu.component';
+import { TopbarComponent } from './topbar.component';
+import { VerticalTimelineComponent } from './vertical-timeline/vertical-timeline.component';
 
 const COMPONENTS: Type<any>[] = [
     TopbarComponent,

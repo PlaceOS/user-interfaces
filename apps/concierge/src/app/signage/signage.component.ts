@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 
-import { SignageStateService } from './signage-state.service';
 import { NavigationEnd, Router } from '@angular/router';
 import { AsyncHandler, i18n } from '@placeos/common';
+import { SignageStateService } from './signage-state.service';
 
 @Component({
     selector: '[app-new-staff]',

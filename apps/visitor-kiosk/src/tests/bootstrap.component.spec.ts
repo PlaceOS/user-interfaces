@@ -4,6 +4,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { Router } from '@angular/router';
 import { SpectatorRouting, createRoutingFactory } from '@ngneat/spectator/jest';
+import { SettingsService } from '@placeos/common';
 import {
     Building,
     BuildingLevel,
@@ -12,9 +13,8 @@ import {
 } from '@placeos/organisation';
 import { MockProvider } from 'ng-mocks';
 import { BehaviorSubject, of } from 'rxjs';
-import { BootstrapComponent } from '../app/bootstrap.component';
 import { take } from 'rxjs/operators';
-import { SettingsService } from '@placeos/common';
+import { BootstrapComponent } from '../app/bootstrap.component';
 
 describe('BootstrapComponent', () => {
     let spectator: SpectatorRouting<BootstrapComponent>;

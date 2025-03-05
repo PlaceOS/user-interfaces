@@ -1,5 +1,4 @@
-import { Component, OnInit } from '@angular/core';
-import { QuestionType } from '../types';
+import { Component } from '@angular/core';
 import { BaseQuestionComponent } from './base-question.component';
 
 @Component({

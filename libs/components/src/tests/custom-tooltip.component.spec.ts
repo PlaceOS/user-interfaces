@@ -1,17 +1,17 @@
-import { Component } from '@angular/core';
 import { OverlayModule } from '@angular/cdk/overlay';
 import { PortalModule } from '@angular/cdk/portal';
+import { Component } from '@angular/core';
 import {
     SpectatorDirective,
     createDirectiveFactory,
 } from '@ngneat/spectator/jest';
 
-import { SanitizePipe } from '../lib/sanitise.pipe';
 import { fakeAsync } from '@angular/core/testing';
 import {
     CustomTooltipComponent,
     CustomTooltipData,
 } from '../lib/custom-tooltip.component';
+import { SanitizePipe } from '../lib/sanitise.pipe';
 
 @Component({ selector: 'fake', template: 'Fake Component' })
 export class FakeComponent {}

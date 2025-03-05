@@ -1,4 +1,3 @@
-import { Data } from 'chartist';
 import { QuestionType, UISurveyAnswer } from '../types';
 
 export interface SelectionStats {

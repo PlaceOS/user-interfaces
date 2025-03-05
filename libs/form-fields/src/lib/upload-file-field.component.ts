@@ -4,8 +4,8 @@ import { randomInt } from '@placeos/common';
 import { Attachment } from '@placeos/users';
 import { takeWhile } from 'rxjs/operators';
 
-import * as blobUtil from 'blob-util';
 import { uploadFiles } from '@placeos/cloud-uploads';
+import * as blobUtil from 'blob-util';
 
 @Component({
     selector: 'upload-file',

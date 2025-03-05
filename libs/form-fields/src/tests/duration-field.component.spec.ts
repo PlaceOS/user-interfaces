@@ -1,12 +1,12 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { MatMenuModule } from '@angular/material/menu';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { IconComponent } from '@placeos/components';
 
 import { addHours } from 'date-fns';
 import { MockComponent } from 'ng-mocks';
 
-import { DurationFieldComponent } from '../lib/duration-field.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { DurationFieldComponent } from '../lib/duration-field.component';
 
 describe('DurationFieldComponent', () => {
     let spectator: Spectator<DurationFieldComponent>;

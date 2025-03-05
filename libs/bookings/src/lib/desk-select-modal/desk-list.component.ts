@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { BookingFormService, BookingAsset } from '../booking-form.service';
+import { BookingAsset, BookingFormService } from '../booking-form.service';
 
 @Component({
     selector: 'desk-list',

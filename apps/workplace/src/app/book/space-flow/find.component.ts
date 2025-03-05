@@ -1,4 +1,4 @@
-import { Component, OnInit, Optional } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { HashMap, i18n, SettingsService } from '@placeos/common';
 import { EventFormService } from '@placeos/events';

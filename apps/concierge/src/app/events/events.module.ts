@@ -1,21 +1,21 @@
-import { NgModule } from '@angular/core';
-import { EventsComponent } from './events.component';
 import { CommonModule } from '@angular/common';
+import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Route, RouterModule } from '@angular/router';
+import { EventsComponent } from './events.component';
 
-import { UIModule } from '../ui/ui.module';
-import { EventsListComponent } from './events-list.component';
-import { EventManageComponent } from './event-manage.component';
 import { SharedSpacesModule } from '@placeos/spaces';
+import { UIModule } from '../ui/ui.module';
+import { EventManageComponent } from './event-manage.component';
+import { EventsListComponent } from './events-list.component';
 
-import { FormFieldsModule } from '@placeos/form-fields';
-import { EventListingComponent } from './event-listing.component';
-import { EventWeekViewComponent } from './event-week-view.component';
-import { EventMonthViewComponent } from './event-month-view.component';
-import { EventCalendarComponent } from './event-calendar.component';
 import { SharedBookingsModule } from '@placeos/bookings';
 import { SharedEventsModule } from '@placeos/events';
+import { FormFieldsModule } from '@placeos/form-fields';
+import { EventCalendarComponent } from './event-calendar.component';
+import { EventListingComponent } from './event-listing.component';
+import { EventMonthViewComponent } from './event-month-view.component';
+import { EventWeekViewComponent } from './event-week-view.component';
 
 const ROUTES: Route[] = [
     {

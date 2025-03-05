@@ -7,7 +7,7 @@ import {
     getInvalidFields,
     notifyError,
 } from '@placeos/common';
-import { Region, OrganisationService } from '@placeos/organisation';
+import { OrganisationService, Region } from '@placeos/organisation';
 import { addZone, authority, updateZone } from '@placeos/ts-client';
 
 @Component({

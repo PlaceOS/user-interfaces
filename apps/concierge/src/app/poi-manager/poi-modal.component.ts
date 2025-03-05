@@ -14,10 +14,10 @@ import {
     randomString,
     updateShortURL,
 } from '@placeos/common';
-import { OrganisationService, Building } from '@placeos/organisation';
+import { Building, OrganisationService } from '@placeos/organisation';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
-import { PointOfInterest } from './poi-management.service';
 import { take } from 'rxjs/operators';
+import { PointOfInterest } from './poi-management.service';
 import { SelectPOIMapModalComponent } from './select-poi-map-modal.component';
 
 @Component({

@@ -1,7 +1,7 @@
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
+import { SettingsService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 import { BehaviorSubject, of } from 'rxjs';
-import { SettingsService } from '@placeos/common';
 
 import { CalendarService } from 'libs/calendar/src/lib/calendar.service';
 import { Organisation } from 'libs/organisation/src/lib/organisation.class';

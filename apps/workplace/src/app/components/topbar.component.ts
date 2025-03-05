@@ -1,8 +1,7 @@
 import { Component } from '@angular/core';
-import { ApplicationIcon, currentUser, SettingsService } from '@placeos/common';
+import { currentUser, SettingsService } from '@placeos/common';
 import { UserControlsComponent } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
-import { debounceTime, map } from 'rxjs/operators';
 
 const EMPTY = [];
 

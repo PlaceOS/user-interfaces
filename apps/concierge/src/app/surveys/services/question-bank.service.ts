@@ -2,6 +2,7 @@ import { CdkDragDrop } from '@angular/cdk/drag-drop';
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { AsyncHandler, notifyError, notifySuccess } from '@placeos/common';
+import { openConfirmModal } from '@placeos/components';
 import {
     Question,
     translateToQuestion,
@@ -17,7 +18,6 @@ import { updateQuestion } from '@placeos/ts-client/dist/esm/staff/questions/func
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { catchError, filter, finalize, first, map, tap } from 'rxjs/operators';
 import { ModQuestionOverlayComponent } from '../overlays/mod-question-overlay.component';
-import { openConfirmModal } from '@placeos/components';
 
 export interface QuestionFilter {
     search: string;

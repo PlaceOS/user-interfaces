@@ -23,15 +23,15 @@ import {
     applyGlobalStyles,
     createViewer,
     getViewer,
+    listenToViewerChanges,
     Point,
-    Viewer,
     removeViewer,
     updateViewer,
     ViewAction,
+    Viewer,
     ViewerFeature,
     ViewerLabel,
     ViewerStyles,
-    listenToViewerChanges,
 } from '@placeos/svg-viewer';
 import { apiKey, authority, token } from '@placeos/ts-client';
 import { BehaviorSubject } from 'rxjs';

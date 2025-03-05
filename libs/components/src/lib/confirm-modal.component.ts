@@ -1,8 +1,8 @@
-import { Component, Output, EventEmitter, Inject, OnInit } from '@angular/core';
+import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
 import {
-    MatDialogRef,
     MAT_DIALOG_DATA,
     MatDialog,
+    MatDialogRef,
 } from '@angular/material/dialog';
 import { first } from 'rxjs/operators';
 

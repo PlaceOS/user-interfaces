@@ -1,11 +1,11 @@
 import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { SettingsService } from 'libs/common/src/lib/settings.service';
 import {
     generateCalendarFileLink,
     generateGoogleCalendarLink,
     generateMicrosoftCalendarLink,
 } from 'libs/common/src/lib/calendar-links';
+import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { Booking } from './booking.class';
 
 @Component({

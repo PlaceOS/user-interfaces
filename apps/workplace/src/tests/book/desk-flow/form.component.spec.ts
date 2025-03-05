@@ -2,15 +2,15 @@ import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
-import { IconComponent } from '@placeos/components';
 import { BookingFormService } from '@placeos/bookings';
+import { IconComponent } from '@placeos/components';
 import { MockComponent } from 'ng-mocks';
 
+import { SettingsService } from '@placeos/common';
+import { OrganisationService } from '@placeos/organisation';
 import { DeskFlowDetailedFormComponent } from 'apps/workplace/src/app/book/desk-flow/detailed-form.component';
 import { DeskFlowFormComponent } from 'apps/workplace/src/app/book/desk-flow/form.component';
-import { OrganisationService } from '@placeos/organisation';
 import { of } from 'rxjs';
-import { SettingsService } from '@placeos/common';
 
 describe('DeskFlow', () => {
     let spectator: SpectatorRouting<DeskFlowFormComponent>;

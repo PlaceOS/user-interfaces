@@ -5,10 +5,10 @@ import { first, take } from 'rxjs/operators';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 
-import { ParkingStateService } from './parking-state.service';
-import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';
 import { MatDialog } from '@angular/material/dialog';
 import { timer } from 'rxjs';
+import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';
+import { ParkingStateService } from './parking-state.service';
 
 @Component({
     selector: 'parking-topbar',

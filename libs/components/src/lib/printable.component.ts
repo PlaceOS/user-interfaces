@@ -1,12 +1,12 @@
 import { Overlay, OverlayRef } from '@angular/cdk/overlay';
 import { CdkPortal } from '@angular/cdk/portal';
 import {
-    Component,
-    OnInit,
-    OnDestroy,
-    ViewChild,
-    ElementRef,
     AfterViewInit,
+    Component,
+    ElementRef,
+    OnDestroy,
+    OnInit,
+    ViewChild,
 } from '@angular/core';
 import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
 

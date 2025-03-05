@@ -1,4 +1,22 @@
+import { DatePipe } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import {
+    AsyncHandler,
+    SettingsService,
+    getTimezoneDifferenceInHours,
+    getTimezoneOffsetString,
+    notifyError,
+    notifySuccess,
+} from '@placeos/common';
+import { openConfirmModal } from '@placeos/components';
+import {
+    CalendarEvent,
+    EventDetailsModalComponent,
+    SetupBreakdownModalComponent,
+    declineEvent,
+} from '@placeos/events';
+import { OrganisationService } from '@placeos/organisation';
 import {
     addHours,
     differenceInMinutes,
@@ -8,27 +26,9 @@ import {
     startOfDay,
     startOfMinute,
 } from 'date-fns';
-import { EventsStateService } from './events-state.service';
 import { combineLatest } from 'rxjs';
 import { debounceTime, map, shareReplay, startWith } from 'rxjs/operators';
-import {
-    AsyncHandler,
-    SettingsService,
-    getTimezoneDifferenceInHours,
-    getTimezoneOffsetString,
-    notifyError,
-    notifySuccess,
-} from '@placeos/common';
-import { MatDialog } from '@angular/material/dialog';
-import {
-    CalendarEvent,
-    EventDetailsModalComponent,
-    SetupBreakdownModalComponent,
-    declineEvent,
-} from '@placeos/events';
-import { DatePipe } from '@angular/common';
-import { OrganisationService } from '@placeos/organisation';
-import { openConfirmModal } from '@placeos/components';
+import { EventsStateService } from './events-state.service';
 
 @Component({
     selector: 'room-bookings-timeline',

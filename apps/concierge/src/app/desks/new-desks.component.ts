@@ -1,7 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
-import { Desk, OrganisationService } from '@placeos/organisation';
+import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import {
     AsyncHandler,
     SettingsService,
@@ -10,16 +9,16 @@ import {
     jsonToCsv,
     loadTextFileFromInputEvent,
     notifyError,
-    notifyInfo,
     randomInt,
 } from '@placeos/common';
+import { Desk, OrganisationService } from '@placeos/organisation';
 
-import { DesksStateService } from './desks-state.service';
-import { DeskBookModalComponent } from './desk-book-modal.component';
-import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';
 import { combineLatest } from 'rxjs';
 import { map, take } from 'rxjs/operators';
+import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';
+import { DeskBookModalComponent } from './desk-book-modal.component';
 import { DeskQrCodeModalComponent } from './desk-qr-code-modal.component';
+import { DesksStateService } from './desks-state.service';
 
 @Component({
     selector: '[app-new-desks]',

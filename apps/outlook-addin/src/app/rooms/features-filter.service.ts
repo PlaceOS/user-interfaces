@@ -1,8 +1,8 @@
-import { Injectable, OnDestroy } from '@angular/core';
-import { BehaviorSubject, Observable, of, Subscription } from 'rxjs';
-import { take, map, filter, switchMap } from 'rxjs/operators';
-import { Space } from '@placeos/spaces';
+import { Injectable } from '@angular/core';
 import { EventFormService } from '@placeos/events';
+import { Space } from '@placeos/spaces';
+import { BehaviorSubject, Observable, Subscription } from 'rxjs';
+import { map, take } from 'rxjs/operators';
 
 @Injectable({
     providedIn: 'root',

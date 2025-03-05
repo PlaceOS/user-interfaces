@@ -2,9 +2,9 @@ import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
 import { User } from '@placeos/users';
 import { SafePipe } from '../lib/safe.pipe';
 
-import { UserAvatarComponent } from '../lib/user-avatar.component';
 import { MockDirective } from 'ng-mocks';
 import { AuthenticatedImageDirective } from '../lib/authenticated-image.directive';
+import { UserAvatarComponent } from '../lib/user-avatar.component';
 
 describe('UserAvatarComponent', () => {
     let spectator: Spectator<UserAvatarComponent>;

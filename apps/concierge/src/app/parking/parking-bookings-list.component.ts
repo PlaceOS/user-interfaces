@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { ParkingStateService } from './parking-state.service';
 import { SettingsService } from '@placeos/common';
+import { ParkingStateService } from './parking-state.service';
 
 @Component({
     selector: 'parking-bookings-list',

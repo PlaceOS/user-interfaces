@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { MapsPeopleService, SettingsService, flatten } from '@placeos/common';
 import {
     PlaceZoneMetadata,
     authority,
@@ -7,8 +8,7 @@ import {
     queryUsers,
     showMetadata,
 } from '@placeos/ts-client';
-import { MapsPeopleService, SettingsService, flatten } from '@placeos/common';
-import { BehaviorSubject, combineLatest, Observable, of, timer } from 'rxjs';
+import { BehaviorSubject, Observable, combineLatest, of, timer } from 'rxjs';
 import {
     catchError,
     debounceTime,
@@ -21,10 +21,10 @@ import {
     tap,
 } from 'rxjs/operators';
 
-import { Space } from 'libs/spaces/src/lib/space.class';
-import { StaffUser, User } from 'libs/users/src/lib/user.class';
-import { searchStaff } from 'libs/users/src/lib/staff.fn';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
+import { Space } from 'libs/spaces/src/lib/space.class';
+import { searchStaff } from 'libs/users/src/lib/staff.fn';
+import { StaffUser, User } from 'libs/users/src/lib/user.class';
 import { ExploreStateService } from './explore-state.service';
 
 export interface PointOfInterest {

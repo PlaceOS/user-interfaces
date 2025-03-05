@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { AssetManagerStateService } from './asset-manager-state.service';
-import { OrganisationService } from '@placeos/organisation';
 import { SettingsService } from '@placeos/common';
+import { OrganisationService } from '@placeos/organisation';
+import { AssetManagerStateService } from './asset-manager-state.service';
 
 @Component({
     selector: 'asset-request-details',

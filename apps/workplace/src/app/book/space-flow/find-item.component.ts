@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { Space } from '@placeos/spaces';
 import { MapLocateModalComponent } from '@placeos/components';
+import { Space } from '@placeos/spaces';
 
 @Component({
     selector: 'space-flow-find-item',

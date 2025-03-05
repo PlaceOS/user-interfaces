@@ -7,8 +7,8 @@ import { map } from 'rxjs/operators';
 import { currentUser, notifySuccess, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 
-import { DEFAULT_SETTINGS } from 'apps/workplace/src/environments/settings';
 import { validateURL } from '@placeos/spaces';
+import { DEFAULT_SETTINGS } from 'apps/workplace/src/environments/settings';
 import { format } from 'date-fns';
 
 import { VERSION } from '@placeos/common';

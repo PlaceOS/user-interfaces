@@ -6,9 +6,9 @@ import { MockComponent, MockDirective, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 import { ControlStateService } from '../app/control-state.service';
 
+import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { TopbarHeaderComponent } from '../app/topbar-header.component';
 import { VideoCallStateService } from '../app/video-call/video-call-state.service';
-import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 
 describe('TopbarHeaderComponent', () => {
     let spectator: Spectator<TopbarHeaderComponent>;

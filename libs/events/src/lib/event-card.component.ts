@@ -9,20 +9,20 @@ import {
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
-import { format, isSameDay } from 'date-fns';
 import {
     AsyncHandler,
     getTimezoneOffsetString,
     i18n,
     SettingsService,
 } from '@placeos/common';
+import { format, isSameDay } from 'date-fns';
 
-import { CalendarEvent } from './event.class';
-import { EventDetailsModalComponent } from './event-details-modal.component';
+import { DatePipe } from '@angular/common';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
+import { EventDetailsModalComponent } from './event-details-modal.component';
+import { CalendarEvent } from './event.class';
 import { GroupEventDetailsModalComponent } from './group-event-details-modal.component';
-import { DatePipe } from '@angular/common';
 
 @Component({
     selector: 'event-card',

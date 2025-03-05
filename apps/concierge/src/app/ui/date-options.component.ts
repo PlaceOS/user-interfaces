@@ -9,11 +9,11 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
 import {
     addDays,
+    format,
+    isSameDay,
+    parse,
     startOfMinute,
     subDays,
-    format,
-    parse,
-    isSameDay,
 } from 'date-fns';
 
 @Component({

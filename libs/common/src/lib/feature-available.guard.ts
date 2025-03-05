@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { UrlTree, Router } from '@angular/router';
+import { Router, UrlTree } from '@angular/router';
 import { first } from 'rxjs/operators';
 
 import { SettingsService } from '@placeos/common';

@@ -10,11 +10,11 @@ import { ExploreStateService } from '@placeos/explore';
 import { ActionFieldComponent } from '@placeos/form-fields';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
+import { MatMenuModule } from '@angular/material/menu';
+import { SettingsService } from '@placeos/common';
 import { DeskFlowDetailedFormComponent } from 'apps/workplace/src/app/book/desk-flow/detailed-form.component';
 import { DeskFlowMapComponent } from 'apps/workplace/src/app/book/desk-flow/map.component';
-import { MatMenuModule } from '@angular/material/menu';
 import { BehaviorSubject } from 'rxjs';
-import { SettingsService } from '@placeos/common';
 
 describe('DeskFlowMapComponent', () => {
     let spectator: SpectatorRouting<DeskFlowMapComponent>;

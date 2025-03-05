@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { CheckinStateService } from './checkin-state.service';
 import { Router } from '@angular/router';
 import {
     SettingsService,
@@ -7,8 +6,9 @@ import {
     notifyInfo,
     notifySuccess,
 } from '@placeos/common';
-import { first } from 'rxjs/operators';
 import { OrganisationService } from '@placeos/organisation';
+import { first } from 'rxjs/operators';
+import { CheckinStateService } from './checkin-state.service';
 
 @Component({
     selector: '[checkin-induction]',

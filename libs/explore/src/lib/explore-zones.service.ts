@@ -1,20 +1,20 @@
 import { Injectable } from '@angular/core';
-import { getModule, showMetadata } from '@placeos/ts-client';
 import { Point, ViewerFeature } from '@placeos/svg-viewer';
+import { showMetadata } from '@placeos/ts-client';
 import { debounceTime, filter, first, map } from 'rxjs/operators';
 
 import { AsyncHandler, HashMap, i18n, SettingsService } from '@placeos/common';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 
-import { ExploreStateService } from './explore-state.service';
-import { DEFAULT_COLOURS } from './explore-spaces.service';
-import { ExploreSensorInfoComponent } from './explore-sensor-info.component';
-import { BehaviorSubject, combineLatest } from 'rxjs';
 import {
     MapCanvasComponent,
     Polygon,
 } from 'libs/components/src/lib/map-canvas.component';
+import { BehaviorSubject, combineLatest } from 'rxjs';
 import { ExploreIconComponent } from './explore-icon.component';
+import { ExploreSensorInfoComponent } from './explore-sensor-info.component';
+import { DEFAULT_COLOURS } from './explore-spaces.service';
+import { ExploreStateService } from './explore-state.service';
 
 export interface ZoneData {
     /** ID of the zone */

@@ -24,6 +24,7 @@ import { SurveySuiteModule } from '@placeos/survey-suite';
 import { SurveyModule } from 'survey-angular-ui';
 import { QuestionBankComponent } from './components/question-bank/question-bank.component';
 import { SearchInputComponent } from './components/search-input.component';
+import { NewSurveyComponent } from './new-survey.component';
 import { ModQuestionOverlayComponent } from './overlays/mod-question-overlay.component';
 import { ModSurveyComponent } from './pages/mod-survey.component';
 import { RunSurveyComponent } from './pages/run-survey.component';
@@ -33,7 +34,6 @@ import { QuestionBankService } from './services/question-bank.service';
 import { SurveyBuilderService } from './services/survey-builder.service';
 import { SurveyService } from './services/survey.service';
 import { SurveyComponent } from './survey.component';
-import { NewSurveyComponent } from './new-survey.component';
 
 import { StylesManager } from 'survey-core';
 

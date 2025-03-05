@@ -2,11 +2,11 @@ import { FormGroup } from '@angular/forms';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { BookingFormService } from '@placeos/bookings';
+import { SettingsService } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 import { DeskFiltersDisplayComponent } from '../../lib/desk-select-modal/desk-filters-display.component';
-import { SettingsService } from '@placeos/common';
 
 describe('DeskFiltersDisplayComponent', () => {
     let spectator: Spectator<DeskFiltersDisplayComponent>;

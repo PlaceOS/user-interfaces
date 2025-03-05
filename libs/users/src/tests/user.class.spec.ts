@@ -1,5 +1,4 @@
-import { MapLocation } from '../lib/location.class';
-import { User, StaffUser, GuestUser } from '../lib/user.class';
+import { GuestUser, StaffUser, User } from '../lib/user.class';
 
 describe('[User]', () => {
     let user: User;

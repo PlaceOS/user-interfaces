@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { AsyncHandler, SettingsService } from '@placeos/common';
-import { LockersReportService } from './lockers-report.service';
 import { ActivatedRoute } from '@angular/router';
-import { debounceTime, map } from 'rxjs/operators';
+import { AsyncHandler, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
+import { debounceTime, map } from 'rxjs/operators';
+import { LockersReportService } from './lockers-report.service';
 
 @Component({
     selector: '[lockers-report]',

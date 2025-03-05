@@ -1,31 +1,26 @@
-import { BrowserModule } from '@angular/platform-browser';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import {
-    ErrorHandler,
-    NgModule,
-    inject,
-    provideAppInitializer,
-} from '@angular/core';
 import {
     provideHttpClient,
     withInterceptorsFromDi,
 } from '@angular/common/http';
+import { ErrorHandler, NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { Router, RouterModule } from '@angular/router';
 import { ServiceWorkerModule } from '@angular/service-worker';
 
-import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatRippleModule } from '@angular/material/core';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { ComponentsModule } from 'libs/components/src/lib/components.module';
 
 import * as Sentry from '@sentry/angular';
 
-import { routes } from './app.routes';
-import { environment } from '../environments/environment';
 import { AppComponent } from 'libs/components/src/lib/app.component';
+import { environment } from '../environments/environment';
+import { routes } from './app.routes';
 
 import { BootstrapComponent } from './bootstrap.component';
 import { PanelViewComponent } from './panel-view.component';

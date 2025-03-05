@@ -1,20 +1,20 @@
+import { Clipboard } from '@angular/cdk/clipboard';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { Component, ElementRef, forwardRef, ViewChild } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatChipInputEvent } from '@angular/material/chips';
-import { Clipboard } from '@angular/cdk/clipboard';
 import { Upload } from '@placeos/cloud-uploads';
 
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map, take } from 'rxjs/operators';
 
+import { MatDialog } from '@angular/material/dialog';
 import {
     AsyncHandler,
     notifyInfo,
     unique,
     UploadsService,
 } from '@placeos/common';
-import { MatDialog } from '@angular/material/dialog';
 import { ImageViewerComponent } from 'libs/components/src/lib/image-viewer.component';
 
 export interface UploadDetails {

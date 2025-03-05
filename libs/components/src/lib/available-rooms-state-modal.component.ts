@@ -1,9 +1,9 @@
 import { Component, EventEmitter, Inject, Output } from '@angular/core';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { unique } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { requestSpacesForZone } from 'libs/spaces/src/lib/space.utilities';
 import { take } from 'rxjs/operators';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 @Component({
     selector: 'available-rooms-state-modal',

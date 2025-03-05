@@ -5,9 +5,9 @@ import { PointsStateService } from '../../app/points/points-state.service';
 import { PointsTopbarComponent } from '../../app/points/points-topbar.component';
 
 import { PointsComponent } from '../../app/points/points.component';
-import { SidebarComponent } from '../../app/ui/sidebar.component';
-import { ApplicationTopbarComponent } from '../../app/ui/app-topbar.component';
 import { ApplicationSidebarComponent } from '../../app/ui/app-sidebar.component';
+import { ApplicationTopbarComponent } from '../../app/ui/app-topbar.component';
+import { SidebarComponent } from '../../app/ui/sidebar.component';
 
 describe('PointsComponent', () => {
     let spectator: SpectatorRouting<PointsComponent>;

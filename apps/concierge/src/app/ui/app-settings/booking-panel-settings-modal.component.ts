@@ -19,8 +19,8 @@ import {
 import { of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
-import * as yaml from 'js-yaml';
 import { validateURL } from '@placeos/spaces';
+import * as yaml from 'js-yaml';
 
 @Component({
     selector: `booking-panel-settings-modal`,

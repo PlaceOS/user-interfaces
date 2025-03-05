@@ -2,12 +2,12 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 
-import { CateringMenuComponent } from '../lib/catering-menu.component';
-import { CateringStateService } from '../lib/catering-state.service';
 import { MatTabsModule } from '@angular/material/tabs';
 import { IconComponent } from '@placeos/components';
 import { SimpleTableComponent } from 'libs/components/src/lib/simple-table.component';
+import { CateringMenuComponent } from '../lib/catering-menu.component';
 import { CateringOrdersService } from '../lib/catering-orders.service';
+import { CateringStateService } from '../lib/catering-state.service';
 
 describe('CateringMenuComponent', () => {
     let spectator: Spectator<CateringMenuComponent>;

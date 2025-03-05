@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
-import { AsyncHandler, SettingsService } from '@placeos/common';
+import { SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { BehaviorSubject, combineLatest } from 'rxjs';
-import { debounceTime, map, shareReplay, take, tap } from 'rxjs/operators';
+import { debounceTime, map, shareReplay, take } from 'rxjs/operators';
 
 export interface BannerDetails {
     id: string;

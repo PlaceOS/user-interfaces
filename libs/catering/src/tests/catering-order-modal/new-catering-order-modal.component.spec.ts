@@ -1,15 +1,15 @@
+import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { createRoutingFactory, Spectator } from '@ngneat/spectator/jest';
 import { SettingsService } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
-import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
-import { CateringItemDetailsComponent } from '../../lib/catering-order-modal/catering-item-details.component';
-import { CateringItemListComponent } from '../../lib/catering-order-modal/catering-item-list.component';
-import { CateringItemFiltersComponent } from '../../lib/catering-order-modal/catering-item-filters.component';
-import { NewCateringOrderModalComponent } from '../../lib/catering-order-modal/new-catering-order-modal.component';
-import { MatDialogModule, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { OrganisationService } from '@placeos/organisation';
-import { CateringOrderStateService } from '../../lib/catering-order-modal/catering-order-state.service';
+import { MockComponent, MockProvider } from 'ng-mocks';
 import { CateringItem } from '../../lib/catering-item.class';
+import { CateringItemDetailsComponent } from '../../lib/catering-order-modal/catering-item-details.component';
+import { CateringItemFiltersComponent } from '../../lib/catering-order-modal/catering-item-filters.component';
+import { CateringItemListComponent } from '../../lib/catering-order-modal/catering-item-list.component';
+import { CateringOrderStateService } from '../../lib/catering-order-modal/catering-order-state.service';
+import { NewCateringOrderModalComponent } from '../../lib/catering-order-modal/new-catering-order-modal.component';
 
 describe('NewCateringOrderModalComponent', () => {
     let spectator: Spectator<NewCateringOrderModalComponent>;

@@ -1,17 +1,17 @@
-import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Route, RouterModule } from '@angular/router';
 
-import { SharedSpacesModule } from '@placeos/spaces';
-import { FormFieldsModule } from '@placeos/form-fields';
 import { SharedBookingsModule } from '@placeos/bookings';
+import { FormFieldsModule } from '@placeos/form-fields';
+import { SharedSpacesModule } from '@placeos/spaces';
 
 import { UIModule } from '../ui/ui.module';
 
-import { EmailTemplatesComponent } from './email-templates.component';
-import { EmailTemplatesListComponent } from './email-templates-list.component';
 import { EmailTemplateManageComponent } from './email-template-manage.component';
+import { EmailTemplatesListComponent } from './email-templates-list.component';
+import { EmailTemplatesComponent } from './email-templates.component';
 
 const ROUTES: Route[] = [
     {

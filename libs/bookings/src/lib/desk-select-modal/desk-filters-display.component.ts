@@ -2,9 +2,9 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 
-import { DeskFiltersComponent } from './desk-filters.component';
-import { BookingFormService } from '../booking-form.service';
 import { endOfDay } from 'date-fns';
+import { BookingFormService } from '../booking-form.service';
+import { DeskFiltersComponent } from './desk-filters.component';
 
 @Component({
     selector: 'desk-filters-display',

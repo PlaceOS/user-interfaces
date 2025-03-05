@@ -2,9 +2,9 @@ import { Component, Input } from '@angular/core';
 import { timePeriodsIntersect } from '@placeos/common';
 import {
     addMinutes,
+    format,
     getMinutes,
     roundToNearestMinutes,
-    format,
 } from 'date-fns';
 import { combineLatest, timer } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';

@@ -1,9 +1,9 @@
-import { MatDialog } from '@angular/material/dialog';
 import { fakeAsync, tick } from '@angular/core/testing';
 import { UntypedFormGroup } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator';
-import { BehaviorSubject, of } from 'rxjs';
 import { MockProvider } from 'ng-mocks';
+import { BehaviorSubject, of } from 'rxjs';
 
 import { SettingsService } from '@placeos/common';
 import { EventFormService } from '@placeos/events';

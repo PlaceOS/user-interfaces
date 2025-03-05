@@ -2,14 +2,14 @@ import { of } from 'rxjs';
 
 import { Booking } from '../lib/booking.class';
 import {
+    approveBooking,
+    checkinBooking,
     createBooking,
     queryBookings,
+    rejectBooking,
+    saveBooking,
     showBooking,
     updateBooking,
-    saveBooking,
-    approveBooking,
-    rejectBooking,
-    checkinBooking,
 } from '../lib/bookings.fn';
 
 jest.mock('@placeos/ts-client');

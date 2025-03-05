@@ -1,10 +1,10 @@
 import { Component, Input } from '@angular/core';
-import { AssetManagerStateService } from './asset-manager-state.service';
-import { AvailableRoomsStateModalComponent } from '@placeos/components';
 import { MatDialog } from '@angular/material/dialog';
-import { take } from 'rxjs/operators';
 import { AsyncHandler, SettingsService } from '@placeos/common';
+import { AvailableRoomsStateModalComponent } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
+import { take } from 'rxjs/operators';
+import { AssetManagerStateService } from './asset-manager-state.service';
 
 @Component({
     selector: 'asset-manager-topbar',

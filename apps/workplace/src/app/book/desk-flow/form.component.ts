@@ -9,7 +9,7 @@ import {
     SettingsService,
 } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
-import { addDays, setHours, addMinutes, roundToNearestMinutes } from 'date-fns';
+import { addDays, addMinutes, roundToNearestMinutes, setHours } from 'date-fns';
 import { first, take } from 'rxjs/operators';
 
 @Component({

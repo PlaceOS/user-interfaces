@@ -1,4 +1,4 @@
-import { Component, Input, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { CateringOrder, CateringStateService } from '@placeos/catering';
 import { SettingsService } from '@placeos/common';

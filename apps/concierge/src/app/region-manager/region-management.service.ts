@@ -1,13 +1,13 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { i18n, notifyError, notifySuccess } from '@placeos/common';
+import { openConfirmModal } from '@placeos/components';
 import { OrganisationService, Region } from '@placeos/organisation';
 import { PlaceZone, removeZone } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { RegionModalComponent } from './region-modal.component';
 import { AppSettingsModalComponent } from '../ui/app-settings-modal.component';
-import { i18n, notifyError, notifySuccess } from '@placeos/common';
-import { openConfirmModal } from '@placeos/components';
+import { RegionModalComponent } from './region-modal.component';
 
 export interface RegionListOptions {
     search?: string;

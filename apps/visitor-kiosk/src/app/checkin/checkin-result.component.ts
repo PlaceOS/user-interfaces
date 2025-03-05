@@ -1,13 +1,13 @@
+import { DatePipe } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { filter, first, map, startWith } from 'rxjs/operators';
-import { CheckinStateService } from './checkin-state.service';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
-import { combineLatest } from 'rxjs';
 import { roundToNearestMinutes, startOfMinute } from 'date-fns';
-import { DatePipe } from '@angular/common';
 import { generateQRCode } from 'libs/common/src/lib/qr-code';
+import { combineLatest } from 'rxjs';
+import { filter, first, map, startWith } from 'rxjs/operators';
+import { CheckinStateService } from './checkin-state.service';
 
 const DEFAULT_TEMPLATE = `
 <p class="text-center">

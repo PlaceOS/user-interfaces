@@ -10,13 +10,12 @@ import {
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { map, take } from 'rxjs/operators';
 
-import { BookingAsset, BookingFormService } from '../booking-form.service';
-import { BehaviorSubject, combineLatest } from 'rxjs';
-import { DEFAULT_COLOURS } from 'libs/explore/src/lib/explore-spaces.service';
-import { ExploreParkingInfoComponent } from 'libs/explore/src/lib/explore-parking-info.component';
-import { BuildingLevel } from 'libs/organisation/src/lib/level.class';
 import { OrganisationService } from '@placeos/organisation';
-import { SpaceLocationPinComponent } from 'libs/spaces/src/lib/space-select-modal/space-location-pin.component';
+import { ExploreParkingInfoComponent } from 'libs/explore/src/lib/explore-parking-info.component';
+import { DEFAULT_COLOURS } from 'libs/explore/src/lib/explore-spaces.service';
+import { BuildingLevel } from 'libs/organisation/src/lib/level.class';
+import { BehaviorSubject, combineLatest } from 'rxjs';
+import { BookingAsset, BookingFormService } from '../booking-form.service';
 
 @Component({
     selector: 'parking-space-map',

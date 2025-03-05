@@ -7,11 +7,10 @@ jest.mock('@placeos/ts-client');
 
 import * as ts_client from '@placeos/ts-client';
 
-import { SpacesService } from '../lib/spaces.service';
-import { generateMockSpace } from '../lib/space.utilities';
-import { first } from 'rxjs/operators';
-import { randomInt, SettingsService } from '@placeos/common';
+import { SettingsService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
+import { generateMockSpace } from '../lib/space.utilities';
+import { SpacesService } from '../lib/spaces.service';
 
 describe('SpacesService', () => {
     let spectator: SpectatorService<SpacesService>;

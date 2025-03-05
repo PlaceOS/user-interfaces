@@ -1,3 +1,4 @@
+import { DatePipe } from '@angular/common';
 import {
     Component,
     forwardRef,
@@ -11,11 +12,10 @@ import {
     NG_VALUE_ACCESSOR,
     NgControl,
 } from '@angular/forms';
-import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
+import { getTimezoneOffsetString } from '@placeos/common';
 import { addYears, endOfDay, set, startOfDay } from 'date-fns';
 import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
-import { getTimezoneOffsetString } from '@placeos/common';
-import { DatePipe } from '@angular/common';
+import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
 
 export enum TimezoneDiffRange {
     Both,
