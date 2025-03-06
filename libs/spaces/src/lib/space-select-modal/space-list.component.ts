@@ -107,7 +107,7 @@ import { Space } from '../space.class';
                             </div>
                         </div>
                         <div class="space-y-2">
-                            <div class="mr-10 truncate font-medium">
+                            <div class="mr-10 truncate text-left font-medium">
                                 {{
                                     space.display_name ||
                                         space.name ||
