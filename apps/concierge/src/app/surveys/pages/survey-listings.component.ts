@@ -179,6 +179,7 @@ export class SurveyListingsComponent extends AsyncHandler implements OnInit {
                 this._building_id.next(params.get('id') || ''),
             ),
         );
+        this.timeout('load', () => this._change.next(Date.now()));
     }
 
     public async onDelete(id: number) {

@@ -60,14 +60,15 @@ export class SurveyService {
             this.builder.setUISurvey(generateNewSurvey());
             return;
         }
-        const uiSurvey = await this.getSurveyDetails(survey_id);
-        if (!uiSurvey) return;
+        const survey_details = await this.getSurveyDetails(survey_id);
+        if (!survey_details) return;
 
-        this.builder.setUISurvey(uiSurvey);
+        this.builder.setUISurvey(survey_details);
+
         this.setOptions({
-            zone_id: uiSurvey.zone_id,
-            building_id: uiSurvey.building_id,
-            trigger: uiSurvey.trigger,
+            zone_id: survey_details.zone_id,
+            building_id: survey_details.building_id,
+            trigger: survey_details.trigger.toUpperCase() as any,
         });
     }
 
@@ -113,11 +114,7 @@ export class SurveyService {
             pages: translateToSurveyPage(pages),
         };
 
-        if (id > 0) {
-            this.updateSurvey(toSave);
-        } else {
-            this.createSurvey(toSave);
-        }
+        id > 0 ? this.updateSurvey(toSave) : this.createSurvey(toSave);
     }
 
     public setOptions(options: Partial<SurveyOptions>) {

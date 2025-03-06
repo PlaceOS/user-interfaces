@@ -340,34 +340,30 @@ import { SurveyOptions, SurveyService } from '../services/survey.service';
     standalone: false,
 })
 export class ModSurveyComponent extends AsyncHandler implements OnInit {
-    loading$ = this._survey.loading$.pipe(shareReplay(1));
+    public view: 'design' | 'preview' = 'design';
     public id = '';
     public bld_id = '';
+    public selected_building = null;
+    public levels = [];
 
-    constructor(
-        public service: SurveyBuilderService,
-        private _survey: SurveyService,
-        private _route: ActivatedRoute,
-        private _org: OrganisationService,
-    ) {
-        super();
-    }
+    public readonly triggerOptions = TriggerOptions;
+    public readonly loading$ = this._survey.loading$.pipe(shareReplay(1));
+    public readonly options$ = this._survey._options$.pipe(shareReplay(1));
+    public readonly buildings$ = this._org.building_list;
+    public readonly levels$ = combineLatest([
+        this.options$,
+        this._org.level_list,
+    ]).pipe(
+        map(([options, levels]) => {
+            const { building_id } = options;
+            if (!building_id?.length) return [];
+            return levels.filter((l) => l.parent_id === building_id);
+        }),
+    );
 
-    ngOnInit(): void {
-        this.subscription(
-            'route_param',
-            this._route.queryParams.subscribe((params) => {
-                const id = params?.survey_id || '';
-                this.id = id;
-                this._survey.loadSurvey(id);
-                const bld_id = params['building_id'];
-                this.bld_id = bld_id;
-                if (bld_id?.length) this.updateOptions({ building_id: bld_id });
-            }),
-        );
-    }
-    view: 'design' | 'preview' = 'design';
-
+    updateOptions = (op: Partial<SurveyOptions>) => this._survey.setOptions(op);
+    onSave = () => this._survey.saveSurvey();
+    onCancel = () => this._survey.back();
     onDrop = (event: any, p: UISurveyPage) =>
         this.service.onDropQuestionToSurvey(event, p);
     onRemove = (index: number) => this.service.removeQuestionFromSurvey(index);
@@ -389,44 +385,44 @@ export class ModSurveyComponent extends AsyncHandler implements OnInit {
         return this.service.getUISurvey();
     }
 
-    switchView(view: 'design' | 'preview') {
+    constructor(
+        public service: SurveyBuilderService,
+        private _survey: SurveyService,
+        private _route: ActivatedRoute,
+        private _org: OrganisationService,
+    ) {
+        super();
+    }
+
+    public ngOnInit(): void {
+        this.subscription(
+            'route_param',
+            this._route.queryParams.subscribe((params) => {
+                const id = params?.survey_id || '';
+                this.id = id;
+                this._survey.loadSurvey(id);
+                const bld_id = params['building_id'];
+                this.bld_id = bld_id;
+                if (bld_id?.length) this.updateOptions({ building_id: bld_id });
+            }),
+        );
+    }
+
+    public switchView(view: 'design' | 'preview') {
         this.view = view;
-        if (view === 'preview') {
-            this.service.onPreview();
-        }
+        if (view === 'preview') this.service.onPreview();
     }
 
-    onTabChange(event: MatTabChangeEvent) {
-        if (event.index === 1) {
-            this.service.onPreview();
-        }
+    public onTabChange(event: MatTabChangeEvent) {
+        if (event.index === 1) this.service.onPreview();
     }
-    public selected_building = null;
-    public levels = [];
-    public readonly options$ = this._survey._options$.pipe(shareReplay(1));
-    public readonly buildings$ = this._org.building_list;
-    public readonly levels$ = combineLatest([
-        this.options$,
-        this._org.level_list,
-    ]).pipe(
-        map(([options, levels]) => {
-            const { building_id } = options;
-            if (!building_id?.length) return [];
-            return levels.filter((l) => l.parent_id === building_id);
-        }),
-    );
-    public readonly triggerOptions = TriggerOptions;
 
-    updateOptions = (op: Partial<SurveyOptions>) => this._survey.setOptions(op);
-    onSave = () => this._survey.saveSurvey();
-    onCancel = () => this._survey.back();
-
-    onBuildingChange(building_id: string) {
+    public onBuildingChange(building_id: string) {
         if (!building_id?.length) return;
-        this.doBuildingChange(building_id);
+        this._doBuildingChange(building_id);
     }
 
-    private doBuildingChange(building_id: string) {
+    private _doBuildingChange(building_id: string) {
         if (!building_id?.length) return;
         this.updateOptions({ zone_id: building_id, building_id });
     }
