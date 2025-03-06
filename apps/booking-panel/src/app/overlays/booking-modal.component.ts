@@ -32,6 +32,7 @@ export async function openBookingModal(
 ) {
     const ref = dialog.open(BookingModalComponent, {
         data,
+        backdropClass: ['pointer-events-none', 'bg-black', 'opacity-60'],
     });
     const result = await Promise.race([
         ref.componentInstance.event
