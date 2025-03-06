@@ -84,7 +84,7 @@ import { combineLatest } from 'rxjs';
                     <a-date-field formControlName="date"></a-date-field>
                     <mat-checkbox
                         formControlName="all_day"
-                        *ngIf="allow_all_day && !only_duration && !disable_date"
+                        *ngIf="allow_all_day && !disable_date"
                         class="absolute -top-2 right-0"
                     >
                         {{ 'COMMON.ALL_DAY' | translate }}
@@ -159,10 +159,6 @@ export class LockerBookingModalComponent
     }
     public get hide_end() {
         return this._settings.get('app.lockers.hide_end_time');
-    }
-
-    public get only_duration() {
-        return this._settings.get('app.lockers.only_duration');
     }
 
     public get end_date() {
@@ -288,10 +284,6 @@ export class LockerBookingModalComponent
                 this.timeout(
                     'disable',
                     () => {
-                        if (this.only_duration) {
-                            this.form.patchValue({ all_day: false });
-                            this.form.controls.date.disable();
-                        } else this.form.controls.date.enable();
                         if (this.disable_date) {
                             this.form.controls.date.disable();
                         }

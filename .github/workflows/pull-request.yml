@@ -188,7 +188,7 @@ jobs:
                   npx nx build ${{ matrix.package }} --verbose --configuration=${{ env.configuration }}
 
             - name: Deploy the application(${{ matrix.package }})
-              uses: s0/git-publish-subdir-action@develop
+              uses: MrYuion/git-publish-subdir-action@develop
               env:
                   REPO: self
                   BRANCH: build/${{env.deploy_branch}}/${{ matrix.package }} # The branch name where you want to push the assets

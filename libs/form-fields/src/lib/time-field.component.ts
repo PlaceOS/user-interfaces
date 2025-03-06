@@ -100,7 +100,7 @@ import {
                 </div>
             </button>
         </mat-menu>
-        <mat-error><ng-content></ng-content></mat-error>
+        <mat-error *ngIf="!no_error"><ng-content></ng-content></mat-error>
     `,
     styles: [
         `
@@ -130,6 +130,7 @@ export class TimeFieldComponent
     @Input() public no_past_times = true;
     @Input() public use_24hr = false;
     @Input() public force_time: number;
+    @Input() public no_error: boolean;
     @Input() public extra_info_fn = (t?: number) => '';
     /** Prevent times before */
     @Input() public from: number = startOfDay(Date.now()).valueOf();

@@ -93,20 +93,20 @@ export class ExploreParkingService extends AsyncHandler {
     /** List of current bookings for the current building */
     public readonly events = combineLatest([
         this._org.active_building,
+        this._state.options,
         this._options,
         this._poll,
-        this._state.options,
     ]).pipe(
         debounceTime(300),
-        switchMap(([bld, _, __, { is_public }]) =>
+        switchMap(([bld, { is_public }, opts]) =>
             is_public
                 ? of([])
                 : queryBookings({
                       period_start: getUnixTime(
-                          startOfMinute(_.date || Date.now()),
+                          startOfMinute(opts.date || Date.now()),
                       ),
                       period_end: getUnixTime(
-                          endOfMinute(_.date || Date.now()),
+                          endOfMinute(opts.date || Date.now()),
                       ),
                       type: 'parking',
                       zones: this._settings.get('app.use_region')

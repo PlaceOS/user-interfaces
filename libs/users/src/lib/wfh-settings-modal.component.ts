@@ -13,8 +13,10 @@ import { WorktimeBlock, WorktimePreference } from './user.class';
 @Component({
     selector: `wfh-settings-modal`,
     template: `
-        <header class="relative flex items-center justify-between">
-            <h2 class="text-xl font-medium">
+        <header
+            class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded border-none bg-base-200 p-2"
+        >
+            <h2 class="px-2 text-xl font-medium">
                 {{ 'COMMON.WORK_LOCATION_SETTINGS' | translate }}
             </h2>
             <button
@@ -28,123 +30,128 @@ import { WorktimeBlock, WorktimePreference } from './user.class';
             </button>
         </header>
         <main
-            class="relative flex max-h-[65vh] w-[40rem] max-w-full flex-col space-y-2 overflow-auto rounded p-4"
+            class="relative flex max-h-[calc(100vh-9rem)] w-[40rem] max-w-full flex-col space-y-2 overflow-y-auto overflow-x-hidden rounded px-2 py-4 sm:max-h-[65vh] sm:p-4"
             *ngIf="!loading; else load_state"
         >
-            <h3>{{ 'COMMON.WORK_DAYS' | translate }}</h3>
             <div
-                class="flex w-full items-center justify-between space-x-2 pb-4"
+                class="relative mb-4 flex w-full items-center justify-between space-x-2 rounded border border-base-300 p-2"
             >
-                <mat-checkbox
-                    *ngFor="let day of days"
-                    [(ngModel)]="weekdays_enabled[day.getDay()]"
-                    (ngModelChange)="$event && initialiseDay(day.getDay())"
-                >
-                    {{ day | date: 'EEE' }}
-                </mat-checkbox>
-            </div>
-            <h3>{{ 'COMMON.WORK_HOURS' | translate }}</h3>
-            <ng-container *ngIf="has_working_days; else empty_state">
-                <ng-container *ngFor="let day of days">
-                    <ng-container *ngIf="weekdays_enabled[day.getDay()]">
-                        <div
-                            class="flex w-full space-x-2 rounded px-2 pt-1 hover:bg-base-200"
+                @for (day of days; track day) {
+                    <div class="flex flex-1 flex-col items-center pt-2">
+                        <div class="text-xs font-bold uppercase">
+                            {{ day | date: 'EEE' }}
+                        </div>
+                        <mat-checkbox
+                            [(ngModel)]="weekdays_enabled[day.getDay()]"
+                            (ngModelChange)="
+                                $event && initialiseDay(day.getDay())
+                            "
                         >
-                            <label class="w-12 min-w-0 px-2 pt-3">
-                                {{ day | date: 'EEE' }}
-                            </label>
-                            <div class="w-1/2 flex-1">
-                                <div
-                                    class="flex items-center space-x-2"
-                                    *ngFor="
-                                        let block of settings[day.getDay()]
-                                            .blocks;
-                                        let i = index
+                        </mat-checkbox>
+                    </div>
+                }
+                <h3
+                    class="absolute left-2 top-0 -translate-y-1/2 bg-base-100 px-2"
+                >
+                    {{ 'COMMON.WORK_DAYS' | translate }}
+                </h3>
+            </div>
+            <div
+                *ngIf="has_working_days; else empty_state"
+                class="relative flex w-full flex-col items-center justify-between space-y-4 rounded border border-base-300 px-2 pb-4 pt-6 sm:px-4"
+            >
+                @for (day of days; track day) {
+                    <div
+                        *ngIf="weekdays_enabled[day.getDay()]"
+                        class="relative flex w-full items-center justify-between space-x-2 rounded bg-base-200 p-2"
+                    >
+                        <div class="w-1/2 flex-1 space-y-2 pt-2">
+                            <div
+                                class="flex items-center space-x-2"
+                                *ngFor="
+                                    let block of settings[day.getDay()].blocks;
+                                    let i = index
+                                "
+                            >
+                                <a-time-field
+                                    [ngModel]="timeFrom(block.start_time)"
+                                    (ngModelChange)="
+                                        setStartTime(
+                                            block,
+                                            day.getDay(),
+                                            $event
+                                        )
+                                    "
+                                    [from]="
+                                        timeFrom(
+                                            (i > 0
+                                                ? settings[day.getDay()].blocks[
+                                                      i - 1
+                                                  ]?.end_time
+                                                : 0) || 0
+                                        )
+                                    "
+                                    [no_error]="true"
+                                    class="w-1/4 flex-1"
+                                ></a-time-field>
+                                <a-time-field
+                                    [ngModel]="timeFrom(block.end_time)"
+                                    (ngModelChange)="
+                                        setEndTime(block, day.getDay(), $event)
+                                    "
+                                    [from]="timeFrom(block.start_time + 0.25)"
+                                    [no_error]="true"
+                                    class="w-1/4 flex-1"
+                                ></a-time-field>
+                                <mat-form-field
+                                    appearance="outline"
+                                    class="no-subscript w-1/4 flex-1"
+                                >
+                                    <mat-select [(ngModel)]="block.location">
+                                        <mat-option
+                                            *ngFor="let type of options"
+                                            [value]="type.id"
+                                        >
+                                            {{ type.name }}
+                                        </mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+                                <button
+                                    icon
+                                    matRipple
+                                    *ngIf="i === 0"
+                                    (click)="
+                                        addBlock(settings[day.getDay()], i)
                                     "
                                 >
-                                    <a-time-field
-                                        [ngModel]="timeFrom(block.start_time)"
-                                        (ngModelChange)="
-                                            setStartTime(
-                                                block,
-                                                day.getDay(),
-                                                $event
-                                            )
-                                        "
-                                        [from]="
-                                            timeFrom(
-                                                (i > 0
-                                                    ? settings[day.getDay()]
-                                                          .blocks[i - 1]
-                                                          ?.end_time
-                                                    : 0) || 0
-                                            )
-                                        "
-                                        class="h-[3.25rem] w-1/4 flex-1"
-                                    ></a-time-field>
-                                    <a-time-field
-                                        [ngModel]="timeFrom(block.end_time)"
-                                        (ngModelChange)="
-                                            setEndTime(
-                                                block,
-                                                day.getDay(),
-                                                $event
-                                            )
-                                        "
-                                        [from]="
-                                            timeFrom(block.start_time + 0.25)
-                                        "
-                                        class="h-[3.25rem] w-1/4 flex-1"
-                                    ></a-time-field>
-                                    <mat-form-field
-                                        appearance="outline"
-                                        class="h-[3.25rem] w-1/4 flex-1"
-                                    >
-                                        <mat-select
-                                            [(ngModel)]="block.location"
-                                        >
-                                            <mat-option
-                                                *ngFor="let type of options"
-                                                [value]="type.id"
-                                            >
-                                                {{ type.name }}
-                                            </mat-option>
-                                        </mat-select>
-                                    </mat-form-field>
-                                    <button
-                                        icon
-                                        matRipple
-                                        [disabled]="
-                                            settings[day.getDay()].blocks
-                                                .length > 2
-                                        "
-                                        (click)="
-                                            addBlock(settings[day.getDay()], i)
-                                        "
-                                    >
-                                        <app-icon>add</app-icon>
-                                    </button>
-                                    <button
-                                        icon
-                                        matRipple
-                                        class="text-error"
-                                        [class.opacity-0]="i === 0"
-                                        [class.pointer-events-none]="i === 0"
-                                        (click)="
-                                            removeBlock(
-                                                settings[day.getDay()],
-                                                i
-                                            )
-                                        "
-                                    >
-                                        <app-icon>delete</app-icon>
-                                    </button>
-                                </div>
+                                    <app-icon>add</app-icon>
+                                </button>
+                                <button
+                                    icon
+                                    matRipple
+                                    class="text-error"
+                                    *ngIf="i !== 0"
+                                    (click)="
+                                        removeBlock(settings[day.getDay()], i)
+                                    "
+                                >
+                                    <app-icon>delete</app-icon>
+                                </button>
                             </div>
                         </div>
-                    </ng-container>
-                </ng-container>
-            </ng-container>
+                        <h3
+                            class="absolute left-2 top-0 -translate-y-1/2 rounded border border-base-200 bg-base-100 bg-opacity-50 px-2 text-sm font-medium"
+                        >
+                            {{ day | date: 'EEEE' }}
+                        </h3>
+                    </div>
+                }
+                <h3
+                    class="absolute left-2 top-0 !m-0 -translate-y-1/2 bg-base-100 px-2"
+                >
+                    {{ 'COMMON.WORK_HOURS' | translate }}
+                </h3>
+            </div>
             <ng-template #empty_state>
                 <div
                     class="flex flex-col items-center justify-center space-y-4 px-8 py-16"
