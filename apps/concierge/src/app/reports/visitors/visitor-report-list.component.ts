@@ -101,7 +101,7 @@ export class VisitorReportListComponent {
         for (const bkn of data) {
             bkn.date = format(bkn.date, 'yyyy-MM-dd HH:mm');
         }
-        downloadFile('report-assets-daily-usage.csv', jsonToCsv(data));
+        downloadFile('report-visitor-daily-usage.csv', jsonToCsv(data));
     };
 
     constructor(private _state: VisitorsReportService) {}
