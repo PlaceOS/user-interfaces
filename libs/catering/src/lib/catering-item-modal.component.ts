@@ -89,13 +89,7 @@ export interface CateringItemModalData {
                     </mat-form-field>
                 </div>
                 <div class="flex flex-1 flex-col" *ngIf="form.controls.caterer">
-                    <label
-                        for="caterer"
-                        [class.error]="
-                            form.controls.caterer.invalid &&
-                            form.controls.caterer.touched
-                        "
-                    >
+                    <label for="caterer">
                         {{ 'CATERING.CATERER' | translate }}<span>*</span>:
                     </label>
                     <mat-form-field appearance="outline">
@@ -106,7 +100,6 @@ export interface CateringItemModalData {
                             formControlName="caterer"
                             [matAutocomplete]="caterer_auto"
                         />
-                        <mat-error>Caterer is required</mat-error>
                     </mat-form-field>
                 </div>
             </div>
@@ -327,9 +320,7 @@ export class CateringItemModalComponent {
         category: new FormControl(this.item.category || '', [
             Validators.required,
         ]),
-        caterer: new FormControl(this.item.caterer || '', [
-            Validators.required,
-        ]),
+        caterer: new FormControl(this.item.caterer || ''),
         unit_price: new FormControl(this.item.unit_price, [
             Validators.required,
         ]),
