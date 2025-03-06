@@ -366,6 +366,39 @@ export class LockerStateService extends AsyncHandler {
             }),
         );
     }
+    public async releaseAllLockers(confirm = false) {
+        const mod = this._org.module('lockers', 'Lockers');
+        if (!mod) return notifyError(i18n('APP.CONCIERGE.LOCKERS_NO_DRIVER'));
+        let close: () => void;
+        const lockers = await this.lockers$.pipe(take(1)).toPromise();
+        if (!lockers.length) return;
+        if (confirm) {
+            const result = await openConfirmModal(
+                {
+                    title: i18n('APP.CONCIERGE.LOCKERS_RELEASE_ALL_TITLE'),
+                    content: i18n('APP.CONCIERGE.LOCKERS_RELEASE_ALL_MSG'),
+                    icon: { content: 'event_busy' },
+                },
+                this._dialog,
+            );
+            if (result.reason !== 'done') return;
+            result.loading(i18n('APP.CONCIERGE.LOCKERS_RELEASE_ALL_LOADING'));
+            close = result.close;
+        }
+        await mod
+            .execute('locker_relrelease_all_lockersease', [])
+            .catch((e) => {
+                notifyError(
+                    i18n('APP.CONCIERGE.LOCKERS_RELEASE_ALL_ERROR', {
+                        error: e,
+                    }),
+                );
+                if (close) close();
+                throw e;
+            });
+        notifySuccess(i18n(`APP.CONCIERGE.LOCKERS_RELEASE_ALL_SUCCESS`));
+        if (close) close();
+    }
 
     public async releaseLocker(locker: Locker, confirm = false) {
         const mod = this._org.module('lockers', 'Lockers');

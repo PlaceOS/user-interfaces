@@ -89,6 +89,16 @@ import { LockerStateService } from './locker-state.service';
             <button
                 icon
                 matRipple
+                class="mr-2 h-12 w-12 rounded border border-error text-error"
+                (click)="releaseAllLockers()"
+                [matTooltip]="'APP.CONCIERGE.LOCKERS_RELEASE_ALL' | translate"
+                *ngIf="path !== 'events' && path !== 'map'"
+            >
+                <app-icon>open_in_new</app-icon>
+            </button>
+            <button
+                icon
+                matRipple
                 class="h-12 w-12 rounded bg-secondary text-secondary-content"
                 (click)="manageRestrictions()"
                 [matTooltip]="'APP.CONCIERGE.LOCKERS_BOOKING_RULES' | translate"
@@ -130,6 +140,8 @@ export class LockersTopbarComponent extends AsyncHandler implements OnInit {
     /** Set filter string */
     public readonly setSearch = (str) => this._state.setSearch(str);
     public readonly newLockerBank = () => this._state.editLockerBank();
+    public readonly releaseAllLockers = () =>
+        this._state.releaseAllLockers(true);
     /** List of levels for the active building */
     public readonly updateZones = (z) => {
         this._router.navigate([], {
