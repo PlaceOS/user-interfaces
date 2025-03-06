@@ -310,6 +310,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
             () => this._checkReload(),
             15 * 1000,
         );
+
         await requestScreenWakeLock();
     }
 }
