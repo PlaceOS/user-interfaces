@@ -151,7 +151,12 @@ import { currentPeriod, nextPeriod } from './helpers';
                     *ngIf="(state | async) === 'pending' && can_book"
                 >
                     <p class="uppercase">
-                        {{ 'APP.BOOKING_PANEL.CHECKIN_INPUT' | translate }}
+                        {{
+                            (can_scan
+                                ? 'APP.BOOKING_PANEL.CHECKIN_INPUT'
+                                : 'APP.BOOKING_PANEL.CHECKIN_INPUT_NOSCAN'
+                            ) | translate
+                        }}
                     </p>
                     <app-icon>arrow_forward</app-icon>
                 </div>
@@ -160,7 +165,12 @@ import { currentPeriod, nextPeriod } from './helpers';
                     *ngIf="(state | async) === 'free' && can_book"
                 >
                     <p class="uppercase">
-                        {{ 'APP.BOOKING_PANEL.BOOKING_INPUT' | translate }}
+                        {{
+                            (can_scan
+                                ? 'APP.BOOKING_PANEL.BOOKING_INPUT'
+                                : 'APP.BOOKING_PANEL.BOOKING_INPUT_NOSCAN'
+                            ) | translate
+                        }}
                     </p>
                     <app-icon>arrow_forward</app-icon>
                 </div>
@@ -212,6 +222,10 @@ export class PanelViewStatusComponent {
 
     public get can_book() {
         return this._state.setting('disable_book_now') !== true;
+    }
+
+    public get can_scan() {
+        return this._state.setting('show_qr_code') !== false;
     }
 
     public get can_end() {
