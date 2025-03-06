@@ -400,9 +400,8 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                             (click)="clearForm()"
                         >
                             {{
-                                !!form.value.id
-                                    ? 'FORM.RESET'
-                                    : ('FORM.CLEAR' | translate)
+                                (!!form.value.id ? 'FORM.RESET' : 'FORM.CLEAR')
+                                    | translate
                             }}
                         </button>
                     </section>

@@ -21,7 +21,10 @@ import { take } from 'rxjs/operators';
                 level: level?.display_name || level?.name,
                 space: space?.display_name || space?.name,
                 date: last_event.date | date: 'mediumDate',
-                time: (last_event.date | date: time_format),
+                time:
+                    (last_event.date | date: time_format) +
+                    ' — ' +
+                    (last_event.date_end | date: time_format),
             };
         <div
             class="absolute inset-0 z-50 flex flex-col overflow-auto bg-base-100"
