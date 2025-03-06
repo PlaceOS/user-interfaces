@@ -272,34 +272,11 @@ export class ParkingBookingModalComponent
             this.form.patchValue({ resources: [this._data.space] });
         }
         if (this._data.date) {
-            if (!this._data.allow_time_changes) {
-                this.subscription(
-                    'form_change',
-                    this.form.valueChanges.subscribe((v) => {
-                        this.timeout(
-                            'disable_date',
-                            () => {
-                                this.form
-                                    .get('date')
-                                    .disable({ emitEvent: false });
-                                this.form
-                                    .get('duration')
-                                    .disable({ emitEvent: false });
-                            },
-                            50,
-                        );
-                    }),
-                );
-            }
             console.log('Date:', this._data.date);
             this.timeout(
                 'init_date',
                 () => {
                     this.form.patchValue({ date: this._data.date });
-                    if (!this._data.allow_time_changes) {
-                        this.form.get('date').disable();
-                        this.form.get('duration').disable();
-                    }
                 },
                 300,
             );
