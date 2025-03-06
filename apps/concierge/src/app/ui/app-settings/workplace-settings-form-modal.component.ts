@@ -122,6 +122,40 @@ import { VERSION } from '@placeos/common';
                                 </mat-select>
                             </mat-form-field>
                         </div>
+                        <div>
+                            <label for="features"
+                                >Hide Global Search Item Types</label
+                            >
+                            <mat-form-field appearance="outline" class="w-full">
+                                <mat-select
+                                    name="hide-global-search-items"
+                                    formControlName="hide_global_search_items"
+                                    multiple
+                                >
+                                    <mat-option value="mapspeople">
+                                        MapsPeople
+                                    </mat-option>
+                                    <mat-option value="spaces">
+                                        Rooms
+                                    </mat-option>
+                                    <mat-option value="emergency_contacts">
+                                        Emergency Contacts
+                                    </mat-option>
+                                    <mat-option value="features">
+                                        Map Features
+                                    </mat-option>
+                                    <mat-option value="points_of_interest">
+                                        Points of Interest
+                                    </mat-option>
+                                    <mat-option value="contacts">
+                                        Contacts
+                                    </mat-option>
+                                    <mat-option value="users">
+                                        Users
+                                    </mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                        </div>
                         <div
                             class="relative rounded border border-base-300 px-4 pb-2 pt-4"
                         >
@@ -1477,6 +1511,7 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
         departments: new FormGroup<Record<string, any>>({}),
         week_start: new FormControl(0),
         locales: new FormControl([]),
+        hide_global_search_items: new FormControl([]),
         events: new FormGroup({
             allow_all_day: new FormControl(false),
             booking_unavailable: new FormControl(false),

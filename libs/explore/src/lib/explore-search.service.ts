@@ -248,76 +248,91 @@ export class ExploreSearchService {
                 points_of_interest,
             ]) => {
                 const search = filter.toLowerCase();
-                const results = [
-                    ...mapspeople_items,
-                    ...spaces
-                        .filter(
-                            (_) =>
-                                _.email.toLowerCase().includes(search) ||
-                                _.name.toLowerCase().includes(search) ||
-                                _.display_name.toLowerCase().includes(search),
-                        )
-                        .map((s) => ({
+
+                let results = [];
+                if (!this.hideItem('mapspeople'))
+                    results = results.concat(mapspeople_items);
+                if (!this.hideItem('spaces')) {
+                    results = results.concat(
+                        spaces.map((s) => ({
                             id: s.id,
                             type: 'space',
+                            email: s.email,
                             name: s.display_name || s.name,
                             description: `Capacity: ${s.capacity} `,
                         })),
-                    ...flatten(
-                        roled_contacts.map((u) =>
-                            (u as any).roles.map(
-                                (role) =>
-                                    ({
-                                        id: u.email,
-                                        type: role || 'contact',
-                                        is_role: true,
-                                        name: u.name,
-                                        description: u.email,
-                                    }) as any,
+                    );
+                }
+                if (!this.hideItem('emergency_contacts')) {
+                    results = results.concat(
+                        flatten(
+                            roled_contacts.map((u) =>
+                                (u as any).roles.map(
+                                    (role) =>
+                                        ({
+                                            id: u.email,
+                                            type: role || 'contact',
+                                            is_role: true,
+                                            name: u.name,
+                                            email: u.email,
+                                            description: u.email,
+                                        }) as any,
+                                ),
                             ),
                         ),
-                    ).filter(
-                        (_) =>
-                            _.name.toLowerCase().includes(search) ||
-                            _.description.toLowerCase().includes(search) ||
-                            _.type.toLowerCase().includes(search),
-                    ),
-                    ...features
-                        .filter((_) => _.name.toLowerCase().includes(search))
-                        .map((s) => ({
-                            id: s.id,
-                            type: 'feature',
-                            name: s.name,
-                            description: '',
-                            zone: (s as any).zone?.id,
-                        })),
-                    ...points_of_interest.filter((_) =>
-                        _.name.toLowerCase().includes(search),
-                    ),
-                    ...contacts
-                        .map(
+                    );
+                }
+
+                if (!this.hideItem('features')) {
+                    results = results.concat(
+                        features
+                            .filter((_) =>
+                                _.name.toLowerCase().includes(search),
+                            )
+                            .map((s) => ({
+                                id: s.id,
+                                type: 'feature',
+                                name: s.name,
+                                description: '',
+                                zone: (s as any).zone?.id,
+                            })),
+                    );
+                }
+                if (!this.hideItem('points_of_interest'))
+                    results = results.concat(points_of_interest);
+                if (!this.hideItem('contacts')) {
+                    results = results.concat(
+                        contacts.map(
                             (u) =>
                                 ({
                                     id: u.email,
                                     type: (u as any).type || 'contact',
                                     is_role: true,
                                     name: u.name,
+                                    email: u.email,
                                     description: u.email,
                                 }) as any,
-                        )
-                        .filter(
-                            (_) =>
-                                _.name.toLowerCase().includes(search) ||
-                                _.description.toLowerCase().includes(search) ||
-                                _.type.toLowerCase().includes(search),
                         ),
-                    ...users.map((u) => ({
-                        id: u.email,
-                        type: 'user',
-                        name: u.name,
-                        description: u.email,
-                    })),
-                ];
+                    );
+                }
+                if (!this.hideItem('users')) {
+                    results = results.concat(
+                        users.map((u) => ({
+                            id: u.email,
+                            type: 'user',
+                            name: u.name,
+                            email: u.email,
+                            description: u.email,
+                        })),
+                    );
+                }
+                results = results.filter(
+                    (_) =>
+                        _.name.toLowerCase().includes(search) ||
+                        _.description.toLowerCase().includes(search) ||
+                        (_.email || '').toLowerCase().includes(search) ||
+                        _.type.toLowerCase().includes(search),
+                );
                 results.sort(
                     (a, b) =>
                         typeIndex(a) - typeIndex(b) ||
@@ -338,6 +353,12 @@ export class ExploreSearchService {
                   map((_) => _.data),
               )
             : searchStaff(q);
+
+    public hideItem(name: string) {
+        const hide_items =
+            this._settings.get('app.hide_global_search_items') || [];
+        return hide_items.includes(name);
+    }
 
     constructor(
         private _org: OrganisationService,
