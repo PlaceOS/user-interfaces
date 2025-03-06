@@ -68,9 +68,7 @@ import { first } from 'rxjs/operators';
                         </a-date-field>
                         <mat-checkbox
                             formControlName="all_day"
-                            *ngIf="
-                                allow_all_day && !only_duration && !disable_date
-                            "
+                            *ngIf="allow_all_day && !disable_date"
                             class="absolute -top-2 right-0"
                         >
                             {{ 'COMMON.ALL_DAY' | translate }}
@@ -93,7 +91,6 @@ import { first } from 'rxjs/operators';
                             [use_24hr]="use_24hr"
                             [disabled]="
                                 form.value.duration > 24 * 60 - 1 ||
-                                only_duration ||
                                 disable_start
                             "
                             [timezone]="timezone"
@@ -185,10 +182,6 @@ export class LockerFormDetailsComponent
         return this._settings.get('app.lockers.hide_end_time');
     }
 
-    public get only_duration() {
-        return this._settings.get('app.lockers.only_duration');
-    }
-
     public get use_24hr() {
         return this._settings.get('app.use_24_hour_time');
     }
@@ -241,10 +234,6 @@ export class LockerFormDetailsComponent
                 this.timeout(
                     'disable',
                     () => {
-                        if (this.only_duration) {
-                            this.form.patchValue({ all_day: false });
-                            this.form.controls.date.disable();
-                        } else this.form.controls.date.enable();
                         if (this.disable_date) {
                             this.form.controls.date.disable();
                         }

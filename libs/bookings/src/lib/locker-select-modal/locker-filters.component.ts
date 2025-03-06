@@ -297,10 +297,6 @@ export class LockerFiltersComponent extends AsyncHandler implements OnInit {
         return this._settings.get('app.lockers.hide_end_time');
     }
 
-    public get only_duration() {
-        return !!this._settings.get('app.lockers.only_duration');
-    }
-
     public get allow_time_changes() {
         return !!this._settings.get('app.lockers.allow_time_changes');
     }
@@ -350,10 +346,6 @@ export class LockerFiltersComponent extends AsyncHandler implements OnInit {
                 this.timeout(
                     'disable',
                     () => {
-                        if (this.only_duration) {
-                            this.form.patchValue({ all_day: false });
-                            this.form.controls.date.disable();
-                        } else this.form.controls.date.enable();
                         if (this.disable_date) {
                             this.form.controls.date.disable();
                         }
@@ -365,10 +357,6 @@ export class LockerFiltersComponent extends AsyncHandler implements OnInit {
         this.timeout(
             'disable',
             () => {
-                if (this.only_duration) {
-                    this.form.patchValue({ all_day: false });
-                    this.form.controls.date.disable();
-                } else this.form.controls.date.enable();
                 if (this.disable_date) {
                     this.form.controls.date.disable();
                 }
