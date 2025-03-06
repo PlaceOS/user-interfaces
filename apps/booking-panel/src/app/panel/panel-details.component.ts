@@ -80,7 +80,6 @@ import { PanelStateService } from '../panel-state.service';
 export class PanelDetailsComponent {
     public readonly space = this._state.space;
     public readonly options = this._state.settings;
-
     public readonly newEvent = () => this._state.newBooking();
 
     public readonly callWaiter = () => this._state.confirmWaiter();
