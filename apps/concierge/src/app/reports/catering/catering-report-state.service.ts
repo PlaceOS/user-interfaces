@@ -82,6 +82,6 @@ export class CateringReportStateService {
             delete (bkn as any)._time;
         }
         const csv_data = jsonToCsv(data, '\t');
-        return downloadFile('catering-orders.csv', csv_data);
+        return downloadFile('catering-orders.tsv', csv_data);
     }
 }
