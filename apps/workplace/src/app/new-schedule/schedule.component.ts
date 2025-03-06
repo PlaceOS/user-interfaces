@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import {
@@ -165,7 +165,7 @@ import {
     ],
     standalone: false,
 })
-export class ScheduleComponent extends AsyncHandler {
+export class ScheduleComponent extends AsyncHandler implements OnInit {
     public readonly booking_dates = combineLatest([
         this._state.filtered_bookings,
         this._state.loading,
@@ -248,7 +248,7 @@ export class ScheduleComponent extends AsyncHandler {
                     }).toPromise()
                 ).find((_) => _.ical_uid === event.ical_uid) || event;
         }
-        this._event_form.newForm(event);
+        setTimeout(() => this._event_form.newForm(event), 300);
     }
 
     public editBooking(event: Booking) {
@@ -325,7 +325,7 @@ export class ScheduleComponent extends AsyncHandler {
                     : (item as CalendarEvent).calendar || currentUser()?.email,
                 system_id: (item as CalendarEvent).system?.id,
                 instance: remove_series ? undefined : !!(item as any).instance,
-                start_time: !!(item as any).instance
+                start_time: (item as any).instance
                     ? (item as any).instance
                     : undefined,
             } as any,
