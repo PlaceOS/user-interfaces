@@ -11,19 +11,19 @@ import { QuestionType, UISurveyResponse } from '../types';
         `,
     ],
     template: `
-        <div class="flex flex-col flex-1 p-2 w-full">
+        <div class="flex w-full flex-1 flex-col p-2">
             <div
-                class="flex flex-col h-full w-full bg-base-100 rounded shadow border border-base-200"
+                class="flex h-full w-full flex-col rounded border border-base-300 bg-base-100"
             >
                 <div class="p-4 pb-2 text-xl">
                     {{ response?.question?.title || '' }}
                 </div>
-                <div class="flex flex-col w-full">
+                <div class="flex w-full flex-col">
                     <ng-container
                         *ngIf="
                             [
                                 QuestionType.Comment_Box,
-                                QuestionType.Single_Line_Text
+                                QuestionType.Single_Line_Text,
                             ].includes(type)
                         "
                     >
@@ -34,7 +34,7 @@ import { QuestionType, UISurveyResponse } from '../types';
                             [
                                 QuestionType.Drop_Down,
                                 QuestionType.Radio_Group,
-                                QuestionType.Check_Box
+                                QuestionType.Check_Box,
                             ].includes(type)
                         "
                     >
@@ -53,6 +53,7 @@ import { QuestionType, UISurveyResponse } from '../types';
             </div>
         </div>
     `,
+    standalone: false,
 })
 export class SurveyWidgetComponent implements OnInit {
     @Input() response: UISurveyResponse;

@@ -4,15 +4,15 @@
     "projectType": "application",
     "sourceRoot": "apps/booking-panel/src",
     "prefix": "placeos",
+    "tags": [],
     "targets": {
         "build": {
-            "executor": "@angular-devkit/build-angular:browser",
+            "executor": "@angular-devkit/build-angular:application",
             "options": {
-                "baseHref": ".",
+                "baseHref": "./",
                 "outputPath": "dist/apps/booking-panel",
                 "index": "apps/booking-panel/src/index.html",
-                "main": "apps/booking-panel/src/main.ts",
-                "polyfills": "apps/booking-panel/src/polyfills.ts",
+                "polyfills": ["apps/booking-panel/src/polyfills.ts"],
                 "tsConfig": "apps/booking-panel/tsconfig.app.json",
                 "fileReplacements": [
                     {
@@ -44,17 +44,15 @@
                     "shared/styles/utility.scss"
                 ],
                 "scripts": [],
-                "vendorChunk": true,
                 "extractLicenses": false,
-                "buildOptimizer": false,
                 "sourceMap": true,
                 "optimization": false,
-                "namedChunks": true
+                "namedChunks": true,
+                "browser": "apps/booking-panel/src/main.ts"
             },
             "configurations": {
                 "staging": {
                     "optimization": true,
-                    "buildOptimizer": true,
                     "fileReplacements": [
                         {
                             "replace": "apps/booking-panel/src/environments/environment.ts",
@@ -65,8 +63,7 @@
                             "with": "apps/booking-panel/src/environments/settings.ts"
                         }
                     ],
-                    "serviceWorker": true,
-                    "ngswConfigPath": "apps/booking-panel/ngsw-config.json"
+                    "serviceWorker": "apps/booking-panel/ngsw-config.json"
                 },
                 "production": {
                     "fileReplacements": [
@@ -88,8 +85,6 @@
                     "sourceMap": false,
                     "namedChunks": false,
                     "extractLicenses": true,
-                    "vendorChunk": false,
-                    "buildOptimizer": true,
                     "budgets": [
                         {
                             "type": "initial",
@@ -102,8 +97,7 @@
                             "maximumError": "10kb"
                         }
                     ],
-                    "serviceWorker": true,
-                    "ngswConfigPath": "apps/booking-panel/ngsw-config.json"
+                    "serviceWorker": "apps/booking-panel/ngsw-config.json"
                 }
             }
         },
@@ -119,12 +113,6 @@
                 }
             }
         },
-        "extract-i18n": {
-            "executor": "@angular-devkit/build-angular:extract-i18n",
-            "options": {
-                "buildTarget": "booking-panel:build"
-            }
-        },
         "lint": {
             "executor": "@nx/eslint:lint",
             "outputs": ["{options.outputFile}"]
@@ -136,6 +124,5 @@
                 "jestConfig": "apps/booking-panel/jest.config.ts"
             }
         }
-    },
-    "tags": []
+    }
 }

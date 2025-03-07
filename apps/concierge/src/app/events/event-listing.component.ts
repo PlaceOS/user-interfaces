@@ -1,9 +1,8 @@
 import { Component } from '@angular/core';
 import { SettingsService } from '@placeos/common';
-import { EventStateService } from './event-state.service';
-import { User } from '@placeos/users';
-import { tap } from 'rxjs/operators';
 import { CalendarEvent } from '@placeos/events';
+import { User } from '@placeos/users';
+import { EventStateService } from './event-state.service';
 
 @Component({
     selector: 'event-listing',
@@ -14,48 +13,48 @@ import { CalendarEvent } from '@placeos/events';
             mode="indeterminate"
         ></mat-progress-bar>
         <simple-table
-            class="min-w-[72rem] w-full block text-sm"
+            class="block w-full min-w-[72rem] text-sm"
             [data]="event_list"
             empty_message="No group events for selected period"
             [columns]="[
                 { key: 'date', name: 'Event', content: event_template },
                 {
                     key: 'level',
-                    name: 'Level',
+                    name: 'RESOURCE.LEVEL' | translate,
                     content: level_template,
                     size: '8rem',
                     sortable: false,
                 },
                 {
                     key: 'room',
-                    name: 'Room',
+                    name: 'RESOURCE.ROOM' | translate,
                     content: room_template,
                     size: '12rem',
                     sortable: false,
                 },
                 {
                     key: 'interested',
-                    name: 'Interested',
+                    name: 'CALENDAR_EVENT.GROUP_INTERESTED' | translate,
                     content: interested_template,
                     size: '6rem',
                     sortable: false,
                 },
                 {
                     key: 'attending',
-                    name: 'Attending',
+                    name: 'CALENDAR_EVENT.GROUP_ATTENDING_FIELD' | translate,
                     content: attending_template,
                     size: '6rem',
                     sortable: false,
                 },
                 {
                     key: 'state',
-                    name: 'Status',
+                    name: 'COMMON.STATUS' | translate,
                     content: status_template,
                     size: '8.5rem',
                 },
                 {
                     key: 'access',
-                    name: 'Published',
+                    name: 'COMMON.PUBLISHED' | translate,
                     content: published_template,
                     size: '6rem',
                     sortable: false,
@@ -70,22 +69,22 @@ import { CalendarEvent } from '@placeos/events';
             ]"
             [sortable]="true"
         ></simple-table>
-        <div class="w-full h-20"></div>
+        <div class="h-20 w-full"></div>
         <ng-template #event_template let-item="row">
             <div class="flex items-center space-x-2 px-3 py-2">
-                <div date class="flex flex-col items-center leading-tight w-8">
+                <div date class="flex w-8 flex-col items-center leading-tight">
                     <div
                         month
-                        class="text-sm font-medium relative top-0.5 opacity-60"
+                        class="relative top-0.5 text-sm font-medium opacity-60"
                     >
                         {{ item.date | date: 'MMM' }}
                     </div>
-                    <div day class="text-2xl font-light relative -top-0.5">
+                    <div day class="relative -top-0.5 text-2xl font-light">
                         {{ item.date | date: 'd' }}
                     </div>
                 </div>
                 <div
-                    class="flex items-center justify-center h-12 w-12 rounded overflow-hidden bg-base-200 border border-base-200"
+                    class="flex h-12 w-12 items-center justify-center overflow-hidden rounded border border-base-200 bg-base-200"
                 >
                     <img
                         *ngIf="item.images?.length"
@@ -121,7 +120,7 @@ import { CalendarEvent } from '@placeos/events';
                         ?.display_name
                 }}
                 <span *ngIf="!room(item)?.email" class="opacity-30">
-                    No Level
+                    {{ 'COMMON.LEVEL_EMPTY' | translate }}
                 </span>
             </div>
         </ng-template>
@@ -129,7 +128,7 @@ import { CalendarEvent } from '@placeos/events';
             <div class="p-4">
                 {{ (room(item)?.email | space | async)?.display_name }}
                 <span *ngIf="!room(item)?.email" class="opacity-30">
-                    No Room
+                    {{ 'COMMON.ROOM_EMPTY' | translate }}
                 </span>
             </div>
         </ng-template>
@@ -139,21 +138,23 @@ import { CalendarEvent } from '@placeos/events';
                 matRipple
                 customTooltip
                 [content]="view_attendees"
-                class="rounded h-12 w-12 mx-auto"
+                class="mx-auto h-12 w-12 rounded"
                 [disabled]="!item.attendees?.length"
             >
                 {{ item.attendees?.length || 0 }}
             </button>
             <ng-template #view_attendees>
                 <div
-                    class="relative w-[20rem] h-[28rem] overflow-auto bg-white rounded shadow"
+                    class="relative h-[28rem] w-[20rem] overflow-auto rounded bg-white shadow"
                 >
                     <attendee-list
                         [list]="item.attendees"
                         [host]="item.user_email || item.host"
                         [show_host]="false"
                         [hide_close]="true"
-                        [custom_title]="'Interested'"
+                        [custom_title]="
+                            'CALENDAR_EVENT.GROUP_INTERESTED' | translate
+                        "
                     ></attendee-list>
                 </div>
             </ng-template>
@@ -164,14 +165,14 @@ import { CalendarEvent } from '@placeos/events';
                 matRipple
                 customTooltip
                 [content]="view_attendees"
-                class="rounded h-12 w-12 mx-auto"
+                class="mx-auto h-12 w-12 rounded"
                 [disabled]="!checkedInCount(item.attendees)"
             >
                 {{ checkedInCount(item.attendees) }}
             </button>
             <ng-template #view_attendees>
                 <div
-                    class="relative w-[20rem] h-[28rem] overflow-auto bg-white rounded shadow"
+                    class="relative h-[28rem] w-[20rem] overflow-auto rounded bg-white shadow"
                 >
                     <attendee-list
                         [show_host]="false"
@@ -185,7 +186,7 @@ import { CalendarEvent } from '@placeos/events';
         <ng-template #published_template let-data="data">
             <div
                 *ngIf="data === 'OPEN' || data === 'open'"
-                class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-success text-success-content mx-auto"
+                class="mx-auto flex h-8 w-8 items-center justify-center rounded bg-success text-2xl text-success-content"
             >
                 <app-icon>done</app-icon>
             </div>
@@ -193,7 +194,7 @@ import { CalendarEvent } from '@placeos/events';
         <ng-template #status_template let-item="row">
             <div class="p-4">
                 <div
-                    class="px-4 py-1 rounded-full"
+                    class="rounded-full px-4 py-1"
                     [class.bg-success]="
                         item.state !== 'done' &&
                         item.state !== 'in_progress' &&
@@ -214,12 +215,13 @@ import { CalendarEvent } from '@placeos/events';
                     [class.text-base-content]="item.state === 'done'"
                 >
                     {{
-                        item.state === 'done'
-                            ? 'Done'
+                        (item.state === 'done'
+                            ? 'COMMON.STATE_DONE'
                             : item.state === 'in_progress' ||
                                 item.state === 'started'
-                              ? 'In Progress'
-                              : 'Active'
+                              ? 'COMMON.STATE_IN_PROGRESS'
+                              : 'COMMON.STATE_ACTIVE'
+                        ) | translate
                     }}
                 </div>
             </div>
@@ -228,7 +230,7 @@ import { CalendarEvent } from '@placeos/events';
             <button
                 icon
                 matRipple
-                class="h-12 w-12 rounded mx-2"
+                class="mx-2 h-12 w-12 rounded"
                 [matMenuTriggerFor]="menu"
                 [disabled]="row.state === 'done'"
             >
@@ -240,13 +242,17 @@ import { CalendarEvent } from '@placeos/events';
                         <app-icon class="text-2xl">
                             confirmation_number
                         </app-icon>
-                        <div class="mr-2">Promote Event</div>
+                        <div class="mr-2">
+                            {{ 'APP.CONCIERGE.EVENTS_PROMOTE' | translate }}
+                        </div>
                     </div>
                 </button>
                 <button mat-menu-item (click)="viewEvent(row)">
                     <div class="flex items-center space-x-2">
                         <app-icon class="text-2xl">visibility</app-icon>
-                        <div class="mr-2">View Event</div>
+                        <div class="mr-2">
+                            {{ 'APP.CONCIERGE.EVENTS_VIEW' | translate }}
+                        </div>
                     </div>
                 </button>
                 <a
@@ -260,31 +266,36 @@ import { CalendarEvent } from '@placeos/events';
                 >
                     <div class="flex items-center space-x-2">
                         <app-icon class="text-2xl">edit</app-icon>
-                        <div class="mr-2">Edit Event</div>
+                        <div class="mr-2">
+                            {{ 'APP.CONCIERGE.EVENTS_EDIT' | translate }}
+                        </div>
                     </div>
                 </a>
                 <button mat-menu-item [disabled]="true">
                     <div class="flex items-center space-x-2">
                         <app-icon class="text-2xl">content_copy</app-icon>
-                        <div class="mr-2">Copy URL</div>
+                        <div class="mr-2">
+                            {{ 'APP.CONCIERGE.EVENTS_COPY_URL' | translate }}
+                        </div>
                     </div>
                 </button>
                 <button mat-menu-item (click)="removeEvent(row)">
                     <div class="flex items-center space-x-2">
                         <app-icon class="text-2xl text-error">delete</app-icon>
-                        <div class="mr-2">Delete Event</div>
+                        <div class="mr-2">
+                            {{ 'APP.CONCIERGE.EVENTS_REMOVE' | translate }}
+                        </div>
                     </div>
                 </button>
             </mat-menu>
         </ng-template>
     `,
     styles: [``],
+    standalone: false,
 })
 export class EventListingComponent {
     public readonly loading = this._state.loading;
-    public readonly event_list = this._state.event_list.pipe(
-        tap((_) => console.log('Event List:', _)),
-    );
+    public readonly event_list = this._state.event_list;
 
     public readonly viewEvent = (event: any) => this._state.viewEvent(event);
     public readonly removeEvent = (event: any) =>

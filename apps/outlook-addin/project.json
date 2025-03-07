@@ -4,15 +4,15 @@
     "projectType": "application",
     "sourceRoot": "apps/outlook-addin/src",
     "prefix": "placeos",
+    "tags": [],
     "targets": {
         "build": {
-            "executor": "@angular-devkit/build-angular:browser",
+            "executor": "@angular-devkit/build-angular:application",
             "options": {
-                "baseHref": ".",
+                "baseHref": "./",
                 "outputPath": "dist/apps/outlook-addin",
                 "index": "apps/outlook-addin/src/index.html",
-                "main": "apps/outlook-addin/src/main.ts",
-                "polyfills": "apps/outlook-addin/src/polyfills.ts",
+                "polyfills": ["apps/outlook-addin/src/polyfills.ts"],
                 "tsConfig": "apps/outlook-addin/tsconfig.app.json",
                 "fileReplacements": [
                     {
@@ -59,17 +59,15 @@
                     "shared/styles/utility.scss"
                 ],
                 "scripts": [],
-                "vendorChunk": true,
                 "extractLicenses": false,
-                "buildOptimizer": false,
                 "sourceMap": true,
                 "optimization": false,
-                "namedChunks": true
+                "namedChunks": true,
+                "browser": "apps/outlook-addin/src/main.ts"
             },
             "configurations": {
                 "staging": {
                     "optimization": true,
-                    "buildOptimizer": true,
                     "fileReplacements": [
                         {
                             "replace": "apps/outlook-addin/src/environments/environment.ts",
@@ -80,8 +78,7 @@
                             "with": "apps/outlook-addin/src/environments/settings.ts"
                         }
                     ],
-                    "serviceWorker": true,
-                    "ngswConfigPath": "apps/outlook-addin/ngsw-config.json"
+                    "serviceWorker": "apps/outlook-addin/ngsw-config.json"
                 },
                 "production": {
                     "fileReplacements": [
@@ -103,8 +100,6 @@
                     "sourceMap": false,
                     "namedChunks": false,
                     "extractLicenses": true,
-                    "vendorChunk": false,
-                    "buildOptimizer": true,
                     "budgets": [
                         {
                             "type": "initial",
@@ -117,8 +112,7 @@
                             "maximumError": "10kb"
                         }
                     ],
-                    "serviceWorker": true,
-                    "ngswConfigPath": "apps/outlook-addin/ngsw-config.json"
+                    "serviceWorker": "apps/outlook-addin/ngsw-config.json"
                 }
             }
         },
@@ -138,12 +132,6 @@
                 }
             }
         },
-        "extract-i18n": {
-            "executor": "@angular-devkit/build-angular:extract-i18n",
-            "options": {
-                "buildTarget": "outlook-addin:build"
-            }
-        },
         "lint": {
             "executor": "@nx/eslint:lint",
             "outputs": ["{options.outputFile}"]
@@ -155,6 +143,5 @@
                 "jestConfig": "apps/outlook-addin/jest.config.ts"
             }
         }
-    },
-    "tags": []
+    }
 }

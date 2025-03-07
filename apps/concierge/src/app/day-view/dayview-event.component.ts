@@ -1,9 +1,9 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { startOfDay, differenceInMinutes, format, addMinutes } from 'date-fns';
+import { addMinutes, differenceInMinutes, format, startOfDay } from 'date-fns';
 
+import { SettingsService } from '@placeos/common';
 import { CalendarEvent } from '@placeos/events';
 import { EventsStateService } from './events-state.service';
-import { SettingsService } from '@placeos/common';
 
 const DAY_IN_MINUTES = 24 * 60;
 
@@ -13,7 +13,7 @@ const DAY_IN_MINUTES = 24 * 60;
         <div
             *ngIf="(ui_options | async)?.show_overflow"
             [class]="
-                'overflow-block absolute rounded overflow-hidden w-full ' + type
+                'overflow-block absolute w-full overflow-hidden rounded ' + type
             "
             [style.top]="overflow_top * 100 + '%'"
             [style.height]="overflow_height * 100 + '%'"
@@ -22,7 +22,7 @@ const DAY_IN_MINUTES = 24 * 60;
             event
             matRipple
             [class]="
-                'absolute rounded overflow-hidden text-sm border border-base-200 shadow-sm z-10 hover:z-30 ' +
+                'absolute z-10 overflow-hidden rounded border border-base-200 text-sm shadow-sm hover:z-30 ' +
                 type
             "
             *ngIf="event"
@@ -31,15 +31,15 @@ const DAY_IN_MINUTES = 24 * 60;
             (click)="view(event)"
         >
             <div class="px-2 py-1 font-medium">{{ event.organiser?.name }}</div>
-            <div class="py-1 flex items-center" *ngIf="event.duration > 30">
+            <div class="flex items-center py-1" *ngIf="event.duration > 30">
                 <app-icon class="mx-2">title</app-icon>
                 {{ event.title }}
             </div>
-            <div class="py-1 flex items-center" *ngIf="event.duration > 60">
+            <div class="flex items-center py-1" *ngIf="event.duration > 60">
                 <app-icon class="mx-2">schedule</app-icon>
                 {{ time }}
             </div>
-            <div class="py-1 flex items-center" *ngIf="event.duration > 90">
+            <div class="flex items-center py-1" *ngIf="event.duration > 90">
                 <app-icon class="mx-2">people</app-icon>
                 {{ event.attendees.length }} Attendee{{
                     event.attendees.length === 1 ? '' : 's'
@@ -49,13 +49,13 @@ const DAY_IN_MINUTES = 24 * 60;
         <div
             *ngIf="event && (ui_options | async)?.show_cleaning"
             cleaning
-            class="absolute rounded overflow-hidden flex w-full shadow p-2 bg-base-100 z-20 hover:!h-48"
+            class="absolute z-20 flex w-full overflow-hidden rounded bg-base-100 p-2 shadow hover:!h-48"
             [style.top]="top * 100 + '%'"
             [style.height]="height * 100 + '%'"
         >
             <div
                 [class]="
-                    'icon flex items-center justify-center mr-2 text-3xl rounded h-12 w-12 text-pending ' +
+                    'icon text-pending mr-2 flex h-12 w-12 items-center justify-center rounded text-3xl ' +
                     event.ext('cleaning_status')
                 "
             >
@@ -63,7 +63,7 @@ const DAY_IN_MINUTES = 24 * 60;
                     event.ext('cleaning_status') === 'done' ? 'done' : 'warning'
                 }}</app-icon>
             </div>
-            <div class="flex-1 w-1/2">
+            <div class="w-1/2 flex-1">
                 {{
                     event.ext('cleaning_status') === 'done'
                         ? 'Finished'
@@ -87,7 +87,8 @@ const DAY_IN_MINUTES = 24 * 60;
             }
 
             [event]:hover {
-                box-shadow: 0 1px 3px 1px rgba(0, 0, 0, 0.2),
+                box-shadow:
+                    0 1px 3px 1px rgba(0, 0, 0, 0.2),
                     0 1px 1px 0 rgba(0, 0, 0, 0.14),
                     0 2px 1px -1px rgba(0, 0, 0, 0.12) !important;
                 cursor: pointer;
@@ -121,6 +122,7 @@ const DAY_IN_MINUTES = 24 * 60;
             }
         `,
     ],
+    standalone: false,
 })
 export class DayviewEventComponent implements OnChanges {
     /** Event to display */
@@ -151,8 +153,8 @@ export class DayviewEventComponent implements OnChanges {
         return this.event.guests.length
             ? 'external'
             : this.event.status === 'declined'
-            ? 'cancelled'
-            : 'internal';
+              ? 'cancelled'
+              : 'internal';
     }
 
     public get time_format() {
@@ -161,7 +163,7 @@ export class DayviewEventComponent implements OnChanges {
 
     constructor(
         private _state: EventsStateService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {}
 
     public ngOnChanges(changes: SimpleChanges) {

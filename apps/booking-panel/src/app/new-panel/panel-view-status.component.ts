@@ -1,15 +1,15 @@
 import { Component } from '@angular/core';
 import { combineLatest, interval } from 'rxjs';
-import { map, shareReplay, take } from 'rxjs/operators';
+import { map, shareReplay } from 'rxjs/operators';
 import { PanelStateService } from '../panel-state.service';
 import { currentPeriod, nextPeriod } from './helpers';
 
 @Component({
     selector: 'panel-view-status',
     template: `
-        <div class="flex items-center justify-center h-full w-full">
+        <div class="flex h-full w-full items-center justify-center">
             <div
-                class="flex-1 h-full text-white flex flex-col items-center justify-center relative"
+                class="relative flex h-full flex-1 flex-col items-center justify-center text-white"
                 [class.bg-error]="(state | async) === 'busy'"
                 [class.bg-success]="(state | async) === 'free'"
                 [class.bg-warning]="(state | async) === 'pending'"
@@ -22,15 +22,15 @@ import { currentPeriod, nextPeriod } from './helpers';
                         ((state | async) === 'busy'
                             ? in_use_svg
                             : (state | async) === 'pending'
-                            ? pending_svg
-                            : free_svg
+                              ? pending_svg
+                              : free_svg
                         ) | safe
                     "
                 ></div>
-                <h3 class="text-4xl uppercase font-medium mt-4">
-                    {{ 'PANEL.NOW' | translate }}
+                <h3 class="mt-4 text-4xl font-medium uppercase">
+                    {{ 'APP.BOOKING_PANEL.NOW' | translate }}
                 </h3>
-                <p class="text-2xl font-light mt-4">
+                <p class="mt-4 text-2xl font-light">
                     <ng-container
                         *ngIf="
                             (event_state | async)?.current?.length;
@@ -47,13 +47,13 @@ import { currentPeriod, nextPeriod } from './helpers';
                                 *ngIf="(event_state | async)?.current[1] > 0"
                             >
                                 {{
-                                    'PANEL.FREE_IN_HOURS_AND_MINUTES'
+                                    'APP.BOOKING_PANEL.FREE_IN_HOURS_AND_MINUTES'
                                         | translate
                                             : {
                                                   hour: (event_state | async)
                                                       ?.current[1],
                                                   minute: (event_state | async)
-                                                      ?.current[2]
+                                                      ?.current[2],
                                               }
                                 }}
                             </ng-container>
@@ -64,11 +64,11 @@ import { currentPeriod, nextPeriod } from './helpers';
                                 "
                             >
                                 {{
-                                    'PANEL.FREE_IN_MINUTES'
+                                    'APP.BOOKING_PANEL.FREE_IN_MINUTES'
                                         | translate
                                             : {
                                                   minute: (event_state | async)
-                                                      ?.current[2]
+                                                      ?.current[2],
                                               }
                                 }}
                             </ng-container>
@@ -79,13 +79,17 @@ import { currentPeriod, nextPeriod } from './helpers';
                                 "
                             >
                                 {{
-                                    'PANEL.FREE_IN_LESS_THAN_MINUTE' | translate
+                                    'APP.BOOKING_PANEL.FREE_IN_LESS_THAN_MINUTE'
+                                        | translate
                                 }}
                             </ng-container>
                         </ng-container>
                         <ng-template #free_for_state>
                             <ng-container *ngIf="(state | async) === 'busy'">
-                                {{ 'PANEL.EARLY_CHECKIN' | translate }}
+                                {{
+                                    'APP.BOOKING_PANEL.EARLY_CHECKIN'
+                                        | translate
+                                }}
                             </ng-container>
                             <ng-container *ngIf="(state | async) !== 'busy'">
                                 <ng-container
@@ -94,7 +98,7 @@ import { currentPeriod, nextPeriod } from './helpers';
                                     "
                                 >
                                     {{
-                                        'PANEL.FREE_FOR_HOURS_AND_MINUTES'
+                                        'APP.BOOKING_PANEL.FREE_FOR_HOURS_AND_MINUTES'
                                             | translate
                                                 : {
                                                       hour: (
@@ -102,7 +106,7 @@ import { currentPeriod, nextPeriod } from './helpers';
                                                       )?.current[1],
                                                       minute: (
                                                           event_state | async
-                                                      )?.current[2]
+                                                      )?.current[2],
                                                   }
                                     }}
                                 </ng-container>
@@ -114,12 +118,12 @@ import { currentPeriod, nextPeriod } from './helpers';
                                     "
                                 >
                                     {{
-                                        'PANEL.FREE_FOR_MINUTES'
+                                        'APP.BOOKING_PANEL.FREE_FOR_MINUTES'
                                             | translate
                                                 : {
                                                       minute: (
                                                           event_state | async
-                                                      )?.current[2]
+                                                      )?.current[2],
                                                   }
                                     }}
                                 </ng-container>
@@ -131,7 +135,7 @@ import { currentPeriod, nextPeriod } from './helpers';
                                     "
                                 >
                                     {{
-                                        'PANEL.FREE_FOR_LESS_THAN_MINUTE'
+                                        'APP.BOOKING_PANEL.FREE_FOR_LESS_THAN_MINUTE'
                                             | translate
                                     }}
                                 </ng-container>
@@ -139,39 +143,49 @@ import { currentPeriod, nextPeriod } from './helpers';
                         </ng-template>
                     </ng-container>
                     <ng-template #no_current_state>
-                        {{ 'PANEL.NO_CURRENT' | translate }}
+                        {{ 'APP.BOOKING_PANEL.NO_CURRENT' | translate }}
                     </ng-template>
                 </p>
                 <div
-                    class="absolute top-0 inset-x-0 flex items-center justify-center text-2xl bg-[#0008] p-4 space-x-4"
+                    class="absolute inset-x-0 top-0 flex items-center justify-center space-x-4 bg-[#0008] p-4 text-2xl"
                     *ngIf="(state | async) === 'pending' && can_book"
                 >
                     <p class="uppercase">
-                        {{ 'PANEL.CHECKIN_INPUT' | translate }}
+                        {{
+                            (can_scan
+                                ? 'APP.BOOKING_PANEL.CHECKIN_INPUT'
+                                : 'APP.BOOKING_PANEL.CHECKIN_INPUT_NOSCAN'
+                            ) | translate
+                        }}
                     </p>
                     <app-icon>arrow_forward</app-icon>
                 </div>
                 <div
-                    class="absolute top-0 inset-x-0 flex items-center justify-center text-2xl bg-[#0008] p-4 space-x-4"
+                    class="absolute inset-x-0 top-0 flex items-center justify-center space-x-4 bg-[#0008] p-4 text-2xl"
                     *ngIf="(state | async) === 'free' && can_book"
                 >
                     <p class="uppercase">
-                        {{ 'PANEL.BOOKING_INPUT' | translate }}
+                        {{
+                            (can_scan
+                                ? 'APP.BOOKING_PANEL.BOOKING_INPUT'
+                                : 'APP.BOOKING_PANEL.BOOKING_INPUT_NOSCAN'
+                            ) | translate
+                        }}
                     </p>
                     <app-icon>arrow_forward</app-icon>
                 </div>
                 <div
-                    class="absolute top-0 inset-x-0 flex items-center justify-center text-2xl bg-[#0008] p-4 space-x-4"
+                    class="absolute inset-x-0 top-0 flex items-center justify-center space-x-4 bg-[#0008] p-4 text-2xl"
                     *ngIf="(state | async) === 'busy' && can_end"
                 >
                     <p class="uppercase">
-                        {{ 'PANEL.END_INPUT' | translate }}
+                        {{ 'APP.BOOKING_PANEL.END_INPUT' | translate }}
                     </p>
                     <app-icon>arrow_forward</app-icon>
                 </div>
             </div>
             <div
-                class="flex-1 h-full bg-base-100 text-base-content flex flex-col items-center justify-center space-y-4"
+                class="flex h-full flex-1 flex-col items-center justify-center space-y-4 bg-base-100 text-base-content"
             >
                 <div
                     [innerHTML]="
@@ -179,13 +193,13 @@ import { currentPeriod, nextPeriod } from './helpers';
                             | safe
                     "
                 ></div>
-                <h3 class="text-4xl uppercase font-medium">
-                    {{ 'PANEL.NEXT' | translate }}
+                <h3 class="text-4xl font-medium uppercase">
+                    {{ 'APP.BOOKING_PANEL.NEXT' | translate }}
                 </h3>
                 <p class="text-2xl font-light">
                     {{
                         (event_state | async)?.next ||
-                            ('PANEL.NO_UPCOMING' | translate)
+                            ('APP.BOOKING_PANEL.NO_UPCOMING' | translate)
                     }}
                 </p>
             </div>
@@ -198,6 +212,7 @@ import { currentPeriod, nextPeriod } from './helpers';
             }
         `,
     ],
+    standalone: false,
 })
 export class PanelViewStatusComponent {
     public readonly state = this._state.status;
@@ -207,6 +222,10 @@ export class PanelViewStatusComponent {
 
     public get can_book() {
         return this._state.setting('disable_book_now') !== true;
+    }
+
+    public get can_scan() {
+        return this._state.setting('show_qr_code') !== false;
     }
 
     public get can_end() {
@@ -223,7 +242,7 @@ export class PanelViewStatusComponent {
             current: currentPeriod(l, c, n),
             next: nextPeriod(n),
         })),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     public readonly free_svg = `

@@ -3,6 +3,7 @@ import {
     EventEmitter,
     InjectionToken,
     Input,
+    OnChanges,
     Output,
     SimpleChanges,
 } from '@angular/core';
@@ -17,7 +18,7 @@ import {
 import { ExploreStateService } from 'libs/explore/src/lib/explore-state.service';
 
 export const MAP_FEATURE_DATA = new InjectionToken<any>(
-    'Data for Map Features'
+    'Data for Map Features',
 );
 
 export interface MapOptions {
@@ -70,12 +71,12 @@ export interface MapMetadata {
         <div
             zoom
             *ngIf="options?.controls"
-            class="absolute bottom-16 right-1 border border-base-200 divide-y divide-base-200 shadow flex flex-col bg-base-100 text-base-content rounded overflow-hidden"
+            class="absolute bottom-16 right-1 flex flex-col divide-y divide-base-200 overflow-hidden rounded border border-base-200 bg-base-100 text-base-content shadow"
         >
             <button
                 icon
                 matRipple
-                matTooltip="Zoom In"
+                [matTooltip]="'EXPLORE.ZOOM_IN' | translate"
                 matTooltipPosition="left"
                 class="rounded-none"
                 (click)="zoom = zoom * 1.1"
@@ -85,7 +86,7 @@ export interface MapMetadata {
             <button
                 icon
                 matRipple
-                matTooltip="Zoom Out"
+                [matTooltip]="'EXPLORE.ZOOM_OUT' | translate"
                 matTooltipPosition="left"
                 class="rounded-none"
                 (click)="zoom = zoom * (10 / 11)"
@@ -95,7 +96,7 @@ export interface MapMetadata {
             <button
                 icon
                 matRipple
-                matTooltip="Reset Zoom and Position"
+                [matTooltip]="'EXPLORE.ZOOM_RESET' | translate"
                 matTooltipPosition="left"
                 class="rounded-none"
                 (click)="reset = reset + 1"
@@ -105,8 +106,9 @@ export interface MapMetadata {
         </div>
     `,
     styles: [``],
+    standalone: false,
 })
-export class InteractiveMapComponent extends AsyncHandler {
+export class InteractiveMapComponent extends AsyncHandler implements OnChanges {
     @Input() public src: string;
     @Input() public zoom = 1;
     @Input() public center: any = { x: 0.5, y: 0.5 };
@@ -131,7 +133,7 @@ export class InteractiveMapComponent extends AsyncHandler {
     constructor(
         private _mapspeople: MapsPeopleService,
         private _org: OrganisationService,
-        private _explore: ExploreStateService
+        private _explore: ExploreStateService,
     ) {
         super();
     }
@@ -156,7 +158,7 @@ export class InteractiveMapComponent extends AsyncHandler {
         log(
             'Map',
             'Level changed to:',
-            zone?.display_name || zone?.name || zone
+            zone?.display_name || zone?.name || zone,
         );
         this._explore.setLevel(zone.id);
     }

@@ -11,9 +11,8 @@ import { ExploreDeviceInfoComponent } from '../lib/explore-device-info.component
 
 jest.mock('@placeos/ts-client');
 
-import * as ts_client from '@placeos/ts-client';
-import { MockComponent, MockProvider } from 'ng-mocks';
 import { SettingsService } from '@placeos/common';
+import { MockComponent, MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 
 describe('ExploreDeviceInfoComponent', () => {

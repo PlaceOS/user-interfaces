@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { AsyncHandler } from '@placeos/common';
@@ -6,18 +6,21 @@ import { AsyncHandler } from '@placeos/common';
 @Component({
     selector: 'app-catering',
     template: `
-        <main class="relative w-full flex flex-col bg-base-100">
+        <main class="relative flex w-full flex-col bg-base-100">
             <catering-topbar
                 *ngIf="page"
                 class="relative z-10"
             ></catering-topbar>
             <div
-                class="p-2 flex items-center justify-center bg-info text-white text-sm mb-4 mx-8 rounded"
+                class="mx-8 mb-4 flex items-center justify-center rounded bg-info p-2 text-sm text-white"
                 *ngIf="page === 'menu'"
             >
-                To edit the menu de-select all levels from the top left
+                {{ 'CATERING.MENU_EDIT_INFO' | translate }}
             </div>
-            <div class="flex flex-col flex-1 h-1/2 px-8" [ngSwitch]="page">
+            <div
+                class="flex h-1/2 flex-1 flex-col overflow-auto px-8"
+                [ngSwitch]="page"
+            >
                 <catering-order-list
                     *ngSwitchCase="'orders'"
                     class="flex-1"
@@ -28,50 +31,50 @@ import { AsyncHandler } from '@placeos/common';
                 ></catering-menu>
                 <div
                     *ngSwitchDefault
-                    class="flex flex-1 items-center justify-center h-1/2 w-full my-8 bg-base-200 rounded-2xl"
+                    class="my-8 flex h-1/2 w-full flex-1 items-center justify-center rounded-2xl bg-base-200"
                 >
                     <a
                         matRipple
-                        class="w-[28rem] h-64 rounded flex flex-col items-center bg-base-100 text-base-content overflow-hidden m-2 border border-base-300"
+                        class="m-2 flex h-64 w-[28rem] flex-col items-center overflow-hidden rounded border border-base-300 bg-base-100 text-base-content"
                         [routerLink]="['/menu']"
                     >
                         <div
-                            class="relative w-full flex flex-1 items-center justify-center"
+                            class="relative flex w-full flex-1 items-center justify-center"
                             [style.background]="'url(assets/img/menus.jpg)'"
                         >
                             <div
-                                class="absolute inset-0 bg-base-content opacity-40 z-0"
+                                class="absolute inset-0 z-0 bg-base-content opacity-40"
                             ></div>
-                            <div class="text-2xl text-base-100 z-10">
-                                Menus and Pricing
+                            <div class="z-10 text-2xl text-base-100">
+                                {{ 'CATERING.OPTION_MENU' | translate }}
                             </div>
                         </div>
                         <div
-                            class="p-2 h-14 w-full text-sm text-center flex items-center justify-center"
+                            class="flex h-14 w-full items-center justify-center p-2 text-center text-sm"
                         >
-                            View and Edit Menus and Pricing
+                            {{ 'CATERING.OPTION_MENU_INFO' | translate }}
                         </div>
                     </a>
                     <a
                         matRipple
-                        class="w-[28rem] h-64 rounded flex flex-col items-center bg-base-100 text-base-content overflow-hidden m-2 border border-base-300"
+                        class="m-2 flex h-64 w-[28rem] flex-col items-center overflow-hidden rounded border border-base-300 bg-base-100 text-base-content"
                         [routerLink]="['/orders']"
                     >
                         <div
-                            class="relative w-full flex flex-1 items-center justify-center"
+                            class="relative flex w-full flex-1 items-center justify-center"
                             [style.background]="'url(assets/img/orders.jpg)'"
                         >
                             <div
-                                class="absolute inset-0 bg-base-content opacity-40 z-0"
+                                class="absolute inset-0 z-0 bg-base-content opacity-40"
                             ></div>
-                            <div class="text-2xl text-base-100 z-10">
-                                Today's Orders
+                            <div class="z-10 text-2xl text-base-100">
+                                {{ 'CATERING.OPTION_ORDERS' | translate }}
                             </div>
                         </div>
                         <div
-                            class="p-2 h-14 w-full text-sm text-center flex items-center justify-center"
+                            class="flex h-14 w-full items-center justify-center p-2 text-center text-sm"
                         >
-                            View Catering Orders and their statuses upon arrival
+                            {{ 'CATERING.OPTION_ORDERS_INFO' | translate }}
                         </div>
                     </a>
                 </div>
@@ -87,8 +90,9 @@ import { AsyncHandler } from '@placeos/common';
             }
         `,
     ],
+    standalone: false,
 })
-export class CateringComponent extends AsyncHandler {
+export class CateringComponent extends AsyncHandler implements OnInit {
     /** Page being displayed */
     public page: string;
 
@@ -101,8 +105,8 @@ export class CateringComponent extends AsyncHandler {
             'route.params',
             this._route.paramMap.subscribe(
                 (params) =>
-                    (this.page = params.has('view') ? params.get('view') : '')
-            )
+                    (this.page = params.has('view') ? params.get('view') : ''),
+            ),
         );
     }
 }

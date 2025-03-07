@@ -1,4 +1,4 @@
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { IconComponent } from '@placeos/components';
 import { MockComponent } from 'ng-mocks';
@@ -23,7 +23,6 @@ describe('SourceSelectModalComponent', () => {
             },
             { provide: MatDialogRef, useValue: { close: jest.fn() } },
         ],
-
     });
 
     beforeEach(() => (spectator = createComponent()));

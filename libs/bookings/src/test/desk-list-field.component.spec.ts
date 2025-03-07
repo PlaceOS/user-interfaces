@@ -1,13 +1,13 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { fakeAsync } from '@angular/core/testing';
-import { MatRadioModule } from '@angular/material/radio';
-import { MatDialog } from '@angular/material/dialog';
 import { FormsModule } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
+import { MatRadioModule } from '@angular/material/radio';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { MockComponent, MockModule } from 'ng-mocks';
 import { of } from 'rxjs';
 
-import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { DeskListFieldComponent } from '../lib/desk-list-field.component';
 
 describe('DeskListFieldComponent', () => {
@@ -56,7 +56,7 @@ describe('DeskListFieldComponent', () => {
                 ({
                     afterClosed: () =>
                         of([...(items || []), { id: `${count++}` }]),
-                } as any)
+                }) as any,
         );
         spectator.click('button[name="add-desk"]');
         spectator.tick(1001);

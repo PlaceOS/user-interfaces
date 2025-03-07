@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { UrlTree, Router } from '@angular/router';
+import { Router, UrlTree } from '@angular/router';
 import { first } from 'rxjs/operators';
 
 import { SettingsService } from '@placeos/common';
@@ -12,11 +12,11 @@ export abstract class PLACEOS_APP_ACCESS {
 @Injectable({
     providedIn: 'root',
 })
-export class FeatureAvailableGuard  {
+export class FeatureAvailableGuard {
     constructor(
         private _router: Router,
         private _settings: SettingsService,
-        private _org: OrganisationService
+        private _org: OrganisationService,
     ) {}
 
     public async canActivate(): Promise<boolean | UrlTree> {
@@ -32,7 +32,7 @@ export class FeatureAvailableGuard  {
         await this._settings.initialised.pipe(first((_) => _)).toPromise();
         const features = this._settings.get('app.disabled_features') || [];
         const can_activate = !features.find((_) =>
-            this._router.url.includes(_)
+            this._router.url.includes(_),
         );
         if (!can_activate) {
             this._router.navigate(['/']);

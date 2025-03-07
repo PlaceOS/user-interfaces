@@ -1,14 +1,18 @@
 import { Component } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
-import { AssetManagerStateService } from './asset-manager-state.service';
 import { AsyncHandler } from '@placeos/common';
+import { AssetManagerStateService } from './asset-manager-state.service';
 
 @Component({
     selector: 'asset-listing',
     template: `
         <asset-manager-topbar [active]="active"></asset-manager-topbar>
-        <div class="flex flex-col flex-1 h-1/2 w-full px-8">
-            <nav mat-tab-nav-bar *ngIf="!is_new || active !== 'requests'">
+        <div class="flex h-1/2 w-full flex-1 flex-col px-8">
+            <nav
+                mat-tab-nav-bar
+                *ngIf="!is_new || active !== 'requests'"
+                [tabPanel]="tabPanel"
+            >
                 <a
                     mat-tab-link
                     [routerLink]="[base_route, 'list', 'requests']"
@@ -17,7 +21,7 @@ import { AsyncHandler } from '@placeos/common';
                     (click)="active = 'requests'"
                     *ngIf="!is_new"
                 >
-                    Requests
+                    {{ 'APP.CONCIERGE.ASSETS_REQUESTS' | translate }}
                 </a>
                 <a
                     mat-tab-link
@@ -25,7 +29,7 @@ import { AsyncHandler } from '@placeos/common';
                     [active]="active === 'items'"
                     (click)="active = 'items'"
                 >
-                    Products
+                    {{ 'APP.CONCIERGE.ASSETS_PRODUCTS' | translate }}
                 </a>
                 <a
                     mat-tab-link
@@ -33,12 +37,15 @@ import { AsyncHandler } from '@placeos/common';
                     [active]="active === 'purchase-orders'"
                     (click)="active = 'purchase-orders'"
                 >
-                    Purchase Orders
+                    {{ 'APP.CONCIERGE.ASSETS_PO' | translate }}
                 </a>
             </nav>
-            <div class="flex-1 h-1/2 w-full overflow-visible">
+            <mat-tab-nav-panel
+                class="h-1/2 w-full flex-1 overflow-visible"
+                #tabPanel
+            >
                 <router-outlet></router-outlet>
-            </div>
+            </mat-tab-nav-panel>
         </div>
     `,
     styles: [
@@ -51,6 +58,7 @@ import { AsyncHandler } from '@placeos/common';
             }
         `,
     ],
+    standalone: false,
 })
 export class AssetListingComponent extends AsyncHandler {
     public active = 'requests';
@@ -62,7 +70,7 @@ export class AssetListingComponent extends AsyncHandler {
 
     constructor(
         private _router: Router,
-        private _state: AssetManagerStateService
+        private _state: AssetManagerStateService,
     ) {
         super();
     }
@@ -72,8 +80,8 @@ export class AssetListingComponent extends AsyncHandler {
         this.active = this._router.url.includes('requests')
             ? 'requests'
             : this._router.url.includes('items')
-            ? 'items'
-            : 'purchase-orders';
+              ? 'items'
+              : 'purchase-orders';
         this.subscription(
             'router.events',
             this._router.events.subscribe((e) => {
@@ -82,10 +90,10 @@ export class AssetListingComponent extends AsyncHandler {
                     this.active = this._router.url.includes('requests')
                         ? 'requests'
                         : this._router.url.includes('items')
-                        ? 'items'
-                        : 'purchase-orders';
+                          ? 'items'
+                          : 'purchase-orders';
                 }
-            })
+            }),
         );
     }
 }

@@ -22,14 +22,18 @@ describe('CalendarEvent', () => {
         expect(event.all_day).toBe(false);
         expect(event.duration).toBe(30);
         expect(event.timezone).toBe(
-            Intl.DateTimeFormat().resolvedOptions().timeZone
+            Intl.DateTimeFormat().resolvedOptions().timeZone,
         );
         expect(event.location).toBe('');
         expect(event.recurring).toBe(false);
         expect(event.recurring_event_id).toBe('');
         expect(event.attachments).toEqual([]);
         expect(event.system).toBeNull();
-        expect(event.extension_data).toEqual({ catering: [], assets: [] });
+        expect(event.extension_data).toEqual({
+            catering: [],
+            assets: [],
+            images: [],
+        });
         expect(event.type).toBe('internal');
         event = new CalendarEvent({
             id: 'One',
@@ -52,7 +56,7 @@ describe('CalendarEvent', () => {
             attachments: [{ name: 'file.png', blob: null }],
         });
         expect(event.id).toBe('One');
-        expect(event.status).toBe('declined');
+        expect(event.status).toBe('tentative');
         expect(event.host).toBe('me@work.com');
         expect(event.calendar).toBe('me@work.com');
         expect(event.creator).toBe('me@work.com');
@@ -73,8 +77,12 @@ describe('CalendarEvent', () => {
         expect(event.recurring_event_id).toBe('Another');
         expect(event.attachments).toEqual([{ name: 'file.png', blob: null }]);
         expect(event.system).toBeTruthy();
-        expect(event.extension_data).toEqual({ catering: [], assets: [] });
-        expect(event.type).toBe('cancelled');
+        expect(event.extension_data).toEqual({
+            catering: [],
+            assets: [],
+            images: [],
+        });
+        expect(event.type).toBe('external');
         // TODO: Test date/time fields
     });
 

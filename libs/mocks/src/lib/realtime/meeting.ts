@@ -10,7 +10,7 @@ class MeetingPushModule {
 
 export const createMeetingPushModule = (
     details?: HashMap,
-    overrides: HashMap = {}
+    overrides: HashMap = {},
 ) =>
     new MeetingPushModule({
         ...details,

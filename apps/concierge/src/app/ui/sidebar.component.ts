@@ -1,26 +1,29 @@
 import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
-    ApplicationIcon,
     ApplicationLinkInternal,
     SettingsService,
     VERSION,
 } from '@placeos/common';
 import { ChangelogModalComponent } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
-import { map } from 'rxjs/operators';
+import { debounceTime, map } from 'rxjs/operators';
 
 @Component({
     selector: 'sidebar',
     template: `
-        <div class="flex flex-col bg-secondary w-48 text-white h-full">
-            <div class="logo w-full flex items-center justify-center p-3 mb-4">
-                <img class="w-full" [src]="logo.src" />
+        <div class="flex h-full w-48 flex-col bg-secondary text-white">
+            <div class="logo mb-4 flex w-full items-center justify-center p-3">
+                <img
+                    auth
+                    class="w-full"
+                    [source]="(logo | async)?.src || (logo | async)"
+                />
             </div>
-            <div class="flex-1 overflow-auto space-y-2">
+            <div class="flex-1 space-y-2 overflow-auto">
                 <ng-container *ngFor="let tile of links">
                     <a
-                        class="flex items-center mx-2 space-x-2 hover:bg-base-100/20 px-2 py-1 rounded"
+                        class="hover:bg-base-100/20 mx-2 flex items-center space-x-2 rounded px-2 py-1"
                         [routerLink]="['/' + tile.route]"
                         routerLinkActive="active"
                     >
@@ -34,7 +37,7 @@ import { map } from 'rxjs/operators';
             </div>
             <button
                 mat-ripple
-                class="w-full flex items-center space-x-2 p-3 border-t border-base-200-500 hover:bg-base-100/20"
+                class="border-base-200-500 hover:bg-base-100/20 flex w-full items-center space-x-2 border-t p-3"
                 *ngIf="(regions | async).length > 1"
                 [matMenuTriggerFor]="region"
             >
@@ -48,7 +51,7 @@ import { map } from 'rxjs/operators';
             </button>
             <button
                 mat-ripple
-                class="w-full flex items-center space-x-2 p-3 border-t border-base-200-500 hover:bg-base-100/20"
+                class="border-base-200-500 hover:bg-base-100/20 flex w-full items-center space-x-2 border-t p-3"
                 *ngIf="(buildings | async).length > 1"
                 [matMenuTriggerFor]="menu"
             >
@@ -60,17 +63,17 @@ import { map } from 'rxjs/operators';
                     }}
                 </div>
             </button>
-            <div class="p-2 border-t border-base-200-500">
-                <div class="text-xs opacity-60 w-full">
-                    <ng-container i18n>Version: </ng-container>
+            <div class="border-base-200-500 border-t p-2">
+                <div class="w-full text-xs opacity-60">
+                    <ng-container>Version: </ng-container>
                     <button
-                        class="underline p-0 m-0 bg-none border-none text-xs"
+                        class="m-0 border-none bg-none p-0 text-xs underline"
                         (click)="viewChangelog()"
                     >
                         {{ version.hash }}
                     </button>
                 </div>
-                <div class="text-xs opacity-60 w-full">
+                <div class="w-full text-xs opacity-60">
                     {{ version.time | date: 'longDate' }}
                     ({{ version.time | date: time_format }})
                 </div>
@@ -119,24 +122,32 @@ import { map } from 'rxjs/operators';
             }
         `,
     ],
+    standalone: false,
 })
 export class SidebarComponent {
     public get links(): ApplicationLinkInternal[] {
         return this._settings.get('app.general.menu') || [];
     }
-    public get logo(): ApplicationIcon {
-        return this._settings.get('app.logo_dark') || {};
-    }
+
+    public readonly logo = this._org.active_building.pipe(
+        debounceTime(500),
+        map(
+            () =>
+                (this._settings.theme === 'dark'
+                    ? this._settings.get('app.logo_dark')
+                    : this._settings.get('app.logo_light')) || {},
+        ),
+    );
 
     public readonly regions = this._org.region_list.pipe(
         map((l) =>
-            l.sort((a, b) => a.display_name?.localeCompare(b.display_name))
-        )
+            l.sort((a, b) => a.display_name?.localeCompare(b.display_name)),
+        ),
     );
     public readonly buildings = this._org.building_list.pipe(
         map((l) =>
-            l.sort((a, b) => a.display_name?.localeCompare(b.display_name))
-        )
+            l.sort((a, b) => a.display_name?.localeCompare(b.display_name)),
+        ),
     );
     public readonly active_region = this._org.active_region;
     public readonly active_building = this._org.active_building;
@@ -150,7 +161,7 @@ export class SidebarComponent {
     public async viewChangelog() {
         const changelog = await (
             await fetch(
-                'https://raw.githubusercontent.com/PlaceOS/user-interfaces/develop/CHANGELOG.md'
+                'https://raw.githubusercontent.com/PlaceOS/user-interfaces/develop/CHANGELOG.md',
             )
         ).text();
         this._dialog.open(ChangelogModalComponent, { data: { changelog } });
@@ -163,6 +174,6 @@ export class SidebarComponent {
     constructor(
         private _settings: SettingsService,
         private _org: OrganisationService,
-        private _dialog: MatDialog
+        private _dialog: MatDialog,
     ) {}
 }

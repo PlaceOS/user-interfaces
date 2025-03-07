@@ -21,13 +21,13 @@ import { Observable } from 'rxjs';
         <cdk-table
             [dataSource]="data_source"
             matSort
-            class="block border border-base-200 divide-y divide-base-200 text-sm"
+            class="block divide-y divide-base-200 border border-base-200 text-sm"
         >
             <ng-container *ngFor="let column of columns; let i = index">
                 <ng-container [cdkColumnDef]="column">
                     <div
                         cdk-header-cell
-                        class="capitalize p-2 h-12 bg-base-300 flex items-center"
+                        class="flex h-12 items-center bg-base-300 p-2 capitalize"
                         [style.width]="(column_size[i] || '8') + 'em'"
                         [style.flex]="column_size[i] === 'flex' ? '1' : ''"
                         *cdkHeaderCellDef
@@ -37,7 +37,7 @@ import { Observable } from 'rxjs';
                     </div>
                     <div
                         cdk-cell
-                        class="p-2 truncate flex items-center"
+                        class="flex items-center truncate p-2"
                         [style.width]="(column_size[i] || '8') + 'em'"
                         [style.flex]="column_size[i] === 'flex' ? '1' : ''"
                         *cdkCellDef="let row; let idx = index"
@@ -73,7 +73,7 @@ import { Observable } from 'rxjs';
                                             data: row[column],
                                             row: row,
                                             key: column,
-                                            name: display_column[i] || column
+                                            name: display_column[i] || column,
                                         }
                                     "
                                 ></ng-container>
@@ -87,12 +87,12 @@ import { Observable } from 'rxjs';
             </ng-container>
 
             <cdk-header-row
-                class="sticky flex items-center bg-base-100 top-0 z-10"
+                class="sticky top-0 z-10 flex items-center bg-base-100"
                 *cdkHeaderRowDef="columns"
             ></cdk-header-row>
             <cdk-row
                 row
-                class="flex z-0 relative hover:bg-neutral:bg-base-100/5 divide-x divide-base-200"
+                class="hover:bg-neutral:bg-base-100/5 relative z-0 flex divide-x divide-base-200"
                 (click)="row_clicked.emit(row)"
                 *cdkRowDef="let row; columns: columns"
             ></cdk-row>
@@ -120,6 +120,7 @@ import { Observable } from 'rxjs';
             }
         `,
     ],
+    standalone: false,
 })
 export class CustomTableComponent<T extends {} = any>
     extends AsyncHandler
@@ -149,7 +150,7 @@ export class CustomTableComponent<T extends {} = any>
     @Output() public row_clicked = new EventEmitter<T>();
     /** List of items to display in the table */
     public readonly data_source: MatTableDataSource<T> = new MatTableDataSource(
-        []
+        [],
     );
 
     @ViewChild(MatPaginator) private _paginator: MatPaginator;
@@ -179,8 +180,8 @@ export class CustomTableComponent<T extends {} = any>
                 this.subscription(
                     'data',
                     this.dataSource.subscribe(
-                        (data) => (this.data_source.data = data)
-                    )
+                        (data) => (this.data_source.data = data),
+                    ),
                 );
             } else {
                 this.data_source.data = this.dataSource;
@@ -197,7 +198,7 @@ export class CustomTableComponent<T extends {} = any>
         if (changes.columns && this.columns) {
             this.display_column = this.columns.map(
                 (_, idx) =>
-                    (this.display_column || [])[idx] || _.split('_').join(' ')
+                    (this.display_column || [])[idx] || _.split('_').join(' '),
             );
         }
         if (!this.column_size) {

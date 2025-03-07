@@ -15,25 +15,25 @@ import { DashboardStateService } from './dashboard-state.service';
 @Component({
     selector: 'a-dashboard-upcoming',
     template: `
-        <h3 class="m-0 mb-4 font-medium text-xl">Your Bookings</h3>
+        <h3 class="m-0 mb-4 text-xl font-medium">Your Bookings</h3>
         <div
             name="event"
-            *ngFor="let event of event_list | async | slice: 0:3"
-            class="flex bg-base-100 shadow rounded-lg relative overflow-hidden mb-4"
+            *ngFor="let event of event_list | async | slice: 0 : 3"
+            class="relative mb-4 flex overflow-hidden rounded-lg bg-base-100 shadow"
         >
             <div
                 name="status"
                 class="absolute rounded-lg"
                 [class.bg-primary]="event.asset_id"
             ></div>
-            <div name="details" class="flex-1 mr-2">
-                <div time class="text-primary text-sm font-bold mb-2">
+            <div name="details" class="mr-2 flex-1">
+                <div time class="mb-2 text-sm font-bold text-primary">
                     {{ event.date | date: 'shortTime' }}
                 </div>
-                <div name="title" class="text-sm font-bold mb-2">
+                <div name="title" class="mb-2 text-sm font-bold">
                     {{ event.title }}
                 </div>
-                <div name="space" class="text-xs flex items-center mb-2">
+                <div name="space" class="mb-2 flex items-center text-xs">
                     <app-icon class="mr-2">room</app-icon>
                     <a
                         class="text-black"
@@ -62,7 +62,7 @@ import { DashboardStateService } from './dashboard-state.service';
                 </div>
                 <div
                     name="attendees"
-                    class="text-xs flex items-center mb-2"
+                    class="mb-2 flex items-center text-xs"
                     *ngIf="event.guests"
                 >
                     <app-icon
@@ -88,7 +88,7 @@ import { DashboardStateService } from './dashboard-state.service';
                 btn
                 matRipple
                 *ngIf="event.meeting_link"
-                class="uppercase h-12"
+                class="h-12 uppercase"
                 [href]="event.meeting_link"
                 >Join Call</a
             >
@@ -122,6 +122,7 @@ import { DashboardStateService } from './dashboard-state.service';
             }
         `,
     ],
+    standalone: false,
 })
 export class DashboardUpcomingComponent implements OnInit, OnDestroy {
     public readonly today = new Date();
@@ -142,17 +143,17 @@ export class DashboardUpcomingComponent implements OnInit, OnDestroy {
                                   level: this._org.levelWithID(_.zones),
                                   zones: _.zones,
                               },
-                          }
+                          },
                 );
             return updated_list;
-        })
+        }),
     );
 
     constructor(
         private _org: OrganisationService,
         private _state: DashboardStateService,
         private _schedule: ScheduleStateService,
-        private _dialog: MatDialog
+        private _dialog: MatDialog,
     ) {}
 
     public ngOnInit() {

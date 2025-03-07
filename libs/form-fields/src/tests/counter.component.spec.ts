@@ -2,6 +2,7 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { IconComponent, SafePipe } from '@placeos/components';
 import { MockComponent } from 'ng-mocks';
 
+import { FormsModule } from '@angular/forms';
 import { CounterComponent } from '../lib/counter.component';
 
 describe('CounterComponent', () => {
@@ -9,6 +10,7 @@ describe('CounterComponent', () => {
     const createComponent = createComponentFactory({
         component: CounterComponent,
         declarations: [MockComponent(IconComponent), SafePipe],
+        imports: [FormsModule],
     });
 
     beforeEach(() => {
@@ -23,10 +25,10 @@ describe('CounterComponent', () => {
     });
 
     it('should allow adding to count', () => {
-        expect('button[name="add"]').toExist();
+        expect('button[increase]').toExist();
         expect('[value]').toExist();
         expect('[value]').toHaveExactText(' 0 ');
-        spectator.click('button[name="add"]');
+        spectator.click('button[increase]');
         expect(spectator.component.value).toBe(1);
         spectator.detectChanges();
         expect('[value]').toHaveExactText(' 1 ');
@@ -37,7 +39,7 @@ describe('CounterComponent', () => {
         spectator.detectChanges();
         expect('[value]').toExist();
         expect('[value]').toHaveExactText(' 10 ');
-        spectator.click('button[name="remove"]');
+        spectator.click('button[decrease]');
         expect(spectator.component.value).toBe(9);
         spectator.detectChanges();
         expect('[value]').toHaveExactText(' 9 ');
@@ -71,7 +73,7 @@ describe('CounterComponent', () => {
     });
 
     it('should allow writing to count', () => {
-        expect('button[name="remove"]').toExist();
+        expect('button[decrease]').toExist();
         expect('[value]').toExist();
         expect('[value]').toHaveExactText(' 0 ');
         spectator.component.writeValue(10);

@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
-import { ApplicationLink, SettingsService } from '@placeos/common';
+import { SettingsService } from '@placeos/common';
 
 @Component({
     selector: 'footer-menu',
     template: `
         <div
-            class="fixed z-20 inset-0 bottom-16 text-white"
+            class="fixed inset-0 bottom-16 z-20 text-white"
             *ngIf="show_book_items"
             [attr.dark]="dark_mode"
             (click)="show_book_items = false"
@@ -24,10 +24,10 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
                     "
                     *ngIf="features.includes('spaces')"
                     routerLinkActive="active"
-                    class="flex flex-col items-center justify-center space-y-2 w-1/3 m-2"
+                    class="m-2 flex w-1/3 flex-col items-center justify-center space-y-2"
                 >
                     <div
-                        class="bg-base-100 text-base-content rounded-full h-12 w-12 text-2xl flex items-center justify-center"
+                        class="flex h-12 w-12 items-center justify-center rounded-full bg-base-100 text-2xl text-base-content"
                     >
                         <app-icon filled>meeting_room</app-icon>
                         <app-icon
@@ -37,7 +37,9 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
                             >meeting_room</app-icon
                         >
                     </div>
-                    <div class="text-xs" i18n>Book Meeting</div>
+                    <div class="text-xs">
+                        {{ 'APP.WORKPLACE.MENU_ROOMS' | translate }}
+                    </div>
                 </a>
                 <a
                     matRipple
@@ -49,10 +51,10 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
                     "
                     routerLinkActive="active"
                     *ngIf="features.includes('desks')"
-                    class="flex flex-col items-center justify-center space-y-2 w-1/3 m-2"
+                    class="m-2 flex w-1/3 flex-col items-center justify-center space-y-2"
                 >
                     <div
-                        class="bg-base-100 text-base-content rounded-full h-12 w-12 text-2xl flex items-center justify-center"
+                        class="flex h-12 w-12 items-center justify-center rounded-full bg-base-100 text-2xl text-base-content"
                     >
                         <app-icon filled>desk</app-icon>
                         <app-icon
@@ -62,7 +64,9 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
                             >desk</app-icon
                         >
                     </div>
-                    <div class="text-xs" i18n>Book Desk</div>
+                    <div class="text-xs">
+                        {{ 'APP.WORKPLACE.MENU_DESKS' | translate }}
+                    </div>
                 </a>
                 <a
                     matRipple
@@ -70,10 +74,10 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
                     [routerLink]="['/book', 'new-parking']"
                     routerLinkActive="active"
                     *ngIf="features.includes('parking')"
-                    class="flex flex-col items-center justify-center space-y-2 text-base w-1/3 m-2"
+                    class="m-2 flex w-1/3 flex-col items-center justify-center space-y-2 text-base"
                 >
                     <div
-                        class="bg-base-100 text-base-content rounded-full h-12 w-12 text-2xl flex items-center justify-center"
+                        class="flex h-12 w-12 items-center justify-center rounded-full bg-base-100 text-2xl text-base-content"
                     >
                         <app-icon filled>directions_car</app-icon>
                         <app-icon
@@ -83,7 +87,9 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
                             >directions_car</app-icon
                         >
                     </div>
-                    <div class="text-xs" i18n>Book Car Space</div>
+                    <div class="text-xs">
+                        {{ 'APP.WORKPLACE.MENU_PARKING' | translate }}
+                    </div>
                 </a>
                 <a
                     matRipple
@@ -91,10 +97,10 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
                     *ngIf="features.includes('visitor-invite')"
                     [routerLink]="['/book', 'visitor']"
                     routerLinkActive="active"
-                    class="flex flex-col items-center justify-center space-y-2 w-1/3 m-2"
+                    class="m-2 flex w-1/3 flex-col items-center justify-center space-y-2"
                 >
                     <div
-                        class="bg-base-100 text-base-content rounded-full h-12 w-12 text-2xl flex items-center justify-center"
+                        class="flex h-12 w-12 items-center justify-center rounded-full bg-base-100 text-2xl text-base-content"
                     >
                         <app-icon filled>person_add</app-icon>
                         <app-icon
@@ -104,7 +110,9 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
                             >person_add</app-icon
                         >
                     </div>
-                    <div class="text-xs" i18n>Invite Visitor</div>
+                    <div class="text-xs">
+                        {{ 'APP.WORKPLACE.MENU_VISITORS' | translate }}
+                    </div>
                 </a>
                 <a
                     matRipple
@@ -114,10 +122,10 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
                     "
                     *ngIf="features.includes('schedule')"
                     routerLinkActive="active"
-                    class="flex flex-col items-center justify-center space-y-2 text-base w-1/3  m-2"
+                    class="m-2 flex w-1/3 flex-col items-center justify-center space-y-2 text-base"
                 >
                     <div
-                        class="bg-base-100 text-base-content rounded-full h-12 w-12 text-2xl flex items-center justify-center"
+                        class="flex h-12 w-12 items-center justify-center rounded-full bg-base-100 text-2xl text-base-content"
                     >
                         <app-icon filled>today</app-icon>
                         <app-icon
@@ -127,18 +135,43 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
                             >today</app-icon
                         >
                     </div>
-                    <div class="text-xs" i18n>Your Bookings</div>
+                    <div class="text-xs">
+                        {{ 'APP.WORKPLACE.MENU_SCHEDULE' | translate }}
+                    </div>
+                </a>
+                <a
+                    matRipple
+                    name="footer-nav-my-day"
+                    [routerLink]="['/group-events']"
+                    *ngIf="features.includes('events')"
+                    routerLinkActive="active"
+                    class="m-2 flex w-1/3 flex-col items-center justify-center space-y-2 text-base"
+                >
+                    <div
+                        class="flex h-12 w-12 items-center justify-center rounded-full bg-base-100 text-2xl text-base-content"
+                    >
+                        <app-icon filled>local_activity</app-icon>
+                        <app-icon
+                            outline
+                            class="text-neutral"
+                            className="material-icons-outlined"
+                            >local_activity</app-icon
+                        >
+                    </div>
+                    <div class="text-xs">
+                        {{ 'APP.WORKPLACE.MENU_EVENTS' | translate }}
+                    </div>
                 </a>
             </div>
         </div>
         <div
-            class="flex items-center justify-center bg-base-100 border-t border-base-200 shadow relative h-16 w-full sm:hidden z-40"
+            class="relative z-40 flex h-16 w-full items-center justify-center border-t border-base-200 bg-base-100 shadow sm:hidden"
             *ngIf="features.length > 3; else simple_state"
             [attr.dark]="dark_mode"
         >
             <a
                 matRipple
-                class="flex flex-col items-center justify-center relative flex-1"
+                class="relative flex flex-1 flex-col items-center justify-center"
                 [routerLink]="[default_page]"
                 name="footer-nav-home"
                 routerLinkActive="text-secondary active"
@@ -147,14 +180,16 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
                 <app-icon
                     outline
                     className="material-icons-outlined"
-                    class="text-2xl !m-0"
+                    class="!m-0 text-2xl"
                     >home</app-icon
                 >
-                <span class="text-sm" i18n>Home</span>
+                <span class="text-sm">{{
+                    'APP.WORKPLACE.MENU_HOME' | translate
+                }}</span>
             </a>
             <button
                 matRipple
-                class="flex items-center justify-center w-12 h-12 mb-4 rounded-full z-10"
+                class="z-10 mb-4 flex h-12 w-12 items-center justify-center rounded-full"
                 (click)="show_book_items = !show_book_items"
                 [class.bg-secondary]="show_book_items"
                 [class.text-white]="show_book_items"
@@ -166,7 +201,7 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
             </button>
             <a
                 matRipple
-                class="flex flex-col items-center justify-center relative flex-1"
+                class="relative flex flex-1 flex-col items-center justify-center"
                 [routerLink]="['/explore']"
                 routerLinkActive="text-secondary active"
             >
@@ -174,22 +209,24 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
                 <app-icon
                     outline
                     className="material-icons-outlined"
-                    class="text-2xl !m-0"
+                    class="!m-0 text-2xl"
                     >place</app-icon
                 >
-                <span class="text-sm" i18n>Spaces</span>
+                <span class="text-sm">{{
+                    'APP.WORKPLACE.MENU_EXPLORE' | translate
+                }}</span>
             </a>
             <div
-                class="overflow-hidden absolute top-0 left-1/2 -translate-x-1/2 -translate-y-full w-24 h-2"
+                class="absolute left-1/2 top-0 h-2 w-24 -translate-x-1/2 -translate-y-full overflow-hidden"
             >
                 <div
-                    class="w-16 h-16 rounded-full bg-base-100 shadow mx-auto border-t border-base-200"
+                    class="mx-auto h-16 w-16 rounded-full border-t border-base-200 bg-base-100 shadow"
                 ></div>
             </div>
         </div>
         <ng-template #simple_state>
             <div
-                class="flex items-center justify-center bg-base-100 border-t border-base-200 shadow relative h-16 w-full sm:hidden z-40"
+                class="relative z-40 flex h-16 w-full items-center justify-center border-t border-base-200 bg-base-100 shadow sm:hidden"
             >
                 <top-menu></top-menu>
             </div>
@@ -211,6 +248,7 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
             }
         `,
     ],
+    standalone: false,
 })
 export class FooterMenuComponent {
     public show_book_items = false;
@@ -227,8 +265,11 @@ export class FooterMenuComponent {
         return !!this._settings.get('app.new_features');
     }
 
-    public get dark_mode(): boolean {
-        return !!this._settings.get('dark_mode');
+    public get dark_mode() {
+        return (
+            this._settings.get('app.allow_dark_mode') &&
+            this._settings.theme === 'dark'
+        );
     }
 
     constructor(private _settings: SettingsService) {}

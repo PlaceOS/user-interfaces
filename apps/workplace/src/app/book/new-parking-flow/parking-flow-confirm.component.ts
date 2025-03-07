@@ -6,25 +6,32 @@ import { OrganisationService } from '@placeos/organisation';
 
 @Component({
     selector: 'new-parking-flow-confirm',
-    template: ` <button
-            close
-            icon
-            matRipple
-            *ngIf="show_close"
-            (click)="dismiss()"
+    template: ` <header
+            class="m-2 flex h-12 items-center justify-between rounded bg-base-200 p-2"
         >
-            <app-icon>close</app-icon>
-        </button>
-        <header class="flex items-center justify-between px-2">
-            <h2 class="text-2xl font-medium mb-2" i18n>
-                Confirm Parking Reservation
+            <h2 class="px-2 text-xl font-medium">
+                {{ 'APP.WORKPLACE.PARKING_CONFIRM_TITLE' | translate }}
             </h2>
-            <mat-spinner diameter="32" *ngIf="loading | async"></mat-spinner>
+            <div class="">
+                <mat-spinner
+                    diameter="32"
+                    *ngIf="loading | async"
+                ></mat-spinner>
+                <button
+                    icon
+                    name="close-locker-confirm"
+                    matRipple
+                    *ngIf="show_close"
+                    (click)="dismiss()"
+                >
+                    <app-icon class="text-2xl">close</app-icon>
+                </button>
+            </div>
         </header>
-        <section period class="flex space-x-1 py-4 px-2">
-            <app-icon class="text-success">done</app-icon>
-            <div details class="leading-6">
-                <h3>{{ booking.title || '~Untitled~' }}</h3>
+        <section period class="flex space-x-1 px-2 py-4 text-base">
+            <app-icon class="text-2xl text-success">done</app-icon>
+            <div details class="space-y-2 text-base">
+                <h3 class="text-xl">{{ booking.title || '~Untitled~' }}</h3>
                 <div class="flex items-center space-x-2">
                     <app-icon>calendar_today</app-icon>
                     <div date>{{ booking.date | date: 'fullDate' }}</div>
@@ -34,7 +41,7 @@ import { OrganisationService } from '@placeos/organisation';
                     <div time>
                         {{
                             booking.all_day
-                                ? 'All Day'
+                                ? ('COMMON.ALL_DAY' | translate)
                                 : (booking.date | date: time_format) +
                                   ' - ' +
                                   (booking.date + booking.duration * 60 * 1000
@@ -46,17 +53,17 @@ import { OrganisationService } from '@placeos/organisation';
         </section>
         <section
             resource
-            class="flex space-x-1 py-4 px-2 border-t"
+            class="flex space-x-1 border-t px-2 py-4 text-base"
             *ngIf="booking_asset?.id"
         >
-            <app-icon class="text-success">done</app-icon>
-            <div details class="leading-6">
-                <h3 name>
+            <app-icon class="text-2xl text-success">done</app-icon>
+            <div details class="space-y-2 text-base">
+                <h3 class="text-xl">
                     {{ booking_asset?.name || booking_asset?.id || '' }}
                 </h3>
                 <div class="flex items-center space-x-2">
                     <app-icon>person</app-icon>
-                    <span i18n>Car Park</span>
+                    <span>{{ 'RESOURCE.PARKING_SPACE' | translate }}</span>
                 </div>
                 <div class="flex items-center space-x-2">
                     <app-icon>place</app-icon>
@@ -70,23 +77,7 @@ import { OrganisationService } from '@placeos/organisation';
                 </ng-container>
             </div>
         </section>
-        <section
-            assets
-            class="flex space-x-1 py-4 px-2 border-t"
-            *ngIf="assets?.length"
-        >
-            <app-icon class="text-success">done</app-icon>
-            <div details class="leading-6">
-                <h3 i18n>{{ assets_count }} Asset(s)</h3>
-                <div class="flex space-x-2" *ngFor="let asset of assets">
-                    <div class="h-5 w-5 bg-base-200 rounded-full">
-                        {{ asset.amount }}
-                    </div>
-                    <span>{{ asset.name }}</span>
-                </div>
-            </div>
-        </section>
-        <footer class="p-2 w-full border-t border-base-200 mt-4">
+        <footer class="mt-4 w-full border-t border-base-200 p-2">
             <button
                 confirm
                 btn
@@ -94,9 +85,8 @@ import { OrganisationService } from '@placeos/organisation';
                 class="w-full"
                 *ngIf="!(loading | async)"
                 (click)="postForm()"
-                i18n
             >
-                Confirm
+                {{ 'COMMON.CONFIRM' | translate }}
             </button>
         </footer>`,
     styles: [
@@ -113,6 +103,7 @@ import { OrganisationService } from '@placeos/organisation';
             }
         `,
     ],
+    standalone: false,
 })
 export class NewParkingFlowConfirmComponent extends AsyncHandler {
     @Input() public show_close: boolean = false;
@@ -120,10 +111,10 @@ export class NewParkingFlowConfirmComponent extends AsyncHandler {
     public readonly loading = this._state.loading;
 
     public readonly postForm = async () => {
-        await this._state.postForm().catch((_) => {
+        const r = await this._state.postForm().catch((_) => {
             notifyError(`Unable to complete booking. ${_}`);
-            throw _;
         });
+        if (!r) return;
         this.dismiss(true);
     };
     public readonly dismiss = (e?) => this._sheet_ref?.dismiss(e);
@@ -152,10 +143,10 @@ export class NewParkingFlowConfirmComponent extends AsyncHandler {
 
     public get location() {
         const building = this._org.buildings.find(
-            (b) => b.id === this.booking_asset?.zone?.parent_id
+            (b) => b.id === this.booking_asset?.zone?.parent_id,
         );
         const level = this._org.levels.find(
-            (l) => l.id === this.booking_asset?.zone?.id
+            (l) => l.id === this.booking_asset?.zone?.id,
         );
         return `${level?.display_name || level?.name}${building ? ',' : ''} ${
             building?.address || building?.display_name || building?.name || ''
@@ -166,7 +157,7 @@ export class NewParkingFlowConfirmComponent extends AsyncHandler {
         private _state: BookingFormService,
         private _org: OrganisationService,
         @Optional() private _sheet_ref: MatBottomSheetRef,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         super();
     }

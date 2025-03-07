@@ -6,11 +6,11 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { Route, RouterModule } from '@angular/router';
 import { UIModule } from '../ui/ui.module';
 import { PointsAssetModalComponent } from './asset-modal.component';
+import { NewPointsComponent } from './new-points.component';
 import { PointsAssetsComponent } from './points-assets.component';
 import { PointsOverviewComponent } from './points-overview.component';
 import { PointsTopbarComponent } from './points-topbar.component';
 import { PointsComponent } from './points.component';
-import { NewPointsComponent } from './new-points.component';
 
 const ROUTES: Route[] = [
     {

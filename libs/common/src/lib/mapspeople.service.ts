@@ -1,17 +1,10 @@
 import { Injectable } from '@angular/core';
-import { SettingsService } from './settings.service';
 import { OrganisationService } from '@placeos/organisation';
 import { BehaviorSubject, combineLatest } from 'rxjs';
-import {
-    map,
-    tap,
-    filter,
-    debounce,
-    debounceTime,
-    shareReplay,
-} from 'rxjs/operators';
+import { debounceTime, filter, map, shareReplay, tap } from 'rxjs/operators';
 import { AsyncHandler } from './async-handler.class';
 import { log } from './general';
+import { SettingsService } from './settings.service';
 
 export enum MapService {
     GoogleMaps,
@@ -46,9 +39,9 @@ export class MapsPeopleService extends AsyncHandler {
             ([bld, zone]) =>
                 this.map_keys.mapsindoors &&
                 (this.use_service.includes(zone || bld.id) ||
-                    this.use_service.includes('*'))
+                    this.use_service.includes('*')),
         ),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     public get map_keys(): MapsPeopleKeys {
@@ -73,7 +66,7 @@ export class MapsPeopleService extends AsyncHandler {
 
     constructor(
         private _settings: SettingsService,
-        private _org: OrganisationService
+        private _org: OrganisationService,
     ) {
         super();
     }
@@ -98,7 +91,7 @@ export class MapsPeopleService extends AsyncHandler {
                 'MapsPeople',
                 'Both Google and Mapbox keys provided',
                 undefined,
-                'error'
+                'error',
             );
             return;
         }
@@ -126,7 +119,7 @@ export class MapsPeopleService extends AsyncHandler {
                 'MapsPeople',
                 `Initialized Maps API Keys for ${
                     google ? 'Google Maps' : 'Mapbox'
-                }`
+                }`,
             );
             this.timeout('ready', () => this._ready.next(true), 300);
         }

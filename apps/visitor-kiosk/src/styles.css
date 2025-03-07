@@ -1,14 +1,35 @@
-@import 'tailwindcss/base';
-@import 'tailwindcss/components';
-@import 'tailwindcss/utilities';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 /* You can add global styles to this file, and also import other style files */
 
-html, body { 
-    height: 100%; 
-    font-size: 2vmin !important; 
+html,
+body {
+    height: 100%;
+    font-size: 2vmin !important;
 }
 
-body { 
-    margin: 0; 
-    font-family: Roboto, "Helvetica Neue", sans-serif; 
+body {
+    margin: 0;
+    font-family: Roboto, 'Helvetica Neue', sans-serif;
+}
+
+@media print {
+    .mat-mdc-snackbar-surface {
+        display: none !important;
+    }
+
+    html,
+    body#placeos {
+        height: 512px;
+        width: 512px;
+        max-height: 512px !important;
+        max-width: 512px !important;
+        min-height: 0 !important;
+        overflow: hidden;
+    }
+
+    app-root {
+        display: none;
+    }
 }

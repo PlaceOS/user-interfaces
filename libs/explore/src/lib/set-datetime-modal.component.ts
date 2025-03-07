@@ -21,12 +21,12 @@ import { User } from 'libs/users/src/lib/user.class';
         >
             <div
                 *ngIf="resource"
-                class="flex flex-col sm:flex-row space-x-0 sm:space-x-2 w-[640px] max-w-[calc(100%-2rem)] mx-auto"
+                class="mx-auto flex w-[640px] max-w-[calc(100%-2rem)] flex-col space-x-0 sm:flex-row sm:space-x-2"
             >
-                <div class="flex flex-col flex-1 w-full sm:w-1/4 mb-2">
+                <div class="mb-2 flex w-full flex-1 flex-col sm:w-1/4">
                     <label>Resource:</label>
                     <div
-                        class="px-4 py-3 border border-base-200 rounded w-full mb-4"
+                        class="mb-4 w-full rounded border border-base-200 px-4 py-3"
                     >
                         {{
                             resource.name ||
@@ -38,9 +38,9 @@ import { User } from 'libs/users/src/lib/user.class';
             </div>
             <div
                 *ngIf="host"
-                class="flex flex-col sm:flex-row space-x-0 sm:space-x-2 w-[640px] max-w-[calc(100%-2rem)] mx-auto"
+                class="mx-auto flex w-[640px] max-w-[calc(100%-2rem)] flex-col space-x-0 sm:flex-row sm:space-x-2"
             >
-                <div class="flex flex-col flex-1 w-full sm:w-1/4">
+                <div class="flex w-full flex-1 flex-col sm:w-1/4">
                     <label>Host</label>
                     <a-user-search-field
                         formControlName="user"
@@ -49,9 +49,9 @@ import { User } from 'libs/users/src/lib/user.class';
                 </div>
             </div>
             <div
-                class="flex flex-col sm:flex-row space-x-0 sm:space-x-2 w-[640px] max-w-[calc(100%-2rem)] mx-auto"
+                class="mx-auto flex w-[640px] max-w-[calc(100%-2rem)] flex-col space-x-0 sm:flex-row sm:space-x-2"
             >
-                <div class="flex flex-col flex-1 w-full sm:w-1/4">
+                <div class="flex w-full flex-1 flex-col sm:w-1/4">
                     <label>Date</label>
                     <a-date-field [to]="book_until" formControlName="date">
                         Date and time must be in the future
@@ -59,9 +59,9 @@ import { User } from 'libs/users/src/lib/user.class';
                 </div>
             </div>
             <div
-                class="flex flex-col sm:flex-row space-x-0 sm:space-x-2 w-[640px] max-w-[calc(100%-2rem)] mx-auto"
+                class="mx-auto flex w-[640px] max-w-[calc(100%-2rem)] flex-col space-x-0 sm:flex-row sm:space-x-2"
             >
-                <div class="flex flex-col flex-1 w-full sm:w-1/3">
+                <div class="flex w-full flex-1 flex-col sm:w-1/3">
                     <label>Start Time</label>
                     <a-time-field
                         [ngModel]="form.value.date"
@@ -70,7 +70,7 @@ import { User } from 'libs/users/src/lib/user.class';
                         [use_24hr]="use_24hr_time"
                     ></a-time-field>
                 </div>
-                <div class="flex flex-col flex-1 w-full sm:w-1/3">
+                <div class="flex w-full flex-1 flex-col sm:w-1/3">
                     <label>End Time</label>
                     <a-duration-field
                         formControlName="duration"
@@ -85,7 +85,7 @@ import { User } from 'libs/users/src/lib/user.class';
             </div>
         </main>
         <footer
-            class="w-full p-2 border-t border-base-200 flex items-center justify-center"
+            class="flex w-full items-center justify-center border-t border-base-200 p-2"
         >
             <button btn matRipple [mat-dialog-close]="form.value" class="w-32">
                 Continue
@@ -93,6 +93,7 @@ import { User } from 'libs/users/src/lib/user.class';
         </footer>
     `,
     styles: [``],
+    standalone: false,
 })
 export class SetDatetimeModalComponent {
     public host = this._data.host;
@@ -119,6 +120,6 @@ export class SetDatetimeModalComponent {
             user?: User;
             resource: BookingAsset;
         },
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {}
 }

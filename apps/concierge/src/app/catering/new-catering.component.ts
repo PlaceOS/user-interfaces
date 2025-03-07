@@ -6,18 +6,18 @@ import { AsyncHandler } from '@placeos/common';
     selector: '[app-new-catering]',
     template: `
         <app-topbar></app-topbar>
-        <div class="flex flex-1 h-px">
+        <div class="flex h-px flex-1">
             <app-sidebar></app-sidebar>
-            <main class="flex flex-col flex-1 w-1/2 h-full">
+            <main class="flex h-full w-1/2 flex-1 flex-col">
                 <catering-topbar class="relative z-10"></catering-topbar>
-                <div class="flex flex-col px-8 flex-1 h-1/2">
+                <div class="flex h-1/2 flex-1 flex-col px-8">
                     <div
-                        class="p-2 flex items-center justify-center bg-info text-white text-sm mb-4 rounded"
+                        class="mb-4 flex items-center justify-center rounded bg-info p-2 text-sm text-white"
                         *ngIf="page === 'menu'"
                     >
-                        To edit the menu de-select all levels from the top left
+                        {{ 'CATERING.MENU_EDIT_INFO' | translate }}
                     </div>
-                    <div class="flex flex-1 h-1/2 w-full overflow-auto">
+                    <div class="flex h-1/2 w-full flex-1 overflow-auto">
                         <ng-container [ngSwitch]="page">
                             <catering-order-list
                                 *ngSwitchCase="'orders'"
@@ -33,48 +33,48 @@ import { AsyncHandler } from '@placeos/common';
                             >
                                 <a
                                     matRipple
-                                    class="rounded flex flex-col items-center bg-base-100 shadow text-black"
+                                    class="flex flex-col items-center rounded bg-base-100 text-black shadow"
                                     [routerLink]="['/catering', 'menu']"
                                 >
                                     <div
                                         name="img"
-                                        class="relative w-full flex flex-1 items-center justify-center text-2xl text-white bg-center bg-cover"
+                                        class="relative flex w-full flex-1 items-center justify-center bg-cover bg-center text-2xl text-white"
                                         [style.background-image]="
                                             'url(assets/menus.jpg)'
                                         "
                                     >
                                         <div
-                                            class="absolute inset-0 bg-neutral opacity-60 z-0"
+                                            class="absolute inset-0 z-0 bg-neutral opacity-60"
                                         ></div>
                                         <span class="z-10"
                                             >Menus and Pricing</span
                                         >
                                     </div>
                                     <div
-                                        class="p-2 h-14 w-full text-sm text-center flex items-center justify-center"
+                                        class="flex h-14 w-full items-center justify-center p-2 text-center text-sm"
                                     >
                                         View and Edit Menus and Pricing
                                     </div>
                                 </a>
                                 <a
                                     matRipple
-                                    class="rounded flex flex-col items-center bg-base-100 shadow text-black"
+                                    class="flex flex-col items-center rounded bg-base-100 text-black shadow"
                                     [routerLink]="['/catering', 'orders']"
                                 >
                                     <div
                                         name="img"
-                                        class="relative w-full flex flex-1 items-center justify-center text-2xl text-white bg-center bg-cover"
+                                        class="relative flex w-full flex-1 items-center justify-center bg-cover bg-center text-2xl text-white"
                                         [style.background-image]="
                                             'url(assets/orders.jpg)'
                                         "
                                     >
                                         <div
-                                            class="absolute inset-0 bg-neutral opacity-60 z-0"
+                                            class="absolute inset-0 z-0 bg-neutral opacity-60"
                                         ></div>
                                         <span class="z-10">Today's Orders</span>
                                     </div>
                                     <div
-                                        class="p-2 h-14 w-full text-sm text-center flex items-center justify-center"
+                                        class="flex h-14 w-full items-center justify-center p-2 text-center text-sm"
                                     >
                                         View Catering Orders and their statuses
                                         upon arrival
@@ -114,6 +114,7 @@ import { AsyncHandler } from '@placeos/common';
             }
         `,
     ],
+    standalone: false,
 })
 export class NewCateringComponent extends AsyncHandler implements OnInit {
     /** Page being displayed */
@@ -128,8 +129,8 @@ export class NewCateringComponent extends AsyncHandler implements OnInit {
             'route.params',
             this._route.paramMap.subscribe(
                 (params) =>
-                    (this.page = params.has('view') ? params.get('view') : '')
-            )
+                    (this.page = params.has('view') ? params.get('view') : ''),
+            ),
         );
     }
 }

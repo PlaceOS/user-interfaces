@@ -1,71 +1,78 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { SettingsService, notify, notifyError } from '@placeos/common';
-import { Building } from '@placeos/organisation';
+import { SettingsService, notifyError } from '@placeos/common';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
 
 @Component({
     selector: 'item-list-modal',
     template: `
         <header>
-            <h2>Support Request Issue Types</h2>
+            <h2>{{ 'APP.CONCIERGE.SUPPORT_TYPES_HEADER' | translate }}</h2>
             <button icon matRipple mat-dialog-close="">
                 <app-icon>close</app-icon>
             </button>
         </header>
-        <main class="w-[36rem] overflow-auto h-[50vh] p-2 space-y-2">
+        <main class="h-[50vh] w-[36rem] space-y-2 overflow-auto p-2">
             <button
                 btn
                 matRipple
                 class="w-full"
                 (click)="item_list.push({ name: '', email: '' })"
             >
-                Add Item
+                {{ 'APP.CONCIERGE.SUPPORT_TYPES_ADD' | translate }}
             </button>
             <div
-                class="w-full flex items-center space-x-2"
+                class="flex w-full items-center space-x-2"
                 *ngFor="let item of item_list; let i = index; trackBy: identify"
             >
                 <input
                     type="text"
-                    class="flex-1 border border-base-200 px-4 py-3 rounded"
-                    placeholder="Issue Name"
+                    class="flex-1 rounded border border-base-200 px-4 py-3"
+                    [placeholder]="
+                        'APP.CONCIERGE.SUPPORT_TYPES_NAME' | translate
+                    "
                     [(ngModel)]="item_list[i].name"
                 />
                 <input
                     type="email"
-                    class="flex-[2] border border-base-200 px-4 py-3 rounded"
-                    placeholder="Issue Email"
+                    class="flex-[2] rounded border border-base-200 px-4 py-3"
+                    [placeholder]="
+                        'APP.CONCIERGE.SUPPORT_TYPES_EMAIL' | translate
+                    "
                     [(ngModel)]="item_list[i].email"
                 />
                 <button
                     icon
                     matRipple
-                    matTooltip="Remove Item"
+                    [matTooltip]="
+                        'APP.CONCIERGE.SUPPORT_TYPES_REMOVE' | translate
+                    "
+                    class="h-12 w-12 rounded border border-error text-error"
                     (click)="item_list.splice(i, 1)"
                 >
-                    <app-icon>close</app-icon>
+                    <app-icon class="text-2xl">delete</app-icon>
                 </button>
             </div>
         </main>
         <footer
-            class="flex items-center justify-end p-2 border-t border-base-200"
+            class="flex items-center justify-end border-t border-base-200 p-2"
         >
             <button btn matRipple class="w-32" (click)="save()">Save</button>
         </footer>
     `,
     styles: [``],
+    standalone: false,
 })
-export class ItemListModalComponent {
+export class ItemListModalComponent implements OnInit {
     public item_list: { name: string; email: string }[] = [];
-    public loading: boolean = false;
+    public loading = false;
 
     public identify = (index: number, item: any) => index;
 
     constructor(
         @Inject(MAT_DIALOG_DATA) private _bld_id: string,
         private _settings: SettingsService,
-        private _dialog_ref: MatDialogRef<ItemListModalComponent>
+        private _dialog_ref: MatDialogRef<ItemListModalComponent>,
     ) {}
 
     public async ngOnInit() {
@@ -73,7 +80,7 @@ export class ItemListModalComponent {
             this._settings.get('app.workplace_metadata_key') || 'workplace_app';
         const metadata: any = await showMetadata(
             this._bld_id,
-            metadata_key
+            metadata_key,
         ).toPromise();
         const items = metadata?.details?.support_issue_types || [];
         this.item_list = items;
@@ -82,17 +89,37 @@ export class ItemListModalComponent {
     public async save() {
         const metadata_key =
             this._settings.get('app.workplace_metadata_key') || 'workplace_app';
+        const concierge_key =
+            this._settings.get('app.concierge_metadata_key') || 'concierge_app';
         this.loading = true;
         const items = this.item_list.filter((_) => _);
         const metadata: any = await showMetadata(
             this._bld_id,
-            metadata_key
+            metadata_key,
         ).toPromise();
         metadata.details.support_issue_types = items;
-        const resp = await updateMetadata(this._bld_id, {
+        let resp = await updateMetadata(this._bld_id, {
             name: metadata_key,
             details: metadata.details,
             description: metadata.description || '',
+        })
+            .toPromise()
+            .catch((_) => {
+                notifyError(`Failed to save issue types. ${_}`);
+            });
+        if (!resp) {
+            this.loading = false;
+            return;
+        }
+        const concierge_metadata: any = await showMetadata(
+            this._bld_id,
+            metadata_key,
+        ).toPromise();
+        concierge_metadata.details.support_issue_types = items;
+        resp = await updateMetadata(this._bld_id, {
+            name: concierge_key,
+            details: concierge_metadata.details,
+            description: concierge_metadata.description || '',
         })
             .toPromise()
             .catch((_) => {

@@ -1,23 +1,21 @@
 import { Injectable } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
-import { queryBookings } from '@placeos/bookings';
-import { queryEvents } from '@placeos/events';
-import { Observable, BehaviorSubject } from 'rxjs';
-import { switchMap, take } from 'rxjs/operators';
-import { CalendarEvent } from '@placeos/events';
-import { getUnixTime, startOfDay, endOfDay } from 'date-fns';
+import { CalendarEvent, queryEvents } from '@placeos/events';
+import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 
 @Injectable({
     providedIn: 'root',
 })
 export class ExistingBookingsService extends AsyncHandler {
     private _loading: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(
-        null
+        null,
     );
     public loading$: Observable<boolean> = this._loading.asObservable();
 
     private _date: BehaviorSubject<number> = new BehaviorSubject<number>(
-        Date.now()
+        Date.now(),
     );
 
     date$: Observable<number> = this._date.asObservable();
@@ -44,8 +42,8 @@ export class ExistingBookingsService extends AsyncHandler {
                 queryEvents({
                     period_start: getUnixTime(startOfDay(this.date)),
                     period_end: getUnixTime(endOfDay(this.date)),
-                })
-            )
+                }),
+            ),
         );
         this._loading.next(false);
     }

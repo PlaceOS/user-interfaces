@@ -7,9 +7,9 @@ import { PointsStateService } from './points-state.service';
     selector: 'placeos-new-points',
     template: `
         <app-topbar></app-topbar>
-        <div class="flex flex-1 h-px">
+        <div class="flex h-px flex-1">
             <app-sidebar></app-sidebar>
-            <main class="flex flex-col flex-1 w-1/2 h-full">
+            <main class="flex h-full w-1/2 flex-1 flex-col">
                 <points-topbar class="relative z-10">
                     <button
                         *ngIf="page === 'assets'"
@@ -18,38 +18,43 @@ import { PointsStateService } from './points-state.service';
                         class="w-40"
                         (click)="newAsset()"
                     >
-                        New Asset
+                        {{ 'APP.CONCIERGE.POINTS_ASSETS_ADD' | translate }}
                     </button>
                 </points-topbar>
-                <div class="px-8 mb-4">
-                    <nav mat-tab-nav-bar>
+                <div class="mb-4 px-8">
+                    <nav mat-tab-nav-bar [tabPanel]="tabPanel">
                         <a
                             mat-tab-link
                             [routerLink]="[
                                 '/points-management',
                                 'new',
-                                'overview'
+                                'overview',
                             ]"
                             [active]="page === 'overview'"
                         >
-                            Overview
+                            {{
+                                'APP.CONCIERGE.POINTS_TAB_OVERVIEW' | translate
+                            }}
                         </a>
                         <a
                             mat-tab-link
                             [routerLink]="[
                                 '/points-management',
                                 'new',
-                                'assets'
+                                'assets',
                             ]"
                             [active]="page === 'assets'"
                         >
-                            Assets
+                            {{ 'APP.CONCIERGE.POINTS_TAB_ASSETS' | translate }}
                         </a>
                     </nav>
                 </div>
-                <div class="flex-1 w-full h-1/2 overflow-auto px-8">
+                <mat-tab-nav-panel
+                    class="h-1/2 w-full flex-1 overflow-auto px-8"
+                    #tabPanel
+                >
                     <router-outlet></router-outlet>
-                </div>
+                </mat-tab-nav-panel>
             </main>
         </div>
     `,
@@ -64,6 +69,7 @@ import { PointsStateService } from './points-state.service';
             }
         `,
     ],
+    standalone: false,
 })
 export class NewPointsComponent extends AsyncHandler implements OnInit {
     /** Page being displayed */
@@ -71,7 +77,10 @@ export class NewPointsComponent extends AsyncHandler implements OnInit {
 
     public readonly newAsset = () => this._state.newAsset();
 
-    constructor(private _state: PointsStateService, private _router: Router) {
+    constructor(
+        private _state: PointsStateService,
+        private _router: Router,
+    ) {
         super();
     }
 
@@ -81,7 +90,7 @@ export class NewPointsComponent extends AsyncHandler implements OnInit {
             this._router.events.subscribe(() => {
                 const url_parts = this._router.url?.split('/') || [''];
                 this.page = url_parts[url_parts.length - 1];
-            })
+            }),
         );
         const parts = this._router.url?.split('/') || [''];
         this.page = parts[parts.length - 1];

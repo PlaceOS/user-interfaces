@@ -8,10 +8,10 @@ import { OrganisationService } from '@placeos/organisation';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { BehaviorSubject, of } from 'rxjs';
 
+import { SettingsService } from '@placeos/common';
 import { DayviewTopbarComponent } from '../../app/day-view/dayview-topbar.component';
 import { EventsStateService } from '../../app/day-view/events-state.service';
 import { DateOptionsComponent } from '../../app/ui/date-options.component';
-import { SettingsService } from '@placeos/common';
 
 describe('DayviewTopbarComponent', () => {
     let spectator: SpectatorRouting<DayviewTopbarComponent>;
@@ -59,7 +59,7 @@ describe('DayviewTopbarComponent', () => {
     it('should allow user to make new bookings', () => {
         spectator.click('button[new]');
         expect(
-            spectator.inject(EventsStateService).newBooking
+            spectator.inject(EventsStateService).newBooking,
         ).toHaveBeenCalled();
     });
 });

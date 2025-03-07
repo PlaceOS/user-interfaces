@@ -7,17 +7,17 @@ import { Route, RouterModule } from '@angular/router';
 import { FormFieldsModule } from '@placeos/form-fields';
 import { UIModule } from '../ui/ui.module';
 
+import { SharedBookingsModule } from '@placeos/bookings';
+import { NewParkingComponent } from './new-parking.component';
+import { ParkingBookingModalComponent } from './parking-booking-modal.component';
 import { ParkingBookingsListComponent } from './parking-bookings-list.component';
+import { ParkingMapComponent } from './parking-map.component';
 import { ParkingSpaceListComponent } from './parking-space-list.component';
 import { ParkingSpaceModalComponent } from './parking-space-modal.component';
 import { ParkingTopbarComponent } from './parking-topbar.component';
-import { ParkingComponent } from './parking.component';
-import { NewParkingComponent } from './new-parking.component';
-import { ParkingUsersListComponent } from './parking-users-list.component';
 import { ParkingUserModalComponent } from './parking-user-modal.component';
-import { ParkingMapComponent } from './parking-map.component';
-import { ParkingBookingModalComponent } from './parking-booking-modal.component';
-import { SharedBookingsModule } from '@placeos/bookings';
+import { ParkingUsersListComponent } from './parking-users-list.component';
+import { ParkingComponent } from './parking.component';
 
 const COMPONENTS = [
     NewParkingComponent,

@@ -8,31 +8,57 @@ import { ReportsStateService } from '../reports-state.service';
 @Component({
     selector: 'report-desks-overall-list',
     template: `
-        <div class="pb-2 w-full">
+        <div class="w-full pb-2">
             <div
-                class="m-4 rounded bg-base-100 border border-base-200 overflow-hidden"
+                class="m-4 overflow-hidden rounded border border-base-200 bg-base-100"
             >
-                <div class="border-b border-base-200 p-4 flex items-center">
-                    <h3 class="font-bold text-xl flex-1">Daily Utilisation</h3>
-                    <button icon matRipple *ngIf="!print" (click)="download()">
+                <div class="flex items-center border-b border-base-200 p-4">
+                    <h3 class="flex-1 text-xl font-bold">
+                        {{ 'APP.CONCIERGE.REPORTS_DAILY_HEADER' | translate }}
+                    </h3>
+                    <button
+                        icon
+                        matRipple
+                        [matTooltip]="
+                            'APP.CONCIERGE.REPORTS_DOWNLOAD_TABLE' | translate
+                        "
+                        *ngIf="!print"
+                        (click)="download()"
+                    >
                         <app-icon>download</app-icon>
                     </button>
                 </div>
                 <simple-table
-                    class="w-full block text-sm"
+                    class="block w-full text-sm"
                     [data]="day_list"
                     [columns]="[
-                        { key: 'date', name: 'Date', content: date_template },
-                        { key: 'approved', name: 'Approved Bookings' },
-                        { key: 'count', name: 'Total Requests' },
+                        {
+                            key: 'date',
+                            name: 'FORM.DATE' | translate,
+                            content: date_template,
+                        },
+                        {
+                            key: 'approved',
+                            name: 'APP.CONCIERGE.REPORTS_APPROVED' | translate,
+                        },
+                        {
+                            key: 'count',
+                            name:
+                                'APP.CONCIERGE.REPORTS_TOTAL_REQUESTS'
+                                | translate,
+                        },
                         {
                             key: 'utilisation',
-                            name: 'Utilisation',
-                            content: percent_template
-                        }
+                            name:
+                                'APP.CONCIERGE.REPORTS_UTILISATION' | translate,
+                            content: percent_template,
+                        },
                     ]"
                     [page_size]="print ? 0 : 10"
                     [sortable]="true"
+                    [empty_message]="
+                        'APP.CONCIERGE.REPORTS_DAILY_EMPTY' | translate
+                    "
                 >
                 </simple-table>
                 <ng-template #date_template let-data="data">
@@ -44,9 +70,10 @@ import { ReportsStateService } from '../reports-state.service';
             </div>
         </div>
     `,
+    standalone: false,
 })
 export class ReportDesksOverallListComponent {
-    @Input() public print: boolean = false;
+    @Input() public print = false;
 
     public readonly day_list = this._state.day_list;
 
@@ -54,7 +81,7 @@ export class ReportDesksOverallListComponent {
         let data = await this.day_list.pipe(take(1)).toPromise();
         data = data.map((d) => ({
             ...d,
-            date: format(d.date, 'MMMM d, y(EEE)'),
+            date: format(d.date, 'MMM d, y(EEE)'),
         }));
         downloadFile('desks-usage.csv', jsonToCsv(data));
     };

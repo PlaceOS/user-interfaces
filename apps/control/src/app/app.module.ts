@@ -1,46 +1,38 @@
+import { ErrorHandler, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { APP_INITIALIZER, ErrorHandler, NgModule } from '@angular/core';
 import { Router } from '@angular/router';
 import { ServiceWorkerModule } from '@angular/service-worker';
 
-import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSliderModule } from '@angular/material/slider';
-import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
-import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from '../../../../libs/components/src/lib/app.component';
 import { environment } from '../environments/environment';
-import { UIModule } from './ui/ui.module';
+import { ControlAdvancedViewComponent } from './advanced-view.component';
+import { AppRoutingModule } from './app-routing.module';
 import { BootstrapComponent } from './bootstrap.component';
 import { ControlMainViewComponent } from './main-view.component';
-import { TopbarHeaderComponent } from './topbar-header.component';
 import { ControlPageViewComponent } from './page-view.component';
 import { ControlStatusBarComponent } from './status-bar.component';
-import { ControlAdvancedViewComponent } from './advanced-view.component';
+import { TopbarHeaderComponent } from './topbar-header.component';
+import { UIModule } from './ui/ui.module';
 
-import { ControlVideoCallViewComponent } from './video-call/video-call-view.component';
 import { VideoCallPageComponent } from './video-call/video-call-page.component';
+import { ControlVideoCallViewComponent } from './video-call/video-call-view.component';
 
-import { ControlTabbedViewComponent } from './tabbed-view/tabbed-view.component';
-import { TabOutletComponent } from './tabbed-view/tab-outlet.component';
-import { DeviceOutputListComponent } from './tabbed-view/output-list.component';
 import { DeviceOutputListItemComponent } from './tabbed-view/output-list-item.component';
+import { DeviceOutputListComponent } from './tabbed-view/output-list.component';
+import { TabOutletComponent } from './tabbed-view/tab-outlet.component';
+import { ControlTabbedViewComponent } from './tabbed-view/tabbed-view.component';
 
-import * as Sentry from '@sentry/angular';
-import { PaymentsModule } from '@placeos/payments';
 import { AssetsModule } from '@placeos/assets';
-import { TVControlsComponent } from './tabbed-view/tv-controls.component';
-import { HttpClient } from '@angular/common/http';
-import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { SharedExploreModule } from '@placeos/explore';
-
-// AoT requires an exported function for factories
-export function HttpLoaderFactory(http: HttpClient) {
-    return new TranslateHttpLoader(http, './assets/locale/', '.json');
-}
+import { PaymentsModule } from '@placeos/payments';
+import * as Sentry from '@sentry/angular';
+import { TVControlsComponent } from './tabbed-view/tv-controls.component';
 
 @NgModule({
     declarations: [
@@ -74,14 +66,6 @@ export function HttpLoaderFactory(http: HttpClient) {
         ServiceWorkerModule.register('ngsw-worker.js', {
             enabled: environment.production,
         }),
-        TranslateModule.forRoot({
-            defaultLanguage: 'en',
-            loader: {
-                provide: TranslateLoader,
-                useFactory: HttpLoaderFactory,
-                deps: [HttpClient],
-            },
-        }),
     ],
     providers: [
         {
@@ -93,12 +77,6 @@ export function HttpLoaderFactory(http: HttpClient) {
         {
             provide: Sentry.TraceService,
             deps: [Router],
-        },
-        {
-            provide: APP_INITIALIZER,
-            useFactory: () => () => {},
-            deps: [Sentry.TraceService],
-            multi: true,
         },
     ],
     bootstrap: [AppComponent],

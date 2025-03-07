@@ -1,14 +1,14 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
-import { LockersStateService } from './locker-state.service';
+import { LockerStateService } from './locker-state.service';
 
 @Component({
     selector: '[app-lockers]',
     template: `
         <sidebar></sidebar>
         <main
-            class="flex-1 relative w-1/2 flex flex-col bg-base-200 overflow-hidden"
+            class="relative flex w-1/2 flex-1 flex-col overflow-hidden bg-base-200"
         >
             <lockers-topbar class="w-full"></lockers-topbar>
             <div class="dark">
@@ -39,7 +39,7 @@ import { LockersStateService } from './locker-state.service';
                     </a>
                 </nav>
             </div>
-            <div class="flex-1 h-1/2 w-full relative overflow-auto">
+            <div class="relative h-1/2 w-full flex-1 overflow-auto">
                 <router-outlet></router-outlet>
             </div>
             <mat-progress-bar
@@ -58,6 +58,7 @@ import { LockersStateService } from './locker-state.service';
             }
         `,
     ],
+    standalone: false,
 })
 export class LockersComponent
     extends AsyncHandler
@@ -66,7 +67,10 @@ export class LockersComponent
     public readonly loading = this._state.loading;
     public path: string;
 
-    constructor(private _state: LockersStateService, private _router: Router) {
+    constructor(
+        private _state: LockerStateService,
+        private _router: Router,
+    ) {
         super();
     }
 
@@ -79,7 +83,7 @@ export class LockersComponent
                     const url_parts = this._router.url?.split('/') || [''];
                     this.path = url_parts[parts.length - 1].split('?')[0];
                 }
-            })
+            }),
         );
         const parts = this._router.url?.split('/') || [''];
         this.path = parts[parts.length - 1].split('?')[0];

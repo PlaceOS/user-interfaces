@@ -1,15 +1,21 @@
-import { Component, Inject, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Observable } from 'rxjs';
 
-import { AsyncHandler, DialogEvent, HashMap, unique } from '@placeos/common';
+import {
+    AsyncHandler,
+    DialogEvent,
+    HashMap,
+    i18n,
+    unique,
+} from '@placeos/common';
 
+import { AttachedResourceRuleset } from '@placeos/components';
+import { OrganisationService } from '@placeos/organisation';
 import { CateringItem } from './catering-item.class';
 import { CateringOrder } from './catering-order.class';
 import { CateringOption } from './catering.interfaces';
-import { OrganisationService } from '@placeos/organisation';
 import { cateringItemAvailable } from './utilities';
-import { AttachedResourceRuleset } from '@placeos/components';
 
 export interface CateringOrderModalData {
     order: CateringOrder;
@@ -36,22 +42,25 @@ export interface CateringOrderModalData {
                             <div class="list">
                                 <div
                                     item
-                                    class="flex items-center p-2 border-b border-base-200"
+                                    class="flex items-center border-b border-base-200 p-2"
                                     *ngFor="let item of (menu_items || {})[cat]"
                                 >
-                                    <div class="flex-1 w-1/2">
-                                        <div class="flex-1 w-1/2">
+                                    <div class="w-1/2 flex-1">
+                                        <div class="w-1/2 flex-1">
                                             {{ item.name }}
                                         </div>
                                         <div
                                             class="text-xs no-underline"
                                             *ngIf="item.options.length"
                                         >
-                                            Options Available
+                                            {{
+                                                'CATERING.ITEM_OPTION_AVAILABLE'
+                                                    | translate
+                                            }}
                                         </div>
                                     </div>
                                     <div
-                                        class="bg-primary text-xs rounded px-4 py-2 mx-2 text-white font-medium"
+                                        class="mx-2 rounded bg-primary px-4 py-2 text-xs font-medium text-white"
                                     >
                                         {{
                                             item.unit_price / 100
@@ -86,7 +95,7 @@ export interface CateringOrderModalData {
                                             </button>
                                         </div>
                                         <div
-                                            class="count h-12 w-12 flex items-center justify-center"
+                                            class="count flex h-12 w-12 items-center justify-center"
                                         >
                                             {{ item.quantity }}
                                         </div>
@@ -107,11 +116,11 @@ export interface CateringOrderModalData {
         </div>
         <footer
             *ngIf="!loading"
-            class="flex items-center justify-center space-x-2 p-2 border-t border-base-200"
+            class="flex items-center justify-center space-x-2 border-t border-base-200 p-2"
         >
             <ng-container *ngIf="!show_order_details; else order_actions">
                 <button btn matRipple class="inverse" mat-dialog-close>
-                    Cancel
+                    {{ 'COMMON.CANCEL' | translate }}
                 </button>
                 <button
                     confirm
@@ -123,7 +132,7 @@ export interface CateringOrderModalData {
                     matBadgeColor="warn"
                     (click)="show_order_details = true"
                 >
-                    Confirm
+                    {{ 'COMMON.CONFIRM' | translate }}
                 </button>
             </ng-container>
             <ng-template #order_actions>
@@ -132,44 +141,46 @@ export interface CateringOrderModalData {
                     class="inverse"
                     (click)="show_order_details = false"
                 >
-                    Back
+                    {{ 'COMMON.BACK' | translate }}
                 </button>
                 <button save btn matRipple (click)="saveOrder()">
-                    Save Order
+                    {{ 'CATERING.ORDERS_SAVE' | translate }}
                 </button>
             </ng-template>
         </footer>
         <ng-template #load_state>
-            <div class="flex flex-col w-64 p-8 items-center space-y-2">
+            <div class="flex w-64 flex-col items-center space-y-2 p-8">
                 <mat-spinner diameter="32"></mat-spinner>
                 <p>{{ loading }}</p>
             </div>
         </ng-template>
         <ng-template #order_details>
             <header class="h-[3.25rem]">
-                <h3>Confirm Order</h3>
+                <h3>
+                    {{ 'CATERING.ORDERS_CONFIRM' | translate }}
+                </h3>
             </header>
             <div class="list">
                 <div
                     item
-                    class="flex items-center p-2 border-b border-base-200"
+                    class="flex items-center border-b border-base-200 p-2"
                     *ngFor="let item of order.items"
                 >
-                    <div class="flex-1 w-1/2">
-                        <div class="flex-1 w-1/2">{{ item.name }}</div>
+                    <div class="w-1/2 flex-1">
+                        <div class="w-1/2 flex-1">{{ item.name }}</div>
                         <div
                             class="text-xs underline"
                             *ngIf="item.options.length"
                             [matTooltip]="optionsFor(item)"
                         >
-                            {{ item.options.length }} option{{
-                                item.options.length === 1 ? '' : 's'
+                            {{
+                                'CATERING.ORDERS_SELECTED'
+                                    | translate: { count: item.options.length }
                             }}
-                            selected
                         </div>
                     </div>
                     <div
-                        class="bg-primary text-xs rounded px-4 py-2 mx-2 text-white font-medium"
+                        class="mx-2 rounded bg-primary px-4 py-2 text-xs font-medium text-white"
                     >
                         {{ item.total_cost / 100 | currency: code }}
                     </div>
@@ -217,6 +228,7 @@ export interface CateringOrderModalData {
             }
         `,
     ],
+    standalone: false,
 })
 export class CateringOrderModalComponent
     extends AsyncHandler
@@ -245,17 +257,17 @@ export class CateringOrderModalComponent
 
     constructor(
         private _org: OrganisationService,
-        @Inject(MAT_DIALOG_DATA) private _data: CateringOrderModalData
+        @Inject(MAT_DIALOG_DATA) private _data: CateringOrderModalData,
     ) {
         super();
-        this.loading = 'Loading menu...';
+        this.loading = i18n('CATERING.MENU_LOADING');
     }
 
     public async ngOnInit() {
-        this.loading = 'Loading menu...';
+        this.loading = i18n('CATERING.MENU_LOADING');
         this.order = new CateringOrder(this._data.order);
         this.rules = await this._data.getCateringConfig(
-            this.order.event?.space?.level?.parent_id
+            this.order.event?.space?.level?.parent_id,
         );
         this._data.menu.subscribe((list) => {
             this.loading = 'Loading menu...';
@@ -268,7 +280,7 @@ export class CateringOrderModalComponent
                         cateringItemAvailable(
                             item,
                             this.rules as any,
-                            this.order.event
+                            this.order.event,
                         )
                     );
                 });
@@ -280,7 +292,7 @@ export class CateringOrderModalComponent
         });
     }
 
-    public addItem(item: CateringItem, choose_options: boolean = true) {
+    public addItem(item: CateringItem, choose_options = true) {
         const old_item = this.order.items.find(
             (itm) =>
                 itm.id === item.id &&
@@ -291,8 +303,8 @@ export class CateringOrderModalComponent
                             (item.options.find((opt) => o.id === opt.id)
                                 ? 1
                                 : 0),
-                        0
-                    )
+                        0,
+                    ),
         );
         if (choose_options && item.options?.length) {
             this._data.selectOptions(item.options).then((options) => {
@@ -308,7 +320,7 @@ export class CateringOrderModalComponent
                             !(
                                 i.id === item.id &&
                                 i.options_string === item.options_string
-                            )
+                            ),
                     )
                     .concat([
                         new CateringItem({
@@ -333,7 +345,8 @@ export class CateringOrderModalComponent
             ...this.order,
             items: this.order.items.filter(
                 (_) =>
-                    _.id !== item.id && _.options_string === item.options_string
+                    _.id !== item.id &&
+                    _.options_string === item.options_string,
             ),
         });
         this.updateMenuQuantities();
@@ -342,7 +355,8 @@ export class CateringOrderModalComponent
     public updateItemQuantity(item: CateringItem, amount: number) {
         const old_item = this.order.items.find(
             (itm) =>
-                itm.id === item.id && itm.options_string === item.options_string
+                itm.id === item.id &&
+                itm.options_string === item.options_string,
         );
         let items = [...this.order.items];
         if (old_item) {
@@ -352,7 +366,7 @@ export class CateringOrderModalComponent
                         !(
                             i.id === item.id &&
                             i.options_string === item.options_string
-                        )
+                        ),
                 )
                 .concat([new CateringItem({ ...item, quantity: amount })]);
         } else {
@@ -373,7 +387,7 @@ export class CateringOrderModalComponent
             for (const item of this.menu_items[cat]) {
                 (item as any).quantity = this.order.items.reduce(
                     (c, i) => (i.id === item.id ? c + i.quantity : c),
-                    0
+                    0,
                 );
             }
         }

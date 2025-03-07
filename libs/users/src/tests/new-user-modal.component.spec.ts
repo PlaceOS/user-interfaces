@@ -3,11 +3,10 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { IconComponent } from '@placeos/components';
 
-import { NewUserModalComponent } from '../lib/new-user-modal.component';
-import { MockComponent } from 'ng-mocks';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { MockComponent } from 'ng-mocks';
+import { NewUserModalComponent } from '../lib/new-user-modal.component';
 import { UserFormComponent } from '../lib/user-form.component';
-import { User } from '../lib/user.class';
 
 describe('NewUserModalComponent', () => {
     let spectator: Spectator<NewUserModalComponent>;
@@ -20,7 +19,7 @@ describe('NewUserModalComponent', () => {
         providers: [
             {
                 provide: MAT_DIALOG_DATA,
-                useValue: { },
+                useValue: {},
             },
         ],
         imports: [MatProgressSpinnerModule],

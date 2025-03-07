@@ -7,10 +7,11 @@ import { Router } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
 import {
     getInvalidFields,
+    i18n,
     notifyError,
     SettingsService,
 } from '@placeos/common';
-import { Desk, OrganisationService } from '@placeos/organisation';
+import { OrganisationService } from '@placeos/organisation';
 import { isBefore, startOfMinute } from 'date-fns';
 import { first } from 'rxjs/operators';
 import { NewDeskFlowConfirmComponent } from './new-desk-flow-confirm.component';
@@ -19,20 +20,22 @@ import { NewDeskFlowConfirmComponent } from './new-desk-flow-confirm.component';
     selector: 'new-desk-flow-form',
     styles: [],
     template: `
-        <div class="h-full w-full bg-base-200 overflow-auto">
+        <div class="h-full w-full overflow-auto bg-base-200">
             <div
-                class="max-w-full w-[48rem] mx-auto sm:my-4 bg-base-100 border border-base-200"
+                class="mx-auto w-[48rem] max-w-full border border-base-200 bg-base-100 sm:my-4"
             >
                 <h2
-                    class="w-full p-4 sm:py-4 sm:px-16 text-2xl font-medium border-b border-base-200"
-                    i18n
+                    class="w-full border-b border-base-200 p-4 text-2xl font-medium sm:px-16 sm:py-4"
                 >
-                    Book Desk
+                    {{ 'BOOKINGS.DESK_TITLE' | translate }}
                 </h2>
-                <new-desk-form-details [form]="form"></new-desk-form-details>
-                <div class="sm:mb-2 border-b border-base-200 w-full"></div>
+                <new-desk-form-details
+                    class="block p-0 sm:px-16 sm:py-4"
+                    [form]="form"
+                ></new-desk-form-details>
+                <div class="w-full border-b border-base-200 sm:mb-2"></div>
                 <section
-                    class="flex flex-col sm:flex-row items-center sm:space-x-2 p-2 sm:px-16 sm:mb-2"
+                    class="flex flex-col items-center p-2 sm:mb-2 sm:flex-row sm:space-x-2 sm:px-16"
                 >
                     <button
                         btn
@@ -41,17 +44,17 @@ import { NewDeskFlowConfirmComponent } from './new-desk-flow-confirm.component';
                         confirm
                         class="w-full sm:w-auto"
                         (click)="viewConfirm()"
-                        i18n
                     >
-                        Confirm Desk
+                        {{ 'BOOKINGS.DESK_CONFIRM' | translate }}
                     </button>
                 </section>
             </div>
         </div>
     `,
+    standalone: false,
 })
 export class NewDeskFlowFormComponent implements OnInit {
-    public sheet_ref: MatBottomSheetRef<any>;
+    public sheet_ref: MatBottomSheetRef<NewDeskFlowConfirmComponent>;
     public level = '';
     public levels = [];
 
@@ -71,9 +74,9 @@ export class NewDeskFlowFormComponent implements OnInit {
         }
         if (!this.form.valid)
             return notifyError(
-                `Some fields are invalid. [${getInvalidFields(this.form).join(
-                    ', '
-                )}]`
+                i18n('FORM.INVALID_FIELDS', {
+                    field_list: getInvalidFields(this.form).join(', '),
+                }),
             );
         this.sheet_ref = this._bottom_sheet.open(NewDeskFlowConfirmComponent);
         this.sheet_ref.instance.show_close = true;
@@ -90,7 +93,7 @@ export class NewDeskFlowFormComponent implements OnInit {
         private _router: Router,
         private _org: OrganisationService,
         private _bottom_sheet: MatBottomSheet,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {}
 
     public async ngOnInit() {
@@ -104,6 +107,12 @@ export class NewDeskFlowFormComponent implements OnInit {
         ];
         if (isBefore(this.form.value.date, Date.now())) {
             this.form.patchValue({ date: startOfMinute(Date.now()).valueOf() });
+        }
+        if (!this.form.value.id) {
+            this.form.patchValue({
+                duration:
+                    this._settings.get('app.desks.default_duration') || 60,
+            });
         }
     }
 }

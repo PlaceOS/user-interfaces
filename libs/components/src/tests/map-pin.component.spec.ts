@@ -1,5 +1,4 @@
 import { fakeAsync } from '@angular/core/testing';
-import { By } from '@angular/platform-browser';
 import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
 
 import { MAP_FEATURE_DATA } from '../lib/interactive-map.component';

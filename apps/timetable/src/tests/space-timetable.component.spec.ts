@@ -1,9 +1,9 @@
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
-import { of } from 'rxjs';
 import { MockComponent } from 'ng-mocks';
+import { of } from 'rxjs';
 
-import { SpaceTimetableComponent } from '../app/space-timetable.component';
 import { SpaceEventDetailsComponent } from '../app/space-event-details.component';
+import { SpaceTimetableComponent } from '../app/space-timetable.component';
 import { TimetableStateService } from '../app/timetable-state.service';
 
 describe('SpaceTimetableComponent', () => {
@@ -27,7 +27,9 @@ describe('SpaceTimetableComponent', () => {
 
     it('should show space column', () => {
         expect('[space]').not.toExist();
-        spectator.setInput({ space: { id: '1', display_name: 'Room 1' } as any });
+        spectator.setInput({
+            space: { id: '1', display_name: 'Room 1' } as any,
+        });
         spectator.detectChanges();
         expect('[space]').toExist();
     });

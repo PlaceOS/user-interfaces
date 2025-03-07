@@ -8,6 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSliderModule } from '@angular/material/slider';
+import { ComponentsModule } from '@placeos/components';
 import { MultiLineTextComponent } from './question/multi-line-text.component';
 import { QuestionComponent } from './question/question.component';
 import { RatingsComponent } from './question/rating.component';
@@ -29,7 +30,8 @@ import { TableWidgetComponent } from './survey-widget/table-widget.component';
         MatInputModule,
         MatIconModule,
         MatButtonModule,
-        MatSliderModule
+        MatSliderModule,
+        ComponentsModule,
     ],
     declarations: [
         QuestionComponent,
@@ -40,8 +42,8 @@ import { TableWidgetComponent } from './survey-widget/table-widget.component';
         SurveyWidgetComponent,
         SelectionWidgetComponent,
         RatingsWidgetComponent,
-        TableWidgetComponent
+        TableWidgetComponent,
     ],
-    exports: [QuestionComponent,SurveyWidgetComponent],
+    exports: [QuestionComponent, SurveyWidgetComponent],
 })
 export class SurveySuiteModule {}

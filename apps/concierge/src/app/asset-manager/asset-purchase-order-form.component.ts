@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { AssetManagerStateService } from './asset-manager-state.service';
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import {
     AssetPurchaseOrder,
     generateAssetPurchaseOrderForm,
@@ -8,153 +8,176 @@ import {
     saveAssetPurchaseOrder,
     showAssetPurchaseOrder,
 } from '@placeos/assets';
-import { ActivatedRoute, Router } from '@angular/router';
-import { AsyncHandler, notifyError, notifySuccess } from '@placeos/common';
+import {
+    AsyncHandler,
+    i18n,
+    notifyError,
+    notifySuccess,
+} from '@placeos/common';
+import { OrganisationService } from '@placeos/organisation';
 import { addYears, getUnixTime } from 'date-fns';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { filter, shareReplay, switchMap } from 'rxjs/operators';
-import { OrganisationService } from '@placeos/organisation';
+import { AssetManagerStateService } from './asset-manager-state.service';
 
 @Component({
     selector: 'asset-purchase-order-form',
     template: `
-        <div class="absolute inset-0 bg-base-100">
-            <div
-                class="h-full max-w-[32rem] mx-auto flex flex-col"
-                *ngIf="!loading; else load_state"
-            >
-                <header class="p-4">
-                    <h2 class="text-center text-xl font-medium">
-                        {{ form.value.id ? 'Edit' : 'Add' }} Purchase Order
-                    </h2>
-                </header>
-                <main class="flex-1 h-1/2 overflow-auto" [formGroup]="form">
-                    <div class="flex flex-col space-y-2">
-                        <label for="order-number">
-                            Order Number<span>*</span>
+        <fullscreen-modal-shell
+            [heading]="
+                (form.value.id
+                    ? 'APP.CONCIERGE.ASSETS_PURCHASE_EDIT'
+                    : 'APP.CONCIERGE.ASSETS_PURCHASE_NEW'
+                ) | translate
+            "
+            [close]="
+                product_id
+                    ? [base_route, 'view', product_id]
+                    : [base_route, 'list', 'purchase-orders']
+            "
+            [loading]="loading"
+            (confirm)="save()"
+        >
+            <form [formGroup]="form">
+                <div class="flex flex-col space-y-2">
+                    <label for="order-number">
+                        {{ 'APP.CONCIERGE.ASSETS_PURCHASE_NUMBER' | translate
+                        }}<span>*</span>
+                    </label>
+                    <mat-form-field appearance="outline">
+                        <input
+                            matInput
+                            name="order-number"
+                            [placeholder]="
+                                'APP.CONCIERGE.ASSETS_PURCHASE_NUMBER'
+                                    | translate
+                            "
+                            formControlName="order_number"
+                        />
+                        <mat-error>{{
+                            'APP.CONCIERGE.ASSETS_PURCHASE_NUMBER_REQUIRED'
+                                | translate
+                        }}</mat-error>
+                    </mat-form-field>
+                </div>
+                <div class="flex flex-col space-y-2">
+                    <label for="invoice-number">{{
+                        'APP.CONCIERGE.ASSETS_PURCHASE_INVOICE' | translate
+                    }}</label>
+                    <mat-form-field appearance="outline">
+                        <input
+                            matInput
+                            name="invoice-number"
+                            [placeholder]="
+                                'APP.CONCIERGE.ASSETS_PURCHASE_INVOICE'
+                                    | translate
+                            "
+                            formControlName="invoice_number"
+                        />
+                        <mat-error>{{
+                            'APP.CONCIERGE.ASSETS_PURCHASE_INVOICE_REQUIRED'
+                                | translate
+                        }}</mat-error>
+                    </mat-form-field>
+                </div>
+                <div class="flex space-x-2">
+                    <div class="flex flex-1 flex-col space-y-2">
+                        <label for="purchase-date">{{
+                            'APP.CONCIERGE.ASSETS_PURCHASE_DATE' | translate
+                        }}</label>
+                        <a-date-field
+                            name="purchase-date"
+                            [from]="from"
+                            formControlName="purchase_date"
+                        ></a-date-field>
+                    </div>
+                    <div class="flex flex-1 flex-col space-y-2">
+                        <label for="unit-price">{{
+                            'APP.CONCIERGE.ASSETS_PURCHASE_PRICE' | translate
+                        }}</label>
+                        <mat-form-field appearance="outline" class="w-full">
+                            <div matPrefix>$</div>
+                            <input
+                                matInput
+                                name="unit-price"
+                                formControlName="unit_price"
+                            />
+                        </mat-form-field>
+                    </div>
+                </div>
+                <div class="flex space-x-2">
+                    <div class="flex flex-1 flex-col space-y-2">
+                        <label for="depreciation-start-date">
+                            {{
+                                'APP.CONCIERGE.ASSETS_PURCHASE_START'
+                                    | translate
+                            }}
                         </label>
-                        <mat-form-field appearance="outline">
-                            <input
-                                matInput
-                                name="order-number"
-                                placeholder="Order Number"
-                                formControlName="order_number"
-                            />
-                            <mat-error>Order number is required</mat-error>
-                        </mat-form-field>
+                        <a-date-field
+                            name="depreciation-start-date"
+                            [from]="from"
+                            formControlName="expected_service_start_date"
+                        ></a-date-field>
                     </div>
-                    <div class="flex flex-col space-y-2">
-                        <label for="invoice-number"> Invoice Number </label>
-                        <mat-form-field appearance="outline">
-                            <input
-                                matInput
-                                name="invoice-number"
-                                placeholder="Invoice Number"
-                                formControlName="invoice_number"
-                            />
-                            <mat-error>Invoice number is required</mat-error>
-                        </mat-form-field>
+                    <div class="flex flex-1 flex-col space-y-2">
+                        <label for="depreciation-end-date">
+                            {{
+                                'APP.CONCIERGE.ASSETS_PURCHASE_END' | translate
+                            }}
+                        </label>
+                        <a-date-field
+                            name="depreciation-end-date"
+                            formControlName="expected_service_end_date"
+                        ></a-date-field>
                     </div>
-                    <div class="flex space-x-2">
-                        <div class="flex-1 flex flex-col space-y-2">
-                            <label for="purchase-date"> Purchase Date </label>
-                            <a-date-field
-                                name="purchase-date"
-                                [from]="from"
-                                formControlName="purchase_date"
-                            ></a-date-field>
-                        </div>
-                        <div class="flex-1 flex flex-col space-y-2">
-                            <label for="unit-price"> Purchase Price </label>
-                            <mat-form-field appearance="outline" class="w-full">
-                                <div matPrefix>$</div>
-                                <input
-                                    matInput
-                                    name="unit-price"
-                                    [from]="from"
-                                    formControlName="unit_price"
-                                />
-                            </mat-form-field>
-                        </div>
-                    </div>
-                    <div class="flex space-x-2">
-                        <div class="flex flex-col space-y-2">
-                            <label for="depreciation-start-date">
-                                Expected Service Start Date
-                            </label>
-                            <a-date-field
-                                name="depreciation-start-date"
-                                [from]="from"
-                                formControlName="expected_service_start_date"
-                            ></a-date-field>
-                        </div>
-                        <div class="flex flex-col space-y-2">
-                            <label for="depreciation-end-date">
-                                Expected Service End Date
-                            </label>
-                            <a-date-field
-                                name="depreciation-end-date"
-                                formControlName="expected_service_end_date"
-                            ></a-date-field>
-                        </div>
-                    </div>
-                    <h3 *ngIf="item?.id" class="font-medium mb-2">
-                        Associated Assets ({{
-                            (asset_list | async)?.length || '0'
-                        }})
-                    </h3>
-                    <simple-table
-                        class="w-full block text-sm"
-                        *ngIf="item?.id"
-                        [data]="(asset_list | async) || []"
-                        [columns]="[
-                            { key: 'name', name: 'Name' },
-                            { key: 'identifier', name: 'Label/Friendly Name' },
-                            { key: 'serial_number', name: 'Serial Number' },
-                            {
-                                key: 'actions',
-                                name: ' ',
-                                content: action_template
-                            }
-                        ]"
-                        empty_message="No assets for this purchase order"
-                    ></simple-table>
-                </main>
-                <footer
-                    class="flex justify-end space-x-2 p-2 border-t border-base-200"
-                >
-                    <a
-                        btn
-                        matRipple
-                        class="w-32 inverse"
-                        [routerLink]="
-                            product_id
-                                ? [base_route, 'view', product_id]
-                                : [base_route, 'list', 'purchase-orders']
-                        "
-                    >
-                        Cancel
-                    </a>
-                    <button btn matRipple class="w-32" (click)="save()">
-                        Save
-                    </button>
-                </footer>
-            </div>
-        </div>
-        <ng-template #load_state>
-            <div
-                class="absolute inset-0 flex flex-col items-center justify-center space-y-2"
-            >
-                <mat-spinner [diameter]="32"></mat-spinner>
-                <p>{{ loading }}</p>
-            </div>
-        </ng-template>
+                </div>
+                <h3 *ngIf="item?.id" class="mb-2 font-medium">
+                    {{
+                        'APP.CONCIERGE.ASSETS_PURCHASE_ASSETS'
+                            | translate
+                                : { count: (asset_list | async)?.length || '0' }
+                    }}
+                </h3>
+                <simple-table
+                    class="block w-full text-sm"
+                    *ngIf="item?.id"
+                    [data]="(asset_list | async) || []"
+                    [columns]="[
+                        { key: 'name', name: 'FORM.NAME' | translate },
+                        {
+                            key: 'identifier',
+                            name:
+                                'APP.CONCIERGE.ASSETS_ITEM_ASSET_NAME'
+                                | translate,
+                        },
+                        {
+                            key: 'serial_number',
+                            name:
+                                'APP.CONCIERGE.ASSETS_ITEM_ASSET_SERIAL'
+                                | translate,
+                        },
+                        {
+                            key: 'actions',
+                            name: ' ',
+                            content: action_template,
+                        },
+                    ]"
+                    [empty_message]="
+                        'APP.CONCIERGE.ASSETS_PURCHASE_ASSETS_EMPTY' | translate
+                    "
+                ></simple-table>
+            </form>
+        </fullscreen-modal-shell>
     `,
     styles: [``],
+    standalone: false,
 })
-export class AssetPurchaseOrderFormComponent extends AsyncHandler {
+export class AssetPurchaseOrderFormComponent
+    extends AsyncHandler
+    implements OnInit
+{
     public readonly form = generateAssetPurchaseOrderForm();
-    public loading: string = '';
+    public loading = '';
     public product_id: string;
     public readonly _id = new BehaviorSubject('');
     public item: AssetPurchaseOrder;
@@ -177,7 +200,7 @@ export class AssetPurchaseOrderFormComponent extends AsyncHandler {
                         ?.name || asset.id,
             }));
         }),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     public get base_route() {
@@ -188,7 +211,7 @@ export class AssetPurchaseOrderFormComponent extends AsyncHandler {
         private _state: AssetManagerStateService,
         private _route: ActivatedRoute,
         private _router: Router,
-        private _org: OrganisationService
+        private _org: OrganisationService,
     ) {
         super();
     }
@@ -198,12 +221,16 @@ export class AssetPurchaseOrderFormComponent extends AsyncHandler {
             'route.query',
             this._route.queryParamMap.subscribe(async (params) => {
                 if (params.get('id')) {
-                    this.loading = 'Loading purchase order details...';
+                    this.loading = i18n(
+                        'APP.CONCIERGE.ASSETS_PURCHASE_LOADING',
+                    );
                     const asset = await showAssetPurchaseOrder(params.get('id'))
                         .toPromise()
                         .catch(() => null);
                     if (!asset) {
-                        notifyError('Unable to load purchase order details.');
+                        notifyError(
+                            i18n('APP.CONCIERGE.ASSETS_PURCHASE_LOAD_ERROR'),
+                        );
                         this._router.navigate([this.base_route]);
                     }
                     this.form.patchValue({
@@ -222,14 +249,14 @@ export class AssetPurchaseOrderFormComponent extends AsyncHandler {
                 if (params.get('group_id')) {
                     this.product_id = params.get('group_id');
                 }
-            })
+            }),
         );
         this._state.setOptions({ active_item: null });
     }
 
     public async save() {
         if (!this.form.valid) return;
-        this.loading = 'Saving Product...';
+        this.loading = i18n('APP.CONCIERGE.ASSETS_PURCHASE_SAVING');
         const data = this.form.value;
         data.purchase_date = getUnixTime(data.purchase_date) || null;
         data.expected_service_start_date =
@@ -240,15 +267,20 @@ export class AssetPurchaseOrderFormComponent extends AsyncHandler {
             getUnixTime(data.expected_service_end_date) ||
             this.item?.expected_service_end_date ||
             null;
+        data.unit_price = +data.unit_price;
         const item = await saveAssetPurchaseOrder(data as any)
             .toPromise()
             .catch((e) => {
                 this.loading = '';
-                notifyError(`Error saving purchase order.: ${e.message}`);
+                notifyError(
+                    i18n('APP.CONCIERGE.ASSETS_PURCHASE_SAVE_ERROR', {
+                        error: e.message || e,
+                    }),
+                );
                 throw e;
             });
         this.form.reset();
-        notifySuccess('Successfully saved purchase order.');
+        notifySuccess(i18n('APP.CONCIERGE.ASSETS_PURCHASE_SAVE_SUCCESS'));
         this._state.postChange();
         if (this.product_id) {
             this._router.navigate([this.base_route, 'view', this.product_id]);

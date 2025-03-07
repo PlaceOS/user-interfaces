@@ -103,7 +103,7 @@ export function generateCateringOrder(event: HashMap) {
         charge_code: `C${predictableRandomInt(9_999)}`,
         deliver_at: addMinutes(
             event.event_start * 1000,
-            predictableRandomInt(Math.floor(duration / 5)) * 5
+            predictableRandomInt(Math.floor(duration / 5)) * 5,
         ),
         notes: predictableRandomInt(9999_9999) % 2 === 0 ? 'Test notes' : '',
         items: new Array(3).fill(0).map((_, idx) => ({

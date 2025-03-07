@@ -1,15 +1,10 @@
 import { FormGroup } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
-import { first } from 'rxjs/operators';
-import {
-    ConfirmModalComponent,
-    ConfirmModalData,
-    CONFIRM_METADATA,
-} from '../../../components/src/lib/confirm-modal.component';
+
+import { i18n } from './locale.service';
 import { HashMap } from './types';
 
 /** Available console output streams. */
-export type ConsoleStream = 'debug' | 'warn' | 'log' | 'error';
+export type ConsoleStream = 'debug' | 'warn' | 'log' | 'error' | 'info';
 
 declare global {
     interface Window {
@@ -37,8 +32,8 @@ export function log(
     msg: string,
     args?: any,
     stream: ConsoleStream = 'debug',
-    force: boolean = false,
-    app_name: string = _app_name
+    force = false,
+    app_name: string = _app_name,
 ) {
     if (window.jest) return;
     if (window.debug || force) {
@@ -51,12 +46,28 @@ export function log(
             console[stream](
                 `%c[${app_name}]%c[${type}] %c${msg}`,
                 ...colors,
-                args
+                args,
             );
         } else {
             console[stream](`%c[${app_name}]%c[${type}] %c${msg}`, ...colors);
         }
     }
+}
+
+/**
+ * Pad the start of a string or number with given character
+ * @param value String or number to pad
+ * @param length Length of the final string
+ * @param character Character to pad output string with. Defaults to `0`.
+ */
+export function padLength(
+    value: number | string,
+    length = 2,
+    character = '0',
+): string {
+    let str = `${value}`;
+    while (str.length < length) str = `${character}${str}`;
+    return str;
 }
 
 /**
@@ -79,7 +90,7 @@ export function getItemWithKeys(keys: string[], map: HashMap) {
  * @param array List of items to remove duplicates from
  * @param key Key on array objects to compare for uniqueness
  */
-export function unique<T = any>(array: T[] = [], key: string = ''): T[] {
+export function unique<T = any>(array: T[] = [], key = ''): T[] {
     const keys = [];
     return array.filter((el) => {
         const id = key ? el[key] : el;
@@ -94,7 +105,7 @@ export function unique<T = any>(array: T[] = [], key: string = ''): T[] {
  * @param ceil Biggest value to generate not inclusive
  * @param floor Smallest value to generate. Defaults to 0
  */
-export function randomInt(ceil: number, floor: number = 0) {
+export function randomInt(ceil: number, floor = 0) {
     return Math.floor(Math.random() * (ceil - floor)) + floor;
 }
 
@@ -103,7 +114,7 @@ export function randomInt(ceil: number, floor: number = 0) {
  * @param str Base string
  * @param length Length to pad the string
  */
-export function padString(str: string | number, length: number = 5) {
+export function padString(str: string | number, length = 5) {
     str = `${str}`;
     while (str.length < length) str = `0${str}`;
     return str;
@@ -116,7 +127,7 @@ export function padString(str: string | number, length: number = 5) {
  */
 export function randomString(
     length: number,
-    chars: string = 'abcdefghijklmnopqrstwvxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+    chars = 'abcdefghijklmnopqrstwvxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789',
 ) {
     let str = '';
     for (let i = 0; i < length; i++) {
@@ -125,43 +136,14 @@ export function randomString(
     return str;
 }
 
-export interface ConfirmRepsonse {
-    reason: 'done' | '' | null;
-    loading: (_: string) => void;
-    close: () => void;
-}
-
-export async function openConfirmModal(
-    data: ConfirmModalData,
-    dialog: MatDialog
-): Promise<ConfirmRepsonse> {
-    const ref = dialog.open<ConfirmModalComponent, ConfirmModalData>(
-        ConfirmModalComponent,
-        {
-            ...CONFIRM_METADATA,
-            data,
-        }
-    );
-    return {
-        ...(await Promise.race([
-            ref.componentInstance.event
-                .pipe(first((_) => _.reason === 'done'))
-                .toPromise(),
-            ref.afterClosed().toPromise(),
-        ])),
-        loading: (s) => (ref.componentInstance.loading = s),
-        close: () => ref.close(),
-    };
-}
-
 /**
  * Parse raw CSV data into a JSON object
  * @param csv CSV data to parse
  */
-export function csvToJson(csv: string, delimiter: string = ','): HashMap[] {
+export function csvToJson(csv: string, delimiter = ','): HashMap[] {
     const objPattern = new RegExp(
         '(\\,|\\r?\\n|\\r|^)(?:"([^"]*(?:""[^"]*)*)"|([^\\,\\r\\n]*))',
-        'gi'
+        'gi',
     );
     let arrMatches = null;
     const arrData = [[]];
@@ -170,7 +152,7 @@ export function csvToJson(csv: string, delimiter: string = ','): HashMap[] {
         arrData[arrData.length - 1].push(
             arrMatches[2]
                 ? arrMatches[2]?.replace(new RegExp('""', 'g'), '"')
-                : arrMatches[3]
+                : arrMatches[3],
         );
     }
     const headers: string[] = arrData.splice(0, 1)[0];
@@ -226,9 +208,9 @@ export function jsonToCsv(json: HashMap[], seperator = ',') {
             .map((item) =>
                 valid_keys
                     .map((key) =>
-                        (JSON.stringify(item[key]) || '')?.replace(',', '|')
+                        (JSON.stringify(item[key]) || '')?.replace(',', '|'),
                     )
-                    .join(seperator)
+                    .join(seperator),
             )
             .join('\n')}`;
     }
@@ -244,7 +226,7 @@ export function downloadFile(filename: string, contents: string) {
     const element = document.createElement('a');
     element.setAttribute(
         'href',
-        'data:text/plain;charset=utf-8,' + encodeURIComponent(contents)
+        'data:text/plain;charset=utf-8,' + encodeURIComponent(contents),
     );
     element.setAttribute('download', filename);
 
@@ -265,7 +247,7 @@ export function parseJWT(token: string) {
             .map((c) => {
                 return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
             })
-            .join('')
+            .join(''),
     );
     return JSON.parse(jsonPayload);
 }
@@ -303,7 +285,7 @@ export function timePeriodsIntersect(
     s1: number,
     e1: number,
     s2: number,
-    e2: number
+    e2: number,
 ) {
     return (
         (s1 >= s2 && s1 < e2) ||
@@ -316,7 +298,7 @@ export function timePeriodsIntersect(
 const seed = xmur3('PlaceOS');
 const rand = sfc32(0x9e3779b9, 0x243f6a88, 0xb7e15162, seed());
 
-export function predictableRandomInt(ceil: number = 100, floor: number = 0) {
+export function predictableRandomInt(ceil = 100, floor = 0) {
     return Math.floor(rand() * (ceil - floor)) + floor;
 }
 
@@ -361,13 +343,13 @@ export function is24HourTime(): boolean {
     const localeString = date
         .toLocaleTimeString(
             document.querySelector('html').getAttribute('lang') ||
-                navigator.language
+                navigator.language,
         )
         .toLowerCase();
     return localeString.indexOf('am') < 0 && localeString.indexOf('pm') < 0;
 }
 
-export function getInvalidFields(form: FormGroup, prefix: string = '') {
+export function getInvalidFields(form: FormGroup, prefix = '') {
     let invalid = [];
     for (const key in form.controls) {
         if (form.controls[key] instanceof FormGroup) {
@@ -375,7 +357,7 @@ export function getInvalidFields(form: FormGroup, prefix: string = '') {
                 ...invalid,
                 ...getInvalidFields(form.controls[key] as FormGroup, `${key}.`),
             ];
-        } else if (!form.controls[key].valid) {
+        } else if (form.controls[key].invalid) {
             invalid.push(`${prefix}${key}`);
         }
     }
@@ -396,9 +378,21 @@ export function capitalizeFirstLetter(word: string): string {
 
 export function cleanArray(
     array: any[],
-    removal_items: any[] = [undefined, null, '']
+    removal_items: any[] = [undefined, null, ''],
 ) {
     return array.filter((_) => !removal_items.includes(_));
+}
+
+export function addStringKey(value: string, key: string) {
+    return removeStringKey(value, key) + `[${key}]`;
+}
+
+export function removeStringKey(value: string, key: string) {
+    const key_value = `[${key}]`;
+    while (value.includes(key_value)) {
+        value = value.replace(`[${key}]`, '');
+    }
+    return value;
 }
 
 export function isMobileSafari() {
@@ -425,7 +419,7 @@ export function calculateDistance(
     lat1: number,
     lon1: number,
     lat2: number,
-    lon2: number
+    lon2: number,
 ): number {
     const radius = 6371; // Earth's radius in kilometers
 
@@ -454,18 +448,18 @@ function degreesToRadians(degrees: number): number {
 //////////////////////////////////////////
 
 export function hexToRgb(hex: string): RGB {
-    let r = parseInt(hex.slice(1, 3), 16);
-    let g = parseInt(hex.slice(3, 5), 16);
-    let b = parseInt(hex.slice(5, 7), 16);
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
     return [r, g, b];
 }
 
 export type RGB = [number, number, number];
 
 export function interpolateColors(rgb1: RGB, rgb2: RGB, fraction: number): RGB {
-    let r = rgb1[0] + (rgb2[0] - rgb1[0]) * fraction;
-    let g = rgb1[1] + (rgb2[1] - rgb1[1]) * fraction;
-    let b = rgb1[2] + (rgb2[2] - rgb1[2]) * fraction;
+    const r = rgb1[0] + (rgb2[0] - rgb1[0]) * fraction;
+    const g = rgb1[1] + (rgb2[1] - rgb1[1]) * fraction;
+    const b = rgb1[2] + (rgb2[2] - rgb1[2]) * fraction;
     return [Math.round(r), Math.round(g), Math.round(b)];
 }
 
@@ -480,10 +474,86 @@ export function rgbToHex(r: number, g: number, b: number): string {
 export function shiftColorTowards(
     hex1: string,
     hex2: string,
-    fraction: number
+    fraction: number,
 ) {
     const rgb1 = hexToRgb(hex1);
     const rgb2 = hexToRgb(hex2);
     const resultRgb = interpolateColors(rgb1, rgb2, fraction);
     return rgbToHex(resultRgb[0], resultRgb[1], resultRgb[2]);
+}
+
+export function extractTextFromHTML(html_string: string) {
+    // Create a temporary DOM element
+    const temp_element = document.createElement('div');
+
+    // Set the innerHTML to our HTML string
+    temp_element.innerHTML = html_string;
+
+    // Extract and return the text content
+    return temp_element.textContent || temp_element.innerText || '';
+}
+
+/**
+ * Shuffle the items in array into random order
+ * @param array List of items to shuffle
+ */
+export function shuffleArray(array: any[]) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
+/**
+ * Shuffle the items in array into random order with a specific item as the first
+ * @param array List of items to shuffle
+ * @param first_index Index of the item in the list to set as first
+ */
+export function shuffleArrayWithFirstItem(array: any[], first_index: number) {
+    // Move the specified item to the beginning
+    const firstItem = array.splice(first_index, 1)[0];
+    array.unshift(firstItem);
+
+    // Shuffle the rest of the array (starting from index 1)
+    for (let i = array.length - 1; i > 1; i--) {
+        const j = Math.floor(Math.random() * (i - 1)) + 1;
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+
+    return array;
+}
+
+export function formatDuration(
+    {
+        days,
+        hours,
+        minutes,
+        seconds,
+    }: {
+        days?: number;
+        hours?: number;
+        minutes?: number;
+        seconds?: number;
+    },
+    { zero }: { zero?: boolean } = {},
+): string {
+    const value = [];
+    if (days || (zero && days === 0))
+        value.push(
+            `${i18n(days === 1 ? 'COMMON.TIME_DAY' : 'COMMON.TIME_DAYS', { days })}`,
+        );
+    if (hours || (zero && hours === 0))
+        value.push(
+            `${i18n(hours === 1 ? 'COMMON.TIME_HOUR' : 'COMMON.TIME_HOURS', { hours })}`,
+        );
+    if (minutes || (zero && minutes === 0))
+        value.push(
+            `${i18n(minutes === 1 ? 'COMMON.TIME_MINUTE' : 'COMMON.TIME_MINUTES', { minutes })}`,
+        );
+    if (seconds || (zero && seconds === 0))
+        value.push(
+            `${i18n(seconds === 1 ? 'COMMON.TIME_SECOND' : 'COMMON.TIME_SECONDS', { seconds })}`,
+        );
+    return value.join(' ');
 }

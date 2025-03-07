@@ -3,14 +3,14 @@ import { FormGroup } from '@angular/forms';
 import { BookingFormService } from '@placeos/bookings';
 import { SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
-import { addDays, endOfDay, format } from 'date-fns';
+import { addDays, endOfDay } from 'date-fns';
 
 @Component({
     selector: 'detailed-book-desks-form',
     template: `
         <form *ngIf="form" [formGroup]="form">
             <div
-                class="w-[640px] max-w-[calc(100%-2rem)] mx-auto mb-4"
+                class="mx-auto mb-4 w-[640px] max-w-[calc(100%-2rem)]"
                 *ngIf="allow_groups"
             >
                 <mat-button-toggle-group
@@ -18,7 +18,7 @@ import { addDays, endOfDay, format } from 'date-fns';
                     [ngModel]="(options | async)?.group ? 'group' : 'single'"
                     (ngModelChange)="
                         setOptions({
-                            group: $event === 'group'
+                            group: $event === 'group',
                         })
                     "
                     [ngModelOptions]="{ standalone: true }"
@@ -32,16 +32,16 @@ import { addDays, endOfDay, format } from 'date-fns';
                 </mat-button-toggle-group>
             </div>
             <div
-                class="flex flex-col sm:flex-row space-x-0 sm:space-x-2 w-[640px] max-w-[calc(100%-2rem)] mx-auto"
+                class="mx-auto flex w-[640px] max-w-[calc(100%-2rem)] flex-col space-x-0 sm:flex-row sm:space-x-2"
             >
-                <div class="flex flex-col flex-1 w-full sm:w-1/4">
+                <div class="flex w-full flex-1 flex-col sm:w-1/4">
                     <label>Date</label>
                     <a-date-field [to]="book_until" formControlName="date">
                         Date and time must be in the future
                     </a-date-field>
                 </div>
                 <div
-                    class="flex flex-col flex-1 w-full sm:w-1/4"
+                    class="flex w-full flex-1 flex-col sm:w-1/4"
                     *ngIf="(buildings | async)?.length > 1"
                 >
                     <label>Building</label>
@@ -51,7 +51,7 @@ import { addDays, endOfDay, format } from 'date-fns';
                             [(ngModel)]="building"
                             (ngModelChange)="
                                 setOptions({
-                                    zone_id: $event?.id
+                                    zone_id: $event?.id,
                                 })
                             "
                             [ngModelOptions]="{ standalone: true }"
@@ -66,7 +66,7 @@ import { addDays, endOfDay, format } from 'date-fns';
                     </mat-form-field>
                 </div>
                 <div
-                    class="flex flex-col flex-1 w-full sm:w-1/4"
+                    class="flex w-full flex-1 flex-col sm:w-1/4"
                     *ngIf="(levels | async)?.length > 1"
                 >
                     <label>Level</label>
@@ -77,7 +77,7 @@ import { addDays, endOfDay, format } from 'date-fns';
                             [disabled]="!building"
                             (ngModelChange)="
                                 setOptions({
-                                    zone_id: $event || building.id
+                                    zone_id: $event || building.id,
                                 })
                             "
                             [ngModelOptions]="{ standalone: true }"
@@ -93,10 +93,10 @@ import { addDays, endOfDay, format } from 'date-fns';
                 </div>
             </div>
             <div
-                class="flex flex-col sm:flex-row space-x-0 sm:space-x-2 w-[640px] max-w-[calc(100%-2rem)] mx-auto"
+                class="mx-auto flex w-[640px] max-w-[calc(100%-2rem)] flex-col space-x-0 sm:flex-row sm:space-x-2"
                 *ngIf="allow_time_changes"
             >
-                <div class="flex flex-col flex-1 w-full sm:w-1/3">
+                <div class="flex w-full flex-1 flex-col sm:w-1/3">
                     <label>Start Time</label>
                     <a-time-field
                         [ngModel]="form.value.date"
@@ -104,7 +104,7 @@ import { addDays, endOfDay, format } from 'date-fns';
                         [ngModelOptions]="{ standalone: true }"
                     ></a-time-field>
                 </div>
-                <div class="flex flex-col flex-1 w-full sm:w-1/3 relative">
+                <div class="relative flex w-full flex-1 flex-col sm:w-1/3">
                     <label>End Time</label>
                     <a-duration-field
                         formControlName="duration"
@@ -118,14 +118,14 @@ import { addDays, endOfDay, format } from 'date-fns';
                     <mat-checkbox
                         formControlName="all_day"
                         *ngIf="allow_all_day"
-                        class="absolute top-0 right-0"
+                        class="absolute right-0 top-0"
                     >
                         All Day
                     </mat-checkbox>
                 </div>
             </div>
             <div
-                class="flex flex-col w-[640px] max-w-[calc(100%-2rem)] mx-auto"
+                class="mx-auto flex w-[640px] max-w-[calc(100%-2rem)] flex-col"
                 *ngIf="can_book_for_others"
             >
                 <label>Host</label>
@@ -135,7 +135,7 @@ import { addDays, endOfDay, format } from 'date-fns';
                 ></a-user-search-field>
             </div>
             <div
-                class="flex flex-col flex-1 w-[640px] max-w-[calc(100%-2rem)] mx-auto"
+                class="mx-auto flex w-[640px] max-w-[calc(100%-2rem)] flex-1 flex-col"
                 *ngIf="needs_reason"
             >
                 <label>Details</label>
@@ -148,7 +148,7 @@ import { addDays, endOfDay, format } from 'date-fns';
                 </mat-form-field>
             </div>
             <div
-                class="flex flex-col flex-1 w-[640px] max-w-[calc(100%-2rem)] mx-auto"
+                class="mx-auto flex w-[640px] max-w-[calc(100%-2rem)] flex-1 flex-col"
                 *ngIf="(options | async)?.group"
             >
                 <label>Group Members</label>
@@ -160,10 +160,10 @@ import { addDays, endOfDay, format } from 'date-fns';
                 ></a-user-list-field>
             </div>
             <div
-                class="flex flex-col sm:flex-row space-x-0 sm:space-x-2 w-[640px] max-w-[calc(100%-2rem)] mx-auto"
+                class="mx-auto flex w-[640px] max-w-[calc(100%-2rem)] flex-col space-x-0 sm:flex-row sm:space-x-2"
                 *ngIf="can_recurr"
             >
-                <div class="flex flex-col flex-1 w-full sm:w-1/3">
+                <div class="flex w-full flex-1 flex-col sm:w-1/3">
                     <label>Recurrence Period</label>
                     <mat-form-field appearance="outline">
                         <mat-select
@@ -182,7 +182,7 @@ import { addDays, endOfDay, format } from 'date-fns';
                         </mat-select>
                     </mat-form-field>
                 </div>
-                <div class="flex flex-col flex-1 w-full sm:w-1/3">
+                <div class="flex w-full flex-1 flex-col sm:w-1/3">
                     <label>Recurrence End</label>
                     <a-date-field
                         [disabled]="
@@ -194,7 +194,7 @@ import { addDays, endOfDay, format } from 'date-fns';
                         "
                         (ngModelChange)="
                             setOptions({
-                                recurr_end: $event
+                                recurr_end: $event,
                             })
                         "
                         [ngModelOptions]="{ standalone: true }"
@@ -205,7 +205,7 @@ import { addDays, endOfDay, format } from 'date-fns';
                 </div>
             </div>
             <div
-                class="flex flex-col flex-1 w-[640px] max-w-[calc(100%-2rem)] mx-auto"
+                class="mx-auto flex w-[640px] max-w-[calc(100%-2rem)] flex-1 flex-col"
                 *ngIf="(features | async)?.length"
             >
                 <label>Desk Features</label>
@@ -215,7 +215,7 @@ import { addDays, endOfDay, format } from 'date-fns';
                         [ngModel]="(options | async)?.features || []"
                         (ngModelChange)="
                             setOptions({
-                                features: $event || []
+                                features: $event || [],
                             })
                         "
                         [ngModelOptions]="{ standalone: true }"
@@ -232,14 +232,14 @@ import { addDays, endOfDay, format } from 'date-fns';
                 </mat-form-field>
             </div>
             <div
-                class="flex flex-col flex-1 w-[640px] max-w-[calc(100%-2rem)] mx-auto mb-4"
+                class="mx-auto mb-4 flex w-[640px] max-w-[calc(100%-2rem)] flex-1 flex-col"
                 *ngIf="can_book_lockers"
             >
                 <mat-checkbox
                     [ngModel]="!!form.value.secondary_resource"
                     (ngModelChange)="
                         form.patchValue({
-                            secondary_resource: $event ? 'locker' : ''
+                            secondary_resource: $event ? 'locker' : '',
                         })
                     "
                     [ngModelOptions]="{ standalone: true }"
@@ -250,6 +250,7 @@ import { addDays, endOfDay, format } from 'date-fns';
         </form>
     `,
     styles: [``],
+    standalone: false,
 })
 export class DeskFlowDetailedFormComponent {
     @Input() public form: FormGroup;
@@ -308,14 +309,14 @@ export class DeskFlowDetailedFormComponent {
         return endOfDay(
             addDays(
                 Date.now(),
-                this._settings.get('app.desks.available_period') || 90
-            )
+                this._settings.get('app.desks.available_period') || 90,
+            ),
         );
     }
 
     constructor(
         private _state: BookingFormService,
         private _org: OrganisationService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {}
 }

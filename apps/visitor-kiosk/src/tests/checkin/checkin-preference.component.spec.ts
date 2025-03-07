@@ -4,9 +4,10 @@ import { MatSelectModule } from '@angular/material/select';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { CateringStateService } from '@placeos/catering';
 import { IconComponent } from '@placeos/components';
-import { MockComponent } from 'ng-mocks';
+import { MockComponent, MockModule } from 'ng-mocks';
 import { of } from 'rxjs';
 
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { CheckinPreferencesComponent } from '../../app/checkin/checkin-preferences.component';
 import { CheckinStateService } from '../../app/checkin/checkin-state.service';
 
@@ -25,7 +26,13 @@ describe('CheckinPreferencesComponent', () => {
                 useValue: { menu: of([]) },
             },
         ],
-        imports: [MatFormFieldModule, MatSelectModule, FormsModule, ReactiveFormsModule],
+        imports: [
+            MatFormFieldModule,
+            MatSelectModule,
+            FormsModule,
+            ReactiveFormsModule,
+            MockModule(MatProgressSpinnerModule),
+        ],
     });
 
     beforeEach(() => (spectator = createComponent()));

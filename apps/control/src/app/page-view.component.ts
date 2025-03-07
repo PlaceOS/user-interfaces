@@ -19,10 +19,11 @@ import { Component } from '@angular/core';
                 height: 50%;
                 overflow: hidden;
                 background: #f0f0f0;
-                color: rgba(0,0,0,.85);
+                color: rgba(0, 0, 0, 0.85);
             }
         `,
     ],
+    standalone: false,
 })
 export class ControlPageViewComponent {
     public view: 'basic' | 'advanced';

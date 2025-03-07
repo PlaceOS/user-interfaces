@@ -3,11 +3,11 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { SettingsService } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
+import { DateCalendarComponent } from 'libs/form-fields/src/lib/date-calendar.component';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 import { ScheduleSidebarComponent } from '../../app/new-schedule/schedule-sidebar.component';
 import { ScheduleStateService } from '../../app/new-schedule/schedule-state.service';
-import { DateCalendarComponent } from 'libs/form-fields/src/lib/date-calendar.component';
 
 describe('ScheduleSidebarComponent', () => {
     let spectator: Spectator<ScheduleSidebarComponent>;
@@ -23,6 +23,8 @@ describe('ScheduleSidebarComponent', () => {
                 date: new BehaviorSubject(0),
                 toggleType: jest.fn(),
                 setDate: jest.fn(),
+                options: new BehaviorSubject({ period: 'day' }),
+                getOptions: jest.fn(() => ({ period: 'day' })),
             } as any),
             MockProvider(SettingsService, { get: jest.fn() }),
         ],

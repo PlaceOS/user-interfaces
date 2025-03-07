@@ -6,25 +6,25 @@ import { CustomTooltipData } from '@placeos/components';
     selector: 'help-tooltip',
     template: `
         <div
-            class="flex flex-col w-[18.5rem] rounded bg-base-100 shadow relative -top-12 -right-1 divide-y divide-base-200"
+            class="relative -right-1 -top-12 flex w-[18.5rem] flex-col divide-y divide-base-200 rounded bg-base-100 shadow"
             (click)="close()"
         >
-            <div class="flex items-center space-x-2 p-2 border-b">
+            <div class="flex items-center space-x-2 border-b p-2">
                 <app-icon class="text-2xl">arrow_back</app-icon>
-                <div class="" i18n>Help & Support</div>
+                <div class="">{{ 'COMMON.CONTROLS_HELP' | translate }}</div>
             </div>
             <a
                 btn
                 matRipple
                 *ngFor="let tile of tiles"
-                class="clear w-full text-left h-auto"
+                class="clear h-auto w-full text-left"
                 target="_blank"
                 ref="noreferer noopener"
                 [href]="tile.link"
             >
-                <div class="flex items-center space-x-2 py-2 w-full">
+                <div class="flex w-full items-center space-x-2 py-2">
                     <div
-                        class="flex items-center justify-center rounded-full w-8 h-8 bg-base-200"
+                        class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
                     >
                         <app-icon class="text-xl" [icon]="tile.icon"></app-icon>
                     </div>
@@ -42,6 +42,7 @@ import { CustomTooltipData } from '@placeos/components';
             }
         `,
     ],
+    standalone: false,
 })
 export class HelpTooltipComponent {
     /** Tiles to display on the help page */
@@ -55,6 +56,6 @@ export class HelpTooltipComponent {
 
     constructor(
         @Inject(CustomTooltipData) private _data: any,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {}
 }

@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { Routes, RouterModule } from '@angular/router';
+import { RouterModule, Routes } from '@angular/router';
 
 import { BootstrapComponent } from './bootstrap.component';
 import { ControlMainViewComponent } from './main-view.component';
@@ -27,7 +27,7 @@ const routes: Routes = [
         path: 'panel/:system/call',
         component: ControlVideoCallViewComponent,
     },
-    { path: '**', redirectTo: 'bootstrap' }
+    { path: '**', redirectTo: 'bootstrap' },
 ];
 
 @NgModule({

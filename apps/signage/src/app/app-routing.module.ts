@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { Routes, RouterModule } from '@angular/router';
+import { RouterModule, Routes } from '@angular/router';
 import { UnauthorisedComponent } from '@placeos/components';
 import { BootstrapComponent } from './bootstrap.component';
 import { SignagePanelComponent } from './signage.component';
@@ -11,6 +11,7 @@ const routes: Routes = [
     },
     { path: 'bootstrap', component: BootstrapComponent },
     { path: 'signage', component: SignagePanelComponent },
+    { path: 'signage/:system_id', component: SignagePanelComponent },
     { path: '**', redirectTo: 'bootstrap' },
 ];
 

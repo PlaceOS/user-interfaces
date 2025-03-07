@@ -1,9 +1,7 @@
 import { timePeriodsIntersect } from '../lib/general';
 
 describe('General Methods', () => {
-
     describe('timePeriodsIntersect', () => {
-
         it('should handle start overlapping other period', () => {
             expect(timePeriodsIntersect(2, 10, 1, 5)).toBe(true);
             expect(timePeriodsIntersect(1, 5, 2, 10)).toBe(true);
@@ -25,4 +23,3 @@ describe('General Methods', () => {
         });
     });
 });
-

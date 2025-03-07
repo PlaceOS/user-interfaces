@@ -1,27 +1,27 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { SettingsService } from '@placeos/common';
 
 @Component({
     selector: 'desk-height-presets',
     template: `
-        <div class="relative p-4 bg-base-100 rounded shadow w-[20rem]">
-            <div class="text-lg mb-2" i18n>Desk Height Presets</div>
-            <div class="text-xs opacity-60 mb-4" i18n>
-                Desk height presets allow you to store and recall your preferred
-                desk height when checking into a booked desk that supports
-                height adjustment.
+        <div class="relative w-[20rem] rounded bg-base-100 p-4 shadow">
+            <div class="mb-2 text-lg">
+                {{ 'COMMON.DESK_HEIGHT_TITLE' | translate }}
+            </div>
+            <div class="mb-4 text-xs opacity-60">
+                {{ 'COMMON.DESK_HEIGHT_MSG' | translate }}
             </div>
             <div
-                class="text-xs mb-4 -mx-2 p-2 rounded bg-warning text-warning-content"
+                class="-mx-2 mb-4 rounded bg-warning p-2 text-xs text-warning-content"
                 *ngIf="not_set && show_close"
             >
-                Before you can set a desk height, presets must be set
+                {{ 'COMMON.DESK_HEIGHT_NOT_SET' | translate }}
             </div>
-            <div class="text-xs opacity-60 mb-4" i18n>
-                Set your desk height for the best experience.
+            <div class="mb-4 text-xs opacity-60">
+                {{ 'COMMON.DESK_HEIGHT_INFO' | translate }}
             </div>
-            <div class="flex flex-col mt-2">
-                <label>Sitting Height</label>
+            <div class="mt-2 flex flex-col">
+                <label>{{ 'COMMON.DESK_HEIGHT_SITTING' | translate }}</label>
                 <div class="flex items-center space-x-2">
                     <mat-slider
                         min="60"
@@ -39,12 +39,12 @@ import { SettingsService } from '@placeos/common';
                             "
                         />
                     </mat-slider>
-                    <div class="text-sm w-12 text-right">
+                    <div class="w-12 text-right text-sm">
                         {{ desk_sitting_height.toFixed(1) }}cm
                     </div>
                 </div>
-                <label>Standing Height</label>
-                <div class="flex items-center space-x-2  mr-2">
+                <label>{{ 'COMMON.DESK_HEIGHT_STANDING' | translate }}t</label>
+                <div class="mr-2 flex items-center space-x-2">
                     <mat-slider
                         min="90"
                         max="120"
@@ -61,7 +61,7 @@ import { SettingsService } from '@placeos/common';
                             "
                         />
                     </mat-slider>
-                    <div class="text-sm w-12 text-right mr-2">
+                    <div class="mr-2 w-12 text-right text-sm">
                         {{ desk_standing_height.toFixed(1) }}cm
                     </div>
                 </div>
@@ -70,14 +70,15 @@ import { SettingsService } from '@placeos/common';
                 btn
                 matRipple
                 (click)="onClose()"
-                class="w-full mt-2"
+                class="mt-2 w-full"
                 *ngIf="show_close"
             >
-                Save Presets
+                {{ 'COMMON.SAVE' | translate }}
             </button>
         </div>
     `,
     styles: [``],
+    standalone: false,
 })
 export class DeskHeightPresetsComponent {
     @Input() public show_close = false;
@@ -109,7 +110,6 @@ export class DeskHeightPresetsComponent {
     }
 
     public saveSetting(name: string, value: any) {
-        console.log('Save setting', name, value);
         this._settings.saveUserSetting(name, value);
     }
 }

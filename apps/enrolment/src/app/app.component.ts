@@ -1,34 +1,34 @@
-import { Component, OnInit } from '@angular/core';
-import { SwUpdate } from '@angular/service-worker';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { Clipboard } from '@angular/cdk/clipboard';
-import { first } from 'rxjs/operators';
+import { Component, OnInit } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { SwUpdate } from '@angular/service-worker';
 import {
     Amazon,
     Azure,
     Google,
-    OpenStack,
     initialiseUploadService,
+    OpenStack,
 } from '@placeos/cloud-uploads';
+import { first } from 'rxjs/operators';
 
 import {
     AsyncHandler,
     currentUser,
+    log,
     setAppName,
     setNotifyOutlet,
     SettingsService,
     setupCache,
     setupPlace,
-    log,
 } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { setInternalUserDomain } from 'libs/users/src/lib/user.utilities';
 
 import { SpacesService } from 'libs/spaces/src/lib/spaces.service';
 
-import * as Sentry from '@sentry/angular';
 import * as MOCKS from '@placeos/mocks';
 import { PlaceAuthority, token } from '@placeos/ts-client';
+import * as Sentry from '@sentry/angular';
 
 export function initSentry(dsn: string, sample_rate: number = 0.2) {
     if (!dsn) return;
@@ -42,7 +42,7 @@ export function initSentry(dsn: string, sample_rate: number = 0.2) {
     selector: 'app-root',
     template: `
         <global-banner></global-banner>
-        <div class="flex-1 w-full relative h-1/2">
+        <div class="relative h-1/2 w-full flex-1">
             <router-outlet></router-outlet>
         </div>
     `,
@@ -56,6 +56,7 @@ export function initSentry(dsn: string, sample_rate: number = 0.2) {
             }
         `,
     ],
+    standalone: false,
 })
 export class AppComponent extends AsyncHandler implements OnInit {
     constructor(
@@ -65,7 +66,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
         private _spaces: SpacesService, // For init
         private _cache: SwUpdate,
         private _snackbar: MatSnackBar,
-        private _clipboard: Clipboard
+        private _clipboard: Clipboard,
     ) {
         super();
     }
@@ -87,8 +88,8 @@ export class AppComponent extends AsyncHandler implements OnInit {
         await setupPlace(settings);
         setupCache(this._cache);
         setInternalUserDomain(
-            this._settings.get('app.general.internal_user_domain') ||
-                `@${currentUser()?.email?.split('@')[1]}`
+            this._settings.get('app.internal_user_domain') ||
+                `@${currentUser()?.email?.split('@')[1]}`,
         );
         this._settings.overrides = [authority.config?.enrolment || {}];
         this.timeout('init_uploads', () => {

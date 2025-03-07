@@ -1,34 +1,45 @@
-import { Component } from '@angular/core';
-import { RegionManagementService } from './region-management.service';
-import { notifySuccess } from '@placeos/common';
 import { Clipboard } from '@angular/cdk/clipboard';
+import { Component } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { notifySuccess } from '@placeos/common';
+
+import { RegionManagementService } from './region-management.service';
+
+import { BookingPanelSettingsModalComponent } from '../ui/app-settings/booking-panel-settings-modal.component';
+import { ConciergeSettingsFormModalComponent } from '../ui/app-settings/concierge-settings-form-modal.component';
+import { VisitorKioskSettingsFormModalComponent } from '../ui/app-settings/visitor-kiosk-settings-form-modal.component';
+import { WorkplaceSettingsFormModalComponent } from '../ui/app-settings/workplace-settings-form-modal.component';
 
 @Component({
     selector: 'region-list',
     template: `
         <div class="absolute inset-0 overflow-auto px-8">
             <simple-table
-                class="min-w-[32rem] block text-sm"
+                class="block min-w-[32rem] text-sm"
                 [data]="regions"
-                empty_message="No Regions"
+                [empty_message]="'APP.CONCIERGE.REGIONS_EMPTY' | translate"
                 [columns]="[
                     {
                         key: 'display_name',
-                        name: 'Building Name',
-                        content: name_template
+                        name: 'APP.CONCIERGE.REGIONS_NAME' | translate,
+                        content: name_template,
                     },
-                    { key: 'building_count', name: 'Buildings', size: '8rem' },
+                    {
+                        key: 'building_count',
+                        name: 'APP.CONCIERGE.REGIONS_BUILDINGS' | translate,
+                        size: '8rem',
+                    },
                     {
                         key: 'actions',
                         name: ' ',
                         content: action_template,
-                        size: '3rem',
-                        sortable: false
-                    }
+                        size: '3.5rem',
+                        sortable: false,
+                    },
                 ]"
                 [sortable]="true"
             ></simple-table>
-            <div class="w-full h-20"></div>
+            <div class="h-20 w-full"></div>
         </div>
         <ng-template #name_template let-row="row" let-data="data">
             <button
@@ -36,13 +47,13 @@ import { Clipboard } from '@angular/cdk/clipboard';
                 (click)="copyToClipboard(row.id)"
             >
                 <div class="">{{ data }}</div>
-                <div class="text-[0.625rem] opacity-30 font-mono">
+                <div class="font-mono text-[0.625rem] opacity-30">
                     {{ row.id }}
                 </div>
             </button>
         </ng-template>
         <ng-template #action_template let-row="row">
-            <div class="w-full flex justify-end space-x-2">
+            <div class="flex w-full justify-end space-x-2 p-1">
                 <button
                     icon
                     matRipple
@@ -52,22 +63,95 @@ import { Clipboard } from '@angular/cdk/clipboard';
                     <app-icon>more_vert</app-icon>
                 </button>
                 <mat-menu #menu="matMenu">
-                    <button mat-menu-item (click)="editMetadata(row)">
+                    <button
+                        mat-menu-item
+                        [matMenuTriggerFor]="app_settings_menu"
+                    >
                         <div class="flex items-center space-x-2">
-                            <app-icon>edit_square</app-icon>
-                            <span>App Configuration</span>
+                            <app-icon class="text-xl">edit_square</app-icon>
+                            <div>
+                                {{ 'APP.CONCIERGE.APP_SETTINGS' | translate }}
+                            </div>
                         </div>
                     </button>
+                    <mat-menu #app_settings_menu="matMenu">
+                        <button
+                            mat-menu-item
+                            (click)="editWorkplaceSettings(row)"
+                        >
+                            <div class="flex items-center space-x-2">
+                                <app-icon class="text-xl"
+                                    >meeting_room</app-icon
+                                >
+                                <div>
+                                    {{
+                                        'APP.CONCIERGE.APP_SETTINGS_WORKPLACE'
+                                            | translate
+                                    }}
+                                </div>
+                            </div>
+                        </button>
+                        <button
+                            mat-menu-item
+                            (click)="editConciergeSettings(row)"
+                        >
+                            <div class="flex items-center space-x-2">
+                                <app-icon class="text-xl"
+                                    >support_agent</app-icon
+                                >
+                                <div>
+                                    {{
+                                        'APP.CONCIERGE.APP_SETTINGS_CONCIERGE'
+                                            | translate
+                                    }}
+                                </div>
+                            </div>
+                        </button>
+                        <button
+                            mat-menu-item
+                            (click)="editBookingPanelSettings(row)"
+                        >
+                            <div class="flex items-center space-x-2">
+                                <app-icon class="text-xl">event_busy</app-icon>
+                                <div>
+                                    {{
+                                        'APP.CONCIERGE.APP_SETTINGS_BOOKING_PANEL'
+                                            | translate
+                                    }}
+                                </div>
+                            </div>
+                        </button>
+                        <button
+                            mat-menu-item
+                            (click)="editVisitorKioskSettings(row)"
+                        >
+                            <div class="flex items-center space-x-2">
+                                <app-icon class="text-xl">qr_code</app-icon>
+                                <div>
+                                    {{
+                                        'APP.CONCIERGE.APP_SETTINGS_VISITOR_KIOSK'
+                                            | translate
+                                    }}
+                                </div>
+                            </div>
+                        </button>
+                    </mat-menu>
                     <button mat-menu-item (click)="editRegion(row)">
                         <div class="flex items-center space-x-2">
-                            <app-icon>edit</app-icon>
-                            <span>Edit Region</span>
+                            <app-icon class="text-xl">edit</app-icon>
+                            <div>
+                                {{ 'APP.CONCIERGE.REGIONS_EDIT' | translate }}
+                            </div>
                         </div>
                     </button>
                     <button mat-menu-item (click)="removeRegion(row)">
-                        <div class="flex items-center space-x-2 text-red-500">
-                            <app-icon class="text-error">delete</app-icon>
-                            <span>Delete Region</span>
+                        <div class="text-red-500 flex items-center space-x-2">
+                            <app-icon class="text-xl text-error">
+                                delete
+                            </app-icon>
+                            <div>
+                                {{ 'APP.CONCIERGE.REGIONS_REMOVE' | translate }}
+                            </div>
                         </div>
                     </button>
                 </mat-menu>
@@ -75,6 +159,7 @@ import { Clipboard } from '@angular/cdk/clipboard';
         </ng-template>
     `,
     styles: [``],
+    standalone: false,
 })
 export class RegionListComponent {
     public readonly regions = this._manager.filtered_regions;
@@ -82,16 +167,39 @@ export class RegionListComponent {
     public readonly editRegion = (region) => this._manager.editRegion(region);
     public readonly removeRegion = (region) =>
         this._manager.removeRegion(region);
-    public readonly editMetadata = (region) =>
-        this._manager.editRegionMetadata(region);
 
     public readonly copyToClipboard = (id: string) => {
         const success = this._clipboard.copy(id);
         if (success) notifySuccess('Region ID copied to clipboard.');
     };
 
+    public editWorkplaceSettings(zone) {
+        this._dialog.open(WorkplaceSettingsFormModalComponent, {
+            data: { zone },
+        });
+    }
+
+    public editConciergeSettings(zone) {
+        this._dialog.open(ConciergeSettingsFormModalComponent, {
+            data: { zone },
+        });
+    }
+
+    public editBookingPanelSettings(zone) {
+        this._dialog.open(BookingPanelSettingsModalComponent, {
+            data: { zone },
+        });
+    }
+
+    public editVisitorKioskSettings(zone) {
+        this._dialog.open(VisitorKioskSettingsFormModalComponent, {
+            data: { zone },
+        });
+    }
+
     constructor(
         private _manager: RegionManagementService,
-        private _clipboard: Clipboard
+        private _clipboard: Clipboard,
+        private _dialog: MatDialog,
     ) {}
 }

@@ -9,8 +9,8 @@ import {
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { first, map } from 'rxjs/operators';
 
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { Desk } from 'libs/organisation/src/lib/desk.class';
+import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { StaffUser, User } from 'libs/users/src/lib/user.class';
 
 import { queryBookings, saveBooking } from './bookings.fn';
@@ -26,7 +26,7 @@ export class DesksService {
 
     constructor(
         private _org: OrganisationService,
-        private _dialog: MatDialog
+        private _dialog: MatDialog,
     ) {}
 
     public async bookDesk({
@@ -49,10 +49,12 @@ export class DesksService {
         }
         reason = reason || '';
         const level = this._org.levelWithID(
-            desks[0].zone instanceof Array ? desks[0].zone : [desks[0].zone?.id]
+            desks[0].zone instanceof Array
+                ? desks[0].zone
+                : [desks[0].zone?.id],
         );
         let ref: MatDialogRef<any> = this._dialog.open(
-            DeskQuestionsModalComponent
+            DeskQuestionsModalComponent,
         );
         let success = await Promise.race([
             ref.componentInstance.event
@@ -100,12 +102,12 @@ export class DesksService {
             period_end: getUnixTime(endOfDay(date || new Date())),
         }).toPromise();
         const desk_list = bookings.filter(
-            (d) => d.user_email.toLowerCase() === host.email.toLowerCase()
+            (d) => d.user_email.toLowerCase() === host.email.toLowerCase(),
         );
         if (desk_list?.length) {
             ref.close();
             return notifyError(
-                'You currently already have a desk booked for the selected date.'
+                'You currently already have a desk booked for the selected date.',
             );
         }
         ref.componentInstance.loading = 'Booking desk...';
@@ -117,8 +119,8 @@ export class DesksService {
                     host,
                     date.valueOf() || new Date().valueOf(),
                     reason,
-                    users[idx]
-                )
+                    users[idx],
+                ),
             ),
         ]);
         notifySuccess('Successfully booked desk');
@@ -131,11 +133,11 @@ export class DesksService {
         host: StaffUser,
         date: number,
         reason: string,
-        for_user: User = null
+        for_user: User = null,
     ) {
         const location = `${desk.zone?.name}-${desk.id}`;
         const level = this._org.levelWithID(
-            desk.zone instanceof Array ? desk.zone : [desk.zone?.id]
+            desk.zone instanceof Array ? desk.zone : [desk.zone?.id],
         );
         const zones = desk.zone?.id
             ? [desk.zone?.id, level?.parent_id]

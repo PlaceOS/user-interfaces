@@ -1,12 +1,16 @@
 import { showUser } from '@placeos/ts-client';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, combineLatest } from 'rxjs';
 import { delay, map, retry } from 'rxjs/operators';
 
-import { StaffUser } from '../../../users/src/lib/user.class';
+import { StaffUser } from 'libs/users/src/lib/user.class';
 
-const EMPTY_USER = new StaffUser();
+const EMPTY_USER = {
+    name: '<empty>',
+    email: '<empty>@place.tech',
+} as StaffUser;
 
 const _current_user = new BehaviorSubject<StaffUser>(null);
+const _change = new BehaviorSubject(0);
 
 export const current_user = _current_user.asObservable();
 
@@ -16,14 +20,21 @@ setTimeout(() => {
     try {
         if (jest) return;
     } catch {}
-    showUser('current')
+    combineLatest([showUser('current'), _change])
         .pipe(
             delay(1000),
             retry(10),
-            map((i) => new StaffUser(i))
+            map(([i]) => new StaffUser(i as any)),
         )
         .subscribe((user) => _current_user.next(user));
 }, 300);
+
+export function reloadUserData() {
+    setTimeout(async () => {
+        const user = await showUser('current').toPromise();
+        _current_user.next(new StaffUser(user as any));
+    }, 300);
+}
 
 /** Get the current user details */
 export function currentUser() {

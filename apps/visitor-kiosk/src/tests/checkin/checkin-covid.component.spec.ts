@@ -1,5 +1,5 @@
-import { Router } from '@angular/router';
 import { MatRadioModule } from '@angular/material/radio';
+import { Router } from '@angular/router';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 
 import { CheckinCovidComponent } from '../../app/checkin/checkin-covid.component';
@@ -7,10 +7,10 @@ import { CheckinStateService } from '../../app/checkin/checkin-state.service';
 
 jest.mock('@placeos/common');
 
+import { FormsModule } from '@angular/forms';
 import * as common_mod from '@placeos/common';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MockComponent } from 'ng-mocks';
 import { IconComponent } from '@placeos/components';
+import { MockComponent } from 'ng-mocks';
 
 describe('CheckinCovidComponent', () => {
     let spectator: SpectatorRouting<CheckinCovidComponent>;
@@ -36,13 +36,13 @@ describe('CheckinCovidComponent', () => {
         (common_mod.notifyError as any) = jest.fn();
         spectator.component.confirm();
         expect(common_mod.notifyError).toBeCalledWith(
-            'Please select yes or no for each question'
+            'Please select yes or no for each question',
         );
         spectator.component.contact = 'true';
         spectator.component.symptoms = 'false';
         spectator.component.confirm();
         expect(spectator.inject(CheckinStateService).setError).toBeCalledTimes(
-            1
+            1,
         );
         spectator.component.contact = 'false';
         spectator.component.confirm();

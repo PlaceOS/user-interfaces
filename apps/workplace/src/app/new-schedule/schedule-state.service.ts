@@ -2,10 +2,13 @@ import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
     Booking,
-    Locker,
-    LockersService,
-    ParkingService,
+    BookingType,
     checkinBooking,
+    loadLockerBanks,
+    loadLockers,
+    Locker,
+    LockerBank,
+    ParkingService,
     queryBookings,
 } from '@placeos/bookings';
 import {
@@ -13,9 +16,10 @@ import {
     current_user,
     currentUser,
     flatten,
-    openConfirmModal,
     SettingsService,
+    unique,
 } from '@placeos/common';
+import { openConfirmModal } from '@placeos/components';
 import {
     CalendarEvent,
     newCalendarEventFromBooking,
@@ -26,14 +30,19 @@ import { requestSpacesForZone } from '@placeos/spaces';
 import { getModule } from '@placeos/ts-client';
 import {
     addMinutes,
+    addWeeks,
     differenceInMilliseconds,
     differenceInMinutes,
     endOfDay,
+    endOfWeek,
     format,
     getUnixTime,
+    isAfter,
+    isBefore,
     isSameDay,
     startOfDay,
     startOfMinute,
+    startOfWeek,
 } from 'date-fns';
 import { BehaviorSubject, combineLatest, interval, Observable, of } from 'rxjs';
 import {
@@ -49,6 +58,10 @@ import {
     tap,
 } from 'rxjs/operators';
 
+export interface ScheduleOptions {
+    period: 'day' | 'week' | 'month';
+}
+
 @Injectable({
     providedIn: 'root',
 })
@@ -56,6 +69,7 @@ export class ScheduleStateService extends AsyncHandler {
     private _poll = new BehaviorSubject(0);
     private _poll_type = new BehaviorSubject<'api' | 'ws'>('api');
     private _loading = new BehaviorSubject(false);
+    private _options = new BehaviorSubject<ScheduleOptions>({ period: 'day' });
     private _filters = new BehaviorSubject({
         shown_types: [
             'event',
@@ -123,6 +137,63 @@ export class ScheduleStateService extends AsyncHandler {
             shareReplay(1),
         );
 
+    public readonly options = this._options.asObservable();
+    /** Currently selected date */
+    public readonly filters = this._filters.asObservable();
+    /** Currently selected date */
+    public readonly date = this._date.asObservable();
+    /** Whether events and bookings are loading */
+    public readonly loading = this._loading.asObservable();
+
+    public setOptions(options: ScheduleOptions) {
+        this._options.next(options);
+    }
+
+    public getOptions() {
+        return this._options.getValue();
+    }
+    public readonly week_date = combineLatest([
+        this._org.active_building,
+        this.date,
+    ]).pipe(
+        map(([_, date]) =>
+            startOfWeek(date, {
+                weekStartsOn: this.offset_weekday as any,
+            }).valueOf(),
+        ),
+    );
+
+    public readonly week_options = combineLatest([
+        this._org.active_building,
+        this.date,
+    ]).pipe(
+        filter(([bld]) => !!bld),
+        map(() => {
+            const options = [];
+            const date = startOfDay(Date.now());
+            for (let i = -4; i < 48; i++) {
+                const day = addWeeks(date, i);
+                const week_s_date = startOfWeek(day, {
+                    weekStartsOn: this.offset_weekday,
+                });
+                const week_e_date = endOfWeek(day, {
+                    weekStartsOn: this.offset_weekday,
+                });
+                const this_week =
+                    isAfter(Date.now(), week_s_date) &&
+                    isBefore(Date.now(), week_e_date);
+                const week_start = format(week_s_date, 'dd MMM');
+                const week_end = format(week_e_date, 'dd MMM');
+                options.push({
+                    id: week_s_date.valueOf(),
+                    name: `${week_start} - ${week_end}`,
+                    this_week,
+                });
+            }
+            return options;
+        }),
+    );
+
     public readonly ws_events = combineLatest([
         this._space_bookings,
         this._update,
@@ -145,11 +216,26 @@ export class ScheduleStateService extends AsyncHandler {
         }),
     );
     /** List of calendar events for the selected date */
-    public readonly api_events: Observable<CalendarEvent[]> = this._update.pipe(
-        switchMap(([date]) => {
+    public readonly api_events: Observable<CalendarEvent[]> = combineLatest([
+        this._update,
+        this._options,
+    ]).pipe(
+        switchMap(([[date], { period }]) => {
             const query = {
-                period_start: getUnixTime(startOfDay(date)),
-                period_end: getUnixTime(endOfDay(date)),
+                period_start: getUnixTime(
+                    period === 'day'
+                        ? startOfDay(date)
+                        : startOfWeek(date, {
+                              weekStartsOn: this.offset_weekday as any,
+                          }),
+                ),
+                period_end: getUnixTime(
+                    period === 'day'
+                        ? endOfDay(date)
+                        : endOfWeek(date, {
+                              weekStartsOn: this.offset_weekday as any,
+                          }),
+                ),
             };
             return this._settings.get('app.events.use_bookings')
                 ? queryBookings({ ...query, type: 'room' }).pipe(
@@ -161,8 +247,13 @@ export class ScheduleStateService extends AsyncHandler {
         shareReplay(1),
     );
     /** List of calendar events for the selected date */
-    public readonly raw_events = combineLatest([this._poll_type]).pipe(
-        switchMap(([t]) => (t === 'api' ? this.api_events : this.ws_events)),
+    public readonly raw_events = combineLatest([
+        this._poll_type,
+        this._options,
+    ]).pipe(
+        switchMap(([t, { period }]) =>
+            t === 'api' || period !== 'week' ? this.api_events : this.ws_events,
+        ),
         tap(() => this.timeout('end_loading', () => this._loading.next(false))),
         shareReplay(1),
     );
@@ -171,40 +262,35 @@ export class ScheduleStateService extends AsyncHandler {
         map((_) => _.filter((_) => !_.extension_data?.shared_event)),
     );
     /** List of desk bookings for the selected date */
-    public readonly visitors: Observable<Booking[]> = this._update.pipe(
-        switchMap(([date]) =>
-            queryBookings({
-                period_start: getUnixTime(startOfDay(date)),
-                period_end: getUnixTime(endOfDay(date)),
-                type: 'visitor',
-            }).pipe(catchError((_) => of([] as Booking[]))),
+    public readonly visitors: Observable<Booking[]> = combineLatest([
+        this._update,
+        this.options,
+    ]).pipe(
+        switchMap(([[date], { period }]) =>
+            this._bookingQuery('visitor', period, date),
         ),
         map((_) => _.filter((_) => !_.parent_id && !_.linked_event)),
         tap(() => this.timeout('end_loading', () => this._loading.next(false))),
         shareReplay(1),
     );
     /** List of desk bookings for the selected date */
-    public readonly desks: Observable<Booking[]> = this._update.pipe(
-        switchMap(([date]) =>
-            queryBookings({
-                period_start: getUnixTime(startOfDay(date)),
-                period_end: getUnixTime(endOfDay(date)),
-                include_checked_out: true,
-                type: 'desk',
-            }).pipe(catchError((_) => of([]))),
+    public readonly desks: Observable<Booking[]> = combineLatest([
+        this._update,
+        this.options,
+    ]).pipe(
+        switchMap(([[date], { period }]) =>
+            this._bookingQuery('desk', period, date),
         ),
         tap(() => this.timeout('end_loading', () => this._loading.next(false))),
         shareReplay(1),
     );
     /** List of parking bookings for the selected date */
-    public readonly parking: Observable<Booking[]> = this._update.pipe(
-        switchMap(([date]) =>
-            queryBookings({
-                period_start: getUnixTime(startOfDay(date)),
-                period_end: getUnixTime(endOfDay(date)),
-                type: 'parking',
-                include_deleted: 'recurring',
-            }).pipe(catchError((_) => of([]))),
+    public readonly parking: Observable<Booking[]> = combineLatest([
+        this._update,
+        this.options,
+    ]).pipe(
+        switchMap(([[date], { period }]) =>
+            this._bookingQuery('parking', period, date),
         ),
         tap(() => this.timeout('end_loading', () => this._loading.next(false))),
         shareReplay(1),
@@ -213,35 +299,51 @@ export class ScheduleStateService extends AsyncHandler {
     public readonly group_events = this.raw_events.pipe(
         map((_) => _.filter((_) => _.extension_data?.shared_event)),
     );
+    public readonly locker_bookings: Observable<Booking[]> = combineLatest([
+        this._update,
+        this.options,
+    ]).pipe(
+        switchMap(([[date], { period }]) =>
+            this._bookingQuery('locker', period, date),
+        ),
+        tap(() => this.timeout('end_loading', () => this._loading.next(false))),
+        shareReplay(1),
+    );
+    private _lockers_banks: Observable<LockerBank[]> = loadLockerBanks(
+        this._org,
+        combineLatest([this._org.active_building, this._org.active_region]),
+        () => this._settings.get('app.use_region'),
+    );
+    private _lockers: Observable<Locker[]> = loadLockers(
+        this._org,
+        combineLatest([this._org.active_building, this._org.active_region]),
+        this._lockers_banks,
+        () => this._settings.get('app.use_region'),
+    );
     /** List of parking bookings for the selected date */
     public readonly lockers: Observable<Booking[]> = combineLatest([
+        this._lockers,
         this._org.active_building.pipe(
             filter((_) => !!_),
             distinctUntilKeyChanged('id'),
         ),
-        this._lockers.lockers$,
     ]).pipe(
         debounceTime(300),
-        switchMap(async ([_, lockers]) => {
-            const system_id = this._org.binding('lockers');
-            if (!system_id) return [[], lockers];
-            const mod = getModule(system_id, 'LockerLocations');
+        switchMap(async ([lockers]) => {
+            const mod = this._org.module('lockers', 'LockerLocations');
+            if (!mod) return [[], lockers];
             const my_lockers = await mod
                 .execute('lockers_allocated_to_me')
-                .catch((_) => []);
+                .catch(() => []);
             return [my_lockers, lockers];
         }),
         map(([my_lockers, lockers]) => {
             return my_lockers
                 .map((i) => {
                     const locker = (lockers as Locker[]).find(
-                        (_) => _.id === i.locker_id,
+                        (lkr) => lkr.id === i.locker_id,
                     );
                     if (!locker && (!i.level || !i.building)) return null;
-                    i.level = i.level || locker?.level_id;
-                    i.building =
-                        i.building ||
-                        this._org.levelWithID([locker?.level_id])?.parent_id;
                     return new Booking({
                         date: startOfDay(Date.now()).valueOf(),
                         duration: 24 * 60 - 1,
@@ -251,7 +353,7 @@ export class ScheduleStateService extends AsyncHandler {
                         all_day: true,
                         asset_id: locker.map_id,
                         asset_name: i.locker_name,
-                        zones: [i.building, i.level],
+                        zones: [...(locker.bank?.zones || [])],
                         extension_data: {
                             // map_id: i.locker_id || locker.map_id,
                         },
@@ -274,6 +376,7 @@ export class ScheduleStateService extends AsyncHandler {
         this.desks,
         this.parking,
         this.lockers,
+        this.locker_bookings,
         this.group_events,
     ]).pipe(
         map(
@@ -283,6 +386,7 @@ export class ScheduleStateService extends AsyncHandler {
                 desks,
                 parking,
                 lockers,
+                locker_bookings,
                 group_events,
             ]: any) => {
                 const filtered_events = events.filter(
@@ -298,6 +402,7 @@ export class ScheduleStateService extends AsyncHandler {
                     ...desks,
                     ...parking,
                     ...lockers,
+                    ...locker_bookings,
                     ...group_events,
                 ].sort((a, b) => a.date - b.date);
             },
@@ -310,7 +415,12 @@ export class ScheduleStateService extends AsyncHandler {
     ]).pipe(
         map(([bkns, filters]) =>
             bkns.filter((_) => {
-                if (this._deleted.includes(_.id)) return false;
+                if (
+                    this._deleted.includes(
+                        _.instance ? `${_.id}|${_.instance}` : _.id,
+                    )
+                )
+                    return false;
                 if (
                     _.extension_data?.shared_event &&
                     !filters?.shown_types?.includes('group-event')
@@ -328,12 +438,10 @@ export class ScheduleStateService extends AsyncHandler {
             }),
         ),
     );
-    /** Currently selected date */
-    public readonly filters = this._filters.asObservable();
-    /** Currently selected date */
-    public readonly date = this._date.asObservable();
-    /** Whether events and bookings are loading */
-    public readonly loading = this._loading.asObservable();
+
+    public get offset_weekday(): 0 | 1 | 2 | 3 | 4 | 5 | 6 {
+        return this._settings.get('app.week_start') || 0;
+    }
 
     private _ignore_cancel: string[] = [];
     private _checkCancel = combineLatest([
@@ -407,7 +515,6 @@ export class ScheduleStateService extends AsyncHandler {
                                 Do you wish to keep this ${wording}?`,
                                 icon: { content: 'event_busy' },
                                 confirm_text: 'Keep',
-                                cancel_text: 'Dismiss',
                                 close_delay: close_after,
                             },
                             this._dialog,
@@ -428,7 +535,6 @@ export class ScheduleStateService extends AsyncHandler {
     constructor(
         private _settings: SettingsService,
         private _org: OrganisationService,
-        private _lockers: LockersService,
         private _dialog: MatDialog,
         private _parking: ParkingService,
     ) {
@@ -473,7 +579,9 @@ export class ScheduleStateService extends AsyncHandler {
     }
 
     public removeItem(item) {
-        this.setAsDeleted(item.id);
+        this.setAsDeleted(
+            item.instance ? `${item.id}|${item.instance}` : item.id,
+        );
         this._poll.next(Date.now());
     }
 
@@ -485,7 +593,20 @@ export class ScheduleStateService extends AsyncHandler {
         );
     }
 
-    public async toggleType(name: string, clear: boolean = false) {
+    public setType(name: string, state: boolean) {
+        const filters = this._filters.getValue() || { shown_types: [] };
+        const { shown_types } = filters;
+        if (shown_types.includes(name) === state) return;
+        const new_types = state
+            ? unique([...shown_types, name])
+            : shown_types.filter((_) => _ !== name);
+        this._filters.next({
+            ...filters,
+            shown_types: new_types,
+        });
+    }
+
+    public async toggleType(name: string, clear = false) {
         const filters = this._filters.getValue() || { shown_types: [] };
         const { shown_types } = filters;
         if (shown_types && (shown_types.includes(name) || clear)) {
@@ -499,5 +620,31 @@ export class ScheduleStateService extends AsyncHandler {
                 shown_types: [...shown_types, name],
             });
         }
+    }
+
+    private _bookingQuery(
+        type: BookingType,
+        period: 'day' | 'week' | 'month',
+        date: number,
+    ) {
+        return queryBookings({
+            period_start: getUnixTime(
+                period === 'day'
+                    ? startOfDay(date)
+                    : startOfWeek(date, {
+                          weekStartsOn: this.offset_weekday,
+                      }),
+            ),
+            period_end: getUnixTime(
+                period === 'day'
+                    ? endOfDay(date)
+                    : endOfWeek(date, {
+                          weekStartsOn: this.offset_weekday,
+                      }),
+            ),
+            type,
+            include_checked_out: true,
+            include_deleted: 'recurring',
+        }).pipe(catchError(() => of([])));
     }
 }

@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 
 import { CateringItem } from './catering-item.class';
 
@@ -8,18 +8,18 @@ const ACTIVE_ITEMS = new Set<string>();
     selector: '[catering-order-item]',
     template: `
         <ng-container *ngIf="item">
-            <div class="w-16 text-right h-14 relative">
+            <div class="relative h-14 w-16 text-right">
                 <div
                     arm
-                    class="border-b-2 border-l-2 border-base-200 w-4 h-16 absolute top-1/2 left-1/2 -translate-y-full -translate-x-px"
+                    class="absolute left-1/2 top-1/2 h-16 w-4 -translate-x-px -translate-y-full border-b-2 border-l-2 border-base-200"
                 ></div>
             </div>
-            <div class="w-12 mr-4">
+            <div class="mr-4 w-12">
                 <button
                     action
                     icon
                     matRipple
-                    class="border-2 border-base-200 border-dashed text-xl text-dark-fade p-2"
+                    class="text-dark-fade border-2 border-dashed border-base-200 p-2 text-xl"
                     [class.bg-success]="active"
                     [class.text-white]="active"
                     [class.border-solid]="active"
@@ -29,20 +29,20 @@ const ACTIVE_ITEMS = new Set<string>();
                 </button>
             </div>
             <div
-                class="flex flex-1 items-center border-b border-base-200 border-solid py-4 space-x-4"
+                class="flex flex-1 items-center space-x-4 border-b border-solid border-base-200 py-4"
             >
                 <div class="">
                     <div
-                        class="p-1 rounded-full bg-base-300 w-10 h-10 flex items-center justify-center font-mono text-sm"
+                        class="flex h-10 w-10 items-center justify-center rounded-full bg-base-300 p-1 font-mono text-sm"
                     >
                         {{ item?.amount || item?.quantity || 1 }}×
                     </div>
                 </div>
                 <div class="flex-1">{{ item?.name }}</div>
-                <div class="flex space-x-2 mr-2 px-4">
+                <div class="mr-2 flex space-x-2 px-4">
                     <ng-container *ngFor="let opt of item.option_list">
                         <div
-                            class="text-xs py-1 px-2 bg-warning text-warning-content rounded-2xl shadow"
+                            class="rounded-2xl bg-warning px-2 py-1 text-xs text-warning-content shadow"
                             *ngIf="opt"
                         >
                             {{ opt.name }}
@@ -59,8 +59,9 @@ const ACTIVE_ITEMS = new Set<string>();
             }
         `,
     ],
+    standalone: false,
 })
-export class CateringOrderItemComponent {
+export class CateringOrderItemComponent implements OnInit {
     @Input() public order_id: string;
     @Input() public item: CateringItem;
 

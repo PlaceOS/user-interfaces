@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { SettingsService } from '@placeos/common';
 import { first } from 'rxjs/operators';
 import { CheckinStateService } from './checkin-state.service';
-import { SettingsService, notifyError } from '@placeos/common';
 
 @Component({
     selector: '[checkin-details]',
@@ -10,75 +10,91 @@ import { SettingsService, notifyError } from '@placeos/common';
         <form
             *ngIf="(form | async) && !loading; else load_state"
             [formGroup]="form | async"
-            class="bg-base-100 rounded shadow overflow-hidden relative flex flex-col items-center w-[36rem] p-4"
+            class="relative flex w-[36rem] flex-col items-center overflow-hidden rounded bg-base-100 p-4 shadow"
         >
-            <h3 class="text-2xl m-4">Confirm Details</h3>
+            <h3 class="m-4 text-2xl">Confirm Details</h3>
             <div field class="flex flex-col">
-                <label form="host">Host</label>
+                <label form="host">{{
+                    'APP.VISITOR_KIOSK.HOST' | translate
+                }}</label>
                 <mat-form-field appearance="outline">
                     <input
                         matInput
                         name="host"
                         formControlName="host"
-                        placeholder="Host's Email Address"
+                        [placeholder]="'APP.VISITOR_KIOSK.HOST' | translate"
                     />
                     <mat-error>
-                        The email address of your host is required
+                        {{ 'APP.VISITOR_KIOSK.EMAIL_REQUIRED' | translate }}
                     </mat-error>
                 </mat-form-field>
             </div>
             <div field class="flex flex-col">
-                <label form="name">Name</label>
+                <label form="name">{{
+                    'APP.VISITOR_KIOSK.NAME' | translate
+                }}</label>
                 <mat-form-field appearance="outline">
                     <input
                         matInput
                         name="name"
                         formControlName="name"
-                        placeholder="Full Name"
+                        [placeholder]="'APP.VISITOR_KIOSK.NAME' | translate"
                     />
                     <mat-error>Please enter your full name</mat-error>
                 </mat-form-field>
             </div>
             <div field class="flex flex-col">
-                <label form="email">Email</label>
+                <label form="email">{{
+                    'APP.VISITOR_KIOSK.NAME' | translate
+                }}</label>
                 <mat-form-field appearance="outline">
                     <input
                         matInput
                         name="email"
                         formControlName="email"
-                        placeholder="Email Address"
+                        [placeholder]="'APP.VISITOR_KIOSK.EMAIL' | translate"
                     />
-                    <mat-error>A valid email address is required</mat-error>
+                    <mat-error>{{
+                        'APP.VISITOR_KIOSK.EMAIL_REQUIRED' | translate
+                    }}</mat-error>
                 </mat-form-field>
             </div>
             <div field class="flex flex-col">
-                <label form="email">Phone Number</label>
+                <label form="email">{{
+                    'APP.VISITOR_KIOSK.PHONE' | translate
+                }}</label>
                 <mat-form-field appearance="outline">
                     <input
                         matInput
                         name="phone"
                         type="tel"
                         formControlName="phone"
-                        placeholder="Phone Number"
+                        [placeholder]="'APP.VISITOR_KIOSK.PHONE' | translate"
                     />
                 </mat-form-field>
             </div>
             <div field class="flex flex-col">
-                <label form="org">Organisation / Company</label>
+                <label form="org">{{
+                    'APP.VISITOR_KIOSK.ORGANISATION' | translate
+                }}</label>
                 <mat-form-field appearance="outline">
                     <input
                         matInput
                         name="org"
                         formControlName="organisation"
-                        placeholder="Organisation / Company"
+                        [placeholder]="
+                            'APP.VISITOR_KIOSK.ORGANISATION' | translate
+                        "
                     />
                 </mat-form-field>
             </div>
-            <button next btn matRipple (click)="updateGuest()">Next</button>
+            <button next btn matRipple (click)="updateGuest()">
+                {{ 'APP.VISITOR_KIOSK.CONTINUE' | translate }}
+            </button>
             <a
                 icon
                 matRipple
-                class="absolute top-0 right-0"
+                class="absolute right-0 top-0"
                 [routerLink]="['/welcome']"
             >
                 <app-icon>close</app-icon>
@@ -89,11 +105,11 @@ import { SettingsService, notifyError } from '@placeos/common';
                 class="absolute inset-0 flex flex-col items-center justify-center"
             >
                 <div
-                    class="flex flex-col items-center space-y-2 bg-base-100 rounded shadow p-16"
+                    class="flex flex-col items-center space-y-2 rounded bg-base-100 p-16 shadow"
                 >
                     <mat-spinner [diameter]="48"></mat-spinner>
                     <div class="my-4 text-lg">
-                        Updating data and checking in...
+                        {{ 'APP.VISITOR_KIOSK.CHECKIN_LOADING' | translate }}
                     </div>
                 </div>
             </div>
@@ -116,6 +132,7 @@ import { SettingsService, notifyError } from '@placeos/common';
             }
         `,
     ],
+    standalone: false,
 })
 export class CheckinDetailsComponent implements OnInit {
     public readonly form = this._checkin.form;
@@ -129,29 +146,28 @@ export class CheckinDetailsComponent implements OnInit {
     constructor(
         private _checkin: CheckinStateService,
         private _router: Router,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {}
 
-    public ngOnInit(): void {
-        this.form
-            .pipe(first())
-            .subscribe((_) => (!_ || !_.value.email ? this.previous() : ''));
+    public async ngOnInit() {
+        const form = await this.form.pipe(first()).toPromise();
+        const event = await this._checkin.event.pipe(first()).toPromise();
+        if (this._checkin.metadata === 'registered') {
+            this.updateGuest(false);
+        } else {
+            !form || !form.value.email ? this.previous() : '';
+        }
     }
 
-    public async updateGuest() {
+    public async updateGuest(update = true) {
         this.loading = true;
-        await this._checkin.updateGuest();
-        await this._checkin.checkinGuest()?.catch((e) => {
-            // console.log(e);
-            // notifyError(
-            //     `Error checking in: ${
-            //         e.message || e.error || e.statusText || e
-            //     }`
-            // );
-            this.loading = false;
-            throw e;
-        });
+        if (update) await this._checkin.updateGuest();
+        const result = await this._checkin
+            .checkinGuest()
+            .then(() => true)
+            .catch(() => false);
         this.loading = false;
+        if (!result) return;
         if (this.induction_after_details) {
             this._router.navigate(['/checkin', 'induction']);
         } else {

@@ -8,18 +8,18 @@ import { CateringItem } from '../catering-item.class';
             item
             [class.!border-base-200]="active"
             matRipple
-            class="relative p-2 rounded-lg w-full shadow border bg-base-100 border-base-200 sm:w-[20rem]"
+            class="relative w-full rounded-lg border border-base-200 bg-base-100 p-2 shadow sm:w-[20rem]"
         >
             <button
                 name="select-catering-item"
-                class="w-full h-full flex items-center z-0"
+                class="z-0 flex h-full w-full items-center"
                 (click)="select.emit()"
             >
                 <div
-                    class="relative w-16 h-16 rounded-xl bg-neutral mr-4 overflow-hidden border border-base-200 flex items-center justify-center"
+                    class="relative mr-4 flex h-16 w-16 items-center justify-center overflow-hidden rounded-xl border border-base-200 bg-neutral"
                 >
                     <div
-                        class="absolute top-1 left-1 border border-white bg-neutral rounded-full h-6 w-6 flex items-center justify-center text-white text-xs"
+                        class="absolute left-1 top-1 flex h-6 w-6 items-center justify-center rounded-full border border-white bg-neutral text-xs text-white"
                         *ngIf="item.quantity && selected"
                     >
                         {{ item.quantity || '1' }}
@@ -27,7 +27,7 @@ import { CateringItem } from '../catering-item.class';
                     <img
                         auth
                         *ngIf="item.images?.length; else placeholder"
-                        class="object-cover min-h-full min-w-full"
+                        class="min-h-full min-w-full object-cover"
                         [source]="item.images[0]"
                     />
                     <ng-template #placeholder>
@@ -37,52 +37,52 @@ import { CateringItem } from '../catering-item.class';
                         />
                     </ng-template>
                 </div>
-                <div class="space-y-2 text-left flex-1">
-                    <div class="font-medium flex flex-col pr-10">
+                <div class="flex-1 space-y-2 text-left">
+                    <div class="flex flex-col pr-10 font-medium">
                         <div>{{ item.name || 'Item' }}</div>
-                        <div class="opacity-60 text-xs">
+                        <div class="text-xs opacity-60">
                             {{ item.category }}
                         </div>
                     </div>
-                    <div class="flex items-center text-sm space-x-1">
+                    <div class="flex items-center space-x-1 text-sm">
                         <p
-                            class="flex-1 w-px bg-base-100 rounded"
+                            class="w-px flex-1 rounded bg-base-100"
                             *ngIf="item.unit_price"
                         >
                             {{ item.unit_price / 100 | currency: code }}
                         </p>
                         <div
-                            class="text-xs px-2 py-1 rounded-2xl shadow border border-base-200"
+                            class="rounded-2xl border border-base-200 px-2 py-1 text-xs shadow"
                             *ngIf="item.option_list?.length"
                         >
                             {{ options }}
                         </div>
                         <div
-                            class="text-xs h-5 w-7 rounded-xl shadow bg-success flex items-center justify-center"
+                            class="flex h-5 w-7 items-center justify-center rounded-xl bg-success text-xs shadow"
                             *ngIf="item.tags?.includes('Gluten Free')"
                         >
                             GF
                         </div>
                         <div
-                            class="text-xs h-5 w-7 rounded-xl shadow bg-info flex items-center justify-center"
+                            class="flex h-5 w-7 items-center justify-center rounded-xl bg-info text-xs shadow"
                             *ngIf="item.tags?.includes('Vegan')"
                         >
                             VG
                         </div>
                         <div
-                            class="text-xs h-5 w-7 rounded-xl shadow bg-info flex items-center justify-center"
+                            class="flex h-5 w-7 items-center justify-center rounded-xl bg-info text-xs shadow"
                             *ngIf="item.tags?.includes('Vegetarian')"
                         >
                             V
                         </div>
                         <div
-                            class="text-xs h-5 w-7 rounded-xl shadow bg-warning flex items-center justify-center"
+                            class="flex h-5 w-7 items-center justify-center rounded-xl bg-warning text-xs shadow"
                             *ngIf="item.tags?.includes('Contains Dairy')"
                         >
                             D
                         </div>
                         <div
-                            class="text-xs h-5 w-7 rounded-xl shadow bg-orange-600 flex items-center justify-center"
+                            class="bg-orange-600 flex h-5 w-7 items-center justify-center rounded-xl text-xs shadow"
                             *ngIf="item.tags?.includes('Contains Nuts')"
                         >
                             N
@@ -94,8 +94,8 @@ import { CateringItem } from '../catering-item.class';
                 icon
                 matRipple
                 name="toggle-catering-item-favourite"
-                class="absolute top-1 right-1"
-                [class.text-blue-400]="favourite"
+                class="absolute right-1 top-1"
+                [class.text-info]="favourite"
                 (click)="toggleFav.emit()"
             >
                 <app-icon>{{
@@ -105,13 +105,14 @@ import { CateringItem } from '../catering-item.class';
         </li>
     `,
     styles: [``],
+    standalone: false,
 })
 export class CateringItemListItemComponent {
     @Input() public item: CateringItem;
     @Input() public active = false;
     @Input() public selected = false;
     @Input() public favourite = false;
-    @Input() public code: string = 'USD';
+    @Input() public code = 'USD';
     @Output() public toggleFav = new EventEmitter();
     @Output() public select = new EventEmitter();
 

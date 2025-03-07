@@ -3,15 +3,10 @@ const app = {
     title: 'PlaceOS',
     description: 'Signage Panel',
     short_name: 'PlaceOS',
-    logo_light: {
-        type: 'img',
-        src: 'assets/logo-light.svg',
-    },
-    logo_dark: {
-        type: 'img',
-        src: 'assets/logo-dark.svg',
-    },
+    logo_light: 'assets/logo-light.svg',
+    logo_dark: 'assets/logo-dark.svg',
     diagnostics: true,
+    default_animation_time: 1000,
 };
 
 /**
@@ -21,7 +16,7 @@ export const DEFAULT_SETTINGS = {
     debug: true,
     composer: {
         domain: '',
-        route: '/kiosk',
+        route: '/signage',
         protocol: '',
         port: '',
         use_domain: false,

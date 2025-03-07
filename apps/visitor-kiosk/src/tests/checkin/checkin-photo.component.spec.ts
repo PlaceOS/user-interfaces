@@ -17,7 +17,10 @@ describe('CheckinPhotoComponent', () => {
                 useValue: { event: of({}), guest: of({}) },
             },
         ],
-        declarations: [MockComponent(TakePhotoComponent), MockComponent(IconComponent)],
+        declarations: [
+            MockComponent(TakePhotoComponent),
+            MockComponent(IconComponent),
+        ],
     });
 
     beforeEach(() => (spectator = createComponent()));

@@ -1,13 +1,20 @@
 import { Component, EventEmitter, Inject, Output } from '@angular/core';
-import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { notifyError, notifySuccess, SettingsService } from '@placeos/common';
-import { addMinutes, format, formatDuration } from 'date-fns';
+import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
+import {
+    ANIMATION_SHOW_CONTRACT_EXPAND,
+    formatDuration,
+    i18n,
+    notifyError,
+    notifySuccess,
+    SettingsService,
+} from '@placeos/common';
+import { addMinutes, format } from 'date-fns';
 
 import { MapLocateModalComponent } from 'libs/components/src/lib/map-locate-modal.component';
 import { MapPinComponent } from 'libs/components/src/lib/map-pin.component';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { Booking } from './booking.class';
-import { checkinBooking } from './bookings.fn';
+import { checkinBooking, checkinBookingInstance } from './bookings.fn';
 
 import { DeskSettingsModalComponent } from './desk-settings-modal.component';
 
@@ -15,33 +22,33 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
     selector: 'booking-details-modal',
     template: `
         <div
-            class="w-[100vw] h-[100vh] sm:relative sm:inset-auto sm:w-[51rem] sm:h-auto sm:max-h-[80vh] bg-base-100 sm:bg-base-200 sm:dark:bg-neutral-600 sm:rounded overflow-auto space-y-2 pb-2"
+            class="h-[100vh] w-[100vw] space-y-2 overflow-auto bg-base-100 pb-2 sm:relative sm:inset-auto sm:h-auto sm:max-h-[80vh] sm:w-[51rem] sm:rounded sm:bg-base-200"
         >
             <div
-                class="sm:flex flex-col items-center pb-4 max-h-screen sm:max-h-[80vh] sm:px-16 sm:border-b bg-base-100 border-base-200"
+                class="max-h-screen flex-col items-center border-base-200 bg-base-100 pb-4 sm:flex sm:max-h-[80vh] sm:border-b sm:px-16"
             >
                 <div
-                    class="h-8 w-full sm:hidden block"
+                    class="block h-8 w-full sm:hidden"
                     *ngIf="!booking?.extension_data?.images?.length"
                 ></div>
                 <div
-                    class="bg-neutral w-full h-64 sm:rounded-b overflow-hidden"
+                    class="h-64 w-full overflow-hidden bg-neutral sm:rounded-b"
                     *ngIf="booking?.extension_data?.images?.length"
                 >
                     <image-carousel
                         [images]="booking?.extension_data?.images"
-                        class="w-full h-64"
+                        class="h-64 w-full"
                     ></image-carousel>
                 </div>
                 <h3
                     title
-                    class="px-3 mt-2 text-xl font-medium w-full"
+                    class="mt-2 w-full px-3 text-xl font-medium"
                     [class.pt-4]="!booking?.extension_data?.images"
                 >
                     {{ booking.title }}
                 </h3>
-                <div class="sm:flex items-center justify-between w-full">
-                    <div class="flex m-2">
+                <div class="w-full items-center justify-between sm:flex">
+                    <div class="m-2 flex">
                         <status-pill [status]="booking_status">
                             {{ period }}
                         </status-pill>
@@ -51,77 +58,87 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                         class="flex items-center space-x-2 px-2"
                         *ngIf="!booking.is_done"
                     >
-                        <button
-                            btn
-                            matRipple
-                            class="flex-1 h-10 border-none"
-                            [class.bg-success]="booking.checked_in"
-                            [disabled]="checking_in"
-                            *ngIf="
-                                !booking.checked_out_at &&
-                                !checked_out &&
-                                !auto_checkin &&
-                                (booking.state === 'upcoming' ||
-                                    booking.state === 'in_progress')
-                            "
-                            (click)="toggleCheckedIn()"
-                        >
-                            <div
-                                class="flex items-center space-x-2 justify-center"
-                                *ngIf="!checking_in; else loading_state"
+                        @if (can_checkin) {
+                            <button
+                                btn
+                                matRipple
+                                class="h-10 flex-1 border-none"
+                                [class.bg-success]="booking.checked_in"
+                                [class.text-success-content]="
+                                    booking.checked_in
+                                "
+                                [disabled]="checking_in"
+                                *ngIf="
+                                    !booking.checked_out_at &&
+                                    !checked_out &&
+                                    !auto_checkin &&
+                                    (booking.state === 'upcoming' ||
+                                        booking.state === 'started' ||
+                                        booking.state === 'in_progress') &&
+                                    booking.status !== 'declined'
+                                "
+                                (click)="toggleCheckedIn()"
                             >
-                                <app-icon>{{
-                                    booking.checked_in ? 'done' : 'arrow_back'
-                                }}</app-icon>
-                                <div class="mr-4">
-                                    {{
+                                <div
+                                    class="flex items-center justify-center space-x-2"
+                                    *ngIf="!checking_in; else loading_state"
+                                >
+                                    <app-icon>{{
                                         booking.checked_in
-                                            ? 'Checked in'
-                                            : 'Check in'
-                                    }}
+                                            ? 'done'
+                                            : 'arrow_back'
+                                    }}</app-icon>
+                                    <div class="mr-4">
+                                        {{
+                                            (booking.checked_in
+                                                ? 'COMMON.CHECKED_IN'
+                                                : 'COMMON.CHECK_IN'
+                                            ) | translate
+                                        }}
+                                    </div>
                                 </div>
-                            </div>
-                            <ng-template #loading_state>
-                                <mat-spinner
-                                    class="mx-auto"
-                                    [diameter]="32"
-                                ></mat-spinner>
-                            </ng-template>
-                        </button>
+                                <ng-template #loading_state>
+                                    <mat-spinner
+                                        class="mx-auto"
+                                        [diameter]="32"
+                                    ></mat-spinner>
+                                </ng-template>
+                            </button>
+                        }
                         <button
                             icon
                             matRipple
                             [matMenuTriggerFor]="menu"
-                            class="bg-secondary rounded text-white h-10 w-10"
+                            class="h-12 w-12 rounded bg-secondary text-white"
                         >
                             <app-icon>more_horiz</app-icon>
                         </button>
                     </div>
                 </div>
             </div>
-            <div class="sm:flex flex-wrap sm:px-12">
+            <div class="flex-wrap sm:flex sm:px-12">
                 <div
-                    class="sm:p-4 sm:bg-base-100 sm:dark:bg-neutral-700 rounded sm:m-2 sm:border border-base-200 flex-grow-[4] min-w-1/3 sm:w-[16rem]"
+                    class="min-w-1/3 flex-grow-[4] rounded border-base-200 sm:m-2 sm:w-[16rem] sm:border sm:bg-base-100 sm:p-4"
                 >
-                    <h3 class="px-3 mt-2 text-lg font-medium mb-2" i18n>
-                        Details
+                    <h3 class="mb-2 mt-2 px-3 text-lg font-medium">
+                        {{ 'BOOKINGS.DETAILS' | translate }}
                     </h3>
-                    <div class="flex items-center px-2 space-x-2">
+                    <div class="flex items-center space-x-2 px-2">
                         <app-icon>event</app-icon>
                         <div>{{ booking.date | date: 'EEEE, dd LLLL y' }}</div>
                     </div>
-                    <div class="flex items-center px-2 space-x-2">
+                    <div class="flex items-center space-x-2 px-2">
                         <app-icon>schedule</app-icon>
                         <div>{{ period }}</div>
                     </div>
-                    <div class="flex items-center px-2 space-x-2">
+                    <div class="flex items-center space-x-2 px-2">
                         <app-icon>map</app-icon>
                         <div>
                             {{ level?.display_name || level?.name }},
                             {{ booking.asset_name || booking.asset_id }}
                         </div>
                     </div>
-                    <div class="flex items-center px-2 space-x-2">
+                    <div class="flex items-center space-x-2 px-2">
                         <app-icon>place</app-icon>
                         <div>
                             {{ building?.display_name || building?.name }}
@@ -133,20 +150,22 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                 </div>
                 <ng-container *ngIf="has_assets">
                     <div
-                        class="mt-4 sm:p-4 sm:bg-base-100 sm:dark:bg-neutral-700 rounded sm:m-2 sm:border border-base-200 flex-grow-[3] min-w-1/3 sm:w-[16rem]"
+                        class="min-w-1/3 mt-4 flex-grow-[3] rounded border-base-200 sm:m-2 sm:w-[16rem] sm:border sm:bg-base-100 sm:p-4"
                     >
-                        <h3 class="mx-3 pt-2 text-lg font-medium" i18n>
-                            Assets ({{ booking.valid_assets?.length || 0 }})
+                        <h3 class="mx-3 py-2 text-lg font-medium">
+                            {{ 'BOOKINGS.ASSETS' }} ({{
+                                booking.valid_assets?.length || 0
+                            }})
                         </h3>
                         <div class="flex flex-col space-y-2">
                             <div
                                 request
                                 *ngFor="let request of booking.valid_assets"
-                                class="border border-base-300 bg-base-100 rounded-xl overflow-hidden"
+                                class="overflow-hidden rounded-xl border border-base-300 bg-base-100"
                             >
                                 <button
                                     matRipple
-                                    class="flex items-center space-x-2 p-3 w-full"
+                                    class="flex w-full items-center space-x-2 p-3"
                                     (click)="
                                         show_request[request.id] =
                                             !show_request[request.id]
@@ -154,17 +173,21 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                                 >
                                     <div class="flex-1 text-left">
                                         <div class="text-sm">
-                                            Requested for
                                             {{
-                                                request.deliver_at
-                                                    | date
-                                                        : 'MMM d, ' +
-                                                              time_format
+                                                'BOOKINGS.ASSETS_REQUESTED_FOR'
+                                                    | translate
+                                                        : {
+                                                              time:
+                                                                  request.deliver_at
+                                                                  | date
+                                                                      : 'MMM d, ' +
+                                                                            time_format,
+                                                          }
                                             }}
                                         </div>
                                     </div>
                                     <div
-                                        class="flex items-center justify-center rounded-full w-8 h-8"
+                                        class="flex h-8 w-8 items-center justify-center rounded-full"
                                         [class.bg-success]="
                                             request.state === 'approved'
                                         "
@@ -201,7 +224,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                                         </app-icon>
                                     </div>
                                     <div
-                                        class="flex items-center justify-center rounded-full w-8 h-8"
+                                        class="flex h-8 w-8 items-center justify-center rounded-full"
                                     >
                                         <app-icon class="text-2xl">
                                             {{
@@ -213,7 +236,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                                     </div>
                                 </button>
                                 <div
-                                    class="flex flex-col bg-base-200 divide-y divide-base-100"
+                                    class="flex flex-col divide-y divide-base-100 bg-base-200"
                                     [@show]="
                                         show_request[request.id]
                                             ? 'show'
@@ -221,16 +244,16 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                                     "
                                 >
                                     <div
-                                        class="flex items-center px-3 py-1 space-x-2 hover:opacity-90"
+                                        class="flex items-center space-x-2 px-3 py-1 hover:opacity-90"
                                         *ngFor="let item of request.items"
                                     >
-                                        <div class="flex items-center flex-1">
+                                        <div class="flex flex-1 items-center">
                                             <span class="text-sm">{{
                                                 item.name || 'Item'
                                             }}</span>
                                         </div>
                                         <div
-                                            class="rounded bg-success text-success-content text-xs px-2 py-1"
+                                            class="rounded bg-success px-2 py-1 text-xs text-success-content"
                                         >
                                             x{{ item.quantity }}
                                         </div>
@@ -242,8 +265,9 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                 </ng-container>
                 <button
                     map
-                    class="mt-4 sm:my-2 h-64 sm:h-48 relative border border-base-200 overflow-hidden rounded sm:bg-base-100 m-2 flex-grow-[3] min-w-1/3 w-[calc(100%-1rem)] p-2 sm:w-[16rem]"
+                    class="min-w-1/3 relative m-2 mt-4 h-64 w-[calc(100%-1rem)] flex-grow-[3] overflow-hidden rounded border border-base-200 p-2 sm:my-2 sm:h-48 sm:w-[16rem] sm:bg-base-100"
                     (click)="viewLocation()"
+                    *ngIf="level?.map_id"
                 >
                     <ng-container *ngIf="!hide_map">
                         <interactive-map
@@ -262,7 +286,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                 icon
                 matRipple
                 mat-dialog-close
-                class="absolute top-0 left-2 bg-neutral text-white"
+                class="absolute left-2 top-0 bg-neutral text-white"
             >
                 <app-icon>close</app-icon>
             </button>
@@ -276,7 +300,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
             >
                 <div class="flex items-center space-x-2 text-base">
                     <app-icon>edit</app-icon>
-                    <div i18n>Edit booking</div>
+                    <div>{{ 'BOOKINGS.ACTION_EDIT' | translate }}</div>
                 </div>
             </button>
             <button
@@ -288,7 +312,9 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                     <app-icon className="material-symbols-rounded">
                         height
                     </app-icon>
-                    <div i18n>Set Desk Height</div>
+                    <div>
+                        {{ 'BOOKINGS.ACTION_SET_DESK_HEIGHT' | translate }}
+                    </div>
                 </div>
             </button>
             <button
@@ -298,36 +324,52 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
             >
                 <div class="flex items-center space-x-2 text-base">
                     <app-icon class="text-error">delete</app-icon>
-                    <div i18n>Delete booking</div>
+                    <div>{{ 'BOOKINGS.ACTION_DELETE' | translate }}</div>
+                </div>
+            </button>
+            <button
+                mat-menu-item
+                *ngIf="
+                    booking.instance &&
+                    booking.booking_type !== 'parking' &&
+                    !booking.extension_data.is_assigned
+                "
+                (click)="remove.emit(true)"
+            >
+                <div class="flex items-center space-x-2 text-base">
+                    <app-icon class="text-error">delete</app-icon>
+                    <div>{{ 'BOOKINGS.ACTION_DELETE_SERIES' | translate }}</div>
                 </div>
             </button>
             <button mat-menu-item *ngIf="is_in_progress" (click)="end.emit()">
                 <div class="flex items-center space-x-2 text-base">
                     <app-icon class="text-error">delete</app-icon>
-                    <div i18n>End booking</div>
+                    <div>{{ 'BOOKINGS.ACTION_END' | translate }}</div>
                 </div>
             </button>
         </mat-menu>
     `,
     styles: [``],
+    animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
+    standalone: false,
 })
 export class BookingDetailsModalComponent {
     @Output() public edit = new EventEmitter();
-    @Output() public remove = new EventEmitter();
+    @Output() public remove = new EventEmitter<boolean>();
     @Output() public end = new EventEmitter();
     public readonly booking = this._booking;
     public hide_map = false;
+    public show_request = {};
     public checked_out = false;
     public checking_in = false;
     public readonly features = [
         {
-            location: this.booking?.asset_id,
+            location:
+                this.booking?.extension_data?.map_id || this.booking?.asset_id,
             content: MapPinComponent,
         },
     ];
-    public readonly has_assets = !!this.booking?.linked_bookings?.find(
-        (_) => _.booking_type === 'asset-request',
-    );
+    public readonly has_assets = !!this.booking?.valid_assets.length;
 
     public get level() {
         return this._org.levelWithID(this.booking?.zones || []);
@@ -341,7 +383,7 @@ export class BookingDetailsModalComponent {
             const region = this._org.regions.find(
                 (region) =>
                     (this.booking?.zones || []).includes(region.id) ||
-                    region.id === building.parent_id,
+                    region.id === building?.parent_id,
             );
             if (region) return region;
         }
@@ -349,7 +391,23 @@ export class BookingDetailsModalComponent {
     }
 
     public get can_edit() {
-        return this.booking.booking_type !== 'visitor';
+        return (
+            !this.booking.is_done &&
+            !this.booking.checked_in &&
+            this.booking.booking_type !== 'visitor'
+        );
+    }
+
+    public get can_checkin() {
+        return (
+            !this._settings.get(
+                `app.${(this.booking?.type || 'booking') + 's'}.hide_checkin`,
+            ) &&
+            !this._settings.get(
+                `app.${this.booking?.type || 'bookings'}.hide_checkin`,
+            ) &&
+            !this._settings.get('app.bookings.hide_checkin')
+        );
     }
 
     public get auto_checkin() {
@@ -394,16 +452,10 @@ export class BookingDetailsModalComponent {
         private _settings: SettingsService,
         private _org: OrganisationService,
         private _dialog: MatDialog,
-    ) {
-        console.log(
-            'Building',
-            this.building,
-            this._settings.get('app.use_region'),
-        );
-    }
+    ) {}
 
     public get period() {
-        if (this.booking?.is_all_day) return 'All Day';
+        if (this.booking?.is_all_day) return i18n('COMMON.ALL_DAY');
         const start = this.booking?.date || Date.now();
         const duration = this.booking?.duration || 60;
         const end = addMinutes(start, duration);
@@ -421,19 +473,31 @@ export class BookingDetailsModalComponent {
 
     public async toggleCheckedIn() {
         this.checking_in = true;
-        await checkinBooking(this.booking.id, !this.booking.checked_in)
+        const bkn = this.booking;
+        const promise = (
+            bkn.instance
+                ? checkinBookingInstance(
+                      bkn.id,
+                      bkn.instance,
+                      !this.booking.checked_in,
+                  )
+                : checkinBooking(this.booking.id, !this.booking.checked_in)
+        )
             .toPromise()
             .catch((_) => {
-                notifyError('Error checking in booking');
+                notifyError(i18n('BOOKINGS.CHECK_IN_ERROR'));
                 this.checking_in = false;
                 throw _;
             });
+        await promise;
         (this.booking as any).checked_in = !this.booking.checked_in;
         this.checked_out = !this.booking.checked_in;
         notifySuccess(
-            `Successfully ${
-                this.booking.checked_in ? 'checked in' : 'ended booking'
-            }`,
+            i18n(
+                this.booking.checked_in
+                    ? 'BOOKINGS.CHECK_IN_SUCCESS'
+                    : 'BOOKINGS.CHECK_OUT_SUCCESS',
+            ),
         );
         this.checking_in = false;
     }

@@ -38,7 +38,7 @@ export class Calendar {
                         differenceInMinutes(ends_at * 1000, starts_at * 1000),
                     status: status,
                 };
-            }
+            },
         );
         this.hidden = !!data.hidden;
     }

@@ -25,11 +25,11 @@ export interface MapPolygonData {
     template: `
         <div
             polygon
-            class="absolute w-full h-full transform -translate-x-1/2 -translate-y-1/2 -top-1 -left-1"
+            class="absolute -left-1 -top-1 h-full w-full -translate-x-1/2 -translate-y-1/2 transform"
             [style.transform]="'scale(' + scale * zoom + ')'"
         >
             <div
-                class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+                class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transform"
                 [style.width]="width + '%'"
                 [style.height]="height + '%'"
             >
@@ -41,7 +41,7 @@ export interface MapPolygonData {
                         (this.height / 20 || 1)
                     "
                     preserveAspectRatio="none"
-                    class="relative w-full h-full"
+                    class="relative h-full w-full"
                 >
                     <polygon
                         [attr.points]="points"
@@ -61,7 +61,7 @@ export interface MapPolygonData {
         </div>
         <div
             text
-            class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-shadow text-white text-xl text-center whitespace-pre-line"
+            class="text-shadow absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transform whitespace-pre-line text-center text-xl text-white"
         >
             {{ name }}
         </div>
@@ -85,6 +85,7 @@ export interface MapPolygonData {
             }
         `,
     ],
+    standalone: false,
 })
 export class MapPolygonComponent extends AsyncHandler implements OnInit {
     /** Message to display above the pin */
@@ -113,7 +114,7 @@ export class MapPolygonComponent extends AsyncHandler implements OnInit {
 
     constructor(
         @Inject(MAP_FEATURE_DATA) private _details: MapPolygonData,
-        private _cdr: ChangeDetectorRef
+        private _cdr: ChangeDetectorRef,
     ) {
         super();
     }
@@ -127,7 +128,7 @@ export class MapPolygonComponent extends AsyncHandler implements OnInit {
                     this.fill = `${_.color || '#e53935'}88`;
                     this.stroke = _.color || '#e53935';
                     this.processPoints(_.points);
-                })
+                }),
             );
         }
         this.subscription(
@@ -135,19 +136,19 @@ export class MapPolygonComponent extends AsyncHandler implements OnInit {
             this._details.ratio$?.subscribe((_) => {
                 this._details.ratio = _;
                 this.processPoints(this._details.points);
-            })
+            }),
         );
         this.subscription(
             'zoom',
             this._details.zoom$?.subscribe(
-                (_) => (this._details.zoom_value = _)
-            )
+                (_) => (this._details.zoom_value = _),
+            ),
         );
         this.subscription(
             'svg_ratio',
             this._details.svg_ratio$?.subscribe(
-                (_) => (this._details.svg_ratio = _)
-            )
+                (_) => (this._details.svg_ratio = _),
+            ),
         );
         this.processPoints(this._details.points);
     }
@@ -165,7 +166,7 @@ export class MapPolygonComponent extends AsyncHandler implements OnInit {
                 x_max: -100,
                 y_min: 100,
                 y_max: -100,
-            }
+            },
         );
         const range = {
             x: diff.x_max - diff.x_min,
@@ -182,7 +183,7 @@ export class MapPolygonComponent extends AsyncHandler implements OnInit {
                     `${s}${s ? ' ' : ''}${
                         (((x - diff.x_min) / range.x) * this.width) / 20
                     },${(((y - diff.y_min) / range.y) * this.height) / 20}`,
-                ''
+                '',
             )
             .replace(/NaN/g, '0');
         this.point_list = points.map(([x, y]) => [

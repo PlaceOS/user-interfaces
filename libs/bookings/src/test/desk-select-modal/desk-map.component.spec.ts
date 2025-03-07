@@ -3,6 +3,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { BookingFormService } from '@placeos/bookings';
+import { MapsPeopleService, SettingsService } from '@placeos/common';
 import {
     IconComponent,
     IndoorMapsComponent,
@@ -13,7 +14,6 @@ import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { DeskMapComponent } from '../../lib/desk-select-modal/desk-map.component';
-import { MapsPeopleService, SettingsService } from '@placeos/common';
 
 describe('DeskMapComponent', () => {
     let spectator: Spectator<DeskMapComponent>;

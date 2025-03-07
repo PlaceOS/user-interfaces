@@ -1,23 +1,23 @@
 import { CdkDragDrop } from '@angular/cdk/drag-drop';
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { openConfirmModal, SettingsService } from '@placeos/common';
+import { SettingsService } from '@placeos/common';
+import { openConfirmModal } from '@placeos/components';
 import { Question, UISurveyObj, UISurveyPage } from '@placeos/survey-suite';
 import { Model } from 'survey-core';
 import { QuestionBankService } from './question-bank.service';
 
 @Injectable()
 export class SurveyBuilderService {
-    public selectedPageIndex: number = 0;
+    public selectedPageIndex = 0;
     protected survey: UISurveyObj;
     protected surveyModel: Model;
 
     constructor(
         private bank: QuestionBankService,
         private _settings: SettingsService,
-        private _dialog: MatDialog
-    ) {
-    }
+        private _dialog: MatDialog,
+    ) {}
 
     public get selectedPage() {
         return this.survey?.pages[this.selectedPageIndex];
@@ -44,7 +44,7 @@ export class SurveyBuilderService {
 
     public addSurveyPage() {
         if (!this.survey) return;
-        let pages = this.survey.pages || [];
+        const pages = this.survey.pages || [];
         pages.push({
             title: '',
             elements: [],
@@ -62,7 +62,7 @@ export class SurveyBuilderService {
                           All marked-for-deletion questions will also be removed.`,
                 icon: { class: 'material-icons', content: 'delete' },
             },
-            this._dialog
+            this._dialog,
         );
         if (details.reason !== 'done') return;
         details.close();
@@ -71,7 +71,7 @@ export class SurveyBuilderService {
 
     public async removeQuestionFromSurvey(index: number) {
         const q = this.selectedPage.elements[index];
-        if(q?.deleted){
+        if (q?.deleted) {
             const details = await openConfirmModal(
                 {
                     title: 'Question marked for deletion',
@@ -80,9 +80,9 @@ export class SurveyBuilderService {
                                 Are you sure you want to delete this question?`,
                     icon: { class: 'material-icons', content: 'delete' },
                 },
-                this._dialog
+                this._dialog,
             );
-            
+
             if (details.reason !== 'done') return;
             details.close();
         }
@@ -92,7 +92,7 @@ export class SurveyBuilderService {
 
     public onDropQuestionToSurvey(
         event: CdkDragDrop<Question[]>,
-        p: UISurveyPage
+        p: UISurveyPage,
     ) {
         if (!p) return;
         const { previousIndex, previousContainer, currentIndex, container } =

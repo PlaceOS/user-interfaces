@@ -1,18 +1,18 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import {
-    MatBottomSheetRef,
     MAT_BOTTOM_SHEET_DATA,
+    MatBottomSheetRef,
 } from '@angular/material/bottom-sheet';
+import { CalendarEvent, EventFormService } from '@placeos/events';
 import { Space } from '@placeos/spaces';
-import { EventFormService } from '@placeos/events';
-import { RoomConfirmService } from '../room-confirm.service';
-import { CalendarEvent } from '@placeos/events';
 import { User } from '@placeos/users';
+import { RoomConfirmService } from '../room-confirm.service';
 
 @Component({
     selector: 'room-confirm',
     templateUrl: './room-confirm.component.html',
     styles: [``],
+    standalone: false,
 })
 export class RoomConfirmComponent implements OnInit {
     unix_time: number;
@@ -26,13 +26,13 @@ export class RoomConfirmComponent implements OnInit {
     public get form() {
         return this._state.form;
     }
-    public loading = this._state.loading;
+    public loading = this._state.loading$;
 
     constructor(
         @Inject(MAT_BOTTOM_SHEET_DATA) public data: any,
         private _bottomSheetRef: MatBottomSheetRef<RoomConfirmComponent>,
         private _state: EventFormService,
-        private _roomConfirmService: RoomConfirmService
+        private _roomConfirmService: RoomConfirmService,
     ) {}
 
     async ngOnInit() {

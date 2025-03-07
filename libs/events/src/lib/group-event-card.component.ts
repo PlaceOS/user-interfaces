@@ -2,11 +2,11 @@ import { Component, Input } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { SettingsService } from '@placeos/common';
 
-import { GroupEventDetailsModalComponent } from './group-event-details-modal.component';
+import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { Space } from 'libs/spaces/src/lib/space.class';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { CalendarEvent } from './event.class';
+import { GroupEventDetailsModalComponent } from './group-event-details-modal.component';
 
 @Component({
     selector: 'group-event-card',
@@ -15,35 +15,35 @@ import { CalendarEvent } from './event.class';
             matRipple
             (click)="viewDetails()"
             *ngIf="!featured; else featured_card"
-            class="border border-base-300 hover:border-info flex flex-col bg-base-100 rounded-xl shadow hover:shadow-2xl overflow-hidden w-60 h-[20rem]"
+            class="flex h-[20rem] w-60 flex-col overflow-hidden rounded-xl border border-base-300 bg-base-100 shadow hover:border-info hover:shadow-2xl"
         >
             <div
-                class="relative flex items-center justify-between h-28 min-h-28 w-full bg-base-200 overflow-hidden border-b border-base-200"
+                class="relative flex h-28 min-h-28 w-full items-center justify-between overflow-hidden border-b border-base-200 bg-base-200"
             >
                 <img
                     *ngIf="event.images?.length"
                     auth
                     [source]="event.images[0]"
-                    class="absolute top-0 left-0 h-full w-full object-center object-cover"
+                    class="absolute left-0 top-0 h-full w-full object-cover object-center"
                 />
             </div>
-            <div class="p-4 flex-1 h-1/2 w-full">
-                <div class="opacity-60 text-sm text-left">
+            <div class="h-1/2 w-full flex-1 p-4">
+                <div class="text-left text-sm opacity-60">
                     {{ event.date | date: 'EEE d MMM' }},
                     {{ event.date | date: time_format }}
                 </div>
                 <h2
-                    class="text-xl mb-2 text-left truncate w-full"
+                    class="mb-2 w-full truncate text-left text-xl"
                     [title]="event.title"
                 >
                     {{ event.title }}
                 </h2>
                 <div
-                    class="opacity-60 text-xs flex-1 overflow-hidden h-[4.5rem] mb-2 text-left"
+                    class="mb-2 h-[4.5rem] flex-1 overflow-hidden text-left text-xs opacity-60"
                 >
                     <p class="line-clamp-4">{{ raw_description }}</p>
                     <p *ngIf="!raw_description.trim()" class="opacity-30">
-                        No description
+                        {{ 'CALENDAR_EVENT.GROUP_NO_DESCRIPTION' | translate }}
                     </p>
                 </div>
                 <div class="flex items-center space-x-2 text-sm">
@@ -52,16 +52,20 @@ import { CalendarEvent } from './event.class';
                         {{ space.display_name || space.name || '' }}
                     </div>
                     <div *ngIf="is_onsite && !has_space" class="opacity-30">
-                        Room to be confirmed
+                        {{ 'CALENDAR_EVENT.GROUP_UNCONFIRMED' | translate }}
                     </div>
                     <div class="opacity-30" *ngIf="!is_onsite">
-                        Remote event
+                        {{ 'CALENDAR_EVENT.GROUP_REMOTE' | translate }}
                     </div>
                 </div>
                 <div class="flex items-center space-x-2 text-sm">
                     <app-icon class="text-info">people</app-icon>
                     <div class="">
-                        {{ event.attendees?.length || '0' }} attending
+                        {{
+                            'CALENDAR_EVENT.GROUP_ATTENDING'
+                                | translate
+                                    : { count: event.attendees?.length || '0' }
+                        }}
                     </div>
                 </div>
             </div>
@@ -70,34 +74,36 @@ import { CalendarEvent } from './event.class';
             <button
                 matRipple
                 (click)="viewDetails()"
-                class="border border-base-300 hover:border-info flex bg-base-100 rounded-xl shadow hover:shadow-2xl overflow-hidden w-[63rem] max-w-full h-56 mx-auto"
+                class="mx-auto flex h-56 w-[63rem] max-w-full overflow-hidden rounded-xl border border-base-300 bg-base-100 shadow hover:border-info hover:shadow-2xl"
             >
                 <div
-                    class="relative flex items-center justify-between h-full min-w-56 w-1/2 max-w-[20rem] bg-base-200 overflow-hidden border-r border-base-200"
+                    class="relative flex h-full w-1/2 min-w-56 max-w-[20rem] items-center justify-between overflow-hidden border-r border-base-200 bg-base-200"
                 >
                     <img
                         *ngIf="event.images?.length"
                         auth
                         [source]="event.images[0]"
-                        class="absolute top-0 left-0 h-full w-full object-center object-cover"
+                        class="absolute left-0 top-0 h-full w-full object-cover object-center"
                     />
                 </div>
                 <div
-                    class="absolute top-0 left-0 rounded-br-xl py-2 pl-2 pr-4 space-x-2 bg-info text-info-content flex items-center text-sm"
+                    class="absolute left-0 top-0 flex items-center space-x-2 rounded-br-xl bg-info py-2 pl-2 pr-4 text-sm text-info-content"
                 >
                     <app-icon class="text-base">star</app-icon>
-                    <div class="uppercase">Featured</div>
+                    <div class="uppercase">
+                        {{ 'CALEDAR_EVENT.GROUP_FEATURED' | translate }}
+                    </div>
                 </div>
-                <div details class="flex px-8 py-4 space-x-4">
+                <div details class="flex space-x-4 px-8 py-4">
                     <div class="flex flex-col items-center">
-                        <div class="text-sm opacity-30 ">
+                        <div class="text-sm opacity-30">
                             {{ event.date | date: 'MMM' }}
                         </div>
                         <div class="text-lg">{{ event.date | date: 'd' }}</div>
                     </div>
                     <div class="flex flex-col space-y-2">
                         <h3 class="text-left">{{ event.title }}</h3>
-                        <div time class="text-sm opacity-30 text-left">
+                        <div time class="text-left text-sm opacity-30">
                             {{ event.date | date: 'EEEE' }}
                             {{ event.date | date: time_format }} -
                             {{
@@ -111,7 +117,10 @@ import { CalendarEvent } from './event.class';
                                 *ngIf="!raw_description.trim()"
                                 class="opacity-30"
                             >
-                                No description
+                                {{
+                                    'CALENDAR_EVENT.GROUP_NO_DESCRIPTION'
+                                        | translate
+                                }}
                             </p>
                         </div>
                         <div class="flex items-center space-x-2 text-sm">
@@ -123,24 +132,35 @@ import { CalendarEvent } from './event.class';
                                 *ngIf="is_onsite && !has_space"
                                 class="opacity-30"
                             >
-                                Room to be confirmed
+                                {{
+                                    'CALENDAR_EVENT.GROUP_UNCONFIRMED'
+                                        | translate
+                                }}
                             </div>
                             <div class="opacity-30" *ngIf="!is_onsite">
-                                Remote event
+                                {{ 'CALENDAR_EVENT.GROUP_REMOTE' | translate }}
                             </div>
                         </div>
                         <div class="flex items-center space-x-2 text-sm">
                             <app-icon class="text-info">people</app-icon>
                             <div class="">
-                                {{ event.attendees?.length || '0' }} attending
+                                {{
+                                    'CALENDAR_EVENT.GROUP_ATTENDING'
+                                        | translate
+                                            : {
+                                                  count:
+                                                      event.attendees?.length ||
+                                                      '0',
+                                              }
+                                }}
                             </div>
                         </div>
                     </div>
                 </div>
                 <div
-                    class="absolute top-4 right-4 bg-secondary text-secondary-content rounded px-4 py-2 w-32 text-center truncate"
+                    class="absolute right-4 top-4 w-32 truncate rounded bg-secondary px-4 py-2 text-center text-secondary-content"
                 >
-                    View Details
+                    {{ 'COMMON.VIEW_DETAILS' | translate }}
                 </div>
             </button>
         </ng-template>
@@ -154,6 +174,7 @@ import { CalendarEvent } from './event.class';
             }
         `,
     ],
+    standalone: false,
 })
 export class GroupEventCardComponent {
     @Input() public event: CalendarEvent;

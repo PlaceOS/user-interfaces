@@ -1,20 +1,72 @@
 import { Injectable } from '@angular/core';
-import { LockersService } from 'libs/bookings/src/lib/lockers.service';
-import { ExploreStateService } from './explore-state.service';
+import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
+import { map } from 'rxjs/operators';
+
+import {
+    loadLockerBanks,
+    loadLockers,
+    Locker,
+    LockerBank,
+} from '@placeos/bookings';
 import { AsyncHandler, SettingsService, unique } from '@placeos/common';
-import { filter, map } from 'rxjs/operators';
-import { BehaviorSubject, combineLatest, of } from 'rxjs';
-import { getModule } from '@placeos/ts-client';
 import { OrganisationService } from '@placeos/organisation';
+
 import { ExploreLockerBankInfoComponent } from './explore-locker-bank-info.component';
 import { DEFAULT_COLOURS } from './explore-spaces.service';
+import { ExploreStateService } from './explore-state.service';
 
 @Injectable({
     providedIn: 'root',
 })
 export class ExploreLockersService extends AsyncHandler {
     private _status = new BehaviorSubject([]);
-    public readonly lockers$ = this._lockers.filtered_lockers$;
+    private _change = new BehaviorSubject(0);
+
+    public readonly lockers_banks$: Observable<LockerBank[]> = loadLockerBanks(
+        this._org,
+        combineLatest([
+            this._org.active_building,
+            this._org.active_region,
+            this._change,
+        ]),
+        () => this._settings.get('app.use_region'),
+    );
+
+    public readonly lockers$: Observable<Locker[]> = loadLockers(
+        this._org,
+        combineLatest([
+            this._org.active_building,
+            this._org.active_region,
+            this._change,
+        ]),
+        this.lockers_banks$,
+        () => this._settings.get('app.use_region'),
+    );
+
+    public filtered_lockers = combineLatest([
+        this._explore.level,
+        this.lockers$,
+    ]).pipe(
+        map(([level, list]) =>
+            list.filter(
+                (item) =>
+                    !level ||
+                    ((item as any).zones || item.bank?.zones || []).includes(
+                        level.id,
+                    ),
+            ),
+        ),
+    );
+
+    public filtered_banks = combineLatest([
+        this._explore.level,
+        this.lockers_banks$,
+    ]).pipe(
+        map(([level, list]) =>
+            list.filter((item) => !level || item.zones.includes(level.id)),
+        ),
+    );
+
     public readonly status = combineLatest([
         this._explore.level,
         this._explore.options,
@@ -22,9 +74,9 @@ export class ExploreLockersService extends AsyncHandler {
     ]).pipe(
         map(([lvl, { is_public }]) => {
             if (!lvl || is_public) return [];
-            const sys_id = this._org.binding('area_management');
-            if (!sys_id) return of({});
-            let binding = getModule(sys_id, 'AreaManagement').binding(lvl.id);
+            const mod = this._org.module('area_management', 'AreaManagement');
+            if (!mod) return of({});
+            const binding = mod.binding(lvl.id);
             this.subscription(
                 `lvl-in_use`,
                 binding
@@ -32,18 +84,18 @@ export class ExploreLockersService extends AsyncHandler {
                     .subscribe((data) =>
                         this._status.next(
                             data?.value?.filter(
-                                (_) => _.location === 'locker'
-                            ) || []
-                        )
-                    )
+                                (_) => _.location === 'locker',
+                            ) || [],
+                        ),
+                    ),
             );
             this.subscription('lvl-in_use_bind', binding.bind());
-        })
+        }),
     );
 
     public readonly locker_status = combineLatest([
         this._explore.level,
-        this._lockers.lockers_banks$,
+        this.lockers_banks$,
         this.lockers$,
         this._status,
     ]).pipe(
@@ -55,14 +107,14 @@ export class ExploreLockersService extends AsyncHandler {
             const banks = unique(
                 locker_banks
                     .filter((_) => _.level_id === lvl.id)
-                    .map((_) => _.id)
+                    .map((_) => _.id),
             );
             for (const bank of banks) {
                 const bank_lockers = lockers.filter((_) => _.bank_id === bank);
                 let in_use_count = 0;
                 for (const locker of bank_lockers) {
                     const in_use = status.find(
-                        (_) => _.locker_id === locker.id && _.allocated
+                        (_) => _.locker_id === locker.id && _.allocated,
                     );
                     in_use_count += in_use ? 1 : 0;
                 }
@@ -86,8 +138,8 @@ export class ExploreLockersService extends AsyncHandler {
                     in_use_percent > 0.8
                         ? 'busy'
                         : in_use_percent > 0.3
-                        ? 'pending'
-                        : 'free';
+                          ? 'pending'
+                          : 'free';
                 map_status[`#${bank_info.map_id}`] = {
                     fill:
                         colours[`lockers-${value}`] ||
@@ -97,22 +149,15 @@ export class ExploreLockersService extends AsyncHandler {
             }
             this._explore.setStyles('lockers', map_status);
             this._explore.setFeatures('lockers', features);
-        })
+        }),
     );
 
     constructor(
-        private _lockers: LockersService,
         private _explore: ExploreStateService,
         private _org: OrganisationService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         super();
-        this.subscription(
-            'level',
-            this._explore.level
-                .pipe(filter((_) => !!_))
-                .subscribe((level) => this._lockers.setLevel(level.id))
-        );
         this.subscription('status', this.status.subscribe());
         this.subscription('locker_status', this.locker_status.subscribe());
     }

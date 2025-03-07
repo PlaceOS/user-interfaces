@@ -1,17 +1,20 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { Booking } from '@placeos/bookings';
 import { AsyncHandler, SettingsService } from '@placeos/common';
-import { AssetManagerStateService } from './asset-manager-state.service';
 import { OrganisationService } from '@placeos/organisation';
 import { startOfDay } from 'date-fns';
+import { map } from 'rxjs/operators';
+import { AssetManagerStateService } from './asset-manager-state.service';
 
 @Component({
     selector: 'app-asset-request-list',
     template: `
-        <div class="relative w-full h-[calc(100%-1rem)] flex flex-col">
+        <div class="relative flex h-[calc(100%-1rem)] w-full flex-col">
             <div class="flex items-center justify-between">
-                <div class="opacity-60 text-sm p-4">
-                    {{ (requests | async)?.length }} asset request{{
-                        (requests | async)?.length === '1' ? '' : 's'
+                <div class="p-4 text-sm opacity-60">
+                    {{
+                        'APP.CONCIERGE.ASSETS_REQUESTS_COUNT'
+                            | translate: { count: (requests | async)?.length }
                     }}
                 </div>
                 <date-options
@@ -19,7 +22,7 @@ import { startOfDay } from 'date-fns';
                     (dateChange)="setDate($event)"
                 ></date-options>
             </div>
-            <div class="w-full overflow-auto h-1/2 flex-1 pt-2">
+            <div class="h-1/2 w-full flex-1 overflow-auto pt-2">
                 <simple-table
                     class="block min-w-[82rem] text-sm"
                     asset-requests
@@ -28,52 +31,63 @@ import { startOfDay } from 'date-fns';
                     [columns]="[
                         {
                             key: 'user_name',
-                            name: 'Requester',
-                            content: user_template
+                            name:
+                                'APP.CONCIERGE.ASSETS_REQUESTS_USER'
+                                | translate,
+                            content: user_template,
                         },
                         {
                             key: 'date',
-                            name: 'Deliver At',
+                            name:
+                                'APP.CONCIERGE.ASSETS_REQUESTS_TIME'
+                                | translate,
                             content: date_template,
-                            size: '8rem'
+                            size: '8rem',
                         },
                         {
                             key: 'assets',
-                            name: 'Asset',
+                            name: 'RESOURCE.ASSETS' | translate,
                             content: assets_template,
-                            sortable: false
+                            sortable: false,
                         },
                         {
-                            key: 'zones',
-                            name: 'Floor',
+                            key: 'level',
+                            name: 'RESOURCE.LEVEL' | translate,
                             content: level_template,
                             size: '9rem',
-                            sortable: false
                         },
-                        { key: 'description', name: 'Location' },
+                        {
+                            key: 'description',
+                            name: 'COMMON.LOCATION' | translate,
+                        },
                         {
                             key: 'status',
-                            name: 'Approval',
+                            name:
+                                'APP.CONCIERGE.ASSETS_REQUESTS_APPROVAL'
+                                | translate,
                             content: approval_template,
-                            size: '11rem'
+                            size: '11rem',
                         },
                         {
                             key: 'tracking',
-                            name: 'Tracking',
+                            name:
+                                'APP.CONCIERGE.ASSETS_REQUESTS_TRACKING'
+                                | translate,
                             content: tracking_template,
                             size: '12rem',
-                            sortable: false
-                        }
+                            sortable: false,
+                        },
                     ]"
                     [empty_message]="
-                        (filters | async)?.search
-                            ? 'No matching asset requests'
-                            : 'There are no asset requests for the currently selected date.'
+                        ((filters | async)?.search
+                            ? 'APP.CONCIERGE.ASSETS_REQUESTS_SEARCH_EMPTY'
+                            : 'APP.CONCIERGE.ASSETS_REQUESTS_EMPTY'
+                        ) | translate
                     "
                     [sortable]="true"
                     (row_clicked)="request = $event"
                 ></simple-table>
-                <div class="w-full h-20"></div>
+                <div class="h-20 w-full"></div>
             </div>
         </div>
         <ng-template #user_template let-row="row">
@@ -117,17 +131,17 @@ import { startOfDay } from 'date-fns';
                 }}
             </div>
         </ng-template>
-        <ng-template #level_template let-data="data">
+        <ng-template #level_template let-row="row">
             <div class="p-4">
-                {{ level(data)?.display_name }}
-                <span class="opacity-30" *ngIf="!level(data)">N/A</span>
+                {{ level(row)?.display_name }}
+                <span class="opacity-30" *ngIf="!level(row)">N/A</span>
             </div>
         </ng-template>
         <ng-template #approval_template let-row="row">
             <div class="px-4 py-2">
                 <button
                     matRipple
-                    class="rounded-3xl !bg-opacity-20 flex items-center px-2 py-1 w-full text-left space-x-2"
+                    class="flex w-full items-center space-x-2 rounded-3xl !bg-opacity-20 px-2 py-1 text-left"
                     [class.bg-success]="row.status === 'approved'"
                     [class.bg-error]="row.status === 'declined'"
                     [class.bg-warning]="row.status === 'tentative'"
@@ -143,11 +157,11 @@ import { startOfDay } from 'date-fns';
                             row.status === 'approved'
                                 ? 'done'
                                 : row.status === 'declined'
-                                ? 'close'
-                                : 'warning'
+                                  ? 'close'
+                                  : 'warning'
                         }}
                     </app-icon>
-                    <div class="capitalize flex-1">{{ row.status }}</div>
+                    <div class="flex-1 capitalize">{{ row.status }}</div>
                     <app-icon class="text-2xl">expand_more</app-icon>
                 </button>
             </div>
@@ -155,13 +169,23 @@ import { startOfDay } from 'date-fns';
                 <button mat-menu-item (click)="setStatus(row, 'approved')">
                     <div class="flex items-center space-x-2">
                         <app-icon class="text-2xl">event_available</app-icon>
-                        <div class="pr-2">Approve Asset Request</div>
+                        <div class="pr-2">
+                            {{
+                                'APP.CONCIERGE.ASSETS_REQUESTS_ACTION_APPROVE'
+                                    | translate
+                            }}
+                        </div>
                     </div>
                 </button>
                 <button mat-menu-item (click)="setStatus(row, 'declined')">
                     <div class="flex items-center space-x-2">
                         <app-icon class="text-2xl">event_busy</app-icon>
-                        <div class="pr-2">Decline Asset Request</div>
+                        <div class="pr-2">
+                            {{
+                                'APP.CONCIERGE.ASSETS_REQUESTS_ACTION_DECLINE'
+                                    | translate
+                            }}
+                        </div>
                     </div>
                 </button>
             </mat-menu>
@@ -170,12 +194,12 @@ import { startOfDay } from 'date-fns';
             <div class="px-4 py-2">
                 <button
                     matRipple
-                    class="bg-none w-full flex items-center px-2 py-1 text-left rounded"
+                    class="flex w-full items-center rounded bg-none px-2 py-1 text-left"
                     [matMenuTriggerFor]="tracking_menu"
                     (click)="$event.stopPropagation()"
                     [disabled]="loading[row.id]"
                 >
-                    <div class="capitalize flex-1 min-w-32">
+                    <div class="min-w-32 flex-1 capitalize">
                         {{
                             (row.extension_data?.tracking | splitjoin) ||
                                 'In Storage'
@@ -188,19 +212,34 @@ import { startOfDay } from 'date-fns';
                 <button mat-menu-item (click)="setTracking(row, 'in_storage')">
                     <div class="flex items-center space-x-2">
                         <app-icon class="text-2xl">inventory</app-icon>
-                        <div class="pr-2">In Storage</div>
+                        <div class="pr-2">
+                            {{
+                                'APP.CONCIERGE.ASSETS_REQUESTS_TRACKING_STORAGE'
+                                    | translate
+                            }}
+                        </div>
                     </div>
                 </button>
                 <button mat-menu-item (click)="setTracking(row, 'in_transit')">
                     <div class="flex items-center space-x-2">
                         <app-icon class="text-2xl">trolley</app-icon>
-                        <div class="pr-2">In Transit</div>
+                        <div class="pr-2">
+                            {{
+                                'APP.CONCIERGE.ASSETS_REQUESTS_TRACKING_TRANSIT'
+                                    | translate
+                            }}
+                        </div>
                     </div>
                 </button>
                 <button mat-menu-item (click)="setTracking(row, 'at_location')">
                     <div class="flex items-center space-x-2">
                         <app-icon class="text-2xl">place</app-icon>
-                        <div class="pr-2">At Location</div>
+                        <div class="pr-2">
+                            {{
+                                'APP.CONCIERGE.ASSETS_REQUESTS_TRACKING_LOCATION'
+                                    | translate
+                            }}
+                        </div>
                     </div>
                 </button>
             </mat-menu>
@@ -216,27 +255,33 @@ import { startOfDay } from 'date-fns';
             }
         `,
     ],
+    standalone: false,
 })
-export class AssetRequestListComponent extends AsyncHandler {
-    public readonly requests = this._state.filtered_requests;
+export class AssetRequestListComponent extends AsyncHandler implements OnInit {
+    public readonly requests = this._state.filtered_requests.pipe(
+        map((l) => {
+            l.forEach((r) => this.level(r));
+            return l;
+        }),
+    );
     public readonly filters = this._state.options;
     public request;
 
     public readonly loading: Record<string, boolean> = {};
 
-    public date(booking: any) {
+    public date(booking: Booking) {
         return booking.all_day
             ? startOfDay(booking.date).valueOf()
             : booking.date;
     }
 
-    public async setStatus(item: any, status: string) {
+    public async setStatus(item: Booking, status: string) {
         this.loading[item.id] = true;
         await this._state.setStatus(item, status);
         this.loading[item.id] = false;
     }
 
-    public async setTracking(item: any, state: string) {
+    public async setTracking(item: Booking, state: string) {
         this.loading[item.id] = true;
         await this._state.setTracking(item, state);
         this.loading[item.id] = false;
@@ -251,13 +296,16 @@ export class AssetRequestListComponent extends AsyncHandler {
     constructor(
         private _state: AssetManagerStateService,
         private _org: OrganisationService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         super();
     }
 
-    public level(zones) {
-        return this._org.levelWithID(zones);
+    public level(item) {
+        const zones = item.zones;
+        const level = this._org.levelWithID(zones);
+        item.level = level?.display_name || level?.name || zones[0] || '';
+        return level;
     }
 
     public ngOnInit() {

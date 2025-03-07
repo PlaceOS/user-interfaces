@@ -1,23 +1,20 @@
-import { FeaturesFilterService } from '../app/rooms/features-filter.service';
+import { CommonModule } from '@angular/common';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
 import { MockComponent, ngMocks } from 'ng-mocks';
 import { of } from 'rxjs';
 import { take } from 'rxjs/operators';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { BookModule } from '../app/rooms/book.module';
-import { CommonModule } from '@angular/common';
-import { BrowserModule } from '@angular/platform-browser';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import {
-    MatBottomSheetModule,
-    MatBottomSheet,
-} from '@angular/material/bottom-sheet';
+import { FeaturesFilterService } from '../app/rooms/features-filter.service';
 
+import { ComponentsModule } from '@placeos/components';
 import { EventFormService } from '@placeos/events';
-import { ComponentsModule, MapPinComponent } from '@placeos/components';
-import { FindSpaceComponent } from '../app/rooms/find-space/find-space.component';
 import { FilterSpaceComponent } from '../app/rooms/filter-space/filter-space.component';
+import { FindSpaceComponent } from '../app/rooms/find-space/find-space.component';
 import { mockSpace, mockSpaceWithViews } from './test-mocks';
 
 describe('FeatureFilterService', () => {
@@ -73,11 +70,11 @@ describe('FeatureFilterService', () => {
         await spectator.service.getSelectedFeatures();
         let selections: number = 0;
         spectator.service.features$?.subscribe((features) =>
-            features.map((feature) => ((feature.value = true), selections++))
+            features.map((feature) => ((feature.value = true), selections++)),
         );
         let selected_features_count;
         spectator.service.selected_features$?.subscribe(
-            (features) => (selected_features_count = features?.length)
+            (features) => (selected_features_count = features?.length),
         );
 
         expect(selected_features_count).toBe(selections);
@@ -88,8 +85,8 @@ describe('FeatureFilterService', () => {
         spectator.service.features$?.subscribe(
             (features) =>
                 (room_with_views = features.find(
-                    (feature) => feature.name == 'Views'
-                ))
+                    (feature) => feature.name == 'Views',
+                )),
         );
         room_with_views.value = true;
         await spectator.service.getSelectedFeatures();
@@ -97,7 +94,7 @@ describe('FeatureFilterService', () => {
         await spectator.service.updated_spaces$?.pipe(take(1)).toPromise();
 
         spectator.service.updated_spaces_emitter?.subscribe((result) =>
-            expect(result).toBe(true)
+            expect(result).toBe(true),
         );
     });
 
@@ -112,14 +109,14 @@ describe('FeatureFilterService', () => {
         spectator.service.features$?.subscribe(
             (features) =>
                 (room_with_views = features.find(
-                    (feature) => feature.name == 'Views'
-                ))
+                    (feature) => feature.name == 'Views',
+                )),
         );
         room_with_views.value = true; //mimic selecting Views checkbox
         await spectator.service.getSelectedFeatures();
         await spectator.service.applyFilter();
         spectator.service.updated_spaces$?.subscribe((updated_spaces) =>
-            expect(updated_spaces.length).toBe(1)
+            expect(updated_spaces.length).toBe(1),
         );
     });
 
@@ -128,18 +125,18 @@ describe('FeatureFilterService', () => {
         spectator.service.features$?.subscribe(
             (features) =>
                 (room_with_views = features.find(
-                    (feature) => feature.name == 'Views'
-                ))
+                    (feature) => feature.name == 'Views',
+                )),
         );
         room_with_views.value = true;
 
         spectator.service.updated_spaces$?.subscribe((updated_spaces) =>
-            expect(updated_spaces.length).toBe(1)
+            expect(updated_spaces.length).toBe(1),
         );
 
         await spectator.service.clearFilter();
         spectator.service.updated_spaces$?.subscribe((updated_spaces) =>
-            expect(updated_spaces.length).toBe(null)
+            expect(updated_spaces.length).toBe(null),
         );
     });
 });

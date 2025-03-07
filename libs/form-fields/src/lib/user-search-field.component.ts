@@ -1,32 +1,32 @@
 /* eslint-disable @typescript-eslint/member-ordering */
 import {
     Component,
-    OnInit,
+    ElementRef,
     forwardRef,
     Input,
+    OnInit,
     ViewChild,
-    ElementRef,
 } from '@angular/core';
-import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
-import { Subject, Observable, of, forkJoin } from 'rxjs';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { forkJoin, Observable, of, Subject } from 'rxjs';
 import {
-    switchMap,
+    catchError,
     debounceTime,
     distinctUntilChanged,
     map,
-    catchError,
+    switchMap,
 } from 'rxjs/operators';
 
 import { AsyncHandler, flatten, SettingsService } from '@placeos/common';
+import { authority, queryUsers } from '@placeos/ts-client';
 import { searchGuests } from 'libs/users/src/lib/guests.fn';
 import { searchStaff } from 'libs/users/src/lib/staff.fn';
 import { User } from 'libs/users/src/lib/user.class';
-import { authority, queryUsers } from '@placeos/ts-client';
 
 @Component({
     selector: 'a-user-search-field',
     template: `
-        <mat-form-field appearance="outline" class="w-full no-subscript">
+        <mat-form-field appearance="outline" class="no-subscript w-full">
             <input
                 #input
                 matInput
@@ -35,7 +35,7 @@ import { authority, queryUsers } from '@placeos/ts-client';
                 [(ngModel)]="search_str"
                 (ngModelChange)="search$.next($event || '')"
                 [disabled]="disabled"
-                [placeholder]="placeholder || 'Search for user...'"
+                [placeholder]="placeholder || ('FORM.USER_SEARCH' | translate)"
                 [matAutocomplete]="auto"
                 (keyup.enter)="
                     validate && validate(search_str) ? setValue(search_str) : ''
@@ -43,7 +43,7 @@ import { authority, queryUsers } from '@placeos/ts-client';
                 (blur)="resetSearchString()"
                 (focus)="cancelReset()"
             />
-            <app-icon matPrefix class="text-2xl relative">search</app-icon>
+            <app-icon matPrefix class="relative text-2xl">search</app-icon>
             <mat-spinner *ngIf="loading" matSuffix diameter="16"></mat-spinner>
         </mat-form-field>
         <mat-autocomplete
@@ -55,16 +55,24 @@ import { authority, queryUsers } from '@placeos/ts-client';
                 (click)="setValue(option); blurInput()"
             >
                 <div class="leading-tight">{{ option.name }}</div>
-                <div class="text-xs opacity-60">
+                <div class="w-full text-xs opacity-60">
                     {{ option.email }}
+                    <span
+                        *ngIf="
+                            option.username && option.username !== option.email
+                        "
+                    >
+                        (<span class="truncate">{{ option.username }}</span
+                        >)
+                    </span>
                 </div>
             </mat-option>
             <mat-option
                 *ngIf="search_str && validate && validate(search_str)"
-                class="relative pointer-events-none"
+                class="pointer-events-none relative"
             >
                 <div
-                    class="absolute inset-0 px-4 pointer-events-auto"
+                    class="pointer-events-auto absolute inset-0 px-4"
                     (mousedown)="
                         $event.stopPropagation(); $event.preventDefault()
                     "
@@ -77,8 +85,11 @@ import { authority, queryUsers } from '@placeos/ts-client';
                         $event.preventDefault()
                     "
                 >
-                    <div class="pointer-events-none" i18n>
-                        Add external attendee "{{ search_str }}"
+                    <div class="pointer-events-none">
+                        {{
+                            'FORM.USER_ADD_EXTERNAL'
+                                | translate: { name: search_str }
+                        }}
                     </div>
                 </div>
             </mat-option>
@@ -87,7 +98,8 @@ import { authority, queryUsers } from '@placeos/ts-client';
                 [disabled]="!empty_fn"
                 (click)="empty_fn()"
             >
-                {{ search_str ? 'No users found.' : '' }} {{ error }}
+                {{ (search_str ? 'FORM.USER_EMPTY' : '') | translate }}
+                {{ error }}
             </mat-option>
         </mat-autocomplete>
     `,
@@ -109,6 +121,7 @@ import { authority, queryUsers } from '@placeos/ts-client';
             multi: true,
         },
     ],
+    standalone: false,
 })
 export class UserSearchFieldComponent
     extends AsyncHandler
@@ -134,9 +147,10 @@ export class UserSearchFieldComponent
     @Input() public query_fn: (_: string) => Observable<User[]> = (q) =>
         this._settings.get('app.basic_user_search')
             ? queryUsers({ q, authority_id: authority()?.id }).pipe(
-                  map((_) => _.data.map((_) => new User(_)))
+                  map((_) => _.data.map((_) => new User(_))),
+                  catchError(() => of([])),
               )
-            : searchStaff(q);
+            : searchStaff(q).pipe(catchError(() => of([])));
     /** Currently selected user */
     public active_user: User;
     /** User list to display */
@@ -156,30 +170,33 @@ export class UserSearchFieldComponent
             return this.options && this.options.length > 0
                 ? of(this.options)
                 : query.length >= 3
-                ? !this.guests
-                    ? this.query_fn(query)
-                    : forkJoin([searchStaff(query), searchGuests(query)])
-                : of([]);
+                  ? !this.guests
+                      ? this.query_fn(query)
+                      : forkJoin([
+                            searchStaff(query).pipe(catchError(() => of([]))),
+                            searchGuests(query).pipe(catchError(() => of([]))),
+                        ])
+                  : of([]);
         }),
-        catchError((_) => of([])),
+        catchError(() => of([])),
         map((list: User[]) => {
             this.loading = false;
             list = flatten(list);
             const search = (this.search_str || '').toLowerCase();
             return list.filter(
-                (item) => !this.filter || this.filter(item, search)
+                (item) => !this.filter || this.filter(item, search),
             );
-        })
+        }),
     );
 
     constructor(private _settings: SettingsService) {
         super();
     }
 
-    /** Form control on change handler */
     private _onChange: (_: User) => void;
-    /** Form control on touch handler */
     private _onTouch: (_: User) => void;
+    public readonly registerOnChange = (fn) => (this._onChange = fn);
+    public readonly registerOnTouched = (fn) => (this._onTouch = fn);
 
     @ViewChild('input', { read: ElementRef })
     private _input_el: ElementRef<HTMLInputElement>;
@@ -194,7 +211,7 @@ export class UserSearchFieldComponent
         // Process API results
         this.subscription(
             'search_results',
-            this.search_results$.subscribe((list) => (this.user_list = list))
+            this.search_results$.subscribe((list) => (this.user_list = list)),
         );
         this.resetSearchString();
     }
@@ -206,7 +223,7 @@ export class UserSearchFieldComponent
         this.timeout(
             'reset',
             () => (this.search_str = this.active_user?.name || ''),
-            100
+            100,
         );
     }
 
@@ -216,16 +233,13 @@ export class UserSearchFieldComponent
      */
     public setValue(new_value: User | string, email?: string): void {
         if (!new_value) return;
-        if (
-            typeof new_value === 'string' &&
-            (new_value as any) === this.search_str
-        ) {
+        if (typeof new_value === 'string' && new_value === this.search_str) {
             new_value = new User({
                 name: (this.search_str || email || '').split('@')[0],
                 email: this.search_str || email || '',
             });
         }
-        const user = new_value as any;
+        const user = new_value as User;
         if (!('name' in user) && !('email' in user)) return;
         this.active_user = user;
         if (this._onChange) this._onChange(user);
@@ -243,21 +257,5 @@ export class UserSearchFieldComponent
 
     public setDisabledState(disabled: boolean) {
         this.disabled = disabled;
-    }
-
-    /**
-     * Registers a callback function that is called when the control's value changes in the UI.
-     * @param fn The callback function to register
-     */
-    public registerOnChange(fn: (_: User) => void): void {
-        this._onChange = fn;
-    }
-
-    /**
-     * Registers a callback function is called by the forms API on initialization to update the form model on blur.
-     * @param fn The callback function to register
-     */
-    public registerOnTouched(fn: (_: User) => void): void {
-        this._onTouch = fn;
     }
 }

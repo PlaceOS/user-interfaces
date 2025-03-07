@@ -1,7 +1,8 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { getModule, showMetadata } from '@placeos/ts-client';
 import { ViewAction, ViewerFeature } from '@placeos/svg-viewer';
+import { getModule, showMetadata } from '@placeos/ts-client';
+import { combineLatest, Observable, of } from 'rxjs';
 import {
     catchError,
     filter,
@@ -10,26 +11,27 @@ import {
     switchMap,
     take,
 } from 'rxjs/operators';
-import { combineLatest, Observable, of } from 'rxjs';
 
 import {
     AsyncHandler,
     BookingRuleset,
     currentUser,
     HashMap,
+    i18n,
     rulesForResource,
     SettingsService,
 } from '@placeos/common';
 import { notifyError } from 'libs/common/src/lib/notifications';
-import { Space } from 'libs/spaces/src/lib/space.class';
 import { CalendarEvent } from 'libs/events/src/lib/event.class';
-import { EventFormService } from 'libs/events/src/lib/event-form.service';
+import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
+import { Space } from 'libs/spaces/src/lib/space.class';
 
-import { ExploreStateService } from './explore-state.service';
-import { ExploreSpaceInfoComponent } from './explore-space-info.component';
-import { ExploreBookingModalComponent } from './explore-booking-modal.component';
 import { ExploreBookQrComponent } from './explore-book-qr.component';
+import { ExploreBookingModalComponent } from './explore-booking-modal.component';
+import { ExploreIconComponent } from './explore-icon.component';
+import { ExploreSpaceInfoComponent } from './explore-space-info.component';
+import { ExploreStateService } from './explore-state.service';
 
 export const DEFAULT_COLOURS = {
     free: '#43a047',
@@ -43,8 +45,9 @@ export const DEFAULT_COLOURS = {
 
 @Injectable()
 export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
-    private _bookings: HashMap<CalendarEvent[]> = {};
-    private _statuses: HashMap<string> = {};
+    private _bookings: Record<string, CalendarEvent[]> = {};
+    private _statuses: Record<string, string> = {};
+    private _presence: Record<string, boolean> = {};
     private _panning = true;
     private _last_action = '';
 
@@ -53,12 +56,23 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
             filter((bld) => !!bld),
             switchMap((bld) =>
                 showMetadata(bld.id, `room_booking_rules`).pipe(
-                    catchError(() => of({ details: [] }))
-                )
+                    catchError(() => of({ details: [] })),
+                ),
             ),
             map((_) => (_?.details instanceof Array ? _.details : [])),
-            shareReplay(1)
+            shareReplay(1),
         );
+
+    public readonly room_alerts = this._org.active_building.pipe(
+        filter((bld) => !!bld),
+        switchMap(() =>
+            showMetadata(this._org.organisation.id, `room_alerts`).pipe(
+                catchError(() => of({ details: {} })),
+            ),
+        ),
+        map((_) => _.details || {}),
+        shareReplay(1),
+    );
 
     private _bind = combineLatest([
         this._state.spaces,
@@ -68,6 +82,7 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
         map(([list]) => {
             this.unsubWith('b-');
             this.unsubWith('s-');
+            this.unsubWith('c-');
             this._statuses = {};
             if (!list?.length) return;
             for (const space of list) {
@@ -78,8 +93,8 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
                     binding
                         .listen()
                         .subscribe((d) =>
-                            this.handleBookingsChange(list, space, d)
-                        )
+                            this.handleBookingsChange(list, space, d),
+                        ),
                 );
                 this.subscription(`b-bind-${space.id}`, binding.bind());
                 binding = mod.binding('status');
@@ -88,14 +103,24 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
                     binding
                         .listen()
                         .subscribe((d) =>
-                            this.handleStatusChange(list, space, d)
-                        )
+                            this.handleStatusChange(list, space, d),
+                        ),
                 );
                 this.subscription(`s-bind-${space.id}`, binding.bind());
+                binding = mod.binding('presence');
+                this.subscription(
+                    `c-${space.id}`,
+                    binding
+                        .listen()
+                        .subscribe((d) =>
+                            this.handlePresenceChange(list, space, d),
+                        ),
+                );
+                this.subscription(`c-bind-${space.id}`, binding.bind());
             }
             this.updateActions(list);
             this._updateHoverElements(list);
-        })
+        }),
     );
 
     constructor(
@@ -103,7 +128,7 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
         private _settings: SettingsService,
         private _event_form: EventFormService,
         private _dialog: MatDialog,
-        private _org: OrganisationService
+        private _org: OrganisationService,
     ) {
         super();
         this.subscription('spaces', this._bind.subscribe());
@@ -114,6 +139,7 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
         const booking_rules = await this.booking_rules
             .pipe(take(1))
             .toPromise();
+        const room_alerts = await this.room_alerts.pipe(take(1)).toPromise();
         const { hidden } =
             rulesForResource(
                 {
@@ -122,21 +148,19 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
                     resource: space,
                     host: currentUser(),
                 },
-                booking_rules
+                booking_rules,
             ) || {};
         if (hidden) {
-            return notifyError(
-                'You do not have permission to book this space at this time.'
-            );
+            return notifyError(i18n('EXPLORE.SPACES_PERMISSIONS_ERROR'));
         }
         if (
             (this._statuses[space.id] !== 'free' && !force) ||
             !space.bookable
         ) {
             return notifyError(
-                `${
-                    space.display_name || space.name
-                } is unavailable for the selected time and duration`
+                i18n('EXPLORE.SPACES_UNAVAILABLE_ERROR', {
+                    name: space.display_name || space.name,
+                }),
             );
         }
         this._event_form.newForm();
@@ -144,6 +168,9 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
             host: currentUser()?.email,
             resources: [space],
         });
+        if (room_alerts[space.id]?.[0] === 'closed') {
+            return notifyError(`${room_alerts[space.id][1]}`);
+        }
         if (this._settings.get('app.events.booking_unavailable')) {
             return this._event_form.openEventLinkModal();
         }
@@ -152,22 +179,22 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
                 ? ExploreBookQrComponent
                 : ExploreBookingModalComponent) as any,
             {
-                data: { space },
-            }
+                data: { space, alert: room_alerts[space.id] },
+            },
         );
     }
 
     public handleBookingsChange(
         spaces: Space[],
         space: Space,
-        bookings: HashMap[]
+        bookings: HashMap[],
     ) {
         if (!bookings) return;
         this._bookings[space.id] = bookings.map((i) => new CalendarEvent(i));
         this.timeout(
             'update_hover_els',
             () => this._updateHoverElements(spaces),
-            100
+            100,
         );
     }
 
@@ -181,8 +208,17 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
                 this._updateStatus(spaces);
                 this._updateHoverElements(spaces);
             },
-            100
+            100,
         );
+    }
+
+    public handlePresenceChange(
+        spaces: Space[],
+        space: Space,
+        presence: boolean,
+    ) {
+        this._presence[space.id] = presence;
+        this.timeout('update_icons', () => this._updateIcons(spaces), 100);
     }
 
     private async _updateStatus(spaces: Space[]) {
@@ -222,6 +258,30 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
         this._state.setFeatures('spaces', features);
     }
 
+    private _updateIcons(spaces: Space[]) {
+        if (!this._settings.get('app.show_presence_indicators')) return;
+        const features: ViewerFeature[] = [];
+        for (const space of spaces) {
+            if (!space.map_id) continue;
+            features.push({
+                location: space.map_id,
+                content: ExploreIconComponent,
+                data: {
+                    icon: {
+                        class: 'material-symbols-rounded',
+                        content: 'sensor_occupied',
+                    },
+                    color: this._presence[space.id] ? 'var(--su)' : 'var(--bc)',
+                    text_color: this._presence[space.id]
+                        ? 'var(--suc)'
+                        : 'var(--b1)',
+                },
+                z_index: 98,
+            } as ViewerFeature);
+        }
+        this._state.setFeatures('spaces-presence', features);
+    }
+
     private updateActions(spaces: Space[]) {
         const actions: ViewAction[] = [];
         for (const space of spaces) {
@@ -236,7 +296,7 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
                         this.timeout(
                             'panning',
                             () => (this._panning = true),
-                            300
+                            300,
                         );
                         this._last_action = 'down';
                     },
@@ -254,10 +314,11 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
                 });
             }
         }
+
         this.timeout(
             'set-actions',
             () => this._state.setActions('spaces', actions),
-            50
+            50,
         );
     }
 }

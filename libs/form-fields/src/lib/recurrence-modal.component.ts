@@ -8,14 +8,14 @@ import { RecurrenceDetails } from 'libs/events/src/lib/event.interfaces';
     selector: 'recurrence-modal',
     template: `
         <header>
-            <h2>Custom Recurrence</h2>
+            <h2>{{ 'FORM.RECURRENCE_CUSTOM_HEADER' | translate }}</h2>
             <button btn icon mat-dialog-close matRipple>
                 <app-icon>close</app-icon>
             </button>
         </header>
         <main class="p-4">
-            <div class="flex items-center space-x-2 mb-4">
-                <div>Repeat every</div>
+            <div class="mb-4 flex items-center space-x-2">
+                <div>{{ 'FORM.RECURRENCE_REPEAT_EVERY' | translate }}</div>
                 <mat-form-field appearance="outline" class="w-16">
                     <input matInput type="number" [(ngModel)]="data.interval" />
                 </mat-form-field>
@@ -37,10 +37,10 @@ import { RecurrenceDetails } from 'libs/events/src/lib/event.interfaces';
                 </mat-form-field>
             </div>
             <h2 for="repeat-on" class="mb-2" *ngIf="data.pattern === 'weekly'">
-                Repeat on
+                {{ 'FORM.RECURRENCE_REPEAT_ON' | translate }}
             </h2>
             <div
-                class="flex items-center space-x-2 mb-4"
+                class="mb-4 flex items-center space-x-2"
                 name="repeat-on"
                 *ngIf="data.pattern === 'weekly'"
             >
@@ -108,14 +108,14 @@ import { RecurrenceDetails } from 'libs/events/src/lib/event.interfaces';
                     S
                 </button>
             </div>
-            <h2 for="ends-at">Ends</h2>
+            <h2 for="ends-at">{{ 'FORM.RECURRENCE_ENDS' | translate }}</h2>
             <mat-radio-group name="ends-at" [(ngModel)]="ends_key">
                 <div class="flex items-center">
                     <mat-radio-button
                         value="never"
                         (click)="data.occurrences = 0"
                     >
-                        Never
+                        {{ 'FORM.RECURRENCE_ENDS_NEVER' | translate }}
                     </mat-radio-button>
                 </div>
                 <div class="flex items-center space-x-2">
@@ -140,7 +140,7 @@ import { RecurrenceDetails } from 'libs/events/src/lib/event.interfaces';
             </mat-radio-group>
         </main>
         <footer
-            class="px-4 py-2 flex items-center justify-end border-t border-base-200"
+            class="flex items-center justify-end border-t border-base-200 px-4 py-2"
         >
             <button
                 btn
@@ -152,7 +152,7 @@ import { RecurrenceDetails } from 'libs/events/src/lib/event.interfaces';
                 "
                 [mat-dialog-close]="data"
             >
-                Save
+                {{ 'COMMON.SAVE' | translate }}
             </button>
         </footer>
     `,
@@ -168,6 +168,7 @@ import { RecurrenceDetails } from 'libs/events/src/lib/event.interfaces';
             }
         `,
     ],
+    standalone: false,
 })
 export class RecurrenceModalComponent {
     public data: RecurrenceDetails = {
@@ -180,14 +181,14 @@ export class RecurrenceModalComponent {
     public ends_key = 'never';
 
     constructor(
-        @Inject(MAT_DIALOG_DATA) private _data: { value: RecurrenceDetails }
+        @Inject(MAT_DIALOG_DATA) private _data: { value: RecurrenceDetails },
     ) {}
 
     public toggleDayOfWeek(day: number) {
         if (!this.data.days_of_week) this.data.days_of_week = [];
         if (this.data.days_of_week.includes(day)) {
             this.data.days_of_week = this.data.days_of_week.filter(
-                (d) => d !== day
+                (d) => d !== day,
             );
         } else this.data.days_of_week.push(day);
     }

@@ -1,12 +1,11 @@
 import { Component } from '@angular/core';
 import { AssetManagerStateService } from './asset-manager-state.service';
-import { combineLatest } from 'rxjs';
 
 @Component({
     selector: 'app-asset-item-list',
     template: `
         <div
-            class="overflow-auto pb-2 w-full h-full"
+            class="h-full w-full overflow-auto pb-2"
             *ngIf="
                 (categories | async)?.length && (products | async)?._count;
                 else empty_state
@@ -17,21 +16,25 @@ import { combineLatest } from 'rxjs';
                     <h2 class="py-2">
                         <span class="font-medium">{{ group?.name }}</span>
                         <span class="text-xs">
-                            ({{ (products | async)[group.id]?.length }} item{{
-                                (products | async)[group.id]?.length === 1
-                                    ? ''
-                                    : 's'
+                            ({{
+                                'COMMON.ITEM_COUNT'
+                                    | translate
+                                        : {
+                                              count: (products | async)[
+                                                  group.id
+                                              ]?.length,
+                                          }
                             }})
                         </span>
                     </h2>
                     <ng-container [ngSwitch]="(options | async).view">
                         <ng-container *ngSwitchCase="'list'">
                             <div
-                                class="rounded overflow-hidden bg-base-100 border border-base-200 divide-y divide-base-200"
+                                class="divide-y divide-base-200 overflow-hidden rounded border border-base-200 bg-base-100"
                             >
                                 <a
                                     matRipple
-                                    class="flex items-center text-left space-x-4 p-4 border border-base-200 hover:border-indigo-400 rounded"
+                                    class="hover:border-indigo-400 flex items-center space-x-4 rounded border border-base-200 p-4 text-left"
                                     *ngFor="
                                         let asset of (products | async)[
                                             group.id
@@ -40,11 +43,11 @@ import { combineLatest } from 'rxjs';
                                     [routerLink]="[
                                         base_route,
                                         'view',
-                                        asset.id
+                                        asset.id,
                                     ]"
                                 >
                                     <div
-                                        class="h-12 w-12 flex items-center justify-center border border-base-200 bg-base-200 overflow-hidden"
+                                        class="flex h-12 w-12 items-center justify-center overflow-hidden border border-base-200 bg-base-200"
                                     >
                                         <img
                                             *ngIf="
@@ -53,7 +56,7 @@ import { combineLatest } from 'rxjs';
                                             "
                                             auth
                                             [source]="asset.images[0]"
-                                            class="min-w-full min-h-full object-cover"
+                                            class="min-h-full min-w-full object-cover"
                                         />
                                         <ng-template #placeholder>
                                             <img
@@ -63,7 +66,7 @@ import { combineLatest } from 'rxjs';
                                         </ng-template>
                                     </div>
                                     <div
-                                        class="flex-1 flex flex-col justify-center"
+                                        class="flex flex-1 flex-col justify-center"
                                     >
                                         <div class="truncate">
                                             {{ asset.name }}
@@ -88,11 +91,11 @@ import { combineLatest } from 'rxjs';
                         </ng-container>
                         <ng-container *ngSwitchDefault>
                             <div
-                                class="flex items-center overflow-hidden flex-wrap -mx-2 w-full"
+                                class="-mx-2 flex w-full flex-wrap items-center overflow-hidden"
                             >
                                 <a
                                     matRipple
-                                    class="bg-base-100 rounded shadow w-40 h-44 text-left m-2 border border-base-200 hover:border-indigo-400 flex flex-col"
+                                    class="hover:border-indigo-400 m-2 flex h-44 w-40 flex-col rounded border border-base-200 bg-base-100 text-left shadow"
                                     *ngFor="
                                         let asset of (products | async)[
                                             group.id
@@ -101,11 +104,11 @@ import { combineLatest } from 'rxjs';
                                     [routerLink]="[
                                         base_route,
                                         'view',
-                                        asset.id
+                                        asset.id,
                                     ]"
                                 >
                                     <div
-                                        class="w-full h-32 flex items-center justify-center bg-base-200 overflow-hidden"
+                                        class="flex h-32 w-full items-center justify-center overflow-hidden bg-base-200"
                                     >
                                         <img
                                             auth
@@ -114,7 +117,7 @@ import { combineLatest } from 'rxjs';
                                                 else placeholder
                                             "
                                             [source]="asset.images[0]"
-                                            class="min-w-full min-h-full object-cover"
+                                            class="min-h-full min-w-full object-cover"
                                         />
                                         <ng-template #placeholder>
                                             <img
@@ -124,7 +127,7 @@ import { combineLatest } from 'rxjs';
                                         </ng-template>
                                     </div>
                                     <div
-                                        class="border-t border-base-200 w-full px-3 py-1 flex-1 flex flex-col justify-center"
+                                        class="flex w-full flex-1 flex-col justify-center border-t border-base-200 px-3 py-1"
                                     >
                                         <div class="truncate">
                                             {{ asset.name }}
@@ -157,7 +160,7 @@ import { combineLatest } from 'rxjs';
         ></mat-progress-bar>
         <ng-template #empty_state>
             <div
-                class="flex flex-col items-center justify-center p-8 space-y-4 h-full w-full"
+                class="flex h-full w-full flex-col items-center justify-center space-y-4 p-8"
             >
                 <p class="opacity-40">
                     {{
@@ -186,6 +189,7 @@ import { combineLatest } from 'rxjs';
             }
         `,
     ],
+    standalone: false,
 })
 export class AssetItemListComponent {
     public readonly loading = this._state.loading;

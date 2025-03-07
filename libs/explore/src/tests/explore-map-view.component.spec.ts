@@ -1,38 +1,38 @@
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { MatSelectModule } from '@angular/material/select';
 import { FormsModule } from '@angular/forms';
+import { MatSelectModule } from '@angular/material/select';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { SpectatorRouting, createRoutingFactory } from '@ngneat/spectator/jest';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 import { BehaviorSubject, of } from 'rxjs';
 
+import { SettingsService } from '@placeos/common';
 import {
     IndoorMapsComponent,
     InteractiveMapComponent,
 } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
 import { SpacesService } from '@placeos/spaces';
-import { SettingsService } from '@placeos/common';
 
+import { MapsPeopleService } from 'libs/common/src/lib/mapspeople.service';
+import { ExploreDesksService } from '../lib/explore-desks.service';
 import { ExploreMapControlComponent } from '../lib/explore-map-control.component';
 import { ExploreMapViewComponent } from '../lib/explore-map-view.component';
-import { ExploreZoomControlComponent } from '../lib/explore-zoom-control.component';
-import { ExploreStateService } from '../lib/explore-state.service';
 import { ExploreSpacesService } from '../lib/explore-spaces.service';
-import { ExploreDesksService } from '../lib/explore-desks.service';
+import { ExploreStateService } from '../lib/explore-state.service';
 import { ExploreZonesService } from '../lib/explore-zones.service';
-import { MapsPeopleService } from 'libs/common/src/lib/mapspeople.service';
+import { ExploreZoomControlComponent } from '../lib/explore-zoom-control.component';
 
 jest.mock('@placeos/ts-client');
 jest.mock('@placeos/common');
 jest.mock('@placeos/users');
 
+import { fakeAsync } from '@angular/core/testing';
+import * as common_mod from '@placeos/common';
 import * as ts_client from '@placeos/ts-client';
 import * as user_mod from '@placeos/users';
-import * as common_mod from '@placeos/common';
-import { fakeAsync } from '@angular/core/testing';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
-import { ExploreParkingService } from '../lib/explore-parking.service';
 import { ExploreLockersService } from '../lib/explore-lockers.service';
+import { ExploreParkingService } from '../lib/explore-parking.service';
 
 describe('ExploreMapViewComponent', () => {
     let spectator: SpectatorRouting<ExploreMapViewComponent>;
@@ -102,7 +102,7 @@ describe('ExploreMapViewComponent', () => {
         spectator.triggerEventHandler(
             'mat-slide-toggle',
             'ngModelChange',
-            true
+            true,
         );
         expect(state.setOptions).toHaveBeenCalledWith({ disable: undefined });
     });

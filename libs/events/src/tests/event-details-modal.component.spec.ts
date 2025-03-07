@@ -1,4 +1,4 @@
-import { MatDialogModule, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { SettingsService } from '@placeos/common';
@@ -19,11 +19,11 @@ import {
 } from 'ng-mocks';
 import { AttendeeListComponent } from '../lib/attendee-list.component';
 
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { StatusPillComponent } from 'libs/components/src/lib/status-pill.component';
+import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 import { EventDetailsModalComponent } from '../lib/event-details-modal.component';
 import { CalendarEvent } from '../lib/event.class';
-import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
-import { StatusPillComponent } from 'libs/components/src/lib/status-pill.component';
-import { MatTooltipModule } from '@angular/material/tooltip';
 
 describe('EventDetailsModalComponent', () => {
     let spectator: Spectator<EventDetailsModalComponent>;
@@ -38,6 +38,7 @@ describe('EventDetailsModalComponent', () => {
             MockProvider(SettingsService, {
                 get: jest.fn(),
                 time_format: 'h:mm a',
+                app_name: 'test',
             }),
         ],
         componentProviders: [

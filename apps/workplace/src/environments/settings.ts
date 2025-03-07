@@ -1,7 +1,7 @@
 /**
  * GENERAL APPLICATION SETTINGS
  */
-const general: any = {
+const general = {
     banner: {
         id: '2',
         type: 'info',
@@ -13,7 +13,7 @@ const general: any = {
 /**
  * HELP/SUPPORT SETTINGS
  */
-const help: any = [
+const help = [
     {
         name: 'About PlaceOS',
         link: 'https://place.technology/resources',
@@ -61,7 +61,7 @@ const help: any = [
 /**
  * BOOKING FLOW SETTINGS
  */
-const events: any = {
+const events = {
     multiple_spaces: false,
     desk_start: 9,
     can_book_for_others: false,
@@ -76,17 +76,18 @@ const events: any = {
     booking_unavailable: false,
     allow_externals: true,
     allow_recurrence: false,
+    allow_daily_allday_recurrence: false,
 };
 /*===========================*\
 ||  SPACE LISTING SETTINGS   ||
 \*===========================*/
-const space_display: any = {
+const space_display = {
     show_images: false,
 };
 /*===========================*\
 ||  USER DIRECTORY SETTINGS  ||
 \*===========================*/
-const directory: any = {
+const directory = {
     show_avatars: true,
     min_search_length: 3,
 };
@@ -104,7 +105,7 @@ const schedule = {
 /*===========================*\
 ||    EXPLORE MAP SETTINGS   ||
 \*===========================*/
-const explore: any = {
+const explore = {
     colors: {
         'space-free': '#43a047',
         'space-pending': '#ffb300',
@@ -129,6 +130,7 @@ const explore: any = {
     hide_zones: true,
     use_zone_polygons: false,
     show_simple_sensor_info: false,
+    show_presence_indicators: false,
     legend: [
         ['Available', '#43a047'],
         ['In Use', '#e53935'],
@@ -139,22 +141,39 @@ const explore: any = {
 /**
  * ROOT APPLICATION SETTINGS
  */
-const app: any = {
+const app = {
     name: 'Workplace',
     title: 'Workplace Application',
     description: 'PlaceOS Workplace UI written with Angular Framework',
     short_name: 'STAFF',
-    logo_light: {
-        type: 'img',
-        src: 'assets/logo-light.svg',
-    },
-    logo_dark: {
-        type: 'img',
-        src: 'assets/logo-dark.svg',
-    },
+    logo_light: 'assets/logo-light.svg',
+    logo_dark: 'assets/logo-dark.svg',
     locales: [
-        { id: 'en', name: 'English', flag: '🇦🇺' },
-        // { id: 'fr', name: 'French', flag: '🇫🇷' },
+        { id: 'en-AU', name: 'LANGUAGE.ENGLISH', local: 'English', flag: '🇦🇺' },
+        {
+            id: 'en-US',
+            name: 'LANGUAGE.ENGLISH_US',
+            local: 'English (US)',
+            flag: '🇺🇸',
+        },
+        { id: 'fr', name: 'LANGUAGE.FRENCH', local: 'Français', flag: '🇫🇷' },
+        {
+            id: 'fr-CA',
+            name: 'LANGUAGE.FRENCH_CA',
+            local: 'Français (Canada)',
+            flag: '🇨🇦',
+        },
+        { id: 'es', name: 'LANGUAGE.SPANISH', local: 'Español', flag: '🇪🇸' },
+        {
+            id: 'pt',
+            name: 'LANGUAGE.PORTUGESE',
+            local: 'Português',
+            flag: '🇵🇹',
+        },
+        { id: 'it', name: 'LANGUAGE.ITALIAN', local: 'Italiano', flag: '🇮🇹' },
+        { id: 'zh', name: 'LANGUAGE.CHINESE', local: '中文', flag: '🇨🇳' },
+        { id: 'ja-JP', name: 'LANGUAGE.JAPANESE', local: '日本語', flag: '🇯🇵' },
+        { id: 'ar', name: 'LANGUAGE.ARABIC', local: 'عربية', flag: '' },
     ],
     features: [
         'spaces',
@@ -163,7 +182,6 @@ const app: any = {
         'parking',
         'help',
         'schedule',
-        'wfh',
         'lockers',
         'visitor-invite',
         'group-events',
@@ -197,7 +215,13 @@ const app: any = {
         allow_all_day: true,
         auto_allocation: false,
         show_calendar_links: true,
+        allow_recurrence: true,
         hide_map: false,
+        default_select_as_map: false,
+        default_duration: 60,
+    },
+    parking: {
+        allow_all_day: true,
     },
     analytics: {
         enabled: true,

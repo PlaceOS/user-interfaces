@@ -18,6 +18,10 @@ code {
     margin: 0 0.25rem;
 }
 
+.line-through {
+    text-decoration-line: line-through;
+}
+
 .panel {
     .mdc-icon-button {
         display: flex;
@@ -70,6 +74,26 @@ code {
 
     label {
         width: auto;
+    }
+}
+
+@media print {
+    .cdk-overlay-container {
+        position: initial;
+    }
+
+    .cdk-overlay-backdrop {
+        display: none;
+    }
+
+    .cdk-global-overlay-wrapper {
+        display: block;
+    }
+
+    #placeos mat-dialog-container {
+        .mdc-dialog__surface {
+            box-shadow: none;
+        }
     }
 }
 
@@ -360,7 +384,9 @@ div.mdc-menu-panel {
 .mdc-tooltip {
     font-size: 0.8em;
     background-color: rgba(#212121, 0.85);
-    & > * {
+    border-radius: 4px;
+
+    & > div {
         white-space: pre;
         text-align: left;
     }
@@ -603,6 +629,12 @@ a[icon] {
     }
 }
 
+@media print {
+    .mat-mdc-dialog-surface {
+        box-shadow: none;
+    }
+}
+
 #placeos {
     mat-select {
         .mdc-select-trigger {
@@ -686,6 +718,10 @@ a[icon] {
         }
     }
 
+    .mat-mdc-select-value {
+        overflow: visible;
+    }
+
     mat-slide-toggle {
         .mdc-slide-toggle-bar {
             height: 24px;
@@ -726,6 +762,10 @@ a[icon] {
                 background-color: var(--in);
             }
         }
+    }
+
+    .mat-mdc-select-value {
+        overflow: hidden;
     }
 
     .mdc-tab__text-label {
@@ -1011,18 +1051,6 @@ a[icon] {
 
     .mdc-ink-bar {
         background-color: var(--bc);
-    }
-
-    .ql-toolbar {
-        .ql-stroke {
-            stroke: var(--n);
-        }
-        .ql-picker-label::before {
-            color: var(--bc);
-        }
-    }
-    .ql-blank::before {
-        color: var(--n);
     }
 
     .mdc-menu-panel,

@@ -4,10 +4,11 @@ import { Router } from '@angular/router';
 import {
     AsyncHandler,
     SettingsService,
+    i18n,
     notifyError,
     notifySuccess,
-    openConfirmModal,
 } from '@placeos/common';
+import { openConfirmModal } from '@placeos/components';
 import {
     CalendarEvent,
     GroupEventDetailsModalComponent,
@@ -53,7 +54,7 @@ export class EventStateService extends AsyncHandler {
         filter(([bld]) => !!bld),
         debounceTime(310),
         switchMap(([_, options]) => {
-            this._loading.next('Loading event list...');
+            this._loading.next(i18n('APP.CONCIERGE.EVENTS_LOADING'));
             return queryEvents({
                 period_start: getUnixTime(startOfDay(options.date)),
                 period_end: getUnixTime(
@@ -139,26 +140,30 @@ export class EventStateService extends AsyncHandler {
     public async removeEvent(event: CalendarEvent) {
         const result = await openConfirmModal(
             {
-                title: 'Delete Event',
-                content: `Are you sure you want to delete the event "${event.title}"?`,
+                title: i18n('APP.CONCIERGE.EVENTS_REMOVE_TITLE'),
+                content: i18n('APP.CONCIERGE.EVENTS_REMOVE_MSG', {
+                    title: event.title,
+                }),
                 icon: { content: 'delete' },
-                confirm_text: 'Delete',
+                confirm_text: i18n('COMMON.REMOVE'),
             },
             this._dialog,
         );
         if (result.reason !== 'done') return;
-        result.loading('Deleting event...');
+        result.loading(i18n('APP.CONCIERGE.EVENTS_REMOVE_LOADING'));
         await removeEvent(event.id, {
             calendar: this.calendar,
         })
             .toPromise()
             .catch((e) => {
-                notifyError(e);
+                notifyError(
+                    i18n('APP.CONCIERGE.EVENTS_REMOVE_ERROR', { error: e }),
+                );
                 result.close();
                 throw e;
             });
         result.close();
-        notifySuccess('Successfully deleted event.');
+        notifySuccess(i18n('APP.CONCIERGE.EVENTS_REMOVE_SUCCESS'));
         this._changed.next(Date.now());
     }
 }

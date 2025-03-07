@@ -1,23 +1,25 @@
-import { Component, EventEmitter, Inject, Output } from '@angular/core';
-import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { addMinutes, format, formatDuration, getUnixTime } from 'date-fns';
+import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
+import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
+import { getUnixTime } from 'date-fns';
 
-import { CalendarEvent } from './event.class';
-import { MapPinComponent } from 'libs/components/src/lib/map-pin.component';
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
-import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
-import { Building } from 'libs/organisation/src/lib/building.class';
-import { BuildingLevel } from 'libs/organisation/src/lib/level.class';
+import { DatePipe } from '@angular/common';
 import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
+    getTimezoneOffsetString,
+    i18n,
     notifyError,
     SettingsService,
-    MapsPeopleService,
 } from '@placeos/common';
-import { Space } from 'libs/spaces/src/lib/space.class';
 import { getModule } from '@placeos/ts-client';
-import { MapLocateModalComponent } from 'libs/components/src/lib/map-locate-modal.component';
 import { CateringItem } from 'libs/catering/src/lib/catering-item.class';
+import { MapLocateModalComponent } from 'libs/components/src/lib/map-locate-modal.component';
+import { MapPinComponent } from 'libs/components/src/lib/map-pin.component';
+import { Building } from 'libs/organisation/src/lib/building.class';
+import { BuildingLevel } from 'libs/organisation/src/lib/level.class';
+import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
+import { Space } from 'libs/spaces/src/lib/space.class';
+import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
+import { CalendarEvent } from './event.class';
 import { getEventMetadata } from './events.fn';
 
 const EMPTY_ACTIONS = [];
@@ -26,10 +28,10 @@ const EMPTY_ACTIONS = [];
     selector: 'event-details-modal',
     template: `
         <div
-            class="w-[100vw] h-[100vh] sm:relative sm:inset-auto sm:w-[51rem] sm:h-auto sm:max-h-[80vh] bg-base-100 sm:bg-base-200 sm:dark:bg-neutral-600 sm:rounded overflow-auto space-y-2 pb-2"
+            class="h-screen w-screen space-y-2 overflow-auto bg-base-100 pb-2 sm:relative sm:inset-auto sm:h-auto sm:max-h-[80vh] sm:w-[51rem] sm:rounded sm:bg-base-200 print:min-h-screen print:w-screen print:overflow-visible"
         >
             <div
-                class="sm:flex flex-col items-center pb-4 max-h-screen sm:max-h-[80vh] sm:px-16 sm:border-b bg-base-100 border-base-200"
+                class="max-h-screen flex-col items-center border-base-200 bg-base-100 pb-4 sm:flex sm:max-h-[80vh] sm:border-b sm:px-16 print:border-none"
             >
                 <i
                     binding
@@ -39,40 +41,51 @@ const EMPTY_ACTIONS = [];
                     bind="status"
                 ></i>
                 <div
-                    class="h-8 w-full sm:hidden block"
+                    class="block h-8 w-full sm:hidden"
                     *ngIf="!event?.system?.images?.length"
                 ></div>
                 <div
-                    class="bg-neutral w-full h-64 sm:rounded-b overflow-hidden"
+                    class="h-64 w-full overflow-hidden bg-neutral sm:rounded-b print:hidden"
                     *ngIf="event?.system?.images?.length"
                 >
                     <image-carousel
                         [images]="event?.system?.images"
-                        class="w-full h-64"
+                        class="h-64 w-full"
                     ></image-carousel>
                 </div>
                 <h3
                     title
-                    class="px-3 mt-2 text-xl font-medium w-full"
+                    class="mt-2 w-full px-3 text-xl font-medium"
                     [class.pt-4]="!event?.system?.images?.length"
                 >
                     {{ event.title }}
                 </h3>
-                <div class="sm:flex items-center justify-between w-full">
-                    <div class="flex m-2">
+                <div class="w-full items-center justify-between sm:flex">
+                    <div class="m-2 flex">
                         <status-pill [status]="event_status">
-                            {{ period }}
+                            <div
+                                class="flex flex-col leading-tight"
+                                [class.pr-4]="timezone && tz"
+                            >
+                                <div>{{ period }}</div>
+                                <div
+                                    class="text-xs opacity-30"
+                                    *ngIf="timezone && tz"
+                                >
+                                    {{ period_tz }}
+                                </div>
+                            </div>
                         </status-pill>
                     </div>
                     <div
                         actions
-                        class="flex items-center space-x-2 px-2"
+                        class="flex items-center space-x-2 px-2 print:hidden"
                         *ngIf="event.state !== 'done'"
                     >
                         <button
                             btn
                             matRipple
-                            class="flex-1 h-10"
+                            class="h-10 flex-1"
                             *ngIf="
                                 room_status &&
                                 event?.can_check_in &&
@@ -86,18 +99,19 @@ const EMPTY_ACTIONS = [];
                             (click)="checkin()"
                         >
                             <div
-                                class="flex items-center space-x-2 justify-center"
+                                class="flex items-center justify-center space-x-2"
                             >
-                                <app-icon>{{
+                                <app-icon class="text-2xl">{{
                                     room_status === 'pending'
                                         ? 'arrow_back'
                                         : 'done'
                                 }}</app-icon>
-                                <div class="mr-4" i18n>
+                                <div class="pr-4">
                                     {{
-                                        room_status === 'pending'
-                                            ? 'Check in'
-                                            : 'Checked in'
+                                        (room_status === 'pending'
+                                            ? 'COMMON.CHECK_IN'
+                                            : 'COMMON.CHECKED_IN'
+                                        ) | translate
                                     }}
                                 </div>
                             </div>
@@ -106,7 +120,7 @@ const EMPTY_ACTIONS = [];
                             icon
                             matRipple
                             [matMenuTriggerFor]="menu"
-                            class="bg-secondary rounded text-white h-10 w-10"
+                            class="h-12 w-12 rounded bg-secondary text-white"
                             *ngIf="allow_edit"
                         >
                             <app-icon>more_horiz</app-icon>
@@ -114,22 +128,43 @@ const EMPTY_ACTIONS = [];
                     </div>
                 </div>
             </div>
-            <div class="sm:flex flex-wrap sm:px-12">
+            <div class="flex-wrap sm:flex sm:px-12">
                 <div
-                    class="sm:p-4 sm:bg-base-100 sm:dark:bg-neutral-700 rounded sm:m-2 sm:border border-base-200 flex-grow-[3] min-w-1/3 sm:w-[16rem] space-y-2"
+                    class="min-w-1/3 flex-grow-[3] space-y-2 rounded border-base-200 sm:m-2 sm:w-[16rem] sm:border sm:bg-base-100 sm:p-4"
                 >
-                    <h3 class="px-3 mt-2 text-lg font-medium mb-2" i18n>
-                        Details
+                    <h3 class="mb-2 mt-2 px-3 text-lg font-medium">
+                        {{ 'CALENDAR_EVENT.DETAILS' | translate }}
                     </h3>
-                    <div class="flex items-center px-2 space-x-2">
+                    <div class="flex items-center space-x-2 px-2">
                         <app-icon>event</app-icon>
-                        <div>{{ event.date | date: 'EEEE, dd LLLL y' }}</div>
+                        <div class="flex flex-col leading-tight">
+                            <div>
+                                {{ event.date | date: 'EEEE, dd LLLL y' }}
+                            </div>
+                            <div
+                                class="text-xs opacity-30"
+                                *ngIf="timezone && tz && !tz_date_same"
+                            >
+                                {{
+                                    event.date
+                                        | date: 'EEEE, dd LLLL y (z)' : tz
+                                }}
+                            </div>
+                        </div>
                     </div>
-                    <div class="flex items-center px-2 space-x-2">
+                    <div class="flex items-center space-x-2 px-2">
                         <app-icon>schedule</app-icon>
-                        <div>{{ period }}</div>
+                        <div class="flex flex-col leading-tight">
+                            <div>{{ period }}</div>
+                            <div
+                                class="text-xs opacity-30"
+                                *ngIf="timezone && tz"
+                            >
+                                {{ period_tz }}
+                            </div>
+                        </div>
                     </div>
-                    <div class="flex items-center px-2 space-x-2">
+                    <div class="flex items-center space-x-2 px-2">
                         <app-icon>map</app-icon>
                         <div>
                             <ng-container *ngIf="level">
@@ -143,7 +178,7 @@ const EMPTY_ACTIONS = [];
                         </div>
                     </div>
                     <div
-                        class="flex items-center px-2 space-x-2"
+                        class="flex items-center space-x-2 px-2"
                         *ngIf="building"
                     >
                         <app-icon>place</app-icon>
@@ -154,54 +189,84 @@ const EMPTY_ACTIONS = [];
                     </div>
                 </div>
                 <div
-                    class="mt-4 sm:p-4 sm:bg-base-100 sm:dark:bg-neutral-700 rounded sm:m-2 sm:border border-base-200 flex-grow-[3] min-w-1/3 sm:w-[16rem]"
+                    class="min-w-1/3 mt-4 flex-grow-[3] rounded border-base-200 sm:m-2 sm:w-[16rem] sm:border sm:bg-base-100 sm:p-4"
                 >
                     <div
-                        class="mx-3 border-t border-base-200 sm:border-none flex items-center justify-between"
+                        class="mx-3 flex items-center justify-between border-t border-base-200 sm:border-none"
                     >
-                        <h3 class="text-lg font-medium" i18n>Attendees</h3>
+                        <h3 class="text-lg font-medium">
+                            {{ 'CALENDAR_EVENT.ATTENDEES' | translate }}
+                        </h3>
                         <button
                             matRipple
                             show-attendees
-                            class="clear text-xs underline"
+                            class="clear text-xs underline print:hidden"
                             (click)="show_attendees = true"
-                            i18n
                         >
-                            See All
+                            {{ 'COMMON.VIEW_ALL' | translate }}
                         </button>
                     </div>
                     <div class="flex items-center p-1">
                         <div
-                            class="flex flex-col flex-1 items-center justify-center space-y-1"
+                            class="flex flex-1 flex-col items-center justify-center space-y-1"
                         >
                             <div class="text-lg">{{ accept_count || 0 }}</div>
-                            <div class="text-sm uppercase" i18n>Yes</div>
+                            <div class="text-sm uppercase">
+                                {{ 'COMMON.TRUE' | translate }}
+                            </div>
                         </div>
                         <div
-                            class="flex flex-col flex-1 items-center justify-center space-y-1"
+                            class="flex flex-1 flex-col items-center justify-center space-y-1"
                         >
                             <div class="text-lg">{{ declined_count || 0 }}</div>
-                            <div class="text-sm uppercase" i18n>No</div>
+                            <div class="text-sm uppercase">
+                                {{ 'COMMON.FALSE' | translate }}
+                            </div>
                         </div>
                         <div
-                            class="flex flex-col flex-1 items-center justify-center space-y-1"
+                            class="flex flex-1 flex-col items-center justify-center space-y-1"
                         >
                             <div class="text-lg">{{ pending_count || 0 }}</div>
-                            <div class="text-sm uppercase" i18n>Pending</div>
+                            <div class="text-sm uppercase">
+                                {{ 'COMMON.PENDING' | translate }}
+                            </div>
                         </div>
                     </div>
-                    <h3
-                        class="mx-3 mt-2 pt-2 text-lg font-medium border-t border-base-200"
-                        i18n
-                    >
-                        Host
-                    </h3>
-                    <div class="px-2 flex items-center space-x-2" host>
-                        <a-user-avatar [user]="event.organiser"></a-user-avatar>
-                        <div class="text-sm flex-1 w-px">
-                            <div>{{ event.organiser?.name }}</div>
+                    <div class="hidden print:block">
+                        <ng-container *ngFor="let user of event.attendees">
                             <div
-                                class="opacity-60 truncate w-full"
+                                class="flex items-center space-x-2 px-2"
+                                attendee
+                                *ngIf="user.email !== event.host"
+                            >
+                                <a-user-avatar [user]="user"></a-user-avatar>
+                                <div class="w-px flex-1 text-sm">
+                                    <div class="w-full truncate">
+                                        {{ user?.name }}
+                                    </div>
+                                    <div
+                                        class="w-full truncate opacity-60"
+                                        [title]="user.email"
+                                    >
+                                        {{ user.email }}
+                                    </div>
+                                </div>
+                            </div>
+                        </ng-container>
+                    </div>
+                    <h3
+                        class="mx-3 mt-2 border-t border-base-200 pt-2 text-lg font-medium"
+                    >
+                        {{ 'FORM.HOST' | translate }}
+                    </h3>
+                    <div class="flex items-center space-x-2 px-2" host>
+                        <a-user-avatar [user]="event.organiser"></a-user-avatar>
+                        <div class="w-px flex-1 text-sm">
+                            <div class="w-full truncate">
+                                {{ event.organiser?.name }}
+                            </div>
+                            <div
+                                class="w-full truncate opacity-60"
                                 [title]="event.host"
                             >
                                 {{ event.host }}
@@ -211,39 +276,61 @@ const EMPTY_ACTIONS = [];
                 </div>
                 <ng-container *ngIf="has_catering">
                     <div
-                        class="mt-4 sm:p-4 sm:bg-base-100 sm:dark:bg-neutral-700 rounded sm:m-2 sm:border border-base-200 flex-grow-[3] min-w-1/3 sm:w-[16rem]"
+                        class="min-w-1/3 mt-4 flex-grow-[3] rounded border-base-200 sm:m-2 sm:w-[16rem] sm:border sm:bg-base-100 sm:p-4"
                     >
-                        <h3 class="mx-3 my-2 text-lg font-medium" i18n>
-                            Catering
+                        <h3 class="mx-3 my-2 text-lg font-medium">
+                            {{ 'CALENDAR_EVENT.CATERING' | translate }}
                         </h3>
                         <div class="flex flex-col space-y-2">
                             <div
                                 order
                                 *ngFor="let order of event.valid_catering"
-                                class="border border-base-300 bg-base-100 rounded-xl overflow-hidden"
+                                class="overflow-hidden rounded-xl border border-base-300 bg-base-100"
                             >
                                 <div class="flex items-center space-x-2 p-3">
                                     <div class="flex-1">
                                         <div class="text-sm">
-                                            Order at
                                             {{
-                                                order.deliver_at
-                                                    | date
-                                                        : 'MMM d, ' +
-                                                              time_format
+                                                'CALENDAR_EVENT.CATERING_ORDER_AT'
+                                                    | translate
+                                                        : {
+                                                              time:
+                                                                  order.deliver_at
+                                                                  | date
+                                                                      : 'MMM d, ' +
+                                                                            time_format,
+                                                          }
                                             }}
                                         </div>
-                                        <div class="text-xs opacity-60">
-                                            {{ order.item_count }} item(s) for
-                                            {{
-                                                order.total_cost / 100
-                                                    | currency: currency_code
-                                            }}
+                                        <div
+                                            class="flex items-center space-x-2"
+                                        >
+                                            <div class="text-xs opacity-60">
+                                                {{
+                                                    'CALENDAR_EVENT.CATERING_ORDER_DETAILS'
+                                                        | translate
+                                                            : {
+                                                                  count: order.item_count,
+                                                                  cost:
+                                                                      order.total_cost /
+                                                                          100
+                                                                      | currency
+                                                                          : currency_code,
+                                                              }
+                                                }}
+                                            </div>
+                                            <div
+                                                *ngIf="order.caterer"
+                                                class="rounded bg-base-200 px-2 py-1 text-xs"
+                                            >
+                                                {{ order.caterer }}
+                                            </div>
                                         </div>
                                     </div>
                                     <button
                                         icon
                                         matRipple
+                                        class="print:hidden"
                                         [matTooltip]="
                                             show_order[order.id]
                                                 ? 'Hide order items'
@@ -264,38 +351,46 @@ const EMPTY_ACTIONS = [];
                                     </button>
                                 </div>
                                 <div
-                                    class="flex flex-col bg-base-200 divide-y divide-base-100"
+                                    class="flex flex-col divide-y divide-base-100 bg-base-200"
                                     [@show]="
-                                        show_order[order.id] ? 'show' : 'hide'
+                                        print || show_order[order.id]
+                                            ? 'show'
+                                            : 'hide'
                                     "
                                 >
                                     <div
-                                        class="flex items-center px-3 py-1 space-x-2 hover:opacity-90"
+                                        class="flex items-center space-x-2 px-3 py-1 hover:opacity-90"
                                         *ngFor="let item of order.items"
                                     >
-                                        <div class="flex items-center flex-1">
+                                        <div class="flex flex-1 items-center">
                                             <span class="text-sm">{{
                                                 item.name || 'Item'
                                             }}</span>
                                             <span
-                                                class="text-xs opacity-60 ml-4 font-normal"
+                                                class="ml-4 text-xs font-normal opacity-60"
                                                 *ngIf="item.option_list?.length"
                                                 [matTooltip]="optionList(item)"
                                             >
                                                 {{
-                                                    item.option_list?.length ||
-                                                        '0'
+                                                    'CALENDAR_EVENT.CATERING_ORDER_OPTION_COUNT'
+                                                        | translate
+                                                            : {
+                                                                  count:
+                                                                      item
+                                                                          .option_list
+                                                                          ?.length ||
+                                                                      '0',
+                                                              }
                                                 }}
-                                                option(s)
                                             </span>
                                         </div>
                                         <div
-                                            class="rounded bg-success text-success-content text-xs px-2 py-1"
+                                            class="rounded bg-success px-2 py-1 text-xs text-success-content"
                                         >
                                             x{{ item.quantity }}
                                         </div>
                                         <div
-                                            class="rounded bg-info text-info-content text-xs px-2 py-1"
+                                            class="rounded bg-info px-2 py-1 text-xs text-info-content"
                                         >
                                             {{
                                                 item.unit_price_with_options /
@@ -312,7 +407,7 @@ const EMPTY_ACTIONS = [];
                 </ng-container>
                 <button
                     map
-                    class="mt-4 sm:mt-2 h-64 sm:h-48 relative border border-base-200 overflow-hidden rounded sm:bg-base-100 sm:dark:bg-neutral-700 m-2 flex-grow-[3] min-w-1/3 p-2 w-[calc(100%-1rem)] sm:w-[16rem]"
+                    class="min-w-1/3 relative m-2 mt-4 h-64 w-[calc(100%-1rem)] flex-grow-[3] overflow-hidden rounded border border-base-200 p-2 sm:mt-2 sm:h-48 sm:w-[16rem] sm:bg-base-100"
                     (click)="viewLocation()"
                 >
                     <ng-container *ngIf="!hide_map">
@@ -328,19 +423,18 @@ const EMPTY_ACTIONS = [];
                     </ng-container>
                 </button>
                 <div
-                    class="mt-4 sm:p-4 sm:bg-base-100 sm:dark:bg-neutral-700 rounded sm:m-2 sm:border border-base-200 flex-grow-[3] min-w-1/3 sm:w-[16rem]"
-                    *ngIf="body"
+                    class="min-w-1/3 mt-4 flex-grow-[3] rounded border-base-200 sm:m-2 sm:w-[16rem] sm:border sm:bg-base-100 sm:p-4"
+                    *ngIf="raw_body"
                 >
                     <h3
-                        class="mx-3 text-lg font-medium border-t sm:border-none border-base-200"
-                        i18n
+                        class="mx-3 border-t border-base-200 text-lg font-medium sm:border-none"
                     >
-                        Notes
+                        {{ 'CALENDAR_EVENT.NOTES_HEADER' | translate }}
                     </h3>
                     <div
                         notes
-                        class="mx-4 overflow-hidden max-w-full"
-                        *ngIf="body"
+                        class="mx-4 max-w-full overflow-hidden"
+                        *ngIf="raw_body"
                         [innerHTML]="
                             (body | sanitize) ||
                             'Unable to sanitize notes contents'
@@ -349,20 +443,22 @@ const EMPTY_ACTIONS = [];
                 </div>
                 <ng-container *ngIf="has_assets">
                     <div
-                        class="mt-4 sm:p-4 sm:bg-base-100 sm:dark:bg-neutral-700 rounded sm:m-2 sm:border border-base-200 flex-grow-[3] min-w-1/3 sm:w-[16rem]"
+                        class="min-w-1/3 mt-4 flex-grow-[3] rounded border-base-200 sm:m-2 sm:w-[16rem] sm:border sm:bg-base-100 sm:p-4"
                     >
-                        <h3 class="mx-3 pt-2 text-lg font-medium" i18n>
-                            Assets ({{ event.valid_assets?.length || 0 }})
+                        <h3 class="mx-3 pt-2 text-lg font-medium">
+                            {{ 'CALENDAR_EVENT.ASSETS_HEADER' | translate }} ({{
+                                event.valid_assets?.length || 0
+                            }})
                         </h3>
                         <div class="flex flex-col space-y-2">
                             <div
                                 request
                                 *ngFor="let request of event.valid_assets"
-                                class="border border-base-300 bg-base-100 rounded-xl overflow-hidden"
+                                class="overflow-hidden rounded-xl border border-base-300 bg-base-100"
                             >
                                 <button
                                     matRipple
-                                    class="flex items-center space-x-2 p-3 w-full"
+                                    class="flex w-full items-center space-x-2 p-3"
                                     (click)="
                                         show_request[request.id] =
                                             !show_request[request.id]
@@ -370,17 +466,21 @@ const EMPTY_ACTIONS = [];
                                 >
                                     <div class="flex-1 text-left">
                                         <div class="text-sm">
-                                            Requested for
                                             {{
-                                                request.deliver_at
-                                                    | date
-                                                        : 'MMM d, ' +
-                                                              time_format
+                                                'CALENDAR_EVENT.ASSETS_REQUESTED_FOR'
+                                                    | translate
+                                                        : {
+                                                              time:
+                                                                  request.deliver_at
+                                                                  | date
+                                                                      : 'MMM d, ' +
+                                                                            time_format,
+                                                          }
                                             }}
                                         </div>
                                     </div>
                                     <div
-                                        class="flex items-center justify-center rounded-full w-8 h-8"
+                                        class="flex h-8 w-8 items-center justify-center rounded-full print:hidden"
                                         [class.bg-success]="
                                             request.state === 'approved'
                                         "
@@ -417,7 +517,7 @@ const EMPTY_ACTIONS = [];
                                         </app-icon>
                                     </div>
                                     <div
-                                        class="flex items-center justify-center rounded-full w-8 h-8"
+                                        class="flex h-8 w-8 items-center justify-center rounded-full print:hidden"
                                     >
                                         <app-icon class="text-2xl">
                                             {{
@@ -429,24 +529,24 @@ const EMPTY_ACTIONS = [];
                                     </div>
                                 </button>
                                 <div
-                                    class="flex flex-col bg-base-200 divide-y divide-base-100"
+                                    class="flex flex-col divide-y divide-base-100 bg-base-200"
                                     [@show]="
-                                        show_request[request.id]
+                                        print || show_request[request.id]
                                             ? 'show'
                                             : 'hide'
                                     "
                                 >
                                     <div
-                                        class="flex items-center px-3 py-1 space-x-2 hover:opacity-90"
+                                        class="flex items-center space-x-2 px-3 py-1 hover:opacity-90"
                                         *ngFor="let item of request.items"
                                     >
-                                        <div class="flex items-center flex-1">
+                                        <div class="flex flex-1 items-center">
                                             <span class="text-sm">{{
                                                 item.name || 'Item'
                                             }}</span>
                                         </div>
                                         <div
-                                            class="rounded bg-success text-success-content text-xs px-2 py-1"
+                                            class="rounded bg-success px-2 py-1 text-xs text-success-content"
                                         >
                                             x{{ item.quantity }}
                                         </div>
@@ -460,7 +560,7 @@ const EMPTY_ACTIONS = [];
                     icon
                     matRipple
                     mat-dialog-close
-                    class="absolute top-2 left-2 bg-neutral text-white"
+                    class="absolute left-2 top-2 bg-neutral text-white print:hidden"
                 >
                     <app-icon>close</app-icon>
                 </button>
@@ -481,15 +581,31 @@ const EMPTY_ACTIONS = [];
                     [disabled]="!can_edit"
                     *ngIf="!hide_edit"
                 >
-                    <div class="flex items-center space-x-2 text-base">
-                        <app-icon>edit</app-icon>
-                        <div i18n>Edit event</div>
+                    <div class="flex items-center space-x-2 pr-2 text-base">
+                        <app-icon class="text-2xl">edit</app-icon>
+                        <div>
+                            {{ 'CALENDAR_EVENT.ACTION_EDIT' | translate }}
+                        </div>
                     </div>
                 </button>
                 <button mat-menu-item (click)="remove.emit()">
-                    <div class="flex items-center space-x-2 text-base">
-                        <app-icon>delete</app-icon>
-                        <div i18n>Delete event</div>
+                    <div class="flex items-center space-x-2 pr-2 text-base">
+                        <app-icon class="text-2xl text-error">delete</app-icon>
+                        <div>
+                            {{ 'CALENDAR_EVENT.ACTION_DELETE' | translate }}
+                        </div>
+                    </div>
+                </button>
+                <button
+                    mat-menu-item
+                    *ngIf="is_concierge"
+                    (click)="printEvent()"
+                >
+                    <div class="flex items-center space-x-2 pr-2 text-base">
+                        <app-icon class="text-2xl">print</app-icon>
+                        <div>
+                            {{ 'CALENDAR_EVENT.ACTION_PRINT' | translate }}
+                        </div>
                     </div>
                 </button>
                 <button
@@ -497,9 +613,14 @@ const EMPTY_ACTIONS = [];
                     *ngIf="event.recurring_event_id"
                     (click)="remove.emit(true)"
                 >
-                    <div class="flex items-center space-x-2 text-base">
-                        <app-icon>delete</app-icon>
-                        <div i18n>Delete Series</div>
+                    <div class="flex items-center space-x-2 pr-2 text-base">
+                        <app-icon class="text-2xl text-error">delete</app-icon>
+                        <div>
+                            {{
+                                'CALENDAR_EVENT.ACTION_DELETE_SERIES'
+                                    | translate
+                            }}
+                        </div>
                     </div>
                 </button>
                 <button
@@ -507,9 +628,9 @@ const EMPTY_ACTIONS = [];
                     *ngFor="let act of custom_actions"
                     (click)="action.emit(act.id)"
                 >
-                    <div class="flex items-center space-x-2 text-base">
-                        <app-icon>{{ act.icon }}</app-icon>
-                        <div i18n>{{ act.name }}</div>
+                    <div class="flex items-center space-x-2 pr-2 text-base">
+                        <app-icon class="text-2xl">{{ act.icon }}</app-icon>
+                        <div>{{ act.name }}</div>
                     </div>
                 </button>
             </mat-menu>
@@ -518,8 +639,9 @@ const EMPTY_ACTIONS = [];
     styles: [``],
     animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
     providers: [SpacePipe],
+    standalone: false,
 })
-export class EventDetailsModalComponent {
+export class EventDetailsModalComponent implements OnInit {
     @Output() public action = new EventEmitter();
     @Output() public edit = new EventEmitter();
     @Output() public remove = new EventEmitter();
@@ -529,9 +651,11 @@ export class EventDetailsModalComponent {
     public room_status = '';
     public hide_map = false;
     public hide_edit = false;
-    public show_attendees: boolean = false;
+    public raw_body = '';
+    public print = false;
+    public show_attendees = false;
     public readonly event = this._event;
-    public readonly no_edit_message =
+    public no_edit_message =
         'Editing bookings long than \n a day is not available';
     public features = [
         {
@@ -545,6 +669,10 @@ export class EventDetailsModalComponent {
         (_) => _.booking_type === 'asset-request',
     );
 
+    public get is_concierge() {
+        return this._settings.app_name.toLowerCase().includes('concierge');
+    }
+
     public get can_edit() {
         return true;
         // return (
@@ -556,6 +684,29 @@ export class EventDetailsModalComponent {
     public level: BuildingLevel = new BuildingLevel();
     public building: Building = new Building();
     public space: Space = new Space();
+
+    private _local_tz = getTimezoneOffsetString(
+        Intl.DateTimeFormat().resolvedOptions().timeZone,
+    );
+
+    public get timezone() {
+        return this._settings.get('app.events.use_building_timezone')
+            ? this._org.building.timezone
+            : '';
+    }
+
+    public get tz() {
+        const tz = this.timezone;
+        if (!tz) return '';
+        const tz_offset = getTimezoneOffsetString(tz);
+        return tz_offset === this._local_tz ? '' : tz_offset;
+    }
+
+    public get tz_date_same() {
+        return !this._date
+            .transform(this.event.date, 'yyyy-MM-dd', this.tz)
+            .localeCompare(this._date.transform(this.event.date, 'yyyy-MM-dd'));
+    }
 
     public accept_count = this._event.attendees.reduce(
         (count, user) => (count += user.response_status === 'accepted' ? 1 : 0),
@@ -606,28 +757,46 @@ export class EventDetailsModalComponent {
         private _settings: SettingsService,
         private _dialog: MatDialog,
     ) {
+        const doc = new DOMParser().parseFromString(
+            this.event.body,
+            'text/html',
+        );
+        this.raw_body = (doc.body.textContent || '').trim();
         this._load().then();
+    }
+
+    public ngOnInit() {
+        this.no_edit_message = i18n('CALENDAR_EVENT.NO_LONG_EDIT_MSG');
     }
 
     public get period() {
         if (this.event?.all_day) return 'All Day';
-        const start = this.event?.date || Date.now();
-        const duration = this.event?.duration || 60;
-        const end = addMinutes(start, duration);
+        return this.formattedTime();
+    }
+
+    public get period_tz() {
+        return this.formattedTime(this.tz);
+    }
+
+    private _date: DatePipe = new DatePipe('en');
+
+    public formattedTime(tz?: string) {
+        const date = this.event.date;
+        const date_end = this.event.date_end;
+        const all_day = this.event.all_day;
+        const tz_format = this._date.transform(date, 'zzzz', tz);
+        const start_date = this._date.transform(date, 'MMM d', tz);
+        const start_time = this._date.transform(date, this.time_format, tz);
+        const end_date = this._date.transform(date_end, 'MMM d', tz);
+        const end_time = this._date.transform(date_end, this.time_format, tz);
         const is_multiday = this.event?.duration > 24 * 60;
-        const dur = formatDuration({
-            hours: Math.floor(duration / 60),
-            minutes: duration % 60,
-        })
-            .replace(' hour', 'hr')
-            .replace(' minute', 'min');
-        return `${format(
-            start,
-            (is_multiday ? `MMM d, ` : '') + this.time_format,
-        )} - ${format(
-            end,
-            (is_multiday ? `MMM d, ` : '') + this.time_format,
-        )} ${duration < 24 * 60 ? '(' + dur + ')' : ''}`;
+
+        if (is_multiday) {
+            return `${start_date}${all_day ? '' : ', ' + start_time} - ${end_date}${all_day ? '' : ', ' + end_time}`;
+        } else if (all_day) {
+            return 'All Day';
+        }
+        return `${start_time} - ${end_time} ${'(' + tz_format + ')'}`;
     }
 
     public optionList(item: CateringItem) {
@@ -657,6 +826,11 @@ export class EventDetailsModalComponent {
                 content: MapPinComponent,
             },
         ];
+        const doc = new DOMParser().parseFromString(
+            this.event.body,
+            'text/html',
+        );
+        this.raw_body = (doc.body.textContent || '').trim();
         if (
             this.event.extension_data.catering?.length ||
             this.event.extension_data.assets?.length
@@ -702,5 +876,13 @@ export class EventDetailsModalComponent {
         ref.afterClosed().subscribe(() => {
             this.hide_map = false;
         });
+    }
+
+    public printEvent() {
+        this.print = true;
+        setTimeout(() => {
+            window.print();
+            setTimeout(() => (this.print = false), 100);
+        }, 300);
     }
 }

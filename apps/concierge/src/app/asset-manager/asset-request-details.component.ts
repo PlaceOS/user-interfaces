@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { AssetManagerStateService } from './asset-manager-state.service';
-import { OrganisationService } from '@placeos/organisation';
 import { SettingsService } from '@placeos/common';
+import { OrganisationService } from '@placeos/organisation';
+import { AssetManagerStateService } from './asset-manager-state.service';
 
 @Component({
     selector: 'asset-request-details',
@@ -13,25 +13,25 @@ import { SettingsService } from '@placeos/common';
         >
             <div class="absolute inset-0 bg-black opacity-50"></div>
             <div
-                class="absolute inset-y-0 right-0 bg-base-100 w-[480px]"
+                class="absolute inset-y-0 right-0 w-[480px] bg-base-100"
                 (click)="$event.stopPropagation()"
             >
                 <button
                     icon
                     matRipple
                     (click)="request = null; requestChange.emit(request)"
-                    class="absolute top-1 right-1"
+                    class="absolute right-1 top-1"
                 >
                     <app-icon>close</app-icon>
                 </button>
-                <div class="border-b border-base-200 px-2 py-4 flex space-x-4">
+                <div class="flex space-x-4 border-b border-base-200 px-2 py-4">
                     <a-user-avatar
                         [user]="{ name: request.user_name }"
                         class="text-xl"
                     ></a-user-avatar>
                     <div details class="space-y-1">
                         <div class="font-medium">{{ request.user_name }}</div>
-                        <div class="flex items-center text-sm space-x-2">
+                        <div class="flex items-center space-x-2 text-sm">
                             <app-icon>mail</app-icon>
                             <a
                                 class="underline"
@@ -40,7 +40,7 @@ import { SettingsService } from '@placeos/common';
                                 {{ request.user_email || 'staff@place.tech' }}
                             </a>
                         </div>
-                        <div class="flex items-center text-sm space-x-2">
+                        <div class="flex items-center space-x-2 text-sm">
                             <app-icon>call</app-icon>
                             <a
                                 class="underline"
@@ -49,51 +49,62 @@ import { SettingsService } from '@placeos/common';
                                 {{ request.user_phone || '04 1234 5678' }}
                             </a>
                         </div>
-                        <div class="flex items-center text-sm space-x-2">
+                        <div class="flex items-center space-x-2 text-sm">
                             <app-icon>work_outline</app-icon>
                             <div>{{ request.user_company || 'PlaceOS' }}</div>
                         </div>
                     </div>
                 </div>
-                <div class="px-3 py-4 relative">
+                <div class="relative px-3 py-4">
                     <div class="flex items-center space-x-4">
                         <div
-                            class="h-6 w-6 rounded-full text-secondary bg-base-200 flex items-center justify-center"
+                            class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200 text-secondary"
                         >
                             <app-icon class="text-sm">send</app-icon>
                         </div>
-                        <div class="font-medium">Asset Requested</div>
+                        <div class="font-medium">
+                            {{
+                                'APP.CONCIERGE.ASSETS_REQUESTS_ITEMS'
+                                    | translate
+                            }}
+                        </div>
                     </div>
-                    <div class="pl-10 flex flex-col mt-1">
+                    <div class="mt-1 flex flex-col pl-10">
                         <div *ngFor="let item of items">
                             {{ item.name }}
                             <span
-                                class="text-xs bg-success text-success-content px-2 py-1 rounded"
+                                class="rounded bg-success px-2 py-1 text-xs text-success-content"
                             >
                                 x{{ item.quantity }}
                             </span>
                         </div>
                     </div>
-                    <div class="flex items-center space-x-4 mt-4">
+                    <div class="mt-4 flex items-center space-x-4">
                         <div
-                            class="h-6 w-6 rounded-full text-secondary bg-base-200 flex items-center justify-center"
+                            class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200 text-secondary"
                         >
                             <app-icon class="text-sm">event</app-icon>
                         </div>
-                        <div class="font-medium">Date For</div>
+                        <div class="font-medium">
+                            {{
+                                'APP.CONCIERGE.ASSETS_REQUESTS_DATE' | translate
+                            }}
+                        </div>
                     </div>
-                    <div class="pl-10 mt-1">
+                    <div class="mt-1 pl-10">
                         {{ request.date | date: 'EEEE, MMMM d, y' }}
                     </div>
-                    <div class="flex items-center space-x-4 mt-4">
+                    <div class="mt-4 flex items-center space-x-4">
                         <div
-                            class="h-6 w-6 rounded-full text-secondary bg-base-200 flex items-center justify-center"
+                            class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200 text-secondary"
                         >
                             <app-icon class="text-sm">schedule</app-icon>
                         </div>
-                        <div class="font-medium">Period</div>
+                        <div class="font-medium">
+                            {{ 'COMMON.PERIOD' | translate }}
+                        </div>
                     </div>
-                    <div class="pl-10 mt-1">
+                    <div class="mt-1 pl-10">
                         {{ request.date | date: time_format }} &ndash;
                         {{
                             request.date + request.duration * 60 * 1000
@@ -101,32 +112,34 @@ import { SettingsService } from '@placeos/common';
                         }}
                         ({{ request.duration | duration }})
                     </div>
-                    <div class="flex items-center space-x-4 mt-4">
+                    <div class="mt-4 flex items-center space-x-4">
                         <div
-                            class="h-6 w-6 rounded-full text-secondary bg-base-200 flex items-center justify-center"
+                            class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200 text-secondary"
                         >
                             <app-icon class="text-sm">place</app-icon>
                         </div>
                         <div class="font-medium">Floor</div>
                     </div>
-                    <div class="pl-10 mt-1">
+                    <div class="mt-1 pl-10">
                         {{ level(request.zones)?.display_name || 'N/A' }}
                     </div>
-                    <div class="flex items-center space-x-4 mt-4">
+                    <div class="mt-4 flex items-center space-x-4">
                         <div
-                            class="h-6 w-6 rounded-full text-secondary bg-base-200 flex items-center justify-center"
+                            class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200 text-secondary"
                         >
                             <app-icon class="text-sm">meeting_room</app-icon>
                         </div>
-                        <div class="font-medium">Room</div>
+                        <div class="font-medium">
+                            {{ 'RESOURCE.ROOM' | translate }}
+                        </div>
                     </div>
-                    <div class="pl-10 mt-1">
+                    <div class="mt-1 pl-10">
                         {{ request.description }}
                     </div>
-                    <div class="absolute top-4 right-4 text-sm">
+                    <div class="absolute right-4 top-4 text-sm">
                         <button
                             matRipple
-                            class="rounded-3xl !bg-opacity-20 flex items-center px-2 py-1 w-full text-left space-x-2 mb-4"
+                            class="mb-4 flex w-full items-center space-x-2 rounded-3xl !bg-opacity-20 px-2 py-1 text-left"
                             [class.bg-success]="request.status === 'approved'"
                             [class.bg-error]="request.status === 'declined'"
                             [class.bg-warning]="request.status === 'tentative'"
@@ -149,11 +162,11 @@ import { SettingsService } from '@placeos/common';
                                     request.status === 'approved'
                                         ? 'done'
                                         : request.status === 'declined'
-                                        ? 'close'
-                                        : 'warning'
+                                          ? 'close'
+                                          : 'warning'
                                 }}
                             </app-icon>
-                            <div class="capitalize flex-1">
+                            <div class="flex-1 capitalize">
                                 {{ request.status }}
                             </div>
                             <app-icon class="text-2xl">expand_more</app-icon>
@@ -163,22 +176,22 @@ import { SettingsService } from '@placeos/common';
                                 mat-menu-item
                                 (click)="setStatus('approved')"
                             >
-                                Approve
+                                {{ 'COMMON.APPROVE' | translate }}
                             </button>
                             <button
                                 mat-menu-item
                                 (click)="setStatus('declined')"
                             >
-                                Decline
+                                {{ 'COMMON.DECLINE' | translate }}
                             </button>
                         </mat-menu>
                         <button
                             matRipple
-                            class="bg-none w-full flex items-center px-2 py-1 text-left border border-base-200 rounded-none"
+                            class="flex w-full items-center rounded-none border border-base-200 bg-none px-2 py-1 text-left"
                             [matMenuTriggerFor]="tracking_menu"
                             [disabled]="loading"
                         >
-                            <div class="capitalize flex-1">
+                            <div class="flex-1 capitalize">
                                 {{
                                     (request.extension_data?.tracking
                                         | splitjoin) || 'In Storage'
@@ -191,19 +204,28 @@ import { SettingsService } from '@placeos/common';
                                 mat-menu-item
                                 (click)="setTracking('in_storage')"
                             >
-                                In Storage
+                                {{
+                                    'APP.CONCIERGE.ASSETS_REQUESTS_TRACKING_STORAGE'
+                                        | translate
+                                }}
                             </button>
                             <button
                                 mat-menu-item
                                 (click)="setTracking('in_transit')"
                             >
-                                In Transit
+                                {{
+                                    'APP.CONCIERGE.ASSETS_REQUESTS_TRACKING_TRANSIT'
+                                        | translate
+                                }}
                             </button>
                             <button
                                 mat-menu-item
                                 (click)="setTracking('at_location')"
                             >
-                                At Location
+                                {{
+                                    'APP.CONCIERGE.ASSETS_REQUESTS_TRACKING_LOCATION'
+                                        | translate
+                                }}
                             </button>
                         </mat-menu>
                     </div>
@@ -212,6 +234,7 @@ import { SettingsService } from '@placeos/common';
         </div>
     `,
     styles: [``],
+    standalone: false,
 })
 export class AssetRequestDetailsComponent {
     @Input() public request: any;
@@ -230,7 +253,7 @@ export class AssetRequestDetailsComponent {
     constructor(
         private _state: AssetManagerStateService,
         private _org: OrganisationService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {}
 
     public level(zones) {

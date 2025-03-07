@@ -5,12 +5,12 @@ import { catchError, map, switchMap } from 'rxjs/operators';
 import { toQueryString } from 'libs/common/src/lib/api';
 import { GuestUser } from 'libs/users/src/lib/user.class';
 
-import { CalendarEvent } from './event.class';
 import { addMinutes, getUnixTime } from 'date-fns';
 import {
     queryCalendarAvailability,
     querySpaceFreeBusy,
 } from 'libs/calendar/src/lib/calendar.fn';
+import { CalendarEvent } from './event.class';
 import { EventExtensionData } from './event.interfaces';
 
 export interface CalendarEventQueryParams {
@@ -294,6 +294,25 @@ export function getEventMetadata(
 }
 
 /**
+ * Show the extension data for an event
+ * @param id ID of the event
+ * @param system_id ID of the system associated with the event
+ * @param query Extra query parameters to pass to the API request
+ */
+export function showEventMetadata(
+    id: string,
+    system_id: string,
+    query: { ical_uid?: string } = {},
+) {
+    const q = toQueryString({ ...query });
+    return get(
+        `${EVENTS_ENDPOINT}/${encodeURIComponent(
+            id,
+        )}/metadata/${encodeURIComponent(system_id)}${q ? '?' + q : ''}`,
+    ).pipe(map((item) => item as EventExtensionData));
+}
+
+/**
  * Update the extension data for an event
  * @param id ID of the event
  * @param system_id ID of the system associated with the event
@@ -372,16 +391,18 @@ export function querySpaceAvailability(
                         (s) => s.id === id || (s as any).resource?.id === id,
                     ),
             );
-            if (
-                ignore_check.length &&
-                ignore_check[0].id === ignore &&
-                id_list.includes(ignore) &&
-                ignore_check[0].inUseAt(
-                    ignore_period[0] || start,
-                    ignore_period[1] || duration,
-                )
-            ) {
-                short_list[id_list.indexOf(ignore)] = true;
+            for (const space of ignore_check) {
+                if (!id_list.includes(space.id)) continue;
+                const availability = space.availability.filter(
+                    (i) =>
+                        !(
+                            i.date === ignore_period[0] &&
+                            i.duration === ignore_period[1]
+                        ),
+                );
+                short_list[id_list.indexOf(space.id)] = !availability.find(
+                    (i) => i.status !== 'free',
+                );
             }
             return short_list;
         }),

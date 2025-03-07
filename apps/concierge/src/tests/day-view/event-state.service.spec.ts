@@ -1,17 +1,17 @@
 import { MatDialog } from '@angular/material/dialog';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
 import { SpacesService } from '@placeos/spaces';
-import { BehaviorSubject, of, timer } from 'rxjs';
-import { take } from 'rxjs/operators';
 import {
     endOfDay,
-    endOfWeek,
     endOfMonth,
+    endOfWeek,
     getUnixTime,
+    startOfDay,
     startOfMonth,
     startOfWeek,
-    startOfDay,
 } from 'date-fns';
+import { BehaviorSubject, of, timer } from 'rxjs';
+import { take } from 'rxjs/operators';
 import { EventsStateService } from '../../app/day-view/events-state.service';
 
 jest.mock('@placeos/events');
@@ -20,8 +20,8 @@ import * as events_mod from '@placeos/events';
 import { MockProvider } from 'ng-mocks';
 
 import { SettingsService } from 'libs/common/src/lib/settings.service';
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { Building } from 'libs/organisation/src/lib/building.class';
+import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { Region } from 'libs/organisation/src/lib/region.class';
 
 describe('EventsStateService', () => {
@@ -54,23 +54,25 @@ describe('EventsStateService', () => {
         await timer(4).toPromise();
         spectator.service.stopPolling();
         await timer(301).toPromise();
-        let events = await spectator.service.events.pipe(take(1)).toPromise();
+        let events = await spectator.service.event_list
+            .pipe(take(1))
+            .toPromise();
         expect(events).toHaveLength(0);
         (events_mod as any).queryEvents = jest.fn(() =>
             of([
                 { resources: [{ email: '1' }] },
                 { resources: [{ email: '2' }] },
-            ])
+            ]),
         );
         spectator.service.setZones(['bld-234']);
         await timer(301).toPromise();
-        events = await spectator.service.events.pipe(take(1)).toPromise();
+        events = await spectator.service.event_list.pipe(take(1)).toPromise();
         expect(events).toHaveLength(2);
     });
 
     it('should allow filtering of listed events', async () => {
         (events_mod as any).queryEvents = jest.fn(() => of([]));
-        spectator.service.events.subscribe();
+        spectator.service.event_list.subscribe();
         spectator.service.setZones(['bld-123']);
         spectator.service.startPolling('day', 2);
         await timer(5).toPromise();
@@ -85,7 +87,7 @@ describe('EventsStateService', () => {
                     date: Date.now(),
                     resources: [{ email: '1', zones: ['bld-234'] }],
                 },
-            ])
+            ]),
         );
         spectator.service.setZones([]);
         await timer(305).toPromise();
@@ -96,7 +98,7 @@ describe('EventsStateService', () => {
     it('should allow polling of events for day', async () => {
         (events_mod as any).queryEvents = jest.fn(() => of([]));
         spectator.service.setZones(['bld-123']);
-        spectator.service.events.subscribe();
+        spectator.service.event_list.subscribe();
         spectator.service.filtered.subscribe();
         spectator.service.startPolling('day', 2);
         await timer(5).toPromise();
@@ -113,7 +115,7 @@ describe('EventsStateService', () => {
     it('should allow polling of events for week', async () => {
         (events_mod as any).queryEvents = jest.fn(() => of([]));
         spectator.service.setZones(['bld-123']);
-        spectator.service.events.subscribe();
+        spectator.service.event_list.subscribe();
         spectator.service.filtered.subscribe();
         spectator.service.startPolling('week', 2);
         await timer(5).toPromise();
@@ -130,7 +132,7 @@ describe('EventsStateService', () => {
     it('should allow polling of events for month', async () => {
         (events_mod as any).queryEvents = jest.fn(() => of([]));
         spectator.service.setZones(['bld-123']);
-        spectator.service.events.subscribe();
+        spectator.service.event_list.subscribe();
         spectator.service.filtered.subscribe();
         spectator.service.startPolling('month', 2);
         await timer(5).toPromise();

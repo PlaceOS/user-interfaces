@@ -1,40 +1,42 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { Space } from '@placeos/spaces';
 import { querySystems } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
-import { debounceTime, map, shareReplay, switchMap, tap } from 'rxjs/operators';
+import { debounceTime, map, shareReplay, switchMap } from 'rxjs/operators';
 
 const SYS_ID_KEY = 'PLACEOS.ASSISTANT.system';
 
 @Component({
     selector: 'app-bootstrap',
     template: `
-        <div class="absolute inset-0 bg-base-200 z-0"></div>
+        <div class="absolute inset-0 z-0 bg-base-200"></div>
         <div
-            class="relative bg-base-100 mx-auto my-8 border border-base-300 rounded-lg w-[28rem] z-10 overflow-hidden"
-        >     
+            class="relative z-10 mx-auto my-8 w-[28rem] overflow-hidden rounded-lg border border-base-300 bg-base-100"
+        >
             <header
-                class="px-4 py-3 bg-secondary text-secondary-content text-xl font-medium flex items-center justify-between w-full"
+                class="flex w-full items-center justify-between bg-secondary px-4 py-3 text-xl font-medium text-secondary-content"
             >
-                <div>Assistant Panel</div>
-                <div class="px-2 py-1 rounded text-sm font-mono">SETUP</div>
+                <div>{{ 'COMMON.BOOTSTRAP_ASSISTANT' | translate }}</div>
+                <div class="rounded px-2 py-1 font-mono text-sm uppercase">
+                    {{ 'COMMON.BOOTSTRAP_SETUP' | translate }}
+                </div>
             </header>
-            <main class="p-4 w-full flex flex-col space-y-2" *ngIf="!loading; else load_state">
-                <label for="system-id" i18n="@@systemLabel">
-                    {{ 'PANEL.BOOTSTRAP_LABEL' | translate }}
+            <main
+                class="flex w-full flex-col space-y-2 p-4"
+                *ngIf="!loading; else load_state"
+            >
+                <label for="system-id">
+                    {{ 'COMMON.BOOTSTRAP_LABEL' | translate }}
                 </label>
-                <mat-form-field
-                    appearance="outline"
-                    class="w-full"
-                >
+                <mat-form-field appearance="outline" class="w-full">
                     <input
                         matInput
                         [ngModel]="system_id$ | async"
                         [matAutocomplete]="auto"
-                        placeholder="System ID"
+                        [placeholder]="'COMMON.BOOTSTRAP_LABEL' | translate"
                         (ngModelChange)="system_id$.next($event)"
                     />
                     <mat-spinner
@@ -43,8 +45,7 @@ const SYS_ID_KEY = 'PLACEOS.ASSISTANT.system';
                         *ngIf="loading === 'search'"
                     ></mat-spinner>
                     <mat-hint class="-mx-4">
-                        Select the system to connect to for Assistant
-                        functionality
+                        {{ 'COMMON.BOOTSTRAP_ASSISTANT_INFO' | translate }}
                     </mat-hint>
                 </mat-form-field>
                 <mat-autocomplete #auto="matAutocomplete">
@@ -54,7 +55,7 @@ const SYS_ID_KEY = 'PLACEOS.ASSISTANT.system';
                     >
                         <div class="leading-tight">
                             <div class="name">{{ option.name }}</div>
-                            <div class="text-xs text-dark-fade">
+                            <div class="text-dark-fade text-xs">
                                 {{ option.id }}
                             </div>
                         </div>
@@ -66,35 +67,36 @@ const SYS_ID_KEY = 'PLACEOS.ASSISTANT.system';
                             !(space_list | async)?.length
                         "
                     >
-                        {{
-                            'PANEL.BOOTSTRAP_INPUT_PLACEHOLDER' | translate
-                        }}
+                        {{ 'COMMON.BOOTSTRAP_INPUT_PLACEHOLDER' | translate }}
                     </mat-option>
                 </mat-autocomplete>
             </main>
-            <footer class="w-full px-4 py-2 flex items-center justify-end border-t border-base-300" *ngIf="!loading">
+            <footer
+                class="flex w-full items-center justify-end border-t border-base-300 px-4 py-2"
+                *ngIf="!loading"
+            >
                 <button
                     btn
                     matRipple
                     class="w-32"
                     [disabled]="!system_id$.getValue()"
                     (click)="bootstrap()"
-                    i18n
                 >
                     {{ 'COMMON.CONTINUE' | translate }}
                 </button>
             </footer>
         </div>
         <ng-template #load_state>
-            <main class="flex flex-col items-center justify-center p-8 w-full">
+            <main class="flex w-full flex-col items-center justify-center p-8">
                 <mat-spinner [diameter]="48" />
-                <p>{{ loading }}</p>
+                <p>{{ 'COMMON.BOOTSTRAP_LOADING' | translate }}</p>
             </main>
         </ng-template>
     `,
     styles: [],
+    standalone: false,
 })
-export class BootstrapComponent extends AsyncHandler {
+export class BootstrapComponent extends AsyncHandler implements OnInit {
     public loading = '';
     /** ID of the system to bootstrap */
     public system_id$ = new BehaviorSubject('');
@@ -114,13 +116,13 @@ export class BootstrapComponent extends AsyncHandler {
                   });
         }),
         map((_) => _.data.map((_) => new Space(_ as any))),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     constructor(
         private _org: OrganisationService,
         private _router: Router,
-        private _route: ActivatedRoute
+        private _route: ActivatedRoute,
     ) {
         super();
     }
@@ -134,11 +136,11 @@ export class BootstrapComponent extends AsyncHandler {
                 }
                 if (params.has('system_id') || params.has('sys_id')) {
                     this.system_id$.next(
-                        params.get('system_id') || params.get('sys_id')
+                        params.get('system_id') || params.get('sys_id'),
                     );
                     this.bootstrap();
                 }
-            })
+            }),
         );
         this.checkBootstrapped();
     }

@@ -5,7 +5,7 @@ import { EnrolmentStateService } from './enrolment-state.service';
     selector: 'enrolment-event-details',
     template: `
         <div
-            class="bg-base-100 p-4 mx-auto my-4 border border-base-200 shadow w-[480px] max-w-[calc(100vw-2rem)] rounded space-y-4"
+            class="mx-auto my-4 w-[480px] max-w-[calc(100vw-2rem)] space-y-4 rounded border border-base-200 bg-base-100 p-4 shadow"
         >
             <h3 class="text-center text-xl font-medium">Meeting Details</h3>
             <div>
@@ -26,6 +26,7 @@ import { EnrolmentStateService } from './enrolment-state.service';
         </div>
     `,
     styles: [``],
+    standalone: false,
 })
 export class EnrolmentEventDetailsComponent {
     public readonly event = this._state.event;

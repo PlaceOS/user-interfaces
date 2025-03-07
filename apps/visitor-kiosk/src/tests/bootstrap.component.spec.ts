@@ -9,9 +9,11 @@ import {
     Building,
     BuildingLevel,
     OrganisationService,
+    Region,
 } from '@placeos/organisation';
 import { MockProvider } from 'ng-mocks';
-import { of } from 'rxjs';
+import { BehaviorSubject, of } from 'rxjs';
+import { take } from 'rxjs/operators';
 import { BootstrapComponent } from '../app/bootstrap.component';
 
 describe('BootstrapComponent', () => {
@@ -30,6 +32,16 @@ describe('BootstrapComponent', () => {
                     new BuildingLevel({ id: '2' }),
                 ],
                 levelWithID: () => new BuildingLevel({ id: '1' }),
+                region_list: new BehaviorSubject([
+                    new Region({ name: '1', id: '1' }),
+                ]),
+                active_buildings: new BehaviorSubject([
+                    new Building({ name: '1', id: '1', parent_id: '1' }),
+                ]),
+                active_levels: new BehaviorSubject([
+                    new BuildingLevel({ id: '1' }),
+                    new BuildingLevel({ id: '2' }),
+                ]),
                 initialised: of(true),
             }),
             MockProvider(SettingsService, { get: jest.fn() }),
@@ -43,7 +55,7 @@ describe('BootstrapComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should allow selecting level', () => {
+    it('should allow selecting level', async () => {
         expect('[level]').not.toExist();
         expect('mat-select').toHaveLength(1);
         spectator.click('[building]');
@@ -52,7 +64,9 @@ describe('BootstrapComponent', () => {
 
         expect(spectator.component.active_building.id).toBe('1');
         expect(spectator.component.active_level).toBeFalsy();
-        expect(spectator.component.levels.length).toBe(2);
+        expect(
+            (await spectator.component.levels.pipe(take(1)).toPromise()).length,
+        ).toBe(2);
         expect('[level]').toExist();
         spectator.click('[level]');
         spectator.click(document.querySelector('mat-option'));
@@ -75,19 +89,19 @@ describe('BootstrapComponent', () => {
         spectator.component.bootstrapKiosk();
         expect(localStorage.setItem).toHaveBeenCalledWith(
             'KIOSK.building',
-            'bld-1'
+            'bld-1',
         );
         expect(localStorage.setItem).toHaveBeenCalledWith(
             'KIOSK.level',
-            'lvl-1'
+            'lvl-1',
         );
         expect(localStorage.setItem).not.toHaveBeenCalledWith(
             'KIOSK.orientation',
-            '90'
+            '90',
         );
         expect(localStorage.setItem).not.toHaveBeenCalledWith(
             'KIOSK.location',
-            'kiosk-1'
+            'kiosk-1',
         );
         spectator.component.active_rotation = { id: '90', name: '' };
         spectator.component.active_location = {
@@ -97,11 +111,11 @@ describe('BootstrapComponent', () => {
         spectator.component.bootstrapKiosk();
         expect(localStorage.setItem).toHaveBeenCalledWith(
             'KIOSK.orientation',
-            '90'
+            '90',
         );
         expect(localStorage.setItem).toHaveBeenCalledWith(
             'KIOSK.location',
-            'kiosk-1'
+            'kiosk-1',
         );
     });
 
@@ -113,11 +127,11 @@ describe('BootstrapComponent', () => {
         expect(localStorage.removeItem).toHaveBeenCalledWith('KIOSK.building');
         expect(localStorage.removeItem).toHaveBeenCalledWith('KIOSK.level');
         expect(localStorage.removeItem).toHaveBeenCalledWith(
-            'KIOSK.orientation'
+            'KIOSK.orientation',
         );
     });
 
-    it('should re-direct if already bootstrapped', fakeAsync(() => {
+    it('should re-direct if already bootstrapped', fakeAsync(async () => {
         const router = spectator.inject(Router);
         expect(router.navigate).not.toHaveBeenCalled();
         spectator.component.ngOnInit();
@@ -128,6 +142,6 @@ describe('BootstrapComponent', () => {
         spectator.component.ngOnInit();
         spectator.tick(1001);
         // TODO: Fix
-        // expect(router.navigate).toHaveBeenCalledWith(['/welcome']);
+        // expect(router.navigate).toHaveBeenCalled();
     }));
 });

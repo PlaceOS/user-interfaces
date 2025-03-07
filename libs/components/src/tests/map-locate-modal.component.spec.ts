@@ -6,8 +6,8 @@ import { IconComponent, InteractiveMapComponent } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 
-import { MapLocateModalComponent } from '../lib/map-locate-modal.component';
 import { SettingsService } from '@placeos/common';
+import { MapLocateModalComponent } from '../lib/map-locate-modal.component';
 
 describe('MapLocateModalComponent', () => {
     let spectator: Spectator<MapLocateModalComponent>;

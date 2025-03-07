@@ -1,9 +1,9 @@
 import {
     Component,
-    Input,
-    SimpleChanges,
     forwardRef,
+    Input,
     OnChanges,
+    SimpleChanges,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { AsyncHandler, SettingsService } from '@placeos/common';
@@ -54,20 +54,20 @@ interface DateItem {
                 </div>
             </div>
             <div
-                class="flex items-center text-sm mb-2 pb-2 border-b border-base-200"
+                class="mb-2 flex items-center border-b border-base-200 pb-2 text-sm"
             >
                 <div
-                    class="flex-1 opacity-60 text-center"
-                    *ngFor="let day of date_list | slice: 0:7"
+                    class="flex-1 text-center opacity-60"
+                    *ngFor="let day of date_list | slice: 0 : 7"
                 >
                     {{ day?.id | date: 'EE' }}
                 </div>
             </div>
-            <div class="flex items-center justify-between flex-wrap">
+            <div class="flex flex-wrap items-center justify-between">
                 <button
                     icon
                     name="schedule-set-date"
-                    class="min-w-[14%] w-9 h-9 relative overflow-visible my-0.5"
+                    class="relative my-0.5 h-9 w-9 min-w-[14%] overflow-visible"
                     *ngFor="let day of date_list"
                     [class.hover:bg-base-100]="day.id !== active_date"
                     [class.!text-base-300]="!day.is_month"
@@ -80,7 +80,7 @@ interface DateItem {
                 >
                     {{ day.id | date: 'd' }}
                     <div
-                        class="absolute -inset-[2px] border border-secondary rounded-full overflow-hidden"
+                        class="absolute -inset-[2px] overflow-hidden rounded-full border border-secondary"
                         matRipple
                         *ngIf="today === day.id"
                     ></div>
@@ -100,6 +100,7 @@ interface DateItem {
             multi: true,
         },
     ],
+    standalone: false,
 })
 export class DateCalendarComponent
     extends AsyncHandler

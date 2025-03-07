@@ -1,5 +1,5 @@
-import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
 import { MockComponent } from 'ng-mocks';
 
 import { ActionIconComponent } from '../lib/action-icon.component';

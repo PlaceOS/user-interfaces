@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
-import { first, map } from 'rxjs/operators';
+import { first } from 'rxjs/operators';
 
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { ExploreStateService } from './explore-state.service';
@@ -9,18 +9,17 @@ import { ExploreStateService } from './explore-state.service';
 @Component({
     selector: 'explore-map-controls',
     template: `
-        <div class="flex space-x-2 w-full">
+        <div class="flex w-full space-x-2">
             <mat-form-field
                 overlay
                 buildings
-                class="flex-1 min-w-[10.5rem] no-subscript"
+                class="no-subscript min-w-[10.5rem] flex-1"
                 has-bld="true"
                 *ngIf="(buildings | async)?.length > 1"
                 appearance="outline"
             >
                 <mat-select
                     placeholder="Select Building..."
-                    i18n-placeholder
                     [ngModel]="building | async"
                     (ngModelChange)="setBuilding($event)"
                 >
@@ -35,14 +34,13 @@ import { ExploreStateService } from './explore-state.service';
             <mat-form-field
                 overlay
                 levels
-                class="flex-1 min-w-[10.25rem] no-subscript"
+                class="no-subscript min-w-[10.25rem] flex-1"
                 [attr.has-bld]="(buildings | async)?.length > 1"
                 *ngIf="(levels | async)?.length"
                 appearance="outline"
             >
                 <mat-select
                     placeholder="Select Level..."
-                    i18n-placeholder
                     [ngModel]="level | async"
                     (ngModelChange)="setLevel($event)"
                 >
@@ -67,6 +65,7 @@ import { ExploreStateService } from './explore-state.service';
             }
         `,
     ],
+    standalone: false,
 })
 export class ExploreMapControlComponent extends AsyncHandler implements OnInit {
     /** List of available buildings */
@@ -87,7 +86,7 @@ export class ExploreMapControlComponent extends AsyncHandler implements OnInit {
                     relativeTo: this._route,
                     queryParams: { zone: lvl.id },
                 }),
-            201
+            201,
         );
     };
     /** Set the currenly active building */
@@ -97,7 +96,7 @@ export class ExploreMapControlComponent extends AsyncHandler implements OnInit {
         private _org: OrganisationService,
         private _state: ExploreStateService,
         private _router: Router,
-        private _route: ActivatedRoute
+        private _route: ActivatedRoute,
     ) {
         super();
     }
@@ -109,8 +108,8 @@ export class ExploreMapControlComponent extends AsyncHandler implements OnInit {
             this._route.queryParamMap.subscribe((params) =>
                 params.has('zone')
                     ? this._state.setLevel(params.get('zone'))
-                    : ''
-            )
+                    : '',
+            ),
         );
     }
 }

@@ -1,19 +1,24 @@
 import {
     Directive,
     ElementRef,
-    Host,
     Input,
+    OnChanges,
     SimpleChanges,
 } from '@angular/core';
-import { AsyncHandler } from '@placeos/common';
 import { apiKey, authority, token } from '@placeos/ts-client';
+
+import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
 
 const IMAGE_STORE = new Map<string, string>();
 
 @Directive({
-    selector: 'img [auth]',
+    selector: 'img [auth], video [auth]',
+    standalone: false,
 })
-export class AuthenticatedImageDirective extends AsyncHandler {
+export class AuthenticatedImageDirective
+    extends AsyncHandler
+    implements OnChanges
+{
     @Input() public source: string;
 
     constructor(private _image_el: ElementRef<HTMLImageElement>) {
@@ -25,6 +30,7 @@ export class AuthenticatedImageDirective extends AsyncHandler {
     }
 
     private async _loadImage() {
+        if (typeof this.source !== 'string') return;
         if (!this._image_el || !authority()) {
             return this.timeout('load', () => this._loadImage(), 300);
         }
@@ -39,7 +45,6 @@ export class AuthenticatedImageDirective extends AsyncHandler {
             return;
         }
         const tkn = token();
-        console.log('Image Token:', tkn);
         document.cookie = `${
             tkn === 'x-api-key'
                 ? 'api-key=' + encodeURIComponent(apiKey())
@@ -47,7 +52,14 @@ export class AuthenticatedImageDirective extends AsyncHandler {
         };max-age=30;path=/api/engine/v2/uploads;samesite=strict;${
             location.protocol === 'https:' ? 'secure;' : ''
         }`;
-        const response = await fetch(this.source);
+        let response = null;
+        try {
+            response = await fetch(this.source).catch((_) => null);
+        } catch {}
+        if (!response || !response.ok) {
+            console.info('Failed to load image:', this.source);
+            return;
+        }
         const blob = await response.blob();
         const url = URL.createObjectURL(blob);
         IMAGE_STORE.set(this.source, url);

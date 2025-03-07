@@ -1,5 +1,4 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { AssetStateService } from '../asset-state.service';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import {
     addDays,
@@ -8,12 +7,13 @@ import {
     endOfDay,
     startOfDay,
 } from 'date-fns';
+import { AssetStateService } from '../asset-state.service';
 
 @Component({
     selector: 'asset-filters',
     template: `
-        <div class="px-4 mt-3 mb-2" [class.sm:hidden]="!search">
-            <mat-form-field appearance="outline" class="w-full h-14">
+        <div class="mb-2 mt-3 px-4" [class.sm:hidden]="!search">
+            <mat-form-field appearance="outline" class="h-14 w-full">
                 <app-icon matPrefix class="text-xl">search</app-icon>
                 <input
                     matInput
@@ -23,7 +23,7 @@ import {
                 />
             </mat-form-field>
         </div>
-        <h3 class="hidden sm:block font-medium px-2 py-2" *ngIf="!search" i18n>
+        <h3 class="hidden px-2 py-2 font-medium sm:block" *ngIf="!search">
             Options
         </h3>
         <div class="flex flex-col px-2" *ngIf="!search">
@@ -38,7 +38,7 @@ import {
                 <label>Deliver Date:</label>
                 <mat-form-field
                     appearance="outline"
-                    class="w-full no-subscript mb-4"
+                    class="no-subscript mb-4 w-full"
                 >
                     <mat-select
                         [(ngModel)]="offset_day"
@@ -66,7 +66,7 @@ import {
                 [use_24hr]="use_24hr"
             ></a-duration-field>
         </div>
-        <h3 class="hidden sm:block font-medium px-2 py-4" *ngIf="!search" i18n>
+        <h3 class="hidden px-2 py-4 font-medium sm:block" *ngIf="!search">
             Catergories
         </h3>
         <div
@@ -93,6 +93,7 @@ import {
             }
         `,
     ],
+    standalone: false,
 })
 export class AssetFiltersComponent extends AsyncHandler {
     @Input() public search = false;
@@ -117,7 +118,7 @@ export class AssetFiltersComponent extends AsyncHandler {
 
     public get start_of_date() {
         return startOfDay(
-            addDays(this._state.getOptions().date, this.offset_day)
+            addDays(this._state.getOptions().date, this.offset_day),
         ).valueOf();
     }
 
@@ -132,12 +133,12 @@ export class AssetFiltersComponent extends AsyncHandler {
     public get max_offset() {
         const end = Math.min(
             endOfDay(
-                addDays(this._state.getOptions().date, this.offset_day)
+                addDays(this._state.getOptions().date, this.offset_day),
             ).valueOf(),
             addMinutes(
                 this._state.getOptions().date,
-                this._state.getOptions().duration
-            ).valueOf()
+                this._state.getOptions().duration,
+            ).valueOf(),
         );
         const diff = differenceInMinutes(end, this._state.getOptions().date);
         return Math.min(diff, Math.min(24 * 60 - 1, this._max_offset));
@@ -154,7 +155,7 @@ export class AssetFiltersComponent extends AsyncHandler {
 
     constructor(
         private _state: AssetStateService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         super();
     }
@@ -162,7 +163,7 @@ export class AssetFiltersComponent extends AsyncHandler {
     public ngOnInit() {
         this._min_offset = Math.max(
             this._settings.get('app.assets.min_offset'),
-            0
+            0,
         );
         this.subscription(
             'filters',
@@ -170,10 +171,10 @@ export class AssetFiltersComponent extends AsyncHandler {
                 this._max_offset = Math.max(
                     15,
                     (this._state.getOptions().duration || 60) -
-                        this._settings.get('app.assets.end_offset')
+                        this._settings.get('app.assets.end_offset'),
                 );
                 this._updateDayOptions();
-            })
+            }),
         );
         this._updateDayOptions();
     }

@@ -4,15 +4,15 @@
     "projectType": "application",
     "sourceRoot": "apps/caterer-ui/src",
     "prefix": "placeos",
+    "tags": [],
     "targets": {
         "build": {
-            "executor": "@angular-devkit/build-angular:browser",
+            "executor": "@angular-devkit/build-angular:application",
             "options": {
-                "baseHref": ".",
+                "baseHref": "./",
                 "outputPath": "dist/apps/caterer-ui",
                 "index": "apps/caterer-ui/src/index.html",
-                "main": "apps/caterer-ui/src/main.ts",
-                "polyfills": "apps/caterer-ui/src/polyfills.ts",
+                "polyfills": ["apps/caterer-ui/src/polyfills.ts"],
                 "tsConfig": "apps/caterer-ui/tsconfig.app.json",
                 "fileReplacements": [
                     {
@@ -44,17 +44,15 @@
                     "shared/styles/utility.scss"
                 ],
                 "scripts": [],
-                "vendorChunk": true,
                 "extractLicenses": false,
-                "buildOptimizer": false,
                 "sourceMap": true,
                 "optimization": false,
-                "namedChunks": true
+                "namedChunks": true,
+                "browser": "apps/caterer-ui/src/main.ts"
             },
             "configurations": {
                 "staging": {
                     "optimization": true,
-                    "buildOptimizer": true,
                     "fileReplacements": [
                         {
                             "replace": "apps/caterer-ui/src/environments/environment.ts",
@@ -65,8 +63,7 @@
                             "with": "apps/caterer-ui/src/environments/settings.ts"
                         }
                     ],
-                    "serviceWorker": true,
-                    "ngswConfigPath": "apps/caterer-ui/ngsw-config.json"
+                    "serviceWorker": "apps/caterer-ui/ngsw-config.json"
                 },
                 "production": {
                     "fileReplacements": [
@@ -88,8 +85,6 @@
                     "sourceMap": false,
                     "namedChunks": false,
                     "extractLicenses": true,
-                    "vendorChunk": false,
-                    "buildOptimizer": true,
                     "budgets": [
                         {
                             "type": "initial",
@@ -102,8 +97,7 @@
                             "maximumError": "10kb"
                         }
                     ],
-                    "serviceWorker": true,
-                    "ngswConfigPath": "apps/caterer-ui/ngsw-config.json"
+                    "serviceWorker": "apps/caterer-ui/ngsw-config.json"
                 }
             }
         },
@@ -119,12 +113,6 @@
                 }
             }
         },
-        "extract-i18n": {
-            "executor": "@angular-devkit/build-angular:extract-i18n",
-            "options": {
-                "buildTarget": "caterer-ui:build"
-            }
-        },
         "lint": {
             "executor": "@nx/eslint:lint",
             "outputs": ["{options.outputFile}"]
@@ -136,6 +124,5 @@
                 "jestConfig": "apps/caterer-ui/jest.config.ts"
             }
         }
-    },
-    "tags": []
+    }
 }

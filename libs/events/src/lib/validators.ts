@@ -11,7 +11,7 @@ export const endInFuture = (control: AbstractControl) => {
 
 /** Check that date in unix ms is in the future */
 export function isFuture(
-    control: AbstractControl
+    control: AbstractControl,
 ): { [key: string]: boolean } | null {
     return control.value && isBefore(control.value, new Date())
         ? { is_future: true }

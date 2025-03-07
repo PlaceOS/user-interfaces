@@ -1,28 +1,33 @@
-import { Component, Input, Optional } from '@angular/core';
+import { DatePipe } from '@angular/common';
+import { Component, Input, OnInit, Optional } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { addMinutes, endOfDay, startOfDay } from 'date-fns';
+import { BehaviorSubject, combineLatest } from 'rxjs';
+import { map } from 'rxjs/operators';
+
 import { validateAssetRequestsForResource } from '@placeos/assets';
 import { CateringItem, CateringOrder } from '@placeos/catering';
 import {
     AsyncHandler,
     SettingsService,
+    getTimezoneOffsetString,
+    i18n,
     notifyError,
-    openConfirmModal,
 } from '@placeos/common';
+import { openConfirmModal } from '@placeos/components';
 import { EventFormService, formatRecurrence } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
 import { Space } from '@placeos/spaces';
-import { addMinutes, endOfDay, startOfDay } from 'date-fns';
+
 import { AssetRequest } from 'libs/assets/src/lib/asset-request.class';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
-import { BehaviorSubject, combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
 
 @Component({
     selector: 'meeting-flow-confirm-modal',
     template: `
         <div
             header
-            class="p-4 flex items-center justify-center border-b border-base-200 relative"
+            class="relative flex items-center justify-center border-b border-base-200 p-4"
         >
             <button
                 icon
@@ -34,7 +39,9 @@ import { map } from 'rxjs/operators';
             >
                 <app-icon>close</app-icon>
             </button>
-            <h2 class="text-xl font-medium" i18n>Confirm Meeting booking</h2>
+            <h2 class="text-xl font-medium">
+                {{ 'APP.WORKPLACE.MEETING_CONFIRM' | translate }}
+            </h2>
             <mat-spinner
                 diameter="32"
                 class="absolute right-2 top-1/2 -translate-y-1/2"
@@ -42,68 +49,54 @@ import { map } from 'rxjs/operators';
             ></mat-spinner>
         </div>
         <main
-            class="flex-1 min-w-[48rem] divide-y divide-base-200 p-4 space-y-4 max-h-[65vh] overflow-auto"
+            class="max-h-[65vh] min-w-[48rem] flex-1 space-y-4 divide-y divide-base-200 overflow-auto p-4"
         >
             <div class="flex divide-x divide-base-200">
-                <div class="pr-4 py-4 pl-16 relative space-y-2 flex-1">
+                <div class="relative flex-1 space-y-2 py-4 pl-16 pr-4">
                     <div
-                        class="absolute top-4 left-4 flex items-center justify-center rounded-full border border-success text-success text-2xl"
+                        class="absolute left-4 top-4 flex items-center justify-center rounded-full border border-success text-2xl text-success"
                     >
                         <app-icon>done</app-icon>
                     </div>
-                    <h3 class="text-xl !mt-0">
+                    <h3 class="!mt-0 text-xl">
                         {{ event.title || 'Meeting Details' }}
                     </h3>
                     <div class="flex items-center space-x-2">
-                        <app-icon>today</app-icon>
+                        <app-icon class="text-2xl">today</app-icon>
                         <div date>{{ event.date | date: 'fullDate' }}</div>
                     </div>
                     <div
                         class="flex items-center space-x-2"
                         *ngIf="event.recurrence?.pattern"
                     >
-                        <app-icon>update</app-icon>
+                        <app-icon class="text-2xl">update</app-icon>
                         <div date>{{ formatted_recurrence }}</div>
                     </div>
                     <div class="flex items-center space-x-2">
-                        <app-icon>schedule</app-icon>
-                        <div time>
-                            {{
-                                is_multiday
-                                    ? (event.date | date: 'MMM d') +
-                                      (event.all_day
-                                          ? ''
-                                          : (event.date
-                                            | date: ', ' + time_format)) +
-                                      ' - ' +
-                                      (event.date_end | date: 'MMM d') +
-                                      (event.all_day
-                                          ? ''
-                                          : (event.date_end
-                                            | date: ', ' + time_format))
-                                    : event.all_day
-                                    ? 'All Day'
-                                    : (event.date | date: time_format) +
-                                      ' - ' +
-                                      (event.date + event.duration * 60 * 1000
-                                          | date: time_format + ' (z)')
-                            }}
+                        <app-icon class="text-2xl">schedule</app-icon>
+                        <div class="flex flex-col leading-tight">
+                            <div time>{{ formattedTime() }}</div>
+                            <div class="text-xs opacity-30" *ngIf="timezone">
+                                {{ formattedTime(tz) }}
+                            </div>
                         </div>
                     </div>
                 </div>
                 <div
-                    class="pr-4 py-4 pl-16 relative space-y-2 flex-1"
-                    *ngIf="event.resources.length"
+                    class="relative flex-1 space-y-2 py-4 pl-16 pr-4"
+                    *ngIf="event.resources?.length"
                 >
                     <div
-                        class="absolute top-4 left-4 flex items-center justify-center rounded-full border border-success text-success text-2xl"
+                        class="absolute left-4 top-4 flex items-center justify-center rounded-full border border-success text-2xl text-success"
                     >
                         <app-icon>done</app-icon>
                     </div>
-                    <h3 class="text-xl !mt-0" i18n>Booked Room</h3>
+                    <h3 class="!mt-0 text-xl">
+                        {{ 'APP.WORKPLACE.MEETING_BOOKED_ROOM' | translate }}
+                    </h3>
                     <ng-container *ngFor="let s of event.resources">
                         <div class="flex items-center space-x-2">
-                            <app-icon>layers</app-icon>
+                            <app-icon class="text-2xl">layers</app-icon>
                             <div>
                                 {{ level?.display_name || level?.name }},
                                 {{ s.display_name || s.name }}
@@ -111,23 +104,25 @@ import { map } from 'rxjs/operators';
                         </div>
                     </ng-container>
                     <div class="flex items-center space-x-2">
-                        <app-icon>place</app-icon>
+                        <app-icon class="text-2xl">place</app-icon>
                         <div>{{ location }}</div>
                     </div>
                 </div>
             </div>
             <div
-                class="pr-4 py-4 pl-16 relative space-y-2"
-                *ngIf="event.attendees.length"
+                class="relative space-y-2 py-4 pl-16 pr-4"
+                *ngIf="event.attendees?.length"
             >
                 <div
-                    class="absolute top-4 left-4 flex items-center justify-center rounded-full border border-success text-success text-2xl"
+                    class="absolute left-4 top-4 flex items-center justify-center rounded-full border border-success text-2xl text-success"
                 >
                     <app-icon>done</app-icon>
                 </div>
-                <h3 class="text-xl !mt-0" i18n>
-                    {{ event.attendees.length }} { event.attendees.length,
-                    plural, =1 { Attendee } other { Attendees } }
+                <h3 class="!mt-0 text-xl">
+                    {{
+                        'CALENDAR_EVENT.ATTENDEE_COUNT'
+                            | translate: { count: event.attendees?.length }
+                    }}
                 </h3>
                 <div attendee-list>
                     <mat-chip-list #chipList aria-label="User selection">
@@ -145,36 +140,44 @@ import { map } from 'rxjs/operators';
                 *ngIf="event.catering?.length || event.assets?.length"
             >
                 <div
-                    class="pr-4 py-4 pl-16 relative space-y-2 flex-1"
+                    class="relative flex-1 space-y-2 py-4 pl-16 pr-4"
                     *ngIf="event.catering?.length"
                 >
                     <div
-                        class="absolute top-4 left-4 flex items-center justify-center rounded-full border border-success text-success text-2xl"
+                        class="absolute left-4 top-4 flex items-center justify-center rounded-full border border-success text-2xl text-success"
                     >
                         <app-icon>done</app-icon>
                     </div>
-                    <h3 class="text-xl !mt-0" i18n>Catering</h3>
+                    <h3 class="!mt-0 text-xl">
+                        {{ 'RESOURCE.CATERING' | translate }}
+                    </h3>
                     <div class="flex flex-col space-y-2">
                         <div
                             order
                             *ngFor="let order of catering_orders"
-                            class="border bg-base-100 rounded-xl overflow-hidden"
+                            class="overflow-hidden rounded-xl border bg-base-100"
                             [class.border-error]="end_time < order.deliver_at"
                             [class.border-base-300]="
                                 end_time >= order.deliver_at
                             "
                         >
                             <div class="flex items-center space-x-2 p-3">
-                                <div class="flex-1 flex items-center space-x-2">
+                                <div class="flex flex-1 items-center space-x-2">
                                     <div class="text-sm">
-                                        Order at
                                         {{
-                                            order.deliver_at
-                                                | date: 'MMM d, ' + time_format
+                                            'CALENDAR_EVENT.CATERING_ORDER_AT'
+                                                | translate
+                                                    : {
+                                                          time:
+                                                              order.deliver_at
+                                                              | date
+                                                                  : 'MMM d, ' +
+                                                                        time_format,
+                                                      }
                                         }}
                                     </div>
                                     <div
-                                        class="flex items-center justify-center h-6 w-6 rounded-full bg-error text-error-content"
+                                        class="flex h-6 w-6 items-center justify-center rounded-full bg-error text-error-content"
                                         [matTooltip]="err_tooltip"
                                         *ngIf="end_time < order.deliver_at"
                                     >
@@ -182,12 +185,18 @@ import { map } from 'rxjs/operators';
                                     </div>
                                     <div class="flex-1"></div>
                                     <div
-                                        class="text-xs bg-success text-success-content px-2 py-1 rounded"
+                                        class="rounded bg-success px-2 py-1 text-xs text-success-content"
                                     >
-                                        {{ order.item_count }} item(s)
+                                        {{
+                                            'COMMON.ITEM_COUNT'
+                                                | translate
+                                                    : {
+                                                          count: order.item_count,
+                                                      }
+                                        }}
                                     </div>
                                     <div
-                                        class="text-xs bg-info text-info-content px-2 py-1 rounded"
+                                        class="rounded bg-info px-2 py-1 text-xs text-info-content"
                                     >
                                         Total:
                                         {{
@@ -198,34 +207,41 @@ import { map } from 'rxjs/operators';
                                 </div>
                             </div>
                             <div
-                                class="flex flex-col bg-base-200 divide-y divide-base-100"
+                                class="flex flex-col divide-y divide-base-100 bg-base-200"
                             >
                                 <div
-                                    class="flex items-center px-3 py-1 space-x-2 hover:opacity-90"
+                                    class="flex items-center space-x-2 px-3 py-1 hover:opacity-90"
                                     *ngFor="let item of order.items"
                                 >
-                                    <div class="flex items-center flex-1">
+                                    <div class="flex flex-1 items-center">
                                         <span class="text-sm">{{
                                             item.name || 'Item'
                                         }}</span>
                                         <span
-                                            class="text-xs opacity-60 ml-4 font-normal"
+                                            class="ml-4 text-xs font-normal opacity-60"
                                             *ngIf="item.option_list?.length"
                                             [matTooltip]="optionList(item)"
                                         >
                                             {{
-                                                item.option_list?.length || '0'
+                                                'CALENDAR_EVENT.CATERING_ORDER_OPTION_COUNT'
+                                                    | translate
+                                                        : {
+                                                              count:
+                                                                  item
+                                                                      .option_list
+                                                                      ?.length ||
+                                                                  '0',
+                                                          }
                                             }}
-                                            option(s)
                                         </span>
                                     </div>
                                     <div
-                                        class="rounded bg-success text-success-content text-xs px-2 py-1"
+                                        class="rounded bg-success px-2 py-1 text-xs text-success-content"
                                     >
                                         x{{ item.quantity }}
                                     </div>
                                     <div
-                                        class="rounded bg-info text-info-content text-xs px-2 py-1"
+                                        class="rounded bg-info px-2 py-1 text-xs text-info-content"
                                     >
                                         {{
                                             item.unit_price_with_options / 100
@@ -234,7 +250,7 @@ import { map } from 'rxjs/operators';
                                         ea
                                     </div>
                                     <div
-                                        class="rounded bg-info text-info-content text-xs px-2 py-1"
+                                        class="rounded bg-info px-2 py-1 text-xs text-info-content"
                                     >
                                         {{
                                             item.total_cost / 100
@@ -247,11 +263,11 @@ import { map } from 'rxjs/operators';
                     </div>
                 </div>
                 <div
-                    class="pr-4 py-4 pl-16 relative space-y-2 flex-1"
+                    class="relative flex-1 space-y-2 py-4 pl-16 pr-4"
                     *ngIf="assets?.length"
                 >
                     <div
-                        class="absolute top-4 left-4 flex items-center justify-center rounded-full border border-success text-success text-2xl"
+                        class="absolute left-4 top-4 flex items-center justify-center rounded-full border border-success text-2xl text-success"
                         [class.!border-error]="has_conflict"
                         [class.!text-error]="has_conflict"
                     >
@@ -259,25 +275,31 @@ import { map } from 'rxjs/operators';
                             has_conflict ? 'close' : 'done'
                         }}</app-icon>
                     </div>
-                    <h3 class="text-xl !mt-0" i18n>Assets</h3>
+                    <h3 class="!mt-0 text-xl">{{ 'RESOURCE.ASSETS' }}</h3>
                     <div
                         request
                         *ngFor="let request of assets"
-                        class="border bg-base-100 rounded-xl overflow-hidden"
+                        class="overflow-hidden rounded-xl border bg-base-100"
                         [class.border-error]="end_time < request.deliver_at"
                         [class.border-base-300]="end_time >= request.deliver_at"
                     >
                         <div class="flex items-center space-x-2 p-3">
-                            <div class="flex-1 flex items-center space-x-2">
+                            <div class="flex flex-1 items-center space-x-2">
                                 <div class="text-sm">
-                                    Requested for
                                     {{
-                                        request.deliver_at_time
-                                            | date: 'MMM d, ' + time_format
+                                        'CALENDAR_EVENT.ASSETS_REQUESTED_FOR'
+                                            | translate
+                                                : {
+                                                      time:
+                                                          request.deliver_at_time
+                                                          | date
+                                                              : 'MMM d, ' +
+                                                                    time_format,
+                                                  }
                                     }}
                                 </div>
                                 <div
-                                    class="flex items-center justify-center h-6 w-6 rounded-full bg-error text-error-content"
+                                    class="flex h-6 w-6 items-center justify-center rounded-full bg-error text-error-content"
                                     [matTooltip]="err_tooltip(request)"
                                     *ngIf="
                                         end_time < request.deliver_at ||
@@ -288,26 +310,30 @@ import { map } from 'rxjs/operators';
                                 </div>
                                 <div class="flex-1"></div>
                                 <div
-                                    class="text-xs bg-success text-success-content px-2 py-1 rounded"
+                                    class="rounded bg-success px-2 py-1 text-xs text-success-content"
                                 >
-                                    {{ request.item_count }} item(s)
+                                    {{
+                                        'COMMON.ITEM_COUNT'
+                                            | translate
+                                                : { count: request.item_count }
+                                    }}
                                 </div>
                             </div>
                         </div>
                         <div
-                            class="flex flex-col bg-base-200 divide-y divide-base-100"
+                            class="flex flex-col divide-y divide-base-100 bg-base-200"
                         >
                             <div
-                                class="flex items-center px-3 py-1 space-x-2 hover:opacity-90"
+                                class="flex items-center space-x-2 px-3 py-1 hover:opacity-90"
                                 *ngFor="let item of request.items"
                             >
-                                <div class="flex items-center flex-1">
+                                <div class="flex flex-1 items-center">
                                     <span class="text-sm">{{
                                         item.name || 'Item'
                                     }}</span>
                                 </div>
                                 <div
-                                    class="rounded bg-success text-success-content text-xs px-2 py-1"
+                                    class="rounded bg-success px-2 py-1 text-xs text-success-content"
                                 >
                                     x{{ item.quantity }}
                                 </div>
@@ -316,18 +342,20 @@ import { map } from 'rxjs/operators';
                     </div>
                 </div>
             </div>
-            <div class="pr-4 py-4 pl-16 relative space-y-2" *ngIf="event.body">
+            <div class="relative space-y-2 py-4 pl-16 pr-4" *ngIf="event.body">
                 <div
-                    class="absolute top-4 left-4 flex items-center justify-center rounded-full border border-success text-success text-2xl"
+                    class="absolute left-4 top-4 flex items-center justify-center rounded-full border border-success text-2xl text-success"
                 >
                     <app-icon>done</app-icon>
                 </div>
-                <h3 class="text-xl !mt-0" i18n>Notes</h3>
+                <h3 class="!mt-0 text-xl">
+                    {{ 'CALENDAR_EVENT.NOTES_HEADER' | translate }}
+                </h3>
                 <div [innerHTML]="event.body | sanitize"></div>
             </div>
         </main>
         <footer
-            class="p-2 border-t border-base-200 flex items-center justify-end"
+            class="flex items-center justify-end border-t border-base-200 p-2"
             *ngIf="!(loading | async)"
         >
             <button
@@ -336,56 +364,72 @@ import { map } from 'rxjs/operators';
                 matRipple
                 class="w-32"
                 (click)="postForm()"
-                i18n
             >
-                Confirm
+                {{ 'COMMON.CONFIRM' | translate }}
             </button>
-            <!-- <button
-                btn
-                matRipple
-                class="inverse w-32"
-                *ngIf="loading | async"
-                (click)="cancelPost()"
-                i18n
-            >
-                Undo
-            </button> -->
         </footer>
     `,
     styles: [``],
     providers: [SpacePipe],
+    standalone: false,
 })
-export class MeetingFlowConfirmModalComponent extends AsyncHandler {
-    @Input() public show_close: boolean = false;
+export class MeetingFlowConfirmModalComponent
+    extends AsyncHandler
+    implements OnInit
+{
+    @Input() public show_close = false;
 
     private _loading = new BehaviorSubject(false);
 
+    private _date: DatePipe = new DatePipe('en');
+
     public readonly loading = combineLatest([
-        this._event_form.loading,
+        this._event_form.loading$,
         this._loading,
     ]).pipe(map(([a, b]) => a || b));
     public readonly catering_orders;
     public readonly assets;
     public err_tooltip(request: AssetRequest) {
         return request.conflict
-            ? 'Some of the items are not available for the selected date and time.'
-            : 'Delivery time is outside of the event time.\nThis order will be ignored.';
+            ? i18n('FORM.ASSETS_CLASH_ERROR')
+            : i18n('FORM.ASSETS_TIME_ERROR');
+    }
+
+    public get has_assets() {
+        return !!this._settings.get('app.events.has_assets');
     }
 
     public get has_conflict() {
         return this.assets?.some((_) => _.conflict);
     }
 
+    public formattedTime(tz?: string) {
+        const date = this.event.date;
+        const date_end = this.event.date_end;
+        const all_day = this.event.all_day;
+        const tz_format = this._date.transform(date, 'zzzz', tz);
+        const start_date = this._date.transform(date, 'MMM d', tz);
+        const start_time = this._date.transform(date, this.time_format, tz);
+        const end_date = this._date.transform(date_end, 'MMM d', tz);
+        const end_time = this._date.transform(date_end, this.time_format, tz);
+
+        if (this.is_multiday) {
+            return `${start_date}${all_day ? '' : ', ' + start_time} - ${end_date}${all_day ? '' : ', ' + end_time}`;
+        } else if (all_day) {
+            return 'All Day';
+        }
+        return `${start_time} - ${end_time} ${'(' + tz_format + ')'}`;
+    }
+
     public readonly postForm = async () => {
         if (!this.space) {
             const result = await openConfirmModal(
                 {
-                    title: 'Make Booking without a Room',
-                    content:
-                        'You are creating a booking without a room, are you sure?',
+                    title: i18n('APP.WORKPLACE.MEETING_WITHOUT_ROOM_TITLE'),
+                    content: i18n('APP.WORKPLACE.MEETING_WITHOUT_ROOM_MSG'),
                     icon: { content: 'event_available' },
                 },
-                this._dialog
+                this._dialog,
             );
             if (result.reason !== 'done') return;
             result.close();
@@ -409,6 +453,18 @@ export class MeetingFlowConfirmModalComponent extends AsyncHandler {
         return this._settings.time_format;
     }
 
+    public get timezone() {
+        return this._settings.get('app.events.use_building_timezone')
+            ? this._org.building.timezone
+            : '';
+    }
+
+    public get tz() {
+        const tz = this.timezone;
+        if (!tz) return '';
+        return getTimezoneOffsetString(tz);
+    }
+
     public get end_time() {
         return this.event.all_day
             ? endOfDay(this.event.date_end).valueOf()
@@ -429,7 +485,7 @@ export class MeetingFlowConfirmModalComponent extends AsyncHandler {
 
     public get location() {
         const building = this._org.buildings.find((_) =>
-            this.space.zones.includes(_.id)
+            this.space.zones.includes(_.id),
         );
         return building?.address || building?.display_name || building?.name;
     }
@@ -452,7 +508,7 @@ export class MeetingFlowConfirmModalComponent extends AsyncHandler {
         @Optional()
         private _dialog_ref: MatDialogRef<MeetingFlowConfirmModalComponent>,
         private _dialog: MatDialog,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         super();
     }
@@ -470,17 +526,17 @@ export class MeetingFlowConfirmModalComponent extends AsyncHandler {
                         date: date,
                         date_end: addMinutes(
                             date,
-                            this.event.duration
+                            this.event.duration,
                         ).valueOf(),
                     },
-                })
+                }),
         );
         (this as any).assets = this.event.assets?.map(
-            (_) => new AssetRequest({ ..._, event: this.event })
+            (_) => new AssetRequest({ ..._, event: this.event }),
         );
         this._space =
             (await this._space_pipe.transform(
-                this.event.resources[0]?.email
+                this.event.resources[0]?.email,
             )) || this._space;
         const changed_spaces =
             !this._event_form.event ||
@@ -489,38 +545,38 @@ export class MeetingFlowConfirmModalComponent extends AsyncHandler {
             !this._event_form.event ||
             this.event.date !== this._event_form.event.date ||
             this.event.date_end !== this._event_form.event.date_end;
-        const event = this._event_form.form.value;
-        console.log('Changes:', changed_spaces, changed_times);
+        const event = this._event_form.form.getRawValue();
         this._loading.next(true);
-        await validateAssetRequestsForResource(
-            this._event_form.event || {},
-            {
-                date: this.event.date,
-                duration: this.event.duration,
-                host: this.event.host,
-                all_day: this.event.all_day,
-                location_name:
-                    this._space?.display_name || this._space?.name || '',
-                location_id: this._space?.id || '',
-                zones: this._space?.level?.parent_id
-                    ? [this._space?.level?.parent_id]
-                    : [this._org.building?.id],
-                reset_state: changed_times,
-            },
-            event.assets,
-            changed_spaces || changed_times
-        ).catch((e) => notifyError(e));
-        this.timeout(
-            'update_assets',
-            () => {
-                (this as any).assets = event.assets?.map(
-                    (_) => new AssetRequest({ ..._, event })
-                );
-                this._event_form.form.patchValue({ assets: event.assets });
-            },
-            100
-        );
-        this.timeout('assets', () => console.log('Assets', event.assets));
+        if (this.has_assets && event.assets?.length) {
+            await validateAssetRequestsForResource(
+                this._event_form.event || {},
+                {
+                    date: this.event.date,
+                    duration: this.event.duration,
+                    host: this.event.host,
+                    all_day: this.event.all_day,
+                    location_name:
+                        this._space?.display_name || this._space?.name || '',
+                    location_id: this._space?.id || '',
+                    zones: this._space?.level?.parent_id
+                        ? [this._space?.level?.parent_id]
+                        : [this._org.building?.id],
+                    reset_state: changed_times,
+                },
+                event.assets,
+                changed_spaces || changed_times,
+            ).catch((e) => notifyError(e));
+            this.timeout(
+                'update_assets',
+                () => {
+                    (this as any).assets = event.assets?.map(
+                        (_) => new AssetRequest({ ..._, event }),
+                    );
+                    this._event_form.form.patchValue({ assets: event.assets });
+                },
+                100,
+            );
+        }
         this._loading.next(false);
     }
 

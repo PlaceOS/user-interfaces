@@ -4,9 +4,9 @@ import { User } from 'libs/users/src/lib/user.class';
 @Component({
     selector: 'attendee-list',
     template: `
-        <div class="w-full h-full overflow-hidden flex flex-col bg-base-100">
+        <div class="flex h-full w-full flex-col overflow-hidden bg-base-100">
             <div
-                class="flex items-center border-b border-base-200 p-2 min-h-12"
+                class="flex min-h-12 items-center border-b border-base-200 p-2"
             >
                 <button
                     close
@@ -17,7 +17,7 @@ import { User } from 'libs/users/src/lib/user.class';
                 >
                     <app-icon>arrow_back</app-icon>
                 </button>
-                <div class="flex-1 text-center font-medium" i18n>
+                <div class="flex-1 text-center font-medium">
                     {{ list.length }}
                     {{
                         custom_title
@@ -29,20 +29,20 @@ import { User } from 'libs/users/src/lib/user.class';
                 </div>
                 <div class="w-12" *ngIf="!hide_close"></div>
             </div>
-            <div class="flex-1 w-full overflow-auto">
+            <div class="w-full flex-1 overflow-auto">
                 <ng-container *ngFor="let user of list">
                     <div
                         attendee
-                        class="flex items-center p-2 space-x-2 hover:bg-base-200"
+                        class="flex items-center space-x-2 p-2 hover:bg-base-200"
                         *ngIf="
                             !user.resource && (host !== user.email || show_host)
                         "
                     >
                         <a-user-avatar [user]="user"></a-user-avatar>
-                        <div class="flex-1 w-1/2">
+                        <div class="w-1/2 flex-1">
                             <div class="truncate">{{ user.name }}</div>
                             <div
-                                class="opacity-60 text-sm"
+                                class="text-sm opacity-60"
                                 *ngIf="host === user.email"
                             >
                                 Host
@@ -66,6 +66,7 @@ import { User } from 'libs/users/src/lib/user.class';
         </div>
     `,
     styles: [``],
+    standalone: false,
 })
 export class AttendeeListComponent {
     @Input() public host: string = '';

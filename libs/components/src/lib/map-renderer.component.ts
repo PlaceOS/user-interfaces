@@ -23,21 +23,20 @@ import {
     applyGlobalStyles,
     createViewer,
     getViewer,
+    listenToViewerChanges,
     Point,
-    Viewer,
     removeViewer,
     updateViewer,
     ViewAction,
+    Viewer,
     ViewerFeature,
     ViewerLabel,
     ViewerStyles,
-    listenToViewerChanges,
 } from '@placeos/svg-viewer';
 import { apiKey, authority, token } from '@placeos/ts-client';
 import { BehaviorSubject } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { MAP_FEATURE_DATA } from './interactive-map.component';
-import { get } from 'http';
 
 function isSamePoint(p1: Point, p2: Point): boolean {
     return p1.x === p2.x && p1.y === p2.y;
@@ -103,7 +102,9 @@ function isSamePoint(p1: Point, p2: Point): boolean {
         </div>
         <ng-template #empty_state>
             <div class="absolute inset-0 flex items-center justify-center">
-                <div class="opacity-30">No map</div>
+                <div class="opacity-30">
+                    {{ 'EXPLORE.MAP_EMPTY' | translate }}
+                </div>
             </div>
         </ng-template>
     `,
@@ -121,6 +122,7 @@ function isSamePoint(p1: Point, p2: Point): boolean {
             }
         `,
     ],
+    standalone: false,
 })
 export class MapRendererComponent
     extends AsyncHandler
@@ -183,13 +185,13 @@ export class MapRendererComponent
     }
 
     public type(
-        content: string | TemplateRef<any> | Type<any>
+        content: string | TemplateRef<any> | Type<any>,
     ): 'html' | 'template' | 'component' {
         return typeof content === 'string'
             ? 'html'
             : content instanceof TemplateRef
-            ? 'template'
-            : 'component';
+              ? 'template'
+              : 'component';
     }
 
     constructor(private _injector: Injector) {
@@ -222,7 +224,7 @@ export class MapRendererComponent
                 (changes.center &&
                     !isSamePoint(
                         changes.center.previousValue,
-                        changes.center.currentValue
+                        changes.center.currentValue,
                     ))
             ) {
                 this.updateDisplay();
@@ -285,7 +287,7 @@ export class MapRendererComponent
             return this.timeout(
                 'create_view',
                 () => this.createView().catch((e) => console.warn(e)),
-                300
+                300,
             );
         }
         const simp_url = this.src?.toLowerCase() || '';
@@ -293,14 +295,19 @@ export class MapRendererComponent
         if (this.src && this._outlet_el?.nativeElement && !this.loading) {
             this.loading = true;
             if (this.viewer) {
-                updateViewer(this.viewer, {
-                    styles: this.styles,
-                    features: [],
-                    labels: this.labels,
-                    actions: this.actions,
-                    options: this.options,
-                });
-                removeViewer(this.viewer);
+                try {
+                    updateViewer(this.viewer, {
+                        styles: this.styles,
+                        features: [],
+                        labels: this.labels,
+                        actions: this.actions,
+                        options: this.options,
+                    });
+                    removeViewer(this.viewer);
+                } catch (e) {
+                    console.warn(e);
+                    return;
+                }
             }
             this.updateFeatureList();
             const tkn = token();
@@ -322,17 +329,22 @@ export class MapRendererComponent
                 labels: this.labels,
                 actions: this.actions,
                 options: this.options,
+            }).catch((e) => {
+                console.warn(e);
+                return '';
             });
+            this.loading = false;
+            if (!this.viewer) return;
             this.loading = false;
             this.subscription(
                 'view_changes',
                 listenToViewerChanges(this.viewer)?.subscribe((v) => {
-                    const box =
-                        this._outlet_el.nativeElement.getBoundingClientRect();
                     this._on_changes.next({ ...v } as any);
                     this.zoomChange.emit(v.zoom);
+                    this.zoom = v.zoom;
                     this.centerChange.emit(v.center);
-                })
+                    this.center = v.center;
+                }),
             );
             const viewer = getViewer(this.viewer);
             this.mapInfo.emit(viewer.mappings);
@@ -342,7 +354,7 @@ export class MapRendererComponent
             this.loading
         ) {
             this.timeout('create_view', () =>
-                this.createView().catch((e) => console.warn(e))
+                this.createView().catch((e) => console.warn(e)),
             );
         }
     }
@@ -381,7 +393,7 @@ export class MapRendererComponent
                 old_injectors.find(
                     (_) =>
                         _.get(MAP_FEATURE_DATA)?.track_id &&
-                        _.get(MAP_FEATURE_DATA)?.track_id === f.track_id
+                        _.get(MAP_FEATURE_DATA)?.track_id === f.track_id,
                 ) ||
                 Injector.create({
                     providers: [
@@ -395,7 +407,7 @@ export class MapRendererComponent
                         },
                     ],
                     parent: this._injector,
-                })
+                }),
         );
     }
 }

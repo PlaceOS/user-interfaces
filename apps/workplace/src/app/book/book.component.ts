@@ -4,10 +4,8 @@ import { Component } from '@angular/core';
     selector: 'placeos-book',
     template: `
         <topbar *ngIf="!hide_nav"></topbar>
-        <div class="flex-1 flex sm:flex-row flex-col-reverse h-1/2">
-            <main
-                class="flex flex-col flex-1 h-1/2 sm:h-auto overflow-hidden"
-            >
+        <div class="flex h-1/2 flex-1 flex-col-reverse sm:flex-row">
+            <main class="flex h-1/2 flex-1 flex-col overflow-hidden sm:h-auto">
                 <router-outlet></router-outlet>
             </main>
         </div>
@@ -23,6 +21,7 @@ import { Component } from '@angular/core';
             }
         `,
     ],
+    standalone: false,
 })
 export class BookComponent {
     public get hide_nav() {

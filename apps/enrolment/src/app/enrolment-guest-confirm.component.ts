@@ -6,10 +6,10 @@ import { EnrolmentStateService } from './enrolment-state.service';
     selector: 'enrolment-guest-confirm',
     template: `
         <div
-            class="bg-base-100 p-4 mx-auto my-4 border border-base-200 shadow w-[480px] max-w-[calc(100vw-2rem)] rounded"
+            class="mx-auto my-4 w-[480px] max-w-[calc(100vw-2rem)] rounded border border-base-200 bg-base-100 p-4 shadow"
             [formGroup]="form"
         >
-            <h3 class="text-center text-xl font-medium mb-4">
+            <h3 class="mb-4 text-center text-xl font-medium">
                 Confirm your details
             </h3>
             <div class="flex flex-col">
@@ -43,11 +43,11 @@ import { EnrolmentStateService } from './enrolment-state.service';
             </div>
             <div class="flex flex-col">
                 <label>Identification:</label>
-                <div class="bg-base-200 p-2 border border-base-200 mb-4">
+                <div class="mb-4 border border-base-200 bg-base-200 p-2">
                     <upload-list formControlName="attachments"></upload-list>
                 </div>
             </div>
-            <div class="flex flex-col mb-4" *ngIf="check_vaccine">
+            <div class="mb-4 flex flex-col" *ngIf="check_vaccine">
                 <label>Vaccination Proof:</label>
                 <upload-file formControlName="vaccination_proof"></upload-file>
             </div>
@@ -78,6 +78,7 @@ import { EnrolmentStateService } from './enrolment-state.service';
         </div>
     `,
     styles: [``],
+    standalone: false,
 })
 export class EnrolmentGuestConfirmComponent {
     public readonly form = this._state.form;
@@ -90,6 +91,6 @@ export class EnrolmentGuestConfirmComponent {
 
     constructor(
         private _state: EnrolmentStateService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {}
 }

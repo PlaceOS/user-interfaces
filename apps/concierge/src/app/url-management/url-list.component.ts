@@ -1,39 +1,63 @@
 import { Component } from '@angular/core';
-import { UrlManagementService } from './url-management.service';
 import { SettingsService, ShortURL, getShortUrlQRCode } from '@placeos/common';
+import { UrlManagementService } from './url-management.service';
 
 @Component({
     selector: 'short-url-list',
     template: `
         <div class="absolute inset-0 overflow-auto px-8">
             <simple-table
-                class="min-w-[64rem] block text-sm"
+                class="block min-w-[64rem] text-sm"
                 [data]="features"
                 empty_message="No Points of Interest found."
                 [columns]="[
-                    { key: 'name', name: 'Name' },
-                    { key: 'uri', name: 'URI', content: url_template },
-                    { key: 'user_name', name: 'User Name' },
-                    { key: 'description', name: 'Description' },
+                    { key: 'name', name: 'FORM.NAME' | translate },
+                    {
+                        key: 'uri',
+                        name: 'APP.CONCIERGE.URLS_URI' | translate,
+                        content: url_template,
+                        size: '24rem',
+                    },
+                    {
+                        key: 'user_name',
+                        name: 'APP.CONCIERGE.URLS_USER_NAME' | translate,
+                    },
+                    {
+                        key: 'description',
+                        name: 'COMMON.DESCRIPTION' | translate,
+                        content: desc_template,
+                    },
                     {
                         key: 'actions',
                         name: ' ',
                         content: action_template,
                         size: '7rem',
-                        sortable: false
-                    }
+                        sortable: false,
+                    },
                 ]"
                 [sortable]="true"
             ></simple-table>
-            <div class="w-full h-12"></div>
+            <div class="h-12 w-full"></div>
         </div>
         <ng-template #url_template let-data="data">
-            <a link [href]="data" class="p-4 truncate max-w-[32rem]">
+            <a
+                link
+                [href]="data"
+                class="w-full overflow-hidden break-words p-4 text-xs"
+            >
                 {{ data }}
             </a>
         </ng-template>
+        <ng-template #desc_template let-data="data">
+            <div class="p-4 text-xs">
+                {{ data }}
+                <span class="opacity-30" *ngIf="!data">
+                    {{ 'COMMON.DESCRIPTION_EMPTY' | translate }}
+                </span>
+            </div>
+        </ng-template>
         <ng-template #action_template let-row="row">
-            <div class="w-full flex justify-end space-x-2 px-4 py-2 mx-auto">
+            <div class="mx-auto flex w-full justify-end space-x-2 px-4 py-2">
                 <button
                     icon
                     matRipple
@@ -44,18 +68,18 @@ import { SettingsService, ShortURL, getShortUrlQRCode } from '@placeos/common';
                     <app-icon>qr_code</app-icon>
                 </button>
                 <ng-template #qr_menu>
-                    <div class="bg-base-100 py-2 shadow rounded">
+                    <div class="rounded bg-base-100 py-2 shadow">
                         <div class="" printable>
                             <a
                                 [href]="row.uri | safe: 'url'"
                                 target="_blank"
                                 ref="noopener noreferrer"
-                                class="block p-2 mx-4 my-2 rounded-lg border border-base-200 bg-base-100"
+                                class="mx-4 my-2 block rounded-lg border border-base-200 bg-base-100 p-2"
                             >
-                                <img class="w-48 mx-auto" [src]="row.qr_code" />
+                                <img class="mx-auto w-48" [src]="row.qr_code" />
                             </a>
                             <div
-                                class="w-[calc(100%-2rem)] text-center mt-2 font-mono text-sm bg-base-200 rounded p-2 mx-4"
+                                class="mx-4 mt-2 w-[calc(100%-2rem)] rounded bg-base-200 p-2 text-center font-mono text-sm"
                             >
                                 {{ row.name || row.id }}
                             </div>
@@ -63,10 +87,10 @@ import { SettingsService, ShortURL, getShortUrlQRCode } from '@placeos/common';
                         <button
                             btn
                             matRipple
-                            class="w-[calc(100%-2rem)] mx-4 my-2"
+                            class="mx-4 my-2 w-[calc(100%-2rem)]"
                             (click)="print()"
                         >
-                            Print QR Code
+                            {{ 'APP.CONCIERGE.URLS_PRINT_QR' | translate }}
                         </button>
                     </div>
                 </ng-template>
@@ -77,13 +101,17 @@ import { SettingsService, ShortURL, getShortUrlQRCode } from '@placeos/common';
                     <button mat-menu-item (click)="edit(row)">
                         <div class="flex items-center space-x-2">
                             <app-icon>edit</app-icon>
-                            <span>Edit Short URL</span>
+                            <span>{{
+                                'APP.CONCIERGE.URLS_EDIT' | translate
+                            }}</span>
                         </div>
                     </button>
                     <button mat-menu-item (click)="remove(row)">
-                        <div class="flex items-center space-x-2 text-red-500">
+                        <div class="text-red-500 flex items-center space-x-2">
                             <app-icon class="text-error">delete</app-icon>
-                            <span>Delete Short URL</span>
+                            <span>{{
+                                'APP.CONCIERGE.URLS_REMOVE' | translate
+                            }}</span>
                         </div>
                     </button>
                 </mat-menu>
@@ -91,6 +119,7 @@ import { SettingsService, ShortURL, getShortUrlQRCode } from '@placeos/common';
         </ng-template>
     `,
     styles: [``],
+    standalone: false,
 })
 export class UrlListComponent {
     public readonly features = this._manager.filtered_urls;
@@ -109,6 +138,6 @@ export class UrlListComponent {
 
     constructor(
         private _manager: UrlManagementService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {}
 }

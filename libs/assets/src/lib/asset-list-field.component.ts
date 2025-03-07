@@ -3,16 +3,17 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 
-import { AssetSelectModalComponent } from 'libs/assets/src/lib/asset-select-modal/asset-select-modal.component';
-import { AssetStateService } from './asset-state.service';
-import { AssetItem, AssetRequest } from './asset-request.class';
 import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
+    i18n,
     notifyError,
     randomInt,
     randomString,
 } from '@placeos/common';
 import { endOfDay, startOfDay } from 'date-fns';
+import { AssetSelectModalComponent } from 'libs/assets/src/lib/asset-select-modal/asset-select-modal.component';
+import { AssetItem, AssetRequest } from './asset-request.class';
+import { AssetStateService } from './asset-state.service';
 
 const EMPTY_FAVS: string[] = [];
 
@@ -23,7 +24,7 @@ const EMPTY_FAVS: string[] = [];
             <div
                 request
                 *ngFor="let request of asset_requests"
-                class="border shadow bg-base-100 rounded-xl overflow-hidden"
+                class="overflow-hidden rounded-xl border bg-base-100 shadow"
                 [class.border-error]="end_time < request.deliver_at"
                 [class.border-base-300]="end_time >= request.deliver_at"
             >
@@ -31,17 +32,21 @@ const EMPTY_FAVS: string[] = [];
                     <div class="flex-1">
                         <div class="flex items-center space-x-4">
                             <div>
-                                Request for
                                 {{
-                                    request.deliver_at_time | date: 'mediumDate'
-                                }}
-                                at
-                                {{
-                                    request.deliver_at_time | date: time_format
+                                    'FORM.ASSETS_REQUESTED_FOR_DATE'
+                                        | translate
+                                            : {
+                                                  date:
+                                                      request.deliver_at_time
+                                                      | date: 'mediumDate',
+                                                  time:
+                                                      request.deliver_at_time
+                                                      | date: time_format,
+                                              }
                                 }}
                             </div>
                             <div
-                                class="flex items-center justify-center h-6 w-6 rounded-full bg-error text-error-content"
+                                class="flex h-6 w-6 items-center justify-center rounded-full bg-error text-error-content"
                                 [matTooltip]="err_tooltip(request)"
                                 *ngIf="
                                     end_time <= request.deliver_at ||
@@ -56,7 +61,7 @@ const EMPTY_FAVS: string[] = [];
                     <button
                         icon
                         matRipple
-                        matTooltip="Duplicate Request"
+                        [matTooltip]="'FORM.ASSETS_DUPLICATE' | translate"
                         (click)="duplicateRequest(request)"
                     >
                         <app-icon>content_copy</app-icon>
@@ -64,7 +69,7 @@ const EMPTY_FAVS: string[] = [];
                     <button
                         icon
                         matRipple
-                        matTooltip="Edit Request"
+                        [matTooltip]="'FORM.ASSETS_EDIT' | translate"
                         (click)="editRequest(request)"
                     >
                         <app-icon>edit</app-icon>
@@ -72,7 +77,7 @@ const EMPTY_FAVS: string[] = [];
                     <button
                         icon
                         matRipple
-                        matTooltip="Remove Request"
+                        [matTooltip]="'FORM.ASSETS_REMOVE' | translate"
                         class="text-error"
                         (click)="removeRequest(request)"
                     >
@@ -82,9 +87,10 @@ const EMPTY_FAVS: string[] = [];
                         icon
                         matRipple
                         [matTooltip]="
-                            show_request[request.id]
-                                ? 'Hide order items'
-                                : 'Show order items'
+                            (show_request[request.id]
+                                ? 'FORM.ASSETS_HIDE'
+                                : 'FORM.ASSETS_SHOW'
+                            ) | translate
                         "
                         (click)="
                             show_request[request.id] = !show_request[request.id]
@@ -100,25 +106,25 @@ const EMPTY_FAVS: string[] = [];
                     </button>
                 </div>
                 <div
-                    class="flex flex-col bg-base-200 divide-y divide-base-100"
+                    class="flex flex-col divide-y divide-base-100 bg-base-200"
                     [@show]="show_request[request.id] ? 'show' : 'hide'"
                 >
                     <div
-                        class="flex items-center px-4 py-1 space-x-2 hover:opacity-90"
+                        class="flex items-center space-x-2 px-4 py-1 hover:opacity-90"
                         *ngFor="let item of request.items"
                     >
-                        <div class="flex items-center flex-1">
+                        <div class="flex flex-1 items-center">
                             {{ item.name || 'Item' }}
                         </div>
                         <div
-                            class="rounded bg-success text-success-content text-xs px-2 py-1"
+                            class="rounded bg-success px-2 py-1 text-xs text-success-content"
                         >
                             x{{ item.quantity }}
                         </div>
                         <button
                             icon
                             matRipple
-                            matTooltip="Remove Request Item"
+                            [matTooltip]="'FORM.ASSETS_REMOVE_ITEM' | translate"
                             class="text-error"
                             (click)="removeRequestItem(request, item)"
                         >
@@ -129,11 +135,12 @@ const EMPTY_FAVS: string[] = [];
                             matRipple
                             name="toggle-catering-item-favourite"
                             [matTooltip]="
-                                favorites.includes(item.id)
-                                    ? 'Remove from favourites'
-                                    : 'Add to favourites'
+                                (favorites.includes(item.id)
+                                    ? 'COMMON.FAVOURITES_REMOVE'
+                                    : 'COMMON.FAVOURITES_ADD'
+                                ) | translate
                             "
-                            [class.text-blue-400]="favorites.includes(item.id)"
+                            [class.text-info]="favorites.includes(item.id)"
                             (click)="toggleFavourite(item)"
                         >
                             <app-icon>{{
@@ -150,13 +157,13 @@ const EMPTY_FAVS: string[] = [];
             btn
             matRipple
             add-space
-            class="w-full inverse mt-2"
+            class="inverse mt-2 w-full"
             [disabled]="disabled"
             (click)="editRequest()"
         >
             <div class="flex items-center justify-center space-x-2">
                 <app-icon>search</app-icon>
-                <span>Add Asset</span>
+                <span>{{ 'FORM.ASSETS_ADD' | translate }}</span>
             </div>
         </button>
     `,
@@ -170,6 +177,7 @@ const EMPTY_FAVS: string[] = [];
         },
     ],
     animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
+    standalone: false,
 })
 export class AssetListFieldComponent implements ControlValueAccessor {
     @Input() public options: {
@@ -184,8 +192,8 @@ export class AssetListFieldComponent implements ControlValueAccessor {
     public show_request: Record<string, boolean> = {};
     public err_tooltip(request: AssetRequest) {
         return this.rejected_ids.includes(request.id) || request.conflict
-            ? 'Some of the items are not available for the selected date and time.'
-            : 'Delivery time is outside of the event time.\nThis order will be ignored.';
+            ? i18n('FORM.ASSETS_CLASH_ERROR')
+            : i18n('FORM.ASSETS_TIME_ERROR');
     }
 
     private _onChange: (_: AssetRequest[]) => void;
@@ -210,13 +218,13 @@ export class AssetListFieldComponent implements ControlValueAccessor {
     constructor(
         private _settings: SettingsService,
         private _dialog: MatDialog,
-        private _state: AssetStateService
+        private _state: AssetStateService,
     ) {}
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.options) {
             this.asset_requests = (this.asset_requests || []).map(
-                (_) => new AssetRequest({ ..._, event: this.options as any })
+                (_) => new AssetRequest({ ..._, event: this.options as any }),
             );
             this._state.setOptions({
                 date: this.options.date,
@@ -239,14 +247,13 @@ export class AssetListFieldComponent implements ControlValueAccessor {
      * @param value The new value for the component
      */
     public writeValue(value: AssetRequest[]) {
-        console.log('Requests:', value);
         this.asset_requests = (value || []).map(
             (_) =>
                 new AssetRequest({
                     ..._,
                     event: this.options as any,
                     state: _.state,
-                })
+                }),
         );
     }
 
@@ -316,7 +323,7 @@ export class AssetListFieldComponent implements ControlValueAccessor {
                     order.items.find(
                         (_) =>
                             items.find((__) => __.id === _.id)?.quantity !==
-                            _.quantity
+                            _.quantity,
                     ),
                 items: items.map((_) => ({ ..._ })),
                 event: this.options as any,
@@ -332,15 +339,14 @@ export class AssetListFieldComponent implements ControlValueAccessor {
                         (t +=
                             c.items.find((_) => _.id === item.id)?.quantity ||
                             0),
-                    0
+                    0,
                 );
                 if (total + item.quantity > (item as any).assets.length) {
                     notifyError(
-                        `Not enough assets available to meet request [${item.name}].
-                        Another request for this asset has been made in this meeting.`,
+                        i18n('FORM.ASSETS_QUANTITY_ERROR', { name: item.name }),
                         undefined,
                         undefined,
-                        { duration: 5000 }
+                        { duration: 5000 },
                     );
                     return;
                 }
@@ -352,7 +358,7 @@ export class AssetListFieldComponent implements ControlValueAccessor {
 
     public removeRequest(request: AssetRequest) {
         const updated_list = this.asset_requests.filter(
-            (_) => _.id !== request.id
+            (_) => _.id !== request.id,
         );
         this.setValue(updated_list);
     }
@@ -371,7 +377,7 @@ export class AssetListFieldComponent implements ControlValueAccessor {
             items: order.items.filter((_) => _.id !== item.id),
         });
         const updated_list = this.asset_requests.filter(
-            (_) => _.id !== order.id
+            (_) => _.id !== order.id,
         );
         if (new_order.items.length > 0) {
             this.setValue([...updated_list, new_order]);
@@ -389,7 +395,7 @@ export class AssetListFieldComponent implements ControlValueAccessor {
         } else {
             this._settings.saveUserSetting(
                 'favourite_assets',
-                fav_list.filter((_) => _ !== asset.id)
+                fav_list.filter((_) => _ !== asset.id),
             );
         }
     }

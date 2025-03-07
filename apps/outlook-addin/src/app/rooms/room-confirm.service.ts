@@ -1,13 +1,13 @@
 import { Injectable } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
-import { Observable, BehaviorSubject } from 'rxjs';
 import { Router } from '@angular/router';
-import { Space, SpacesService } from '@placeos/spaces';
-import { EventFormService } from '@placeos/events';
 import { HashMap } from '@placeos/common';
-import { RoomDetailsComponent } from './room-details/room-details.component';
-import { RoomConfirmComponent } from './room-confirm/room-confirm.component';
+import { EventFormService } from '@placeos/events';
+import { Space, SpacesService } from '@placeos/spaces';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { RoomConfirmComponent } from './room-confirm/room-confirm.component';
+import { RoomDetailsComponent } from './room-details/room-details.component';
 
 @Injectable({
     providedIn: 'root',
@@ -37,7 +37,7 @@ export class RoomConfirmService {
         private router: Router,
         private _state: EventFormService,
         private _spaces: SpacesService,
-        private _space_pipe: SpacePipe
+        private _space_pipe: SpacePipe,
     ) {
         this.book_space = {};
         const resources = this._state.form?.get('resources')?.value || [];
@@ -53,7 +53,7 @@ export class RoomConfirmService {
         await room_details_ref
             .afterDismissed()
             .subscribe((selectedSpace) =>
-                selectedSpace ? this.openRoomConfirm(selectedSpace) : null
+                selectedSpace ? this.openRoomConfirm(selectedSpace) : null,
             );
     }
 
@@ -75,8 +75,12 @@ export class RoomConfirmService {
     }
 
     async bookRoom(space?) {
-        const id_list = Object.keys(this.book_space).filter(id => this.book_space[id]);
-        const spaces = await Promise.all(id_list.map(id => this._space_pipe.transform(id)));
+        const id_list = Object.keys(this.book_space).filter(
+            (id) => this.book_space[id],
+        );
+        const spaces = await Promise.all(
+            id_list.map((id) => this._space_pipe.transform(id)),
+        );
         this.form.patchValue({ resources: spaces, system: spaces[0] });
         this.space_list = this._spaces.filter((s) => this.book_space[s.id]);
         this.postForm();

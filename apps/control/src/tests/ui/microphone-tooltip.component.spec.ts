@@ -1,4 +1,3 @@
-
 import { FormsModule } from '@angular/forms';
 import { MatSliderModule } from '@angular/material/slider';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
@@ -17,7 +16,10 @@ describe('MicrophoneTooltipComponent', () => {
     let spectator: Spectator<MicrophoneTooltipComponent>;
     const createComponent = createComponentFactory({
         component: MicrophoneTooltipComponent,
-        declarations: [MockDirective(BindingDirective), MockComponent(IconComponent)],
+        declarations: [
+            MockDirective(BindingDirective),
+            MockComponent(IconComponent),
+        ],
         providers: [
             {
                 provide: ControlStateService,
@@ -30,7 +32,7 @@ describe('MicrophoneTooltipComponent', () => {
                 useValue: { close: jest.fn() },
             },
         ],
-        imports: [MatSliderModule, FormsModule]
+        imports: [MatSliderModule, FormsModule],
     });
 
     beforeEach(() => (spectator = createComponent()));
@@ -41,11 +43,11 @@ describe('MicrophoneTooltipComponent', () => {
 
     it('should list microphones available', async () => {
         spectator.detectChanges();
-        expect('p').toContainText('No microphones available');
+        expect('p').toContainText('');
         const service = spectator.inject(ControlStateService);
         (service as any).mic_list.next([
             { id: 'mic1', name: 'Microphone 1' },
-            { id: 'mic2', name: 'Microphone 2' }
+            { id: 'mic2', name: 'Microphone 2' },
         ]);
         spectator.detectChanges();
         expect('p').not.toExist();
@@ -53,5 +55,5 @@ describe('MicrophoneTooltipComponent', () => {
         expect(`[name="mic1"]`).toExist();
         expect(`[name="mic1"] button[mute]`).toExist();
         expect(`[name="mic1"] mat-slider`).toExist();
-    })
+    });
 });

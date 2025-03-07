@@ -1,20 +1,20 @@
 import { Injectable, Optional } from '@angular/core';
 import {
-    Route,
-    UrlSegment,
     ActivatedRouteSnapshot,
-    RouterStateSnapshot,
-    UrlTree,
+    Route,
     Router,
+    RouterStateSnapshot,
+    UrlSegment,
+    UrlTree,
 } from '@angular/router';
-import { onlineState } from '@placeos/ts-client';
 import { current_user } from '@placeos/common';
-import { first } from 'rxjs/operators';
+import { onlineState } from '@placeos/ts-client';
 import { combineLatest } from 'rxjs';
+import { first } from 'rxjs/operators';
 
-import { StaffUser } from 'libs/users/src/lib/user.class';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
+import { StaffUser } from 'libs/users/src/lib/user.class';
 
 export abstract class PLACEOS_APP_ACCESS {
     public readonly group: string;
@@ -28,19 +28,19 @@ export class AuthorisedUserGuard {
         private _router: Router,
         private _settings: SettingsService,
         private _org: OrganisationService,
-        @Optional() private _access: PLACEOS_APP_ACCESS
+        @Optional() private _access: PLACEOS_APP_ACCESS,
     ) {}
 
     public async canActivate(
         next?: ActivatedRouteSnapshot,
-        state?: RouterStateSnapshot
+        state?: RouterStateSnapshot,
     ): Promise<boolean | UrlTree> {
         return this.checkUser();
     }
 
     public async canLoad(
         route?: Route,
-        segments?: UrlSegment[]
+        segments?: UrlSegment[],
     ): Promise<boolean> {
         return this.checkUser();
     }

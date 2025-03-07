@@ -66,14 +66,8 @@ const app = {
     title: 'PlaceOS',
     description: 'Concierge UI',
     short_name: 'PlaceOS',
-    logo_light: {
-        type: 'img',
-        src: 'assets/logo-light.svg',
-    },
-    logo_dark: {
-        type: 'img',
-        src: 'assets/logo-dark.svg',
-    },
+    logo_light: 'assets/logo-light.svg',
+    logo_dark: 'assets/logo-dark.svg',
     default_route: '/book/rooms/new',
     use_24_hour_time: false,
     admin_group: 'concierge_admins',
@@ -94,6 +88,7 @@ const app = {
         'contact-tracing-report',
         'signage',
         'events',
+        'email-templates',
     ],
     general,
     guests: { vaccine_check: true },
@@ -101,8 +96,13 @@ const app = {
     has_uploads: true,
     custom_reports,
     desks: { can_book_for_others: true },
+    bookings: { can_book_for_others: true, use_building_timezone: false },
     events: {
         allow_setup_breakdown: false,
+        use_building_timezone: false,
+        block_start: 7,
+        block_end: 19,
+        block_height: 5,
         custom_actions: [
             {
                 id: 'set_setup_breakdown',
@@ -111,12 +111,39 @@ const app = {
             },
         ],
     },
+    locales: [
+        { id: 'en-AU', name: 'LANGUAGE.ENGLISH', local: 'English', flag: '🇦🇺' },
+        {
+            id: 'en-US',
+            name: 'LANGUAGE.ENGLISH_US',
+            local: 'English (US)',
+            flag: '🇺🇸',
+        },
+        { id: 'fr', name: 'LANGUAGE.FRENCH', local: 'Français', flag: '🇫🇷' },
+        {
+            id: 'fr-CA',
+            name: 'LANGUAGE.FRENCH_CA',
+            local: 'Français (Canada)',
+            flag: '🇨🇦',
+        },
+        { id: 'es', name: 'LANGUAGE.SPANISH', local: 'Español', flag: '🇪🇸' },
+        {
+            id: 'pt',
+            name: 'LANGUAGE.PORTUGESE',
+            local: 'Português',
+            flag: '🇵🇹',
+        },
+        { id: 'it', name: 'LANGUAGE.ITALIAN', local: 'Italiano', flag: '🇮🇹' },
+        { id: 'zh', name: 'LANGUAGE.CHINESE', local: '中文', flag: '🇨🇳' },
+        { id: 'ja-JP', name: 'LANGUAGE.JAPANESE', local: '日本語', flag: '🇯🇵' },
+        { id: 'ar', name: 'LANGUAGE.ARABIC', local: 'عربية', flag: '' },
+    ],
 };
 
 /**
  * ROOT SETTIGNS
  */
-export const DEFAULT_SETTINGS = {
+export const DEFAULT_SETTINGS: any = {
     debug: true,
     composer: {
         domain: '',

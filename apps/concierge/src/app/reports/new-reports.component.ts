@@ -5,14 +5,14 @@ import { Router } from '@angular/router';
     selector: '[app-new-reports]',
     template: `
         <app-topbar class="screen-only"></app-topbar>
-        <div class="flex flex-1 h-px">
+        <div class="flex h-px flex-1">
             <app-sidebar class="screen-only"></app-sidebar>
-            <main class="flex flex-col flex-1 w-1/2 h-full relative">
+            <main class="relative flex h-full w-1/2 flex-1 flex-col">
                 <router-outlet></router-outlet>
                 <div
                     reports-menu
                     *ngIf="path === 'reports'"
-                    class="absolute inset-0 screen-only"
+                    class="screen-only absolute inset-0"
                 ></div>
             </main>
         </div>
@@ -35,6 +35,7 @@ import { Router } from '@angular/router';
             }
         `,
     ],
+    standalone: false,
 })
 export class NewReportsComponent {
     public get path() {

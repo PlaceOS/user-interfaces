@@ -37,10 +37,10 @@ describe('SettingsService', () => {
             if (state) {
                 expect(service.get('nest_test')).toBe(test_data.nest_test);
                 expect(service.get('nest_test.level_1')).toBe(
-                    test_data.nest_test.level_1
+                    test_data.nest_test.level_1,
                 );
                 expect(service.get('nest_test.level_1.level')).toBe(
-                    test_data.nest_test.level_1.level
+                    test_data.nest_test.level_1.level,
                 );
                 done();
             }

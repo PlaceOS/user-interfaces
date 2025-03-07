@@ -1,31 +1,31 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
-import { Route, RouterModule } from '@angular/router';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatStepperModule } from '@angular/material/stepper';
+import { Route, RouterModule } from '@angular/router';
 import { UIModule } from '../ui/ui.module';
 
-import { AssetListingComponent } from './asset-listing.component';
-import { AssetManagerTopbarComponent } from './asset-manager-topbar.component';
-import { AssetManagerComponent } from './asset-manager.component';
 import { MatTabsModule } from '@angular/material/tabs';
-import { AssetViewComponent } from './asset-view.component';
-import { AssetRequestListComponent } from './asset-request-list.component';
 import { ComponentsModule } from '@placeos/components';
-import { AssetItemListComponent } from './asset-item-list.component';
-import { SplitJoinPipe } from './split-join.pipe';
-import { AssetRequestDetailsComponent } from './asset-request-details.component';
-import { DurationFormatPipe } from './duration.pipe';
-import { AssetLocationModalComponent } from './asset-location-modal.component';
-import { AssetPurchaseOrderFormComponent } from './asset-purchase-order-form.component';
+import { AssetBulkFormComponent } from './asset-bulk-form.component';
 import { AssetCategoryFormComponent } from './asset-category-form.component';
+import { AssetCategoryManagementModalComponent } from './asset-category-management-modal.component';
 import { AssetFormComponent } from './asset-form.component';
 import { AssetGroupFormComponent } from './asset-group-form.component';
+import { AssetItemListComponent } from './asset-item-list.component';
+import { AssetListingComponent } from './asset-listing.component';
+import { AssetLocationModalComponent } from './asset-location-modal.component';
+import { AssetManagerTopbarComponent } from './asset-manager-topbar.component';
+import { AssetManagerComponent } from './asset-manager.component';
+import { AssetPurchaseOrderFormComponent } from './asset-purchase-order-form.component';
 import { AssetPurchaseOrderListComponent } from './asset-purchase-order-list.component';
-import { AssetBulkFormComponent } from './asset-bulk-form.component';
+import { AssetRequestDetailsComponent } from './asset-request-details.component';
+import { AssetRequestListComponent } from './asset-request-list.component';
+import { AssetViewComponent } from './asset-view.component';
+import { DurationFormatPipe } from './duration.pipe';
 import { NewAssetManagerComponent } from './new-asset-manager.component';
-import { AssetCategoryManagementModalComponent } from './asset-category-management-modal.component';
+import { SplitJoinPipe } from './split-join.pipe';
 
 const COMPONENTS = [
     NewAssetManagerComponent,

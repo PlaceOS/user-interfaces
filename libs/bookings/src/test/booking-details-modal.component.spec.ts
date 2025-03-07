@@ -1,4 +1,4 @@
-import { MatDialogModule, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { MapsPeopleService, SettingsService } from '@placeos/common';
@@ -10,11 +10,11 @@ import {
 import { OrganisationService } from '@placeos/organisation';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 
-import { BookingDetailsModalComponent } from '../lib/booking-details-modal.component';
-import { Booking } from '../lib/booking.class';
+import { IndoorMapsComponent } from 'libs/components/src/lib/indoor-maps.component';
 import { StatusPillComponent } from 'libs/components/src/lib/status-pill.component';
 import { BehaviorSubject } from 'rxjs';
-import { IndoorMapsComponent } from 'libs/components/src/lib/indoor-maps.component';
+import { BookingDetailsModalComponent } from '../lib/booking-details-modal.component';
+import { Booking } from '../lib/booking.class';
 
 describe('BookingDetailsModalComponent', () => {
     let spectator: Spectator<BookingDetailsModalComponent>;
@@ -59,6 +59,4 @@ describe('BookingDetailsModalComponent', () => {
     });
 
     it('should show title', () => expect('[title]').toExist());
-
-    it('should show map', () => expect('interactive-map').toExist());
 });

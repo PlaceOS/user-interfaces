@@ -5,18 +5,15 @@ import { Component } from '@angular/core';
     template: `
         <div
             content
-            class="rounded m-4 text-center bg-base-100 text-black border border-base-200 p-4 shadow"
+            class="m-4 rounded border border-base-200 bg-base-100 p-4 text-center text-black shadow"
         >
-            <h3 class="text-2xl" i18n="@@forbiddenLabel">
-                Application Misconfigured.
+            <h3 class="text-2xl">
+                {{ 'COMMON.MISCONFIGURED_TITLE' | translate }}
             </h3>
-            <p class="py-4" i18n="@@invalidPermissionLabel">
-                This application requires a zone of type org, building and level
-                to operate.
+            <p class="py-4">
+                {{ 'COMMON.MISCONFIGURED_MSG' | translate }}
             </p>
-            <p i18n="@@contactAdminLabel">
-                If this issue persists please contact your administrator.
-            </p>
+            <p>{{ 'COMMON.MISCONFIGURED_CONTACT' | translate }}</p>
         </div>
     `,
     styles: [
@@ -40,5 +37,6 @@ import { Component } from '@angular/core';
             }
         `,
     ],
+    standalone: false,
 })
 export class MisconfiguredComponent {}

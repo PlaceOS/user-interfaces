@@ -1,12 +1,11 @@
-import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
 import { CdkTableModule } from '@angular/cdk/table';
+import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
 import { MockComponent } from 'ng-mocks';
 
-import { IconComponent } from '../lib/icon.component';
-import { CustomTableComponent } from '../lib/custom-table.component';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
-import { fakeAsync } from '@angular/core/testing';
+import { CustomTableComponent } from '../lib/custom-table.component';
+import { IconComponent } from '../lib/icon.component';
 
 describe('CustomTableComponent', () => {
     let spectator: Spectator<CustomTableComponent>;
@@ -40,7 +39,9 @@ describe('CustomTableComponent', () => {
         spectator.setInput({ empty: 'No rows to show' });
         spectator.detectChanges();
         expect('p').toContainText('No rows to show');
-        spectator.setInput({ dataSource: [{ name: 'Jim', title: 'Mr', status: 'Lost' }]});
+        spectator.setInput({
+            dataSource: [{ name: 'Jim', title: 'Mr', status: 'Lost' }],
+        });
         spectator.detectChanges();
         expect('p').not.toExist();
     });
@@ -49,15 +50,15 @@ describe('CustomTableComponent', () => {
         spectator.setInput({ columns });
         spectator.detectChanges();
         expect('cdk-row').not.toExist();
-        spectator.setInput({ dataSource: [{ name: 'Jim', title: 'Mr', status: 'Lost' }]});
+        spectator.setInput({
+            dataSource: [{ name: 'Jim', title: 'Mr', status: 'Lost' }],
+        });
         spectator.detectChanges();
         expect('cdk-row').toHaveLength(1);
         expect('cdk-row').toContainText(['Jim', 'Mr', 'Lost']);
     });
 
-    it('should allow for sorting', () => {
-
-    });
+    it('should allow for sorting', () => {});
 
     it('should allow filtering', () => {
         spectator.setInput({
@@ -65,8 +66,8 @@ describe('CustomTableComponent', () => {
             dataSource: [
                 { name: 'Jim', title: 'Mr', status: 'Lost' },
                 { name: 'Jill', title: 'Ms', status: 'Working' },
-                { name: 'John', title: 'Mr', status: 'At Home' }
-            ]
+                { name: 'John', title: 'Mr', status: 'At Home' },
+            ],
         });
         spectator.detectChanges();
         expect('cdk-row').toHaveLength(3);
@@ -98,8 +99,8 @@ describe('CustomTableComponent', () => {
                 { name: '5th', title: 'Mr', status: 'At Home' },
                 { name: '6th', title: 'Mr', status: 'At Home' },
                 { name: '7th', title: 'Mr', status: 'At Home' },
-                { name: '8th', title: 'Mr', status: 'At Home' }
-            ]
+                { name: '8th', title: 'Mr', status: 'At Home' },
+            ],
         });
         spectator.detectChanges();
         expect('[footer][hidden]').not.toExist();

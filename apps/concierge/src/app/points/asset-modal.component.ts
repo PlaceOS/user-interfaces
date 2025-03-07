@@ -11,77 +11,97 @@ import { DesksStateService } from '../desks/desks-state.service';
 @Component({
     selector: 'points-asset-modal',
     template: `
-        <header>
-            <h2 class="text-lg">
-                {{ form?.value?.id ? 'Edit' : 'New' }} Points Asset
+        <header
+            class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded border-none bg-base-200 p-2"
+        >
+            <h2 class="px-2 text-xl font-medium">
+                {{
+                    (form?.value?.id
+                        ? 'APP.CONCIERGE.POINTS_ASSETS_EDIT'
+                        : 'APP.CONCIERGE.POINTS_ASSETS_NEW'
+                    ) | translate
+                }}
             </h2>
+            <button icon matRipple mat-dialog-close *ngIf="!loading">
+                <app-icon>close</app-icon>
+            </button>
         </header>
         <main
-            class="min-w-[24rem] overflow-hidden"
+            class="min-w-[28rem] overflow-hidden px-4 py-2"
             *ngIf="form"
             [formGroup]="form"
         >
-            <section class="p-2">
-                <div class="flex items-center">
-                    <label class="w-24">Asset Type</label>
-                    <mat-form-field
-                        appearance="outline"
-                        class="flex-1 h-[3.25rem]"
+            <div class="flex flex-col">
+                <label>{{ 'APP.CONCIERGE.POINTS_TYPE' | translate }}</label>
+                <mat-form-field appearance="outline" class="h-[3.25rem] flex-1">
+                    <mat-select
+                        formControlName="type"
+                        placeholder="Select asset type"
                     >
-                        <mat-select
-                            formControlName="type"
-                            placeholder="Select asset type"
-                        >
-                            <mat-option value="space">Space</mat-option>
-                            <mat-option value="desk">Desk</mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                </div>
-                <div class="flex items-center">
-                    <label class="w-24">Asset</label>
-                    <mat-form-field
-                        appearance="outline"
-                        class="flex-1 h-[3.25rem]"
+                        <mat-option value="space">{{
+                            'RESOURCE.ROOM' | translate
+                        }}</mat-option>
+                        <mat-option value="desk">{{
+                            'RESOURCE.DESK' | translate
+                        }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+            <div class="flex flex-col">
+                <label>{{ 'RESOURCE.ASSET' | translate }}</label>
+                <mat-form-field appearance="outline" class="h-[3.25rem] flex-1">
+                    <app-icon
+                        matPrefix
+                        class="text-2xl"
+                        [class.opacity-30]="!form.get('type').value"
+                        >search</app-icon
                     >
-                        <app-icon
-                            matPrefix
-                            class="text-2xl"
-                            [class.opacity-30]="!form.get('type').value"
-                            >search</app-icon
-                        >
-                        <input
-                            matInput
-                            formControlName="name"
-                            placeholder="Search for asset..."
-                            [matAutocomplete]="auto"
-                        />
-                        <mat-spinner
-                            *ngIf="loading"
-                            matSuffix
-                            [diameter]="32"
-                        ></mat-spinner>
-                    </mat-form-field>
-                    <mat-autocomplete #auto="matAutocomplete">
-                        <mat-option
-                            *ngFor="let option of asset_options | async"
-                            [value]="option?.display_name || option?.name"
-                        >
-                            {{ option?.display_name || option?.name }}
-                        </mat-option>
-                        <mat-option
-                            [disabled]="true"
-                            *ngIf="!(asset_options | async)?.length"
-                        >
-                            No matching options
-                        </mat-option>
-                    </mat-autocomplete>
-                </div>
-            </section>
-            <section class="border-t border-base-200 p-2">
-                <div class="flex items-center">
-                    <label class="flex-1">Standard hourly rate</label>
+                    <input
+                        matInput
+                        formControlName="name"
+                        [placeholder]="
+                            'APP.CONCIERGE.POINTS_ASSETS_SEARCH' | translate
+                        "
+                        [matAutocomplete]="auto"
+                    />
+                    <mat-spinner
+                        *ngIf="loading"
+                        matSuffix
+                        [diameter]="32"
+                    ></mat-spinner>
+                </mat-form-field>
+                <mat-autocomplete #auto="matAutocomplete">
+                    <mat-option
+                        *ngFor="let option of asset_options | async"
+                        [value]="option?.display_name || option?.name"
+                    >
+                        {{ option?.display_name || option?.name }}
+                    </mat-option>
+                    <mat-option
+                        [disabled]="true"
+                        *ngIf="!(asset_options | async)?.length"
+                    >
+                        {{
+                            'APP.CONCIERGE.POINTS_ASSETS_SEARCH_EMPTY'
+                                | translate
+                        }}
+                    </mat-option>
+                </mat-autocomplete>
+            </div>
+            <div class="mb-4 flex items-center">
+                <settings-toggle
+                    [name]="'APP.CONCIERGE.POINTS_ACCEPT' | translate"
+                    formControlName="accept_points"
+                    class="w-full"
+                ></settings-toggle>
+            </div>
+            <div class="mb-4 flex space-x-4">
+                <div class="flex flex-1 flex-col">
+                    <label>{{
+                        'APP.CONCIERGE.POINTS_STANDARD_RATE' | translate
+                    }}</label>
                     <a-counter
-                        class="border border-base-200 rounded"
+                        class="w-full"
                         formControlName="unit_price"
                         [min]="500"
                         [max]="80000"
@@ -89,88 +109,12 @@ import { DesksStateService } from '../desks/desks-state.service';
                         [render_fn]="renderPrice"
                     ></a-counter>
                 </div>
-                <div class="">
-                    <h2>Rate Rules</h2>
-                    <div>
-                        <div
-                            rule
-                            class="flex items-center"
-                            *ngFor="
-                                let rule of form.get('custom_rates')?.value ||
-                                    []
-                            "
-                        >
-                            <div
-                                class="flex items-center flex-1 w-1/2 space-x-2"
-                            >
-                                <mat-form-field
-                                    appearance="outline"
-                                    class="flex-2 h-[3.25rem] w-32"
-                                >
-                                    <mat-select
-                                        [(ngModel)]="rule.type"
-                                        [ngModelOptions]="{ standalone: true }"
-                                    >
-                                        <mat-option value="before">
-                                            Before
-                                        </mat-option>
-                                        <mat-option value="between">
-                                            Between
-                                        </mat-option>
-                                        <mat-option value="after">
-                                            After
-                                        </mat-option>
-                                    </mat-select>
-                                </mat-form-field>
-                                <a-time-field
-                                    class="flex-1 mt-2 w-40"
-                                    [(ngModel)]="rule.first"
-                                    [ngModelOptions]="{ standalone: true }"
-                                ></a-time-field>
-                                <a-time-field
-                                    class="flex-1 mt-2 w-40"
-                                    [(ngModel)]="rule.second"
-                                    [from]="rule.first"
-                                    [ngModelOptions]="{ standalone: true }"
-                                    *ngIf="rule.type === 'between'"
-                                ></a-time-field>
-                            </div>
-                            <span class="mx-2">&#64;</span>
-                            <a-counter
-                                class="border border-base-200 rounded"
-                                [(ngModel)]="rule.rate"
-                                [ngModelOptions]="{ standalone: true }"
-                                [min]="0"
-                                [max]="300"
-                                [step]="5"
-                                [render_fn]="renderPercent"
-                            ></a-counter>
-                        </div>
-                    </div>
-                    <button
-                        btn
-                        matRipple
-                        class="clear w-full"
-                        (click)="newRule()"
-                    >
-                        <div class="flex items-center justify-center w-full">
-                            <app-icon class="text-lg">add</app-icon>
-                            <span class="underline">Add new rule</span>
-                        </div>
-                    </button>
-                </div>
-            </section>
-            <section class="border-t border-base-200 p-2">
-                <div class="flex items-center">
-                    <label>Accept Points?</label>
-                    <mat-checkbox
-                        formControlName="accept_points"
-                    ></mat-checkbox>
-                </div>
-                <div class="flex items-center">
-                    <label class="flex-1">Discount Cap</label>
+                <div class="flex flex-1 flex-col">
+                    <label>{{
+                        'APP.CONCIERGE.POINTS_DISCOUNT_CAP' | translate
+                    }}</label>
                     <a-counter
-                        class="border border-base-200 rounded"
+                        class="w-full"
                         formControlName="discount_cap"
                         [min]="0"
                         [max]="100"
@@ -178,14 +122,86 @@ import { DesksStateService } from '../desks/desks-state.service';
                         [render_fn]="renderPercent"
                     ></a-counter>
                 </div>
-            </section>
+            </div>
+            <div class="">
+                <label>{{
+                    'APP.CONCIERGE.POINTS_RATE_RULES' | translate
+                }}</label>
+                <div>
+                    <div
+                        rule
+                        class="flex items-center"
+                        *ngFor="
+                            let rule of form.get('custom_rates')?.value || []
+                        "
+                    >
+                        <div class="flex w-1/2 flex-1 items-center space-x-2">
+                            <mat-form-field
+                                appearance="outline"
+                                class="flex-2 h-[3.25rem] w-32"
+                            >
+                                <mat-select
+                                    [(ngModel)]="rule.type"
+                                    [ngModelOptions]="{ standalone: true }"
+                                >
+                                    <mat-option value="before">
+                                        {{
+                                            'APP.CONCIERGE.POINTS_RATE_RULES_BEFORE'
+                                                | translate
+                                        }}
+                                    </mat-option>
+                                    <mat-option value="between">
+                                        {{
+                                            'APP.CONCIERGE.POINTS_RATE_RULES_BETWEEN'
+                                                | translate
+                                        }}
+                                    </mat-option>
+                                    <mat-option value="after">
+                                        {{
+                                            'APP.CONCIERGE.POINTS_RATE_RULES_AFTER'
+                                                | translate
+                                        }}
+                                    </mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                            <a-time-field
+                                class="mt-2 w-40 flex-1"
+                                [(ngModel)]="rule.first"
+                                [ngModelOptions]="{ standalone: true }"
+                            ></a-time-field>
+                            <a-time-field
+                                class="mt-2 w-40 flex-1"
+                                [(ngModel)]="rule.second"
+                                [from]="rule.first"
+                                [ngModelOptions]="{ standalone: true }"
+                                *ngIf="rule.type === 'between'"
+                            ></a-time-field>
+                        </div>
+                        <span class="mx-2">&#64;</span>
+                        <a-counter
+                            class="rounded border border-base-200"
+                            [(ngModel)]="rule.rate"
+                            [ngModelOptions]="{ standalone: true }"
+                            [min]="0"
+                            [max]="300"
+                            [step]="5"
+                            [render_fn]="renderPercent"
+                        ></a-counter>
+                    </div>
+                </div>
+                <button btn matRipple class="clear w-full" (click)="newRule()">
+                    <div class="flex w-full items-center justify-center">
+                        <app-icon class="text-lg">add</app-icon>
+                        <span class="underline">{{
+                            'APP.CONCIERGE.POINTS_RATE_RULES_NEW' | translate
+                        }}</span>
+                    </div>
+                </button>
+            </div>
         </main>
         <footer
-            class="flex items-center justify-end p-2 space-x-2 border-t border-base-200"
+            class="flex items-center justify-end space-x-2 border-t border-base-200 p-2"
         >
-            <button btn matRipple mat-dialog-close class="inverse w-32">
-                Cancel
-            </button>
             <button
                 btn
                 matRipple
@@ -193,7 +209,7 @@ import { DesksStateService } from '../desks/desks-state.service';
                 [disabled]="!form.value.name"
                 (click)="save()"
             >
-                Save
+                {{ 'COMMON.SAVE' | translate }}
             </button>
         </footer>
     `,
@@ -206,6 +222,7 @@ import { DesksStateService } from '../desks/desks-state.service';
             }
         `,
     ],
+    standalone: false,
 })
 export class PointsAssetModalComponent extends AsyncHandler {
     @Output() public event = new EventEmitter<DialogEvent>();
@@ -216,7 +233,7 @@ export class PointsAssetModalComponent extends AsyncHandler {
         name: new FormControl(this._data.asset?.name || ''),
         type: new FormControl(this._data.asset?.type || ''),
         accept_points: new FormControl(
-            this._data.asset?.accept_points ?? false
+            this._data.asset?.accept_points ?? false,
         ),
         discount_cap: new FormControl(this._data.asset?.discount_cap || 50),
         unit_price: new FormControl(this._data.asset?.unit_price || 1000),
@@ -236,17 +253,17 @@ export class PointsAssetModalComponent extends AsyncHandler {
             return !type
                 ? []
                 : type === 'space'
-                ? spaces.filter((_) => _.name.toLowerCase().includes(search))
-                : desks.filter((_) => _.name.toLowerCase().includes(search));
+                  ? spaces.filter((_) => _.name.toLowerCase().includes(search))
+                  : desks.filter((_) => _.name.toLowerCase().includes(search));
         }),
         tap(() => (this.loading = false)),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     constructor(
         private _spaces: SpacesService,
         private _desks: DesksStateService,
-        @Inject(MAT_DIALOG_DATA) private _data: { asset?: any }
+        @Inject(MAT_DIALOG_DATA) private _data: { asset?: any },
     ) {
         super();
         this._desks.setFilters({ zones: ['All'] });
@@ -255,7 +272,7 @@ export class PointsAssetModalComponent extends AsyncHandler {
             this.form.get('type').valueChanges.subscribe((v) => {
                 const field = this.form.get('name');
                 v ? field.enable() : field.disable();
-            })
+            }),
         );
     }
 

@@ -1,24 +1,25 @@
 import { Component } from '@angular/core';
-import { Building } from '@placeos/organisation';
 import { BuildingManagementService } from './building-management.service';
 
 @Component({
     selector: '[app-building-manager]',
     template: `
         <app-topbar></app-topbar>
-        <div class="flex flex-1 h-px">
+        <div class="flex h-px flex-1">
             <app-sidebar></app-sidebar>
-            <main class="flex flex-col flex-1 w-1/2 h-full">
+            <main class="flex h-full w-1/2 flex-1 flex-col">
                 <header
-                    class="flex items-center justify-between mb-2 px-8 pt-4 pb-8"
+                    class="mb-2 flex items-center justify-between px-8 pb-8 pt-4"
                 >
-                    <h2 class="text-2xl font-medium">Building Management</h2>
+                    <h2 class="text-2xl font-medium">
+                        {{ 'APP.CONCIERGE.BUILDINGS_HEADER' | translate }}
+                    </h2>
                     <button btn matRipple (click)="newBuilding()" class="w-40">
-                        Add Building
+                        {{ 'APP.CONCIERGE.BUILDINGS_ADD' | translate }}
                     </button>
                 </header>
                 <building-list
-                    class="block w-full relative flex-1 h-1/2"
+                    class="relative block h-1/2 w-full flex-1"
                 ></building-list>
             </main>
         </div>
@@ -46,6 +47,7 @@ import { BuildingManagementService } from './building-management.service';
             }
         `,
     ],
+    standalone: false,
 })
 export class BuildingManagerComponent {
     public readonly newBuilding = () => this._state.editBuilding();

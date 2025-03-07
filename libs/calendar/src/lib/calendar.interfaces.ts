@@ -1,4 +1,3 @@
-
 export interface CalendarAvailabilityQueryParams {
     /** Comma seperated list of zone ids to check availability */
     zone_ids?: string;

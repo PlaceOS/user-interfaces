@@ -1,9 +1,9 @@
 import { fakeAsync, tick } from '@angular/core/testing';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatInputModule } from '@angular/material/input';
+import { FormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { FormsModule } from '@angular/forms';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
@@ -20,8 +20,8 @@ jest.mock('@placeos/users', () => {
     };
 });
 
-import { UserSearchFieldComponent } from '../lib/user-search-field.component';
 import { SettingsService } from '@placeos/common';
+import { UserSearchFieldComponent } from '../lib/user-search-field.component';
 
 describe('UserSearchFieldComponent', () => {
     let spectator: Spectator<UserSearchFieldComponent>;
@@ -56,7 +56,7 @@ describe('UserSearchFieldComponent', () => {
         spectator.triggerEventHandler(
             'input',
             'ngModelChange',
-            user_list[0].name
+            user_list[0].name,
         );
         spectator.tick(401);
         spectator.detectChanges();
@@ -73,7 +73,7 @@ describe('UserSearchFieldComponent', () => {
         spectator.triggerEventHandler(
             'input',
             'ngModelChange',
-            user_list[0].name
+            user_list[0].name,
         );
         spectator.tick(401);
         spectator.detectChanges();

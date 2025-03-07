@@ -1,29 +1,36 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { VisitorsStateService } from './visitors-state.service';
-import { OrganisationService } from '@placeos/organisation';
-import { ActivatedRoute, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
-import { InviteVisitorModalComponent } from './invite-visitor-modal.component';
-import { combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { ActivatedRoute, Router } from '@angular/router';
 import { SettingsService } from '@placeos/common';
+import { OrganisationService } from '@placeos/organisation';
+import { combineLatest } from 'rxjs';
+import { map, take } from 'rxjs/operators';
+import { InviteVisitorModalComponent } from './invite-visitor-modal.component';
+import { VisitorsStateService } from './visitors-state.service';
 
 @Component({
     selector: '[app-new-visitors]',
     template: `
         <app-topbar></app-topbar>
-        <div class="flex flex-1 h-px">
+        <div class="flex h-px flex-1">
             <app-sidebar></app-sidebar>
-            <main class="flex flex-col flex-1 w-1/2 h-full">
-                <div class="flex items-center px-8 py-4 space-x-2">
-                    <h2 class="text-2xl font-medium">Visitors</h2>
-                    <div class="flex-1 w-2"></div>
+            <main class="flex h-full w-1/2 flex-1 flex-col">
+                <div class="flex items-center space-x-2 px-8 py-4">
+                    <h2 class="text-2xl font-medium">
+                        {{ 'RESOURCE.VISITORS' | translate }}
+                    </h2>
+                    <div class="w-2 flex-1"></div>
                     <searchbar
                         class="mr-2"
                         (modelChange)="setSearch($event)"
                     ></searchbar>
-                    <button btn matRipple (click)="inviteVisitor()">
-                        Invite Visitor
+                    <button
+                        btn
+                        matRipple
+                        class="w-40"
+                        (click)="inviteVisitor()"
+                    >
+                        {{ 'BOOKINGS.VISITOR_INVITE_TITLE' | translate }}
                     </button>
                 </div>
                 <div class="flex items-center px-8 pb-4">
@@ -34,7 +41,7 @@ import { SettingsService } from '@placeos/common';
                         <mat-select
                             [ngModel]="(filters | async)?.zones"
                             (ngModelChange)="updateZones($event)"
-                            placeholder="All Levels"
+                            [placeholder]="'COMMON.LEVEL_ALL' | translate"
                             multiple
                         >
                             <mat-option
@@ -59,10 +66,10 @@ import { SettingsService } from '@placeos/common';
                             </mat-option>
                         </mat-select>
                     </mat-form-field>
-                    <div class="flex-1 w-2"></div>
+                    <div class="w-2 flex-1"></div>
                     <date-options (dateChange)="setDate($event)"></date-options>
                 </div>
-                <div class="mx-8 flex-1 h-1/2 overflow-auto">
+                <div class="mx-8 h-1/2 flex-1 overflow-auto">
                     <guest-listings></guest-listings>
                 </div>
                 <mat-progress-bar
@@ -84,6 +91,7 @@ import { SettingsService } from '@placeos/common';
             }
         `,
     ],
+    standalone: false,
 })
 export class NewVisitorsComponent implements OnInit, OnDestroy {
     public readonly loading = this._state.loading;
@@ -98,8 +106,8 @@ export class NewVisitorsComponent implements OnInit, OnDestroy {
         map(([bld, region]) =>
             this._settings.get('app.use_region')
                 ? this._org.levelsForRegion(region)
-                : this._org.levelsForBuilding(bld)
-        )
+                : this._org.levelsForBuilding(bld),
+        ),
     );
     /** Set filtered date */
     public readonly setDate = (date) => this._state.setFilters({ date });
@@ -112,6 +120,7 @@ export class NewVisitorsComponent implements OnInit, OnDestroy {
         this._router.navigate([], {
             relativeTo: this._route,
             queryParams: { zone_ids: zones.join(',') },
+            queryParamsHandling: 'merge',
         });
         this._state.setFilters({ zones });
     };
@@ -126,11 +135,20 @@ export class NewVisitorsComponent implements OnInit, OnDestroy {
         private _router: Router,
         private _route: ActivatedRoute,
         private _dialog: MatDialog,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {}
 
-    public inviteVisitor() {
-        this._dialog.open(InviteVisitorModalComponent);
+    public async inviteVisitor() {
+        this._dialog.open(InviteVisitorModalComponent, {
+            data: {
+                date: await this._state.filters
+                    .pipe(
+                        take(1),
+                        map((f) => f.date || Date.now()),
+                    )
+                    .toPromise(),
+            },
+        });
     }
 
     public ngOnInit() {

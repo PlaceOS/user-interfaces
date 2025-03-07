@@ -1,6 +1,11 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
-import { AsyncHandler, notifySuccess, SettingsService } from '@placeos/common';
+import {
+    AsyncHandler,
+    i18n,
+    notifySuccess,
+    SettingsService,
+} from '@placeos/common';
 import { EventFormService } from '@placeos/events';
 import { User } from '@placeos/users';
 import { combineLatest } from 'rxjs';
@@ -11,36 +16,26 @@ import { LandingStateService } from './landing-state.service';
     selector: 'landing-colleagues',
     template: `
         <div
-            class="flex items-center justify-between py-2 mx-2 border-b border-base-200"
+            class="mx-2 flex items-center justify-between rounded bg-base-200 p-2 text-sm"
         >
-            <h2 class="mx-2" i18n>
-                {{ (contacts | async)?.length || 0 }} { (contacts |
-                async)?.length, plural, =1 { Person } other { People } }
+            <h2>
+                {{
+                    'APP.WORKPLACE.COLLEAGUES_COUNT'
+                        | translate: { count: (contacts | async)?.length || 0 }
+                }}
             </h2>
-            <!-- <div class="flex items-center space-x-2 text-primary">
-                <button icon
-                    class="!border !border-solid !border-primary"
-                >
-                    <app-icon>search</app-icon>
-                </button>
-                <button icon
-                    class="!border !border-solid !border-primary"
-                >
-                    <app-icon>filter_list</app-icon>
-                </button>
-            </div> -->
         </div>
-        <div class="flex-1 h-1/2 w-full space-y-4 overflow-auto pt-4">
+        <div class="h-1/2 w-full flex-1 space-y-4 overflow-auto pt-4">
             <ng-container *ngIf="(contacts | async)?.length; else empty_state">
                 <div
-                    class="flex items-center px-2 space-x-2 relative"
+                    class="relative flex items-center space-x-2 px-2"
                     user
                     *ngFor="let user of contacts | async"
                 >
-                    <div class="text-xl relative">
+                    <div class="relative text-xl">
                         <a-user-avatar [user]="user"></a-user-avatar>
                         <div
-                            class="rounded-full h-3 w-3 border border-white absolute bottom-1 right-1"
+                            class="absolute bottom-1 right-1 h-3 w-3 rounded-full border border-white"
                             [class.bg-error]="
                                 user.location === 'aol' ||
                                 user.location === 'ooo'
@@ -49,19 +44,20 @@ import { LandingStateService } from './landing-state.service';
                             [class.bg-warning]="user.location === 'wfh'"
                             [class.bg-neutral]="!user.location"
                             [matTooltip]="user.location_name"
+                            *ngIf="!user.outsideHours()"
                         ></div>
                     </div>
-                    <div class="leading-tight flex-1 w-1/2">
+                    <div class="w-1/2 flex-1 leading-tight">
                         <div class="truncate" [matTooltip]="user.name">
                             {{ user.name }}
                         </div>
                         <div
-                            class="text-sm truncate"
+                            class="truncate text-sm"
                             [matTooltip]="user.organisation"
                         >
                             {{ user.organisation }}
                         </div>
-                        <div class="text-xs opacity-60 truncate">
+                        <div class="truncate text-xs opacity-60">
                             {{ user.location_name }}
                         </div>
                     </div>
@@ -82,7 +78,10 @@ import { LandingStateService } from './landing-state.service';
                             <div class="flex items-center space-x-2">
                                 <app-icon class="text-2xl">today</app-icon>
                                 <div>
-                                    {{ 'WPA.CREATE_MEETING' | translate }}
+                                    {{
+                                        'APP.WORKPLACE.COLLEAGUE_NEW_MEETING'
+                                            | translate
+                                    }}
                                 </div>
                             </div>
                         </button>
@@ -94,7 +93,10 @@ import { LandingStateService } from './landing-state.service';
                             <div class="flex items-center space-x-2">
                                 <app-icon class="text-2xl">cancel</app-icon>
                                 <div>
-                                    {{ 'WPA.REMOVE_COLLEAGUE' | translate }}
+                                    {{
+                                        'APP.WORKPLACE.COLLEAGUE_REMOVE'
+                                            | translate
+                                    }}
                                 </div>
                             </div>
                         </button>
@@ -106,33 +108,33 @@ import { LandingStateService } from './landing-state.service';
             btn
             name="open-colleague-search"
             matRipple
-            class="inverse w-[calc(100%-1rem)] m-2"
+            class="inverse m-2 w-[calc(100%-1rem)]"
             (click)="openSearch()"
         >
-            {{ 'WPA.ADD' | translate }}
+            {{ 'APP.WORKPLACE.COLLEAGUE_ADD' | translate }}
         </button>
         <div
             search
             [class.hidden]="!show_search"
-            class="absolute inset-x-2 top-2 bottom-[3.5rem] rounded-lg overflow-hidden flex flex-col bg-base-100 shadow border border-base-200"
+            class="absolute inset-x-2 bottom-16 top-2 flex flex-col overflow-hidden rounded border border-base-200 bg-base-100"
         >
             <input
                 #search_input
                 [ngModel]="(options | async)?.search"
                 (ngModelChange)="updateSearch($event)"
-                placeholder="Search for users..."
-                class="w-full border-b border-base-200 p-2 rounded-t-lg"
+                [placeholder]="'FORM.USER_SEARCH' | translate"
+                class="w-full border-b border-base-200 p-2"
             />
             <button
                 icon
                 name="close-colleague-search"
-                class="absolute top-0 right-0"
+                class="absolute right-0 top-0"
                 (click)="show_search = false"
             >
                 <app-icon>close</app-icon>
             </button>
             <div
-                class="overflow-auto flex-1 h-1/2 flex flex-col space-y-2"
+                class="flex h-1/2 flex-1 flex-col space-y-2 overflow-auto"
                 *ngIf="!(loading | async); else load_state"
             >
                 <ng-container
@@ -141,11 +143,11 @@ import { LandingStateService } from './landing-state.service';
                     <button
                         matRipple
                         name="add-colleague"
-                        class="flex items-center p-1 space-x-2 w-full text-left min-h-12"
+                        class="flex min-h-12 w-full items-center space-x-2 p-1 text-left"
                         *ngFor="let user of search_results | async"
                         (click)="addUser(user)"
                     >
-                        <div class="text-base relative">
+                        <div class="relative text-base">
                             <a-user-avatar [user]="user"></a-user-avatar>
                             <!-- <div
                                 class="rounded-full h-3 w-3 border border-white absolute bottom-1 right-1"
@@ -153,10 +155,10 @@ import { LandingStateService } from './landing-state.service';
                                 [class.bg-success]="user.location"
                             ></div> -->
                         </div>
-                        <div class="leading-tight">
+                        <div class="flex-1 leading-tight">
                             <div class="truncate">{{ user.name }}</div>
-                            <div class="text-sm truncate">
-                                {{ user.organisation }}
+                            <div class="truncate text-xs opacity-60">
+                                {{ user.organisation || user.email }}
                             </div>
                         </div>
                     </button>
@@ -165,36 +167,36 @@ import { LandingStateService } from './landing-state.service';
         </div>
         <ng-template #empty_state>
             <div
-                class="w-full h-full flex flex-col items-center justify-center space-y-2 p-8"
+                class="flex h-full w-full flex-col items-center justify-center space-y-2 p-8"
             >
                 <img src="assets/icons/no-contacts.svg" />
-                <p class="opacity-60 text-sm text-center" i18n>
-                    {{ 'WPA.COLLEAGUES_EMPTY' | translate }}
+                <p class="text-center text-sm opacity-60">
+                    {{ 'APP.WORKPLACE.COLLEAGUES_EMPTY' | translate }}
                 </p>
             </div>
         </ng-template>
         <ng-template #search_empty>
             <div
-                class="w-full h-full flex flex-col items-center justify-center space-y-2 p-8"
+                class="flex h-full w-full flex-col items-center justify-center space-y-2 p-8"
             >
-                <p class="opacity-60 text-sm text-center">
+                <p class="text-center text-sm opacity-60">
                     {{
                         !(options | async)?.search
-                            ? 'Start typing to search for users.'
-                            : 'Unable for find any users matching "' +
-                              (options | async)?.search +
-                              '"'
+                            ? ('APP.WORKPLACE.COLLEAGUE_SEARCH_EMPTY'
+                              | translate)
+                            : ('APP.WORKPLACE.COLLEAGUE_SEARCH_EMPTY'
+                              | translate: { text: (options | async)?.search })
                     }}
                 </p>
             </div>
         </ng-template>
         <ng-template #load_state>
             <div
-                class="w-full h-full flex flex-col items-center justify-center space-y-2 p-8"
+                class="flex h-full w-full flex-col items-center justify-center space-y-2 p-8"
             >
                 <mat-spinner diameter="32"></mat-spinner>
-                <p class="opacity-60 text-sm text-center">
-                    {{ 'WPA.COLLEAGUES_SEARCHING' | translate }}
+                <p class="text-center text-sm opacity-60">
+                    {{ 'APP.WORKPLACE.COLLEAGUE_SEARCH_LOADING' | translate }}
                 </p>
             </div>
         </ng-template>
@@ -213,6 +215,7 @@ import { LandingStateService } from './landing-state.service';
             }
         `,
     ],
+    standalone: false,
 })
 export class LandingColleaguesComponent extends AsyncHandler {
     public show_search = false;
@@ -226,10 +229,10 @@ export class LandingColleaguesComponent extends AsyncHandler {
             list.filter(
                 (_) =>
                     !contacts.find(
-                        (user) => user.id === _.id || user.email === _.email
-                    )
-            )
-        )
+                        (user) => user.id === _.id || user.email === _.email,
+                    ),
+            ),
+        ),
     );
 
     public readonly options = this._state.options;
@@ -238,13 +241,15 @@ export class LandingColleaguesComponent extends AsyncHandler {
 
     public readonly addUser = async (u) => {
         await this._state.addContact(u);
-        notifySuccess(`Successfully added "${u.name}" to contacts`);
+        notifySuccess(i18n('APP.WORKPLACE.COLLEAGUE_ADDED', { name: u.name }));
         this.show_search = false;
     };
 
     public readonly removeUser = async (u) => {
         await this._state.removeContact(u);
-        notifySuccess(`Successfully removed "${u.name}" from contacts`);
+        notifySuccess(
+            i18n('APP.WORKPLACE.COLLEAGUE_REMOVED', { name: u.name }),
+        );
     };
 
     public readonly updateSearch = (s) => this._state.setOptions({ search: s });
@@ -256,7 +261,7 @@ export class LandingColleaguesComponent extends AsyncHandler {
         private _state: LandingStateService,
         private _settings: SettingsService,
         private _event_form: EventFormService,
-        private _router: Router
+        private _router: Router,
     ) {
         super();
     }

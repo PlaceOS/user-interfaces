@@ -10,10 +10,10 @@ import { of, timer } from 'rxjs';
 jest.mock('@placeos/users');
 
 import * as users_mod from '@placeos/users';
+import { FooterMenuComponent } from '../../app/components/footer-menu.component';
 import { TopbarComponent } from '../../app/components/topbar.component';
 import { DirectoryUserListItemComponent } from '../../app/directory/user-details.component';
 import { DirectoryUserListComponent } from '../../app/directory/user-list.component';
-import { FooterMenuComponent } from '../../app/components/footer-menu.component';
 
 describe('DirectoryUserListComponent', () => {
     let spectator: Spectator<DirectoryUserListComponent>;
@@ -34,9 +34,9 @@ describe('DirectoryUserListComponent', () => {
         (users_mod as any).searchStaff = jest.fn((q) =>
             of(
                 [{ name: 'User 1' }, { name: 'User 2' }].filter((_) =>
-                    _.name.includes(q)
-                )
-            )
+                    _.name.includes(q),
+                ),
+            ),
         );
     });
 

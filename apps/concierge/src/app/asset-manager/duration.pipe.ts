@@ -1,12 +1,13 @@
-import { Pipe } from '@angular/core';
-import { formatDuration } from 'date-fns';
+import { Pipe, PipeTransform } from '@angular/core';
+import { formatDuration } from '@placeos/common';
 
 @Pipe({
     name: 'duration',
+    standalone: false,
 })
-export class DurationFormatPipe {
+export class DurationFormatPipe implements PipeTransform {
     public transform(value: number, short = true): string {
-        let duration = formatDuration({
+        const duration = formatDuration({
             days: Math.floor(value / (24 * 60)),
             hours: Math.floor((value / 60) % 24),
             minutes: Math.floor(value % 60),

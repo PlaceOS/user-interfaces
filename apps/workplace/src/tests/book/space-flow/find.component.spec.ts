@@ -8,12 +8,11 @@ import { SettingsService } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
 import { EventFormService } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
-import { MockComponent } from 'ng-mocks';
-import { BehaviorSubject, of, timer } from 'rxjs';
+import { MockComponent, MockProvider } from 'ng-mocks';
+import { BehaviorSubject, of } from 'rxjs';
 
 import { SpaceFlowFindItemComponent } from 'apps/workplace/src/app/book/space-flow/find-item.component';
 import { SpaceFlowFindComponent } from 'apps/workplace/src/app/book/space-flow/find.component';
-import { Router } from '@angular/router';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 
 describe('SpaceFlowFindComponent', () => {
@@ -21,31 +20,24 @@ describe('SpaceFlowFindComponent', () => {
     const createComponent = createRoutingFactory({
         component: SpaceFlowFindComponent,
         providers: [
-            {
-                provide: EventFormService,
-                useValue: {
-                    options: new BehaviorSubject({}),
-                    loading: new BehaviorSubject(''),
-                    setOptions: jest.fn(),
-                    available_spaces: new BehaviorSubject([]),
-                    form: { get: jest.fn(), patchValue: jest.fn() },
-                },
-            },
-            {
-                provide: OrganisationService,
-                useValue: {
-                    initialised: of(true),
-                    building: {},
-                    active_building: new BehaviorSubject({}),
-                    building_list: new BehaviorSubject([]),
-                    levelsForBuilding: jest.fn(() => []),
-                },
-            },
-            { provide: SettingsService, useValue: { get: jest.fn() } },
-            {
-                provide: SpacePipe,
-                useValue: { transform: jest.fn(async () => ({})) },
-            },
+            MockProvider(EventFormService, {
+                options$: new BehaviorSubject({}),
+                loading$: new BehaviorSubject(''),
+                setOptions: jest.fn(),
+                available_spaces: new BehaviorSubject([]),
+                form: { get: jest.fn(), patchValue: jest.fn() },
+            } as any),
+            MockProvider(OrganisationService, {
+                initialised: of(true),
+                building: {},
+                active_building: new BehaviorSubject({}),
+                building_list: new BehaviorSubject([]),
+                levelsForBuilding: jest.fn(() => []),
+            } as any),
+            MockProvider(SettingsService, { get: jest.fn() }),
+            MockProvider(SpacePipe, {
+                transform: jest.fn(async () => ({})),
+            } as any),
         ],
         declarations: [
             MockComponent(SpaceFlowFindItemComponent),
@@ -71,14 +63,14 @@ describe('SpaceFlowFindComponent', () => {
     it('should list available spaces', () => {
         expect('space-flow-find-item').toHaveLength(0);
         expect('p').toContainText(
-            'No available spaces for selected time, capacity or level(s)'
+            'No available spaces for selected time, capacity or level(s)',
         );
         const service = spectator.inject(EventFormService);
         (service.available_spaces as any).next([{ id: 1 }, { id: 2 }]);
         spectator.detectChanges();
         expect('space-flow-find-item').toHaveLength(2);
         expect('p').not.toContainText(
-            'No available spaces for selected time, capacity or level(s)'
+            'No available spaces for selected time, capacity or level(s)',
         );
     });
 
@@ -88,12 +80,12 @@ describe('SpaceFlowFindComponent', () => {
         const spy = jest.spyOn(spectator.component, 'confirmBooking');
         spectator.detectChanges();
         (spectator.inject(SpacePipe).transform as any).mockResolvedValue(
-            {} as any
+            {} as any,
         );
         spectator.triggerEventHandler(
             'space-flow-find-item',
             'bookChange',
-            true
+            true,
         );
         expect(spy).toHaveBeenCalled();
         spy.mockRestore();

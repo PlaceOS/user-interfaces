@@ -4,13 +4,11 @@ import { CalendarEvent } from '../lib/event.class';
 import {
     approveEvent,
     checkinEventGuest,
-    createEvent,
     queryEventGuests,
     queryEvents,
     rejectEvent,
     saveEvent,
     showEvent,
-    updateEvent,
 } from '../lib/events.fn';
 
 jest.mock('@placeos/ts-client');
@@ -30,7 +28,7 @@ describe('Event API Methods', () => {
             expect(events).toHaveLength(1);
             expect(events[0]).toBeInstanceOf(CalendarEvent);
             expect(ts_client.get).toHaveBeenCalledWith(
-                `/api/staff/v1/events?period_start=1&period_end=2`
+                `/api/staff/v1/events?period_start=1&period_end=2`,
             );
             spy.mockReset();
         });
@@ -44,7 +42,7 @@ describe('Event API Methods', () => {
             const event = await showEvent('1').toPromise();
             expect(event).toBeInstanceOf(CalendarEvent);
             expect(ts_client.get).toHaveBeenCalledWith(
-                `/api/staff/v1/events/1`
+                `/api/staff/v1/events/1`,
             );
             spy.mockReset();
         });
@@ -120,7 +118,7 @@ describe('Event API Methods', () => {
             expect(event).toBeInstanceOf(CalendarEvent);
             expect(ts_client.post).toHaveBeenCalledWith(
                 `/api/staff/v1/events/1/approve?system_id=sys-1`,
-                ''
+                '',
             );
             spy.mockReset();
         });
@@ -135,7 +133,7 @@ describe('Event API Methods', () => {
             expect(event).toBeInstanceOf(CalendarEvent);
             expect(ts_client.post).toHaveBeenCalledWith(
                 `/api/staff/v1/events/1/reject?system_id=sys-1`,
-                ''
+                '',
             );
             spy.mockReset();
         });
@@ -149,7 +147,7 @@ describe('Event API Methods', () => {
             const guests = await queryEventGuests('1').toPromise();
             expect(guests[0]).toBeInstanceOf(GuestUser);
             expect(ts_client.get).toHaveBeenCalledWith(
-                `/api/staff/v1/events/1/guests`
+                `/api/staff/v1/events/1/guests`,
             );
             spy.mockReset();
         });
@@ -163,12 +161,12 @@ describe('Event API Methods', () => {
             const guest = await checkinEventGuest(
                 '1',
                 'guest-1',
-                true
+                true,
             ).toPromise();
             expect(guest).toBeInstanceOf(GuestUser);
             expect(ts_client.post).toHaveBeenCalledWith(
                 `/api/staff/v1/events/1/guests/guest-1/checkin?state=true`,
-                ''
+                '',
             );
             spy.mockReset();
         });

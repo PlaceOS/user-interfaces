@@ -1,12 +1,8 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
-import {
-    SettingsService,
-    notifyError,
-    notifySuccess,
-    openConfirmModal,
-} from '@placeos/common';
+import { notifyError, notifySuccess, SettingsService } from '@placeos/common';
+import { openConfirmModal } from '@placeos/components';
 import {
     generateNewSurvey,
     Question,
@@ -17,15 +13,15 @@ import {
     UISurveyObj,
 } from '@placeos/survey-suite';
 import {
+    addSurvey,
     queryQuestions,
+    removeSurvey,
     showSurvey,
     Survey,
-    addSurvey,
     updateSurvey,
-    removeSurvey,
 } from '@placeos/ts-client';
 import { BehaviorSubject, of } from 'rxjs';
-import { catchError, finalize, first, map } from 'rxjs/operators';
+import { catchError, finalize, first, map, take } from 'rxjs/operators';
 import { SurveyBuilderService } from './survey-builder.service';
 
 export interface SurveyOptions {
@@ -56,7 +52,7 @@ export class SurveyService {
         private _settings: SettingsService,
         private router: Router,
         private builder: SurveyBuilderService,
-        private dialog: MatDialog
+        private dialog: MatDialog,
     ) {}
 
     public async loadSurvey(survey_id: string) {
@@ -64,14 +60,15 @@ export class SurveyService {
             this.builder.setUISurvey(generateNewSurvey());
             return;
         }
-        const uiSurvey = await this.getSurveyDetails(survey_id);
-        if (!uiSurvey) return;
+        const survey_details = await this.getSurveyDetails(survey_id);
+        if (!survey_details) return;
 
-        this.builder.setUISurvey(uiSurvey);
+        this.builder.setUISurvey(survey_details);
+
         this.setOptions({
-            zone_id: uiSurvey.zone_id,
-            building_id: uiSurvey.building_id,
-            trigger: uiSurvey.trigger,
+            zone_id: survey_details.zone_id,
+            building_id: survey_details.building_id,
+            trigger: survey_details.trigger.toUpperCase() as any,
         });
     }
 
@@ -95,7 +92,7 @@ export class SurveyService {
                             Note: This action is irreversible.`,
                 icon: { class: 'material-icons', content: 'delete' },
             },
-            this.dialog
+            this.dialog,
         );
         if (details.reason !== 'done') return;
         details.close();
@@ -107,7 +104,7 @@ export class SurveyService {
         if (!this.validateSurvey(survey)) return false;
         const { id, title, description, pages } = survey;
         const { zone_id, building_id, trigger } = this._options.getValue();
-        let toSave: Survey = {
+        const toSave: Survey = {
             id,
             title,
             description,
@@ -117,11 +114,7 @@ export class SurveyService {
             pages: translateToSurveyPage(pages),
         };
 
-        if (id > 0) {
-            this.updateSurvey(toSave);
-        } else {
-            this.createSurvey(toSave);
-        }
+        id > 0 ? this.updateSurvey(toSave) : this.createSurvey(toSave);
     }
 
     public setOptions(options: Partial<SurveyOptions>) {
@@ -134,7 +127,7 @@ export class SurveyService {
         if (building_id?.length) {
             this.router.navigate([
                 this._settings.get('app.default_route').includes('new')
-                    ? '/surveys/new'
+                    ? '/surveys'
                     : '/surveys',
                 'survey-list',
                 building_id,
@@ -142,7 +135,7 @@ export class SurveyService {
         } else {
             this.router.navigate([
                 this._settings.get('app.default_route').includes('new')
-                    ? '/surveys/new'
+                    ? '/surveys'
                     : '/surveys',
             ]);
         }
@@ -155,7 +148,7 @@ export class SurveyService {
                 catchError((err) => {
                     notifyError('Error loading survey');
                     return null;
-                })
+                }),
             )
             .toPromise() as Promise<Survey>;
     }
@@ -165,12 +158,12 @@ export class SurveyService {
             .pipe(
                 first(),
                 map((questions) =>
-                    questions.map((e) => translateToQuestion(e))
+                    questions.map((e) => translateToQuestion(e)),
                 ),
                 catchError((err) => {
                     notifyError('Error loading survey questions');
                     return [];
-                })
+                }),
             )
             .toPromise() as Promise<Question[]>;
     }
@@ -194,7 +187,7 @@ export class SurveyService {
         }
         let allQuestions = [];
         survey.pages.forEach(
-            (p) => (allQuestions = [...allQuestions, ...p.elements])
+            (p) => (allQuestions = [...allQuestions, ...p.elements]),
         );
         if (allQuestions.length === 0) {
             notifyError('Please add at least 1 question to any page');
@@ -206,15 +199,9 @@ export class SurveyService {
 
     private async deleteSurvey(id: number) {
         this.loading = 'Deleting survey...';
-        const res = await removeSurvey(`${id}`)
-            .pipe(
-                first(),
-                finalize(() => (this.loading = ''))
-            )
-            .toPromise();
-        if (res) {
-            notifySuccess('Successfully deleted survey');
-        }
+        await removeSurvey(`${id}`).pipe(take(1)).toPromise();
+        this.loading = '';
+        notifySuccess('Successfully deleted survey');
     }
 
     private async createSurvey(survey: Survey) {
@@ -226,7 +213,7 @@ export class SurveyService {
                     notifyError('Failed to create survey');
                     return of(null);
                 }),
-                finalize(() => (this.loading = ''))
+                finalize(() => (this.loading = '')),
             )
             .toPromise();
         if (res) {
@@ -244,7 +231,7 @@ export class SurveyService {
                     notifyError('Failed to update survey');
                     return of(null);
                 }),
-                finalize(() => (this.loading = ''))
+                finalize(() => (this.loading = '')),
             )
             .toPromise();
         if (res) {

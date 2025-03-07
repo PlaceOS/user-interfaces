@@ -10,7 +10,7 @@ import { OrganisationService } from '@placeos/organisation';
 import { apiKey, getModule, token } from '@placeos/ts-client';
 import { BehaviorSubject, Observable, combineLatest } from 'rxjs';
 import { filter, map, shareReplay, switchMap } from 'rxjs/operators';
-import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
+import { WebSocketSubject, webSocket } from 'rxjs/webSocket';
 
 import * as marked from 'marked';
 
@@ -28,11 +28,19 @@ export interface ChatMessage {
     providedIn: 'root',
 })
 export class ChatService extends AsyncHandler {
+    private _binding = new BehaviorSubject('');
     private _chat_messages = new BehaviorSubject<ChatMessage[]>([]);
     private _progress_message = new BehaviorSubject<ChatMessage | null>(null);
-    private _chat_system = this._org.active_building.pipe(
-        filter((b) => !!b),
-        map((_) => this._org.binding('chat_room')),
+    private _chat_system = combineLatest([
+        this._org.active_building,
+        this._binding,
+    ]).pipe(
+        filter(([b]) => !!b),
+        map(([_, bind_id]) => {
+            const binding = this._org.binding('chat_room');
+            const system_id = binding instanceof Object ? binding.id : binding;
+            return bind_id || system_id;
+        }),
     );
     private _chat_id = '';
 
@@ -81,7 +89,10 @@ export class ChatService extends AsyncHandler {
                 'chat-ws',
                 this._socket.subscribe(
                     (_) => this._onMessage(_),
-                    (e) => this._cleanup(),
+                    (e) => {
+                        log('CHAT', 'Connection error:', [e], 'error');
+                        this._cleanup();
+                    },
                     () => this._cleanup(),
                 ),
             );
@@ -102,6 +113,10 @@ export class ChatService extends AsyncHandler {
         private _settings: SettingsService,
     ) {
         super();
+    }
+
+    public setBinding(system_id: string) {
+        this._binding.next(system_id);
     }
 
     public startChat() {
@@ -126,6 +141,7 @@ export class ChatService extends AsyncHandler {
 
     public sendMessage(message: string) {
         if (!message) return;
+
         this._onMessage({ chat_id: '', message, user_id: currentUser().id });
         this._socket?.next(message);
     }

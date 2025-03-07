@@ -2,21 +2,28 @@ import {
     Component,
     EventEmitter,
     Input,
+    OnChanges,
+    OnInit,
     Output,
     SimpleChanges,
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
-import { SettingsService, currentUser } from '@placeos/common';
-import { addMinutes, format, formatDuration, isSameDay } from 'date-fns';
+import {
+    SettingsService,
+    currentUser,
+    formatDuration,
+    i18n,
+} from '@placeos/common';
+import { addMinutes, format, isSameDay } from 'date-fns';
 import { map } from 'rxjs/operators';
 
-import { Booking } from './booking.class';
-import { BookingDetailsModalComponent } from './booking-details-modal.component';
 import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
-import { ParkingService } from './parking.service';
 import { GroupEventDetailsModalComponent } from '../../../events/src/lib/group-event-details-modal.component';
+import { BookingDetailsModalComponent } from './booking-details-modal.component';
+import { Booking } from './booking.class';
+import { ParkingService } from './parking.service';
 
 @Component({
     selector: 'booking-card',
@@ -24,32 +31,72 @@ import { GroupEventDetailsModalComponent } from '../../../events/src/lib/group-e
         <h4 class="mb-2 flex items-center" *ngIf="booking">
             <span *ngIf="show_day" day>{{ day }},&nbsp;</span>
             {{ booking?.date | date: time_format }}
-            <span class="text-xs px-2">({{ booking?.date | date: 'z' }})</span>
+            <span class="px-2 text-xs"
+                >({{ booking?.date | date: 'zzzz' }})</span
+            >
         </h4>
         <a
             name="view-booking-details"
-            class="w-full cursor-pointer overflow-hidden relative"
+            class="relative w-full cursor-pointer overflow-hidden"
             [routerLink]="['./']"
             [queryParams]="{ booking: booking?.id }"
             (click)="viewDetails()"
             *ngIf="booking"
         >
             <div
-                class="w-full bg-base-100 border border-base-300 rounded-xl shadow py-4 relative"
+                class="relative w-full rounded-xl border border-base-300 bg-base-100 py-4 shadow"
             >
                 <h4 class="px-4 text-lg">{{ booking?.title }}</h4>
-                <div class="flex mx-4 my-2">
+                <div class="mx-4 my-2 flex">
                     <status-pill [status]="status">{{ period }}</status-pill>
                 </div>
                 <div
-                    class="flex flex-wrap flex-col sm:flex-row sm:divide-x divide-base-200-500 py-2 space-y-2 sm:space-y-0"
+                    class="divide-base-200-500 flex flex-col flex-wrap space-y-2 py-2 sm:flex-row sm:space-y-0 sm:divide-x"
                 >
-                    <div class="flex items-center px-4 max-w-[33%]">
-                        <app-icon *ngIf="type !== 'desk'; else desk_icon">{{
-                            type
-                        }}</app-icon>
-                        <div class="mx-2 truncate flex-1 w-1/2">
-                            {{ raw_description || booking?.asset_id }}
+                    <div class="flex max-w-[33%] items-center px-4">
+                        @switch (type) {
+                            @case ('desk') {
+                                <app-icon
+                                    [matTooltip]="'RESOURCE.DESK' | translate"
+                                    matTooltipPosition="right"
+                                    >desk</app-icon
+                                >
+                            }
+                            @case ('locker') {
+                                <app-icon
+                                    [matTooltip]="'RESOURCE.LOCKER' | translate"
+                                    matTooltipPosition="right"
+                                    >lock</app-icon
+                                >
+                            }
+                            @case ('parking') {
+                                <app-icon
+                                    [matTooltip]="
+                                        'RESOURCE.PARKING' | translate
+                                    "
+                                    matTooltipPosition="right"
+                                    >drive_eta</app-icon
+                                >
+                            }
+                            @case ('visitor') {
+                                <app-icon
+                                    [matTooltip]="
+                                        'RESOURCE.VISITOR' | translate
+                                    "
+                                    matTooltipPosition="right"
+                                    >people</app-icon
+                                >
+                            }
+                            @default {
+                                <app-icon>book</app-icon>
+                            }
+                        }
+                        <div class="mx-2 w-1/2 flex-1 truncate">
+                            {{
+                                raw_description ||
+                                    booking?.asset_name ||
+                                    booking?.asset_id
+                            }}
                         </div>
                     </div>
                     <div class="flex items-center px-4" *ngIf="location">
@@ -58,38 +105,38 @@ import { GroupEventDetailsModalComponent } from '../../../events/src/lib/group-e
                     </div>
                 </div>
                 <app-icon
-                    class="absolute top-1/2 right-1 text-4xl -translate-y-1/2"
+                    class="absolute right-1 top-1/2 -translate-y-1/2 text-4xl"
                 >
                     chevron_right
                 </app-icon>
                 <div
-                    class="absolute top-2 right-2 bg-warning/50 rounded-xl px-2 py-1 text-xs"
+                    class="bg-warning/50 absolute right-2 top-2 rounded-xl px-2 py-1 text-xs"
                     *ngIf="
                         !for_current_user &&
                         booking?.booking_type !== 'group-event'
                     "
                 >
-                    Associate
+                    {{ 'BOOKINGS.ASSOCIATE' | translate }}
                 </div>
                 <div
-                    class="absolute top-2 right-2 bg-warning/50 rounded-xl px-2 py-1 text-xs"
+                    class="bg-warning/50 absolute right-2 top-2 rounded-xl px-2 py-1 text-xs"
                     *ngIf="booking?.booking_type === 'group-event'"
                 >
-                    Event
+                    {{ 'BOOKINGS.EVENT' | translate }}
                 </div>
                 <div
-                    class="absolute top-2 right-2 bg-warning/50 rounded-xl px-2 py-1 text-xs"
+                    class="bg-warning/50 absolute right-2 top-2 rounded-xl px-2 py-1 text-xs"
                     *ngIf="is_reserved_parking_space | async"
                 >
                     {{
-                        booking.status !== 'cancelled' ? 'RESERVED' : 'RELEASED'
+                        (booking.status !== 'declined'
+                            ? 'BOOKINGS.RESERVED'
+                            : 'BOOKINGS.RELEASED'
+                        ) | translate
                     }}
                 </div>
             </div>
         </a>
-        <ng-template #desk_icon>
-            <img src="assets/icons/desk-outline.svg" class="w-5 h-5" />
-        </ng-template>
     `,
     styles: [
         `
@@ -100,12 +147,16 @@ import { GroupEventDetailsModalComponent } from '../../../events/src/lib/group-e
             }
         `,
     ],
+    standalone: false,
 })
-export class BookingCardComponent extends AsyncHandler {
+export class BookingCardComponent
+    extends AsyncHandler
+    implements OnInit, OnChanges
+{
     @Input() public booking: Booking;
-    @Input() public show_day: boolean = false;
+    @Input() public show_day = false;
     @Output() public edit = new EventEmitter();
-    @Output() public remove = new EventEmitter();
+    @Output() public remove = new EventEmitter<boolean>();
     @Output() public end = new EventEmitter();
 
     public raw_description = '';
@@ -116,8 +167,8 @@ export class BookingCardComponent extends AsyncHandler {
                 (space) =>
                     this.booking.booking_type === 'parking' &&
                     space &&
-                    this.booking.asset_id === space.id
-            )
+                    this.booking.asset_id === space.id,
+            ),
         );
 
     public get for_current_user() {
@@ -145,7 +196,7 @@ export class BookingCardComponent extends AsyncHandler {
         private _route: ActivatedRoute,
         private _org: OrganisationService,
         private _settings: SettingsService,
-        private _parking: ParkingService
+        private _parking: ParkingService,
     ) {
         super();
     }
@@ -157,29 +208,27 @@ export class BookingCardComponent extends AsyncHandler {
                 params.has('booking') &&
                 this.booking?.id === params.get('event')
                     ? this.viewDetails()
-                    : ''
-            )
+                    : '',
+            ),
         );
     }
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.booking) {
             this.raw_description = this.removeHtmlTags(
-                this.booking?.description
+                this.booking?.description,
             );
         }
     }
 
     public get type() {
-        if (this.booking?.type === 'desk') return 'desk';
-        if (this.booking?.type === 'parking') return 'drive_eta';
-        return 'book';
+        return this.booking.type;
     }
 
     public get day() {
         const date = this.booking?.date || Date.now();
         const is_today = isSameDay(Date.now(), date);
-        return `${is_today ? 'Today' : format(date, 'EEEE')}`;
+        return `${is_today ? i18n('COMMON.TODAY') : format(date, 'EEEE')}`;
     }
 
     public get location() {
@@ -188,7 +237,7 @@ export class BookingCardComponent extends AsyncHandler {
     }
 
     public get period() {
-        if (this.booking?.is_all_day) return 'All Day';
+        if (this.booking?.is_all_day) return i18n('COMMON.ALL_DAY');
         const start = this.booking?.date || Date.now();
         const duration = this.booking?.duration || 60;
         const end = addMinutes(start, duration);
@@ -200,7 +249,7 @@ export class BookingCardComponent extends AsyncHandler {
             .replace(' minute', 'min');
         return `${format(start, this.time_format)} - ${format(
             end,
-            this.time_format
+            this.time_format,
         )} (${dur})`;
     }
 
@@ -223,17 +272,17 @@ export class BookingCardComponent extends AsyncHandler {
             const ref: any = this._dialog.open(view_component, { data });
             this.subscription(
                 'edit',
-                ref.componentInstance.edit?.subscribe(() => this.edit.emit())
+                ref.componentInstance.edit?.subscribe(() => this.edit.emit()),
             );
             this.subscription(
                 'remove',
-                ref.componentInstance.remove?.subscribe(() =>
-                    this.remove.emit()
-                )
+                ref.componentInstance.remove?.subscribe((_) =>
+                    this.remove.emit(_),
+                ),
             );
             this.subscription(
                 'end',
-                ref.componentInstance.end?.subscribe(() => this.end.emit())
+                ref.componentInstance.end?.subscribe(() => this.end.emit()),
             );
         });
     }

@@ -5,9 +5,9 @@ import { DesksService } from '@placeos/bookings';
     selector: 'app-explore',
     template: `
         <topbar *ngIf="!hide_nav"></topbar>
-        <div class="flex-1 flex sm:flex-row flex-col-reverse h-1/2 bg-base-200">
+        <div class="flex h-1/2 flex-1 flex-col-reverse bg-base-200 sm:flex-row">
             <main
-                class="relative z-0 flex flex-col flex-1 h-1/2 sm:h-auto overflow-hidden"
+                class="relative z-0 flex h-1/2 flex-1 flex-col overflow-hidden sm:h-auto"
             >
                 <explore-map-view></explore-map-view>
             </main>
@@ -29,6 +29,7 @@ import { DesksService } from '@placeos/bookings';
             }
         `,
     ],
+    standalone: false,
 })
 export class ExploreComponent implements OnInit {
     public get hide_nav() {

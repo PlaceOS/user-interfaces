@@ -104,7 +104,7 @@ describe('Booking Meetings', () => {
                                 .click({ force: true })
                                 .then(() => {
                                     cy.get('meeting-flow-success').should(
-                                        'be.visible'
+                                        'be.visible',
                                     );
                                     cy.contains('Booking Confirmed');
                                     cy.contains('11:45');
@@ -300,7 +300,7 @@ describe('Booking Meetings', () => {
                                     .click({ force: true })
                                     .then(() => {
                                         cy.get(
-                                            'button[name="catering-item-return"]'
+                                            'button[name="catering-item-return"]',
                                         )
                                             .last()
                                             .click({ force: true });

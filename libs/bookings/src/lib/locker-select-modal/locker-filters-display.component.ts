@@ -2,9 +2,9 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 
-import { LockerFiltersComponent } from './locker-filters.component';
-import { BookingFormService } from '../booking-form.service';
 import { endOfDay } from 'date-fns';
+import { BookingFormService } from '../booking-form.service';
+import { LockerFiltersComponent } from './locker-filters.component';
 
 @Component({
     selector: 'locker-filters-display',
@@ -34,17 +34,16 @@ import { endOfDay } from 'date-fns';
     template: `
         <section
             actions
-            class="sm:hidden space-x-2 flex flex-row items-center p-2"
+            class="flex flex-row items-center space-x-2 p-2 sm:hidden"
         >
             <button
                 btn
                 matRipple
                 name="edit-locker-filters"
-                class="flex-1 w-1/2"
+                class="w-1/2 flex-1"
                 (click)="editFilter()"
-                i18n
             >
-                Filters
+                {{ 'COMMON.FILTERS' | translate }}
             </button>
             <div class="flex items-center">
                 <button
@@ -54,26 +53,24 @@ import { endOfDay } from 'date-fns';
                     class="rounded-l rounded-r-none"
                     [class.inverse]="view !== 'map'"
                     (click)="view = 'map'; viewChange.emit(view)"
-                    i18n
                 >
-                    Map
+                    {{ 'COMMON.MAP' | translate }}
                 </button>
                 <button
                     btn
                     matRipple
                     name="view-locker-list"
-                    class="rounded-r rounded-l-none"
+                    class="rounded-l-none rounded-r"
                     [class.inverse]="view !== 'list'"
                     (click)="view = 'list'; viewChange.emit(view)"
-                    i18n
                 >
-                    List
+                    {{ 'COMMON.LIST' | translate }}
                 </button>
             </div>
         </section>
         <section
             filters
-            class="flex items-center flex-wrap p-2 w-[35rem] max-w-full sm:max-w-[35rem]"
+            class="flex w-[35rem] max-w-full flex-wrap items-center p-2 sm:max-w-[35rem]"
         >
             <!-- TODO: filter chips -->
             <div filter-item date>{{ start | date: 'mediumDate' }}</div>
@@ -98,7 +95,7 @@ import { endOfDay } from 'date-fns';
                 </button>
             </div>
             <div filter-item *ngIf="(options | async)?.show_fav">
-                <span i18n>Favourites Only</span>
+                <span>{{ 'COMMON.FAVOURITES_ONLY' | translate }}</span>
                 <button
                     icon
                     matRipple
@@ -109,8 +106,21 @@ import { endOfDay } from 'date-fns';
                     <app-icon>close</app-icon>
                 </button>
             </div>
+            <div filter-item *ngIf="(options | async)?.show_accessible">
+                <span>{{ 'COMMON.ACCESSIBLE_ONLY' | translate }}</span>
+                <button
+                    icon
+                    matRipple
+                    name="remove-locker-accessible-filter"
+                    class="-mr-4"
+                    (click)="setOptions({ show_accessible: false })"
+                >
+                    <app-icon>close</app-icon>
+                </button>
+            </div>
         </section>
     `,
+    standalone: false,
 })
 export class LockerFiltersDisplayComponent extends AsyncHandler {
     @Input() public view: 'map' | 'list' = 'list';
@@ -139,7 +149,7 @@ export class LockerFiltersDisplayComponent extends AsyncHandler {
     constructor(
         private _bsheet: MatBottomSheet,
         private _state: BookingFormService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         super();
     }

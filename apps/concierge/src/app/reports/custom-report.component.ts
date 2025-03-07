@@ -8,7 +8,7 @@ const EMPTY = {};
     selector: 'custom-report',
     template: `
         <iframe
-            class="w-full h-full"
+            class="h-full w-full"
             *ngIf="id"
             [src]="report_url | safe: 'resource'"
         ></iframe>
@@ -21,6 +21,7 @@ const EMPTY = {};
             }
         `,
     ],
+    standalone: false,
 })
 export class CustomReportComponent extends AsyncHandler {
     public id = '';
@@ -28,7 +29,7 @@ export class CustomReportComponent extends AsyncHandler {
     public get report_url() {
         let report =
             (this._settings.get('app.custom_reports') || []).find(
-                (_) => _.id === this.id
+                (_) => _.id === this.id,
             ) || EMPTY;
         if (!report.url) return '';
         const url =
@@ -41,7 +42,7 @@ export class CustomReportComponent extends AsyncHandler {
 
     constructor(
         private _settings: SettingsService,
-        private _route: ActivatedRoute
+        private _route: ActivatedRoute,
     ) {
         super();
     }
@@ -50,8 +51,8 @@ export class CustomReportComponent extends AsyncHandler {
         this.subscription(
             'route.params',
             this._route.paramMap.subscribe(
-                (params) => (this.id = params.get('id') || '')
-            )
+                (params) => (this.id = params.get('id') || ''),
+            ),
         );
     }
 }

@@ -1,96 +1,121 @@
 import { Component, Input } from '@angular/core';
-import { AssetManagerStateService } from './asset-manager-state.service';
-import { AvailableRoomsStateModalComponent } from '@placeos/components';
 import { MatDialog } from '@angular/material/dialog';
-import { take } from 'rxjs/operators';
 import { AsyncHandler, SettingsService } from '@placeos/common';
+import { AvailableRoomsStateModalComponent } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
+import { take } from 'rxjs/operators';
+import { AssetManagerStateService } from './asset-manager-state.service';
 
 @Component({
     selector: 'asset-manager-topbar',
     template: `
         <div
-            class="w-full px-8 pt-4 pb-2 bg-base-100 flex items-center space-x-2"
+            class="flex w-full items-center space-x-2 bg-base-100 px-8 pb-2 pt-4"
         >
-            <a
-                btn
-                matRipple
-                class="secondary"
-                *ngIf="active === 'items'"
-                [routerLink]="[base_route, 'manage', 'group']"
-            >
-                Add Product
-            </a>
-            <a
-                btn
-                matRipple
-                class="secondary"
-                *ngIf="active === 'purchase-orders'"
-                [routerLink]="[base_route, 'manage', 'purchase-order']"
-            >
-                Add Purchase Order
-            </a>
-            <mat-button-toggle-group
-                [ngModel]="(options | async)?.view"
-                (ngModelChange)="setOptions({ view: $event })"
-                *ngIf="active === 'items'"
-            >
-                <mat-button-toggle value="grid" matTooltip="View as Grid">
-                    <div class="flex items-center justify-center h-12 w-8">
-                        <app-icon class="text-2xl">view_module</app-icon>
-                    </div>
-                </mat-button-toggle>
-                <mat-button-toggle value="list" matTooltip="View as List">
-                    <div class="flex items-center justify-center h-12 w-8">
-                        <app-icon class="text-2xl">view_list</app-icon>
-                    </div>
-                </mat-button-toggle>
-            </mat-button-toggle-group>
-            <div class="flex-1"></div>
-            <button
-                btn
-                icon
-                matRipple
-                *ngIf="active === 'items'"
-                class="bg-secondary text-secondary-content rounded h-12 w-12"
-                matTooltip="Edit Config"
-                (click)="editConfig()"
-            >
-                <app-icon>menu_book</app-icon>
-            </button>
-            <button
-                btn
-                icon
-                matRipple
-                *ngIf="active === 'items'"
-                class="bg-secondary text-secondary-content rounded h-12 w-12"
-                matTooltip="Room Availability"
-                (click)="setRoomAvailability()"
-            >
-                <app-icon>event_available</app-icon>
-            </button>
-            <button
-                btn
-                icon
-                matRipple
-                *ngIf="active === 'items'"
-                class="bg-secondary text-secondary-content rounded h-12 w-12"
-                matTooltip="Manage Categories"
-                (click)="manageCategories()"
-            >
-                <app-icon>list_alt</app-icon>
-            </button>
+            <h2 class="text-2xl font-medium">
+                {{
+                    (active !== 'items' && active !== 'purchase-orders'
+                        ? 'APP.CONCIERGE.ASSETS_HEADER'
+                        : 'APP.CONCIERGE.ASSETS_MANAGE_HEADER'
+                    ) | translate
+                }}
+            </h2>
+            <div class="w-px flex-1"></div>
             <mat-form-field appearance="outline" class="no-subscript">
-                <app-icon matPrefix class="text-2xl relative top-1 -left-1">
+                <app-icon matPrefix class="relative -left-1 top-1 text-2xl">
                     search
                 </app-icon>
                 <input
                     matInput
                     [ngModel]="(options | async)?.search"
                     (ngModelChange)="setOptions({ search: $event })"
-                    placeholder="Search products and requests"
+                    [placeholder]="
+                        (active === 'items'
+                            ? 'APP.CONCIERGE.ASSETS_ITEM_SEARCH'
+                            : active === 'purchase-orders'
+                              ? 'APP.CONCIERGE.ASSETS_ITEM_SEARCH'
+                              : 'APP.CONCIERGE.ASSETS_REQUESTS_SEARCH'
+                        ) | translate
+                    "
                 />
             </mat-form-field>
+            <a
+                btn
+                matRipple
+                class="w-40"
+                *ngIf="active === 'items'"
+                [routerLink]="[base_route, 'manage', 'group']"
+            >
+                {{ 'APP.CONCIERGE.ASSETS_ITEM_ADD' | translate }}
+            </a>
+            <a
+                btn
+                matRipple
+                class="w-48"
+                *ngIf="active === 'purchase-orders'"
+                [routerLink]="[base_route, 'manage', 'purchase-order']"
+            >
+                {{ 'APP.CONCIERGE.ASSETS_PURCHASE_ADD' | translate }}
+            </a>
+        </div>
+        <div
+            class="mb-2 flex items-center space-x-2 px-8"
+            *ngIf="active === 'items'"
+        >
+            <mat-button-toggle-group
+                [ngModel]="(options | async)?.view"
+                (ngModelChange)="setOptions({ view: $event })"
+            >
+                <mat-button-toggle
+                    value="grid"
+                    [matTooltip]="'COMMON.VIEW_AS_GRID' | translate"
+                >
+                    <div class="flex h-12 w-8 items-center justify-center">
+                        <app-icon class="text-2xl">view_module</app-icon>
+                    </div>
+                </mat-button-toggle>
+                <mat-button-toggle
+                    value="list"
+                    [matTooltip]="'COMMON.VIEW_AS_LIST' | translate"
+                >
+                    <div class="flex h-12 w-8 items-center justify-center">
+                        <app-icon class="text-2xl">view_list</app-icon>
+                    </div>
+                </mat-button-toggle>
+            </mat-button-toggle-group>
+            <div class="flex-1"></div>
+            <button
+                icon
+                matRipple
+                class="h-12 w-12 rounded bg-secondary text-secondary-content"
+                [matTooltip]="'APP.CONCIERGE.ASSETS_MANAGE_CONFIG' | translate"
+                (click)="editConfig()"
+            >
+                <app-icon>menu_book</app-icon>
+            </button>
+            <button
+                icon
+                matRipple
+                class="h-12 w-12 rounded bg-secondary text-secondary-content"
+                [matTooltip]="
+                    'APP.CONCIERGE.ASSETS_MANAGE_BOOKING_RULES' | translate
+                "
+                (click)="setRoomAvailability()"
+            >
+                <app-icon>event_available</app-icon>
+            </button>
+            <button
+                icon
+                matRipple
+                *ngIf="active === 'items'"
+                class="h-12 w-12 rounded bg-secondary text-secondary-content"
+                [matTooltip]="
+                    'APP.CONCIERGE.ASSETS_MANAGE_CATEGORIES' | translate
+                "
+                (click)="manageCategories()"
+            >
+                <app-icon>list_alt</app-icon>
+            </button>
         </div>
         <div
             class="flex items-center space-x-2 px-4 pb-2"
@@ -100,7 +125,7 @@ import { OrganisationService } from '@placeos/organisation';
                 <mat-select
                     [ngModel]="(building | async)?.id"
                     (ngModelChange)="setBuilding($event)"
-                    placeholder="All Buildings"
+                    [placeholder]="'COMMON.BUILDINGS_ALL' | translate"
                 >
                     <mat-option
                         *ngFor="let bld of buildings | async"
@@ -113,6 +138,7 @@ import { OrganisationService } from '@placeos/organisation';
         </div>
     `,
     styles: [``],
+    standalone: false,
 })
 export class AssetManagerTopbarComponent extends AsyncHandler {
     @Input() public active = '';
@@ -144,7 +170,7 @@ export class AssetManagerTopbarComponent extends AsyncHandler {
         private _state: AssetManagerStateService,
         private _org: OrganisationService,
         private _settings: SettingsService,
-        private _dialog: MatDialog
+        private _dialog: MatDialog,
     ) {
         super();
     }
@@ -165,7 +191,7 @@ export class AssetManagerTopbarComponent extends AsyncHandler {
                     .saveSettings({ disabled_rooms: list })
                     .catch();
                 ref.componentInstance.loading = false;
-            })
+            }),
         );
     }
 }

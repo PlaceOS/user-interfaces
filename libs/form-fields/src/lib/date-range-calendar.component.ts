@@ -2,6 +2,8 @@ import {
     Component,
     EventEmitter,
     Input,
+    OnChanges,
+    OnInit,
     Output,
     SimpleChanges,
 } from '@angular/core';
@@ -22,7 +24,7 @@ import {
     selector: `date-range-calendar`,
     template: `
         <div class="flex items-center justify-between">
-            <div month class="font-medium px-2">
+            <div month class="px-2 font-medium">
                 {{ month | date: 'MMMM yyyy' }}
             </div>
             <div class="flex items-center space-x-2">
@@ -35,7 +37,7 @@ import {
             </div>
         </div>
         <div
-            class="grid grid-cols-7 grid-rows-7 gap-1 w-[17.25rem] h-[17.25rem]"
+            class="grid h-[17.25rem] w-[17.25rem] grid-cols-7 grid-rows-7 gap-1"
         >
             <div
                 class="col-span-full grid grid-cols-7 border-b border-base-200"
@@ -50,7 +52,7 @@ import {
             </div>
             <button
                 *ngFor="let day of month_days; trackBy: trackByFn"
-                class="relative h-9 w-9 hover:bg-base-200 rounded-full"
+                class="relative h-9 w-9 rounded-full hover:bg-base-200"
                 [class.text-secondary-content]="day.is_start || day.is_end"
                 [disabled]="day.disabled"
                 (click)="selectDate(day.id)"
@@ -58,43 +60,44 @@ import {
             >
                 <div
                     *ngIf="day.is_selected && !day.is_start && !day.is_end"
-                    class="absolute inset-y-0 -inset-x-0.5 border-y border-base-content border-dashed bg-base-200"
+                    class="absolute -inset-x-0.5 inset-y-0 border-y border-dashed border-base-content bg-base-200"
                 ></div>
                 <div
                     *ngIf="day.is_start && end_after_start"
-                    class="absolute inset-y-0 -right-0.5 w-[calc(50%+2px)] border-y border-base-content border-dashed bg-base-200"
+                    class="absolute inset-y-0 -right-0.5 w-[calc(50%+2px)] border-y border-dashed border-base-content bg-base-200"
                 ></div>
                 <div
                     *ngIf="day.is_end && end_after_start"
-                    class="absolute inset-y-0 -left-0.5 w-[calc(50%+2px)] border-y border-base-content border-dashed bg-base-200"
+                    class="absolute inset-y-0 -left-0.5 w-[calc(50%+2px)] border-y border-dashed border-base-content bg-base-200"
                 ></div>
                 <div
                     *ngIf="day.is_start || day.is_end"
-                    class="absolute inset-0 flex items-center justify-center bg-secondary rounded-full z-10"
+                    class="absolute inset-0 z-10 flex items-center justify-center rounded-full bg-secondary"
                 ></div>
                 <div
                     matRipple
-                    class="absolute inset-0 flex items-center justify-center rounded-full z-20"
+                    class="absolute inset-0 z-20 flex items-center justify-center rounded-full"
                     [class.opacity-30]="!day.is_month"
                 >
                     {{ day.id | date: 'd' }}
                 </div>
                 <div
                     *ngIf="day.is_today"
-                    class="absolute -inset-[3px] flex items-center justify-center border border-secondary rounded-full z-10"
+                    class="absolute -inset-[3px] z-10 flex items-center justify-center rounded-full border border-secondary"
                 ></div>
             </button>
         </div>
     `,
     styles: [``],
+    standalone: false,
 })
-export class DateRangeCalendarComponent {
+export class DateRangeCalendarComponent implements OnInit, OnChanges {
     /** Earliest date available the user is allowed to pick */
     @Input('from') public from_date: number = startOfDay(Date.now()).valueOf();
     /** Latest date available the user is allowed to pick */
     @Input('to') public to_date: number;
     /** Index of the day to start the week on when displaying the calendar */
-    @Input() public offset_weekday: number = 0;
+    @Input() public offset_weekday = 0;
     /** Start date of the selected range */
     @Input() public start: number;
     /** End date of the selected range */
@@ -156,7 +159,7 @@ export class DateRangeCalendarComponent {
         this._setMonthDays();
     }
 
-    public trackByFn(index: number, day: any) {
+    public trackByFn(index: number, day: { id: string }) {
         return day.id;
     }
 
@@ -198,7 +201,7 @@ export class DateRangeCalendarComponent {
             weekStartsOn: this.offset_weekday as any,
         });
         this.weekdays = Array.from(Array(7).keys()).map((i) =>
-            addDays(start, i)
+            addDays(start, i),
         );
     }
 }

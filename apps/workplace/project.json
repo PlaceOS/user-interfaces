@@ -4,27 +4,15 @@
     "projectType": "application",
     "sourceRoot": "apps/workplace/src",
     "prefix": "placeos",
-    "i18n": {
-        "sourceLocale": {
-            "code": "en",
-            "baseHref": ""
-        },
-        "locales": {
-            "fr": {
-                "translation": "apps/workplace/src/locale/messages.fr.xlf",
-                "baseHref": ""
-            }
-        }
-    },
+    "tags": [],
     "targets": {
         "build": {
-            "executor": "@angular-devkit/build-angular:browser",
+            "executor": "@angular-devkit/build-angular:application",
             "options": {
-                "baseHref": ".",
+                "baseHref": "./",
                 "outputPath": "dist/apps/workplace",
                 "index": "apps/workplace/src/index.html",
-                "main": "apps/workplace/src/main.ts",
-                "polyfills": "apps/workplace/src/polyfills.ts",
+                "polyfills": ["apps/workplace/src/polyfills.ts"],
                 "tsConfig": "apps/workplace/tsconfig.app.json",
                 "fileReplacements": [
                     {
@@ -45,6 +33,11 @@
                         "input": "node_modules/@placeos/ts-client/dist/",
                         "output": "/"
                     },
+                    {
+                        "input": "node_modules/ts-md5/dist/",
+                        "output": "/assets",
+                        "glob": "*worker.js"
+                    },
                     "apps/workplace/src/manifest.webmanifest"
                 ],
                 "styles": [
@@ -56,17 +49,15 @@
                     "shared/styles/utility.scss"
                 ],
                 "scripts": [],
-                "vendorChunk": true,
                 "extractLicenses": false,
-                "buildOptimizer": false,
                 "sourceMap": true,
                 "optimization": false,
-                "namedChunks": true
+                "namedChunks": true,
+                "browser": "apps/workplace/src/main.ts"
             },
             "configurations": {
                 "staging": {
                     "optimization": true,
-                    "buildOptimizer": true,
                     "fileReplacements": [
                         {
                             "replace": "apps/workplace/src/environments/environment.ts",
@@ -77,8 +68,7 @@
                             "with": "apps/workplace/src/environments/settings.ts"
                         }
                     ],
-                    "serviceWorker": true,
-                    "ngswConfigPath": "apps/workplace/ngsw-config.json"
+                    "serviceWorker": "apps/workplace/ngsw-config.json"
                 },
                 "production": {
                     "fileReplacements": [
@@ -100,8 +90,6 @@
                     "sourceMap": false,
                     "namedChunks": false,
                     "extractLicenses": true,
-                    "vendorChunk": false,
-                    "buildOptimizer": true,
                     "budgets": [
                         {
                             "type": "initial",
@@ -114,8 +102,7 @@
                             "maximumError": "10kb"
                         }
                     ],
-                    "serviceWorker": true,
-                    "ngswConfigPath": "apps/workplace/ngsw-config.json"
+                    "serviceWorker": "apps/workplace/ngsw-config.json"
                 }
             }
         },
@@ -131,12 +118,6 @@
                 }
             }
         },
-        "extract-i18n": {
-            "executor": "@angular-devkit/build-angular:extract-i18n",
-            "options": {
-                "buildTarget": "workplace:build"
-            }
-        },
         "lint": {
             "executor": "@nx/eslint:lint",
             "outputs": ["{options.outputFile}"]
@@ -148,6 +129,5 @@
                 "jestConfig": "apps/workplace/jest.config.ts"
             }
         }
-    },
-    "tags": []
+    }
 }

@@ -1,9 +1,9 @@
 import { Optional, Pipe } from '@angular/core';
-import { showSystem, querySystemsWithEmails } from '@placeos/ts-client';
+import { querySystemsWithEmails, showSystem } from '@placeos/ts-client';
 
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
-import { Space } from './space.class';
 import { first } from 'rxjs/operators';
+import { Space } from './space.class';
 
 const SPACE_LIST: Space[] = [];
 const ATTEMPT_COUNT: Record<string, number> = {};
@@ -29,6 +29,7 @@ setInterval(() => {
 
 @Pipe({
     name: 'space',
+    standalone: false,
 })
 export class SpacePipe {
     constructor(@Optional() private _org?: OrganisationService) {}
@@ -43,7 +44,7 @@ export class SpacePipe {
         const is_email = space_id?.includes('@');
         if (!space_id) return EMPTY_SPACE;
         let space = SPACE_LIST.find(
-            ({ id, email }) => id === space_id || email === space_id
+            ({ id, email }) => id === space_id || email === space_id,
         );
         if (space) return space;
         if (ATTEMPT_COUNT[space_id]) return EMPTY_SPACE;

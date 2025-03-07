@@ -10,14 +10,14 @@ import { VisitorsStateService } from './visitors-state.service';
     selector: 'visitors-topbar',
     template: `
         <div
-            class="flex items-center bg-base-100 h-20 px-4 border-b border-base-200 space-x-2"
+            class="flex h-20 items-center space-x-2 border-b border-base-200 bg-base-100 px-4"
         >
             <mat-form-field appearance="outline">
                 <mat-select
                     multiple
                     [(ngModel)]="zones"
                     (ngModelChange)="updateZones($event)"
-                    placeholder="All Levels"
+                    [placeholder]="'COMMON.LEVEL_ALL' | translate"
                 >
                     <mat-option
                         *ngFor="let level of levels | async"
@@ -38,7 +38,7 @@ import { VisitorsStateService } from './visitors-state.service';
                     <mat-option [value]="30">Show Month</mat-option>
                 </mat-select>
             </mat-form-field>
-            <div class="flex-1 w-2"></div>
+            <div class="w-2 flex-1"></div>
             <searchbar
                 class="mr-2"
                 (modelChange)="setSearch($event)"
@@ -54,6 +54,7 @@ import { VisitorsStateService } from './visitors-state.service';
             }
         `,
     ],
+    standalone: false,
 })
 export class VisitorsTopbarComponent extends AsyncHandler implements OnInit {
     /** List of selected levels */
@@ -73,6 +74,7 @@ export class VisitorsTopbarComponent extends AsyncHandler implements OnInit {
         this._router.navigate([], {
             relativeTo: this._route,
             queryParams: { zone_ids: zones.join(',') },
+            queryParamsHandling: 'merge',
         });
         this._state.setFilters({ zones });
     };
@@ -81,7 +83,7 @@ export class VisitorsTopbarComponent extends AsyncHandler implements OnInit {
         private _state: VisitorsStateService,
         private _org: OrganisationService,
         private _route: ActivatedRoute,
-        private _router: Router
+        private _router: Router,
     ) {
         super();
     }
@@ -98,23 +100,23 @@ export class VisitorsTopbarComponent extends AsyncHandler implements OnInit {
                         this.zones = zones;
                         if (!level) return;
                         this._org.building = this._org.buildings.find(
-                            (bld) => bld.id === level.parent_id
+                            (bld) => bld.id === level.parent_id,
                         );
                     }
                 }
-            })
+            }),
         );
         this.subscription(
             'levels',
             this._org.active_levels.subscribe((levels) => {
                 this.zones = this.zones.filter((zone) =>
-                    levels.find((lvl) => lvl.id === zone)
+                    levels.find((lvl) => lvl.id === zone),
                 );
                 if (!this.zones.length && levels.length) {
                     this.zones.push(levels[0].id);
                 }
                 this.updateZones(this.zones);
-            })
+            }),
         );
         this.setSearch('');
     }

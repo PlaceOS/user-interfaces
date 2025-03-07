@@ -6,9 +6,9 @@ import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 import { DesksStateService } from '../../app/desks/desks-state.service';
 import { DesksTopbarComponent } from '../../app/desks/desks-topbar.component';
 import { DesksComponent } from '../../app/desks/desks.component';
-import { SidebarComponent } from '../../app/ui/sidebar.component';
-import { ApplicationTopbarComponent } from '../../app/ui/app-topbar.component';
 import { ApplicationSidebarComponent } from '../../app/ui/app-sidebar.component';
+import { ApplicationTopbarComponent } from '../../app/ui/app-topbar.component';
+import { SidebarComponent } from '../../app/ui/sidebar.component';
 
 describe('DesksComponent', () => {
     let spectator: SpectatorRouting<DesksComponent>;

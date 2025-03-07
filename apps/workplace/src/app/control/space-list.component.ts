@@ -8,8 +8,8 @@ import { Space, SpacesService } from '@placeos/spaces';
 @Component({
     selector: 'a-control-space-list',
     template: `
-        <div class="w-full flex items-center justify-center p-2">
-            <mat-form-field overlay class="rounded h-12" appearance="outline">
+        <div class="flex w-full items-center justify-center p-2">
+            <mat-form-field overlay class="h-12 rounded" appearance="outline">
                 <app-icon class="text-xl" matPrefix>search</app-icon>
                 <input
                     matInput
@@ -25,7 +25,7 @@ import { Space, SpacesService } from '@placeos/spaces';
             </mat-form-field>
         </div>
         <div
-            class="flex flex-col flex-1 overflow-auto w-full"
+            class="flex w-full flex-1 flex-col overflow-auto"
             *ngIf="filtered_list.length; else empty_state"
         >
             <a-control-space-list-item
@@ -61,6 +61,7 @@ import { Space, SpacesService } from '@placeos/spaces';
             }
         `,
     ],
+    standalone: false,
 })
 export class ControlSpaceListComponent extends AsyncHandler implements OnInit {
     /** List of controllable spaces */
@@ -72,7 +73,7 @@ export class ControlSpaceListComponent extends AsyncHandler implements OnInit {
 
     constructor(
         private _spaces: SpacesService,
-        private _org: OrganisationService
+        private _org: OrganisationService,
     ) {
         super();
     }
@@ -88,7 +89,7 @@ export class ControlSpaceListComponent extends AsyncHandler implements OnInit {
         const search = (this.search_str || '').toLowerCase();
         return (this.space_list || []).filter((space) => {
             const bld = this._org.buildings.find(
-                (building) => building.id === space.level.parent_id
+                (building) => building.id === space.level.parent_id,
             );
             const space_name = (space.name || '').toLowerCase();
             const level_name = (
@@ -105,7 +106,7 @@ export class ControlSpaceListComponent extends AsyncHandler implements OnInit {
 
     private sortSpaces(first: Space, second: Space) {
         const bld_a = this._org.buildings.find(
-            (building) => building.id === first.level?.parent_id
+            (building) => building.id === first.level?.parent_id,
         );
         const space_a_name = (first.name || '').toLowerCase();
         const level_a_name = (
@@ -113,7 +114,7 @@ export class ControlSpaceListComponent extends AsyncHandler implements OnInit {
         ).toLowerCase();
         const bld_a_name = (bld_a?.name || '').toLowerCase();
         const bld_b = this._org.buildings.find(
-            (building) => building.id === second.level?.parent_id
+            (building) => building.id === second.level?.parent_id,
         );
         const space_b_name = (second.name || '').toLowerCase();
         const level_b_name = (

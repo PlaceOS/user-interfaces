@@ -1,8 +1,11 @@
-import { Component, forwardRef, Input } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { FormControl } from '@angular/forms';
-import { MatChipInputEvent } from '@angular/material/chips';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
+import { Component, forwardRef, Input } from '@angular/core';
+import {
+    ControlValueAccessor,
+    FormControl,
+    NG_VALUE_ACCESSOR,
+} from '@angular/forms';
+import { MatChipInputEvent } from '@angular/material/chips';
 
 /**
  * Add a tag to the list of tags for the item
@@ -10,7 +13,7 @@ import { COMMA, ENTER } from '@angular/cdk/keycodes';
  */
 export function addChipItem<T = string>(
     control: FormControl<T[]>,
-    event: MatChipInputEvent
+    event: MatChipInputEvent,
 ): void {
     if (!control) return;
     const input = event.input;
@@ -43,7 +46,7 @@ export function addChipItem<T = string>(
  */
 export function removeChipItem<T = string>(
     control: FormControl<T[]>,
-    item: T
+    item: T,
 ): void {
     if (!control) {
         return;
@@ -66,7 +69,7 @@ export function removeChipItem<T = string>(
                     *ngFor="let item of value"
                     (removed)="remove(item)"
                 >
-                    <span class="truncate max-w-md">{{ item }}</span>
+                    <span class="max-w-md truncate">{{ item }}</span>
                     <button matChipRemove [attr.aria-label]="'Remove ' + item">
                         <app-icon>cancel</app-icon>
                     </button>
@@ -74,7 +77,6 @@ export function removeChipItem<T = string>(
             </mat-chip-grid>
             <input
                 [placeholder]="placeholder || 'User groups...'"
-                i18n-placeholder="@@userGroupsPlaceholder"
                 [matChipInputFor]="chipList"
                 [matChipInputSeparatorKeyCodes]="separators"
                 [matChipInputAddOnBlur]="true"
@@ -91,6 +93,7 @@ export function removeChipItem<T = string>(
             multi: true,
         },
     ],
+    standalone: false,
 })
 export class ItemListFieldComponent<T = any> implements ControlValueAccessor {
     @Input() public separators: number[] = [ENTER, COMMA];
@@ -110,14 +113,14 @@ export class ItemListFieldComponent<T = any> implements ControlValueAccessor {
     public readonly add = (e: MatChipInputEvent) =>
         addChipItem(
             { value: this.value, setValue: (i) => this.setValue(i) } as any,
-            e
+            e,
         );
 
     /** Remove the `step` from the current value */
     public readonly remove = (item: T) =>
         removeChipItem(
             { value: this.value, setValue: (i) => this.setValue(i) } as any,
-            item
+            item,
         );
 
     /**

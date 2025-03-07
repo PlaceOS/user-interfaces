@@ -1,29 +1,47 @@
-import { Component } from '@angular/core';
-import { OrganisationService } from '@placeos/organisation';
-import { EventsStateService } from './events-state.service';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AsyncHandler, SettingsService } from '@placeos/common';
-import { map, take } from 'rxjs/operators';
+import { AsyncHandler, i18n, SettingsService } from '@placeos/common';
+import { OrganisationService } from '@placeos/organisation';
 import { combineLatest } from 'rxjs';
+import { debounceTime, filter, map, take } from 'rxjs/operators';
+import { EventsStateService } from './events-state.service';
 
 const EMPTY = [];
 @Component({
     selector: 'room-bookings',
     template: `
         <div class="absolute inset-0 flex flex-col overflow-hidden pl-8">
-            <div class="flex items-center justify-between w-full py-4 pr-8">
-                <h2 class="text-2xl font-medium">Room Bookings</h2>
+            <div class="flex w-full items-center space-x-4 py-4 pr-8">
+                <h2 class="text-2xl font-medium">
+                    {{ 'APP.CONCIERGE.ROOM_BOOKINGS' | translate }}
+                </h2>
+                <div class="w-px flex-1"></div>
+                <mat-form-field appearance="outline" class="no-subscript w-32">
+                    <mat-select
+                        [ngModel]="period | async"
+                        (ngModelChange)="setPeriod($event)"
+                    >
+                        <mat-option value="day">
+                            {{ 'COMMON.DAY' | translate }}
+                        </mat-option>
+                        <mat-option value="week">
+                            {{ 'COMMON.WEEK' | translate }}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
                 <button btn matRipple class="space-x-2" (click)="newBooking()">
-                    <div>New Booking</div>
-                    <app-icon>add</app-icon>
+                    <div class="pl-2">
+                        {{ 'APP.CONCIERGE.ROOMS_BOOK_ADD' | translate }}
+                    </div>
+                    <app-icon class="text-2xl">add</app-icon>
                 </button>
             </div>
-            <div class="w-full flex items-center">
+            <div class="flex w-full items-center">
                 <mat-form-field appearance="outline" class="no-subscript w-52">
                     <mat-select
-                            [ngModel]="zones | async"
-                            (ngModelChange)="updateZones($event)"
-                        placeholder="All Levels"
+                        [ngModel]="zones | async"
+                        (ngModelChange)="updateZones($event)"
+                        [placeholder]="'COMMON.LEVEL_ALL' | translate"
                         multiple
                     >
                         <mat-option
@@ -31,8 +49,14 @@ const EMPTY = [];
                             [value]="level.id"
                         >
                             <div class="flex flex-col-reverse">
-                                <div class="text-xs opacity-30" *ngIf="use_region">
-                                    {{ (level.parent_id | building)?.display_name }}
+                                <div
+                                    class="text-xs opacity-30"
+                                    *ngIf="use_region"
+                                >
+                                    {{
+                                        (level.parent_id | building)
+                                            ?.display_name
+                                    }}
                                     <span class="opacity-0"> - </span>
                                 </div>
                                 <div>
@@ -43,55 +67,99 @@ const EMPTY = [];
                     </mat-select>
                 </mat-form-field>
                 <ng-container *ngIf="allow_setup_breakdown">
-                    <div class="border-l h-full ml-8 mr-4" *ngIf="!use_region"></div>
+                    <div
+                        class="ml-8 mr-4 h-full border-l"
+                        *ngIf="!use_region"
+                    ></div>
                     <mat-slide-toggle
                         class="m-2"
                         [ngModel]="(ui_options | async)?.show_overflow"
-                        (ngModelChange)="updateUIOptions({ show_overflow: $event })"
+                        (ngModelChange)="
+                            updateUIOptions({ show_overflow: $event })
+                        "
                     >
-                        <div class="text-xs">Setup / Breakdown</div>
+                        <div class="text-xs">
+                            {{ 'APP.CONCIERGE.SETUP_BREAKDOWN' | translate }}
+                        </div>
                     </mat-slide-toggle>
                 </ng-container>
-                <div class="border-l h-full ml-8 mr-4"></div>
-                <div class="flex items-center space-x-2 max-w-[calc(100%-16rem)] flex-1">
-                    <button btn matRipple class="inverse" [matMenuTriggerFor]="menu">
+                <div class="ml-8 mr-4 h-full border-l"></div>
+                <div
+                    class="flex max-w-[calc(100%-16rem)] flex-1 items-center space-x-2"
+                >
+                    <button
+                        btn
+                        matRipple
+                        class="inverse"
+                        [matMenuTriggerFor]="menu"
+                    >
                         <app-icon>filter_list</app-icon>
-                        <div class="mx-2">Filters</div>
+                        <div class="mx-2">
+                            {{ 'COMMON.FILTERS' | translate }}
+                        </div>
                     </button>
                     <mat-menu #menu="matMenu" class="">
-                        <div class="flex flex-col space-y-2 overflow-hidden w-48">
-                            <mat-checkbox 
-                                *ngFor="let type of types" 
-                                [ngModel]="!type_list.includes(type.id)" 
+                        <div
+                            class="flex w-48 flex-col space-y-2 overflow-hidden"
+                        >
+                            <mat-checkbox
+                                *ngFor="let type of types"
+                                [ngModel]="!type_list.includes(type.id)"
                                 (ngModelChange)="setFilter(type.id, !$event)"
                             >
                                 {{ type.name }}
                             </mat-checkbox>
                         </div>
                     </mat-menu>
-                    <div class="flex items-center overflow-x-auto flex-1 w-px space-x-2 px-2">
+                    <div
+                        class="flex w-px flex-1 items-center space-x-2 overflow-x-auto px-2"
+                    >
                         @for (type of types; track type.id) {
-                        <div class="flex items-center border border-base-200 rounded-3xl" *ngIf="!type_list.includes(type.id)">
-                            <div class="h-4 w-4 m-2 rounded-full" [style.background-color]="type.color"></div>
-                            <div>{{ type.name }}</div>
-                            <button icon matRipple (click)="setFilter(type.id, true)">
-                                <app-icon>close</app-icon>
-                            </button>
-                        </div>
+                            <div
+                                class="flex items-center rounded-3xl border border-base-200"
+                                *ngIf="!type_list.includes(type.id)"
+                            >
+                                <div
+                                    class="m-2 h-4 w-4 rounded-full"
+                                    [style.background-color]="type.color"
+                                ></div>
+                                <div class="truncate">
+                                    {{ type.name }}
+                                </div>
+                                <button
+                                    icon
+                                    matRipple
+                                    (click)="setFilter(type.id, true)"
+                                >
+                                    <app-icon class="text-xl">close</app-icon>
+                                </button>
+                            </div>
                         }
                     </div>
                 </div>
             </div>
-            <div class="flex w-full flex-1 h-px border-t mt-4 border-base-200">
-                <room-bookings-timeline class="flex-1 w-1/2"/>
-                <room-bookings-approvals *ngIf="has_approvals"/>
+            <div class="mt-4 flex h-px w-full flex-1 border-t border-base-200">
+                <room-bookings-timeline
+                    *ngIf="(period | async) === 'day'"
+                    class="relative z-0 w-1/2 flex-1"
+                />
+                <room-week-bookings-timeline
+                    *ngIf="(period | async) === 'week'"
+                    class="relative z-0 w-1/2 flex-1"
+                />
+                <room-bookings-approvals
+                    class="relative z-10"
+                    *ngIf="has_approvals"
+                />
             </div>
         </div>
     `,
     styles: [``],
+    standalone: false,
 })
-export class RoomBookingsComponent extends AsyncHandler {
+export class RoomBookingsComponent extends AsyncHandler implements OnInit {
     public readonly zones = this._state.zones;
+    public readonly period = this._state.period;
     public readonly ui_options = this._state.options;
     public readonly levels = combineLatest([
         this._org.active_building,
@@ -100,22 +168,33 @@ export class RoomBookingsComponent extends AsyncHandler {
         map(([bld, region]) =>
             this.use_region
                 ? this._org.levelsForRegion(region)
-                : this._org.levelsForBuilding(bld)
-        )
+                : this._org.levelsForBuilding(bld),
+        ),
     );
     /** List of levels for the active building */
     public readonly updateZones = (z) => {
+        console.warn('Update Zones:', z);
         this._router.navigate([], {
             relativeTo: this._route,
             queryParams: { zone_ids: z.join(',') },
+            queryParamsHandling: 'merge',
         });
         this._state.setZones(z);
     };
     public readonly updateUIOptions = (o) => this._state.setUIOptions(o);
+    public readonly setPeriod = (p) => {
+        console.warn('Set Period:', p);
+        this._router.navigate([], {
+            relativeTo: this._route,
+            queryParams: { period: p },
+            queryParamsHandling: 'merge',
+        });
+        this._state.setPeriod(p);
+    };
     /**  */
     public readonly newBooking = (d?) => this._state.newBooking(d);
 
-    public readonly types: any[] = [
+    public types: any[] = [
         { id: 'internal', name: 'Internal', color: '#D81B60' },
         { id: 'external', name: 'External', color: '#1E88E5' },
         { id: 'cancelled', name: 'Cancelled', color: '#eeeeee' },
@@ -142,15 +221,37 @@ export class RoomBookingsComponent extends AsyncHandler {
         private _state: EventsStateService,
         private _router: Router,
         private _route: ActivatedRoute,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         super();
     }
 
     public ngOnInit() {
+        this.types = [
+            {
+                id: 'internal',
+                name: i18n('COMMON.TYPE_INTERNAL'),
+                color: '#D81B60',
+            },
+            {
+                id: 'external',
+                name: i18n('COMMON.TYPE_EXTERNAL'),
+                color: '#1E88E5',
+            },
+            {
+                id: 'cancelled',
+                name: i18n('COMMON.TYPE_CANCELLED'),
+                color: '#eeeeee',
+            },
+        ];
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {
+                if (params.has('period')) {
+                    this._state.setPeriod(
+                        params.get('period') === 'day' ? 'day' : 'week',
+                    );
+                }
                 if (this.use_region) return;
                 if (params.has('zone_ids')) {
                     const zones = params.get('zone_ids').split(',');
@@ -158,28 +259,37 @@ export class RoomBookingsComponent extends AsyncHandler {
                         const level = this._org.levelWithID(zones);
                         if (!level) return;
                         this._org.building = this._org.buildings.find(
-                            (bld) => bld.id === level.parent_id
+                            (bld) => bld.id === level.parent_id,
                         );
+                        this.updateZones(zones);
                     }
                 }
-            })
+            }),
         );
         this.subscription(
             'levels',
-            this._org.active_levels.subscribe(async (levels) => {
-                if (this.use_region) return;
-                const zones = (
-                    await this.zones.pipe(take(1)).toPromise()
-                ).filter((zone) => levels.find((lvl) => lvl.id === zone));
-                if (!zones.length && levels.length) {
-                    zones.push(levels[0].id);
-                }
-                this.updateZones(zones);
-            })
+            this._org.active_levels
+                .pipe(debounceTime(300))
+                .subscribe(async (levels) => {
+                    if (this.use_region) return;
+                    const zones = (
+                        await this.zones.pipe(take(1)).toPromise()
+                    ).filter((zone) => levels.find((lvl) => lvl.id === zone));
+                    if (!zones.length && levels.length) {
+                        zones.push(levels[0].id);
+                    }
+                    this.updateZones(zones);
+                }),
         );
         this.subscription(
             'region',
-            this._org.active_region.subscribe((_) => this.updateZones([_.id]))
+            this._org.active_region
+                .pipe(filter((_) => !!_))
+                .subscribe(async (_) => {
+                    const zones = await this.zones.pipe(take(1)).toPromise();
+                    if (zones.length) return;
+                    this.updateZones([_.id]);
+                }),
         );
     }
 

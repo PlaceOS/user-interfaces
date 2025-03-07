@@ -1,4 +1,10 @@
-import { Component, ElementRef, TemplateRef, ViewChild } from '@angular/core';
+import {
+    Component,
+    ElementRef,
+    OnInit,
+    TemplateRef,
+    ViewChild,
+} from '@angular/core';
 import {
     MatBottomSheet,
     MatBottomSheetRef,
@@ -10,52 +16,57 @@ import {
     AsyncHandler,
     currentUser,
     getInvalidFields,
+    i18n,
     notifyError,
     notifyWarn,
-    openConfirmModal,
     SettingsService,
     UserIdleTimeService,
 } from '@placeos/common';
+import { openConfirmModal } from '@placeos/components';
 import { EventFormService } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
 import { Space } from '@placeos/spaces';
 import { FindAvailabilityModalComponent } from '@placeos/users';
+import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
 import { CateringOrderStateService } from 'libs/catering/src/lib/catering-order-modal/catering-order-state.service';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
-import { debounceTime, first, map, switchMap, tap } from 'rxjs/operators';
+import { debounceTime, first, map, switchMap, take, tap } from 'rxjs/operators';
 import { MeetingFlowConfirmModalComponent } from './meeting-flow-confirm-modal.component';
 import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
-import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
 
 @Component({
     selector: 'meeting-flow-form',
     template: `
-        <div class="h-full w-full bg-base-200 overflow-auto">
+        <div class="h-full w-full overflow-auto bg-base-200">
             <div
-                class="max-w-full w-[48rem] mx-auto sm:my-4 bg-base-100 border border-base-300"
+                class="mx-auto w-[48rem] max-w-full border border-base-300 bg-base-100 sm:my-4"
             >
                 <h2
-                    class="w-full p-4 sm:py-4 sm:px-16 text-2xl font-medium border-b border-base-300"
+                    class="w-full border-b border-base-300 p-4 text-2xl font-medium sm:px-16 sm:py-4"
                 >
-                    {{ !!form.value.id ? 'Edit' : 'Book' }}
-                    {{ 'WPA.BOOK_MEETING_HEADING' | translate }}
+                    {{
+                        (!!form.value.id
+                            ? 'APP.WORKPLACE.MEETING_BOOK_EDIT_HEADER'
+                            : 'APP.WORKPLACE.MEETING_BOOK_NEW_HEADER'
+                        ) | translate
+                    }}
                 </h2>
                 <form
-                    class="p-0 sm:py-4 sm:px-16 divide-y divide-base-200 space-y-2"
+                    class="space-y-2 divide-y divide-base-200 p-0 sm:px-16 sm:py-4"
                     [formGroup]="form"
                     *ngIf="form"
                 >
                     <section class="p-2">
-                        <h3 class="space-x-2 flex items-center">
+                        <h3 class="flex items-center space-x-2">
                             <div
-                                class="bg-base-200 rounded-full h-6 w-6 flex items-center justify-center"
+                                class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
                             >
                                 1
                             </div>
                             <div class="text-xl">
-                                {{ 'WPA.DETAILS' | translate }}
+                                {{ 'CALENDAR_EVENT.DETAILS' | translate }}
                             </div>
-                            <div class="flex-1 w-px"></div>
+                            <div class="w-px flex-1"></div>
                             <button
                                 icon
                                 name="toggle-details-meeting"
@@ -82,23 +93,23 @@ import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
                         </div>
                     </section>
                     <section class="p-2" *ngIf="!hide_attendees">
-                        <h3 class="space-x-2 flex items-center">
+                        <h3 class="flex items-center space-x-2">
                             <div
-                                class="bg-base-200 rounded-full h-6 w-6 flex items-center justify-center"
+                                class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
                             >
                                 2
                             </div>
                             <div class="text-xl">
-                                {{ 'FORM.ATTENDEES' | translate }}
+                                {{ 'CALENDAR_EVENT.ATTENDEES' | translate }}
                             </div>
-                            <div class="flex-1 w-px"></div>
+                            <div class="w-px flex-1"></div>
                             <button
                                 matRipple
                                 name="find-attendee-availability"
-                                class="bg-none underline text-xs text-info"
+                                class="bg-none text-xs text-info underline"
                                 (click)="findAvailableTime()"
                             >
-                                {{ 'WPA.AVAILABILITY' | translate }}
+                                {{ 'COMMON.AVAILABILITY' | translate }}
                             </button>
                             <button
                                 icon
@@ -128,16 +139,16 @@ import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
                         </div>
                     </section>
                     <section class="p-2">
-                        <h3 class="space-x-2 flex items-center">
+                        <h3 class="flex items-center space-x-2">
                             <div
-                                class="bg-base-200 rounded-full h-6 w-6 flex items-center justify-center"
+                                class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
                             >
                                 3
                             </div>
                             <div class="text-xl">
-                                {{ 'WPA.ROOM' | translate }}
+                                {{ 'RESOURCE.ROOM' | translate }}
                             </div>
-                            <div class="flex-1 w-px"></div>
+                            <div class="w-px flex-1"></div>
                             <button
                                 icon
                                 name="toggle-spaces-meeting"
@@ -154,7 +165,7 @@ import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
                             </button>
                         </h3>
                         <div
-                            class="overflow-hidden flex flex-col items-center"
+                            class="flex flex-col items-center overflow-hidden"
                             [@show]="hide_block.resources ? 'hide' : 'show'"
                         >
                             <div
@@ -164,10 +175,12 @@ import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
                                     total_capacity <=
                                         form.value.attendees?.length
                                 "
-                                class="bg-warning text-warning-content rounded shadow p-2 text-xs mx-auto my-2 inline-flex"
+                                class="mx-auto my-2 inline-flex rounded bg-warning p-2 text-xs text-warning-content shadow"
                             >
-                                The selected room has less capacity than the
-                                number of meeting attendees.
+                                {{
+                                    'CALENDAR_EVENT.CAPACITY_WARNING'
+                                        | translate
+                                }}
                             </div>
                             <space-list-field
                                 class="w-full"
@@ -177,16 +190,16 @@ import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
                         </div>
                     </section>
                     <section class="p-2" *ngIf="has_catering | async">
-                        <h3 class="space-x-2 flex items-center">
+                        <h3 class="flex items-center space-x-2">
                             <div
-                                class="bg-base-200 rounded-full h-6 w-6 flex items-center justify-center"
+                                class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
                             >
                                 4
                             </div>
                             <div class="text-xl">
-                                {{ 'WPA.CATERING' | translate }}
+                                {{ 'CALENDAR_EVENT.CATERING' | translate }}
                             </div>
-                            <div class="flex-1 w-px"></div>
+                            <div class="w-px flex-1"></div>
                             <button
                                 icon
                                 name="toggle-catering-meeting"
@@ -215,12 +228,12 @@ import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
                                     zone_id: form.value?.resources?.length
                                         ? form.value?.resources[0]?.level
                                               ?.parent_id
-                                        : ''
+                                        : '',
                                 }"
                             ></catering-list-field>
                             <mat-form-field
                                 appearance="outline"
-                                class="w-full mt-2"
+                                class="mt-2 w-full"
                                 *ngIf="
                                     form.value.catering?.length && has_codes
                                         | async
@@ -229,17 +242,23 @@ import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
                             >
                                 <mat-select
                                     formControlName="catering_charge_code"
-                                    placeholder="Charge Code"
+                                    [placeholder]="
+                                        'CALENDAR_EVENT.CATERING_CHARGE_CODE'
+                                            | translate
+                                    "
                                 >
                                     <input
                                         #input
-                                        class="sticky top-0 bg-base-100 px-4 py-3 text-base border-x-0 border-t-0 border-b focus:border-b border-base-200 w-full rounded-none z-50"
+                                        class="sticky top-0 z-50 w-full rounded-none border-x-0 border-b border-t-0 border-base-200 bg-base-100 px-4 py-3 text-base focus:border-b"
                                         [ngModel]="code_filter.getValue()"
                                         (ngModelChange)="
                                             code_filter.next($event)
                                         "
                                         [ngModelOptions]="{ standalone: true }"
-                                        placeholder="Search charge codes..."
+                                        [placeholder]="
+                                            'CALENDAR_EVENT.CATERING_CHARGE_CODE_SEACH'
+                                                | translate
+                                        "
                                     />
                                     <mat-option class="hidden"></mat-option>
                                     <mat-option
@@ -252,7 +271,10 @@ import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
                                     </mat-option>
                                 </mat-select>
                                 <mat-error>
-                                    Catering charge code is required
+                                    {{
+                                        'CALENDAR_EVENT.CATERING_CHARGE_CODE_REQUIRED'
+                                            | translate
+                                    }}
                                 </mat-error>
                             </mat-form-field>
                             <mat-form-field
@@ -269,25 +291,31 @@ import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
                                 <textarea
                                     matInput
                                     formControlName="catering_notes"
-                                    placeholder="Extra catering details..."
+                                    [placeholder]="
+                                        'CALENDAR_EVENT.CATERING_NOTES'
+                                            | translate
+                                    "
                                 ></textarea>
                                 <mat-error>
-                                    Catering Order notes are required
+                                    {{
+                                        'CALENDAR_EVENT.CATERING_NOTES_REQUIRED'
+                                            | translate
+                                    }}
                                 </mat-error>
                             </mat-form-field>
                         </div>
                     </section>
                     <section class="p-2" *ngIf="has_assets">
-                        <h3 class="space-x-2 flex items-center">
+                        <h3 class="flex items-center space-x-2">
                             <div
-                                class="bg-base-200 rounded-full h-6 w-6 flex items-center justify-center"
+                                class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
                             >
                                 {{ !(has_catering | async) ? '4' : '5' }}
                             </div>
                             <div class="text-xl">
-                                {{ 'WPA.ASSETS' | translate }}
+                                {{ 'RESOURCE.ASSETS' | translate }}
                             </div>
-                            <div class="flex-1 w-px"></div>
+                            <div class="w-px flex-1"></div>
                             <button
                                 icon
                                 name="toggle-assets-meeting"
@@ -313,7 +341,7 @@ import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
                                     zone_id: form.value?.resources?.length
                                         ? form.value?.resources[0]?.level
                                               ?.parent_id
-                                        : ''
+                                        : '',
                                 }"
                                 [rejected_ids]="invalid_assets"
                                 formControlName="assets"
@@ -321,9 +349,9 @@ import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
                         </div>
                     </section>
                     <section class="p-2" *ngIf="!hide_notes">
-                        <h3 class="space-x-2 flex items-center mb-4">
+                        <h3 class="mb-4 flex items-center space-x-2">
                             <div
-                                class="bg-base-200 rounded-full h-6 w-6 flex items-center justify-center"
+                                class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
                             >
                                 {{
                                     !(has_catering | async) || !has_assets
@@ -334,32 +362,34 @@ import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
                                 }}
                             </div>
                             <div class="text-xl">
-                                {{ 'FORM.NOTES' | translate }}
+                                {{ 'CALENDAR_EVENT.NOTES_HEADER' | translate }}
                             </div>
                         </h3>
-                        <div class="w-full flex flex-col">
+                        <div class="flex w-full flex-col">
                             <label for="notes">
-                                {{ 'WPA.NOTES_INFO' | translate }}
+                                {{ 'CALENDAR_EVENT.NOTES_INFO' | translate }}
                             </label>
                             <rich-text-input
                                 name="notes"
                                 formControlName="body"
-                                placeholder="Notes..."
+                                [placeholder]="
+                                    'CALENDAR_EVENT.NOTES_INFO' | translate
+                                "
                             ></rich-text-input>
                         </div>
                     </section>
                     <section
-                        class="flex flex-col sm:flex-row items-center sm:space-x-2 p-2"
+                        class="flex flex-col items-center p-2 sm:flex-row sm:space-x-2"
                     >
                         <button
                             btn
                             name="open-meeting-confirm"
                             matRipple
                             confirm
-                            class="mb-2 sm:mb-0 w-full sm:w-auto"
+                            class="mb-2 w-full sm:mb-0 sm:w-auto"
                             (click)="viewConfirm()"
                         >
-                            {{ 'WPA.CONFIRM_MEETING' | translate }}
+                            {{ 'CALENDAR_EVENT.CONFIRM_DETAILS' | translate }}
                         </button>
                         <button
                             btn
@@ -369,8 +399,10 @@ import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
                             class="inverse w-full sm:w-auto"
                             (click)="clearForm()"
                         >
-                            { !!form.value.id, select, true { Reset } false {
-                            Clear } } {{ 'WPA.CLEAR_FORM' | translate }}
+                            {{
+                                (!!form.value.id ? 'FORM.RESET' : 'FORM.CLEAR')
+                                    | translate
+                            }}
                         </button>
                     </section>
                 </form>
@@ -379,8 +411,9 @@ import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
     `,
     styles: [],
     animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
+    standalone: false,
 })
-export class MeetingFlowFormComponent extends AsyncHandler {
+export class MeetingFlowFormComponent extends AsyncHandler implements OnInit {
     public sheet_ref: MatBottomSheetRef<any>;
     public dialog_ref: MatDialogRef<any>;
     public hide_block: Record<string, boolean> = {};
@@ -388,7 +421,7 @@ export class MeetingFlowFormComponent extends AsyncHandler {
     public invalid_assets: string[] = [];
 
     public readonly has_catering = this._catering.available_menu.pipe(
-        map((l) => l.length > 0)
+        map((l) => l.length > 0),
     );
 
     public readonly has_codes = this._catering.charge_codes.pipe(
@@ -398,7 +431,7 @@ export class MeetingFlowFormComponent extends AsyncHandler {
                 this.form.get('catering_charge_code').setValidators([]);
                 this.form.updateValueAndValidity();
             }
-        })
+        }),
     );
 
     public readonly filtered_codes = combineLatest([
@@ -406,8 +439,8 @@ export class MeetingFlowFormComponent extends AsyncHandler {
         this._catering.charge_codes,
     ]).pipe(
         map(([s, l]) =>
-            l.filter((_) => _.toLowerCase().includes(s.toLowerCase()))
-        )
+            l.filter((_) => _.toLowerCase().includes(s.toLowerCase())),
+        ),
     );
 
     public get form() {
@@ -456,7 +489,7 @@ export class MeetingFlowFormComponent extends AsyncHandler {
         let count = this.form.value.attendees?.length || 0;
         if (
             !this.form.value.attendees.find(
-                (_) => _.email.toLowerCase() === user.email.toLowerCase()
+                (_) => _.email.toLowerCase() === user.email.toLowerCase(),
             )
         ) {
             count += 1;
@@ -469,7 +502,7 @@ export class MeetingFlowFormComponent extends AsyncHandler {
     private _assets_available = this._space_list.pipe(
         debounceTime(300),
         switchMap((space_list) => {
-            if (!space_list?.length) return of(false);
+            if (!space_list?.length || !this.has_assets) return of(false);
             const value = this.form.getRawValue();
             this._assets.setOptions({
                 date: value.date,
@@ -489,14 +522,14 @@ export class MeetingFlowFormComponent extends AsyncHandler {
                             items.filter(
                                 (_) =>
                                     !(_ as any).hide_for_zones?.find((z) =>
-                                        s.zones.includes(z)
-                                    )
-                            ).length > 0
+                                        s.zones.includes(z),
+                                    ),
+                            ).length > 0,
                     );
                     if (
                         assets_available &&
                         !disabled_rooms.find((_) =>
-                            space_list.find((i) => i.id === _)
+                            space_list.find((i) => i.id === _),
                         )
                     )
                         return true;
@@ -510,20 +543,25 @@ export class MeetingFlowFormComponent extends AsyncHandler {
                                 date_end !== event.date_end));
                     if (time_changed) {
                         this.form.patchValue({ assets: [] });
-                        notifyWarn(
-                            `Assets are unavailable for some of the selected spaces.`
-                        );
+                        if (this.has_assets) {
+                            notifyWarn(
+                                i18n('CALENDAR_EVENT.ASSETS_UNAVAILABLE'),
+                            );
+                        }
                     }
                     return false;
-                })
+                }),
             );
-        })
+        }),
     );
 
-    private _catering_available = this._space_list.pipe(
+    private _catering_available = combineLatest([
+        this._space_list,
+        this.has_catering,
+    ]).pipe(
         debounceTime(300),
-        switchMap((space_list) => {
-            if (!space_list?.length) return of(false);
+        switchMap(([space_list, has_catering]) => {
+            if (!space_list?.length || !has_catering) return of(false);
             const value = this.form.getRawValue();
             this._catering.setFilters({
                 search: '',
@@ -544,14 +582,14 @@ export class MeetingFlowFormComponent extends AsyncHandler {
                             menu.filter(
                                 (_) =>
                                     !_.hide_for_zones.find((z) =>
-                                        s.zones.includes(z)
-                                    )
-                            ).length > 0
+                                        s.zones.includes(z),
+                                    ),
+                            ).length > 0,
                     );
                     if (
                         can_cater &&
                         !disabled_rooms.find((_) =>
-                            space_list.find((i) => i.id === _)
+                            space_list.find((i) => i.id === _),
                         )
                     )
                         return true;
@@ -565,46 +603,62 @@ export class MeetingFlowFormComponent extends AsyncHandler {
                                 date_end !== event.date_end));
                     if (time_changed) {
                         this.form.patchValue({ catering: [] });
-                        notifyWarn(
-                            `Catering is unavailable for some of the selected spaces.`
-                        );
+                        if (has_catering) {
+                            notifyWarn(
+                                i18n('CALENDAR_EVENT.CATERING_UNAVAILABLE'),
+                            );
+                        }
                     }
                     return false;
-                })
+                }),
             );
-        })
+        }),
     );
 
     public readonly clearForm = () => this._state.resetForm();
 
-    public readonly viewConfirm = () => {
+    public get allow_daily_allday_recurrence() {
+        return this._settings.get('app.events.allow_daily_allday_recurrence');
+    }
+
+    public readonly viewConfirm = async () => {
         if (!this.form.value.host)
             this.form.patchValue({ host: currentUser()?.email });
         if (
             this.strict_capacity_check &&
             this.attendee_count > this.total_capacity
         ) {
-            return notifyError(
-                'Attendee count is greater than the capacity of the selected rooms'
-            );
+            return notifyError(i18n('CALENDAR_EVENT.CAPACITY_ERROR'));
+        }
+        if (
+            !this.allow_daily_allday_recurrence &&
+            this.form.value.all_day &&
+            this.form.value.recurrence?.pattern === 'daily'
+        ) {
+            return notifyError(i18n('CALENDAR_EVENT.DAILY_RECURR_ERROR'));
+        }
+        const has_codes = await this.has_codes.pipe(take(1)).toPromise();
+        if (!has_codes) {
+            this.form.get('catering_charge_code').setValidators([]);
+            this.form.updateValueAndValidity();
         }
         this.form.markAllAsTouched();
         if (!this.form.valid)
             return notifyError(
-                `Some fields are invalid. [${getInvalidFields(this.form).join(
-                    ', '
-                )}]`
+                i18n('FORM.INVALID_FIELDS', {
+                    field_list: getInvalidFields(this.form).join(', '),
+                }),
             );
         if (
             this._settings.get('app.events.no_standalone') &&
             !this.form.value.resources.length
         )
-            return notifyError('You need to select a room to make a booking');
+            return notifyError(i18n('CALENDAR_EVENT.ROOM_REQUIRED'));
         if (this._settings.get('app.events.booking_unavailable'))
             return this._state.openEventLinkModal();
         if (window.innerWidth >= 768) {
             this.dialog_ref = this._dialog.open(
-                MeetingFlowConfirmModalComponent
+                MeetingFlowConfirmModalComponent,
             );
             this.dialog_ref.componentInstance.show_close = true;
             this.dialog_ref.afterClosed().subscribe((value) => {
@@ -616,7 +670,7 @@ export class MeetingFlowFormComponent extends AsyncHandler {
             });
         } else {
             this.sheet_ref = this._bottom_sheet.open(
-                MeetingFlowConfirmComponent
+                MeetingFlowConfirmComponent,
             );
             this.sheet_ref.instance.show_close = true;
             this.sheet_ref.afterDismissed().subscribe((value) => {
@@ -641,7 +695,7 @@ export class MeetingFlowFormComponent extends AsyncHandler {
         private _dialog: MatDialog,
         private _bottom_sheet: MatBottomSheet,
         private _org: OrganisationService,
-        private _idle: UserIdleTimeService
+        private _idle: UserIdleTimeService,
     ) {
         super();
     }
@@ -656,8 +710,8 @@ export class MeetingFlowFormComponent extends AsyncHandler {
                 (_) =>
                     !_._changed &&
                     !linked_bookings.find(
-                        (bkn) => bkn.extension_data?.request_id === _.id
-                    )
+                        (bkn) => bkn.extension_data?.request_id === _.id,
+                    ),
             )
             .map((_) => _.id);
     }
@@ -667,17 +721,17 @@ export class MeetingFlowFormComponent extends AsyncHandler {
         this.subscription(
             'asset_changes',
             this.form.controls.assets.valueChanges.subscribe(() =>
-                this._updateValidAssets()
-            )
+                this._updateValidAssets(),
+            ),
         );
         for (const key of ['resources', 'date', 'duration', 'date_end']) {
             this.subscription(
                 `${key}_changes`,
                 this.form.controls[key].valueChanges.subscribe(() =>
                     this.timeout('check_resources', () =>
-                        this._space_list.next(this.form.value.resources || [])
-                    )
-                )
+                        this._space_list.next(this.form.value.resources || []),
+                    ),
+                ),
             );
         }
         this._catering.setOptions({ zone: '' });
@@ -687,40 +741,40 @@ export class MeetingFlowFormComponent extends AsyncHandler {
             this._assets_available.subscribe((a) => {
                 if (!a) this.form.controls.assets.disable();
                 else this.form.controls.assets.enable();
-            })
+            }),
         );
         this.subscription(
             'catering_available',
             this._catering_available.subscribe((a) => {
                 if (!a) this.form.controls.catering.disable();
                 else this.form.controls.catering.enable();
-            })
+            }),
         );
         this.subscription(
             'idle-listen',
             this._idle
                 .idleFor(
-                    (this._settings.get('app.idle_timeout') || 5) * 60 * 1000
+                    (this._settings.get('app.idle_timeout') || 5) * 60 * 1000,
                 )
                 .subscribe(async () => {
                     this.unsub('idle');
                     await openConfirmModal(
                         {
-                            title: 'Idle Timeout',
-                            content: 'Your form data is out of date',
+                            title: i18n('APP.WORKPLACE.MEETING_IDLE_TITLE'),
+                            content: i18n('APP.WORKPLACE.MEETING_IDLE_MSG'),
                             icon: { content: 'update' },
-                            confirm_text: 'Refresh',
+                            confirm_text: i18n('COMMON.REFRESH'),
                         },
-                        this._dialog
+                        this._dialog,
                     );
                     this._state.newForm();
                     location.reload();
-                })
+                }),
         );
         this.timeout(
             'init_valid_assets',
             () => this._updateValidAssets(),
-            1000
+            1000,
         );
     }
 
@@ -731,7 +785,7 @@ export class MeetingFlowFormComponent extends AsyncHandler {
                 this._input_el.nativeElement.value = '';
                 this._input_el?.nativeElement?.focus();
             },
-            300
+            300,
         );
     }
 

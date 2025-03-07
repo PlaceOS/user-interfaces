@@ -1,10 +1,10 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 @Component({
     selector: 'an-action-field',
     template: `
         <button
-            class="flex items-center rounded p-2 border border-base-200 hover:border-base-200 w-full"
+            class="flex w-full items-center rounded border border-base-200 p-2 hover:border-base-200"
             type="button"
             role="button"
             [attr.disabled]="disabled"
@@ -15,7 +15,7 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
         >
             <div
                 placeholder
-                class="flex-1 w-0 truncate"
+                class="w-0 flex-1 truncate"
                 (click)="performAction()"
             >
                 <ng-content></ng-content>
@@ -32,6 +32,7 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
             }
         `,
     ],
+    standalone: false,
 })
 export class ActionFieldComponent {
     /** Name of the field */

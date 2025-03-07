@@ -5,12 +5,12 @@ import { createRoutingFactory, Spectator } from '@ngneat/spectator/jest';
 import { SettingsService } from '@placeos/common';
 import { IconComponent, InteractiveMapComponent } from '@placeos/components';
 import { EventFormService } from '@placeos/events';
+import { OrganisationService } from '@placeos/organisation';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { SpaceSelectMapComponent } from '../../lib/space-select-modal/space-map.component';
 import { Space } from '../../lib/spaces';
-import { OrganisationService } from '@placeos/organisation';
 
 describe('SpaceSelectMapComponent', () => {
     let spectator: Spectator<SpaceSelectMapComponent>;
@@ -18,9 +18,9 @@ describe('SpaceSelectMapComponent', () => {
         component: SpaceSelectMapComponent,
         providers: [
             MockProvider(EventFormService, {
-                spaces: new BehaviorSubject([]),
+                spaces$: new BehaviorSubject([]),
                 available_spaces: new BehaviorSubject([]),
-                options: new BehaviorSubject({}),
+                options$: new BehaviorSubject({}),
             } as any),
             MockProvider(OrganisationService, {
                 active_building: new BehaviorSubject({}),

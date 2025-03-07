@@ -1,24 +1,22 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { AsyncHandler, SettingsService } from '@placeos/common';
-import { EventFormService } from 'libs/events/src/lib/event-form.service';
+import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
-import { take } from 'rxjs/operators';
 import { SpaceFiltersComponent } from './space-filters.component';
 
 @Component({
     selector: `space-filters-display`,
     template: `
-        <section actions class="sm:hidden space-x-2 flex items-center p-2">
+        <section actions class="flex items-center space-x-2 p-2 sm:hidden">
             <button
                 btn
                 matRipple
                 name="edit-space-filters"
-                class="flex-1 w-1/2"
+                class="w-1/2 flex-1"
                 (click)="editFilters()"
-                i18n
             >
-                Filters
+                {{ 'COMMON.FILTERS' | translate }}
             </button>
             <div class="flex items-center">
                 <button
@@ -28,57 +26,55 @@ import { SpaceFiltersComponent } from './space-filters.component';
                     class="rounded-l rounded-r-none"
                     [class.inverse]="view !== 'map'"
                     (click)="view = 'map'; viewChange.emit(view)"
-                    i18n
                 >
-                    Map
+                    {{ 'COMMON.MAP' | translate }}
                 </button>
                 <button
                     btn
                     matRipple
                     name="view-space-list"
-                    class="rounded-r rounded-l-none"
+                    class="rounded-l-none rounded-r"
                     [class.inverse]="view !== 'list'"
                     (click)="view = 'list'; viewChange.emit(view)"
-                    i18n
                 >
-                    List
+                    {{ 'COMMON.LIST' | translate }}
                 </button>
             </div>
         </section>
         <section
             filters
-            class="flex items-center flex-wrap p-2 w-[35rem] max-w-full sm:max-w-[35rem]"
+            class="flex w-[35rem] max-w-full flex-wrap items-center p-2 sm:max-w-[35rem]"
         >
             <button
                 btn
                 matRipple
                 name="clear-space-filters"
-                class="min-h-[2rem] mb-2 mr-2"
+                class="mb-2 mr-2 min-h-[2rem]"
                 *ngIf="(options | async)?.features?.length > 1"
                 (click)="removeAllFeatures()"
             >
-                Clear Filters
+                {{ 'COMMON.FILTERS_CLEAR' | translate }}
             </button>
-            <div
-                filter-item
-                zone
-                class="dark:border-base-200-500"
-                *ngIf="location"
-            >
+            <div filter-item zone *ngIf="location">
                 {{ location }}
             </div>
-            <div filter-item date class="dark:border-base-200-500">
+            <div filter-item date>
                 {{ start | date: 'mediumDate' }}
             </div>
-            <div filter-item time class="dark:border-base-200-500">
+            <div filter-item time>
                 <ng-container *ngIf="!all_day">
                     {{ start | date: time_format }} &mdash;
                     {{ end | date: time_format }}
                 </ng-container>
-                <ng-container *ngIf="all_day">All Day</ng-container>
+                <ng-container *ngIf="all_day">
+                    {{ 'COMMON.ALL_DAY' | translate }}
+                </ng-container>
             </div>
-            <div filter-item count class="dark:border-base-200-500" i18n>
-                Min. {{ (options | async)?.capacity || 2 }} People
+            <div filter-item count>
+                {{
+                    'CALENDAR_EVENT.SPACE_SELECT_SIZE_X'
+                        | translate: { count: (options | async)?.capacity || 2 }
+                }}
             </div>
             <div filter-item *ngFor="let feat of (options | async)?.features">
                 <p class="truncate">{{ feat }}</p>
@@ -119,12 +115,16 @@ import { SpaceFiltersComponent } from './space-filters.component';
             }
         `,
     ],
+    standalone: false,
 })
-export class SpaceFiltersDisplayComponent extends AsyncHandler {
+export class SpaceFiltersDisplayComponent
+    extends AsyncHandler
+    implements OnInit
+{
     @Input() public view: 'map' | 'list' = 'list';
     @Output() public viewChange = new EventEmitter<'map' | 'list'>();
-    public readonly options = this._event_form.options;
-    public location: string = '';
+    public readonly options = this._event_form.options$;
+    public location = '';
 
     public get all_day() {
         return this._event_form.form.value.all_day;
@@ -150,7 +150,7 @@ export class SpaceFiltersDisplayComponent extends AsyncHandler {
         private _bsheet: MatBottomSheet,
         private _event_form: EventFormService,
         private _org: OrganisationService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         super();
     }
@@ -158,26 +158,19 @@ export class SpaceFiltersDisplayComponent extends AsyncHandler {
     public ngOnInit() {
         this.subscription(
             'opts',
-            this.options.subscribe(({ zone_ids }) =>
-                this._updateLocation(zone_ids)
-            )
+            this.options.subscribe(({ zones }) => this._updateLocation(zones)),
         );
     }
 
     public async removeFeature(feat: string) {
-        const value = await this._event_form.options.pipe(take(1)).toPromise();
-        this._event_form.setOptions({
-            ...value,
-            features: (value.features || []).filter((_) => _ !== feat),
+        const { features } = this._event_form.filters || {};
+        this._event_form.setFilters({
+            features: (features || []).filter((_) => _ !== feat),
         });
     }
 
     public async removeAllFeatures() {
-        const value = await this._event_form.options.pipe(take(1)).toPromise();
-        this._event_form.setOptions({
-            ...value,
-            features: [],
-        });
+        this._event_form.setFilters({ features: [] });
     }
 
     private _updateLocation(zone_ids: string[] = []) {

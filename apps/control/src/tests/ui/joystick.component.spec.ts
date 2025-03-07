@@ -4,7 +4,7 @@ import { MockComponent } from 'ng-mocks';
 import {
     JoystickComponent,
     JoystickPan,
-    JoystickTilt
+    JoystickTilt,
 } from '../../app/ui/joystick.component';
 
 describe('JoystickComponent', () => {

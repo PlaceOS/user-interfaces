@@ -1,23 +1,23 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { first, map } from 'rxjs/operators';
 
 import { AsyncHandler, Identity, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
-import { ReportsStateService } from './reports-state.service';
+import { endOfDay, startOfDay } from 'date-fns';
 import { combineLatest } from 'rxjs';
 
 @Component({
     selector: 'reports-options',
     template: `
         <div
-            class="bg-base-100 h-20 w-full flex items-center space-x-2 p-4 shadow z-20 border-b border-base-200 print:hidden"
+            class="z-20 flex h-20 w-full items-center space-x-2 border-b border-base-200 bg-base-100 p-4 print:hidden"
         >
-            <mat-form-field appearance="outline" class="w-60 no-subscript">
+            <mat-form-field appearance="outline" class="no-subscript w-60">
                 <mat-select
                     [(ngModel)]="zones"
                     (ngModelChange)="setZones($event)"
-                    placeholder="All Levels"
+                    [placeholder]="'COMMON.LEVEL_ALL' | translate"
                     multiple
                 >
                     <mat-option
@@ -34,40 +34,37 @@ import { combineLatest } from 'rxjs';
                     </mat-option>
                 </mat-select>
             </mat-form-field>
-            <date-range-field>
+            <date-range-field [week_start]="week_start">
                 <input
                     #startDate
-                    [ngModel]="(options | async)?.start"
+                    [ngModel]="start"
                     (ngModelChange)="$event ? setStartDate($event) : ''"
                 />
                 <input
                     #endDate
-                    [ngModel]="(options | async)?.end"
+                    [ngModel]="end"
                     (ngModelChange)="$event ? setEndDate($event) : ''"
                 />
             </date-range-field>
             <button
                 btn
                 matRipple
-                [disabled]="
-                    !!(loading | async) || !(options | async)?.zones?.length
-                "
-                (click)="generateReport()"
+                [disabled]="!!loading"
+                (click)="generate.emit()"
             >
-                <mat-spinner
-                    *ngIf="loading | async"
-                    [diameter]="32"
-                ></mat-spinner>
-                <p *ngIf="!(loading | async)">Generate Report</p>
+                <mat-spinner *ngIf="loading" [diameter]="32"></mat-spinner>
+                <p *ngIf="!loading">
+                    {{ 'APP.CONCIERGE.REPORTS_GENERATE' | translate }}
+                </p>
             </button>
             <div class="flex-1"></div>
             <button
                 icon
                 matRipple
                 class="h-12 w-12 rounded bg-secondary text-secondary-content"
-                [disabled]="!(bookings | async)?.length"
-                matTooltip="Download Report Data"
-                (click)="downloadReport()"
+                [disabled]="!has_data"
+                [matTooltip]="'APP.CONCIERGE.REPORTS_DOWNLOAD' | translate"
+                (click)="download.emit()"
             >
                 <app-icon>download</app-icon>
             </button>
@@ -75,8 +72,8 @@ import { combineLatest } from 'rxjs';
                 icon
                 matRipple
                 class="h-12 w-12 rounded bg-secondary text-secondary-content"
-                [disabled]="!(bookings | async)?.length"
-                matTooltip="Print Report"
+                [disabled]="!has_data"
+                [matTooltip]="'APP.CONCIERGE.REPORTS_PRINT' | translate"
                 (click)="print()"
             >
                 <app-icon>print</app-icon>
@@ -101,11 +98,19 @@ import { combineLatest } from 'rxjs';
             }
         `,
     ],
+    standalone: false,
 })
 export class ReportsOptionsComponent extends AsyncHandler {
+    @Input() public loading: boolean = false;
+    @Input() public has_data: boolean = false;
+
     @Output() public printing = new EventEmitter<boolean>();
+    @Output() public generate = new EventEmitter<void>();
+    @Output() public download = new EventEmitter<void>();
     /** List of selected levels */
     public zones: string[] = [];
+    public start: number = startOfDay(Date.now()).getTime();
+    public end: number = endOfDay(Date.now()).getTime();
 
     public readonly types: Identity[] = [
         { id: 'internal', name: 'Internal' },
@@ -121,21 +126,11 @@ export class ReportsOptionsComponent extends AsyncHandler {
         map(([bld, region]) =>
             this._settings.get('app.use_region')
                 ? this._org.levelsForRegion(region)
-                : this._org.levelsForBuilding(bld)
-        )
+                : this._org.levelsForBuilding(bld),
+        ),
     );
 
-    public readonly loading = this._state.loading;
-
-    public readonly bookings = this._state.bookings;
-
-    public readonly options = this._state.options;
-
     public page = '';
-
-    public readonly generateReport = () => this._state.generateReport();
-
-    public readonly downloadReport = () => this._state.downloadReport();
 
     public readonly setStartDate = (date) => {
         if (date instanceof Date) date = date.valueOf();
@@ -150,17 +145,21 @@ export class ReportsOptionsComponent extends AsyncHandler {
         if (date instanceof Date) date = date.valueOf();
         this._router.navigate([], {
             relativeTo: this._route,
-            queryParams: { end: date },
+            queryParams: { end: endOfDay(date).valueOf() },
             queryParamsHandling: 'merge',
         });
     };
 
     public readonly setZones = (zones) => {
-        this._state.setOptions({ zones });
+        // Get current query params
+        const q = { ...this._route.snapshot.queryParams };
+        q.zone_ids = zones.join(',');
+
+        // Delete the specific query param
+        if (!q.zone_ids) delete q.zone_ids;
         this._router.navigate([], {
             relativeTo: this._route,
-            queryParams: { zone_ids: zones.join(',') },
-            queryParamsHandling: 'merge',
+            queryParams: q,
         });
     };
 
@@ -168,12 +167,15 @@ export class ReportsOptionsComponent extends AsyncHandler {
         return !!this._settings.get('app.use_region');
     }
 
+    public get week_start() {
+        return this._settings.get('app.week_start');
+    }
+
     constructor(
-        private _state: ReportsStateService,
         private _org: OrganisationService,
         private _settings: SettingsService,
         private _route: ActivatedRoute,
-        private _router: Router
+        private _router: Router,
     ) {
         super();
     }
@@ -185,7 +187,7 @@ export class ReportsOptionsComponent extends AsyncHandler {
             'routing',
             this._router.events.subscribe(() => {
                 this.page = this._router.url;
-            })
+            }),
         );
         this.subscription(
             'route.query',
@@ -198,20 +200,14 @@ export class ReportsOptionsComponent extends AsyncHandler {
                             return;
                         }
                         this._org.building = this._org.buildings.find(
-                            (bld) => bld.id === level.parent_id
+                            (bld) => bld.id === level.parent_id,
                         );
-                        this.setZones(zones);
+                        this.zones = zones;
                     }
                 }
-                if (params.has('start'))
-                    this._state.setOptions({
-                        start: new Date(+params.get('start')),
-                    });
-                if (params.has('end'))
-                    this._state.setOptions({
-                        end: new Date(+params.get('end')),
-                    });
-            })
+                if (params.has('start')) this.start = +params.get('start');
+                if (params.has('end')) this.end = +params.get('end');
+            }),
         );
     }
 

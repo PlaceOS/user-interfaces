@@ -15,7 +15,7 @@ function registerMocks() {
         callback: (request) => {
             return request.query_params?.zone_id
                 ? MOCK_SPACES.filter((_) =>
-                      _.zones.includes(request.query_params.zone_id)
+                      _.zones.includes(request.query_params.zone_id),
                   )
                 : MOCK_SPACES;
         },
@@ -26,7 +26,9 @@ function registerMocks() {
         metadata: {},
         method: 'GET',
         callback: (request) => {
-            const space = MOCK_SPACES.find(_ => _.id === request.route_params.id);
+            const space = MOCK_SPACES.find(
+                (_) => _.id === request.route_params.id,
+            );
             if (!space) throw { status: 404 };
             return space;
         },

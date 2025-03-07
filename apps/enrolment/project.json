@@ -4,17 +4,17 @@
     "projectType": "application",
     "sourceRoot": "apps/enrolment/src",
     "prefix": "placeos",
+    "tags": [],
     "targets": {
         "build": {
-            "executor": "@angular-devkit/build-angular:browser",
-            "outputs": ["{options.outputPath}"],
+            "executor": "@angular-devkit/build-angular:application",
+            "outputs": ["{options.outputPath.base}"],
             "options": {
                 "outputPath": "dist/apps/enrolment",
                 "index": "apps/enrolment/src/index.html",
-                "main": "apps/enrolment/src/main.ts",
-                "polyfills": "apps/enrolment/src/polyfills.ts",
+                "polyfills": ["apps/enrolment/src/polyfills.ts"],
                 "tsConfig": "apps/enrolment/tsconfig.app.json",
-                "baseHref": ".",
+                "baseHref": "./",
                 "assets": [
                     "apps/enrolment/src/favicon.ico",
                     "apps/enrolment/src/assets",
@@ -45,13 +45,12 @@
                     }
                 ],
                 "scripts": [],
-                "serviceWorker": true,
-                "ngswConfigPath": "apps/enrolment/ngsw-config.json"
+                "serviceWorker": "apps/enrolment/ngsw-config.json",
+                "browser": "apps/enrolment/src/main.ts"
             },
             "configurations": {
                 "staging": {
                     "optimization": true,
-                    "buildOptimizer": true,
                     "fileReplacements": [
                         {
                             "replace": "apps/enrolment/src/environments/environment.ts",
@@ -62,8 +61,7 @@
                             "with": "apps/enrolment/src/environments/settings.ts"
                         }
                     ],
-                    "serviceWorker": true,
-                    "ngswConfigPath": "apps/enrolment/ngsw-config.json"
+                    "serviceWorker": "apps/enrolment/ngsw-config.json"
                 },
                 "production": {
                     "budgets": [
@@ -95,9 +93,7 @@
                     "outputHashing": "all"
                 },
                 "development": {
-                    "buildOptimizer": false,
                     "optimization": false,
-                    "vendorChunk": true,
                     "extractLicenses": false,
                     "sourceMap": true,
                     "namedChunks": true
@@ -117,12 +113,6 @@
             },
             "defaultConfiguration": "development"
         },
-        "extract-i18n": {
-            "executor": "@angular-devkit/build-angular:extract-i18n",
-            "options": {
-                "buildTarget": "enrolment:build"
-            }
-        },
         "lint": {
             "executor": "@nx/eslint:lint"
         },
@@ -133,6 +123,5 @@
                 "jestConfig": "apps/enrolment/jest.config.ts"
             }
         }
-    },
-    "tags": []
+    }
 }

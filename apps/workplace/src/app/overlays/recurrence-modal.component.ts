@@ -1,9 +1,9 @@
-import { Component, OnInit, Output, EventEmitter, Inject } from '@angular/core';
-import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
-import { RecurrenceDetails } from '@placeos/events';
 import { AsyncHandler, DialogEvent, Identity } from '@placeos/common';
+import { RecurrenceDetails } from '@placeos/events';
 
 export interface RecurrenceModalData {
     /** Current recurrence details */
@@ -91,6 +91,7 @@ export const RECURRENCE_METADATA = {
         </ng-template>
     `,
     styles: [``],
+    standalone: false,
 })
 export class RecurrenceModalComponent extends AsyncHandler implements OnInit {
     /** Emitter for user action on the modal */
@@ -132,7 +133,7 @@ export class RecurrenceModalComponent extends AsyncHandler implements OnInit {
         this.selected_pattern = this.patterns.find(
             (i) =>
                 i.interval === details?.interval &&
-                i.pattern === details?.pattern
+                i.pattern === details?.pattern,
         );
     }
 

@@ -18,7 +18,7 @@ export function parseJWT(token: string) {
             .map((c) => {
                 return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
             })
-            .join('')
+            .join(''),
     );
     return JSON.parse(jsonPayload);
 }
@@ -43,7 +43,7 @@ export class EnrolmentStateService {
             if (!guest) this.setError('guest');
             else this.form.patchValue({ ...guest });
         }),
-        shareReplay(1)
+        shareReplay(1),
     );
     public readonly event = combineLatest([
         this._event_id,
@@ -56,7 +56,7 @@ export class EnrolmentStateService {
             return showEvent(id);
         }),
         tap((e) => this._checkEvent(e)),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     public readonly form = new FormGroup({
@@ -70,7 +70,7 @@ export class EnrolmentStateService {
         vaccination_proof: new FormControl(),
         accepted_terms_conditions: new FormControl(
             false,
-            Validators.requiredTrue
+            Validators.requiredTrue,
         ),
     });
 
@@ -99,7 +99,7 @@ export class EnrolmentStateService {
         await checkinEventGuest(
             this._event_id.getValue(),
             this._guest_id.getValue(),
-            true
+            true,
         ).toPromise();
         this._view.next('complete');
         this._loading.next('');

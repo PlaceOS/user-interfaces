@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 
 import { AsyncHandler } from '@placeos/common';
 
@@ -17,7 +17,7 @@ import { ControlStateService } from '../control-state.service';
 
                 <div class="h-1/2 flex-1">
                     <div
-                        class="absolute inset-4 flex flex-col bg-base-100 rounded shadow"
+                        class="absolute inset-4 flex flex-col rounded bg-base-100 shadow"
                         video-call-page
                     ></div>
                 </div>
@@ -27,23 +27,24 @@ import { ControlStateService } from '../control-state.service';
         <ng-template #power_off_state>
             <div
                 name="splash"
-                class="absolute inset-0 text-white flex flex-col items-center justify-center"
+                class="absolute inset-0 flex flex-col items-center justify-center text-white"
                 (click)="powerOn()"
                 (touchend)="powerOn()"
             >
-                <h2 class="font-light text-4xl mb-4">Touch to Start</h2>
+                <h2 class="mb-4 text-4xl font-light">
+                    {{ 'APP.CONTROL.TOUCH_TO_START' | translate }}
+                </h2>
                 <p class="text-lg">{{ (system | async).name }}</p>
             </div>
         </ng-template>
         <ng-template #load_state>
             <div
                 name="loader"
-                class="absolute inset-0 bg-base-100 text-black flex flex-col items-center justify-center"
+                class="absolute inset-0 flex flex-col items-center justify-center bg-base-100 text-black"
             >
                 <mat-spinner class="mb-4" [diameter]="64"></mat-spinner>
-                <div class="text-2xl my-4">
-                    Connecting to system(<em>{{ id }}</em
-                    >)...
+                <div class="my-4 text-2xl">
+                    {{ 'APP.CONTROL.CONNECTING' | translate: { id: id } }}
                 </div>
                 <div class="text-base"></div>
             </div>
@@ -66,6 +67,7 @@ import { ControlStateService } from '../control-state.service';
             }
         `,
     ],
+    standalone: false,
 })
 export class ControlVideoCallViewComponent
     extends AsyncHandler
@@ -80,8 +82,7 @@ export class ControlVideoCallViewComponent
 
     constructor(
         private _route: ActivatedRoute,
-        private _router: Router,
-        private _state: ControlStateService
+        private _state: ControlStateService,
     ) {
         super();
     }
@@ -92,17 +93,16 @@ export class ControlVideoCallViewComponent
             this._route.paramMap.subscribe((params) =>
                 params.has('system')
                     ? this._state.setID(params.get('system'))
-                    : ''
-            )
+                    : '',
+            ),
         );
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) =>
-                params.get('join') === 'true' ? this._state.selectMeeting() : ''
-            )
-        );
-        this.timeout('init', () =>
-            !this._state.id ? this._router.navigate(['/bootstrap']) : ''
+                params.get('join') === 'true'
+                    ? this._state.selectMeeting()
+                    : '',
+            ),
         );
     }
 }

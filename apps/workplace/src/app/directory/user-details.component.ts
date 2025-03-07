@@ -7,12 +7,12 @@ import { User } from '@placeos/users';
     selector: 'a-directory-user-list-item',
     template: `
         <div
-            class="flex flex-wrap items-center sm:space-x-4 bg-base-100 hover:bg-base-200 overflow-hidden p-4 mb-2"
+            class="mb-2 flex flex-wrap items-center overflow-hidden bg-base-100 p-4 hover:bg-base-200 sm:space-x-4"
             *ngIf="user"
             [class.with-image]="show_image"
         >
             <a-user-avatar *ngIf="show_image" [user]="user"></a-user-avatar>
-            <div class="flex flex-col flex-1 w-1/2 ml-4 sm:ml-0">
+            <div class="ml-4 flex w-1/2 flex-1 flex-col sm:ml-0">
                 <div class="name">{{ user.name }}</div>
                 <a
                     class="text-sm underline"
@@ -23,7 +23,7 @@ import { User } from '@placeos/users';
                 </a>
             </div>
             <div
-                class="flex w-full sm:w-auto sm:flex-col items-center space-x-2 sm:space-x-0 sm:space-y-2 mt-4 sm:mt-0"
+                class="mt-4 flex w-full items-center space-x-2 sm:mt-0 sm:w-auto sm:flex-col sm:space-x-0 sm:space-y-2"
             >
                 <a
                     btn
@@ -39,7 +39,7 @@ import { User } from '@placeos/users';
                 <a
                     btn
                     matRipple
-                    class="w-32 flex-1 sm:flex-nones"
+                    class="sm:flex-nones w-32 flex-1"
                     call
                     *ngIf="user.phone"
                     [href]="'tel:' + user.phone | safe: 'url'"
@@ -51,6 +51,7 @@ import { User } from '@placeos/users';
         </div>
     `,
     styles: [``],
+    standalone: false,
 })
 export class DirectoryUserListItemComponent {
     /** Space to display */

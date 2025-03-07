@@ -4,9 +4,9 @@ import { Component } from '@angular/core';
     selector: '[app-new-dayview]',
     template: `
         <app-topbar></app-topbar>
-        <div class="flex flex-1 h-px">
+        <div class="flex h-px flex-1">
             <app-sidebar></app-sidebar>
-            <main class="relative flex flex-col flex-1 w-1/2 h-full">
+            <main class="relative flex h-full w-1/2 flex-1 flex-col">
                 <room-bookings></room-bookings>
             </main>
         </div>
@@ -20,7 +20,14 @@ import { Component } from '@angular/core';
                 width: 100%;
                 background-color: var(--b1);
             }
+
+            @media print {
+                :host {
+                    display: none;
+                }
+            }
         `,
     ],
+    standalone: false,
 })
 export class NewDayViewComponent {}

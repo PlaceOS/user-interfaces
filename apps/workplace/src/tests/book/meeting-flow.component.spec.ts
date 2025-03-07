@@ -1,6 +1,7 @@
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { EventFormService } from '@placeos/events';
 import { MockComponent, MockProvider } from 'ng-mocks';
+import { BehaviorSubject } from 'rxjs';
 import { BookMeetingFlowComponent } from '../../app/book/meeting-flow.component';
 import { MeetingFlowConfirmComponent } from '../../app/book/meeting-flow/meeting-flow-confirm.component';
 import { MeetingFlowFormComponent } from '../../app/book/meeting-flow/meeting-flow-form.component';
@@ -18,6 +19,7 @@ describe('BookMeetingFlowComponent', () => {
                 view: '',
                 listenForStatusChanges: jest.fn(),
                 last_success: null,
+                available_spaces: new BehaviorSubject([]),
             } as any),
         ],
         declarations: [

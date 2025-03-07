@@ -7,25 +7,27 @@ import { CheckinStateService } from './checkin-state.service';
     selector: 'checkin-photo',
     template: `
         <div
-            class="bg-base-100 rounded shadow overflow-hidden relative flex flex-col items-center p-4"
+            class="relative flex flex-col items-center overflow-hidden rounded bg-base-100 p-4 shadow"
             *ngIf="!loading; else load_state"
         >
-            <h3 class="text-xl mb-4">Take a photo to continue</h3>
+            <h3 class="mb-4 text-xl">
+                {{ 'APP.VISITOR_KIOSK.TAKE_PHOTO' | translate }}
+            </h3>
             <a-take-photo (photoAccepted)="handlePhoto($event)"></a-take-photo>
             <a
                 icon
                 matRipple
-                class="absolute top-0 right-0"
+                class="absolute right-0 top-0"
                 [routerLink]="['/welcome']"
             >
                 <app-icon>close</app-icon>
             </a>
         </div>
         <ng-template #load_state>
-            <div class="flex flex-col items-center m-auto">
+            <div class="m-auto flex flex-col items-center">
                 <mat-spinner [diameter]="48"></mat-spinner>
                 <div class="my-4 text-lg text-white">
-                    Printing guest pass...
+                    {{ 'APP.VISITOR_KIOSK.PRINT_LOADING' | translate }}
                 </div>
             </div>
         </ng-template>
@@ -49,6 +51,7 @@ import { CheckinStateService } from './checkin-state.service';
             }
         `,
     ],
+    standalone: false,
 })
 export class CheckinPhotoComponent {
     /** Whether guest pass is being loaded */
@@ -56,7 +59,7 @@ export class CheckinPhotoComponent {
 
     constructor(
         private _checkin: CheckinStateService,
-        private _router: Router
+        private _router: Router,
     ) {}
 
     public async handlePhoto(event: any) {

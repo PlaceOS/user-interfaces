@@ -1,6 +1,4 @@
-import { Component } from '@angular/core';
-import { Router } from '@angular/router';
-import { MatDialog } from '@angular/material/dialog';
+import { Component, OnInit } from '@angular/core';
 import { addDays, format, startOfMinute } from 'date-fns';
 import { map, shareReplay, startWith } from 'rxjs/operators';
 
@@ -11,16 +9,16 @@ import { EventStateService } from './event-state.service';
 @Component({
     selector: 'event-week-view',
     template: `
-        <div class="absolute inset-0 overflow-auto flex">
+        <div class="absolute inset-0 flex overflow-auto">
             <div
-                class="sticky left-0 w-24 min-h-full flex flex-col items-end z-20 bg-base-100"
+                class="sticky left-0 z-20 flex min-h-full w-24 flex-col items-end bg-base-100"
             >
                 <div
                     header
-                    class="sticky top-0 h-16 min-h-16 flex justify-end z-10"
+                    class="sticky top-0 z-10 flex h-16 min-h-16 justify-end"
                 >
-                    <div class="bg-base-100 pt-6 h-10">
-                        <div class="opacity-30 text-xs px-2">
+                    <div class="h-10 bg-base-100 pt-6">
+                        <div class="px-2 text-xs opacity-30">
                             {{ now | date: 'zzzz' }}
                         </div>
                     </div>
@@ -31,21 +29,21 @@ import { EventStateService } from './event-state.service';
                 >
                     <div
                         hour
-                        class="absolute top-0 right-1 -translate-y-1/2 whitespace-nowrap text-xs opacity-60"
+                        class="absolute right-1 top-0 -translate-y-1/2 whitespace-nowrap text-xs opacity-60"
                     >
                         {{ hour }} {{ i >= 12 ? 'PM' : 'AM' }}
                     </div>
                 </div>
             </div>
-            <div class="relative min-w-[84rem] min-h-full z-10">
+            <div class="relative z-10 min-h-full min-w-[84rem]">
                 <div
                     header
-                    class="sticky flex top-0 h-16 min-h-16 border-b border-base-200 bg-base-100 z-10"
+                    class="sticky top-0 z-10 flex h-16 min-h-16 border-b border-base-200 bg-base-100"
                 >
                     <div
                         *ngFor="let date of days"
                         date
-                        class="flex flex-col items-center justify-center p-4 min-w-48 flex-1 border-r border-base-200"
+                        class="flex min-w-48 flex-1 flex-col items-center justify-center border-r border-base-200 p-4"
                     >
                         <div class="text-sm opacity-60">
                             {{ date | date: 'EEEE' }}
@@ -55,12 +53,12 @@ import { EventStateService } from './event-state.service';
                 </div>
                 <div
                     *ngFor="let hour of hours; let i = index"
-                    class="relative flex min-h-10 min-w-[84rem] flex-1 border-x border-b border-base-200 pointer-events-none"
+                    class="pointer-events-none relative flex min-h-10 min-w-[84rem] flex-1 border-x border-b border-base-200"
                 ></div>
                 <div
                     *ngFor="let date of days; let i = index"
                     date
-                    class="absolute top-16 left-0 w-[calc(100%/7)] h-[60rem] flex-1 border-r border-base-200 pointer-events-none"
+                    class="pointer-events-none absolute left-0 top-16 h-[60rem] w-[calc(100%/7)] flex-1 border-r border-base-200"
                     [style.transform]="'translateX(' + i * 100 + '%)'"
                 >
                     <button
@@ -70,15 +68,15 @@ import { EventStateService } from './event-state.service';
                             ] || []
                         "
                         matRipple
-                        class="absolute inset-x-1 bg-base-100 rounded border border-base-200 hover:border-info shadow pl-3 pr-2 py-1 overflow-hidden pointer-events-auto"
+                        class="pointer-events-auto absolute inset-x-1 overflow-hidden rounded border border-base-200 bg-base-100 py-1 pl-3 pr-2 shadow hover:border-info"
                         [style.top]="event.offset * 100 + '%'"
                         [style.height]="event.length * 100 + '%'"
                         (click)="viewEvent(event)"
                     >
                         <div
-                            class="absolute left-0 inset-y-0 bg-info w-1.5"
+                            class="absolute inset-y-0 left-0 w-1.5 bg-info"
                         ></div>
-                        <div class="text-sm opacity-60 h-full text-left">
+                        <div class="h-full text-left text-sm opacity-60">
                             {{ event.date | date: 'shortTime' }} &mdash;
                             {{ event.title }}
                         </div>
@@ -91,7 +89,7 @@ import { EventStateService } from './event-state.service';
                             [hover]="true"
                         ></div>
                         <ng-template #event_card>
-                            <div class="p-2 pointer-events-none">
+                            <div class="pointer-events-none p-2">
                                 <group-event-card
                                     [event]="event"
                                 ></group-event-card>
@@ -105,7 +103,7 @@ import { EventStateService } from './event-state.service';
                         [style.top]="now_offset * 100 + '%'"
                     >
                         <div
-                            class="absolute left-0 top-0 -translate-x-1/2 -translate-y-1/2 h-4 w-4 rounded-full bg-base-content"
+                            class="absolute left-0 top-0 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full bg-base-content"
                         ></div>
                     </div>
                 </div>
@@ -113,8 +111,9 @@ import { EventStateService } from './event-state.service';
         </div>
     `,
     styles: [``],
+    standalone: false,
 })
-export class EventWeekViewComponent extends AsyncHandler {
+export class EventWeekViewComponent extends AsyncHandler implements OnInit {
     public days = new Array(7).fill(0).map((_, idx) => idx + 1);
     public readonly hours = new Array(24)
         .fill(0)
@@ -138,7 +137,7 @@ export class EventWeekViewComponent extends AsyncHandler {
             return map;
         }),
         startWith({}),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     public readonly viewEvent = (event: any) => this._state.viewEvent(event);
@@ -162,11 +161,7 @@ export class EventWeekViewComponent extends AsyncHandler {
         return (now.getHours() * 60 + now.getMinutes()) / (24 * 60);
     }
 
-    constructor(
-        private _state: EventStateService,
-        private _dialog: MatDialog,
-        private _router: Router
-    ) {
+    constructor(private _state: EventStateService) {
         super();
     }
 
@@ -176,9 +171,9 @@ export class EventWeekViewComponent extends AsyncHandler {
             this._state.options.subscribe(({ date }) => {
                 if (!date) return;
                 this.days = this.days.map((_, idx) =>
-                    addDays(date, idx).valueOf()
+                    addDays(date, idx).valueOf(),
                 );
-            })
+            }),
         );
     }
 }

@@ -5,9 +5,9 @@ import { MockComponent } from 'ng-mocks';
 import { DayViewComponent } from '../../app/day-view/day-view.component';
 import { DayviewTimelineComponent } from '../../app/day-view/dayview-timeline.component';
 import { DayviewTopbarComponent } from '../../app/day-view/dayview-topbar.component';
-import { ApplicationTopbarComponent } from '../../app/ui/app-topbar.component';
-import { ApplicationSidebarComponent } from '../../app/ui/app-sidebar.component';
 import { RoomBookingsComponent } from '../../app/day-view/room-bookings.component';
+import { ApplicationSidebarComponent } from '../../app/ui/app-sidebar.component';
+import { ApplicationTopbarComponent } from '../../app/ui/app-topbar.component';
 import { SidebarComponent } from '../../app/ui/sidebar.component';
 
 describe('DayViewComponent', () => {

@@ -1,14 +1,14 @@
 import { Injectable } from '@angular/core';
-import { Observable, BehaviorSubject } from 'rxjs';
-import { map, take, first } from 'rxjs/operators';
-import { BuildingLevel } from '@placeos/organisation';
-import { ViewerFeature, ViewerStyles, ViewAction } from '@placeos/svg-viewer';
-import { MapPinComponent } from '@placeos/components';
-import { Space } from '@placeos/spaces';
-import { AsyncHandler } from '@placeos/common';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
-import { RoomTileComponent } from './room-tile/room-tile.component';
+import { AsyncHandler } from '@placeos/common';
+import { MapPinComponent } from '@placeos/components';
+import { BuildingLevel } from '@placeos/organisation';
+import { Space } from '@placeos/spaces';
+import { ViewAction, ViewerFeature, ViewerStyles } from '@placeos/svg-viewer';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { first, map, take } from 'rxjs/operators';
 import { RoomConfirmService } from './room-confirm.service';
+import { RoomTileComponent } from './room-tile/room-tile.component';
 
 export interface Locatable {
     id: string;
@@ -75,7 +75,7 @@ export class MapService extends AsyncHandler {
 
     //Store of map_id urls & level names for available_spaces
     private _maps_list: BehaviorSubject<MapsList[]> = new BehaviorSubject<any>(
-        []
+        [],
     );
 
     maps_list$: Observable<any> = this._maps_list.asObservable();
@@ -90,7 +90,7 @@ export class MapService extends AsyncHandler {
 
     constructor(
         private _bottomSheet: MatBottomSheet,
-        private _roomConfirmService: RoomConfirmService
+        private _roomConfirmService: RoomConfirmService,
     ) {
         super();
     }
@@ -105,7 +105,7 @@ export class MapService extends AsyncHandler {
                     name: space.name,
                     map_id: space.map_id,
                     level: space.level,
-                })))
+                }))),
         );
         await this.locatable_spaces$?.pipe(first((_) => !!_)).toPromise();
         await this.loadMap();
@@ -114,7 +114,7 @@ export class MapService extends AsyncHandler {
             () => {
                 this.processFeature();
             },
-            1000
+            1000,
         );
 
         await this.processStyles();
@@ -129,9 +129,9 @@ export class MapService extends AsyncHandler {
                             callback: () => {
                                 this.openRoomTile(space);
                             },
-                        } as ViewAction)
-                )
-            )
+                        }) as ViewAction,
+                ),
+            ),
         );
     }
 
@@ -142,14 +142,14 @@ export class MapService extends AsyncHandler {
                 spaces.map((space: Locatable) => ({
                     map_id: space.level.map_id,
                     level: space.level.name,
-                }))
-            )
+                })),
+            ),
         );
 
         this.maps_list$ = this.maps_list$?.pipe(
             map((mapsList: MapsList[]) => [
                 ...new Map(mapsList.map((v) => [v.map_id, v])).values(),
-            ])
+            ]),
         );
 
         this._map_loaded.next(true);
@@ -167,7 +167,7 @@ export class MapService extends AsyncHandler {
                       z_index: 99,
                       zoom: 100,
                   })))
-                : []
+                : [],
         );
         this.map_features = focus;
         this._features_loaded.next(true);

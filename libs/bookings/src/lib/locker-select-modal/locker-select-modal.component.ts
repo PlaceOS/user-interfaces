@@ -1,12 +1,12 @@
-import { Component, Inject } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { SettingsService } from '@placeos/common';
+import { Component, Inject, OnInit } from '@angular/core';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { AsyncHandler, SettingsService } from '@placeos/common';
 import {
     BookingAsset,
     BookingFlowOptions,
     BookingFormService,
 } from '../booking-form.service';
-import { LockerBank } from '../lockers.service';
+import { LockerBank } from '../locker.class';
 
 export const FAV_LOCKER_KEY = 'favourite_lockers';
 
@@ -15,14 +15,14 @@ export const FAV_LOCKER_KEY = 'favourite_lockers';
     styles: [],
     template: `
         <div
-            class="w-[100vw] h-[100vh] sm:relative sm:w-auto sm:h-auto flex flex-col bg-base-100"
+            class="flex h-[100vh] w-[100vw] flex-col bg-base-100 sm:relative sm:h-auto sm:w-auto"
         >
-            <header class="flex items-center space-x-4 w-full">
+            <header class="flex w-full items-center space-x-4">
                 <button icon mat-dialog-close class="bg-base-200">
                     <app-icon>close</app-icon>
                 </button>
-                <h3 i18n>Find Locker</h3>
-                <div class="hidden sm:flex items-center justify-end flex-1">
+                <h3>{{ 'BOOKINGS.LOCKER_FIND' | translate }}</h3>
+                <div class="hidden flex-1 items-center justify-end sm:flex">
                     <button
                         btn
                         matRipple
@@ -31,28 +31,29 @@ export const FAV_LOCKER_KEY = 'favourite_lockers';
                         [class.inverse]="view !== 'map'"
                         (click)="view = 'map'"
                     >
-                        Map
+                        {{ 'COMMON.MAP' | translate }}
                     </button>
                     <button
                         btn
                         matRipple
                         name="view-locker-list"
-                        class="rounded-r rounded-l-none"
+                        class="rounded-l-none rounded-r"
                         [class.inverse]="view !== 'list'"
                         (click)="view = 'list'"
                     >
-                        List
+                        {{ 'COMMON.LIST' | translate }}
                     </button>
                 </div>
             </header>
             <main
-                class="flex-1 flex items-center divide-x divide-base-200 min-h-[65vh] h-[65vh] sm:max-h-[65vh] sm:max-w-[95vw] w-full overflow-hidden"
+                class="flex h-[65vh] min-h-[65vh] w-full flex-1 items-center divide-x divide-base-200 overflow-hidden sm:max-h-[65vh] sm:max-w-[95vw]"
             >
                 <locker-filters
-                    class="h-full hidden sm:flex max-w-[20rem] sm:h-[65vh] sm:max-h-full"
+                    class="hidden h-full max-w-[20rem] sm:flex sm:h-[65vh] sm:max-h-full"
+                    [hide_levels]="view !== 'list'"
                 ></locker-filters>
                 <div
-                    class="flex flex-col items-center flex-1 w-1/2 h-full sm:h-[65vh]"
+                    class="flex h-full w-1/2 flex-1 flex-col items-center sm:h-[65vh]"
                 >
                     <locker-filters-display
                         class="w-full border-b border-base-200"
@@ -66,24 +67,23 @@ export const FAV_LOCKER_KEY = 'favourite_lockers';
                             [favorites]="favorites"
                             (toggleFav)="toggleFavourite($event)"
                             (onSelect)="bank = $event"
-                            class="flex-1 h-1/2 bg-base-200"
+                            class="h-1/2 flex-1 bg-base-200"
                         ></locker-bank-list>
                     </ng-container>
                 </div>
             </main>
             <footer
-                class="flex sm:hidden flex-col-reverse items-center justify-end px-2 pt-2 pb-[5.5rem] border-t border-base-200 w-full"
+                class="flex w-full flex-col-reverse items-center justify-end border-t border-base-200 px-2 pb-[5.5rem] pt-2 sm:hidden"
             >
                 <button
                     btn
                     matRipple
                     name="locker-return"
-                    class="inverse sm:hidden w-full"
+                    class="inverse w-full sm:hidden"
                     *ngIf="displayed"
                     (click)="displayed = null"
-                    i18n
                 >
-                    Back
+                    {{ 'COMMON.BACK' | translate }}
                 </button>
                 <button
                     btn
@@ -91,14 +91,13 @@ export const FAV_LOCKER_KEY = 'favourite_lockers';
                     name="save-lockers"
                     [mat-dialog-close]="selected"
                     [class.mb-2]="displayed"
-                    class="w-full sm:w-32 sm:mb-0"
-                    i18n
+                    class="w-full sm:mb-0 sm:w-32"
                 >
-                    View List
+                    {{ 'COMMON.VIEW_LIST' | translate }}
                 </button>
             </footer>
             <footer
-                class="hidden sm:flex items-center justify-between p-2 border-t border-base-200 w-full"
+                class="hidden w-full items-center justify-between border-t border-base-200 p-2 sm:flex"
             >
                 <button
                     btn
@@ -109,11 +108,16 @@ export const FAV_LOCKER_KEY = 'favourite_lockers';
                 >
                     <div class="flex items-center">
                         <app-icon class="text-xl">arrow_back</app-icon>
-                        <div class="mr-1 underline" i18n>Back to form</div>
+                        <div class="mr-1 underline">
+                            {{ 'COMMON.BACK_TO_FORM' | translate }}
+                        </div>
                     </div>
                 </button>
-                <p class="opacity-60 text-sm text-center" i18n>
-                    {{ selected.length }} locker(s) added
+                <p class="text-center text-sm opacity-60">
+                    {{
+                        'BOOKINGS.LOCKER_ADDED_COUNT'
+                            | translate: { count: selected.length }
+                    }}
                 </p>
                 <div class="flex items-center">
                     <button
@@ -124,7 +128,7 @@ export const FAV_LOCKER_KEY = 'favourite_lockers';
                         class="inverse mr-2 w-32"
                         (click)="bank = null; displayed = null"
                     >
-                        Return
+                        {{ 'COMMON.RETURN' | translate }}
                     </button>
                     <button
                         btn
@@ -140,11 +144,12 @@ export const FAV_LOCKER_KEY = 'favourite_lockers';
                             <app-icon class="text-xl">{{
                                 isSelected(displayed?.id) ? 'remove' : 'add'
                             }}</app-icon>
-                            <div class="mr-1" i18n>
+                            <div class="mr-1">
                                 {{
-                                    isSelected(displayed?.id)
-                                        ? 'Remove from Booking'
-                                        : 'Add to booking'
+                                    (isSelected(displayed?.id)
+                                        ? 'COMMON.REMOVE_FROM'
+                                        : 'COMMON.ADD_TO'
+                                    ) | translate
                                 }}
                             </div>
                         </div>
@@ -154,24 +159,30 @@ export const FAV_LOCKER_KEY = 'favourite_lockers';
         </div>
         <ng-template #map_view>
             <locker-map
-                class="flex-1 h-1/2 w-full"
+                class="h-1/2 w-full flex-1"
                 [is_displayed]="!!displayed"
-                (onSelect)="displayed = $event"
+                (onSelect)="bank = $event"
             >
             </locker-map>
         </ng-template>
         <ng-template #bank_view>
-            <locker-grid
-                class="flex-1 h-1/2 bg-base-200"
-                [bank]="bank"
-                [selected]="displayed?.id"
-                (clicked)="displayed = $event"
-            >
-            </locker-grid>
+            <div class="flex h-full w-full flex-col overflow-auto bg-base-200">
+                <div class="sticky left-0 w-full px-2 py-2 font-medium">
+                    {{ bank.name }}
+                </div>
+                <locker-grid
+                    class="h-1/2 w-full flex-1"
+                    [bank]="bank"
+                    [selected]="displayed?.id"
+                    (clicked)="displayed = $event"
+                >
+                </locker-grid>
+            </div>
         </ng-template>
     `,
+    standalone: false,
 })
-export class LockerSelectModalComponent {
+export class LockerSelectModalComponent extends AsyncHandler implements OnInit {
     public displayed?: BookingAsset;
     public selected: BookingAsset[] = [];
     public view = 'list';
@@ -193,10 +204,18 @@ export class LockerSelectModalComponent {
         private _data: {
             items: BookingAsset[];
             options: Partial<BookingFlowOptions>;
-        }
+        },
     ) {
+        super();
         this.selected = [...(_data.items || [])];
         this._event_form.setOptions(_data.options);
+    }
+
+    public ngOnInit() {
+        this._event_form.options.subscribe(() => {
+            this.displayed = null;
+            this.bank = null;
+        });
     }
 
     public isSelected(id: string) {
@@ -221,7 +240,7 @@ export class LockerSelectModalComponent {
         } else {
             this._settings.saveUserSetting(
                 FAV_LOCKER_KEY,
-                fav_list.filter((_) => _ !== item.id)
+                fav_list.filter((_) => _ !== item.id),
             );
         }
     }

@@ -10,11 +10,12 @@ import {
 import {
     AsyncHandler,
     currentUser,
+    i18n,
     notifyError,
     notifySuccess,
-    openConfirmModal,
     SettingsService,
 } from '@placeos/common';
+import { openConfirmModal } from '@placeos/components';
 import { CalendarEvent, EventFormService, removeEvent } from '@placeos/events';
 import { format } from 'date-fns';
 import { LandingStateService } from './landing-state.service';
@@ -23,9 +24,9 @@ import { LandingStateService } from './landing-state.service';
     selector: 'landing-upcoming',
     template: `
         <div class="py-2">
-            <div class="flex items-center justify-between mb-2 sm:mb-4 px-4">
-                <div class="sm:text-lg font-medium">
-                    {{ 'WPA.YOUR_BOOKINGS' | translate }}
+            <div class="mb-2 flex items-center justify-between px-4 sm:mb-4">
+                <div class="font-medium sm:text-lg">
+                    {{ 'APP.WORKPLACE.UPCOMING' | translate }}
                 </div>
                 <a
                     btn
@@ -33,14 +34,14 @@ import { LandingStateService } from './landing-state.service';
                     class="inverse hidden sm:flex"
                     [routerLink]="['/your-bookings']"
                 >
-                    {{ 'WPA.VIEW_ALL' | translate }}
+                    {{ 'APP.WORKPLACE.UPCOMING_VIEW' | translate }}
                 </a>
                 <a
                     name="upcoming-view-all-mobile"
-                    class="inverse flex sm:hidden text-blue-500 underline relative top-8"
+                    class="inverse text-blue-500 relative top-8 flex underline sm:hidden"
                     [routerLink]="['/your-bookings']"
                 >
-                    {{ 'WPA.VIEW_ALL' | translate }}
+                    {{ 'APP.WORKPLACE.UPCOMING_VIEW' | translate }}
                 </a>
             </div>
             <div class="space-y-4 px-4">
@@ -49,7 +50,7 @@ import { LandingStateService } from './landing-state.service';
                 >
                     <ng-container
                         *ngFor="
-                            let event of upcoming_events | async | slice: 0:5;
+                            let event of upcoming_events | async | slice: 0 : 5;
                             trackBy: trackByFn
                         "
                     >
@@ -66,7 +67,7 @@ import { LandingStateService } from './landing-state.service';
                                 [booking]="event"
                                 [show_day]="true"
                                 (edit)="editBooking(event)"
-                                (remove)="remove(event)"
+                                (remove)="remove(event, true)"
                                 (end)="end(event)"
                             ></booking-card>
                         </ng-container>
@@ -76,16 +77,17 @@ import { LandingStateService } from './landing-state.service';
         </div>
         <ng-template #empty_state>
             <div
-                class="w-full p-8 flex flex-col items-center justify-center space-y-4"
+                class="flex w-full flex-col items-center justify-center space-y-4 p-8"
             >
                 <img src="assets/img/no-events.svg" class="mr-4" />
                 <p class="opacity-30">
-                    {{ 'WPA.NO_UPCOMING_BOOKINGS' | translate }}
+                    {{ 'APP.WORKPLACE.UPCOMING_EMPTY' | translate }}
                 </p>
             </div>
         </ng-template>
     `,
     styles: [``],
+    standalone: false,
 })
 export class LandingUpcomingComponent
     extends AsyncHandler
@@ -103,7 +105,7 @@ export class LandingUpcomingComponent
         private _booking_form: BookingFormService,
         private _router: Router,
         private _dialog: MatDialog,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         super();
     }
@@ -138,36 +140,51 @@ export class LandingUpcomingComponent
         }, 100);
     }
 
-    public async remove(item: CalendarEvent | Booking) {
+    public async remove(
+        item: CalendarEvent | Booking,
+        remove_series: boolean = false,
+    ) {
         const time = `${format(item.date, 'dd MMM yyyy h:mma')}`;
         const resource_name =
             item instanceof CalendarEvent
                 ? item.space?.display_name
                 : item.asset_name || item.asset_id;
-        const content = `Delete the booking for ${resource_name} at ${time}`;
         const resp = await openConfirmModal(
-            { title: `Delete booking`, content, icon: { content: 'delete' } },
-            this._dialog
+            {
+                title: i18n('APP.WORKPLACE.SCHEDULE_REMOVE_TITLE'),
+                content: i18n('APP.WORKPLACE.SCHEDULE_REMOVE_MSG', {
+                    name: resource_name,
+                    time,
+                }),
+                icon: { content: 'delete' },
+            },
+            this._dialog,
         );
 
         if (resp.reason !== 'done') return;
-        resp.loading('Requesting booking deletion...');
+        resp.loading(i18n('APP.WORKPLACE.SCHEDULE_REMOVE_LOADING'));
         await (item instanceof CalendarEvent ? removeEvent : removeBooking)(
             item.id,
             {
-                calendar: this._settings.get('app.no_user_calendar')
+                calendar: this._settings.get('app.events.use_bookings')
                     ? null
                     : currentUser()?.email,
                 system_id: (item as any).system?.id,
-            }
+                instance: remove_series ? undefined : !!(item as any).instance,
+                start_time: (item as any).instance
+                    ? (item as any).booking_start
+                    : undefined,
+            } as any,
         )
             .toPromise()
             .catch((e) => {
-                notifyError(`Unable to delete booking. ${e}`);
+                notifyError(
+                    i18n('APP.WORKPLACE.SCHEDULE_REMOVE_ERROR', { error: e }),
+                );
                 resp.close();
                 throw e;
             });
-        notifySuccess('Successfully deleted booking.');
+        notifySuccess(i18n('APP.WORKPLACE.SCHEDULE_REMOVE_SUCCESS'));
         this._state.refreshUpcomingEvents();
         this._dialog.closeAll();
     }
@@ -175,22 +192,30 @@ export class LandingUpcomingComponent
     public async end(item: Booking) {
         const time = `${format(item.date, 'dd MMM yyyy h:mma')}`;
         const resource_name = item.asset_name || item.asset_id;
-        const content = `End the booking for ${resource_name} at ${time}`;
         const resp = await openConfirmModal(
-            { title: `End booking`, content, icon: { content: 'delete' } },
-            this._dialog
+            {
+                title: i18n('APP.WORKPLACE.SCHEDULE_END_TITLE'),
+                content: i18n('APP.WORKPLACE.SCHEDULE_END_MSG', {
+                    name: resource_name,
+                    time,
+                }),
+                icon: { content: 'event_busy' },
+            },
+            this._dialog,
         );
 
         if (resp.reason !== 'done') return;
-        resp.loading('Ending booking...');
+        resp.loading(i18n('APP.WORKPLACE.SCHEDULE_END_LOADING'));
         await checkinBooking(item.id, false)
             .toPromise()
             .catch((e) => {
-                notifyError(`Unable to end booking. ${e}`);
+                notifyError(
+                    i18n('APP.WORKPLACE.SCHEDULE_END_ERROR', { error: e }),
+                );
                 resp.close();
                 throw e;
             });
-        notifySuccess('Successfully ended booking.');
+        notifySuccess(i18n('APP.WORKPLACE.SCHEDULE_END_SUCCESS'));
         this._state.refreshUpcomingEvents();
         this._dialog.closeAll();
     }

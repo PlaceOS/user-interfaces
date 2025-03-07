@@ -6,11 +6,11 @@ import { MockComponent, MockProvider } from 'ng-mocks';
 import { IconComponent } from '@placeos/components';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 
-import { Booking } from '../lib/booking.class';
-import { BookingCardComponent } from '../lib/booking-card.component';
 import { SettingsService } from '@placeos/common';
 import { StatusPillComponent } from 'libs/components/src/lib/status-pill.component';
 import { BehaviorSubject } from 'rxjs';
+import { BookingCardComponent } from '../lib/booking-card.component';
+import { Booking } from '../lib/booking.class';
 
 describe('BookingCardComponent', () => {
     let spectator: SpectatorRouting<BookingCardComponent>;

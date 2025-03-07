@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import { SettingsService } from '@placeos/common';
-import { first } from 'rxjs/operators';
 
 const DEFAULT_FEATURES = ['desks', 'spaces', 'catering', 'contact-tracing'];
 
@@ -8,17 +7,17 @@ const DEFAULT_FEATURES = ['desks', 'spaces', 'catering', 'contact-tracing'];
     selector: 'reports-menu,[reports-menu]',
     template: `
         <div
-            class="absolute inset-0 flex items-center justify-center bg-base-200 overflow-auto"
+            class="absolute inset-0 flex items-center justify-center overflow-auto bg-base-200"
         >
             <div class="grid w-full justify-items-center">
                 <a
                     [routerLink]="['/reports', 'desks']"
                     matRipple
                     *ngIf="features.includes('desks')"
-                    class="h-64 w-64 p-4 flex flex-col items-center justify-center bg-base-100 rounded shadow hover:opacity-80 border border-base-200"
+                    class="flex h-64 w-64 flex-col items-center justify-center rounded border border-base-200 bg-base-100 p-4 shadow hover:opacity-80"
                 >
                     <app-icon class="text-8xl">room</app-icon>
-                    <h3 class="text-xl font-bold mb-4">Desks</h3>
+                    <h3 class="mb-4 text-xl font-bold">Desks</h3>
                     <div class="flex items-center">
                         <p>View Report</p>
                         <app-icon class="ml-2">chevron_right</app-icon>
@@ -28,10 +27,10 @@ const DEFAULT_FEATURES = ['desks', 'spaces', 'catering', 'contact-tracing'];
                     [routerLink]="['/reports', 'bookings']"
                     matRipple
                     *ngIf="features.includes('spaces')"
-                    class="h-64 w-64 p-4 flex flex-col items-center justify-center bg-base-100 rounded shadow hover:opacity-80 border border-base-200"
+                    class="flex h-64 w-64 flex-col items-center justify-center rounded border border-base-200 bg-base-100 p-4 shadow hover:opacity-80"
                 >
                     <app-icon class="text-8xl">meeting_room</app-icon>
-                    <h3 class="text-xl font-bold mb-4">Rooms</h3>
+                    <h3 class="mb-4 text-xl font-bold">Rooms</h3>
                     <div class="flex items-center">
                         <p>View Report</p>
                         <app-icon class="ml-2">chevron_right</app-icon>
@@ -41,10 +40,10 @@ const DEFAULT_FEATURES = ['desks', 'spaces', 'catering', 'contact-tracing'];
                     [routerLink]="['/reports', 'catering']"
                     matRipple
                     *ngIf="features.includes('catering')"
-                    class="h-64 w-64 p-4 flex flex-col items-center justify-center bg-base-100 rounded shadow hover:opacity-80 border border-base-200"
+                    class="flex h-64 w-64 flex-col items-center justify-center rounded border border-base-200 bg-base-100 p-4 shadow hover:opacity-80"
                 >
                     <app-icon class="text-8xl">room_service</app-icon>
-                    <h3 class="text-xl font-bold mb-4">Catering</h3>
+                    <h3 class="mb-4 text-xl font-bold">Catering</h3>
                     <div class="flex items-center">
                         <p>View Report</p>
                         <app-icon class="ml-2">chevron_right</app-icon>
@@ -54,12 +53,12 @@ const DEFAULT_FEATURES = ['desks', 'spaces', 'catering', 'contact-tracing'];
                     [routerLink]="['/reports', 'contact-tracing']"
                     matRipple
                     *ngIf="features.includes('contact-tracing')"
-                    class="h-64 w-64 p-4 flex flex-col items-center justify-center bg-base-100 rounded shadow hover:opacity-80 border border-base-200"
+                    class="flex h-64 w-64 flex-col items-center justify-center rounded border border-base-200 bg-base-100 p-4 shadow hover:opacity-80"
                 >
                     <app-icon class="text-8xl"
                         >connect_without_contact</app-icon
                     >
-                    <h3 class="text-xl font-bold mb-4">Contact Tracing</h3>
+                    <h3 class="mb-4 text-xl font-bold">Contact Tracing</h3>
                     <div class="flex items-center">
                         <p>View Report</p>
                         <app-icon class="ml-2">chevron_right</app-icon>
@@ -69,10 +68,10 @@ const DEFAULT_FEATURES = ['desks', 'spaces', 'catering', 'contact-tracing'];
                     [routerLink]="['/reports', report.id]"
                     matRipple
                     *ngFor="let report of custom_reports"
-                    class="h-64 w-64 p-4 flex flex-col items-center justify-center bg-base-100 rounded shadow hover:opacity-80 border border-base-200"
+                    class="flex h-64 w-64 flex-col items-center justify-center rounded border border-base-200 bg-base-100 p-4 shadow hover:opacity-80"
                 >
                     <app-icon class="text-8xl">{{ report.icon }}</app-icon>
-                    <h3 class="text-xl font-bold mb-4">{{ report.name }}</h3>
+                    <h3 class="mb-4 text-xl font-bold">{{ report.name }}</h3>
                     <div class="flex items-center">
                         <p>View Report</p>
                         <app-icon class="ml-2">chevron_right</app-icon>
@@ -100,6 +99,7 @@ const DEFAULT_FEATURES = ['desks', 'spaces', 'catering', 'contact-tracing'];
             }
         `,
     ],
+    standalone: false,
 })
 export class ReportsMenuComponent {
     public get custom_reports() {

@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { EventFormService } from 'libs/events/src/lib/event-form.service';
+import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 
 import { Space } from '../space.class';
@@ -7,8 +7,8 @@ import { Space } from '../space.class';
 @Component({
     selector: `space-list`,
     template: `
-        <h3 class="font-bold">Results</h3>
-        <p count class="text-sm opacity-60 mb-4" i18n>
+        <h3 class="font-bold">{{ 'COMMON.RESULTS' | translate }}</h3>
+        <p count class="mb-4 text-sm opacity-60">
             {{ (available_spaces | async)?.length || 0 }} result(s) found
         </p>
         <ng-container *ngIf="!(loading | async); else load_state">
@@ -20,19 +20,30 @@ import { Space } from '../space.class';
                     space
                     *ngFor="let space of available_spaces | async"
                     [class.!border-info]="active === space.id"
-                    class="relative p-2 rounded-lg w-full shadow border bg-base-100 border-base-200"
+                    class="relative w-full rounded-lg border border-base-200 bg-base-100 p-2 shadow"
+                    [class.!bg-error-light]="
+                        (room_alerts | async)[space.id]
+                            ? (room_alerts | async)[space.id][0] === 'closed'
+                            : false
+                    "
                 >
                     <button
                         matRipple
                         name="select-space"
-                        class="w-full h-full flex items-center"
+                        class="flex h-full w-full items-center rounded"
                         (click)="selectSpace(space)"
+                        [class.pointer-events-none]="
+                            (room_alerts | async)[space.id]
+                                ? (room_alerts | async)[space.id][0] ===
+                                  'closed'
+                                : false
+                        "
                     >
                         <div
-                            class="relative min-w-[5rem] w-20 h-20 rounded-xl bg-base-200 mr-4 overflow-hidden flex items-center justify-center"
+                            class="relative mr-4 flex h-20 w-20 min-w-[5rem] items-center justify-center overflow-hidden rounded-xl bg-base-200"
                         >
                             <div
-                                class="absolute top-1 left-1 border border-neutral bg-base-200 rounded-full h-6 w-6 flex items-center justify-center text-white"
+                                class="absolute left-1 top-1 flex h-6 w-6 items-center justify-center rounded-full border border-neutral bg-base-200 text-white"
                                 *ngIf="selected.includes(space.id)"
                             >
                                 <app-icon>done</app-icon>
@@ -43,7 +54,7 @@ import { Space } from '../space.class';
                                     space.images?.length;
                                     else space_placeholder
                                 "
-                                class="object-cover h-full"
+                                class="h-full object-cover"
                                 [source]="space.images[0]"
                             />
                             <ng-template #space_placeholder>
@@ -52,16 +63,58 @@ import { Space } from '../space.class';
                                     src="assets/icons/room-placeholder.svg"
                                 />
                             </ng-template>
+                            <div
+                                class="pointer-events-auto absolute bottom-1 left-1 flex h-6 w-6 rotate-12 items-center justify-center rounded-full"
+                                *ngIf="(room_alerts | async)[space.id]"
+                                [matTooltip]="
+                                    (room_alerts | async)[space.id][1]
+                                "
+                                [class.bg-error]="
+                                    (room_alerts | async)[space.id][0] ===
+                                    'closed'
+                                "
+                                [class.bg-info]="
+                                    (room_alerts | async)[space.id][0] ===
+                                    'info'
+                                "
+                                [class.bg-warning]="
+                                    (room_alerts | async)[space.id][0] ===
+                                    'warn'
+                                "
+                                [class.text-error-content]="
+                                    (room_alerts | async)[space.id][0] ===
+                                    'closed'
+                                "
+                                [class.text-info-content]="
+                                    (room_alerts | async)[space.id][0] ===
+                                    'info'
+                                "
+                                [class.text-warning-content]="
+                                    (room_alerts | async)[space.id][0] ===
+                                    'warn'
+                                "
+                                (click)="$event.stopPropagation()"
+                            >
+                                <app-icon>{{
+                                    (room_alerts | async)[space.id][0] ===
+                                    'warn'
+                                        ? 'warning'
+                                        : (room_alerts | async)[space.id][0] ===
+                                            'info'
+                                          ? 'info'
+                                          : 'close'
+                                }}</app-icon>
+                            </div>
                         </div>
                         <div class="space-y-2">
-                            <div class="font-medium truncate mr-10">
+                            <div class="mr-10 truncate text-left font-medium">
                                 {{
                                     space.display_name ||
                                         space.name ||
                                         'Meeting Space'
                                 }}
                             </div>
-                            <div class="flex items-center text-sm space-x-2">
+                            <div class="flex items-center space-x-2 text-sm">
                                 <app-icon class="text-info">place</app-icon>
                                 <p class="truncate">
                                     {{
@@ -71,13 +124,19 @@ import { Space } from '../space.class';
                                     }}
                                 </p>
                             </div>
-                            <div class="flex items-center text-sm space-x-2">
+                            <div class="flex items-center space-x-2 text-sm">
                                 <app-icon class="text-info">people</app-icon>
-                                <p i18n>
+                                <p>
                                     {{
-                                        space.capacity < 1 ? 2 : space.capacity
+                                        'CALENDAR_EVENT.CAPACITY_COUNT'
+                                            | translate
+                                                : {
+                                                      count:
+                                                          space.capacity < 1
+                                                              ? 2
+                                                              : space.capacity,
+                                                  }
                                     }}
-                                    People
                                 </p>
                             </div>
                         </div>
@@ -86,7 +145,7 @@ import { Space } from '../space.class';
                         icon
                         matRipple
                         name="toggle-space-favourite"
-                        class="absolute top-1 right-1"
+                        class="absolute right-1 top-1"
                         [class.text-info]="isFavourite(space.id)"
                         (click)="toggleFav.emit(space)"
                     >
@@ -102,20 +161,24 @@ import { Space } from '../space.class';
         <ng-template #empty_state>
             <div
                 empty
-                class="p-16 flex flex-col items-center justify-center space-y-2"
+                class="flex flex-col items-center justify-center space-y-2 p-16"
             >
-                <p class="opacity-30 text-center" i18n>
-                    No available spaces for selected time and/or filters
+                <p class="text-center opacity-30">
+                    {{ 'CALENDAR_EVENT.SPACE_SELECT_EMPTY' | translate }}
                 </p>
             </div>
         </ng-template>
         <ng-template #load_state>
             <div
                 loading
-                class="p-16 flex flex-col items-center justify-center space-y-2"
+                class="flex flex-col items-center justify-center space-y-2 p-16"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
-                <p class="opacity-30" i18n>Finding available spaces...</p>
+                <p class="opacity-30">
+                    {{ 'CALENDAR_EVENT.SPACE_SELECT_LOADING' | translate }}
+                    <!-- <br />
+                    {{ loading | async | json }} -->
+                </p>
             </div>
         </ng-template>
     `,
@@ -129,20 +192,22 @@ import { Space } from '../space.class';
             }
         `,
     ],
+    standalone: false,
 })
 export class SpaceListComponent {
-    @Input() public active: string = '';
-    @Input() public selected: string = '';
+    @Input() public active = '';
+    @Input() public selected = '';
     @Input() public favorites: string[] = [];
     @Output() public onSelect = new EventEmitter<Space>();
     @Output() public toggleFav = new EventEmitter<Space>();
-    public readonly loading = this._event_form.loading;
+    public readonly loading = this._event_form.loading$;
 
     public readonly available_spaces = this._event_form.available_spaces;
+    public readonly room_alerts = this._event_form.room_alerts;
 
     constructor(
         private _event_form: EventFormService,
-        private _org: OrganisationService
+        private _org: OrganisationService,
     ) {}
 
     public level(zones: string[]) {

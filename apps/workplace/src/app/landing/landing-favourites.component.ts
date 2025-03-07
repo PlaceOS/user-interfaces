@@ -1,6 +1,8 @@
-import { P } from '@angular/cdk/keycodes';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { BehaviorSubject, combineLatest } from 'rxjs';
+import { map, shareReplay, tap } from 'rxjs/operators';
+
 import {
     BookingFormService,
     BookingType,
@@ -10,10 +12,11 @@ import { AsyncHandler, SettingsService } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
 import { Space } from '@placeos/spaces';
+import { showMetadata } from '@placeos/ts-client';
+
 import { FAV_DESK_KEY } from 'libs/bookings/src/lib/desk-select-modal/desk-select-modal.component';
+import { FAV_LOCKER_KEY } from 'libs/bookings/src/lib/locker-select-modal/locker-select-modal.component';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
-import { combineLatest } from 'rxjs';
-import { map, shareReplay } from 'rxjs/operators';
 
 const EMPTY = [];
 
@@ -21,27 +24,22 @@ const EMPTY = [];
     selector: 'landing-favourites',
     template: `
         <div
-            class="flex items-center justify-between py-2 mx-2 border-b border-base-200"
+            class="mx-2 flex items-center justify-between rounded bg-base-200 p-2 text-sm"
         >
-            <h2 class="mx-2" i18n>
-                {{ spaces?.length || 0 }} { spaces?.length, plural, =1 {
-                Resource } other { Resources } }
+            <h2>
+                {{
+                    'APP.WORKPLACE.FAVOURITES_COUNT'
+                        | translate
+                            : {
+                                  count:
+                                      (spaces?.length || 0) +
+                                      (assets | async)?.length,
+                              }
+                }}
             </h2>
-            <!-- <div class="flex items-center space-x-2 text-primary">
-                <button icon
-                    class="!border !border-solid !border-primary"
-                >
-                    <app-icon>search</app-icon>
-                </button>
-                <button icon
-                    class="!border !border-solid !border-primary"
-                >
-                    <app-icon>filter_list</app-icon>
-                </button>
-            </div> -->
         </div>
         <div
-            class="flex-1 h-1/2 w-full space-y-2 overflow-auto pt-4 divide-y divide-base-200"
+            class="h-1/2 w-full flex-1 space-y-2 divide-y divide-base-200 overflow-auto pt-4"
         >
             <ng-container
                 *ngIf="
@@ -49,107 +47,125 @@ const EMPTY = [];
                     else empty_state
                 "
             >
-                <div
-                    class="flex flex-col items-center mx-2 pt-4 space-y-2 relative"
-                    item
-                    *ngFor="let item of spaces"
-                >
-                    <div class="flex w-full items-center space-x-2 relative">
+                <ng-container *ngFor="let item of spaces">
+                    @let space = item | space | async;
+                    <div
+                        class="relative mx-2 flex flex-col items-center space-y-2 pt-2"
+                        item
+                        *ngIf="space?.id"
+                    >
                         <div
-                            class="w-20 h-20 overflow-hidden rounded relative flex items-center justify-center bg-neutral"
+                            class="relative flex w-full items-center space-x-2"
                         >
-                            <img
-                                auth
-                                *ngIf="
-                                    (item | space | async)?.images?.length;
-                                    else space_placeholder
-                                "
-                                class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 object-cover min-w-full min-h-full"
-                                [source]="(item | space | async)?.images[0]"
-                            />
-                            <ng-template #space_placeholder>
+                            <div
+                                class="relative flex h-16 w-16 items-center justify-center overflow-hidden rounded bg-base-300"
+                            >
                                 <img
-                                    class="m-auto"
-                                    src="assets/icons/room-placeholder.svg"
+                                    auth
+                                    *ngIf="
+                                        space.images.length;
+                                        else space_placeholder
+                                    "
+                                    class="absolute left-1/2 top-1/2 min-h-full min-w-full -translate-x-1/2 -translate-y-1/2 object-cover"
+                                    [source]="space.images[0]"
                                 />
-                            </ng-template>
-                        </div>
-                        <div class="h-20 flex-1 w-1/2">
-                            <div class="truncate mb-4 w-full pr-12">
-                                {{
-                                    (item | space | async)?.display_name ||
-                                        (item | space | async)?.name
-                                }}
+                                <ng-template #space_placeholder>
+                                    <img
+                                        class="m-auto"
+                                        src="assets/icons/room-placeholder.svg"
+                                    />
+                                </ng-template>
                             </div>
                             <div
-                                class="flex items-center text-xs opacity-60 truncate space-x-2 mb-2"
+                                class="flex h-16 w-1/2 flex-1 flex-col justify-center space-y-1"
                             >
-                                <app-icon class="text-blue-500">place</app-icon>
-                                <div>
-                                    {{
-                                        level(item | space | async)
-                                            ?.display_name
-                                    }}
+                                <div class="w-full truncate pr-12">
+                                    {{ space.display_name || space.name }}
                                 </div>
-                            </div>
-                            <div
-                                class="flex items-center text-xs opacity-60 truncate space-x-2"
-                            >
-                                <app-icon class="text-blue-500"
-                                    >people</app-icon
+                                <div
+                                    class="flex items-center space-x-1 text-xs opacity-60"
                                 >
-                                <div i18n>
-                                    {{ (item | space | async)?.capacity || 2 }}
-                                    { (item | space | async)?.capacity || 2,
-                                    plural, =1 { Person } other { People } }
+                                    <app-icon class="text-blue-500"
+                                        >place</app-icon
+                                    >
+                                    <div class="w-1/2 flex-1 truncate">
+                                        {{ level(space)?.display_name }}
+                                    </div>
+                                </div>
+                                <div
+                                    class="flex items-center space-x-2 truncate text-xs opacity-60"
+                                >
+                                    <app-icon class="text-blue-500">
+                                        people
+                                    </app-icon>
+                                    <div>
+                                        {{
+                                            'APP.WORKPLACE.CAPACITY'
+                                                | translate
+                                                    : {
+                                                          count:
+                                                              space.capacity ||
+                                                              2,
+                                                      }
+                                        }}
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <button
-                        btn
-                        name="book-favourite"
-                        matRipple
-                        class="w-full inverse"
-                        (click)="newSpaceMeeting(item)"
-                    >
-                        {{ 'WPA.BOOK' | translate }}
-                    </button>
-                    <button
-                        icon
-                        name="favourite-more"
-                        [matMenuTriggerFor]="menu"
-                        class="absolute top-2 right-0 bg-base-200 !rounded !m-0"
-                    >
-                        <app-icon>more_horiz</app-icon>
-                    </button>
-                    <mat-menu #menu="matMenu" xPosition="before">
-                        <!-- <button
+                        <button
+                            btn
+                            name="book-favourite"
+                            matRipple
+                            class="inverse w-full"
+                            [disabled]="isClosed(item)"
+                            (click)="newSpaceMeeting(item)"
+                        >
+                            {{ 'COMMON.BOOK' | translate }}
+                        </button>
+                        <button
+                            icon
+                            name="favourite-more"
+                            [matMenuTriggerFor]="menu"
+                            class="absolute right-0 top-2 !m-0 !rounded bg-base-200"
+                        >
+                            <app-icon>more_horiz</app-icon>
+                        </button>
+                        <mat-menu #menu="matMenu" xPosition="before">
+                            <!-- <button
                             mat-menu-item
                             class="flex items-center space-x-2"
                         >
                             <app-icon class="text-2xl">info</app-icon>
-                            <div>{{ 'WPA.VIEW_DETAILS' | translate }}</div>
+                            <div>{{ 'APP.WORKPLACE.VIEW_DETAILS' | translate }}</div>
                         </button> -->
-                        <button
-                            name="landing-remove-favourite"
-                            mat-menu-item
-                            (click)="toggleFavourite('space', item)"
-                            class="flex items-center space-x-2"
-                        >
-                            <app-icon class="text-2xl">cancel</app-icon>
-                            <div>{{ 'WPA.FAVOURITES_REMOVE' | translate }}</div>
-                        </button>
-                    </mat-menu>
-                </div>
+                            <button
+                                name="landing-remove-favourite"
+                                mat-menu-item
+                                (click)="removeFavourite('space', item)"
+                            >
+                                <div class="flex items-center space-x-2">
+                                    <app-icon class="text-2xl text-error"
+                                        >delete</app-icon
+                                    >
+                                    <div>
+                                        {{
+                                            'APP.WORKPLACE.FAVOURITES_REMOVE'
+                                                | translate
+                                        }}
+                                    </div>
+                                </div>
+                            </button>
+                        </mat-menu>
+                    </div>
+                </ng-container>
                 <div
-                    class="flex flex-col items-center mx-2 pt-4 space-y-2 relative"
+                    class="relative mx-2 flex flex-col items-center space-y-2 pt-2"
                     item
                     *ngFor="let item of assets | async"
                 >
-                    <div class="flex w-full items-center space-x-2 relative">
+                    <div class="relative flex w-full items-center space-x-2">
                         <div
-                            class="w-20 h-20 overflow-hidden rounded relative flex items-center justify-center bg-neutral"
+                            class="relative flex h-16 w-16 items-center justify-center overflow-hidden rounded bg-base-300"
                         >
                             <img
                                 auth
@@ -157,7 +173,7 @@ const EMPTY = [];
                                     item?.images?.length;
                                     else asset_placeholder
                                 "
-                                class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 object-cover min-w-full min-h-full"
+                                class="absolute left-1/2 top-1/2 min-h-full min-w-full -translate-x-1/2 -translate-y-1/2 object-cover"
                                 [source]="item?.images[0]"
                             />
                             <ng-template #asset_placeholder>
@@ -173,15 +189,19 @@ const EMPTY = [];
                                 />
                             </ng-template>
                         </div>
-                        <div class="h-20">
-                            <div class="truncate mb-4">
-                                {{ item?.display_name || item?.name }}
+                        <div
+                            class="flex h-16 w-1/2 flex-1 flex-col justify-center space-y-1"
+                        >
+                            <div class="truncate">
+                                {{
+                                    item?.display_name || item?.name || item?.id
+                                }}
                             </div>
                             <div
-                                class="flex items-center text-xs opacity-60 truncate space-x-2 mb-2"
+                                class="flex items-center space-x-1 text-xs opacity-60"
                             >
                                 <app-icon class="text-blue-500">place</app-icon>
-                                <div>
+                                <div class="w-1/2 flex-1 truncate">
                                     {{ item?.zone?.display_name }}
                                 </div>
                             </div>
@@ -191,17 +211,16 @@ const EMPTY = [];
                         btn
                         name="book-favourite"
                         matRipple
-                        class="w-full inverse"
+                        class="inverse w-full"
                         (click)="newBooking(item.type, item)"
-                        i18n
                     >
-                        {{ 'WPA.BOOK' | translate }}
+                        {{ 'COMMON.BOOK' | translate }}
                     </button>
                     <button
                         icon
                         name="favourite-more"
                         [matMenuTriggerFor]="menu"
-                        class="absolute top-2 right-0 bg-base-200 !rounded !m-0"
+                        class="top-22 absolute right-0 !m-0 !rounded bg-base-200"
                     >
                         <app-icon>more_horiz</app-icon>
                     </button>
@@ -210,17 +229,27 @@ const EMPTY = [];
                             mat-menu-item
                             class="flex items-center space-x-2"
                         >
-                            <app-icon class="text-2xl">info</app-icon>
-                            <div>{{ 'WPA.VIEW_DETAILS' | translate }}</div>
+                            <div class="flex items-center space-x-2">
+                                <app-icon class="text-2xl">info</app-icon>
+                                <div>{{ 'APP.WORKPLACE.VIEW_DETAILS' | translate }}</div>
+                            </div>
                         </button> -->
                         <button
                             name="landing-remove-favourite"
                             mat-menu-item
-                            (click)="toggleFavourite(item.type, item.id)"
-                            class="flex items-center space-x-2"
+                            (click)="removeFavourite(item.type, item.id)"
                         >
-                            <app-icon class="text-2xl">cancel</app-icon>
-                            <div>{{ 'WPA.FAVOURITES_REMOVE' | translate }}</div>
+                            <div class="flex items-center space-x-2">
+                                <app-icon class="text-2xl text-error">
+                                    delete
+                                </app-icon>
+                                <div class="pr-4">
+                                    {{
+                                        'APP.WORKPLACE.FAVOURITES_REMOVE'
+                                            | translate
+                                    }}
+                                </div>
+                            </div>
                         </button>
                     </mat-menu>
                 </div>
@@ -228,11 +257,11 @@ const EMPTY = [];
         </div>
         <ng-template #empty_state>
             <div
-                class="w-full h-full flex flex-col items-center justify-center space-y-2 p-8"
+                class="flex h-full w-full flex-col items-center justify-center space-y-2 p-8"
             >
                 <img src="assets/icons/no-favourites.svg" />
-                <p class="opacity-60 text-sm text-center">
-                    {{ 'WPA.FAVOURITES_EMPTY' | translate }}
+                <p class="text-center text-sm opacity-60">
+                    {{ 'APP.WORKPLACE.FAVOURITES_EMPTY' | translate }}
                 </p>
             </div>
         </ng-template>
@@ -252,11 +281,15 @@ const EMPTY = [];
         `,
     ],
     providers: [SpacePipe],
+    standalone: false,
 })
-export class LandingFavouritesComponent extends AsyncHandler {
+export class LandingFavouritesComponent extends AsyncHandler implements OnInit {
+    private _change = new BehaviorSubject(0);
+    private _room_alerts: Record<string, [string, string]>;
     public readonly assets = combineLatest([
         this._booking_form.loadResourceList('desks' as any),
         this._booking_form.loadResourceList('parking-spaces' as any),
+        this._change,
     ]).pipe(
         map(([desks, parking]) => {
             return [
@@ -268,7 +301,8 @@ export class LandingFavouritesComponent extends AsyncHandler {
                     .map((_) => ({ ..._, type: 'parking' })),
             ];
         }),
-        shareReplay(1)
+        tap((_) => console.log(_)),
+        shareReplay(1),
     );
 
     public get spaces() {
@@ -283,8 +317,19 @@ export class LandingFavouritesComponent extends AsyncHandler {
         return this._settings.get<string[]>(FAV_PARKING_KEY) || EMPTY;
     }
 
+    public get locker_banks() {
+        return this._settings.get<string[]>(FAV_LOCKER_KEY) || EMPTY;
+    }
+
     public level(space: Space) {
         return this._org.levelWithID(space?.zones || []);
+    }
+
+    public isClosed(id: string) {
+        if (!this._room_alerts) return false;
+        return this._room_alerts[id]
+            ? this._room_alerts[id][0] === 'closed'
+            : false;
     }
 
     constructor(
@@ -293,14 +338,24 @@ export class LandingFavouritesComponent extends AsyncHandler {
         private _space_pipe: SpacePipe,
         private _event_form: EventFormService,
         private _booking_form: BookingFormService,
-        private _router: Router
+        private _router: Router,
     ) {
         super();
     }
 
-    public ngOnInit() {}
+    public async ngOnInit() {
+        this._room_alerts = await showMetadata(
+            this._org.organisation.id,
+            'room_alerts',
+        )
+            .pipe(map((v) => v.details as any))
+            .toPromise();
+    }
 
-    public toggleFavourite(type: 'space' | 'desk' | 'parking', id: string) {
+    public removeFavourite(
+        type: 'space' | 'desk' | 'parking' | 'locker',
+        id: string,
+    ) {
         let fav_list = this.spaces;
         let key = 'favourite_spaces';
         switch (type) {
@@ -312,16 +367,16 @@ export class LandingFavouritesComponent extends AsyncHandler {
                 fav_list = this.parking_spaces;
                 key = FAV_PARKING_KEY;
                 break;
+            case 'locker':
+                fav_list = this.locker_banks;
+                key = FAV_LOCKER_KEY;
+                break;
         }
-        const new_state = !fav_list.includes(id);
-        if (new_state) {
-            this._settings.saveUserSetting(key, [...fav_list, id]);
-        } else {
-            this._settings.saveUserSetting(
-                key,
-                fav_list.filter((_) => _ !== id)
-            );
-        }
+        this._settings.saveUserSetting(
+            key,
+            fav_list.filter((_) => _ !== id),
+        );
+        this._change.next(Date.now());
     }
 
     public async newSpaceMeeting(id: string) {
@@ -341,12 +396,20 @@ export class LandingFavouritesComponent extends AsyncHandler {
         if (this._settings.get('app.new_features')) {
             this._router.navigate([
                 '/book',
-                type === 'desk' ? 'new-desk' : 'new-parking',
+                type === 'desk'
+                    ? 'new-desk'
+                    : type === 'locker'
+                      ? 'locker'
+                      : 'new-parking',
             ]);
         } else {
             this._router.navigate([
                 '/book',
-                type === 'desk' ? 'desks' : 'parking',
+                type === 'desk'
+                    ? 'desks'
+                    : type === 'locker'
+                      ? 'locker'
+                      : 'parking',
             ]);
         }
         setTimeout(() => {

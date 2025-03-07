@@ -6,9 +6,10 @@ import { IconComponent } from '@placeos/components';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { SettingsService } from '@placeos/common';
 import { CheckinQRScanComponent } from '../../app/checkin/checkin-qr-scan.component';
 import { CheckinStateService } from '../../app/checkin/checkin-state.service';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 describe('CheckinQRScanComponent', () => {
     let spectator: SpectatorRouting<CheckinQRScanComponent>;
@@ -20,6 +21,7 @@ describe('CheckinQRScanComponent', () => {
                 event: of({}),
                 guest: of({}),
             } as any),
+            MockProvider(SettingsService, { get: jest.fn() }),
         ],
         imports: [
             MatFormFieldModule,

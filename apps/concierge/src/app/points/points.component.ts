@@ -7,7 +7,7 @@ import { PointsStateService } from './points-state.service';
     selector: 'placeos-points',
     template: `
         <sidebar></sidebar>
-        <main class="relative w-full flex flex-col bg-base-200">
+        <main class="relative flex w-full flex-col bg-base-200">
             <points-topbar class="relative z-10">
                 <button
                     *ngIf="page === 'assets'"
@@ -15,7 +15,7 @@ import { PointsStateService } from './points-state.service';
                     matRipple
                     (click)="newAsset()"
                 >
-                    New Asset
+                    {{ 'APP.CONCIERGE.POINTS_ASSETS_ADD' | translate }}
                 </button>
             </points-topbar>
             <nav mat-tab-nav-bar>
@@ -24,17 +24,17 @@ import { PointsStateService } from './points-state.service';
                     [routerLink]="['/points', 'overview']"
                     [active]="page === 'overview'"
                 >
-                    Overview
+                    {{ 'APP.CONCIERGE.POINTS_TAB_OVERVIEW' | translate }}
                 </a>
                 <a
                     mat-tab-link
                     [routerLink]="['/points', 'assets']"
                     [active]="page === 'assets'"
                 >
-                    Assets
+                    {{ 'APP.CONCIERGE.POINTS_TAB_ASSETS' | translate }}
                 </a>
             </nav>
-            <div class="flex-1 w-full h-1/2 overflow-auto">
+            <div class="h-1/2 w-full flex-1 overflow-auto">
                 <router-outlet></router-outlet>
             </div>
         </main>
@@ -48,6 +48,7 @@ import { PointsStateService } from './points-state.service';
             }
         `,
     ],
+    standalone: false,
 })
 export class PointsComponent extends AsyncHandler implements OnInit {
     /** Page being displayed */
@@ -55,7 +56,10 @@ export class PointsComponent extends AsyncHandler implements OnInit {
 
     public readonly newAsset = () => this._state.newAsset();
 
-    constructor(private _state: PointsStateService, private _router: Router) {
+    constructor(
+        private _state: PointsStateService,
+        private _router: Router,
+    ) {
         super();
     }
 
@@ -65,7 +69,7 @@ export class PointsComponent extends AsyncHandler implements OnInit {
             this._router.events.subscribe(() => {
                 const url_parts = this._router.url?.split('/') || [''];
                 this.page = url_parts[url_parts.length - 1];
-            })
+            }),
         );
         const parts = this._router.url?.split('/') || [''];
         this.page = parts[parts.length - 1];

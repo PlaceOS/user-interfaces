@@ -9,17 +9,17 @@ import {
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { map } from 'rxjs/operators';
 
-import { BookingAsset, BookingFormService } from '../booking-form.service';
-import { BehaviorSubject, combineLatest } from 'rxjs';
-import { DEFAULT_COLOURS } from 'libs/explore/src/lib/explore-spaces.service';
-import { ExploreDeskInfoComponent } from 'libs/explore/src/lib/explore-desk-info.component';
-import { BuildingLevel } from 'libs/organisation/src/lib/level.class';
 import { OrganisationService } from '@placeos/organisation';
+import { ExploreDeskInfoComponent } from 'libs/explore/src/lib/explore-desk-info.component';
+import { DEFAULT_COLOURS } from 'libs/explore/src/lib/explore-spaces.service';
+import { BuildingLevel } from 'libs/organisation/src/lib/level.class';
+import { BehaviorSubject, combineLatest } from 'rxjs';
+import { BookingAsset, BookingFormService } from '../booking-form.service';
 
 @Component({
     selector: 'desk-map',
     template: `
-        <div class="bg-base-100 p-2 border-b border-base-200 w-full">
+        <div class="w-full border-b border-base-200 bg-base-100 p-2">
             <mat-form-field
                 levels
                 appearance="outline"
@@ -31,15 +31,14 @@ import { OrganisationService } from '@placeos/organisation';
                     [(ngModel)]="level"
                     (ngModelChange)="setOptions({ zone_ids: [$event.id] })"
                     [ngModelOptions]="{ standalone: true }"
-                    placeholder="Any Level"
-                    i18n-placeholder
+                    [placeholder]="'COMMON.LEVEL_ANY' | translate"
                 >
                     <mat-option
                         *ngFor="let lvl of levels | async"
                         [value]="lvl"
                     >
                         <div class="flex flex-col-reverse">
-                            <div class="opacity-30 text-xs" *ngIf="use_region">
+                            <div class="text-xs opacity-30" *ngIf="use_region">
                                 {{ (lvl.parent_id | building)?.display_name }}
                                 <span class="opacity-0"> - </span>
                             </div>
@@ -51,7 +50,7 @@ import { OrganisationService } from '@placeos/organisation';
                 </mat-select>
             </mat-form-field>
         </div>
-        <div class="relative flex-1 w-full">
+        <div class="relative w-full flex-1">
             <interactive-map
                 [src]="map_url"
                 [(zoom)]="zoom"
@@ -77,6 +76,7 @@ import { OrganisationService } from '@placeos/organisation';
             }
         `,
     ],
+    standalone: false,
 })
 export class DeskMapComponent extends AsyncHandler implements OnInit {
     @Input() public is_displayed: boolean = false;
@@ -102,14 +102,14 @@ export class DeskMapComponent extends AsyncHandler implements OnInit {
                 ? this._org.levelsForRegion(region)
                 : this._org.levelsForBuilding(bld);
             const viewable_levels = level_list.filter(
-                (lvl) => !lvl.tags.includes('parking')
+                (lvl) => !lvl.tags.includes('parking'),
             );
             return viewable_levels.sort(
                 (a, b) =>
                     a.parent_id.localeCompare(b.parent_id) ||
-                    (a.display_name || '').localeCompare(b.display_name || '')
+                    (a.display_name || '').localeCompare(b.display_name || ''),
             );
-        })
+        }),
     );
 
     public readonly setOptions = (o) => this._state.setOptions(o);
@@ -124,8 +124,8 @@ export class DeskMapComponent extends AsyncHandler implements OnInit {
                 id: desk.map_id || desk.id,
                 action: ['touchend', 'mouseup'],
                 callback: () => this.selectDesk(desk as any),
-            }))
-        )
+            })),
+        ),
     );
 
     public readonly features = combineLatest([
@@ -148,7 +148,7 @@ export class DeskMapComponent extends AsyncHandler implements OnInit {
                       },
                       z_index: 20,
                   }));
-        })
+        }),
     );
 
     public readonly styles = combineLatest([
@@ -163,10 +163,10 @@ export class DeskMapComponent extends AsyncHandler implements OnInit {
                     this.active === desk.id
                         ? 'active'
                         : free_desks.find((_) => _.id === desk.id)
-                        ? 'free'
-                        : this._state.resourceUserName(desk.id)
-                        ? 'busy'
-                        : 'not-bookable';
+                          ? 'free'
+                          : this._state.resourceUserName(desk.id)
+                            ? 'busy'
+                            : 'not-bookable';
                 styles[`#${desk.map_id || desk.id}`] = {
                     fill:
                         status === 'active'
@@ -176,8 +176,8 @@ export class DeskMapComponent extends AsyncHandler implements OnInit {
                               DEFAULT_COLOURS[`${status}`],
                 };
                 return styles;
-            }, {})
-        )
+            }, {}),
+        ),
     );
 
     public get use_region() {
@@ -187,7 +187,7 @@ export class DeskMapComponent extends AsyncHandler implements OnInit {
     constructor(
         private _state: BookingFormService,
         private _settings: SettingsService,
-        private _org: OrganisationService
+        private _org: OrganisationService,
     ) {
         super();
     }
@@ -198,7 +198,7 @@ export class DeskMapComponent extends AsyncHandler implements OnInit {
             this._state.options.subscribe(({ zone_id }) => {
                 const level = this._org.levelWithID([zone_id]);
                 if (level) this.level = level;
-            })
+            }),
         );
     }
 

@@ -12,8 +12,8 @@ import { ViewEventDetailsComponent } from '../../app/ui/view-event-details.compo
 
 jest.mock('@placeos/ts-client');
 
-import * as client from '@placeos/ts-client';
 import { fakeAsync } from '@angular/core/testing';
+import * as client from '@placeos/ts-client';
 
 describe('DayviewTimelineComponent', () => {
     let spectator: Spectator<DayviewTimelineComponent>;
@@ -62,7 +62,7 @@ describe('DayviewTimelineComponent', () => {
         spectator.detectChanges();
         expect('dayview-space').not.toExist();
         (client.querySystems as any).mockImplementation(() =>
-            of({ data: [{}, {}] })
+            of({ data: [{}, {}] }),
         );
         (spectator.inject(OrganisationService).active_building as any).next({
             id: 'bld-1',

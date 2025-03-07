@@ -1,6 +1,4 @@
-import { Space } from '@placeos/spaces';
-import { User } from '@placeos/users';
-import { format, addMinutes, getUnixTime, addDays } from 'date-fns';
+import { addMinutes, format } from 'date-fns';
 import {
     eventStatus,
     formatRecurrence,
@@ -13,16 +11,18 @@ describe('CalendarEvent[Methods]', () => {
         it('should get correct event status', () => {
             expect(eventStatus({ resources: [] })).toBe('approved');
             expect(
-                eventStatus({ resources: [{ response_status: 'accepted' }] })
+                eventStatus({ resources: [{ response_status: 'accepted' }] }),
             ).toBe('approved');
             expect(
-                eventStatus({ resources: [{ response_status: 'tentative' }] })
+                eventStatus({ resources: [{ response_status: 'tentative' }] }),
             ).toBe('tentative');
             expect(
-                eventStatus({ resources: [{ response_status: 'needsAction' }] })
+                eventStatus({
+                    resources: [{ response_status: 'needsAction' }],
+                }),
             ).toBe('tentative');
             expect(
-                eventStatus({ resources: [{ response_status: 'blah' }] })
+                eventStatus({ resources: [{ response_status: 'blah' }] }),
             ).toBe('declined');
             expect(
                 eventStatus({
@@ -30,7 +30,7 @@ describe('CalendarEvent[Methods]', () => {
                         { response_status: 'blah' },
                         { response_status: 'tentative' },
                     ],
-                })
+                }),
             ).toBe('tentative');
         });
     });
@@ -47,7 +47,7 @@ describe('CalendarEvent[Methods]', () => {
                     pattern: 'daily',
                     end,
                     occurrences: 1,
-                } as any)
+                } as any),
             ).toBe(`Daily, until ${format(end, 'MMM do, yyyy')}`);
             expect(
                 formatRecurrence({
@@ -55,7 +55,7 @@ describe('CalendarEvent[Methods]', () => {
                     pattern: 'daily',
                     end,
                     occurrences: 1,
-                } as any)
+                } as any),
             ).toBe(`Every 2 days, until ${format(end, 'MMM do, yyyy')}`);
         });
         it('should handle weekly recurrence', () => {
@@ -66,7 +66,7 @@ describe('CalendarEvent[Methods]', () => {
                     pattern: 'weekly',
                     end,
                     occurrences: 1,
-                } as any)
+                } as any),
             ).toBe(`Weekly, until ${format(end, 'MMM do, yyyy')}`);
             expect(
                 formatRecurrence({
@@ -74,7 +74,7 @@ describe('CalendarEvent[Methods]', () => {
                     pattern: 'weekly',
                     end,
                     occurrences: 1,
-                } as any)
+                } as any),
             ).toBe(`Every 2 weeks, until ${format(end, 'MMM do, yyyy')}`);
         });
         it('should handle monthly recurrence', () => {
@@ -85,7 +85,7 @@ describe('CalendarEvent[Methods]', () => {
                     pattern: 'monthly',
                     end,
                     occurrences: 1,
-                } as any)
+                } as any),
             ).toBe(`Monthly, until ${format(end, 'MMM do, yyyy')}`);
             expect(
                 formatRecurrence({
@@ -93,7 +93,7 @@ describe('CalendarEvent[Methods]', () => {
                     pattern: 'monthly',
                     end,
                     occurrences: 1,
-                } as any)
+                } as any),
             ).toBe(`Every 2 months, until ${format(end, 'MMM do, yyyy')}`);
         });
     });
@@ -105,7 +105,9 @@ describe('CalendarEvent[Methods]', () => {
 
         it('should return the correct number of blocks', () => {
             expect(
-                getFreeTimeSlots([{ date: new Date().valueOf(), duration: 60 }])
+                getFreeTimeSlots([
+                    { date: new Date().valueOf(), duration: 60 },
+                ]),
             ).toHaveLength(2);
             expect(
                 getFreeTimeSlots([
@@ -114,7 +116,7 @@ describe('CalendarEvent[Methods]', () => {
                         date: addMinutes(new Date(), 70).valueOf(),
                         duration: 60,
                     },
-                ])
+                ]),
             ).toHaveLength(2);
             expect(
                 getFreeTimeSlots([
@@ -123,7 +125,7 @@ describe('CalendarEvent[Methods]', () => {
                         date: addMinutes(new Date(), 90).valueOf(),
                         duration: 60,
                     },
-                ])
+                ]),
             ).toHaveLength(3);
             expect(
                 getFreeTimeSlots([
@@ -136,7 +138,7 @@ describe('CalendarEvent[Methods]', () => {
                         date: addMinutes(new Date(), 160).valueOf(),
                         duration: 60,
                     },
-                ])
+                ]),
             ).toHaveLength(3);
         });
     });

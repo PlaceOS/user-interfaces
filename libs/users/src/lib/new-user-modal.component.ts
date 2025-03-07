@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter, Inject } from '@angular/core';
+import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { AsyncHandler, DialogEvent } from '@placeos/common';
 
@@ -8,34 +8,40 @@ import { generateUserForm } from './user.utilities';
 @Component({
     selector: 'new-user-modal',
     template: `
-        <header>
-            <div class="heading" mat-dialog-title>
-                {{ user?.id ? 'Edit' : 'Add' }} External Attendee
-            </div>
-            <div class="flex-1"></div>
-            <button icon mat-dialog-close>
+        <header
+            class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded border-none bg-base-200 p-2"
+        >
+            <h2 class="px-2 text-xl font-medium">
+                {{
+                    (user?.id ? 'COMMON.USER_EDIT' : 'COMMON.USER_NEW')
+                        | translate
+                }}
+            </h2>
+            <button icon matRipple mat-dialog-close *ngIf="!loading">
                 <app-icon>close</app-icon>
             </button>
         </header>
         <main
-            class="flex flex-col items-center w-full p-2"
+            class="flex w-full min-w-[24rem] flex-col items-center px-4"
             *ngIf="!loading; else load_state"
         >
             <user-form [form]="form"></user-form>
         </main>
         <footer
-            class="flex items-center justify-center w-full p-2 border-t border-base-200 space-x-2"
+            class="flex w-full items-center justify-end space-x-2 border-t border-base-200 p-2"
             *ngIf="!loading"
         >
             <button btn matRipple class="inverse" mat-dialog-close>
-                Cancel
+                {{ 'COMMON.CANCEL' | translate }}
             </button>
-            <button btn matRipple (click)="saveChanges()">Save</button>
+            <button btn matRipple (click)="saveChanges()">
+                {{ 'COMMON.SAVE' | translate }}
+            </button>
         </footer>
         <ng-template #load_state>
-            <main class="flex flex-col items-center w-full p-2 space-y-2">
+            <main class="flex w-full flex-col items-center space-y-2 p-2">
                 <mat-spinner diameter="32"></mat-spinner>
-                <p>Saving attendee...</p>
+                <p>{{ 'COMMON.USER_SAVING' | translate }}</p>
             </main>
         </ng-template>
     `,
@@ -51,6 +57,7 @@ import { generateUserForm } from './user.utilities';
             }
         `,
     ],
+    standalone: false,
 })
 export class NewUserModalComponent extends AsyncHandler implements OnInit {
     /** Emitter for user action on the modal */

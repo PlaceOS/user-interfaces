@@ -1,22 +1,29 @@
 import { Component, EventEmitter, Inject, Output } from '@angular/core';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { unique } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { requestSpacesForZone } from 'libs/spaces/src/lib/space.utilities';
 import { take } from 'rxjs/operators';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 @Component({
-    selector: 'catering-rooms-state-modal',
+    selector: 'available-rooms-state-modal',
     template: `
         <div>
-            <header class="flex items-center justify-between p-2">
-                <h3 class="p-2">Set {{ type }} Availability for Rooms</h3>
-                <button icon mat-dialog-close>
+            <header
+                class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded border-none bg-base-200 p-2"
+            >
+                <h2 class="px-2 text-xl font-medium">
+                    {{
+                        'APP.CONCIERGE.AVAILABLE_ROOMS_HEADER'
+                            | translate: { type: type }
+                    }}
+                </h2>
+                <button icon matRipple mat-dialog-close *ngIf="!loading">
                     <app-icon>close</app-icon>
                 </button>
             </header>
             <main
-                class="max-h-[65vh] overflow-auto"
+                class="max-h-[65vh] w-[32rem] overflow-auto"
                 *ngIf="!loading; else load_state"
             >
                 <table class="min-w-[32rem]">
@@ -38,14 +45,18 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
                             </td>
                             <td></td>
                             <td class="text-right text-xs">
-                                {{ (rooms | async)?.length }} Room(s)
+                                {{
+                                    'APP.CONCIERGE.AVAILABLE_ROOMS_COUNT'
+                                        | translate
+                                            : { count: (rooms | async)?.length }
+                                }}
                             </td>
                         </tr>
                     </thead>
                     <tbody>
                         <tr
                             *ngFor="let space of rooms | async"
-                            class="hover:bg-neutral:bg-base-100/5"
+                            class="hover:bg-base-200"
                             (click)="toggleRoom(space.id)"
                         >
                             <td>
@@ -57,7 +68,7 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
                             <td>{{ space.display_name || space.name }}</td>
                             <td class="text-center">
                                 <div
-                                    class="ml-auto px-3 py-1 rounded-2xl text-white w-24"
+                                    class="ml-auto w-24 rounded-full px-3 py-2 text-sm text-white"
                                     [class.bg-success]="
                                         !disabled_rooms?.includes(space.id)
                                     "
@@ -66,9 +77,10 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
                                     "
                                 >
                                     {{
-                                        !disabled_rooms?.includes(space.id)
-                                            ? 'Enabled'
-                                            : 'Disabled'
+                                        (!disabled_rooms?.includes(space.id)
+                                            ? 'COMMON.ENABLED'
+                                            : 'COMMON.DISABLED'
+                                        ) | translate
                                     }}
                                 </div>
                             </td>
@@ -77,22 +89,27 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
                 </table>
             </main>
             <footer
-                class="flex items-center p-2 justify-end space-x-2 border-t border-base-200"
+                class="flex items-center justify-end space-x-4 border-t border-base-200 px-4 py-2"
             >
                 <button btn matRipple (click)="enableSelected()">
-                    Enable Selected
+                    {{ 'APP.CONCIERGE.AVAILABLE_ROOMS_ENABLE' | translate }}
                 </button>
                 <button btn matRipple (click)="disableSelected()">
-                    Disable Selected
+                    {{ 'APP.CONCIERGE.AVAILABLE_ROOMS_DISABLE' | translate }}
                 </button>
             </footer>
         </div>
         <ng-template #load_state>
             <main
-                class="w-64 h-48 p-8 flex flex-col items-center justify-center space-y-2"
+                class="flex h-48 w-64 flex-col items-center justify-center space-y-2 p-8"
             >
                 <mat-spinner diameter="32"></mat-spinner>
-                <p>Saving disabled room list...</p>
+                <p>
+                    {{
+                        'APP.CONCIERGE.AVAILABLE_ROOMS_SAVING'
+                            | translate: { type: type }
+                    }}
+                </p>
             </main>
         </ng-template>
     `,
@@ -103,6 +120,7 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
             }
         `,
     ],
+    standalone: false,
 })
 export class AvailableRoomsStateModalComponent {
     @Output() public change = new EventEmitter<string[]>();
@@ -114,7 +132,7 @@ export class AvailableRoomsStateModalComponent {
 
     constructor(
         @Inject(MAT_DIALOG_DATA) private _data: any,
-        private _org: OrganisationService
+        private _org: OrganisationService,
     ) {}
 
     public async toggleRoom(id: string) {

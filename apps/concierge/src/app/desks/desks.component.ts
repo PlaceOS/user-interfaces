@@ -8,7 +8,7 @@ import { DesksStateService } from './desks-state.service';
     template: `
         <sidebar></sidebar>
         <main
-            class="flex-1 relative w-1/2 flex flex-col bg-base-100 overflow-hidden"
+            class="relative flex w-1/2 flex-1 flex-col overflow-hidden bg-base-100"
         >
             <desks-topbar class="w-full"></desks-topbar>
             <div class="dark">
@@ -39,7 +39,7 @@ import { DesksStateService } from './desks-state.service';
                     </a>
                 </nav>
             </div>
-            <div class="flex-1 h-1/2 w-full relative overflow-auto">
+            <div class="relative h-1/2 w-full flex-1 overflow-auto">
                 <router-outlet></router-outlet>
             </div>
             <mat-progress-bar
@@ -58,12 +58,16 @@ import { DesksStateService } from './desks-state.service';
             }
         `,
     ],
+    standalone: false,
 })
 export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
     public readonly loading = this._state.loading;
     public path: string;
 
-    constructor(private _state: DesksStateService, private _router: Router) {
+    constructor(
+        private _state: DesksStateService,
+        private _router: Router,
+    ) {
         super();
     }
 
@@ -76,7 +80,7 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
                     const url_parts = this._router.url?.split('/') || [''];
                     this.path = url_parts[parts.length - 1].split('?')[0];
                 }
-            })
+            }),
         );
         const parts = this._router.url?.split('/') || [''];
         this.path = parts[parts.length - 1].split('?')[0];

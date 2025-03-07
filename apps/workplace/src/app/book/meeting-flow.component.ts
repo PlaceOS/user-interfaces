@@ -6,7 +6,7 @@ import { EventFormService } from '@placeos/events';
 @Component({
     selector: 'placeos-book-meeting-flow',
     template: `
-        <div class="bg-base-100 h-full w-full z-50" [ngSwitch]="view">
+        <div class="z-50 h-full w-full bg-base-100" [ngSwitch]="view">
             <meeting-flow-success *ngSwitchCase="'success'">
             </meeting-flow-success>
             <meeting-flow-confirm *ngSwitchCase="'confirm'">
@@ -22,6 +22,7 @@ import { EventFormService } from '@placeos/events';
             }
         `,
     ],
+    standalone: false,
 })
 export class BookMeetingFlowComponent extends AsyncHandler implements OnInit {
     public get view() {
@@ -33,26 +34,29 @@ export class BookMeetingFlowComponent extends AsyncHandler implements OnInit {
 
     constructor(
         private _state: EventFormService,
-        private _route: ActivatedRoute
+        private _route: ActivatedRoute,
     ) {
         super();
     }
 
     public ngOnInit() {
         this._state.loadForm();
-        this._state.listenForStatusChanges();
+        this.subscription(
+            'state:rooms',
+            this._state.available_spaces.subscribe(),
+        );
         this.subscription(
             'route.params',
             this._route.paramMap.subscribe((param) => {
                 if (param.has('step'))
                     this._state.setView(param.get('step') as any);
-            })
+            }),
         );
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((param) => {
                 if (param.has('success')) this._state.setView('success');
-            })
+            }),
         );
     }
 }

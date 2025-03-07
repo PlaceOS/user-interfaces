@@ -7,52 +7,50 @@ import {
     getInvalidFields,
     notifyError,
 } from '@placeos/common';
-import { Region, OrganisationService } from '@placeos/organisation';
+import { OrganisationService, Region } from '@placeos/organisation';
 import { addZone, authority, updateZone } from '@placeos/ts-client';
 
 @Component({
     selector: 'region-modal',
     template: `
-        <header>
-            <h2>{{ form.value.id ? 'Edit' : 'Add' }} Region</h2>
-            <button btn icon mat-dialog-close *ngIf="!loading">
-                <app-icon>close</app-icon>
-            </button>
-        </header>
-        <main
-            class="max-h-[65vh] overflow-y-auto overflow-x-hidden p-4"
-            *ngIf="!loading; else load_state"
+        <fullscreen-modal-shell
+            [heading]="
+                (form.value.id
+                    ? 'APP.CONCIERGE.REGIONS_EDIT'
+                    : 'APP.CONCIERGE.REGIONS_NEW'
+                ) | translate
+            "
+            [loading]="
+                (loading | async)
+                    ? ('APP.CONCIERGE.REGION_SAVING' | translate)
+                    : ''
+            "
+            (confirm)="save()"
         >
-            <form
-                system
-                class="flex flex-col w-[36rem] max-w-[calc(100vw-4rem)]"
-                *ngIf="form"
-                [formGroup]="form"
-            >
+            <form [formGroup]="form">
                 <div class="flex flex-col" *ngIf="form.controls.display_name">
-                    <label for="display-name" i18n="@@displayNameLabel">
-                        Display Name:
+                    <label for="display-name">
+                        {{ 'FORM.DISPLAY_NAME' | translate }}
                     </label>
                     <mat-form-field appearance="outline">
                         <input
                             matInput
                             name="display-name"
-                            placeholder="Display Name"
-                            i18n-placeholder="@@displayNamePlaceholder"
+                            [placeholder]="'FORM.DISPLAY_NAME' | translate"
                             formControlName="display_name"
                         />
                     </mat-form-field>
                 </div>
                 <div class="flex flex-col">
-                    <label for="display-name" i18n="@@displayNameLabel">
-                        Timezone:
+                    <label for="display-name">
+                        {{ 'COMMON.TIMEZONE' | translate }}
                     </label>
                     <mat-form-field appearance="outline">
                         <app-icon matPrefix class="text-2xl">search</app-icon>
                         <input
                             matInput
                             formControlName="timezone"
-                            placeholder="Building timezone"
+                            [placeholder]="'COMMON.TIMEZONE' | translate"
                             [matAutocomplete]="auto"
                         />
                     </mat-form-field>
@@ -63,26 +61,15 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
                             >{{ tz }}</mat-option
                         >
                         <mat-option *ngIf="!timezones.length" [disabled]="true">
-                            No matching timezones
+                            {{ 'COMMON.TIMEZONE_EMPTY' | translate }}
                         </mat-option>
                     </mat-autocomplete>
                 </div>
             </form>
-        </main>
-        <footer
-            class="p-2 flex justify-end border-t border-base-200"
-            *ngIf="!loading"
-        >
-            <button btn class="w-32" (click)="save()">Save</button>
-        </footer>
-        <ng-template #load_state>
-            <div class="flex flex-col items-center justify-center w-64 h-64">
-                <mat-spinner diameter="32"></mat-spinner>
-                <p class="mt-4">Saving region...</p>
-            </div>
-        </ng-template>
+        </fullscreen-modal-shell>
     `,
     styles: [``],
+    standalone: false,
 })
 export class RegionModalComponent extends AsyncHandler {
     public loading = false;
@@ -97,7 +84,7 @@ export class RegionModalComponent extends AsyncHandler {
             Validators.required,
         ]),
         timezone: new FormControl(
-            Intl?.DateTimeFormat()?.resolvedOptions()?.timeZone || ''
+            Intl?.DateTimeFormat()?.resolvedOptions()?.timeZone || '',
         ),
         parent_id: new FormControl(this._org.organisation.id),
     });
@@ -105,7 +92,7 @@ export class RegionModalComponent extends AsyncHandler {
     constructor(
         private _org: OrganisationService,
         @Inject(MAT_DIALOG_DATA) private _data: Region | undefined,
-        private _dialog_ref: MatDialogRef<RegionModalComponent>
+        private _dialog_ref: MatDialogRef<RegionModalComponent>,
     ) {
         super();
     }
@@ -114,12 +101,7 @@ export class RegionModalComponent extends AsyncHandler {
         this._updateTimezoneList();
         this.subscription(
             'tz-change',
-            this.form.valueChanges.subscribe(
-                ({ timezone }) =>
-                    (this.filtered_timezones = this.timezones.filter((_) =>
-                        _.toLowerCase().includes(timezone.toLowerCase())
-                    ))
-            )
+            this.form.valueChanges.subscribe(() => this._updateTimezoneList()),
         );
     }
 
@@ -127,26 +109,27 @@ export class RegionModalComponent extends AsyncHandler {
         if (!this.form.valid) {
             return notifyError(
                 `Some form fields are invalid. [${getInvalidFields(
-                    this.form
-                ).join(', ')}]`
+                    this.form,
+                ).join(', ')}]`,
             );
         }
         const data: any = this.form.getRawValue();
         data.tags = ['region'];
         this.loading = true;
-        const resp = await (data.id
-            ? updateZone(data.id, {
-                  ...data,
-                  name: `REGION ${authority().description} ${
-                      data.display_name
-                  }`,
-              })
-            : addZone({
-                  ...data,
-                  name: `REGION ${authority().description} ${
-                      data.display_name
-                  }`,
-              })
+        const resp = await (
+            data.id
+                ? updateZone(data.id, {
+                      ...data,
+                      name: `REGION ${authority().description} ${
+                          data.display_name
+                      }`,
+                  })
+                : addZone({
+                      ...data,
+                      name: `REGION ${authority().description} ${
+                          data.display_name
+                      }`,
+                  })
         )
             .toPromise()
             .catch();
@@ -158,7 +141,7 @@ export class RegionModalComponent extends AsyncHandler {
         const timezone = this.form?.value?.timezone || '';
         this.timezones = TIMEZONES_IANA;
         this.filtered_timezones = this.timezones.filter((_) =>
-            _.toLowerCase().includes(timezone.toLowerCase())
+            _.toLowerCase().includes(timezone.toLowerCase()),
         );
     }
 }

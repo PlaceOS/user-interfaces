@@ -1,29 +1,21 @@
-
-const general = {
-}
-
+const general = {};
 
 const app = {
     name: 'Bookings',
     title: 'PlaceOS',
     description: 'Bookings UI',
     short_name: 'PlaceOS',
-    logo: {
-        type: 'img',
-        src: 'assets/logo-light.svg'
-    },
-    logo_dark: {
-        type: 'img',
-        src: 'assets/logo-dark.svg'
-    },
+    logo_light: 'assets/logo-light.svg',
+    logo_dark: 'assets/logo-dark.svg',
     general,
-    prevent_space_init: true
-}
+    prevent_space_init: true,
+    allow_dark_mode: false,
+};
 
 /**
  * ROOT SETTIGNS
  */
-export const DEFAULT_SETTINGS = {
+export const DEFAULT_SETTINGS: any = {
     debug: true,
     composer: {
         domain: '',
@@ -33,5 +25,6 @@ export const DEFAULT_SETTINGS = {
         use_domain: false,
         local_login: false,
     },
-    app
+    dont_load_metadata: true,
+    app,
 };

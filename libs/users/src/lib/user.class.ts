@@ -1,8 +1,8 @@
-import { randomString } from 'libs/common/src/lib/general';
-import { MapLocation } from './location.class';
-import { USER_DOMAIN } from './user.utilities';
+import { i18n } from '@placeos/common';
+import { format } from 'date-fns';
 import { Booking } from 'libs/bookings/src/lib/booking.class';
-import { format, isSameDay } from 'date-fns';
+import { randomString } from 'libs/common/src/lib/general';
+import { USER_DOMAIN } from './user.utilities';
 
 export interface Attachment {
     id?: string;
@@ -125,8 +125,8 @@ export class GuestUser extends User {
         this.status = data.booking?.approved
             ? 'approved'
             : data.booking?.rejected
-            ? 'declined'
-            : data.extension_data?.status || data.status || 'pending';
+              ? 'declined'
+              : data.extension_data?.status || data.status || 'pending';
         this.booking = data.booking;
         this.extension_data.event = (data as any).event_metadata;
     }
@@ -135,6 +135,10 @@ export class GuestUser extends User {
 export interface WorktimePreference {
     /* Index of the day of the week. `0` being Sunday */
     day_of_week: 0 | 1 | 2 | 3 | 4 | 5 | 6;
+    blocks: WorktimeBlock[];
+}
+
+export interface WorktimeBlock {
     /* Start time of work hours. e.g. `7.5` being 7:30AM */
     start_time: number;
     /* End time of work hours. e.g. `18.5` being 6:30PM */
@@ -159,42 +163,72 @@ export class StaffUser extends User {
         return this.location_time(Date.now());
     }
 
-    public location_time(datetime: number) {
+    public work_preference(datetime: number) {
         if (!datetime) datetime = Date.now();
         const date = new Date(datetime);
         const day = date.getDay();
         const date_string = format(date, 'yyyy-MM-dd');
-        return (
-            this.work_overrides[date_string]?.location ||
-            this.work_preferences.find((_) => _.day_of_week === day)
-                ?.location ||
-            'wfo'
-        );
+        if (this.work_overrides[date_string]?.blocks?.length) {
+            for (const block of this.work_overrides[date_string].blocks) {
+                const start = block.start_time;
+                const end = block.end_time;
+                if (
+                    start <= date.getHours() + date.getMinutes() / 60 &&
+                    end >= date.getHours() + date.getMinutes() / 60
+                ) {
+                    return block;
+                }
+            }
+        }
+        for (const pref of this.work_preferences) {
+            if (pref.day_of_week === day && pref.blocks?.length) {
+                for (const block of pref.blocks) {
+                    if (
+                        block.start_time <=
+                            date.getHours() + date.getMinutes() / 60 &&
+                        block.end_time >=
+                            date.getHours() + date.getMinutes() / 60
+                    ) {
+                        return block;
+                    }
+                }
+            }
+        }
+    }
+
+    public location_time(datetime: number = Date.now()) {
+        return this.work_preference(datetime)?.location || 'wfo';
     }
 
     public get location_name() {
-        return this.location_name_time(Date.now());
+        return this.location_name_time();
     }
 
-    public location_name_time(datetime: number) {
+    public location_name_time(datetime: number = Date.now()) {
         if (!datetime) datetime = Date.now();
         const location = this.location_time(datetime);
         const in_hours = this.in_hours_time(datetime);
         if (location.includes('w') && !in_hours) {
-            return 'Outside working hours';
+            return i18n('COMMON.WORK_HOURS_OUTSIDE');
         }
         switch (location) {
             case 'wfh':
-                return 'Working from Home';
+                return i18n('COMMON.WORK_HOURS_HOME');
             case 'wfo':
-                return 'Working from Office';
+                return i18n('COMMON.WORK_HOURS_OFFICE');
             case 'ooo':
-                return 'Out of Office';
+                return i18n('COMMON.WORK_HOURS_OUT');
             case 'aol':
-                return 'Away on Leave';
+                return i18n('COMMON.WORK_HOURS_LEAVE');
             default:
-                return 'Unknown';
+                return i18n('COMMON.UNKNOWN');
         }
+    }
+
+    public outsideHours(datetime: number = Date.now()) {
+        const location = this.location_time(datetime);
+        const in_hours = this.in_hours_time(datetime);
+        return location.includes('w') && !in_hours;
     }
 
     public get in_hours() {
@@ -210,19 +244,9 @@ export class StaffUser extends User {
         return 'event_busy';
     }
 
-    public in_hours_time(datetime: number) {
-        if (!datetime) datetime = Date.now();
-        const date = new Date(datetime);
-        const day = date.getDay();
-        const date_string = format(date, 'yyyy-MM-dd');
-        const pref =
-            this.work_overrides[date_string] ||
-            this.work_preferences.find((_) => _.day_of_week === day);
-        if (!pref) return false;
-        const start = pref.start_time;
-        const end = pref.end_time;
-        const now = date.getHours() + date.getMinutes() / 60;
-        return start <= now && now < end;
+    public in_hours_time(datetime: number = Date.now()) {
+        const block = this.work_preference(datetime);
+        return !!block;
     }
 
     constructor(data: Partial<StaffUser> = {}) {

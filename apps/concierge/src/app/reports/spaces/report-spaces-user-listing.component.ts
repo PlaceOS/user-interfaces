@@ -1,7 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { downloadFile, jsonToCsv } from '@placeos/common';
-import { User } from '@placeos/users';
-import { formatDuration } from 'date-fns';
+import { downloadFile, formatDuration, jsonToCsv } from '@placeos/common';
 import { combineLatest } from 'rxjs';
 import { debounceTime, map, shareReplay, take } from 'rxjs/operators';
 import { ReportsStateService } from '../reports-state.service';
@@ -10,52 +8,79 @@ import { ReportsStateService } from '../reports-state.service';
     selector: 'report-spaces-user-listing',
     template: `
         <div
-            class="m-4 rounded bg-base-100 border border-base-200 overflow-hidden"
+            class="m-4 overflow-hidden rounded border border-base-200 bg-base-100"
         >
-            <div class="border-b border-base-200 px-4 py-2 flex items-center">
-                <h3 class="font-bold text-xl flex-1">Meeting Organisers</h3>
-                <button icon matRipple (click)="download()" *ngIf="!print">
+            <div class="flex items-center border-b border-base-200 px-4 py-2">
+                <h3 class="flex-1 text-xl font-bold">
+                    {{ 'APP.CONCIERGE.REPORTS_ROOMS_HOST_HEADER' | translate }}
+                </h3>
+                <button
+                    icon
+                    matRipple
+                    [matTooltip]="
+                        'APP.CONCIERGE.REPORTS_DOWNLOAD_TABLE' | translate
+                    "
+                    (click)="download()"
+                    *ngIf="!print"
+                >
                     <app-icon>download</app-icon>
                 </button>
             </div>
             <simple-table
-                class="w-full block text-sm"
+                class="block w-full text-sm"
                 [data]="user_list"
                 [columns]="[
-                    { key: 'name', name: 'Name' },
-                    { key: 'booking_count', name: 'Bookings' },
-                    { key: 'avg_attendees', name: 'Avg. Invitees per Booking' },
-                    { key: 'total_time', name: 'Total Booked Time' },
-                    { key: 'no_shows', name: 'No Shows' }
+                    { key: 'name', name: 'FORM.NAME' | translate },
+                    {
+                        key: 'booking_count',
+                        name: 'RESOURCE.BOOKINGS' | translate,
+                    },
+                    {
+                        key: 'avg_attendees',
+                        name:
+                            'APP.CONCIERGE.REPORTS_AVG_BOOKING_INVITES'
+                            | translate,
+                    },
+                    {
+                        key: 'total_time',
+                        name: 'APP.CONCIERGE.REPORTS_TOTAL_TIME' | translate,
+                    },
+                    {
+                        key: 'no_shows',
+                        name: 'APP.CONCIERGE.REPORTS_NO_SHOWS' | translate,
+                    },
                 ]"
                 [sortable]="true"
                 [page_size]="print ? 0 : 10"
-                empty_message="No events for selected period"
+                [empty_message]="
+                    'APP.CONCIERGE.REPORTS_DAILY_EMPTY' | translate
+                "
             ></simple-table>
         </div>
     `,
     styles: [``],
+    standalone: false,
 })
 export class ReportSpacesUserListingComponent {
-    @Input() public print: boolean = false;
+    @Input() public print = false;
 
     public readonly user_list = combineLatest([this._reports.stats]).pipe(
         debounceTime(300),
         map(([stats]) => {
-            let list = [];
+            const list = [];
             for (const booking of stats.events) {
                 const host = booking.attendees?.find(
                     (_) =>
                         _.email === booking.extension_data?.host_override ||
-                        _.email === booking.host
+                        _.email === booking.host,
                 );
                 if (!host) continue;
                 const capacity = Math.max(
                     booking.resources.reduce((c, s) => c + s.capacity, 0) || 1,
-                    1
+                    1,
                 );
                 let details = list.find(
-                    (_) => _.id?.toLowerCase() === host.email.toLowerCase()
+                    (_) => _.id?.toLowerCase() === host.email.toLowerCase(),
                 );
                 if (!details) {
                     details = {
@@ -92,7 +117,7 @@ export class ReportSpacesUserListingComponent {
             }
             return list;
         }),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     public readonly download = async () => {

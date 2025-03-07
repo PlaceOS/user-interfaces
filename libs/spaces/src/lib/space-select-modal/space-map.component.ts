@@ -1,19 +1,19 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { AsyncHandler, SettingsService, unique } from '@placeos/common';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { AsyncHandler, SettingsService } from '@placeos/common';
 import { BehaviorSubject, combineLatest } from 'rxjs';
-import { debounceTime, map, tap } from 'rxjs/operators';
+import { debounceTime, map } from 'rxjs/operators';
 
+import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
 import { DEFAULT_COLOURS } from 'libs/explore/src/lib/explore-spaces.service';
-import { EventFormService } from 'libs/events/src/lib/event-form.service';
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { BuildingLevel } from 'libs/organisation/src/lib/level.class';
-import { SpaceLocationPinComponent } from './space-location-pin.component';
+import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { Space } from '../space.class';
+import { SpaceLocationPinComponent } from './space-location-pin.component';
 
 @Component({
     selector: `space-map`,
     template: `
-        <div class="bg-base-100 p-2 border-b border-base-200 w-full">
+        <div class="w-full border-b border-base-200 bg-base-100 p-2">
             <mat-form-field
                 appearance="outline"
                 class="w-full"
@@ -24,15 +24,14 @@ import { Space } from '../space.class';
                     [(ngModel)]="level"
                     (ngModelChange)="setOptions({ zone_ids: [$event.id] })"
                     [ngModelOptions]="{ standalone: true }"
-                    placeholder="Any Level"
-                    i18n-placeholder
+                    [placeholder]="'CALENDAR_EVENT.SPACE_LEVEL_ANY' | translate"
                 >
                     <mat-option
                         *ngFor="let lvl of levels | async"
                         [value]="lvl"
                     >
                         <div class="flex flex-col-reverse">
-                            <div class="opacity-30 text-xs" *ngIf="use_region">
+                            <div class="text-xs opacity-30" *ngIf="use_region">
                                 {{ (lvl.parent_id | building)?.display_name }}
                                 <span class="opacity-0"> - </span>
                             </div>
@@ -44,7 +43,7 @@ import { Space } from '../space.class';
                 </mat-select>
             </mat-form-field>
         </div>
-        <div class="relative flex-1 w-full">
+        <div class="relative w-full flex-1">
             <interactive-map
                 [src]="map_url"
                 [(zoom)]="zoom"
@@ -70,11 +69,12 @@ import { Space } from '../space.class';
             }
         `,
     ],
+    standalone: false,
 })
-export class SpaceSelectMapComponent extends AsyncHandler {
+export class SpaceSelectMapComponent extends AsyncHandler implements OnInit {
     @Input() public selected: string[] = [];
     @Input() public active: string;
-    @Input() public is_displayed: boolean = false;
+    @Input() public is_displayed = false;
     @Output() public onSelect = new EventEmitter<Space>();
 
     public zoom = 1;
@@ -101,14 +101,14 @@ export class SpaceSelectMapComponent extends AsyncHandler {
                 ? this._org.levelsForRegion(region)
                 : this._org.levelsForBuilding(bld);
             const viewable_levels = level_list.filter(
-                (lvl) => !lvl.tags.includes('parking')
+                (lvl) => !lvl.tags.includes('parking'),
             );
             return viewable_levels.sort(
                 (a, b) =>
                     a.parent_id.localeCompare(b.parent_id) ||
-                    (a.display_name || '').localeCompare(b.display_name || '')
+                    (a.display_name || '').localeCompare(b.display_name || ''),
             );
-        })
+        }),
     );
 
     public readonly setOptions = (o) => this._event_form.setOptions(o);
@@ -127,8 +127,8 @@ export class SpaceSelectMapComponent extends AsyncHandler {
                     active: this.active === space.id,
                     selected: this.selected.includes(space.id),
                 },
-            }))
-        )
+            })),
+        ),
     );
 
     public readonly actions = this._event_form.available_spaces.pipe(
@@ -137,12 +137,12 @@ export class SpaceSelectMapComponent extends AsyncHandler {
                 id: space.map_id,
                 action: ['touchend', 'mouseup'],
                 callback: this._seletedSpace(space),
-            }))
-        )
+            })),
+        ),
     );
 
     public readonly styles = combineLatest([
-        this._event_form.spaces,
+        this._event_form.spaces$,
         this._event_form.available_spaces,
     ]).pipe(
         map(([spaces, free_spaces]) =>
@@ -158,8 +158,8 @@ export class SpaceSelectMapComponent extends AsyncHandler {
                         DEFAULT_COLOURS[`${status}`],
                 };
                 return styles;
-            }, {})
-        )
+            }, {}),
+        ),
     );
 
     public get use_region() {
@@ -169,7 +169,7 @@ export class SpaceSelectMapComponent extends AsyncHandler {
     constructor(
         private _event_form: EventFormService,
         private _org: OrganisationService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         super();
     }
@@ -177,15 +177,14 @@ export class SpaceSelectMapComponent extends AsyncHandler {
     public ngOnInit() {
         this.subscription(
             'levels_update',
-            this._event_form.options.subscribe(({ zone_ids }) => {
-                const level = this._org.levelWithID(zone_ids);
+            this._event_form.options$.subscribe(({ zones }) => {
+                const level = this._org.levelWithID(zones);
                 if (level) this.level = level;
-            })
+            }),
         );
     }
 
     public setLevel(level: BuildingLevel) {
-        console.log('Set Level', level);
         this.setOptions({ zone_ids: [level?.id] });
         const bld = this._org.buildings.find((_) => _.id === level?.parent_id);
         if (bld) {

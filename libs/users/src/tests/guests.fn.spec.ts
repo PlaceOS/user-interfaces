@@ -1,18 +1,18 @@
+import { of } from 'rxjs';
 import {
-    searchGuests,
+    listGuestMeetings,
     queryGuests,
+    removeGuest,
+    searchGuests,
     showGuest,
     updateGuest,
-    removeGuest,
-    listGuestMeetings,
 } from '../lib/guests.fn';
-import { of } from 'rxjs';
 
 jest.mock('@placeos/ts-client');
 
+import { CalendarEvent } from '@placeos/events';
 import * as ts_client from '@placeos/ts-client';
 import { GuestUser } from '../lib/user.class';
-import { CalendarEvent } from '@placeos/events';
 
 describe('[Guest API]', () => {
     describe('searchGuests', () => {
@@ -50,7 +50,7 @@ describe('[Guest API]', () => {
             }).toPromise();
             expect(list).toBeInstanceOf(Array);
             expect(spy).toHaveBeenCalledWith(
-                '/api/staff/v1/guests?period_start=0&period_end=2'
+                '/api/staff/v1/guests?period_start=0&period_end=2',
             );
         });
 
@@ -75,7 +75,7 @@ describe('[Guest API]', () => {
                 system_ids: 'sys-123',
             }).toPromise();
             expect(spy).toHaveBeenCalledWith(
-                '/api/staff/v1/guests?period_start=0&period_end=2&zone_ids=zone-123&system_ids=sys-123'
+                '/api/staff/v1/guests?period_start=0&period_end=2&zone_ids=zone-123&system_ids=sys-123',
             );
         });
     });
@@ -123,7 +123,7 @@ describe('[Guest API]', () => {
             const list = await listGuestMeetings('jim').toPromise();
             expect(list[0]).toBeInstanceOf(CalendarEvent);
             expect(spy).toHaveBeenCalledWith(
-                '/api/staff/v1/guests/jim/meetings'
+                '/api/staff/v1/guests/jim/meetings',
             );
         });
     });

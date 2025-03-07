@@ -1,23 +1,24 @@
 import { Injectable, Optional } from '@angular/core';
 import { Title } from '@angular/platform-browser';
-import { BehaviorSubject, Observable } from 'rxjs';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
 import { format, isSameDay } from 'date-fns';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { first } from 'rxjs/operators';
 
-import { log, getItemWithKeys, setAppName } from './general';
+import { AsyncHandler } from './async-handler.class';
+import { getItemWithKeys, log, setAppName } from './general';
 import { DEFAULT_SETTINGS } from './settings';
 import { HashMap } from './types';
-import { AsyncHandler } from './async-handler.class';
 
-import { VERSION } from './version';
-import { currentUser, current_user } from './user-state';
 import { GoogleAnalyticsService } from './google-analytics.service';
+import { currentUser, current_user } from './user-state';
+import { VERSION } from './version';
 
 declare global {
     interface Window {
         debug: boolean;
         application: HashMap;
+        setting: (string) => any;
     }
 }
 
@@ -44,6 +45,12 @@ export class SettingsService extends AsyncHandler {
     public set overrides(value: HashMap[]) {
         this._overrides.next(value);
         this._applyCssVariables();
+    }
+
+    public get theme() {
+        const allow_dark_mode = this.get('app.allow_dark_mode');
+        const theme = allow_dark_mode ? this.get('theme') : 'light';
+        return theme;
     }
 
     /** Get observable for key */
@@ -76,7 +83,7 @@ export class SettingsService extends AsyncHandler {
     }
     public set title(value: string) {
         this._title.setTitle(
-            `${value} | ${this.get('app.name') || this._app_name}`
+            `${value} | ${this.get('app.name') || this._app_name}`,
         );
         const tracking_id = this.get('app.analytics.tracking_id');
         if (!tracking_id) return;
@@ -85,7 +92,7 @@ export class SettingsService extends AsyncHandler {
 
     constructor(
         private _title: Title,
-        @Optional() private _analytics: GoogleAnalyticsService
+        @Optional() private _analytics: GoogleAnalyticsService,
     ) {
         super();
         const now = new Date();
@@ -114,11 +121,8 @@ export class SettingsService extends AsyncHandler {
         if (window.debug) {
             if (!window.application) window.application = {};
             window.application.settings = this;
+            window.setting = (key) => this.get(key);
         }
-        this.subscription(
-            'user_settings',
-            this._user_settings.subscribe((_) => this._applyUserSettings(_))
-        );
         const user = await current_user.pipe(first((_) => !!_)).toPromise();
         const data = await showMetadata(user.id, 'settings').toPromise();
         this._user_settings.next(data.details || {});
@@ -163,14 +167,10 @@ export class SettingsService extends AsyncHandler {
         this._pending_settings[name] = value;
         if (name === 'dark_mode') this.setTheme(value ? 'dark' : '');
         if (name === 'font_size') this._setFontSize();
-        this.timeout('save_settings', () => this._savePendingChanges(), 5000);
+        this.timeout('save_settings', () => this._savePendingChanges(), 2400);
     }
 
-    public overrideCssVariable(
-        key: string,
-        value: string,
-        important: boolean = false
-    ) {
+    public overrideCssVariable(key: string, value: string, important = false) {
         let element = document.getElementById(`css-var-overrides+${key}`);
         if (!element) {
             element = document.createElement('style');
@@ -183,7 +183,7 @@ export class SettingsService extends AsyncHandler {
     }
 
     public setTheme(theme: string) {
-        const current_theme = this.get('theme');
+        const current_theme = this.theme;
         if (current_theme === theme) return;
         this.saveUserSetting('theme', theme);
         this._applyTheme();
@@ -223,18 +223,14 @@ export class SettingsService extends AsyncHandler {
         this._pending_settings = {};
     }
 
-    private async _applyUserSettings(settings: HashMap) {
-        if (settings.font_size) {
-        }
-    }
-
     private _setFontSize() {
         if (!this.get('font_size')) return;
         this.overrideCssVariable('font-size', `${this.get('font_size')}px`);
     }
 
     private _applyTheme() {
-        const theme = this.get('theme');
+        const allow_dark_mode = this.get('app.allow_dark_mode');
+        const theme = allow_dark_mode ? this.theme : 'light';
         const class_list = document.body.classList.value.split(' ');
         for (const item of class_list) {
             if (item.startsWith('theme-')) {
@@ -249,7 +245,7 @@ export class SettingsService extends AsyncHandler {
     }
 
     private _initDarkMode() {
-        if (this.get('theme') || true) return;
+        if (this.theme || true) return;
         const os_dark = window?.matchMedia
             ? window?.matchMedia('(prefers-color-scheme: dark)')?.matches
             : false;

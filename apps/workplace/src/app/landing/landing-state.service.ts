@@ -18,10 +18,10 @@ import {
     map,
     shareReplay,
     switchMap,
-    take,
     tap,
 } from 'rxjs/operators';
 
+import { CalendarService } from '@placeos/calendar';
 import {
     AsyncHandler,
     BookingRuleset,
@@ -31,12 +31,11 @@ import {
     SettingsService,
     unique,
 } from '@placeos/common';
+import { BuildingLevel, OrganisationService } from '@placeos/organisation';
 import { requestSpacesForZone } from '@placeos/spaces';
 import { searchStaff, StaffUser, User } from '@placeos/users';
-import { BuildingLevel, OrganisationService } from '@placeos/organisation';
-import { CalendarService } from '@placeos/calendar';
-import { ScheduleStateService } from '../new-schedule/schedule-state.service';
 import { isSameDay } from 'date-fns';
+import { ScheduleStateService } from '../new-schedule/schedule-state.service';
 
 export interface LandingOptions {
     search?: string;
@@ -62,18 +61,18 @@ export class LandingStateService extends AsyncHandler {
             filter((bld) => !!bld),
             switchMap((bld) =>
                 showMetadata(bld.id, `room_booking_rules`).pipe(
-                    catchError(() => of({ details: [] }))
-                )
+                    catchError(() => of({ details: [] })),
+                ),
             ),
             map((_) => (_?.details instanceof Array ? _.details : [])),
-            shareReplay(1)
+            shareReplay(1),
         );
 
     private _space_list = this._org.active_building.pipe(
         filter((_) => !!_),
         switchMap((bld) => requestSpacesForZone(bld.id)),
         map((_) => _.filter((s) => s.bookable)),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     private _filtered_spaces = combineLatest([
@@ -89,9 +88,9 @@ export class LandingStateService extends AsyncHandler {
                     host: currentUser(),
                     resource: null,
                 },
-                rules
-            )
-        )
+                rules,
+            ),
+        ),
     );
 
     private _space_statuses = this._filtered_spaces.pipe(
@@ -100,15 +99,15 @@ export class LandingStateService extends AsyncHandler {
             combineLatest(
                 (list || []).map((_) => {
                     const binding = getModule(_.id, 'Bookings').binding(
-                        'status'
+                        'status',
                     );
                     const obs = binding.listen();
                     this.subscription(`bind:${_.id}`, binding.bind());
                     return obs;
-                })
-            )
+                }),
+            ),
         ),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     public readonly free_space_list = combineLatest([
@@ -118,15 +117,17 @@ export class LandingStateService extends AsyncHandler {
         map(([list, statuses]) =>
             (list || [])
                 .filter((_, idx) => statuses[idx] === 'free')
-                .sort((a, b) => a.capacity - b.capacity)
+                .sort((a, b) => a.capacity - b.capacity),
         ),
-        shareReplay(1)
+        shareReplay(1),
     );
     /**  */
     public readonly upcoming_events = this._schedule.filtered_bookings.pipe(
         map((_) =>
-            _.filter((i) => i.state !== 'done' && isSameDay(i.date, Date.now()))
-        )
+            _.filter(
+                (i) => i.state !== 'done' && isSameDay(i.date, Date.now()),
+            ),
+        ),
     );
     /**  */
     public contacts = this._contacts.asObservable();
@@ -141,7 +142,7 @@ export class LandingStateService extends AsyncHandler {
         this._settings.get('app.basic_user_search') ||
         this._settings.get('app.colleagues_require_auth') !== false
             ? queryUsers({ q, authority_id: authority()?.id }).pipe(
-                  map(({ data }) => data.map((_) => new StaffUser(_)))
+                  map(({ data }) => data.map((_) => new StaffUser(_ as any))),
               )
             : searchStaff(q);
 
@@ -154,7 +155,7 @@ export class LandingStateService extends AsyncHandler {
                 : of([]);
         }),
         tap(() => this._loading.next('')),
-        shareReplay(1)
+        shareReplay(1),
     );
     /**  */
     public level_occupancy = this._level_occupancy.asObservable();
@@ -163,7 +164,7 @@ export class LandingStateService extends AsyncHandler {
         private _calendar: CalendarService,
         private _schedule: ScheduleStateService,
         private _org: OrganisationService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         super();
         this.init();
@@ -179,11 +180,11 @@ export class LandingStateService extends AsyncHandler {
                 .subscribe(() => {
                     this.updateBuildingMetadata();
                     this.updateOccupancy({});
-                })
+                }),
         );
-        let sys_id = this._org.binding('area_management');
-        if (!sys_id) return;
-        const binding = getModule(sys_id, 'AreaManagement').binding('overview');
+        const mod = this._org.module('area_management', 'AreaManagement');
+        if (!mod) return;
+        const binding = mod.binding('overview');
         binding.listen().subscribe((d) => this.updateOccupancy(d || {}));
         binding.bind();
     }
@@ -210,13 +211,17 @@ export class LandingStateService extends AsyncHandler {
     public async updateContacts() {
         const metadata: PlaceMetadata = (await showMetadata(
             currentUser().id,
-            'contacts'
+            'contacts',
         ).toPromise()) as any;
         const list = metadata.details instanceof Array ? metadata.details : [];
         const users = await Promise.all(
-            list.map((_) => showUser(_.email).toPromise())
+            list.map((_) =>
+                showUser(_.email)
+                    .pipe(catchError(() => of(_)))
+                    .toPromise(),
+            ),
         );
-        this._contacts.next(users.map((i) => new StaffUser(i)));
+        this._contacts.next(users.map((i) => new StaffUser(i as any)));
     }
 
     public async addContact(user: User) {
@@ -245,7 +250,7 @@ export class LandingStateService extends AsyncHandler {
     private async updateOccupancy(map: HashMap<{ recommendation: number }>) {
         const levels = this._org.levelsForBuilding() || [];
         levels.sort(
-            (a, b) => map[a.id]?.recommendation - map[b.id]?.recommendation
+            (a, b) => map[a.id]?.recommendation - map[b.id]?.recommendation,
         );
         this._level_occupancy.next(levels);
     }
@@ -270,12 +275,12 @@ export class LandingStateService extends AsyncHandler {
                     ...value[key],
                 }));
                 levels.sort(
-                    (a, b) => a.recommendation_factor - b.recommendation_factor
+                    (a, b) => a.recommendation_factor - b.recommendation_factor,
                 );
                 this._level_occupancy.next(
-                    levels.map((i) => this._org.levelWithID([i.id]))
+                    levels.map((i) => this._org.levelWithID([i.id])),
                 );
-            })
+            }),
         );
     }
 }

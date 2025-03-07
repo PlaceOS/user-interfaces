@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
-import { ApplicationIcon, SettingsService, currentUser } from '@placeos/common';
+import { SettingsService, currentUser } from '@placeos/common';
 import { UserControlsComponent } from '@placeos/components';
+import { OrganisationService } from '@placeos/organisation';
 
 @Component({
     selector: 'app-topbar',
@@ -8,7 +9,7 @@ import { UserControlsComponent } from '@placeos/components';
         <div class="flex items-center border-b border-base-200 p-2">
             <div class="w-64">
                 <a [routerLink]="['/']">
-                    <img class="h-12" [src]="logo.src" />
+                    <img auth class="h-12" [source]="logo?.src || logo" />
                 </a>
             </div>
             <!-- <mat-form-field
@@ -23,7 +24,7 @@ import { UserControlsComponent } from '@placeos/components';
                     placeholder="Search for bookings, people or locations"
                 />
             </mat-form-field> -->
-            <div class="flex-1 flex items-center justify-end space-x-2">
+            <div class="flex flex-1 items-center justify-end space-x-2">
                 <button btn icon matRipple>
                     <app-icon class="text-2xl">notifications</app-icon>
                 </button>
@@ -31,7 +32,7 @@ import { UserControlsComponent } from '@placeos/components';
                     matRipple
                     avatar
                     name="user-controls"
-                    class="h-10 w-10 rounded-full mr-2 bg-base-200 flex items-center justify-center"
+                    class="mr-2 flex h-10 w-10 items-center justify-center rounded-full bg-base-200"
                     customTooltip
                     [content]="user_controls"
                 >
@@ -47,13 +48,14 @@ import { UserControlsComponent } from '@placeos/components';
             }
         `,
     ],
+    standalone: false,
 })
 export class ApplicationTopbarComponent {
     public readonly user_controls = UserControlsComponent;
 
-    public get logo(): ApplicationIcon {
+    public get logo() {
         return (
-            (this._settings.get('theme') === 'dark'
+            (this._settings.theme === 'dark'
                 ? this._settings.get('app.logo_dark')
                 : this._settings.get('app.logo_light')) || {}
         );
@@ -63,5 +65,8 @@ export class ApplicationTopbarComponent {
         return currentUser();
     }
 
-    constructor(private _settings: SettingsService) {}
+    constructor(
+        private _settings: SettingsService,
+        private _org: OrganisationService,
+    ) {}
 }

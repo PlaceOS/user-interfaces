@@ -1,16 +1,15 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import {
-    MatBottomSheetRef,
     MAT_BOTTOM_SHEET_DATA,
+    MatBottomSheetRef,
 } from '@angular/material/bottom-sheet';
-import { Observable, of } from 'rxjs';
 import { Space } from '@placeos/spaces';
-import { scan } from 'rxjs/operators';
 
 @Component({
     selector: 'placeos-room-details',
     templateUrl: './room-details.component.html',
     styles: [``],
+    standalone: false,
 })
 export class RoomDetailsComponent implements OnInit {
     space: Space | any;
@@ -18,7 +17,7 @@ export class RoomDetailsComponent implements OnInit {
 
     constructor(
         @Inject(MAT_BOTTOM_SHEET_DATA) public data: any,
-        private _bottomSheetRef: MatBottomSheetRef<RoomDetailsComponent>
+        private _bottomSheetRef: MatBottomSheetRef<RoomDetailsComponent>,
     ) {}
 
     ngOnInit() {

@@ -1,14 +1,14 @@
 import { Component, Input } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { SettingsService } from '@placeos/common';
+import { SettingsService, formatDuration } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
+import { OrganisationService } from '@placeos/organisation';
 import {
     addDays,
     addMinutes,
     differenceInMinutes,
     endOfDay,
     format,
-    formatDuration,
     set,
     startOfDay,
 } from 'date-fns';
@@ -17,23 +17,25 @@ import {
     selector: 'meeting-form-details',
     template: `
         <div *ngIf="form" [formGroup]="form">
-            <div class="flex items-center flex-wrap sm:space-x-2">
-                <div class="flex-1 min-w-[256px]">
+            <div class="flex flex-wrap items-center sm:space-x-2">
+                <div class="min-w-[256px] flex-1">
                     <label for="title">{{ 'FORM.TITLE' | translate }}</label>
                     <mat-form-field appearance="outline" class="w-full">
                         <input
                             matInput
                             name="title"
                             formControlName="title"
-                            placeholder="e.g. Team Meeting"
+                            [placeholder]="
+                                'CALENDAR_EVENT.TITLE_PLACEHOLDER' | translate
+                            "
                         />
-                        <mat-error>{{
-                            'FORM.TITLE_ERROR' | translate
-                        }}</mat-error>
+                        <mat-error>
+                            {{ 'FORM.TITLE_REQUIRED' | translate }}
+                        </mat-error>
                     </mat-form-field>
                 </div>
                 <div
-                    class="flex-1 min-w-[256px] relative"
+                    class="relative min-w-[256px] flex-1"
                     *ngIf="!allow_multiday"
                 >
                     <label for="date">
@@ -43,6 +45,8 @@ import {
                         name="date"
                         formControlName="date"
                         [to]="end_date"
+                        [use_24hr]="use_24hr"
+                        [timezone]="timezone"
                     >
                         {{ 'FORM.DATE_ERROR' | translate }}
                     </a-date-field>
@@ -51,15 +55,15 @@ import {
                         *ngIf="allow_all_day"
                         class="absolute -top-2 right-2"
                     >
-                        {{ 'FORM.ALL_DAY' | translate }}
+                        {{ 'COMMON.ALL_DAY' | translate }}
                     </mat-checkbox>
                 </div>
             </div>
             <div
-                class="flex items-center flex-wrap sm:space-x-2"
+                class="flex flex-wrap items-center sm:space-x-2"
                 *ngIf="allow_multiday"
             >
-                <div class="flex-1 min-w-[256px] relative">
+                <div class="relative min-w-[256px] flex-1">
                     <label for="date">
                         {{ 'FORM.DATE' | translate }}<span>*</span>
                     </label>
@@ -67,6 +71,9 @@ import {
                         name="date"
                         formControlName="date"
                         [to]="end_date"
+                        [use_24hr]="use_24hr"
+                        [timezone]="timezone"
+                        [range]="1"
                     >
                         {{ 'FORM.DATE_ERROR' | translate }}
                     </a-date-field>
@@ -75,18 +82,21 @@ import {
                         *ngIf="allow_all_day"
                         class="absolute -top-2 right-2"
                     >
-                        {{ 'FORM.ALL_DAY' | translate }}
+                        {{ 'COMMON.ALL_DAY' | translate }}
                     </mat-checkbox>
                 </div>
-                <div class="flex-1 min-w-[256px] relative">
+                <div class="relative min-w-[256px] flex-1">
                     <label for="date">
-                        {{ 'FORM.END_DATE' | translate }}<span>*</span>
+                        {{ 'FORM.DATE_END' | translate }}<span>*</span>
                     </label>
                     <a-date-field
                         name="date"
                         formControlName="date_end"
                         [from]="start_date"
                         [to]="end_date"
+                        [use_24hr]="use_24hr"
+                        [timezone]="timezone"
+                        [range]="2"
                     >
                         {{ 'FORM.DATE_ERROR' | translate }}
                     </a-date-field>
@@ -96,9 +106,9 @@ import {
                 class="flex items-center space-x-2"
                 *ngIf="!form.value.all_day"
             >
-                <div class="flex-1 w-1/3">
+                <div class="w-1/3 flex-1">
                     <label for="start-time">
-                        {{ 'FORM.START_TIME' | translate }}
+                        {{ 'FORM.TIME_START' | translate }}
                         <span>*</span>
                     </label>
                     <a-time-field
@@ -107,11 +117,12 @@ import {
                         (ngModelChange)="form.patchValue({ date: $event })"
                         [ngModelOptions]="{ standalone: true }"
                         [use_24hr]="use_24hr"
+                        [timezone]="timezone"
                     ></a-time-field>
                 </div>
-                <div class="flex-1 w-1/3" *ngIf="allow_multiday">
+                <div class="w-1/3 flex-1" *ngIf="allow_multiday">
                     <label for="end-time">
-                        {{ 'FORM.END_TIME' | translate }}<span>*</span>
+                        {{ 'FORM.TIME_END' | translate }}<span>*</span>
                     </label>
                     <a-time-field
                         name="end-time"
@@ -121,11 +132,12 @@ import {
                         [from]="form?.getRawValue()?.date + 30 * 60 * 1000"
                         [use_24hr]="use_24hr"
                         [extra_info_fn]="duration_info"
+                        [timezone]="timezone"
                     ></a-time-field>
                 </div>
-                <div class="flex-1 w-1/3" *ngIf="!allow_multiday">
+                <div class="w-1/3 flex-1" *ngIf="!allow_multiday">
                     <label for="end-time">
-                        {{ 'FORM.END_TIME' | translate }}<span>*</span>
+                        {{ 'FORM.TIME_END' | translate }}<span>*</span>
                     </label>
                     <a-duration-field
                         name="end-time"
@@ -133,10 +145,20 @@ import {
                         [time]="form?.getRawValue()?.date"
                         [max]="max_duration"
                         [use_24hr]="use_24hr"
+                        [timezone]="timezone"
                     ></a-duration-field>
                 </div>
             </div>
-            <div *ngIf="can_book_for_others" class="w-full flex flex-col">
+            <div *ngIf="can_book_for_anyone" class="flex w-full flex-col">
+                <label for="host">
+                    {{ 'FORM.HOST' | translate }}<span>*</span>
+                </label>
+                <a-user-search-field
+                    name="host"
+                    formControlName="organiser"
+                ></a-user-search-field>
+            </div>
+            <div *ngIf="can_book_for_others" class="flex w-full flex-col">
                 <label for="host">
                     {{ 'FORM.HOST' | translate }}<span>*</span>
                 </label>
@@ -145,7 +167,7 @@ import {
                     formControlName="organiser"
                 ></host-select-field>
             </div>
-            <div *ngIf="allow_recurrence" class="w-full flex flex-col">
+            <div *ngIf="allow_recurrence" class="flex w-full flex-col">
                 <label for="recurrence">
                     {{ 'FORM.RECURRENCE' | translate }}<span>*</span>
                 </label>
@@ -158,12 +180,13 @@ import {
                     *ngIf="form.value.id"
                     formControlName="update_master"
                 >
-                    Update all future events
+                    {{ 'FORM.UPDATE_FUTURE' | translate }}
                 </mat-checkbox>
             </div>
         </div>
     `,
     styles: [],
+    standalone: false,
 })
 export class MeetingFormDetailsComponent {
     @Input() public form: FormGroup;
@@ -179,6 +202,10 @@ export class MeetingFormDetailsComponent {
 
     public get can_book_for_others() {
         return this._settings.get('app.events.can_book_for_others');
+    }
+
+    public get can_book_for_anyone() {
+        return this._settings.get('app.events.can_book_for_anyone');
     }
 
     public get allow_all_day() {
@@ -199,6 +226,12 @@ export class MeetingFormDetailsComponent {
         );
     }
 
+    public get timezone() {
+        return this._settings.get('app.events.use_building_timezone')
+            ? this._org.building.timezone
+            : '';
+    }
+
     public get start_date() {
         const date = this.form.getRawValue().date;
         const date_end = this.form.getRawValue().date_end;
@@ -213,8 +246,8 @@ export class MeetingFormDetailsComponent {
         return endOfDay(
             addDays(
                 Date.now(),
-                this._settings.get('app.events.allowed_future_days') || 180
-            )
+                this._settings.get('app.events.allowed_future_days') || 180,
+            ),
         ).valueOf();
     }
 
@@ -235,6 +268,7 @@ export class MeetingFormDetailsComponent {
 
     constructor(
         private _settings: SettingsService,
-        private _event_form: EventFormService
+        private _event_form: EventFormService,
+        private _org: OrganisationService,
     ) {}
 }

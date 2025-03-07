@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { SettingsService } from '@placeos/common';
 import { ParkingStateService } from './parking-state.service';
 
 @Component({
@@ -6,53 +7,80 @@ import { ParkingStateService } from './parking-state.service';
     template: `
         <mat-progress-bar
             [class.opacity-0]="!(loading | async)?.includes('bookings')"
-            class="w-full"
+            class="sticky left-0 w-full"
         ></mat-progress-bar>
         <simple-table
-            class="min-w-[76rem] block text-sm"
+            class="block min-w-[76rem] text-sm"
             [data]="events"
             [columns]="[
                 {
                     key: 'state',
-                    name: 'In Use',
+                    name: 'COMMON.STATUS_BUSY' | translate,
                     content: state_template,
                     size: '4.75rem',
-                    sortable: false
+                    sortable: false,
                 },
-                { key: 'description', name: 'Bay Number' },
+                {
+                    key: 'date',
+                    name: 'FORM.TIME' | translate,
+                    content: date_template,
+                },
+                {
+                    key: 'asset_name',
+                    name: 'APP.CONCIERGE.PARKING_BAY_NUMBER' | translate,
+                },
                 {
                     key: 'user_name',
-                    name: 'Reserved For',
-                    content: person_template
+                    name: 'APP.CONCIERGE.PARKING_RESERVED_FOR' | translate,
+                    content: person_template,
                 },
                 {
                     key: 'booked_by_name',
-                    name: 'Reserved By',
-                    content: host_template
+                    name: 'APP.CONCIERGE.PARKING_RESERVED_BY' | translate,
+                    content: host_template,
                 },
                 {
                     key: 'plate_number',
-                    name: 'Plate Number',
+                    name: 'EXPLORE.PARKING_PLATE_NUMBER' | translate,
                     content: plate_template,
                     size: '10rem',
-                    sortable: false
+                    sortable: false,
                 },
                 {
                     key: 'status',
-                    name: 'Status',
+                    name: 'COMMON.STATUS' | translate,
                     content: status_template,
-                    size: '9.5rem'
-                }
+                    size: '9.5rem',
+                },
+                {
+                    key: 'actions',
+                    name: ' ',
+                    content: action_template,
+                    size: '3.5rem',
+                    sortable: false,
+                },
             ]"
             [filter]="(options | async)?.search"
             [sortable]="true"
+            [empty_message]="'APP.CONCIERGE.PARKING_BOOKINGS_EMPTY' | translate"
         ></simple-table>
+        <ng-template #date_template let-row="row">
+            <div class="px-4 py-2">
+                {{
+                    row.all_day || row.duration > 12 * 60
+                        ? ('COMMON.ALL_DAY' | translate)
+                        : (row.date | date: time_format) +
+                          ' - ' +
+                          (row.date_end | date: time_format)
+                }}
+            </div>
+        </ng-template>
         <ng-template #person_template let-row="row">
             <div class="px-4 py-2">
                 <div>{{ row.user_name || row.user_email }}</div>
                 <div
                     *ngIf="row.user_name && row.user_email"
-                    class="opacity-30 text-xs"
+                    class="text-xs opacity-30"
                 >
                     {{ row.user_email }}
                 </div>
@@ -63,7 +91,7 @@ import { ParkingStateService } from './parking-state.service';
                 <div>{{ row.booked_by_name || row.booked_by_email }}</div>
                 <div
                     *ngIf="row.booked_by_name && row.booked_by_email"
-                    class="opacity-30 text-xs"
+                    class="text-xs opacity-30"
                 >
                     {{ row.booked_by_email }}
                 </div>
@@ -72,9 +100,15 @@ import { ParkingStateService } from './parking-state.service';
         <ng-template #state_template let-row="row">
             <div
                 *ngIf="!row?.checked_in && row.checked_out_at"
-                class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-base-300 text-base-100 mx-auto"
+                class="mx-auto flex h-8 w-8 items-center justify-center rounded bg-base-300 text-2xl text-base-100"
                 [matTooltip]="
-                    'Left at ' + (row.checked_out_at | date: time_format)
+                    'APP.CONCIERGE.PARKING_CHECKED_OUT_AT'
+                        | translate
+                            : {
+                                  time:
+                                      (row.checked_out_at * 1000
+                                      | date: time_format),
+                              }
                 "
                 matTooltipPosition="right"
             >
@@ -82,29 +116,31 @@ import { ParkingStateService } from './parking-state.service';
             </div>
             <div
                 *ngIf="!row?.checked_in && !row.checked_out_at"
-                class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-warning text-warning-content mx-auto"
-                matTooltip="Has not arrived at space"
+                class="mx-auto flex h-8 w-8 items-center justify-center rounded bg-warning text-2xl text-warning-content"
+                [matTooltip]="
+                    'APP.CONCIERGE.PARKING_NOT_CHECKED_IN' | translate
+                "
                 matTooltipPosition="right"
             >
                 <app-icon>question_mark</app-icon>
             </div>
             <div
                 *ngIf="row?.checked_in"
-                class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-error text-error-content mx-auto"
-                matTooltip="Arrived at space"
+                class="mx-auto flex h-8 w-8 items-center justify-center rounded bg-success text-2xl text-success-content"
+                [matTooltip]="'APP.CONCIERGE.PARKING_CHECKED_IN' | translate"
                 matTooltipPosition="right"
             >
                 <app-icon>done</app-icon>
             </div>
         </ng-template>
         <ng-template #plate_template let-row="row">
-            <div class="p-4 font-mono text-sm">
+            <div class="p-4 font-mono text-sm uppercase">
                 {{ row?.extension_data?.plate_number }}
                 <span
                     *ngIf="!row?.extension_data?.plate_number"
                     class="opacity-30"
                 >
-                    N/A
+                    {{ 'COMMON.EMPTY' | translate }}
                 </span>
             </div>
         </ng-template>
@@ -112,27 +148,30 @@ import { ParkingStateService } from './parking-state.service';
             <div class="px-4">
                 <button
                     matRipple
-                    class="rounded-3xl bg-warning text-warning-content border-none w-[7.5rem] h-10"
-                    [class.!text-success-content]="row?.status === 'approved'"
-                    [class.!bg-success]="row?.status === 'approved'"
-                    [class.!text-error-content]="row?.status === 'declined'"
-                    [class.!bg-error]="row?.status === 'declined'"
-                    [class.!text-neutral-content]="row?.status === 'ended'"
-                    [class.!bg-neutral]="row?.status === 'ended'"
+                    class="h-10 w-[7.5rem] rounded-3xl border-none"
+                    [class.text-success-content]="row?.status === 'approved'"
+                    [class.bg-success]="row?.status === 'approved'"
+                    [class.text-error-content]="row?.status === 'declined'"
+                    [class.bg-error]="row?.status === 'declined'"
+                    [class.text-neutral-content]="row?.status === 'ended'"
+                    [class.bg-neutral]="row?.status === 'ended'"
                     [class.opacity-30]="row?.status === 'ended'"
+                    [class.text-warning-content]="row?.status === 'tentative'"
+                    [class.bg-warning]="row?.status === 'tentative'"
                     [matMenuTriggerFor]="menu"
                     [disabled]="row?.status === 'ended'"
                 >
-                    <div class="flex items-center pl-4 pr-2 space-x-2">
+                    <div class="flex items-center space-x-2 pl-4 pr-2">
                         <div class="flex-1 text-left">
                             {{
-                                row?.status === 'ended'
-                                    ? 'Ended'
+                                (row?.status === 'ended'
+                                    ? 'APP.CONCIERGE.BOOKING_STATUS_ENDED'
                                     : row?.status === 'approved'
-                                    ? 'Approved'
-                                    : row?.status === 'declined'
-                                    ? 'Declined'
-                                    : 'Pending'
+                                      ? 'APP.CONCIERGE.BOOKING_STATUS_APPROVED'
+                                      : row?.status === 'declined'
+                                        ? 'APP.CONCIERGE.BOOKING_STATUS_DECLINED'
+                                        : 'APP.CONCIERGE.BOOKING_STATUS_PENDING'
+                                ) | translate
                             }}
                         </div>
                         <app-icon class="text-2xl">arrow_drop_down</app-icon>
@@ -143,20 +182,43 @@ import { ParkingStateService } from './parking-state.service';
                 <button mat-menu-item (click)="approve(row)">
                     <div class="flex items-center space-x-2">
                         <app-icon class="text-2xl">event_available</app-icon>
-                        <div class="pr-2">Approve Reservation</div>
+                        <div class="pr-2">
+                            {{ 'APP.CONCIERGE.PARKING_APPROVE' | translate }}
+                        </div>
                     </div>
                 </button>
                 <button mat-menu-item (click)="reject(row)">
                     <div class="flex items-center space-x-2">
                         <app-icon class="text-2xl">event_busy</app-icon>
-                        <div class="pr-2">Decline Reservation</div>
+                        <div class="pr-2">
+                            {{ 'APP.CONCIERGE.PARKING_DECLINE' | translate }}
+                        </div>
                     </div>
                 </button>
             </mat-menu>
         </ng-template>
-        <div class="w-full h-20"></div>
+        <ng-template #action_template let-row="row">
+            <div class="mx-auto flex items-center justify-end space-x-2">
+                <button
+                    icon
+                    matRipple
+                    [disabled]="
+                        row.checked_in ||
+                        row.state === 'in_progress' ||
+                        row.status === 'ended' ||
+                        row.instance
+                    "
+                    [matTooltip]="'APP.CONCIERGE.PARKING_EDIT' | translate"
+                    (click)="editReservation(row)"
+                >
+                    <app-icon class="text-2xl">edit</app-icon>
+                </button>
+            </div>
+        </ng-template>
+        <div class="h-20 w-full"></div>
     `,
     styles: [``],
+    standalone: false,
 })
 export class ParkingBookingsListComponent {
     public readonly events = this._state.bookings;
@@ -165,6 +227,14 @@ export class ParkingBookingsListComponent {
 
     public readonly reject = (e) => this._state.rejectBooking(e);
     public readonly approve = (e) => this._state.approveBooking(e);
+    public readonly editReservation = (e) => this._state.editReservation(e);
 
-    constructor(private _state: ParkingStateService) {}
+    public get time_format() {
+        return this._settings.time_format;
+    }
+
+    constructor(
+        private _state: ParkingStateService,
+        private _settings: SettingsService,
+    ) {}
 }

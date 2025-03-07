@@ -1,26 +1,26 @@
-<div class="w-full h-full flex flex-1 flex-col z-0 bg-base-200 overflow-auto">
+<div class="z-0 flex h-full w-full flex-1 flex-col overflow-auto bg-base-200">
     <section class="flex flex-col py-5">
-        <div class="w-[calc(100%-2rem)] max-w-[375px] mx-auto">
+        <div class="mx-auto w-[calc(100%-2rem)] max-w-[375px]">
             <div class="flex flex-row items-center">
                 <button (click)="closeModal()">
                     <mat-icon
-                        class="flex items-center justify-center text-3xl text-gray-700"
+                        class="text-gray-700 flex items-center justify-center text-3xl"
                         >close</mat-icon
                     >
                 </button>
 
-                <span class="flex items-center text-lg font-bold ml-6">
+                <span class="ml-6 flex items-center text-lg font-bold">
                     Find Space</span
                 >
             </div>
 
-            <div class="flex flex-row justify-between mt-3 align-middle">
+            <div class="mt-3 flex flex-row justify-between align-middle">
                 <div class="flex w-7/12 justify-center">
                     <button
                         btn
                         matRipple
                         (click)="openFilter()"
-                        class="bg-base-200 w-full h-9 text-sm filter-button"
+                        class="filter-button h-9 w-full bg-base-200 text-sm"
                     >
                         <span>Filter</span>
 
@@ -36,19 +36,19 @@
                         aria-label="Map or list view"
                         [(ngModel)]="space_view"
                         (change)="resetSpace()"
-                        class="flex w-full ml-auto mr-0 border-none"
+                        class="ml-auto mr-0 flex w-full border-none"
                     >
                         <mat-button-toggle
                             value="mapView"
-                            class="flex bg-base-200 w-1/2 rounded justify-center items-center"
-                            ><span class="flex leading-9 text-[0.875rem]"
+                            class="flex w-1/2 items-center justify-center rounded bg-base-200"
+                            ><span class="flex text-[0.875rem] leading-9"
                                 >Map</span
                             ></mat-button-toggle
                         >
                         <mat-button-toggle
                             value="listView"
-                            class="flex bg-base-200 w-1/2 rounded text-sm justify-center items-center"
-                            ><span class="flex leading-9 text-[0.875rem]"
+                            class="flex w-1/2 items-center justify-center rounded bg-base-200 text-sm"
+                            ><span class="flex text-[0.875rem] leading-9"
                                 >List</span
                             ></mat-button-toggle
                         >
@@ -77,16 +77,16 @@
                 </mat-chip-list> -->
             </section>
 
-            <section class="flex flex-row my-2 border-t">
+            <section class="my-2 flex flex-row border-t">
                 <div class="flex flex-col">
-                    <span class="text-lg font-bold mt-3"> Results</span>
-                    <span class="text-xs text-gray-500 mt-1">
+                    <span class="mt-3 text-lg font-bold"> Results</span>
+                    <span class="text-gray-500 mt-1 text-xs">
                         {{ (spaces$ | async)?.length || 0 }} results found</span
                     >
                 </div>
             </section>
 
-            <div class="flex-1 w-full bg-base-200">
+            <div class="w-full flex-1 bg-base-200">
                 <ng-container *ngIf="!(loading | async); else load_state">
                     <ng-container
                         *ngIf="(spaces$ | async)?.length > 0; else empty_state"
@@ -108,12 +108,12 @@
                                 space_view == 'mapView' &&
                                 (map_features$ | async)?.length > 0
                             "
-                            class="text-center h-full"
+                            class="h-full text-center"
                         >
                             <div *ngIf="(maps_list$ | async)?.length > 1">
                                 <mat-form-field
                                     appearance="outline"
-                                    class="flex ml-auto m-3 text-sm"
+                                    class="m-3 ml-auto flex text-sm"
                                 >
                                     <mat-select
                                         [(ngModel)]="selected_level"
@@ -121,9 +121,11 @@
                                             updateSelectedLevel($event)
                                         "
                                     >
-                                        <mat-option [value]="maps_list$ | async"
-                                            >All Levels</mat-option
+                                        <mat-option
+                                            [value]="maps_list$ | async"
                                         >
+                                            {{ 'COMMON.LEVEL_ALL' | translate }}
+                                        </mat-option>
                                         <mat-option
                                             *ngFor="
                                                 let map of maps_list$ | async
@@ -137,20 +139,20 @@
 
                             <div
                                 *ngIf="selected_level"
-                                class="m-6 max-w-screen relative"
+                                class="max-w-screen relative m-6"
                             >
                                 <!-- If 'All Levels' option is selected -->
                                 <div *ngIf="selected_level?.length">
                                     <div
                                         *ngFor="let map of selected_level"
-                                        class="m-3 h-[12rem] max-w-screen relative"
+                                        class="max-w-screen relative m-3 h-[12rem]"
                                     >
                                         <interactive-map
                                             [src]="map?.map_id"
                                             [styles]="map_styles$ | async"
                                             [features]="map_features$ | async"
                                             [actions]="map_actions$ | async"
-                                            class="m-1 p-1 max-w-screen"
+                                            class="max-w-screen m-1 p-1"
                                         >
                                         </interactive-map>
                                     </div>
@@ -159,21 +161,21 @@
                                 <!-- If an individual level is selected -->
                                 <div
                                     *ngIf="!selected_level?.length"
-                                    class="m-3 h-[24rem] max-w-screen relative"
+                                    class="max-w-screen relative m-3 h-[24rem]"
                                 >
                                     <interactive-map
                                         [src]="selected_level?.map_id"
                                         [styles]="map_styles$ | async"
                                         [features]="map_features$ | async"
                                         [actions]="map_actions$ | async"
-                                        class="m-1 p-1 max-w-screen"
+                                        class="max-w-screen m-1 p-1"
                                     >
                                     </interactive-map>
                                 </div>
                             </div>
                         </div>
 
-                        <p class="p-2 text-sm text-center opacity-60">
+                        <p class="p-2 text-center text-sm opacity-60">
                             End of available spaces list
                         </p>
                     </ng-container>
@@ -181,7 +183,7 @@
 
                 <ng-template #load_state>
                     <div
-                        class="h-full w-full flex flex-col items-center justify-center space-y-4 my-3"
+                        class="my-3 flex h-full w-full flex-col items-center justify-center space-y-4"
                     >
                         <mat-spinner [diameter]="32"></mat-spinner>
                         <p>Retrieving available spaces...</p>
@@ -189,7 +191,7 @@
                 </ng-template>
                 <ng-template #empty_state>
                     <div
-                        class="h-full w-full flex flex-col items-center justify-center space-y-2 p-2 text-center my-6"
+                        class="my-6 flex h-full w-full flex-col items-center justify-center space-y-2 p-2 text-center"
                     >
                         <p>
                             No available spaces for selected time, capacity or
@@ -200,14 +202,14 @@
             </div>
         </div>
         <section
-            class="flex flex-col py-1 border-t border-base-200 top-box-shadow items-center justify-center"
+            class="top-box-shadow flex flex-col items-center justify-center border-t border-base-200 py-1"
         >
             <div *ngIf="show_room_details$ | async">
                 <button
                     matRipple
                     type="submit"
                     (click)="openRoomDetails()"
-                    class="open-details-button bg-secondary border-secondary w-[300px] my-1"
+                    class="open-details-button my-1 w-[300px] border-secondary bg-secondary"
                 >
                     <span class="">View Room</span>
                 </button>

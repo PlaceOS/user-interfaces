@@ -14,8 +14,8 @@ import { SearchbarComponent } from '../../app/ui/searchbar.component';
 
 jest.mock('@placeos/bookings');
 
-import * as booking_mod from '@placeos/bookings';
 import { MatDialog } from '@angular/material/dialog';
+import * as booking_mod from '@placeos/bookings';
 
 describe('DesksTopbarComponent', () => {
     let spectator: SpectatorRouting<DesksTopbarComponent>;
@@ -40,7 +40,7 @@ describe('DesksTopbarComponent', () => {
             }),
             MockProvider(MatDialog, {
                 open: jest.fn(
-                    () => ({ afterClosed: jest.fn(() => of()) } as any)
+                    () => ({ afterClosed: jest.fn(() => of()) }) as any,
                 ),
             }),
         ],

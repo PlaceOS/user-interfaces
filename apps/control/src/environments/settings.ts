@@ -5,16 +5,11 @@ const app = {
     title: 'PlaceOS',
     description: 'Room Control UI',
     short_name: 'PlaceOS',
-    logo_light: {
-        type: 'img',
-        src: 'assets/logo-light.svg',
-    },
-    logo_dark: {
-        type: 'img',
-        src: 'assets/logo-dark.svg',
-    },
+    logo_light: 'assets/logo-light.svg',
+    logo_dark: 'assets/logo-dark.svg',
     general,
     prevent_space_init: true,
+    allow_dark_mode: false,
 };
 
 /**

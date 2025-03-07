@@ -9,7 +9,7 @@ import { startOfDay } from 'date-fns';
     template: `
         <button
             matRipple
-            class="flex items-center rounded px-4 py-2 border border-neutral hover:border-base-content focus:outline-2 outline-base-content space-x-2 min-w-max"
+            class="flex min-w-max items-center space-x-2 rounded border border-neutral px-4 py-2 outline-base-content hover:border-base-content focus:outline-2"
             type="button"
             role="date-picker"
             customTooltip
@@ -45,6 +45,7 @@ import { startOfDay } from 'date-fns';
         </ng-template>
     `,
     styles: [``],
+    standalone: false,
 })
 export class DateRangeFieldComponent extends AsyncHandler {
     /** Earliest date available the user is allowed to pick */
@@ -52,9 +53,9 @@ export class DateRangeFieldComponent extends AsyncHandler {
     /** Latest date available the user is allowed to pick */
     @Input('to') public to_date: number;
     /** Index of the day to start the week on when displaying the calendar */
-    @Input() public week_start: number = 0;
+    @Input() public week_start = 0;
     /** Whether form control is disabled */
-    @Input() public disabled: boolean = false;
+    @Input() public disabled = false;
     @Input() public short = false;
 
     public readonly now = Date.now();

@@ -1,23 +1,21 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { Locker, LockerBank } from './lockers.service';
 import { SettingsService } from '@placeos/common';
 import { DEFAULT_COLOURS } from 'libs/explore/src/lib/explore-spaces.service';
+import { Locker, LockerBank } from './locker.class';
 
 @Component({
     selector: 'locker-grid',
     template: `
-        <div class="p-4 text-xl font-medium">
-            {{ bank?.name }}
-        </div>
         <div
-            class="flex-1 grid gap-2 overflow-hidden max-h-full h-[75vh] min-w-[60vw] p-2"
-            [style.grid-template-columns]="'repeat(' + columns + ', 1fr)'"
-            [style.grid-template-rows]="'repeat(' + bank?.height + ', 1fr)'"
+            class="grid flex-1 gap-2 p-2"
+            [style.width]="columns * 2.5 + 'rem'"
+            [style.grid-template-columns]="'repeat(' + columns + ', 5rem)'"
+            [style.grid-template-rows]="'repeat(' + bank?.height + ', 5rem)'"
         >
             <button
                 *ngFor="let locker of bank?.lockers || []"
                 matRipple
-                class="relative border border-base-200 rounded bg-teal-300 overflow-hidden"
+                class="relative overflow-hidden rounded border border-base-200"
                 [class.opacity-60]="selected && selected !== locker.id"
                 [style.grid-column-start]="locker.position[0] + 1"
                 [style.grid-row-start]="locker.position[1] + 1"
@@ -27,32 +25,36 @@ import { DEFAULT_COLOURS } from 'libs/explore/src/lib/explore-spaces.service';
                 [style.background-color]="status(locker)"
                 [style.grid-row-end]="locker.position[1] + (locker.size[1] + 1)"
                 [matTooltip]="locker.name"
-                [disabled]="locker.bookable === false"
+                [disabled]="
+                    locker.bookable === false || locker?.available === false
+                "
                 (click)="clicked.emit(locker)"
             >
                 <div
                     handle
-                    class="absolute top-1/2 -translate-y-1/2 left-2 w-1 h-6 bg-neutral rounded"
+                    class="absolute left-2 top-1/2 h-6 w-1 -translate-y-1/2 rounded bg-base-400 opacity-60"
                 ></div>
                 <div
                     vent
-                    class="absolute left-1/2 -translate-x-1/2 top-2 w-3/5 h-1 bg-neutral rounded-t"
+                    class="absolute left-1/2 top-2 h-1 w-12 -translate-x-1/2 rounded-t bg-base-400 opacity-60"
                 ></div>
                 <div
                     vent
-                    class="absolute left-1/2 -translate-x-1/2 top-4 w-3/5 h-1 bg-neutral rounded-t"
+                    class="absolute left-1/2 top-4 h-1 w-12 -translate-x-1/2 rounded-t bg-base-400 opacity-60"
                 ></div>
                 <div
                     vent
-                    class="absolute left-1/2 -translate-x-1/2 top-6 w-3/5 h-1 bg-neutral rounded-t"
+                    class="absolute left-1/2 top-6 h-1 w-12 -translate-x-1/2 rounded-t bg-base-400 opacity-60"
                 ></div>
                 <div
-                    class="absolute left-1/2 -translate-x-1/2 top-8 text-[0.6rem] font-medium text-black/60"
+                    class="absolute left-1/2 top-8 -translate-x-1/2 text-[0.6rem] font-medium text-base-content opacity-60"
                 >
                     {{ locker.name }}
                 </div>
 
-                <div class="absolute inset-0 hover:bg-neutral"></div>
+                <div
+                    class="absolute inset-0 opacity-10 hover:bg-base-content"
+                ></div>
             </button>
         </div>
     `,
@@ -65,18 +67,16 @@ import { DEFAULT_COLOURS } from 'libs/explore/src/lib/explore-spaces.service';
             }
             button[disabled] {
                 pointer-events: none;
-                opacity: 0.75;
-                background-color: #ccc !important;
             }
         `,
     ],
+    standalone: false,
 })
 export class LockerGridComponent {
+    @Input() public show_name = true;
+    @Input() public default_status = 'busy';
     @Input() public bank: LockerBank;
-    @Input() public bank_status: Record<string, string> = {
-        '10': 'busy',
-        '7': 'pending',
-    };
+    @Input() public bank_status: Record<string, string> = {};
     @Input() public selected = '';
     @Output() public clicked = new EventEmitter<Locker>();
 
@@ -91,13 +91,21 @@ export class LockerGridComponent {
 
     constructor(private _settings: SettingsService) {}
 
-    public status(locker: Locker) {
+    public color(status: string) {
         const colours = this._settings.get('app.explore.colors') || {};
-        const value = this.bank_status[locker.id] || 'free';
         return (
-            colours[`lockers-${value}`] ||
-            colours[`${value}`] ||
-            DEFAULT_COLOURS[`${value}`]
+            colours[`lockers-${status}`] ||
+            colours[`${status}`] ||
+            DEFAULT_COLOURS[`${status}`]
         );
+    }
+
+    public status(locker: Locker) {
+        if (!locker) return this.color('not-bookable');
+        let value = this.bank_status[locker.id] || 'free';
+        if (!this.bank_status[locker.id] && !locker?.available) {
+            value = this.default_status;
+        }
+        return this.color(value);
     }
 }

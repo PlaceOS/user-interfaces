@@ -1,4 +1,4 @@
-import { Component, Inject, Output, EventEmitter } from '@angular/core';
+import { Component, EventEmitter, Inject, Output } from '@angular/core';
 import {
     MAT_DIALOG_DATA,
     MatDialog,
@@ -30,36 +30,38 @@ import {
     selector: `group-event-details-modal`,
     template: `
         <div
-            class="relative w-[48rem] max-w-[calc(100vw-1rem)] max-h-[80vh] overflow-hidden"
+            class="relative max-h-[80vh] w-[48rem] max-w-[calc(100vw-1rem)] overflow-hidden"
         >
             <div
-                class="relative flex items-center justify-between h-52 w-full bg-base-200 overflow-hidden"
+                class="relative flex h-52 w-full items-center justify-between overflow-hidden bg-base-200"
             >
                 <img
                     *ngIf="event.extension_data?.images?.length"
                     auth
                     [source]="event.extension_data?.images[0]"
-                    class="absolute top-1/2 left-1/2 min-h-full min-w-full object-cover -translate-x-1/2 -translate-y-1/2"
+                    class="absolute left-1/2 top-1/2 min-h-full min-w-full -translate-x-1/2 -translate-y-1/2 object-cover"
                 />
             </div>
 
             <div
-                class="absolute top-0 left-0 rounded-br py-2 pl-2 pr-4 space-x-2 bg-info text-info-content flex items-center text-sm"
+                class="absolute left-0 top-0 flex items-center space-x-2 rounded-br bg-info py-2 pl-2 pr-4 text-sm text-info-content"
                 *ngIf="featured"
             >
                 <app-icon class="text-base">star</app-icon>
-                <div class="uppercase">Featured</div>
+                <div class="uppercase">
+                    {{ 'CALENDAR_EVENT.GROUP_FEATURED' | translate }}
+                </div>
             </div>
             <button
                 icon
                 mat-dialog-close
-                class="absolute top-1 right-1 overflow-hidden"
+                class="absolute right-1 top-1 overflow-hidden"
             >
-                <div class="absolute inset-0 bg-base-100 opacity-30 z-0"></div>
+                <div class="absolute inset-0 z-0 bg-base-100 opacity-30"></div>
                 <app-icon class="z-10">close</app-icon>
             </button>
             <div
-                class="flex items-center justify-between py-4 px-8 border-b border-base-200"
+                class="flex items-center justify-between border-b border-base-200 px-8 py-4"
             >
                 <h3 class="text-left text-xl">
                     {{ event.title }}
@@ -68,7 +70,7 @@ import {
                     <ng-container *ngIf="!concierge">
                         <div
                             btn
-                            class="flex items-center px-4 h-10 rounded space-x-2"
+                            class="flex h-10 items-center space-x-2 rounded px-4"
                             [class.bg-base-200]="!is_interested"
                             [class.text-base-content]="!is_interested"
                             [class.opacity-30]="!is_interested"
@@ -78,12 +80,17 @@ import {
                         >
                             <app-icon>star</app-icon>
                             <div class="pr-2">
-                                {{ is_interested ? '' : 'Not ' }}Interested
+                                {{
+                                    (is_interested
+                                        ? 'CALENDAR_EVENT.GROUP_INTERESTED'
+                                        : 'CALENDAR_EVENT.GROUP_NOT_INTERESTED'
+                                    ) | translate
+                                }}
                             </div>
                         </div>
                         <div
                             btn
-                            class="flex items-center px-4 h-10 rounded space-x-2"
+                            class="flex h-10 items-center space-x-2 rounded px-4"
                             [class.bg-base-200]="!is_going"
                             [class.text-base-content]="!is_going"
                             [class.opacity-30]="!is_going"
@@ -93,14 +100,19 @@ import {
                         >
                             <app-icon>help</app-icon>
                             <div class="pr-2">
-                                {{ is_going ? '' : 'Not ' }}Going
+                                {{
+                                    (is_going
+                                        ? 'CALENDAR_EVENT.GROUP_GOING'
+                                        : 'CALENDAR_EVENT.GROUP_NOT_GOING'
+                                    ) | translate
+                                }}
                             </div>
                         </div>
                     </ng-container>
                     <button
                         btn
                         matRipple
-                        class="clear bg-base-200 text-base-content w-[2.75rem]"
+                        class="clear w-[2.75rem] bg-base-200 text-base-content"
                         [disabled]="event.state === 'done'"
                         [matMenuTriggerFor]="concierge ? concierge_menu : menu"
                     >
@@ -112,7 +124,12 @@ import {
                                 <app-icon class="text-2xl">
                                     confirmation_number
                                 </app-icon>
-                                <div class="mr-2">Promote Event</div>
+                                <div class="mr-2">
+                                    {{
+                                        'CALENDAR_EVENT.GROUP_PREMOTE'
+                                            | translate
+                                    }}
+                                </div>
                             </div>
                         </button>
                         <button
@@ -122,7 +139,11 @@ import {
                         >
                             <div class="flex items-center space-x-2">
                                 <app-icon class="text-2xl">edit</app-icon>
-                                <div class="mr-2">Edit Event</div>
+                                <div class="mr-2">
+                                    {{
+                                        'CALENDAR_EVENT.GROUP_EDIT' | translate
+                                    }}
+                                </div>
                             </div>
                         </button>
                         <button mat-menu-item [disabled]="true">
@@ -130,7 +151,12 @@ import {
                                 <app-icon class="text-2xl"
                                     >content_copy</app-icon
                                 >
-                                <div class="mr-2">Copy URL</div>
+                                <div class="mr-2">
+                                    {{
+                                        'CALENDAR_EVENT.GROUP_COPY_URL'
+                                            | translate
+                                    }}
+                                </div>
                             </div>
                         </button>
                         <button mat-menu-item (click)="remove.emit()">
@@ -138,7 +164,12 @@ import {
                                 <app-icon class="text-2xl text-error">
                                     delete
                                 </app-icon>
-                                <div class="mr-2">Delete Event</div>
+                                <div class="mr-2">
+                                    {{
+                                        'CALENDAR_EVENT.GROUP_DELETE'
+                                            | translate
+                                    }}
+                                </div>
                             </div>
                         </button>
                     </mat-menu>
@@ -153,8 +184,12 @@ import {
                                     star
                                 </app-icon>
                                 <span>
-                                    {{ is_interested ? 'Revoke' : 'Indicate' }}
-                                    Interest
+                                    {{
+                                        (is_interested
+                                            ? 'CALENDAR_EVENT.GROUP_INTEREST_REMOVE'
+                                            : 'CALENDAR_EVENT.GROUP_INTEREST_ADD'
+                                        ) | translate
+                                    }}
                                 </span>
                             </div>
                         </button>
@@ -164,8 +199,12 @@ import {
                                     help
                                 </app-icon>
                                 <span>
-                                    {{ is_going ? 'Revoke' : 'Indicate' }}
-                                    Going
+                                    {{
+                                        (is_going
+                                            ? 'CALENDAR_EVENT.GROUP_GOING_REMOVE'
+                                            : 'CALENDAR_EVENT.GROUP_GOING_ADD'
+                                        ) | translate
+                                    }}
                                 </span>
                             </div>
                         </button>
@@ -173,29 +212,42 @@ import {
                 </div>
             </div>
             <div
-                class="flex flex-1 max-h-[calc(80vh-18rem)] overflow-y-auto overflow-x-hidden p-8 space-x-6"
+                class="flex max-h-[calc(80vh-18rem)] flex-1 space-x-6 overflow-y-auto overflow-x-hidden p-8"
             >
-                <div class="flex flex-1 flex-col space-y-2 w-1/3">
+                <div class="flex w-1/3 flex-1 flex-col space-y-2">
                     <div class="flex items-center space-x-4">
                         <div
-                            class="flex items-center justify-center w-10 h-10 bg-base-200 rounded-full"
+                            class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200"
                         >
                             <app-icon>person</app-icon>
                         </div>
                         <div>
-                            Event by
-                            {{ event.organiser?.name || event.host }}
+                            {{
+                                'CALENDAR_EVENT.GROUP_HOST'
+                                    | translate
+                                        : {
+                                              name:
+                                                  event.organiser?.name ||
+                                                  event.host,
+                                          }
+                            }}
                         </div>
                     </div>
-                    <h3 class="font-medium pt-4">When and where</h3>
+                    <h3 class="pt-4 font-medium">
+                        {{ 'CALENDAR_EVENT.GROUP_WHEN_WHERE' | translate }}
+                    </h3>
                     <div class="flex items-center space-x-4">
                         <div
-                            class="flex items-center justify-center w-10 h-10 bg-base-200 rounded-full"
+                            class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200"
                         >
                             <app-icon>calendar_today</app-icon>
                         </div>
                         <div class="flex flex-col">
-                            <div class="text-sm">Date and Time</div>
+                            <div class="text-sm">
+                                {{
+                                    'CALENDAR_EVENT.GROUP_DATE_TIME' | translate
+                                }}
+                            </div>
                             <div class="text-sm opacity-30">
                                 {{ event.date | date: 'EEEE, d MMMM, yyyy' }}
                                 . {{ event.date | date: time_format }} -
@@ -208,7 +260,7 @@ import {
                     </div>
                     <div class="flex items-center space-x-4">
                         <div
-                            class="flex items-center justify-center w-10 h-10 bg-base-200 rounded-full"
+                            class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200"
                         >
                             <app-icon>place</app-icon>
                         </div>
@@ -220,13 +272,17 @@ import {
                                 *ngIf="is_onsite && !has_space"
                                 class="opacity-30"
                             >
-                                Room to be confirmed
+                                {{
+                                    'CALENDAR_EVENT.GROUP_UNCONFIRMED'
+                                        | translate
+                                }}
                             </div>
                             <div *ngIf="is_online" class="opacity-30">
                                 {{
-                                    is_onsite
-                                        ? 'Can be attended online'
-                                        : 'Remote Event'
+                                    (is_onsite
+                                        ? 'CALENDAR_EVENT.GROUP_BOTH_LOCATIONS'
+                                        : 'CALENDAR_EVENT.GROUP_REMOTE'
+                                    ) | translate
                                 }}
                             </div>
                         </div>
@@ -234,21 +290,29 @@ import {
                     <button
                         matRipple
                         (click)="show_attendees = true"
-                        class="flex items-center space-x-4 rounded min-h-12"
+                        class="flex min-h-12 items-center space-x-4 rounded"
                     >
                         <div
-                            class="flex items-center justify-center w-10 h-10 bg-base-200 rounded-full"
+                            class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200"
                         >
                             <app-icon>person</app-icon>
                         </div>
                         <div>
-                            {{ attendance }} going,
-                            {{ event.attendees?.length }}
-                            interested
+                            {{
+                                'CALENDAR_EVENT.GROUP_ATTENDEES'
+                                    | translate
+                                        : {
+                                              going: attendance,
+                                              interested:
+                                                  event.attendees?.length,
+                                          }
+                            }}
                         </div>
                     </button>
-                    <h3 class="font-medium pt-4">About this event</h3>
-                    <div class="text-sm pb-4">
+                    <h3 class="pt-4 font-medium">
+                        {{ 'CALENDAR_EVENT.GROUP_ABOUT' | translate }}
+                    </h3>
+                    <div class="pb-4 text-sm">
                         <span
                             event-details
                             [innerHTML]="body | sanitize"
@@ -257,16 +321,19 @@ import {
                             *ngIf="!raw_description.trim()"
                             class="opacity-30"
                         >
-                            No description
+                            {{
+                                'CALENDAR_EVENT.GROUP_NO_DESCRIPTION'
+                                    | translate
+                            }}
                         </span>
                     </div>
                 </div>
                 <div>
                     <div class="flex w-[20rem]" *ngIf="level">
-                        <div class="border border-base-300 w-full">
+                        <div class="w-full border border-base-300">
                             <button
                                 matRipple
-                                class="relative w-full h-40 bg-base-200"
+                                class="relative h-40 w-full bg-base-200"
                                 (click)="viewLocation()"
                             >
                                 <interactive-map
@@ -276,7 +343,7 @@ import {
                                     [styles]="styles"
                                 ></interactive-map>
                             </button>
-                            <div class="p-4 space-y-2">
+                            <div class="space-y-2 p-4">
                                 <div *ngIf="is_onsite && has_space">
                                     {{
                                         (system_id | space | async)
@@ -287,9 +354,12 @@ import {
                                     *ngIf="is_onsite && !has_space"
                                     class="opacity-30"
                                 >
-                                    Room to be confirmed
+                                    {{
+                                        'CALENDAR_EVENT.GROUP_UNCONFIRMED'
+                                            | translate
+                                    }}
                                 </div>
-                                <div class="opacity-30 text-sm !mt-0">
+                                <div class="!mt-0 text-sm opacity-30">
                                     <span *ngIf="building && level">
                                         {{
                                             building.display_name ||
@@ -301,21 +371,25 @@ import {
                                         *ngIf="!building || !level"
                                         class="opacity-30"
                                     >
-                                        No location set for this event
+                                        {{
+                                            'CALENDAR_EVENT.GROUP_NO_LOCATION'
+                                                | translate
+                                        }}
                                     </span>
                                 </div>
                                 <a
                                     *ngIf="is_online"
-                                    class="opacity-30 mt-4"
+                                    class="mt-4 opacity-30"
                                     [class.underline]="event.meeting_url"
                                     [href]="event.meeting_url"
                                     target="_blank"
                                     rel="noopener noreferrer"
                                 >
                                     {{
-                                        is_onsite
-                                            ? 'Can be attended online'
-                                            : 'Remote Event'
+                                        (is_onsite
+                                            ? 'CALENDAR_EVENT.GROUP_BOTH_LOCATIONS'
+                                            : 'CALENDAR_EVENT.GROUP_REMOTE'
+                                        ) | translate
                                     }}
                                 </a>
                             </div>
@@ -330,7 +404,7 @@ import {
                 (click)="show_attendees = false"
             ></button>
             <div
-                class="absolute left-1/2 -translate-x-1/2 w-[24rem] inset-y-8 rounded shadow overflow-hidden"
+                class="absolute inset-y-8 left-1/2 w-[24rem] -translate-x-1/2 overflow-hidden rounded shadow"
             >
                 <attendee-list
                     [show_host]="false"
@@ -342,6 +416,7 @@ import {
         </div>
     `,
     styles: [``],
+    standalone: false,
 })
 export class GroupEventDetailsModalComponent {
     @Output() public edit = new EventEmitter();
@@ -468,7 +543,7 @@ export class GroupEventDetailsModalComponent {
 
     public removeHtmlTags(html: string) {
         const doc = new DOMParser().parseFromString(html, 'text/html');
-        return doc.body.textContent || '';
+        return (doc.body.textContent || '').trim();
     }
     public viewLocation() {
         if (!this.space?.map_id) {
@@ -487,7 +562,6 @@ export class GroupEventDetailsModalComponent {
 
     public async toggleInterest() {
         let user = this.guest_details;
-        console.log('User:', user, this.is_interested);
         if (this.is_interested && user) {
             await removeEventGuest(this.event.id, currentUser() as any, {
                 system_id: this.event.system?.id,

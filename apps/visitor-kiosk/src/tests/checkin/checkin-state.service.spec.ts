@@ -9,9 +9,9 @@ jest.mock('@placeos/events');
 jest.mock('@placeos/bookings');
 jest.mock('@placeos/users');
 
-import * as placeos from '@placeos/ts-client';
-import * as events_mod from '@placeos/events';
 import * as booking_mod from '@placeos/bookings';
+import * as events_mod from '@placeos/events';
+import * as placeos from '@placeos/ts-client';
 import * as users_mod from '@placeos/users';
 
 describe('CheckinStateService', () => {
@@ -30,16 +30,16 @@ describe('CheckinStateService', () => {
         (events_mod.showEvent as any) = jest.fn(() => of({}));
         (users_mod.showGuest as any) = jest.fn(() => of({}));
         (booking_mod.showBooking as any) = jest.fn(() =>
-            of({ asset_id: 'a@b.com' })
+            of({ asset_id: 'a@b.com' }),
         );
         (booking_mod.queryAllBookings as any) = jest.fn(() =>
-            of([{ date: Date.now(), asset_id: 'a@b.com' }])
+            of([{ date: Date.now(), asset_id: 'a@b.com' }]),
         );
         (users_mod.listGuestMeetings as any) = jest.fn(() =>
-            of([{ date: Date.now() }])
+            of([{ date: Date.now() }]),
         );
         (users_mod.generateGuestForm as any) = jest.fn(() =>
-            of(new FormGroup({}))
+            of(new FormGroup({})),
         );
         await spectator.service.loadGuestAndEvent('a@b.com');
         expect(users_mod.showGuest).toBeCalledWith('a@b.com');

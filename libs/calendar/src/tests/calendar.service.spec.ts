@@ -1,8 +1,8 @@
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
-import { BehaviorSubject, of } from 'rxjs';
-import { first } from 'rxjs/operators';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { MockProvider } from 'ng-mocks';
+import { BehaviorSubject, of } from 'rxjs';
+import { first } from 'rxjs/operators';
 
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { Space } from 'libs/spaces/src/lib/space.class';
@@ -10,9 +10,9 @@ import { CalendarService } from '../lib/calendar.service';
 
 jest.mock('../lib/calendar.fn.ts');
 
-import * as cal_fn from '../lib/calendar.fn';
-import { Calendar } from '../lib/calendar.class';
 import { SettingsService } from '@placeos/common';
+import { Calendar } from '../lib/calendar.class';
+import * as cal_fn from '../lib/calendar.fn';
 
 describe('CalendarService', () => {
     let spectator: SpectatorService<CalendarService>;
@@ -28,7 +28,7 @@ describe('CalendarService', () => {
 
     beforeEach(() => {
         (cal_fn as any).queryCalendars = jest.fn(() => of([new Calendar()]));
-        spectator = createService()
+        spectator = createService();
     });
 
     it('should create service', () => {
@@ -59,7 +59,7 @@ describe('CalendarService', () => {
                 period_end: getUnixTime(endOfDay(0)),
                 calendars: 'CAL-1',
             },
-            spectator.inject(OrganisationService)
+            spectator.inject(OrganisationService),
         );
     });
 
@@ -69,7 +69,7 @@ describe('CalendarService', () => {
         const is_free = await spectator.service.checkSpacesAvailability(
             ['sys-1'],
             1,
-            2
+            2,
         );
         expect(is_free).toBeTruthy();
         expect(cal_fn.queryCalendarAvailability).toHaveBeenCalledWith({

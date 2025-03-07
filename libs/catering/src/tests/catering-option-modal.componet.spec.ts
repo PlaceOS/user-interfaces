@@ -10,13 +10,17 @@ import { IconComponent } from '@placeos/components';
 import { MockComponent } from 'ng-mocks';
 import { CateringItem } from '../lib/catering-item.class';
 
+import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
 import { CateringItemOptionModalComponent } from '../lib/catering-option-modal.component';
 
 describe('CateringItemOptionModalComponent', () => {
     let spectator: Spectator<CateringItemOptionModalComponent>;
     const createComponent = createComponentFactory({
         component: CateringItemOptionModalComponent,
-        declarations: [MockComponent(IconComponent)],
+        declarations: [
+            MockComponent(IconComponent),
+            MockComponent(SettingsToggleComponent),
+        ],
         providers: [
             {
                 provide: MAT_DIALOG_DATA,

@@ -16,29 +16,30 @@ import { RunSurveyService } from '../services/run-survey.service';
     ],
     template: `
         <main
-            class="flex flex-col min-h-0 h-full w-full bg-base-100 relative items-center pb-6 overflow-y-auto"
+            class="relative flex h-full min-h-0 w-full flex-col items-center overflow-y-auto bg-base-100 pb-6"
         >
             <div
                 *ngIf="(loading$ | async).length"
-                class="flex absolute inset-0 opacity-60 bg-base-100 z-10"
+                class="absolute inset-0 z-10 flex bg-base-100 opacity-60"
             >
-                <div class="flex flex-col m-auto items-center">
+                <div class="m-auto flex flex-col items-center">
                     <mat-spinner [diameter]="32"></mat-spinner>
                     <span>{{ loading$ | async }}</span>
                 </div>
             </div>
-            <div class="flex flex-col w-full max-w-6xl">
+            <div class="flex w-full max-w-6xl flex-col">
                 <survey [model]="service.surveyModel"></survey>
             </div>
         </main>
     `,
     providers: [RunSurveyService],
+    standalone: false,
 })
 export class RunSurveyComponent extends AsyncHandler implements OnInit {
     loading$ = this.service.loading$;
     constructor(
         private route: ActivatedRoute,
-        public service: RunSurveyService
+        public service: RunSurveyService,
     ) {
         super();
     }
@@ -51,7 +52,7 @@ export class RunSurveyComponent extends AsyncHandler implements OnInit {
                 if (id?.length) {
                     this.service.loadSurvey(id);
                 }
-            })
+            }),
         );
     }
 }

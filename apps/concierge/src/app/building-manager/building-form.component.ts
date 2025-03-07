@@ -2,6 +2,8 @@ import {
     Component,
     EventEmitter,
     Input,
+    OnChanges,
+    OnInit,
     Output,
     SimpleChanges,
 } from '@angular/core';
@@ -10,6 +12,7 @@ import {
     AsyncHandler,
     TIMEZONES_IANA,
     getInvalidFields,
+    i18n,
     notifyError,
     notifySuccess,
 } from '@placeos/common';
@@ -19,102 +22,90 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
 @Component({
     selector: 'building-form',
     template: `
-        <ng-container *ngIf="!loading; else load_state">
-            <form
-                building
-                class="flex flex-col w-[36rem] max-w-[calc(100vw-4rem)]"
-                *ngIf="form"
-                [formGroup]="form"
-            >
-                <div
-                    class="flex flex-col"
-                    *ngIf="(region_list | async)?.length"
-                >
-                    <label for="region" i18n="@@displayNameLabel">
-                        Region:
-                    </label>
-                    <mat-form-field appearance="outline">
-                        <mat-select
-                            name="region"
-                            formControlName="parent_id"
-                            placeholder="Select Region..."
-                        >
-                            <mat-option [value]="default_parent"
-                                >None</mat-option
-                            >
-                            <mat-option
-                                *ngFor="let region of region_list | async"
-                                [value]="region.id"
-                            >
-                                {{ region.display_name || region.name }}
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                </div>
-                <div class="flex flex-col">
-                    <label for="display-name" i18n="@@displayNameLabel">
-                        Display Name:
-                    </label>
-                    <mat-form-field appearance="outline">
-                        <input
-                            matInput
-                            name="display-name"
-                            placeholder="Display Name"
-                            formControlName="display_name"
-                        />
-                    </mat-form-field>
-                </div>
-                <div class="flex flex-col">
-                    <label for="display-name" i18n="@@displayNameLabel">
-                        Timezone:
-                    </label>
-                    <mat-form-field appearance="outline">
-                        <app-icon matPrefix class="text-2xl">search</app-icon>
-                        <input
-                            matInput
-                            formControlName="timezone"
-                            placeholder="Building timezone"
-                            [matAutocomplete]="auto"
-                        />
-                    </mat-form-field>
-                    <mat-autocomplete #auto="matAutocomplete">
-                        <mat-option
-                            *ngFor="let tz of filtered_timezones"
-                            [value]="tz"
-                            >{{ tz }}</mat-option
-                        >
-                        <mat-option *ngIf="!timezones.length" [disabled]="true">
-                            No matching timezones
+        <form building *ngIf="form" [formGroup]="form">
+            <div class="flex flex-col" *ngIf="(region_list | async)?.length">
+                <label for="region">
+                    {{ 'RESOURCE.REGION' | translate }}
+                </label>
+                <mat-form-field appearance="outline">
+                    <mat-select
+                        name="region"
+                        formControlName="parent_id"
+                        [placeholder]="'COMMON.REGION_SELECT' | translate"
+                    >
+                        <mat-option [value]="default_parent">
+                            {{ 'COMMON.NONE' | translate }}
                         </mat-option>
-                    </mat-autocomplete>
-                </div>
-                <div class="flex flex-col">
-                    <label for="address" i18n="@@displayNameLabel">
-                        Location:
-                    </label>
-                    <mat-form-field appearance="outline">
-                        <input
-                            matInput
-                            name="address"
-                            placeholder="Location or Address..."
-                            formControlName="location"
-                        />
-                    </mat-form-field>
-                </div>
-            </form>
-        </ng-container>
-        <ng-template #load_state>
-            <div class="flex flex-col items-center justify-center w-64 h-64">
-                <mat-spinner diameter="32"></mat-spinner>
-                <p class="mt-4">Saving building...</p>
+                        <mat-option
+                            *ngFor="let region of region_list | async"
+                            [value]="region.id"
+                        >
+                            {{ region.display_name || region.name }}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
             </div>
-        </ng-template>
+            <div class="flex flex-col">
+                <label for="display-name"
+                    >{{ 'FORM.DISPLAY_NAME' | translate }}
+                </label>
+                <mat-form-field appearance="outline">
+                    <input
+                        matInput
+                        name="display-name"
+                        [placeholder]="'FORM.DISPLAY_NAME' | translate"
+                        formControlName="display_name"
+                    />
+                </mat-form-field>
+            </div>
+            <div class="flex flex-col">
+                <label for="display-name">{{
+                    'COMMON.TIMEZONE' | translate
+                }}</label>
+                <mat-form-field appearance="outline">
+                    <app-icon matPrefix class="text-2xl">search</app-icon>
+                    <input
+                        matInput
+                        formControlName="timezone"
+                        [placeholder]="'COMMON.TIMEZONE' | translate"
+                        [matAutocomplete]="auto"
+                    />
+                </mat-form-field>
+                <mat-autocomplete #auto="matAutocomplete">
+                    <mat-option
+                        *ngFor="let tz of filtered_timezones"
+                        [value]="tz"
+                        >{{ tz }}</mat-option
+                    >
+                    <mat-option *ngIf="!timezones.length" [disabled]="true">
+                        {{ 'COMMON.TIMEZONE_EMPTY' | translate }}
+                    </mat-option>
+                </mat-autocomplete>
+            </div>
+            <div class="flex flex-col">
+                <label for="address">
+                    {{ 'COMMON.LOCATION' | translate }}
+                </label>
+                <mat-form-field appearance="outline">
+                    <input
+                        matInput
+                        name="address"
+                        [placeholder]="'COMMON.LOCATION' | translate"
+                        formControlName="location"
+                    />
+                </mat-form-field>
+            </div>
+        </form>
     `,
     styles: [``],
+    standalone: false,
 })
-export class BuildingFormComponent extends AsyncHandler {
+export class BuildingFormComponent
+    extends AsyncHandler
+    implements OnInit, OnChanges
+{
     @Input() public building: Building | null = null;
-    @Input() public save: number = 0;
+    @Input() public save = 0;
     @Input() public loading = false;
     @Output() public loadingChange = new EventEmitter<boolean>();
     @Output() public done = new EventEmitter();
@@ -130,7 +121,7 @@ export class BuildingFormComponent extends AsyncHandler {
         ]),
         display_name: new FormControl('', [Validators.required]),
         timezone: new FormControl(
-            Intl?.DateTimeFormat()?.resolvedOptions()?.timeZone || ''
+            Intl?.DateTimeFormat()?.resolvedOptions()?.timeZone || '',
         ),
         location: new FormControl(''),
     });
@@ -147,7 +138,7 @@ export class BuildingFormComponent extends AsyncHandler {
         this._updateTimezoneList();
         this.subscription(
             'tz-change',
-            this.form.valueChanges.subscribe(() => this._updateTimezoneList())
+            this.form.valueChanges.subscribe(() => this._updateTimezoneList()),
         );
         if (this.building) this.form.patchValue(this.building);
     }
@@ -165,9 +156,9 @@ export class BuildingFormComponent extends AsyncHandler {
         });
         if (!this.form.valid) {
             return notifyError(
-                `Some form fields are invalid. [${getInvalidFields(
-                    this.form
-                ).join(', ')}]`
+                i18n('FORM.INVALID_FIELDS', {
+                    field_list: getInvalidFields(this.form).join(', '),
+                }),
             );
         }
         const data = this.form.getRawValue();
@@ -178,20 +169,21 @@ export class BuildingFormComponent extends AsyncHandler {
             tags: ['building'],
             name: `BLD ${authority().description} ${data.display_name}`,
         };
-        const building = await (data.id
-            ? updateZone(data.id, body)
-            : addZone(body)
+        const building = await (
+            data.id ? updateZone(data.id, body) : addZone(body)
         )
             .toPromise()
             .catch((e) => {
                 notifyError(
-                    `Error saving building: ${e.message || e.error || e}`
+                    i18n('APP.CONCIERGE.BUILDINGS_SAVE_ERROR', {
+                        error: e.message || e.error || e,
+                    }),
                 );
                 this.loading = false;
                 this.loadingChange.emit(false);
                 throw e;
             });
-        notifySuccess('Successfully saved building.');
+        notifySuccess(i18n('APP.CONCIERGE.BUILDINGS_SAVE_SUCCESS'));
         this.loading = false;
         this.loadingChange.emit(false);
         this.done.emit(building);
@@ -201,7 +193,7 @@ export class BuildingFormComponent extends AsyncHandler {
         const timezone = this.form?.value?.timezone || '';
         this.timezones = TIMEZONES_IANA;
         this.filtered_timezones = this.timezones.filter((_) =>
-            _.toLowerCase().includes(timezone.toLowerCase())
+            _.toLowerCase().includes(timezone.toLowerCase()),
         );
     }
 }

@@ -7,12 +7,12 @@ import { ScheduleStateService } from 'apps/workplace/src/app/new-schedule/schedu
 @Component({
     selector: 'placeos-upcoming-bookings',
     template: `
-        <div class="w-full h-full flex flex-1 flex-col z-0 bg-base-200">
-            <h3 class="flex items-center text-xl font-bold p-4 pl-6">
+        <div class="z-0 flex h-full w-full flex-1 flex-col bg-base-200">
+            <h3 class="flex items-center p-4 pl-6 text-xl font-bold">
                 Your Bookings
             </h3>
             <div
-                class="px-4 pb-4 flex-1 h-1/2 overflow-auto space-y-4"
+                class="h-1/2 flex-1 space-y-4 overflow-auto px-4 pb-4"
                 *ngIf="!(loading$ | async); else load_state"
             >
                 <ng-container
@@ -35,7 +35,7 @@ import { ScheduleStateService } from 'apps/workplace/src/app/new-schedule/schedu
         <ng-template #load_state>
             <div
                 loading
-                class="h-3/4 w-full flex-1 flex flex-col items-center justify-center space-y-4 my-6"
+                class="my-6 flex h-3/4 w-full flex-1 flex-col items-center justify-center space-y-4"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
                 <p>Retrieving bookings...</p>
@@ -44,13 +44,14 @@ import { ScheduleStateService } from 'apps/workplace/src/app/new-schedule/schedu
         <ng-template #empty_state>
             <div
                 empty
-                class="h-3/4 w-full flex-1 flex flex-col items-center justify-center space-y-2 p-8 text-center my-6"
+                class="my-6 flex h-3/4 w-full flex-1 flex-col items-center justify-center space-y-2 p-8 text-center"
             >
                 <p>No bookings found</p>
             </div>
         </ng-template>
     `,
     styles: [``],
+    standalone: false,
 })
 export class UpcomingBookingsComponent extends AsyncHandler implements OnInit {
     public user = currentUser();

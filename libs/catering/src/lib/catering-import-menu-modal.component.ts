@@ -2,40 +2,59 @@ import { Component, EventEmitter, Output } from '@angular/core';
 import { csvToJson, DialogEvent, downloadFile } from '@placeos/common';
 import { CateringItem } from './catering-item.class';
 
+interface ImportItem {
+    id: string;
+    type: 'item' | 'option';
+    name: string;
+    unit_price: number;
+    category: string;
+    caterer: string;
+    description: string;
+    tags: string;
+    multiple: boolean;
+}
+
 @Component({
     selector: 'catering-import-menu-modal',
     template: `
-        <header class="h-12 bg-primary flex items-center justify-between px-4">
-            <h2>Import Catering Menu</h2>
-            <button icon mat-dialog-close *ngIf="!loading">
+        <header
+            class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded border-none bg-base-200 p-2"
+        >
+            <h2 class="px-2 text-xl font-medium">
+                {{ 'CATERING.MENU_IMPORT' | translate }}
+            </h2>
+            <button icon matRipple mat-dialog-close *ngIf="!loading">
                 <app-icon>close</app-icon>
             </button>
         </header>
         <main *ngIf="!loading; else load_state">
             <div
-                class="relative flex flex-col items-center justify-center space-y-2 h-[24rem] w-[24rem] border-4 border-base-200 border-dashed rounded-xl hover:bg-base-200 m-4 p-4 cursor-pointer"
+                class="relative mx-2 flex h-[24rem] w-[24rem] cursor-pointer flex-col items-center justify-center space-y-4 rounded-xl border-4 border-dashed border-base-300 p-4 hover:bg-base-200"
             >
-                <app-icon class="text-4xl">upload</app-icon>
-                <p>Click to select file or Drag and drop files</p>
+                <app-icon class="text-8xl opacity-30">cloud_upload</app-icon>
+                <p class="px-4 text-center opacity-30">
+                    {{ 'CATERING.MENU_IMPORT_FILE_SELECT' | translate }}
+                </p>
                 <input
                     type="file"
                     class="absolute inset-0 opacity-0"
                     (change)="handleFileEvent($event)"
                 />
             </div>
-            <div class="flex items-center justify-center px-4 pb-4">
+            <div class="flex items-center justify-center p-2">
                 <button
+                    btn
                     matRipple
-                    class="clear underline w-48"
+                    class="w-full"
                     (click)="downloadTemplate()"
                 >
-                    Download Template
+                    {{ 'CATERING.MENU_IMPORT_TEMPLATE' | translate }}
                 </button>
             </div>
         </main>
         <ng-template #load_state>
             <main
-                class="flex flex-col items-center justify-center space-y-2 p-8 h-[24rem] w-[24rem]"
+                class="flex h-[24rem] w-[24rem] flex-col items-center justify-center space-y-2 p-8"
             >
                 <mat-spinner diameter="32"></mat-spinner>
                 <p>{{ loading }}</p>
@@ -43,6 +62,7 @@ import { CateringItem } from './catering-item.class';
         </ng-template>
     `,
     styles: [``],
+    standalone: false,
 })
 export class CateringImportMenuModalComponent {
     @Output() public event = new EventEmitter<DialogEvent>();
@@ -59,40 +79,47 @@ export class CateringImportMenuModalComponent {
         const fileReader = new FileReader();
         fileReader.addEventListener('loadend', (e: any) => {
             const contents = e.target.result;
-            const data = csvToJson(contents);
+            const data = csvToJson(contents) as any;
+            const new_items = this._processData(data);
             this.loading = '';
             this.event.emit({
                 reason: 'done',
-                metadata: data
-                    .filter((_) => (_.type || '').toLowerCase() === 'item')
-                    .map(
-                        (i) =>
-                            new CateringItem({
-                                ...i,
-                                options: data
-                                    .filter(
-                                        (_) =>
-                                            (_.type || '').toLowerCase() ===
-                                                'option' && _.tags === i.id
-                                    )
-                                    .map((_) => ({
-                                        id: _.id,
-                                        name: _.name,
-                                        group: _.category,
-                                        multiple: _.multiple,
-                                        unit_price: _.unit_price,
-                                    })),
-                            })
-                    ),
+                metadata: new_items,
             });
         });
         fileReader.readAsText(file);
     }
 
+    private _processData(list: ImportItem[]): CateringItem[] {
+        const items = [];
+        const isType = (i, t) => i.type.toLowerCase() === t;
+        for (const item of list) {
+            if (!isType(item, 'item')) continue;
+            const opt_list = list.filter(
+                (o) =>
+                    isType(o, 'option') &&
+                    (o.tags === item.id || o.description === item.id),
+            );
+            items.push(
+                new CateringItem({
+                    ...(item as any),
+                    options: opt_list.map((o) => ({
+                        id: o.id,
+                        name: o.name,
+                        group: o.category,
+                        multiple: o.multiple,
+                        unit_price: o.unit_price,
+                    })),
+                }),
+            );
+        }
+        return items;
+    }
+
     public downloadTemplate() {
-        const template = `ID,Type,Name,Unit Price,Category,Description,Tags,Multiple
-item-1,item,Coffee,200,Drink,Wake Up,,
-option-1,option,1 Sugar,20,Sugars,,item-1,false`;
+        const template = `ID,Type,Name,Unit Price,Category,Caterer,Description,Tags,Multiple
+item-1,item,Coffee,200,Drink,Wake Up Cafe,Wake Up,,
+option-1,option,1 Sugar,20,Sugars,,,item-1,false`;
         downloadFile('import-menu-template.csv', template);
     }
 }

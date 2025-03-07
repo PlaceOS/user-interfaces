@@ -1,23 +1,21 @@
 import { Pipe } from '@angular/core';
-
-export function padLength(value: number | string, length: number = 2): string {
-    let str = `${value}`;
-    while (str.length < length) str = `0${str}`;
-    return str;
-}
+import { padLength } from '@placeos/common';
 
 @Pipe({
     name: 'mediaDuration',
+    standalone: false,
 })
 export class MediaDurationPipe {
-    public transform(length: number): string {
-        let str = `${padLength(Math.floor(length / 60) % 60)}:${padLength(
-            length % 60
-        )}`;
-        const hours = Math.floor(length / 60 / 60);
-        if (hours > 0) {
-            str = `${padLength(hours)}:${str}`;
+    public transform(period_length: number, show_ms: boolean = false): string {
+        const hours = Math.floor(period_length / 60 / 60);
+        const minutes = Math.floor((period_length / 60) % 60);
+        const seconds = Math.floor(period_length % 60);
+        const milliseconds = Math.floor((period_length * 1000) % 1000);
+        let str = `${padLength(minutes)}:${padLength(seconds)}`;
+        if (show_ms) {
+            str += `.${padLength(milliseconds, 3)}`;
         }
+        if (hours > 0) str = `${padLength(hours)}:${str}`;
         return str;
     }
 }

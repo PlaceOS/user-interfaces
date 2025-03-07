@@ -1,42 +1,37 @@
-import { BrowserModule } from '@angular/platform-browser';
+import { ErrorHandler, LOCALE_ID, NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { APP_INITIALIZER, ErrorHandler, NgModule } from '@angular/core';
 import { Router } from '@angular/router';
 import { ServiceWorkerModule } from '@angular/service-worker';
 
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatRippleModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
 
-import { ComponentsModule, UnauthorisedComponent } from '@placeos/components';
-import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+import { ComponentsModule } from '@placeos/components';
 
-import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from 'libs/components/src/lib/app.component';
 import { environment } from '../environments/environment';
+import { AppRoutingModule } from './app-routing.module';
 import { BootstrapComponent } from './bootstrap.component';
 
-import * as Sentry from '@sentry/angular';
-import { HttpClient } from '@angular/common/http';
-import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
-import { SignagePanelComponent } from './signage.component';
-import { PaymentsModule } from 'libs/payments/src/lib/payments.module';
-import { SharedSpacesModule } from '@placeos/spaces';
+import { LocaleService } from '@placeos/common';
 import { SharedExploreModule } from '@placeos/explore';
-
-// AoT requires an exported function for factories
-export function HttpLoaderFactory(http: HttpClient) {
-    return new TranslateHttpLoader(http, './assets/locale/', '.json');
-}
+import { PaymentsModule } from '@placeos/payments';
+import { SharedSpacesModule } from '@placeos/spaces';
+import * as Sentry from '@sentry/angular';
+import { MediaPlayerComponent } from './media-player.component';
+import { SignagePanelComponent } from './signage.component';
 
 @NgModule({
     declarations: [
         AppComponent,
-        UnauthorisedComponent,
         BootstrapComponent,
         SignagePanelComponent,
+        MediaPlayerComponent,
     ],
     imports: [
         BrowserModule,
@@ -45,22 +40,16 @@ export function HttpLoaderFactory(http: HttpClient) {
         ReactiveFormsModule,
         AppRoutingModule,
         MatProgressSpinnerModule,
+        MatProgressBarModule,
         MatRippleModule,
         MatFormFieldModule,
         MatSelectModule,
         SharedSpacesModule,
         ComponentsModule,
         SharedExploreModule,
+        PaymentsModule,
         ServiceWorkerModule.register('ngsw-worker.js', {
             enabled: environment.production,
-        }),
-        TranslateModule.forRoot({
-            defaultLanguage: 'en',
-            loader: {
-                provide: TranslateLoader,
-                useFactory: HttpLoaderFactory,
-                deps: [HttpClient],
-            },
         }),
     ],
     providers: [
@@ -74,11 +63,11 @@ export function HttpLoaderFactory(http: HttpClient) {
             provide: Sentry.TraceService,
             deps: [Router],
         },
+
         {
-            provide: APP_INITIALIZER,
-            useFactory: () => () => {},
-            deps: [Sentry.TraceService],
-            multi: true,
+            provide: LOCALE_ID,
+            deps: [LocaleService],
+            useFactory: (localeService: LocaleService) => localeService.locale,
         },
     ],
     bootstrap: [AppComponent],

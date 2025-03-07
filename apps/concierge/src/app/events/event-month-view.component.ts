@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
-import { EventStateService } from './event-state.service';
+import { MatDialog } from '@angular/material/dialog';
+import { Router } from '@angular/router';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import {
-    format,
     addDays,
+    format,
     isSameDay,
     isSameMonth,
     startOfDay,
@@ -11,30 +12,29 @@ import {
     startOfWeek,
 } from 'date-fns';
 import { map, shareReplay, startWith } from 'rxjs/operators';
-import { MatDialog } from '@angular/material/dialog';
-import { Router } from '@angular/router';
+import { EventStateService } from './event-state.service';
 
 @Component({
     selector: 'event-month-view',
     template: `
         <div class="absolute inset-0 overflow-auto">
             <div
-                class="grid grid-cols-7 min-w-full w-[80rem] min-h-full h-[56rem] m-2 border-b border-base-200 "
+                class="m-2 grid h-[56rem] min-h-full w-[80rem] min-w-full grid-cols-7 border-b border-base-200"
             >
                 <div
                     weekday
                     *ngFor="let weekday of weekdays"
-                    class="relative flex items-center justify-center text-sm opacity-60 p-2 h-12"
+                    class="relative flex h-12 items-center justify-center p-2 text-sm opacity-60"
                 >
                     {{ weekday | date: 'EEEE' }}
                 </div>
                 <div
                     monthday
                     *ngFor="let day of month_days"
-                    class="relative border border-base-200 flex flex-col space-y-1"
+                    class="relative flex flex-col space-y-1 border border-base-200"
                 >
                     <div
-                        class="rounded-full w-8 h-8 flex items-center justify-center mt-1 ml-1"
+                        class="ml-1 mt-1 flex h-8 w-8 items-center justify-center rounded-full"
                         [class.opacity-30]="!day.is_month"
                         [class.bg-secondary]="day.is_today"
                         [class.text-secondary-content]="day.is_today"
@@ -46,16 +46,16 @@ import { Router } from '@angular/router';
                         *ngFor="
                             let event of (event_day_map | async)[
                                 dateString(day.id)
-                            ] || [] | slice: 0:3
+                            ] || [] | slice: 0 : 3
                         "
                         (click)="viewEvent(event)"
-                        class="relative w-[calc(100%-0.5rem)] h-7 bg-base-100 rounded border border-base-200 hover:border-info shadow pl-3 pr-2 py-1 overflow-hidden mx-1"
+                        class="relative mx-1 h-7 w-[calc(100%-0.5rem)] overflow-hidden rounded border border-base-200 bg-base-100 py-1 pl-3 pr-2 shadow hover:border-info"
                     >
                         <div
-                            class="absolute left-0 inset-y-0 bg-info w-1.5"
+                            class="absolute inset-y-0 left-0 w-1.5 bg-info"
                         ></div>
                         <div
-                            class="text-sm opacity-60 h-full text-left truncate"
+                            class="h-full truncate text-left text-sm opacity-60"
                         >
                             {{ event.date | date: 'shortTime' }} &mdash;
                             {{ event.title }}
@@ -69,7 +69,7 @@ import { Router } from '@angular/router';
                             [hover]="true"
                         ></div>
                         <ng-template #event_card>
-                            <div class="p-2 pointer-events-none">
+                            <div class="pointer-events-none p-2">
                                 <group-event-card
                                     [event]="event"
                                 ></group-event-card>
@@ -83,14 +83,21 @@ import { Router } from '@angular/router';
                                 .length > 3
                         "
                         matTooltip="More events"
-                        class="relative w-[calc(100%-0.5rem)] h-7 rounded pl-3 pr-2 py-1 overflow-hidden mx-1 underline text-sm"
+                        class="relative mx-1 h-7 w-[calc(100%-0.5rem)] overflow-hidden rounded py-1 pl-3 pr-2 text-sm underline"
                         [matMenuTriggerFor]="menu"
                     >
                         {{
-                            ((event_day_map | async)[dateString(day.id)] || [])
-                                .length - 3
+                            'APP.CONCIERGE.EVENTS_MORE_COUNT'
+                                | translate
+                                    : {
+                                          count:
+                                              (
+                                                  (event_day_map | async)[
+                                                      dateString(day.id)
+                                                  ] || []
+                                              ).length - 3,
+                                      }
                         }}
-                        more event(s)
                     </button>
                     <mat-menu #menu="matMenu">
                         <button
@@ -105,7 +112,7 @@ import { Router } from '@angular/router';
                             <div class="flex items-center space-x-4">
                                 <div class="flex-1">{{ event.title }}</div>
                                 <div
-                                    class="text-xs opacity-60 py-1 px-2 rounded bg-base-200 text-base-content"
+                                    class="rounded bg-base-200 px-2 py-1 text-xs text-base-content opacity-60"
                                 >
                                     {{ event.date | date: 'shortTime' }}
                                 </div>
@@ -123,6 +130,7 @@ import { Router } from '@angular/router';
             }
         `,
     ],
+    standalone: false,
 })
 export class EventMonthViewComponent extends AsyncHandler {
     public month = startOfDay(Date.now()).valueOf();
@@ -148,7 +156,7 @@ export class EventMonthViewComponent extends AsyncHandler {
             return map;
         }),
         startWith({}),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     public readonly viewEvent = (event: any) => this._state.viewEvent(event);
@@ -166,7 +174,7 @@ export class EventMonthViewComponent extends AsyncHandler {
         private _state: EventStateService,
         private _settings: SettingsService,
         private _dialog: MatDialog,
-        private _router: Router
+        private _router: Router,
     ) {
         super();
     }
@@ -178,7 +186,7 @@ export class EventMonthViewComponent extends AsyncHandler {
                 this.month = date;
                 this._setMonthDays();
                 this._setWeekdays();
-            })
+            }),
         );
         this._setMonthDays();
         this._setWeekdays();
@@ -203,7 +211,7 @@ export class EventMonthViewComponent extends AsyncHandler {
             weekStartsOn: this.offset_weekday as any,
         });
         this.weekdays = Array.from(Array(7).keys()).map((i) =>
-            addDays(start, i)
+            addDays(start, i),
         );
     }
 }

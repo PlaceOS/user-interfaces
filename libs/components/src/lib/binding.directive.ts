@@ -1,22 +1,23 @@
 import {
     Directive,
+    ElementRef,
+    EventEmitter,
     Input,
-    SimpleChanges,
-    OnInit,
     OnChanges,
     OnDestroy,
-    ElementRef,
-    Renderer2,
-    EventEmitter,
+    OnInit,
     Output,
+    Renderer2,
+    SimpleChanges,
 } from '@angular/core';
-import { onlineState, authority, getModule } from '@placeos/ts-client';
+import { authority, getModule, onlineState } from '@placeos/ts-client';
 
 import { AsyncHandler } from '@placeos/common';
 import { filter, first } from 'rxjs/operators';
 
 @Directive({
     selector: 'i[bind], [binding], co-bind',
+    standalone: false,
 })
 export class BindingDirective<T = any>
     extends AsyncHandler
@@ -49,7 +50,7 @@ export class BindingDirective<T = any>
 
     constructor(
         private _element: ElementRef<HTMLElement>,
-        private _renderer: Renderer2
+        private _renderer: Renderer2,
     ) {
         super();
     }
@@ -78,8 +79,8 @@ export class BindingDirective<T = any>
                 this._renderer.listen(
                     this._element.nativeElement,
                     this.on_event,
-                    () => this.execute()
-                )
+                    () => this.execute(),
+                ),
             );
         }
     }
@@ -114,11 +115,11 @@ export class BindingDirective<T = any>
                                     this._old_model = this.model;
                                     this.modelChange.emit(this.model);
                                 }, 10);
-                            })
+                            }),
                     );
                     this.timeout('bound', () => (this._binding = false), 200);
                 },
-                20
+                20,
             );
         }
     }
@@ -147,7 +148,7 @@ export class BindingDirective<T = any>
                         }
                     });
                 },
-                this.delay
+                this.delay,
             );
         }
     }

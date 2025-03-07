@@ -1,17 +1,17 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { Space } from '@placeos/spaces';
 import { MapLocateModalComponent } from '@placeos/components';
+import { Space } from '@placeos/spaces';
 
 @Component({
     selector: 'space-flow-find-item',
     template: `
         <div
-            class="flex items-center bg-base-100 p-2 my-2 shadow w-[640px] max-w-[calc(100%-2rem)] mx-auto rounded"
+            class="mx-auto my-2 flex w-[640px] max-w-[calc(100%-2rem)] items-center rounded bg-base-100 p-2 shadow"
         >
-            <div class="flex flex-col flex-1 space-y-2 ">
+            <div class="flex flex-1 flex-col space-y-2">
                 <div class="flex items-center">
-                    <div class="p-2 rounded-full bg-base-200 mr-2">
+                    <div class="mr-2 rounded-full bg-base-200 p-2">
                         <app-icon>place</app-icon>
                     </div>
                     <span
@@ -20,13 +20,13 @@ import { MapLocateModalComponent } from '@placeos/components';
                     >
                 </div>
                 <div class="flex items-center">
-                    <div class="p-2 rounded-full bg-base-200 mr-2">
+                    <div class="mr-2 rounded-full bg-base-200 p-2">
                         <app-icon>group</app-icon>
                     </div>
                     <span>{{ space?.capacity || 0 }} People</span>
                 </div>
             </div>
-            <div class="flex flex-col space-y-2 ml-2">
+            <div class="ml-2 flex flex-col space-y-2">
                 <button
                     matRipple
                     book
@@ -55,6 +55,7 @@ import { MapLocateModalComponent } from '@placeos/components';
             }
         `,
     ],
+    standalone: false,
 })
 export class SpaceFlowFindItemComponent {
     /** Space to display details for */

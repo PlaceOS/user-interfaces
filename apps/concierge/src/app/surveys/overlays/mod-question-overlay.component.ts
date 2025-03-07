@@ -1,5 +1,5 @@
 import { Component, Inject, OnInit, ViewChild } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import {
     generateNewQuestion,
     Question,
@@ -10,24 +10,31 @@ import {
     selector: 'mod-question-overlay',
     styles: [],
     template: `
-        <header class="flex items-center justify-between px-2 w-full">
-            <h2 class="px-2">{{ isEdit ? 'Update' : 'Add' }} Question</h2>
+        <header
+            class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded border-none bg-base-200 p-2"
+        >
+            <h2 class="px-2 text-xl font-medium">
+                {{
+                    (isEdit
+                        ? 'APP.CONCIERGE.SURVEY_QUESTION_EDIT'
+                        : 'APP.CONCIERGE.SURVEY_QUESTION_NEW'
+                    ) | translate
+                }}
+            </h2>
             <button icon matRipple mat-dialog-close>
                 <app-icon>close</app-icon>
             </button>
         </header>
-        <main mat-dialog-content class="min-w-[40rem] overflow-x-hidden">
+        <main class="min-w-[40rem] overflow-x-hidden">
             <section>
                 <placeos-question
                     #questionElement
+                    [isCard]="false"
                     [value]="question"
                 ></placeos-question>
             </section>
         </main>
-        <div
-            class="flex flex-row justify-end space-x-2 px-4 py-2"
-            mat-dialog-actions
-        >
+        <div class="flex flex-row justify-end space-x-2 px-4 py-2">
             <button
                 btn
                 matRipple
@@ -38,6 +45,7 @@ import {
             </button>
         </div>
     `,
+    standalone: false,
 })
 export class ModQuestionOverlayComponent implements OnInit {
     @ViewChild('questionElement') questionElement: QuestionComponent;
@@ -47,7 +55,7 @@ export class ModQuestionOverlayComponent implements OnInit {
 
     constructor(
         @Inject(MAT_DIALOG_DATA) private _data: Question,
-        private _dialog_ref: MatDialogRef<ModQuestionOverlayComponent>
+        private _dialog_ref: MatDialogRef<ModQuestionOverlayComponent>,
     ) {
         this.isEdit = !!(this._data?.id > 0);
         this.question = this._data || generateNewQuestion();

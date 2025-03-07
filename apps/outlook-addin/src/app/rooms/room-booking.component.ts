@@ -1,9 +1,9 @@
-import { Component, OnInit, Inject } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
+import { Component, Inject, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { currentUser } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
 import { FeaturesFilterService } from './features-filter.service';
-import { currentUser } from '@placeos/common';
 
 @Component({
     selector: 'room-booking',
@@ -15,6 +15,7 @@ import { currentUser } from '@placeos/common';
             }
         `,
     ],
+    standalone: false,
 })
 export class RoomBookingComponent implements OnInit {
     public show_spaces = false;
@@ -34,7 +35,7 @@ export class RoomBookingComponent implements OnInit {
         @Inject(DOCUMENT) private _document: Document,
         private router: Router,
         private _state: EventFormService,
-        private _featuresFilterService: FeaturesFilterService
+        private _featuresFilterService: FeaturesFilterService,
     ) {}
 
     ngOnInit(): void {

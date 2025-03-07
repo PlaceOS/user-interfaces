@@ -1,9 +1,10 @@
 import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
 import {
     DialogEvent,
     SettingsService,
+    currentUser,
     notifyError,
     notifySuccess,
 } from '@placeos/common';
@@ -18,7 +19,7 @@ export interface BookingModalData {
     template: `
         <header>
             <h2>{{ form?.value.id ? 'Edit' : 'New' }} Booking</h2>
-            <div class="flex-1 w-0"></div>
+            <div class="w-0 flex-1"></div>
             <button icon mat-dialog-close>
                 <app-icon>close</app-icon>
             </button>
@@ -39,7 +40,7 @@ export interface BookingModalData {
         </main>
         <footer
             *ngIf="!(loading | async)"
-            class="flex justify-center items-center p-2 border-t border-base-200"
+            class="flex items-center justify-center border-t border-base-200 p-2"
         >
             <button btn matRipple class="w-32" (click)="save()">Save</button>
         </footer>
@@ -53,11 +54,12 @@ export interface BookingModalData {
             }
         `,
     ],
+    standalone: false,
 })
 export class BookingModalComponent implements OnInit {
     @Output() public event = new EventEmitter<DialogEvent>();
     /** Observable for the loading state of the form */
-    public readonly loading = this._service.loading;
+    public readonly loading = this._service.loading$;
 
     public get form() {
         return this._service.form;
@@ -67,7 +69,7 @@ export class BookingModalComponent implements OnInit {
         @Inject(MAT_DIALOG_DATA) private _data: BookingModalData,
         private _service: EventFormService,
         private _dialog_ref: MatDialogRef<BookingModalComponent>,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {}
 
     public async ngOnInit() {
@@ -88,9 +90,18 @@ export class BookingModalComponent implements OnInit {
                 event.all_day;
         }
         this._service.newForm(event);
+        this.form.patchValue({
+            organiser: currentUser(),
+            host: currentUser().email,
+        });
     }
 
     public async save() {
+        if (!this.form.value.host) {
+            this.form.patchValue({
+                host: currentUser().email,
+            });
+        }
         const event = await this._service.postForm().catch((_) => {
             notifyError(_);
             throw _;

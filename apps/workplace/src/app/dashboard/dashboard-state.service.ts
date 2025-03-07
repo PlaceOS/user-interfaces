@@ -6,7 +6,8 @@ import {
     showMetadata,
     updateMetadata,
 } from '@placeos/ts-client';
-import { BehaviorSubject, combineLatest, of } from 'rxjs';
+import { differenceInMinutes, endOfDay } from 'date-fns';
+import { BehaviorSubject, of } from 'rxjs';
 import {
     catchError,
     debounceTime,
@@ -17,8 +18,9 @@ import {
     switchMap,
     take,
 } from 'rxjs/operators';
-import { differenceInMinutes, endOfDay } from 'date-fns';
 
+import { Booking, queryBookings } from '@placeos/bookings';
+import { CalendarService } from '@placeos/calendar';
 import {
     AsyncHandler,
     currentUser,
@@ -26,17 +28,15 @@ import {
     SettingsService,
     unique,
 } from '@placeos/common';
-import { Space } from '@placeos/spaces';
 import {
     CalendarEvent,
     EventFormService,
     newCalendarEventFromBooking,
     queryEvents,
 } from '@placeos/events';
-import { searchStaff, User } from '@placeos/users';
 import { BuildingLevel, OrganisationService } from '@placeos/organisation';
-import { CalendarService } from '@placeos/calendar';
-import { Booking, queryBookings } from '@placeos/bookings';
+import { Space } from '@placeos/spaces';
+import { searchStaff, User } from '@placeos/users';
 
 export interface DashboardOptions {
     search?: string;
@@ -51,7 +51,7 @@ export class DashboardStateService extends AsyncHandler {
     private _free_spaces = new BehaviorSubject<Space[]>([]);
     /**  */
     private _upcoming_events = new BehaviorSubject<(CalendarEvent | Booking)[]>(
-        []
+        [],
     );
     /**  */
     private _contacts = new BehaviorSubject<User[]>([]);
@@ -72,7 +72,7 @@ export class DashboardStateService extends AsyncHandler {
         debounceTime(500),
         switchMap(({ search }) => (search ? searchStaff(search) : of([]))),
         catchError((_) => []),
-        shareReplay(1)
+        shareReplay(1),
     );
     /**  */
     public level_occupancy = this._level_occupancy.asObservable();
@@ -81,7 +81,7 @@ export class DashboardStateService extends AsyncHandler {
         private _settings: SettingsService,
         private _calendar: CalendarService,
         private _org: OrganisationService,
-        private _event_form: EventFormService
+        private _event_form: EventFormService,
     ) {
         super();
         this.init();
@@ -93,11 +93,11 @@ export class DashboardStateService extends AsyncHandler {
             'building',
             this._org.active_building
                 .pipe(filter((bld) => !!bld))
-                .subscribe(() => this.updateBuildingMetadata())
+                .subscribe(() => this.updateBuildingMetadata()),
         );
-        let sys_id = this._org.binding('contact_tracing');
-        if (!sys_id) return;
-        const binding = getModule(sys_id, 'AreaManagement').binding('overview');
+        const mod = this._org.module('contact_tracing', 'AreaManagement');
+        if (!mod) return;
+        const binding = mod.binding('overview');
         binding.listen().subscribe((d) => this.updateOccupancy(d || {}));
         binding.bind();
     }
@@ -120,7 +120,7 @@ export class DashboardStateService extends AsyncHandler {
         this.interval(
             'upcoming_events',
             () => this.updateUpcomingEvents(),
-            delay
+            delay,
         );
     }
 
@@ -131,7 +131,7 @@ export class DashboardStateService extends AsyncHandler {
     public async updateContacts() {
         const metadata: PlaceMetadata = (await showMetadata(
             currentUser().id,
-            'contacts'
+            'contacts',
         ).toPromise()) as any;
         const list = metadata.details instanceof Array ? metadata.details : [];
         this._contacts.next(list.map((i) => new User(i)));
@@ -165,7 +165,7 @@ export class DashboardStateService extends AsyncHandler {
     private async updateOccupancy(map: HashMap<{ recommendation: number }>) {
         const levels = [...this._org.levels];
         levels.sort(
-            (a, b) => map[a.id]?.recommendation - map[b.id]?.recommendation
+            (a, b) => map[a.id]?.recommendation - map[b.id]?.recommendation,
         );
         this._level_occupancy.next(levels);
     }
@@ -173,10 +173,12 @@ export class DashboardStateService extends AsyncHandler {
     private async updateFreeSpaces() {
         if (!this._org.building) return;
         const mins = Math.abs(
-            differenceInMinutes(Date.now(), endOfDay(Date.now()))
+            differenceInMinutes(Date.now(), endOfDay(Date.now())),
         );
         this._event_form.setOptions({
-            zone_ids: [],
+            zones: [],
+        });
+        this._event_form.setFilters({
             capacity: 0,
             features: [],
             show_fav: false,
@@ -192,18 +194,21 @@ export class DashboardStateService extends AsyncHandler {
     private async updateUpcomingEvents() {
         const period_start = Math.floor(new Date().valueOf() / 1000);
         const period_end = Math.floor(endOfDay(new Date()).valueOf() / 1000);
-        const events = await (this._settings.get('app.events.use_bookings')
-            ? queryBookings({
-                  period_start,
-                  period_end,
-                  type: 'room',
-                  email: currentUser().email,
-              }).pipe(map((_) => _.map((i) => newCalendarEventFromBooking(i))))
-            : queryEvents({
-                  period_start,
-                  period_end,
-                  calendars: currentUser().email,
-              })
+        const events = await (
+            this._settings.get('app.events.use_bookings')
+                ? queryBookings({
+                      period_start,
+                      period_end,
+                      type: 'room',
+                      email: currentUser().email,
+                  }).pipe(
+                      map((_) => _.map((i) => newCalendarEventFromBooking(i))),
+                  )
+                : queryEvents({
+                      period_start,
+                      period_end,
+                      calendars: currentUser().email,
+                  })
         )
             .toPromise()
             .catch((_) => []);
@@ -216,7 +221,7 @@ export class DashboardStateService extends AsyncHandler {
             .toPromise()
             .catch((_) => []);
         const event_list = [...events, ...bookings].sort(
-            (a, b) => a.date - b.date
+            (a, b) => a.date - b.date,
         );
         this._upcoming_events.next(event_list);
     }
@@ -225,7 +230,7 @@ export class DashboardStateService extends AsyncHandler {
         const building = this._org.building;
         const metadata = await showMetadata(
             building.id,
-            'bindings'
+            'bindings',
         ).toPromise();
         if (!(metadata.details as HashMap).occupancy) return;
         const details = (metadata.details as HashMap).occupancy;
@@ -244,12 +249,12 @@ export class DashboardStateService extends AsyncHandler {
                     ...value[key],
                 }));
                 levels.sort(
-                    (a, b) => a.recommendation_factor - b.recommendation_factor
+                    (a, b) => a.recommendation_factor - b.recommendation_factor,
                 );
                 this._level_occupancy.next(
-                    levels.map((i) => this._org.levelWithID([i.id]))
+                    levels.map((i) => this._org.levelWithID([i.id])),
                 );
-            })
+            }),
         );
     }
 }

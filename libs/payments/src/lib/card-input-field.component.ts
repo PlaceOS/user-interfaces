@@ -26,16 +26,16 @@ const DATE_PIPE = new DatePipe('en-us', '');
     template: `
         <form [formGroup]="details" (window:keyup)="onInput($event)">
             <div class="flex flex-col">
-                <label for="card-number" i18n>Card Number</label>
+                <label for="card-number">Card Number</label>
                 <div
                     tabindex="0"
-                    class="border border-base-200 p-2 h-12 mb-4 focus-within:shadow focus-within:border-base-200 flex items-center font-mono w-full rounded relative"
+                    class="relative mb-4 flex h-12 w-full items-center rounded border border-base-200 p-2 font-mono focus-within:border-base-200 focus-within:shadow"
                     (focus)="focusInput()"
                 >
                     <pre class="flex-1">{{ card_display }}</pre>
                     <input
                         #input
-                        class="hidden absolute"
+                        class="absolute hidden"
                         type="tel"
                         [value]="details.value.card_number?.trim()"
                         (keydown)="(false)"
@@ -48,8 +48,8 @@ const DATE_PIPE = new DatePipe('en-us', '');
                     />
                 </div>
             </div>
-            <div class="flex flex-col flex-1">
-                <label for="cardholder" i18n>Name on Card</label>
+            <div class="flex flex-1 flex-col">
+                <label for="cardholder">Name on Card</label>
                 <mat-form-field appearance="outline">
                     <input
                         name="cardholder"
@@ -57,12 +57,12 @@ const DATE_PIPE = new DatePipe('en-us', '');
                         placeholder="Mr John Smith"
                         formControlName="cardholder"
                     />
-                    <mat-error i18n>Cardholder name is required</mat-error>
+                    <mat-error>Cardholder name is required</mat-error>
                 </mat-form-field>
             </div>
             <div class="flex items-center space-x-2">
-                <div class="flex flex-col flex-1 w-1/4">
-                    <label for="cardholder" i18n>Expiry Month</label>
+                <div class="flex w-1/4 flex-1 flex-col">
+                    <label for="cardholder">Expiry Month</label>
                     <mat-form-field appearance="outline">
                         <mat-select
                             placeholder="MM"
@@ -75,10 +75,10 @@ const DATE_PIPE = new DatePipe('en-us', '');
                                 {{ item[1] }} ({{ item[0] }})
                             </mat-option>
                         </mat-select>
-                        <mat-error i18n>Expiry month is required</mat-error>
+                        <mat-error>Expiry month is required</mat-error>
                     </mat-form-field>
                 </div>
-                <div class="flex flex-col flex-1 w-1/4">
+                <div class="flex w-1/4 flex-1 flex-col">
                     <label for="cardholder">Expiry Year</label>
                     <mat-form-field appearance="outline">
                         <mat-select
@@ -91,7 +91,7 @@ const DATE_PIPE = new DatePipe('en-us', '');
                                 >{{ item }}</mat-option
                             >
                         </mat-select>
-                        <mat-error i18n>Expiry year is required</mat-error>
+                        <mat-error>Expiry year is required</mat-error>
                     </mat-form-field>
                 </div>
                 <div class="flex flex-col">
@@ -103,7 +103,7 @@ const DATE_PIPE = new DatePipe('en-us', '');
                             formControlName="cvv"
                             maxlength="4"
                         />
-                        <mat-error i18n>Invalid security code</mat-error>
+                        <mat-error>Invalid security code</mat-error>
                     </mat-form-field>
                 </div>
             </div>
@@ -124,6 +124,7 @@ const DATE_PIPE = new DatePipe('en-us', '');
             multi: true,
         },
     ],
+    standalone: false,
 })
 export class CardInputFieldComponent
     extends AsyncHandler
@@ -150,7 +151,7 @@ export class CardInputFieldComponent
     public readonly years = Array(12)
         .fill(0)
         .map((_, idx) =>
-            DATE_PIPE.transform(addYears(Date.now(), idx), 'yyyy')
+            DATE_PIPE.transform(addYears(Date.now(), idx), 'yyyy'),
         );
     public readonly digits = Array(16).fill(0);
     private _index = 0;
@@ -185,7 +186,7 @@ export class CardInputFieldComponent
             ? `${no.substring(0, 4)}-${no.substring(4, 10)}-${no.substring(10)}`
             : `${no.substring(0, 4)}-${no.substring(4, 8)}-${no.substring(
                   8,
-                  12
+                  12,
               )}-${no.substring(12)}`;
     }
 
@@ -202,9 +203,9 @@ export class CardInputFieldComponent
             'changes',
             this.details.valueChanges.subscribe((v) =>
                 this.timeout('update', () =>
-                    this.setValue(this.details.getRawValue())
-                )
-            )
+                    this.setValue(this.details.getRawValue()),
+                ),
+            ),
         );
     }
 

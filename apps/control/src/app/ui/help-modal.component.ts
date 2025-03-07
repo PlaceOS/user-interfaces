@@ -1,33 +1,39 @@
 import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { SettingsService } from '@placeos/common';
+import { OrganisationService } from '@placeos/organisation';
 
 import { marked } from 'marked';
+import { debounceTime, map } from 'rxjs/operators';
 
 @Component({
     selector: 'help-modal',
     template: `
         <div
-            class="flex flex-col sm:flex-row items-center bg-base-100 rounded overflow-hidden sm:h-[80vh] sm:w-[80vw] sm:relative absolute inset-0 sm:inset-auto"
+            class="absolute inset-0 flex flex-col items-center overflow-hidden rounded bg-base-100 sm:relative sm:inset-auto sm:h-[80vh] sm:w-[80vw] sm:flex-row"
         >
-            <div sidebar class="bg-base-300 sm:h-full w-full sm:w-64">
-                <img [src]="logo?.src" class="w-32 mx-auto mt-6 sm:mb-8" />
-                <ul class="list-none p-0 pl-4 space-y-2 hidden sm:block">
+            <div sidebar class="w-full bg-base-300 sm:h-full sm:w-64">
+                <img
+                    auth
+                    class="mx-auto mt-6 w-32 sm:mb-8"
+                    [source]="(logo | async)?.src || (logo | async)"
+                />
+                <ul class="hidden list-none space-y-2 p-0 pl-4 sm:block">
                     <li
-                        class="flex items-center rounded-l-3xl pl-4 py-2 relative"
+                        class="relative flex items-center rounded-l-3xl py-2 pl-4"
                         *ngFor="let item of items"
                         [class.active]="item.id === active_item.id"
                         (click)="active_item = item"
                     >
                         <div
-                            class="w-6 h-[5.5rem] absolute bg-base-100 right-0 top-1/2 -translate-y-1/2 overflow-hidden"
+                            class="absolute right-0 top-1/2 h-[5.5rem] w-6 -translate-y-1/2 overflow-hidden bg-base-100"
                             *ngIf="item.id === active_item.id"
                         >
                             <div
-                                class="w-12 h-12 absolute top-0 right-0 -translate-y-1/2 bg-base-300 rounded-full"
+                                class="absolute right-0 top-0 h-12 w-12 -translate-y-1/2 rounded-full bg-base-300"
                             ></div>
                             <div
-                                class="w-12 h-12 absolute bottom-0 right-0 translate-y-1/2 bg-base-300 rounded-full"
+                                class="absolute bottom-0 right-0 h-12 w-12 translate-y-1/2 rounded-full bg-base-300"
                             ></div>
                         </div>
                         <app-icon>{{ item.icon || 'help' }}</app-icon>
@@ -38,9 +44,9 @@ import { marked } from 'marked';
                         ></div>
                     </li>
                 </ul>
-                <div class="px-2 pb-2 w-full dark">
+                <div class="dark w-full px-2 pb-2">
                     <mat-form-field
-                        class="block sm:hidden h-12 w-full"
+                        class="block h-12 w-full sm:hidden"
                         appearance="outline"
                     >
                         <mat-select [(ngModel)]="active_item">
@@ -56,13 +62,13 @@ import { marked } from 'marked';
             </div>
             <div
                 content
-                class="overflow-auto flex-1 h-1/2 w-full sm:w-1/2 sm:h-full p-4 sm:p-8 bg-base-100"
+                class="h-1/2 w-full flex-1 overflow-auto bg-base-100 p-4 sm:h-full sm:w-1/2 sm:p-8"
                 [innerHTML]="content | safe"
             ></div>
             <button
                 icon
                 matRipple
-                class="absolute top-2 right-2"
+                class="absolute right-2 top-2"
                 mat-dialog-close
             >
                 <app-icon>close</app-icon>
@@ -78,17 +84,21 @@ import { marked } from 'marked';
             }
         `,
     ],
+    standalone: false,
 })
 export class HelpModalComponent {
     public active_item = { id: '', content: `` };
     public readonly items = this._data.items;
 
-    /** Application logo to display */
-    public get logo() {
-        return this._settings.get('theme') === 'dark'
-            ? this._settings.get('app.logo_dark')
-            : this._settings.get('app.logo_light');
-    }
+    public readonly logo = this._org.active_building.pipe(
+        debounceTime(500),
+        map(
+            () =>
+                (this._settings.theme === 'dark'
+                    ? this._settings.get('app.logo_dark')
+                    : this._settings.get('app.logo_light')) || {},
+        ),
+    );
 
     public get content() {
         return this.active_item?.content
@@ -102,7 +112,8 @@ export class HelpModalComponent {
             items: { id: string; title: string; content: string }[];
             active_id?: string;
         },
-        private _settings: SettingsService
+        private _settings: SettingsService,
+        private _org: OrganisationService,
     ) {
         this.active_item =
             this.items?.find((_) => _.id === this._data.active_id) ||

@@ -3,21 +3,20 @@ import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { take } from 'rxjs/operators';
-import { ParkingSpaceFiltersComponent } from './parking-filters.component';
 import { BookingFormService } from '../booking-form.service';
+import { ParkingSpaceFiltersComponent } from './parking-filters.component';
 
 @Component({
     selector: `parking-space-filters-display`,
     template: `
-        <section actions class="sm:hidden space-x-2 flex items-center p-2">
+        <section actions class="flex items-center space-x-2 p-2 sm:hidden">
             <button
                 matRipple
                 filters
-                class="flex-1 w-1/2"
+                class="w-1/2 flex-1"
                 (click)="editFilters()"
-                i18n
             >
-                Filters
+                {{ 'COMMON.FILTERS' | translate }}
             </button>
             <div class="flex items-center">
                 <button
@@ -26,43 +25,39 @@ import { BookingFormService } from '../booking-form.service';
                     class="rounded-l rounded-r-none"
                     [class.inverse]="view !== 'map'"
                     (click)="view = 'map'; viewChange.emit(view)"
-                    i18n
                 >
-                    Map
+                    {{ 'COMMON.MAP' | translate }}
                 </button>
                 <button
                     matRipple
                     list
-                    class="rounded-r rounded-l-none"
+                    class="rounded-l-none rounded-r"
                     [class.inverse]="view !== 'list'"
                     (click)="view = 'list'; viewChange.emit(view)"
-                    i18n
                 >
-                    List
+                    {{ 'COMMON.LIST' | translate }}
                 </button>
             </div>
         </section>
         <section
             filters
-            class="flex items-center flex-wrap p-2 w-[35rem] max-w-full sm:max-w-[35rem]"
+            class="flex w-[35rem] max-w-full flex-wrap items-center p-2 sm:max-w-[35rem]"
         >
-            <div
-                filter-item
-                zone
-                class="dark:border-base-200-500"
-                *ngIf="location"
-            >
+            <div filter-item zone *ngIf="location">
                 {{ location }}
             </div>
-            <div filter-item date class="dark:border-base-200-500">
+            <div filter-item date>
                 {{ start | date: 'mediumDate' }}
             </div>
-            <div filter-item time class="dark:border-base-200-500">
+            <div filter-item time>
                 {{ start | date: time_format }} &mdash;
                 {{ end | date: time_format }}
             </div>
-            <div filter-item count class="dark:border-base-200-500" i18n>
-                Min. {{ (options | async)?.capcaity || 2 }} People
+            <div filter-item count>
+                {{
+                    'CALENDAR_EVENT.SPACE_SELECT_SIZE_X'
+                        | translate: { count: (options | async)?.capcaity || 2 }
+                }}
             </div>
             <div filter-item *ngFor="let feat of (options | async)?.features">
                 <p>{{ feat }}</p>
@@ -100,6 +95,7 @@ import { BookingFormService } from '../booking-form.service';
             }
         `,
     ],
+    standalone: false,
 })
 export class ParkingSpaceFiltersDisplayComponent extends AsyncHandler {
     @Input() public view: 'map' | 'list' = 'list';
@@ -127,7 +123,7 @@ export class ParkingSpaceFiltersDisplayComponent extends AsyncHandler {
         private _bsheet: MatBottomSheet,
         private _event_form: BookingFormService,
         private _org: OrganisationService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         super();
     }
@@ -136,8 +132,8 @@ export class ParkingSpaceFiltersDisplayComponent extends AsyncHandler {
         this.subscription(
             'opts',
             this.options.subscribe(({ zone_id }) =>
-                this._updateLocation([zone_id])
-            )
+                this._updateLocation([zone_id]),
+            ),
         );
     }
 

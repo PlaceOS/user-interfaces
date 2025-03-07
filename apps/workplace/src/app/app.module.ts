@@ -1,38 +1,37 @@
+import { ErrorHandler, LOCALE_ID, NgModule } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { APP_INITIALIZER, ErrorHandler, NgModule } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ServiceWorkerModule } from '@angular/service-worker';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatNativeDateModule } from '@angular/material/core';
 
-import { HttpClient, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
-import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
-import { TranslateHttpLoader } from '@ngx-translate/http-loader';
-
-import {
-    MisconfiguredComponent,
-    UnauthorisedComponent,
-} from '@placeos/components';
 import { AppComponent } from 'libs/components/src/lib/app.component';
 
-import { AppRoutingModule } from './app-routing.module';
 import { environment } from '../environments/environment';
+import { AppRoutingModule } from './app-routing.module';
 import { SharedOverlaysModule } from './overlays/overlays.module';
 
 import * as Sentry from '@sentry/angular';
 
-import { SharedComponentModule } from './components/shared.module';
 import { SharedBookingsModule } from '@placeos/bookings';
+import { SharedComponentModule } from './components/shared.module';
 
-// AoT requires an exported function for factories
-export function HttpLoaderFactory(http: HttpClient) {
-    return new TranslateHttpLoader(http, './assets/locale/', '.json');
-}
+import { registerLocaleData } from '@angular/common';
+import localeAr from '@angular/common/locales/ar';
+import localeEs from '@angular/common/locales/es';
+import localeFr from '@angular/common/locales/fr';
+import localeIt from '@angular/common/locales/it';
+import localeJa from '@angular/common/locales/ja';
+import localeZh from '@angular/common/locales/zh';
+import { LocaleService } from '@placeos/common';
 
-@NgModule({ declarations: [AppComponent, UnauthorisedComponent, MisconfiguredComponent],
-    bootstrap: [AppComponent], imports: [BrowserModule,
+@NgModule({
+    declarations: [AppComponent],
+    bootstrap: [AppComponent],
+    imports: [
+        BrowserModule,
         BrowserAnimationsModule,
         AppRoutingModule,
         ServiceWorkerModule.register('ngsw-worker.js', {
@@ -44,14 +43,8 @@ export function HttpLoaderFactory(http: HttpClient) {
         MatNativeDateModule,
         MatSnackBarModule,
         SharedBookingsModule,
-        TranslateModule.forRoot({
-            defaultLanguage: 'en',
-            loader: {
-                provide: TranslateLoader,
-                useFactory: HttpLoaderFactory,
-                deps: [HttpClient],
-            },
-        })], providers: [
+    ],
+    providers: [
         {
             provide: ErrorHandler,
             useValue: Sentry.createErrorHandler({
@@ -63,11 +56,19 @@ export function HttpLoaderFactory(http: HttpClient) {
             deps: [Router],
         },
         {
-            provide: APP_INITIALIZER,
-            useFactory: () => () => { },
-            deps: [Sentry.TraceService],
-            multi: true,
+            provide: LOCALE_ID,
+            deps: [LocaleService],
+            useFactory: (localeService: LocaleService) => localeService.locale,
         },
-        provideHttpClient(withInterceptorsFromDi()),
-    ] })
-export class AppModule {}
+    ],
+})
+export class AppModule {
+    constructor() {
+        registerLocaleData(localeFr);
+        registerLocaleData(localeAr);
+        registerLocaleData(localeJa);
+        registerLocaleData(localeZh);
+        registerLocaleData(localeEs);
+        registerLocaleData(localeIt);
+    }
+}

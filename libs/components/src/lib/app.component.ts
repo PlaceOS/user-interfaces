@@ -1,8 +1,8 @@
-import { Component, OnInit, Optional } from '@angular/core';
-import { SwUpdate } from '@angular/service-worker';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { Clipboard } from '@angular/cdk/clipboard';
-import { first } from 'rxjs/operators';
+import { Component, OnInit, Optional } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ActivatedRoute, Router } from '@angular/router';
+import { SwUpdate } from '@angular/service-worker';
 import {
     apiKey,
     clientId,
@@ -14,31 +14,32 @@ import {
     setAPI_Key,
     token,
 } from '@placeos/ts-client';
-import { ActivatedRoute, Router } from '@angular/router';
 import { addHours } from 'date-fns';
+import { first } from 'rxjs/operators';
 
 import {
     AsyncHandler,
     current_user,
     currentUser,
+    GoogleAnalyticsService,
+    hasNewVersion,
     HotkeysService,
+    isMobileSafari,
+    LocaleService,
+    log,
     notifySuccess,
+    requestScreenWakeLock,
     setAppName,
     setNotifyOutlet,
     SettingsService,
+    setTranslationService,
     setupCache,
     setupPlace,
-    log,
-    GoogleAnalyticsService,
-    isMobileSafari,
-    hasNewVersion,
 } from '@placeos/common';
 import { MapsPeopleService } from 'libs/common/src/lib/mapspeople.service';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { setInternalUserDomain } from 'libs/users/src/lib/user.utilities';
 
-import * as Sentry from '@sentry/angular';
-import { MOCKS } from '@placeos/mocks';
 import {
     Amazon,
     Azure,
@@ -46,8 +47,9 @@ import {
     initialiseUploadService,
     OpenStack,
 } from '@placeos/cloud-uploads';
+import { MOCKS } from '@placeos/mocks';
 import { setCustomHeaders } from '@placeos/svg-viewer';
-import { TranslateService } from '@ngx-translate/core';
+import * as Sentry from '@sentry/angular';
 
 const START_QUERY = location.search;
 
@@ -82,7 +84,7 @@ export function initSentry(dsn: string, sample_rate = 0.1) {
     selector: 'app-root',
     template: `
         <global-banner></global-banner>
-        <div class="flex-1 w-full relative h-1/2">
+        <div class="relative h-1/2 w-full flex-1">
             <router-outlet></router-outlet>
         </div>
         <global-chat *ngIf="has_chat"></global-chat>
@@ -99,6 +101,7 @@ export function initSentry(dsn: string, sample_rate = 0.1) {
             }
         `,
     ],
+    standalone: false,
 })
 export class AppComponent extends AsyncHandler implements OnInit {
     public get debug() {
@@ -122,7 +125,8 @@ export class AppComponent extends AsyncHandler implements OnInit {
         private _route: ActivatedRoute,
         private _router: Router,
         private _maps: MapsPeopleService,
-        @Optional() private _translate: TranslateService
+        private _tracing: Sentry.TraceService,
+        @Optional() private _locale: LocaleService,
     ) {
         super();
     }
@@ -132,14 +136,14 @@ export class AppComponent extends AsyncHandler implements OnInit {
         this._hotkey.listen(['Control', 'Alt', 'Shift', 'KeyM'], () => {
             localStorage.setItem(
                 'mock',
-                `${localStorage.getItem('mock') !== 'true'}`
+                `${localStorage.getItem('mock') !== 'true'}`,
             );
             location.reload();
         });
         this._hotkey.listen(['Control', 'Alt', 'Shift', 'KeyD'], () => {
             this._settings.saveUserSetting(
                 'dark_mode',
-                !this._settings.get('dark_mode')
+                !this._settings.get('dark_mode'),
             );
             notifySuccess('Toggled dark mode.');
         });
@@ -158,7 +162,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
                 localStorage.setItem('PlaceOS.hide_nav', 'true');
             if (params.has('lang')) {
                 const locale = params.get('lang');
-                this._translate?.use(locale);
+                this._locale?.setLocale(locale);
                 localStorage.setItem('PLACEOS.locale', locale);
             }
             if (params.has('x-api-key')) {
@@ -166,6 +170,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
             }
         });
         setNotifyOutlet(this._snackbar);
+        setTranslationService(this._locale);
         /** Wait for settings to initialise */
         await this._settings.initialised.pipe(first((_) => _)).toPromise();
         setAppName(this._settings.get('app.short_name'));
@@ -184,6 +189,10 @@ export class AppComponent extends AsyncHandler implements OnInit {
         /** Wait for authentication details to load */
         await setupPlace(settings).catch((_) => console.error(_));
         await this._org.initialised.pipe(first((_) => _)).toPromise();
+        if (this._locale) {
+            this._locale.zone_id = this._org.organisation.id;
+            this._locale.init();
+        }
         setupCache(this._cache);
         if (!settings.local_login) {
             this.timeout('wait_for_user', () => this.onInitError(), 30 * 1000);
@@ -192,38 +201,15 @@ export class AppComponent extends AsyncHandler implements OnInit {
         this.clearTimeout('wait_for_user');
         this._initLocale();
         setInternalUserDomain(
-            this._settings.get('app.general.internal_user_domain') ||
-                `@${currentUser()?.email?.split('@')[1]}`
+            this._settings.get('app.internal_user_domain') ||
+                `@${currentUser()?.email?.split('@')[1]}`,
         );
         this._initAnalytics();
         initSentry(this._settings.get('app.sentry_dsn'));
         try {
-            const tkn = token();
-            if (isMobileSafari()) {
-                setCustomHeaders(
-                    tkn === 'x-api-key'
-                        ? { 'x-api-key': apiKey() }
-                        : { Authorization: `Bearer ${tkn}` }
-                );
-            }
-            if (this._settings.get('app.has_uploads')) {
-                this.timeout('init_uploads', () => {
-                    initialiseUploadService({
-                        auto_start: true,
-                        token: token(),
-                        endpoint: '/api/engine/v2/uploads',
-                        worker_url: 'assets/md5_worker.js',
-                        providers: [Amazon, Azure, Google, OpenStack] as any,
-                    });
-                });
-            }
-            if (isFixedDevice()) {
-                this.interval(
-                    'auto-update-version',
-                    () => this._checkReload(),
-                    15 * 1000
-                );
-            }
+            this._setSafariHeaders();
+            this._initUploads();
+            this._initFixedDevice();
         } catch {}
     }
 
@@ -245,9 +231,8 @@ export class AppComponent extends AsyncHandler implements OnInit {
         try {
             let locale = localStorage.getItem('PLACEOS.locale');
             const locales = this._settings.get('app.locales') || [];
-            this._translate?.addLangs(locales.map((_) => _.id));
             if (locale) {
-                this._translate?.use(locale);
+                this._locale?.setLocale(locale);
             } else {
                 const list = navigator.languages;
                 for (const lang of list) {
@@ -255,7 +240,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
                     if (!locale)
                         locale = locales.find((_) => lang.includes(_.id));
                     if (locale) {
-                        this._translate?.use(lang);
+                        this._locale?.setLocale(lang);
                         localStorage.setItem('PLACEOS.locale', lang);
                         break;
                     }
@@ -271,9 +256,8 @@ export class AppComponent extends AsyncHandler implements OnInit {
         localStorage.setItem(`${id}_refresh_token`, `${parts[1]}`);
         localStorage.setItem(
             `${id}_expires_at`,
-            `${addHours(new Date(), 6).valueOf()}`
+            `${addHours(new Date(), 6).valueOf()}`,
         );
-
         notifySuccess('Successfully pasted token.');
         setTimeout(() => location.reload(), 2000);
     }
@@ -284,7 +268,49 @@ export class AppComponent extends AsyncHandler implements OnInit {
 
         this.timeout(
             'reload',
-            () => (location.href = `${location.origin}${location.pathname}`)
+            () => (location.href = `${location.origin}${location.pathname}`),
         );
+    }
+
+    private _setSafariHeaders() {
+        if (isMobileSafari()) return;
+        const tkn = token();
+        setCustomHeaders(
+            tkn === 'x-api-key'
+                ? { 'x-api-key': apiKey() }
+                : { Authorization: `Bearer ${tkn}` },
+        );
+    }
+
+    private _initUploads(tries = 1) {
+        if (!this._settings.get('app.has_uploads')) return;
+        this.timeout('init_uploads', () => {
+            try {
+                initialiseUploadService({
+                    auto_start: true,
+                    token: token(),
+                    endpoint: '/api/engine/v2/uploads',
+                    worker_url: 'assets/md5_worker.js',
+                    providers: [Amazon, Azure, Google, OpenStack] as any,
+                });
+            } catch (e) {
+                this.timeout(
+                    'init_uploads',
+                    () => this._initUploads((tries += 1)),
+                    1000 * tries,
+                );
+            }
+        });
+    }
+
+    private async _initFixedDevice() {
+        if (!isFixedDevice()) return;
+        this.interval(
+            'auto-update-version',
+            () => this._checkReload(),
+            15 * 1000,
+        );
+
+        await requestScreenWakeLock();
     }
 }

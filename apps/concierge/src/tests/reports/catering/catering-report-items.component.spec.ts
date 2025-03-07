@@ -4,16 +4,20 @@ import { CustomTableComponent } from '@placeos/components';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 
-import { CateringReportItemsComponent } from 'apps/concierge/src/app/reports/catering/catering-report-items.component';
-import { CateringReportStateService } from 'apps/concierge/src/app/reports/catering/catering-report-state.service';
 import { Router } from '@angular/router';
 import { SettingsService } from '@placeos/common';
+import { CateringReportItemsComponent } from 'apps/concierge/src/app/reports/catering/catering-report-items.component';
+import { CateringReportStateService } from 'apps/concierge/src/app/reports/catering/catering-report-state.service';
+import { SimpleTableComponent } from 'libs/components/src/lib/simple-table.component';
 
 describe('CateringReportItemsComponent', () => {
     let spectator: Spectator<CateringReportItemsComponent>;
     const createComponent = createComponentFactory({
         component: CateringReportItemsComponent,
-        declarations: [MockComponent(CustomTableComponent)],
+        declarations: [
+            MockComponent(CustomTableComponent),
+            MockComponent(SimpleTableComponent),
+        ],
         providers: [
             MockProvider(CateringReportStateService, {
                 catering_items: new BehaviorSubject({}),

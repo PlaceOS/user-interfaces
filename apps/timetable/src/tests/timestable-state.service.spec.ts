@@ -3,10 +3,10 @@ import { TimetableStateService } from '../app/timetable-state.service';
 
 jest.mock('@placeos/ts-client');
 
+import { CalendarEvent } from '@placeos/events';
 import * as placeos from '@placeos/ts-client';
 import { Observable, of } from 'rxjs';
 import { take } from 'rxjs/operators';
-import { CalendarEvent } from '@placeos/events';
 
 describe('TimetableStateService', () => {
     let spectator: SpectatorService<TimetableStateService>;

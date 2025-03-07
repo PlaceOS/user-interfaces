@@ -2,8 +2,10 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import {
     EncryptionLevel,
+    PlaceMetadata,
     PlaceZone,
     authority,
+    getModule,
     isMock,
     onlineState,
     querySettings,
@@ -21,14 +23,14 @@ import {
 } from 'rxjs/operators';
 
 import { notifyError } from 'libs/common/src/lib/notifications';
-import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { RoomConfiguration } from 'libs/common/src/lib/room-configuration.interface';
+import { SettingsService } from 'libs/common/src/lib/settings.service';
 
+import { log, unique } from '@placeos/common';
 import { Building } from './building.class';
 import { BuildingLevel } from './level.class';
 import { Organisation } from './organisation.class';
 import { Region } from './region.class';
-import { AsyncHandler, log, unique } from '@placeos/common';
 
 import * as yaml from 'js-yaml';
 
@@ -66,8 +68,8 @@ export class OrganisationService {
         this._active_region,
     ]).pipe(
         map(([_, region]) =>
-            region ? this.buildingsForRegion(region) : this.buildings
-        )
+            region ? this.buildingsForRegion(region) : this.buildings,
+        ),
     );
     /** Observable for the levels associated with the currently active building */
     public readonly active_levels = combineLatest([
@@ -75,7 +77,7 @@ export class OrganisationService {
         this._active_building,
     ]).pipe(
         map(([_, bld]) => (bld ? this.levelsForBuilding(bld) : [])),
-        shareReplay(1)
+        shareReplay(1),
     );
     /** Organisation data for the application */
     private _organisation: Organisation;
@@ -102,14 +104,14 @@ export class OrganisationService {
     }
 
     /** Mapping region settings overrides */
-    public regionSettings(id: string = ''): Record<string, any> {
+    public regionSettings(id = ''): Record<string, any> {
         const region = this._active_region.getValue();
         if (!id && region) id = region?.id;
         return this._region_settings ? this._region_settings[id] || {} : {};
     }
 
     /** Mapping building settings overrides */
-    public buildingSettings(bld_id: string = ''): Record<string, any> {
+    public buildingSettings(bld_id = ''): Record<string, any> {
         if (!bld_id && this.building) {
             bld_id = this.building?.id || this.buildings[0]?.id;
         }
@@ -137,7 +139,7 @@ export class OrganisationService {
     }
 
     public async setRegion(item: Region) {
-        if (!item) return;
+        if (!item || this._active_region.value?.id == item.id) return;
         this._active_region.next(item);
         await this.loadRegionData(item);
         this._setBuildingFromTimezone();
@@ -147,6 +149,7 @@ export class OrganisationService {
         ) {
             this.building = this.buildingsForRegion(item)[0];
         } else this._updateSettingOverrides();
+        localStorage.setItem('PLACEOS.region', item.id);
     }
 
     /** List of available buildings */
@@ -159,14 +162,23 @@ export class OrganisationService {
         return this._active_building.getValue();
     }
     public set building(bld: Building) {
-        if (!bld) return;
+        this.setBuilding(bld);
+    }
+
+    public setBuilding(bld: Building, save = false) {
+        if (!(bld instanceof Object)) return;
         this._active_building.next(bld);
-        this.loadBuildingData(bld).then(() => this._updateSettingOverrides());
-        if (this.regions.length && this.region?.id !== bld.parent_id) {
-            this.region = this.regions.find(
-                (_) => _.id === this.building.parent_id
+        if (!this._service.get('dont_load_metadata')) {
+            this.loadBuildingData(bld).then(() =>
+                this._updateSettingOverrides(),
             );
         }
+        if (this.regions.length && this.region?.id !== bld.parent_id) {
+            this.region = this.regions.find(
+                (_) => _.id === this.building.parent_id,
+            );
+        }
+        if (save) localStorage.setItem('PLACEOS.building', bld.id);
     }
 
     public get timezone() {
@@ -188,6 +200,18 @@ export class OrganisationService {
         );
     }
 
+    public module(name: string, default_mod_id = 'System') {
+        const binding: any = this.binding(name);
+        const system_id =
+            binding instanceof Object
+                ? binding.id || binding.system_id
+                : binding;
+        const mod_id =
+            (binding instanceof Object ? binding.mod || binding.module : '') ||
+            default_mod_id;
+        return !system_id || !mod_id ? null : getModule(system_id, mod_id);
+    }
+
     /** Get building by id */
     public find(id: string) {
         return this.buildings.find((i) => i.id === id);
@@ -198,14 +222,17 @@ export class OrganisationService {
         return this._levels.getValue();
     }
 
-    constructor(private _service: SettingsService, private _router: Router) {
+    constructor(
+        private _service: SettingsService,
+        private _router: Router,
+    ) {
         onlineState()
             .pipe(first((_) => _))
             .subscribe(() => setTimeout(() => this.init(), 1000));
         combineLatest([this.active_region, this.active_building])
             .pipe(
                 filter(([_, bld]) => !!bld),
-                debounceTime(300)
+                debounceTime(300),
             )
             .subscribe(() => this._updateSettingOverrides());
     }
@@ -224,7 +251,7 @@ export class OrganisationService {
      */
     public levelsForBuilding(bld: Building = this.building): BuildingLevel[] {
         return this.levels.filter(
-            (lvl) => lvl.parent_id && lvl.parent_id === bld?.id
+            (lvl) => lvl.parent_id && lvl.parent_id === bld?.id,
         );
     }
 
@@ -245,7 +272,7 @@ export class OrganisationService {
         return this.levels.filter(
             (lvl) =>
                 lvl.parent_id &&
-                bld_list.find((bld) => bld.id === lvl.parent_id)
+                bld_list.find((bld) => bld.id === lvl.parent_id),
         );
     }
 
@@ -264,7 +291,7 @@ export class OrganisationService {
                 .filter((_) => _.id !== bld.id);
             buildings.push(bld);
             buildings = buildings.sort((a, b) =>
-                (a.name || '').localeCompare(b.name || '')
+                (a.name || '').localeCompare(b.name || ''),
             );
             this._buildings.next(buildings);
         } else if (zone.tags.includes('level')) {
@@ -272,13 +299,13 @@ export class OrganisationService {
             let levels = this._levels.getValue().filter((_) => _.id !== lvl.id);
             levels.push(lvl);
             levels = levels.sort((a, b) =>
-                (a.name || '').localeCompare(b.name || '')
+                (a.name || '').localeCompare(b.name || ''),
             );
             this._levels.next(levels);
         } else {
             console.warn(
                 'Unable to add zone as it is missing the required tag.',
-                zone.id
+                zone.id,
             );
         }
     }
@@ -303,23 +330,37 @@ export class OrganisationService {
         } else {
             console.warn(
                 'Unable to remove zone as it is missing the required tag.',
-                zone.id
+                zone.id,
             );
         }
     }
 
-    private async init(tries: number = 0) {
+    private async init(tries = 0) {
         this._initialised.next(false);
         await this.load().catch((err) => {
             notifyError('Error loading organisation data. Retrying...');
             setTimeout(() => this.init(tries), Math.min(10_000, 300 * ++tries));
             throw err;
         });
-        this._initialised.next(true);
+        setTimeout(() => {
+            if (localStorage.getItem('PLACEOS.region')) {
+                this.region = this.regions.find(
+                    (region) =>
+                        region.id === localStorage.getItem('PLACEOS.region'),
+                );
+            }
+            if (localStorage.getItem('PLACEOS.building')) {
+                this.building = this.buildings.find(
+                    (bld) =>
+                        bld.id === localStorage.getItem('PLACEOS.building'),
+                );
+            }
+        }, 1000);
         if (window.debug) {
             if (!window.application) window.application = {};
             window.application.orgs = this;
         }
+        this._initialised.next(true);
     }
 
     /**
@@ -342,7 +383,6 @@ export class OrganisationService {
         await this.loadSettings();
         if (!this._buildings.getValue()?.length) {
             log('ORG', 'Unable to find any building zones');
-            this._router.navigate(['/misconfigured']);
         }
         await this.loadLevels();
         this._updateSettingOverrides();
@@ -359,10 +399,16 @@ export class OrganisationService {
             const auth = authority();
             const org =
                 org_list.find(
-                    (list) => isMock() || list.id === auth?.config?.org_zone
+                    (list) => isMock() || list.id === auth?.config?.org_zone,
                 ) || org_list[0];
+
+            const load_metadata = !this._service.get('dont_load_metadata');
             const bindings: Record<string, any> = (
-                await showMetadata(org.id, 'bindings').toPromise()
+                await (
+                    load_metadata
+                        ? showMetadata(org.id, 'bindings')
+                        : of({ details: {} })
+                ).toPromise()
             )?.details;
             this._organisation = new Organisation({ ...org, bindings });
         } else {
@@ -382,7 +428,7 @@ export class OrganisationService {
         } as any)
             .pipe(
                 map((i) => i.data.map((_) => new Region(_))),
-                catchError(() => of([]))
+                catchError(() => of([])),
             )
             .toPromise();
         this._regions.next(list);
@@ -390,17 +436,20 @@ export class OrganisationService {
 
     public async loadRegionData(region: Region): Promise<void> {
         if (this._loaded_data[region.id]) return;
+        const load_metadata = !this._service.get('dont_load_metadata');
+        const settings_request = load_metadata
+            ? showMetadata(region.id, this.app_key)
+            : of(new PlaceMetadata());
+        const bindings_request = load_metadata
+            ? showMetadata(region.id, 'bindings')
+            : of(new PlaceMetadata());
         const [settings, bindings, buildings]: any = await Promise.all([
-            showMetadata(region.id, this.app_key)
-                .pipe(map((_) => _?.details))
-                .toPromise(),
-            showMetadata(region.id, 'bindings')
-                .pipe(map((_) => _?.details))
-                .toPromise(),
+            settings_request.pipe(map((_) => _?.details)).toPromise(),
+            bindings_request.pipe(map((_) => _?.details)).toPromise(),
             this.loadBuildings(region.id),
         ]);
         this._buildings.next(
-            unique([...this._buildings.getValue(), ...buildings], 'id')
+            unique([...this._buildings.getValue(), ...buildings], 'id'),
         );
         this._loaded_data[region.id] = true;
         (region as any).bindings = bindings;
@@ -411,7 +460,7 @@ export class OrganisationService {
      * Load buildings data for the organisation
      */
     public async loadBuildings(
-        parent_id: string = this._organisation?.id
+        parent_id: string = this._organisation?.id,
     ): Promise<Building[]> {
         const building_list = await queryZones({
             tags: 'building',
@@ -430,22 +479,25 @@ export class OrganisationService {
                 showMetadata(bld.id, this.app_key)
                     .pipe(
                         map((_) => _?.details),
-                        catchError(() => of({}))
+                        catchError(() => of({})),
                     )
                     .toPromise(),
                 showMetadata(bld.id, 'bindings')
                     .pipe(
                         map((_) => _?.details),
-                        catchError(() => of({}))
+                        catchError(() => of({})),
                     )
                     .toPromise(),
                 showMetadata(bld.id, 'booking_rules')
                     .pipe(
                         map((_) => _?.details),
-                        catchError(() => of({}))
+                        catchError(() => of({})),
                     )
                     .toPromise(),
-                querySettings({ parent_id: bld.id })
+                (this.app_key.includes('concierge')
+                    ? querySettings({ parent_id: bld.id })
+                    : of({ data: {} as any })
+                )
                     .pipe(
                         catchError(() => of({ data: {} as any })),
                         map((_) => {
@@ -454,22 +506,16 @@ export class OrganisationService {
                                     _?.data.find(
                                         (_) =>
                                             _.encryption_level ===
-                                            EncryptionLevel.None
-                                    ) || { settings_string: '' }
+                                            EncryptionLevel.None,
+                                    ) || { settings_string: '' },
                                 );
                             } catch {
                                 return {};
                             }
-                        })
+                        }),
                     )
                     .toPromise(),
             ]);
-        console.log(
-            'Building Settings:',
-            bld.display_name || bld.name,
-            bld.id,
-            settings
-        );
         this._building_settings[bld.id] = {
             ...(driver_settings || {}),
             ...(settings || {}),
@@ -484,19 +530,20 @@ export class OrganisationService {
      * Load levels data for the buildings
      */
     public async loadLevels(): Promise<void> {
-        const level_list = await queryZones({
+        let level_list = await queryZones({
             tags: 'level',
+            authority_id: authority().id,
             limit: 2500,
         } as any)
             .pipe(map((i) => i.data))
             .toPromise();
-
+        level_list = level_list.filter((_) => _.parent_id);
         if (!level_list?.length) {
             this._router.navigate(['/misconfigured']);
         }
         let levels = level_list.map((lvl) => new BuildingLevel(lvl));
         levels = levels.sort((a, b) =>
-            (a.name || '').localeCompare(b.name || '')
+            (a.name || '').localeCompare(b.name || ''),
         );
         this._levels.next(levels);
     }
@@ -520,17 +567,6 @@ export class OrganisationService {
         this._service.overrides = [...this._settings];
         await this._initialiseActiveBuilding();
         this._updateSettingOverrides();
-    }
-
-    /** Save building selection */
-    public saveBuilding(id: string) {
-        const region_id = this._buildings
-            .getValue()
-            .find((bld) => bld.id === id)?.parent_id;
-        if (region_id && region_id !== this._organisation.id) {
-            sessionStorage.setItem(`PLACEOS.region`, region_id);
-        }
-        sessionStorage.setItem(`PLACEOS.building`, id);
     }
 
     private _initialiseActiveBuilding() {
@@ -559,11 +595,11 @@ export class OrganisationService {
                                 ).split(',');
                                 const b_dist = Math.sqrt(
                                     Math.pow(latitude - +b_lat, 2) +
-                                        Math.pow(longitude - +b_long, 2)
+                                        Math.pow(longitude - +b_long, 2),
                                 );
                                 const c_dist = Math.sqrt(
                                     Math.pow(latitude - +c_lat, 2) +
-                                        Math.pow(longitude - +c_long, 2)
+                                        Math.pow(longitude - +c_long, 2),
                                 );
                                 if (b_dist < c_dist) closest_bld = bld;
                             }
@@ -575,7 +611,7 @@ export class OrganisationService {
                     () => {
                         if (!this.building?.id) this._setDefaultBuilding();
                         resolve();
-                    }
+                    },
                 );
             } else if (!this.building?.id) {
                 this._setDefaultBuilding();
@@ -586,10 +622,11 @@ export class OrganisationService {
 
     private async _setDefaultBuilding() {
         if (!this.buildings.length) return;
-        const region_id = sessionStorage.getItem(`PLACEOS.region`);
+        const region_id = localStorage.getItem(`PLACEOS.region`);
+
         await (region_id
             ? this.setRegion(
-                  this._regions.getValue().find((_) => _.id === region_id)
+                  this._regions.getValue().find((_) => _.id === region_id),
               )
             : this._setRegionFromTimezone());
         this._setBuildingFromTimezone();
@@ -619,7 +656,7 @@ export class OrganisationService {
 
     private _setBuildingFromTimezone() {
         const bld_list = this.buildings.filter(
-            (bld) => !this.region || bld.parent_id === this.region?.id
+            (bld) => !this.region || bld.parent_id === this.region?.id,
         );
         const timezone = this.timezone;
         for (const bld of bld_list) {
@@ -645,7 +682,7 @@ export class OrganisationService {
                     this.regionSettings(this.region?.id),
                     ...this._settings,
                 ]),
-            300
+            300,
         );
     }
 }

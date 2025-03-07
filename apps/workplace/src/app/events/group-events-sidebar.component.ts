@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import {
     addDays,
@@ -9,37 +9,37 @@ import {
     startOfWeek,
 } from 'date-fns';
 import { BehaviorSubject } from 'rxjs';
-import { GroupEventsStateService } from './group-events-state.service';
 import { take } from 'rxjs/operators';
+import { GroupEventsStateService } from './group-events-state.service';
 
 @Component({
     selector: `group-events-sidebar`,
     template: `
-        <div class="flex flex-col bg-base-100 w-[18rem] h-full">
+        <div class="flex flex-col bg-base-100 sm:h-full sm:w-[18rem]">
             <div class="flex items-center space-x-2 p-2">
                 <button
                     btn
                     matRipple
-                    class="flex-1 rounded-3xl"
+                    class="flex-1"
                     [class.inverse]="(period | async) !== 'week'"
                     (click)="period.next('week')"
                 >
-                    Week
+                    {{ 'COMMON.WEEK' | translate }}
                 </button>
                 <button
                     btn
                     matRipple
-                    class="flex-1 rounded-3xl"
+                    class="flex-1"
                     [class.inverse]="(period | async) !== 'month'"
                     (click)="period.next('month')"
                 >
-                    Month
+                    {{ 'COMMON.MONTH' | translate }}
                 </button>
             </div>
-            <div class="flex flex-col items-center space-y-2 pb-2 px-2">
+            <div class="flex flex-col items-center space-y-2 px-2 pb-2">
                 <mat-form-field
                     appearance="outline"
-                    class="w-full no-subscript"
+                    class="no-subscript w-full"
                 >
                     <mat-select
                         [(ngModel)]="selected_range"
@@ -55,38 +55,50 @@ import { take } from 'rxjs/operators';
                     </mat-select>
                 </mat-form-field>
             </div>
-            <hr class="border-base-200 w-[calc(100%-1rem)] mx-auto" />
-            <date-calendar
-                [ngModel]="(options | async).date"
-                (ngModelChange)="setPeriodFromDate($event)"
-            ></date-calendar>
-            <hr class="border-base-200 w-[calc(100%-1rem)] mx-auto" />
-            <div class="flex flex-col flex-1 overflow-auto">
-                <h2 class="text-lg font-medium p-4">Filters</h2>
-                <div
-                    class="flex flex-col space-y-2 px-4"
-                    *ngIf="(tags | async)?.length"
-                >
-                    <h3>Tags</h3>
-                    <button
-                        matRipple
-                        class="flex items-center rounded w-full text-left"
-                        *ngFor="let tag of tags | async"
-                        (click)="toggleTag(tag)"
+            <hr
+                class="mx-auto hidden w-[calc(100%-1rem)] border-base-200 sm:block"
+            />
+            <div class="hidden flex-1 flex-col overflow-auto sm:flex">
+                <date-calendar
+                    [ngModel]="(options | async).date"
+                    (ngModelChange)="setPeriodFromDate($event)"
+                ></date-calendar>
+                <hr class="mx-auto w-[calc(100%-1rem)] border-base-200" />
+                <div class="flex flex-1 flex-col overflow-auto">
+                    <h2 class="p-4 text-lg font-medium">
+                        {{ 'COMMON.FILTERS' | translate }}
+                    </h2>
+                    <div
+                        class="flex flex-col space-y-2 px-4"
+                        *ngIf="(tags | async)?.length"
                     >
-                        <mat-checkbox
-                            [ngModel]="(filters | async)?.tags?.includes(tag)"
+                        <h3>{{ 'COMMON.TAGS' | translate }}</h3>
+                        <button
+                            matRipple
+                            class="flex w-full items-center rounded text-left"
+                            *ngFor="let tag of tags | async"
+                            (click)="toggleTag(tag)"
                         >
-                            {{ tag }}
-                        </mat-checkbox>
-                    </button>
+                            <mat-checkbox
+                                [ngModel]="
+                                    (filters | async)?.tags?.includes(tag)
+                                "
+                            >
+                                {{ tag }}
+                            </mat-checkbox>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
     `,
     styles: [``],
+    standalone: false,
 })
-export class GroupEventsSidebarComponent extends AsyncHandler {
+export class GroupEventsSidebarComponent
+    extends AsyncHandler
+    implements OnInit
+{
     public period = new BehaviorSubject<'week' | 'month'>('week');
     public period_list = [];
     public selected_range: number;
@@ -96,7 +108,7 @@ export class GroupEventsSidebarComponent extends AsyncHandler {
 
     constructor(
         private _settings: SettingsService,
-        private _state: GroupEventsStateService
+        private _state: GroupEventsStateService,
     ) {
         super();
     }
@@ -110,7 +122,7 @@ export class GroupEventsSidebarComponent extends AsyncHandler {
                     this.setPeriod(this.period_list[0].id);
                     this.selected_range = this.period_list[0].id;
                 }
-            })
+            }),
         );
         this._generatePeriods();
         if (this.period_list.length) {
@@ -163,7 +175,7 @@ export class GroupEventsSidebarComponent extends AsyncHandler {
                     end,
                     display: `${format(
                         Math.max(Date.now(), date),
-                        'EEE, do MMM'
+                        'EEE, do MMM',
                     )} – ${format(end, 'do MMM')}`,
                 });
                 date = addDays(date, 7).valueOf();

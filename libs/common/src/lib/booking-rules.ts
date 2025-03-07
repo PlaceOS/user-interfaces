@@ -1,4 +1,5 @@
 import { addMinutes, isAfter, isBefore } from 'date-fns';
+
 import { User } from 'libs/users/src/lib/user.class';
 
 export interface BookingRuleset {
@@ -46,6 +47,8 @@ export interface BookingRuleConditions {
     is_period?: [number, number];
     /** List of resources that this rule applies to */
     resource_ids?: string[];
+    /** List of tags that the resource needs to have for the rule to apply */
+    tags?: string[];
 }
 
 const MINUTE = 1;
@@ -90,17 +93,18 @@ export function addToDate(add: string, date: Date | number = new Date()) {
 export function filterResourcesFromRules(
     resources: BookableResource[],
     details: BookingRuleDetails,
-    ruleset_list: BookingRuleset[]
+    ruleset_list: BookingRuleset[],
 ) {
     return resources.filter(
         (_) =>
-            !rulesForResource({ ...details, resource: _ }, ruleset_list)?.hidden
+            !rulesForResource({ ...details, resource: _ }, ruleset_list)
+                ?.hidden,
     );
 }
 
 export function rulesForResource(
     details: BookingRuleDetails,
-    ruleset_list: BookingRuleset[]
+    ruleset_list: BookingRuleset[],
 ): BookingRules {
     if (!(ruleset_list instanceof Array)) return DEFAULT_RULES;
     for (const ruleset of ruleset_list) {
@@ -114,7 +118,7 @@ export function rulesForResource(
                 //     'Matched Ruleset:',
                 //     details.resource.id,
                 //     details,
-                //     ruleset
+                //     ruleset,
                 // );
                 return ruleset.rules;
             }
@@ -124,14 +128,14 @@ export function rulesForResource(
     //     'No Matched Ruleset:',
     //     details.resource.id,
     //     details,
-    //     DEFAULT_RULES
+    //     DEFAULT_RULES,
     // );
     return DEFAULT_RULES;
 }
 
 export function checkRulesMatch(
     { date, duration, host, resource }: BookingRuleDetails,
-    ruleset: BookingRuleset
+    ruleset: BookingRuleset,
 ): boolean {
     const date_obj = new Date(date);
     let matches = 0;
@@ -170,6 +174,13 @@ export function checkRulesMatch(
     if (
         conditions.resource_ids &&
         conditions.resource_ids.includes(resource.id)
+    )
+        matches += 1;
+    if (
+        conditions.tags &&
+        conditions.tags.every((tag) =>
+            (resource.tags || []).find((t) => t === tag),
+        )
     )
         matches += 1;
     if (conditions.locations && conditions.locations.includes(resource.name))

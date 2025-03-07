@@ -1,7 +1,6 @@
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { SettingsService } from '@placeos/common';
 import { CustomTooltipComponent, MAP_FEATURE_DATA } from '@placeos/components';
-import { Space } from '@placeos/spaces';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
 import { ExploreSpaceInfoComponent } from '../lib/explore-space-info.component';

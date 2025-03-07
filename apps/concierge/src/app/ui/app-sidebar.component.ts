@@ -1,24 +1,26 @@
-import { Component, ElementRef } from '@angular/core';
+import { Component, ElementRef, OnInit } from '@angular/core';
 import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
     AsyncHandler,
     SettingsService,
     currentUser,
+    i18n,
     unique,
 } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
+import { debounceTime, filter, first } from 'rxjs/operators';
 
 @Component({
     selector: 'app-sidebar',
     template: `
         <div
-            class="w-64 h-full border-r border-base-200 py-2 pr-3 overflow-auto"
+            class="h-full w-64 overflow-auto border-r border-base-200 py-2 pr-3"
         >
             <ng-container *ngFor="let link of filtered_links">
                 <ng-container *ngIf="!link.children; else group_view">
                     <a
                         matRipple
-                        class="flex items-center space-x-2 rounded-r-full p-1 my-1 hover:bg-base-200 w-full"
+                        class="my-1 flex w-full items-center space-x-2 rounded-r-full p-1 hover:bg-base-200"
                         [routerLink]="link.route"
                         routerLinkActive="active"
                     >
@@ -32,7 +34,7 @@ import { OrganisationService } from '@placeos/organisation';
                     <button
                         matRipple
                         *ngIf="link.children?.length"
-                        class="flex items-center space-x-2 rounded-r-full p-1 my-1 hover:bg-base-200 w-full"
+                        class="my-1 flex w-full items-center space-x-2 rounded-r-full p-1 hover:bg-base-200"
                         (click)="
                             show_block[link.id || link._id] =
                                 !show_block[link.id || link._id]
@@ -41,20 +43,20 @@ import { OrganisationService } from '@placeos/organisation';
                         <app-icon class="text-2xl opacity-60">
                             {{ link.icon }}
                         </app-icon>
-                        <div class="font-medium flex-1 text-left">
+                        <div class="flex-1 text-left font-medium">
                             {{ link.name }}
                         </div>
                         <app-icon class="text-2xl">arrow_drop_down</app-icon>
                     </button>
                     <section
-                        class="overflow-hidden w-full"
+                        class="w-full overflow-hidden"
                         *ngIf="link.children?.length"
                         [@show]="
                             !show_block[link.id || link._id] ? 'show' : 'hide'
                         "
                     >
                         <a
-                            class="flex items-center space-x-2 rounded-r-full p-1 my-1 hover:bg-base-200 w-full"
+                            class="my-1 flex w-full items-center space-x-2 rounded-r-full p-1 hover:bg-base-200"
                             *ngFor="let child of link.children"
                             [routerLink]="child.route"
                             routerLinkActive="active"
@@ -85,213 +87,287 @@ import { OrganisationService } from '@placeos/organisation';
         `,
     ],
     animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
+    standalone: false,
 })
-export class ApplicationSidebarComponent extends AsyncHandler {
+export class ApplicationSidebarComponent
+    extends AsyncHandler
+    implements OnInit
+{
     public show_block: Record<string, boolean> = {};
-    public readonly links = [
-        {
-            name: 'Bookings',
-            icon: 'add_circle',
-            children: [
-                {
-                    id: 'spaces',
-                    name: 'Rooms',
-                    route: ['/book/rooms/new'],
-                },
-                {
-                    id: 'desks',
-                    name: 'Desks',
-                    route: ['/book/desks/new/events'],
-                },
-                {
-                    id: 'parking',
-                    name: 'Parking',
-                    route: ['/book/parking/new/events'],
-                },
-                {
-                    id: 'lockers',
-                    name: 'Lockers',
-                    route: ['/book/lockers/new'],
-                },
-                {
-                    id: 'assets',
-                    name: 'Assets',
-                    route: ['/book/assets/new/list/requests'],
-                },
-                {
-                    id: 'catering',
-                    name: 'Catering',
-                    route: ['/book/catering/new/orders'],
-                },
-            ],
-        },
-        {
-            name: 'Visitor Management',
-            icon: 'badge',
-            children: [
-                {
-                    id: 'visitors',
-                    name: 'Visitor List',
-                    route: ['/book/visitors/new'],
-                },
-                {
-                    id: 'visitor-rules',
-                    name: 'External',
-                    route: ['/book/visitors/new/rules'],
-                },
-            ],
-        },
-        {
-            id: 'facilities',
-            name: 'Facilities',
-            icon: 'place',
-            children: [
-                // {
-                //     id: 'facilities',
-                //     name: 'Building Map',
-                //     route: ['/facilities/new'],
-                // },
-                {
-                    id: 'zones',
-                    name: 'Region Management',
-                    route: ['/region-management/new'],
-                },
-                {
-                    id: 'zones',
-                    name: 'Building Management',
-                    route: ['/building-management/new'],
-                },
-                {
-                    id: 'zones',
-                    name: 'Levels Management',
-                    route: ['/level-management/new'],
-                },
-                {
-                    id: 'spaces',
-                    name: 'Room Management',
-                    route: ['/room-management/new'],
-                },
-                {
-                    id: 'desks',
-                    name: 'Desk Management',
-                    route: ['/book/desks/new/manage'],
-                },
-                {
-                    id: 'parking',
-                    name: 'Parking Management',
-                    route: ['/book/parking/new/manage'],
-                },
-                {
-                    id: 'catering',
-                    name: 'Catering Menu',
-                    route: ['/book/catering/new/menu'],
-                },
-                {
-                    id: 'points',
-                    name: 'Points',
-                    route: ['/points-management/new'],
-                },
-                {
-                    id: 'emergency-contacts',
-                    name: 'Emergency Contacts',
-                    icon: 'assignment_ind',
-                    route: ['/users/staff/emergency-contacts'],
-                },
-                {
-                    id: 'signage',
-                    name: 'Digital Signage',
-                    route: ['/signage'],
-                },
-                {
-                    id: 'points-of-interest',
-                    name: 'Points Of Interest',
-                    route: ['/points-of-interest'],
-                },
-                {
-                    id: 'url-management',
-                    name: 'URL Management',
-                    route: ['/url-management'],
-                },
-            ],
-        },
-        {
-            id: 'assets',
-            name: 'Asset Manager',
-            route: ['/book/assets/new/list/items'],
-            icon: 'vibration',
-        },
-        {
-            id: 'internal-users',
-            name: 'User Directory',
-            icon: 'assignment_ind',
-            route: ['/users/staff/new'],
-        },
-        {
-            id: 'events',
-            name: 'Events',
-            route: ['/entertainment/events'],
-            icon: 'confirmation_number',
-        },
-        {
-            id: 'surveys',
-            name: 'Surveys',
-            route: ['/surveys/new'],
-            icon: 'add_reaction',
-        },
-        {
-            _id: 'reports',
-            name: 'Reports',
-            icon: 'analytics',
-            children: [
-                {
-                    id: 'booking-report',
-                    name: 'Room Bookings',
-                    route: ['/reports/new/bookings'],
-                },
-                {
-                    id: 'desk-report',
-                    name: 'Desk Bookings',
-                    route: ['/reports/new/desks'],
-                },
-                {
-                    id: 'catering-report',
-                    name: 'Catering',
-                    route: ['/reports/new/catering'],
-                },
-                {
-                    id: 'contact-tracing-report',
-                    name: 'Contact Tracing',
-                    route: ['/reports/new/contact-tracing'],
-                },
-            ],
-        },
-    ];
+    public links = [];
 
     public filtered_links = [];
+
+    public get feature_list() {
+        return this._settings.get('app.features') || [];
+    }
+
+    public get feature_groups() {
+        return this._settings.get('app.feature_groups') || {};
+    }
+
+    public get is_admin() {
+        const groups = currentUser().groups;
+        const admin_group = this._settings.get('app.admin_group') || 'admin';
+        return (
+            groups.includes(admin_group) ||
+            groups.includes('placeos_admin') ||
+            groups.includes('placeos_support')
+        );
+    }
 
     constructor(
         private _settings: SettingsService,
         private _org: OrganisationService,
-        private _element_ref: ElementRef<HTMLElement>
+        private _element_ref: ElementRef<HTMLElement>,
     ) {
         super();
     }
 
-    public ngOnInit() {
+    public async ngOnInit() {
+        await this._org.initialised.pipe(first((_) => _)).toPromise();
+        this.links = [
+            {
+                name: i18n('APP.CONCIERGE.MENU_BOOKINGS'),
+                icon: 'add_circle',
+                children: [
+                    {
+                        id: 'spaces',
+                        name: i18n('APP.CONCIERGE.MENU_ROOM_BOOKINGS'),
+                        route: ['/book/rooms/new'],
+                    },
+                    {
+                        id: 'desks',
+                        name: i18n('APP.CONCIERGE.MENU_DESK_BOOKINGS'),
+                        route: ['/book/desks/new/events'],
+                    },
+                    {
+                        id: 'parking',
+                        name: i18n('APP.CONCIERGE.MENU_PARKING_BOOKINGS'),
+                        route: ['/book/parking/new/events'],
+                    },
+                    {
+                        id: 'lockers',
+                        name: i18n('APP.CONCIERGE.MENU_LOCKER_BOOKINGS'),
+                        route: ['/book/lockers/new/events'],
+                    },
+                    {
+                        id: 'assets',
+                        name: i18n('APP.CONCIERGE.MENU_ASSET_BOOKINGS'),
+                        route: ['/book/assets/new/list/requests'],
+                    },
+                    {
+                        id: 'catering',
+                        name: i18n('APP.CONCIERGE.MENU_CATERING_BOOKINGS'),
+                        route: ['/book/catering/new/orders'],
+                    },
+                ],
+            },
+            {
+                name: i18n('APP.CONCIERGE.MENU_VISITORS'),
+                icon: 'badge',
+                children: [
+                    {
+                        id: 'visitors',
+                        name: i18n('APP.CONCIERGE.MENU_VISITOR_BOOKINGS'),
+                        route: ['/book/visitors/new'],
+                    },
+                    {
+                        id: 'visitor-rules',
+                        name: i18n('APP.CONCIERGE.MENU_VISITOR_RULES'),
+                        route: ['/book/visitors/new/rules'],
+                    },
+                ],
+            },
+            {
+                id: 'facilities',
+                name: i18n('APP.CONCIERGE.MENU_MANAGEMENT'),
+                icon: 'place',
+                children: [
+                    // {
+                    //     id: 'facilities',
+                    //     name: 'Building Map',
+                    //     route: ['/facilities/new'],
+                    // },
+                    {
+                        id: 'zones',
+                        name: i18n('APP.CONCIERGE.MENU_MANAGE_REGIONS'),
+                        route: ['/region-management/new'],
+                    },
+                    {
+                        id: 'zones',
+                        name: i18n('APP.CONCIERGE.MENU_MANAGE_BUILDINGS'),
+                        route: ['/building-management/new'],
+                    },
+                    {
+                        id: 'zones',
+                        name: i18n('APP.CONCIERGE.MENU_MANAGE_LEVELS'),
+                        route: ['/level-management/new'],
+                    },
+                    {
+                        id: 'spaces',
+                        name: i18n('APP.CONCIERGE.MENU_MANAGE_ROOMS'),
+                        route: ['/room-management/new'],
+                    },
+                    {
+                        id: 'desks',
+                        name: i18n('APP.CONCIERGE.MENU_MANAGE_DESKS'),
+                        route: ['/book/desks/new/manage'],
+                    },
+                    {
+                        id: 'parking',
+                        name: i18n('APP.CONCIERGE.MENU_MANAGE_PARKING'),
+                        route: ['/book/parking/new/manage'],
+                    },
+                    {
+                        id: 'lockers',
+                        name: i18n('APP.CONCIERGE.MENU_MANAGE_LOCKERS'),
+                        route: ['/book/lockers/new/manage'],
+                    },
+                    {
+                        id: 'catering',
+                        name: i18n('APP.CONCIERGE.MENU_MANAGE_CATERING'),
+                        route: ['/book/catering/new/menu'],
+                    },
+                    {
+                        id: 'points',
+                        name: i18n('APP.CONCIERGE.MENU_MANAGE_POINTS'),
+                        route: ['/points-management/new'],
+                    },
+                    {
+                        id: 'emergency-contacts',
+                        name: i18n('APP.CONCIERGE.MENU_MANAGE_CONTACTS'),
+                        icon: 'assignment_ind',
+                        route: ['/users/staff/emergency-contacts'],
+                    },
+                    {
+                        id: 'signage',
+                        name: i18n('APP.CONCIERGE.MENU_MANAGE_SIGNAGE'),
+                        route: ['/signage'],
+                    },
+                    {
+                        id: 'points-of-interest',
+                        name: i18n('APP.CONCIERGE.MENU_MANAGE_MAP_FEATURES'),
+                        route: ['/points-of-interest'],
+                    },
+                    {
+                        id: 'url-management',
+                        name: i18n('APP.CONCIERGE.MENU_MANAGE_URLS'),
+                        route: ['/url-management'],
+                    },
+                    {
+                        id: 'email-templates',
+                        name: i18n('APP.CONCIERGE.MENU_MANAGE_EMAILS'),
+                        route: ['/email-templates'],
+                    },
+                ],
+            },
+            {
+                id: 'assets',
+                name: i18n('APP.CONCIERGE.MENU_ASSETS'),
+                route: ['/book/assets/new/list/items'],
+                icon: 'vibration',
+            },
+            {
+                id: 'internal-users',
+                name: i18n('APP.CONCIERGE.MENU_USER_LIST'),
+                icon: 'assignment_ind',
+                route: ['/users/staff/new'],
+            },
+            {
+                id: 'events',
+                name: i18n('APP.CONCIERGE.MENU_EVENTS'),
+                route: ['/entertainment/events'],
+                icon: 'confirmation_number',
+            },
+            {
+                id: 'surveys',
+                name: i18n('APP.CONCIERGE.MENU_SURVEYS'),
+                route: ['/surveys'],
+                icon: 'add_reaction',
+            },
+            {
+                _id: 'reports',
+                name: i18n('APP.CONCIERGE.MENU_REPORTS'),
+                icon: 'analytics',
+                children: [
+                    {
+                        id: 'booking-report',
+                        name: i18n('APP.CONCIERGE.MENU_REPORT_ROOMS'),
+                        route: ['/reports/new/bookings'],
+                    },
+                    {
+                        id: 'desk-report',
+                        name: i18n('APP.CONCIERGE.MENU_REPORT_DESKS'),
+                        route: ['/reports/new/desks'],
+                    },
+                    {
+                        id: 'parking-report',
+                        name: i18n('APP.CONCIERGE.MENU_REPORT_PARKING'),
+                        route: ['/reports/new/parking'],
+                    },
+                    {
+                        id: 'lockers-report',
+                        name: i18n('APP.CONCIERGE.MENU_REPORT_LOCKERS'),
+                        route: ['/reports/new/lockers'],
+                    },
+                    {
+                        id: 'catering-report',
+                        name: i18n('APP.CONCIERGE.MENU_REPORT_CATERING'),
+                        route: ['/reports/new/catering'],
+                    },
+                    {
+                        id: 'contact-tracing-report',
+                        name: i18n('APP.CONCIERGE.MENU_REPORT_CONTACT_TRACING'),
+                        route: ['/reports/new/contact-tracing'],
+                    },
+                    {
+                        id: 'assets-report',
+                        name: i18n('APP.CONCIERGE.MENU_REPORT_ASSETS'),
+                        route: ['/reports/new/assets'],
+                    },
+                    {
+                        id: 'visitors-report',
+                        name: i18n('APP.CONCIERGE.MENU_REPORT_VISITORS'),
+                        route: ['/reports/new/visitors'],
+                    },
+                ],
+            },
+        ];
         this.updateFilteredLinks();
         this.subscription(
             'building',
-            this._org.active_building.subscribe(() =>
-                this.updateFilteredLinks()
-            )
+            this._org.active_building
+                .pipe(
+                    filter((_) => !!_),
+                    debounceTime(100),
+                )
+                .subscribe(() => this.updateFilteredLinks()),
         );
         this.timeout('update_inview', () => this._moveActiveLinkIntoView(), 50);
+        this.timeout('update_links', () => this.updateFilteredLinks(), 500);
+    }
+
+    private _isFeatureAvailable(name: string): boolean {
+        if (name.startsWith('*')) {
+            return true;
+        }
+        const has_feature = this.feature_list.includes(name);
+        const feature_groups = this.feature_groups[name] || [];
+        const groups = currentUser().groups;
+        if (
+            has_feature &&
+            (this.is_admin ||
+                !feature_groups.length ||
+                groups.find((grp) => feature_groups.includes(grp)))
+        ) {
+            return true;
+        }
+        return false;
     }
 
     public updateFilteredLinks() {
-        const features = this._settings.get('app.features') || [];
         const custom_reports = this._settings.get('app.custom_reports') || [];
-        const admin_group = this._settings.get('app.admin_group') || 'admin';
         if (
             custom_reports.length &&
             this.links.find((_) => _._id === 'reports')
@@ -303,38 +379,35 @@ export class ApplicationSidebarComponent extends AsyncHandler {
                         ..._,
                         id: `*${_.id}`,
                         route: ['/reports/new', _.id],
-                    }))
+                    })),
                 ),
-                'id'
+                'id',
             );
         }
         this.filtered_links = this.links
             .map((link) => ({
                 ...link,
                 children: link.children
-                    ? link.children.filter(
-                          (_) => features.includes(_.id) || _.id.startsWith('*')
+                    ? link.children.filter((_) =>
+                          this._isFeatureAvailable(_.id),
                       )
                     : null,
             }))
             .filter(
                 (_) =>
-                    ((!_.id || _.id === 'home' || features.includes(_.id)) &&
+                    ((!_.id ||
+                        _.id === 'home' ||
+                        this._isFeatureAvailable(_.id)) &&
                         _.route) ||
-                    _.children?.length
+                    _.children?.length,
             );
         if (this.filtered_links.find((_) => _.id === 'home')) {
             const link = this.filtered_links.find((_) => _.id === 'home');
             link.route = this._settings.get('app.default_route') || ['/'];
         }
-        const groups = currentUser().groups;
-        if (
-            !groups.includes(admin_group) &&
-            !groups.includes('placeos_admin') &&
-            !groups.includes('placeos_support')
-        ) {
+        if (!this.is_admin) {
             this.filtered_links = this.filtered_links.filter(
-                (_) => _.id !== 'facilities'
+                (_) => _.id !== 'facilities',
             );
         }
     }

@@ -1,17 +1,17 @@
-import { Component } from '@angular/core';
 import { OverlayModule } from '@angular/cdk/overlay';
 import { PortalModule } from '@angular/cdk/portal';
+import { Component } from '@angular/core';
 import {
     SpectatorDirective,
     createDirectiveFactory,
 } from '@ngneat/spectator/jest';
 
-import { SanitizePipe } from '../lib/sanitise.pipe';
 import { fakeAsync } from '@angular/core/testing';
 import {
     CustomTooltipComponent,
     CustomTooltipData,
 } from '../lib/custom-tooltip.component';
+import { SanitizePipe } from '../lib/sanitise.pipe';
 
 @Component({ selector: 'fake', template: 'Fake Component' })
 export class FakeComponent {}
@@ -41,7 +41,7 @@ describe('CustomTooltipComponent', () => {
                 hostProps: {
                     content: FakeComponent,
                 },
-            }
+            },
         );
         jest.spyOn(spectator.directive, 'open');
         expect('[custom-tooltip]').not.toExist();
@@ -75,7 +75,7 @@ describe('CustomTooltipComponent', () => {
                 hostProps: {
                     content: 'Test HTML',
                 },
-            }
+            },
         );
         jest.spyOn(spectator.directive, 'open');
         expect('[custom-tooltip]').not.toExist();
@@ -95,7 +95,7 @@ describe('CustomTooltipComponent', () => {
                     content: FakeDataComponent,
                     data: 'Fake Data Component',
                 },
-            }
+            },
         );
         spectator.click(spectator.query('div'));
         spectator.tick(200);
@@ -112,7 +112,7 @@ describe('CustomTooltipComponent', () => {
                 hostProps: {
                     data: { $implicit: 'Fake Template Component' },
                 },
-            }
+            },
         );
         spectator.click(spectator.query('div'));
         spectator.tick(200);

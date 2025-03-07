@@ -17,10 +17,14 @@ export class Desk implements Record<string, any> {
     public readonly groups: string[];
     /** QR code image data */
     public readonly qr_code: string;
+    /** Email of the user the desk is allocated to */
+    public readonly assigned_to: string;
     /** List of features associated with the desk */
     public readonly features: string[];
     /** List of URLs to images */
     public readonly images: string[];
+    /**  */
+    public readonly security: string;
 
     public staff_name?: string;
 
@@ -30,10 +34,12 @@ export class Desk implements Record<string, any> {
         this.name = data.name || '';
         this.bookable = data.bookable ?? false;
         this.zone = data.zone || new PlaceZone();
+        this.assigned_to = data.assigned_to || '';
         this.groups = data.groups || [];
         this.qr_code = data.qr_code || '';
         this.features = data.features || [];
         this.images = data.images || [];
+        this.security = data.security || '';
         for (const key in data) {
             if (!(key in this)) this[key] = data[key];
         }

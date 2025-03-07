@@ -27,44 +27,44 @@ describe('Your Bookings', () => {
                                     .click({ force: true })
                                     .then(() => {
                                         cy.get(
-                                            'button[name="open-meeting-confirm"]'
+                                            'button[name="open-meeting-confirm"]',
                                         )
                                             .click({ force: true })
                                             .then(() => {
                                                 cy.get(
-                                                    'button[name="confirm-meeting"]'
+                                                    'button[name="confirm-meeting"]',
                                                 )
                                                     .click({ force: true })
                                                     .then(() => {
                                                         cy.wait(3000);
                                                         cy.get(
-                                                            'a[name="meeting-created-continue"]'
+                                                            'a[name="meeting-created-continue"]',
                                                         ).click({
                                                             force: true,
                                                         });
                                                         cy.wait(3000);
                                                         cy.visit(
-                                                            '/#/your-bookings?mock=true'
+                                                            '/#/your-bookings?mock=true',
                                                         );
                                                         cy.wait(3000);
                                                         cy.get('event-card')
                                                             .contains(
-                                                                'Cypress Test Booking'
+                                                                'Cypress Test Booking',
                                                             )
                                                             .click({
                                                                 force: true,
                                                             })
                                                             .then(() => {
                                                                 cy.get(
-                                                                    'event-details-modal'
+                                                                    'event-details-modal',
                                                                 ).should(
                                                                     'be.visible',
-                                                                    true
+                                                                    true,
                                                                 );
                                                                 cy.contains(
-                                                                    'Cypress Test Booking'
+                                                                    'Cypress Test Booking',
                                                                 ).should(
-                                                                    'exist'
+                                                                    'exist',
                                                                 );
                                                             });
                                                     });
@@ -134,18 +134,18 @@ describe('Your Bookings', () => {
                                     .click({ force: true })
                                     .then(() => {
                                         cy.get(
-                                            'button[name="open-meeting-confirm"]'
+                                            'button[name="open-meeting-confirm"]',
                                         )
                                             .click({ force: true })
                                             .then(() => {
                                                 cy.get(
-                                                    'button[name="confirm-meeting"]'
+                                                    'button[name="confirm-meeting"]',
                                                 )
                                                     .click({ force: true })
                                                     .then(() => {
                                                         cy.wait(3000);
                                                         cy.get(
-                                                            'a[name="meeting-created-continue"]'
+                                                            'a[name="meeting-created-continue"]',
                                                         ).click({
                                                             force: true,
                                                         });
@@ -172,10 +172,10 @@ describe('Your Bookings', () => {
                             .click({ force: true })
                             .then(() => {
                                 cy.get('event-details-modal').should(
-                                    'be.visible'
+                                    'be.visible',
                                 );
                                 cy.contains('Cypress Future Booking').should(
-                                    'exist'
+                                    'exist',
                                 );
                             });
                     });
@@ -298,18 +298,18 @@ describe('Your Bookings', () => {
                                     .click({ force: true })
                                     .then(() => {
                                         cy.get(
-                                            'button[name="open-meeting-confirm"]'
+                                            'button[name="open-meeting-confirm"]',
                                         )
                                             .click({ force: true })
                                             .then(() => {
                                                 cy.get(
-                                                    'button[name="confirm-meeting"]'
+                                                    'button[name="confirm-meeting"]',
                                                 )
                                                     .click({ force: true })
                                                     .then(() => {
                                                         cy.wait(3000);
                                                         cy.get(
-                                                            'a[name="meeting-created-continue"]'
+                                                            'a[name="meeting-created-continue"]',
                                                         ).click({
                                                             force: true,
                                                         });
@@ -386,18 +386,18 @@ describe('Your Bookings', () => {
                                     .click({ force: true })
                                     .then(() => {
                                         cy.get(
-                                            'button[name="open-meeting-confirm"]'
+                                            'button[name="open-meeting-confirm"]',
                                         )
                                             .click({ force: true })
                                             .then(() => {
                                                 cy.get(
-                                                    'button[name="confirm-meeting"]'
+                                                    'button[name="confirm-meeting"]',
                                                 )
                                                     .click({ force: true })
                                                     .then(() => {
                                                         cy.wait(3000);
                                                         cy.get(
-                                                            'a[name="meeting-created-continue"]'
+                                                            'a[name="meeting-created-continue"]',
                                                         ).click({
                                                             force: true,
                                                         });
@@ -456,7 +456,7 @@ describe('Your Bookings', () => {
                             .then(() => {
                                 cy.wait(3000);
                                 cy.get(
-                                    'a[name="meeting-created-continue"]'
+                                    'a[name="meeting-created-continue"]',
                                 ).click({ force: true });
                             });
                     });
@@ -505,18 +505,18 @@ describe('Your Bookings', () => {
                                     .click({ force: true })
                                     .then(() => {
                                         cy.get(
-                                            'button[name="open-meeting-confirm"]'
+                                            'button[name="open-meeting-confirm"]',
                                         )
                                             .click({ force: true })
                                             .then(() => {
                                                 cy.get(
-                                                    'button[name="confirm-meeting"]'
+                                                    'button[name="confirm-meeting"]',
                                                 )
                                                     .click({ force: true })
                                                     .then(() => {
                                                         cy.wait(3000);
                                                         cy.get(
-                                                            'a[name="meeting-created-continue"]'
+                                                            'a[name="meeting-created-continue"]',
                                                         ).click({
                                                             force: true,
                                                         });
@@ -562,7 +562,7 @@ describe('Your Bookings', () => {
                                     .then(() => {
                                         cy.wait(3000);
                                         cy.get(
-                                            'a[name="meeting-created-continue"]'
+                                            'a[name="meeting-created-continue"]',
                                         ).click({
                                             force: true,
                                         });
@@ -604,18 +604,18 @@ describe('Your Bookings', () => {
                                     .click({ force: true })
                                     .then(() => {
                                         cy.get(
-                                            'button[name="open-meeting-confirm"]'
+                                            'button[name="open-meeting-confirm"]',
                                         )
                                             .click({ force: true })
                                             .then(() => {
                                                 cy.get(
-                                                    'button[name="confirm-meeting"]'
+                                                    'button[name="confirm-meeting"]',
                                                 )
                                                     .click({ force: true })
                                                     .then(() => {
                                                         cy.wait(3000);
                                                         cy.get(
-                                                            'a[name="meeting-created-continue"]'
+                                                            'a[name="meeting-created-continue"]',
                                                         ).click({
                                                             force: true,
                                                         });
@@ -661,7 +661,7 @@ describe('Your Bookings', () => {
                                     .then(() => {
                                         cy.wait(6000);
                                         cy.get(
-                                            'a[name="meeting-created-continue"]'
+                                            'a[name="meeting-created-continue"]',
                                         ).click({
                                             force: true,
                                         });
@@ -707,18 +707,18 @@ describe('Your Bookings', () => {
                                     .click({ force: true })
                                     .then(() => {
                                         cy.get(
-                                            'button[name="open-meeting-confirm"]'
+                                            'button[name="open-meeting-confirm"]',
                                         )
                                             .click({ force: true })
                                             .then(() => {
                                                 cy.get(
-                                                    'button[name="confirm-meeting"]'
+                                                    'button[name="confirm-meeting"]',
                                                 )
                                                     .click({ force: true })
                                                     .then(() => {
                                                         cy.wait(3000);
                                                         cy.get(
-                                                            'a[name="meeting-created-continue"]'
+                                                            'a[name="meeting-created-continue"]',
                                                         ).click({
                                                             force: true,
                                                         });
@@ -791,18 +791,18 @@ describe('Your Bookings', () => {
                                     .click({ force: true })
                                     .then(() => {
                                         cy.get(
-                                            'button[name="open-meeting-confirm"]'
+                                            'button[name="open-meeting-confirm"]',
                                         )
                                             .click({ force: true })
                                             .then(() => {
                                                 cy.get(
-                                                    'button[name="confirm-meeting"]'
+                                                    'button[name="confirm-meeting"]',
                                                 )
                                                     .click({ force: true })
                                                     .then(() => {
                                                         cy.wait(3000);
                                                         cy.get(
-                                                            'a[name="meeting-created-continue"]'
+                                                            'a[name="meeting-created-continue"]',
                                                         ).click({
                                                             force: true,
                                                         });
@@ -848,7 +848,7 @@ describe('Your Bookings', () => {
                                     .click();
                                 cy.get('mat-select').should(
                                     'contain',
-                                    'Brisbane'
+                                    'Brisbane',
                                 );
 
                                 cy.get('button[name="select-space"]')
@@ -859,18 +859,18 @@ describe('Your Bookings', () => {
                                             .click({ force: true })
                                             .then(() => {
                                                 cy.get(
-                                                    'button[name="open-meeting-confirm"]'
+                                                    'button[name="open-meeting-confirm"]',
                                                 )
                                                     .click({ force: true })
                                                     .then(() => {
                                                         cy.get(
-                                                            'meeting-flow-confirm-modal'
+                                                            'meeting-flow-confirm-modal',
                                                         ).should('exist');
                                                         cy.contains(
-                                                            'Brisbane'
+                                                            'Brisbane',
                                                         ).should('exist');
                                                         cy.get(
-                                                            'button[name="confirm-meeting"]'
+                                                            'button[name="confirm-meeting"]',
                                                         )
                                                             .click({
                                                                 force: true,
@@ -878,7 +878,7 @@ describe('Your Bookings', () => {
                                                             .then(() => {
                                                                 cy.wait(3000);
                                                                 cy.get(
-                                                                    'a[name="meeting-created-continue"]'
+                                                                    'a[name="meeting-created-continue"]',
                                                                 ).click({
                                                                     force: true,
                                                                 });
@@ -920,25 +920,25 @@ describe('Your Bookings', () => {
                                     .then(() => {
                                         cy.wait(6000);
                                         cy.get(
-                                            'button[name="add-catering-item"]'
+                                            'button[name="add-catering-item"]',
                                         )
                                             .click({ force: true })
                                             .then(() => {
                                                 cy.get(
-                                                    'button[name="select-catering-item"]'
+                                                    'button[name="select-catering-item"]',
                                                 )
                                                     .first()
                                                     .click({ force: true })
                                                     .then(() => {
                                                         cy.get(
-                                                            'button[name="toggle-catering-item"]'
+                                                            'button[name="toggle-catering-item"]',
                                                         )
                                                             .click({
                                                                 force: true,
                                                             })
                                                             .then(() => {
                                                                 cy.get(
-                                                                    'button[name="catering-item-return"]'
+                                                                    'button[name="catering-item-return"]',
                                                                 )
                                                                     .last()
                                                                     .click({
@@ -947,40 +947,40 @@ describe('Your Bookings', () => {
                                                                     .then(
                                                                         () => {
                                                                             cy.get(
-                                                                                'button[name="open-meeting-confirm"]'
+                                                                                'button[name="open-meeting-confirm"]',
                                                                             )
                                                                                 .click(
                                                                                     {
                                                                                         force: true,
-                                                                                    }
+                                                                                    },
                                                                                 )
                                                                                 .then(
                                                                                     () => {
                                                                                         cy.get(
-                                                                                            'button[name="confirm-meeting"]'
+                                                                                            'button[name="confirm-meeting"]',
                                                                                         )
                                                                                             .click(
                                                                                                 {
                                                                                                     force: true,
-                                                                                                }
+                                                                                                },
                                                                                             )
                                                                                             .then(
                                                                                                 () => {
                                                                                                     cy.wait(
-                                                                                                        3000
+                                                                                                        3000,
                                                                                                     );
                                                                                                     cy.get(
-                                                                                                        'a[name="meeting-created-continue"]'
+                                                                                                        'a[name="meeting-created-continue"]',
                                                                                                     ).click(
                                                                                                         {
                                                                                                             force: true,
-                                                                                                        }
+                                                                                                        },
                                                                                                     );
-                                                                                                }
+                                                                                                },
                                                                                             );
-                                                                                    }
+                                                                                    },
                                                                                 );
-                                                                        }
+                                                                        },
                                                                     );
                                                             });
                                                     });
@@ -1098,18 +1098,18 @@ describe('Your Bookings', () => {
                                     .click({ force: true })
                                     .then(() => {
                                         cy.get(
-                                            'button[name="open-meeting-confirm"]'
+                                            'button[name="open-meeting-confirm"]',
                                         )
                                             .click({ force: true })
                                             .then(() => {
                                                 cy.get(
-                                                    'button[name="confirm-meeting"]'
+                                                    'button[name="confirm-meeting"]',
                                                 )
                                                     .click({ force: true })
                                                     .then(() => {
                                                         cy.wait(3000);
                                                         cy.get(
-                                                            'a[name="meeting-created-continue"]'
+                                                            'a[name="meeting-created-continue"]',
                                                         ).click({
                                                             force: true,
                                                         });
@@ -1198,7 +1198,7 @@ describe('Your Bookings', () => {
             .type('Edit Note Cypress Test Booking')
             .then(() => {
                 cy.get('rich-text-input[placeholder="Notes..."]').type(
-                    'Test Note A'
+                    'Test Note A',
                 );
                 cy.wait(3000);
 
@@ -1214,18 +1214,18 @@ describe('Your Bookings', () => {
                                     .click({ force: true })
                                     .then(() => {
                                         cy.get(
-                                            'button[name="open-meeting-confirm"]'
+                                            'button[name="open-meeting-confirm"]',
                                         )
                                             .click({ force: true })
                                             .then(() => {
                                                 cy.get(
-                                                    'button[name="confirm-meeting"]'
+                                                    'button[name="confirm-meeting"]',
                                                 )
                                                     .click({ force: true })
                                                     .then(() => {
                                                         cy.wait(3000);
                                                         cy.get(
-                                                            'a[name="meeting-created-continue"]'
+                                                            'a[name="meeting-created-continue"]',
                                                         ).click({
                                                             force: true,
                                                         });

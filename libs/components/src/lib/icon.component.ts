@@ -4,7 +4,7 @@ import { ApplicationIcon } from 'libs/common/src/lib/types';
 @Component({
     selector: 'app-icon,icon',
     template: `
-        <div class="flex items-center justify-center h-[1.25em] w-[1.25em]">
+        <div class="flex h-[1.25em] w-[1.25em] items-center justify-center">
             <i
                 *ngIf="!icon || icon.type !== 'img'"
                 [class]="icon?.class || className"
@@ -26,6 +26,7 @@ import { ApplicationIcon } from 'libs/common/src/lib/types';
             }
         `,
     ],
+    standalone: false,
 })
 export class IconComponent {
     @Input() public className: string = 'material-icons';

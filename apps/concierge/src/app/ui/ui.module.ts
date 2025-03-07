@@ -1,37 +1,42 @@
-import { NgModule, Type } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { NgModule, Type } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 
-import { MatNativeDateModule, MatRippleModule } from '@angular/material/core';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatNativeDateModule, MatRippleModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatDialogModule } from '@angular/material/dialog';
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
-import { SidebarComponent } from './sidebar.component';
-import { DateOptionsComponent } from './date-options.component';
-import { SearchbarComponent } from './searchbar.component';
-import { ViewEventDetailsComponent } from './view-event-details.component';
+import { MatRadioModule } from '@angular/material/radio';
+import { AssetsModule } from '@placeos/assets';
 import { ComponentsModule } from '@placeos/components';
 import { FormFieldsModule } from '@placeos/form-fields';
-import { SharedSpacesModule } from '@placeos/spaces';
 import { PaymentsModule } from '@placeos/payments';
-import { AssetsModule } from '@placeos/assets';
-import { MatRadioModule } from '@angular/material/radio';
+import { SharedSpacesModule } from '@placeos/spaces';
+import { DateOptionsComponent } from './date-options.component';
+import { SearchbarComponent } from './searchbar.component';
+import { SidebarComponent } from './sidebar.component';
+import { ViewEventDetailsComponent } from './view-event-details.component';
 
-import { ApplicationTopbarComponent } from './app-topbar.component';
-import { ApplicationSidebarComponent } from './app-sidebar.component';
 import { AppSettingsModalComponent } from './app-settings-modal.component';
+import { BookingPanelSettingsModalComponent } from './app-settings/booking-panel-settings-modal.component';
+import { ConciergeSettingsFormModalComponent } from './app-settings/concierge-settings-form-modal.component';
+import { UploadButtonComponent } from './app-settings/upload-button.component';
+import { VisitorKioskSettingsFormModalComponent } from './app-settings/visitor-kiosk-settings-form-modal.component';
+import { WorkplaceSettingsFormModalComponent } from './app-settings/workplace-settings-form-modal.component';
+import { ApplicationSidebarComponent } from './app-sidebar.component';
+import { ApplicationTopbarComponent } from './app-topbar.component';
 import { BookingRulesModalComponent } from './booking-rules-modal.component';
 
 const COMPONENTS: Type<any>[] = [
@@ -43,6 +48,13 @@ const COMPONENTS: Type<any>[] = [
     ApplicationTopbarComponent,
     ApplicationSidebarComponent,
     BookingRulesModalComponent,
+
+    BookingPanelSettingsModalComponent,
+    WorkplaceSettingsFormModalComponent,
+    ConciergeSettingsFormModalComponent,
+    VisitorKioskSettingsFormModalComponent,
+
+    UploadButtonComponent,
 ];
 
 const MAT_MODULES: any[] = [

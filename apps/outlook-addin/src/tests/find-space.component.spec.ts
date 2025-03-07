@@ -1,29 +1,28 @@
-import { FindSpaceComponent } from '../app/rooms/find-space/find-space.component';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
-import { MockComponent, MockInstance, ngMocks } from 'ng-mocks';
-import { By } from '@angular/platform-browser';
-import { of, Observable } from 'rxjs';
-import { FormsModule, ReactiveFormsModule, FormBuilder } from '@angular/forms';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { BookModule } from '../app/rooms/book.module';
 import { CommonModule } from '@angular/common';
-import { BrowserModule } from '@angular/platform-browser';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { FormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import {
-    MatBottomSheetModule,
     MatBottomSheet,
+    MatBottomSheetModule,
 } from '@angular/material/bottom-sheet';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { BrowserModule, By } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { MockComponent, ngMocks } from 'ng-mocks';
+import { of } from 'rxjs';
+import { BookModule } from '../app/rooms/book.module';
+import { FindSpaceComponent } from '../app/rooms/find-space/find-space.component';
 
+import { ComponentsModule, InteractiveMapComponent } from '@placeos/components';
+import { EventFormService } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
 import { SpacesService } from '@placeos/spaces';
-import { EventFormService } from '@placeos/events';
+import { FeaturesFilterService } from '../app/rooms/features-filter.service';
 import { FilterSpaceComponent } from '../app/rooms/filter-space/filter-space.component';
 import { FindSpaceItemComponent } from '../app/rooms/find-space-item/find-space-item.component';
-import { FeaturesFilterService } from '../app/rooms/features-filter.service';
 import { MapService } from '../app/rooms/map.service';
 import { RoomConfirmService } from '../app/rooms/room-confirm.service';
-import { ComponentsModule, InteractiveMapComponent } from '@placeos/components';
-import { mockSpace, mockForm, mockEventFlowOptions } from './test-mocks';
+import { mockEventFlowOptions, mockForm, mockSpace } from './test-mocks';
 
 describe('FindSpaceComponent', () => {
     const formModel = mockForm;
@@ -234,7 +233,7 @@ describe('FindSpaceComponent', () => {
         const map_service: any = spectator.inject(MapService);
         const event_service: any = spectator.inject(EventFormService);
         const feature_filter_service: any = spectator.inject(
-            FeaturesFilterService
+            FeaturesFilterService,
         );
 
         org_service.levelsForBuilding.mockImplementation((bld) => {
@@ -310,11 +309,11 @@ describe('FindSpaceComponent', () => {
         (mat_bottom_sheet.open as any).mockImplementation(
             (template, config) => {
                 return '' as any;
-            }
+            },
         );
         const component_filter_spy = jest.spyOn(
             spectator.component,
-            'openFilter'
+            'openFilter',
         );
 
         expect(component_filter_spy).not.toHaveBeenCalled();
@@ -331,11 +330,11 @@ describe('FindSpaceComponent', () => {
         const room_confirm_service = spectator.inject(RoomConfirmService);
         const room_confirm_service_spy = jest.spyOn(
             room_confirm_service,
-            'openRoomDetail'
+            'openRoomDetail',
         );
         const component_open_spy = jest.spyOn(
             spectator.component,
-            'openRoomDetails'
+            'openRoomDetails',
         );
 
         spectator.component.selected_space = mockSpace;
@@ -345,7 +344,7 @@ describe('FindSpaceComponent', () => {
         spectator.component.show_room_details$ = of(true);
         spectator.detectChanges();
         const button = spectator.debugElement.query(
-            By.css('button.open-details-button')
+            By.css('button.open-details-button'),
         );
         expect(button.nativeElement.innerHTML).toContain('View Room');
         button.nativeElement.click();
@@ -364,11 +363,11 @@ describe('FindSpaceComponent', () => {
         expect(spectator.component.space_view).toBe('listView');
         expect(spaceItems.length).toBeTruthy();
         expect(spectator.debugElement.nativeElement.innerHTML).toContain(
-            'find-space-item'
+            'find-space-item',
         );
         expect(mapItems.length).toBe(0);
         expect(spectator.debugElement.nativeElement.innerHTML).not.toContain(
-            'svg'
+            'svg',
         );
     });
 
@@ -401,13 +400,13 @@ describe('FindSpaceComponent', () => {
         spectator.detectChanges();
 
         expect(spectator.debugElement.nativeElement.outerHTML).toContain(
-            '3 results found'
+            '3 results found',
         );
 
         (spectator.component.spaces$ as any) = of([mockSpace]);
         spectator.detectChanges();
         expect(spectator.debugElement.nativeElement.outerHTML).toContain(
-            '1 results found'
+            '1 results found',
         );
     });
 });

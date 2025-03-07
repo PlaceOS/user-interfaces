@@ -1,7 +1,7 @@
 import {
+    MAT_DIALOG_DATA,
     MatDialogModule,
     MatDialogRef,
-    MAT_DIALOG_DATA,
 } from '@angular/material/dialog';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { SettingsService } from '@placeos/common';
@@ -61,21 +61,23 @@ describe('DeskSelectModalComponent', () => {
     it('should allow favouriting a space', () => {
         spectator.component.toggleFavourite(new Desk({ id: '1' }));
         expect(
-            spectator.inject(SettingsService).saveUserSetting
+            spectator.inject(SettingsService).saveUserSetting,
         ).toBeCalledWith(FAV_DESK_KEY, ['1']);
     });
 
     it('should allow un-favouriting a space', () => {
         (spectator.inject(SettingsService).get as any).mockImplementation(
-            () => ['1']
+            () => ['1'],
         );
         spectator.component.toggleFavourite(new Desk({ id: '1' }));
         expect(
-            spectator.inject(SettingsService).saveUserSetting
+            spectator.inject(SettingsService).saveUserSetting,
         ).toBeCalledWith(FAV_DESK_KEY, []);
     });
 
     it('should show desk map view', () => {
+        spectator.component.view = 'list';
+        spectator.detectChanges();
         expect('desk-map').not.toExist();
         spectator.component.view = 'map';
         spectator.detectChanges();

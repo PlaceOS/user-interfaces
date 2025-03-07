@@ -1,22 +1,23 @@
 import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import {
-    currentUser,
-    hasNewVersion,
-    SettingsService,
-    VERSION,
-} from '@placeos/common';
-import { ChangelogModalComponent } from '@placeos/components';
-import { OrganisationService } from '@placeos/organisation';
+
 import { logout } from '@placeos/ts-client';
-import { WFHSettingsModalComponent } from 'libs/users/src/lib/wfh-settings-modal.component';
 import { AccessibilityTooltipComponent } from './accessibility-tooltip.component';
 import { BuildingSelectComponent } from './building-select.component';
+import { ChangelogModalComponent } from './changelog-modal.component';
 import { HelpTooltipComponent } from './help-tooltip.component';
 import { LanguageSelectComponent } from './language-tooltip.component';
 import { RegionSelectComponent } from './region-select.component';
+import { WorkLocationTooltipComponent } from './work-location-tooltip.component';
+
+import { hasNewVersion } from 'libs/common/src/lib/application';
+import { LocaleService } from 'libs/common/src/lib/locale.service';
+import { SettingsService } from 'libs/common/src/lib/settings.service';
+import { currentUser } from 'libs/common/src/lib/user-state';
+import { VERSION } from 'libs/common/src/lib/version';
 import { SupportTicketModalComponent } from 'libs/form-fields/src/lib/support-ticket-modal.component';
-import { first } from 'rxjs/operators';
+import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
+import { WFHSettingsModalComponent } from 'libs/users/src/lib/wfh-settings-modal.component';
 
 export interface AppLocale {
     id: string;
@@ -28,16 +29,16 @@ export interface AppLocale {
     selector: 'user-controls',
     template: `
         <div
-            class="rounded bg-base-100 shadow mt-1 flex flex-col relative divide-y divide-base-200"
+            class="relative mt-1 flex flex-col divide-y divide-base-200 rounded bg-base-100 shadow"
         >
-            <div avatar class="flex flex-col items-center p-2 w-[18rem]">
+            <div avatar class="flex w-[18rem] flex-col items-center p-2">
                 <a-user-avatar
                     class="text-2xl"
                     [user]="user"
                     [matTooltip]="groups"
                 ></a-user-avatar>
                 <div class="">{{ user?.name }}</div>
-                <div class="text-xs opacity-60 truncate">{{ user?.email }}</div>
+                <div class="truncate text-xs opacity-60">{{ user?.email }}</div>
             </div>
             <div
                 customTooltip
@@ -45,20 +46,20 @@ export interface AppLocale {
                 [content]="region_select"
                 class="relative"
             >
-                <button btn matRipple class="clear w-full text-left h-[3.5rem]">
-                    <div class="w-full flex items-center space-x-2">
+                <button btn matRipple class="clear h-[3.5rem] w-full text-left">
+                    <div class="flex w-full items-center space-x-2">
                         <div
-                            class="flex items-center justify-center rounded-full w-8 h-8 bg-base-200"
+                            class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
                         >
                             <app-icon>layers</app-icon>
                         </div>
-                        <div class="flex-1 truncate w-px">
+                        <div class="w-px flex-1 truncate">
                             {{
                                 (region | async)?.display_name ||
                                     (region | async)?.name
                             }}
                         </div>
-                        <app-icon class="opacity-60 text-2xl">
+                        <app-icon class="text-2xl opacity-60">
                             chevron_right
                         </app-icon>
                     </div>
@@ -70,20 +71,20 @@ export interface AppLocale {
                 class="relative"
                 *ngIf="!disable_building_select && !use_region"
             >
-                <button btn matRipple class="clear w-full text-left h-[3.5rem]">
-                    <div class="w-full flex items-center space-x-2">
+                <button btn matRipple class="clear h-[3.5rem] w-full text-left">
+                    <div class="flex w-full items-center space-x-2">
                         <div
-                            class="flex items-center justify-center rounded-full w-8 h-8 bg-base-200"
+                            class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
                         >
                             <app-icon>business</app-icon>
                         </div>
-                        <div class="flex-1 truncate w-px">
+                        <div class="w-px flex-1 truncate">
                             {{
                                 (building | async)?.display_name ||
                                     (building | async)?.name
                             }}
                         </div>
-                        <app-icon class="opacity-60 text-2xl">
+                        <app-icon class="text-2xl opacity-60">
                             chevron_right
                         </app-icon>
                     </div>
@@ -94,35 +95,38 @@ export interface AppLocale {
                 [content]="help_tooltip"
                 *ngIf="features.includes('help')"
             >
-                <button btn matRipple class="clear w-full text-left h-[3.5rem]">
-                    <div class="w-full flex items-center space-x-2">
+                <button btn matRipple class="clear h-[3.5rem] w-full text-left">
+                    <div class="flex w-full items-center space-x-2">
                         <div
-                            class="flex items-center justify-center rounded-full w-8 h-8 bg-base-200"
+                            class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
                         >
                             <app-icon>help</app-icon>
                         </div>
-                        <div class="flex-1" i18n>Help & Support</div>
-                        <app-icon class="opacity-60 text-2xl"
-                            >chevron_right</app-icon
-                        >
+                        <div class="flex-1">
+                            {{ 'COMMON.CONTROLS_HELP' | translate }}
+                        </div>
+                        <app-icon class="text-2xl opacity-60">
+                            chevron_right
+                        </app-icon>
                     </div>
                 </button>
             </div>
-            <div *ngIf="features.includes('wfh')">
-                <button
-                    btn
-                    matRipple
-                    class="clear w-full text-left h-[3.5rem]"
-                    (click)="openWfhModal()"
-                >
-                    <div class="w-full flex items-center space-x-2">
+            <div
+                *ngIf="features.includes('wfh')"
+                customTooltip
+                [content]="work_location_tooltip"
+            >
+                <button btn matRipple class="clear h-[3.5rem] w-full text-left">
+                    <div class="flex w-full items-center space-x-2">
                         <div
-                            class="flex items-center justify-center rounded-full w-8 h-8 bg-base-200"
+                            class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
                         >
                             <app-icon>share_location</app-icon>
                         </div>
-                        <div class="flex-1" i18n>Work Location Settings</div>
-                        <app-icon class="opacity-60 text-2xl"
+                        <div class="flex-1">
+                            {{ 'COMMON.CONTROLS_WORK_LOCATION' | translate }}
+                        </div>
+                        <app-icon class="text-2xl opacity-60"
                             >chevron_right</app-icon
                         >
                     </div>
@@ -133,15 +137,17 @@ export interface AppLocale {
                 [content]="accessibility_tooltip"
                 [class.!border-b]="!locales?.length || !desk_height"
             >
-                <button btn matRipple class="clear w-full text-left h-[3.5rem]">
-                    <div class="w-full flex items-center space-x-2">
+                <button btn matRipple class="clear h-[3.5rem] w-full text-left">
+                    <div class="flex w-full items-center space-x-2">
                         <div
-                            class="flex items-center justify-center rounded-full w-8 h-8 bg-base-200"
+                            class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
                         >
                             <app-icon>mode_night</app-icon>
                         </div>
-                        <div class="flex-1" i18n>Display & Accessibility</div>
-                        <app-icon class="opacity-60 text-2xl"
+                        <div class="flex-1">
+                            {{ 'COMMON.CONTROLS_ACCESSIBILITY' | translate }}
+                        </div>
+                        <app-icon class="text-2xl opacity-60"
                             >chevron_right</app-icon
                         >
                     </div>
@@ -153,17 +159,19 @@ export interface AppLocale {
                 [class.!border-b]="!locales?.length"
                 *ngIf="desk_height"
             >
-                <button btn matRipple class="clear w-full text-left h-[3.5rem]">
-                    <div class="w-full flex items-center space-x-2">
+                <button btn matRipple class="clear h-[3.5rem] w-full text-left">
+                    <div class="flex w-full items-center space-x-2">
                         <div
-                            class="flex items-center justify-center rounded-full w-8 h-8 bg-base-200"
+                            class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
                         >
                             <app-icon>desk</app-icon>
                         </div>
-                        <div class="flex-1" i18n>Desk Settings</div>
-                        <app-icon class="opacity-60 text-2xl"
-                            >chevron_right</app-icon
-                        >
+                        <div class="flex-1">
+                            {{ 'COMMON.CONTROLS_DESKS' | translate }}
+                        </div>
+                        <app-icon class="text-2xl opacity-60">
+                            chevron_right
+                        </app-icon>
                     </div>
                 </button>
             </div>
@@ -173,52 +181,67 @@ export interface AppLocale {
             <div
                 customTooltip
                 [content]="language_tooltip"
-                *ngIf="locales?.length"
+                *ngIf="locales?.length > 1"
                 class="!border-b"
             >
-                <button btn matRipple class="clear w-full text-left h-[3.5rem]">
-                    <div class="w-full flex items-center space-x-2">
+                <button btn matRipple class="clear h-[3.5rem] w-full text-left">
+                    <div class="flex w-full items-center space-x-2">
                         <div
-                            class="flex items-center justify-center rounded-full w-8 h-8 bg-base-200"
+                            class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
                         >
-                            <app-icon>mode_night</app-icon>
+                            <app-icon>language</app-icon>
                         </div>
-                        <div class="flex-1" i18n>
-                            {{ 'COMMON.LANGUAGE_LABEL' | translate }}:
-                            {{ 'COMMON.LANGUAGE' | translate }}
-                        </div>
-                        <app-icon class="opacity-60 text-2xl"
-                            >chevron_right</app-icon
+                        <div
+                            class="flex flex-1 items-center justify-between space-x-4"
                         >
+                            <div>
+                                <div>{{ 'COMMON.LANGUAGE' | translate }}</div>
+                                <div
+                                    *ngIf="
+                                        ('COMMON.LANGUAGE' | translate) !==
+                                        'Language'
+                                    "
+                                    class="text-xs opacity-30"
+                                >
+                                    Language
+                                </div>
+                            </div>
+                            <div
+                                class="max-w-24 truncate rounded bg-base-200 px-2 py-1 text-sm"
+                                [matTooltip]="active_locale | translate"
+                            >
+                                {{ active_locale | translate }}
+                            </div>
+                        </div>
+                        <app-icon class="text-2xl opacity-60">
+                            chevron_right
+                        </app-icon>
                     </div>
                 </button>
             </div>
+
             <button
                 btn
                 matRipple
-                class="clear w-full text-left h-[3.5rem]"
+                class="clear h-[3.5rem] w-full text-left"
                 *ngIf="features.includes('support-ticket')"
                 (click)="newSupportTicket()"
             >
-                <div class="w-full flex items-center space-x-2">
+                <div class="flex w-full items-center space-x-2">
                     <div
-                        class="flex items-center justify-center rounded-full w-8 h-8 bg-base-200"
+                        class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
                     >
                         <app-icon>support_agent</app-icon>
                     </div>
-                    <div class="flex-1" i18n>Raise a support ticket</div>
+                    <div class="flex-1">
+                        {{ 'COMMON.CONTROLS_SUPPORT' | translate }}
+                    </div>
                 </div>
             </button>
             <div class="flex flex-col items-center p-4">
-                <div class="flex items-center justify-center space-x-2 mb-4">
-                    <button
-                        btn
-                        matRipple
-                        i18n
-                        class="inverse"
-                        (click)="logout()"
-                    >
-                        Sign Out
+                <div class="mb-4 flex items-center justify-center space-x-2">
+                    <button btn matRipple class="inverse" (click)="logout()">
+                        {{ 'COMMON.CONTROLS_SIGN_OUT' | translate }}
                     </button>
                     <button
                         btn
@@ -226,19 +249,21 @@ export interface AppLocale {
                         *ngIf="has_new_version"
                         (click)="reloadPage()"
                     >
-                        New Version
+                        {{ 'COMMON.CONTROLS_NEW_VERSION' | translate }}
                     </button>
                 </div>
-                <div class="text-xs opacity-60 w-full">
-                    <ng-container i18n>Version: </ng-container>
+                <div class="w-full text-xs opacity-60">
+                    <ng-container>
+                        {{ 'COMMON.CONTROLS_VERSION' | translate }}:
+                    </ng-container>
                     <button
-                        class="underline p-0 m-0 bg-none border-none text-xs"
+                        class="m-0 border-none bg-none p-0 text-xs underline"
                         (click)="viewChangelog()"
                     >
                         {{ version.hash }}
                     </button>
                 </div>
-                <div class="text-xs opacity-60 w-full">
+                <div class="w-full text-xs opacity-60">
                     {{ version.time | date: 'longDate' }}
                     ({{ version.time | date: 'shortTime' }})
                 </div>
@@ -246,6 +271,7 @@ export interface AppLocale {
         </div>
     `,
     styles: [``],
+    standalone: false,
 })
 export class UserControlsComponent {
     public readonly building = this._org.active_building;
@@ -257,6 +283,7 @@ export class UserControlsComponent {
     public readonly help_tooltip = HelpTooltipComponent;
     public readonly accessibility_tooltip = AccessibilityTooltipComponent;
     public readonly language_tooltip = LanguageSelectComponent;
+    public readonly work_location_tooltip = WorkLocationTooltipComponent;
 
     public get user() {
         return currentUser();
@@ -274,7 +301,16 @@ export class UserControlsComponent {
         return this._settings.get('app.features') || [];
     }
 
-    public get locales(): [] {
+    public get active_locale(): string {
+        const locale_list = this.locales;
+        const locale = this._locale.locale;
+        for (const item of locale_list) {
+            if (item.id === locale) return item.name;
+        }
+        return 'LANGUAGE.ENGLISH';
+    }
+
+    public get locales(): { id: string; name: string }[] {
         return this._settings.get('app.locales') || [];
     }
 
@@ -297,7 +333,8 @@ export class UserControlsComponent {
     constructor(
         private _settings: SettingsService,
         private _org: OrganisationService,
-        private _dialog: MatDialog
+        private _dialog: MatDialog,
+        private _locale: LocaleService,
     ) {}
 
     public logout() {
@@ -312,7 +349,7 @@ export class UserControlsComponent {
         if (this._settings.get('app.external_support_url')) {
             window.open(
                 this._settings.get('app.external_support_url'),
-                '_blank'
+                '_blank',
             );
         } else {
             this._dialog.open(SupportTicketModalComponent);
@@ -326,14 +363,13 @@ export class UserControlsComponent {
     public async viewChangelog() {
         const changelog = await (
             await fetch(
-                'https://raw.githubusercontent.com/PlaceOS/user-interfaces/develop/CHANGELOG.md'
+                'https://raw.githubusercontent.com/PlaceOS/user-interfaces/develop/CHANGELOG.md',
             )
         ).text();
         this._dialog.open(ChangelogModalComponent, { data: { changelog } });
     }
 
     public saveSetting(name: string, value: any) {
-        console.log('Save setting', name, value);
         this._settings.saveUserSetting(name, value);
     }
 

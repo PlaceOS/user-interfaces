@@ -28,6 +28,7 @@ import { EventsStateService } from '../day-view/events-state.service';
             }
         `,
     ],
+    standalone: false,
 })
 export class FacilitiesMapComponent extends AsyncHandler {
     /** Observable for the active map */
@@ -43,7 +44,7 @@ export class FacilitiesMapComponent extends AsyncHandler {
 
     constructor(
         private _explore: ExploreStateService,
-        private _state: EventsStateService
+        private _state: EventsStateService,
     ) {
         super();
     }
@@ -51,7 +52,7 @@ export class FacilitiesMapComponent extends AsyncHandler {
     public ngOnInit() {
         this.subscription(
             'active_zone',
-            this._state.zones.subscribe((z) => this._explore.setLevel(z[0]))
+            this._state.zones.subscribe((z) => this._explore.setLevel(z[0])),
         );
     }
 }

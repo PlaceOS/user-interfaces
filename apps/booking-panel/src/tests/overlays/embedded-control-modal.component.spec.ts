@@ -1,13 +1,13 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import {
+    MAT_DIALOG_DATA,
     MatDialogModule,
     MatDialogRef,
-    MAT_DIALOG_DATA,
 } from '@angular/material/dialog';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { MockComponent, MockModule } from 'ng-mocks';
 
-import { EmbeddedControlModalComponent } from '../../app/overlays/embedded-control-modal.component';
 import { IconComponent, SafePipe } from '@placeos/components';
+import { EmbeddedControlModalComponent } from '../../app/overlays/embedded-control-modal.component';
 
 describe('EmbeddedControlModalComponent', () => {
     let spectator: Spectator<EmbeddedControlModalComponent>;

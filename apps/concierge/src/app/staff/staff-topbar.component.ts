@@ -10,14 +10,14 @@ import { StaffStateService } from './staff-state.service';
     selector: 'staff-topbar',
     template: `
         <div
-            class="flex items-center bg-base-100 h-20 px-4 border-b border-base-200 space-x-2"
+            class="flex h-20 items-center space-x-2 border-b border-base-200 bg-base-100 px-4"
         >
             <mat-form-field appearance="outline">
                 <mat-select
                     multiple
                     [(ngModel)]="zones"
                     (ngModelChange)="updateZones($event)"
-                    placeholder="All Levels"
+                    [placeholder]="'COMMON.LEVEL_ALL' | translate"
                 >
                     <mat-option
                         *ngFor="let level of levels | async"
@@ -31,9 +31,11 @@ import { StaffStateService } from './staff-state.service';
                 class="m-2"
                 [ngModel]="(filters | async)?.only_onsite"
                 (ngModelChange)="setFilters({ only_onsite: $event })"
-                ><div class="text-xs">Onsite Only</div></mat-slide-toggle
+                ><div class="text-xs">
+                    {{ 'APP.CONCIERGE.DIRECTORY_ONSITE_ONLY' | translate }}
+                </div></mat-slide-toggle
             >
-            <div class="flex-1 w-2"></div>
+            <div class="w-2 flex-1"></div>
             <searchbar
                 class="mr-2"
                 (modelChange)="setSearch($event)"
@@ -48,6 +50,7 @@ import { StaffStateService } from './staff-state.service';
             }
         `,
     ],
+    standalone: false,
 })
 export class StaffTopbarComponent extends AsyncHandler implements OnInit {
     /** List of selected levels */
@@ -67,6 +70,7 @@ export class StaffTopbarComponent extends AsyncHandler implements OnInit {
         this._router.navigate([], {
             relativeTo: this._route,
             queryParams: { zone_ids: zones.join(',') },
+            queryParamsHandling: 'merge',
         });
         this._state.setFilters({ zones });
     };
@@ -75,7 +79,7 @@ export class StaffTopbarComponent extends AsyncHandler implements OnInit {
         private _state: StaffStateService,
         private _org: OrganisationService,
         private _route: ActivatedRoute,
-        private _router: Router
+        private _router: Router,
     ) {
         super();
     }
@@ -93,24 +97,24 @@ export class StaffTopbarComponent extends AsyncHandler implements OnInit {
                             return;
                         }
                         this._org.building = this._org.buildings.find(
-                            (bld) => bld.id === level.parent_id
+                            (bld) => bld.id === level.parent_id,
                         );
                         this.zones = zones;
                     }
                 }
-            })
+            }),
         );
         this.subscription(
             'levels',
             this._org.active_levels.subscribe((levels) => {
                 this.zones = this.zones.filter((zone) =>
-                    levels.find((lvl) => lvl.id === zone)
+                    levels.find((lvl) => lvl.id === zone),
                 );
                 if (!this.zones.length && levels.length) {
                     this.zones.push(levels[0].id);
                 }
                 this.updateZones(this.zones);
-            })
+            }),
         );
         this.setSearch('');
     }

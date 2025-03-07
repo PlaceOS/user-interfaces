@@ -1,46 +1,59 @@
 import { Component, Input } from '@angular/core';
+import { SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { CateringReportStateService } from './catering-report-state.service';
-import { SettingsService } from '@placeos/common';
 
 @Component({
     selector: 'catering-report-orders',
     template: `
         <div
-            class="w-[64rem] max-w-[calc(100%-2rem)] rounded overflow-hidden bg-base-100  border border-base-200 mx-auto my-2"
+            class="mx-auto my-2 w-[64rem] max-w-[calc(100%-2rem)] overflow-hidden rounded border border-base-200 bg-base-100"
         >
             <div
-                class="border-b border-base-200 flex items-center justify-between px-4"
+                class="flex items-center justify-between border-b border-base-200 px-4"
             >
-                <h2 class="py-2 text-xl font-medium">Orders</h2>
+                <h2 class="py-2 text-xl font-medium">
+                    {{
+                        'APP.CONCIERGE.REPORTS_CATERING_ORDERS_HEADER'
+                            | translate
+                    }}
+                </h2>
                 <button
                     matRipple-icon
                     (click)="download()"
                     class="print:hidden"
-                    matTooltip="Download list"
+                    [matTooltip]="
+                        'APP.CONCIERGE.REPORTS_DOWNLOAD_TABLE' | translate
+                    "
                 >
                     <app-icon>download</app-icon>
                 </button>
             </div>
             <simple-table
-                class="w-full block text-sm"
+                class="block w-full text-sm"
                 [data]="orders"
                 [columns]="[
                     {
                         key: 'deliver_at',
-                        name: 'Deliver At',
-                        content: date_template
+                        name: 'APP.CONCIERGE.ASSETS_REQUESTS_TIME' | translate,
+                        content: date_template,
                     },
-                    { key: 'item_count', name: 'Items' },
+                    {
+                        key: 'item_count',
+                        name:
+                            'APP.CONCIERGE.REPORTS_CATERING_ITEMS' | translate,
+                    },
                     {
                         key: 'total_cost',
-                        name: 'Total Cost',
-                        content: cost_template
-                    }
+                        name: 'CATERING.TOTAL_COST' | translate,
+                        content: cost_template,
+                    },
                 ]"
                 [sortable]="true"
                 [page_size]="print ? 0 : 10"
-                empty_message="No orders for selected period"
+                [empty_message]="
+                    'APP.CONCIERGE.REPORTS_CATERING_ORDERS_EMPTY' | translate
+                "
             ></simple-table>
 
             <ng-template #date_template let-data="data">
@@ -56,9 +69,10 @@ import { SettingsService } from '@placeos/common';
         </div>
     `,
     styles: [``],
+    standalone: false,
 })
 export class CateringReportOrdersComponent {
-    @Input() public print: boolean = false;
+    @Input() public print = false;
     public readonly orders = this._report.catering_orders;
 
     public get code() {
@@ -72,7 +86,7 @@ export class CateringReportOrdersComponent {
     constructor(
         private _report: CateringReportStateService,
         private _org: OrganisationService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {}
 
     public readonly download = () => this._report.downloadOrders();

@@ -1,11 +1,12 @@
 import { Component, EventEmitter, Output } from '@angular/core';
+import { SettingsService } from '@placeos/common';
 import { ContactTracingStateService } from './contact-tracing-state.service';
 
 @Component({
     selector: 'contact-tracing-options',
     template: `
-        <div class="flex items-center space-x-2 w-full p-4 bg-base-100 shadow">
-            <date-range-field>
+        <div class="flex w-full items-center space-x-2 bg-base-100 p-4 shadow">
+            <date-range-field [week_start]="week_start">
                 <input
                     #startDate
                     [ngModel]="(options | async)?.start"
@@ -61,6 +62,7 @@ import { ContactTracingStateService } from './contact-tracing-state.service';
             }
         `,
     ],
+    standalone: false,
 })
 export class ContactTracingOptionsComponent {
     @Output() public printing = new EventEmitter<boolean>();
@@ -70,7 +72,14 @@ export class ContactTracingOptionsComponent {
     public readonly setOptions = (_) => this._state.setOptions(_);
     public readonly generate = () => this._state.generateReport();
 
-    constructor(private _state: ContactTracingStateService) {}
+    public get week_start() {
+        return this._settings.get('app.week_start');
+    }
+
+    constructor(
+        private _state: ContactTracingStateService,
+        private _settings: SettingsService,
+    ) {}
 
     public print() {
         this.printing.emit(true);

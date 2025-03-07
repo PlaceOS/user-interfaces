@@ -19,13 +19,16 @@ import { ControlStateService, RoomInput } from '../control-state.service';
             [class.p-2]="simple"
             [class.p-4]="!simple"
         >
-            <h3 class="font-medium text-xl mb-2">
-                Select input source for
-                {{ (details | async)?.name || '= No Name =' }}
+            @let source = details | async;
+            <h3 class="mb-2 text-xl font-medium">
+                {{
+                    'APP.CONTROL.SOURCE_INPUT_SELECT'
+                        | translate: { name: source?.name || '= No Name =' }
+                }}
             </h3>
             <ng-container *ngIf="!loading; else load_state">
                 <div
-                    class="flex divide"
+                    class="divide flex"
                     [class.flex-col]="simple"
                     [class.flex-wrap]="!simple"
                     *ngIf="(input_types | async)?.length; else empty_state"
@@ -33,7 +36,7 @@ import { ControlStateService, RoomInput } from '../control-state.service';
                     <div
                         group
                         *ngFor="let type of input_types | async"
-                        class="flex flex-col p-2 space-y-2"
+                        class="flex flex-col space-y-2 p-2"
                     >
                         <h4 class="text-center underline">{{ type }}</h4>
                         <button
@@ -54,23 +57,25 @@ import { ControlStateService, RoomInput } from '../control-state.service';
             </ng-container>
         </div>
         <ng-template #empty_state>
-            <div class="flex flex-col items-center justify-center p-8 m-auto">
+            <div class="m-auto flex flex-col items-center justify-center p-8">
                 <p>
-                    No input sources available for the selected output({{
-                        details?.name || 'Unknown'
-                    }})
+                    {{
+                        'APP.CONTROL.SOURCE_INPUTS_EMPTY'
+                            | translate: { name: details?.name || 'Unknown' }
+                    }}
                 </p>
             </div>
         </ng-template>
         <ng-template #load_state>
             <div
-                class="flex flex-col items-center justify-center space-y-2 p-8 m-auto"
+                class="m-auto flex flex-col items-center justify-center space-y-2 p-8"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
-                <p>Switching input source...</p>
+                <p>{{ 'APP.CONTROL.SOURCE_SWITCHING' | translate }}</p>
             </div>
         </ng-template>
     `,
+    standalone: false,
 })
 export class SourceSelectComponent implements OnChanges {
     // Whether to use the simple display
@@ -94,12 +99,12 @@ export class SourceSelectComponent implements OnChanges {
         this._state.input_list,
     ]).pipe(
         map(([id, list]) =>
-            list.filter((_) => !_.outputs || _.outputs.includes(id))
-        )
+            list.filter((_) => !_.outputs || _.outputs.includes(id)),
+        ),
     );
     /** Available types of inputs */
     public readonly input_types = this.input_list.pipe(
-        map((list) => unique(list.map((_) => _.type)))
+        map((list) => unique(list.map((_) => _.type))),
     );
     /** Mapping of input types to inputs */
     public readonly input_map = combineLatest([
@@ -110,8 +115,8 @@ export class SourceSelectComponent implements OnChanges {
             types.reduce((m, t) => {
                 m[t] = list.filter((_) => _.type === t);
                 return m;
-            }, {})
-        )
+            }, {}),
+        ),
     );
 
     constructor(private _state: ControlStateService) {}

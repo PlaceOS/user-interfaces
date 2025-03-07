@@ -1,13 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { EventFormService } from '@placeos/events';
-import { CalendarEvent } from '@placeos/events';
-import { of, Observable } from 'rxjs';
+import { CalendarEvent, EventFormService } from '@placeos/events';
+import { Observable, of } from 'rxjs';
 
 @Component({
     selector: 'booking-confirmed',
     templateUrl: './booking-confirmed.component.html',
     styles: [``],
+    standalone: false,
 })
 export class BookingConfirmedComponent implements OnInit {
     public get form() {
@@ -20,7 +20,10 @@ export class BookingConfirmedComponent implements OnInit {
     end_time$: Observable<string>;
     duration: CalendarEvent['duration'];
 
-    constructor(private _state: EventFormService, private _router: Router) {}
+    constructor(
+        private _state: EventFormService,
+        private _router: Router,
+    ) {}
 
     ngOnInit() {
         this.location = this._state.last_success?.location;
@@ -32,18 +35,18 @@ export class BookingConfirmedComponent implements OnInit {
                     hour: 'numeric',
                     minute: 'numeric',
                     hour12: true,
-                }
-            )
+                },
+            ),
         );
         this.duration = this._state.last_success?.duration;
         this.end_time$ = of(
             new Date(
-                this._state.last_success?.date + this.duration * 60 * 1000
+                this._state.last_success?.date + this.duration * 60 * 1000,
             ).toLocaleTimeString('en-US', {
                 hour: 'numeric',
                 minute: 'numeric',
                 hour12: true,
-            })
+            }),
         );
     }
     newBooking() {

@@ -1,30 +1,38 @@
 import { Component } from '@angular/core';
-import { GroupEventsStateService } from './group-events-state.service';
 import { differenceInDays, endOfDay, startOfDay } from 'date-fns';
-import { map, take, tap } from 'rxjs/operators';
+import { map, take } from 'rxjs/operators';
+import { GroupEventsStateService } from './group-events-state.service';
 
 @Component({
     selector: 'group-events-filters-list',
     template: `
         <div
-            class="my-2 w-[63rem] max-w-full mx-auto border border-base-300 p-4 bg-base-100 rounded"
+            class="mx-auto my-2 w-[63rem] max-w-full rounded border border-base-300 bg-base-100 p-4"
         >
-            <div class="flex items-center justify-between space-x-2 mb-4">
+            <div class="mb-4 flex items-center justify-between space-x-2">
                 <div>
-                    {{ (this_period | async) ? 'This' : 'Upcoming' }}
-                    {{ (period | async) === 'week' ? 'Week' : 'Month' }}
+                    {{
+                        ((this_period | async)
+                            ? (period | async) === 'week'
+                                ? 'COMMON.WEEK_THIS'
+                                : 'COMMON.MONTH_THIS'
+                            : (period | async) === 'week'
+                              ? 'COMMON.WEEK_UPCOMING'
+                              : 'COMMON.MONTH_UPCOMING'
+                        ) | translate
+                    }}
                 </div>
             </div>
             <div class="flex flex-wrap">
                 <div
-                    class="flex items-center px-4 py-3 rounded-3xl border border-base-400 m-1 text-sm"
+                    class="m-1 flex items-center rounded-3xl border border-base-400 px-4 py-3 text-sm"
                 >
                     {{ (options | async)?.date | date: 'MMM d, y' }}
                     &ndash;
                     {{ (options | async)?.end | date: 'MMM d, y' }}
                 </div>
                 <div
-                    class="flex items-center pl-4 pr-1 rounded-3xl border border-base-400 m-1"
+                    class="m-1 flex items-center rounded-3xl border border-base-400 pl-4 pr-1"
                     *ngFor="let tag of (filters | async)?.tags || []"
                 >
                     <div class="mr-2 flex-1 text-sm">{{ tag }}</div>
@@ -36,6 +44,7 @@ import { map, take, tap } from 'rxjs/operators';
         </div>
     `,
     styles: [``],
+    standalone: false,
 })
 export class GroupEventsFiltersListComponent {
     public readonly options = this._state.options;
@@ -46,14 +55,14 @@ export class GroupEventsFiltersListComponent {
                 Date.now() >= startOfDay(date).valueOf() &&
                 Date.now() < endOfDay(end || date).valueOf()
             );
-        })
+        }),
     );
     public readonly period = this._state.options.pipe(
         map(({ date, end }) =>
             Math.abs(differenceInDays(date, end || Date.now())) > 7
                 ? 'month'
-                : 'week'
-        )
+                : 'week',
+        ),
     );
 
     constructor(private _state: GroupEventsStateService) {}

@@ -1,10 +1,10 @@
 import { del, get, patch } from '@placeos/ts-client';
 import { map } from 'rxjs/operators';
 
-import { CalendarEvent } from '../../../events/src/lib/event.class';
 import { toQueryString } from 'libs/common/src/lib/api';
-import { GuestUser } from './user.class';
 import { Observable } from 'rxjs';
+import { CalendarEvent } from '../../../events/src/lib/event.class';
+import { GuestUser } from './user.class';
 
 const GUEST_ENDPOINT = '/api/staff/v1/guests';
 
@@ -26,7 +26,7 @@ export interface GuestsQueryParams {
 export function searchGuests(q: string): Observable<GuestUser[]> {
     const query = toQueryString({ q });
     return get(`${GUEST_ENDPOINT}${q ? '?' + query : ''}`).pipe(
-        map((list) => list.map((item) => new GuestUser(item)))
+        map((list) => list.map((item) => new GuestUser(item))),
     );
 }
 
@@ -37,7 +37,7 @@ export function searchGuests(q: string): Observable<GuestUser[]> {
 export function queryGuests(q: GuestsQueryParams): Observable<GuestUser[]> {
     const query = toQueryString({ ...q });
     return get(`${GUEST_ENDPOINT}${query ? '?' + query : ''}`).pipe(
-        map((list) => list.map((item) => new GuestUser(item)))
+        map((list) => list.map((item) => new GuestUser(item))),
     );
 }
 
@@ -47,7 +47,7 @@ export function queryGuests(q: GuestsQueryParams): Observable<GuestUser[]> {
  */
 export function showGuest(id: string) {
     return get(`${GUEST_ENDPOINT}/${encodeURIComponent(id)}`).pipe(
-        map((item) => new GuestUser(item))
+        map((item) => new GuestUser(item)),
     );
 }
 
@@ -58,7 +58,7 @@ export function showGuest(id: string) {
  */
 export function updateGuest(id: string, data: Partial<GuestUser>) {
     return patch(`${GUEST_ENDPOINT}/${encodeURIComponent(id)}`, data).pipe(
-        map((item) => new GuestUser(item))
+        map((item) => new GuestUser(item)),
     );
 }
 
@@ -78,6 +78,6 @@ export function removeGuest(id: string) {
  */
 export function listGuestMeetings(id: string) {
     return get(`${GUEST_ENDPOINT}/${encodeURIComponent(id)}/meetings`).pipe(
-        map((list) => list.map((item) => new CalendarEvent(item)))
+        map((list) => list.map((item) => new CalendarEvent(item))),
     );
 }

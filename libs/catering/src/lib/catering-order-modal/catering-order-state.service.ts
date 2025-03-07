@@ -2,9 +2,11 @@ import { Injectable } from '@angular/core';
 import { SettingsService, unique } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { PlaceMetadata, showMetadata } from '@placeos/ts-client';
+import { Space } from 'libs/spaces/src/lib/space.class';
 import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
 import {
     catchError,
+    debounceTime,
     filter,
     map,
     shareReplay,
@@ -12,9 +14,8 @@ import {
     tap,
 } from 'rxjs/operators';
 import { CateringItem } from '../catering-item.class';
-import { cateringItemAvailable, getCateringRulesForZone } from '../utilities';
 import { CateringSettings } from '../catering-state.service';
-import { Space } from 'libs/spaces/src/lib/space.class';
+import { cateringItemAvailable, getCateringRulesForZone } from '../utilities';
 
 export interface CateringOrderOptions {
     // Affects backend requests
@@ -30,6 +31,7 @@ export interface CateringOrderFilters {
     search: string;
     tags: string[];
     categories: string[];
+    caterer?: string;
 }
 
 @Injectable({
@@ -41,6 +43,7 @@ export class CateringOrderStateService {
         search: '',
         tags: [],
         categories: [],
+        caterer: '',
     });
     private _loading = new BehaviorSubject('');
 
@@ -51,21 +54,21 @@ export class CateringOrderStateService {
         filter((_) => !!_),
         switchMap((_) =>
             showMetadata(_.id, 'catering-settings').pipe(
-                catchError((_) => of({} as PlaceMetadata))
-            )
+                catchError((_) => of({} as PlaceMetadata)),
+            ),
         ),
         map((_) => _.details as CateringSettings),
         tap((_) =>
-            this._settings.post('require_catering_notes', !!_?.require_notes)
+            this._settings.post('require_catering_notes', !!_?.require_notes),
         ),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     public readonly charge_codes = this.settings.pipe(
-        map((_) => _.charge_codes || [])
+        map((_) => _.charge_codes || []),
     );
     public readonly availability = this.settings.pipe(
-        map((_) => _.disabled_rooms || [])
+        map((_) => _.disabled_rooms || []),
     );
 
     public readonly available_menu: Observable<CateringItem[]> = combineLatest([
@@ -74,28 +77,50 @@ export class CateringOrderStateService {
     ]).pipe(
         filter(([_, bld]) => !!bld),
         switchMap(([{ zone }, bld]) => {
-            this._loading.next('[Menu]');
+            this._loading.next('[MENU]');
             return showMetadata(zone || bld.id, 'catering').pipe(
                 map((d) =>
                     (d.details instanceof Array ? d.details : []).map(
-                        (_) => new CateringItem(_)
-                    )
+                        (_) => new CateringItem(_),
+                    ),
                 ),
-                catchError((_) => [])
+                catchError((_) => []),
             );
         }),
-        tap((_) => this._loading.next('')),
-        shareReplay(1)
+        tap((items) => {
+            this._loading.next(this._loading.getValue().replace('[MENU]', ''));
+            if (this._settings.get('app.catering_provider')) {
+                this.setFilters({
+                    caterer: this._settings.get('app.catering_provider'),
+                });
+            } else {
+                const caterer_list = unique(
+                    items.map((i) => i.caterer).filter((_) => !!_),
+                );
+                if (caterer_list.length <= 1) return;
+                this.setFilters({ caterer: caterer_list[0] || '' });
+            }
+        }),
+        shareReplay(1),
     );
 
     public readonly categories = this.available_menu.pipe(
-        map((_) => unique(_.map((i) => i.category)))
+        map((_) => unique(_.map((i) => i.category))),
+    );
+
+    public readonly caterers = this.available_menu.pipe(
+        map((_) => {
+            return this._settings.get('app.catering_provider')
+                ? []
+                : unique(_.map((i) => i.caterer));
+        }),
     );
 
     public readonly filtered_menu = combineLatest([
         this._filters,
         this.available_menu,
     ]).pipe(
+        debounceTime(300),
         switchMap(
             async ([
                 {
@@ -106,12 +131,12 @@ export class CateringOrderStateService {
                     date,
                     duration,
                     resources,
+                    caterer,
                 },
                 l,
             ]) => {
-                const rules = await getCateringRulesForZone(
-                    zone_id
-                ).toPromise();
+                const rules =
+                    await getCateringRulesForZone(zone_id).toPromise();
                 search = search.toLowerCase();
                 let list = search
                     ? l.filter((_) => _.name.toLowerCase().includes(search))
@@ -122,17 +147,24 @@ export class CateringOrderStateService {
                 list = categories.length
                     ? list.filter((_) => categories.includes(_.category))
                     : list;
+                list = caterer
+                    ? list.filter(
+                          (_) =>
+                              (caterer === '<empty>' && !_.caterer) ||
+                              _.caterer === caterer,
+                      )
+                    : list;
                 list = list.filter((_) =>
                     cateringItemAvailable(_, rules, {
                         date,
                         duration,
                         resources,
-                    } as any)
+                    } as any),
                 );
                 return list;
-            }
+            },
         ),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     public get currency_code() {
@@ -141,7 +173,7 @@ export class CateringOrderStateService {
 
     constructor(
         private _org: OrganisationService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {}
 
     public setOptions(opts: Partial<CateringOrderOptions>) {

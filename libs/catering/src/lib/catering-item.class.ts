@@ -7,6 +7,8 @@ export class CateringItem {
     public readonly name: string;
     /** Category that this item is associated */
     public readonly category: string;
+    /** Caterer that this item is associated */
+    public readonly caterer: string;
     /** Description of the contents of the catering item */
     public readonly description: string;
     /** Unit price in cents for the catering item */
@@ -45,12 +47,13 @@ export class CateringItem {
         this.id = data.id || '';
         this.name = data.name || data.id || '';
         this.category = data.category || '';
+        this.caterer = data.caterer || '';
         this.unit_price = data.unit_price || 0;
         this.description = data.description || '';
         this.quantity = data.quantity || 0;
         this.discount_cap = data.discount_cap || 0;
         this.accept_points = !!data.accept_points;
-        this.tags = data.tags || [];
+        this.tags = (data.tags instanceof Array ? data.tags : null) || [];
         this.images = data.images || [];
         this.options = data.options || [];
         const has_options = this.options.some((_) => _.active === true);

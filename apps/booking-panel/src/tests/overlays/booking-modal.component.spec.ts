@@ -6,9 +6,9 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { MockComponent, MockModule } from 'ng-mocks';
 
-import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-field.component';
-import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.component';
 import { DurationFieldComponent } from 'libs/form-fields/src/lib/duration-field.component';
+import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.component';
+import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-field.component';
 import { BookingModalComponent } from '../../app/overlays/booking-modal.component';
 
 describe('BookingModalComponent', () => {
@@ -44,9 +44,12 @@ describe('BookingModalComponent', () => {
     });
 
     it('should allow for submitting the form', () => {
-        spectator.component.form.patchValue({ title: 'Test title', organiser: { email: 'j@b.com' } });
+        spectator.component.form.patchValue({
+            title: 'Test title',
+            organiser: { email: 'j@b.com' },
+        });
         const button: HTMLButtonElement = spectator.query(
-            'button[name="save"]'
+            'button[name="save"]',
         );
         expect(button).toBeTruthy();
         button.click();

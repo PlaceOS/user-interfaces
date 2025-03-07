@@ -1,42 +1,30 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 
 @Component({
     selector: 'placeos-not-found',
     styles: [``],
     template: `<div
-        class="flex flex-1 flex-col z-0 bg-base-200 h-full overflow-y-auto"
+        class="z-0 mx-auto my-8 flex h-[24rem] w-[32rem] flex-col items-center justify-center space-y-4 rounded-xl border border-base-300 shadow"
     >
-        <div
-            class="flex flex-col border-b border-base-200 py-5 h-full items-center justify-center"
-        >
-            <div class="mx-3 flex flex-row">
-                <img
-                    src="assets/icons/not-found.svg"
-                    alt="graphic of magnifying glass"
-                    width="200px"
-                    class="items-center"
-                />
-            </div>
-            <div class="mx-3 flex flex-row">
-                <div class="mb-3">
-                    <span class="text-3xl font-bold mr-auto text-gray-700">
-                        Page not found</span
-                    >
-                </div>
-            </div>
-            <div class="mx-3 flex flex-row">
-                <span class="flex flex-row">
-                    The page
-                    <span class="font-bold mx-1"> {{ router.url }} </span> was
-                    not found.
-                </span>
-            </div>
+        <div class="mx-3 flex flex-row">
+            <img
+                src="assets/icons/not-found.svg"
+                alt="graphic of magnifying glass"
+                class="w-48"
+            />
+        </div>
+        <div class="text-3xl font-bold">Page not found</div>
+        <div>
+            The page
+            <span class="font-mono font-bold">
+                {{ router.url }}
+            </span>
+            was not found.
         </div>
     </div> `,
+    standalone: false,
 })
-export class NotFoundComponent implements OnInit {
+export class NotFoundComponent {
     constructor(public router: Router) {}
-
-    ngOnInit(): void {}
 }

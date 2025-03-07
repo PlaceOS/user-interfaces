@@ -10,51 +10,54 @@ import { LandingStateService } from './landing-state.service';
     template: `
         <div class="py-2">
             <div
-                class="sm:text-lg font-medium mb-2 sm:mb-4 px-4"
+                class="mb-2 px-4 font-medium sm:mb-4 sm:text-lg"
                 *ngIf="!hide_rooms || !hide_spaces"
             >
-                {{ 'WPA.AVAILABLE_NOW' | translate }}
+                {{ 'APP.WORKPLACE.AVAILABLE_LIST_HEADER' | translate }}
             </div>
             <div
-                class="flex items-center text-sm sm:text-base px-4 space-x-2"
+                class="flex items-center space-x-2 px-4 text-sm sm:text-base"
                 *ngIf="!hide_spaces"
             >
-                <div>{{ 'WPA.SPACES' | translate }}</div>
+                <div>
+                    {{ 'APP.WORKPLACE.AVAILABLE_LIST_SPACES' | translate }}
+                </div>
             </div>
             <div
-                class="w-full overflow-auto flex items-center space-x-4 px-4 py-2"
+                class="mx-4 flex w-[calc(100%-2rem)] snap-x items-center space-x-2 overflow-auto py-2"
+                [class.mb-4]="!hide_rooms"
                 *ngIf="!hide_spaces"
             >
                 <button
                     name="landing-view-space"
                     matRipple
                     *ngFor="let lvl of levels_free | async"
-                    class="flex items-center h-24 min-w-[12.5rem] rounded-lg bg-base-100 shadow p-4 space-x-2"
+                    class="flex w-64 snap-start items-center space-x-4 rounded border border-base-200 bg-base-100 p-2 shadow"
                     [routerLink]="['/explore']"
                     [queryParams]="{ level: lvl.id }"
                 >
                     <div
-                        class="w-[4.5rem] h-[4.5rem] rounded bg-base-300 overflow-hidden flex items-center justify-center"
+                        class="flex h-16 w-16 min-w-[4rem] items-center justify-center overflow-hidden rounded bg-base-200"
                     >
                         <img
                             auth
                             *ngIf="lvl?.images?.length; else placeholder"
                             [source]="lvl?.images[0]"
-                            class="min-h-full object-cover"
+                            class="h-full w-full object-cover object-center"
                         />
                         <ng-template #placeholder>
                             <img
-                                class="m-auto"
+                                class="h-1/2 w-1/2 object-contain object-center"
                                 src="assets/icons/desk-placeholder.svg"
                             />
                         </ng-template>
                     </div>
                     <div class="text-left">
-                        <div class="max-w-full truncate px-1.5">
+                        <div class="max-w-full truncate px-1.5 font-medium">
                             {{ lvl.display_name || lvl.name }}
                         </div>
                         <div
-                            class="max-w-full truncate text-sm opacity-60 flex items-center"
+                            class="flex max-w-full items-center truncate text-sm opacity-60"
                         >
                             <app-icon class="text-blue-500 text-lg"
                                 >place</app-icon
@@ -68,23 +71,27 @@ import { LandingStateService } from './landing-state.service';
                 </button>
                 <span
                     *ngIf="!(levels_free | async).length"
-                    class="opacity-60 text-sm mb-2"
+                    class="mb-2 text-sm opacity-60"
                 >
-                    {{ 'WPA.NO_FREE_SPACES' | translate }}
+                    {{
+                        'APP.WORKPLACE.AVAILABLE_LIST_SPACES_EMPTY' | translate
+                    }}
                 </span>
             </div>
             <div
-                class="flex items-center text-sm sm:text-base px-4 space-x-2"
+                class="flex items-center space-x-2 px-4 text-sm sm:text-base"
                 *ngIf="!hide_rooms"
             >
-                <div>{{ 'WPA.ROOMS' | translate }}</div>
+                <div>
+                    {{ 'APP.WORKPLACE.AVAILABLE_LIST_ROOMS' | translate }}
+                </div>
                 <mat-spinner
                     diameter="24"
                     *ngIf="loading_spaces | async"
                 ></mat-spinner>
             </div>
             <div
-                class="w-full overflow-auto flex items-center space-x-4 px-4 py-2"
+                class="mx-4 flex w-[calc(100%-2rem)] snap-x items-center space-x-2 overflow-auto py-2"
                 *ngIf="!hide_rooms"
             >
                 <button
@@ -94,11 +101,11 @@ import { LandingStateService } from './landing-state.service';
                         let space of space_list | async;
                         trackBy: trackBySpaceId
                     "
-                    class="flex items-center h-24 min-w-[12.5rem] rounded-lg bg-base-100 shadow p-4 space-x-2"
+                    class="flex w-64 snap-start items-center space-x-4 rounded border border-base-200 bg-base-100 p-2 shadow"
                     (click)="book(space)"
                 >
                     <div
-                        class="w-[4.5rem] h-[4.5rem] rounded bg-base-300 overflow-hidden flex items-center justify-center"
+                        class="flex h-16 w-16 min-w-[4rem] items-center justify-center overflow-hidden rounded bg-base-200"
                     >
                         <img
                             auth
@@ -107,15 +114,15 @@ import { LandingStateService } from './landing-state.service';
                                 else space_placeholder
                             "
                             [source]="(space.id | space | async)?.images[0]"
-                            class="min-h-full object-cover"
+                            class="h-full w-full object-cover object-center"
                         />
                     </div>
                     <div class="text-left">
-                        <div class="max-w-full truncate px-1.5">
+                        <div class="max-w-full truncate px-1.5 font-medium">
                             {{ space.display_name || space.name }}
                         </div>
                         <div
-                            class="max-w-full truncate text-sm opacity-60 flex items-center"
+                            class="flex max-w-full items-center truncate text-sm opacity-60"
                         >
                             <app-icon class="text-blue-500 text-lg"
                                 >place</app-icon
@@ -129,14 +136,17 @@ import { LandingStateService } from './landing-state.service';
                 </button>
                 <span
                     *ngIf="!(space_list | async)?.length"
-                    class="opacity-60 text-sm mb-2"
+                    class="mb-2 text-sm opacity-60"
                 >
-                    {{ 'WPA.NO_FREE_ROOMS' | translate }}
+                    {{ 'APP.WORKPLACE.AVAILABLE_LIST_ROOMS_EMPTY' | translate }}
                 </span>
             </div>
         </div>
         <ng-template #space_placeholder>
-            <img class="m-auto" src="assets/icons/room-placeholder.svg" />
+            <img
+                class="h-1/2 w-1/2 object-contain object-center"
+                src="assets/icons/room-placeholder.svg"
+            />
         </ng-template>
     `,
     styles: [
@@ -147,6 +157,7 @@ import { LandingStateService } from './landing-state.service';
         `,
     ],
     providers: [ExploreSpacesService],
+    standalone: false,
 })
 export class LandingAvailabilityComponent {
     public readonly space_list = this._state.free_space_list;
@@ -168,17 +179,17 @@ export class LandingAvailabilityComponent {
     }
 
     public get hide_spaces() {
-        return this._settings.get('app.general.hide_spaces');
+        return this._settings.get('app.hide_landing_spaces');
     }
 
     public get hide_rooms() {
-        return this._settings.get('app.general.hide_rooms');
+        return this._settings.get('app.hide_landing_rooms');
     }
 
     constructor(
         private _state: LandingStateService,
         private _org: OrganisationService,
         private _settings: SettingsService,
-        private _explore: ExploreSpacesService
+        private _explore: ExploreSpacesService,
     ) {}
 }

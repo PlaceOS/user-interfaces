@@ -1,12 +1,12 @@
 import { registerMockEndpoint } from '@placeos/ts-client';
 
 import { HashMap, predictableRandomInt } from '@placeos/common';
+import { MOCK_SPACES } from './spaces.data';
 import { ACTIVE_USER, MOCK_GUESTS, MOCK_STAFF } from './users.data';
 import { MOCK_LEVELS } from './zone.data';
-import { MOCK_SPACES } from './spaces.data';
 
-import { MOCK_EVENTS } from './events.data';
 import { getUnixTime, subMinutes } from 'date-fns';
+import { MOCK_EVENTS } from './events.data';
 
 export const USER_MOCKS = registerMocks();
 
@@ -20,7 +20,7 @@ function registerMocks() {
                 return ACTIVE_USER;
             }
             const person = MOCK_STAFF.find(
-                (user) => user.email === request.route_params.id
+                (user) => user.email === request.route_params.id,
             );
             if (person) {
                 return person;
@@ -74,7 +74,7 @@ function registerMocks() {
                 return MOCK_GUESTS.filter(
                     (user) =>
                         user.name.toLowerCase().includes(search) ||
-                        user.email.toLowerCase().includes(search)
+                        user.email.toLowerCase().includes(search),
                 );
             }
             return MOCK_STAFF;
@@ -102,8 +102,8 @@ function registerMocks() {
                 const email = request.route_params.email.toLowerCase();
                 const events = MOCK_EVENTS.filter((event) =>
                     event.attendees.find(
-                        (user) => user.email.toLowerCase() === email
-                    )
+                        (user) => user.email.toLowerCase() === email,
+                    ),
                 );
                 return events;
             }
@@ -128,7 +128,7 @@ function registerMocks() {
             LOCATION_TYPES[predictableRandomInt(LOCATION_TYPES.length)];
         const level = MOCK_LEVELS[predictableRandomInt(MOCK_LEVELS.length)];
         const level_spaces = MOCK_SPACES.filter((s) =>
-            s.zones.includes(level.id)
+            s.zones.includes(level.id),
         );
         const space =
             level_spaces[predictableRandomInt(level_spaces.length)] || {};
@@ -159,7 +159,7 @@ function registerMocks() {
                     x: +predictableRandomInt(10000),
                     y: +predictableRandomInt(5000),
                     last_seen: getUnixTime(
-                        subMinutes(Date.now(), predictableRandomInt(60))
+                        subMinutes(Date.now(), predictableRandomInt(60)),
                     ),
                 };
                 break;
@@ -168,7 +168,7 @@ function registerMocks() {
                     lat: predictableRandomInt(180) - 90,
                     lon: predictableRandomInt(360) - 180,
                     last_seen: getUnixTime(
-                        subMinutes(Date.now(), predictableRandomInt(60))
+                        subMinutes(Date.now(), predictableRandomInt(60)),
                     ),
                 };
                 break;

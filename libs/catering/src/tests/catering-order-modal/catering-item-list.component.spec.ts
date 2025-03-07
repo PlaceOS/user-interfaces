@@ -2,8 +2,8 @@ import { createRoutingFactory, Spectator } from '@ngneat/spectator/jest';
 import { IconComponent } from '@placeos/components';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
-import { CateringItemListComponent } from '../../lib/catering-order-modal/catering-item-list.component';
 import { CateringItemListItemComponent } from '../../lib/catering-order-modal/catering-item-list-item.component';
+import { CateringItemListComponent } from '../../lib/catering-order-modal/catering-item-list.component';
 import { CateringOrderStateService } from '../../lib/catering-order-modal/catering-order-state.service';
 
 describe('CateringItemListComponent', () => {
@@ -31,7 +31,7 @@ describe('CateringItemListComponent', () => {
     it('should allow list available assets', () => {
         expect('[empty]').toExist();
         (spectator.inject(CateringOrderStateService).filtered_menu as any).next(
-            [{ id: '1' }] as any
+            [{ id: '1' }] as any,
         );
         spectator.detectChanges();
         expect('[empty]').not.toExist();
@@ -40,7 +40,7 @@ describe('CateringItemListComponent', () => {
 
     it('should allow selecting the asset', (done) => {
         (spectator.inject(CateringOrderStateService).filtered_menu as any).next(
-            [{ id: '1' }] as any
+            [{ id: '1' }] as any,
         );
         spectator.detectChanges();
         spectator.component.onSelect.subscribe((a) => {

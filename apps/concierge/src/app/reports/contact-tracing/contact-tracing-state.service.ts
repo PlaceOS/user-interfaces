@@ -10,7 +10,7 @@ import {
 import { OrganisationService } from '@placeos/organisation';
 import { getModule } from '@placeos/ts-client';
 import { StaffUser } from '@placeos/users';
-import { getUnixTime, format, startOfDay, endOfDay } from 'date-fns';
+import { endOfDay, format, getUnixTime, startOfDay } from 'date-fns';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import {
     distinctUntilChanged,
@@ -96,19 +96,21 @@ export class ContactTracingStateService {
                         user: user.name,
                         contact_id: _.username,
                         distance: 1,
-                    } as ContactEvent)
+                    }) as ContactEvent,
             );
         }),
         tap((_) => this._loading.next('')),
         startWith([]),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     public readonly options = this._options.asObservable();
     public readonly loading = this._loading.asObservable();
 
     private get system_id() {
-        return this._org.binding('contact_tracing');
+        const binding = this._org.binding('contact_tracing');
+        const system_id = binding instanceof Object ? binding.id : binding;
+        return system_id;
     }
 
     public get time_format() {
@@ -118,7 +120,7 @@ export class ContactTracingStateService {
     constructor(
         private _org: OrganisationService,
         private _reports: ReportsStateService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {}
 
     public setOptions(options: Partial<ContactTracingOptions>) {
@@ -150,7 +152,7 @@ export class ContactTracingStateService {
                         : ''
                 }${Math.floor(_.duration % 60) + 'm'}`,
                 Distance: _.distance,
-            }))
+            })),
         );
         if (!processed_events?.length) {
             return notifyWarn('No events to download.');
@@ -158,9 +160,9 @@ export class ContactTracingStateService {
         downloadFile(
             `report+contact-tracing+${format(start, 'yyyy-MM-dd')}+${format(
                 end,
-                'yyyy-MM-dd'
+                'yyyy-MM-dd',
             )}.csv`,
-            jsonToCsv(processed_events)
+            jsonToCsv(processed_events),
         );
     }
 }

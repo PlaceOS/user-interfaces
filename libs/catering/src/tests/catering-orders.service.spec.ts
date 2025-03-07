@@ -5,11 +5,16 @@ import { CateringOrdersService } from '../lib/catering-orders.service';
 
 jest.mock('libs/events/src/lib/events.fn');
 
+import { SettingsService } from '@placeos/common';
 import * as event_fn from 'libs/events/src/lib/events.fn';
+import { MockProvider } from 'ng-mocks';
 
 describe('CateringOrdersService', () => {
     let spectator: SpectatorService<CateringOrdersService>;
-    const createService = createServiceFactory(CateringOrdersService);
+    const createService = createServiceFactory({
+        service: CateringOrdersService,
+        providers: [MockProvider(SettingsService, { get: jest.fn() })],
+    });
 
     beforeEach(() => (spectator = createService()));
 

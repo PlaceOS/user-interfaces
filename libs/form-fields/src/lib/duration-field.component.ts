@@ -7,7 +7,8 @@ import {
     SimpleChanges,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { addMinutes, formatDuration } from 'date-fns';
+import { formatDuration, getTimezoneOffsetString } from '@placeos/common';
+import { addMinutes } from 'date-fns';
 
 export interface DurationOption {
     id: number;
@@ -18,38 +19,77 @@ export interface DurationOption {
 @Component({
     selector: 'a-duration-field',
     template: `
-        <div class="duration-field" [attr.disabled]="disabled">
-            <mat-form-field appearance="outline">
-                <mat-select
-                    #select
-                    [value]="duration"
-                    [disabled]="disabled"
-                    [placeholder]="duration + ' minutes'"
-                    (valueChange)="setValue($event)"
-                >
-                    <mat-option
-                        *ngFor="let option of duration_options"
-                        [value]="option.id"
+        <button
+            duration-field
+            class="flex h-12 w-full items-center justify-between rounded border border-neutral px-2"
+            [disabled]="disabled"
+            [class.opacity-30]="disabled"
+            matRipple
+            [matMenuTriggerFor]="menu"
+        >
+            <div
+                class="flex w-1/2 flex-1 flex-col px-2 text-left leading-tight"
+            >
+                <div class="truncate">
+                    {{
+                        selected?.date
+                            ? (selected?.date
+                                  | date
+                                      : (selected.id >= 24 * 60
+                                            ? 'mediumDate'
+                                            : time_format)) + ' ('
+                            : ''
+                    }}{{ selected?.name }}{{ selected?.date ? ')' : '' }}
+                </div>
+                <div class="truncate text-xs opacity-30" *ngIf="timezone && tz">
+                    {{ selected?.date | date: time_format + ' (z)' : tz }}
+                </div>
+            </div>
+            <app-icon class="text-2xl">arrow_drop_down</app-icon>
+        </button>
+        <mat-menu #menu="matMenu" class="max-h-[15rem] min-w-[18rem]">
+            <button
+                mat-menu-item
+                class="text-left"
+                *ngFor="let option of duration_options"
+                (click)="setValue(option.id)"
+            >
+                <div class="flex items-center justify-between">
+                    <ng-container *ngIf="!force">
+                        <div class="flex flex-col leading-tight">
+                            <div class="truncate">
+                                {{
+                                    option.date
+                                        ? (option.date
+                                              | date
+                                                  : (option.id >= 24 * 60
+                                                        ? 'mediumDate'
+                                                        : time_format)) + ' ('
+                                        : ''
+                                }}{{ option.name }}{{ option.date ? ')' : '' }}
+                            </div>
+                            <div
+                                class="truncate text-xs opacity-30"
+                                *ngIf="timezone && tz"
+                            >
+                                {{
+                                    option.date
+                                        | date: time_format + ' (z)' : tz
+                                }}
+                            </div>
+                        </div>
+                    </ng-container>
+                    <div>{{ force }}</div>
+                    <app-icon
+                        *ngIf="selected?.id === option.id"
+                        class="ml-2 text-2xl"
                     >
-                        <ng-container *ngIf="!force">
-                            {{
-                                option.date
-                                    ? (option.date
-                                          | date
-                                              : (option.id >= 24 * 60
-                                                    ? 'mediumDate'
-                                                    : use_24hr
-                                                    ? 'HH : mm'
-                                                    : 'h : mm a')) + ' ('
-                                    : ''
-                            }}{{ option.name }}{{ option.date ? ')' : '' }}
-                        </ng-container>
-                        {{ force }}
-                    </mat-option>
-                </mat-select>
-                <mat-error><ng-content></ng-content></mat-error>
-            </mat-form-field>
-        </div>
+                        done
+                    </app-icon>
+                </div>
+            </button>
+        </mat-menu>
+        <mat-error><ng-content></ng-content></mat-error>
     `,
     styles: [
         `
@@ -69,6 +109,7 @@ export interface DurationOption {
             multi: true,
         },
     ],
+    standalone: false,
 })
 export class DurationFieldComponent
     implements OnInit, OnChanges, ControlValueAccessor
@@ -85,10 +126,12 @@ export class DurationFieldComponent
     @Input() public disabled: boolean;
     /** Special case prepopulation i.e. out of step options */
     @Input() public custom_options: number[] = [];
-
+    /** Force the display duration value */
     @Input() public force: string;
-
+    /** Whether to use 24 hour time when formatting displayed time */
     @Input() public use_24hr = false;
+    /** Display extra information for displayed times for timezone */
+    @Input() public timezone = '';
 
     public duration = 60;
     /** List of available duration options */
@@ -99,11 +142,30 @@ export class DurationFieldComponent
     /** Form control on touch handler */
     private _onTouch: (_: number) => void;
 
+    public get time_format() {
+        return this.use_24hr ? 'HH : mm' : 'h : mm a';
+    }
+
+    public get selected() {
+        return this.duration_options.find((_) => _.id === this.duration);
+    }
+
+    private _local_tz = getTimezoneOffsetString(
+        Intl.DateTimeFormat().resolvedOptions().timeZone,
+    );
+
+    public get tz() {
+        const tz = this.timezone;
+        if (!tz) return '';
+        const tz_offset = getTimezoneOffsetString(tz);
+        return tz_offset === this._local_tz ? '' : tz_offset;
+    }
+
     public ngOnInit(): void {
         this.duration_options = this.generateDurationOptions(
             this.max,
             this.min,
-            this.step
+            this.step,
         );
         this._updateOption();
     }
@@ -120,7 +182,7 @@ export class DurationFieldComponent
             this.duration_options = this.generateDurationOptions(
                 this.max,
                 this.min,
-                this.step
+                this.step,
             );
             this._updateOption();
         }
@@ -200,13 +262,13 @@ export class DurationFieldComponent
                     time === 0
                         ? formatDuration({ minutes: 0 }, { zero: true })
                         : time >= 24 * 60
-                        ? `${formatDuration({
-                              days: Math.floor(time / (24 * 60)),
-                          })}`
-                        : `${formatDuration({
-                              hours: Math.floor(time / 60),
-                              minutes: time % 60,
-                          })}`,
+                          ? `${formatDuration({
+                                days: Math.floor(time / (24 * 60)),
+                            })}`
+                          : `${formatDuration({
+                                hours: Math.floor(Math.abs(time) / 60),
+                                minutes: time % 60,
+                            })}`,
             });
             time += step;
         }
@@ -217,7 +279,7 @@ export class DurationFieldComponent
     private _updateOption() {
         if (!this.duration_options?.length) return;
         const idx = this.duration_options.findIndex(
-            (_) => _.id === this.duration
+            (_) => _.id === this.duration,
         );
         if (idx < 0) this.setValue(this.min);
     }

@@ -8,13 +8,13 @@ import {
 } from '@placeos/common';
 import { addDays, endOfDay, startOfDay } from 'date-fns';
 import { combineLatest } from 'rxjs';
-import { map, take } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 
-import { EventFormService } from 'libs/events/src/lib/event-form.service';
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
-import { Building } from 'libs/organisation/src/lib/building.class';
-import { SpacesService } from '../spaces.service';
 import { Region } from '@placeos/organisation';
+import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
+import { Building } from 'libs/organisation/src/lib/building.class';
+import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
+import { SpacesService } from '../spaces.service';
 
 @Component({
     selector: `space-filters`,
@@ -31,17 +31,23 @@ import { Region } from '@placeos/organisation';
                     <app-icon>keyboard_arrow_left</app-icon>
                 </button>
             </div>
-            <h3 class="font-medium flex-2 text-center" i18n>Space Filters</h3>
+            <h3 class="flex-2 text-center text-xl font-medium">
+                {{ 'COMMON.FILTERS' | translate }}
+            </h3>
             <div class="flex-1"></div>
         </div>
         <form
-            class="max-h-[65vh] p-2 overflow-y-auto overflow-x-hidden divide-y divide-base-200 w-full max-w-[100vw]"
+            class="max-h-[65vh] w-full max-w-[100vw] divide-y divide-base-200 overflow-y-auto overflow-x-hidden p-2"
             [formGroup]="form"
         >
             <section details>
-                <h2 class="text-lg font-medium mb-1" i18n>Details</h2>
-                <div class="flex-1 min-w-[8rem] flex flex-col">
-                    <label for="location" i18n>Location</label>
+                <h2 class="mb-1 text-lg font-medium">
+                    {{ 'CALENDAR_EVENT.DETAILS' | translate }}
+                </h2>
+                <div class="flex min-w-[8rem] flex-1 flex-col">
+                    <label for="location">
+                        {{ 'CALENDAR_EVENT.SPACE_LOCATION' | translate }}
+                    </label>
                     <mat-form-field
                         appearance="outline"
                         class="w-full"
@@ -52,8 +58,9 @@ import { Region } from '@placeos/organisation';
                             [ngModel]="region"
                             (ngModelChange)="setRegion($event)"
                             [ngModelOptions]="{ standalone: true }"
-                            placeholder="Any Region"
-                            i18n-placeholder
+                            [placeholder]="
+                                'CALENDAR_EVENT.SPACE_REGION_ANY' | translate
+                            "
                         >
                             <mat-option
                                 *ngFor="let reg of regions | async"
@@ -93,11 +100,12 @@ import { Region } from '@placeos/organisation';
                     >
                         <mat-select
                             name="location"
-                            [ngModel]="(options | async)?.zone_ids"
-                            (ngModelChange)="setOptions({ zone_ids: $event })"
+                            [ngModel]="(options | async)?.zones"
+                            (ngModelChange)="setOptions({ zones: $event })"
                             [ngModelOptions]="{ standalone: true }"
-                            placeholder="Any Level"
-                            i18n-placeholder
+                            [placeholder]="
+                                'CALENDAR_EVENT.SPACE_LEVEL_ANY' | translate
+                            "
                             [multiple]="true"
                         >
                             <mat-option
@@ -106,7 +114,7 @@ import { Region } from '@placeos/organisation';
                             >
                                 <div class="flex flex-col-reverse">
                                     <div
-                                        class="opacity-30 text-xs"
+                                        class="text-xs opacity-30"
                                         *ngIf="use_region"
                                     >
                                         {{
@@ -123,24 +131,27 @@ import { Region } from '@placeos/organisation';
                         </mat-select>
                     </mat-form-field>
                 </div>
-                <div class="flex items-center flex-wrap sm:space-x-2">
-                    <div class="flex-1 min-w-[8rem]">
-                        <label for="date" i18n>Date<span>*</span></label>
+                <div class="flex flex-wrap items-center sm:space-x-2">
+                    <div class="min-w-[8rem] flex-1">
+                        <label for="date">
+                            {{ 'FORM.DATE' | translate }}<span>*</span>
+                        </label>
                         <a-date-field
                             name="date"
                             [ngModel]="form.getRawValue().date"
                             (ngModelChange)="form.patchValue({ date: $event })"
                             [ngModelOptions]="{ standalone: true }"
-                            i18n
                             [to]="end_date"
                             [short]="true"
+                            [timezone]="timezone"
+                            [range]="multiday ? 1 : 0"
                         >
                             {{ 'FORM.DATE_ERROR' | translate }}
                         </a-date-field>
                     </div>
-                    <div class="flex-1 min-w-[8rem] relative" *ngIf="multiday">
+                    <div class="relative min-w-[8rem] flex-1" *ngIf="multiday">
                         <label for="date">
-                            {{ 'FORM.END_DATE' | translate }}<span>*</span>
+                            {{ 'FORM.DATE_END' | translate }}<span>*</span>
                         </label>
                         <a-date-field
                             name="date"
@@ -152,24 +163,26 @@ import { Region } from '@placeos/organisation';
                             [from]="start_date"
                             [to]="end_date"
                             [short]="true"
+                            [timezone]="timezone"
+                            [range]="2"
                         >
                             {{ 'FORM.DATE_ERROR' | translate }}
                         </a-date-field>
                     </div>
                 </div>
                 <!-- All Day -->
-                <div *ngIf="allow_all_day" class="flex justify-end -mt-2 mb-2">
-                    <mat-checkbox formControlName="all_day" i18n>
-                        All Day
+                <div *ngIf="allow_all_day" class="-mt-2 mb-2 flex justify-end">
+                    <mat-checkbox formControlName="all_day">
+                        {{ 'COMMON.ALL_DAY' | translate }}
                     </mat-checkbox>
                 </div>
                 <div
                     class="flex items-center space-x-2"
                     *ngIf="!form.value.all_day"
                 >
-                    <div class="flex-1 w-1/3">
-                        <label for="start-time" i18n>
-                            Start Time<span>*</span>
+                    <div class="w-1/3 flex-1">
+                        <label for="start-time">
+                            {{ 'FORM.TIME_START' | translate }}<span>*</span>
                         </label>
                         <a-time-field
                             name="start-time"
@@ -177,11 +190,12 @@ import { Region } from '@placeos/organisation';
                             (ngModelChange)="form.patchValue({ date: $event })"
                             [ngModelOptions]="{ standalone: true }"
                             [use_24hr]="use_24hr"
+                            [timezone]="timezone"
                         ></a-time-field>
                     </div>
-                    <div class="flex-1 w-1/3" *ngIf="multiday">
+                    <div class="w-1/3 flex-1" *ngIf="multiday">
                         <label for="end-time">
-                            {{ 'FORM.END_TIME' | translate }}<span>*</span>
+                            {{ 'FORM.TIME_END' | translate }}<span>*</span>
                         </label>
                         <a-time-field
                             name="end-time"
@@ -192,11 +206,12 @@ import { Region } from '@placeos/organisation';
                             [ngModelOptions]="{ standalone: true }"
                             [from]="form?.getRawValue()?.date"
                             [use_24hr]="use_24hr"
+                            [timezone]="timezone"
                         ></a-time-field>
                     </div>
-                    <div class="flex-1 w-1/3" *ngIf="!multiday">
+                    <div class="w-1/3 flex-1" *ngIf="!multiday">
                         <label for="end-time">
-                            {{ 'FORM.END_TIME' | translate }}<span>*</span>
+                            {{ 'FORM.TIME_END' | translate }}<span>*</span>
                         </label>
                         <a-duration-field
                             name="end-time"
@@ -204,6 +219,7 @@ import { Region } from '@placeos/organisation';
                             [time]="form?.getRawValue()?.date"
                             [max]="max_duration"
                             [use_24hr]="use_24hr"
+                            [timezone]="timezone"
                         ></a-duration-field>
                     </div>
                 </div>
@@ -213,12 +229,12 @@ import { Region } from '@placeos/organisation';
                 class="space-y-2 pb-4"
                 *ngIf="!viewing_map || !(using_mapspeople | async)"
             >
-                <h2 class="text-lg font-medium" i18n>
+                <h2 class="text-lg font-medium">
                     {{ 'COMMON.FAVOURITES' | translate }}
                 </h2>
                 <div class="flex items-center">
-                    <div for="fav" class="flex-1 w-1/2" i18n>
-                        {{ 'ROOMS.SHOW_FAVOURITES' | translate }}
+                    <div for="fav" class="w-1/2 flex-1">
+                        {{ 'APP.WORKPLACE.FAVOURITES_SHOW' | translate }}
                     </div>
                     <mat-checkbox
                         name="fav"
@@ -237,13 +253,13 @@ import { Region } from '@placeos/organisation';
                     (!viewing_map || !(using_mapspeople | async))
                 "
             >
-                <h2 class="text-lg font-medium" i18n>Facilities</h2>
+                <h2 class="text-lg font-medium">Facilities</h2>
                 <ng-container *ngFor="let feat of features | async">
                     <div
                         class="flex items-center"
                         *ngIf="!hide_features.includes(feat)"
                     >
-                        <div for="feat" class="flex-1 w-1/2">
+                        <div for="feat" class="w-1/2 flex-1">
                             {{ feature_display[feat] || feat }}
                         </div>
                         <mat-checkbox
@@ -259,7 +275,7 @@ import { Region } from '@placeos/organisation';
             </section>
         </form>
         <div
-            class="px-2 pt-2 w-full border-t border-base-200"
+            class="w-full border-t border-base-200 px-2 pt-2"
             *ngIf="can_close"
         >
             <button
@@ -268,9 +284,8 @@ import { Region } from '@placeos/organisation';
                 class="w-full"
                 name="apply-space-filters"
                 (click)="close()"
-                i18n
             >
-                Apply Filters
+                {{ 'COMON.APPLY' | translate }}
             </button>
         </div>
     `,
@@ -284,13 +299,14 @@ import { Region } from '@placeos/organisation';
             }
         `,
     ],
+    standalone: false,
 })
 export class SpaceFiltersComponent {
     @Input() public multiday: boolean;
     @Input() public hide_levels: boolean;
     @Input() public viewing_map: boolean;
     public can_close = false;
-    public readonly options = this._event_form.options;
+    public readonly options = this._event_form.options$;
 
     public readonly building = this._org.active_building;
     public readonly buildings = this._org.active_buildings;
@@ -304,14 +320,14 @@ export class SpaceFiltersComponent {
                 ? this._org.levelsForRegion(region)
                 : this._org.levelsForBuilding(bld);
             const viewable_levels = level_list.filter(
-                (lvl) => !lvl.tags.includes('parking')
+                (lvl) => !lvl.tags.includes('parking'),
             );
             return viewable_levels.sort(
                 (a, b) =>
                     a.parent_id.localeCompare(b.parent_id) ||
-                    (a.display_name || '').localeCompare(b.display_name || '')
+                    (a.display_name || '').localeCompare(b.display_name || ''),
             );
-        })
+        }),
     );
 
     public readonly regions = this._org.region_list;
@@ -323,8 +339,8 @@ export class SpaceFiltersComponent {
         this._event_form.available_spaces,
     ]).pipe(
         map(([features, spaces]) =>
-            unique(features.concat(flatten(spaces.map((_) => _.features))))
-        )
+            unique(features.concat(flatten(spaces.map((_) => _.features)))),
+        ),
     );
 
     public get allow_all_day() {
@@ -333,6 +349,12 @@ export class SpaceFiltersComponent {
 
     public get use_region() {
         return !!this._settings.get('app.use_region');
+    }
+
+    public get timezone() {
+        return this._settings.get('app.events.use_building_timezone')
+            ? this._org.building.timezone
+            : '';
     }
 
     public readonly close = () => this._bsheet_ref.dismiss();
@@ -374,8 +396,8 @@ export class SpaceFiltersComponent {
         return endOfDay(
             addDays(
                 Date.now(),
-                this._settings.get('app.events.allowed_future_days') || 180
-            )
+                this._settings.get('app.events.allowed_future_days') || 180,
+            ),
         );
     }
 
@@ -386,7 +408,7 @@ export class SpaceFiltersComponent {
         private _event_form: EventFormService,
         private _org: OrganisationService,
         private _spaces: SpacesService,
-        private _mapspeople: MapsPeopleService
+        private _mapspeople: MapsPeopleService,
     ) {
         this.can_close = !!this._bsheet_ref;
     }
@@ -400,9 +422,9 @@ export class SpaceFiltersComponent {
     }
 
     public async toggleFeature(feat: string, state: boolean) {
-        const { features } = await this.options.pipe(take(1)).toPromise();
+        const { features } = this._event_form.filters;
         const new_list = (features || []).filter((_) => feat !== _);
         if (state) new_list.push(feat);
-        this.setOptions({ features: new_list });
+        this._event_form.setFilters({ features: new_list });
     }
 }

@@ -1,9 +1,11 @@
-import { randomInt } from '@placeos/common';
-import { CalendarEvent } from '@placeos/events';
+import { addDays, addMinutes, set, startOfDay, startOfMinute } from 'date-fns';
 
 import { CateringItem } from './catering-item.class';
 import { CateringOrderStatus } from './catering.interfaces';
-import { addDays, addMinutes, set, startOfDay, startOfMinute } from 'date-fns';
+
+import { cleanObject } from '@placeos/ts-client';
+import { randomInt } from 'libs/common/src/lib/general';
+import { CalendarEvent } from 'libs/events/src/lib/event.class';
 
 function deliverAtTime(order: CateringOrder) {
     let date = order.event?.date || (order as any)._time;
@@ -44,6 +46,8 @@ export class CateringOrder {
     public readonly deliver_time?: number;
     /** Notes associated with the order */
     public readonly notes: string;
+    /** Caterer associated with the order */
+    public readonly caterer: string;
     /** Event associated with the order */
     public readonly event: CalendarEvent | null;
     public readonly deliver_at_time: number;
@@ -68,16 +72,20 @@ export class CateringOrder {
         this.id = data.id || `order-${randomInt(9_999_999, 1_000_000)}`;
         this.system_id = data.system_id || '';
         this.event_id = data.event_id || data.event?.id || '';
+        this.caterer = data.caterer || '';
         this.items = (data.items || []).map((i) =>
-            i instanceof CateringItem ? i : new CateringItem(i)
+            i instanceof CateringItem ? i : new CateringItem(i),
+        );
+        this.items = this.items.filter(
+            (i) => i.quantity > 0 && this.caterer === i.caterer,
         );
         this.item_count = this.items.reduce(
             (amount, item) => amount + item.quantity,
-            0
+            0,
         );
         this.total_cost = this.items.reduce(
             (amount, item) => amount + (item.total_cost || 0),
-            0
+            0,
         );
         this.charge_code = data.charge_code || '';
         this.status =
@@ -89,5 +97,14 @@ export class CateringOrder {
         this.deliver_offset = data.deliver_offset || 0;
         this.deliver_day_offset = data.deliver_day_offset || 0;
         this.deliver_at_time = deliverAtTime(this);
+    }
+
+    public toJSON() {
+        const obj: any = cleanObject({ ...this }, ['', null, undefined]);
+        obj.status = obj._status;
+        delete obj.event;
+        delete obj._status;
+        delete obj._time;
+        return obj;
     }
 }

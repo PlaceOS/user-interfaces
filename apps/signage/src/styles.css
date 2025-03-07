@@ -1,7 +1,16 @@
-@import 'tailwindcss/base';
-@import 'tailwindcss/components';
-@import 'tailwindcss/utilities';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 /* You can add global styles to this file, and also import other style files */
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+:root {
+    --bg: #212121;
+    --transition-delay: 1000ms;
+}
+
+.player-animate {
+    transition: transform var(--transition-delay) ease-out, opacity var(--transition-delay) ease-out;
+}

@@ -1,12 +1,14 @@
 import {
+    MAT_DIALOG_DATA,
     MatDialogModule,
     MatDialogRef,
-    MAT_DIALOG_DATA,
 } from '@angular/material/dialog';
 import { createRoutingFactory, Spectator } from '@ngneat/spectator/jest';
 import { SettingsService } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
+import { EventFormService } from '@placeos/events';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
+import { BehaviorSubject } from 'rxjs';
 import { NewSpaceSelectModalComponent } from '../../lib/space-select-modal/new-space-select-modal.component';
 import { SpaceDetailsComponent } from '../../lib/space-select-modal/space-details.component';
 import { SpaceFiltersDisplayComponent } from '../../lib/space-select-modal/space-filters-display.component';
@@ -25,6 +27,9 @@ describe('NewSpaceSelectModalComponent', () => {
             }),
             MockProvider(MAT_DIALOG_DATA, []),
             MockProvider(MatDialogRef, { close: jest.fn() }),
+            MockProvider(EventFormService, {
+                room_alerts: new BehaviorSubject({}),
+            }),
         ],
         declarations: [
             MockComponent(IconComponent),
@@ -71,17 +76,17 @@ describe('NewSpaceSelectModalComponent', () => {
     it('should allow favouriting a space', () => {
         spectator.component.toggleFavourite(new Space({ id: '1' }));
         expect(
-            spectator.inject(SettingsService).saveUserSetting
+            spectator.inject(SettingsService).saveUserSetting,
         ).toBeCalledWith('favourite_spaces', ['1']);
     });
 
     it('should allow un-favouriting a space', () => {
         (spectator.inject(SettingsService).get as any).mockImplementation(
-            () => ['1']
+            () => ['1'],
         );
         spectator.component.toggleFavourite(new Space({ id: '1' }));
         expect(
-            spectator.inject(SettingsService).saveUserSetting
+            spectator.inject(SettingsService).saveUserSetting,
         ).toBeCalledWith('favourite_spaces', []);
     });
 });

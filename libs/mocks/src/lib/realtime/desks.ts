@@ -1,7 +1,7 @@
-import { Md5 } from 'ts-md5';
 import { HashMap, predictableRandomInt, randomInt } from '@placeos/common';
-import { MOCK_LEVELS } from '../api/zone.data';
+import { Md5 } from 'ts-md5';
 import { MOCK_STAFF } from '../api/users.data';
+import { MOCK_LEVELS } from '../api/zone.data';
 
 export interface ZoneOverview {
     /** Desk count based on `desks` metadata in the zone
@@ -27,10 +27,10 @@ export class MockAreaManagementModule implements HashMap {
 
     emergency_contacts = {
         'First Aid': MOCK_STAFF.filter(
-            (_) => predictableRandomInt(9999) % 5 === 0
+            (_) => predictableRandomInt(9999) % 5 === 0,
         ),
         'Fire Warden': MOCK_STAFF.filter(
-            (_) => predictableRandomInt(9999) % 5 === 0
+            (_) => predictableRandomInt(9999) % 5 === 0,
         ),
     };
 
@@ -56,12 +56,14 @@ export class MockLocationServicesModule implements HashMap {
     }
 
     $locate_user(email: string, username: string) {
-        return [{
-            type: 'wireless',
-            position: { x: 0.5, y: 0.5 },
-            level: MOCK_LEVELS[randomInt(MOCK_LEVELS.length)].id,
-            priority: 0
-        }]
+        return [
+            {
+                type: 'wireless',
+                position: { x: 0.5, y: 0.5 },
+                level: MOCK_LEVELS[randomInt(MOCK_LEVELS.length)].id,
+                priority: 0,
+            },
+        ];
     }
 }
 
@@ -75,7 +77,7 @@ function padZero(no: number, len: number = 3) {
 
 export function createAreaManagementModule(
     space: HashMap,
-    overrides: HashMap = {}
+    overrides: HashMap = {},
 ) {
     const mod = new MockAreaManagementModule();
     for (const lvl of MOCK_LEVELS) {
@@ -137,7 +139,7 @@ export function createAreaManagementModule(
 
 export function updateLocations(
     mod: MockAreaManagementModule,
-    levels: HashMap[]
+    levels: HashMap[],
 ) {
     for (const lvl of levels) {
         mod[lvl.id] = {
@@ -155,10 +157,11 @@ export function updateLocations(
 export function generateLocation(
     lvl: HashMap,
     desks: string[],
-    users = MOCK_STAFF
+    users = MOCK_STAFF,
 ) {
     const fixed = predictableRandomInt(9999) % 3 === 0;
-    const usr = (users || [])[predictableRandomInt((users || [])?.length)]?.email;
+    const usr = (users || [])[predictableRandomInt((users || [])?.length)]
+        ?.email;
     return fixed
         ? {
               location: 'desk',

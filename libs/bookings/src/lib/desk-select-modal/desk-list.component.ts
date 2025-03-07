@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { BookingFormService, BookingAsset } from '../booking-form.service';
+import { BookingAsset, BookingFormService } from '../booking-form.service';
 
 @Component({
     selector: 'desk-list',
@@ -17,9 +17,12 @@ import { BookingFormService, BookingAsset } from '../booking-form.service';
         `,
     ],
     template: `
-        <h3 class="font-bold" i18n>Results</h3>
-        <p count class="text-sm opacity-60 mb-4" i18n>
-            {{ (desks | async)?.length || 0 }} result(s) found
+        <h3 class="font-bold">{{ 'COMMON.RESULTS' | translate }}</h3>
+        <p count class="mb-4 text-sm opacity-60">
+            {{
+                'COMMON.RESULTS_COUNT'
+                    | translate: { count: (desks | async)?.length || 0 }
+            }}
         </p>
         <ng-container *ngIf="!(loading | async)?.length; else load_state">
             <ul
@@ -29,20 +32,20 @@ import { BookingFormService, BookingAsset } from '../booking-form.service';
                 <li
                     desk
                     *ngFor="let desk of desks | async"
-                    class="relative rounded-lg w-full shadow border bg-base-100 border-base-200 overflow-hidden"
+                    class="relative w-full overflow-hidden rounded-lg border border-base-200 bg-base-100 shadow"
                     [class.!border-info]="active === desk.id"
                 >
                     <button
                         name="select-desk"
                         matRipple
-                        class="w-full h-full flex p-2"
+                        class="flex h-full w-full p-2"
                         (click)="selectDesk(desk)"
                     >
                         <div
-                            class="relative w-20 h-20 rounded-xl bg-base-200 mr-4 flex items-center justify-center"
+                            class="relative mr-4 flex h-20 w-20 items-center justify-center rounded-xl bg-base-200"
                         >
                             <div
-                                class="absolute top-1 left-1 border border-neutral bg-base-200 rounded-full h-6 w-6 flex items-center justify-center text-white"
+                                class="absolute left-1 top-1 flex h-6 w-6 items-center justify-center rounded-full border border-neutral bg-base-200 text-white"
                                 *ngIf="selected.includes(desk.id)"
                             >
                                 <app-icon>done</app-icon>
@@ -50,7 +53,7 @@ import { BookingFormService, BookingAsset } from '../booking-form.service';
                             <img
                                 auth
                                 *ngIf="desk.images?.length; else placeholder"
-                                class="object-cover h-full"
+                                class="h-full object-cover"
                                 [source]="desk.images[0]"
                             />
                             <ng-template #placeholder>
@@ -60,11 +63,11 @@ import { BookingFormService, BookingAsset } from '../booking-form.service';
                                 />
                             </ng-template>
                         </div>
-                        <div class="space-y-2 pt-2 flex-1 text-left">
+                        <div class="flex-1 space-y-2 pt-2 text-left">
                             <span class="font-medium">
                                 {{ desk.name || desk.id || 'Desk' }}
                             </span>
-                            <div class="flex items-center text-sm space-x-2">
+                            <div class="flex items-center space-x-2 text-sm">
                                 <app-icon class="text-info">place</app-icon>
                                 <p class="text-xs">
                                     {{
@@ -80,7 +83,7 @@ import { BookingFormService, BookingAsset } from '../booking-form.service';
                         icon
                         matRipple
                         name="toggle-desk-favourite"
-                        class="absolute top-1 right-1"
+                        class="absolute right-1 top-1"
                         [class.text-info]="isFavourite(desk.id)"
                         (click)="toggleFav.emit(desk)"
                     >
@@ -96,27 +99,30 @@ import { BookingFormService, BookingAsset } from '../booking-form.service';
         <ng-template #load_state>
             <div
                 loading
-                class="p-16 flex flex-col items-center justify-center space-y-2"
+                class="flex flex-col items-center justify-center space-y-2 p-16"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
-                <p class="opacity-30">Finding available desks...</p>
+                <p class="opacity-30">
+                    {{ 'BOOKINGS.DESK_LIST_LOADING' | translate }}
+                </p>
             </div>
         </ng-template>
         <ng-template #empty_state>
             <div
                 empty
-                class="p-16 flex flex-col items-center justify-center space-y-2"
+                class="flex flex-col items-center justify-center space-y-2 p-16"
             >
-                <p class="opacity-30 text-center">
-                    No available desk for selected time and/or filters
+                <p class="text-center opacity-30">
+                    {{ 'BOOKINGS.DESK_LIST_EMPTY' | translate }}
                 </p>
             </div>
         </ng-template>
     `,
+    standalone: false,
 })
 export class DeskListComponent {
-    @Input() public active: string = '';
-    @Input() public selected: string = '';
+    @Input() public active = '';
+    @Input() public selected = '';
     @Input() public favorites: string[] = [];
     @Output() public onSelect = new EventEmitter<BookingAsset>();
     @Output() public toggleFav = new EventEmitter<BookingAsset>();
@@ -126,8 +132,14 @@ export class DeskListComponent {
         this._state.available_resources,
     ]).pipe(
         map(([{ show_fav }, _]) =>
-            _.filter((i) => !show_fav || this.isFavourite(i.id))
-        )
+            _.filter((i) => !show_fav || this.isFavourite(i.id)).sort(
+                (a, b) => {
+                    const a_fav = this.isFavourite(a.id) ? 1 : 0;
+                    const b_fav = this.isFavourite(b.id) ? 1 : 0;
+                    return b_fav - a_fav;
+                },
+            ),
+        ),
     );
     public readonly loading = this._state.loading;
 

@@ -1,28 +1,25 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { ApplicationIcon, SettingsService } from '@placeos/common';
-import { first } from 'rxjs/operators';
+import { SettingsService } from '@placeos/common';
+import { OrganisationService } from '@placeos/organisation';
+import { debounceTime, first, map } from 'rxjs/operators';
 
 @Component({
     selector: 'app-login',
     template: `
         <div class="fixed inset-0 overflow-auto">
             <form
-                class="flex flex-col items-center overflow-hidden mx-auto my-4 bg-base-100 rounded shadow p-4"
+                class="mx-auto my-4 flex flex-col items-center overflow-hidden rounded bg-base-100 p-4 shadow"
             >
-                <div
-                    class="flex items-center justify-center"
-                    [style.background-color]="logo?.background"
-                >
-                    <i *ngIf="logo?.type === 'icon'" [class]="logo.class">
-                        {{ logo.content }}
-                    </i>
+                <div class="flex items-center justify-center">
                     <img
-                        *ngIf="logo?.type === 'img'"
-                        [src]="logo.src | safe: 'resource'"
+                        auth
+                        class="h-12"
+                        alt="Logo"
+                        [source]="(logo | async)?.src || (logo | async)"
                     />
                 </div>
-                <div class="w-full relative h-1/3 flex-1">
+                <div class="relative h-1/3 w-full flex-1">
                     <ng-container *ngIf="!loading; else loading_state">
                         <div class="flex flex-col">
                             <label
@@ -58,7 +55,7 @@ import { first } from 'rxjs/operators';
                     </ng-container>
                 </div>
                 <div
-                    class="flex items-center justify-center w-full"
+                    class="flex w-full items-center justify-center"
                     *ngIf="!loading"
                 >
                     <button btn matRipple color="primary" (click)="login()">
@@ -94,6 +91,7 @@ import { first } from 'rxjs/operators';
             }
         `,
     ],
+    standalone: false,
 })
 export class LoginComponent implements OnInit {
     /** Whether the user credentials are being checked */
@@ -108,12 +106,20 @@ export class LoginComponent implements OnInit {
     @ViewChild('pass_field', { static: true })
     private pwd_field: ElementRef<HTMLInputElement>;
 
-    /** Logo of the application organisation */
-    public get logo(): ApplicationIcon {
-        return this._settings.get('app.logo_dark') || { type: 'icon' };
-    }
+    public readonly logo = this._org.active_building.pipe(
+        debounceTime(500),
+        map(
+            () =>
+                (this._settings.theme === 'dark'
+                    ? this._settings.get('app.logo_dark')
+                    : this._settings.get('app.logo_light')) || {},
+        ),
+    );
 
-    constructor(private _settings: SettingsService) {}
+    constructor(
+        private _settings: SettingsService,
+        private _org: OrganisationService,
+    ) {}
 
     public async ngOnInit() {
         this.loading = true;

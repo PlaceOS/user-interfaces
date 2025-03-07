@@ -10,7 +10,6 @@ import { MOCK_SPACES } from './spaces.data';
 
 import { MOCK_GUESTS, MOCK_STAFF } from './users.data';
 import { MOCK_BUILDINGS, MOCK_LEVELS } from './zone.data';
-import { PARKING_SPACES } from './zones.mock';
 
 let EVENT_TIME = set(subDays(Date.now(), 3), {
     hours: 7,
@@ -51,7 +50,7 @@ export const MOCK_BOOKINGS = new Array(300).fill(0).map((_, index) => {
     const asset_count = predictableRandomInt(3, 1);
     const position = padString(
         (index % 18) + 1 + Math.floor(index / 18) * 100,
-        3
+        3,
     );
     return {
         id: `booking-${index}`,
@@ -66,20 +65,20 @@ export const MOCK_BOOKINGS = new Array(300).fill(0).map((_, index) => {
             type === 'visitor'
                 ? guest.email
                 : type === 'parking'
-                ? `park-${position}`
-                : `desk-${lvl?.id}-${index}`,
+                  ? `park-${position}`
+                  : `desk-${lvl?.id}-${index}`,
         asset_name:
             type === 'visitor'
                 ? guest.name
                 : type === 'parking'
-                ? position
-                : `${lvl?.id}-${index}`,
+                  ? position
+                  : `${lvl?.id}-${index}`,
         description:
             type === 'visitor'
                 ? guest.name
                 : type === 'parking'
-                ? position
-                : `Desk ${index}`,
+                  ? position
+                  : `Desk ${index}`,
         title: `${capitalizeFirstLetter(type)} Booking ${index}`,
         type,
         booking_type: type,
@@ -97,7 +96,7 @@ export const MOCK_BOOKINGS = new Array(300).fill(0).map((_, index) => {
             map_id: `table-10.00${index}`,
             plate_number: randomString(
                 8,
-                'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+                'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789',
             ),
             assets: new Array(asset_count).fill(0).map((_) => ({
                 ...MOCK_ASSETS[predictableRandomInt(asset_count)],

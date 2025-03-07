@@ -6,7 +6,7 @@ import { OrganisationService } from '@placeos/organisation';
     selector: 'building-select',
     template: `
         <div
-            class="flex flex-col w-[18.5rem] rounded bg-base-100 shadow p-2 relative -top-12 -right-1 overflow-auto max-h-[65vh]"
+            class="relative -right-1 -top-12 flex max-h-[65vh] w-[18.5rem] flex-col overflow-auto rounded bg-base-100 p-2 shadow"
             (click)="close()"
         >
             <div class="flex items-center space-x-2">
@@ -18,8 +18,8 @@ import { OrganisationService } from '@placeos/organisation';
                     }}
                 </div>
             </div>
-            <div class="text-xs opacity-60 mb-4 px-2" i18n>
-                Select a building location
+            <div class="mb-4 px-2 text-xs opacity-60">
+                {{ 'COMMON.BUILDING_SELECT' | translate }}
             </div>
             <mat-radio-group
                 [ngModel]="(building | async)?.id"
@@ -36,14 +36,14 @@ import { OrganisationService } from '@placeos/organisation';
         </div>
     `,
     styles: [``],
+    standalone: false,
 })
 export class BuildingSelectComponent {
     public readonly buildings = this._org.active_buildings;
     public readonly building = this._org.active_building;
 
     public readonly setBuilding = (b) => {
-        this._org.building = b;
-        this._org.saveBuilding(b.id);
+        this._org.setBuilding(b, true);
         this._data?.close();
     };
 
@@ -51,6 +51,6 @@ export class BuildingSelectComponent {
 
     constructor(
         @Inject(CustomTooltipData) private _data: any,
-        private _org: OrganisationService
+        private _org: OrganisationService,
     ) {}
 }

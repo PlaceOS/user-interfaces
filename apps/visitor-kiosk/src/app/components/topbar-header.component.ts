@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import { SettingsService } from '@placeos/common';
-import { format, startOfMinute } from 'date-fns';
+import { OrganisationService } from '@placeos/organisation';
+import { startOfMinute } from 'date-fns';
+import { debounceTime, map } from 'rxjs/operators';
 
 @Component({
     selector: 'a-topbar-header',
@@ -11,12 +13,17 @@ import { format, startOfMinute } from 'date-fns';
             <a
                 matRipple
                 [routerLink]="['/']"
-                class="h-full flex flex-col justify-center px-4"
+                class="flex h-full flex-col justify-center px-4"
             >
-                <img logo class="h-10 my-2" [src]="logo?.src" alt="Logo" />
+                <img
+                    auth
+                    class="my-2 h-10"
+                    alt="Logo"
+                    [source]="(logo | async)?.src || (logo | async)"
+                />
             </a>
             <div
-                class="ml-auto h-full flex flex-col justify-center text-white px-4"
+                class="ml-auto flex h-full flex-col justify-center px-4 text-white"
             >
                 {{ time | date: 'fullDate' }}
             </div>
@@ -38,18 +45,27 @@ import { format, startOfMinute } from 'date-fns';
             }
         `,
     ],
+    standalone: false,
 })
 export class TopbarHeaderComponent {
     public date: number;
 
-    /** Application logo to display */
-    public get logo() {
-        return this._settings.get('app.logo_dark');
-    }
+    public readonly logo = this._org.active_building.pipe(
+        debounceTime(500),
+        map(
+            () =>
+                (this._settings.theme === 'dark'
+                    ? this._settings.get('app.logo_dark')
+                    : this._settings.get('app.logo_light')) || {},
+        ),
+    );
 
     public get time() {
         return startOfMinute(Date.now());
     }
 
-    constructor(private _settings: SettingsService) {}
+    constructor(
+        private _settings: SettingsService,
+        private _org: OrganisationService,
+    ) {}
 }

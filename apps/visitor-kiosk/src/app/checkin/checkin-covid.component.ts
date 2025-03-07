@@ -7,13 +7,13 @@ import { CheckinStateService } from './checkin-state.service';
     selector: '[checkin-covid]',
     template: `
         <div
-            class="bg-base-100 rounded p-4 relative overflow-y-auto overflow-x-hidden"
+            class="relative overflow-y-auto overflow-x-hidden rounded bg-base-100 p-4"
         >
-            <h3 class="text-xl font-medium mb-4">COVID Disclaimer</h3>
-            <ol class="list-decimal list-inside">
+            <h3 class="mb-4 text-xl font-medium">COVID Disclaimer</h3>
+            <ol class="list-inside list-decimal">
                 <li>
                     Do you have any of the following symptoms?<br /><br />
-                    <ul class="list-disc list-inside px-4 mb-4">
+                    <ul class="mb-4 list-inside list-disc px-4">
                         <li>Fever</li>
                         <li>Cough</li>
                         <li>Shortness of breath</li>
@@ -58,7 +58,7 @@ import { CheckinStateService } from './checkin-state.service';
                 icon
                 matRipple
                 [attr.disabled]="!symptoms && !contact"
-                class="absolute top-0 right-0"
+                class="absolute right-0 top-0"
                 [routerLink]="['/welcome']"
             >
                 <app-icon>close</app-icon>
@@ -79,6 +79,7 @@ import { CheckinStateService } from './checkin-state.service';
             }
         `,
     ],
+    standalone: false,
 })
 export class CheckinCovidComponent {
     public contact: string;
@@ -86,7 +87,7 @@ export class CheckinCovidComponent {
 
     constructor(
         private _router: Router,
-        private _checkin: CheckinStateService
+        private _checkin: CheckinStateService,
     ) {}
 
     public confirm() {
@@ -100,7 +101,7 @@ export class CheckinCovidComponent {
             this._router.navigate(['/checkin', 'results']);
         } else {
             this._checkin.setError(
-                'Please get tested for COVID-19 and self-isolate at home for 14 days'
+                'Please get tested for COVID-19 and self-isolate at home for 14 days',
             );
             this._router.navigate(['/checkin', 'error']);
         }

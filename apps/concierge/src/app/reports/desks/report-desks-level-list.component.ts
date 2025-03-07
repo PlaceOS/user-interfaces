@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { downloadFile, jsonToCsv } from '@placeos/common';
+import { downloadFile, jsonToCsv, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { differenceInDays } from 'date-fns';
 import { combineLatest } from 'rxjs';
@@ -10,32 +10,60 @@ import { ReportsStateService } from '../reports-state.service';
 @Component({
     selector: 'report-desks-levels-list',
     template: `
-        <div class="px-4 pb-2 w-full">
+        <div class="w-full px-4 pb-2">
             <div
-                class="rounded bg-base-100 border border-base-200 overflow-hidden w-full"
+                class="w-full overflow-hidden rounded border border-base-200 bg-base-100"
             >
-                <div class="border-b border-base-200 p-4 flex items-center">
-                    <h3 class="font-bold text-xl flex-1">Level Utilisation</h3>
-                    <button icon matRipple *ngIf="!print" (click)="download()">
+                <div class="flex items-center border-b border-base-200 p-4">
+                    <h3 class="flex-1 text-xl font-bold">
+                        {{
+                            'APP.CONCIERGE.REPORTS_LEVEL_UTIL_HEADER'
+                                | translate
+                        }}
+                    </h3>
+                    <button
+                        icon
+                        matRipple
+                        [matTooltip]="
+                            'APP.CONCIERGE.REPORTS_DOWNLOAD_TABLE' | translate
+                        "
+                        *ngIf="!print"
+                        (click)="download()"
+                    >
                         <app-icon>download</app-icon>
                     </button>
                 </div>
                 <simple-table
-                    class="w-full block text-sm"
+                    class="block w-full text-sm"
                     [data]="level_list"
                     [columns]="[
-                        { key: 'name', name: 'Level' },
-                        { key: 'avg_usage', name: 'Avg. Used Desks' },
-                        { key: 'approved', name: 'Approved Bookings' },
-                        { key: 'count', name: 'Total Requests' },
+                        { key: 'name', name: 'RESOURCE.LEVEL' | translate },
+                        {
+                            key: 'avg_usage',
+                            name: 'APP.CONCIERGE.REPORTS_AVG_DESKS' | translate,
+                        },
+                        {
+                            key: 'approved',
+                            name: 'APP.CONCIERGE.REPORTS_APPROVED' | translate,
+                        },
+                        {
+                            key: 'count',
+                            name:
+                                'APP.CONCIERGE.REPORTS_TOTAL_REQUESTS'
+                                | translate,
+                        },
                         {
                             key: 'utilisation',
-                            name: 'Utilisation',
-                            content: percent_view
-                        }
+                            name:
+                                'APP.CONCIERGE.REPORTS_UTILISATION' | translate,
+                            content: percent_view,
+                        },
                     ]"
                     [page_size]="print ? 0 : 10"
                     [sortable]="true"
+                    [empty_message]="
+                        'APP.CONCIERGE.REPORTS_DAILY_EMPTY' | translate
+                    "
                 >
                 </simple-table>
                 <ng-template #percent_view let-data="data">
@@ -44,9 +72,10 @@ import { ReportsStateService } from '../reports-state.service';
             </div>
         </div>
     `,
+    standalone: false,
 })
 export class ReportDesksLevelListComponent {
-    @Input() public print: boolean = false;
+    @Input() public print = false;
 
     public readonly level_list = combineLatest([
         this._state.options,
@@ -54,15 +83,20 @@ export class ReportDesksLevelListComponent {
         this._state.counts,
     ]).pipe(
         map(([options, stats, counts]) => {
-            const { start, end, zones } = options;
+            let { start, end, zones } = options;
             const duration = differenceInDays(end, start) || 1;
+            if (!zones.length) {
+                zones = this._settings.get('app.use_region')
+                    ? this._org.levelsForRegion().map((_) => _.id)
+                    : this._org.levelsForBuilding().map((_) => _.id);
+            }
             const levels = [];
             for (const zone of zones) {
                 if (zone === 'All') continue;
                 const lvl = this._org.levelWithID([zone]);
                 const count = counts[zone] || 0;
                 const events = stats.events.filter((bkn) =>
-                    bkn.zones.includes(zone)
+                    bkn.zones.includes(zone),
                 );
                 let free: any = (count * duration - events.length) / duration;
                 if (free % 1 !== 0) {
@@ -82,16 +116,17 @@ export class ReportDesksLevelListComponent {
             }
             return levels;
         }),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     public readonly download = async () => {
-        let data = await this.level_list.pipe(take(1)).toPromise();
+        const data = await this.level_list.pipe(take(1)).toPromise();
         downloadFile('desks-levels-usage.csv', jsonToCsv(data));
     };
 
     constructor(
         private _state: ReportsStateService,
-        private _org: OrganisationService
+        private _org: OrganisationService,
+        private _settings: SettingsService,
     ) {}
 }

@@ -1,10 +1,10 @@
 import { Component, forwardRef } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { currentUser, unique } from '@placeos/common';
-import { showStaff } from 'libs/users/src/lib/staff.fn';
-import { User } from 'libs/users/src/lib/user.class';
 import { Calendar } from 'libs/calendar/src/lib/calendar.class';
 import { queryCalendars } from 'libs/calendar/src/lib/calendar.fn';
+import { showStaff } from 'libs/users/src/lib/staff.fn';
+import { User } from 'libs/users/src/lib/user.class';
 import { of, zip } from 'rxjs';
 import { catchError, map, shareReplay, switchMap, take } from 'rxjs/operators';
 
@@ -19,7 +19,6 @@ import { catchError, map, shareReplay, switchMap, take } from 'rxjs/operators';
                 [placeholder]="
                     item?.email ? item.name || item.email : 'Select host'
                 "
-                i18n-placeholder
             >
                 <mat-option
                     *ngFor="let user of users | async"
@@ -33,7 +32,7 @@ import { catchError, map, shareReplay, switchMap, take } from 'rxjs/operators';
                     </div>
                 </mat-option>
             </mat-select>
-            <mat-error i18n>Host is required</mat-error>
+            <mat-error>Host is required</mat-error>
         </mat-form-field>
         <ng-container *ngIf="users | async"></ng-container>
     `,
@@ -45,22 +44,23 @@ import { catchError, map, shareReplay, switchMap, take } from 'rxjs/operators';
             multi: true,
         },
     ],
+    standalone: false,
 })
 export class HostSelectFieldComponent implements ControlValueAccessor {
     public item?: User;
     public readonly users = of(1).pipe(
         switchMap(() =>
-            queryCalendars().pipe(catchError((_) => of([] as Calendar[])))
+            queryCalendars().pipe(catchError((_) => of([] as Calendar[]))),
         ),
         switchMap((list) =>
             zip(
                 ...list.map((_) =>
-                    showStaff(_.id).pipe(catchError((_) => of(null)))
-                )
-            )
+                    showStaff(_.id).pipe(catchError((_) => of(null))),
+                ),
+            ),
         ),
         map((_) => unique([currentUser(), ..._], 'email')),
-        shareReplay(1)
+        shareReplay(1),
     );
     public disabled = false;
 

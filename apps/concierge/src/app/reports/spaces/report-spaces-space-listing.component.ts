@@ -1,84 +1,134 @@
 import { Component, Input } from '@angular/core';
 import { downloadFile, jsonToCsv, unique } from '@placeos/common';
-import { Space } from '@placeos/spaces';
+import { Space, SpacePipe } from '@placeos/spaces';
 import { differenceInDays } from 'date-fns';
 import { combineLatest } from 'rxjs';
-import { debounceTime, map, take } from 'rxjs/operators';
+import { debounceTime, map, switchMap, take } from 'rxjs/operators';
 import { ReportsStateService } from '../reports-state.service';
 
 @Component({
     selector: 'report-spaces-space-listing',
     template: `
         <div
-            class="m-4 rounded bg-base-100 border border-base-200 overflow-hidden"
+            class="m-4 overflow-hidden rounded border border-base-200 bg-base-100"
         >
-            <div class="border-b border-base-200 px-4 py-2 flex items-center">
-                <h3 class="font-bold text-xl flex-1">Room Utilisation</h3>
-                <button icon matRipple (click)="download()" *ngIf="!print">
+            <div class="flex items-center border-b border-base-200 px-4 py-2">
+                <h3 class="flex-1 text-xl font-bold">
+                    {{ 'APP.CONCIERGE.REPORTS_ROOMS_UTIL_HEADER' | translate }}
+                </h3>
+                <button
+                    icon
+                    matRipple
+                    [matTooltip]="
+                        'APP.CONCIERGE.REPORTS_DOWNLOAD_TABLE' | translate
+                    "
+                    (click)="download()"
+                    *ngIf="!print"
+                >
                     <app-icon>download</app-icon>
                 </button>
             </div>
             <simple-table
-                class="w-full block text-sm"
+                class="block w-full text-sm"
                 [data]="space_list"
                 [columns]="[
-                    { key: 'name', name: 'Name' },
-                    { key: 'capacity', name: 'Capacity' },
-                    { key: 'booking_count', name: 'Bookings' },
-                    { key: 'utilisation', name: 'Utilisation' },
-                    { key: 'avg_attendees', name: 'Avg. Invitees per Booking' },
+                    { key: 'name', name: 'FORM.NAME' | translate },
+                    {
+                        key: 'capacity',
+                        name: 'COMMON.CAPACITY' | translate,
+                        content: capacity_template,
+                    },
+                    {
+                        key: 'booking_count',
+                        name: 'RESOURCE.BOOKINGS' | translate,
+                    },
+                    {
+                        key: 'utilisation',
+                        name: 'APP.CONCIERGE.REPORTS_UTILISATION' | translate,
+                    },
+                    {
+                        key: 'avg_attendees',
+                        name:
+                            'APP.CONCIERGE.REPORTS_AVG_BOOKING_INVITES'
+                            | translate,
+                    },
                     {
                         key: 'no_shows',
-                        name: 'No Shows',
-                        show: has_attendance | async
+                        name: 'APP.CONCIERGE.REPORTS_NO_SHOWS' | translate,
+                        show: has_attendance | async,
                     },
                     {
                         key: 'min_attendance',
-                        name: 'Min. In-Room Attendance',
-                        show: has_attendance | async
+                        name:
+                            'APP.CONCIERGE.REPORTS_MIN_ATTENDANCE' | translate,
+                        show: has_attendance | async,
                     },
                     {
                         key: 'max_attendance',
-                        name: 'Max. In-Room Attendance',
-                        show: has_attendance | async
+                        name:
+                            'APP.CONCIERGE.REPORTS_MAX_ATTENDANCE' | translate,
+                        show: has_attendance | async,
                     },
-                    { key: 'occupancy', name: 'Occupancy %' }
+                    {
+                        key: 'occupancy',
+                        name: 'APP.CONCIERGE.REPORTS_OCCUPANCY' | translate,
+                    },
                 ]"
                 [sortable]="true"
                 [page_size]="print ? 0 : 10"
-                empty_message="No events for selected period"
+                [empty_message]="
+                    'APP.CONCIERGE.REPORTS_DAILY_EMPTY' | translate
+                "
             ></simple-table>
+            <ng-template #capacity_template let-data="data">
+                <div class="p-4">
+                    {{ data < 1 ? '' : data }}
+                    <span class="opacity-30" *ngIf="data < 1">{{
+                        'COMMON.CAPACITY_EMPTY' | translate
+                    }}</span>
+                </div>
+            </ng-template>
         </div>
     `,
     styles: [``],
+    standalone: false,
 })
-export class ReportSpacesSpaceListing {
-    @Input() public print: boolean = false;
+export class ReportSpacesSpaceListingComponent {
+    @Input() public print = false;
+
+    private _space_pipe = new SpacePipe();
 
     public readonly space_list = combineLatest([
         this._reports.stats,
         this._reports.options,
     ]).pipe(
         debounceTime(300),
-        map(([stats, { start, end }]) => {
+        switchMap(async ([stats, { start, end }]) => {
             let list = [];
             let has_attendance = false;
             for (const booking of stats.events) {
-                const resources: Space[] = unique(
+                let space_list: Space[] = unique(
                     booking.resources,
-                    'email'
+                    'email',
                 ) || [booking.system];
+                let resources = [];
+                for (const space of space_list) {
+                    const details = await this._space_pipe.transform(
+                        space.email || space.id,
+                    );
+                    resources.push(details);
+                }
                 for (const space of resources) {
                     let details = list.find(
                         (_) =>
                             _.id === space.id ||
-                            _.id?.toLowerCase() === space.email.toLowerCase()
+                            _.id?.toLowerCase() === space.email.toLowerCase(),
                     );
                     if (!details) {
                         details = {
                             id: space.id || space.email,
                             name: space.display_name || space.name,
-                            capacity: space.capacity || 1,
+                            capacity: space.capacity,
                             booking_count: 0,
                             attendance: 0,
                             avg_attendance: 0,
@@ -104,11 +154,11 @@ export class ReportSpacesSpaceListing {
                         booking.extension_data?.people_count?.avg ?? 0;
                     details.min_attendance = Math.min(
                         details.max_attendance,
-                        booking.extension_data?.people_count?.max ?? 99
+                        booking.extension_data?.people_count?.max ?? 99,
                     );
                     details.max_attendance = Math.max(
                         details.max_attendance,
-                        booking.extension_data?.people_count?.max ?? 0
+                        booking.extension_data?.people_count?.max ?? 0,
                     );
                     details.usage += booking.duration;
                     details.attendees += booking.attendees.length;
@@ -118,7 +168,7 @@ export class ReportSpacesSpaceListing {
             }
             const period_in_days = Math.max(
                 1,
-                differenceInDays(end, start) + 1
+                differenceInDays(end, start) + 1,
             );
             for (const space of list) {
                 space.avg_attendees =
@@ -128,13 +178,15 @@ export class ReportSpacesSpaceListing {
                     Math.floor((space.attendance / space.booking_count) * 100) /
                     100;
                 space.utilisation = `${Math.floor(
-                    (space.usage / 60 / 8 / period_in_days) * 100
+                    (space.usage / 60 / 8 / period_in_days) * 100,
                 )}%`;
                 space.min_attendance =
                     space.min_attendance === 99 ? '?' : space.min_attendance;
                 space.occupancy = `${
-                    Math.floor((space.avg_attendees / space.capacity) * 1000) /
-                    10
+                    Math.floor(
+                        (space.avg_attendees / Math.max(1, space.capacity)) *
+                            1000,
+                    ) / 10
                 }%`;
                 if (space.attendance < 0 || !has_attendance) {
                     space.attendance = '?';
@@ -142,11 +194,11 @@ export class ReportSpacesSpaceListing {
                 }
             }
             return list;
-        })
+        }),
     );
 
     public readonly has_attendance = this.space_list.pipe(
-        map((_) => !!_.find(({ attendance }) => attendance !== '?'))
+        map((_) => !!_.find(({ attendance }) => attendance !== '?')),
     );
 
     public readonly download = async () => {

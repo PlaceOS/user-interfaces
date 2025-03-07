@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { csvToJson, notifyError, unique } from '@placeos/common';
 import { take } from 'rxjs/operators';
@@ -7,58 +7,70 @@ import { CateringStateService } from './catering-state.service';
 @Component({
     selector: 'charge-code-list-modal',
     template: `
-        <header>
-            <h2>Edit Charge Codes</h2>
-            <button icon mat-dialog-close>
+        <header
+            class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded border-none bg-base-200 p-2"
+        >
+            <h2 class="px-2 text-xl font-medium">
+                {{ 'CATERING.CHARGE_CODES_EDIT' | translate }}
+            </h2>
+            <button icon matRipple mat-dialog-close *ngIf="!loading">
                 <app-icon>close</app-icon>
             </button>
         </header>
         <main
             *ngIf="!loading; else load_state"
-            class="overflow-auto max-h-[65vh] min-h-[20rem] flex flex-col"
+            class="flex max-h-[65vh] min-h-[20rem] flex-col overflow-auto"
         >
-            <div
-                class="flex items-center space-x-2 w-full hover:bg-neutral px-2"
-                *ngFor="
-                    let code of charge_codes;
-                    let i = index;
-                    trackBy: trackByFn
-                "
-            >
-                <mat-form-field appearance="outline" class="h-14 flex-1">
-                    <input
-                        matInput
-                        [(ngModel)]="charge_codes[i]"
-                        placeholder="Charge Code"
-                    />
-                </mat-form-field>
-                <button icon (click)="removeCode(i)">
-                    <app-icon>delete</app-icon>
-                </button>
-            </div>
+            @for (code of charge_codes; track i; let i = $index) {
+                <div
+                    class="flex w-full items-center space-x-2 px-2 py-1 hover:bg-base-200"
+                >
+                    <mat-form-field
+                        appearance="outline"
+                        class="no-subscript flex-1"
+                    >
+                        <input
+                            matInput
+                            [(ngModel)]="charge_codes[i]"
+                            [placeholder]="'CATERING.CHARGE_CODES' | translate"
+                        />
+                    </mat-form-field>
+                    <button
+                        icon
+                        matRipple
+                        class="h-12 w-12 rounded border border-error text-error"
+                        [matTooltip]="
+                            'CATERING.CHARGE_CODES_REMOVE' | translate
+                        "
+                        (click)="removeCode(i)"
+                    >
+                        <app-icon class="text-2xl">delete</app-icon>
+                    </button>
+                </div>
+            }
         </main>
         <footer
-            class="flex items-center p-2 space-x-2 border-t border-base-200"
+            class="flex items-center space-x-2 border-t border-base-200 p-2"
             *ngIf="!loading"
         >
-            <button btn matRipple class="w-48 inverse relative">
-                Import Codes
+            <button btn matRipple class="inverse relative w-48">
+                {{ 'CATERING.CHARGE_CODES_IMPORT' | translate }}
                 <input
-                    class="opacity-0 absolute inset-0"
+                    class="absolute inset-0 opacity-0"
                     type="file"
                     (change)="addCodesFromFile($event)"
                 />
             </button>
             <button btn matRipple class="w-48" (click)="newCode()">
-                Add Code
+                {{ 'CATERING.CHARGE_CODES_ADD' | translate }}
             </button>
             <button btn matRipple class="w-48" (click)="saveChargeCodes()">
-                Save Changes
+                {{ 'COMMON.SAVE' | translate }}
             </button>
         </footer>
         <ng-template #load_state>
             <main
-                class="flex flex-col items-center justify-center p-20 space-y-2"
+                class="flex flex-col items-center justify-center space-y-2 p-20"
             >
                 <mat-spinner diameter="32"></mat-spinner>
                 <p>Saving changes to charge codes...</p>
@@ -66,14 +78,15 @@ import { CateringStateService } from './catering-state.service';
         </ng-template>
     `,
     styles: [``],
+    standalone: false,
 })
-export class ChargeCodeListModalComponent {
+export class ChargeCodeListModalComponent implements OnInit {
     public charge_codes: string[] = [];
     public loading = false;
 
     constructor(
         private _state: CateringStateService,
-        private _dialog_ref: MatDialogRef<ChargeCodeListModalComponent>
+        private _dialog_ref: MatDialogRef<ChargeCodeListModalComponent>,
     ) {}
 
     public async ngOnInit() {
@@ -111,7 +124,7 @@ export class ChargeCodeListModalComponent {
                     event.target.value = '';
                 });
                 reader.addEventListener('error', (_) =>
-                    notifyError('Error reading file.')
+                    notifyError('Error reading file.'),
                 );
             }
         }
@@ -122,9 +135,5 @@ export class ChargeCodeListModalComponent {
         const cleaned_codes = this.charge_codes.filter((_) => _ && _.trim());
         await this._state.saveSettings({ charge_codes: cleaned_codes });
         this._dialog_ref.close();
-    }
-
-    public trackByFn(idx: number, item: any) {
-        return idx;
     }
 }

@@ -6,7 +6,7 @@ import { ExploreSearchService } from '@placeos/explore';
 @Component({
     selector: 'global-search',
     template: `
-        <div class="h-full w-12 relative">
+        <div class="relative h-full w-12">
             <button
                 icon
                 name="global-search"
@@ -18,21 +18,21 @@ import { ExploreSearchService } from '@placeos/explore';
             </button>
             <div
                 search
-                class="flex items-center absolute top-1/2 right-2 -translate-y-1/2 max-w-[calc(100vw-4rem)] bg-base-100 shadow h-12 px-2 rounded-[24px] space-x-2 border-2 border-neutral z-50"
+                class="absolute right-2 top-1/2 z-50 flex h-12 max-w-[calc(100vw-4rem)] -translate-y-1/2 items-center space-x-2 rounded-[24px] border-2 border-neutral bg-base-100 px-2 shadow"
                 [ngClass]="{
                     'w-[32rem]': show,
                     'w-px': !show,
                     'opacity-100': show,
                     'opacity-0': !show,
-                    'pointer-events-none': !show
+                    'pointer-events-none': !show,
                 }"
                 (click)="showInput()"
             >
                 <app-icon class="text-2xl">search</app-icon>
                 <input
                     #input
-                    placeholder="Search for people or spaces..."
-                    class="flex-1 w-1/2 py-2 outline-none"
+                    [placeholder]="'APP.WORKPLACE.GLOBAL_SEARCH' | translate"
+                    class="w-1/2 flex-1 py-2 outline-none"
                     [(ngModel)]="filter_str"
                     (ngModelChange)="setFilter($event)"
                     (blur)="hideInput()"
@@ -44,46 +44,46 @@ import { ExploreSearchService } from '@placeos/explore';
             </div>
             <div
                 search
-                class="flex flex-col items-center absolute bottom-0 right-2 translate-y-[calc(100%-1rem)] max-w-[calc(100vw-4rem)] bg-base-100 shadow rounded-b pt-4 overflow-hidden border border-base-200"
+                class="absolute bottom-0 right-2 flex max-h-[40vh] max-w-[calc(100vw-4rem)] translate-y-[calc(100%-1rem)] flex-col items-center overflow-auto rounded-b border border-base-200 bg-base-100 pt-4 shadow"
                 [ngClass]="{
                     'w-[32rem]': show,
                     'w-px': !show,
                     'opacity-100': show,
                     'opacity-0': !show,
-                    'pointer-events-none': !show
+                    'pointer-events-none': !show,
                 }"
+                *ngIf="filter_str"
             >
                 <div
                     empty
-                    class="p-4 w-full text-center opacity-60"
+                    class="w-full p-4 text-center opacity-60"
                     *ngIf="
                         !(results | async)?.length && filter_str;
                         else empty_state
                     "
-                    i18n
                 >
-                    No matches found.
+                    {{ 'APP.WORKPLACE.GLOBAL_SEARCH_EMPTY' | translate }}
                 </div>
                 <ng-container *ngIf="!(loading | async) && filter_str">
                     <a
                         matRipple
-                        *ngFor="let option of results | async | slice: 0:5"
+                        *ngFor="let option of results | async | slice: 0 : 100"
                         [routerLink]="['/explore']"
                         [queryParams]="
                             option.type === 'space'
                                 ? { space: option.id }
                                 : option.type === 'user' || option.is_role
-                                ? { user: option.id }
-                                : {
-                                      locate: option.id,
-                                      name: option.name,
-                                      zone: option.zone
-                                  }
+                                  ? { user: option.id }
+                                  : {
+                                        locate: option.id,
+                                        name: option.name,
+                                        zone: option.zone,
+                                    }
                         "
-                        class="w-full h-full flex items-center leading-tight p-4 hover:bg-neutral:bg-base-100/5"
+                        class="flex h-14 min-h-14 w-full items-center px-4 py-2 leading-tight hover:bg-base-200"
                     >
                         <div class="flex-1 overflow-hidden">
-                            <div class="truncate w-full">
+                            <div class="w-full truncate">
                                 {{ option.name }}
                             </div>
                             <div class="text-xs opacity-60">
@@ -91,7 +91,7 @@ import { ExploreSearchService } from '@placeos/explore';
                             </div>
                         </div>
                         <div
-                            class="text-xs font-medium p-2 capitalize text-white bg-secondary text-secondary-content rounded"
+                            class="rounded bg-secondary p-2 text-xs font-medium capitalize text-secondary-content text-white"
                         >
                             {{ option.type }}
                         </div>
@@ -103,20 +103,22 @@ import { ExploreSearchService } from '@placeos/explore';
             <div
                 empty
                 *ngIf="!(results | async)?.length"
-                class="p-4 w-full text-center opacity-60"
-                i18n
+                class="w-full p-4 text-center opacity-60"
             >
-                Start typing to search...
+                {{ 'APP.WORKPLACE.GLOBAL_SEARCH_START' | translate }}
             </div>
         </ng-template>
     `,
     styles: [
         `
             [search] {
-                transition: width 200ms, opacity 200ms;
+                transition:
+                    width 200ms,
+                    opacity 200ms;
             }
         `,
     ],
+    standalone: false,
 })
 export class GlobalSearchComponent extends AsyncHandler {
     public readonly results = this._service.search_results;

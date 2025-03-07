@@ -1,4 +1,10 @@
-import { Component, Input, OnInit } from '@angular/core';
+import {
+    AfterViewInit,
+    Component,
+    ElementRef,
+    Input,
+    ViewChild,
+} from '@angular/core';
 import { Question, QuestionType, QuestionTypeOptions } from '../types';
 
 @Component({
@@ -6,29 +12,35 @@ import { Question, QuestionType, QuestionTypeOptions } from '../types';
     styles: [],
     template: `
         <div
-            class="border bg-base-100 shadow flex flex-col w-full items-center justify-between px-4 py-2 pt-4"
+            #container_el
+            class="flex w-full flex-col items-center justify-between px-4 py-2 pt-4"
         >
             <ng-container *ngIf="!preview; else previewTitle">
                 <mat-form-field class="w-full" appearance="outline">
                     <input
                         matInput
-                        placeholder="Enter your question here"
+                        [placeholder]="
+                            'APP.CONCIERGE.SURVEY_QUESTION_ENTER' | translate
+                        "
                         type="text"
                         [(ngModel)]="question.title"
                     />
-                    <mat-error class="input-error" *ngIf="!question?.title"
-                        >Please enter a question</mat-error
-                    >
+                    <mat-error class="input-error" *ngIf="!question?.title">
+                        {{
+                            'APP.CONCIERGE.SURVEY_QUESTION_ENTER_ERROR'
+                                | translate
+                        }}
+                    </mat-error>
                 </mat-form-field>
             </ng-container>
 
             <ng-template #previewTitle>
-                <span class="text-xl w-full mb-4">{{
+                <span class="mb-4 w-full text-xl">{{
                     question.title || 'No question'
                 }}</span>
             </ng-template>
 
-            <div class="flex flex-col w-full mb-4" [ngSwitch]="question.type">
+            <div class="mb-4 flex w-full flex-col" [ngSwitch]="question.type">
                 <ng-container *ngSwitchCase="QuestionType.Comment_Box">
                     <multi-line-text
                         [question]="question"
@@ -70,7 +82,7 @@ import { Question, QuestionType, QuestionTypeOptions } from '../types';
             </div>
 
             <div
-                class="flex flex-row w-full items-center justify-end space-x-4"
+                class="flex w-full flex-row items-center justify-end space-x-4"
                 *ngIf="!preview"
             >
                 <!-- <mat-form-field appearance="outline" class="h-[2rem]">
@@ -96,15 +108,17 @@ import { Question, QuestionType, QuestionTypeOptions } from '../types';
                 </select>
 
                 <mat-slide-toggle [(ngModel)]="question.isRequired">
-                    Required</mat-slide-toggle
-                >
+                    {{ 'COMMON.REQUIRED' | translate }}
+                </mat-slide-toggle>
                 <!-- <mat-slide-toggle [(ngModel)]="preview"> Preview</mat-slide-toggle> -->
             </div>
         </div>
     `,
+    standalone: false,
 })
-export class QuestionComponent implements OnInit {
-    @Input() preview: boolean = false;
+export class QuestionComponent implements AfterViewInit {
+    @Input() isCard = true;
+    @Input() preview = false;
     @Input() set value(value: Question) {
         if (value) {
             this.question = value;
@@ -118,7 +132,19 @@ export class QuestionComponent implements OnInit {
     public hasValue = false;
     public question: Question;
 
-    constructor() {}
+    @ViewChild('container_el', { static: true })
+    private _container_el: ElementRef<HTMLDivElement>;
+
+    public ngAfterViewInit() {
+        if (this.isCard) {
+            this._container_el.nativeElement.classList.add(
+                'border',
+                'border-base-400',
+                'bg-base-100',
+                'shadow',
+            );
+        }
+    }
 
     public get valid() {
         if (!this.question?.title) return false;
@@ -140,6 +166,4 @@ export class QuestionComponent implements OnInit {
 
         return valid;
     }
-
-    ngOnInit(): void {}
 }

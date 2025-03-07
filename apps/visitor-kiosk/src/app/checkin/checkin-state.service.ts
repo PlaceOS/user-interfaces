@@ -1,34 +1,24 @@
 import { Injectable } from '@angular/core';
-import { HashMap, notifyError, notifySuccess } from '@placeos/common';
-import { GuestUser, generateGuestForm, showGuest } from '@placeos/users';
-import { addMinutes, getUnixTime, isSameDay, startOfHour } from 'date-fns';
-import { BehaviorSubject } from 'rxjs';
 import {
     Booking,
     checkinBooking,
     queryAllBookings,
-    setBookingState,
     showBooking,
     updateBooking,
+    updateBookingInductionStatus,
 } from '@placeos/bookings';
+import { HashMap, i18n, notifyError, notifySuccess } from '@placeos/common';
 import { SpacePipe } from '@placeos/spaces';
+import { GuestUser, generateGuestForm, showGuest } from '@placeos/users';
+import { addMinutes, getUnixTime, isSameDay } from 'date-fns';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
     providedIn: 'root',
 })
 export class CheckinStateService {
     /** Current event being checked in */
-    private _booking = new BehaviorSubject<Booking>(
-        new Booking({
-            asset_id: 'jim@1234.com',
-            asset_name: 'Jim Jones',
-            user_email: 'alex@place.tech',
-            user_name: 'Alex Sorafumo',
-            date: startOfHour(Date.now()).valueOf(),
-            duration: 60,
-            zones: ['zone-Do2HJ00hTG'],
-        })
-    );
+    private _booking = new BehaviorSubject<Booking>(null);
     /** Current guest being checked in */
     private _guest = new BehaviorSubject<GuestUser>(null);
     /** Photo of the current guest */
@@ -44,10 +34,25 @@ export class CheckinStateService {
     public readonly error = this._error.asObservable();
     public readonly form = this._form.asObservable();
 
+    public metadata = '';
+
     public clear() {
         this._guest.next(null);
         this._booking.next(null);
         this._photo.next(null);
+    }
+
+    public setBooking(booking: Booking, metadata = '') {
+        this._booking.next(booking);
+        this._guest.next(
+            new GuestUser({
+                email: booking.asset_id,
+                name: booking.asset_name,
+                organisation: booking.extension_data.organisation,
+                phone: booking.extension_data.phone,
+            }),
+        );
+        this.metadata = metadata;
     }
 
     public setPhoto(data: string) {
@@ -80,15 +85,15 @@ export class CheckinStateService {
             period_end: getUnixTime(addMinutes(Date.now(), 120)),
         }).toPromise();
         upcoming = upcoming.filter(
-            (_) => _.user_email === email || _.asset_id === email
+            (_) => _.user_email === email || _.asset_id === email,
         );
         const today = new Date();
         const todays_events = upcoming.filter((event) =>
-            isSameDay(new Date(event.date), today)
+            isSameDay(new Date(event.date), today),
         );
         todays_events.sort((a, b) => a.date - b.date);
         if (todays_events.length <= 0) {
-            throw new Error(`No meetings for guest "${email}" today`);
+            throw new Error(i18n('APP.VISITOR_KIOSK.NOT_FOUND', { email }));
         }
         this._guest.next(guest);
         this._booking.next(todays_events[0]);
@@ -100,52 +105,58 @@ export class CheckinStateService {
         const guest = this._guest.getValue();
         const form = this._form.getValue();
         if (!guest || !form) return;
-        // await updateMetadata(guest.email, {
-        //     name: 'preferences',
-        //     details: { ...guest, ...form.value, ...(data || {}) },
-        //     description: '',
-        // }).toPromise();
+        const booking = this._booking.getValue() || guest.extension_data.event;
+        if (!booking || this.metadata || !form.value) return;
+        const updated_booking = await updateBooking(
+            booking.id,
+            new Booking({
+                ...booking,
+                asset_id: form.value.email || booking.asset_id,
+                asset_name: form.value.name || booking.asset_name,
+                description: form.value.name || booking.description,
+                extension_data: {
+                    ...booking.extension_data,
+                    organisation:
+                        form.value.organisation ||
+                        booking.extension_data.organisation,
+                    phone: form.value.phone || booking.extension_data.phone,
+                },
+            }).toJSON(),
+        ).toPromise();
+        this.setBooking(updated_booking);
     }
 
     public async completeInduction() {
         const guest = this._guest.getValue();
         const event = this._booking.getValue() || guest.extension_data.event;
         if (!guest || !event) return;
-        await setBookingState(event.id, 'inducted').toPromise();
-        const details = {
-            ...event,
-            induction: true,
-        };
-        delete details.parent_id;
-        await updateBooking(event.id, details).toPromise();
+        await updateBookingInductionStatus(event.id, 'accepted').toPromise();
     }
 
     public async declineInduction() {
         const guest = this._guest.getValue();
         const event = this._booking.getValue() || guest.extension_data.event;
         if (!guest || !event) return;
-        await setBookingState(event.id, 'declined_induction').toPromise();
+        await updateBookingInductionStatus(event.id, 'declined').toPromise();
     }
 
-    public async checkinGuest() {
+    public async checkinGuest(state = true) {
         const guest = this._guest.getValue();
         const event = this._booking.getValue() || guest.extension_data.event;
         if (!guest || !event) return;
-        const checkin_fn = checkinBooking(event.id, true).toPromise();
-        await checkin_fn.catch(async (e) => {
-            notifyError(
-                e ||
-                    `Error checking in ${guest.name} for ${
-                        event.user_name || event.user_email
-                    }'s meeting.`
-            );
+        const checkin_fn = checkinBooking(event.id, state).toPromise();
+        const vars = {
+            guest: guest.name,
+            host: event.user_name || event.user_email,
+        };
+        const result = await checkin_fn.catch(async (e) => {
+            notifyError(e || i18n('APP.VISITOR_KIOSK.ERROR_CHECKIN', vars));
             throw e;
         });
-        notifySuccess(
-            `Successfully checked in ${guest.name} for ${
-                event.user_name || event.user_email
-            }'s meeting`
-        );
+        if (!result) return;
+
+        notifySuccess(i18n('APP.VISITOR_KIOSK.SUCCESS_CHECKIN', vars));
+        this.metadata = '';
     }
 
     public printPass() {
@@ -153,7 +164,7 @@ export class CheckinStateService {
             // TODO: actually trigger print visitor pass
             return new Promise((res) => setTimeout(() => res(''), 5000));
         } catch (err) {
-            notifyError('Error printing visitor pass');
+            notifyError(i18n('APP.VISITOR_KIOSK.ERROR_PRINT'));
         }
         return Promise.reject();
     }

@@ -1,13 +1,15 @@
+import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import {
     Component,
-    forwardRef,
-    Output,
-    EventEmitter,
-    Input,
-    ViewChild,
     ElementRef,
+    EventEmitter,
+    forwardRef,
+    Input,
+    Output,
+    ViewChild,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import {
     AsyncHandler,
     csvToJson,
@@ -17,6 +19,7 @@ import {
     SettingsService,
     unique,
 } from '@placeos/common';
+import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import {
     catchError,
     debounceTime,
@@ -25,16 +28,13 @@ import {
     switchMap,
     tap,
 } from 'rxjs/operators';
-import { MatDialog } from '@angular/material/dialog';
-import { COMMA, ENTER } from '@angular/cdk/keycodes';
-import { BehaviorSubject, combineLatest, of, zip } from 'rxjs';
 
-import { NewUserModalComponent } from 'libs/users/src/lib/new-user-modal.component';
+import { authority, queryUsers } from '@placeos/ts-client';
 import { searchGuests } from 'libs/users/src/lib/guests.fn';
+import { NewUserModalComponent } from 'libs/users/src/lib/new-user-modal.component';
 import { searchStaff } from 'libs/users/src/lib/staff.fn';
 import { User } from 'libs/users/src/lib/user.class';
 import { USER_DOMAIN } from 'libs/users/src/lib/user.utilities';
-import { authority, queryUsers } from '@placeos/ts-client';
 
 function validateEmail(email) {
     const re =
@@ -91,7 +91,9 @@ const DENIED_FILE_TYPES = [
                                 matChipRemove
                                 remove
                                 [attr.aria-label]="
-                                    'Remove ' + (item.name || item.email)
+                                    'COMMON.REMOVE_ITEM'
+                                        | translate
+                                            : { name: item.name || item.email }
                                 "
                             >
                                 <app-icon>cancel</app-icon>
@@ -100,8 +102,7 @@ const DENIED_FILE_TYPES = [
                     </mat-chip-grid>
                     <input
                         #search_field
-                        placeholder="Type a name or email"
-                        i18n-placeholder
+                        [placeholder]="'FORM.USER_LIST_PLACEHOLDER' | translate"
                         name="user_email"
                         [ngModel]="search$ | async"
                         (ngModelChange)="updateSearch($event)"
@@ -120,9 +121,11 @@ const DENIED_FILE_TYPES = [
                     <mat-option
                         *ngIf="search_valid_email"
                         (click)="addUserFromEmail()"
-                        i18n
                     >
-                        Add external user with email "{{ search$.getValue() }}"
+                        {{
+                            'FORM.USER_LIST_ADD_EXTERNAL'
+                                | translate: { email: search$.getValue() }
+                        }}
                     </mat-option>
                     <mat-option
                         *ngFor="let user of user_list$ | async"
@@ -130,12 +133,25 @@ const DENIED_FILE_TYPES = [
                         class="leading-tight"
                     >
                         {{ user.name }}<br />
-                        <span class="text-xs">{{ user.email }}</span>
+                        <span class="w-full text-xs"
+                            >{{ user.email }}
+                            <span
+                                *ngIf="
+                                    user.username &&
+                                    user.username !== user.email
+                                "
+                            >
+                                (<span class="truncate">{{
+                                    user.username
+                                }}</span
+                                >)
+                            </span></span
+                        >
                     </mat-option>
                 </mat-autocomplete>
             </div>
             <div
-                class="flex items-center space-x-2 -mt-4"
+                class="-mt-4 flex items-center space-x-2"
                 actions
                 *ngIf="!hide_actions"
             >
@@ -146,10 +162,16 @@ const DENIED_FILE_TYPES = [
                     name="new-contact"
                     class="inverse flex-1 sm:flex-none"
                     (click)="openNewUserModal()"
-                    i18n="Add new external attendee"
                 >
                     <div class="flex items-center justify-center">
-                        Add&nbsp;<span class="hidden sm:inline">External</span>
+                        <span class="hidden sm:inline">
+                            {{ 'FORM.USER_BTN_ADD_EXTERNAL' | translate }}
+                        </span>
+                        <span class="inline sm:hidden">
+                            {{
+                                'FORM.USER_BTN_ADD_EXTERNAL_SIMPLE' | translate
+                            }}
+                        </span>
                     </div>
                 </button>
                 <button
@@ -157,14 +179,18 @@ const DENIED_FILE_TYPES = [
                     matRipple
                     type="button"
                     name="upload-csv"
-                    class="relative inverse flex-1 sm:flex-none"
-                    i18n="Upload attendee list from CSV file"
+                    class="inverse relative flex-1 sm:flex-none"
                 >
                     <div class="flex items-center justify-center">
-                        Upload&nbsp;<span class="hidden sm:inline">CSV</span>
+                        <span class="hidden sm:inline">
+                            {{ 'FORM.USER_BTN_UPLOAD' | translate }}
+                        </span>
+                        <span class="inline sm:hidden">
+                            {{ 'FORM.USER_BTN_UPLOAD_SIMPLE' | translate }}
+                        </span>
                     </div>
                     <input
-                        class="opacity-0 absolute inset-0"
+                        class="absolute inset-0 opacity-0"
                         type="file"
                         (change)="addUsersFromFile($event)"
                     />
@@ -176,10 +202,14 @@ const DENIED_FILE_TYPES = [
                     name="download-template"
                     class="inverse flex-1 sm:flex-none"
                     (click)="downloadCSVTemplate(); download.emit()"
-                    i18n="Download template CSV file"
                 >
                     <div class="flex items-center justify-center">
-                        <span class="hidden sm:inline">CSV</span>&nbsp;Template
+                        <span class="hidden sm:inline">
+                            {{ 'FORM.USER_BTN_TEMPLATE' | translate }}
+                        </span>
+                        <span class="inline sm:hidden">
+                            {{ 'FORM.USER_BTN_TEMPLATE_SIMPLE' | translate }}
+                        </span>
                     </div>
                 </button>
             </div>
@@ -198,6 +228,7 @@ const DENIED_FILE_TYPES = [
             multi: true,
         },
     ],
+    standalone: false,
 })
 export class UserListFieldComponent
     extends AsyncHandler
@@ -234,7 +265,7 @@ export class UserListFieldComponent
     private searchStaff(q: string) {
         return this._settings.get('app.basic_user_search')
             ? queryUsers({ q, authority_id: authority()?.id }).pipe(
-                  map((_) => _.data.map((u) => new User(u)))
+                  map((_) => _.data.map((u) => new User(u))),
               )
             : searchStaff(q);
     }
@@ -270,15 +301,15 @@ export class UserListFieldComponent
                                       (staff as any)
                                           .concat(guests)
                                           .concat(visitors_list),
-                                      'email'
+                                      'email',
                                   );
-                              })
+                              }),
                           )
                         : this.searchStaff(_)
                     : of([])
             ).pipe(catchError((_) => of([])));
         }),
-        tap((_) => (this.loading = false))
+        tap((_) => (this.loading = false)),
     );
     /** List of active selected users on the list */
     public active_list: User[] = [];
@@ -297,16 +328,16 @@ export class UserListFieldComponent
 
     constructor(
         private _dialog: MatDialog,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         super();
     }
 
-    public updateSearch(new_value: string = '') {
+    public updateSearch(new_value = '') {
         this.timeout('search', () => this.search$.next(new_value));
     }
 
-    public addUserFromEmail(email: string = '') {
+    public addUserFromEmail(email = '') {
         if (!email) email = this.search$.getValue();
         if (!validateEmail(email)) return;
         const user = new User({ id: email, email, name: email.split('@')[0] });
@@ -324,7 +355,7 @@ export class UserListFieldComponent
                 this.search$.next('');
                 this._search_el.nativeElement.value = '';
             },
-            100
+            100,
         );
     }
 
@@ -351,7 +382,7 @@ export class UserListFieldComponent
                 this.search$.next('');
                 this._search_el.nativeElement.value = '';
             },
-            100
+            100,
         );
     }
 
@@ -388,7 +419,7 @@ export class UserListFieldComponent
                     event.target.value = '';
                 });
                 reader.addEventListener('error', (_) =>
-                    notifyError('Error reading file.')
+                    notifyError('Error reading file.'),
                 );
             }
         }
@@ -414,7 +445,7 @@ export class UserListFieldComponent
                 el.email = `${display}+${id}@guest.${USER_DOMAIN}`;
             }
             const internal_emails = this._settings.get(
-                'app.bookings.internal_emails'
+                'app.bookings.internal_emails',
             ) || ['place.tech'];
             el.visit_expected =
                 el.visit_expected ??
@@ -491,7 +522,7 @@ export class UserListFieldComponent
                 width: 'auto',
                 height: 'auto',
                 data: { user },
-            }
+            },
         );
         ref.componentInstance?.event
             .pipe(first((_) => _.reason === 'done'))

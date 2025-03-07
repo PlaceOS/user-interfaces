@@ -1,23 +1,26 @@
 import {
+    AfterViewInit,
     Component,
-    ViewChild,
     ElementRef,
-    OnInit,
     Input,
+    OnChanges,
+    OnInit,
     SimpleChanges,
+    ViewChild,
 } from '@angular/core';
 import {
     AsyncHandler,
     MapsPeopleService,
+    i18n,
     log,
     notifyError,
 } from '@placeos/common';
-import { ViewerStyles, ViewAction } from '@placeos/svg-viewer';
-import { ExploreStateService } from '../../../explore/src/lib/explore-state.service';
 import { OrganisationService } from '@placeos/organisation';
-import { combineLatest } from 'rxjs';
-import { filter, map, first, take } from 'rxjs/operators';
+import { ViewAction, ViewerStyles } from '@placeos/svg-viewer';
 import { MapService } from 'libs/common/src/lib/mapspeople.service';
+import { combineLatest } from 'rxjs';
+import { filter, first, map } from 'rxjs/operators';
+import { ExploreStateService } from '../../../explore/src/lib/explore-state.service';
 
 declare let mapsindoors: any;
 declare let google: any;
@@ -47,7 +50,7 @@ function calculateDistance(
     lat1: number,
     lon1: number,
     lat2: number,
-    lon2: number
+    lon2: number,
 ): number {
     const radius = 6371; // Earth's radius in kilometers
 
@@ -85,7 +88,7 @@ function degreesToRadians(degrees: number): number {
             <mat-spinner [diameter]="48"></mat-spinner>
         </div>
         <div
-            class="absolute inset-0 flex flex-col space-y-2 items-center justify-center"
+            class="absolute inset-0 flex flex-col items-center justify-center space-y-2"
             *ngIf="geolocation_error_message"
         >
             <img
@@ -94,12 +97,12 @@ function degreesToRadians(degrees: number): number {
                 width="200px"
                 class="items-center"
             />
-            <p class="opacity-60 text-sm text-center mt-10">
+            <p class="mt-10 text-center text-sm opacity-60">
                 {{ geolocation_error_message | translate }}
             </p>
         </div>
         <div
-            class="absolute flex flex-col h-min w-min top-2 left-2 bg-base-100 text-base-content rounded-lg z-50 p-2 shadow"
+            class="absolute left-2 top-2 z-50 flex h-min w-min flex-col rounded-lg bg-base-100 p-2 text-base-content shadow"
         >
             <mat-form-field appearance="outline" class="map no-subscript">
                 <input
@@ -110,7 +113,7 @@ function degreesToRadians(degrees: number): number {
                     placeholder="Search"
                     (keyup.enter)="onSearch()"
                 />
-                <div matSuffix class="h-10 relative">
+                <div matSuffix class="relative h-10">
                     <button
                         icon
                         name="indoor-map-search"
@@ -120,7 +123,7 @@ function degreesToRadians(degrees: number): number {
                         matTooltip="Search..."
                         (click)="onSearch()"
                     >
-                        <app-icon matPrefix class="text-2xl relative">
+                        <app-icon matPrefix class="relative text-2xl">
                             search
                         </app-icon>
                     </button>
@@ -129,9 +132,9 @@ function degreesToRadians(degrees: number): number {
 
             <ng-container *ngIf="search_result_items?.length">
                 <div
-                    class="flex items-center justify-between px-2 my-2 space-x-2"
+                    class="my-2 flex items-center justify-between space-x-2 px-2"
                 >
-                    <h3 class="font-medium text-lg">
+                    <h3 class="text-lg font-medium">
                         Results ({{ search_result_items.length || '0' }})
                     </h3>
                     <button
@@ -145,19 +148,19 @@ function degreesToRadians(degrees: number): number {
                     </button>
                 </div>
                 <ul
-                    class="list-none m-0 p-0 w-full space-y-2 max-h-[65vh] overflow-auto"
+                    class="m-0 max-h-[65vh] w-full list-none space-y-2 overflow-auto p-0"
                 >
                     <li
-                        class="w-full even:bg-base-200 hover:bg-base-300 rounded border border-base-200"
-                        *ngFor="let item of search_result_items | slice: 0:10"
+                        class="w-full rounded border border-base-200 even:bg-base-200 hover:bg-base-300"
+                        *ngFor="let item of search_result_items | slice: 0 : 10"
                     >
                         <button
-                            class="flex items-center w-full p-2 space-x-2 text-left"
+                            class="flex w-full items-center space-x-2 p-2 text-left"
                             (click)="getRoute(item); search_result_items = []"
                         >
-                            <div class="flex flex-col flex-1">
+                            <div class="flex flex-1 flex-col">
                                 <div>{{ item.properties.name }}</div>
-                                <div class="opacity-30 text-xs">
+                                <div class="text-xs opacity-30">
                                     {{ item.properties.roomId }}, Level
                                     {{ item.properties.floorName }}
                                 </div>
@@ -182,8 +185,12 @@ function degreesToRadians(degrees: number): number {
             }
         `,
     ],
+    standalone: false,
 })
-export class IndoorMapsComponent extends AsyncHandler implements OnInit {
+export class IndoorMapsComponent
+    extends AsyncHandler
+    implements OnInit, OnChanges, AfterViewInit
+{
     /** Custom CSS styles to apply to the map */
     @Input() public styles: ViewerStyles;
     /** List of available user actions for the map */
@@ -193,7 +200,7 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
     /** Mark location of a specific item */
     @Input() public locate: string;
     /** Default zoom level for the map */
-    @Input() public default_zoom: number = 19;
+    @Input() public default_zoom = 19;
 
     public view_instance: any;
     public maps_service: any;
@@ -229,10 +236,10 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
         map(([bld]) => [
             {
                 id: this._org.building.id,
-                name: 'All Levels',
+                name: i18n('COMMON.LEVEL_ALL'),
             },
             ...this._org.levelsForBuilding(bld),
-        ])
+        ]),
     );
     public floor_mapping: { [id: string]: string } = {};
 
@@ -242,7 +249,7 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
     constructor(
         private _api_service: MapsPeopleService,
         private _state: ExploreStateService,
-        private _org: OrganisationService
+        private _org: OrganisationService,
     ) {
         super();
     }
@@ -269,7 +276,7 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
             const searchParams = { q: this.searchElement.nativeElement.value };
             const locations =
                 await mapsindoors?.services.LocationsService.getLocations(
-                    searchParams
+                    searchParams,
                 );
             if (locations.length) this.getRoute(locations[0]);
         }
@@ -299,14 +306,13 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
         if (this._api_service.map_service === MapService.GoogleMaps) {
             log('MapsIndoors', 'Using Google Maps API');
             this.view_instance = new mapsindoors.mapView.GoogleMapsView(
-                view_options
+                view_options,
             );
         } else {
             view_options.accessToken = this._api_service.map_token;
-            console.log('View Options:', view_options);
             log('MapsIndoors', 'Using Mapbox API');
             this.view_instance = new mapsindoors.mapView.MapboxView(
-                view_options
+                view_options,
             );
         }
         if (!this.view_instance) {
@@ -314,7 +320,7 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
                 'MapsIndoors',
                 'Failed to initialise map view instance.',
                 undefined,
-                'warn'
+                'warn',
             );
             return;
         }
@@ -333,17 +339,17 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
             this._api_service.map_service === MapService.GoogleMaps
                 ? new mapsindoors.directions.GoogleMapsProvider()
                 : new mapsindoors.directions.MapboxProvider(
-                      this._api_service.map_token
+                      this._api_service.map_token,
                   );
         this.directions_service = new mapsindoors.services.DirectionsService(
-            provider
+            provider,
         );
         const directionsRendererOptions = {
             mapsIndoors: this.maps_service,
         };
         this.directions_renderer =
             new mapsindoors.directions.DirectionsRenderer(
-                directionsRendererOptions
+                directionsRendererOptions,
             );
     }
 
@@ -352,7 +358,6 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
         const input_string =
             building?.buildingInfo?.fields?.floorMapping?.value;
         const pairs = input_string?.split(',\n').map((pair) => pair.split(':'));
-        console.log('Pairs:', pairs, building);
         this.floor_mapping =
             pairs?.reduce((lvl_map, [key, value]) => {
                 lvl_map[key] = value;
@@ -398,13 +403,8 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
         const searchParams = { q: this.searchElement.nativeElement.value };
         mapsindoors?.services.LocationsService.getLocations(searchParams).then(
             (locations: any[]) => {
-                console.log(
-                    'Locations:',
-                    locations,
-                    this.map_instance.getZoom()
-                );
                 this.search_result_items = locations;
-            }
+            },
         );
     }
 
@@ -414,19 +414,18 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
                 'MapsIndoors',
                 "User's geolocation not available.",
                 undefined,
-                'warn'
+                'warn',
             );
             return this._setLocationToBuilding();
         }
         if (this.coordinates) {
-            console.log('Using custom coordinates:', this.coordinates);
             this.user_latitude = this.coordinates.latitude;
             this.user_longitude = this.coordinates.longitude;
             return;
         } else {
             navigator.geolocation.watchPosition(
                 (_) => this._updateGeolocation(_),
-                (_) => this._handleGeolocationError(_)
+                (_) => this._handleGeolocationError(_),
             );
             const options = { timeout: 10000, enableHighAccuracy: true };
             navigator.geolocation.getCurrentPosition(
@@ -447,14 +446,14 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
                     });
                 },
                 () => this._setLocationToBuilding(),
-                options
+                options,
             );
         }
     }
 
     private _userWithinRadius(
         [d_lat, d_long]: [number, number],
-        radius: number = 1
+        radius: number = 1,
     ) {
         const [lat_str, long_str] =
             this._org.building?.location.split(',') || [];
@@ -486,7 +485,7 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
             'MapsIndoors',
             'Settings location to user:',
             updated_location.coords,
-            'warn'
+            'warn',
         );
         const { latitude, longitude } = updated_location.coords;
         if (
@@ -506,7 +505,6 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
     public async getRoute(location: any) {
         this.maps_service?.highlight([]);
         if (!this.directions_service || !location) return;
-        console.log('Directions Service:', this.directions_service);
         log('MapsIndoors', 'Getting route to location:', [
             location,
             this.user_latitude,
@@ -526,7 +524,7 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
         if (
             !this._userWithinRadius(
                 [this.user_latitude, this.user_longitude],
-                1000
+                1000,
             )
         ) {
             this.map_instance.setZoom(19);
@@ -550,8 +548,6 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
             destination: destination,
         };
 
-        console.log('Route Parameters:', routeParameters);
-
         const result = await this.directions_service
             .getRoute(routeParameters)
             .catch((e) => {
@@ -559,7 +555,7 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
                     'MapsIndoors',
                     'Error fetching route: ',
                     e.message || e,
-                    'warn'
+                    'warn',
                 );
                 const origin_error =
                     e instanceof TypeError && e.message?.includes('origin');
@@ -567,7 +563,6 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
                 notifyError('Error: Origin location is outside of map area.');
             });
         if (!result) return;
-        console.log('Route:', result);
         this.directions_renderer?.setRoute(result);
     }
 

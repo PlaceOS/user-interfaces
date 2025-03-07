@@ -1,30 +1,29 @@
-import { FilterSpaceComponent } from '../app/rooms/filter-space/filter-space.component';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { MockProvider, ngMocks } from 'ng-mocks';
-import { By } from '@angular/platform-browser';
-import { of } from 'rxjs';
-import { FormsModule, ReactiveFormsModule, FormBuilder } from '@angular/forms';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { BookModule } from '../app/rooms/book.module';
 import { CommonModule } from '@angular/common';
-import { BrowserModule } from '@angular/platform-browser';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { FormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import {
-    MatBottomSheetModule,
-    MatBottomSheet,
     MAT_BOTTOM_SHEET_DATA,
+    MatBottomSheet,
+    MatBottomSheetModule,
     MatBottomSheetRef,
 } from '@angular/material/bottom-sheet';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { BrowserModule, By } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { ComponentsModule } from '@placeos/components';
 import { EventFormService } from '@placeos/events';
+import { OrganisationService } from '@placeos/organisation';
+import { MockProvider, ngMocks } from 'ng-mocks';
+import { of } from 'rxjs';
+import { BookModule } from '../app/rooms/book.module';
 import { FeaturesFilterService } from '../app/rooms/features-filter.service';
-import { ComponentsModule, InteractiveMapComponent } from '@placeos/components';
+import { FilterSpaceComponent } from '../app/rooms/filter-space/filter-space.component';
 import {
-    mockSpace,
-    mockSpaceWithViews,
     mockEventFlowOptions,
     mockForm,
+    mockSpace,
+    mockSpaceWithViews,
 } from './test-mocks';
-import { OrganisationService } from '@placeos/organisation';
 
 describe('FindSpaceComponent', () => {
     const formModel = mockForm;
@@ -95,7 +94,7 @@ describe('FindSpaceComponent', () => {
                     mockSpace,
                     mockSpace,
                     mockSpace,
-                    mockSpaceWithViews
+                    mockSpaceWithViews,
                 ),
                 options: of(mockEventFlowOptions),
             } as any),
@@ -144,11 +143,11 @@ describe('FindSpaceComponent', () => {
 
         const get_features_spy = jest.spyOn(
             filter_service,
-            'getSelectedFeatures'
+            'getSelectedFeatures',
         );
         const update_features_spy = jest.spyOn(filter_service, 'applyFilter');
         const check_boxes = spectator.debugElement.queryAll(
-            By.css('mat-checkbox')
+            By.css('mat-checkbox'),
         );
 
         spectator.component.ngOnInit();
@@ -159,7 +158,7 @@ describe('FindSpaceComponent', () => {
         spectator.detectChanges();
         expect(check_boxes).toBeTruthy();
         expect(spectator.debugElement.nativeElement.innerHTML).toContain(
-            'mat-checkbox'
+            'mat-checkbox',
         );
 
         spectator.click('button.filter-button');

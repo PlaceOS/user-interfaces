@@ -1,5 +1,4 @@
 import { Component, ElementRef, Inject, OnInit } from '@angular/core';
-import { SettingsService } from '@placeos/common';
 
 import { MAP_FEATURE_DATA } from 'libs/components/src/lib/interactive-map.component';
 
@@ -25,7 +24,7 @@ export interface DeskInfoData {
             [yPosition]="'center'"
             [hover]="true"
             [delay]="3000"
-            class="h-full w-full pointer-events-auto relative z-20"
+            class="pointer-events-auto relative z-20 h-full w-full"
             [attr.id]="id"
             [attr.map_id]="map_id"
         ></div>
@@ -34,7 +33,7 @@ export interface DeskInfoData {
                 name="space-info"
                 [id]="map_id"
                 [class]="
-                    'absolute rounded bg-base-100 p-4 top-0 left-0 shadow pointer-events-none ' +
+                    'pointer-events-none absolute left-0 top-0 rounded bg-base-100 p-4 shadow ' +
                     x_pos +
                     ' ' +
                     y_pos
@@ -81,6 +80,7 @@ export interface DeskInfoData {
             }
         `,
     ],
+    standalone: false,
 })
 export class ExploreDeskInfoComponent implements OnInit {
     /** Space to display details for */
@@ -99,10 +99,10 @@ export class ExploreDeskInfoComponent implements OnInit {
 
     constructor(
         @Inject(MAP_FEATURE_DATA) private _details: DeskInfoData,
-        private _element: ElementRef<HTMLElement>
+        private _element: ElementRef<HTMLElement>,
     ) {}
 
-    public ngOnInit(tries: number = 0) {
+    public ngOnInit(tries = 0) {
         if (tries > 10) return;
         setTimeout(() => {
             const parent =

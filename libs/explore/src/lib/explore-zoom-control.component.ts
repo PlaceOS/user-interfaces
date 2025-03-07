@@ -10,8 +10,7 @@ import { ExploreStateService } from './explore-state.service';
             matRipple
             class="bg-base-100"
             (click)="zoomIn()"
-            matTooltip="Zoom In"
-            i18n-matTooltip
+            [matTooltip]="'EXPLORE.ZOOM_IN' | translate"
         >
             <app-icon>add</app-icon>
         </button>
@@ -21,8 +20,7 @@ import { ExploreStateService } from './explore-state.service';
             matRipple
             class="bg-base-100"
             (click)="zoomOut()"
-            matTooltip="Zoom Out"
-            i18n-matTooltip
+            [matTooltip]="'EXPLORE.ZOOM_OUT' | translate"
         >
             <app-icon>remove</app-icon>
         </button>
@@ -32,8 +30,7 @@ import { ExploreStateService } from './explore-state.service';
             matRipple
             class="bg-base-100"
             (click)="reset()"
-            matTooltip="Reset Zoom & Center"
-            i18n-matTooltip
+            [matTooltip]="'EXPLORE.ZOOM_RESET' | translate"
         >
             <app-icon>autorenew</app-icon>
         </button>
@@ -61,17 +58,18 @@ import { ExploreStateService } from './explore-state.service';
             }
         `,
     ],
+    standalone: false,
 })
 export class ExploreZoomControlComponent {
     public readonly zoomIn = () =>
         this._state.setPositions(
             Math.min(10, this._state.positions.zoom * 1.2),
-            this._state.positions.center
+            this._state.positions.center,
         );
     public readonly zoomOut = () =>
         this._state.setPositions(
             Math.max(1, this._state.positions.zoom * (1 / 1.2)),
-            this._state.positions.center
+            this._state.positions.center,
         );
     public readonly reset = () =>
         this._state.setPositions(1, { x: 0.5, y: 0.5 });

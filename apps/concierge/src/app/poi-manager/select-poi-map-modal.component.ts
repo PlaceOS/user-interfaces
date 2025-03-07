@@ -1,4 +1,5 @@
 import { Component, Inject } from '@angular/core';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { AsyncHandler, MapsPeopleService, unique } from '@placeos/common';
 import { BuildingLevel, OrganisationService } from '@placeos/organisation';
 import { Rect } from '@placeos/svg-viewer/dist/types';
@@ -13,7 +14,6 @@ import {
 } from 'rxjs/operators';
 import { MapShowElementComponent } from './map-show-element.component';
 import { PointOfInterest } from './poi-management.service';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 type BoundsMap = Record<string, Rect>;
 
@@ -23,15 +23,15 @@ declare let mapsindoors: any;
     selector: 'select-poi-map-modal',
     template: `
         <header>
-            <h2>Select Point of Interest from Map</h2>
+            <h2>{{ 'APP.CONCIERGE.POI_MAP_SELECT_HEADER' | translate }}</h2>
             <button icon matRipple mat-dialog-close>
                 <app-icon>close</app-icon>
             </button>
         </header>
         <main
-            class="flex min-w-[80vw] max-w-[calc(100vw-2rem)] sm:max-w-[64rem] max-h-[75vh] h-[75vh] overflow-hidden"
+            class="flex h-[75vh] max-h-[75vh] min-w-[80vw] max-w-[calc(100vw-2rem)] overflow-hidden sm:max-w-[64rem]"
         >
-            <div map class="relative h-full flex-1 w-1/2 bg-base-200">
+            <div map class="relative h-full w-1/2 flex-1 bg-base-200">
                 <interactive-map
                     [src]="level?.map_id"
                     [actions]="actions"
@@ -43,11 +43,11 @@ declare let mapsindoors: any;
             </div>
             <div
                 poi-list
-                class="relative flex flex-col h-full w-[20rem] border-l border-base-300 shadow"
+                class="relative flex h-full w-[20rem] flex-col border-l border-base-300 shadow"
             >
                 <div search class="flex flex-col border-b border-base-200 p-2">
                     <mat-form-field
-                        class="w-full no-subscript mb-2"
+                        class="no-subscript mb-2 w-full"
                         appearance="outline"
                     >
                         <mat-select
@@ -64,7 +64,7 @@ declare let mapsindoors: any;
                         </mat-select>
                     </mat-form-field>
                     <mat-form-field
-                        class="w-full no-subscript"
+                        class="no-subscript w-full"
                         appearance="outline"
                     >
                         <input
@@ -73,17 +73,24 @@ declare let mapsindoors: any;
                             placeholder="Search"
                             [ngModel]="search | async"
                             (ngModelChange)="search.next($event)"
-                            i18n-placeholder="@@searchPlaceholder"
                         />
                         <app-icon matPrefix class="text-2xl">search</app-icon>
                     </mat-form-field>
                 </div>
                 <div
                     list
-                    class="flex flex-col flex-1 h-1/2 overflow-auto space-y-2 px-2"
+                    class="flex h-1/2 flex-1 flex-col space-y-2 overflow-auto px-2"
                 >
-                    <div class="sticky top-0 w-full bg-base-100 px-1 py-3 z-10">
-                        Results ({{ (search_results | async)?.length || 0 }})
+                    <div class="sticky top-0 z-10 w-full bg-base-100 px-1 py-3">
+                        {{
+                            'APP.CONCIERGE.POI_MAP_SELECT_RESULTS'
+                                | translate
+                                    : {
+                                          count:
+                                              (search_results | async)
+                                                  ?.length || 0,
+                                      }
+                        }}
                         <span *ngIf="last_page">
                             {{ page * 100 + 1 }} -
                             {{
@@ -106,9 +113,9 @@ declare let mapsindoors: any;
                             *ngFor="
                                 let poi of search_results
                                     | async
-                                    | slice: page * 100:page * 100 + 100
+                                    | slice: page * 100 : page * 100 + 100
                             "
-                            class="clear flex items-center text-left w-full hover:bg-base-200 rounded"
+                            class="clear flex w-full items-center rounded text-left hover:bg-base-200"
                             [class.!bg-primary]="poi.id === selected.value"
                             [class.!text-primary-content]="
                                 poi.id === selected.value
@@ -116,7 +123,7 @@ declare let mapsindoors: any;
                             (click)="selected.next(poi.id)"
                             (mouseover)="hovered.next(poi.id)"
                         >
-                            <div class="flex flex-col w-full">
+                            <div class="flex w-full flex-col">
                                 <div class="">{{ poi.name || poi.id }}</div>
                                 <div
                                     class="text-xs opacity-30"
@@ -130,12 +137,12 @@ declare let mapsindoors: any;
                     <div
                         pagination
                         *ngIf="last_page > 0"
-                        class="sticky flex items-center justify-center bottom-0 w-full bg-base-100 p-2 z-10 space-x-1"
+                        class="sticky bottom-0 z-10 flex w-full items-center justify-center space-x-1 bg-base-100 p-2"
                     >
                         <button
                             icon
                             matRipple
-                            class="border border-base-200 rounded"
+                            class="rounded border border-base-200"
                             [disabled]="page === 0"
                             (click)="page = page - 1"
                         >
@@ -168,7 +175,7 @@ declare let mapsindoors: any;
                         <button
                             icon
                             matRipple
-                            class="border border-base-200 rounded"
+                            class="rounded border border-base-200"
                             [class.!bg-secondary]="page === last_page"
                             [class.text-secondary-content]="page === last_page"
                             [class.!rounded-full]="page === last_page"
@@ -179,7 +186,7 @@ declare let mapsindoors: any;
                         <button
                             icon
                             matRipple
-                            class="border border-base-200 rounded"
+                            class="rounded border border-base-200"
                             [disabled]="page === last_page"
                             (click)="page = page + 1"
                         >
@@ -188,19 +195,22 @@ declare let mapsindoors: any;
                     </div>
                     <ng-template #empty_state>
                         <div
-                            class="flex flex-col items-center justify-center h-full flex-1 space-y-4"
+                            class="flex h-full flex-1 flex-col items-center justify-center space-y-4"
                         >
                             <img
                                 src="assets/icons/no-results.svg"
                                 class="w-36"
                             />
                             <div class="text-center opacity-30">
-                                No results found
+                                {{
+                                    'APP.CONCIERGE.POI_MAP_SELECT_RESULTS_EMPTY'
+                                        | translate
+                                }}
                             </div>
                         </div>
                     </ng-template>
                 </div>
-                <div actions class="p-2 border-t border-base-200">
+                <div actions class="border-t border-base-200 p-2">
                     <button
                         btn
                         matRipple
@@ -208,13 +218,14 @@ declare let mapsindoors: any;
                         class="w-full"
                         [mat-dialog-close]="selected.value"
                     >
-                        Save
+                        {{ 'COMMON.SAVE' | translate }}
                     </button>
                 </div>
             </div>
         </main>
     `,
     styles: [``],
+    standalone: false,
 })
 export class SelectPOIMapModalComponent extends AsyncHandler {
     public selected_item: any;
@@ -251,9 +262,9 @@ export class SelectPOIMapModalComponent extends AsyncHandler {
                         no_scale: true,
                     },
                 ].filter((_) => _.location),
-                'location'
-            )
-        )
+                'location',
+            ),
+        ),
     );
 
     public poiItemFromMapsIndoorsItem(item: any) {
@@ -276,20 +287,19 @@ export class SelectPOIMapModalComponent extends AsyncHandler {
     ]).pipe(
         debounceTime(300),
         switchMap(([q, available]) => {
-            console.log('Search:', q, available);
             return available
                 ? q.length > 2
                     ? mapsindoors?.services.LocationsService.getLocations({
                           q,
                       }).then((l) => {
                           const list = l.map((i) =>
-                              this.poiItemFromMapsIndoorsItem(i)
+                              this.poiItemFromMapsIndoorsItem(i),
                           );
                           if (this.selected_item) {
                               list.unshift(
                                   this.poiItemFromMapsIndoorsItem(
-                                      this.selected_item
-                                  )
+                                      this.selected_item,
+                                  ),
                               );
                           }
                           return list;
@@ -298,10 +308,10 @@ export class SelectPOIMapModalComponent extends AsyncHandler {
                           this.selected_item
                               ? [
                                     this.poiItemFromMapsIndoorsItem(
-                                        this.selected_item
+                                        this.selected_item,
                                     ),
                                 ]
-                              : []
+                              : [],
                       )
                 : of(
                       Object.entries(this.map_info)
@@ -312,16 +322,16 @@ export class SelectPOIMapModalComponent extends AsyncHandler {
                           .filter(
                               ({ id, area }) =>
                                   id.toLowerCase().includes(q.toLowerCase()) &&
-                                  area < 0.5
+                                  area < 0.5,
                           )
-                          .sort((a, b) => b.area - a.area)
+                          .sort((a, b) => b.area - a.area),
                   );
         }),
         tap((l: any[]) => {
             this.page = 0;
             this.last_page = Math.floor(l.length / 100);
         }),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     public readonly setMapInfo = (info: BoundsMap) => (this.map_info = info);
@@ -329,13 +339,12 @@ export class SelectPOIMapModalComponent extends AsyncHandler {
     constructor(
         @Inject(MAT_DIALOG_DATA) private _data: PointOfInterest,
         private _org: OrganisationService,
-        private _maps_people: MapsPeopleService
+        private _maps_people: MapsPeopleService,
     ) {
         super();
     }
 
     public async ngOnInit() {
-        console.log('Data:', this._data);
         if (this._data?.location && typeof this._data.location === 'string') {
             this.selected.next(this._data.location as string);
         }
@@ -375,14 +384,11 @@ export class SelectPOIMapModalComponent extends AsyncHandler {
                 short_list.sort((a, b) => a[1] - b[1]);
                 short_list.filter(([_, a]) => a <= 0.5);
                 if (short_list.length) {
-                    console.log('Selected ID:', short_list[0][0]);
                     this.selected.next(short_list[0][0]);
                 }
             } else {
-                console.log('Item:', e);
                 const id =
                     e.properties?.externalId || e.properties?.roomId || e.id;
-                console.log('Selected ID:', id);
                 this.selected_item = e;
                 if (id) this.selected.next(id);
                 this.changed.next(Date.now());

@@ -20,14 +20,11 @@ import { UIModule } from '../ui/ui.module';
 import { BuildingListComponent } from './pages/building-list.component';
 import { NotFoundComponent } from './pages/not-found.component';
 
-import { BuildingListItemComponent } from './components/building-list-item.component';
-
 import { SurveySuiteModule } from '@placeos/survey-suite';
 import { SurveyModule } from 'survey-angular-ui';
 import { QuestionBankComponent } from './components/question-bank/question-bank.component';
 import { SearchInputComponent } from './components/search-input.component';
-import { SurveyBuilderComponent } from './components/survey-builder/survey-builder.component';
-import { SurveyCreatorTopbarComponent } from './components/survey-creator-topbar.component';
+import { NewSurveyComponent } from './new-survey.component';
 import { ModQuestionOverlayComponent } from './overlays/mod-question-overlay.component';
 import { ModSurveyComponent } from './pages/mod-survey.component';
 import { RunSurveyComponent } from './pages/run-survey.component';
@@ -37,25 +34,25 @@ import { QuestionBankService } from './services/question-bank.service';
 import { SurveyBuilderService } from './services/survey-builder.service';
 import { SurveyService } from './services/survey.service';
 import { SurveyComponent } from './survey.component';
-import { NewSurveyComponent } from './new-survey.component';
 
 import { StylesManager } from 'survey-core';
 
 //SurveyJS styling
 StylesManager.applyTheme('modern');
 
-const children: Route[] = [
-    { path: '', component: BuildingListComponent },
-    { path: 'survey-list/:id', component: SurveyListingsComponent },
-    { path: 'builder', component: ModSurveyComponent },
-    { path: 'responses/:id', component: SurveyResponsesComponent },
-    { path: '**', pathMatch: 'full', component: NotFoundComponent },
-];
-
 const routes: Route[] = [
-    { path: 'new', component: NewSurveyComponent, children },
     { path: 'run/:id', component: RunSurveyComponent },
-    { path: '', component: SurveyComponent, children },
+    {
+        path: '',
+        component: NewSurveyComponent,
+        children: [
+            { path: '', component: BuildingListComponent },
+            { path: 'survey-list/:id', component: SurveyListingsComponent },
+            { path: 'builder', component: ModSurveyComponent },
+            { path: 'responses/:id', component: SurveyResponsesComponent },
+            { path: '**', pathMatch: 'full', component: NotFoundComponent },
+        ],
+    },
     { path: '404', component: NotFoundComponent },
     { path: '**', pathMatch: 'full', component: NotFoundComponent },
 ];
@@ -64,12 +61,9 @@ const COMPONENTS = [
     SurveyComponent,
     NewSurveyComponent,
     BuildingListComponent,
-    BuildingListItemComponent,
     NotFoundComponent,
     ModQuestionOverlayComponent,
     QuestionBankComponent,
-    SurveyBuilderComponent,
-    SurveyCreatorTopbarComponent,
     ModSurveyComponent,
     SearchInputComponent,
     SurveyListingsComponent,

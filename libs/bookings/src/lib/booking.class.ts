@@ -3,7 +3,6 @@ import {
     capitalizeFirstLetter,
     removeEmptyFields,
 } from '@placeos/common';
-import { User } from 'libs/users/src/lib/user.class';
 import {
     add,
     addHours,
@@ -18,6 +17,7 @@ import {
     startOfDay,
 } from 'date-fns';
 import { AssetRequest } from 'libs/assets/src/lib/asset-request.class';
+import { User } from 'libs/users/src/lib/user.class';
 
 export type BookingType =
     | 'desk'
@@ -28,6 +28,7 @@ export type BookingType =
     | 'asset-request'
     | 'staff'
     | 'group-event'
+    | 'catering-order'
     | ' ';
 const IGNORE_EXT_KEYS = ['user', 'booked_by', 'resources', 'assets', 'members'];
 
@@ -46,6 +47,16 @@ export enum RecurrenceDays {
     SATURDAY = 1 << 0,
 }
 
+export const DAYS_OF_WEEK_INDEX = [
+    RecurrenceDays.SUNDAY,
+    RecurrenceDays.MONDAY,
+    RecurrenceDays.TUESDAY,
+    RecurrenceDays.WEDNESDAY,
+    RecurrenceDays.THURSDAY,
+    RecurrenceDays.FRIDAY,
+    RecurrenceDays.SATURDAY,
+];
+
 export interface LinkedCalendarEvent {
     id?: string;
     date: number;
@@ -55,6 +66,19 @@ export interface LinkedCalendarEvent {
     resource_calendar: string;
     event_id: string;
     host_email: string;
+}
+
+export enum WeekOfMonth {
+    First = 1,
+    Second = 2,
+    Third = 3,
+    Fourth = 4,
+    Fifth = 5,
+    Last = -1,
+    SecondLast = -2,
+    ThirdLast = -3,
+    FourthLast = -4,
+    FifthLast = -5,
 }
 
 /** General purpose booking class */
@@ -130,7 +154,7 @@ export class Booking {
     /** Default type */
     public readonly access: boolean;
     /** Whether asset has been inducted */
-    public readonly induction: boolean;
+    public readonly induction?: 'tentative' | 'accepted' | 'declined';
     /** Status of the booking */
     public readonly status:
         | 'declined'
@@ -144,6 +168,8 @@ export class Booking {
     public readonly attendees: User[];
     /** Time  */
     public readonly checked_out_at?: number;
+    /** Time  */
+    public readonly checked_in_at?: number;
 
     public readonly linked_event?: LinkedCalendarEvent;
 
@@ -157,17 +183,7 @@ export class Booking {
     /** Bit flags for the recurrence days of the week */
     public readonly recurrence_days?: number;
     /** Week of the month to recur on */
-    public readonly recurrence_nth_of_month?:
-        | 1
-        | 2
-        | 3
-        | 4
-        | 5
-        | -1
-        | -2
-        | -3
-        | -4
-        | -5;
+    public readonly recurrence_nth_of_month?: WeekOfMonth;
     /** How often to recur */
     public readonly recurrence_interval?: number;
     /** Unix epoch for the end time of the recurrence in seconds */
@@ -181,18 +197,18 @@ export class Booking {
         return this.all_day || this.duration >= 12 * 60;
     }
 
-    private _b_valid_asset_cache = [];
-    private _b_valid_cache_expiry = 0;
+    _valid_asset_cache = [];
+    _valid_cache_expiry = 0;
 
     public get valid_assets() {
         if (
-            this._b_valid_cache_expiry > Date.now() &&
-            this._b_valid_asset_cache.length
+            this._valid_cache_expiry > Date.now() &&
+            this._valid_asset_cache.length
         ) {
-            return this._b_valid_asset_cache;
+            return this._valid_asset_cache;
         }
         const list = this.linked_bookings;
-        this._b_valid_asset_cache = (this.extension_data.assets || [])
+        this._valid_asset_cache = (this.extension_data.assets || [])
             .map((request) => new AssetRequest({ ...request, event: this }))
             .filter((request) => request.deliver_at < this.date_end)
             .map((request) => {
@@ -208,8 +224,8 @@ export class Booking {
                 }
                 return request;
             });
-        this._b_valid_cache_expiry = addMinutes(Date.now(), 5).valueOf();
-        return this._b_valid_asset_cache;
+        this._valid_cache_expiry = addMinutes(Date.now(), 5).valueOf();
+        return this._valid_asset_cache;
     }
 
     constructor(data: Partial<BookingComplete> = {}) {
@@ -281,11 +297,7 @@ export class Booking {
         this.tags = data.tags || data.extension_data?.tags || [];
         this.images = data.images || [];
         this.all_day = data.all_day || this.duration >= 24 * 60;
-        this.induction =
-            (data.induction ||
-                data.extension_data?.induction ||
-                data.process_state === 'inducted') ??
-            false;
+        this.induction = data.induction || undefined;
         if (this.all_day) {
             (this as any).date = startOfDay(this.date).getTime();
             (this as any).duration = Math.max(
@@ -297,11 +309,12 @@ export class Booking {
             ).getTime();
         }
         this.checked_out_at = data.checked_out_at;
+        this.checked_in_at = data.checked_in_at;
         this.linked_event = data.linked_event || null;
         this.linked_bookings = data.linked_bookings || [];
         this.images = data.images || [];
         this.status =
-            this.checked_out_at > 0
+            this.checked_out_at > 0 || isAfter(Date.now(), this.date_end)
                 ? 'ended'
                 : this.rejected || this.deleted
                   ? 'declined'
@@ -350,8 +363,10 @@ export class Booking {
             });
         }
         if (!data.parent_id) delete data.parent_id;
+        data.zones = data.zones.filter((_) => _);
         delete data.date;
         delete data.duration;
+        delete data.process_state;
         removeEmptyFields(data);
         return data;
     }

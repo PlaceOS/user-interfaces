@@ -17,16 +17,16 @@ const EMPTY_FAVS: string[] = [];
         <div list class="space-y-2">
             <div
                 space
-                class="relative p-2 rounded-lg w-full flex items-center shadow border border-base-200"
+                class="relative flex w-full items-center rounded-lg border border-base-200 p-2 shadow"
                 *ngFor="let space of spaces"
             >
                 <div
-                    class="w-24 h-24 rounded-xl bg-base-200 mr-4 overflow-hidden flex items-center justify-center"
+                    class="mr-4 flex h-24 w-24 items-center justify-center overflow-hidden rounded-xl bg-base-200"
                 >
                     <img
                         auth
                         *ngIf="space.images?.length; else placeholder"
-                        class="object-cover h-full"
+                        class="h-full object-cover"
                         [source]="space.images[0]"
                     />
                     <ng-template #placeholder>
@@ -40,7 +40,7 @@ const EMPTY_FAVS: string[] = [];
                     <div class="font-medium">
                         {{ space.name || 'Meeting Resource' }}
                     </div>
-                    <div class="flex items-center text-sm space-x-2">
+                    <div class="flex items-center space-x-2 text-sm">
                         <app-icon class="text-blue-500">place</app-icon>
                         <p>
                             {{
@@ -50,14 +50,6 @@ const EMPTY_FAVS: string[] = [];
                                     space.zone?.display_name ||
                                     space.zone?.name
                             }}
-                        </p>
-                    </div>
-                    <div class="flex items-center text-sm space-x-2">
-                        <app-icon class="text-blue-500">people</app-icon>
-                        <p i18n>
-                            {{ space.capacity < 1 ? 2 : space.capacity || 1 }} {
-                            (space.capacity < 1 ? 2 : space.capacity || 1),
-                            plural, =1 { Person } other { People } }
                         </p>
                     </div>
                     <div
@@ -70,9 +62,9 @@ const EMPTY_FAVS: string[] = [];
                             class="clear"
                             (click)="changeResources(space)"
                         >
-                            <div class="flex items-center space-x-2" i18n>
+                            <div class="flex items-center space-x-2">
                                 <app-icon class="text-2xl">edit</app-icon>
-                                <div>Change</div>
+                                <div>{{ 'COMMON.CHANGE' | translate }}</div>
                             </div>
                         </button>
                         <button
@@ -82,9 +74,9 @@ const EMPTY_FAVS: string[] = [];
                             class="clear"
                             (click)="removeResource(space)"
                         >
-                            <div class="flex items-center space-x-2" i18n>
+                            <div class="flex items-center space-x-2">
                                 <app-icon class="text-2xl">close</app-icon>
-                                <div>Remove</div>
+                                <div>{{ 'COMMON.REMOVE' | translate }}</div>
                             </div>
                         </button>
                     </div>
@@ -93,8 +85,8 @@ const EMPTY_FAVS: string[] = [];
                     icon
                     matRipple
                     fav
-                    class="absolute top-1 right-1"
-                    [class.text-blue-400]="favorites.includes(asset?.id)"
+                    class="absolute right-1 top-1"
+                    [class.text-info]="favorites.includes(asset?.id)"
                     (click)="toggleFavourite(asset)"
                 >
                     <app-icon>{{
@@ -109,16 +101,16 @@ const EMPTY_FAVS: string[] = [];
             btn
             matRipple
             add-space
-            class="w-full inverse mt-2"
+            class="inverse mt-2 w-full"
             (click)="changeResources()"
         >
             <div class="flex items-center justify-center space-x-2">
                 <app-icon class="text-2xl">search</app-icon>
-                <span i18n>Add Parking Resource</span>
+                <span>{{ 'BOOKINGS.PARKING_ADD' | translate }}</span>
             </div>
         </button>
-        <div class="flex items-center flex-wrap sm:space-x-2 mb-2">
-            <div class="flex-1 min-w-[256px] space-y-2"></div>
+        <div class="mb-2 flex flex-wrap items-center sm:space-x-2">
+            <div class="min-w-[256px] flex-1 space-y-2"></div>
         </div>
     `,
     styles: [``],
@@ -129,6 +121,7 @@ const EMPTY_FAVS: string[] = [];
             multi: true,
         },
     ],
+    standalone: false,
 })
 export class ParkingSpaceListFieldComponent implements ControlValueAccessor {
     @Input() public disable_date = false;
@@ -145,7 +138,7 @@ export class ParkingSpaceListFieldComponent implements ControlValueAccessor {
 
     constructor(
         private _settings: SettingsService,
-        private _dialog: MatDialog
+        private _dialog: MatDialog,
     ) {}
 
     /** Add or edit selected spaces */
@@ -188,12 +181,8 @@ export class ParkingSpaceListFieldComponent implements ControlValueAccessor {
         this.spaces = value || [];
     }
 
-    /* istanbul ignore next */
-    public readonly registerOnChange = (fn: (_: BookingAsset[]) => void) =>
-        (this._onChange = fn);
-    /* istanbul ignore next */
-    public readonly registerOnTouched = (fn: (_: BookingAsset[]) => void) =>
-        (this._onTouch = fn);
+    public readonly registerOnChange = (fn) => (this._onChange = fn);
+    public readonly registerOnTouched = (fn) => (this._onTouch = fn);
     public readonly setDisabledState = (s: boolean) => (this.disabled = s);
 
     public toggleFavourite(space: BookingAsset) {
@@ -207,7 +196,7 @@ export class ParkingSpaceListFieldComponent implements ControlValueAccessor {
         } else {
             this._settings.saveUserSetting(
                 FAV_PARKING_KEY,
-                fav_list.filter((_) => _ !== space.id)
+                fav_list.filter((_) => _ !== space.id),
             );
         }
     }

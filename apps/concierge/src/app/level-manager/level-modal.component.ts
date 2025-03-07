@@ -1,29 +1,28 @@
 import { Component, Inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { getInvalidFields, notifyError } from '@placeos/common';
+import { getInvalidFields, i18n, notifyError } from '@placeos/common';
 import { BuildingLevel, OrganisationService } from '@placeos/organisation';
 import { addZone, authority, updateZone } from '@placeos/ts-client';
 
 @Component({
     selector: 'level-modal',
     template: `
-        <header>
-            <h2>{{ form.value.id ? 'Edit' : 'Add' }} Level</h2>
-            <button btn icon mat-dialog-close *ngIf="!loading">
-                <app-icon>close</app-icon>
-            </button>
-        </header>
-        <main
-            class="max-h-[65vh] overflow-y-auto overflow-x-hidden p-4"
-            *ngIf="!loading; else load_state"
+        <fullscreen-modal-shell
+            [heading]="
+                (form.value.id
+                    ? 'APP.CONCIERGE.LEVELS_EDIT'
+                    : 'APP.CONCIERGE.LEVELS_NEW'
+                ) | translate
+            "
+            [loading]="
+                (loading | async)
+                    ? ('APP.CONCIERGE.LEVELS_SAVING' | translate)
+                    : ''
+            "
+            (confirm)="save()"
         >
-            <form
-                system
-                class="flex flex-col w-[36rem] max-w-[calc(100vw-4rem)]"
-                *ngIf="form"
-                [formGroup]="form"
-            >
+            <form system [formGroup]="form">
                 <div class="flex flex-col" *ngIf="form.controls.parent_id">
                     <label
                         for="zone"
@@ -31,14 +30,13 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
                             form.controls.parent_id.invalid &&
                             form.controls.parent_id.touched
                         "
-                        i18n="@@zoneLabel"
                     >
-                        Building<span>*</span>:
+                        {{ 'RESOURCE.BUILDING' | translate }}<span>*</span>
                     </label>
                     <mat-form-field appearance="outline">
                         <mat-select
                             formControlName="parent_id"
-                            placeholder="Select Building"
+                            [placeholder]="'COMMON.BUILDING_SELECT' | translate"
                         >
                             <mat-option
                                 *ngFor="let building of building_list | async"
@@ -47,56 +45,54 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
                                 {{ building.display_name || building.name }}
                             </mat-option>
                         </mat-select>
-                        <mat-error>Building is required</mat-error>
+                        <mat-error>{{
+                            'APP.CONCIERGE.LEVELS_BUILDING_REQUIRED' | translate
+                        }}</mat-error>
                     </mat-form-field>
                 </div>
                 <div class="flex flex-col" *ngIf="form.controls.display_name">
-                    <label for="display-name" i18n="@@displayNameLabel">
-                        Display Name:
-                    </label>
+                    <label for="display-name">{{
+                        'FORM.DISPLAY_NAME' | translate
+                    }}</label>
                     <mat-form-field appearance="outline">
                         <input
                             matInput
                             name="display-name"
-                            placeholder="Display Name"
-                            i18n-placeholder="@@displayNamePlaceholder"
+                            [placeholder]="'FORM.DISPLAY_NAME' | translate"
                             formControlName="display_name"
                         />
                     </mat-form-field>
                 </div>
+                <div class="flex space-x-4 pb-4" *ngIf="form.controls.parking">
+                    <settings-toggle
+                        class="flex-1"
+                        [name]="'APP.CONCIERGE.LEVELS_HAS_PARKING' | translate"
+                        formControlName="parking"
+                    >
+                    </settings-toggle>
+                    <div class="flex-1"></div>
+                </div>
                 <div class="flex flex-col" *ngIf="form.controls.map_id">
-                    <label for="map-id" i18n="@@mapIdLabel"> Map URL: </label>
+                    <label for="map-id">{{
+                        'APP.CONCIERGE.LEVELS_MAP_URL' | translate
+                    }}</label>
                     <mat-form-field appearance="outline">
                         <input
                             matInput
                             name="map-id"
-                            placeholder="URL of the Map SVG file"
-                            i18n-placeholder="@@mapIdPlaceholder"
+                            [placeholder]="
+                                'APP.CONCIERGE.LEVELS_MAP_URL_PLACEHOLDER'
+                                    | translate
+                            "
                             formControlName="map_id"
                         />
                     </mat-form-field>
                 </div>
-                <div class="flex flex-col py-2" *ngIf="form.controls.parking">
-                    <mat-checkbox name="parking" formControlName="parking">
-                        Has Parking Spaces
-                    </mat-checkbox>
-                </div>
             </form>
-        </main>
-        <footer
-            class="p-2 flex justify-end border-t border-base-200"
-            *ngIf="!loading"
-        >
-            <button btn class="w-32" (click)="save()">Save</button>
-        </footer>
-        <ng-template #load_state>
-            <div class="flex flex-col items-center justify-center w-64 h-64">
-                <mat-spinner diameter="32"></mat-spinner>
-                <p class="mt-4">Saving level...</p>
-            </div>
-        </ng-template>
+        </fullscreen-modal-shell>
     `,
     styles: [``],
+    standalone: false,
 })
 export class LevelModalComponent {
     public loading = false;
@@ -114,36 +110,37 @@ export class LevelModalComponent {
             Validators.required,
         ]),
         parking: new FormControl(
-            this._data?.tags?.includes('parking') || false
+            this._data?.tags?.includes('parking') || false,
         ),
     });
 
     constructor(
         private _org: OrganisationService,
         @Inject(MAT_DIALOG_DATA) private _data: BuildingLevel | undefined,
-        private _dialog_ref: MatDialogRef<LevelModalComponent>
+        private _dialog_ref: MatDialogRef<LevelModalComponent>,
     ) {}
 
     public async save() {
         if (!this.form.valid) {
             return notifyError(
-                `Some form fields are invalid. [${getInvalidFields(
-                    this.form
-                ).join(', ')}]`
+                i18n('FORM.INVALID_FIELDS', {
+                    field_list: getInvalidFields(this.form).join(', '),
+                }),
             );
         }
         this.loading = true;
         const data: any = this.form.getRawValue();
         data.tags = data.parking ? ['level', 'parking'] : ['level'];
-        const resp = await (data.id
-            ? updateZone(data.id, {
-                  ...data,
-                  name: `LEVEL ${authority().description} ${data.display_name}`,
-              })
-            : addZone({
-                  ...data,
-                  name: `LEVEL ${authority().description} ${data.display_name}`,
-              })
+        const resp = await (
+            data.id
+                ? updateZone(data.id, {
+                      ...data,
+                      name: `LEVEL ${authority().description} ${data.display_name}`,
+                  })
+                : addZone({
+                      ...data,
+                      name: `LEVEL ${authority().description} ${data.display_name}`,
+                  })
         )
             .toPromise()
             .catch();

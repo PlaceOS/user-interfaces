@@ -6,21 +6,18 @@ import { AsyncHandler } from '@placeos/common';
 @Component({
     selector: 'placeos-book-parking-flow',
     template: `
-        <div class="bg-base-100 h-full w-full">
+        <div class="h-full w-full bg-base-100">
             <ng-container [ngSwitch]="view">
-                <ng-container *ngSwitchCase="'confirm'">
-                    <parking-flow-confirm></parking-flow-confirm>
-                </ng-container>
-                <ng-container *ngSwitchCase="'success'">
-                    <flow-success
-                        [calendar]="last_success?.host"
-                        route="parking"
-                        type="parking"
-                    ></flow-success>
-                </ng-container>
-                <ng-container *ngSwitchDefault>
-                    <parking-flow-map></parking-flow-map>
-                </ng-container>
+                <parking-flow-confirm
+                    *ngSwitchCase="'confirm'"
+                ></parking-flow-confirm>
+                <flow-success
+                    *ngSwitchCase="'success'"
+                    [calendar]="last_success?.host"
+                    route="parking"
+                    type="parking"
+                ></flow-success>
+                <parking-flow-map *ngSwitchDefault></parking-flow-map>
             </ng-container>
         </div>
     `,
@@ -33,6 +30,7 @@ import { AsyncHandler } from '@placeos/common';
             }
         `,
     ],
+    standalone: false,
 })
 export class BookParkingFlowComponent extends AsyncHandler implements OnInit {
     public get view() {
@@ -44,7 +42,7 @@ export class BookParkingFlowComponent extends AsyncHandler implements OnInit {
 
     constructor(
         private _state: BookingFormService,
-        private _route: ActivatedRoute
+        private _route: ActivatedRoute,
     ) {
         super();
     }
@@ -52,20 +50,20 @@ export class BookParkingFlowComponent extends AsyncHandler implements OnInit {
     public ngOnInit() {
         this._state.setOptions({ type: 'parking' });
         this._state.loadForm();
-        if (!this._state.form) this._state.newForm();
+        if (!this._state.form.value.id) this._state.newForm();
         this.subscription(
             'route.params',
             this._route.paramMap.subscribe((param) => {
                 if (param.has('step'))
                     this._state.setView(param.get('step') as any);
-            })
+            }),
         );
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((param) => {
                 if (param.has('success'))
                     this._state.setView(param.get('success') as any);
-            })
+            }),
         );
     }
 }

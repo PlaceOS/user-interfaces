@@ -20,15 +20,15 @@ describe('LandingComponent', () => {
             MockComponent(LandingUpcomingComponent),
             MockComponent(TopbarComponent),
             MockComponent(FooterMenuComponent),
-            MockComponent(IconComponent)
+            MockComponent(IconComponent),
         ],
         providers: [
             MockProvider(SettingsService),
-            MockProvider(OrganisationService)
-        ]
+            MockProvider(OrganisationService),
+        ],
     });
 
-    beforeEach(() => spectator = createComponent());
+    beforeEach(() => (spectator = createComponent()));
 
     it('should create component', () => {
         expect(spectator.component).toBeTruthy();
@@ -38,5 +38,5 @@ describe('LandingComponent', () => {
         spectator.component.time = 1;
         spectator.detectChanges();
         expect('[date]').toContainText('1970');
-    })
+    });
 });

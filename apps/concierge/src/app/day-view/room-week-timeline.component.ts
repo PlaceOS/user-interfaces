@@ -1,0 +1,364 @@
+import { DatePipe } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import {
+    AsyncHandler,
+    getTimezoneOffsetInMinutes,
+    getTimezoneOffsetString,
+    i18n,
+    SettingsService,
+} from '@placeos/common';
+import {
+    CalendarEvent,
+    EventDetailsModalComponent,
+    SetupBreakdownModalComponent,
+} from '@placeos/events';
+import { OrganisationService } from '@placeos/organisation';
+import {
+    addDays,
+    isSameDay,
+    isSameWeek,
+    setHours,
+    startOfMinute,
+    startOfWeek,
+} from 'date-fns';
+import { combineLatest } from 'rxjs';
+import { map, shareReplay, startWith } from 'rxjs/operators';
+import { EventsStateService } from './events-state.service';
+
+@Component({
+    selector: 'room-week-bookings-timeline',
+    template: `
+        <div
+            class="mx-2 mt-2 w-[calc(100%-1rem)] rounded-lg bg-info p-2 text-center text-xs text-info-content"
+            *ngIf="timezone && tz"
+        >
+            {{ 'APP.CONCIERGE.TIMEZONE_DIFF' | translate }}
+        </div>
+        <div
+            class="relative z-20 flex items-center justify-center space-x-2 border-b border-base-200 p-2"
+        >
+            <date-options
+                [date]="date | async"
+                [step]="7"
+                (dateChange)="setDate($event)"
+                [is_new]="true"
+                [hide_today]="true"
+            ></date-options>
+            <div
+                class="absolute left-4 top-1/2 -translate-y-1/2 text-sm text-info"
+                *ngIf="this_week | async"
+            >
+                {{ 'COMMON.WEEK_THIS' | translate }}
+            </div>
+            <div class="absolute right-8 top-1/2 -translate-y-1/2">
+                <room-booking-search
+                    (selected)="viewEvent($event, $event.system?.id, true)"
+                ></room-booking-search>
+            </div>
+        </div>
+        <div timeline class="z-0 grid h-1/2 w-full flex-1 overflow-auto">
+            <div
+                timezone
+                class="sticky left-0 top-0 z-30 flex items-center justify-center bg-base-100"
+            >
+                <div class="text-xs opacity-30">
+                    {{ date | async | date: 'zzzz' : tz }}
+                </div>
+                <div
+                    class="absolute bottom-0 right-0 h-2 w-px bg-base-300"
+                ></div>
+                <div
+                    class="absolute bottom-0 right-0 h-px w-2 bg-base-300"
+                ></div>
+            </div>
+            <div
+                day-headers
+                class="sticky top-0 z-20 flex min-w-[calc(100%-3rem)] items-center border-b border-base-300 bg-base-100"
+                [style.width]="(days | async)?.length * 12 + 'rem'"
+            >
+                <div
+                    *ngFor="let date of days | async"
+                    class="relative flex h-full min-w-48 flex-1 flex-col items-center justify-center leading-tight"
+                >
+                    <div class="truncate">
+                        {{ date | date: 'EEE, MMM d' : tz }}
+                    </div>
+                    <div
+                        class="absolute bottom-1 left-1/2 -translate-x-1/2 text-xs text-info"
+                        *ngIf="isToday(date)"
+                    >
+                        {{ 'COMMON.TODAY' | translate }}
+                    </div>
+                    <div
+                        class="absolute -left-px bottom-0 h-2 w-px bg-base-300"
+                    ></div>
+                </div>
+            </div>
+            <div
+                empty-block
+                class="sticky left-0 z-10 min-h-full border-r border-base-300 bg-base-100"
+                [style.height]="
+                    (event_max_count | async)
+                        ? (event_max_count | async) * 5.375 + 'rem'
+                        : ''
+                "
+            ></div>
+            <div
+                date-blocks
+                class="relative flex min-w-[calc(100%-3rem)] overflow-hidden"
+                [style.width]="(days | async)?.length * 12 + 'rem'"
+            >
+                <div
+                    class="min-w-48 flex-1 overflow-hidden border-r border-base-200 p-2"
+                    *ngFor="let date of days | async; let i = index"
+                >
+                    <button
+                        matRipple
+                        *ngFor="let event of (events | async)[date] || []"
+                        class="flex w-full space-x-2 rounded p-2 text-left hover:bg-base-200"
+                        (click)="viewEvent(event)"
+                    >
+                        <div
+                            class="my-1.5 h-2 w-2 rounded-full"
+                            [style.background-color]="typeColor(event.type)"
+                        ></div>
+                        <div class="w-1/2 flex-1">
+                            <div
+                                class="truncate text-sm"
+                                [class.line-through]="event.state === 'done'"
+                            >
+                                {{ event.title }}
+                            </div>
+                            <div class="flex-1 text-xs opacity-60">
+                                {{ event.date | date: time_format : tz }}
+                                &ndash;
+                                {{ event.date_end | date: time_format : tz }}
+                                <span *ngIf="tz">{{
+                                    event.date_end | date: 'zzzz' : tz
+                                }}</span>
+                            </div>
+                            <div class="truncate text-xs opacity-30">
+                                {{ event.system?.display_name }}
+                            </div>
+                            <div class="truncate text-xs opacity-30">
+                                {{ (event.host | user)?.name || event.host }}
+                            </div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+    `,
+    styles: [
+        `
+            :host {
+                display: flex;
+                flex-direction: column;
+                max-width: 100%;
+            }
+
+            [timeline] {
+                grid-template-columns: 4rem auto;
+                grid-template-rows: 3.5rem auto;
+            }
+        `,
+    ],
+    standalone: false,
+})
+export class RoomWeekBookingsTimelineComponent
+    extends AsyncHandler
+    implements OnInit
+{
+    public hours = Array.from({ length: 24 }, (_, i) => i);
+    public readonly ui_options = this._state.options;
+    public readonly date = this._state.date;
+
+    public readonly remove = this._state.removeBooking;
+
+    public types = [
+        { id: 'internal', name: 'Internal', color: '#D81B60' },
+        { id: 'external', name: 'External', color: '#1E88E5' },
+        { id: 'cancelled', name: 'Cancelled', color: '#eeeeee' },
+    ];
+
+    public readonly days = combineLatest([
+        this.date,
+        this._org.active_building,
+    ]).pipe(
+        map(([d]) =>
+            new Array(7)
+                .fill(0)
+                .map((_, idx) =>
+                    addDays(
+                        setHours(
+                            startOfWeek(d, { weekStartsOn: this._week_start }),
+                            12 - Math.floor(this.timezone_offset / 60),
+                        ),
+                        idx,
+                    ).valueOf(),
+                ),
+        ),
+    );
+    public readonly this_week = this.date.pipe(
+        map((d) => isSameWeek(d, Date.now())),
+    );
+
+    private _data_pipe = new DatePipe('en');
+
+    public readonly events = combineLatest([
+        this.days,
+        this._state.filtered,
+        this._state.zones,
+    ]).pipe(
+        map(([day_list, events, zones]) => {
+            if (zones.length) {
+                events = events.filter((_) =>
+                    _.system?.zones.find((_) => zones.includes(_)),
+                );
+            }
+
+            const map: Record<string, CalendarEvent[]> = {};
+            for (const date of day_list) {
+                const date_value = this._data_pipe.transform(
+                    date,
+                    'yyyy-MM-dd',
+                    this.tz,
+                );
+                map[date] = events.filter((event) => {
+                    const event_date_value = this._data_pipe.transform(
+                        event.date,
+                        'yyyy-MM-dd',
+                        this.tz,
+                    );
+                    return (
+                        date_value === event_date_value &&
+                        !event.is_system_event
+                    );
+                });
+            }
+            return map;
+        }),
+        startWith({}),
+        shareReplay(1),
+    );
+
+    public readonly event_max_count = this.events.pipe(
+        map((e) => {
+            let length = 0;
+            for (const date in e) {
+                if (e[date].length > length) length = e[date].length;
+            }
+            return length;
+        }),
+    );
+
+    private get _week_start() {
+        return this._settings.get('app.week_start');
+    }
+
+    private _local_tz = getTimezoneOffsetString(
+        Intl.DateTimeFormat().resolvedOptions().timeZone,
+    );
+
+    public get timezone() {
+        return this._settings.get('app.events.use_building_timezone')
+            ? this._org.building.timezone
+            : '';
+    }
+
+    public get tz() {
+        const tz = this.timezone;
+        if (!tz) return '';
+        const tz_offset = getTimezoneOffsetString(tz);
+        return tz_offset === this._local_tz ? '' : tz_offset;
+    }
+
+    public get timezone_offset() {
+        return getTimezoneOffsetInMinutes(
+            this.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
+        );
+    }
+
+    public get now() {
+        return startOfMinute(Date.now()).valueOf();
+    }
+
+    public isToday(date: number) {
+        return isSameDay(date, Date.now());
+    }
+
+    public readonly edit = (e) => this._state.newBooking(e);
+    public readonly setDate = (d) => this._state.setDate(d);
+
+    public get time_format() {
+        return this._settings.time_format;
+    }
+
+    constructor(
+        private _state: EventsStateService,
+        private _dialog: MatDialog,
+        private _settings: SettingsService,
+        private _org: OrganisationService,
+    ) {
+        super();
+    }
+
+    public ngOnInit() {
+        this.subscription('poll', this._state.poll());
+        this.types = [
+            {
+                id: 'internal',
+                name: i18n('COMMON.TYPE_INTERNAL'),
+                color: '#D81B60',
+            },
+            {
+                id: 'external',
+                name: i18n('COMMON.TYPE_EXTERNAL'),
+                color: '#1E88E5',
+            },
+            {
+                id: 'cancelled',
+                name: i18n('COMMON.TYPE_CANCELLED'),
+                color: '#eeeeee',
+            },
+        ];
+    }
+
+    public typeColor(type: string) {
+        return this.types.find((_) => _.id === type)?.color || '#EEE';
+    }
+
+    public viewEvent(
+        event: CalendarEvent,
+        space_id: string,
+        scroll_to = false,
+    ) {
+        if (event.is_system_event) return;
+        const ref = this._dialog.open(EventDetailsModalComponent, {
+            data: event,
+        });
+        ref.componentInstance.hide_edit = !this._settings.get(
+            'app.events.allow_edit',
+        );
+        this.subscription(
+            'remove',
+            ref.componentInstance.remove.subscribe(() => this.remove(event)),
+        );
+        this.subscription(
+            'edit',
+            ref.componentInstance.edit.subscribe(() => this.edit(event)),
+        );
+        this.subscription(
+            'actions',
+            ref.componentInstance.action.subscribe(async (action) => {
+                if (!action.includes('breakdown')) return;
+                const ref = this._dialog.open(SetupBreakdownModalComponent, {
+                    data: event,
+                });
+                const data = await ref.afterClosed().toPromise();
+                if (data) this._state.replace(data);
+            }),
+        );
+    }
+}

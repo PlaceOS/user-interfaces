@@ -31,22 +31,22 @@ interface EventBlock {
 @Component({
     selector: 'checkin-timetable',
     template: `
-        <div class="flex items-center relative h-20 px-2">
+        <div class="relative flex h-20 items-center px-2">
             <button
                 *ngFor="let blk of blocks"
-                class="h-full relative"
+                class="relative h-full"
                 [style.min-width]="1 * step + 'px'"
                 (click)="event.emit(blk.id)"
             >
                 <div
                     *ngIf="blk.minutes % 60 === 0"
-                    class="absolute top-1 left-0 text-xs whitespace-nowrap"
+                    class="absolute left-0 top-1 whitespace-nowrap text-xs"
                 >
                     {{ blk.hour }}
                 </div>
                 <div
                     *ngIf="blk.minutes % 15 === 0"
-                    class="absolute w-px bottom-0 left-0 bg-neutral"
+                    class="absolute bottom-0 left-0 w-px bg-neutral"
                     [style.height]="height(blk.minutes)"
                 ></div>
             </button>
@@ -61,11 +61,11 @@ interface EventBlock {
             </ng-container>
             <div
                 current
-                class="absolute bottom-0 h-[3.5rem] w-0.5 bg-primary pointer-events-none"
+                class="pointer-events-none absolute bottom-0 h-[3.5rem] w-0.5 bg-primary"
                 [style.left]="8 + current_time + 'px'"
             >
                 <div
-                    class="h-2 w-2 rounded-full bg-primary absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2"
+                    class="absolute left-1/2 top-1/2 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary"
                 ></div>
             </div>
         </div>
@@ -85,6 +85,7 @@ interface EventBlock {
             }
         `,
     ],
+    standalone: false,
 })
 export class CheckinTimetableComponent extends AsyncHandler {
     @Input() public events: CalendarEvent[] = [];
@@ -102,12 +103,12 @@ export class CheckinTimetableComponent extends AsyncHandler {
         this.interval(
             'gen-blocks',
             () => this._generateTimeBlocks(),
-            1 * 60 * 1000
+            1 * 60 * 1000,
         );
         this.interval(
             'update-current',
             () => this._updateCurrentTime(),
-            30 * 1000
+            30 * 1000,
         );
     }
 
@@ -136,7 +137,7 @@ export class CheckinTimetableComponent extends AsyncHandler {
             subMinutes(subHours(Date.now(), 1), this.step / 2),
             {
                 nearestTo: this.step as any,
-            }
+            },
         );
         let date = start;
         const end = addHours(start, 24);

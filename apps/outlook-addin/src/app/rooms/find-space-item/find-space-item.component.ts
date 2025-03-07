@@ -1,10 +1,11 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Space } from '@placeos/spaces';
 
 @Component({
     selector: 'find-space-item',
     templateUrl: './find-space-item.component.html',
     styles: [``],
+    standalone: false,
 })
 export class FindSpaceItemComponent {
     @Input() public space: Space;

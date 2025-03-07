@@ -1,7 +1,7 @@
 import { flatten, predictableRandomInt } from '@placeos/common';
 import { registerMockEndpoint } from '@placeos/ts-client';
-import { MOCK_BUILDINGS } from './zone.data';
 import { getUnixTime } from 'date-fns';
+import { MOCK_BUILDINGS } from './zone.data';
 
 export const SURVEY_MOCKS = registerMocks();
 
@@ -11,8 +11,8 @@ const MOCK_SURVEY_QUESTIONS = new Array(20)
     .map(() => createMockSurveyQuestion());
 const MOCK_SURVEY_ANSWERS = flatten(
     MOCK_SURVEYS.map((_) =>
-        new Array(20).fill(0).map(() => createMockSurveyAnswer(_))
-    )
+        new Array(20).fill(0).map(() => createMockSurveyAnswer(_)),
+    ),
 );
 
 function createMockSurvey(survey?: any) {
@@ -69,7 +69,7 @@ function registerMocks() {
         callback: (request) => {
             return request.query_params?.building_id
                 ? MOCK_SURVEYS.filter(
-                      (_) => _.zone_id === request.query_params.building_id
+                      (_) => _.zone_id === request.query_params.building_id,
                   )
                 : MOCK_SURVEYS;
         },
@@ -82,7 +82,7 @@ function registerMocks() {
         callback: (request) => {
             return request.query_params?.survey_id
                 ? MOCK_SURVEY_ANSWERS.filter(
-                      (_) => _.survey_id === request.query_params.survey_id
+                      (_) => _.survey_id === request.query_params.survey_id,
                   )
                 : MOCK_SURVEY_ANSWERS;
         },
@@ -95,7 +95,7 @@ function registerMocks() {
         callback: (request) => {
             return request.query_params?.id
                 ? MOCK_SURVEY_QUESTIONS.filter(
-                      (_) => _.id === +request.query_params.id
+                      (_) => _.id === +request.query_params.id,
                   )
                 : MOCK_SURVEY_QUESTIONS;
         },
@@ -108,7 +108,7 @@ function registerMocks() {
         callback: (request) => {
             console.log('Surveys:', MOCK_SURVEYS);
             const survey = MOCK_SURVEYS.find(
-                (_) => _.id === +request.route_params.id
+                (_) => _.id === +request.route_params.id,
             );
             if (!survey) throw { status: 404 };
             return survey;

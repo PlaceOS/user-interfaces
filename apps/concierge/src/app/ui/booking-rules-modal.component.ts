@@ -2,11 +2,12 @@ import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import {
     BookingRuleset,
+    i18n,
     notifyError,
     notifySuccess,
-    openConfirmModal,
     randomString,
 } from '@placeos/common';
+import { openConfirmModal } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
 import { BehaviorSubject, Observable, combineLatest, of } from 'rxjs';
@@ -22,26 +23,26 @@ import {
 @Component({
     selector: 'app-booking-rules-modal',
     template: `
-        <header>
-            <h2 class="capitalize" *ngIf="view !== 'form'">
-                {{ type }} Booking Rules
-            </h2>
-            <h2 class="capitalize" *ngIf="view === 'form'">
-                {{ selected?.id ? 'Edit' : 'New' }} {{ type }} Booking Ruleset
-            </h2>
-            <button icon matRipple mat-dialog-close>
-                <app-icon>close</app-icon>
-            </button>
-        </header>
-        <main
-            class="w-[56rem] max-w-[80vw] max-h-[65vh] h-[65vh] overflow-auto"
-            *ngIf="!loading; else load_state"
+        <fullscreen-modal-shell
+            [heading]="
+                (view !== 'form'
+                    ? 'APP.CONCIERGE.BOOKING_RULES_HEADER'
+                    : selected?.id
+                      ? 'APP.CONCIERGE.BOOKING_RULES_EDIT'
+                      : 'APP.CONCIERGE.BOOKING_RULES_NEW'
+                ) | translate: { type: type }
+            "
+            [loading]="
+                loading
+                    ? ('APP.CONCIERGE.BOOKING_RULESET_SAVING' | translate)
+                    : ''
+            "
+            [hide_confirm]="true"
         >
             <div
-                class="w-full p-4 text-center bg-info text-info-content text-sm"
+                class="-mx-4 -my-2 w-[calc(100%+2rem)] rounded bg-info p-4 text-center text-xs text-info-content"
             >
-                Note that the order of the rulesets are important. The first
-                ruleset that matches the resource will be used.
+                {{ 'APP.CONCIERGE.BOOKING_RULES_NOTE' | translate }}
             </div>
             <ng-container [ngSwitch]="view">
                 <booking-rules-form
@@ -50,51 +51,68 @@ import {
                     (rulesetChange)="save($event)"
                     *ngSwitchCase="'form'"
                 ></booking-rules-form>
-                <simple-table
-                    class="w-full min-w-[32rem] block text-sm"
-                    *ngSwitchCase="'list'"
-                    [data]="booking_rules"
-                    [columns]="[
-                        {
-                            key: '_index',
-                            name: ' ',
-                            size: '3.5rem',
-                            content: index_template
-                        },
-                        { key: 'zone', name: 'Zone', content: zone_template },
-                        { key: 'name', name: 'Name' },
-                        {
-                            key: 'auto_approve',
-                            name: 'Auto-Approve',
-                            content: bool_template,
-                            size: '5.5rem'
-                        },
-                        {
-                            key: 'hidden',
-                            name: 'Hide Matches',
-                            content: bool_template,
-                            size: '5.5rem'
-                        },
-                        {
-                            key: 'conditions',
-                            name: 'Conditions',
-                            content: conditions_template
-                        },
-                        {
-                            key: 'actions',
-                            name: 'Actions',
-                            size: '11.5rem',
-                            content: actions_template
-                        }
-                    ]"
-                ></simple-table>
+                <div class="-mx-4 w-[calc(100%+2rem)] overflow-auto">
+                    <simple-table
+                        class="block w-full min-w-[48rem] text-sm"
+                        *ngSwitchCase="'list'"
+                        [data]="booking_rules"
+                        [columns]="[
+                            {
+                                key: '_index',
+                                name: ' ',
+                                size: '3.5rem',
+                                content: index_template,
+                            },
+                            {
+                                key: 'zone',
+                                name: 'RESOURCE.ZONE' | translate,
+                                content: zone_template,
+                            },
+                            { key: 'name', name: 'FORM.NAME' | translate },
+                            {
+                                key: 'auto_approve',
+                                name:
+                                    'APP.CONCIERGE.BOOKING_RULES_AUTO_APPROVE'
+                                    | translate,
+                                content: bool_template,
+                                size: '5.5rem',
+                            },
+                            {
+                                key: 'hidden',
+                                name:
+                                    'APP.CONCIERGE.BOOKING_RULES_HIDE_MATCHES'
+                                    | translate,
+                                content: bool_template,
+                                size: '5.5rem',
+                            },
+                            {
+                                key: 'conditions',
+                                name:
+                                    'APP.CONCIERGE.BOOKING_RULES_CONDITIONS'
+                                    | translate,
+                                content: conditions_template,
+                            },
+                            {
+                                key: 'actions',
+                                name: ' ',
+                                size: '11.5rem',
+                                content: actions_template,
+                            },
+                        ]"
+                    ></simple-table>
+                </div>
                 <ng-template #index_template let-index="index">
-                    <div class="p-4 m-auto font-medium">
+                    <div class="m-auto p-4 font-medium">
                         {{ (index || 0) + 1 }}
                     </div>
                 </ng-template>
                 <ng-template #conditions_template let-data="data">
-                    <div class="p-4">{{ keyCount(data) }} Conditions</div>
+                    <div class="p-4">
+                        {{
+                            'APP.CONCIERGE.BOOKING_RULES_CONDITIONS_COUNT'
+                                | translate: { count: keyCount(data) }
+                        }}
+                    </div>
                 </ng-template>
                 <ng-template #zone_template let-data="data">
                     <div class="px-4 py-2" *ngIf="(data | level)?.id">
@@ -107,27 +125,35 @@ import {
                         class="px-4 py-2 font-mono italic"
                         *ngIf="!(data | level)?.id"
                     >
-                        {{ data === '*' ? 'All Zones' : data }}
+                        {{
+                            data === '*'
+                                ? ('RESOURCE.ZONE_ALL' | translate)
+                                : data
+                        }}
                     </div>
                 </ng-template>
-                <ng-template #bool_template let-data="data">
+                <ng-template #bool_template let-key="key" let-row="row">
                     <div
-                        [class.bg-error]="!data"
-                        [class.bg-success]="data"
-                        class="rounded h-8 w-8 flex items-center justify-center text-2xl text-white mx-auto"
+                        [class.bg-error]="!row.rules[key]"
+                        [class.bg-success]="row.rules[key]"
+                        class="mx-auto flex h-8 w-8 items-center justify-center rounded text-2xl text-white"
                     >
-                        <app-icon>{{ data ? 'done' : 'close' }}</app-icon>
+                        <app-icon>{{
+                            row.rules[key] ? 'done' : 'close'
+                        }}</app-icon>
                     </div>
                 </ng-template>
                 <ng-template #actions_template let-row="row">
                     <div
-                        class="w-full flex items-center mx-auto space-x-2 px-2"
+                        class="mx-auto flex w-full items-center space-x-2 px-2"
                     >
                         <button
                             icon
                             matRipple
                             (click)="editRuleset(row)"
-                            matTooltip="Edit Ruleset"
+                            [matTooltip]="
+                                'APP.CONCIERGE.BOOKING_RULESET_EDIT' | translate
+                            "
                         >
                             <app-icon>edit</app-icon>
                         </button>
@@ -135,7 +161,10 @@ import {
                             icon
                             matRipple
                             (click)="updateRulesetPriority(row, -1)"
-                            matTooltip="Increase Ruleset Priority"
+                            [matTooltip]="
+                                'APP.CONCIERGE.BOOKING_RULESET_PRIORITY_UP'
+                                    | translate
+                            "
                         >
                             <app-icon>arrow_upward</app-icon>
                         </button>
@@ -143,7 +172,10 @@ import {
                             icon
                             matRipple
                             (click)="updateRulesetPriority(row, 1)"
-                            matTooltip="Decrease Ruleset Priority"
+                            [matTooltip]="
+                                'APP.CONCIERGE.BOOKING_RULESET_PRIORITY_DOWN'
+                                    | translate
+                            "
                         >
                             <app-icon>arrow_downward</app-icon>
                         </button>
@@ -151,63 +183,52 @@ import {
                             icon
                             matRipple
                             (click)="removeRuleset(row)"
-                            matTooltip="Remove Ruleset"
+                            [matTooltip]="
+                                'APP.CONCIERGE.BOOKING_RULESET_REMOVE'
+                                    | translate
+                            "
                         >
                             <app-icon class="text-error">delete</app-icon>
                         </button>
                     </div>
                 </ng-template>
             </ng-container>
-        </main>
-        <footer
-            class="flex items-center justify-end space-x-2 p-2 border-t border-base-200"
-            *ngIf="!loading"
-        >
-            <button
-                btn
-                matRipple
-                class="inverse w-36"
-                *ngIf="view !== 'form'"
-                mat-dialog-close
+            <footer
+                class="fixed bottom-0 left-1/2 z-10 mx-auto my-2 flex w-full max-w-[640px] -translate-x-1/2 items-center justify-end space-x-4 rounded border-none bg-base-200 px-4 py-2"
+                *ngIf="!loading"
             >
-                Close
-            </button>
-            <button
-                btn
-                matRipple
-                class="inverse w-36"
-                *ngIf="view === 'form'"
-                (click)="selected = null; view = 'list'"
-            >
-                Back
-            </button>
-            <button
-                btn
-                matRipple
-                class="w-36"
-                *ngIf="view !== 'form'"
-                (click)="editRuleset()"
-            >
-                Add Ruleset
-            </button>
-            <button
-                btn
-                matRipple
-                class="w-36"
-                *ngIf="view === 'form'"
-                (click)="activate_save = !activate_save"
-            >
-                Save Ruleset
-            </button>
-        </footer>
-        <ng-template #load_state>
-            <main class="flex flex-col items-center justify-center h-full">
-                <mat-spinner [diameter]="32"></mat-spinner>
-                <p class="mt-2">Saving Booking Rules...</p>
-            </main>
-        </ng-template>
+                <button
+                    btn
+                    matRipple
+                    class="inverse w-36"
+                    *ngIf="view === 'form'"
+                    (click)="selected = null; view = 'list'"
+                >
+                    {{ 'COMMON.BACK' | translate }}
+                </button>
+                <button
+                    btn
+                    matRipple
+                    class="w-36"
+                    *ngIf="view !== 'form'"
+                    (click)="editRuleset()"
+                >
+                    {{ 'APP.CONCIERGE.BOOKING_RULESET_ADD' | translate }}
+                </button>
+                <button
+                    btn
+                    matRipple
+                    class="w-36"
+                    *ngIf="view === 'form'"
+                    (click)="activate_save = !activate_save"
+                >
+                    {{ 'APP.CONCIERGE.BOOKING_RULESET_SAVE' | translate }}
+                </button>
+            </footer>
+        </fullscreen-modal-shell>
     `,
     styles: [``],
+    standalone: false,
 })
 export class BookingRulesModalComponent {
     public loading = false;
@@ -216,17 +237,17 @@ export class BookingRulesModalComponent {
     public selected?: BookingRuleset;
     public readonly change = new BehaviorSubject(0);
     public readonly booking_rules: Observable<BookingRuleset[]> = combineLatest(
-        [this._org.active_building, this.change]
+        [this._org.active_building, this.change],
     ).pipe(
         filter(([_]) => !!_),
         switchMap(([bld]) => {
             return showMetadata(
                 bld.id,
-                `${this._data.type}_booking_rules`
+                `${this._data.type}_booking_rules`,
             ).pipe(catchError(() => of({ details: [] })));
         }),
         map(({ details }) => (details instanceof Array ? details : [])),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     public readonly type = this._data.type;
@@ -234,7 +255,7 @@ export class BookingRulesModalComponent {
     constructor(
         @Inject(MAT_DIALOG_DATA) private _data: { type: string },
         private _org: OrganisationService,
-        private _dialog: MatDialog
+        private _dialog: MatDialog,
     ) {}
 
     public keyCount(item: Record<string, any>): number {
@@ -255,7 +276,7 @@ export class BookingRulesModalComponent {
                 confirm_text: 'Remove Ruleset',
                 cancel_text: 'Cancel',
             },
-            this._dialog
+            this._dialog,
         );
         if (result.reason !== 'done') return;
         result.loading('Removing Ruleset...');
@@ -281,7 +302,7 @@ export class BookingRulesModalComponent {
 
     public async updateRulesetPriority(
         ruleset: BookingRuleset,
-        position_change: number
+        position_change: number,
     ) {
         const rules = await this.booking_rules.pipe(take(1)).toPromise();
         // Move ruleset up or down in array based on position change
@@ -327,11 +348,13 @@ export class BookingRulesModalComponent {
         })
             .toPromise()
             .catch((_) => {
-                notifyError('Error saving booking rules.');
+                notifyError(
+                    i18n('APP.CONCIERGE.BOOKING_RULESET_ERROR', { error: _ }),
+                );
                 throw _;
             });
         this.loading = false;
         this.view = 'list';
-        notifySuccess('Successfully saved booking rules.');
+        notifySuccess(i18n('APP.CONCIERGE.BOOKING_RULESET_SUCCESS'));
     }
 }

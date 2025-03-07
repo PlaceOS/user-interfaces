@@ -10,7 +10,7 @@ import {
     selector: 'lighting-tooltip',
     template: `
         <div
-            class="p-4 my-2 bg-base-100 shadow rounded flex flex-col items-center space-y-2"
+            class="my-2 flex flex-col items-center space-y-2 rounded bg-base-100 p-4 shadow"
         >
             <div hidden *ngIf="!!(lights | async)[0]">
                 <i
@@ -21,7 +21,9 @@ import {
                     [bind]="'lights/' + (lights | async)[0]"
                 ></i>
             </div>
-            <h3 class="mb-2 text-xl font-medium">Lighting Presets</h3>
+            <h3 class="mb-2 text-xl font-medium">
+                {{ 'APP.CONTROL.LIGHTING' | translate }}
+            </h3>
             <ng-container *ngIf="light?.states?.length; else empty_state">
                 <button
                     state
@@ -43,11 +45,12 @@ import {
         </div>
         <ng-template #empty_state>
             <div class="flex items-center justify-center p-8">
-                <p>No presets available for lights</p>
+                <p>{{ 'APP.CONTROL.LIGHTING_EMPTY' | translate }}</p>
             </div>
         </ng-template>
     `,
     styles: [``],
+    standalone: false,
 })
 export class LightingTooltipComponent {
     public light: EnvironmentSource;
@@ -62,6 +65,6 @@ export class LightingTooltipComponent {
 
     constructor(
         private _state: ControlStateService,
-        private _tooltip: CustomTooltipData
+        private _tooltip: CustomTooltipData,
     ) {}
 }

@@ -1,80 +1,133 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import {
     Booking,
     BookingFormService,
     checkinBooking,
-    queryBookings,
+    checkinBookingInstance,
     removeBooking,
 } from '@placeos/bookings';
 import {
     AsyncHandler,
     currentUser,
+    i18n,
     notifyError,
     notifySuccess,
-    openConfirmModal,
     SettingsService,
 } from '@placeos/common';
+import { openConfirmModal } from '@placeos/components';
 import {
     CalendarEvent,
     EventFormService,
     queryEvents,
     removeEvent,
 } from '@placeos/events';
-import { format, isSameDay } from 'date-fns';
-import { map } from 'rxjs/operators';
-import { ScheduleStateService } from './schedule-state.service';
+import { format, isSameDay, parse } from 'date-fns';
 import { combineLatest } from 'rxjs';
+import { map } from 'rxjs/operators';
+import {
+    ScheduleOptions,
+    ScheduleStateService,
+} from './schedule-state.service';
 
 @Component({
     selector: 'app-schedule',
     template: `
         <topbar *ngIf="!hide_nav"></topbar>
         <div
-            class="flex flex-col sm:flex-row flex-1 h-1/2 bg-base-200 relative"
+            class="relative flex h-1/2 flex-1 flex-col bg-base-200 sm:flex-row"
         >
             <schedule-sidebar
-                class="hidden sm:block bg-base-100"
+                class="hidden bg-base-100 sm:block"
             ></schedule-sidebar>
-            <div class="w-full bg-base-100 border-b border-neutral sm:hidden">
+            <div class="w-full border-b border-neutral bg-base-100 sm:hidden">
+                <div class="flex items-center space-x-2 px-2 pt-2">
+                    <button
+                        btn
+                        matRipple
+                        class="flex-1"
+                        [class.inverse]="period !== 'day'"
+                        (click)="setOptions({ period: 'day' })"
+                    >
+                        {{ 'COMMON.DAY' | translate }}
+                    </button>
+                    <button
+                        btn
+                        matRipple
+                        class="flex-1"
+                        [class.inverse]="period !== 'week'"
+                        (click)="setOptions({ period: 'week' })"
+                    >
+                        {{ 'COMMON.WEEK' | translate }}
+                    </button>
+                </div>
                 <schedule-mobile-calendar
                     [ngModel]="date | async"
                     (ngModelChange)="setDate($event)"
+                    *ngIf="period === 'day'"
                 ></schedule-mobile-calendar>
+                <div class="my-2 w-full px-2" *ngIf="period === 'week'">
+                    <mat-form-field
+                        appearance="outline"
+                        class="no-subscript w-full"
+                    >
+                        <mat-select
+                            [ngModel]="week_date | async"
+                            (ngModelChange)="setDate($event)"
+                            [placeholder]="'COMMON.WEEK_SELECT' | translate"
+                        >
+                            <mat-option
+                                *ngFor="let option of week_options | async"
+                                [value]="option.id"
+                                class="leading-tight"
+                            >
+                                {{ option.name }}
+                                <span
+                                    class="px-1 text-xs text-info"
+                                    *ngIf="option.this_week"
+                                    [matTooltip]="
+                                        'COMMON.WEEK_THIS' | translate
+                                    "
+                                    >(C)</span
+                                >
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
             </div>
-            <div class="flex-1 h-full p-4 overflow-auto space-y-2">
+            <div class="h-full flex-1 space-y-2 overflow-auto p-4">
                 <schedule-filters></schedule-filters>
-                <h3 class="font-medium my-2">
-                    {{ date | async | date: 'EEE dd LLL yyyy' }}
-                    <span *ngIf="is_today | async"
-                        >({{ 'COMMON.TODAY' | translate }})</span
-                    >
-                </h3>
                 <ng-container
-                    *ngIf="(bookings | async)?.length; else empty_state"
+                    *ngIf="(booking_dates | async)?.length; else empty_state"
                 >
-                    <ng-container
-                        *ngFor="
-                            let item of bookings | async;
-                            trackBy: trackByFn
-                        "
-                    >
-                        <event-card
-                            *ngIf="isEvent(item); else booking_card"
-                            [event]="item"
-                            (edit)="edit(item)"
-                            (remove)="remove(item, $event)"
-                        ></event-card>
-                        <ng-template #booking_card>
-                            <booking-card
-                                [booking]="item"
-                                (edit)="editBooking(item)"
-                                (remove)="remove(item)"
-                                (end)="end(item)"
-                            ></booking-card>
-                        </ng-template>
-                    </ng-container>
+                    @for (
+                        date_block of booking_dates | async;
+                        track date_block.date
+                    ) {
+                        <h3 class="my-2 font-medium">
+                            {{ date_block.date | date: 'EEE dd LLL yyyy' }}
+                            <span *ngIf="date_block.is_today">
+                                ({{ 'COMMON.TODAY' | translate }})
+                            </span>
+                        </h3>
+                        @for (item of date_block.bookings; track item.id) {
+                            <event-card
+                                *ngIf="isEvent(item); else booking_card"
+                                [event]="item"
+                                (edit)="edit(item)"
+                                (remove)="remove(item, $event)"
+                            ></event-card>
+                            <ng-template #booking_card>
+                                <booking-card
+                                    [booking]="item"
+                                    (edit)="editBooking(item)"
+                                    (remove)="remove(item, $event)"
+                                    (end)="end(item)"
+                                ></booking-card>
+                            </ng-template>
+                        }
+                    }
                 </ng-container>
             </div>
             <mat-progress-bar
@@ -86,11 +139,11 @@ import { combineLatest } from 'rxjs';
         <footer-menu *ngIf="!hide_nav"></footer-menu>
         <ng-template #empty_state>
             <div
-                class="w-full p-8 flex flex-col items-center justify-center space-y-4"
+                class="flex w-full flex-col items-center justify-center space-y-4 p-8"
             >
                 <img src="assets/img/no-events.svg" class="mr-4" />
                 <p class="opacity-30">
-                    {{ 'WPA.SCHEDULE_EMPTY' | translate }}
+                    {{ 'APP.WORKPLACE.SCHEDULE_EMPTY' | translate }}
                     {{ date | async | date: 'EEEE, dd LLL yyyy' }}
                 </p>
             </div>
@@ -106,18 +159,46 @@ import { combineLatest } from 'rxjs';
             }
         `,
     ],
+    standalone: false,
 })
-export class ScheduleComponent extends AsyncHandler {
-    public readonly bookings = combineLatest([
+export class ScheduleComponent extends AsyncHandler implements OnInit {
+    public readonly booking_dates = combineLatest([
         this._state.filtered_bookings,
         this._state.loading,
-    ]).pipe(map(([bookings, loading]) => (loading ? [] : bookings)));
+    ]).pipe(
+        map(([bookings, loading]) => (loading ? [] : bookings)),
+        map((bookings) => {
+            const sorted = bookings.sort((a, b) => a.date - b.date);
+            const dates = new Set<string>();
+            for (const booking of sorted) {
+                const date = format(booking.date, 'yyyy-MM-dd');
+                if (!dates.has(date)) dates.add(date);
+            }
+            const list = [];
+            for (const date of dates) {
+                const day = parse(date, 'yyyy-MM-dd', 0);
+                list.push({
+                    id: date,
+                    date: day.valueOf(),
+                    bookings: sorted.filter((booking) =>
+                        isSameDay(booking.date, day),
+                    ),
+                    is_today: isSameDay(day, Date.now()),
+                });
+            }
+            return list;
+        }),
+    );
     public readonly date = this._state.date;
     public readonly loading = this._state.loading;
-    public readonly is_today = this.date.pipe(
-        map((_) => isSameDay(_, Date.now()))
-    );
     public readonly setDate = (d) => this._state.setDate(d);
+
+    public readonly week_date = this._state.week_date;
+    public readonly week_options = this._state.week_options;
+
+    public get period() {
+        return this._state.getOptions().period;
+    }
 
     public isEvent(item: any) {
         return item instanceof CalendarEvent;
@@ -133,7 +214,7 @@ export class ScheduleComponent extends AsyncHandler {
         private _booking_form: BookingFormService,
         private _router: Router,
         private _dialog: MatDialog,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         super();
     }
@@ -143,8 +224,12 @@ export class ScheduleComponent extends AsyncHandler {
         this.subscription('poll', this._state.startPolling());
     }
 
-    public trackByFn(index: number, item: any) {
+    public trackByFn(index: number, item: { id: string }) {
         return item?.id;
+    }
+
+    public setOptions(options: ScheduleOptions) {
+        this._state.setOptions(options);
     }
 
     public async edit(event: CalendarEvent) {
@@ -159,11 +244,15 @@ export class ScheduleComponent extends AsyncHandler {
                     }).toPromise()
                 ).find((_) => _.ical_uid === event.ical_uid) || event;
         }
-        this._event_form.newForm(event);
+        setTimeout(() => this._event_form.newForm(event), 300);
     }
 
     public editBooking(event: Booking) {
-        this._router.navigate(['/book', `new-${event.type}`]);
+        if (event.type === 'locker') {
+            this._router.navigate(['/book', `${event.type}`]);
+        } else {
+            this._router.navigate(['/book', `new-${event.type}`]);
+        }
         this._booking_form.newForm(event);
         setTimeout(() => {
             this._booking_form.form.patchValue({
@@ -184,12 +273,23 @@ export class ScheduleComponent extends AsyncHandler {
             item instanceof CalendarEvent
                 ? item.space?.display_name
                 : item.asset_name || item.asset_id;
-        const content = `Delete the ${
-            remove_series ? 'recurring series of ' : ''
-        }booking for ${resource_name} at ${time}`;
         const resp = await openConfirmModal(
-            { title: `Delete booking`, content, icon: { content: 'delete' } },
-            this._dialog
+            {
+                title: i18n(
+                    remove_series
+                        ? 'APP.WORKPLACE.SCHEDULE_REMOVE_SERIES_TITLE'
+                        : 'APP.WORKPLACE.SCHEDULE_REMOVE_TITLE',
+                    { name: resource_name, time },
+                ),
+                content: i18n(
+                    remove_series
+                        ? 'APP.WORKPLACE.SCHEDULE_REMOVE_SERIES_MSG'
+                        : 'APP.WORKPLACE.SCHEDULE_REMOVE_MSG',
+                    { name: resource_name, time },
+                ),
+                icon: { content: 'delete' },
+            },
+            this._dialog,
         );
         if (item instanceof CalendarEvent && item.creator !== item.mailbox) {
             item =
@@ -199,26 +299,53 @@ export class ScheduleComponent extends AsyncHandler {
                         period_end: item.event_end,
                         ical_uid: item.ical_uid,
                     }).toPromise()
-                ).find((_) => _.ical_uid === (item as any).ical_uid) || item;
+                ).find(
+                    (_) => _.ical_uid === (item as CalendarEvent).ical_uid,
+                ) || item;
         }
         if (resp.reason !== 'done') return;
-        resp.loading('Requesting booking deletion...');
+        resp.loading(
+            i18n(
+                remove_series
+                    ? 'APP.WORKPLACE.SCHEDULE_REMOVE_SERIES_LOADING'
+                    : 'APP.WORKPLACE.SCHEDULE_REMOVE_LOADING',
+            ),
+        );
         await (item instanceof CalendarEvent ? removeEvent : removeBooking)(
-            remove_series ? (item as any).recurring_event_id : item.id,
+            remove_series
+                ? (item as any).recurring_event_id || item.id
+                : item.id,
             {
-                calendar: this._settings.get('app.no_user_calendar')
+                calendar: this._settings.get('app.events.use_bookings')
                     ? null
-                    : (item as any).calendar || currentUser()?.email,
-                system_id: (item as any).system?.id,
-            }
+                    : (item as CalendarEvent).calendar || currentUser()?.email,
+                system_id: (item as CalendarEvent).system?.id,
+                instance: remove_series ? undefined : !!(item as any).instance,
+                start_time: (item as any).instance
+                    ? (item as any).instance
+                    : undefined,
+            } as any,
         )
             .toPromise()
             .catch((e) => {
-                notifyError(`Unable to delete booking. ${e}`);
+                notifyError(
+                    i18n(
+                        remove_series
+                            ? 'APP.WORKPLACE.SCHEDULE_REMOVE_SERIES_ERROR'
+                            : 'APP.WORKPLACE.SCHEDULE_REMOVE_ERROR',
+                        { error: e },
+                    ),
+                );
                 resp.close();
                 throw e;
             });
-        notifySuccess('Successfully deleted booking.');
+        notifySuccess(
+            i18n(
+                remove_series
+                    ? 'APP.WORKPLACE.SCHEDULE_REMOVE_SERIES_SUCCESS'
+                    : 'APP.WORKPLACE.SCHEDULE_REMOVE_SUCCESS',
+            ),
+        );
         this._state.removeItem(item);
         this._dialog.closeAll();
     }
@@ -226,22 +353,35 @@ export class ScheduleComponent extends AsyncHandler {
     public async end(item: Booking) {
         const time = `${format(item.date, 'dd MMM yyyy h:mma')}`;
         const resource_name = item.asset_name || item.asset_id;
-        const content = `End the booking for ${resource_name} at ${time}`;
         const resp = await openConfirmModal(
-            { title: `End booking`, content, icon: { content: 'delete' } },
-            this._dialog
+            {
+                title: i18n('APP.WORKPLACE.SCHEDULE_END_TITLE'),
+                content: i18n('APP.WORKPLACE.SCHEDULE_END_MSG', {
+                    name: resource_name,
+                    time,
+                }),
+                icon: { content: 'event_busy' },
+            },
+            this._dialog,
         );
 
         if (resp.reason !== 'done') return;
-        resp.loading('Ending booking...');
-        await checkinBooking(item.id, false)
+        resp.loading(i18n('APP.WORKPLACE.SCHEDULE_END_LOADING'));
+        const promise = (
+            item.instance
+                ? checkinBookingInstance(item.id, item.instance, false)
+                : checkinBooking(item.id, false)
+        )
             .toPromise()
             .catch((e) => {
-                notifyError(`Unable to end booking. ${e}`);
+                notifyError(
+                    i18n('APP.WORKPLACE.SCHEDULE_END_ERROR', { error: e }),
+                );
                 resp.close();
                 throw e;
             });
-        notifySuccess('Successfully ended booking.');
+        await promise;
+        notifySuccess(i18n('APP.WORKPLACE.SCHEDULE_END_SUCCESS'));
         this._state.removeItem(item);
         this._dialog.closeAll();
     }

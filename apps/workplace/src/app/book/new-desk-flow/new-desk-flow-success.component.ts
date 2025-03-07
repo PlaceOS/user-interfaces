@@ -12,101 +12,132 @@ import {
     styles: [],
     template: `
         <div
-            class="absolute inset-0 bg-base-100 flex flex-col z-50 overflow-auto"
+            class="absolute inset-0 z-50 flex flex-col overflow-auto bg-base-100"
         >
             <main
-                class="flex-1 flex flex-col items-center justify-center space-y-2 p-8"
+                class="flex flex-1 flex-col items-center justify-center space-y-2 p-8"
             >
-                <h2 class="text-2xl font-medium text-center" i18n>
-                    {{ last_event.asset_name || last_event.asset_id
-                    }}{{ location }} Booked!
+                <h2 class="text-center text-2xl font-medium">
+                    {{
+                        'BOOKINGS.ITEM_BOOKED'
+                            | translate
+                                : {
+                                      name:
+                                          (last_event.asset_name ||
+                                              last_event.asset_id) + location,
+                                  }
+                    }}
                 </h2>
                 <img src="assets/icons/success.svg" />
-                <p class="text-center" i18n>
-                    Your
-                    <span group *ngIf="last_event?.attendees?.length">
-                        group of
-                        {{ last_event?.attendees?.length + 1 }}
-                    </span>
-                    desk{{ last_event?.attendees?.length ? 's' : '' }} has been
-                    successfully booked
-                    <span
-                        assets
-                        *ngIf="last_event?.extension_data?.assets?.length"
-                    >
-                        including
-                        {{ last_event?.extension_data?.assets?.length }}
-                        asset(s)
-                    </span>
-                    for {{ last_event.date | date: 'mediumDate' }}
-                    <span *ngIf="!last_event?.all_day">
-                        at {{ last_event.date | date: time_format }}-{{
-                            last_event.date + last_event.duration * 60 * 1000
-                                | date: time_format
-                        }}</span
-                    >.
+                <p class="text-center" *ngIf="last_event">
+                    @let details =
+                        {
+                            date: last_event?.date || 0 | date: 'mediumDate',
+                            time:
+                                (last_event?.date || 0 | date: time_format) +
+                                ' - ' +
+                                (last_event.date +
+                                    last_event.duration * 60 * 1000
+                                    | date: time_format),
+                            size: group_size,
+                        };
+                    @if (is_group) {
+                        @if (last_event?.all_day) {
+                            {{
+                                'BOOKINGS.DESK_SUCCESS_GROUP_ALLDAY'
+                                    | translate: details
+                            }}
+                        } @else {
+                            {{
+                                'BOOKINGS.DESK_SUCCESS_GROUP'
+                                    | translate: details
+                            }}
+                        }
+                    } @else {
+                        @if (last_event?.all_day) {
+                            {{
+                                'BOOKINGS.DESK_SUCCESS_LONE_ALLDAY'
+                                    | translate: details
+                            }}
+                        } @else {
+                            {{
+                                'BOOKINGS.DESK_SUCCESS_LONE'
+                                    | translate: details
+                            }}
+                        }
+                    }
+                </p>
+                <p assets *ngIf="last_event?.extension_data?.assets?.length">
+                    {{
+                        'BOOKINGS.ASSETS_BOOKED'
+                            | translate
+                                : {
+                                      count: last_event?.extension_data?.assets
+                                          ?.length,
+                                  }
+                    }}
                 </p>
                 <p *ngIf="true">
-                    Please allow up to 5 minutes for you booking to be approved.
+                    {{ 'BOOKINGS.SUCCESS_WAIT_APPROVED' | translate }}
                 </p>
                 <div
-                    class="flex flex-col items-center space-y-4 p-4 relative"
+                    class="relative flex flex-col items-center space-y-4 p-4"
                     *ngIf="show_links"
                 >
                     <a
                         btn
                         matRipple
                         name="desk-outlook-link"
-                        class="flex items-center p-2 space-x-2 pr-4 w-64 rounded inverse"
+                        class="inverse flex w-64 items-center space-x-2 rounded p-2 pr-4"
                         [href]="outlook_link | sanitize: 'url'"
                         target="_blank"
                         rel="noopener noreferer"
                     >
                         <img src="assets/icons/outlook.svg" class="w-6" />
-                        <span i18n>Add to Outlook</span>
+                        <span>{{ 'BOOKINGS.LINK_OUTLOOK' | translate }}</span>
                     </a>
                     <a
                         btn
                         matRipple
                         name="desk-google-link"
-                        class="flex items-center p-2 space-x-2 pr-4 w-64 rounded inverse"
+                        class="inverse flex w-64 items-center space-x-2 rounded p-2 pr-4"
                         [href]="google_link | sanitize: 'url'"
                         target="_blank"
                         rel="noopener noreferer"
                     >
                         <img src="assets/icons/gcal.svg" class="w-6" />
-                        <span i18n>Add to Google Calendar</span>
+                        <span>{{ 'BOOKINGS.LINK_GOOGLE' | translate }}</span>
                     </a>
                     <a
                         btn
                         matRipple
                         name="desk-ical-link"
-                        class="flex items-center p-2 space-x-2 pr-4 w-64 rounded inverse"
+                        class="inverse flex w-64 items-center space-x-2 rounded p-2 pr-4"
                         [href]="ical_link | safe: 'url'"
                         target="_blank"
                         rel="noopener noreferer"
                     >
                         <app-icon class="text-xl">download</app-icon>
-                        <span i18n>Download iCal File</span>
+                        <span>{{ 'BOOKINGS.LINK_ICAL' | translate }}</span>
                     </a>
                 </div>
             </main>
             <footer
-                class="sticky bottom-0 p-2 w-full border-t bg-base-100 border-base-200 mt-4 flex items-center justify-center"
+                class="sticky bottom-0 mt-4 flex w-full items-center justify-center border-t border-base-200 bg-base-100 p-2"
             >
                 <a
                     btn
                     name="desk-confirm-continue"
                     matRipple
-                    class="w-full max-w-[32rem] mx-auto"
+                    class="mx-auto w-full max-w-[32rem]"
                     [routerLink]="['/']"
-                    i18n
                 >
-                    Great, thanks!
+                    {{ 'APP.WORKPLACE.BOOKING_FINISHED' | translate }}
                 </a>
             </footer>
         </div>
     `,
+    standalone: false,
 })
 export class NewDeskFlowSuccessComponent {
     public outlook_link = '';
@@ -118,6 +149,14 @@ export class NewDeskFlowSuccessComponent {
         return desk.zone
             ? `, ${desk.zone.display_name || desk.zone.name || desk.zone.id}`
             : '';
+    }
+
+    public get is_group() {
+        return this.group_size > 1;
+    }
+
+    public get group_size() {
+        return (this.last_event?.attendees?.length || 0) + 1;
     }
 
     public get last_event() {
@@ -137,7 +176,7 @@ export class NewDeskFlowSuccessComponent {
 
     constructor(
         private _state: BookingFormService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {}
 
     public ngOnInit() {

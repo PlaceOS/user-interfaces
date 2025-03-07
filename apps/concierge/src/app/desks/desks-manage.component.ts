@@ -1,23 +1,22 @@
+import { Clipboard } from '@angular/cdk/clipboard';
 import { Component, ElementRef } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
     AsyncHandler,
     SettingsService,
     csvToJson,
+    i18n,
     loadTextFileFromInputEvent,
     notifyError,
     notifySuccess,
-    openConfirmModal,
     randomInt,
-    unique,
 } from '@placeos/common';
+import { openConfirmModal } from '@placeos/components';
 import { Desk, OrganisationService } from '@placeos/organisation';
 import { updateMetadata } from '@placeos/ts-client';
 import { generateQRCode } from 'libs/common/src/lib/qr-code';
-import { combineLatest } from 'rxjs';
-import { map, take } from 'rxjs/operators';
+import { take } from 'rxjs/operators';
 import { DesksStateService } from './desks-state.service';
-import { Clipboard } from '@angular/cdk/clipboard';
 
 const QR_CODES = {};
 
@@ -25,50 +24,64 @@ const QR_CODES = {};
     selector: 'desks-manage',
     template: `
         <div
-            class="overflow-auto h-full w-full pb-4"
+            class="h-full w-full overflow-auto pb-4"
             (dragenter)="handleDrag('enter', $event)"
             (window:dragend)="handleDrag('end', $event)"
         >
             <simple-table
-                class="min-w-[60rem] w-full block text-sm"
+                class="block w-full min-w-[72rem] text-sm"
                 [filter]="(filters | async)?.search"
                 [data]="desks"
                 [columns]="[
                     {
-                        key: 'map_id',
-                        name: 'Desk',
+                        key: 'id',
+                        name: 'APP.CONCIERGE.DESKS_ID' | translate,
                         content: name_template,
-                        size: '12rem'
+                        size: '10rem',
+                    },
+                    {
+                        key: 'name',
+                        name: 'APP.CONCIERGE.DESKS_NAME' | translate,
                     },
                     {
                         key: 'groups',
-                        name: 'Groups',
-                        content: item_list_template
+                        name: 'COMMON.GROUPS' | translate,
+                        content: item_list_template,
+                    },
+                    {
+                        key: 'assigned_to',
+                        name: 'Assigned',
+                        content: assigned_template,
                     },
                     {
                         key: 'features',
-                        name: 'Features',
-                        content: item_list_template
+                        name: 'COMMON.FEATURES' | translate,
+                        content: item_list_template,
+                    },
+                    {
+                        key: 'security',
+                        name: 'APP.CONCIERGE.DESKS_SECURITY' | translate,
                     },
                     {
                         key: 'bookable',
-                        name: 'Bookable',
+                        name: 'COMMON.BOOKABLE' | translate,
                         content: bool_template,
-                        size: '5.5rem'
+                        size: '5.5rem',
                     },
                     {
                         key: 'actions',
                         name: ' ',
                         content: action_template,
                         size: '8.5rem',
-                        sortable: false
-                    }
+                        sortable: false,
+                    },
                 ]"
                 [sortable]="true"
                 [empty_message]="
-                    (filters | async)?.search
-                        ? 'No matching desks'
-                        : 'No desks for selected level'
+                    ((filters | async)?.search
+                        ? 'APP.CONCIERGE.DESKS_MANAGE_SEARCH_EMPTY'
+                        : 'APP.CONCIERGE.DESKS_MANAGE_EMPTY'
+                    ) | translate
                 "
             ></simple-table>
             <ng-template #name_template let-row="row">
@@ -76,19 +89,19 @@ const QR_CODES = {};
                     class="flex flex-col px-4 py-2 text-left leading-tight"
                     (click)="copyToClipboard(row.map_id || row.id)"
                 >
-                    <div>{{ row.name || row.map_id || row.id }}</div>
+                    <div>{{ row.id || row.map_id }}</div>
                     <div
-                        *ngIf="row.name"
-                        class="text-[0.625rem] opacity-30 font-mono"
+                        *ngIf="row.id && row.map_id !== row.id"
+                        class="font-mono text-[0.625rem] opacity-30"
                     >
-                        {{ row.map_id || row.id }}
+                        {{ row.map_id }}
                     </div>
                 </button>
             </ng-template>
             <ng-template #item_list_template let-data="data">
                 <div class="flex flex-wrap p-2">
                     <span
-                        class="m-1 py-1 px-2 rounded-2xl text-xs font-mono bg-info text-info-content"
+                        class="m-1 rounded-2xl bg-info px-2 py-1 font-mono text-xs text-info-content"
                         *ngFor="let item of data"
                     >
                         {{ item }}
@@ -99,10 +112,28 @@ const QR_CODES = {};
                 <div
                     [class.bg-error]="!data"
                     [class.bg-success]="data"
-                    class="rounded h-8 w-8 flex items-center justify-center text-2xl text-white mx-auto"
+                    class="mx-auto flex h-8 w-8 items-center justify-center rounded text-2xl text-white"
                 >
                     <app-icon>{{ data ? 'done' : 'close' }}</app-icon>
                 </div>
+            </ng-template>
+            <ng-template #assigned_template let-row="row" let-data="data">
+                <div *ngIf="!data" class="p-4 opacity-30">
+                    {{ 'APP.CONCIERGE.UNASSIGNED' | translate }}
+                </div>
+                <button
+                    *ngIf="data"
+                    class="px-4 py-2 text-left leading-tight"
+                    (click)="copyToClipboard(data, 'assigned')"
+                >
+                    <div class="">{{ row.assigned_name || data }}</div>
+                    <div
+                        *ngIf="row.assigned_name"
+                        class="font-mono text-[0.625rem] opacity-30"
+                    >
+                        {{ data }}
+                    </div>
+                </button>
             </ng-template>
             <ng-template #action_template let-row="row">
                 <div class="flex items-center justify-end space-x-2 p-2">
@@ -111,7 +142,9 @@ const QR_CODES = {};
                         matRipple
                         customTooltip
                         [content]="qr_menu"
-                        matTooltip="Print QR Code"
+                        [matTooltip]="
+                            'APP.CONCIERGE.DESKS_ACTION_PRINT_QR' | translate
+                        "
                         (click)="loadQrCode(row)"
                     >
                         <app-icon>qr_code</app-icon>
@@ -119,7 +152,9 @@ const QR_CODES = {};
                     <button
                         icon
                         matRipple
-                        matTooltip="Edit Desk"
+                        [matTooltip]="
+                            'APP.CONCIERGE.DESKS_ACTION_EDIT' | translate
+                        "
                         (click)="editDesk(row)"
                     >
                         <app-icon>edit</app-icon>
@@ -127,24 +162,26 @@ const QR_CODES = {};
                     <button
                         icon
                         matRipple
-                        matTooltip="Remove Desk"
+                        [matTooltip]="
+                            'APP.CONCIERGE.DESKS_ACTION_REMOVE' | translate
+                        "
                         (click)="removeDesk(row)"
                     >
                         <app-icon class="text-error">delete</app-icon>
                     </button>
                     <ng-template #qr_menu>
-                        <div class="bg-base-100 py-2 shadow rounded">
+                        <div class="rounded bg-base-100 py-2 shadow">
                             <div class="" printable>
                                 <a
                                     [href]="row.qr_link | safe: 'url'"
                                     target="_blank"
                                     ref="noopener noreferrer"
-                                    class="block p-2 mx-4 my-2 rounded-lg border border-base-200 bg-base-100"
+                                    class="mx-4 my-2 block rounded-lg border border-base-200 bg-base-100 p-2"
                                 >
                                     <img class="w-48" [src]="row.qr_code" />
                                 </a>
                                 <div
-                                    class="w-[calc(100%-2rem)] text-center mt-2 font-mono text-sm bg-base-200 rounded p-2 mx-4"
+                                    class="mx-4 mt-2 w-[calc(100%-2rem)] rounded bg-base-200 p-2 text-center font-mono text-sm"
                                 >
                                     {{ row.name || row.id }}
                                 </div>
@@ -152,10 +189,13 @@ const QR_CODES = {};
                             <button
                                 btn
                                 matRipple
-                                class="w-[calc(100%-2rem)] mx-4 my-2"
+                                class="mx-4 my-2 w-[calc(100%-2rem)]"
                                 (click)="print()"
                             >
-                                Print QR Code
+                                {{
+                                    'APP.CONCIERGE.DESKS_ACTION_PRINT_QR'
+                                        | translate
+                                }}
                             </button>
                         </div>
                     </ng-template>
@@ -170,13 +210,13 @@ const QR_CODES = {};
             </div>
             <div
                 *ngIf="dragging"
-                class="absolute inset-0 bg-neutral flex items-center justify-center"
+                class="absolute inset-0 flex items-center justify-center bg-neutral"
             >
-                <div class="bg-base-100 p-4 rounded shadow">
+                <div class="rounded bg-base-100 p-4 shadow">
                     <div
-                        class="border-4 border-base-200 border-dashed rounded flex flex-col items-center justify-center w-64 h-64"
+                        class="flex h-64 w-64 flex-col items-center justify-center rounded border-4 border-dashed border-base-200"
                     >
-                        Drop CSV file to add desks
+                        {{ 'APP.CONCIERGE.DESKS_DROP_TEMPLATE' | translate }}
                     </div>
                 </div>
                 <input
@@ -188,6 +228,7 @@ const QR_CODES = {};
         </div>
     `,
     styles: [``],
+    standalone: false,
 })
 export class DesksManageComponent extends AsyncHandler {
     public loading: string;
@@ -203,24 +244,26 @@ export class DesksManageComponent extends AsyncHandler {
         private _dialog: MatDialog,
         private _settings: SettingsService,
         private _element: ElementRef,
-        private _clipboard: Clipboard
+        private _clipboard: Clipboard,
     ) {
         super();
     }
 
     public readonly copyToClipboard = (id: string) => {
         const success = this._clipboard.copy(id);
-        if (success) notifySuccess('Desk ID copied to clipboard.');
+        if (success) notifySuccess(i18n('APP.CONCIERGE.DESKS_ID_COPIED'));
     };
 
     public async removeDesk(desk: Desk) {
         const resp = await openConfirmModal(
             {
-                title: 'Remove desk',
-                content: `Remove desk ${desk.name}?`,
+                title: i18n('APP.CONCIERGE.DESKS_REMOVE_TITLE'),
+                content: i18n('APP.CONCIERGE.DESKS_REMOVE_MSG', {
+                    name: desk.name,
+                }),
                 icon: { content: 'delete' },
             },
-            this._dialog
+            this._dialog,
         );
         if (resp.reason !== 'done') return;
         resp.close();
@@ -228,7 +271,7 @@ export class DesksManageComponent extends AsyncHandler {
         const updated_desks = desks.filter((_) => _.id !== desk.id);
         const filters = await this.filters.pipe(take(1)).toPromise();
         const level = this._org.levelWithID(filters.zones);
-        this.loading = 'Removing desk...';
+        this.loading = i18n('APP.CONCIERGE.DESKS_REMOVE_LOADING');
         await updateMetadata(level.id, {
             name: 'desks',
             description: 'desks',
@@ -237,10 +280,14 @@ export class DesksManageComponent extends AsyncHandler {
             .toPromise()
             .catch((e) => {
                 this.loading = '';
-                notifyError(`Error saving desk data. Error: ${e.message || e}`);
+                notifyError(
+                    i18n('APP.CONCIERGE.DESKS_REMOVE_ERROR', {
+                        error: e.message || e,
+                    }),
+                );
                 throw e;
             });
-        notifySuccess('Successfully updated desks');
+        notifySuccess(i18n('APP.CONCIERGE.DESKS_REMOVE_SUCCESS'));
         this._state.setFilters({});
         this.loading = '';
     }
@@ -264,7 +311,7 @@ export class DesksManageComponent extends AsyncHandler {
     }
 
     public async loadCSVData(event: InputEvent) {
-        this.loading = 'Loading CSV file...';
+        this.loading = i18n('APP.CONCIERGE.DESKS_UPLOADING');
         this.dragging = false;
         const data = await loadTextFileFromInputEvent(event).catch(([m, e]) => {
             notifyError(m);
@@ -278,8 +325,8 @@ export class DesksManageComponent extends AsyncHandler {
                         new Desk({
                             ..._,
                             id: _.id || `desk-${randomInt(999_999)}`,
-                        })
-                )
+                        }),
+                ),
             );
         } catch (e) {
             console.error(e);

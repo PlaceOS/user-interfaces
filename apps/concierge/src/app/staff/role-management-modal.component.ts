@@ -9,63 +9,77 @@ import { filter, map, shareReplay, switchMap, take } from 'rxjs/operators';
 @Component({
     selector: 'role-management-modal',
     template: `
-        <header>
-            <h2>Manage Roles</h2>
-            <button btn icon matRipple mat-dialog-close>
+        <header
+            class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded border-none bg-base-200 p-2"
+        >
+            <h2 class="px-2 text-xl font-medium">
+                {{ 'APP.CONCIERGE.CONTACTS_ROLES_MANAGE' | translate }}
+            </h2>
+            <button icon matRipple mat-dialog-close *ngIf="!loading">
                 <app-icon>close</app-icon>
             </button>
         </header>
-        <main
-            class="overflow-y-auto min-w-[20rem] divide-y divide-base-200 max-h-[65vh]"
-        >
-            <button
-                btn
-                matRipple
-                class="flex items-center justify-center space-x-2 w-[calc(100%-1rem)] m-2"
-                customTooltip
-                (click)="active = ''; role_name = ''"
-                [content]="role_form"
-            >
-                <div class="truncate">New Role</div>
-                <app-icon>add</app-icon>
-            </button>
+        <main class="h-[32rem] max-h-[65vh] min-w-[28rem] overflow-y-auto">
             <ng-container *ngFor="let role of roles | async">
                 <div
-                    class="flex items-center space-x-2 hover:bg-base-200:bg-base-300 p-2"
+                    class="hover:bg-base-200:bg-base-300 m-2 flex items-center space-x-2 rounded border border-base-200 p-2"
                 >
-                    <div class="flex-1 truncate">{{ role }}</div>
+                    <div class="flex-1 truncate px-2">{{ role }}</div>
                     <button
-                        btn
                         icon
                         matRipple
+                        class="h-12 w-12 rounded border border-secondary text-secondary"
                         (click)="active = role; role_name = role"
                         customTooltip
                         [content]="role_form"
                     >
                         <app-icon>edit</app-icon>
                     </button>
-                    <button btn icon matRipple (click)="removeRole(role)">
+                    <button
+                        icon
+                        matRipple
+                        class="h-12 w-12 rounded border border-error text-error"
+                        (click)="removeRole(role)"
+                    >
                         <app-icon>delete</app-icon>
                     </button>
                 </div>
             </ng-container>
         </main>
+        <footer class="border-t border-base-200">
+            <button
+                btn
+                matRipple
+                class="m-2 flex w-[calc(100%-1rem)] items-center justify-center space-x-2"
+                customTooltip
+                (click)="active = ''; role_name = ''"
+                [content]="role_form"
+            >
+                <div class="truncate pl-2">
+                    {{ 'APP.CONCIERGE.CONTACTS_ROLES_ADD' | translate }}
+                </div>
+                <app-icon class="text-2xl">add</app-icon>
+            </button>
+        </footer>
         <ng-template #role_form>
-            <div class="bg-base-100 p-4 rounded ">
+            <div class="rounded bg-base-100 p-4">
                 <mat-form-field appearance="outline">
                     <input
                         matInput
                         [(ngModel)]="role_name"
-                        placeholder="Role name"
+                        [placeholder]="
+                            'APP.CONCIERGE.CONTACTS_ROLES_NAME' | translate
+                        "
                     />
                 </mat-form-field>
                 <button btn matRipple class="w-full" (click)="updateRoles()">
-                    Save Role
+                    {{ 'APP.CONCIERGE.CONTACTS_ROLES_SAVE' | translate }}
                 </button>
             </div>
         </ng-template>
     `,
     styles: [``],
+    standalone: false,
 })
 export class RoleManagementModalComponent {
     private _changes = new BehaviorSubject(0);
@@ -85,7 +99,7 @@ export class RoleManagementModalComponent {
             if (!value.contacts) value.contacts = [];
             return value;
         }),
-        shareReplay(1)
+        shareReplay(1),
     );
     public readonly roles = this.data.pipe(map((_) => _.roles));
 
@@ -142,6 +156,6 @@ export class RoleManagementModalComponent {
 
     constructor(
         private _org: OrganisationService,
-        private _dialog_ref: MatDialogRef<RoleManagementModalComponent>
+        private _dialog_ref: MatDialogRef<RoleManagementModalComponent>,
     ) {}
 }

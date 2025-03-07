@@ -1,7 +1,5 @@
-import { fakeAsync, tick } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { Router } from '@angular/router';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
@@ -38,20 +36,6 @@ describe('ControlMainViewComponent', () => {
     it('should create component', () => {
         expect(spectator.component).toBeTruthy();
     });
-
-    it('should redirect to bootstrap page if no ID set', fakeAsync(() => {
-        const service = spectator.inject(ControlStateService);
-        const router = spectator.inject(Router);
-        spectator.component.ngOnInit();
-        tick(400);
-        expect(router.navigate).toBeCalledWith(['/bootstrap']);
-        (router.navigate as any).mockClear();
-        (service as any).id = 'space-0';
-        spectator.component.ngOnInit();
-        tick(400);
-        expect(service.setID).toBeCalledWith('space-0');
-        expect(router.navigate).not.toBeCalled();
-    }));
 
     it('should shown loading when connecting to system', async () => {
         const service = spectator.inject(ControlStateService);

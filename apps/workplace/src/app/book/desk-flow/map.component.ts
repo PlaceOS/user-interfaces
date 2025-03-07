@@ -8,7 +8,7 @@ import {
 import { ExploreStateService } from '@placeos/explore';
 import { Desk } from '@placeos/organisation';
 import { format } from 'date-fns';
-import { BehaviorSubject, combineLatest, of } from 'rxjs';
+import { BehaviorSubject, combineLatest } from 'rxjs';
 import { debounceTime, map, startWith } from 'rxjs/operators';
 
 @Component({
@@ -21,16 +21,16 @@ import { debounceTime, map, startWith } from 'rxjs/operators';
                 matRipple
                 [routerLink]="['/book', 'desks', 'form']"
             >
-                <div class="flex items-center justify-center h-full">
+                <div class="flex h-full items-center justify-center">
                     <app-icon class="text-xl">arrow_back</app-icon>
-                    <span class="ml-2 mx-4">Back</span>
+                    <span class="mx-4 ml-2">Back</span>
                 </div>
             </a>
         </div>
-        <div class="flex flex-col flex-1 h-1/2 w-full ">
-            <h2 class="text-2xl px-4 pt-4 text-center">Available Desks</h2>
+        <div class="flex h-1/2 w-full flex-1 flex-col">
+            <h2 class="px-4 pt-4 text-center text-2xl">Available Desks</h2>
             <an-action-field
-                class="my-4 mx-auto w-[640px] max-w-[calc(100vw-2rem)]"
+                class="mx-auto my-4 w-[640px] max-w-[calc(100vw-2rem)]"
                 [matMenuTriggerFor]="menu"
             >
                 {{ (option_details | async) || 'No Filters' }}
@@ -38,21 +38,21 @@ import { debounceTime, map, startWith } from 'rxjs/operators';
             <mat-menu #menu="matMenu">
                 <div
                     (click)="$event.stopPropagation(); ($event.preventDefault)"
-                    class="pt-4 max-h-[65vh] overflow-auto"
+                    class="max-h-[65vh] overflow-auto pt-4"
                 >
                     <detailed-book-desks-form
                         [form]="form"
                     ></detailed-book-desks-form>
                 </div>
             </mat-menu>
-            <div listing class="flex flex-1 h-1/2 relative space-x-2">
+            <div listing class="relative flex h-1/2 flex-1 space-x-2">
                 <ul
-                    class="list-style-none w-full sm:w-[20rem] max-w-[48rem] mx-auto bg-base-200 pb-32 overflow-auto h-full rounded-tr-lg space-y-2"
+                    class="list-style-none mx-auto h-full w-full max-w-[48rem] space-y-2 overflow-auto rounded-tr-lg bg-base-200 pb-32 sm:w-[20rem]"
                     [class.!w-full]="hide_map"
                     [class.rounded-tl-lg]="hide_map"
                 >
                     <div
-                        class="py-2 px-4 sticky top-0 inset-x-0 bg-base-200 border-b border-base-200 z-10"
+                        class="sticky inset-x-0 top-0 z-10 border-b border-base-200 bg-base-200 px-4 py-2"
                     >
                         {{ (desks | async)?.length || '0' }} matches available
                     </div>
@@ -60,12 +60,12 @@ import { debounceTime, map, startWith } from 'rxjs/operators';
                         matRipple
                         *ngFor="let desk of desks | async"
                         [attr.desk-id]="desk.id"
-                        class="flex items-center p-2 mx-2 bg-base-100 rounded shadow cursor-pointer space-x-2 min-h-[5rem] border"
+                        class="mx-2 flex min-h-[5rem] cursor-pointer items-center space-x-2 rounded border bg-base-100 p-2 shadow"
                         [class.border-primary]="active_desk?.id === desk.id"
                         (click)="setActiveDesk(desk)"
                     >
                         <app-icon class="text-2xl">place</app-icon>
-                        <div class="flex flex-col w-1/2 flex-1">
+                        <div class="flex w-1/2 flex-1 flex-col">
                             <div name class="">{{ desk.name || desk.id }}</div>
                             <div level class="text-xs">
                                 {{
@@ -74,10 +74,10 @@ import { debounceTime, map, startWith } from 'rxjs/operators';
                                         '&lt;No Level&gt;'
                                 }}
                             </div>
-                            <div features class="w-full flex flex-wrap">
+                            <div features class="flex w-full flex-wrap">
                                 <div
                                     *ngFor="let feat of desk.features || []"
-                                    class="text-xs bg-primary text-white rounded-xl px-2 py-1 mt-1 mr-2"
+                                    class="mr-2 mt-1 rounded-xl bg-primary px-2 py-1 text-xs text-white"
                                 >
                                     {{ feat }}
                                 </div>
@@ -86,7 +86,7 @@ import { debounceTime, map, startWith } from 'rxjs/operators';
                     </li>
                 </ul>
                 <div
-                    class="hidden sm:block flex-1 bg-base-200 rounded-tl-lg border-l border-t border-base-200 relative overflow-hidden h-full"
+                    class="relative hidden h-full flex-1 overflow-hidden rounded-tl-lg border-l border-t border-base-200 bg-base-200 sm:block"
                     *ngIf="!hide_map"
                 >
                     <interactive-map
@@ -100,7 +100,7 @@ import { debounceTime, map, startWith } from 'rxjs/operators';
                         [focus]="active_desk?.map_id || active_desk?.id"
                     ></interactive-map>
                     <div
-                        class="absolute top-2 left-2 bg-base-100 rounded-3xl h-10 px-3 flex items-center border border-base-200"
+                        class="absolute left-2 top-2 flex h-10 items-center rounded-3xl border border-base-200 bg-base-100 px-3"
                         *ngIf="level | async"
                     >
                         {{
@@ -111,14 +111,14 @@ import { debounceTime, map, startWith } from 'rxjs/operators';
                 </div>
                 <div
                     *ngIf="loading | async"
-                    class="absolute inset-0 bg-base-100 bg-opacity-60 flex flex-col items-center justify-center space-y-2 !m-0 z-20"
+                    class="absolute inset-0 z-20 !m-0 flex flex-col items-center justify-center space-y-2 bg-base-100 bg-opacity-60"
                 >
                     <mat-spinner [diameter]="32"></mat-spinner>
                     <p>{{ loading | async }}</p>
                 </div>
                 <div
                     selection
-                    class="absolute bottom-2 left-1/2 transform -translate-x-1/2 p-2 bg-base-100 shadow rounded w-[24rem] max-w-[calc(100vw-1rem)] space-y-2 !m-0 border border-base-200"
+                    class="absolute bottom-2 left-1/2 !m-0 w-[24rem] max-w-[calc(100vw-1rem)] -translate-x-1/2 transform space-y-2 rounded border border-base-200 bg-base-100 p-2 shadow"
                     *ngIf="active_desk"
                 >
                     <div class="">
@@ -165,6 +165,7 @@ import { debounceTime, map, startWith } from 'rxjs/operators';
             }
         `,
     ],
+    standalone: false,
 })
 export class DeskFlowMapComponent extends AsyncHandler implements OnInit {
     /** Observable for the active map */
@@ -209,7 +210,7 @@ export class DeskFlowMapComponent extends AsyncHandler implements OnInit {
             } Feature${(options.features?.length || 0) < 2 ? '' : 's'}`;
             if (options.zone_id) this._explore.setLevel(options.zone_id);
             return details;
-        })
+        }),
     );
 
     private _active_desk = new BehaviorSubject<Desk>(null);
@@ -227,7 +228,7 @@ export class DeskFlowMapComponent extends AsyncHandler implements OnInit {
     constructor(
         private _state: BookingFormService,
         private _settings: SettingsService,
-        private _explore: ExploreStateService
+        private _explore: ExploreStateService,
     ) {
         super();
     }
@@ -280,9 +281,9 @@ export class DeskFlowMapComponent extends AsyncHandler implements OnInit {
                     </span>`,
                                   },
                               ]
-                            : []
+                            : [],
                     );
-                })
+                }),
         );
     }
 

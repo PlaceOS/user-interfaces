@@ -1,19 +1,30 @@
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { currentUser } from '@placeos/common';
-import { CalendarEvent } from 'libs/events/src/lib/event.class';
-import { endInFuture } from 'libs/events/src/lib/validators';
+import { current_user, currentUser, flatten } from '@placeos/common';
 import {
     createViewer,
     getViewer,
     Point,
     removeViewer,
 } from '@placeos/svg-viewer';
-import { Booking } from './booking.class';
+import { PlaceMetadata, showMetadata } from '@placeos/ts-client';
 import {
     addMinutes,
     differenceInMinutes,
     roundToNearestMinutes,
 } from 'date-fns';
+import { CalendarEvent } from 'libs/events/src/lib/event.class';
+import { endInFuture } from 'libs/events/src/lib/validators';
+import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
+import { combineLatest, forkJoin, Observable, of } from 'rxjs';
+import {
+    catchError,
+    filter,
+    map,
+    shareReplay,
+    switchMap,
+} from 'rxjs/operators';
+import { Booking } from './booking.class';
+import { Locker, LockerBank } from './locker.class';
 
 function setBookingAsset(form: FormGroup, resource: any) {
     if (!resource) return form.patchValue({ asset_id: undefined });
@@ -28,7 +39,7 @@ function setBookingAsset(form: FormGroup, resource: any) {
                 : [],
             booking_asset: resource,
         },
-        { emitEvent: false }
+        { emitEvent: false },
     );
 }
 
@@ -42,7 +53,7 @@ export function generateBookingForm(booking: Booking = new Booking()) {
         date_end: new FormControl(booking.date_end),
         all_day: new FormControl(booking.all_day ?? false),
         name: new FormControl(
-            booking.extension_data.name || booking.asset_name || ''
+            booking.extension_data.name || booking.asset_name || '',
         ),
         duration: new FormControl(booking.duration, [endInFuture]),
         booking_type: new FormControl(booking.booking_type),
@@ -69,61 +80,74 @@ export function generateBookingForm(booking: Booking = new Booking()) {
         booked_by_email: new FormControl(booking.booked_by_email),
         secondary_resource: new FormControl(
             booking.extension_data?.other_asset_type ||
-                booking.extension_data?.secondary_resource
+                booking.extension_data?.secondary_resource,
         ),
         location: new FormControl(booking.extension_data.location || ''),
         attendance_type: new FormControl(
-            booking.extension_data.attendance_type || 'ANY'
+            booking.extension_data.attendance_type || 'ANY',
         ),
         phone: new FormControl(booking.extension_data.phone || ''),
         permission: new FormControl(booking.permission || 'PRIVATE'),
         images: new FormControl(booking.images || []),
-        tags: new FormControl(booking.tags || []),
+        tags: new FormControl(booking?.tags || []),
         plate_number: new FormControl(
-            booking.extension_data.plate_number || ''
+            booking.extension_data.plate_number || '',
         ),
         recurrence_type: new FormControl(booking.recurrence_type || 'none'),
         recurrence_days: new FormControl(booking.recurrence_days),
         recurrence_nth_of_month: new FormControl(
-            booking.recurrence_nth_of_month
+            booking.recurrence_nth_of_month,
         ),
         recurrence_interval: new FormControl(booking.recurrence_interval),
         recurrence_end: new FormControl(booking.recurrence_end),
+        notes: new FormControl(booking.extension_data.notes || ''),
+        update_master: new FormControl(false),
+        self_registered: new FormControl(false),
+        is_assgined: new FormControl(false),
     });
-    form.valueChanges.subscribe((v) => {
-        const user = v.user;
-        const booker = v.booked_by || currentUser();
-        booker || user
-            ? form.patchValue(
-                  {
-                      user: user || booker,
-                      user_id: user?.id || booker?.id,
-                      user_email: user?.email || booker?.email,
-                      name: user?.name || booker?.name,
-                      booked_by_id: booker?.id,
-                      booked_by_email: booker?.email,
-                  },
-                  { emitEvent: false }
-              )
-            : '';
+    form.valueChanges.subscribe(() => {
         if (form.getRawValue().date < Date.now() && form.value.id) {
             form.get('date')?.disable({ emitEvent: false });
         } else {
             form.get('date')?.enable({ emitEvent: false });
         }
     });
+    form.controls.user.valueChanges.subscribe((user) => {
+        if (!user) return;
+        form.patchValue(
+            {
+                user: user,
+                user_id: user?.id,
+                user_email: user?.email,
+                user_name: user?.name,
+            },
+            { emitEvent: false },
+        );
+    });
+    current_user.subscribe((user) => {
+        if (!user) return;
+        form.patchValue(
+            {
+                booked_by: user,
+                booked_by_id: user?.id,
+                booked_by_email: user?.email,
+                name: user?.name,
+            },
+            { emitEvent: false },
+        );
+    });
     form.controls.resources.valueChanges.subscribe((resources) =>
-        setBookingAsset(form, (resources || [])[0])
+        setBookingAsset(form, (resources || [])[0]),
     );
     form.controls.duration.valueChanges.subscribe((duration) => {
         form.patchValue(
             {
                 date_end: roundToNearestMinutes(
                     addMinutes(form.getRawValue().date, duration),
-                    { nearestTo: 5, roundingMethod: 'ceil' }
+                    { nearestTo: 5, roundingMethod: 'ceil' },
                 ).valueOf(),
             },
-            { emitEvent: false }
+            { emitEvent: false },
         );
     });
     form.controls.date_end.valueChanges.subscribe((date) => {
@@ -132,21 +156,21 @@ export function generateBookingForm(booking: Booking = new Booking()) {
                 {
                     date_end: roundToNearestMinutes(
                         addMinutes(form.getRawValue().date, 30),
-                        { nearestTo: 5, roundingMethod: 'ceil' }
+                        { nearestTo: 5, roundingMethod: 'ceil' },
                     ).valueOf(),
                     duration: 30,
                 },
-                { emitEvent: false }
+                { emitEvent: false },
             );
         } else {
             form.patchValue(
                 {
                     duration: differenceInMinutes(
                         date,
-                        form.getRawValue().date
+                        form.getRawValue().date,
                     ),
                 },
-                { emitEvent: false }
+                { emitEvent: false },
             );
         }
     });
@@ -155,10 +179,10 @@ export function generateBookingForm(booking: Booking = new Booking()) {
             {
                 date_end: roundToNearestMinutes(
                     addMinutes(date, form.value.duration),
-                    { nearestTo: 5, roundingMethod: 'ceil' }
+                    { nearestTo: 5, roundingMethod: 'ceil' },
                 ).valueOf(),
             },
-            { emitEvent: false }
+            { emitEvent: false },
         );
         if (date < Date.now() && !form.value.id) {
             form.patchValue(
@@ -168,7 +192,7 @@ export function generateBookingForm(booking: Booking = new Booking()) {
                         roundingMethod: 'ceil',
                     }).valueOf(),
                 },
-                { emitEvent: false }
+                { emitEvent: false },
             );
         }
     });
@@ -179,7 +203,7 @@ export function generateBookingForm(booking: Booking = new Booking()) {
 export async function findNearbyFeature(
     map_url: string,
     centered_at: Point | string,
-    desk_ids: string[] = []
+    desk_ids: string[] = [],
 ): Promise<string> {
     const element = document.createElement('div');
     element.style.position = 'absolute';
@@ -200,7 +224,7 @@ export async function findNearbyFeature(
     for (const desk of desk_ids) {
         const { x, y } = viewer.mappings[desk] || { x: 2, y: 2 };
         const d = Math.sqrt(
-            (x - point.x) * (x - point.x) + (y - point.y) * (y - point.y)
+            (x - point.x) * (x - point.x) + (y - point.y) * (y - point.y),
         );
         if (d < dist) {
             dist = d;
@@ -224,4 +248,83 @@ export function newBookingFromCalendarEvent(event: CalendarEvent) {
             ...event,
         },
     });
+}
+
+export function loadLockerBanks(
+    org: OrganisationService,
+    obs: Observable<any>,
+    useRegion: () => boolean,
+): Observable<LockerBank[]> {
+    return obs.pipe(
+        filter(([bld]) => !!bld),
+        switchMap(([bld]) =>
+            useRegion()
+                ? forkJoin(
+                      org.buildingsForRegion().map((building) =>
+                          showMetadata(building.id, 'locker_banks').pipe(
+                              catchError(() => of(new PlaceMetadata())),
+                              map((_) =>
+                                  _.details instanceof Array ? _.details : [],
+                              ),
+                          ),
+                      ),
+                  ).pipe(map((_: LockerBank[][]) => flatten(_)))
+                : showMetadata(bld.id, 'locker_banks').pipe(
+                      catchError(() => of(new PlaceMetadata())),
+                      map((_) => (_.details instanceof Array ? _.details : [])),
+                  ),
+        ),
+        shareReplay(1),
+    );
+}
+
+export function loadLockers(
+    org: OrganisationService,
+    obs: Observable<any>,
+    banks$: Observable<LockerBank[]>,
+    useRegion: () => boolean,
+): Observable<Locker[]> {
+    return obs.pipe(
+        filter(([bld]) => !!bld),
+        switchMap(([bld]) =>
+            combineLatest([
+                useRegion()
+                    ? forkJoin(
+                          org.buildingsForRegion().map((building) =>
+                              showMetadata(building.id, 'lockers').pipe(
+                                  catchError(() => of(new PlaceMetadata())),
+                                  map((_) =>
+                                      _.details instanceof Array
+                                          ? _.details
+                                          : [],
+                                  ),
+                              ),
+                          ),
+                      ).pipe(map((_: Locker[][]) => flatten(_)))
+                    : showMetadata(bld.id, 'lockers').pipe(
+                          catchError(() => of(new PlaceMetadata())),
+                          map((_) =>
+                              _.details instanceof Array ? _.details : [],
+                          ),
+                      ),
+                banks$,
+            ]),
+        ),
+        map(([lockers, banks]: any) => {
+            const locker_list = lockers;
+            for (const bank of banks) {
+                bank.lockers = lockers
+                    .filter((_) => _.bank_id === bank.id)
+                    .map((_) => ({ ..._ }));
+            }
+            for (const locker of locker_list) {
+                const bank = banks.find((b) => b.id === locker.bank_id);
+                locker.bank = bank;
+                locker.tags = bank?.tags || [];
+                locker.zone = org.levelWithID(bank?.zones || []);
+            }
+            return lockers.filter((_) => _.bank);
+        }),
+        shareReplay(1),
+    );
 }

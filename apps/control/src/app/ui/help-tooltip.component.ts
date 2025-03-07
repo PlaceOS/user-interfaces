@@ -7,32 +7,34 @@ import { ControlStateService } from '../control-state.service';
     selector: 'help-tooltip',
     template: `
         <div
-            class="p-4 my-2 bg-base-100 shadow rounded flex flex-col items-center space-y-2"
+            class="my-2 flex flex-col items-center space-y-2 rounded bg-base-100 p-4 shadow"
         >
-            <h3 class="mb-2 text-xl font-medium">Need help?</h3>
-            <p>
-                Contact
-                <span contact>{{
-                    support_contact || ' your administrator'
-                }}</span>
-                if you require <br />assisatance at
-                <a
-                    email
-                    class="underline"
-                    [href]="'mailto:' + (support_email || 'support@place.tech')"
-                    >{{ support_email || 'support@place.tech' }}</a
-                >
-                or phone
-                <a
-                    phone
-                    class="underline"
-                    [href]="'tel:' + (support_phone || '0412345678')"
-                    >{{ support_phone || '0412345678' }}</a
-                >
-            </p>
+            <h3 class="mb-2 text-xl font-medium">
+                {{ 'APP.CONTROL.HELP_CONTACT' | translate }}
+            </h3>
+            <p
+                [innerHTML]="
+                    'APP.CONTROL.HELP_CONTACT_MSG'
+                        | translate
+                            : {
+                                  contact:
+                                      support_contact || ' your administrator',
+                                  email: support_email || 'support@place.tech',
+                                  phone: support_phone || '0412345678',
+                              }
+                        | sanitize
+                "
+            ></p>
         </div>
     `,
-    styles: [``],
+    styles: [
+        `
+            a {
+                text-decoration-line: underline;
+            }
+        `,
+    ],
+    standalone: false,
 })
 export class HelpTooltipComponent {
     public support_contact: string;
@@ -46,6 +48,6 @@ export class HelpTooltipComponent {
 
     constructor(
         private _state: ControlStateService,
-        private _tooltip: CustomTooltipData
+        private _tooltip: CustomTooltipData,
     ) {}
 }

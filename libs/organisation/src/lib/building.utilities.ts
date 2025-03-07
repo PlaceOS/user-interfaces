@@ -1,4 +1,3 @@
-
 let BLD_COUNT = 0;
 let LVL_COUNT = 0;
 
@@ -79,7 +78,10 @@ export function generateMockBuilding(id?: string): Record<string, any> {
  * @param id Forced ID for the mock
  * @param map_url Map URL for the level
  */
-export function generateMockLevel(id?: string, map_url?: string): Record<string, any> {
+export function generateMockLevel(
+    id?: string,
+    map_url?: string,
+): Record<string, any> {
     if (!id) {
         id = `zone_lvl-${LVL_COUNT++}`;
     }

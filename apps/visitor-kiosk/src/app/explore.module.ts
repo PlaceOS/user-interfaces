@@ -1,7 +1,7 @@
-import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, Route } from '@angular/router';
+import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Route, RouterModule } from '@angular/router';
 
 import { ComponentsModule } from '@placeos/components';
 import { SharedExploreModule } from '@placeos/explore';
@@ -9,9 +9,9 @@ import { SharedSpacesModule } from '@placeos/spaces';
 
 import { SharedComponentsModule } from './components/shared-components.module';
 
-import { ExploreComponent } from 'apps/map-kiosk/src/app/explore.component';
-import { ExploreLevelSelectComponent } from 'apps/map-kiosk/src/app/explore-level-select.component';
 import { AccessibilityControlsComponent } from 'apps/map-kiosk/src/app/accessibility-controls.component';
+import { ExploreLevelSelectComponent } from 'apps/map-kiosk/src/app/explore-level-select.component';
+import { ExploreComponent } from 'apps/map-kiosk/src/app/explore.component';
 
 const ROUTES: Route[] = [
     { path: '', component: ExploreComponent },

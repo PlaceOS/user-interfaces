@@ -1,14 +1,11 @@
-import { Pipe } from '@angular/core';
+import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
     name: 'splitjoin',
+    standalone: false,
 })
-export class SplitJoinPipe {
-    public transform(
-        value: string,
-        split: string = '_',
-        join: string = ' '
-    ): string {
+export class SplitJoinPipe implements PipeTransform {
+    public transform(value: string, split = '_', join = ' '): string {
         return (value || '').split(split).join(join);
     }
 }

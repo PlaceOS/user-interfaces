@@ -1,36 +1,46 @@
+import { ErrorHandler, LOCALE_ID, NgModule } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { APP_INITIALIZER, ErrorHandler, NgModule } from '@angular/core';
-import { ServiceWorkerModule } from '@angular/service-worker';
-import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
-import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+import { ServiceWorkerModule } from '@angular/service-worker';
 
 import { AppComponent } from '../../../../libs/components/src/lib/app.component';
 
-import { AppRoutingModule } from './app-routing.module';
-import { SharedComponentsModule } from './components/shared-components.module';
-import { BootstrapComponent } from './bootstrap.component';
-import { WelcomeComponent } from './welcome.component';
 import { environment } from '../environments/environment';
+import { AppRoutingModule } from './app-routing.module';
+import { BootstrapComponent } from './bootstrap.component';
+import { SharedComponentsModule } from './components/shared-components.module';
+import { WelcomeComponent } from './welcome.component';
 
-import * as Sentry from '@sentry/angular';
-import { ComponentsModule } from '@placeos/components';
-import { SharedSpacesModule } from '@placeos/spaces';
-import { PaymentsModule } from '@placeos/payments';
 import { AssetsModule } from '@placeos/assets';
 import { SharedBookingsModule } from '@placeos/bookings';
-import { HttpClient } from '@angular/common/http';
-import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
+import { LocaleService } from '@placeos/common';
+import { ComponentsModule } from '@placeos/components';
+import { PaymentsModule } from '@placeos/payments';
+import { SharedSpacesModule } from '@placeos/spaces';
+import * as Sentry from '@sentry/angular';
+import { FormFieldsModule } from '../../../../libs/form-fields/src/lib/form-fields.module';
+import { VisitorRegistrationComponent } from './visitor-registration.component';
 
-// AoT requires an exported function for factories
-export function HttpLoaderFactory(http: HttpClient) {
-    return new TranslateHttpLoader(http, './assets/locale/', '.json');
-}
+import { registerLocaleData } from '@angular/common';
+import localeAr from '@angular/common/locales/ar';
+import localeEs from '@angular/common/locales/es';
+import localeFr from '@angular/common/locales/fr';
+import localeIt from '@angular/common/locales/it';
+import localeJa from '@angular/common/locales/ja';
+import localeZh from '@angular/common/locales/zh';
 
-@NgModule({ declarations: [AppComponent, BootstrapComponent, WelcomeComponent],
-    bootstrap: [AppComponent], imports: [BrowserModule,
+@NgModule({
+    declarations: [
+        AppComponent,
+        BootstrapComponent,
+        WelcomeComponent,
+        VisitorRegistrationComponent,
+    ],
+    bootstrap: [AppComponent],
+    imports: [
+        BrowserModule,
         BrowserAnimationsModule,
         AppRoutingModule,
         ServiceWorkerModule.register('ngsw-worker.js', {
@@ -43,14 +53,11 @@ export function HttpLoaderFactory(http: HttpClient) {
         SharedBookingsModule,
         PaymentsModule,
         AssetsModule,
-        TranslateModule.forRoot({
-            defaultLanguage: 'en',
-            loader: {
-                provide: TranslateLoader,
-                useFactory: HttpLoaderFactory,
-                deps: [HttpClient],
-            },
-        })], providers: [
+        FormFieldsModule,
+        ReactiveFormsModule,
+        FormFieldsModule,
+    ],
+    providers: [
         {
             provide: ErrorHandler,
             useValue: Sentry.createErrorHandler({
@@ -62,11 +69,19 @@ export function HttpLoaderFactory(http: HttpClient) {
             deps: [Router],
         },
         {
-            provide: APP_INITIALIZER,
-            useFactory: () => () => { },
-            deps: [Sentry.TraceService],
-            multi: true,
+            provide: LOCALE_ID,
+            deps: [LocaleService],
+            useFactory: (localeService: LocaleService) => localeService.locale,
         },
-        provideHttpClient(withInterceptorsFromDi()),
-    ] })
-export class AppModule {}
+    ],
+})
+export class AppModule {
+    constructor() {
+        registerLocaleData(localeFr);
+        registerLocaleData(localeAr);
+        registerLocaleData(localeJa);
+        registerLocaleData(localeZh);
+        registerLocaleData(localeEs);
+        registerLocaleData(localeIt);
+    }
+}

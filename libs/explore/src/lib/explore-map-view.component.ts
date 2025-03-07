@@ -1,30 +1,30 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { getModule } from '@placeos/ts-client';
 import { Point } from '@placeos/svg-viewer';
-import { first, take } from 'rxjs/operators';
 import { Observable } from 'rxjs';
+import { first, take } from 'rxjs/operators';
 
 import {
     AsyncHandler,
+    i18n,
     notifyError,
     SettingsService,
     unique,
 } from '@placeos/common';
 import { MapLocation, showStaff, User } from '@placeos/users';
 
-import { SpacesService } from 'libs/spaces/src/lib/spaces.service';
+import { MapsPeopleService } from 'libs/common/src/lib/mapspeople.service';
 import { MapPinComponent } from 'libs/components/src/lib/map-pin.component';
 import { MapRadiusComponent } from 'libs/components/src/lib/map-radius.component';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
-import { ExploreStateService } from './explore-state.service';
-import { ExploreSpacesService } from './explore-spaces.service';
-import { ExploreZonesService } from './explore-zones.service';
+import { SpacesService } from 'libs/spaces/src/lib/spaces.service';
 import { ExploreDesksService } from './explore-desks.service';
-import { ExploreParkingService } from './explore-parking.service';
 import { ExploreLockersService } from './explore-lockers.service';
-import { MapsPeopleService } from 'libs/common/src/lib/mapspeople.service';
+import { ExploreParkingService } from './explore-parking.service';
+import { ExploreSpacesService } from './explore-spaces.service';
+import { ExploreStateService } from './explore-state.service';
+import { ExploreZonesService } from './explore-zones.service';
 
 const EMPTY = [];
 
@@ -43,7 +43,7 @@ const EMPTY = [];
         <div
             *ngIf="!(use_mapsindoors$ | async)"
             controls
-            class="absolute top-2 left-2 max-w-[calc(100vw-1rem)] bg-base-100 border border-base-200 rounded p-2 space-y-2 overflow-hidden"
+            class="absolute left-2 top-2 max-w-[calc(100vw-1rem)] space-y-2 overflow-hidden rounded border border-base-200 bg-base-100 p-2"
         >
             <explore-map-controls></explore-map-controls>
             <div class="flex items-center space-x-2" *ngIf="!hide_zones">
@@ -53,26 +53,36 @@ const EMPTY = [];
                     [ngModel]="!(options | async)?.disable?.includes('zones')"
                     (ngModelChange)="toggleZones($event)"
                 ></mat-slide-toggle>
-                <label for="zones" class="mb-0" i18n>Zones</label>
+                <label for="zones" class="mb-0">{{
+                    'EXPLORE.AREAS' | translate
+                }}</label>
             </div>
         </div>
         <div
             legend
             *ngIf="show_legend && legend.length"
-            class="absolute bottom-2 left-2 p-2 rounded bg-base-100 border border-base-200"
+            class="absolute bottom-2 left-2 rounded border border-base-200 bg-base-100 p-2"
         >
-            <h3 class="mb-2 font-medium" i18n>Legend</h3>
+            <h3 class="mb-2 font-medium">{{ 'EXPLORE.LEGEND' | translate }}</h3>
             <div
                 class="flex items-center space-x-2"
                 *ngFor="let pair of legend"
             >
                 <div
-                    class="w-3 h-3 rounded-full border border-base-200"
+                    class="h-3 w-3 rounded-full border border-base-200"
                     [style.background-color]="pair[1]"
                 ></div>
                 <div class="text-sm">{{ pair[0] }}</div>
             </div>
         </div>
+        <button
+            class="absolute right-2 top-2 h-12 min-w-32 rounded-lg border border-base-300 bg-base-100 px-4 shadow"
+            matRipple
+            *ngIf="locate"
+            (click)="clearLocate()"
+        >
+            Clear Pin
+        </button>
     `,
     styles: [
         `
@@ -94,6 +104,7 @@ const EMPTY = [];
         ExploreLockersService,
         SpacePipe,
     ],
+    standalone: false,
 })
 export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
     /** Observable for the active map */
@@ -122,7 +133,7 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
         const disable = !enabled
             ? unique([...(options.disable || []), 'zones', 'devices'])
             : options.disable?.filter(
-                  (_) => _ !== 'zones' && _ !== 'devices'
+                  (_) => _ !== 'zones' && _ !== 'devices',
               ) || [];
         this.setOptions({ disable });
     }
@@ -155,7 +166,7 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
         private _org: OrganisationService,
         private _settings: SettingsService,
         private _space_pipe: SpacePipe,
-        private _maps: MapsPeopleService
+        private _maps: MapsPeopleService,
     ) {
         super();
     }
@@ -170,7 +181,7 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
             this._route.queryParamMap.subscribe(async (params) => {
                 if (params.has('level') || params.has('zone')) {
                     this._state.setLevel(
-                        params.get('level') || params.get('zone')
+                        params.get('level') || params.get('zone'),
                     );
                 }
                 this._state.setFeatures('_located', []);
@@ -184,28 +195,31 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
                     }
                     if (!user)
                         return notifyError(
-                            `Unable to user details for ${params.get('user')}`
+                            i18n('EXPLORE.LOCATE_USER_FAILED', {
+                                name: params.get('user'),
+                            }),
                         );
                     this.locateUser(
-                        user instanceof Array ? user[0] : user
-                    ).catch((_) => {
-                        notifyError(`Unable to locate ${params.get('user')}`);
+                        user instanceof Array ? user[0] : user,
+                    ).catch((e) => {
+                        notifyError(e);
                         this._router.navigate([], {
                             relativeTo: this._route,
-                            queryParams: {},
+                            queryParams: { user: '' },
+                            queryParamsHandling: 'preserve',
                         });
                     });
                 } else if (params.has('locate')) {
                     this._locateFeature(
                         params.get('locate'),
-                        params.get('name')
+                        params.get('name'),
                     );
                 } else {
                     this.timeout('update_location', () => {
                         this._state.setFeatures('_located', []);
                     });
                 }
-            })
+            }),
         );
     }
 
@@ -215,6 +229,21 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
 
     public updateCenter(center: Point) {
         this._state.setPositions(this._state.positions.zoom, center);
+    }
+
+    public clearLocate() {
+        this.locate = '';
+        this._state.setFeatures('_located', []);
+        this._router.navigate([], {
+            relativeTo: this._route,
+            queryParams: {
+                user: undefined,
+                space: undefined,
+                locate: undefined,
+                name: undefined,
+            },
+            queryParamsHandling: 'merge',
+        });
     }
 
     private _locateFeature(id: string, name = '') {
@@ -229,15 +258,16 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
             z_index: 99,
             data: { message: name },
         };
-        this.locate = id;
-        this.timeout('update_location', () =>
-            this._state.setFeatures('_located', [feature])
-        );
+        this.timeout('update_location', () => {
+            this.locate = id;
+            this._state.setFeatures('_located', [feature]);
+        });
     }
 
     private async locateSpace(id: string) {
         const space = await this._space_pipe.transform(id);
-        if (!space) return notifyError('Unable to load space details.');
+        if (!space)
+            return notifyError(i18n('EXPLORE.LOCATE_SPACE_DETAILS_FAILED'));
         this._state.setLevel(this._org.levelWithID(space.zones)?.id);
         const feature: any = {
             track_id: `locate-${space.id}`,
@@ -248,23 +278,17 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
                 message: `${space.display_name || space.name} is here`,
             },
         };
-        this.timeout('update_location', () =>
-            this._state.setFeatures('_located', [feature])
-        );
+        this.timeout('update_location', () => {
+            this.locate = id;
+            this._state.setFeatures('_located', [feature]);
+        });
     }
 
     private async locateUser(user: User) {
-        let locate_details: any = this._org.binding('location_services');
-        if (!locate_details)
-            throw 'Location services is not setup for this application.';
-        if (typeof locate_details === 'string') {
-            locate_details = {
-                system_id: locate_details,
-                module: 'LocationServices',
-                priority: [],
-            };
-        }
-        const mod = getModule(locate_details.system_id, locate_details.module);
+        const binding: any = this._org.binding('location_services');
+        const mod = this._org.module('location_services', 'LocationServices');
+        if (!mod) throw i18n('EXPLORE.LOCATE_SERVICE_UNAVAILABLE');
+        const priority = binding?.priority || [];
         const locations: MapLocation[] = (
             await mod.execute('locate_user', [
                 user.email,
@@ -273,12 +297,11 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
         ).map((i) => new MapLocation(i));
         locations.sort(
             (a, b) =>
-                locate_details.priority.indexOf(a.type) -
-                locate_details.priority.indexOf(b.type)
+                (priority.includes(a.type) ? priority.indexOf(a.type) : 999) -
+                (priority.includes(b.type) ? priority.indexOf(b.type) : 999),
         );
-        if (!locations?.length) {
-            throw 'No locations for the given user';
-        }
+
+        if (!locations?.length) throw i18n('EXPLORE.LOCATE_USER_NOT_FOUND');
         this._state.setLevel(this._org.levelWithID([locations[0]?.level])?.id);
         const pos: any = locations[0].position;
         const { coordinates_from } = locations[0];
@@ -301,12 +324,13 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
                     : MapPinComponent,
             z_index: 99,
             data: {
-                message: `${user.name} is here`,
+                message: i18n('EXPLORE.LOCATE_USER', { name: user.name }),
                 radius: locations[0].variance,
                 last_seen: locations[0].last_seen,
             },
         };
         this.timeout('update_location', () => {
+            this.locate = user.id || user.email;
             this._state.setFeatures('_located', [feature]);
         });
     }

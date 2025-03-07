@@ -1,6 +1,6 @@
 import { Pipe } from '@angular/core';
-import { StaffUser, User } from '../../../users/src/lib/user.class';
 import { showUser } from '@placeos/ts-client';
+import { StaffUser, User } from '../../../users/src/lib/user.class';
 
 const USER_LIST: User[] = [];
 
@@ -8,6 +8,7 @@ const EMPTY_USER = new StaffUser();
 
 @Pipe({
     name: 'placeuser',
+    standalone: false,
 })
 export class PlaceUserPipe {
     /**
@@ -17,7 +18,7 @@ export class PlaceUserPipe {
     public async transform(user_id: string): Promise<User> {
         if (!user_id) return EMPTY_USER;
         let user = USER_LIST.find(
-            ({ id, email }) => id === user_id || email === user_id
+            ({ id, email }) => id === user_id || email === user_id,
         );
         if (user) return user;
         user = await showUser(user_id)
@@ -26,7 +27,6 @@ export class PlaceUserPipe {
         if (user) {
             user = new StaffUser(user);
             USER_LIST.push(user);
-            console.log('Place User:', user);
             return user;
         }
         return EMPTY_USER;

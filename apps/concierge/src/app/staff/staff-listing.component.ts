@@ -9,11 +9,11 @@ const CHARS = '#abcdefghijklmnopqrstuvwxyz'.split('');
 @Component({
     selector: 'staff-listings',
     template: `
-        <div class="w-full p-2 flex items-center justify-center">
+        <div class="flex w-full items-center justify-center p-2">
             <div
                 letter
                 *ngFor="let group of groups"
-                class="capitalize h-6 w-6 flex items-center justify-center text-xs cursor-pointer"
+                class="flex h-6 w-6 cursor-pointer items-center justify-center text-xs capitalize"
                 [class.disabled]="(user_list | async)[group].length <= 0"
                 [class.active]="group === active_group"
                 (click)="scrollTo(group)"
@@ -22,7 +22,7 @@ const CHARS = '#abcdefghijklmnopqrstuvwxyz'.split('');
             </div>
         </div>
         <div
-            class="flex-1 overflow-auto w-full relative bg-base-200"
+            class="relative w-full flex-1 overflow-auto bg-base-200"
             style="height: 50%"
             #container
             (scroll)="onScroll($event)"
@@ -33,7 +33,7 @@ const CHARS = '#abcdefghijklmnopqrstuvwxyz'.split('');
                         <div
                             group
                             [id]="'letter-' + (group === '#' ? '0' : group)"
-                            class="capitalize bg-base-200 border-b text-sm font-medium sticky top-0 z-10"
+                            class="sticky top-0 z-10 border-b bg-base-200 text-sm font-medium capitalize"
                         >
                             {{ group }}
                         </div>
@@ -62,7 +62,7 @@ const CHARS = '#abcdefghijklmnopqrstuvwxyz'.split('');
             <div
                 class="absolute inset-0 flex flex-col items-center justify-center"
             >
-                <p>No matching staff members</p>
+                <p>{{ 'APP.CONCIERGE.DIRECTORY_SEARCH_EMPTY' | translate }}</p>
             </div>
         </ng-template>
     `,
@@ -76,7 +76,9 @@ const CHARS = '#abcdefghijklmnopqrstuvwxyz'.split('');
             }
 
             [letter] {
-                transition: font-size 200ms, color 200ms;
+                transition:
+                    font-size 200ms,
+                    color 200ms;
             }
 
             [group] {
@@ -96,6 +98,7 @@ const CHARS = '#abcdefghijklmnopqrstuvwxyz'.split('');
             }
         `,
     ],
+    standalone: false,
 })
 export class StaffListingComponent extends AsyncHandler {
     public active_group = '#';
@@ -105,7 +108,7 @@ export class StaffListingComponent extends AsyncHandler {
     public readonly loading = this._state.loading;
 
     public readonly user_count = this._state.filtered_users.pipe(
-        map((list) => list.length)
+        map((list) => list.length),
     );
 
     public readonly user_list = this._state.filtered_users.pipe(
@@ -116,12 +119,12 @@ export class StaffListingComponent extends AsyncHandler {
                     (user) =>
                         user.name.toLowerCase()[0].startsWith(char) ||
                         (char === '#' &&
-                            !CHARS.includes(user.name.toLowerCase()[0]))
+                            !CHARS.includes(user.name.toLowerCase()[0])),
                 );
             }
             this.timeout('scroll', () => this.onScroll({}), 30);
             return user_map;
-        })
+        }),
     );
 
     @ViewChild('container') private _el: ElementRef<HTMLDivElement>;
@@ -134,7 +137,7 @@ export class StaffListingComponent extends AsyncHandler {
         const scroll_top = this._el.nativeElement.scrollTop;
         for (const group of CHARS) {
             const el: HTMLDivElement = document.querySelector(
-                `#letter-${group === '#' ? '0' : group}`
+                `#letter-${group === '#' ? '0' : group}`,
             );
             if (el) {
                 if (el.offsetTop - scroll_top > 0) {

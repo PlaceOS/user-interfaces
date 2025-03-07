@@ -1,42 +1,37 @@
-import { Component, Output, EventEmitter } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { BookingFormService } from '@placeos/bookings';
-import { DialogEvent, notifyError, notifySuccess } from '@placeos/common';
+import {
+    DialogEvent,
+    i18n,
+    notifyError,
+    notifySuccess,
+    SettingsService,
+} from '@placeos/common';
 import { BehaviorSubject } from 'rxjs';
 
 @Component({
     selector: 'desk-book-modal',
     template: `
-        <header>
-            <h2>New Desk Booking</h2>
-            <div class="flex-1 w-0"></div>
-            <button icon mat-dialog-close>
-                <app-icon>close</app-icon>
-            </button>
-        </header>
-        <main
-            *ngIf="!(loading | async); else load_state"
-            class="overflow-auto p-4 max-h-[65vh]"
+        <fullscreen-modal-shell
+            [heading]="
+                (form.value.id
+                    ? 'APP.CONCIERGE.DESKS_BOOK_EDIT'
+                    : 'APP.CONCIERGE.DESKS_BOOK_NEW'
+                ) | translate
+            "
+            [loading]="
+                (loading | async)
+                    ? ('APP.CONCIERGE.DESKS_BOOKING_LOADING' | translate)
+                    : ''
+            "
+            (confirm)="save()"
         >
             <new-desk-form-details [form]="form"></new-desk-form-details>
-        </main>
-        <footer
-            *ngIf="!(loading | async)"
-            class="flex justify-center items-center p-2 border-t border-base-200"
-        >
-            <button btn matRipple class="w-32" (click)="save()">Save</button>
-        </footer>
-        <ng-template #load_state>
-            <main
-                loading
-                class="h-64 flex flex-col items-center justify-center"
-            >
-                <mat-spinner [diameter]="48" class="mb-4"></mat-spinner>
-                <p>Making booking request...</p>
-            </main>
-        </ng-template>
+        </fullscreen-modal-shell>
     `,
     styles: [``],
+    standalone: false,
 })
 export class DeskBookModalComponent {
     @Output() public event = new EventEmitter<DialogEvent>();
@@ -48,8 +43,16 @@ export class DeskBookModalComponent {
 
     constructor(
         private _booking_form: BookingFormService,
-        private _dialog_ref: MatDialogRef<DeskBookModalComponent>
-    ) {}
+        private _dialog_ref: MatDialogRef<DeskBookModalComponent>,
+        private _settings: SettingsService,
+    ) {
+        if (!this.form.value.id) {
+            this.form.patchValue({
+                duration:
+                    this._settings.get('app.desks.default_duration') || 60,
+            });
+        }
+    }
 
     public async save() {
         this.loading.next(true);
@@ -60,7 +63,7 @@ export class DeskBookModalComponent {
             throw _;
         });
         this.event.emit({ reason: 'done', metadata: event });
-        notifySuccess('Successfully created booking');
+        notifySuccess(i18n('APP.CONCIERGE.DESKS_BOOKING_SUCCESS'));
         this._dialog_ref.close();
         this.loading.next(false);
     }

@@ -17,7 +17,10 @@ const ROUTES: Route[] = [
         component: ScheduleComponent,
         children: [
             { path: '', component: ScheduleListComponent },
-            { path: 'view/:id/booking', component: ScheduleViewBookingComponent },
+            {
+                path: 'view/:id/booking',
+                component: ScheduleViewBookingComponent,
+            },
             { path: 'view/:id/event', component: ScheduleViewEventComponent },
         ],
     },
@@ -30,7 +33,7 @@ const ROUTES: Route[] = [
         ScheduleListComponent,
         ScheduleListItemComponent,
         ScheduleViewBookingComponent,
-        ScheduleViewEventComponent
+        ScheduleViewEventComponent,
     ],
     imports: [
         CommonModule,

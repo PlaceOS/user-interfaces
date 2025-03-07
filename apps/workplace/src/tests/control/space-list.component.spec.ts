@@ -27,7 +27,7 @@ describe('ControlSpaceListComponent', () => {
                         [
                             { id: '1', name: '1', support_url: '1' },
                             { id: '2', name: '2', support_url: '2' },
-                        ].filter(_)
+                        ].filter(_),
                     ),
                 },
             },

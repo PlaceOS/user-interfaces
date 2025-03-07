@@ -7,7 +7,7 @@ declare let jest: any;
 
 export function setNotifyOutlet(
     snackbar: MatSnackBar,
-    disable_logging = false
+    disable_logging = false,
 ) {
     _service = snackbar;
     _disable_logging = disable_logging;
@@ -24,9 +24,9 @@ export function setNotifyOutlet(
 export function notify(
     type: string,
     message: string,
-    action: string = 'OK',
+    action = 'OK',
     on_action?: () => void,
-    config: Partial<MatSnackBarConfig> = {}
+    config: Partial<MatSnackBarConfig> = {},
 ): void {
     if (!_service) {
         return (
@@ -56,7 +56,7 @@ export function notifySuccess(
     msg: string,
     action?: string,
     on_action?: () => void,
-    config: Partial<MatSnackBarConfig> = {}
+    config: Partial<MatSnackBarConfig> = {},
 ): void {
     !_disable_logging && console.debug(msg);
     if (typeof msg !== 'string') msg = 'Success';
@@ -74,7 +74,7 @@ export function notifyError(
     msg: string,
     action?: string,
     on_action?: () => void,
-    config: Partial<MatSnackBarConfig> = {}
+    config: Partial<MatSnackBarConfig> = {},
 ): void {
     !_disable_logging && console.debug(msg);
     if (typeof msg !== 'string')
@@ -94,7 +94,7 @@ export function notifyWarn(
     msg: string,
     action?: string,
     on_action?: () => void,
-    config: Partial<MatSnackBarConfig> = {}
+    config: Partial<MatSnackBarConfig> = {},
 ): void {
     !_disable_logging && console.debug(msg);
     notify('warn', msg, action, on_action, config);
@@ -111,7 +111,7 @@ export function notifyInfo(
     msg: string,
     action?: string,
     on_action?: () => void,
-    config: Partial<MatSnackBarConfig> = {}
+    config: Partial<MatSnackBarConfig> = {},
 ): void {
     !_disable_logging && console.debug(msg);
     notify('info', msg, action, on_action, config);

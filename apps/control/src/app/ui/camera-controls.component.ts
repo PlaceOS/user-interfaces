@@ -1,6 +1,5 @@
-import { Component, Renderer2 } from '@angular/core';
+import { Component, OnInit, Renderer2 } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
-import { CustomTooltipData } from '@placeos/components';
 import { getModule } from '@placeos/ts-client';
 import { combineLatest } from 'rxjs';
 
@@ -12,6 +11,7 @@ export enum ZoomDirection {
     Out = 'out',
     Stop = 'stop',
 }
+
 @Component({
     selector: 'camera-controls',
     template: `
@@ -20,7 +20,7 @@ export enum ZoomDirection {
                 <mat-select
                     [(ngModel)]="active_camera"
                     (ngModelChange)="selectCamera($event)"
-                    placeholder="Select Camera"
+                    [placeholder]="'APP.CONTROL.CAMERA_SELECT' | translate"
                 >
                     <mat-option
                         *ngFor="let cam of camera_list | async"
@@ -31,7 +31,9 @@ export enum ZoomDirection {
                 </mat-select>
             </mat-form-field>
             <div class="p-4">
-                <h3 class="mb-2 text-xl font-medium">Controls</h3>
+                <h3 class="mb-2 text-xl font-medium">
+                    {{ 'APP.CONTROL.CONTROLS' | translate }}
+                </h3>
                 <div class="flex items-center space-x-2">
                     <joystick
                         [(pan)]="pan"
@@ -41,7 +43,7 @@ export enum ZoomDirection {
                     ></joystick>
                     <div
                         zoom
-                        class="flex flex-col items-center border border-base-200 rounded"
+                        class="flex flex-col items-center rounded border border-base-200"
                     >
                         <button
                             zoom-in
@@ -55,9 +57,9 @@ export enum ZoomDirection {
                             <app-icon>add</app-icon>
                         </button>
                         <div
-                            class="text-xs h-10 w-10 flex items-center justify-center border-t border-b border-base-200"
+                            class="flex h-10 w-10 items-center justify-center border-b border-t border-base-200 text-xs"
                         >
-                            Zoom
+                            {{ 'APP.CONTROL.ZOOM' | translate }}
                         </div>
 
                         <button
@@ -75,22 +77,23 @@ export enum ZoomDirection {
                 </div>
             </div>
             <div
-                class="absolute inset-0 bg-base-100 bg-opacity-75 flex items-center justify-center"
+                class="absolute inset-0 flex items-center justify-center bg-base-100 bg-opacity-75"
                 *ngIf="!active_camera"
             >
-                <p>Select a camera to control.</p>
+                <p>{{ 'APP.CONTROL.CAMERA_SELECT_MSG' | translate }}</p>
             </div>
         </div>
     `,
     styles: [``],
+    standalone: false,
 })
-export class CameraControlsComponent extends AsyncHandler {
+export class CameraControlsComponent extends AsyncHandler implements OnInit {
     /** Currently active camera */
     public active_camera: RoomInput;
     /** List of available presets for the active camera */
     public presets: string[] = [];
     /** Currently active preset */
-    public preset: string = '';
+    public preset = '';
     /** Current zoom value for camera */
     public zoom: ZoomDirection = ZoomDirection.Stop;
     /** Current panning value for camera */
@@ -106,7 +109,7 @@ export class CameraControlsComponent extends AsyncHandler {
 
     constructor(
         private _state: ControlStateService,
-        private _renderer: Renderer2
+        private _renderer: Renderer2,
     ) {
         super();
     }
@@ -121,7 +124,7 @@ export class CameraControlsComponent extends AsyncHandler {
                 if (!l?.length) return;
                 this.active_camera =
                     l.find((_) => _.id === cam) || this.active_camera || l[0];
-            })
+            }),
         );
     }
 
@@ -161,15 +164,15 @@ export class CameraControlsComponent extends AsyncHandler {
                 if (this.tilt !== JoystickTilt.Stop)
                     await mod.execute(
                         'tilt',
-                        index ? [this.tilt, index] : [this.tilt]
+                        index ? [this.tilt, index] : [this.tilt],
                     );
                 if (this.pan !== JoystickPan.Stop)
                     await mod.execute(
                         'pan',
-                        index ? [this.pan, index] : [this.pan]
+                        index ? [this.pan, index] : [this.pan],
                     );
             },
-            50
+            50,
         );
     }
 
@@ -182,12 +185,12 @@ export class CameraControlsComponent extends AsyncHandler {
         await mod.execute('zoom', index ? [this.zoom, index] : [this.zoom]);
         this.subscription(
             'on_end',
-            this._renderer.listen('window', end_event, (_) => {
+            this._renderer.listen('window', end_event, () => {
                 this.unsub('on_move');
                 this.unsub('on_end');
                 this.zoom = ZoomDirection.Stop;
                 mod.execute('zoom', index ? [this.zoom, index] : [this.zoom]);
-            })
+            }),
         );
     }
 }

@@ -7,13 +7,16 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { CounterComponent } from 'libs/form-fields/src/lib/counter.component';
-import { ImageListFieldComponent } from 'libs/form-fields/src/lib/image-list-field.component';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
 import { CateringItemModalComponent } from '../lib/catering-item-modal.component';
 import { CateringItem } from '../lib/catering-item.class';
+
+import { SettingsService } from 'libs/common/src/lib/settings.service';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
+import { CounterComponent } from 'libs/form-fields/src/lib/counter.component';
+import { ImageListFieldComponent } from 'libs/form-fields/src/lib/image-list-field.component';
 
 describe('CateringItemModalComponent', () => {
     let spectator: Spectator<CateringItemModalComponent>;
@@ -23,12 +26,14 @@ describe('CateringItemModalComponent', () => {
             MockComponent(IconComponent),
             MockComponent(CounterComponent),
             MockComponent(ImageListFieldComponent),
+            MockComponent(SettingsToggleComponent),
         ],
         providers: [
             MockProvider(MAT_DIALOG_DATA, {
                 item: new CateringItem(),
                 catergories: {},
             }),
+            MockProvider(SettingsService, { get: jest.fn() }),
         ],
         imports: [
             MatAutocompleteModule,

@@ -1,15 +1,15 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { DialogEvent, notifyError } from '@placeos/common';
+import { Component, EventEmitter, Output } from '@angular/core';
+import { FormControl, FormGroup } from '@angular/forms';
+import { DialogEvent } from '@placeos/common';
 
 @Component({
     selector: 'desk-question-modal',
     template: `
         <div *ngIf="!failure; else fail_state" class="relative">
-            <h2 class="p-4 text-xl" i18n>COVID-19 Questionnaire</h2>
+            <h2 class="p-4 text-xl">COVID-19 Questionnaire</h2>
             <main class="p-4" [formGroup]="form">
-                <div class="flex flex-col mb-4">
-                    <label i18n>
+                <div class="mb-4 flex flex-col">
+                    <label>
                         Have you travelled overseas within the last 14
                         days?<span>*</span>
                     </label>
@@ -21,8 +21,8 @@ import { DialogEvent, notifyError } from '@placeos/common';
                         <mat-radio-button [value]="false">No</mat-radio-button>
                     </mat-radio-group>
                 </div>
-                <div class="flex flex-col mb-4">
-                    <label i18n>
+                <div class="mb-4 flex flex-col">
+                    <label>
                         Are you unwell or experiencing any cold or flu-like
                         symptoms?<span>*</span>
                     </label>
@@ -32,7 +32,7 @@ import { DialogEvent, notifyError } from '@placeos/common';
                     </mat-radio-group>
                 </div>
                 <div class="flex flex-col">
-                    <label i18n>
+                    <label>
                         Have you had contact with anyone with suspected
                         COVID-19?<span>*</span>
                     </label>
@@ -45,16 +45,16 @@ import { DialogEvent, notifyError } from '@placeos/common';
                     </mat-radio-group>
                 </div>
             </main>
-            <footer class="flex justify-center items-center p-2">
-                <button btn matRipple (click)="submit()" i18n>Submit</button>
+            <footer class="flex items-center justify-center p-2">
+                <button btn matRipple (click)="submit()">Submit</button>
             </footer>
             <button close icon matRipple mat-dialog-close>
                 <i class="material-icons">close</i>
             </button>
         </div>
         <ng-template #fail_state>
-            <main failure class="pt-8 relative">
-                <p class="p-4" i18n>
+            <main failure class="relative pt-8">
+                <p class="p-4">
                     Your request to work from the office has been rejected based
                     on your response to the compulsory Covid-19 questions.
                     Please feel free to submit a new request when circumstances
@@ -80,6 +80,7 @@ import { DialogEvent, notifyError } from '@placeos/common';
             }
         `,
     ],
+    standalone: false,
 })
 export class DeskQuestionsModalComponent {
     @Output() public event = new EventEmitter<DialogEvent>();
@@ -97,7 +98,7 @@ export class DeskQuestionsModalComponent {
             Object.keys(this.form.value).find(
                 (key) =>
                     this.form.value[key] === true ||
-                    this.form.value[key] === 'true'
+                    this.form.value[key] === 'true',
             )
         ) {
             this.failure = true;

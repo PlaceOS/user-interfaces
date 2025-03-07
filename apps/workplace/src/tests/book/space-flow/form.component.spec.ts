@@ -6,10 +6,10 @@ import { IconComponent } from '@placeos/components';
 import { EventFormService } from '@placeos/events';
 import { MockComponent } from 'ng-mocks';
 
+import { Router } from '@angular/router';
+import { SettingsService } from '@placeos/common';
 import { DetailBookSpaceFormComponent } from 'apps/workplace/src/app/book/space-flow/detailed-form.component';
 import { SpaceFlowFormComponent } from 'apps/workplace/src/app/book/space-flow/form.component';
-import { SettingsService } from '@placeos/common';
-import { Router } from '@angular/router';
 
 describe('SpaceFlowFormComponent', () => {
     let spectator: SpectatorRouting<SpaceFlowFormComponent>;
@@ -26,11 +26,14 @@ describe('SpaceFlowFormComponent', () => {
                         get: jest.fn(),
                         markAllAsTouched: jest.fn(),
                         valid: true,
-                        value: { host: 'yep' }
+                        value: { host: 'yep' },
                     },
                 },
             },
-            { provide: SettingsService, useValue: { get: jest.fn(() => true) } }
+            {
+                provide: SettingsService,
+                useValue: { get: jest.fn(() => true) },
+            },
         ],
         declarations: [
             MockComponent(DetailBookSpaceFormComponent),

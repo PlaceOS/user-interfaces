@@ -5,23 +5,23 @@ import { SettingsService } from '@placeos/common';
     selector: '[dashboard]',
     template: `
         <topbar></topbar>
-        <div class="flex-1 flex sm:flex-row flex-col-reverse h-1/2 bg-base-200">
+        <div class="flex h-1/2 flex-1 flex-col-reverse bg-base-200 sm:flex-row">
             <div
-                class="relative z-0 flex flex-col flex-1 h-1/2 sm:h-auto overflow-hidden"
+                class="relative z-0 flex h-1/2 flex-1 flex-col overflow-hidden sm:h-auto"
             >
                 <main
-                    class="flex flex-1 px-0 sm:px-8 flex-wrap overflow-auto h-px sm:h-auto"
+                    class="flex h-px flex-1 flex-wrap overflow-auto px-0 sm:h-auto sm:px-8"
                 >
                     <a-dashboard-availability
                         *ngIf="!hide_availability"
-                        class="flex-1 min-w-64"
+                        class="min-w-64 flex-1"
                     ></a-dashboard-availability>
                     <a-dashboard-upcoming
-                        class="flex-1 min-w-64"
+                        class="min-w-64 flex-1"
                     ></a-dashboard-upcoming>
                     <a-dashboard-contacts
                         *ngIf="!hide_contacts"
-                        class="flex-1 min-w-64"
+                        class="min-w-64 flex-1"
                     ></a-dashboard-contacts>
                 </main>
             </div>
@@ -63,6 +63,7 @@ import { SettingsService } from '@placeos/common';
             }
         `,
     ],
+    standalone: false,
 })
 export class DashboardComponent {
     constructor(private _settings: SettingsService) {}

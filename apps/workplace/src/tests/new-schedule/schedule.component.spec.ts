@@ -1,19 +1,19 @@
+import { FormsModule } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { BookingCardComponent } from '@placeos/bookings';
+import { SettingsService } from '@placeos/common';
+import { EventCardComponent, EventFormService } from '@placeos/events';
 import { MockComponent, MockProvider } from 'ng-mocks';
+import { BehaviorSubject } from 'rxjs';
 import { FooterMenuComponent } from '../../app/components/footer-menu.component';
 import { TopbarComponent } from '../../app/components/topbar.component';
 import { ScheduleFiltersComponent } from '../../app/new-schedule/schedule-filters.component';
-import { ScheduleSidebarComponent } from '../../app/new-schedule/schedule-sidebar.component';
 import { ScheduleMobileCalendarComponent } from '../../app/new-schedule/schedule-mobile-calendar.component';
-import { ScheduleComponent } from '../../app/new-schedule/schedule.component';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { ScheduleSidebarComponent } from '../../app/new-schedule/schedule-sidebar.component';
 import { ScheduleStateService } from '../../app/new-schedule/schedule-state.service';
-import { BehaviorSubject } from 'rxjs';
-import { EventCardComponent, EventFormService } from '@placeos/events';
-import { BookingCardComponent } from '@placeos/bookings';
-import { MatDialog } from '@angular/material/dialog';
-import { FormsModule } from '@angular/forms';
-import { SettingsService } from '@placeos/common';
+import { ScheduleComponent } from '../../app/new-schedule/schedule.component';
 
 describe('ScheduleComponent', () => {
     let spectator: SpectatorRouting<ScheduleComponent>;
@@ -35,7 +35,8 @@ describe('ScheduleComponent', () => {
                 date: new BehaviorSubject(0),
                 toggleType: jest.fn(),
                 setDate: jest.fn(),
-            }),
+                getOptions: jest.fn(() => ({ period: 'day' })),
+            } as any),
             MockProvider(EventFormService, { newForm: jest.fn() }),
             MockProvider(MatDialog, { open: jest.fn() }),
             MockProvider(SettingsService, { get: jest.fn() }),

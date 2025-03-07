@@ -1,9 +1,9 @@
-import { MatDialog } from '@angular/material/dialog';
 import { fakeAsync, tick } from '@angular/core/testing';
 import { UntypedFormGroup } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator';
-import { BehaviorSubject, of } from 'rxjs';
 import { MockProvider } from 'ng-mocks';
+import { BehaviorSubject, of } from 'rxjs';
 
 import { SettingsService } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
@@ -57,10 +57,10 @@ describe('ExploreSpacesService', () => {
             { id: 'space-1', name: 'Test', bookable: true },
         ]);
         expect(ts_client.getModule).toHaveBeenCalledWith('space-1', 'Bookings');
-        expect(binding).toHaveBeenCalledTimes(2);
+        expect(binding).toHaveBeenCalledTimes(3);
         expect(binding).toHaveBeenCalledWith('bookings');
         expect(binding).toHaveBeenCalledWith('status');
-        expect(bind).toHaveBeenCalledTimes(2);
+        expect(bind).toHaveBeenCalledTimes(3);
         tick(100);
         expect(state.setActions).toHaveBeenCalled();
     }));

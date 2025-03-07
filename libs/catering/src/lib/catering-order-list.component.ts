@@ -1,21 +1,20 @@
-import { Component } from '@angular/core';
-import { CateringOrder } from './catering-order.class';
+import { Component, OnInit } from '@angular/core';
 
-import { CateringOrdersService } from './catering-orders.service';
 import { AsyncHandler, SettingsService } from '@placeos/common';
-import { CATERING_STATUSES } from './catering.vars';
+import { CateringOrdersService } from './catering-orders.service';
+import { statusList } from './catering.vars';
 
 @Component({
     selector: 'catering-order-list',
     template: `
-        <div class="flex flex-col h-full w-full overflow-auto">
-            <!-- <mat-progress-bar
+        <div class="flex h-full w-full flex-col overflow-auto">
+            <mat-progress-bar
                 [class.opacity-0]="!(loading | async)"
-                class="w-full"
+                class="sticky left-0 top-0 w-full"
                 mode="indeterminate"
-            ></mat-progress-bar> -->
+            ></mat-progress-bar>
             <simple-table
-                class="min-w-[72rem] w-full block text-sm"
+                class="block w-full min-w-[72rem] text-sm"
                 [data]="order_list"
                 [columns]="[
                     {
@@ -23,55 +22,64 @@ import { CATERING_STATUSES } from './catering.vars';
                         name: ' ',
                         size: '4rem',
                         sortable: false,
-                        content: state_template
+                        content: state_template,
+                    },
+                    {
+                        key: 'caterer',
+                        name: 'CATERING.CATERER' | translate,
+                        show:
+                            !filters?.caterer && (caterers | async)?.length > 1,
                     },
                     {
                         key: 'deliver_at',
-                        name: 'Time',
-                        content: time_template
+                        name: 'COMMON.TIME' | translate,
+                        content: time_template,
                     },
                     {
                         key: 'event',
-                        name: 'Location',
+                        name: 'COMMON.LOCATION' | translate,
                         content: location_template,
-                        sortable: false
+                        sortable: false,
                     },
                     {
                         key: 'event',
-                        name: 'Host',
+                        name: 'FORM.HOST' | translate,
                         content: host_template,
-                        sortable: false
+                        sortable: false,
                     },
-                    { key: 'charge_code', name: 'Charge Code' },
+                    {
+                        key: 'charge_code',
+                        name: 'CATERING.CHARGE_CODE' | translate,
+                    },
                     {
                         key: 'invoice_number',
-                        name: 'Invoice No.',
-                        empty: 'No Invoice'
+                        name: 'CATERING.INVOICE_NUMBER' | translate,
+                        empty: 'No Invoice',
                     },
                     {
                         key: 'status',
-                        name: 'Status',
+                        name: 'COMMON.STATUS' | translate,
                         content: status_template,
-                        size: '11rem'
+                        size: '11rem',
                     },
                     {
                         key: 'actions',
                         name: ' ',
                         size: '6.5rem',
                         content: actions_template,
-                        sortable: false
-                    }
+                        sortable: false,
+                    },
                 ]"
                 [sortable]="true"
                 [show_children]="show_children"
                 [child_template]="child_template"
-                empty_message="No Catering Orders"
+                [empty_message]="'CATERING.ORDERS_EMPTY' | translate"
             >
             </simple-table>
             <ng-template #state_template let-data="data">
                 <div class="p-2">
                     <div
-                        class="rounded-full bg-base-200 p-2 text-2xl flex items-center justify-center"
+                        class="flex items-center justify-center rounded-full bg-base-200 p-2 text-2xl"
                     >
                         <app-icon>room_service</app-icon>
                     </div>
@@ -79,7 +87,12 @@ import { CATERING_STATUSES } from './catering.vars';
             </ng-template>
             <ng-template #time_template let-data="data" let-row="row">
                 <div class="p-4">
-                    <div>Deliver at {{ data | date: time_format }}</div>
+                    <div>
+                        {{
+                            'CATERING.ORDERS_DELIVER_TIME'
+                                | translate: { time: data | date: time_format }
+                        }}
+                    </div>
                     <div class="text-xs opacity-30">
                         {{ row?.event?.date | date: 'MMM d' }},
                         {{ row?.event?.date | date: time_format }}
@@ -90,15 +103,14 @@ import { CATERING_STATUSES } from './catering.vars';
                 </div>
             </ng-template>
             <ng-template #location_template let-data="data">
+                @let space = data?.system;
                 <div class="px-4 py-2">
-                    {{ data?.space?.display_name || data?.space?.name || '' }}
+                    {{ space?.display_name || space?.name || '' }}
                     <span
                         class="opacity-30"
-                        *ngIf="
-                            !(data?.space?.display_name || data?.space?.name)
-                        "
+                        *ngIf="!(space?.display_name || space?.name)"
                     >
-                        No Location
+                        {{ 'CATERING.ORDERS_LOCATION_EMPTY' | translate }}
                     </span>
                 </div>
             </ng-template>
@@ -123,11 +135,11 @@ import { CATERING_STATUSES } from './catering.vars';
                     <button
                         status
                         matRipple
-                        class="rounded-3xl text-base border-none h-10 px-4 flex items-center text-white w-36"
+                        class="flex h-10 w-36 items-center rounded-3xl border-none px-4 text-base text-white"
                         [style.background]="status(data)?.colour"
                         [matMenuTriggerFor]="menu"
                     >
-                        <div class="flex text-center capitalize mx-2">
+                        <div class="mx-2 flex text-center capitalize">
                             {{ status(data)?.name }}
                         </div>
                         <app-icon class="pl-2">arrow_drop_down</app-icon>
@@ -142,7 +154,7 @@ import { CATERING_STATUSES } from './catering.vars';
                     >
                         <div class="flex items-center space-x-2">
                             <div
-                                class="rounded-full h-4 w-4 mr-2"
+                                class="mr-2 h-4 w-4 rounded-full"
                                 [style.background-color]="status.colour"
                             ></div>
                             <span class="mr-2 w-20">{{ status.name }}</span>
@@ -151,7 +163,7 @@ import { CATERING_STATUSES } from './catering.vars';
                 </mat-menu>
             </ng-template>
             <ng-template #actions_template let-row="row">
-                <div class="flex items-center space-x-2 p-2 mx-auto">
+                <div class="mx-auto flex items-center space-x-2 p-2">
                     <button
                         icon
                         matRipple
@@ -166,10 +178,12 @@ import { CATERING_STATUSES } from './catering.vars';
                     </button>
                     <ng-template #notes_template>
                         <div
-                            class="p-2 rounded-lg bg-base-100 text-base-content max-w-[32rem] min-w-[8rem] shadow border border-base-200"
+                            class="min-w-[8rem] max-w-[32rem] rounded-lg border border-base-200 bg-base-100 p-2 text-base-content shadow"
                         >
-                            <div class="mb-2">Notes</div>
-                            <p class="text-sm px-4 py-2 bg-base-200 rounded">
+                            <div class="mb-2">
+                                {{ 'FORM.NOTES' | translate }}
+                            </div>
+                            <p class="rounded bg-base-200 px-4 py-2 text-sm">
                                 {{ row.notes }}
                             </p>
                         </div>
@@ -192,7 +206,7 @@ import { CATERING_STATUSES } from './catering.vars';
             <ng-template #child_template let-row="row">
                 <ul
                     *ngIf="row?.items.length"
-                    class="list-none p-0 m-0 w-full relative z-0"
+                    class="relative z-0 m-0 w-full list-none p-0"
                 >
                     <li
                         catering-order-item
@@ -215,14 +229,21 @@ import { CATERING_STATUSES } from './catering.vars';
             }
         `,
     ],
+    standalone: false,
 })
-export class CateringOrderListComponent extends AsyncHandler {
+export class CateringOrderListComponent extends AsyncHandler implements OnInit {
     /** List of filtered orders */
     public readonly order_list = this._orders.filtered;
     /** Whether order list is loading */
     public readonly loading = this._orders.loading;
 
-    public readonly statuses = CATERING_STATUSES;
+    public get filters() {
+        return this._orders.filters;
+    }
+
+    public caterers = this._orders.caterers;
+
+    public statuses = [];
     public readonly show_children: Record<string, boolean> = {};
 
     public readonly updateStatus = async (order, s) => {
@@ -235,26 +256,18 @@ export class CateringOrderListComponent extends AsyncHandler {
     }
 
     public status(value: string) {
-        return CATERING_STATUSES.find((i) => i.id === value);
+        return this.statuses.find((i) => i.id === value);
     }
 
     constructor(
         private _orders: CateringOrdersService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         super();
     }
 
     public ngOnInit() {
-        this._orders.startPolling();
-    }
-
-    public ngOnDestroy() {
-        this._orders.stopPolling();
-    }
-
-    /* istanbul ignore next */
-    public trackByFn(index: number, order: CateringOrder) {
-        return order ? order.id : undefined;
+        this.statuses = statusList();
+        this.subscription('polling', this._orders.startPolling());
     }
 }

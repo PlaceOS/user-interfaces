@@ -1,17 +1,24 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { AsyncHandler, SettingsService } from '@placeos/common';
+import { OrganisationService } from '@placeos/organisation';
+import { debounceTime, map } from 'rxjs/operators';
 import { EnrolmentStateService } from './enrolment-state.service';
 
 @Component({
     selector: 'app-enrolment',
     template: `
         <div class="absolute inset-0 flex flex-col bg-[#424242]">
-            <div class="w-full h-16 p-2 bg-secondary shadow z-20">
-                <img [src]="logo.src" class="h-12" />
+            <div class="z-20 h-16 w-full bg-secondary p-2 shadow">
+                <img
+                    auth
+                    class="h-10"
+                    alt="Logo"
+                    [source]="(logo | async)?.src || (logo | async)"
+                />
             </div>
             <div
-                class="w-full h-1/2 flex-1 relative z-10 flex flex-col items-center overflow-auto"
+                class="relative z-10 flex h-1/2 w-full flex-1 flex-col items-center overflow-auto"
             >
                 <ng-container *ngIf="!(loading | async); else load_state">
                     <ng-container [ngSwitch]="view | async">
@@ -22,7 +29,7 @@ import { EnrolmentStateService } from './enrolment-state.service';
                             *ngSwitchCase="'guest'"
                         ></enrolment-guest-confirm>
                         <div
-                            class="bg-base-100 rounded p-4 border border-base-200 shadow m-4"
+                            class="m-4 rounded border border-base-200 bg-base-100 p-4 shadow"
                             *ngSwitchCase="'complete'"
                         >
                             <app-icon class="text-7xl text-success"
@@ -42,7 +49,7 @@ import { EnrolmentStateService } from './enrolment-state.service';
         </div>
         <ng-template #load_state>
             <div
-                class="p-16 flex flex-col items-center justify-center space-y-2 h-full w-full text-white"
+                class="flex h-full w-full flex-col items-center justify-center space-y-2 p-16 text-white"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
                 <p>{{ loading | async }}</p>
@@ -50,19 +57,27 @@ import { EnrolmentStateService } from './enrolment-state.service';
         </ng-template>
     `,
     styles: [``],
+    standalone: false,
 })
 export class EnrolmentComponent extends AsyncHandler {
     public loading = this._state.loading;
     public view = this._state.view;
 
-    public get logo() {
-        return this._settings.get('app.logo_dark') || {};
-    }
+    public readonly logo = this._org.active_building.pipe(
+        debounceTime(500),
+        map(
+            () =>
+                (this._settings.theme === 'dark'
+                    ? this._settings.get('app.logo_dark')
+                    : this._settings.get('app.logo_light')) || {},
+        ),
+    );
 
     constructor(
         private _state: EnrolmentStateService,
         private _settings: SettingsService,
-        private _route: ActivatedRoute
+        private _route: ActivatedRoute,
+        private _org: OrganisationService,
     ) {
         super();
     }
@@ -74,7 +89,7 @@ export class EnrolmentComponent extends AsyncHandler {
                 if (params.has('view')) {
                     this._state.setView(params.get('view') as any);
                 }
-            })
+            }),
         );
         this.subscription(
             'route.query',
@@ -84,7 +99,7 @@ export class EnrolmentComponent extends AsyncHandler {
                     this._state.handleUserToken(token);
                     this.clearTimeout('check');
                 }
-            })
+            }),
         );
         this.timeout('check', () => this._state.setError('guest'), 5000);
     }

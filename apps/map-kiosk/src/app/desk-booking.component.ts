@@ -21,15 +21,17 @@ import { first } from 'rxjs/operators';
             }
         `,
     ],
+    standalone: false,
 })
 export class DeskBookingComponent extends AsyncHandler implements OnInit {
     public get countdown_time() {
-        return (
-            this._settings.get('app.general.kiosk_reset_delay') || 5 * 60 * 1000
-        );
+        return this._settings.get('app.kiosk_reset_delay') || 5 * 60 * 1000;
     }
 
-    constructor(private _settings: SettingsService, private _router: Router) {
+    constructor(
+        private _settings: SettingsService,
+        private _router: Router,
+    ) {
         super();
     }
 
@@ -42,7 +44,7 @@ export class DeskBookingComponent extends AsyncHandler implements OnInit {
         this.timeout(
             'reset',
             () => this._router.navigate(['/explore']),
-            this.countdown_time
+            this.countdown_time,
         );
     }
 }

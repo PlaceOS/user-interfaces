@@ -1,5 +1,5 @@
 import { Injectable, OnDestroy } from '@angular/core';
-import { Subscription, BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Subscription } from 'rxjs';
 
 type VoidFn = () => void;
 
@@ -35,19 +35,13 @@ export class AsyncHandler implements OnDestroy {
 
     protected destroy() {
         for (const key in this._timers) {
-            if (key in this._timers) {
-                this.clearTimeout(key);
-            }
+            if (key in this._timers) this.clearTimeout(key);
         }
         for (const key in this._intervals) {
-            if (key in this._intervals) {
-                this.clearInterval(key);
-            }
+            if (key in this._intervals) this.clearInterval(key);
         }
         for (const key in this._subscriptions) {
-            if (key in this._subscriptions) {
-                this.unsub(key);
-            }
+            if (key in this._subscriptions) this.unsub(key);
         }
     }
 
@@ -57,7 +51,7 @@ export class AsyncHandler implements OnDestroy {
      * @param fn Callback function for the timer
      * @param delay Callback delay
      */
-    protected timeout(name: string, fn: () => void, delay: number = 300) {
+    protected timeout(name: string, fn: () => void, delay = 300) {
         if (name && fn && fn instanceof Function) {
             this.clearTimeout(name);
             this._timers[name] = <any>setTimeout(() => {
@@ -68,7 +62,7 @@ export class AsyncHandler implements OnDestroy {
             throw new Error(
                 name
                     ? 'Cannot create named timeout without a name'
-                    : 'Cannot create a timeout without a callback'
+                    : 'Cannot create a timeout without a callback',
             );
         }
     }
@@ -90,7 +84,7 @@ export class AsyncHandler implements OnDestroy {
      * @param fn Callback function for the interval
      * @param delay Callback delay
      */
-    protected interval(name: string, fn: () => void, delay: number = 300) {
+    protected interval(name: string, fn: () => void, delay = 300) {
         if (name && fn && fn instanceof Function) {
             this.clearInterval(name);
             this._intervals[name] = <any>setInterval(() => fn(), delay);
@@ -98,7 +92,7 @@ export class AsyncHandler implements OnDestroy {
             throw new Error(
                 name
                     ? 'Cannot create named interval without a name'
-                    : 'Cannot create a interval without a callback'
+                    : 'Cannot create a interval without a callback',
             );
         }
     }
@@ -136,23 +130,20 @@ export class AsyncHandler implements OnDestroy {
      * @param name
      */
     protected unsub(name: string) {
-        if (name in this._subscriptions) {
-            if (this._subscriptions[name] instanceof Subscription) {
-                (this._subscriptions[name] as any).unsubscribe();
-            } else if (this._subscriptions[name]) {
-                (this._subscriptions[name] as any)();
-            }
-            delete this._subscriptions[name];
+        if (!(name in this._subscriptions) || !this._subscriptions[name]) {
+            return;
         }
+        'unsubscribe' in this._subscriptions[name]
+            ? (this._subscriptions[name] as Subscription).unsubscribe()
+            : (this._subscriptions[name] as any)();
+        this._subscriptions[name] = null;
     }
 
     /** Unsubscribe to the items with names containing the given string */
     protected unsubWith(contains: string) {
         const subs = Object.keys(this._subscriptions).filter((k) =>
-            k.includes(contains)
+            k.includes(contains),
         );
-        for (const key of subs) {
-            this.unsub(key);
-        }
+        subs.forEach((k) => this.unsub(k));
     }
 }

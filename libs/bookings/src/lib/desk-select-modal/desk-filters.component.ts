@@ -1,12 +1,12 @@
 import { Component, Input, Optional } from '@angular/core';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { SettingsService } from '@placeos/common';
-import { addDays, endOfDay, set } from 'date-fns';
+import { addDays, endOfDay } from 'date-fns';
 
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
-import { BookingFormService } from '../booking-form.service';
-import { map } from 'rxjs/operators';
 import { combineLatest } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { BookingFormService } from '../booking-form.service';
 
 @Component({
     selector: 'desk-filters',
@@ -22,7 +22,7 @@ import { combineLatest } from 'rxjs';
     ],
     template: `
         <div
-            class="flex rounded-t-md items-center border-b border-base-200 pb-2 sm:hidden"
+            class="flex items-center rounded-t-md border-b border-base-200 pb-2 sm:hidden"
         >
             <div class="flex-1 pl-2">
                 <button
@@ -36,17 +36,23 @@ import { combineLatest } from 'rxjs';
                     <app-icon>keyboard_arrow_left</app-icon>
                 </button>
             </div>
-            <h3 class="font-medium flex-2 text-center" i18n>Desk Filters</h3>
+            <h3 class="flex-2 text-center font-medium">
+                {{ 'COMMON.FILTERS' | translate }}
+            </h3>
             <div class="flex-1"></div>
         </div>
         <form
-            class="max-h-[65vh] p-2 overflow-y-auto overflow-x-hidden divide-y divide-base-200 w-full max-w-[100vw] sm:max-w-[30vw]"
+            class="max-h-[65vh] w-full max-w-[100vw] divide-y divide-base-200 overflow-y-auto overflow-x-hidden p-2 sm:max-w-[30vw]"
             [formGroup]="form"
         >
             <section details>
-                <h2 class="text-lg font-medium mb-1" i18n>Details</h2>
-                <div class="flex-1 min-w-[8rem] flex flex-col">
-                    <label for="location" i18n>Location</label>
+                <h2 class="mb-1 text-lg font-medium">
+                    {{ 'BOOKINGS.DETAILS' | translate }}
+                </h2>
+                <div class="flex min-w-[8rem] flex-1 flex-col">
+                    <label for="location">
+                        {{ 'BOOKINGS.LOCATION' | translate }}
+                    </label>
                     <mat-form-field
                         appearance="outline"
                         class="w-full"
@@ -57,8 +63,7 @@ import { combineLatest } from 'rxjs';
                             [ngModel]="region"
                             (ngModelChange)="setRegion($event)"
                             [ngModelOptions]="{ standalone: true }"
-                            placeholder="Any Region"
-                            i18n-placeholder
+                            [placeholder]="'COMMON.REGION_ANY' | translate"
                         >
                             <mat-option
                                 *ngFor="let reg of regions | async"
@@ -101,8 +106,7 @@ import { combineLatest } from 'rxjs';
                             [ngModel]="(options | async)?.zone_id"
                             (ngModelChange)="setOptions({ zone_id: $event })"
                             [ngModelOptions]="{ standalone: true }"
-                            placeholder="Any Level"
-                            i18n-placeholder
+                            [placeholder]="'COMMON.LEVEL_ANY' | translate"
                         >
                             <mat-option
                                 *ngFor="let lvl of levels | async"
@@ -110,7 +114,7 @@ import { combineLatest } from 'rxjs';
                             >
                                 <div class="flex flex-col-reverse">
                                     <div
-                                        class="opacity-30 text-xs"
+                                        class="text-xs opacity-30"
                                         *ngIf="use_region"
                                     >
                                         {{
@@ -129,20 +133,23 @@ import { combineLatest } from 'rxjs';
                 </div>
 
                 <!-- Date -->
-                <div class="flex-1 min-w-[256px]">
-                    <label i18n>Date</label>
+                <div class="min-w-[256px] flex-1">
+                    <label>{{ 'FORM.DATE' | translate }}</label>
                     <a-date-field
                         name="date"
-                        formControlName="date"
+                        [ngModel]="form.value.date"
+                        (ngModelChange)="form.patchValue({ date: $event })"
+                        [ngModelOptions]="{ standalone: true }"
                         [to]="end_date"
+                        [timezone]="timezone"
                     >
                         {{ 'FORM.DATE_ERROR' | translate }}
                     </a-date-field>
                 </div>
                 <!-- All Day -->
-                <div *ngIf="allow_all_day" class="flex justify-end -mt-2 mb-2">
-                    <mat-checkbox formControlName="all_day" i18n>
-                        All Day
+                <div *ngIf="allow_all_day" class="-mt-2 mb-2 flex justify-end">
+                    <mat-checkbox formControlName="all_day">
+                        {{ 'COMMON.ALL_DAY' | translate }}
                     </mat-checkbox>
                 </div>
                 <!-- Start End -->
@@ -150,18 +157,19 @@ import { combineLatest } from 'rxjs';
                     class="flex items-center space-x-2"
                     *ngIf="!form.value.all_day"
                 >
-                    <div class="flex-1 w-1/3">
-                        <label i18n>Start Time</label>
+                    <div class="w-1/3 flex-1">
+                        <label>{{ 'FORM.TIME_START' | translate }}</label>
                         <a-time-field
                             name="start-time"
                             [ngModel]="form.value.date"
                             (ngModelChange)="form.patchValue({ date: $event })"
                             [ngModelOptions]="{ standalone: true }"
                             [use_24hr]="use_24hr"
+                            [timezone]="timezone"
                         ></a-time-field>
                     </div>
-                    <div class="flex-1 w-1/3">
-                        <label i18n>End Time</label>
+                    <div class="w-1/3 flex-1">
+                        <label>{{ 'FORM.TIME_END' | translate }}</label>
                         <a-duration-field
                             formControlName="duration"
                             [time]="form.get('date')?.value"
@@ -169,18 +177,19 @@ import { combineLatest } from 'rxjs';
                             [min]="60"
                             [step]="60"
                             [use_24hr]="use_24hr"
+                            [timezone]="timezone"
                         >
                         </a-duration-field>
                     </div>
                 </div>
             </section>
             <section favs class="space-y-2 pb-4">
-                <h2 class="text-lg font-medium" i18n>
+                <h2 class="text-lg font-medium">
                     {{ 'COMMON.FAVOURITES' | translate }}
                 </h2>
                 <div class="flex items-center">
-                    <div for="fav" class="flex-1 w-1/2" i18n>
-                        {{ 'DESKS.SHOW_FAVOURITES' | translate }}
+                    <div for="fav" class="w-1/2 flex-1">
+                        {{ 'COMMON.FAVOURITES_ONLY' | translate }}
                     </div>
                     <mat-checkbox
                         name="fav"
@@ -196,12 +205,14 @@ import { combineLatest } from 'rxjs';
                 features
                 *ngIf="(features | async)?.length"
             >
-                <h2 class="text-lg font-medium" i18n>Type</h2>
+                <h2 class="text-lg font-medium">
+                    {{ 'COMMON.TYPE' | translate }}
+                </h2>
                 <div
                     *ngFor="let feat of features | async"
-                    class="flex items-center flex-wrap space-x-2"
+                    class="flex flex-wrap items-center space-x-2"
                 >
-                    <div for="feat" class="flex-1 w-1/2">{{ feat }}</div>
+                    <div for="feat" class="w-1/2 flex-1">{{ feat }}</div>
                     <mat-checkbox
                         [ngModel]="
                             ((options | async)?.features || []).includes(feat)
@@ -213,7 +224,7 @@ import { combineLatest } from 'rxjs';
             </section>
         </form>
         <div
-            class="px-2 py-2 w-full border-t border-base-200"
+            class="w-full border-t border-base-200 px-2 py-2"
             *ngIf="can_close"
         >
             <button
@@ -222,12 +233,12 @@ import { combineLatest } from 'rxjs';
                 name="apply-desk-filters"
                 class="w-full"
                 (click)="close()"
-                i18n
             >
-                Apply Filters
+                {{ 'COMMON.APPLY' | translate }}
             </button>
         </div>
     `,
+    standalone: false,
 })
 export class DeskFiltersComponent {
     @Input() public hide_levels: boolean;
@@ -248,14 +259,14 @@ export class DeskFiltersComponent {
                 ? this._org.levelsForRegion(region)
                 : this._org.levelsForBuilding(bld);
             const viewable_levels = level_list.filter(
-                (lvl) => !lvl.tags.includes('parking')
+                (lvl) => !lvl.tags.includes('parking'),
             );
             return viewable_levels.sort(
                 (a, b) =>
                     a.parent_id.localeCompare(b.parent_id) ||
-                    (a.display_name || '').localeCompare(b.display_name || '')
+                    (a.display_name || '').localeCompare(b.display_name || ''),
             );
-        })
+        }),
     );
 
     public get building() {
@@ -277,6 +288,8 @@ export class DeskFiltersComponent {
     public readonly setFeature = (f, e) => this._state.setFeature(f, e);
     public readonly setLevel = (l) => {};
 
+    public readonly setRegion = (r) => (this._org.region = r);
+
     public get allow_time_changes() {
         return !!this._settings.get('app.desks.allow_time_changes');
     }
@@ -291,8 +304,8 @@ export class DeskFiltersComponent {
         return endOfDay(
             addDays(
                 Date.now(),
-                this._settings.get('app.desks.available_period') || 90
-            )
+                this._settings.get('app.desks.available_period') || 90,
+            ),
         );
     }
 
@@ -304,12 +317,18 @@ export class DeskFiltersComponent {
         return this._settings.get('app.use_region');
     }
 
+    public get timezone() {
+        return this._settings.get('app.events.use_building_timezone')
+            ? this._org.building.timezone
+            : '';
+    }
+
     constructor(
         @Optional()
         private _bsheet_ref: MatBottomSheetRef<DeskFiltersComponent>,
         private _state: BookingFormService,
         private _org: OrganisationService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         this.can_close = !!this._bsheet_ref;
     }

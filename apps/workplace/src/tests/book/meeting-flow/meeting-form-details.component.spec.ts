@@ -71,7 +71,7 @@ describe('MeetingFormDetailsComponent', () => {
     it('should allow customising the max duration', () => {
         expect(spectator.component.max_duration).toBe(480);
         (spectator.inject(SettingsService).get as any).mockImplementation(
-            () => 240
+            () => 240,
         );
         expect(spectator.component.max_duration).toBe(240);
     });

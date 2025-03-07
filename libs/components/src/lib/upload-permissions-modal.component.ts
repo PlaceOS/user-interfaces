@@ -11,7 +11,7 @@ import { UploadPermissions } from '@placeos/common';
                 <app-icon>close</app-icon>
             </button>
         </header>
-        <main class="p-4 min-w-[20rem]">
+        <main class="min-w-[20rem] p-4">
             <div class="flex flex-col space-y-2">
                 <label>File Name</label>
                 <mat-form-field appearance="outline">
@@ -38,7 +38,7 @@ import { UploadPermissions } from '@placeos/common';
             </div>
         </main>
         <footer
-            class="flex items-center justify-end space-x-2 px-4 py-2 border-t border-base-200"
+            class="flex items-center justify-end space-x-2 border-t border-base-200 px-4 py-2"
         >
             <button btn class="inverse w-32" mat-dialog-close>Cancel</button>
             <button
@@ -51,6 +51,7 @@ import { UploadPermissions } from '@placeos/common';
         </footer>
     `,
     styles: [``],
+    standalone: false,
 })
 export class UploadPermissionsModalComponent {
     /** File to upload */
@@ -62,7 +63,7 @@ export class UploadPermissionsModalComponent {
 
     constructor(
         private _dialog_ref: MatDialogRef<UploadPermissionsModalComponent>,
-        @Inject(MAT_DIALOG_DATA) private _data: { file: File }
+        @Inject(MAT_DIALOG_DATA) private _data: { file: File },
     ) {
         this.file = this._data.file;
     }

@@ -4,17 +4,15 @@ import { Component } from '@angular/core';
     selector: 'app-unauthorised',
     template: `
         <div
-            class="unauthorised rounded m-4 text-center bg-base-100 text-black border border-base-200 p-4 shadow"
+            class="unauthorised m-4 rounded border border-base-200 bg-base-100 p-4 text-center text-black shadow"
         >
             <h1 class="text-4xl">403</h1>
-            <h3 class="text-2xl" i18n>Access forbidden.</h3>
-            <p class="py-4" i18n>
-                You do not have permission to view this page and your access
-                attempt has been recorded.
+            <h3>{{ 'COMMON.FORBIDDEN' | translate }}</h3>
+            <p class="py-4">
+                {{ 'COMMON.INVALID_PAGE_PERMISSIONS' | translate }}
             </p>
-            <p i18n>
-                Contact your Administrator if you feel that you should have
-                access.
+            <p>
+                {{ 'COMMON.CONTACT_ADMIN' | translate }}
             </p>
         </div>
     `,
@@ -39,5 +37,6 @@ import { Component } from '@angular/core';
             }
         `,
     ],
+    standalone: false,
 })
 export class UnauthorisedComponent {}

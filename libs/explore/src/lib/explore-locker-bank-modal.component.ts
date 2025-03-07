@@ -1,10 +1,6 @@
 import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import {
-    Locker,
-    LockerBank,
-    LockersService,
-} from 'libs/bookings/src/lib/lockers.service';
+import { Locker, LockerBank } from '@placeos/bookings';
 
 export interface LockerBankModalData {
     bank: LockerBank;
@@ -25,6 +21,7 @@ export interface LockerBankModalData {
         </main>
     `,
     styles: [``],
+    standalone: false,
 })
 export class ExploreLockerBankModalComponent {
     public readonly bank = this._data.bank;

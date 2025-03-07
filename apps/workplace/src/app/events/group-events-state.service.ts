@@ -45,19 +45,19 @@ export class GroupEventsStateService {
             queryEvents({
                 period_start: getUnixTime(startOfDay(options.date)),
                 period_end: getUnixTime(
-                    endOfDay(options.end || options.date || Date.now())
+                    endOfDay(options.end || options.date || Date.now()),
                 ),
                 calendars: this.calendar,
-            })
+            }),
         ),
         map((list) =>
             list
                 .filter(
                     (_) =>
                         _.extension_data.view_access !== 'PRIVATE' &&
-                        _.extension_data.shared_event
+                        _.extension_data.shared_event,
                 )
-                .sort((a, b) => a.date - b.date)
+                .sort((a, b) => a.date - b.date),
         ),
         tap((list) => {
             const old_tags = this._tag_list.getValue();
@@ -66,7 +66,7 @@ export class GroupEventsStateService {
                 .flat();
             this._tag_list.next(unique([...old_tags, ...tags]));
         }),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     public readonly filtered_events = combineLatest([
@@ -77,7 +77,7 @@ export class GroupEventsStateService {
             const tag_list = tags.map((_) => _.toLowerCase());
             return list.filter((event) => {
                 const event_tags = (event.extension_data.tags || []).map((_) =>
-                    _.toLowerCase()
+                    _.toLowerCase(),
                 );
                 return (
                     tag_list.every((tag) => event_tags.includes(tag)) &&
@@ -85,14 +85,14 @@ export class GroupEventsStateService {
                 );
             });
         }),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     public readonly options = this._options.asObservable();
 
     constructor(
         private _org: OrganisationService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {}
 
     public setOptions(options: Partial<GroupEventOptions>) {

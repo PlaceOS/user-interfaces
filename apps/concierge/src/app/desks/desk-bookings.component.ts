@@ -1,77 +1,92 @@
 import { Component } from '@angular/core';
 
-import { DesksStateService } from './desks-state.service';
-import { map } from 'rxjs/operators';
 import { SettingsService } from '@placeos/common';
+import { DesksStateService } from './desks-state.service';
 
 @Component({
     selector: 'desk-bookings',
     template: `
-        <div class="overflow-auto h-full w-full pb-4">
+        <div class="h-full w-full overflow-auto pb-16">
             <simple-table
-                class="min-w-[72rem] block text-sm"
+                class="block min-w-[72rem] text-sm"
                 [data]="bookings"
                 [filter]="(filters | async)?.search"
+                [filter_on]="[
+                    'user_name',
+                    'asset_name',
+                    'user_email',
+                    'asset_id',
+                    'status',
+                    'group',
+                ]"
                 [columns]="[
                     {
                         key: 'date',
-                        name: 'Date',
+                        name: 'FORM.DATE' | translate,
                         content: date_template,
                         size: '4rem',
-                        sortable: false
+                        sortable: false,
                     },
                     {
-                        key: 'period',
-                        name: 'Period',
+                        key: 'date',
+                        name: 'FORM.PERIOD' | translate,
                         content: period_template,
-                        size: '9rem'
+                        size: '9rem',
                     },
                     {
                         key: 'user_name',
-                        name: 'Person',
-                        content: user_template
+                        name: 'COMMON.PERSON' | translate,
+                        content: user_template,
                     },
-                    { key: 'group', name: 'Group', content: group_template },
-                    { key: 'asset_name', name: 'Desk' },
-                    { key: 'approver', name: 'Approver' },
+                    {
+                        key: 'group',
+                        name: 'COMMON.GROUP' | translate,
+                        content: group_template,
+                    },
+                    { key: 'asset_name', name: 'RESOURCE.DESK' | translate },
+                    {
+                        key: 'approver',
+                        name: 'APP.CONCIERGE.APPROVER' | translate,
+                    },
                     {
                         key: 'status',
-                        name: 'Status',
+                        name: 'COMMON.STATUS' | translate,
                         content: status_template,
                         size: '8.5rem',
-                        sortable: false
+                        sortable: false,
                     },
                     {
                         key: 'checked_in',
-                        name: 'Checked In',
+                        name: 'COMMON.CHECKED_IN' | translate,
                         content: option_template,
                         size: '7rem',
-                        sortable: false
-                    }
+                        sortable: false,
+                    },
                 ]"
                 [empty_message]="
-                    (filters | async)?.search
-                        ? 'No matching desk bookings'
-                        : 'There are no desk booking for the currently selected date.'
+                    ((filters | async)?.search
+                        ? 'APP.CONCIERGE.DESKS_BOOKINGS_SEARCH_EMPTY'
+                        : 'APP.CONCIERGE.DESKS_BOOKINGS_EMPTY'
+                    ) | translate
                 "
                 [sortable]="true"
             ></simple-table>
             <ng-template #date_template let-date="data">
                 <div
-                    class="flex flex-col items-center justify-center w-full py-2"
+                    class="flex w-full flex-col items-center justify-center py-2"
                 >
                     <div class="opacity-60">{{ date | date: 'MMM' }}</div>
                     <div class="text-xl">{{ date | date: 'dd' }}</div>
                 </div>
             </ng-template>
             <ng-template #group_template let-row="row">
-                <div class="p-4 text-[0.625rem] font-mono">
+                <div class="p-4 font-mono text-[0.625rem]">
                     {{ row.group || row.extension_data?.group }}
                     <span
                         class="opacity-30"
                         *ngIf="!(row.group || row.extension_data?.group)"
                     >
-                        No Group
+                        {{ 'APP.CONCIERGE.DESKS_GROUP_EMPTY' | translate }}
                     </span>
                 </div>
             </ng-template>
@@ -85,13 +100,17 @@ import { SettingsService } from '@placeos/common';
                         "
                     >
                         <div class="p-2">
-                            <ng-container *ngIf="!row.all_day">
+                            <ng-container
+                                *ngIf="!row.all_day && row.duration <= 12 * 60"
+                            >
                                 {{ row.date | date: time_format }} &ndash;
                                 {{ row.date_end | date: time_format }}
                             </ng-container>
-                            <ng-container *ngIf="row.all_day"
-                                >All Day</ng-container
+                            <ng-container
+                                *ngIf="row.all_day || row.duration > 12 * 60"
                             >
+                                {{ 'COMMON.ALL_DAY' | translate }}
+                            </ng-container>
                         </div>
                     </ng-container>
                     <ng-container
@@ -102,12 +121,13 @@ import { SettingsService } from '@placeos/common';
                         "
                     >
                         <div
-                            class="text-xs py-2 px-4 bg-error rounded-3xl text-white"
+                            class="rounded-3xl bg-error px-4 py-2 text-xs text-white"
                         >
                             {{
-                                row.status === 'ended'
-                                    ? 'Manually Ended'
-                                    : 'Expired'
+                                (row.status === 'ended'
+                                    ? 'APP.CONCIERGE.BOOKING_ENDED'
+                                    : 'APP.CONCIERGE.BOOKING_EXPIRED'
+                                ) | translate
                             }}
                         </div>
                     </ng-container>
@@ -125,7 +145,7 @@ import { SettingsService } from '@placeos/common';
                     </div>
                     <div
                         *ngIf="row.user_name"
-                        class="text-xs opacity-30 select-all"
+                        class="select-all text-xs opacity-30"
                     >
                         {{ row.user_email }}
                     </div>
@@ -135,7 +155,7 @@ import { SettingsService } from '@placeos/common';
                 <div class="px-2">
                     <button
                         matRipple
-                        class="rounded-3xl bg-warning text-warning-content border-none w-[7.5rem] h-10"
+                        class="h-10 w-[7.5rem] rounded-3xl border-none bg-warning text-warning-content"
                         [class.!text-success-content]="
                             row?.status === 'approved'
                         "
@@ -148,21 +168,22 @@ import { SettingsService } from '@placeos/common';
                         [matMenuTriggerFor]="menu"
                         [disabled]="row?.status === 'ended'"
                     >
-                        <div class="flex items-center pl-4 pr-2 space-x-2">
+                        <div class="flex items-center space-x-2 pl-4 pr-2">
                             <div class="flex-1 text-left">
                                 {{
-                                    row?.status === 'ended'
-                                        ? 'Ended'
+                                    (row?.status === 'ended'
+                                        ? 'APP.CONCIERGE.BOOKING_STATUS_ENDED'
                                         : row?.status === 'approved'
-                                        ? 'Approved'
-                                        : row?.status === 'declined'
-                                        ? 'Declined'
-                                        : 'Pending'
+                                          ? 'APP.CONCIERGE.BOOKING_STATUS_APPROVED'
+                                          : row?.status === 'declined'
+                                            ? 'APP.CONCIERGE.BOOKING_STATUS_DECLINED'
+                                            : 'APP.CONCIERGE.BOOKING_STATUS_PENDING'
+                                    ) | translate
                                 }}
                             </div>
-                            <app-icon class="text-2xl"
-                                >arrow_drop_down</app-icon
-                            >
+                            <app-icon class="text-2xl">
+                                arrow_drop_down
+                            </app-icon>
                         </div>
                     </button>
                 </div>
@@ -172,13 +193,23 @@ import { SettingsService } from '@placeos/common';
                             <app-icon class="text-2xl"
                                 >event_available</app-icon
                             >
-                            <div class="pr-2">Approve Desk</div>
+                            <div class="pr-2">
+                                {{
+                                    'APP.CONCIERGE.DESKS_ACTION_APPROVE'
+                                        | translate
+                                }}
+                            </div>
                         </div>
                     </button>
                     <button mat-menu-item (click)="reject(row)">
                         <div class="flex items-center space-x-2">
                             <app-icon class="text-2xl">event_busy</app-icon>
-                            <div class="pr-2">Decline Desk</div>
+                            <div class="pr-2">
+                                {{
+                                    'APP.CONCIERGE.DESKS_ACTION_DECLINE'
+                                        | translate
+                                }}
+                            </div>
                         </div>
                     </button>
                 </mat-menu>
@@ -187,7 +218,7 @@ import { SettingsService } from '@placeos/common';
                 <div class="px-2">
                     <button
                         matRipple
-                        class="rounded-3xl bg-warning text-warning-content border-none w-[4.5rem] h-10"
+                        class="h-10 w-[4.5rem] rounded-3xl border-none bg-warning text-warning-content"
                         [matMenuTriggerFor]="checkinMenu"
                         [class.!bg-neutral]="!data"
                         [class.!text-neutral-content]="!data"
@@ -201,9 +232,12 @@ import { SettingsService } from '@placeos/common';
                                 : 'Check-in or check-out desk'
                         "
                     >
-                        <div class="flex items-center pl-4 pr-2 space-x-2">
+                        <div class="flex items-center space-x-2 pl-4 pr-2">
                             <div class="flex-1 text-left">
-                                {{ data ? 'Yes' : 'No' }}
+                                {{
+                                    (data ? 'COMMON.TRUE' : 'COMMON.FALSE')
+                                        | translate
+                                }}
                             </div>
                             <app-icon class="text-2xl">
                                 arrow_drop_down
@@ -215,39 +249,27 @@ import { SettingsService } from '@placeos/common';
                     <button mat-menu-item (click)="checkin(row, true)">
                         <div class="flex items-center space-x-2">
                             <app-icon class="text-2xl">check</app-icon>
-                            <div>Check-in</div>
+                            <div>{{ 'COMMON.CHECK_IN' | translate }}</div>
                         </div>
                     </button>
                     <button mat-menu-item (click)="checkin(row, false)">
                         <div class="flex items-center space-x-2">
                             <app-icon class="text-2xl">cancel</app-icon>
-                            <div>Check-out</div>
+                            <div>{{ 'COMMON.CHECK_OUT' | translate }}</div>
                         </div>
                     </button>
                 </mat-menu>
             </ng-template>
         </div>
-
         <button
             btn
             matRipple
-            class="absolute bottom-2 left-2 w-32 mx-auto my-4"
+            class="absolute bottom-2 left-4 z-20 w-32"
             *ngIf="!loading && (has_more_pages | async)"
             (click)="loadMore()"
         >
-            Load More
+            {{ 'COMMON.LOAD_MORE' | translate }}
         </button>
-        <button
-            icon
-            matRipple
-            class="absolute bottom-2 right-2 bg-base-100 shadow"
-            [matMenuTriggerFor]="menu"
-        >
-            <app-icon>more_vert</app-icon>
-        </button>
-        <mat-menu #menu="matMenu">
-            <button mat-menu-item (click)="rejectAll()">Reject All</button>
-        </mat-menu>
     `,
     styles: [
         `
@@ -260,6 +282,7 @@ import { SettingsService } from '@placeos/common';
             }
         `,
     ],
+    standalone: false,
 })
 export class DeskBookingsComponent {
     public loading: string;
@@ -299,12 +322,12 @@ export class DeskBookingsComponent {
 
     constructor(
         private _state: DesksStateService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {}
 
-    private async runMethod(name: string, fn: () => Promise<any>) {
+    private async runMethod(name: string, fn: () => Promise<void>) {
         this.loading = name;
-        await fn().catch((i) => null);
+        await fn().catch(() => null);
         this.loading = '';
     }
 }

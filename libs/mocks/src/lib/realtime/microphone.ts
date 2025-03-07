@@ -19,5 +19,5 @@ class MicrophoneModule {
 
 export const createMicrophoneModule = (
     space: HashMap,
-    overrides: HashMap = {}
+    overrides: HashMap = {},
 ) => new MicrophoneModule({ ...space, ...overrides });

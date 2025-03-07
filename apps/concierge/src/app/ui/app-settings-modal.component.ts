@@ -8,25 +8,25 @@ import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
 @Component({
     selector: 'app-settings-modal',
     template: `
-        <div class="w-screen h-screen bg-base-100 flex flex-col">
+        <div class="flex h-screen w-screen flex-col bg-base-100">
             <header
-                class="sticky top-0 py-2 px-0 mx-auto max-w-[640px] w-full border-none z-10"
+                class="sticky top-0 z-10 mx-auto w-full max-w-[640px] border-none px-0 py-2"
             >
                 <h2 class="text-2xl font-medium">
                     App Configuration - {{ zone.display_name }}
                 </h2>
             </header>
             <main
-                class="flex-1 h-1/2 p-2 space-y-2 z-0 overflow-auto"
+                class="z-0 h-1/2 flex-1 space-y-2 overflow-auto p-2"
                 *ngIf="!loading; else load_state"
                 [formGroup]="form"
             >
-                <div class=" mx-auto max-w-[640px] w-full">
-                    <h3 class="font-medium text-lg">General Features</h3>
-                    <div class="flex flex-wrap items-center -mx-2 py-2">
+                <div class="mx-auto w-full max-w-[640px]">
+                    <h3 class="text-lg font-medium">General Features</h3>
+                    <div class="-mx-2 flex flex-wrap items-center py-2">
                         <button
                             matRipple
-                            class="flex items-center space-x-2 m-2 p-2 border border-base-200 w-[calc(50%-1rem)]"
+                            class="m-2 flex w-[calc(50%-1rem)] items-center space-x-2 border border-base-200 p-2"
                             (click)="
                                 active_features['use_24_hour_time'] =
                                     !active_features['use_24_hour_time']
@@ -42,12 +42,12 @@ import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
                             ></mat-checkbox>
                         </button>
                     </div>
-                    <h3 class="font-medium text-lg">Features</h3>
-                    <div class="flex flex-wrap items-center -mx-2 py-2">
+                    <h3 class="text-lg font-medium">Features</h3>
+                    <div class="-mx-2 flex flex-wrap items-center py-2">
                         <button
                             *ngFor="let feature of available_features"
                             matRipple
-                            class="flex items-center space-x-2 m-2 p-2 border border-base-200 w-[calc(50%-1rem)]"
+                            class="m-2 flex w-[calc(50%-1rem)] items-center space-x-2 border border-base-200 p-2"
                             (click)="
                                 active_features[feature] =
                                     !active_features[feature]
@@ -63,12 +63,12 @@ import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
                             ></mat-checkbox>
                         </button>
                     </div>
-                    <h3 class="font-medium text-lg">Landing</h3>
-                    <div class="flex flex-wrap items-center -mx-2 py-2">
+                    <h3 class="text-lg font-medium">Landing</h3>
+                    <div class="-mx-2 flex flex-wrap items-center py-2">
                         <button
                             *ngFor="let feature of landing_features"
                             matRipple
-                            class="flex items-center space-x-2 m-2 p-2 border border-base-200 w-[calc(50%-1rem)]"
+                            class="m-2 flex w-[calc(50%-1rem)] items-center space-x-2 border border-base-200 p-2"
                             (click)="
                                 active_features[feature] =
                                     !active_features[feature]
@@ -88,12 +88,12 @@ import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
                         *ngIf="active_features['spaces']"
                         formGroupName="events"
                     >
-                        <h3 class="font-medium text-lg">Room Bookings</h3>
-                        <div class="flex flex-wrap items-center -mx-2 py-2">
+                        <h3 class="text-lg font-medium">Room Bookings</h3>
+                        <div class="-mx-2 flex flex-wrap items-center py-2">
                             <button
                                 *ngFor="let feature of room_features"
                                 matRipple
-                                class="flex items-center space-x-2 m-2 p-2 border border-base-200 w-[calc(50%-1rem)]"
+                                class="m-2 flex w-[calc(50%-1rem)] items-center space-x-2 border border-base-200 p-2"
                                 (click)="
                                     form
                                         .get('events')
@@ -115,12 +115,12 @@ import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
                         </div>
                     </ng-container>
                     <div *ngIf="active_features['desks']" formGroupName="desks">
-                        <h3 class="font-medium text-lg">Desk Bookings</h3>
-                        <div class="flex flex-wrap items-center -mx-2 py-2">
+                        <h3 class="text-lg font-medium">Desk Bookings</h3>
+                        <div class="-mx-2 flex flex-wrap items-center py-2">
                             <button
                                 *ngFor="let feature of desk_features"
                                 matRipple
-                                class="flex items-center space-x-2 m-2 p-2 border border-base-200 w-[calc(50%-1rem)]"
+                                class="m-2 flex w-[calc(50%-1rem)] items-center space-x-2 border border-base-200 p-2"
                                 (click)="
                                     form
                                         .get('desks')
@@ -144,7 +144,7 @@ import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
                 </div>
             </main>
             <footer
-                class="sticky bottom-0 flex items-center justify-end space-x-2 p-2 mx-auto max-w-[640px] w-full bg-base-100 z-10"
+                class="sticky bottom-0 z-10 mx-auto flex w-full max-w-[640px] items-center justify-end space-x-2 bg-base-100 p-2"
                 *ngIf="!loading"
             >
                 <button btn matRipple class="inverse w-32" mat-dialog-close>
@@ -159,14 +159,14 @@ import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
                 matRipple
                 mat-dialog-close
                 *ngIf="!loading"
-                class="absolute top-2 right-2"
+                class="absolute right-2 top-2"
             >
                 <app-icon>close</app-icon>
             </button>
         </div>
         <ng-template #load_state>
             <main
-                class="flex-1 h-1/2 p-2 space-y-2 z-0 overflow-auto flex flex-col items-center justify-center"
+                class="z-0 flex h-1/2 flex-1 flex-col items-center justify-center space-y-2 overflow-auto p-2"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
                 <p>{{ loading }}</p>
@@ -174,6 +174,7 @@ import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
         </ng-template>
     `,
     styles: [``],
+    standalone: false,
 })
 export class AppSettingsModalComponent {
     public readonly zone = this._data.zone;
@@ -274,7 +275,7 @@ export class AppSettingsModalComponent {
         @Inject(MAT_DIALOG_DATA) private _data: { zone: PlaceZone },
         private _dialog_ref: MatDialogRef<AppSettingsModalComponent>,
         private _org: OrganisationService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {}
 
     public async ngOnInit() {
@@ -293,7 +294,7 @@ export class AppSettingsModalComponent {
         const org_settings: any = (
             await showMetadata(
                 this._org.organisation.id,
-                `${this.workplace_key}`
+                `${this.workplace_key}`,
             )
                 .toPromise()
                 .catch(() => ({ details: {} }))
@@ -359,7 +360,7 @@ export class AppSettingsModalComponent {
                 this._dialog_ref.disableClose = false;
                 this.loading = '';
                 notifyError(
-                    `Failed to save settings: ${e.message || e.error || e}`
+                    `Failed to save settings: ${e.message || e.error || e}`,
                 );
                 throw e;
             });

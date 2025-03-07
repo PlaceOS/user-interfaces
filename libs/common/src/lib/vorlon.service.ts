@@ -29,7 +29,7 @@ export class VorlonService extends AsyncHandler {
                         state
                             ? this.injectVorlonScript()
                             : this.removeVorlonScript();
-                    })
+                    }),
                 );
             }
         }

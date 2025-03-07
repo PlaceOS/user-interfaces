@@ -1,17 +1,25 @@
-import { Component, forwardRef, Input, SimpleChanges } from '@angular/core';
+import {
+    Component,
+    forwardRef,
+    Input,
+    OnChanges,
+    OnInit,
+    SimpleChanges,
+} from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
+    i18n,
     randomString,
     SettingsService,
 } from '@placeos/common';
 
+import { OrganisationService } from '@placeos/organisation';
+import { endOfDay, startOfDay } from 'date-fns';
 import { CateringItem } from 'libs/catering/src/lib/catering-item.class';
 import { NewCateringOrderModalComponent } from 'libs/catering/src/lib/catering-order-modal/new-catering-order-modal.component';
 import { CateringOrder } from './catering-order.class';
-import { Organisation, OrganisationService } from '@placeos/organisation';
-import { endOfDay, format, startOfDay } from 'date-fns';
 
 const EMPTY_FAVS = [];
 
@@ -22,7 +30,7 @@ const EMPTY_FAVS = [];
             <div
                 order
                 *ngFor="let order of orders"
-                class="border shadow bg-base-100 rounded-xl overflow-hidden"
+                class="overflow-hidden rounded-xl border bg-base-100 shadow"
                 [class.border-error]="end_time < order.deliver_at"
                 [class.border-base-300]="end_time >= order.deliver_at"
             >
@@ -30,13 +38,21 @@ const EMPTY_FAVS = [];
                     <div class="flex-1">
                         <div class="flex items-center space-x-4">
                             <div>
-                                Order for
-                                {{ order.deliver_at_time | date: 'mediumDate' }}
-                                at
-                                {{ order.deliver_at_time | date: time_format }}
+                                {{
+                                    'CALENDAR_EVENT.CATERING_ORDER_AT_DATE'
+                                        | translate
+                                            : {
+                                                  date:
+                                                      order.deliver_at_time
+                                                      | date: 'mediumDate',
+                                                  time:
+                                                      order.deliver_at_time
+                                                      | date: time_format,
+                                              }
+                                }}
                             </div>
                             <div
-                                class="flex items-center justify-center h-6 w-6 rounded-full bg-error text-error-content"
+                                class="flex h-6 w-6 items-center justify-center rounded-full bg-error text-error-content"
                                 [matTooltip]="err_tooltip"
                                 *ngIf="end_time < order.deliver_at"
                             >
@@ -44,16 +60,25 @@ const EMPTY_FAVS = [];
                             </div>
                         </div>
                         <div class="text-xs opacity-60">
-                            {{ order.item_count }} item(s) for
                             {{
-                                order.total_cost / 100 | currency: currency_code
+                                'CALENDAR_EVENT.CATERING_ORDER_DETAILS'
+                                    | translate
+                                        : {
+                                              count: order.item_count,
+                                              cost:
+                                                  order.total_cost / 100
+                                                  | currency: currency_code,
+                                          }
                             }}
                         </div>
                     </div>
                     <button
                         icon
                         matRipple
-                        matTooltip="Duplicate Order"
+                        [matTooltip]="
+                            'CALENDAR_EVENT.CATERING_ORDER_DUPLICATE'
+                                | translate
+                        "
                         *ngIf="!disabled"
                         (click)="duplicateOrder(order)"
                     >
@@ -62,7 +87,9 @@ const EMPTY_FAVS = [];
                     <button
                         icon
                         matRipple
-                        matTooltip="Edit Order"
+                        [matTooltip]="
+                            'CALENDAR_EVENT.CATERING_ORDER_EDIT' | translate
+                        "
                         *ngIf="!disabled"
                         (click)="editOrder(order)"
                     >
@@ -82,9 +109,10 @@ const EMPTY_FAVS = [];
                         icon
                         matRipple
                         [matTooltip]="
-                            show_order[order.id]
-                                ? 'Hide order items'
-                                : 'Show order items'
+                            (show_order[order.id]
+                                ? 'CALENDAR_EVENT.CATERING_ORDER_HIDE'
+                                : 'CALENDAR_EVENT.CATERING_ORDER_SHOW'
+                            ) | translate
                         "
                         (click)="show_order[order.id] = !show_order[order.id]"
                     >
@@ -98,30 +126,38 @@ const EMPTY_FAVS = [];
                     </button>
                 </div>
                 <div
-                    class="flex flex-col bg-base-200 divide-y divide-base-100"
+                    class="flex flex-col divide-y divide-base-100 bg-base-200"
                     [@show]="show_order[order.id] ? 'show' : 'hide'"
                 >
                     <div
-                        class="flex items-center px-4 py-1 space-x-2 hover:opacity-90"
+                        class="flex items-center space-x-2 px-4 py-1 hover:opacity-90"
                         *ngFor="let item of order.items"
                     >
-                        <div class="flex items-center flex-1">
+                        <div class="flex flex-1 items-center">
                             {{ item.name || 'Item' }}
                             <span
-                                class="text-xs opacity-60 ml-4 font-normal"
+                                class="ml-4 text-xs font-normal opacity-60"
                                 *ngIf="item.option_list?.length"
                                 [matTooltip]="optionList(item)"
                             >
-                                {{ item.option_list?.length || '0' }} option(s)
+                                {{
+                                    'CALENDAR_EVENT.CATERING_ORDER_OPTION_COUNT'
+                                        | translate
+                                            : {
+                                                  count:
+                                                      item.option_list
+                                                          ?.length || '0',
+                                              }
+                                }}
                             </span>
                         </div>
                         <div
-                            class="rounded bg-success text-success-content text-xs px-2 py-1"
+                            class="rounded bg-success px-2 py-1 text-xs text-success-content"
                         >
                             x{{ item.quantity }}
                         </div>
                         <div
-                            class="rounded bg-info text-info-content text-xs px-2 py-1"
+                            class="rounded bg-info px-2 py-1 text-xs text-info-content"
                         >
                             {{
                                 item.unit_price_with_options / 100
@@ -144,11 +180,12 @@ const EMPTY_FAVS = [];
                             matRipple
                             name="toggle-catering-item-favourite"
                             [matTooltip]="
-                                favorites.includes(item.id)
-                                    ? 'Remove from favourites'
-                                    : 'Add to favourites'
+                                (favorites.includes(item.id)
+                                    ? 'COMMON.FAVOURITES_REMOVE'
+                                    : 'COMMON.FAVOURITES_ADD'
+                                ) | translate
                             "
-                            [class.text-blue-400]="favorites.includes(item.id)"
+                            [class.text-info]="favorites.includes(item.id)"
                             (click)="toggleFavourite(item)"
                         >
                             <app-icon>{{
@@ -165,13 +202,15 @@ const EMPTY_FAVS = [];
             btn
             matRipple
             name="add-catering-item"
-            class="w-full inverse mt-2"
+            class="inverse mt-2 w-full"
             [disabled]="disabled"
             (click)="editOrder()"
         >
             <div class="flex items-center justify-center space-x-2">
                 <app-icon>search</app-icon>
-                <span>Add Order</span>
+                <span>
+                    {{ 'CALENDAR_EVENT.CATERING_ORDER_ADD' | translate }}
+                </span>
             </div>
         </button>
     `,
@@ -185,8 +224,11 @@ const EMPTY_FAVS = [];
             multi: true,
         },
     ],
+    standalone: false,
 })
-export class CateringListFieldComponent implements ControlValueAccessor {
+export class CateringListFieldComponent
+    implements ControlValueAccessor, OnInit, OnChanges
+{
     @Input() public options: {
         date?: number;
         duration?: number;
@@ -196,8 +238,7 @@ export class CateringListFieldComponent implements ControlValueAccessor {
     public orders: CateringOrder[] = [];
     public show_order: Record<string, boolean> = {};
     public disabled = false;
-    public err_tooltip =
-        'Delivery time is outside of the event time.\nThis order will be ignored.';
+    public err_tooltip = '';
 
     private _onChange: (_: CateringOrder[]) => void;
     private _onTouch: (_: CateringOrder[]) => void;
@@ -227,8 +268,12 @@ export class CateringListFieldComponent implements ControlValueAccessor {
     constructor(
         private _settings: SettingsService,
         private _org: OrganisationService,
-        private _dialog: MatDialog
+        private _dialog: MatDialog,
     ) {}
+
+    public ngOnInit() {
+        this.err_tooltip = i18n('CALENDAR_EVENT.CATERING_ORDER_ERROR');
+    }
 
     /**
      * Update the form field value
@@ -242,7 +287,7 @@ export class CateringListFieldComponent implements ControlValueAccessor {
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.options) {
             this.orders = (this.orders || []).map(
-                (_) => new CateringOrder({ ..._, event: this.options as any })
+                (_) => new CateringOrder({ ..._, event: this.options as any }),
             );
         }
     }
@@ -253,7 +298,7 @@ export class CateringListFieldComponent implements ControlValueAccessor {
      */
     public writeValue(value: CateringOrder[]) {
         this.orders = (value || []).map(
-            (_) => new CateringOrder({ ..._, event: this.options as any })
+            (_) => new CateringOrder({ ..._, event: this.options as any }),
         );
     }
 
@@ -290,6 +335,7 @@ export class CateringListFieldComponent implements ControlValueAccessor {
     public editOrder(order: CateringOrder = new CateringOrder()) {
         const ref = this._dialog.open(NewCateringOrderModalComponent, {
             data: {
+                caterer: order.items[0]?.caterer,
                 items: order.items,
                 details: {
                     ...this.options,
@@ -315,7 +361,7 @@ export class CateringListFieldComponent implements ControlValueAccessor {
                 ];
                 for (const option of item.options) {
                     const opt = item.option_list.find(
-                        (_) => _.id === option.id
+                        (_) => _.id === option.id,
                     );
                     option.active = !!opt;
                 }
@@ -323,6 +369,7 @@ export class CateringListFieldComponent implements ControlValueAccessor {
             const new_order = new CateringOrder({
                 ...order,
                 items,
+                caterer: items[0].caterer,
                 event: this.options as any,
                 deliver_offset: ref.componentInstance.offset,
                 deliver_time: ref.componentInstance.exact_time
@@ -350,7 +397,7 @@ export class CateringListFieldComponent implements ControlValueAccessor {
         } else {
             this._settings.saveUserSetting(
                 'favourite_menu_items',
-                fav_list.filter((_) => _ !== cateringitem.id)
+                fav_list.filter((_) => _ !== cateringitem.id),
             );
         }
     }

@@ -8,8 +8,8 @@ import { MockComponent } from 'ng-mocks';
 import { CateringTopbarComponent } from '../../app/catering/catering-topbar.component';
 
 import { CateringComponent } from '../../app/catering/catering.component';
-import { ApplicationTopbarComponent } from '../../app/ui/app-topbar.component';
 import { ApplicationSidebarComponent } from '../../app/ui/app-sidebar.component';
+import { ApplicationTopbarComponent } from '../../app/ui/app-topbar.component';
 import { SidebarComponent } from '../../app/ui/sidebar.component';
 
 describe('CateringComponent', () => {

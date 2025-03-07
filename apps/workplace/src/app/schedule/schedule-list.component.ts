@@ -9,7 +9,7 @@ import { BookingLike, ScheduleStateService } from './schedule-state.service';
     selector: 'schedule-list',
     template: `
         <div
-            class="w-full h-16 flex items-center justify-between bg-base-100 border-b border-base-200 shadow p-2"
+            class="flex h-16 w-full items-center justify-between border-b border-base-200 bg-base-100 p-2 shadow"
         >
             <mat-form-field appearance="outline" class="h-[3.25rem]">
                 <mat-select
@@ -38,7 +38,7 @@ import { BookingLike, ScheduleStateService } from './schedule-state.service';
                     <app-icon>event</app-icon>
                     <input
                         matInput
-                        class="opacity-0 absolute inset-0"
+                        class="absolute inset-0 opacity-0"
                         [ngModel]="date | async"
                         (ngModelChange)="scrollTo($event)"
                         [matDatepicker]="picker"
@@ -47,7 +47,7 @@ import { BookingLike, ScheduleStateService } from './schedule-state.service';
                     />
 
                     <mat-datepicker-toggle
-                        class="opacity-0 absolute inset-0"
+                        class="absolute inset-0 opacity-0"
                         matSuffix
                         [for]="picker"
                     ></mat-datepicker-toggle>
@@ -78,15 +78,15 @@ import { BookingLike, ScheduleStateService } from './schedule-state.service';
         ></mat-progress-bar>
         <mat-menu #legend="matMenu" xPosition="before">
             <div class="flex items-center px-4 py-2 hover:bg-neutral">
-                <div class="bg-success h-2 w-2 rounded-full mr-4"></div>
+                <div class="mr-4 h-2 w-2 rounded-full bg-success"></div>
                 Approved
             </div>
             <div class="flex items-center px-4 py-2 hover:bg-neutral">
-                <div class="bg-warning h-2 w-2 rounded-full mr-4"></div>
+                <div class="mr-4 h-2 w-2 rounded-full bg-warning"></div>
                 Tentative
             </div>
             <div class="flex items-center px-4 py-2 hover:bg-neutral">
-                <div class="bg-error h-2 w-2 rounded-full mr-4"></div>
+                <div class="mr-4 h-2 w-2 rounded-full bg-error"></div>
                 Declined
             </div>
         </mat-menu>
@@ -101,6 +101,7 @@ import { BookingLike, ScheduleStateService } from './schedule-state.service';
             }
         `,
     ],
+    standalone: false,
 })
 export class ScheduleListComponent implements OnInit, OnDestroy {
     public readonly today = new Date();
@@ -136,7 +137,7 @@ export class ScheduleListComponent implements OnInit, OnDestroy {
                 start = addDays(start, 1);
             }
             return items;
-        })
+        }),
     );
 
     public get user() {
@@ -169,7 +170,7 @@ export class ScheduleListComponent implements OnInit, OnDestroy {
     public async scrollTo(date: Date) {
         const events = await this.event_list.pipe(take(1)).toPromise();
         const index = events.findIndex(
-            (_) => _.id === 'date' && isSameDay(_.date, date)
+            (_) => _.id === 'date' && isSameDay(_.date, date),
         );
         if (index >= 0 && this._viewport) {
             let position = 0;

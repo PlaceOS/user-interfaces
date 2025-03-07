@@ -9,23 +9,23 @@ import { Router } from '@angular/router';
 import { AsyncHandler, SettingsService, notifyError } from '@placeos/common';
 import QrScanner from 'qr-scanner';
 
-import { CheckinStateService } from './checkin-state.service';
 import { take } from 'rxjs/operators';
+import { CheckinStateService } from './checkin-state.service';
 
 @Component({
     selector: '[checkin-qr-scan]',
     template: `
         <div
-            class="bg-base-100 rounded shadow overflow-hidden relative flex flex-col items-center w-[36rem] p-4"
+            class="relative flex w-[36rem] flex-col items-center overflow-hidden rounded bg-base-100 p-4 shadow"
             [class.hidden]="checking_code"
         >
             <p class="my-4">
-                Please enter your email address or scan your QR code
+                {{ 'APP.VISITOR_KIOSK.QR_CODE_MSG' | translate }}
             </p>
-            <div class="flex items-center space-x-2 w-full">
+            <div class="flex w-full items-center space-x-2">
                 <mat-form-field
                     appearance="outline"
-                    class="w-px flex-1 no-subscript"
+                    class="no-subscript w-px flex-1"
                 >
                     <input
                         matInput
@@ -36,21 +36,23 @@ import { take } from 'rxjs/operators';
                         (blur)="checkEmail(email)"
                         (keyup.enter)="checkEmail(email)"
                     />
-                    <mat-error>Invalid email format</mat-error>
+                    <mat-error>{{
+                        'APP.VISITOR_KIOSK.INVALID_EMAIL' | translate
+                    }}</mat-error>
                 </mat-form-field>
                 <button btn matRipple (click)="checkEmail(email)">
-                    Find Details
+                    {{ 'APP.VISITOR_KIOSK.FIND_DETAILS' | translate }}
                 </button>
             </div>
             <div
-                class="relative rounded mt-4 bg-base-200 border border-base-200 overflow-hidden"
+                class="relative mt-4 overflow-hidden rounded border border-base-200 bg-base-200"
             >
                 <div
-                    class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-30 flex flex-col items-center space-y-2 z-0"
+                    class="absolute left-1/2 top-1/2 z-0 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center space-y-2 opacity-30"
                 >
                     <app-icon class="text-6xl">videocam_off</app-icon>
                     <p class="text-center">
-                        Camera feed loading or is not available
+                        {{ 'APP.VISITOR_KIOSK.CAMERA_UNAVAILABLE' | translate }}
                     </p>
                 </div>
                 <video
@@ -60,24 +62,26 @@ import { take } from 'rxjs/operators';
                     width="640"
                     height="480"
                     autoplay
-                    class="object-cover relative z-10"
+                    class="relative z-10 object-cover"
                 ></video>
             </div>
             <a
                 icon
                 matRipple
-                class="absolute top-0 right-0"
+                class="absolute right-0 top-0"
                 [routerLink]="['/welcome']"
             >
                 <app-icon>close</app-icon>
             </a>
         </div>
         <div
-            class="bg-base-100 rounded shadow overflow-hidden relative flex flex-col items-center p-16"
+            class="relative flex flex-col items-center overflow-hidden rounded bg-base-100 p-16 shadow"
             [class.hidden]="!checking_code"
         >
             <mat-spinner diameter="32"></mat-spinner>
-            <p class="my-4">Loading visitor information...</p>
+            <p class="my-4">
+                {{ 'APP.VISITOR_KIOSK.LOADING_DETAILS' | translate }}
+            </p>
         </div>
     `,
     styles: [
@@ -92,6 +96,7 @@ import { take } from 'rxjs/operators';
             }
         `,
     ],
+    standalone: false,
 })
 export class CheckinQRScanComponent
     extends AsyncHandler
@@ -120,12 +125,13 @@ export class CheckinQRScanComponent
     constructor(
         private _checkin: CheckinStateService,
         private _router: Router,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         super();
     }
 
     public ngAfterViewInit() {
+        this._checkin.metadata = '';
         this.setupQRReader();
     }
 
@@ -166,7 +172,16 @@ export class CheckinQRScanComponent
                 this.checking_code = false;
                 return;
             }
-            if (this.is_induction_enabled && !event?.induction) {
+            if (event.checked_in_at) {
+                this._router.navigate(['/checkin', 'checkout']);
+                return;
+            }
+            if (event.checked_out_at) {
+                this.handleError('Your meeting has already finished.');
+                this.checking_code = false;
+                return;
+            }
+            if (this.is_induction_enabled && event?.induction !== 'accepted') {
                 this._router.navigate(['/checkin', 'induction']);
             } else {
                 this._router.navigate(['/checkin', 'details']);
@@ -179,13 +194,22 @@ export class CheckinQRScanComponent
         if (!email || !email.includes('@') || email.length < 5) return;
         await this._checkin.loadGuestAndEvent(email).catch((err) => {
             this.handleError(
-                'Unable to find visitor or a meeting associated with the given email address.'
+                'Unable to find visitor or a meeting associated with the given email address.',
             );
             throw err;
         });
         const event = await this._checkin.event.pipe(take(1)).toPromise();
+        if (event.checked_out_at) {
+            this.handleError('Your meeting has already finished.');
+            this.checking_code = false;
+            return;
+        }
+        if (event.checked_in_at) {
+            this._router.navigate(['/checkin', 'checkout']);
+            return;
+        }
         if (
-            !event?.induction &&
+            event.induction !== 'accepted' &&
             this.is_induction_enabled &&
             !this.induction_after_details
         ) {
@@ -198,20 +222,25 @@ export class CheckinQRScanComponent
     private setupQRReader() {
         this.timeout('setup_qr_reader', () => {
             if (!this._video_el?.nativeElement) return this.setupQRReader();
-            if (navigator.mediaDevices?.getUserMedia) {
+            if (
+                navigator.mediaDevices?.getUserMedia &&
+                !this._video_el.nativeElement.srcObject
+            ) {
                 navigator.mediaDevices
                     .getUserMedia({ video: true })
                     .then(
                         (stream) =>
-                            (this._video_el.nativeElement.srcObject = stream)
+                            (this._video_el.nativeElement.srcObject = stream),
                     )
                     .catch((e) =>
-                        console.error('Unable to fetch media devices!', e)
+                        console.error('Unable to fetch media devices!', e),
                     );
             }
             if (!QrScanner) return;
-            this._reader = new QrScanner(this._video_el.nativeElement, (r) =>
-                this.checkQRCode(r)
+            this._reader = new QrScanner(
+                this._video_el.nativeElement,
+                (r) => this.checkQRCode(r.data),
+                {},
             );
             this._reader.start();
         });

@@ -1,28 +1,32 @@
-import { Component } from '@angular/core';
-import { RoomManagementService } from './room-management.service';
-import { OrganisationService } from '@placeos/organisation';
+import { Component, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AsyncHandler, SettingsService } from '@placeos/common';
-import { first, map, take } from 'rxjs/operators';
-import { MatDialog } from '@angular/material/dialog';
-import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';
+import { OrganisationService } from '@placeos/organisation';
 import { combineLatest } from 'rxjs';
+import { first, map } from 'rxjs/operators';
+import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';
+import { RoomManagementService } from './room-management.service';
 
 @Component({
     selector: 'room-manager-topbar',
     template: `
-        <div class="flex items-center px-8 pt-4 space-x-2">
-            <h2 class="text-2xl font-medium">Room Management</h2>
-            <div class="flex-1 w-2"></div>
+        <div class="flex items-center space-x-2 px-8 pt-4">
+            <h2 class="text-2xl font-medium">
+                {{ 'APP.CONCIERGE.ROOMS_HEADER' | translate }}
+            </h2>
+            <div class="w-2 flex-1"></div>
             <searchbar (modelChange)="setSearch($event)"></searchbar>
-            <button btn (click)="newRoom()" class="w-40">New Room</button>
+            <button btn (click)="newRoom()" class="w-40">
+                {{ 'APP.CONCIERGE.ROOMS_ADD' | translate }}
+            </button>
         </div>
-        <div class="flex items-center bg-base-100 h-20 px-8 space-x-2">
+        <div class="flex h-20 items-center space-x-2 bg-base-100 px-8">
             <mat-form-field appearance="outline" class="no-subscript w-60">
                 <mat-select
                     [ngModel]="(filters | async)?.zones"
                     (ngModelChange)="updateZones($event)"
-                    placeholder="All Levels"
+                    [placeholder]="'COMMON.LEVEL_ALL' | translate"
                     multiple
                 >
                     <mat-option
@@ -41,14 +45,14 @@ import { combineLatest } from 'rxjs';
                     </mat-option>
                 </mat-select>
             </mat-form-field>
-            <div class="flex-1 w-2"></div>
+            <div class="w-2 flex-1"></div>
             <button
                 btn
                 icon
                 matRipple
-                class="bg-secondary text-secondary-content rounded h-12 w-12"
+                class="h-12 w-12 rounded bg-secondary text-secondary-content"
                 (click)="manageRestrictions()"
-                matTooltip="Room Restrictions"
+                [matTooltip]="'APP.CONCIERGE.ROOMS_BOOKING_RULES' | translate"
             >
                 <app-icon>lock_open</app-icon>
             </button>
@@ -61,8 +65,9 @@ import { combineLatest } from 'rxjs';
             }
         `,
     ],
+    standalone: false,
 })
-export class RoomManagerTopbarComponent extends AsyncHandler {
+export class RoomManagerTopbarComponent extends AsyncHandler implements OnInit {
     /** List of levels for the active building */
     public readonly levels = combineLatest([
         this._org.active_building,
@@ -71,8 +76,8 @@ export class RoomManagerTopbarComponent extends AsyncHandler {
         map(([bld, region]) =>
             this.use_region
                 ? this._org.levelsForRegion(region)
-                : this._org.levelsForBuilding(bld)
-        )
+                : this._org.levelsForBuilding(bld),
+        ),
     );
 
     public readonly filters = this._manager.options;
@@ -85,6 +90,7 @@ export class RoomManagerTopbarComponent extends AsyncHandler {
         this._router.navigate([], {
             relativeTo: this._route,
             queryParams: { zone_ids: zones.join(',') },
+            queryParamsHandling: 'merge',
         });
     };
 
@@ -111,7 +117,7 @@ export class RoomManagerTopbarComponent extends AsyncHandler {
         private _route: ActivatedRoute,
         private _router: Router,
         private _dialog: MatDialog,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         super();
     }
@@ -132,7 +138,7 @@ export class RoomManagerTopbarComponent extends AsyncHandler {
                     const zones = zone_list.filter((z) => z);
                     this._manager.setFilters({ zones });
                 }
-            })
+            }),
         );
         this.setSearch('');
     }

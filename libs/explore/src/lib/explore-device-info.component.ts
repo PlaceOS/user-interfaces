@@ -26,17 +26,17 @@ const EMPTY = [];
     template: `
         <div
             name="radius"
-            class="radius absolute center bg-info bg-opacity-25 border-8 border-dashed border-blue-600 rounded-full"
+            class="radius center border-blue-600 absolute rounded-full border-8 border-dashed bg-info bg-opacity-25"
             [style]="'height: ' + diameter + '%; width: ' + diameter + '%;'"
         ></div>
         <div
             shadow
-            class="absolute center bg-neutral h-8 w-8 rounded-full"
+            class="center absolute h-8 w-8 rounded-full bg-neutral"
         ></div>
         <div
             name="dot"
             #dot
-            class="h-3 w-3 absolute center rounded-full shadow border-2 border-white"
+            class="center absolute h-3 w-3 rounded-full border-2 border-white shadow"
             [style.background-color]="bg_color"
         ></div>
         <div
@@ -47,13 +47,13 @@ const EMPTY = [];
             [yPosition]="y_pos"
             [hover]="true"
             (mouseenter)="loadUser()"
-            class="absolute inset-0 pointer-events-auto"
+            class="pointer-events-auto absolute inset-0"
         ></div>
 
         <ng-template #device_tooltip>
             <div
                 name="device-info"
-                class="w-64 rounded bg-base-100 p-4 top-0 left-0 shadow pointer-events-none mx-2"
+                class="pointer-events-none left-0 top-0 mx-2 w-64 rounded bg-base-100 p-4 shadow"
                 (mouseleave)="close()"
             >
                 <div class="arrow"></div>
@@ -62,10 +62,23 @@ const EMPTY = [];
                         class="break-words"
                         *ngIf="mac && !hide_fields.includes('mac')"
                     >
-                        <label i18n>MAC:</label> {{ mac }}
+                        <label>{{ 'EXPLORE.DEVICE_MAC' | translate }}:</label>
+                        {{ mac }}
                     </p>
-                    <p><label i18n>Accuracy:</label> {{ variance }}m</p>
-                    <p><label i18n>Last Seen:</label> {{ last_seen }}</p>
+                    <p>
+                        <label
+                            >{{ 'EXPLORE.DEVICE_ACCURACY' | translate }}:</label
+                        >
+                        {{ variance }}m
+                    </p>
+                    <p>
+                        <label
+                            >{{
+                                'EXPLORE.DEVICE_LAST_SEEN' | translate
+                            }}:</label
+                        >
+                        {{ last_seen }}
+                    </p>
                     <p
                         type
                         *ngIf="
@@ -73,23 +86,33 @@ const EMPTY = [];
                             !hide_fields.includes('manufacturer')
                         "
                     >
-                        <label i18n>Manufacturer:</label> {{ manufacturer }}
+                        <label
+                            >{{
+                                'EXPLORE.DEVICE_MANUFACTURER' | translate
+                            }}:</label
+                        >
+                        {{ manufacturer }}
                     </p>
                     <p os *ngIf="os && !hide_fields.includes('os')">
-                        <label i18n>OS:</label> {{ os }}
+                        <label>{{ 'EXPLORE.DEVICE_OS' | translate }}:</label>
+                        {{ os }}
                     </p>
                     <p ssid *ngIf="ssid && !hide_fields.includes('ssid')">
-                        <label i18n>SSID:</label> {{ ssid }}
+                        <label>{{ 'EXPLORE.DEVICE_SSID' | translate }}:</label>
+                        {{ ssid }}
                     </p>
                     <p
                         username
                         *ngIf="username && !hide_fields.includes('username')"
                     >
-                        <label i18n>Username:</label>
+                        <label
+                            >{{ 'EXPLORE.DEVICE_USERNAME' | translate }}:</label
+                        >
                         {{ user?.name || user?.username || username }}
                     </p>
                     <p user *ngIf="user && !hide_fields.includes('user')">
-                        <label i18n>Type:</label> {{ user.type }}
+                        <label>{{ 'EXPLORE.DEVICE_TYPE' | translate }}:</label>
+                        {{ user.type }}
                     </p>
                 </div>
             </div>
@@ -116,6 +139,7 @@ const EMPTY = [];
             }
         `,
     ],
+    standalone: false,
 })
 export class ExploreDeviceInfoComponent extends AsyncHandler implements OnInit {
     /** Name of the user associated with the mac address */
@@ -160,8 +184,8 @@ export class ExploreDeviceInfoComponent extends AsyncHandler implements OnInit {
         return Math.abs(
             differenceInMinutes(
                 (this._details.last_seen || 0) * 1000,
-                new Date()
-            )
+                new Date(),
+            ),
         );
     }
 
@@ -169,14 +193,14 @@ export class ExploreDeviceInfoComponent extends AsyncHandler implements OnInit {
         return this.distance < 10
             ? '#43a047'
             : this.distance < 20
-            ? '#ffb300'
-            : '#e53935';
+              ? '#ffb300'
+              : '#e53935';
     }
 
     constructor(
         @Inject(MAP_FEATURE_DATA) private _details: DeviceInfoData,
         private _settings: SettingsService,
-        private _element: ElementRef<HTMLElement>
+        private _element: ElementRef<HTMLElement>,
     ) {
         super();
     }
@@ -195,7 +219,7 @@ export class ExploreDeviceInfoComponent extends AsyncHandler implements OnInit {
             this.x_pos = position.x >= 0.5 ? 'end' : 'start';
             this.subscription(
                 'zoom',
-                this._details.zoom$.subscribe((_) => (this.zoom = _))
+                this._details.zoom$.subscribe((_) => (this.zoom = _)),
             );
         }, 200);
     }
@@ -207,7 +231,7 @@ export class ExploreDeviceInfoComponent extends AsyncHandler implements OnInit {
         this.username = 'Loading...';
         const details = await mod
             .execute('check_ownership_of', [this.mac])
-            .catch((_) => null);
+            .catch(() => null);
         this.username =
             details && details.assigned_to ? details.assigned_to : '';
     }

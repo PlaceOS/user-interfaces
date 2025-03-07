@@ -1,15 +1,15 @@
 <div
-    class="w-full min-h-min min-w-[400px] flex flex-1 flex-col z-0 overflow-hidden"
+    class="z-0 flex min-h-min w-full min-w-[400px] flex-1 flex-col overflow-hidden"
 >
     <div
-        class="flex w-[calc(100%-2rem)] max-w-[375px] mx-auto items-center justify-content"
+        class="justify-content mx-auto flex w-[calc(100%-2rem)] max-w-[375px] items-center"
         (click)="openRoomDetail()"
     >
         <div
-            class="flex flex-col bg-base-100 h-full w-full border rounded-lg mx-4"
+            class="mx-4 flex h-full w-full flex-col rounded-lg border bg-base-100"
         >
             <div
-                class="flex items-center justify-center h-44 bg-base-200 rounded-lg m-3 text-gray-500"
+                class="text-gray-500 m-3 flex h-44 items-center justify-center rounded-lg bg-base-200"
             >
                 <img
                     auth
@@ -18,24 +18,24 @@
                     alt="image of building "
                     width="100%"
                     height="100%"
-                    class="flex z-20 rounded-lg"
+                    class="z-20 flex rounded-lg"
                 />
 
                 <div *ngIf="space?.images?.length == 0">
                     <mat-icon
-                        class="flex items-center justify-center material-icons-outlined text-[8rem]"
+                        class="material-icons-outlined flex items-center justify-center text-[8rem]"
                         >image</mat-icon
                     >
                 </div>
             </div>
             <div class="mb-4 flex flex-col">
-                <span class="text-xl font-bold mt-1 mx-3">
+                <span class="mx-3 mt-1 text-xl font-bold">
                     {{ space?.name }}</span
                 >
 
-                <div class="flex flex-row items-center text-base mt-1 mx-3">
+                <div class="mx-3 mt-1 flex flex-row items-center text-base">
                     <mat-icon
-                        class="flex items-center material-icons-outlined blue-icon"
+                        class="material-icons-outlined blue-icon flex items-center"
                         >room</mat-icon
                     >
                     <span class="text-gray-500">
@@ -44,9 +44,9 @@
                     >
                 </div>
 
-                <div class="flex flex-row items-center text-base mt-1 mx-3">
+                <div class="mx-3 mt-1 flex flex-row items-center text-base">
                     <mat-icon
-                        class="flex items-center material-icons-outlined blue-icon"
+                        class="material-icons-outlined blue-icon flex items-center"
                         >people</mat-icon
                     >
                     <span class="text-gray-500"> {{ space?.capacity }}</span>
@@ -56,13 +56,13 @@
     </div>
 </div>
 <div
-    class="flex flex-col bg-base-100 h-full border-t border-base-200 top-box-shadow p-3 mt-5 mb-10 -mx-4 items-center"
+    class="top-box-shadow -mx-4 mb-10 mt-5 flex h-full flex-col items-center border-t border-base-200 bg-base-100 p-3"
 >
     <button
         btn
         matRipple
         (click)="cancel()"
-        class="bg-base-100 border-secondary w-[460px] ml-2 mx-4"
+        class="mx-4 ml-2 w-[460px] border-secondary bg-base-100"
     >
         <span class="text-secondary">Back</span>
     </button>

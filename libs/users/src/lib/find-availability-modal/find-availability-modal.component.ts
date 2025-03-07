@@ -1,11 +1,12 @@
 import {
+    AfterViewInit,
     Component,
     ElementRef,
     Inject,
     Renderer2,
     ViewChild,
 } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { AsyncHandler } from '@placeos/common';
 import {
     addMinutes,
@@ -14,6 +15,7 @@ import {
     fromUnixTime,
     getUnixTime,
     isSameDay,
+    setHours,
     startOfDay,
 } from 'date-fns';
 import { queryUserFreeBusy } from 'libs/calendar/src/lib/calendar.fn';
@@ -40,21 +42,23 @@ export interface FindAvailabilityData {
     selector: 'find-availability-modal',
     template: `
         <header class="relative flex items-center justify-center p-4">
-            <h2 class="text-center">Find Availability</h2>
+            <h2 class="text-center">
+                {{ 'CALENDAR_EVENT.FIND_AVAILABILITY' | translate }}
+            </h2>
             <button
                 icon
                 matRipple
                 mat-dialog-close
-                class="absolute top-1/2 left-1 -translate-y-1/2"
+                class="absolute left-1 top-1/2 -translate-y-1/2"
             >
                 <app-icon>close</app-icon>
             </button>
         </header>
         <main
-            class="flex flex-col h-[calc(100vh-7rem)] sm:h-[65vh] overflow-hidden"
+            class="flex h-[calc(100vh-7rem)] flex-col overflow-hidden sm:h-[65vh]"
         >
             <div
-                class="w-full flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 p-2"
+                class="flex w-full flex-col space-y-2 p-2 sm:flex-row sm:space-x-2 sm:space-y-0"
             >
                 <a-date-field
                     [(ngModel)]="date"
@@ -68,27 +72,26 @@ export interface FindAvailabilityData {
                 ></a-user-search-field>
             </div>
             <div
-                class="grid flex-1 h-1/2 w-full border-t border-base-200 relative overflow-hidden divide-x divide-y divide-base-200 max-w-[100vw] sm:max-w-[80vw]"
+                class="relative grid h-1/2 w-full max-w-[100vw] flex-1 divide-x divide-y divide-base-200 overflow-hidden border-t border-base-200 sm:max-w-[80vw]"
             >
                 <div
                     times
-                    class="col-start-2 h-10 flex overflow-hidden border-l border-base-200"
+                    class="col-start-2 flex h-10 overflow-hidden border-l border-base-200"
                 >
                     <div
                         hour
-                        *ngFor="let _ of hours; let hour = index"
-                        class="relative border-r border-base-200 h-10 min-w-[5rem] p-2"
+                        *ngFor="let hr of hours; let hour = index"
+                        class="relative h-10 min-w-[5rem] border-r border-base-200 p-2 text-sm"
                         [attr.disabled]="today && current_hour > hour"
                         [style.left]="-offset_x + 'px'"
                     >
-                        {{ hour % 12 === 0 ? '12' : hour % 12
-                        }}{{ hour >= 12 ? 'pm' : 'am' }}
+                        <span>{{ hr | date: 'haa' }}</span>
                     </div>
                 </div>
                 <div users class="row-start-2 w-24 overflow-hidden">
                     <div
                         host
-                        class="flex flex-col items-center justify-center h-32 w-24 relative border-b border-base-200 py-2"
+                        class="relative flex h-32 w-24 flex-col items-center justify-center border-b border-base-200 py-2"
                         [style.top]="-offset_y + 'px'"
                     >
                         <a-user-avatar
@@ -96,14 +99,14 @@ export interface FindAvailabilityData {
                             [user]="host"
                         ></a-user-avatar>
                         <div
-                            class="text-xs break-words overflow-hidden max-w-full px-2 text-center"
+                            class="max-w-full overflow-hidden break-words px-2 text-center text-xs"
                         >
                             {{ host.name || host.email }}
                         </div>
                     </div>
                     <div
                         person
-                        class="flex flex-col items-center justify-center h-32 w-24 relative border-b border-base-200 py-2"
+                        class="relative flex h-32 w-24 flex-col items-center justify-center border-b border-base-200 py-2"
                         [style.top]="-offset_y + 'px'"
                         *ngFor="let user of users | async"
                     >
@@ -112,13 +115,13 @@ export interface FindAvailabilityData {
                             [user]="user"
                         ></a-user-avatar>
                         <div
-                            class="text-xs break-words max-w-full px-2 text-center"
+                            class="max-w-full break-words px-2 text-center text-xs"
                         >
                             {{ user.name || host.email }}
                         </div>
                         <button
                             icon
-                            class="absolute -top-1 -left-1"
+                            class="absolute -left-1 -top-1"
                             (click)="removeUser(user)"
                         >
                             <app-icon>close</app-icon>
@@ -136,7 +139,7 @@ export interface FindAvailabilityData {
                         ></div>
                         <div
                             selection
-                            class="absolute inset-y-0 !border-x-2 !border-info z-20 cursor-grab active:cursor-grabbing"
+                            class="absolute inset-y-0 z-20 cursor-grab !border-x-2 !border-info active:cursor-grabbing"
                             [style.left]="
                                 'calc(' +
                                 selection_left +
@@ -153,22 +156,22 @@ export interface FindAvailabilityData {
                             ></div>
                             <div
                                 handle
-                                class="absolute top-1/2 -left-px -translate-x-1/2 -translate-y-1/2 h-3 w-3 rounded-full bg-info"
+                                class="absolute -left-px top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-info"
                             ></div>
                             <div
                                 handle
-                                class="absolute top-1/2 -right-px translate-x-1/2 -translate-y-1/2 h-3 w-3 rounded-full bg-info hover:h-4 hover:w-4 active:bg-secondary"
+                                class="absolute -right-px top-1/2 h-3 w-3 -translate-y-1/2 translate-x-1/2 rounded-full bg-info hover:h-4 hover:w-4 active:bg-secondary"
                                 (mousedown)="startMoveDuration($event)"
                                 (touchstart)="startMoveDuration($event)"
                             ></div>
                             <div
-                                class="bg-base-100 border border-base-200 p-2 absolute top-2 left-1/2 -translate-x-1/2 shadow text-xs whitespace-nowrap rounded"
+                                class="absolute left-1/2 top-2 -translate-x-1/2 whitespace-nowrap rounded border border-base-200 bg-base-100 p-2 text-xs shadow"
                             >
                                 {{ duration | duration }}
                             </div>
                             <div
                                 *ngIf="move_time"
-                                class="bg-base-100 border border-base-200 p-2 absolute top-12 left-1/2 -translate-x-1/2 shadow text-xs whitespace-nowrap rounded"
+                                class="absolute left-1/2 top-12 -translate-x-1/2 whitespace-nowrap rounded border border-base-200 bg-base-100 p-2 text-xs shadow"
                             >
                                 {{ date | date: 'shortTime' }}
                             </div>
@@ -208,7 +211,7 @@ export interface FindAvailabilityData {
             </div>
         </main>
         <footer
-            class="flex items-center justify-between p-2 border-t border-base-200 w-full"
+            class="flex w-full items-center justify-between border-t border-base-200 p-2"
         >
             <button
                 btn
@@ -218,7 +221,9 @@ export interface FindAvailabilityData {
             >
                 <div class="flex items-center">
                     <app-icon class="text-xl">arrow_back</app-icon>
-                    <div class="mr-1 underline">Back to form</div>
+                    <div class="mr-1 underline">
+                        {{ 'COMMON.BACK_TO_FORM' | translate }}
+                    </div>
                 </div>
             </button>
         </footer>
@@ -239,8 +244,12 @@ export interface FindAvailabilityData {
             }
         `,
     ],
+    standalone: false,
 })
-export class FindAvailabilityModalComponent extends AsyncHandler {
+export class FindAvailabilityModalComponent
+    extends AsyncHandler
+    implements AfterViewInit
+{
     public readonly users = new BehaviorSubject([]);
     public search = '';
     public date = this._data.date || Date.now();
@@ -250,7 +259,9 @@ export class FindAvailabilityModalComponent extends AsyncHandler {
     public offset_x = 0;
 
     public readonly host = this._data.host;
-    public readonly hours = new Array(24).fill(0);
+    public readonly hours = new Array(24)
+        .fill(0)
+        .map((_, idx) => setHours(startOfDay(Date.now()), idx).valueOf());
     public readonly on_change = new BehaviorSubject(0);
 
     public readonly availability = combineLatest([
@@ -277,7 +288,7 @@ export class FindAvailabilityModalComponent extends AsyncHandler {
                         const date = fromUnixTime(block.starts_at);
                         const duration = differenceInMinutes(
                             fromUnixTime(block.ends_at),
-                            fromUnixTime(block.starts_at)
+                            fromUnixTime(block.starts_at),
                         );
                         return {
                             date,
@@ -293,7 +304,7 @@ export class FindAvailabilityModalComponent extends AsyncHandler {
             return availability_map;
         }),
         defaultIfEmpty({}),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     @ViewChild('container', { static: true })
@@ -319,7 +330,7 @@ export class FindAvailabilityModalComponent extends AsyncHandler {
     constructor(
         @Inject(MAT_DIALOG_DATA) private _data: FindAvailabilityData,
         private _renderer: Renderer2,
-        private _dialog_ref: MatDialogRef<FindAvailabilityModalComponent>
+        private _dialog_ref: MatDialogRef<FindAvailabilityModalComponent>,
     ) {
         super();
         this.users.next([...this._data.users]);
@@ -335,7 +346,7 @@ export class FindAvailabilityModalComponent extends AsyncHandler {
 
     public removeUser(user: User) {
         this.users.next(
-            this.users.getValue().filter((u) => u.email !== user.email)
+            this.users.getValue().filter((u) => u.email !== user.email),
         );
         this.user = null;
     }
@@ -346,11 +357,12 @@ export class FindAvailabilityModalComponent extends AsyncHandler {
 
     public ngAfterViewInit() {
         const date = new Date(this.date);
+
         this.timeout(
             'init',
             () => {
                 const el = this._container_el.nativeElement.querySelector(
-                    `[hour="${date.getHours()}"]`
+                    `[hour="${date.getHours()}"]`,
                 );
                 if (el) {
                     const rect =
@@ -358,12 +370,12 @@ export class FindAvailabilityModalComponent extends AsyncHandler {
                     const el_rect = el.getBoundingClientRect();
                     this._container_el.nativeElement.scrollTo(
                         el_rect.left - 128 - rect.left,
-                        0
+                        0,
                     );
                 }
                 this.onScroll();
             },
-            300
+            300,
         );
     }
 
@@ -390,27 +402,27 @@ export class FindAvailabilityModalComponent extends AsyncHandler {
             ? this.subscription(
                   'on_move',
                   this._renderer.listen('window', 'mousemove', (e) =>
-                      this._onMovePeriod(e)
-                  )
+                      this._onMovePeriod(e),
+                  ),
               )
             : this.subscription(
                   'on_move',
                   this._renderer.listen('window', 'touchmove', (e) =>
-                      this._onMovePeriod(e)
-                  )
+                      this._onMovePeriod(e),
+                  ),
               );
         event instanceof MouseEvent
             ? this.subscription(
                   'on_move_end',
                   this._renderer.listen('window', 'mouseup', () =>
-                      this._onMoveEnd()
-                  )
+                      this._onMoveEnd(),
+                  ),
               )
             : this.subscription(
                   'on_move_end',
                   this._renderer.listen('window', 'touchend', () =>
-                      this._onMoveEnd()
-                  )
+                      this._onMoveEnd(),
+                  ),
               );
     }
 
@@ -426,27 +438,27 @@ export class FindAvailabilityModalComponent extends AsyncHandler {
             ? this.subscription(
                   'on_move',
                   this._renderer.listen('window', 'mousemove', (e) =>
-                      this._onMoveDuration(e)
-                  )
+                      this._onMoveDuration(e),
+                  ),
               )
             : this.subscription(
                   'on_move',
                   this._renderer.listen('window', 'touchmove', (e) =>
-                      this._onMoveDuration(e)
-                  )
+                      this._onMoveDuration(e),
+                  ),
               );
         event instanceof MouseEvent
             ? this.subscription(
                   'on_move_end',
                   this._renderer.listen('window', 'mouseup', () =>
-                      this._onMoveEnd()
-                  )
+                      this._onMoveEnd(),
+                  ),
               )
             : this.subscription(
                   'on_move_end',
                   this._renderer.listen('window', 'touchend', () =>
-                      this._onMoveEnd()
-                  )
+                      this._onMoveEnd(),
+                  ),
               );
     }
 

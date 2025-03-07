@@ -18,6 +18,7 @@ import {
     roundToNearestMinutes,
     startOfDay,
 } from 'date-fns';
+import { AssetRequest } from 'libs/assets/src/lib/asset-request.class';
 import { CateringOrder } from 'libs/catering/src/lib/catering-order.class';
 import { Space } from 'libs/spaces/src/lib/space.class';
 import { GuestUser, User } from 'libs/users/src/lib/user.class';
@@ -27,7 +28,6 @@ import {
     RecurrenceDetails,
 } from './event.interfaces';
 import { eventStatus, parseRecurrence } from './helpers';
-import { AssetRequest } from 'libs/assets/src/lib/asset-request.class';
 
 let _default_user: Identity = { id: 'default', name: 'Default User' };
 
@@ -137,7 +137,7 @@ export class CalendarEvent {
     }
 
     public get view_access() {
-        return this.extension_data.view_access || 'PRIVATE';
+        return this.extension_data.view_access || 'OPEN';
     }
 
     /** Get field from extension data */
@@ -166,6 +166,7 @@ export class CalendarEvent {
         this.host = (
             data.host ||
             this.creator ||
+            (data as any).host_email ||
             _default_user.email ||
             ''
         ).toLowerCase();
@@ -243,7 +244,9 @@ export class CalendarEvent {
             system?.email &&
             !this.resources.find((_) => _.email === system.email)
         ) {
-            this.resources.push(new Space(system as any));
+            this.resources.push(
+                new Space({ ...(system as any), response_status: data.status }),
+            );
         }
         this.system = system || (this.resources[0] as any) || null;
         if (!system && data.system_id) {
@@ -314,8 +317,8 @@ export class CalendarEvent {
         );
     }
 
-    private _valid_asset_cache = [];
-    private _valid_cache_expiry = 0;
+    _valid_asset_cache = [];
+    _valid_cache_expiry = 0;
 
     public get valid_assets() {
         if (

@@ -1,4 +1,4 @@
-import { addSeconds, format, isBefore, subSeconds } from 'date-fns';
+import { addSeconds, subSeconds } from 'date-fns';
 
 import { HashMap, timePeriodsIntersect } from '@placeos/common';
 import { MOCK_EVENTS } from '../api/events.data';
@@ -23,11 +23,13 @@ export class MockBookingModule {
     current_booking = null;
     next_booking = null;
     /** Current status of the space */
-    room_image = 'assets/boardroom.jpg'
+    room_image = 'assets/boardroom.jpg';
     status = 'free';
     _space = null;
 
-    constructor(space, _data: Partial<MockBookingModule>) { this._space = space }
+    constructor(space, _data: Partial<MockBookingModule>) {
+        this._space = space;
+    }
 
     /** Start the meeting at the given time */
     $start_meeting(t: number) {
@@ -45,7 +47,7 @@ export class MockBookingModule {
 
 export const createBookingsModule = (
     space: HashMap,
-    overrides: Partial<MockBookingModule> = {}
+    overrides: Partial<MockBookingModule> = {},
 ) => new MockBookingModule(space, overrides);
 
 function updateBookings(space: HashMap, mod: HashMap) {
@@ -55,8 +57,8 @@ function updateBookings(space: HashMap, mod: HashMap) {
                 (u) =>
                     u.email === space.email ||
                     u.id === space.id ||
-                    event.system?.id === space.id
-            )
+                    event.system?.id === space.id,
+            ),
         ) || [];
     bookings.sort((a, b) => a.event_start - b.event_start);
     mod.bookings = bookings;
@@ -65,8 +67,8 @@ function updateBookings(space: HashMap, mod: HashMap) {
             Date.now(),
             Date.now(),
             _.event_start * 1000,
-            _.event_end * 1000
-        )
+            _.event_end * 1000,
+        ),
     );
     mod.next_booking = bookings.find((_) => _.event_start * 1000 > Date.now());
     const date = new Date();
@@ -76,13 +78,13 @@ function updateBookings(space: HashMap, mod: HashMap) {
         date.valueOf(),
         date.valueOf(),
         subSeconds(start, mod.pending_before).valueOf(),
-        addSeconds(start, mod.pending_period).valueOf()
+        addSeconds(start, mod.pending_period).valueOf(),
     );
     mod.status = space?.bookable
         ? current_booking
             ? 'busy'
             : pending
-            ? 'pending'
-            : 'free'
+              ? 'pending'
+              : 'free'
         : 'not-bookable';
 }

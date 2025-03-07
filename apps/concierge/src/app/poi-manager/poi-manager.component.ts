@@ -1,15 +1,15 @@
-import { Component, Inject } from '@angular/core';
-import { POIManagementService } from './poi-management.service';
-import { Building, OrganisationService } from '@placeos/organisation';
+import { Component } from '@angular/core';
 import { SettingsService } from '@placeos/common';
+import { Building, OrganisationService } from '@placeos/organisation';
+import { POIManagementService } from './poi-management.service';
 
 @Component({
     selector: '[app-poi-manager]',
     template: `
         <app-topbar></app-topbar>
-        <div class="flex flex-1 h-px">
+        <div class="flex h-px flex-1">
             <app-sidebar></app-sidebar>
-            <main class="flex flex-col flex-1 w-1/2 h-full">
+            <main class="flex h-full w-1/2 flex-1 flex-col">
                 <header
                     class="flex items-center justify-between px-8 py-8"
                     [class.mb-2]="
@@ -17,14 +17,14 @@ import { SettingsService } from '@placeos/common';
                     "
                 >
                     <h2 class="text-2xl font-medium">
-                        Point of Interest Management
+                        {{ 'APP.CONCIERGE.POI_HEADER' | translate }}
                     </h2>
                     <button btn matRipple (click)="new()">
-                        Add Point of Interest
+                        {{ 'APP.CONCIERGE.POI_ADD' | translate }}
                     </button>
                 </header>
                 <div
-                    class="flex items-center justify-between mb-2 px-8"
+                    class="mb-2 flex items-center justify-between px-8"
                     *ngIf="use_region && (buildings | async)?.length > 1"
                 >
                     <mat-form-field appearance="outline" class="w-64">
@@ -46,7 +46,7 @@ import { SettingsService } from '@placeos/common';
                         </mat-select>
                     </mat-form-field>
                 </div>
-                <poi-list class="block w-full relative flex-1 h-1/2"></poi-list>
+                <poi-list class="relative block h-1/2 w-full flex-1"></poi-list>
             </main>
         </div>
     `,
@@ -73,6 +73,7 @@ import { SettingsService } from '@placeos/common';
             }
         `,
     ],
+    standalone: false,
 })
 export class POIManagerComponent {
     public readonly new = () => this._state.editPointOfInterest();
@@ -94,6 +95,6 @@ export class POIManagerComponent {
     constructor(
         private _org: OrganisationService,
         private _state: POIManagementService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {}
 }

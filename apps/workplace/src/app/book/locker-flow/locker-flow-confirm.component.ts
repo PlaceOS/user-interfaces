@@ -7,50 +7,43 @@ import { take } from 'rxjs/operators';
 
 @Component({
     selector: 'locker-flow-confirm',
-    styles: [
-        `
-            section > app-icon {
-                font-size: 1.5rem;
-                margin-top: 0.3rem;
-            }
-
-            h3 {
-                font-size: 1.25rem;
-                font-weight: medium;
-                margin: 0.5rem 0;
-            }
-        `,
-    ],
     template: `
-        <button
-            icon
-            name="close-locker-confirm"
-            matRipple
-            *ngIf="show_close"
-            (click)="dismiss()"
+        <header
+            class="m-2 flex h-12 items-center justify-between rounded bg-base-200 p-2"
         >
-            <app-icon>close</app-icon>
-        </button>
-        <header class="flex items-center justify-between px-2">
-            <h2 class="text-2xl font-medium mb-2" i18n>
-                Confirm Locker Booking
+            <h2 class="px-2 text-xl font-medium">
+                {{ 'APP.WORKPLACE.LOCKER_CONFIRM_TITLE' | translate }}
             </h2>
-            <mat-spinner diameter="32" *ngIf="loading | async"></mat-spinner>
+            <div class="">
+                <mat-spinner
+                    diameter="32"
+                    *ngIf="loading | async"
+                ></mat-spinner>
+                <button
+                    icon
+                    name="close-locker-confirm"
+                    matRipple
+                    *ngIf="show_close"
+                    (click)="dismiss()"
+                >
+                    <app-icon class="text-2xl">close</app-icon>
+                </button>
+            </div>
         </header>
-        <section period class="flex space-x-1 py-4 px-2">
-            <app-icon class="text-success">done</app-icon>
-            <div details class="leading-6">
-                <h3>{{ booking.title || '~Untitled~' }}</h3>
+        <section period class="flex space-x-1 px-2 py-4">
+            <app-icon class="text-2xl text-success">done</app-icon>
+            <div details class="space-y-2 text-base">
+                <h3 class="text-xl">{{ booking.title || '~Untitled~' }}</h3>
                 <div class="flex items-center space-x-2">
-                    <app-icon>calendar_today</app-icon>
+                    <app-icon class="text-xl">calendar_today</app-icon>
                     <div date>{{ booking.date | date: 'fullDate' }}</div>
                 </div>
                 <div class="flex items-center space-x-2">
-                    <app-icon>schedule</app-icon>
+                    <app-icon class="text-xl">schedule</app-icon>
                     <div time>
                         {{
                             booking.all_day
-                                ? 'All Day'
+                                ? ('COMMON.ALL_DAY' | translate)
                                 : (booking.date | date: time_format) +
                                   ' - ' +
                                   (booking.date + booking.duration * 60 * 1000
@@ -61,15 +54,19 @@ import { take } from 'rxjs/operators';
             </div>
         </section>
         <section
-            locker
-            class="flex space-x-1 py-4 px-2 border-t"
+            resource
+            class="flex space-x-1 border-t px-2 py-4 text-base"
             *ngIf="booking_asset?.id"
         >
-            <app-icon class="text-success">done</app-icon>
-            <div details class="leading-6">
-                <h3 name>
+            <app-icon class="text-2xl text-success">done</app-icon>
+            <div details class="space-y-2 text-base">
+                <h3 class="text-xl">
                     {{ booking_asset?.name || booking_asset?.id || '' }}
                 </h3>
+                <div class="flex items-center space-x-2">
+                    <app-icon>person</app-icon>
+                    <span>{{ 'RESOURCE.LOCKER' | translate }}</span>
+                </div>
                 <div class="flex items-center space-x-2">
                     <app-icon>place</app-icon>
                     <div>{{ location }}</div>
@@ -82,23 +79,7 @@ import { take } from 'rxjs/operators';
                 </ng-container>
             </div>
         </section>
-        <section
-            assets
-            class="flex space-x-1 py-4 px-2 border-t"
-            *ngIf="assets?.length"
-        >
-            <app-icon class="text-success">done</app-icon>
-            <div details class="leading-6">
-                <h3 i18n>{{ assets_count }} Asset(s)</h3>
-                <div class="flex space-x-2" *ngFor="let asset of assets">
-                    <div class="h-5 w-5 bg-base-200 rounded-full">
-                        {{ asset.amount }}
-                    </div>
-                    <span>{{ asset.name }}</span>
-                </div>
-            </div>
-        </section>
-        <footer class="p-2 w-full border-t border-base-200 mt-4">
+        <footer class="mt-4 w-full border-t border-base-200 p-2">
             <button
                 name="confirm-locker"
                 btn
@@ -106,15 +87,16 @@ import { take } from 'rxjs/operators';
                 class="w-full"
                 *ngIf="!(loading | async)"
                 (click)="postForm()"
-                i18n
             >
-                Confirm
+                {{ 'COMMON.CONFIRM' | translate }}
             </button>
         </footer>
     `,
+    styles: [``],
+    standalone: false,
 })
 export class BookLockerFlowConfirmComponent extends AsyncHandler {
-    @Input() public show_close: boolean = false;
+    @Input() public show_close = false;
 
     public readonly loading = this._state.loading;
 
@@ -137,7 +119,7 @@ export class BookLockerFlowConfirmComponent extends AsyncHandler {
     }
 
     public get booking() {
-        return this._state.form.value as any;
+        return this._state.form.getRawValue() as any;
     }
 
     public get assets() {
@@ -155,12 +137,10 @@ export class BookLockerFlowConfirmComponent extends AsyncHandler {
     }
 
     public get location() {
-        const building = this._org.buildings.find(
-            (b) => b.id === this.booking_asset?.zone?.parent_id
+        const building = this._org.buildings.find((b) =>
+            this.booking.zones.includes(b.id),
         );
-        const level = this._org.levels.find(
-            (l) => l.id === this.booking_asset?.zone?.id
-        );
+        const level = this._org.levelWithID((this.booking_asset as any).zones);
         return `${level?.display_name || level?.name}${building ? ',' : ''} ${
             building?.address || building?.display_name || building?.name || ''
         }`;
@@ -170,7 +150,7 @@ export class BookLockerFlowConfirmComponent extends AsyncHandler {
         private _state: BookingFormService,
         private _org: OrganisationService,
         @Optional() private _sheet_ref: MatBottomSheetRef,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         super();
     }

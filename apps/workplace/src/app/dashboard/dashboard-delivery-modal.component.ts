@@ -11,7 +11,7 @@ import { DialogEvent } from '@placeos/common';
                 <app-icon>close</app-icon>
             </button>
         </header>
-        <main class="p-2 w-[24rem]" [formGroup]="form">
+        <main class="w-[24rem] p-2" [formGroup]="form">
             <div>
                 <label>Name<span>*</span>:</label>
                 <mat-form-field appearance="outline" class="w-full">
@@ -58,7 +58,7 @@ import { DialogEvent } from '@placeos/common';
             </div>
         </main>
         <footer
-            class="p-2 flex items-center justify-center border-t border-base-200"
+            class="flex items-center justify-center border-t border-base-200 p-2"
         >
             <button btn matRipple class="w-32" (click)="register()">
                 Register
@@ -66,6 +66,7 @@ import { DialogEvent } from '@placeos/common';
         </footer>
     `,
     styles: [``],
+    standalone: false,
 })
 export class DashboardDeliveryModalComponent {
     @Output() public events = new EventEmitter<DialogEvent>();

@@ -1,22 +1,22 @@
 import { Component, OnInit } from '@angular/core';
-import { SwUpdate } from '@angular/service-worker';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { first } from 'rxjs/operators';
-import { invalidateToken, isMock, setToken, token } from '@placeos/ts-client';
+import { SwUpdate } from '@angular/service-worker';
 import {
     AsyncHandler,
     current_user,
     currentUser,
+    log,
     setAppName,
     setNotifyOutlet,
     SettingsService,
     setupCache,
     setupPlace,
-    log,
 } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
-import { setInternalUserDomain } from 'libs/users/src/lib/user.utilities';
+import { invalidateToken, isMock, setToken, token } from '@placeos/ts-client';
 import { setDefaultCreator } from 'libs/events/src/lib/event.class';
+import { setInternalUserDomain } from 'libs/users/src/lib/user.utilities';
+import { first } from 'rxjs/operators';
 
 import * as MOCKS from '@placeos/mocks';
 
@@ -31,6 +31,7 @@ declare let OfficeRuntime: any;
         <debug-console></debug-console>
     `,
     styles: [``],
+    standalone: false,
 })
 export class AppComponent extends AsyncHandler implements OnInit {
     title = 'outlook-addin';
@@ -39,7 +40,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
         private _settings: SettingsService,
         private _org: OrganisationService, // For init
         private _cache: SwUpdate,
-        private _snackbar: MatSnackBar
+        private _snackbar: MatSnackBar,
     ) {
         super();
     }
@@ -67,7 +68,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
                 () => {
                     throw 'Unable to get office token...';
                 },
-                2000
+                2000,
             );
             const get_token = Office?.auth?.getAccessToken();
             const tkn = await (get_token || Promise.resolve());
@@ -108,8 +109,8 @@ export class AppComponent extends AsyncHandler implements OnInit {
         this.clearTimeout('wait_for_user');
         setDefaultCreator(currentUser());
         setInternalUserDomain(
-            this._settings.get('app.general.internal_user_domain') ||
-                `@${currentUser()?.email?.split('@')[1]}`
+            this._settings.get('app.internal_user_domain') ||
+                `@${currentUser()?.email?.split('@')[1]}`,
         );
     }
 
@@ -118,7 +119,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
         this.timeout('office_auth', () => {
             const path = `${location.origin}${location.pathname}#ms-auth=true`;
             console.info(
-                `Opening office authentication dialog with URL: ${path}`
+                `Opening office authentication dialog with URL: ${path}`,
             );
             Office.context.ui.displayDialogAsync(
                 path,
@@ -132,9 +133,9 @@ export class AppComponent extends AsyncHandler implements OnInit {
                             if (token) setToken(token);
                             this._finishInitialise();
                             dialog.close();
-                        }
+                        },
                     );
-                }
+                },
             );
         });
         console.info(`URL: ${window.location.href}`);

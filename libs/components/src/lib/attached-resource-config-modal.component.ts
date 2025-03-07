@@ -42,41 +42,43 @@ export interface AttachedResourceConfigModalData {
 @Component({
     selector: 'attached-resource-config-modal',
     template: `
-        <header>
-            <h3>Edit {{ resource_name }} Configuration</h3>
-            <button icon mat-dialog-close *ngIf="!loading">
+        <header
+            class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded border-none bg-base-200 p-2"
+        >
+            <h2 class="px-2 text-xl font-medium">
+                {{
+                    'RESOURCE.RULESET_HEADER'
+                        | translate: { name: resource_name }
+                }}
+            </h2>
+            <button icon matRipple mat-dialog-close *ngIf="!loading">
                 <app-icon>close</app-icon>
             </button>
         </header>
         <main
-            class="overflow-auto text-center max-w-lg min-w-[32rem] px-4 pt-2 pb-4 space-y-2"
+            class="min-w-[36rem] max-w-lg space-y-4 overflow-auto px-4 pb-4 pt-2 text-center"
         >
-            <div
-                class="text-left p-2 rounded bg-base-200"
+            <settings-toggle
                 *ngIf="can_save_notes"
-            >
-                <mat-checkbox
-                    [ngModel]="require_notes"
-                    (ngModelChange)="saveNotesSetting($event)"
-                >
-                    Require notes for orders
-                </mat-checkbox>
-            </div>
+                [ngModel]="require_notes"
+                (ngModelChange)="saveNotesSetting($event)"
+                [name]="'RESOURCE.REQUIRE_NOTES' | translate"
+            ></settings-toggle>
             <button
                 btn
                 matRipple
                 class="w-full"
                 (click)="rulesets.push({ id: new_id, rules: [] })"
             >
-                New Ruleset
+                {{ 'RESOURCE.RULESET_NEW' | translate }}
             </button>
             <div
                 *ngFor="let set of rulesets; let i = index"
                 class="ruleset mb-2"
             >
-                <div class="flex items-center mb-2 space-x-2">
+                <div class="mb-2 flex items-center space-x-2">
                     <mat-form-field
-                        class="flex-1 no-subscript"
+                        class="no-subscript flex-1"
                         appearance="outline"
                     >
                         <input
@@ -86,21 +88,33 @@ export interface AttachedResourceConfigModalData {
                             [(ngModel)]="set.name"
                             required
                         />
-                        <mat-error>Ruleset name is required</mat-error>
+                        <mat-error>{{
+                            'RESOURCE.RULESET_NAME_REQUIRED' | translate
+                        }}</mat-error>
                     </mat-form-field>
-                    <button icon matRipple [matMenuTriggerFor]="menu">
+                    <button
+                        icon
+                        matRipple
+                        class="h-12 w-12 rounded"
+                        [matMenuTriggerFor]="menu"
+                    >
                         <app-icon>more_vert</app-icon>
                     </button>
                     <mat-menu #menu="matMenu">
                         <button
                             mat-menu-item
+                            class="w-52"
                             (click)="
                                 set.rules.push(['', '']); show_rules = set.id
                             "
                         >
                             <div class="flex items-center space-x-2">
                                 <app-icon class="text-2xl">add</app-icon>
-                                <div>Add Rule</div>
+                                <div>
+                                    {{
+                                        'RESOURCE.RULESET_ADD_RULE' | translate
+                                    }}
+                                </div>
                             </div>
                         </button>
                         <button
@@ -117,16 +131,23 @@ export interface AttachedResourceConfigModalData {
                                 }}</app-icon>
                                 <div>
                                     {{
-                                        show_rules === set.id ? 'Hide' : 'Show'
+                                        (show_rules === set.id
+                                            ? 'RESOURCE.RULESET_HIDE_RULES'
+                                            : 'RESOURCE.RULESET_SHOW_RULES'
+                                        ) | translate
                                     }}
-                                    Rules
                                 </div>
                             </div>
                         </button>
                         <button mat-menu-item (click)="rulesets.splice(i, 1)">
                             <div class="flex items-center space-x-2 text-error">
                                 <app-icon class="text-2xl">delete</app-icon>
-                                <div>Remove Ruleset</div>
+                                <div>
+                                    {{
+                                        'RESOURCE.RULESET_REMOVE_RULES'
+                                            | translate
+                                    }}
+                                </div>
                             </div>
                         </button>
                     </mat-menu>
@@ -140,14 +161,14 @@ export interface AttachedResourceConfigModalData {
                     "
                 >
                     <div
-                        class="flex items-center pl-7 h-16 space-x-2 relative"
+                        class="relative flex h-16 items-center space-x-2 pl-7"
                         *ngFor="let rule of set.rules; let i = index"
                     >
                         <div
-                            class="absolute left-3 top-1/2 -translate-y-full w-4 h-32 border-b-2 border-l-2 border-base-200"
+                            class="absolute left-3 top-1/2 h-32 w-4 -translate-y-full border-b-2 border-l-2 border-base-200"
                         ></div>
                         <mat-form-field
-                            class="flex-1 no-subscript"
+                            class="no-subscript flex-1"
                             appearance="outline"
                         >
                             <mat-select
@@ -164,7 +185,7 @@ export interface AttachedResourceConfigModalData {
                             </mat-select>
                         </mat-form-field>
                         <mat-form-field
-                            class="flex-1 no-subscript"
+                            class="no-subscript flex-1"
                             appearance="outline"
                         >
                             <input
@@ -174,9 +195,16 @@ export interface AttachedResourceConfigModalData {
                                 [(ngModel)]="rule[1]"
                                 required
                             />
-                            <mat-error>Rule value is required</mat-error>
+                            <mat-error>{{
+                                'RESOURCE.RULESET_VALUE_REQUIRED' | translate
+                            }}</mat-error>
                         </mat-form-field>
-                        <button icon matRipple (click)="set.rules.splice(i, 1)">
+                        <button
+                            icon
+                            matRipple
+                            class="h-12 w-12 rounded border border-error text-error"
+                            (click)="set.rules.splice(i, 1)"
+                        >
                             <app-icon>delete</app-icon>
                         </button>
                     </div>
@@ -184,10 +212,10 @@ export interface AttachedResourceConfigModalData {
             </div>
         </main>
         <footer
-            class="flex py-2 px-4 items-center justify-end border-t border-solid border-base-200"
+            class="flex items-center justify-end border-t border-solid border-base-200 px-4 py-2"
         >
             <button btn matRipple class="w-36" (click)="saveChanges()">
-                Save Changes
+                {{ 'COMMON.SAVE' | translate }}
             </button>
         </footer>
     `,
@@ -198,6 +226,7 @@ export interface AttachedResourceConfigModalData {
             }
         `,
     ],
+    standalone: false,
 })
 export class AttachedResourceConfigModalComponent extends AsyncHandler {
     /** Emitter for events on the modal */
@@ -222,7 +251,7 @@ export class AttachedResourceConfigModalComponent extends AsyncHandler {
     }
 
     constructor(
-        @Inject(MAT_DIALOG_DATA) private _data: AttachedResourceConfigModalData
+        @Inject(MAT_DIALOG_DATA) private _data: AttachedResourceConfigModalData,
     ) {
         super();
         this.rulesets = (_data.config || []).map((set) => {
@@ -238,7 +267,7 @@ export class AttachedResourceConfigModalComponent extends AsyncHandler {
         this.timeout(
             'save-notes',
             () => (this._data.saveNotes ? this._data.saveNotes(value) : ''),
-            1000
+            1000,
         );
     }
 

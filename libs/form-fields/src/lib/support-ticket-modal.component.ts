@@ -3,12 +3,12 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
 import {
     currentUser,
+    i18n,
     notifyError,
     notifySuccess,
     SettingsService,
 } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
-import { getModule } from '@placeos/ts-client';
 
 export interface SupportRequestType {
     name: string;
@@ -19,42 +19,52 @@ export interface SupportRequestType {
     selector: 'support-ticket-modal',
     template: `
         <header class="flex items-center justify-between">
-            <h2 i18n>Raise a support ticket</h2>
+            <h2>Raise a support ticket</h2>
             <button icon mat-dialog-close>
                 <app-icon>close</app-icon>
             </button>
         </header>
         <main class="w-[32rem] max-w-[85vw]" *ngIf="!loading; else load_state">
             <form class="p-2" [formGroup]="form">
-                <div class="flex items-center sm:space-x-2 flex-wrap">
-                    <div class="flex flex-col flex-1">
-                        <label i18n>Name<span>*</span></label>
+                <div class="flex flex-wrap items-center sm:space-x-2">
+                    <div class="flex flex-1 flex-col">
+                        <label
+                            >{{ 'FORM.NAME' | translate }}<span>*</span></label
+                        >
                         <mat-form-field appearance="outline">
                             <input
                                 matInput
-                                placeholder="Name"
+                                [placeholder]="'FORM.NAME' | translate"
                                 formControlName="name"
                             />
-                            <mat-error i18n>Name is required</mat-error>
+                            <mat-error>{{
+                                'FORM.NAME_REQUIRED' | translate
+                            }}</mat-error>
                         </mat-form-field>
                     </div>
-                    <div class="flex flex-col flex-1">
-                        <label i18n>Email<span>*</span></label>
+                    <div class="flex flex-1 flex-col">
+                        <label
+                            >{{ 'FORM.EMAIL' | translate }}<span>*</span></label
+                        >
                         <mat-form-field appearance="outline">
                             <input
                                 matInput
-                                placeholder="Email"
+                                [placeholder]="'FORM.EMAIL' | translate"
                                 formControlName="email"
                             />
-                            <mat-error i18n>Email is required</mat-error>
+                            <mat-error>{{
+                                'FORM.EMAIL_REQUIRED' | translate
+                            }}</mat-error>
                         </mat-form-field>
                     </div>
                 </div>
                 <div class="flex flex-col">
-                    <label i18n>Location</label>
+                    <label>{{ 'COMMON.SUPPORT_LOCATION' | translate }}</label>
                     <mat-form-field appearance="outline" class="w-full">
                         <mat-select
-                            placeholder="Location"
+                            [placeholder]="
+                                'COMMON.SUPPORT_LOCATION' | translate
+                            "
                             formControlName="location"
                         >
                             <mat-option
@@ -70,10 +80,10 @@ export interface SupportRequestType {
                     class="flex flex-col"
                     *ngIf="support_request_types?.length"
                 >
-                    <label i18n>Issue Type</label>
+                    <label>{{ 'COMMON.SUPPORT_TYPE' | translate }}</label>
                     <mat-form-field appearance="outline" class="w-full">
                         <mat-select
-                            placeholder="Issue Type"
+                            [placeholder]="'COMMON.SUPPORT_TYPE' | translate"
                             formControlName="issue_type"
                         >
                             <mat-option
@@ -86,43 +96,45 @@ export interface SupportRequestType {
                     </mat-form-field>
                 </div>
                 <div>
-                    <label class="mb-4" i18n>
-                        Issue Description<span>*</span>
+                    <label class="mb-4">
+                        {{ 'COMMON.SUPPORT_DESCRIPTION' | translate }}
+                        <span>*</span>
                     </label>
                     <rich-text-input
-                        placeholder="Issue Description"
+                        [placeholder]="'COMMON.SUPPORT_DESCRIPTION' | translate"
                         formControlName="description"
                     ></rich-text-input>
-                    <mat-error class="text-xs my-2" *ngIf="desc_error" i18n>
-                        Description is required
+                    <mat-error class="my-2 text-xs" *ngIf="desc_error">
+                        {{ 'COMMON.SUPPORT_DESCRIPTION_REQUIRED' | translate }}
                     </mat-error>
                 </div>
                 <div *ngIf="allow_images">
-                    <label class="mb-4" i18n>Images</label>
+                    <label class="mb-4">{{
+                        'COMMON.SUPPORT_IMAGES' | translate
+                    }}</label>
                     <image-list-field
                         formControlName="images"
                     ></image-list-field>
                 </div>
             </form>
-            <div class="italic text-center text-xs mb-2" i18n>
-                Completing this form will raise an incident in your support
-                management platform
+            <div class="mb-2 text-center text-xs italic">
+                {{ 'COMMON.SUPPORT_MSG' | translate }}
             </div>
         </main>
         <footer
-            class="p-2 border-t border-base-200 flex items-center justify-center"
+            class="flex items-center justify-center border-t border-base-200 p-2"
             *ngIf="!loading"
         >
-            <button btn matRipple class="w-32" (click)="submit()" i18n>
-                Submit
+            <button btn matRipple class="w-32" (click)="submit()">
+                {{ 'COMMON.SUBMIT' | translate }}
             </button>
         </footer>
         <ng-template #load_state>
             <main
-                class="w-[32rem] min-h-[24rem] max-w-[100vw] flex flex-col items-center justify-center space-y-2"
+                class="flex min-h-[24rem] w-[32rem] max-w-[100vw] flex-col items-center justify-center space-y-2"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
-                <p>Sending support ticket...</p>
+                <p>{{ 'COMMON.SUPPORT_LOADING' | translate }}</p>
             </main>
         </ng-template>
     `,
@@ -133,6 +145,7 @@ export interface SupportRequestType {
             }
         `,
     ],
+    standalone: false,
 })
 export class SupportTicketModalComponent {
     public loading = false;
@@ -169,7 +182,7 @@ export class SupportTicketModalComponent {
     constructor(
         private _dialog_ref: MatDialogRef<SupportTicketModalComponent>,
         private _org: OrganisationService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {}
 
     public ngOnInit() {
@@ -193,30 +206,28 @@ export class SupportTicketModalComponent {
         this.form.markAllAsTouched();
         this.form.updateValueAndValidity();
         if (this.form.valid) {
-            const stmp_system = this._org.binding('smtp');
-            if (!stmp_system) {
-                return notifyError(
-                    'Mailing system not configured for application.'
-                );
+            const mod = this._org.module('smtp', 'Mailer');
+            if (!mod) {
+                return notifyError(i18n('COMMON.SUPPORT_NO_MAILER'));
             }
-            const mod = getModule(stmp_system, 'Mailer');
             const { name, email, location, description, images, issue_type } =
                 this.form.value;
             const support_email =
                 this.support_request_types.find(
-                    (type) => type.name === issue_type
+                    (type) => type.name === issue_type,
                 )?.email || this.support_email;
+            const header = i18n('COMMON.SUPPORT_MAIL_HEADER', {
+                issue_type: issue_type ? ' - ' + issue_type : '',
+            });
             await mod.execute('send_mail', [
                 support_email,
-                `Support Ticket from Workplace Application${
-                    issue_type ? ' - ' + issue_type : ''
-                }`,
+                header,
                 `${name}\n${email}\n\n${location}\n\n${description.replace(
                     /<[^>]+>/g,
-                    ''
+                    '',
                 )}\n\n${images.join('\n')}`,
                 `<p>${name}</p><p>${email}</p><p>${location}</p><p>${description}</p>${images.join(
-                    '<br>'
+                    '<br>',
                 )}`,
                 [],
                 [],
@@ -227,7 +238,7 @@ export class SupportTicketModalComponent {
             ]);
             this._dialog_ref.close();
             this.loading = false;
-            notifySuccess('Successfully submitted support ticket');
+            notifySuccess(i18n('COMMON.SUPPORT_SUCCESS'));
         }
     }
 }

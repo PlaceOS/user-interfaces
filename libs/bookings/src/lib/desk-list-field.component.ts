@@ -17,12 +17,12 @@ const EMPTY_FAVS: string[] = [];
         <div list class="space-y-2">
             <div
                 desk
-                class="relative p-2 rounded-lg w-full flex items-center shadow border border-base-200"
+                class="relative flex w-full items-center rounded-lg border border-base-200 p-2 shadow"
                 *ngFor="let item of items"
             >
                 <div *ngIf="features?.length" class="flex flex-col">
                     <label for="title">Type</label>
-                    <div features class="flex items-center flex-wrap space-x-2">
+                    <div features class="flex flex-wrap items-center space-x-2">
                         <mat-checkbox
                             *ngFor="let opt of features"
                             [ngModel]="(selected_features || []).includes(opt)"
@@ -34,7 +34,7 @@ const EMPTY_FAVS: string[] = [];
                     </div>
                 </div>
                 <div
-                    class="w-20 h-20 rounded-xl bg-base-200 mr-4 overflow-hidden flex items-center justify-center"
+                    class="mr-4 flex h-20 w-20 items-center justify-center overflow-hidden rounded-xl bg-base-200"
                 >
                     <img
                         auth
@@ -53,7 +53,7 @@ const EMPTY_FAVS: string[] = [];
                     <div class="font-medium">
                         {{ item.name || item.id || item.map_id || 'Desk' }}
                     </div>
-                    <div class="flex items-center text-sm space-x-2">
+                    <div class="flex items-center space-x-2 text-sm">
                         <app-icon class="text-blue-500">place</app-icon>
                         <p>{{ item.zone?.display_name || item.zone?.name }}</p>
                     </div>
@@ -67,9 +67,9 @@ const EMPTY_FAVS: string[] = [];
                             class="clear"
                             (click)="changeResources(item)"
                         >
-                            <div class="flex items-center space-x-2" i18n>
+                            <div class="flex items-center space-x-2">
                                 <app-icon>edit</app-icon>
-                                Change
+                                {{ 'COMMON.CHANGE' | translate }}
                             </div>
                         </button>
                         <button
@@ -79,9 +79,9 @@ const EMPTY_FAVS: string[] = [];
                             class="clear"
                             (click)="removeResource(item)"
                         >
-                            <div class="flex items-center space-x-2" i18n>
+                            <div class="flex items-center space-x-2">
                                 <app-icon>close</app-icon>
-                                Remove
+                                {{ 'COMMON.REMOVE' | translate }}
                             </div>
                         </button>
                     </div>
@@ -90,8 +90,8 @@ const EMPTY_FAVS: string[] = [];
                     icon
                     matRipple
                     name="toggle-desk-favourite"
-                    class="absolute top-1 right-1"
-                    [class.text-blue-400]="favorites.includes(item?.id)"
+                    class="absolute right-1 top-1"
+                    [class.text-info]="favorites.includes(item?.id)"
                     (click)="toggleFavourite(item)"
                 >
                     <app-icon>{{
@@ -106,16 +106,16 @@ const EMPTY_FAVS: string[] = [];
             btn
             matRipple
             name="add-desk"
-            class="w-full inverse mt-2"
+            class="inverse mt-2 w-full"
             (click)="changeResources()"
         >
             <div class="flex items-center justify-center space-x-2">
                 <app-icon>search</app-icon>
-                <span i18n>Add Desk</span>
+                <span>{{ 'BOOKINGS.DESK_ADD' | translate }}</span>
             </div>
         </button>
-        <div class="flex items-center flex-wrap sm:space-x-2 mb-2">
-            <div class="flex-1 min-w-[256px] space-y-2"></div>
+        <div class="mb-2 flex flex-wrap items-center sm:space-x-2">
+            <div class="min-w-[256px] flex-1 space-y-2"></div>
         </div>
     `,
     styles: [``],
@@ -126,6 +126,7 @@ const EMPTY_FAVS: string[] = [];
             multi: true,
         },
     ],
+    standalone: false,
 })
 export class DeskListFieldComponent implements ControlValueAccessor {
     @Input() public features: string[] = [];
@@ -143,7 +144,7 @@ export class DeskListFieldComponent implements ControlValueAccessor {
 
     constructor(
         private _settings: SettingsService,
-        private _dialog: MatDialog
+        private _dialog: MatDialog,
     ) {}
 
     /** Add or edit selected items */
@@ -203,7 +204,7 @@ export class DeskListFieldComponent implements ControlValueAccessor {
         } else {
             this._settings.saveUserSetting(
                 FAV_DESK_KEY,
-                fav_list.filter((_) => _ !== space.id)
+                fav_list.filter((_) => _ !== space.id),
             );
         }
     }

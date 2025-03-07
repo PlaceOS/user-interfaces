@@ -1,6 +1,6 @@
-import { Component, OnInit, Optional } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { HashMap, SettingsService } from '@placeos/common';
+import { HashMap, i18n, SettingsService } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
 import { Space } from '@placeos/spaces';
@@ -18,24 +18,24 @@ import { filter, first, map, take } from 'rxjs/operators';
                 matRipple
                 [routerLink]="['/book', 'spaces', 'form']"
             >
-                <div class="flex items-center justify-center h-full">
+                <div class="flex h-full items-center justify-center">
                     <app-icon class="text-xl">arrow_back</app-icon>
-                    <span class="ml-2 mx-4">Back</span>
+                    <span class="mx-4 ml-2">Back</span>
                 </div>
             </a>
         </div>
         <div filters>
-            <div class="w-[640px] max-w-[calc(100%-2rem)] mx-auto py-4">
-                <h2 class="text-xl uppercase font-medium text-white">
+            <div class="mx-auto w-[640px] max-w-[calc(100%-2rem)] py-4">
+                <h2 class="text-xl font-medium uppercase text-white">
                     Available Spaces
                 </h2>
                 <div
-                    class="flex flex-col items-center sm:flex-row space-x-0 sm:space-x-2"
+                    class="flex flex-col items-center space-x-0 sm:flex-row sm:space-x-2"
                 >
                     <mat-form-field
                         overlay
                         buildings
-                        class="w-full sm:w-px sm:flex-1 h-[3.25rem]"
+                        class="h-[3.25rem] w-full sm:w-px sm:flex-1"
                         *ngIf="(buildings | async)?.length > 1"
                         appearance="outline"
                     >
@@ -53,7 +53,7 @@ import { filter, first, map, take } from 'rxjs/operators';
                         </mat-select>
                     </mat-form-field>
                     <mat-form-field
-                        class="w-full sm:w-px sm:flex-1 h-[3.25rem]"
+                        class="h-[3.25rem] w-full sm:w-px sm:flex-1"
                         overlay
                         *ngIf="(levels | async)?.length > 0"
                         appearance="outline"
@@ -76,7 +76,7 @@ import { filter, first, map, take } from 'rxjs/operators';
                         </mat-select>
                     </mat-form-field>
                     <mat-form-field
-                        class="w-full sm:w-px sm:flex-1 h-[3.25rem] hidden sm:block"
+                        class="hidden h-[3.25rem] w-full sm:block sm:w-px sm:flex-1"
                         overlay
                         appearance="outline"
                     >
@@ -94,7 +94,7 @@ import { filter, first, map, take } from 'rxjs/operators';
                         </mat-select>
                     </mat-form-field>
                     <mat-form-field
-                        class="w-full sm:w-px sm:flex-1 h-[3.25rem] hidden sm:block"
+                        class="hidden h-[3.25rem] w-full sm:block sm:w-px sm:flex-1"
                         overlay
                         appearance="outline"
                         *ngIf="(features | async)?.length"
@@ -116,14 +116,14 @@ import { filter, first, map, take } from 'rxjs/operators';
                 </div>
             </div>
         </div>
-        <div class="flex-1 w-full bg-base-200 overflow-auto">
+        <div class="w-full flex-1 overflow-auto bg-base-200">
             <ng-container *ngIf="!(loading | async); else load_state">
                 <ng-container
                     *ngIf="(spaces | async)?.length > 0; else empty_state"
                 >
                     <space-flow-find-item
                         *ngFor="let space of spaces | async"
-                        class="w-[640px] max-w-[calc(100%-2rem)] mx-auto "
+                        class="mx-auto w-[640px] max-w-[calc(100%-2rem)]"
                         [space]="space"
                         [multiple]="multiple"
                         [book]="book_space[space.id]"
@@ -135,9 +135,9 @@ import { filter, first, map, take } from 'rxjs/operators';
                 </ng-container>
             </ng-container>
         </div>
-        <div *ngIf="multiple" class="bg-base-100 border-t border-base-200">
+        <div *ngIf="multiple" class="border-t border-base-200 bg-base-100">
             <div
-                class="flex items-center w-[640px] max-w-[calc(100%-2rem)] mx-auto p-2"
+                class="mx-auto flex w-[640px] max-w-[calc(100%-2rem)] items-center p-2"
             >
                 <div class="flex-1 underline" [matMenuTriggerFor]="menu">
                     {{ space_list?.length }} space(s) selected
@@ -154,11 +154,11 @@ import { filter, first, map, take } from 'rxjs/operators';
             </div>
             <mat-menu #menu="matMenu" yPosition="above">
                 <div
-                    class="flex items-center pointer-events-none leading-tight"
+                    class="pointer-events-none flex items-center leading-tight"
                     mat-menu-item
                     *ngFor="let space of space_list"
                 >
-                    <div class="flex flex-col mr-4">
+                    <div class="mr-4 flex flex-col">
                         <div>{{ space.display_name || space.name }}</div>
                         <div class="text-xs opacity-70">
                             {{ space.level?.display_name || space.level?.name }}
@@ -179,7 +179,7 @@ import { filter, first, map, take } from 'rxjs/operators';
                 </div>
                 <div
                     mat-menu-item
-                    class=" opacity-60"
+                    class="opacity-60"
                     *ngIf="!space_list?.length"
                 >
                     No selected spaces
@@ -188,7 +188,7 @@ import { filter, first, map, take } from 'rxjs/operators';
         </div>
         <ng-template #load_state>
             <div
-                class="h-full w-full flex flex-col items-center justify-center space-y-2"
+                class="flex h-full w-full flex-col items-center justify-center space-y-2"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
                 <p>Retrieving available spaces...</p>
@@ -196,7 +196,7 @@ import { filter, first, map, take } from 'rxjs/operators';
         </ng-template>
         <ng-template #empty_state>
             <div
-                class="h-full w-full flex flex-col items-center justify-center space-y-2 p-8 text-center"
+                class="flex h-full w-full flex-col items-center justify-center space-y-2 p-8 text-center"
             >
                 <p>
                     No available spaces for selected time, capacity or level(s)
@@ -223,6 +223,7 @@ import { filter, first, map, take } from 'rxjs/operators';
         `,
     ],
     providers: [SpacePipe],
+    standalone: false,
 })
 export class SpaceFlowFindComponent implements OnInit {
     public book_space: HashMap<boolean> = {};
@@ -243,20 +244,20 @@ export class SpaceFlowFindComponent implements OnInit {
 
     public readonly levels = combineLatest([
         this.building,
-        this._state.options,
+        this._state.options$,
     ]).pipe(
         filter(([_]) => !!_),
         map(([bld]) => [
             {
                 id: this._org.building.id,
-                name: 'All Levels',
+                name: i18n('COMMON.LEVEL_ALL'),
             },
             ...this._org.levelsForBuilding(bld),
-        ])
+        ]),
     );
 
-    public readonly loading = this._state.loading;
-    public readonly options = this._state.options;
+    public readonly loading = this._state.loading$;
+    public readonly options = this._state.options$;
 
     public readonly spaces = this._state.available_spaces;
     public readonly features = this._state.features;
@@ -264,9 +265,9 @@ export class SpaceFlowFindComponent implements OnInit {
         const opts = await this.options.pipe(take(1)).toPromise();
         if (bld) this._org.building = bld;
         const levels = this._org.levelsForBuilding(this._org.building);
-        const lvl = levels.find((_) => opts.zone_ids?.includes(_.id));
+        const lvl = levels.find((_) => opts.zones?.includes(_.id));
         if (!lvl && levels.length) {
-            this.setOptions({ zone_ids: [levels[0].id] });
+            this.setOptions({ zones: [levels[0].id] });
         }
     }
 
@@ -285,7 +286,7 @@ export class SpaceFlowFindComponent implements OnInit {
         private _state: EventFormService,
         private _settings: SettingsService,
         private _router: Router,
-        private _space_pipe: SpacePipe
+        private _space_pipe: SpacePipe,
     ) {}
 
     public async ngOnInit() {
@@ -319,7 +320,7 @@ export class SpaceFlowFindComponent implements OnInit {
 
     private _getSpaceList() {
         const id_list = Object.keys(this.book_space).filter(
-            (k) => this.book_space[k]
+            (k) => this.book_space[k],
         );
         return id_list.length
             ? Promise.all(id_list.map((_) => this._space_pipe.transform(_)))

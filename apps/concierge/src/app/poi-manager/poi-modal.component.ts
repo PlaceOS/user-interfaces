@@ -14,41 +14,35 @@ import {
     randomString,
     updateShortURL,
 } from '@placeos/common';
-import { OrganisationService, Building } from '@placeos/organisation';
+import { Building, OrganisationService } from '@placeos/organisation';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
-import { PointOfInterest } from './poi-management.service';
 import { take } from 'rxjs/operators';
+import { PointOfInterest } from './poi-management.service';
 import { SelectPOIMapModalComponent } from './select-poi-map-modal.component';
 
 @Component({
     selector: 'poi-modal',
     template: `
-        <header>
-            <h2>{{ form.value.id ? 'Edit' : 'Add' }} Point Of Interest</h2>
-            <button btn icon mat-dialog-close *ngIf="!loading">
-                <app-icon>close</app-icon>
-            </button>
-        </header>
-        <main
-            class="max-h-[65vh] overflow-y-auto overflow-x-hidden p-4"
-            *ngIf="!loading; else load_state"
+        <fullscreen-modal-shell
+            [heading]="
+                (form.value.id
+                    ? 'APP.CONCIERGE.POI_EDIT'
+                    : 'APP.CONCIERGE.POI_NEW'
+                ) | translate
+            "
+            (confirm)="save()"
+            [loading]="loading ? ('APP.CONCIERGE.POI_SAVING' | translate) : ''"
         >
-            <form
-                system
-                class="flex flex-col w-[28rem] max-w-[calc(100vw-4rem)]"
-                *ngIf="form"
-                [formGroup]="form"
-            >
+            <form [formGroup]="form">
                 <div class="flex flex-col" *ngIf="form.controls.name">
-                    <label for="name" i18n="@@nameLabel">
-                        Name<span>*</span>:
+                    <label for="name">
+                        {{ 'FORM.NAME' | translate }}<span>*</span>
                     </label>
                     <mat-form-field appearance="outline">
                         <input
                             matInput
                             name="name"
-                            placeholder="Name"
-                            i18n-placeholder="@@namePlaceholder"
+                            [placeholder]="'FORM.NAME' | translate"
                             formControlName="name"
                         />
                     </mat-form-field>
@@ -57,8 +51,8 @@ import { SelectPOIMapModalComponent } from './select-poi-map-modal.component';
                     class="flex flex-col"
                     *ngIf="(building_list | async)?.length > 1"
                 >
-                    <label for="name" i18n="@@nameLabel">
-                        Building<span>*</span>:
+                    <label for="building">
+                        {{ 'RESOURCE.BUILDING' | translate }}<span>*</span>
                     </label>
                     <mat-form-field appearance="outline">
                         <mat-select
@@ -76,8 +70,8 @@ import { SelectPOIMapModalComponent } from './select-poi-map-modal.component';
                     </mat-form-field>
                 </div>
                 <div class="flex flex-col" *ngIf="form.controls.level_id">
-                    <label for="name" i18n="@@nameLabel">
-                        Level<span>*</span>:
+                    <label for="level">
+                        {{ 'RESOURCE.LEVEL' | translate }}<span>*</span>
                     </label>
                     <mat-form-field appearance="outline">
                         <mat-select
@@ -94,8 +88,8 @@ import { SelectPOIMapModalComponent } from './select-poi-map-modal.component';
                     </mat-form-field>
                 </div>
                 <div class="flex flex-col">
-                    <label for="name" i18n="@@nameLabel">
-                        Location<span>*</span>:
+                    <label for="location">
+                        {{ 'COMMON.LOCATION' | translate }}<span>*</span>
                     </label>
                     <mat-form-field appearance="outline">
                         <mat-select
@@ -103,14 +97,16 @@ import { SelectPOIMapModalComponent } from './select-poi-map-modal.component';
                             [ngModelOptions]="{ standalone: true }"
                             placeholder="Location Type"
                         >
-                            <mat-option value="map_id">Map ID</mat-option>
-                            <mat-option value="coordinates"
-                                >Coordinates</mat-option
-                            >
+                            <mat-option value="map_id">{{
+                                'EXPLORE.MAP_ID' | translate
+                            }}</mat-option>
+                            <mat-option value="coordinates">
+                                {{ 'EXPLORE.COORDINATES' | translate }}
+                            </mat-option>
                         </mat-select>
                     </mat-form-field>
                     <div
-                        class="flex items-center space-x-2 pb-2"
+                        class="flex items-center space-x-4 pb-2"
                         *ngIf="location_type === 'map_id'"
                     >
                         <mat-form-field
@@ -121,14 +117,16 @@ import { SelectPOIMapModalComponent } from './select-poi-map-modal.component';
                                 matInput
                                 name="location"
                                 placeholder="Location"
-                                i18n-placeholder="@@locationPlaceholder"
                                 formControlName="location"
                             />
                         </mat-form-field>
                         <button
                             icon
                             matRipple
-                            class="rounded border border-base-300 h-12 w-12"
+                            class="h-12 w-12 rounded border border-secondary text-secondary"
+                            [matTooltip]="
+                                'APP.CONCIERGE.POI_MAP_SELECT' | translate
+                            "
                             (click)="selectPOIfromMap()"
                         >
                             <app-icon>place</app-icon>
@@ -147,8 +145,8 @@ import { SelectPOIMapModalComponent } from './select-poi-map-modal.component';
                                     form.patchValue({
                                         location: [
                                             $event,
-                                            form.value.location[1]
-                                        ]
+                                            form.value.location[1],
+                                        ],
                                     })
                                 "
                                 [ngModelOptions]="{ standalone: true }"
@@ -163,31 +161,29 @@ import { SelectPOIMapModalComponent } from './select-poi-map-modal.component';
                                     form.patchValue({
                                         location: [
                                             form.value.location[0],
-                                            $event
-                                        ]
+                                            $event,
+                                        ],
                                     })
                                 "
                                 [ngModelOptions]="{ standalone: true }"
                             />
                         </mat-form-field>
                     </div>
+                    <div class="flex items-center space-x-4 pt-2">
+                        <settings-toggle
+                            class="flex-1"
+                            [name]="'APP.CONCIERGE.POI_SEARCHABLE' | translate"
+                            formControlName="can_search"
+                        >
+                        </settings-toggle>
+                        <div class="flex-1"></div>
+                    </div>
                 </div>
             </form>
-        </main>
-        <footer
-            class="p-2 flex justify-end border-t border-base-200"
-            *ngIf="!loading"
-        >
-            <button btn class="w-32" (click)="save()">Save</button>
-        </footer>
-        <ng-template #load_state>
-            <div class="flex flex-col items-center justify-center w-64 h-64">
-                <mat-spinner diameter="32"></mat-spinner>
-                <p class="mt-4">Saving Point Of Interest...</p>
-            </div>
-        </ng-template>
+        </fullscreen-modal-shell>
     `,
     styles: [``],
+    standalone: false,
 })
 export class POIModalComponent extends AsyncHandler {
     public loading = false;
@@ -213,6 +209,7 @@ export class POIModalComponent extends AsyncHandler {
         location: new FormControl(this._data?.location || '', [
             Validators.required,
         ]),
+        can_search: new FormControl(this._data?.can_search ?? false),
     });
 
     constructor(
@@ -220,7 +217,7 @@ export class POIModalComponent extends AsyncHandler {
         @Inject(MAT_DIALOG_DATA) private _data: PointOfInterest | undefined,
         private _dialog_ref: MatDialogRef<POIModalComponent>,
         private _settings: SettingsService,
-        private _dialog: MatDialog
+        private _dialog: MatDialog,
     ) {
         super();
     }
@@ -252,8 +249,8 @@ export class POIModalComponent extends AsyncHandler {
         if (!this.form.valid) {
             return notifyError(
                 `Some form fields are invalid. [${getInvalidFields(
-                    this.form
-                ).join(', ')}]`
+                    this.form,
+                ).join(', ')}]`,
             );
         }
         const data: any = this.form.getRawValue();
@@ -290,7 +287,7 @@ export class POIModalComponent extends AsyncHandler {
         const old_metadata = await showMetadata(
             this._org.organisation.id,
             'points-of-interest',
-            {}
+            {},
         ).toPromise();
         const metadata = old_metadata.details || {};
         if (!metadata[data.level_id]) metadata[data.level_id] = [];
@@ -298,7 +295,7 @@ export class POIModalComponent extends AsyncHandler {
             for (const lvl in metadata) {
                 if (metadata[lvl])
                     metadata[lvl] = metadata[lvl].filter(
-                        (_) => _.id !== data.id
+                        (_) => _.id !== data.id,
                     );
             }
         }

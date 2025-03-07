@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { first } from 'rxjs/operators';
-import { authority, isOnline, token } from '@placeos/ts-client';
 import { AsyncHandler, SettingsService } from '@placeos/common';
+import { authority, isOnline, token } from '@placeos/ts-client';
+import { first } from 'rxjs/operators';
 
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 
@@ -10,14 +10,14 @@ import { OrganisationService } from 'libs/organisation/src/lib/organisation.serv
     template: `
         <div
             *ngIf="!online"
-            class="fixed bottom-2 left-1/2 -translate-x-1/2 shadow rounded-3xl px-4 py-2 bg-error text-white text-xs"
+            class="fixed bottom-2 left-1/2 -translate-x-1/2 rounded-3xl bg-error px-4 py-2 text-xs text-white shadow"
         >
-            Unable to reach server... Some features may not work.
+            {{ 'COMMON.SERVER_DOWN' | translate }}
         </div>
         <div
             *ngIf="loading"
             loader
-            class="fixed inset-0 flex items-center justify-center pointer-events-auto bg-base-100"
+            class="pointer-events-auto fixed inset-0 flex items-center justify-center bg-base-100"
         >
             <mat-spinner [diameter]="64"></mat-spinner>
         </div>
@@ -34,6 +34,7 @@ import { OrganisationService } from 'libs/organisation/src/lib/organisation.serv
             }
         `,
     ],
+    standalone: false,
 })
 export class GlobalLoadingComponent extends AsyncHandler implements OnInit {
     public loading: boolean;
@@ -44,7 +45,7 @@ export class GlobalLoadingComponent extends AsyncHandler implements OnInit {
 
     constructor(
         private _org: OrganisationService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         super();
     }
@@ -60,7 +61,7 @@ export class GlobalLoadingComponent extends AsyncHandler implements OnInit {
                 this.loading = false;
                 this.clearInterval('has_token');
             },
-            1000
+            1000,
         );
     }
 }

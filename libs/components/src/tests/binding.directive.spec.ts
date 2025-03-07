@@ -8,10 +8,8 @@ import { BindingDirective } from '../lib/binding.directive';
 
 jest.mock('@placeos/ts-client');
 
-import * as ts_client from '@placeos/ts-client';
 import { fakeAsync } from '@angular/core/testing';
-import { exec } from 'child_process';
-import { model } from '@angular/core';
+import * as ts_client from '@placeos/ts-client';
 
 describe('BindingDirective', () => {
     let spectator: SpectatorDirective<BindingDirective>;
@@ -40,7 +38,7 @@ describe('BindingDirective', () => {
                     params: [],
                     on_event: '',
                 },
-            }
+            },
         );
         (ts_client as any).authority = jest.fn(() => true);
         (ts_client as any).onlineState = jest.fn(() => of(true));
@@ -68,7 +66,7 @@ describe('BindingDirective', () => {
         expect(ts_client.getModule).toHaveBeenCalledWith(
             'system-1',
             'System',
-            2
+            2,
         );
         spectator.directive.modelChange.subscribe((value) => {
             if (!value) return;
@@ -96,7 +94,7 @@ describe('BindingDirective', () => {
         expect(ts_client.getModule).toHaveBeenCalledWith(
             'system-1',
             'System',
-            1
+            1,
         );
         expect(execute).toHaveBeenCalledWith('power', []);
         spectator.setHostInput({ params: [false], model: 2 });

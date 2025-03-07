@@ -21,7 +21,7 @@ import { EventsStateService } from '../day-view/events-state.service';
                 multiple
                 [(ngModel)]="zones"
                 (ngModelChange)="updateZones($event)"
-                placeholder="All Levels"
+                [placeholder]="'COMMON.LEVEL_ALL' | translate"
             >
                 <mat-option
                     *ngFor="let level of levels | async"
@@ -37,7 +37,7 @@ import { EventsStateService } from '../day-view/events-state.service';
             (ngModelChange)="setWeekends($event)"
             ><div class="text-xs">Show weekends</div></mat-slide-toggle
         >
-        <div class="flex-1 w-0"></div>
+        <div class="w-0 flex-1"></div>
         <!-- <searchbar class="mr-2"></searchbar> -->
         <date-options (dateChange)="setDate($event)"></date-options>
     `,
@@ -63,6 +63,7 @@ import { EventsStateService } from '../day-view/events-state.service';
             }
         `,
     ],
+    standalone: false,
 })
 export class WeekViewTopbarComponent extends AsyncHandler implements OnInit {
     /** List of selected levels */
@@ -83,6 +84,7 @@ export class WeekViewTopbarComponent extends AsyncHandler implements OnInit {
         this._router.navigate([], {
             relativeTo: this._route,
             queryParams: { zone_ids: z.join(',') },
+            queryParamsHandling: 'merge',
         });
         this._state.setZones(z);
     };
@@ -91,7 +93,7 @@ export class WeekViewTopbarComponent extends AsyncHandler implements OnInit {
         private _state: EventsStateService,
         private _org: OrganisationService,
         private _route: ActivatedRoute,
-        private _router: Router
+        private _router: Router,
     ) {
         super();
     }
@@ -108,23 +110,23 @@ export class WeekViewTopbarComponent extends AsyncHandler implements OnInit {
                         this.zones = zones;
                         if (!level) return;
                         this._org.building = this._org.buildings.find(
-                            (bld) => bld.id === level.parent_id
+                            (bld) => bld.id === level.parent_id,
                         );
                     }
                 }
-            })
+            }),
         );
         this.subscription(
             'levels',
             this._org.active_levels.subscribe((levels) => {
                 this.zones = this.zones.filter((zone) =>
-                    levels.find((lvl) => lvl.id === zone)
+                    levels.find((lvl) => lvl.id === zone),
                 );
                 if (!this.zones.length && levels.length) {
                     this.zones.push(levels[0].id);
                 }
                 this.updateZones(this.zones);
-            })
+            }),
         );
     }
 }

@@ -1,19 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import {
-    debounceTime,
-    first,
-    map,
-    shareReplay,
-    switchMap,
-    tap,
-} from 'rxjs/operators';
+import { debounceTime, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 
 import { AsyncHandler } from '@placeos/common';
-import { Space } from '@placeos/spaces';
-import { BehaviorSubject, of } from 'rxjs';
-import { querySystems } from '@placeos/ts-client';
 import { OrganisationService } from '@placeos/organisation';
+import { Space } from '@placeos/spaces';
+import { querySystems } from '@placeos/ts-client';
+import { BehaviorSubject, of } from 'rxjs';
 
 const STORE_KEY = 'PLACEOS.CONTROL.system';
 
@@ -21,24 +14,26 @@ const STORE_KEY = 'PLACEOS.CONTROL.system';
     selector: '[app-bootstrap]',
     template: `
         <div
-            class="rounded shadow m-4 bg-base-100 border border-base-200 overflow-hidden mx-auto text-center flex flex-col items-center"
+            class="m-4 mx-auto flex flex-col items-center overflow-hidden rounded border border-base-200 bg-base-100 text-center shadow"
         >
-            <h2 class="bg-error text-white py-2 px-4 m-0 w-full text-2xl">
-                Control Panel Setup
+            <h2 class="m-0 w-full bg-error px-4 py-2 text-2xl text-white">
+                {{ 'APP.CONTROL.BOOTSTRAP_TITLE' | translate }}
             </h2>
             <ng-container
                 *ngIf="!loading || loading === 'search'; else load_state"
             >
                 <p class="description py-4">
-                    Input the PlaceOS <em>System ID</em> to bootstrap
+                    {{ 'COMMON.BOOTSTRAP_DESCRIPTION' | translate }}
                 </p>
                 <mat-form-field appearance="outline">
-                    <mat-label>System ID</mat-label>
+                    <mat-label>{{
+                        'COMMON.BOOTSTRAP_LABEL' | translate
+                    }}</mat-label>
                     <input
                         matInput
                         [ngModel]="system_id$ | async"
                         [matAutocomplete]="auto"
-                        placeholder="System ID"
+                        [placeholder]="'COMMON.BOOTSTRAP_LABEL' | translate"
                         (ngModelChange)="system_id$.next($event)"
                     />
                     <mat-spinner
@@ -54,7 +49,7 @@ const STORE_KEY = 'PLACEOS.CONTROL.system';
                     >
                         <div class="leading-tight">
                             <div class="name">{{ option.name }}</div>
-                            <div class="text-xs text-dark-fade">
+                            <div class="text-dark-fade text-xs">
                                 {{ option.id }}
                             </div>
                         </div>
@@ -66,7 +61,7 @@ const STORE_KEY = 'PLACEOS.CONTROL.system';
                             !(space_list | async)?.length
                         "
                     >
-                        Start typing to search for a room
+                        {{ 'COMMON.BOOTSTRAP_INPUT_PLACEHOLDER' | translate }}
                     </mat-option>
                 </mat-autocomplete>
                 <button
@@ -75,14 +70,16 @@ const STORE_KEY = 'PLACEOS.CONTROL.system';
                     [disabled]="!system_id$.getValue()"
                     (click)="bootstrap()"
                 >
-                    Submit
+                    {{ 'COMMON.SUBMIT' | translate }}
                 </button>
             </ng-container>
         </div>
         <ng-template #load_state>
             <div load class="my-16 flex flex-col items-center">
                 <mat-spinner [diameter]="32"></mat-spinner>
-                <div class="m-4">Loading system data... {{ loading }}</div>
+                <div class="m-4">
+                    {{ 'COMMON.BOOTSTRAP_LOADING' | translate }}
+                </div>
             </div>
         </ng-template>
     `,
@@ -114,6 +111,7 @@ const STORE_KEY = 'PLACEOS.CONTROL.system';
             }
         `,
     ],
+    standalone: false,
 })
 export class BootstrapComponent extends AsyncHandler implements OnInit {
     /** List of available systems */
@@ -143,13 +141,13 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
         }),
         map((_) => _.data.map((_) => new Space(_ as any))),
         tap((_) => (this.loading = '')),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     constructor(
         private route: ActivatedRoute,
         private _router: Router,
-        private _org: OrganisationService
+        private _org: OrganisationService,
     ) {
         super();
     }
@@ -163,11 +161,11 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
                 }
                 if (params.has('system_id') || params.has('sys_id')) {
                     this.system_id$.next(
-                        params.get('system_id') || params.get('sys_id')
+                        params.get('system_id') || params.get('sys_id'),
                     );
                     this.bootstrap();
                 }
-            })
+            }),
         );
         this.checkBootstrapped();
     }

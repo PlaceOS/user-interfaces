@@ -3,8 +3,24 @@ const merge = require('deepmerge');
 
 const dir = './shared/assets/locale';
 
+function removeNesting(value, path = '') {
+    let out_object= {};
+    for (const key in value) {
+        const out_key = path ? [path, key].join('.') : key;
+        if (value[key] instanceof Object) {
+            out_object = {
+                ...out_object,
+                ...removeNesting(value[key], out_key),
+            };
+        } else {
+            out_object[out_key] = `${value[key]}`;
+        }
+    }
+    return out_object;
+}
+
 function generate_i18nFiles(lang_list) {
-    let data = fs.readFileSync(`${dir}/en.json`);
+    let data = fs.readFileSync(`${dir}/en-AU.json`);
     const json = JSON.parse(data);
     for (const lang of lang_list) {
         if (lang === 'en') continue;
@@ -15,7 +31,7 @@ function generate_i18nFiles(lang_list) {
         } catch {}
         fs.writeFileSync(
             `${dir}/${lang}.json`,
-            JSON.stringify(merge(json, file_json), undefined, 4)
+            JSON.stringify(merge(json, file_json), undefined, 4),
         );
     }
 }
@@ -27,16 +43,20 @@ function i18nFilesToCSV(outfile) {
     for (const file of files) {
         const data = fs.readFileSync(`${dir}/${file}`);
         const json = JSON.parse(data);
-        i18n_data[file.replace('.json', '')] = json;
+        i18n_data[file.replace('.json', '')] = removeNesting(json);
     }
     const lang_list = Object.keys(i18n_data);
-    const keys = getKeyListFromObject(i18n_data.en);
+    const keys = Object.keys(i18n_data['en-AU']);
     const i18n_rows = [];
     for (const key of keys) {
         const obj = { key };
         for (const lang of lang_list) {
-            const value = getItemWithKeys(i18n_data[lang], key.split('.'));
-            obj[lang] = lang !== 'en' && value === getItemWithKeys(i18n_data.en, key.split('.')) ? '' : value;
+            const value = i18n_data[lang][key];
+            obj[lang] =
+                lang !== 'en-AU' &&
+                value === i18n_data['en-AU'][key]
+                    ? ''
+                    : value || '';
         }
         i18n_rows.push(obj);
     }
@@ -49,18 +69,22 @@ function CSVToi18nFiles(infile) {
     const files = fs.readdirSync(dir);
     const csv_data = fs.readFileSync(infile);
     const i18n_rows = csvToJson(csv_data);
-    const lang_list = files.map(_ => _.replace('.json', ''));
+    const lang_list = files.map((_) => _.replace('.json', ''));
     const i18n_data = {};
-    lang_list.forEach(k => i18n_data[k] = {});
+    lang_list.forEach((k) => (i18n_data[k] = {}));
     for (const row of i18n_rows) {
         for (const lang of lang_list) {
-            setItemWithKeys(i18n_data[lang], row.key.split('.'), row[lang] || row.en);
+            setItemWithKeys(
+                i18n_data[lang],
+                row.key.split('.'),
+                row[lang] || row.en,
+            );
         }
     }
     for (const lang of lang_list) {
         fs.writeFileSync(
             `${dir}/${lang}.json`,
-            JSON.stringify(i18n_data[lang], undefined, 4)
+            JSON.stringify(i18n_data[lang], undefined, 4),
         );
     }
 }
@@ -93,7 +117,6 @@ function getItemWithKeys(map, keys) {
     return null;
 }
 
-
 /**
  * Set item in the nested object
  * @param keys List of sub-keys to search for
@@ -101,11 +124,10 @@ function getItemWithKeys(map, keys) {
  */
 function setItemWithKeys(map, keys, value) {
     const key = keys[0];
-    if (keys.length > 1){
+    if (keys.length > 1) {
         if (!(key in map)) map[key] = {};
         setItemWithKeys(map, keys.slice(1), value);
-    }
-    else map[key] = value;
+    } else map[key] = value;
 }
 
 /**
@@ -118,7 +140,9 @@ function jsonToCsv(json, delimiter = '\t') {
         const valid_keys = keys.filter((key) => key in json[0]);
         return `${valid_keys.join(delimiter)}\n${json
             .map((item) =>
-                valid_keys.map((key) => JSON.stringify(item[key])).join(delimiter)
+                valid_keys
+                    .map((key) => JSON.stringify(item[key]))
+                    .join(delimiter),
             )
             .join('\n')}`;
     }
@@ -132,7 +156,7 @@ function jsonToCsv(json, delimiter = '\t') {
 function csvToJson(csv, delimiter = ',') {
     const objPattern = new RegExp(
         '(\\,|\\r?\\n|\\r|^)(?:"([^"]*(?:""[^"]*)*)"|([^\\,\\r\\n]*))',
-        'gi'
+        'gi',
     );
     let arrMatches = null;
     const arrData = [[]];
@@ -141,7 +165,7 @@ function csvToJson(csv, delimiter = ',') {
         arrData[arrData.length - 1].push(
             arrMatches[2]
                 ? arrMatches[2].replace(new RegExp('""', 'g'), '"')
-                : arrMatches[3]
+                : arrMatches[3],
         );
     }
     const headers = arrData.splice(0, 1)[0];
@@ -154,7 +178,7 @@ function csvToJson(csv, delimiter = ',') {
             } catch (e) {
                 element[key] = row[i] || '';
             }
-            if (element[key] === 'TRUE' || element[key] === 'FALSE') 
+            if (element[key] === 'TRUE' || element[key] === 'FALSE')
                 element[key] = element[key] === 'TRUE';
         }
         return element;
@@ -162,7 +186,18 @@ function csvToJson(csv, delimiter = ',') {
     return elements;
 }
 
-switch(process.argv[2]) {
+///////
+///
+/// Example usage:
+///     Extract all existing translations to locales.tsv
+///         node ./tools/i18n-tools.js to-csv
+///
+///     Import translations from locales.tsv
+///         node ./tools/i18n-tools.js from-csv
+///
+///////
+
+switch (process.argv[2]) {
     case 'to-csv':
         i18nFilesToCSV(process.argv[3]);
         break;
@@ -170,6 +205,10 @@ switch(process.argv[2]) {
         CSVToi18nFiles(process.argv[3]);
         break;
     default:
-        generate_i18nFiles(process.argv[3] ? process.argv[3].split(',') : ['es', 'fr', 'pt']);
+        generate_i18nFiles(
+            process.argv[3]
+                ? process.argv[3].split(',')
+                : ['es', 'fr', 'pt', 'fr-CA', 'it', 'zh'],
+        );
         break;
 }

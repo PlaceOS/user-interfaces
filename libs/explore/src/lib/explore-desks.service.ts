@@ -1,6 +1,6 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { getModule, showMetadata } from '@placeos/ts-client';
+import { showMetadata } from '@placeos/ts-client';
 import { addDays, endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
 import {
@@ -15,26 +15,27 @@ import {
     tap,
 } from 'rxjs/operators';
 
-import { BookingFormService } from 'libs/bookings/src/lib/booking-form.service';
 import {
     AsyncHandler,
     BookingRuleset,
     currentUser,
+    i18n,
     notifyError,
     notifySuccess,
     rulesForResource,
     SettingsService,
 } from '@placeos/common';
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
+import { BookingFormService } from 'libs/bookings/src/lib/booking-form.service';
 import { Desk } from 'libs/organisation/src/lib/desk.class';
+import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { StaffUser } from 'libs/users/src/lib/user.class';
 
+import { queryBookings } from 'libs/bookings/src/lib/bookings.fn';
 import { SetDatetimeModalComponent } from 'libs/explore/src/lib/set-datetime-modal.component';
 import { ExploreDeskInfoComponent } from './explore-desk-info.component';
 import { ExploreDeviceInfoComponent } from './explore-device-info.component';
 import { DEFAULT_COLOURS } from './explore-spaces.service';
 import { ExploreStateService } from './explore-state.service';
-import { queryBookings } from 'libs/bookings/src/lib/bookings.fn';
 
 export interface DeskOptions {
     enable_booking?: boolean;
@@ -68,11 +69,11 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
             filter((bld) => !!bld),
             switchMap((bld) =>
                 showMetadata(bld.id, `desk_booking_rules`).pipe(
-                    catchError(() => of({ details: [] }))
-                )
+                    catchError(() => of({ details: [] })),
+                ),
             ),
             map((_) => (_?.details instanceof Array ? _.details : [])),
-            shareReplay(1)
+            shareReplay(1),
         );
 
     public readonly desk_list = this._state.level.pipe(
@@ -83,13 +84,13 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
                 map((i) =>
                     (i?.details instanceof Array ? i.details : []).map(
                         (j: Record<string, any>) =>
-                            new Desk({ ...j, zone: lvl as any })
-                    )
-                )
-            )
+                            new Desk({ ...j, zone: lvl as any }),
+                    ),
+                ),
+            ),
         ),
         catchError((e) => []),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     private _bind = combineLatest([
@@ -100,22 +101,20 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
         filter(([_, { is_public }]) => !!_ && !is_public),
         map(([lvl]) => {
             this._statuses = {};
-            const system_id = this._org.binding('area_management');
-            if (!system_id) return;
-            let binding = getModule(system_id, 'AreaManagement')?.binding(
-                lvl.id
-            );
+            const mod = this._org.module('area_management', 'AreaManagement');
+            if (!mod) return;
+            const binding = mod.binding(lvl.id);
             if (!binding) return;
             this.subscription(
                 `lvl-in_use`,
                 binding
                     .listen()
                     .subscribe((d) =>
-                        this.processBindingChange(d || {}, system_id)
-                    )
+                        this.processBindingChange(d || {}, mod.id),
+                    ),
             );
             this.subscription('lvl-in_use_bind', binding.bind());
-        })
+        }),
     );
 
     private _booking_list = combineLatest([
@@ -124,7 +123,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
     ]).pipe(
         filter(
             ([_, lvl]) =>
-                (_.use_api || _.date > endOfDay(Date.now()).valueOf()) && !!lvl
+                (_.use_api || _.date > endOfDay(Date.now()).valueOf()) && !!lvl,
         ),
         switchMap(([_, level]) => {
             return queryBookings({
@@ -138,10 +137,10 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
         tap((bookings) => {
             this._in_use.next(bookings.map((_) => _.asset_id));
             this._checked_in.next(
-                bookings.filter((_) => _.checked_in).map((_) => _.asset_id)
+                bookings.filter((_) => _.checked_in).map((_) => _.asset_id),
             );
         }),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     private _state_change = combineLatest([
@@ -165,14 +164,15 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
             ]) => {
                 this._statuses = {};
                 const level = await this._state.level.pipe(take(1)).toPromise();
-                for (const { id, bookable } of desks) {
-                    const is_used = in_use.some((i) => id === i);
-                    const has_presence = presence.some((i) => id === i);
-                    const has_signs = signs.some((i) => id === i);
+                for (const { id, bookable, map_id } of desks) {
+                    const d_id = map_id || id;
+                    const is_used = in_use.some((i) => d_id === i);
+                    const has_presence = presence.some((i) => d_id === i);
+                    const has_signs = signs.some((i) => d_id === i);
                     const is_checked_in =
-                        checked_in.some((i) => id === i) ||
+                        checked_in.some((i) => d_id === i) ||
                         (is_used &&
-                            this._settings.get(`app.desk.auto_checkin`));
+                            this._settings.get(`app.desks.auto_checkin`));
                     const is_restricted = rulesForResource(
                         {
                             date: Date.now(),
@@ -183,22 +183,22 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
                                 zones: [level.parent_id, level.id],
                             },
                         },
-                        restrictions
+                        restrictions,
                     )?.hidden;
-                    this._statuses[id] =
+                    this._statuses[d_id] =
                         bookable && !is_restricted
                             ? !is_used && !has_presence && !is_checked_in
                                 ? has_signs
                                     ? 'signs-of-life'
                                     : 'free'
                                 : !has_presence && !is_checked_in
-                                ? 'pending'
-                                : 'busy'
+                                  ? 'pending'
+                                  : 'busy'
                             : 'not-bookable';
                 }
                 this.processDesks(desks);
-            }
-        )
+            },
+        ),
     );
 
     constructor(
@@ -206,7 +206,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
         private _org: OrganisationService,
         private _settings: SettingsService,
         private _bookings: BookingFormService,
-        private _dialog: MatDialog
+        private _dialog: MatDialog,
     ) {
         super();
         this.init();
@@ -224,7 +224,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
         this.subscription('changes', this._state_change.subscribe());
         this.subscription(
             'desks',
-            this.desk_list.subscribe((desks) => this.processDesks(desks))
+            this.desk_list.subscribe((desks) => this.processDesks(desks)),
         );
     }
 
@@ -234,15 +234,15 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
 
     public processBindingChange(
         { value }: { value: any[] },
-        system_id: string
+        system_id: string,
     ) {
         const devices = (value || []).filter(
-            (v) => !['desk', 'booking'].includes(v.location)
+            (v) => !['desk', 'booking'].includes(v.location),
         );
         const desks = (value || []).filter(
             (v) =>
                 v.location === 'desk' ||
-                (v.location === 'booking' && v.type === 'desk')
+                (v.location === 'booking' && v.type === 'desk'),
         );
         const date = this._options.getValue().date || Date.now();
         if (
@@ -252,22 +252,22 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
             this._in_use.next(
                 desks
                     .filter((v) => v.location === 'booking')
-                    .map((v) => v.map_id || v.asset_id)
+                    .map((v) => v.map_id || v.asset_id),
             );
             this._checked_in.next(
                 desks
                     .filter((v) => v.location === 'booking' && v.checked_in)
-                    .map((v) => v.map_id || v.asset_id)
+                    .map((v) => v.map_id || v.asset_id),
             );
             this._presence.next(
                 desks
                     .filter((v) => v.at_location)
-                    .map((v) => v.map_id || v.asset_id)
+                    .map((v) => v.map_id || v.asset_id),
             );
             this._signs_of_life.next(
                 desks
                     .filter((v) => v.signs_of_life)
-                    .map((v) => v.map_id || v.asset_id)
+                    .map((v) => v.map_id || v.asset_id),
             );
         }
         const departments = this._settings.get('app.department_map') || {};
@@ -321,7 +321,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
         for (const desk of desks) {
             list.push({
                 track_id: `desk:hover:${desk.map_id || desk.id}`,
-                location: desk.id,
+                location: desk.map_id || desk.id,
                 content: ExploreDeskInfoComponent,
                 full_size: true,
                 no_scale: true,
@@ -339,91 +339,31 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
             let can_book = true;
             const book_fn = async () => {
                 if (!can_book) return;
-                if (this._statuses[desk.id] !== 'free') {
-                    return notifyError(
-                        `${desk.name || 'Desk'} is unavailable at this time.`
-                    );
-                }
-                if (
-                    desk.groups?.length &&
-                    !desk.groups.find((_) => currentUser().groups.includes(_))
-                ) {
-                    return notifyError(
-                        `You are not allowed to book ${desk.name}.`
-                    );
-                }
-                this._bookings.newForm();
-                this._bookings.setOptions({ type: 'desk' });
-                if (options.date) {
-                    this._bookings.form.patchValue({
-                        date: options.date,
-                    });
-                    this._bookings.form.patchValue({
-                        all_day: !!options.all_day,
-                    });
-                }
-                let { date, duration, user } = await this._setBookingTime(
-                    this._bookings.form.value.date,
-                    this._bookings.form.value.duration,
-                    this._options.getValue()?.custom ?? false,
-                    desk as any
-                );
-                user = user || options.host || currentUser();
-                const user_email = user?.email;
-                this._bookings.form.patchValue({
-                    resources: [desk],
-                    asset_id: desk.id,
-                    asset_name: desk.name,
-                    date,
-                    duration: options.all_day ? 12 * 60 : duration,
-                    map_id: desk?.map_id || desk?.id,
-                    description: desk.name,
-                    user,
-                    user_email,
-                    booking_type: 'desk',
-                    zones: desk.zone
-                        ? [desk.zone?.parent_id, desk.zone?.id]
-                        : [],
-                });
-                await this._bookings.confirmPost().catch((e) => {
-                    console.log(e);
-                    notifyError(
-                        `Failed to book desk ${desk.name || desk.id}. ${
-                            e.message || e.error || e
-                        }`
-                    );
-                    throw e;
-                });
-                this._users[desk.map_id] = (
-                    options.host || currentUser()
-                )?.name;
-                notifySuccess(
-                    `Successfully booked desk ${desk.name || desk.id}`
-                );
+                await this._bookDesk(desk, options);
             };
             ['mousedown', 'touchstart'].forEach((event) =>
                 actions.push({
-                    id: desk.id,
+                    id: desk.map_id || desk.id,
                     action: event,
                     priority: 10,
                     callback: () => {
                         can_book = true;
                         this.timeout('booking', () => (can_book = false));
                     },
-                })
+                }),
             );
             ['mouseup', 'touchend'].forEach((event) =>
                 actions.push({
-                    id: desk.id,
+                    id: desk.map_id || desk.id,
                     action: event,
                     priority: 10,
                     callback: book_fn,
-                })
+                }),
             );
         }
         this._state.setActions(
             'desks',
-            this._options.getValue().enable_booking ? actions : []
+            this._options.getValue().enable_booking ? actions : [],
         );
         this._state.setFeatures('desks', list);
         this.timeout('update', () => this.updateStatus(), 100);
@@ -432,16 +372,16 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
     private async _setBookingTime(
         date: number,
         duration: number,
-        host: boolean = false,
-        resource: Desk = null
+        host = false,
+        resource: Desk = null,
     ) {
         let user = null;
         if (!!this._settings.get('app.desks.allow_time_changes')) {
             const until = endOfDay(
                 addDays(
                     Date.now(),
-                    this._settings.get('app.desks.available_period') || 90
-                )
+                    this._settings.get('app.desks.available_period') || 90,
+                ),
             );
             const ref = this._dialog.open(SetDatetimeModalComponent, {
                 data: { date, duration, until, host, resource },
@@ -453,5 +393,91 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
             user = details.user;
         }
         return { date, duration, user };
+    }
+
+    private async _bookDesk(desk: Desk, options: DeskOptions) {
+        if (this._statuses[desk.id] !== 'free') {
+            return notifyError(
+                i18n('EXPLORE.DESK_AVAILABLE_ERROR', {
+                    name: desk.name || 'Desk',
+                }),
+            );
+        }
+        if (
+            desk.groups?.length &&
+            !desk.groups.find((_) => currentUser().groups.includes(_))
+        ) {
+            return notifyError(
+                i18n('EXPLORE.DESK_GROUP_ERROR', { name: desk.name || 'Desk' }),
+            );
+        }
+        this._bookings.newForm();
+        this._bookings.setOptions({ type: 'desk' });
+        if (options.date) {
+            this._bookings.form.patchValue({
+                date: options.date,
+            });
+            this._bookings.form.patchValue({
+                all_day: !!options.all_day,
+            });
+        }
+        let { date, duration, user } = await this._setBookingTime(
+            this._bookings.form.value.date,
+            this._bookings.form.value.duration,
+            this._options.getValue()?.custom ?? false,
+            desk as any,
+        );
+        user = user || options.host || currentUser();
+        const user_email = user?.email;
+        this._bookings.form.patchValue({
+            resources: [desk],
+            asset_id: desk.id,
+            asset_name: desk.name,
+            date,
+            duration: options.all_day ? 12 * 60 : duration,
+            map_id: desk?.map_id || desk?.id,
+            description: desk.name,
+            user,
+            user_email,
+            booking_type: 'desk',
+            zones: desk.zone ? [desk.zone?.parent_id, desk.zone?.id] : [],
+        });
+
+        const restrictions = await this.booking_rules.pipe(take(1)).toPromise();
+        const is_restricted = rulesForResource(
+            {
+                date,
+                duration,
+                host: currentUser(),
+                resource: {
+                    id: desk.id,
+                    zones: [desk.zone?.parent_id, desk.zone?.id],
+                },
+            },
+            restrictions,
+        )?.hidden;
+
+        if (is_restricted) {
+            return notifyError(
+                i18n('EXPLORE.DESK_RESTRICTION_ERROR', {
+                    name: desk.name || 'Desk',
+                }),
+            );
+        }
+
+        await this._bookings.confirmPost().catch((e) => {
+            console.log(e);
+            notifyError(
+                i18n('EXPLORE.DESK_BOOKING_ERROR', {
+                    name: desk.name || 'Desk',
+                    error: e.message || e.error || e,
+                }),
+            );
+            throw e;
+        });
+        this._users[desk.map_id] = (options.host || currentUser())?.name;
+        notifySuccess(
+            i18n('EXPLORE.DESK_BOOKING_SUCCESS', { name: desk.name || 'Desk' }),
+        );
     }
 }

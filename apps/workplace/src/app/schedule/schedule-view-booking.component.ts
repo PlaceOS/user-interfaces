@@ -10,13 +10,13 @@ import {
 import {
     AsyncHandler,
     currentUser,
+    formatDuration,
     notifyError,
     notifySuccess,
-    openConfirmModal,
     SettingsService,
 } from '@placeos/common';
-import { addMinutes, formatDuration, isAfter } from 'date-fns';
-import { MapLocateModalComponent } from '@placeos/components';
+import { MapLocateModalComponent, openConfirmModal } from '@placeos/components';
+import { addMinutes, isAfter } from 'date-fns';
 
 @Component({
     selector: 'schedule-view-booking',
@@ -28,26 +28,26 @@ import { MapLocateModalComponent } from '@placeos/components';
                 matRipple
                 [routerLink]="['/schedule']"
             >
-                <div class="flex items-center justify-center h-full">
+                <div class="flex h-full items-center justify-center">
                     <app-icon class="text-xl">arrow_back</app-icon>
-                    <span class="ml-2 mx-4">Back</span>
+                    <span class="mx-4 ml-2">Back</span>
                 </div>
             </a>
         </div>
         <div
-            class="flex-1 w-full flex flex-col items-center bg-base-200 p-4 overflow-auto"
+            class="flex w-full flex-1 flex-col items-center overflow-auto bg-base-200 p-4"
         >
             <div
-                class="max-w-full w-[28rem] bg-base-100 border border-base-200 px-4 pb-4 divide-y divide-base-200"
+                class="w-[28rem] max-w-full divide-y divide-base-200 border border-base-200 bg-base-100 px-4 pb-4"
                 *ngIf="event; else load_state"
             >
-                <h2 class="text-xl uppercase font-medium w-full my-4">
+                <h2 class="my-4 w-full text-xl font-medium uppercase">
                     {{ event.title }}
                 </h2>
                 <div
-                    class="flex items-center py-2 space-x-2 w-full !border-none"
+                    class="flex w-full items-center space-x-2 !border-none py-2"
                 >
-                    <div class="p-2 rounded-full bg-base-200 mr-2">
+                    <div class="mr-2 rounded-full bg-base-200 p-2">
                         <app-icon>event</app-icon>
                     </div>
                     <div class="flex-1 truncate">
@@ -63,8 +63,8 @@ import { MapLocateModalComponent } from '@placeos/components';
                         </span>
                     </div>
                 </div>
-                <div class="flex items-center py-2 space-x-2 w-full">
-                    <div class="p-2 rounded-full bg-base-200 mr-2">
+                <div class="flex w-full items-center space-x-2 py-2">
+                    <div class="mr-2 rounded-full bg-base-200 p-2">
                         <app-icon>schedule</app-icon>
                     </div>
                     <div class="flex-1 truncate">
@@ -76,10 +76,10 @@ import { MapLocateModalComponent } from '@placeos/components';
                     </div>
                 </div>
                 <div
-                    class="flex items-center py-2 space-x-2 w-full"
+                    class="flex w-full items-center space-x-2 py-2"
                     *ngIf="event.asset_id"
                 >
-                    <div class="p-2 rounded-full bg-base-200 mr-2">
+                    <div class="mr-2 rounded-full bg-base-200 p-2">
                         <app-icon>menu_book</app-icon>
                     </div>
                     <div class="flex-1 truncate">
@@ -89,20 +89,20 @@ import { MapLocateModalComponent } from '@placeos/components';
                         matRipple
                         locate
                         *ngIf="event.extension_data.map_id && can_view_location"
-                        class="bg-transparent border-none underline text-black"
+                        class="bg-transparent border-none text-black underline"
                         (click)="viewLocation()"
                     >
                         Map
                     </button>
                 </div>
                 <div
-                    class="flex items-center justify-center space-x-2 mt-4 !border-none"
+                    class="mt-4 flex items-center justify-center space-x-2 !border-none"
                     *ngIf="!has_ended && is_host"
                 >
                     <button
                         matRipple
                         remove
-                        class="w-32 error inverse"
+                        class="error inverse w-32"
                         [disabled]="loading"
                         (click)="confirmDelete()"
                     >
@@ -113,7 +113,7 @@ import { MapLocateModalComponent } from '@placeos/components';
         </div>
         <ng-template #load_state>
             <div
-                class="h-full w-full flex flex-col items-center justify-center space-y-2"
+                class="flex h-full w-full flex-col items-center justify-center space-y-2"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
                 <p>Loading booking data...</p>
@@ -138,6 +138,7 @@ import { MapLocateModalComponent } from '@placeos/components';
             }
         `,
     ],
+    standalone: false,
 })
 export class ScheduleViewBookingComponent extends AsyncHandler {
     @Input() public event: Booking;
@@ -164,7 +165,7 @@ export class ScheduleViewBookingComponent extends AsyncHandler {
             this.event &&
             isAfter(
                 new Date(),
-                addMinutes(this.event.date, this.event.duration)
+                addMinutes(this.event.date, this.event.duration),
             )
         );
     }
@@ -174,7 +175,7 @@ export class ScheduleViewBookingComponent extends AsyncHandler {
         private _router: Router,
         private _dialog: MatDialog,
         private _bookings: BookingFormService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         super();
     }
@@ -188,12 +189,12 @@ export class ScheduleViewBookingComponent extends AsyncHandler {
                         .toPromise()
                         .catch(() => null);
                 }
-            })
+            }),
         );
         this.timeout(
             'return',
             () => (!this.event ? this._router.navigate(['/schedule']) : ''),
-            8 * 1000
+            8 * 1000,
         );
     }
 
@@ -226,7 +227,7 @@ export class ScheduleViewBookingComponent extends AsyncHandler {
                 } this event?`,
                 icon: { content: this.is_host ? 'delete' : 'event_busy' },
             },
-            this._dialog
+            this._dialog,
         );
         if (details.reason !== 'done') return;
         details.loading('Removing booking...');

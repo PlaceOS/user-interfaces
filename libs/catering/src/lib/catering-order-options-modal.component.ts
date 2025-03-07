@@ -1,8 +1,8 @@
-import { Component, Inject, Output, EventEmitter } from '@angular/core';
+import { Component, EventEmitter, Inject, Output } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
-import { DialogEvent, HashMap } from 'libs/common/src/lib/types';
 import { unique } from 'libs/common/src/lib/general';
+import { DialogEvent, HashMap } from 'libs/common/src/lib/types';
 
 import { CateringOption, CateringOptionGroup } from './catering.interfaces';
 
@@ -22,11 +22,11 @@ export interface CateringOrderOptionsModalData {
         </header>
         <main class="overflow-auto">
             <div
-                class="pt-1 pb-2 border-b border-base-200"
+                class="border-b border-base-200 pb-2 pt-1"
                 *ngFor="let group of groups"
                 [attr.group]="group.name"
             >
-                <div class="font-medium p-2 capitalize">{{ group.name }}</div>
+                <div class="p-2 font-medium capitalize">{{ group.name }}</div>
                 <div class="flex flex-col pl-6">
                     <ng-container *ngIf="!group.multiple; else multi_options">
                         <mat-radio-group
@@ -35,20 +35,20 @@ export interface CateringOrderOptionsModalData {
                             ngModel
                             (ngModelChange)="updateGroupOption(group, $event)"
                         >
-                            <mat-radio-button class="my-1 mx-0" value="">
-                                <span class="font-medium p-2">None</span>
+                            <mat-radio-button class="mx-0 my-1" value="">
+                                <span class="p-2 font-medium">None</span>
                             </mat-radio-button>
                             <mat-radio-button
-                                class="my-1 mx-0"
+                                class="mx-0 my-1"
                                 *ngFor="let opt of group?.options"
                                 [value]="opt.id"
                             >
                                 <div class="flex items-center justify-center">
-                                    <div class="font-medium p-2 flex-1 w-1/2">
+                                    <div class="w-1/2 flex-1 p-2 font-medium">
                                         {{ opt.name }}
                                     </div>
                                     <div
-                                        class="opacity-60 text-xs"
+                                        class="text-xs opacity-60"
                                         *ngIf="opt.unit_price"
                                     >
                                         +{{
@@ -66,11 +66,11 @@ export interface CateringOrderOptionsModalData {
                             [(ngModel)]="option_state[opt.id]"
                         >
                             <div class="flex items-center justify-center">
-                                <div class="font-medium p-2 flex-1 w-1/2">
+                                <div class="w-1/2 flex-1 p-2 font-medium">
                                     {{ opt.name }}
                                 </div>
                                 <div
-                                    class="opacity-60 text-xs"
+                                    class="text-xs opacity-60"
                                     *ngIf="opt.unit_price"
                                 >
                                     +{{ opt.unit_price / 100 | currency: code }}
@@ -96,6 +96,7 @@ export interface CateringOrderOptionsModalData {
             }
         `,
     ],
+    standalone: false,
 })
 export class CateringOrderOptionsModalComponent {
     /** Emitter for events on the modal */
@@ -107,10 +108,10 @@ export class CateringOrderOptionsModalComponent {
     public readonly code = this._data.code;
 
     constructor(
-        @Inject(MAT_DIALOG_DATA) private _data: CateringOrderOptionsModalData
+        @Inject(MAT_DIALOG_DATA) private _data: CateringOrderOptionsModalData,
     ) {
         const groups = unique(
-            this._data.options.map((i) => i.group || 'Other')
+            this._data.options.map((i) => i.group || 'Other'),
         );
         const group_list = [];
         for (const group of groups) {
@@ -132,7 +133,7 @@ export class CateringOrderOptionsModalComponent {
 
     public saveOptions() {
         const options = this._data.options.filter(
-            (opt) => this.option_state[opt.id]
+            (opt) => this.option_state[opt.id],
         );
         this.event.emit({ reason: 'done', metadata: { options } });
     }

@@ -1,8 +1,17 @@
-import 'jest-preset-angular/setup-jest';
-import { TextEncoder, TextDecoder } from 'util';
+import { defineGlobalsInjections } from '@ngneat/spectator';
+import { setupZoneTestEnv } from 'jest-preset-angular/setup-env/zone';
 import { setNotifyOutlet } from 'libs/common/src/lib/notifications';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { MockPipe } from 'ng-mocks';
+import { TextDecoder, TextEncoder } from 'util';
+
+setupZoneTestEnv();
 
 global.TextEncoder = TextEncoder;
 global.TextDecoder = TextDecoder;
 
 setNotifyOutlet(null, true);
+
+defineGlobalsInjections({
+    declarations: [MockPipe(TranslatePipe)],
+});

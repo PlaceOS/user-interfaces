@@ -10,14 +10,14 @@ import { EventsStateService } from '../day-view/events-state.service';
     selector: 'facilities-topbar',
     template: `
         <div
-            class="flex items-center bg-base-100 h-20 px-4 border-b border-base-200 space-x-2"
+            class="flex h-20 items-center space-x-2 border-b border-base-200 bg-base-100 px-4"
         >
             <mat-form-field appearance="outline">
                 <mat-select
                     multiple
                     [(ngModel)]="zones"
                     (ngModelChange)="updateZones($event)"
-                    placeholder="All Levels"
+                    [placeholder]="'COMMON.LEVEL_ALL' | translate"
                 >
                     <mat-option
                         *ngFor="let level of levels | async"
@@ -58,6 +58,7 @@ import { EventsStateService } from '../day-view/events-state.service';
             }
         `,
     ],
+    standalone: false,
 })
 export class FacilitiesTopbarComponent extends AsyncHandler {
     /** List of selected levels */
@@ -79,6 +80,7 @@ export class FacilitiesTopbarComponent extends AsyncHandler {
         this._router.navigate([], {
             relativeTo: this._route,
             queryParams: { zone_ids: z.join(',') },
+            queryParamsHandling: 'merge',
         });
         this._state.setZones(z);
     };
@@ -95,7 +97,7 @@ export class FacilitiesTopbarComponent extends AsyncHandler {
         private _state: EventsStateService,
         private _org: OrganisationService,
         private _route: ActivatedRoute,
-        private _router: Router
+        private _router: Router,
     ) {
         super();
     }
@@ -113,24 +115,24 @@ export class FacilitiesTopbarComponent extends AsyncHandler {
                             return;
                         }
                         this._org.building = this._org.buildings.find(
-                            (bld) => bld.id === level.parent_id
+                            (bld) => bld.id === level.parent_id,
                         );
                         this.zones = zones;
                     }
                 }
-            })
+            }),
         );
         this.subscription(
             'levels',
             this._org.active_levels.subscribe((levels) => {
                 this.zones = this.zones.filter((zone) =>
-                    levels.find((lvl) => lvl.id === zone)
+                    levels.find((lvl) => lvl.id === zone),
                 );
                 if (!this.zones.length && levels.length) {
                     this.zones.push(levels[0].id);
                 }
                 this.updateZones(this.zones);
-            })
+            }),
         );
         this.updateTypes(this.type_list);
     }

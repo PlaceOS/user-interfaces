@@ -31,6 +31,7 @@ import { ControlStateService } from '../control-state.service';
             }
         `,
     ],
+    standalone: false,
 })
 export class DeviceOutputListComponent {
     public readonly outputs = this._state.output_list.pipe(map((_) => _ || []));

@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { first, take } from 'rxjs/operators';
 
+import { MatDialog } from '@angular/material/dialog';
+import { showBooking } from '@placeos/bookings';
 import {
     AsyncHandler,
     csvToJson,
@@ -10,20 +12,18 @@ import {
     loadTextFileFromInputEvent,
     notifyError,
     notifyInfo,
+    randomInt,
 } from '@placeos/common';
 import { Desk, OrganisationService } from '@placeos/organisation';
-import { DesksStateService } from './desks-state.service';
-import { showBooking } from '@placeos/bookings';
-import { randomInt } from '@placeos/common';
-import { MatDialog } from '@angular/material/dialog';
-import { DeskBookModalComponent } from './desk-book-modal.component';
 import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';
+import { DeskBookModalComponent } from './desk-book-modal.component';
+import { DesksStateService } from './desks-state.service';
 
 @Component({
     selector: 'desks-topbar',
     template: `
         <div
-            class="flex items-center bg-base-100 h-20 px-4 border-b border-base-200 space-x-2"
+            class="flex h-20 items-center space-x-2 border-b border-base-200 bg-base-100 px-4"
         >
             <mat-form-field appearance="outline">
                 <mat-select
@@ -33,10 +33,10 @@ import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component'
                             : 'All'
                     "
                     (ngModelChange)="updateZones([$event])"
-                    placeholder="All Levels"
+                    [placeholder]="'COMMON.LEVEL_ALL' | translate"
                 >
                     <mat-option value="All" *ngIf="!is_map">
-                        All Levels
+                        {{ 'COMMON.LEVEL_ALL' | translate }}
                     </mat-option>
                     <mat-option
                         *ngFor="let level of levels | async"
@@ -54,16 +54,16 @@ import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component'
                 matTooltip="New Desk Booking"
                 (click)="newDeskBooking()"
             >
-                New Booking
+                {{ 'APP.CONCIERGE.NEW_BOOKING' | translate }}
             </button>
             <button
                 btn
                 icon
                 matRipple
                 *ngIf="manage"
-                class="bg-primary mx-2 text-white rounded"
+                class="mx-2 rounded bg-primary text-white"
                 (click)="newDesk()"
-                matTooltip="New Desk"
+                [matTooltip]="'APP.CONCIERGE.DESKS_NEW' | translate"
             >
                 <app-icon>add</app-icon>
             </button>
@@ -72,8 +72,8 @@ import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component'
                 icon
                 matRipple
                 *ngIf="manage"
-                class="bg-primary relative text-white rounded"
-                matTooltip="Upload Desks CSV"
+                class="relative rounded bg-primary text-white"
+                [matTooltip]="'APP.CONCIERGE.DESKS_LIST_UPLOAD' | translate"
             >
                 <app-icon>cloud_upload</app-icon>
                 <input
@@ -87,9 +87,9 @@ import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component'
                 icon
                 matRipple
                 *ngIf="manage"
-                class="bg-primary mx-2 text-white rounded"
+                class="mx-2 rounded bg-primary text-white"
                 (click)="downloadTemplate()"
-                matTooltip="Download Template Desk CSV"
+                [matTooltip]="'APP.CONCIERGE.DESKS_LIST_DOWNLOAD' | translate"
             >
                 <app-icon>download</app-icon>
             </button>
@@ -98,13 +98,13 @@ import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component'
                 icon
                 matRipple
                 *ngIf="manage"
-                class="bg-primary mx-2 text-white rounded"
+                class="mx-2 rounded bg-primary text-white"
                 (click)="manageRestrictions()"
-                matTooltip="Desk Restrictions"
+                [matTooltip]="'APP.CONCIERGE.DESKS_BOOKING_RULES' | translate"
             >
                 <app-icon>lock_open</app-icon>
             </button>
-            <div class="flex-1 w-2"></div>
+            <div class="w-2 flex-1"></div>
             <searchbar
                 class="mr-2"
                 [model]="(filters | async)?.search"
@@ -121,6 +121,7 @@ import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component'
             }
         `,
     ],
+    standalone: false,
 })
 export class DesksTopbarComponent extends AsyncHandler implements OnInit {
     /** List of levels for the active building */
@@ -148,7 +149,7 @@ export class DesksTopbarComponent extends AsyncHandler implements OnInit {
         private _org: OrganisationService,
         private _route: ActivatedRoute,
         private _router: Router,
-        private _dialog: MatDialog
+        private _dialog: MatDialog,
     ) {
         super();
     }
@@ -165,7 +166,7 @@ export class DesksTopbarComponent extends AsyncHandler implements OnInit {
                         const level = this._org.levelWithID(zones);
                         if (!level) return;
                         this._org.building = this._org.buildings.find(
-                            (bld) => bld.id === level.parent_id
+                            (bld) => bld.id === level.parent_id,
                         );
                     }
                 }
@@ -179,14 +180,14 @@ export class DesksTopbarComponent extends AsyncHandler implements OnInit {
                 }
                 this.manage = this._router.url?.includes('manage');
                 this.is_map = this._router.url?.includes('map');
-            })
+            }),
         );
         this.subscription(
             'router.events',
             this._router.events.subscribe(() => {
                 this.manage = this._router.url?.includes('manage');
                 this.is_map = this._router.url?.includes('map');
-            })
+            }),
         );
         this.subscription(
             'levels',
@@ -196,13 +197,13 @@ export class DesksTopbarComponent extends AsyncHandler implements OnInit {
                     filters?.zones?.filter(
                         (zone) =>
                             levels.find((lvl) => lvl.id === zone) ||
-                            zone === 'All'
+                            zone === 'All',
                     ) || [];
                 if (!zones.length && levels.length) {
                     zones.push(levels[0].id);
                 }
                 this.updateZones(zones);
-            })
+            }),
         );
         this.manage = this._router.url?.includes('manage');
         this.is_map = this._router.url?.includes('map');
@@ -213,7 +214,7 @@ export class DesksTopbarComponent extends AsyncHandler implements OnInit {
         desk.staff_name = `[NEW_DESK]`;
         this._desks.addDesks([desk]);
         notifyInfo('New desk added to local data.', undefined, () =>
-            notifyInfo('Make sure to save the new desk before using it.')
+            notifyInfo('Make sure to save the new desk before using it.'),
         );
     }
 
@@ -240,8 +241,8 @@ export class DesksTopbarComponent extends AsyncHandler implements OnInit {
                         new Desk({
                             ..._,
                             id: _.id || `desk-${randomInt(999_999)}`,
-                        })
-                )
+                        }),
+                ),
             );
         } catch (e) {
             console.error(e);

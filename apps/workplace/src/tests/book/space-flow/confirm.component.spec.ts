@@ -7,17 +7,17 @@ import {
 } from '@placeos/events';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { SpaceFlowConfirmComponent } from 'apps/workplace/src/app/book/space-flow/confirm.component';
 import { throwError, timer } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 jest.mock('@placeos/common');
 
 import * as common_mod from '@placeos/common';
-import { DurationPipe } from 'libs/components/src/lib/duration.pipe';
 import { SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
+import { DurationPipe } from 'libs/components/src/lib/duration.pipe';
 
 describe('SpaceFlowConfirmComponent', () => {
     let spectator: SpectatorRouting<SpaceFlowConfirmComponent>;
@@ -61,7 +61,7 @@ describe('SpaceFlowConfirmComponent', () => {
         (service.postForm as any).mockImplementation(async () =>
             timer(1)
                 .pipe(switchMap(() => throwError('Error')))
-                .toPromise()
+                .toPromise(),
         );
         spectator.click('button[confirm]');
         expect(spectator.component.loading).toBeTruthy();

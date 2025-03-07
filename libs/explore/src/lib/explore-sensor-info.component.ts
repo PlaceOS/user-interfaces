@@ -5,6 +5,7 @@ import { MAP_FEATURE_DATA } from '@placeos/components';
 export interface SensorInfoData {
     id: string;
     temp: number;
+    temp_unit: string;
     humidity: number;
 }
 
@@ -20,20 +21,20 @@ let shown_id = '';
             [content]="stats"
             yPosition="center"
             xPosition="center"
-            class="absolute top-1/2 left-1/2 w-7 h-7 min-w-0 -translate-x-1/2 -translate-y-1/2 bg-base-100 shadow pointer-events-auto"
+            class="pointer-events-auto absolute left-1/2 top-1/2 h-7 w-7 min-w-0 -translate-x-1/2 -translate-y-1/2 bg-base-100 shadow"
         >
             <app-icon> visibility </app-icon>
         </button>
         <ng-template #stats>
             <div
-                class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-base-100 rounded-lg border border-base-200 p-2 text-xl"
+                class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-lg border border-base-200 bg-base-100 p-2 text-xl"
             >
                 <div
                     class="flex items-center space-x-2 whitespace-nowrap pr-2"
                     *ngIf="temp"
                 >
                     <app-icon>thermostat</app-icon>
-                    <div class="">{{ temp }}˚F</div>
+                    <div class="">{{ temp }}˚{{ temp_unit }}</div>
                 </div>
                 <div
                     class="flex items-center space-x-2 whitespace-nowrap pr-2"
@@ -44,17 +45,19 @@ let shown_id = '';
                 </div>
                 <div
                     *ngIf="temp > 82"
-                    class="absolute top-0 right-0 rounded-full translate-x-1/2 -translate-y-1/2 bg-base-100 border border-base-200"
+                    class="absolute right-0 top-0 -translate-y-1/2 translate-x-1/2 rounded-full border border-base-200 bg-base-100"
                 >
-                    <app-icon class="text-error text-xl">error</app-icon>
+                    <app-icon class="text-xl text-error">error</app-icon>
                 </div>
             </div>
         </ng-template>
     `,
     styles: [``],
+    standalone: false,
 })
 export class ExploreSensorInfoComponent extends AsyncHandler {
     public readonly temp = this._details.temp || 0;
+    public readonly temp_unit = this._details.temp_unit || 'C';
     public readonly humidity = this._details.humidity || 0;
 
     public get show() {

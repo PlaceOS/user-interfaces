@@ -1,20 +1,20 @@
 import { Injectable } from '@angular/core';
+import { addMinutes, endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { BehaviorSubject } from 'rxjs';
 import { first, shareReplay, tap } from 'rxjs/operators';
-import { addMinutes, endOfDay, getUnixTime, startOfDay } from 'date-fns';
 
 import { Calendar } from './calendar.class';
 
 import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
-import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { CalendarEvent } from 'libs/events/src/lib/event.class';
-import { CalendarAvailabilityQueryParams } from './calendar.interfaces';
+import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import {
     queryCalendarAvailability,
     queryCalendars,
     querySpaceFreeBusy,
 } from './calendar.fn';
+import { CalendarAvailabilityQueryParams } from './calendar.interfaces';
 
 @Injectable({
     providedIn: 'root',
@@ -25,7 +25,7 @@ export class CalendarService extends AsyncHandler {
     /** Observable for the list of calendars */
     public readonly calendar_list = queryCalendars().pipe(
         tap((l) => this._calendars.next(l)),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     /* istanbul ignore next */
@@ -39,7 +39,7 @@ export class CalendarService extends AsyncHandler {
 
     constructor(
         private _org: OrganisationService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         super();
         this._org.initialised
@@ -67,7 +67,7 @@ export class CalendarService extends AsyncHandler {
                 period_end: getUnixTime(endOfDay(date)),
                 calendars,
             },
-            this._org
+            this._org,
         );
     }
 
@@ -76,7 +76,7 @@ export class CalendarService extends AsyncHandler {
         system_ids: string[],
         period_start: number,
         period_end: number,
-        old_booking?: CalendarEvent
+        old_booking?: CalendarEvent,
     ) {
         const result = await queryCalendarAvailability({
             period_start,

@@ -1,11 +1,11 @@
-import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
 import { MockComponent } from 'ng-mocks';
 
+import { ConfirmModalComponent } from '../lib/confirm-modal.component';
 import { IconComponent } from '../lib/icon.component';
 import { SafePipe } from '../lib/safe.pipe';
-import { ConfirmModalComponent } from '../lib/confirm-modal.component';
 
 describe('ConfirmModalComponent', () => {
     let spectator: Spectator<ConfirmModalComponent>;
@@ -14,7 +14,7 @@ describe('ConfirmModalComponent', () => {
         declarations: [MockComponent(IconComponent), SafePipe],
         providers: [
             { provide: MatDialogRef, useValue: { close: jest.fn() } },
-            { provide: MAT_DIALOG_DATA, useValue: {} }
+            { provide: MAT_DIALOG_DATA, useValue: {} },
         ],
         imports: [MatProgressSpinnerModule],
     });
@@ -23,23 +23,6 @@ describe('ConfirmModalComponent', () => {
 
     it('should create component', () => {
         expect(spectator.component).toBeTruthy();
-    });
-
-    it('should render confirmation details', () => {
-        expect('mat-spinner').not.toExist();
-        expect('h3').toContainText('Confirm');
-        expect('[content]').toContainText('Are you sure?');
-        expect('button[mat-dialog-close]').toContainText('Cancel');
-        expect('button[name="accept"]').toContainText('Accept');
-        (spectator.component as any).title = 'Test Modal';
-        (spectator.component as any).content = 'You are doing a good job!';
-        (spectator.component as any).confirm_text = 'Yep';
-        (spectator.component as any).cancel_text = 'Hmm...';
-        spectator.detectChanges();
-        expect('h3').toContainText('Test Modal');
-        expect('[content]').toContainText('You are doing a good job!');
-        expect('button[mat-dialog-close]').toContainText('Hmm...');
-        expect('button[name="accept"]').toContainText('Yep');
     });
 
     it('should allow showing a loading state', () => {

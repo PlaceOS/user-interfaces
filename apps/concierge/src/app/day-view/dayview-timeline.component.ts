@@ -22,33 +22,33 @@ const HOUR_BLOCKS = new Array(24).fill(0).map((_, idx) => {
     selector: 'dayview-timeline',
     template: `
         <div class="absolute inset-0 flex">
-            <div class="time h-full w-24 overflow-hidden bg-base-100 relative">
-                <div header class="relative h-16 z-50">
+            <div class="time relative h-full w-24 overflow-hidden bg-base-100">
+                <div header class="relative z-50 h-16">
                     <div
-                        class="bg-base-100 absolute top-0 left-0 right-0 bottom-8"
+                        class="absolute bottom-8 left-0 right-0 top-0 bg-base-100"
                     ></div>
                 </div>
                 <div
                     *ngFor="let time of blocks"
                     change-transform
-                    class="relative h-16 border-r border-base-300 z-10"
+                    class="relative z-10 h-16 border-r border-base-300"
                     [style.transform]="'translateY(-' + scroll.y + 'px)'"
                 >
                     <div
-                        class="absolute text-center w-full text-xs top-0 transform -translate-y-1/2 opacity-40"
+                        class="absolute top-0 w-full -translate-y-1/2 transform text-center text-xs opacity-40"
                     >
                         {{ time }}
                     </div>
                     <div
-                        class="absolute h-px w-2 top-0 right-0 bg-base-300"
+                        class="absolute right-0 top-0 h-px w-2 bg-base-300"
                     ></div>
                 </div>
-                <div class="absolute h-8 w-px top-8 right-0 bg-base-300"></div>
+                <div class="absolute right-0 top-8 h-8 w-px bg-base-300"></div>
             </div>
-            <div class="h-full flex-1 flex flex-col w-1/2">
+            <div class="flex h-full w-1/2 flex-1 flex-col">
                 <div
                     header
-                    class="flex relative overflow-hidden border-b border-base-300 border-opacity-50 bg-base-100 h-16 w-full"
+                    class="relative flex h-16 w-full overflow-hidden border-b border-base-300 border-opacity-50 bg-base-100"
                 >
                     <div
                         *ngFor="let space of space_list | async"
@@ -58,7 +58,7 @@ const HOUR_BLOCKS = new Array(24).fill(0).map((_, idx) => {
                     >
                         <div
                             bar
-                            class="absolute h-8 w-px bottom-0 -left-px bg-base-300"
+                            class="absolute -left-px bottom-0 h-8 w-px bg-base-300"
                         ></div>
                         <div class="name m-2 text-center">
                             {{ space.display_name || space.name }}
@@ -74,11 +74,11 @@ const HOUR_BLOCKS = new Array(24).fill(0).map((_, idx) => {
                     <dayview-space
                         *ngFor="let space of space_list | async"
                         [space]="space"
-                        class="w-48 min-w-[12rem] h-[96rem] border-r border-base-300"
+                        class="h-[96rem] w-48 min-w-[12rem] border-r border-base-300"
                     ></dayview-space>
                     <div
                         *ngFor="let time of blocks; let i = index"
-                        class="absolute bg-base-300 h-px min-w-full left-0"
+                        class="absolute left-0 h-px min-w-full bg-base-300"
                         [style.width]="
                             (space_list | async)?.length * 12 + 'rem'
                         "
@@ -110,6 +110,7 @@ const HOUR_BLOCKS = new Array(24).fill(0).map((_, idx) => {
             }
         `,
     ],
+    standalone: false,
 })
 export class DayviewTimelineComponent
     extends AsyncHandler
@@ -128,8 +129,8 @@ export class DayviewTimelineComponent
         filter((_) => !!_),
         switchMap(({ id }) =>
             querySystems({ zone_id: id, limit: 1000 }).pipe(
-                catchError(() => of({ data: [] }))
-            )
+                catchError(() => of({ data: [] })),
+            ),
         ),
         map(({ data }) =>
             data.map(
@@ -137,10 +138,10 @@ export class DayviewTimelineComponent
                     new Space({
                         ..._,
                         level: this._org.levelWithID(_.zones),
-                    } as any)
-            )
+                    } as any),
+            ),
         ),
-        shareReplay(1)
+        shareReplay(1),
     );
     /** List of spaces to display */
     public readonly space_list = combineLatest([
@@ -152,14 +153,14 @@ export class DayviewTimelineComponent
                 spaces.filter(
                     (space) =>
                         !zones?.length ||
-                        space.zones.find((z) => zones.includes(z))
-                ) || []
-        )
+                        space.zones.find((z) => zones.includes(z)),
+                ) || [],
+        ),
     );
 
     constructor(
         private _org: OrganisationService,
-        private _state: EventsStateService
+        private _state: EventsStateService,
     ) {
         super();
     }
@@ -178,7 +179,7 @@ export class DayviewTimelineComponent
                 (this.scroll = {
                     x: e.srcElement.scrollLeft,
                     y: e.srcElement.scrollTop,
-                })
+                }),
         );
     }
 }

@@ -1,65 +1,101 @@
 import { Component } from '@angular/core';
-import { AsyncHandler, SettingsService, notifyError } from '@placeos/common';
-import { VisitorsStateService } from './visitors-state.service';
 import { Booking, saveBooking } from '@placeos/bookings';
-import { showMetadata } from '@placeos/ts-client';
+import {
+    AsyncHandler,
+    SettingsService,
+    getTimezoneOffsetString,
+    notifyError,
+} from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
-import { ParkingStateService } from '../parking/parking-state.service';
+import { showMetadata } from '@placeos/ts-client';
 import { User } from '@placeos/users';
+import { ParkingStateService } from '../parking/parking-state.service';
+import { VisitorsStateService } from './visitors-state.service';
 
 @Component({
     selector: 'guest-listings',
     template: `
         <simple-table
-            class="min-w-[64rem] block text-sm z-0"
+            class="z-0 block text-sm"
+            [style.min-width]="64 + extra_width + 'rem'"
             [data]="guests"
             [columns]="[
                 {
                     key: 'state',
-                    name: 'Checked In',
+                    name: 'COMMON.CHECKED_IN' | translate,
                     content: state_template,
                     size: '6.5rem',
-                    sortable: false
+                    show: !hide_field('state'),
+                    sortable: false,
                 },
                 {
                     key: 'date',
-                    name: 'Time',
+                    name: 'FORM.TIME' | translate,
                     content: date_template,
-                    size: '6rem'
+                    show: !hide_field('date'),
+                    size: '6rem',
                 },
                 {
                     key: 'asset_name',
-                    name: 'Visitor',
-                    content: person_template
+                    name: 'RESOURCE.VISITOR' | translate,
+                    content: person_template,
                 },
-                { key: 'user_name', name: 'Host', content: host_template },
+                {
+                    key: 'user_name',
+                    name: 'FORM.HOST' | translate,
+                    content: host_template,
+                    show: !hide_field('user_name'),
+                },
+                {
+                    key: 'checked_in_at',
+                    name: 'COMMON.CHECKED_IN' | translate,
+                    content: time_template,
+                    show: !hide_field('checked_in_at'),
+                    size: '6rem',
+                },
+                {
+                    key: 'checked_out_at',
+                    name: 'COMMON.CHECKED_OUT' | translate,
+                    content: time_template,
+                    show: !hide_field('checked_out_at'),
+                    size: '6rem',
+                },
                 {
                     key: 'status',
-                    name: 'State',
+                    name: 'COMMON.STATE' | translate,
                     content: status_template,
-                    size: '9.5rem'
+                    show: !hide_field('status'),
+                    size: '9.5rem',
                 },
                 {
                     key: 'induction',
-                    name: 'Inducted',
-                    content: boolean_template,
+                    name: 'BOOKINGS.INDUCTED' | translate,
+                    content: induction_template,
                     show: !!inductions_enabled,
-                    size: '5.5rem'
+                    size: '5.5rem',
                 },
                 {
                     key: 'parking_space',
-                    name: 'Parking',
+                    name: 'RESOURCE.PARKING' | translate,
                     content: parking_template,
                     show: !!has_parking,
-                    size: '5.5rem'
+                    size: '5.5rem',
+                },
+                {
+                    key: 'notes',
+                    name: 'FORM.NOTES' | translate,
+                    content: notes_template,
+                    show: !hide_field('notes'),
+                    sortable: false,
+                    size: '4.5rem',
                 },
                 {
                     key: 'actions',
                     name: ' ',
                     content: action_template,
                     size: '3.25rem',
-                    sortable: false
-                }
+                    sortable: false,
+                },
             ]"
             [filter]="search | async"
             [sortable]="true"
@@ -67,9 +103,15 @@ import { User } from '@placeos/users';
         <ng-template #state_template let-row="row">
             <div
                 *ngIf="!row?.checked_in && row.checked_out_at"
-                class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-base-400 text-neutral-content mx-auto"
+                class="mx-auto flex h-8 w-8 items-center justify-center rounded bg-base-400 text-2xl text-neutral-content"
                 [matTooltip]="
-                    'Checked out at ' + (row.checked_out_at | date: time_format)
+                    'APP.CONCIERGE.VISITOR_STATUS_CHECKED_OUT'
+                        | translate
+                            : {
+                                  time:
+                                      (row.checked_out_at * 1000
+                                      | date: time_format : tz),
+                              }
                 "
                 matTooltipPosition="right"
             >
@@ -77,16 +119,26 @@ import { User } from '@placeos/users';
             </div>
             <div
                 *ngIf="!row?.checked_in && !row.checked_out_at"
-                class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-warning text-warning-content mx-auto"
-                matTooltip="Not checked in"
+                class="mx-auto flex h-8 w-8 items-center justify-center rounded bg-warning text-2xl text-warning-content"
+                [matTooltip]="
+                    'APP.CONCIERGE.VISITOR_STATUS_NOT_CHECKED_IN' | translate
+                "
                 matTooltipPosition="right"
             >
                 <app-icon>question_mark</app-icon>
             </div>
             <div
                 *ngIf="row?.checked_in"
-                class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-success text-success-content mx-auto"
-                matTooltip="Checked In"
+                class="mx-auto flex h-8 w-8 items-center justify-center rounded bg-success text-2xl text-success-content"
+                [matTooltip]="
+                    'APP.CONCIERGE.VISITOR_STATUS_CHECKED_IN'
+                        | translate
+                            : {
+                                  time:
+                                      (row.checked_in_at * 1000
+                                      | date: time_format : tz),
+                              }
+                "
                 matTooltipPosition="right"
             >
                 <app-icon>done</app-icon>
@@ -97,7 +149,7 @@ import { User } from '@placeos/users';
                 <div>{{ row.asset_name || row.asset_id }}</div>
                 <div
                     *ngIf="row.asset_name && row.asset_id"
-                    class="opacity-30 text-xs"
+                    class="text-xs opacity-30"
                 >
                     {{ row.asset_id }}
                 </div>
@@ -108,7 +160,7 @@ import { User } from '@placeos/users';
                 <div>{{ row.user_name || row.user_email }}</div>
                 <div
                     *ngIf="row.user_name && row.user_email"
-                    class="opacity-30 text-xs"
+                    class="text-xs opacity-30"
                 >
                     {{ row.user_email }}
                 </div>
@@ -119,37 +171,43 @@ import { User } from '@placeos/users';
                 <button
                     matRipple
                     *ngIf="row.extension_data?.id_data?.url"
-                    class="bg-success rounded-3xl px-4 py-2 text-white"
+                    class="rounded-3xl bg-success px-4 py-2 text-white"
                 >
                     {{
                         row.extension_data?.id_confirmed
                             ? 'Confirmed'
                             : row.extension_data?.id_confirmed === false
-                            ? 'Rejected'
-                            : 'Submitted'
+                              ? 'Rejected'
+                              : 'Submitted'
                     }}
                 </button>
             </div>
             <ng-template #id_confirmation>
                 <div
-                    class="bg-base-100 rounded p-2 flex flex-col space-y-2 my-2 w-[20rem]"
+                    class="my-2 flex w-[20rem] flex-col space-y-2 rounded bg-base-100 p-2"
                 >
                     <img
                         [src]="row.extension_data?.id_data?.url"
-                        class="max-w-[20rem] max-h-[20rem] object-contain"
+                        class="max-h-[20rem] max-w-[20rem] object-contain"
                     />
                     <button
                         matRipple
                         (click)="setExt(row, 'id_confirmed', true)"
                     >
-                        Confirm ID
+                        {{
+                            'APP.CONCIERGE.VISITORS_ACTION_ID_APPROVE'
+                                | translate
+                        }}
                     </button>
                     <button
                         matRipple
                         class="inverse mt-2"
                         (click)="setExt(row, 'id_confirmed', false)"
                     >
-                        Reject ID
+                        {{
+                            'APP.CONCIERGE.VISITORS_ACTION_ID_REJECT'
+                                | translate
+                        }}
                     </button>
                 </div>
             </ng-template>
@@ -157,42 +215,55 @@ import { User } from '@placeos/users';
         <ng-template #parking_template let-row="row">
             <div
                 *ngIf="row.extension_data.parking_booking_id"
-                class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-success text-success-content mx-auto"
+                class="mx-auto flex h-8 w-8 items-center justify-center rounded bg-success text-2xl text-success-content"
             >
                 <app-icon>done</app-icon>
             </div>
         </ng-template>
-        <ng-template #boolean_template let-row="row">
+        <ng-template #induction_template let-data="data">
             <div
-                *ngIf="inducted(row)"
-                class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-success text-success-content mx-auto"
+                class="mx-auto flex h-8 w-8 items-center justify-center rounded text-2xl"
+                [class.bg-success]="data === 'accepted'"
+                [class.text-success-content]="data === 'accepted'"
+                [class.bg-warning]="data !== 'accepted' && data !== 'declined'"
+                [class.text-warning-content]="
+                    data !== 'accepted' && data !== 'declined'
+                "
+                [class.bg-error]="data === 'declined'"
+                [class.text-error-content]="data === 'declined'"
             >
-                <app-icon>done</app-icon>
-            </div>
-            <div
-                *ngIf="inducted(row) === null"
-                class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-warning text-warning-content mx-auto"
-            >
-                <app-icon>question_mark</app-icon>
-            </div>
-            <div
-                *ngIf="inducted(row) === false"
-                class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-error text-error-content mx-auto"
-            >
-                <app-icon>close</app-icon>
+                <app-icon>
+                    {{
+                        data === 'accepted'
+                            ? 'done'
+                            : data === 'declined'
+                              ? 'close'
+                              : 'question_mark'
+                    }}
+                </app-icon>
             </div>
         </ng-template>
         <ng-template #status_template let-row="row">
             <div class="px-4">
                 <button
                     matRipple
-                    class="rounded-3xl bg-warning text-warning-content border-none w-[7.5rem] h-10"
-                    [class.!text-success-content]="row?.status === 'approved'"
-                    [class.!bg-success]="row?.status === 'approved'"
-                    [class.!text-error-content]="row?.status === 'declined'"
-                    [class.!bg-error]="row?.status === 'declined'"
-                    [class.!text-neutral-content]="row?.status === 'ended'"
-                    [class.!bg-neutral]="row?.status === 'ended'"
+                    class="h-10 w-[7.5rem] rounded-3xl border-none"
+                    [class.text-success-content]="row?.status === 'approved'"
+                    [class.bg-success]="row?.status === 'approved'"
+                    [class.text-error-content]="row?.status === 'declined'"
+                    [class.bg-error]="row?.status === 'declined'"
+                    [class.text-neutral-content]="row?.status === 'ended'"
+                    [class.bg-neutral]="row?.status === 'ended'"
+                    [class.text-warning-content]="
+                        row?.status !== 'ended' &&
+                        row?.status !== 'approved' &&
+                        row?.status !== 'declined'
+                    "
+                    [class.bg-warning]="
+                        row?.status !== 'ended' &&
+                        row?.status !== 'approved' &&
+                        row?.status !== 'declined'
+                    "
                     [class.opacity-30]="row?.status === 'ended'"
                     [matMenuTriggerFor]="menu"
                     [disabled]="
@@ -200,16 +271,17 @@ import { User } from '@placeos/users';
                         (row.checked_in && !row.checked_out_at)
                     "
                 >
-                    <div class="flex items-center pl-4 pr-2 space-x-2">
+                    <div class="flex items-center space-x-2 pl-4 pr-2">
                         <div class="flex-1 text-left">
                             {{
-                                row?.status === 'ended'
-                                    ? 'Ended'
+                                (row?.status === 'ended'
+                                    ? 'APP.CONCIERGE.BOOKING_STATUS_ENDED'
                                     : row?.status === 'approved'
-                                    ? 'Approved'
-                                    : row?.status === 'declined'
-                                    ? 'Declined'
-                                    : 'Pending'
+                                      ? 'APP.CONCIERGE.BOOKING_STATUS_APPROVED'
+                                      : row?.status === 'declined'
+                                        ? 'APP.CONCIERGE.BOOKING_STATUS_DECLINED'
+                                        : 'APP.CONCIERGE.BOOKING_STATUS_PENDING'
+                                ) | translate
                             }}
                         </div>
                         <app-icon
@@ -230,7 +302,12 @@ import { User } from '@placeos/users';
                 <button mat-menu-item (click)="approveVisitor(row)">
                     <div class="flex items-center space-x-2">
                         <app-icon class="text-2xl">event_available</app-icon>
-                        <div class="pr-2">Approve Visitor</div>
+                        <div class="pr-2">
+                            {{
+                                'APP.CONCIERGE.VISITORS_ACTION_APPROVE'
+                                    | translate
+                            }}
+                        </div>
                     </div>
                 </button>
                 <button mat-menu-item (click)="declineVisitor(row)">
@@ -238,10 +315,23 @@ import { User } from '@placeos/users';
                         <app-icon class="text-2xl text-error">
                             event_busy
                         </app-icon>
-                        <div class="pr-2">Decline Visitor</div>
+                        <div class="pr-2">
+                            {{
+                                'APP.CONCIERGE.VISITORS_ACTION_DECLINE'
+                                    | translate
+                            }}
+                        </div>
                     </div>
                 </button>
             </mat-menu>
+        </ng-template>
+        <ng-template #time_template let-data="data">
+            <div class="px-4">
+                {{ data * 1000 | date: time_format : tz }}
+                <span class="text-xs opacity-30" *ngIf="timezone">
+                    {{ data * 1000 | date: 'zzzz' : tz }}
+                </span>
+            </div>
         </ng-template>
         <ng-template #date_template let-row="row">
             <div class="px-4">
@@ -251,7 +341,11 @@ import { User } from '@placeos/users';
                             : ((filters | async)?.period > 1
                                   ? 'MMM d, ' + time_format
                                   : time_format)
+                            : tz
                 }}
+                <span class="text-xs opacity-30" *ngIf="timezone">
+                    {{ row.date | date: 'zzzz' : tz }}
+                </span>
             </div>
         </ng-template>
         <ng-template #action_template let-row="row">
@@ -267,7 +361,12 @@ import { User } from '@placeos/users';
                     >
                         <div class="flex items-center space-x-2">
                             <app-icon class="text-2xl">attachment</app-icon>
-                            <div>View Attachments</div>
+                            <div>
+                                {{
+                                    'APP.CONCIERGE.VISITORS_ACTION_ATTACHMENTS'
+                                        | translate
+                                }}
+                            </div>
                         </div>
                     </button>
                     <button
@@ -280,7 +379,27 @@ import { User } from '@placeos/users';
                     >
                         <div class="flex items-center space-x-2">
                             <app-icon class="text-2xl">directions_car</app-icon>
-                            <div>Reserve Parking Space</div>
+                            <div>
+                                {{
+                                    'APP.CONCIERGE.VISITORS_ACTION_PARKING'
+                                        | translate
+                                }}
+                            </div>
+                        </div>
+                    </button>
+                    <button
+                        mat-menu-item
+                        *ngIf="can_email_visitors"
+                        (click)="emailVisitor(row)"
+                    >
+                        <div class="flex items-center space-x-2">
+                            <app-icon class="text-2xl">attach_email</app-icon>
+                            <div>
+                                {{
+                                    'APP.CONCIERGE.VISITORS_ACTION_EMAIL'
+                                        | translate
+                                }}
+                            </div>
                         </div>
                     </button>
                     <mat-menu #menu="matMenu">
@@ -292,7 +411,12 @@ import { User } from '@placeos/users';
                             {{ item.name }}
                         </a>
                     </mat-menu>
-                    <button mat-menu-item (click)="setExt(row, 'remote', true)">
+                    <button
+                        mat-menu-item
+                        (click)="
+                            setExt(row, 'remote', !row.extension_data.remote)
+                        "
+                    >
                         <div class="flex items-center space-x-2">
                             <app-icon class="text-2xl">
                                 {{
@@ -302,13 +426,12 @@ import { User } from '@placeos/users';
                                 }}
                             </app-icon>
                             <div>
-                                Set as
                                 {{
-                                    row.extension_data.remote
-                                        ? 'Onsite'
-                                        : 'Remote'
+                                    (row.extension_data.remote
+                                        ? 'APP.CONCIERGE.VISITORS_ACTION_ONSITE'
+                                        : 'APP.CONCIERGE.VISITORS_ACTION_REMOTE'
+                                    ) | translate
                                 }}
-                                Visitor
                             </div>
                         </div>
                     </button>
@@ -319,18 +442,23 @@ import { User } from '@placeos/users';
                     >
                         <div class="flex items-center space-x-2">
                             <app-icon class="text-2xl">print</app-icon>
-                            <div>Print QR Code</div>
+                            <div>
+                                {{
+                                    'APP.CONCIERGE.VISITORS_ACTION_PRINT_QR'
+                                        | translate
+                                }}
+                            </div>
                         </div>
                     </button>
                     <a mat-menu-item [href]="'mailto:' + row?.asset_id">
                         <div class="flex items-center space-x-2">
                             <app-icon class="text-2xl">email</app-icon>
                             <div>
-                                Email
                                 {{
-                                    row?.user_email === row?.asset_id
-                                        ? 'Host'
-                                        : 'Guest'
+                                    (row?.user_email === row?.asset_id
+                                        ? 'APP.CONCIERGE.VISITORS_ACTION_EMAIL_HOST'
+                                        : 'APP.CONCIERGE.VISITORS_ACTION_EMAIL_GUEST'
+                                    ) | translate
                                 }}
                             </div>
                         </div>
@@ -349,8 +477,12 @@ import { User } from '@placeos/users';
                                 }}
                             </app-icon>
                             <div>
-                                {{ row.checked_in ? 'Checkout' : 'Checkin' }}
-                                Guest
+                                {{
+                                    (row.checked_in
+                                        ? 'APP.CONCIERGE.VISITORS_ACTION_CHECKOUT'
+                                        : 'APP.CONCIERGE.VISITORS_ACTION_CHECKIN'
+                                    ) | translate
+                                }}
                             </div>
                         </div>
                     </button>
@@ -360,7 +492,12 @@ import { User } from '@placeos/users';
                                 <app-icon class="text-2xl">
                                     event_available
                                 </app-icon>
-                                <div>Checkin all for Meeting</div>
+                                <div>
+                                    {{
+                                        'APP.CONCIERGE.VISITORS_ACTION_CHECKIN_ALL'
+                                            | translate
+                                    }}
+                                </div>
                             </div>
                         </button>
                         <button
@@ -371,16 +508,50 @@ import { User } from '@placeos/users';
                                 <app-icon class="text-2xl text-error">
                                     event_busy
                                 </app-icon>
-                                <div>Checkout all for Meeting</div>
+                                <div>
+                                    {{
+                                        'APP.CONCIERGE.VISITORS_ACTION_CHECKOUT_ALL'
+                                            | translate
+                                    }}
+                                </div>
                             </div>
                         </button>
                     </ng-container>
                 </mat-menu>
             </div>
         </ng-template>
+        <ng-template #notes_template let-row="row">
+            <div class="relative mx-auto p-4">
+                <button
+                    [matTooltip]="
+                        'APP.CONCIERGE.VISITORS_NOTES_EDIT' | translate
+                    "
+                    matTooltipPosition="left"
+                    icon
+                    matRipple
+                    (click)="editVisitorNotes(row)"
+                >
+                    <app-icon class="text-2xl">edit_square</app-icon>
+                </button>
+                <div
+                    class="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-info text-info-content"
+                    *ngIf="row.extension_data?.notes?.length"
+                    [matTooltip]="
+                        'APP.CONCIERGE.VISITORS_NOTES_AVAILABLE' | translate
+                    "
+                >
+                    <app-icon
+                        className="material-symbols-rounded"
+                        class="text-sm"
+                    >
+                        info_i
+                    </app-icon>
+                </div>
+            </div>
+        </ng-template>
         <button
-            class="bg-secondary hover:shadow-lg shadow absolute bottom-4 right-4 text-white h-12 w-12 z-20"
-            matTooltip="Download Visitor List"
+            class="absolute bottom-4 right-4 z-20 h-12 w-12 bg-secondary text-white shadow hover:shadow-lg"
+            [matTooltip]="'APP.CONCIERGE.VISITORS_DOWNLOAD' | translate"
             matTooltipPosition="left"
             icon
             matRipple
@@ -389,15 +560,42 @@ import { User } from '@placeos/users';
         >
             <app-icon>download</app-icon>
         </button>
-        <div class="w-full h-8"></div>
+        <div class="h-8 w-full"></div>
     `,
     styles: [``],
+    standalone: false,
 })
 export class GuestListingComponent extends AsyncHandler {
     public readonly guests = this._state.filtered_bookings;
     public readonly search = this._state.search;
     public readonly filters = this._state.filters;
     public inductions_enabled = false;
+
+    public hide_field(id: string) {
+        return (this._settings.get('app.visitors.hide_fields') || []).includes(
+            id,
+        );
+    }
+
+    public get extra_width() {
+        const hide = this._settings.get('app.visitors.hide_fields') || [];
+        return Math.max(0, 3 - hide.length) * 6;
+    }
+
+    public get timezone() {
+        const use_tz = this._settings.get('app.bookings.use_building_timezone');
+        const bld_tz = this._org.building.timezone;
+        return use_tz &&
+            bld_tz !== Intl.DateTimeFormat().resolvedOptions().timeZone
+            ? bld_tz
+            : '';
+    }
+
+    public get tz() {
+        const tz = this.timezone;
+        if (!tz) return '';
+        return getTimezoneOffsetString(tz);
+    }
 
     public readonly downloadVisitorList = () =>
         this._state.downloadVisitorsList();
@@ -409,19 +607,21 @@ export class GuestListingComponent extends AsyncHandler {
     public readonly checkoutAllVisitors = (u) =>
         this._state.setCheckinStateForEvent(u.linked_event?.id, false);
     public readonly setExt = (u, f, v) => this._state.setExt(u, f, v);
+    public readonly editVisitorNotes = (u) => this._state.editVisitorNotes(u);
 
     public readonly checkin = async (item: Booking) => {
         await this._state.setCheckinState(item, true).catch((e) => {
             if (e !== 'User declined') notifyError(e);
-            throw e;
         });
         this._state.poll();
     };
 
     public readonly checkout = async (item: Booking) => {
-        await this._state.setCheckinState(item, false);
+        await this._state.setCheckinState(item, false).catch((_) => null);
         this._state.poll();
     };
+
+    public readonly emailVisitor = (item) => this._state.emailVisitor(item);
 
     public get has_parking() {
         return (
@@ -430,24 +630,28 @@ export class GuestListingComponent extends AsyncHandler {
         );
     }
 
+    public get can_email_visitors() {
+        return !!this._org.module('visitor_access', 'VisitorAccess');
+    }
+
     public get time_format() {
         return this._settings.time_format;
     }
 
     public inducted(item: Booking) {
         if (item.checked_in) return true;
-        return item.process_state.includes('declined')
+        return item.induction == 'declined'
             ? false
-            : item.process_state.includes('inducted') || item.induction
-            ? true
-            : null;
+            : item.induction == 'accepted'
+              ? true
+              : null;
     }
 
     constructor(
         private _state: VisitorsStateService,
         private _parking: ParkingStateService,
         private _settings: SettingsService,
-        private _org: OrganisationService
+        private _org: OrganisationService,
     ) {
         super();
     }
@@ -462,24 +666,34 @@ export class GuestListingComponent extends AsyncHandler {
                     'visitor-kiosk_app';
                 const metadata: any = await showMetadata(
                     bld.id,
-                    visitor_kiosk_app
+                    visitor_kiosk_app,
                 ).toPromise();
+                const org_metadata: any = await showMetadata(
+                    this._org.organisation.id,
+                    visitor_kiosk_app,
+                ).toPromise();
+                const data = {
+                    ...(org_metadata.details || {}),
+                    ...(metadata.details || {}),
+                };
                 this.inductions_enabled =
-                    metadata.details?.induction_enabled &&
-                    metadata.details?.induction_details;
-            })
+                    data?.induction_enabled && data?.induction_details;
+            }),
         );
     }
 
     public async reserveParking(item: Booking) {
+        console.log('Item:', item);
         const id = await this._parking.editReservation(undefined, {
+            parent_id: item.id,
             user: new User({ email: item.asset_id, name: item.asset_name }),
             link_id: item.id,
             date: item.date,
+            external_user: true,
         });
         if (id) {
             await saveBooking(
-                new Booking({ ...item, parking_booking_id: id } as any)
+                new Booking({ ...item, parking_booking_id: id } as any),
             ).toPromise();
             this._state.poll();
         }

@@ -39,10 +39,10 @@ describe('ItemListFieldComponent', () => {
         spectator.detectChanges();
         expect('mat-chip-row').toHaveLength(1);
         expect(
-            spectator.component.value.find((_) => _ === 'Element1')
+            spectator.component.value.find((_) => _ === 'Element1'),
         ).toBeFalsy();
         expect(
-            spectator.component.value.find((_) => _ === 'Element2')
+            spectator.component.value.find((_) => _ === 'Element2'),
         ).toBeTruthy();
     });
 

@@ -5,7 +5,7 @@ import { PanelStateService } from '../panel-state.service';
 @Component({
     selector: 'panel-details',
     template: `
-        <h1 class="text-4xl font-medium mb-8">
+        <h1 class="mb-8 text-4xl font-medium">
             {{
                 (space | async)?.display_name ||
                     (space | async)?.name ||
@@ -75,11 +75,11 @@ import { PanelStateService } from '../panel-state.service';
             }
         `,
     ],
+    standalone: false,
 })
 export class PanelDetailsComponent {
     public readonly space = this._state.space;
     public readonly options = this._state.settings;
-
     public readonly newEvent = () => this._state.newBooking();
 
     public readonly callWaiter = () => this._state.confirmWaiter();

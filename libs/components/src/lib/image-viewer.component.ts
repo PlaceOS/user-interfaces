@@ -6,11 +6,11 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
     template: `
         <div class="h-screen w-screen bg-base-200">
             <img
-                class="object-contain object-center w-full h-full"
+                class="h-full w-full object-contain object-center"
                 [src]="url"
             />
             <button
-                class="absolute top-1 right-1 bg-base-100"
+                class="absolute right-1 top-1 bg-base-100"
                 icon
                 matRipple
                 mat-dialog-close
@@ -20,6 +20,7 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
         </div>
     `,
     styles: [``],
+    standalone: false,
 })
 export class ImageViewerComponent {
     constructor(@Inject(MAT_DIALOG_DATA) public url: string) {}

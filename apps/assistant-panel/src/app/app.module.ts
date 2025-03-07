@@ -1,42 +1,32 @@
-import { BrowserModule } from '@angular/platform-browser';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { APP_INITIALIZER, ErrorHandler, NgModule } from '@angular/core';
 import {
     provideHttpClient,
     withInterceptorsFromDi,
 } from '@angular/common/http';
+import { ErrorHandler, NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { Router, RouterModule } from '@angular/router';
 import { ServiceWorkerModule } from '@angular/service-worker';
 
-import { HttpClient } from '@angular/common/http';
-import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
-import { TranslateHttpLoader } from '@ngx-translate/http-loader';
-
-import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatRippleModule } from '@angular/material/core';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { ComponentsModule } from 'libs/components/src/lib/components.module';
-import { UnauthorisedComponent } from 'libs/components/src/lib/unauthorised.component';
 
 import * as Sentry from '@sentry/angular';
 
-import { routes } from './app.routes';
-import { environment } from '../environments/environment';
 import { AppComponent } from 'libs/components/src/lib/app.component';
+import { environment } from '../environments/environment';
+import { routes } from './app.routes';
 
 import { BootstrapComponent } from './bootstrap.component';
 import { PanelViewComponent } from './panel-view.component';
 
 import { SharedExploreModule } from '@placeos/explore';
 import { PaymentsModule } from '@placeos/payments';
-
-// AoT requires an exported function for factories
-export function HttpLoaderFactory(http: HttpClient) {
-    return new TranslateHttpLoader(http, './assets/locale/', '.json');
-}
 
 const MAT_MODULES: any[] = [
     MatFormFieldModule,
@@ -46,12 +36,7 @@ const MAT_MODULES: any[] = [
 ];
 
 @NgModule({
-    declarations: [
-        AppComponent,
-        UnauthorisedComponent,
-        BootstrapComponent,
-        PanelViewComponent,
-    ],
+    declarations: [AppComponent, BootstrapComponent, PanelViewComponent],
     bootstrap: [AppComponent],
     imports: [
         BrowserModule,
@@ -61,14 +46,6 @@ const MAT_MODULES: any[] = [
         ReactiveFormsModule,
         ComponentsModule,
         ...MAT_MODULES,
-        TranslateModule.forRoot({
-            defaultLanguage: 'en',
-            loader: {
-                provide: TranslateLoader,
-                useFactory: HttpLoaderFactory,
-                deps: [HttpClient],
-            },
-        }),
         ServiceWorkerModule.register('ngsw-worker.js', {
             enabled: environment.production,
         }),
@@ -86,12 +63,7 @@ const MAT_MODULES: any[] = [
             provide: Sentry.TraceService,
             deps: [Router],
         },
-        {
-            provide: APP_INITIALIZER,
-            useFactory: () => () => {},
-            deps: [Sentry.TraceService],
-            multi: true,
-        },
+
         provideHttpClient(withInterceptorsFromDi()),
     ],
 })

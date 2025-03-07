@@ -1,7 +1,11 @@
 import { VanillaQR } from './vanillaqr.min';
 
 /** Generates a DataURL for QR code image */
-export function generateQRCode(code: string, colorLight = '#fff0', colorDark = '#000') {
+export function generateQRCode(
+    code: string,
+    colorLight = '#fff0',
+    colorDark = '#000',
+) {
     const qr = new VanillaQR({
         url: code || 'Hello',
         size: 360,

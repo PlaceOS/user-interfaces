@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { AsyncHandler, Identity, SettingsService } from '@placeos/common';
 import { VirtualKeyboardComponent } from '@placeos/components';
@@ -14,30 +14,42 @@ import { first } from 'rxjs/operators';
 @Component({
     selector: '[bootstrap]',
     template: `
-        <div class="absolute inset-0 bg-base-200 z-0"></div>
+        <div class="absolute inset-0 z-0 bg-base-200"></div>
         <div
             form
-            class="relative my-8 mx-auto bg-base-100 overflow-hidden shadow rounded-lg border border-base-300 w-[28rem] max-w-[calc(100%-2rem)] z-10"
+            class="relative z-10 mx-auto my-8 w-[28rem] max-w-[calc(100%-2rem)] overflow-hidden rounded-lg border border-base-300 bg-base-100 shadow"
         >
             <header
-                class="px-4 py-3 bg-secondary text-secondary-content w-full text-xl font-medium flex items-center justify-between"
+                class="flex w-full items-center justify-between bg-secondary px-4 py-3 text-xl font-medium text-secondary-content"
             >
-                <div>Visitor Kiosk</div>
-                <div class="px-2 py-1 rounded text-sm font-mono">SETUP</div>
+                <div>{{ 'APP.VISITOR_KIOSK.APP' | translate }}</div>
+                <div class="relative overflow-hidden rounded px-2 py-1">
+                    <div
+                        class="absolute inset-0 z-0 bg-base-100 opacity-10"
+                    ></div>
+                    <div class="relative z-10 font-mono text-sm uppercase">
+                        {{ 'COMMON.BOOTSTRAP_SETUP' | translate }}
+                    </div>
+                </div>
             </header>
             <div
-                class="px-4 flex flex-col space-y-2"
+                class="flex flex-col space-y-2 px-4"
                 *ngIf="!loading; else load_state"
             >
                 <ng-container *ngIf="(regions | async)?.length > 1">
-                    <label>Select a region from the dropdown below</label>
+                    <label>
+                        {{ 'APP.VISITOR_KIOSK.SELECT_REGION_MSG' | translate }}
+                    </label>
                     <mat-form-field appearance="outline" class="no-subscript">
                         <mat-select
                             #select
                             building
                             [(ngModel)]="active_region"
                             (ngModelChange)="setRegion($event)"
-                            placeholder="Select region"
+                            [placeholder]="
+                                'APP.VISITOR_KIOSK.SELECT_REGION_MSG'
+                                    | translate
+                            "
                         >
                             <mat-select-trigger>
                                 <div class="flex items-center space-x-4">
@@ -48,7 +60,7 @@ import { first } from 'rxjs/operators';
                                         }}
                                     </div>
                                     <div
-                                        class="text-[0.625rem] font-mono !mr-4 bg-base-200 rounded px-1.5"
+                                        class="!mr-4 rounded bg-base-200 px-1.5 font-mono text-[0.625rem]"
                                     >
                                         {{ active_region?.id }}
                                     </div>
@@ -63,7 +75,7 @@ import { first } from 'rxjs/operators';
                                         {{ option.display_name || option.name }}
                                     </div>
                                     <div
-                                        class="text-[0.625rem] opacity-30 font-mono"
+                                        class="font-mono text-[0.625rem] opacity-30"
                                     >
                                         <span class="hidden">&nbsp;[</span
                                         >{{ option.id
@@ -75,14 +87,20 @@ import { first } from 'rxjs/operators';
                     </mat-form-field>
                 </ng-container>
                 <ng-container *ngIf="(buildings | async)?.length">
-                    <label>Select a building from the dropdown below</label>
+                    <label>
+                        {{
+                            'APP.VISITOR_KIOSK.SELECT_BUILDING_MSG' | translate
+                        }}
+                    </label>
                     <mat-form-field appearance="outline" class="no-subscript">
                         <mat-select
                             #select
                             building
                             [(ngModel)]="active_building"
                             (ngModelChange)="setBuilding($event)"
-                            placeholder="Select building"
+                            [placeholder]="
+                                'APP.VISITOR_KIOSK.SELECT_BUILDING' | translate
+                            "
                         >
                             <mat-select-trigger>
                                 <div class="flex items-center space-x-4">
@@ -93,7 +111,7 @@ import { first } from 'rxjs/operators';
                                         }}
                                     </div>
                                     <div
-                                        class="text-[0.625rem] font-mono !mr-4 bg-base-200 rounded px-1.5"
+                                        class="!mr-4 rounded bg-base-200 px-1.5 font-mono text-[0.625rem]"
                                     >
                                         {{ active_building?.id }}
                                     </div>
@@ -108,7 +126,7 @@ import { first } from 'rxjs/operators';
                                         {{ option.display_name || option.name }}
                                     </div>
                                     <div
-                                        class="text-[0.625rem] opacity-60 font-mono"
+                                        class="font-mono text-[0.625rem] opacity-60"
                                     >
                                         <span class="hidden">&nbsp;[</span
                                         >{{ option.id
@@ -123,13 +141,17 @@ import { first } from 'rxjs/operators';
                     *ngIf="(levels | async)?.length && active_building"
                 >
                     <div></div>
-                    <label>Select a level from the dropdown below</label>
+                    <label>
+                        {{ 'APP.VISITOR_KIOSK.SELECT_LEVEL_MSG' | translate }}
+                    </label>
                     <mat-form-field appearance="outline" class="no-subscript">
                         <mat-select
                             #select
                             level
                             [(ngModel)]="active_level"
-                            placeholder="Select level"
+                            [placeholder]="
+                                'APP.VISITOR_KIOSK.SELECT_LEVEL' | translate
+                            "
                         >
                             <mat-select-trigger>
                                 <div class="flex items-center space-x-4">
@@ -140,7 +162,7 @@ import { first } from 'rxjs/operators';
                                         }}
                                     </div>
                                     <div
-                                        class="text-[0.625rem] font-mono !mr-4 bg-base-200 rounded px-1.5"
+                                        class="!mr-4 rounded bg-base-200 px-1.5 font-mono text-[0.625rem]"
                                     >
                                         {{ active_level?.id }}
                                     </div>
@@ -155,7 +177,7 @@ import { first } from 'rxjs/operators';
                                         {{ option.display_name || option.name }}
                                     </div>
                                     <div
-                                        class="text-[0.625rem] opacity-30 font-mono"
+                                        class="font-mono text-[0.625rem] opacity-30"
                                     >
                                         <span class="hidden">&nbsp;[</span
                                         >{{ option.id
@@ -169,13 +191,20 @@ import { first } from 'rxjs/operators';
                 <ng-container *ngIf="rotations && rotations.length">
                     <div></div>
                     <label>
+                        {{
+                            'APP.VISITOR_KIOSK.SELECT_ORIENTATION_MSG'
+                                | translate
+                        }}
                         Please select an orientation from the dropdown below
                     </label>
                     <mat-form-field appearance="outline" class="no-subscript">
                         <mat-select
                             #select
                             [(value)]="active_rotation"
-                            placeholder="Select orientation"
+                            [placeholder]="
+                                'APP.VISITOR_KIOSK.SELECT_ORIENTATION'
+                                    | translate
+                            "
                         >
                             <mat-option
                                 *ngFor="let option of rotations"
@@ -186,7 +215,7 @@ import { first } from 'rxjs/operators';
                                         {{ option.display_name || option.name }}
                                     </div>
                                     <div
-                                        class="text-[0.625rem] opacity-30 font-mono"
+                                        class="font-mono text-[0.625rem] opacity-30"
                                     >
                                         <span class="hidden">&nbsp;[</span
                                         >{{ option.id
@@ -200,13 +229,18 @@ import { first } from 'rxjs/operators';
                 <ng-container *ngIf="locations && locations.length">
                     <div></div>
                     <label>
+                        {{
+                            'APP.VISITOR_KIOSK.SELECT_LOCATION_MSG' | translate
+                        }}
                         Please select an fixed location from the dropdown below
                     </label>
                     <mat-form-field appearance="outline" class="no-subscript">
                         <mat-select
                             #select
                             [(value)]="active_location"
-                            placeholder="Select location"
+                            [placeholder]="
+                                'APP.VISITOR_KIOSK.SELECT_LOCATION' | translate
+                            "
                         >
                             <mat-option
                                 *ngFor="let option of locations"
@@ -217,7 +251,7 @@ import { first } from 'rxjs/operators';
                                         {{ option.display_name || option.name }}
                                     </div>
                                     <div
-                                        class="text-[0.625rem] opacity-30 font-mono"
+                                        class="font-mono text-[0.625rem] opacity-30"
                                     >
                                         <span class="hidden">&nbsp;[</span
                                         >{{ option.id
@@ -230,7 +264,7 @@ import { first } from 'rxjs/operators';
                 </ng-container>
             </div>
             <div
-                class="w-full px-4 py-2 !mt-4 flex items-center justify-end border-t border-base-300"
+                class="!mt-4 flex w-full items-center justify-end border-t border-base-300 px-4 py-2"
                 *ngIf="!loading"
             >
                 <button
@@ -245,7 +279,7 @@ import { first } from 'rxjs/operators';
             </div>
         </div>
         <ng-template #load_state>
-            <div class="flex flex-col items-center p-8 m-auto">
+            <div class="m-auto flex flex-col items-center p-8">
                 <mat-spinner [diameter]="32"></mat-spinner>
                 <p>{{ loading }}</p>
             </div>
@@ -262,6 +296,7 @@ import { first } from 'rxjs/operators';
             }
         `,
     ],
+    standalone: false,
 })
 export class BootstrapComponent extends AsyncHandler implements OnInit {
     /** Loading state of the bootstrap */
@@ -308,7 +343,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
         private _org: OrganisationService,
         private _settings: SettingsService,
         private _route: ActivatedRoute,
-        private _router: Router
+        private _router: Router,
     ) {
         super();
     }
@@ -335,7 +370,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
                         this.bootstrapKiosk();
                     }
                 }
-            })
+            }),
         );
         this.checkBootstrap();
     }
@@ -369,19 +404,19 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
             if (localStorage) {
                 localStorage.setItem(
                     'KIOSK.building',
-                    this.active_building?.id || this.active_level.parent_id
+                    this.active_building?.id || this.active_level.parent_id,
                 );
                 localStorage.setItem('KIOSK.level', this.active_level.id);
                 if (this.active_rotation) {
                     localStorage.setItem(
                         'KIOSK.orientation',
-                        `${this.active_rotation.id}`
+                        `${this.active_rotation.id}`,
                     );
                 }
                 if (this.active_location) {
                     localStorage.setItem(
                         'KIOSK.location',
-                        `${this.active_location.id}`
+                        `${this.active_location.id}`,
                     );
                 }
             }

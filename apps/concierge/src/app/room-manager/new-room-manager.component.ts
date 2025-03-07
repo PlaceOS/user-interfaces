@@ -4,12 +4,12 @@ import { Component } from '@angular/core';
     selector: '[app-new-room-manager]',
     template: `
         <app-topbar></app-topbar>
-        <div class="flex flex-1 h-px">
+        <div class="flex h-px flex-1">
             <app-sidebar></app-sidebar>
-            <main class="flex flex-col flex-1 w-1/2 h-full">
+            <main class="flex h-full w-1/2 flex-1 flex-col">
                 <room-manager-topbar class="block w-full"></room-manager-topbar>
                 <room-list
-                    class="block w-full relative flex-1 h-1/2"
+                    class="relative block h-1/2 w-full flex-1"
                 ></room-list>
             </main>
         </div>
@@ -37,5 +37,6 @@ import { Component } from '@angular/core';
             }
         `,
     ],
+    standalone: false,
 })
 export class NewRoomManagerComponent {}

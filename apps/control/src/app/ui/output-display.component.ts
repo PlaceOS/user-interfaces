@@ -1,4 +1,4 @@
-import { Component, Input, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -16,17 +16,17 @@ export const ICON_MAP = {
 @Component({
     selector: 'output-display',
     template: `
-        <div class="p-4 m-2 bg-base-100 rounded shadow text-black" *ngIf="item">
+        <div class="m-2 rounded bg-base-100 p-4 text-black shadow" *ngIf="item">
             <div
                 view
                 matRipple
-                class="h-48 border border-base-200 relative rounded mb-2 flex flex-col items-center justify-center space-y-2"
+                class="relative mb-2 flex h-48 flex-col items-center justify-center space-y-2 rounded border border-base-200"
                 [class.opacity-60]="!(input | async)"
                 [class.bg-base-200]="!(input | async)"
                 (click)="switchSource()"
             >
                 <div
-                    class="absolute top-1 left-1 bg-secondary text-white shadow px-2 py-1 rounded"
+                    class="absolute left-1 top-1 rounded bg-secondary px-2 py-1 text-white shadow"
                 >
                     {{ item?.name }}
                 </div>
@@ -42,18 +42,18 @@ export const ICON_MAP = {
                 </p>
                 <p class="text-xs">
                     <span *ngIf="(input | async)?.name" class="opacity-50">
-                        Click to switch input source
+                        {{ 'APP.CONTROL.OUTPUT_SWITCH' | translate }}
                     </span>
                 </p>
             </div>
-            <div class="flex items-center space-x-2 w-full">
+            <div class="flex w-full items-center space-x-2">
                 <button icon matRipple (click)="setMute(!item.mute)">
                     <app-icon>{{
                         item.mute
                             ? 'volume_off'
                             : item.volume > 0
-                            ? 'volume_up'
-                            : 'volume_mute'
+                              ? 'volume_up'
+                              : 'volume_mute'
                     }}</app-icon>
                 </button>
                 <mat-slider class="flex-1"
@@ -72,8 +72,9 @@ export const ICON_MAP = {
             }
         `,
     ],
+    standalone: false,
 })
-export class OutputDisplayComponent extends AsyncHandler {
+export class OutputDisplayComponent extends AsyncHandler implements OnChanges {
     @Input() public item: RoomOutput;
     /** Current volume level for output */
     public volume: number;

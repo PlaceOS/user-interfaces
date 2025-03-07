@@ -6,17 +6,17 @@ import { ApplicationLink } from '@placeos/common';
     template: `
         <div
             status-overlay
-            class="fixed inset-0 flex flex-col bg-secondary items-center justify-center z-50 text-white"
+            class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-secondary text-white"
         >
             <ng-container *ngIf="!loading; else load_state">
                 <div
-                    class="text-4xl rounded-full bg-base-100 mb-4"
+                    class="mb-4 rounded-full bg-base-100 text-4xl"
                     [class.text-success]="!error"
                     [class.text-error]="error"
                 >
                     <app-icon>{{ error ? 'close' : 'done' }}</app-icon>
                 </div>
-                <div class="text-center text-lg mb-4">
+                <div class="mb-4 text-center text-lg">
                     <ng-container *ngIf="!error; else error_msg">
                         <ng-content></ng-content>
                     </ng-container>
@@ -43,12 +43,13 @@ import { ApplicationLink } from '@placeos/common';
         </ng-template>
     `,
     styles: [``],
+    standalone: false,
 })
 export class StatusOverlayComponent {
     /** Whether overlay is loading */
-    @Input() public loading: string = '';
+    @Input() public loading = '';
     /** Details about any errors that have occurred */
-    @Input() public error: string = '';
+    @Input() public error = '';
     /** Links to display on success */
     @Input() public links: ApplicationLink[] = [];
 }

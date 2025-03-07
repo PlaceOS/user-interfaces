@@ -31,22 +31,20 @@ export interface SpaceInfoData {
             [delay]="3000"
             [attr.id]="space?.map_id || space?.id"
             (mouseenter)="updateOffset()"
-            class="h-full w-full pointer-events-auto relative hidden sm:block cursor-pointer"
+            class="pointer-events-auto relative hidden h-full w-full cursor-pointer sm:block"
         ></div>
         <ng-template #space_tooltip>
             <div
                 name="space-info"
                 [id]="space?.id"
-                class="
-                    absolute rounded bg-base-100 top-0 left-0 transform shadow pointer-events-none overflow-hidden
-                "
+                class="pointer-events-none absolute left-0 top-0 transform overflow-hidden rounded bg-base-100 shadow"
                 [class.-translate-x-full]="x_pos === 'end'"
                 [class.-translate-y-full]="y_pos === 'bottom'"
             >
                 <div class="arrow"></div>
                 <div class="relative">
                     <div
-                        class="w-full overflow-hidden flex items-center justify-center relative bg-opacity-20"
+                        class="relative flex w-full items-center justify-center overflow-hidden bg-opacity-20"
                         [class.bg-neutral]="space.images[0]"
                         [class.h-32]="space.images[0]"
                         [class.h-8]="!space.images[0]"
@@ -55,39 +53,43 @@ export interface SpaceInfoData {
                             auth
                             *ngIf="space.images[0]"
                             [source]="space.images[0]"
-                            class="object-cover min-h-full min-w-full"
+                            class="min-h-full min-w-full object-cover"
                         />
                         <div
-                            class="absolute inset-0 bg-neutral"
+                            class="absolute inset-0 bg-neutral opacity-30"
                             *ngIf="space.images[0]"
                         ></div>
                     </div>
-                    <div class="absolute top-2 left-2 flex flex-wrap text-sm ">
+                    <div class="absolute left-2 top-2 flex flex-wrap text-sm">
                         <div
                             status
                             [class]="
-                                'capitalize rounded p-1 px-2 text-light border border-white shadow ' +
+                                'text-light rounded border border-white p-1 px-2 capitalize shadow ' +
                                 status
                             "
                         >
-                            { status, select, free { Free } busy { Busy }
-                            pending { Pending } reserved { Reserved } other {
-                            Not Bookable } }
+                            {{
+                                (status === 'not-bookable'
+                                    ? 'COMMON.STATUS_NOT_BOOKABLE'
+                                    : 'COMMON.STATUS_' + (status | uppercase)
+                                ) | translate
+                            }}
                         </div>
                         <div available-until *ngIf="status !== 'not-bookable'">
                             {{ available_until }}
                         </div>
                     </div>
-                    <div class="flex flex-col py-4 px-2">
-                        <h4 class="font-medium text-xl mb-2 px-2">
+                    <div class="flex flex-col px-2 py-4">
+                        <h4 class="mb-2 px-2 text-xl font-medium">
                             {{ space.display_name || space.name }}
                         </h4>
                         <div
                             capacity
-                            class="text-base px-2 mb-2"
+                            class="mb-2 px-2 text-base"
                             *ngIf="space.capacity >= 0"
                         >
-                            <span i18n>Capacity: </span>{{ space.capacity }}
+                            <span>{{ 'COMMON.CAPACITY' | translate }}: </span
+                            >{{ space.capacity }}
                             {{ space.capacity === 1 ? 'person' : 'people' }}
                         </div>
                         <ul
@@ -95,7 +97,7 @@ export interface SpaceInfoData {
                             *ngIf="space.features?.length > 0 && show_features"
                         >
                             <li
-                                class="text-xs px-2 py-1 m-1 rounded-2xl bg-base-200 font-medium"
+                                class="m-1 rounded-2xl bg-base-200 px-2 py-1 text-xs font-medium"
                                 *ngFor="let feature of space.features"
                             >
                                 {{ feature }}
@@ -130,6 +132,7 @@ export interface SpaceInfoData {
             }
         `,
     ],
+    standalone: false,
 })
 export class ExploreSpaceInfoComponent implements OnInit {
     /** Space to display details for */
@@ -150,7 +153,7 @@ export class ExploreSpaceInfoComponent implements OnInit {
     constructor(
         @Inject(MAP_FEATURE_DATA) private _details: SpaceInfoData,
         private _settings: SettingsService,
-        private _element: ElementRef<HTMLElement>
+        private _element: ElementRef<HTMLElement>,
     ) {}
 
     public ngOnInit() {

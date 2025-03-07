@@ -1,13 +1,14 @@
+import { Clipboard } from '@angular/cdk/clipboard';
 import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { notifySuccess } from '@placeos/common';
+import { openConfirmModal } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
-import { BehaviorSubject, combineLatest, of } from 'rxjs';
+import { BehaviorSubject, combineLatest } from 'rxjs';
 import { filter, map, shareReplay, switchMap, take } from 'rxjs/operators';
 import { EmergencyContactModalComponent } from './emergency-contact-modal.component';
-import { notify, notifySuccess, openConfirmModal } from '@placeos/common';
 import { RoleManagementModalComponent } from './role-management-modal.component';
-import { Clipboard } from '@angular/cdk/clipboard';
 
 export interface EmergencyContact {
     id: string;
@@ -27,12 +28,14 @@ export interface EmergencyContactData {
     selector: '[app-emergency-contacts]',
     template: `
         <app-topbar></app-topbar>
-        <div class="flex flex-1 h-px">
+        <div class="flex h-px flex-1">
             <app-sidebar></app-sidebar>
-            <main class="flex flex-col flex-1 w-1/2 h-full">
-                <section topbar class="px-8 py-4 flex flex-col">
+            <main class="flex h-full w-1/2 flex-1 flex-col">
+                <section topbar class="flex flex-col px-8 py-4">
                     <div class="flex items-center justify-between">
-                        <h2 class="text-2xl font-medium">Emergency Contacts</h2>
+                        <h2 class="text-2xl font-medium">
+                            {{ 'APP.CONCIERGE.CONTACTS_HEADER' | translate }}
+                        </h2>
                         <div class="flex items-center space-x-2">
                             <mat-form-field
                                 class="no-subscript"
@@ -44,7 +47,10 @@ export interface EmergencyContactData {
                                 <input
                                     matInput
                                     [(ngModel)]="search"
-                                    placeholder="Filter contacts..."
+                                    [placeholder]="
+                                        'APP.CONCIERGE.CONTACTS_FILTER'
+                                            | translate
+                                    "
                                 />
                             </mat-form-field>
                             <button
@@ -54,11 +60,15 @@ export interface EmergencyContactData {
                                 (click)="editContact()"
                             >
                                 <app-icon class="text-2xl">add</app-icon>
-                                <div class="pr-2">Add Contact</div>
+                                <div class="pr-2">
+                                    {{
+                                        'APP.CONCIERGE.CONTACTS_ADD' | translate
+                                    }}
+                                </div>
                             </button>
                         </div>
                     </div>
-                    <div class="flex items-center justify-between py-2 mt-2">
+                    <div class="mt-2 flex items-center justify-between py-2">
                         <mat-form-field
                             class="no-subscript"
                             appearance="outline"
@@ -66,9 +76,15 @@ export interface EmergencyContactData {
                             <mat-select
                                 [ngModel]="role_filter.getValue()"
                                 (ngModelChange)="role_filter.next($event)"
-                                placeholder="All Roles"
+                                [placeholder]="
+                                    'APP.CONCIERGE.CONTACTS_ROLES_ALL'
+                                        | translate
+                                "
                             >
-                                <mat-option value="">All Roles</mat-option>
+                                <mat-option value="">{{
+                                    'APP.CONCIERGE.CONTACTS_ROLES_ALL'
+                                        | translate
+                                }}</mat-option>
                                 <mat-option
                                     *ngFor="let role of (roles | async) || []"
                                     [value]="role"
@@ -81,8 +97,11 @@ export interface EmergencyContactData {
                             <button
                                 icon
                                 matRipple
-                                class="h-12 w-12 bg-secondary text-secondary-content rounded"
-                                matTooltip="Manage Roles"
+                                class="h-12 w-12 rounded bg-secondary text-secondary-content"
+                                [matTooltip]="
+                                    'APP.CONCIERGE.CONTACTS_ROLES_MANAGE'
+                                        | translate
+                                "
                                 (click)="manageRoles()"
                             >
                                 <app-icon>list_alt</app-icon>
@@ -90,53 +109,55 @@ export interface EmergencyContactData {
                         </div>
                     </div>
                 </section>
-                <section class="w-full h-1/2 flex-1 overflow-auto px-8">
+                <section class="h-1/2 w-full flex-1 overflow-auto px-8">
                     <simple-table
-                        class="min-w-[52rem] block text-sm"
+                        class="block min-w-[52rem] text-sm"
                         [data]="filtered_contacts"
                         [filter]="search"
                         [empty_message]="
-                            search
-                                ? 'No matching contacts'
-                                : 'No emergency contacts for this building'
+                            (search
+                                ? 'APP.CONCIERGE.CONTACTS_SEARCH_EMPTY'
+                                : 'APP.CONCIERGE.CONTACTS_EMPTY'
+                            ) | translate
                         "
                         [columns]="[
                             {
                                 key: 'name',
-                                name: 'Person',
-                                content: person_template
+                                name: 'COMMON.PERSON' | translate,
+                                content: person_template,
                             },
                             {
                                 key: 'roles',
-                                name: 'Roles',
+                                name:
+                                    'APP.CONCIERGE.CONTACTS_ROLES' | translate,
                                 content: roles_template,
-                                sortable: false
+                                sortable: false,
                             },
                             {
                                 key: 'zone',
-                                name: 'Zone',
+                                name: 'COMMON.ZONE' | translate,
                                 content: zone_template,
                                 size: '8rem',
-                                sortable: false
+                                sortable: false,
                             },
                             {
                                 key: 'actions',
                                 name: ' ',
                                 content: actions_template,
                                 size: '6rem',
-                                sortable: false
-                            }
+                                sortable: false,
+                            },
                         ]"
                         [sortable]="true"
                     ></simple-table>
-                    <div class="w-full h-12"></div>
+                    <div class="h-12 w-full"></div>
                     <ng-template #person_template let-row="row">
                         <button
                             class="px-4 py-2 text-left leading-tight"
                             (click)="copyToClipboard(row.email)"
                         >
                             <div class="">{{ row.name }}</div>
-                            <div class="text-[0.625rem] opacity-30 font-mono">
+                            <div class="font-mono text-[0.625rem] opacity-30">
                                 {{ row.email }}
                             </div>
                         </button>
@@ -144,7 +165,7 @@ export interface EmergencyContactData {
                     <ng-template #roles_template let-data="data">
                         <div class="flex flex-wrap p-2">
                             <span
-                                class="m-1 py-1 px-2 rounded-2xl text-xs font-mono bg-info text-info-content"
+                                class="m-1 rounded-2xl bg-info px-2 py-1 font-mono text-xs text-info-content"
                                 *ngFor="let role of data"
                             >
                                 {{ role }}
@@ -158,12 +179,14 @@ export interface EmergencyContactData {
                     </ng-template>
                     <ng-template #actions_template let-row="row">
                         <div
-                            class="flex items-center justify-end w-full space-x-2 p-2"
+                            class="flex w-full items-center justify-end space-x-2 p-2"
                         >
                             <button
                                 icon
                                 matRipple
-                                matTooltip="Edit Emergency Contact"
+                                [matTooltip]="
+                                    'APP.CONCIERGE.CONTACTS_EDIT' | translate
+                                "
                                 (click)="editContact(row)"
                             >
                                 <app-icon>edit</app-icon>
@@ -173,7 +196,9 @@ export interface EmergencyContactData {
                                 matRipple
                                 class="text-error"
                                 (click)="removeContact(row)"
-                                matTooltip="Remove Emergency Contact"
+                                [matTooltip]="
+                                    'APP.CONCIERGE.CONTACTS_REMOVE' | translate
+                                "
                             >
                                 <app-icon>delete</app-icon>
                             </button>
@@ -194,6 +219,7 @@ export interface EmergencyContactData {
             }
         `,
     ],
+    standalone: false,
 })
 export class EmergencyContactsComponent {
     private _change = new BehaviorSubject<number>(0);
@@ -207,7 +233,7 @@ export class EmergencyContactsComponent {
         filter(([bld]) => !!bld),
         switchMap(([bld]) => showMetadata(bld.id, 'emergency_contacts')),
         map(({ details }) => (details as any) || { roles: [], contacts: [] }),
-        shareReplay(1)
+        shareReplay(1),
     );
     public readonly roles = this.data.pipe(map((_) => _?.roles || []));
     public readonly contacts = this.data.pipe(map((_) => _?.contacts || []));
@@ -216,8 +242,8 @@ export class EmergencyContactsComponent {
         this.role_filter,
     ]).pipe(
         map(([list, role]) =>
-            list.filter((_) => !role || _.roles.includes(role))
-        )
+            list.filter((_) => !role || _.roles.includes(role)),
+        ),
     );
 
     public readonly copyToClipboard = (id: string) => {
@@ -228,7 +254,7 @@ export class EmergencyContactsComponent {
     constructor(
         private _org: OrganisationService,
         private _dialog: MatDialog,
-        private _clipboard: Clipboard
+        private _clipboard: Clipboard,
     ) {}
 
     public ngOnInit() {}
@@ -252,13 +278,13 @@ export class EmergencyContactsComponent {
                 content: `Are you sure you want to remove ${contact.name} from the emergency contacts?`,
                 icon: { content: 'delete' },
             },
-            this._dialog
+            this._dialog,
         );
         if (result.reason !== 'done') return;
         result.loading('Removing contact...');
         const data: any = await this.data.pipe(take(1)).toPromise();
         const new_contacts = (data?.contacts || []).filter(
-            (_) => _.id !== contact.id
+            (_) => _.id !== contact.id,
         );
         await updateMetadata(this._org.building.id, {
             name: 'emergency_contacts',

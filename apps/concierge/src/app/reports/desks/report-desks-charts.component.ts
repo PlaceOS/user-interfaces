@@ -1,10 +1,16 @@
-import { Component, Input, SimpleChanges } from '@angular/core';
+import {
+    Component,
+    Input,
+    OnChanges,
+    OnInit,
+    SimpleChanges,
+} from '@angular/core';
 import { ReportsStateService } from '../reports-state.service';
 
-import { LineChart, PieChart } from 'chartist';
-import { AsyncHandler } from '@placeos/common';
-import { format } from 'date-fns';
+import { AsyncHandler, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
+import { LineChart, PieChart } from 'chartist';
+import { format } from 'date-fns';
 import { combineLatest } from 'rxjs';
 import { take } from 'rxjs/operators';
 
@@ -12,30 +18,30 @@ import { take } from 'rxjs/operators';
     selector: 'report-desks-charts',
     template: `
         <div
-            class="flex items-center space-x-4 w-full px-4"
+            class="flex w-full items-center space-x-4 px-4"
             [class.is-print]="print"
             (window:resize)="updateCharts()"
         >
             <div
-                class="bg-base-100 border border-base-200 rounded flex-1 h-[18rem]"
+                class="h-[18rem] flex-1 rounded border border-base-200 bg-base-100"
             >
                 <div class="border-b border-base-200 p-4 text-xl font-bold">
-                    Daily Utilisation
+                    {{ 'APP.CONCIERGE.REPORTS_DAILY_HEADER' | translate }}
                 </div>
                 <div
                     id="daily-chart"
-                    class="ct-chart ct-octave max-w-full w-full h-56 mx-auto"
+                    class="ct-chart ct-octave mx-auto h-56 w-full max-w-full"
                 ></div>
             </div>
             <div
-                class="bg-base-100 border border-base-200 rounded flex-1 h-[18rem]"
+                class="h-[18rem] flex-1 rounded border border-base-200 bg-base-100"
             >
                 <div class="border-b border-base-200 p-4 text-xl font-bold">
-                    Level Utilisation
+                    {{ 'APP.CONCIERGE.REPORTS_LEVEL_UTIL_HEADER' | translate }}
                 </div>
                 <div
                     id="level-chart"
-                    class="ct-chart ct-octave max-w-full w-[24rem] h-56 mx-auto"
+                    class="ct-chart ct-octave mx-auto h-56 w-[24rem] max-w-full"
                 ></div>
             </div>
         </div>
@@ -51,9 +57,13 @@ import { take } from 'rxjs/operators';
             }
         `,
     ],
+    standalone: false,
 })
-export class ReportDesksChartsComponent extends AsyncHandler {
-    @Input() public print: boolean = false;
+export class ReportDesksChartsComponent
+    extends AsyncHandler
+    implements OnInit, OnChanges
+{
+    @Input() public print = false;
     public readonly day_list = this._state.day_list;
     public readonly stats = combineLatest([
         this._state.options,
@@ -65,7 +75,8 @@ export class ReportDesksChartsComponent extends AsyncHandler {
 
     constructor(
         private _state: ReportsStateService,
-        private _org: OrganisationService
+        private _org: OrganisationService,
+        private _settings: SettingsService,
     ) {
         super();
     }
@@ -74,8 +85,8 @@ export class ReportDesksChartsComponent extends AsyncHandler {
         this.subscription(
             'charts',
             combineLatest([this.day_list, this.stats]).subscribe(() =>
-                this.updateCharts()
-            )
+                this.updateCharts(),
+            ),
         );
     }
 
@@ -101,10 +112,10 @@ export class ReportDesksChartsComponent extends AsyncHandler {
                 this.timeout(
                     'update_charts',
                     () => this.updateDailyChart(day_list),
-                    500
+                    500,
                 );
             },
-            50
+            50,
         );
     }
 
@@ -117,11 +128,12 @@ export class ReportDesksChartsComponent extends AsyncHandler {
     }
 
     public updateLevelChart(mapping, count) {
-        let { zones } = mapping || {};
-        if (zones.includes('All'))
-            zones = this._org.levels
-                .filter((_) => _.parent_id === this._org.building.id)
-                .map((_) => _.id);
+        let { zones } = mapping || { zones: [] };
+        if (!zones.length) {
+            zones = this._settings.get('app.use_region')
+                ? this._org.levelsForRegion().map((_) => _.id)
+                : this._org.levelsForBuilding().map((_) => _.id);
+        }
         const zone_list = (zones || []).filter((_) => (count[_] || 0) > 0);
         const data = {
             labels: zone_list.map((_) => {

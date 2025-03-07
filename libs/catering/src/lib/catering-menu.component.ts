@@ -1,17 +1,17 @@
 import { Component } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
-import { map } from 'rxjs/operators';
 
-import { CateringStateService } from './catering-state.service';
-import { CateringItem } from './catering-item.class';
 import { unique } from '@placeos/common';
+import { combineLatest } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { CateringItem } from './catering-item.class';
 import { CateringOrdersService } from './catering-orders.service';
+import { CateringStateService } from './catering-state.service';
 
 @Component({
     selector: 'catering-menu',
     template: `
         <simple-table
-            class="w-full min-w-[32rem] block text-sm"
+            class="block w-full min-w-[32rem] text-sm"
             [data]="menu"
             [columns]="[
                 {
@@ -19,34 +19,39 @@ import { CateringOrdersService } from './catering-orders.service';
                     name: ' ',
                     content: active_template,
                     size: '3.5rem',
-                    sortable: false
+                    sortable: false,
                 },
-                { key: 'name', name: 'Name' },
-                { key: 'category', name: 'Category' },
+                { key: 'name', name: 'FORM.NAME' | translate },
+                { key: 'category', name: 'COMMON.CATEGORY' | translate },
+                {
+                    key: 'caterer',
+                    name: 'CATERING.CATERER' | translate,
+                    show: !filters?.caterer && caterers.length > 1,
+                },
                 {
                     key: 'unit_price',
-                    name: 'Price',
+                    name: 'CATERING.ITEM_PRICE' | translate,
                     content: price_template,
-                    size: '6rem'
+                    size: '6rem',
                 },
                 {
                     key: 'actions',
                     name: ' ',
                     content: actions_template,
                     size: '6.5rem',
-                    sortable: false
-                }
+                    sortable: false,
+                },
             ]"
             [filter]="filters?.search"
             [show_children]="show_children"
             [child_template]="child_template"
             [sortable]="true"
-            empty_message="No Items in Menu"
+            [empty_message]="'CATERING.ITEM_LIST_EMPTY' | translate"
         ></simple-table>
         <ng-template #active_template let-row="row">
             <mat-checkbox
                 class="mx-auto"
-                matTooltip="Allow Ordering Item for this zone"
+                [matTooltip]="'CATERING.ORDER_ALLOW' | translate"
                 matTooltipPosition="right"
                 [ngModel]="isEnabled(row)"
                 (ngModelChange)="setEnabled(row, $event)"
@@ -54,13 +59,13 @@ import { CateringOrdersService } from './catering-orders.service';
         </ng-template>
         <ng-template #price_template let-data="data">
             <div
-                class="px-2 py-1 font-mono text-xs flex items-center mx-auto bg-secondary text-secondary-content rounded"
+                class="mx-auto flex items-center rounded bg-secondary px-2 py-1 font-mono text-xs text-secondary-content"
             >
                 {{ data / 100 | currency: (symbol | async) }}
             </div>
         </ng-template>
         <ng-template #actions_template let-row="row">
-            <div class="p-2 flex items-center mx-auto space-x-2">
+            <div class="mx-auto flex items-center space-x-2 p-2">
                 <button
                     icon
                     matRipple
@@ -78,7 +83,9 @@ import { CateringOrdersService } from './catering-orders.service';
                     >
                         <div class="flex items-center space-x-2 pr-2">
                             <app-icon>add</app-icon>
-                            <div>Add Option</div>
+                            <div>
+                                {{ 'CATERING.ITEM_OPTION_ADD' | translate }}
+                            </div>
                         </div>
                     </button>
                     <button
@@ -88,7 +95,7 @@ import { CateringOrdersService } from './catering-orders.service';
                     >
                         <div class="flex items-center space-x-2 pr-2">
                             <app-icon>edit</app-icon>
-                            <div>Edit Item</div>
+                            <div>{{ 'CATERING.ITEM_EDIT' | translate }}</div>
                         </div>
                     </button>
                     <button
@@ -98,7 +105,7 @@ import { CateringOrdersService } from './catering-orders.service';
                     >
                         <div class="flex items-center space-x-2 pr-2">
                             <app-icon class="text-error">delete</app-icon>
-                            <div>Remove Item</div>
+                            <div>{{ 'CATERING.ITEM_REMOVE' | translate }}</div>
                         </div>
                     </button>
                 </mat-menu>
@@ -108,8 +115,10 @@ import { CateringOrdersService } from './catering-orders.service';
                     [disabled]="!row.options?.length"
                     [matTooltip]="
                         row.options?.length
-                            ? (show_children[row.id] ? 'Hide' : 'Show') +
-                              ' Menu Item Options'
+                            ? ((show_children[row.id]
+                                  ? 'CATERING.ITEM_OPTION_HIDE'
+                                  : 'CATERING.ITEM_OPTION_SHOW'
+                              ) | translate)
                             : ''
                     "
                     (click)="show_children[row.id] = !show_children[row.id]"
@@ -126,7 +135,7 @@ import { CateringOrdersService } from './catering-orders.service';
         </ng-template>
         <ng-template #child_template let-row="row">
             <div
-                class="flex p-2 items-center border-b border-solid border-base-200 relative space-x-2"
+                class="relative flex items-center space-x-2 border-b border-solid border-base-200 p-2"
                 *ngFor="let option of row.options"
             >
                 <div
@@ -141,7 +150,7 @@ import { CateringOrdersService } from './catering-orders.service';
                 <button
                     icon
                     matRipple
-                    matTooltip="Edit Menu Item Option"
+                    [matTooltip]="'CATERING.ITEM_OPTION_EDIT' | translate"
                     (click)="editOption(row, option)"
                     *ngIf="can_edit"
                 >
@@ -151,7 +160,7 @@ import { CateringOrdersService } from './catering-orders.service';
                     icon
                     matRipple
                     class="!mr-1"
-                    matTooltip="Remove Menu Item Option"
+                    [matTooltip]="'CATERING.ITEM_OPTION_REMOVE' | translate"
                     (click)="removeOption(row, option)"
                     *ngIf="can_edit"
                 >
@@ -170,11 +179,24 @@ import { CateringOrdersService } from './catering-orders.service';
             }
         `,
     ],
+    standalone: false,
 })
 export class CateringMenuComponent {
     public show_children: Record<string, boolean> = {};
     /** Observable for the currently active menu */
-    public readonly menu = this._catering.menu;
+    public readonly menu = combineLatest([
+        this._catering.menu,
+        this._orders.order_filters,
+    ]).pipe(
+        map(([menu, filters]) =>
+            menu.filter(
+                (item) =>
+                    !filters?.caterer ||
+                    (filters.caterer === '<empty>' && !item.caterer) ||
+                    item.caterer === filters.caterer,
+            ),
+        ),
+    );
 
     public readonly addOption = (item) => this._catering.addOption(item);
 
@@ -195,13 +217,18 @@ export class CateringMenuComponent {
     public get can_edit() {
         return this._catering.is_editable;
     }
+
     public get categories() {
         return this._catering.categories;
     }
 
+    public get caterers() {
+        return this._catering.caterer_list;
+    }
+
     constructor(
         private _catering: CateringStateService,
-        private _orders: CateringOrdersService
+        private _orders: CateringOrdersService,
     ) {}
 
     public isEnabled(item: CateringItem) {
@@ -213,7 +240,7 @@ export class CateringMenuComponent {
         if (!state) list = unique([...list, this._catering.zone]);
         else list = list.filter((_) => _ !== this._catering.zone);
         this._catering.updateItem(
-            new CateringItem({ ...item, hide_for_zones: list })
+            new CateringItem({ ...item, hide_for_zones: list }),
         );
     }
 }

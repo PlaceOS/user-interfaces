@@ -6,107 +6,88 @@ import {
     ShortURL,
     getInvalidFields,
     notifyError,
-    randomString,
     saveShortURL,
 } from '@placeos/common';
-import { OrganisationService, Building } from '@placeos/organisation';
-import { showMetadata, updateMetadata } from '@placeos/ts-client';
-import { addYears, startOfDay } from 'date-fns';
-import { take } from 'rxjs/operators';
 
 @Component({
     selector: 'short-url-modal',
     template: `
-        <header>
-            <h2>{{ form.value.id ? 'Edit' : 'Add' }} Short URL</h2>
-            <button btn icon mat-dialog-close *ngIf="!loading">
-                <app-icon>close</app-icon>
-            </button>
-        </header>
-        <main
-            class="max-h-[65vh] overflow-y-auto overflow-x-hidden p-4"
-            *ngIf="!loading; else load_state"
+        <fullscreen-modal-shell
+            [heading]="
+                (form.value.id
+                    ? 'APP.CONCIERGE.URLS_EDIT'
+                    : 'APP.CONCIERGE.URLS_ADD'
+                ) | translate
+            "
+            (confirm)="save()"
+            [loading]="loading ? ('APP.CONCIERGE.URLS_SAVING' | translate) : ''"
         >
-            <form
-                system
-                class="flex flex-col w-[28rem] max-w-[calc(100vw-4rem)]"
-                *ngIf="form"
-                [formGroup]="form"
-            >
+            <form [formGroup]="form">
                 <div class="flex flex-col" *ngIf="form.controls.name">
-                    <label for="name" i18n="@@nameLabel">
-                        Name<span>*</span>:
+                    <label for="name">
+                        {{ 'FORM.NAME' | translate }}<span>*</span>
                     </label>
                     <mat-form-field appearance="outline">
                         <input
                             matInput
                             name="name"
                             placeholder="Name"
-                            i18n-placeholder="@@namePlaceholder"
                             formControlName="name"
                         />
                     </mat-form-field>
                 </div>
-                <div
-                    class="flex flex-col pb-4"
-                    *ngIf="form.controls.description"
-                >
-                    <label for="description" i18n="@@nameLabel">
-                        Description:
+                <div class="flex flex-col" *ngIf="form.controls.uri">
+                    <label for="uri">
+                        {{ 'APP.CONCIERGE.URLS_URI' | translate }}<span>*</span>
+                    </label>
+                    <mat-form-field appearance="outline">
+                        <input
+                            matInput
+                            name="uri"
+                            [placeholder]="'APP.CONCIERGE.URLS_URI' | translate"
+                            formControlName="uri"
+                        />
+                    </mat-form-field>
+                </div>
+                <div class="flex flex-col" *ngIf="form.controls.description">
+                    <label for="description">
+                        {{ 'COMMON.DESCRIPTION' | translate }}
                     </label>
                     <rich-text-input
                         name="description"
                         formControlName="description"
                     ></rich-text-input>
                 </div>
-                <div class="flex flex-col" *ngIf="form.controls.uri">
-                    <label for="uri" i18n="@@nameLabel">
-                        URI<span>*</span>:
-                    </label>
-                    <mat-form-field appearance="outline">
-                        <input
-                            matInput
-                            name="uri"
-                            placeholder="URI"
-                            i18n-placeholder="@@uriPlaceholder"
-                            formControlName="uri"
-                        />
-                    </mat-form-field>
-                </div>
-                <div class="flex flex-col pb-4" *ngIf="form.controls.enabled">
-                    <mat-checkbox formControlName="enabled">
-                        Enabled
-                    </mat-checkbox>
+                <div
+                    class="item-center flex space-x-4 pb-4"
+                    *ngIf="form.controls.enabled"
+                >
+                    <settings-toggle
+                        class="flex-1"
+                        [name]="'APP.CONCIERGE.URLS_ENABLED' | translate"
+                        formControlName="enabled"
+                    >
+                    </settings-toggle>
+                    <div class="flex-1"></div>
                 </div>
                 <!-- <div class="flex flex-col" *ngIf="form.controls.valid_from">
-                    <label for="uri" i18n="@@nameLabel"> Valid From: </label>
+                    <label for="uri" >{{ 'APP.CONCIERGE.VALID_FROM' | translate }}</label>
                     <a-date-field formControlName="valid_from"></a-date-field>
                 </div>
                 <div class="flex flex-col" *ngIf="form.controls.valid_to">
-                    <label for="uri" i18n="@@nameLabel">
-                        Valid Until<span>*</span>:
+                    <label for="uri" >
+                        {{'APP.CONCIERGE.VALID_UNTIL' | translate}}<span>*</span>
                     </label>
                     <a-date-field
-                        formControlName="valid_from"
+                        formControlName="valid_until"
                         [from]="form.value.valid_from"
                     ></a-date-field>
                 </div> -->
             </form>
-        </main>
-        <footer
-            class="p-2 flex justify-end border-t border-base-200"
-            *ngIf="!loading"
-        >
-            <button btn class="w-32" (click)="save()">Save</button>
-        </footer>
-        <ng-template #load_state>
-            <div class="flex flex-col items-center justify-center w-64 h-64">
-                <mat-spinner diameter="32"></mat-spinner>
-                <p class="mt-4">Saving Short URL...</p>
-            </div>
-        </ng-template>
+        </fullscreen-modal-shell>
     `,
     styles: [``],
+    standalone: false,
 })
 export class ShortUrlModalComponent extends AsyncHandler {
     public loading = false;
@@ -130,19 +111,17 @@ export class ShortUrlModalComponent extends AsyncHandler {
 
     constructor(
         @Inject(MAT_DIALOG_DATA) private _data: ShortURL | undefined,
-        private _dialog_ref: MatDialogRef<ShortUrlModalComponent>
+        private _dialog_ref: MatDialogRef<ShortUrlModalComponent>,
     ) {
         super();
     }
-
-    public async ngOnInit() {}
 
     public async save() {
         if (!this.form.valid) {
             return notifyError(
                 `Some form fields are invalid. [${getInvalidFields(
-                    this.form
-                ).join(', ')}]`
+                    this.form,
+                ).join(', ')}]`,
             );
         }
         const data: any = this.form.getRawValue();

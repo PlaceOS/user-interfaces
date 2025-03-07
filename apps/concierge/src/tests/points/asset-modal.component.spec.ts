@@ -13,6 +13,7 @@ import { SpacesService } from '@placeos/spaces';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 
+import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
 import { DesksStateService } from '../../app/desks/desks-state.service';
 import { PointsAssetModalComponent } from '../../app/points/asset-modal.component';
 
@@ -32,6 +33,7 @@ describe('PointsAssetModalComponent', () => {
             MockComponent(CounterComponent),
             MockComponent(TimeFieldComponent),
             MockComponent(IconComponent),
+            MockComponent(SettingsToggleComponent),
         ],
         imports: [
             MatFormFieldModule,

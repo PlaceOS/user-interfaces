@@ -1,7 +1,7 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import {
-    MatBottomSheetRef,
     MAT_BOTTOM_SHEET_DATA,
+    MatBottomSheetRef,
 } from '@angular/material/bottom-sheet';
 import { Space } from '@placeos/spaces';
 import { RoomConfirmService } from '../room-confirm.service';
@@ -10,13 +10,14 @@ import { RoomConfirmService } from '../room-confirm.service';
     selector: 'placeos-room-tile',
     templateUrl: './room-tile.component.html',
     styles: [``],
+    standalone: false,
 })
 export class RoomTileComponent implements OnInit {
     space: Space;
     constructor(
         @Inject(MAT_BOTTOM_SHEET_DATA) public data: any,
         private _bottomSheetRef: MatBottomSheetRef<RoomTileComponent>,
-        private _roomConfirmService: RoomConfirmService
+        private _roomConfirmService: RoomConfirmService,
     ) {}
 
     ngOnInit() {

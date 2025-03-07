@@ -6,8 +6,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 
 import { DateFieldComponent } from 'libs/form-fields/src/lib/date-field.component';
-import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.component';
 import { DurationFieldComponent } from 'libs/form-fields/src/lib/duration-field.component';
+import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.component';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 import { BehaviorSubject, of } from 'rxjs';
@@ -15,9 +15,9 @@ import { BookingFormService } from '../lib/booking-form.service';
 import { Booking } from '../lib/booking.class';
 import { generateBookingForm } from '../lib/booking.utilities';
 
-import { InviteVisitorFormComponent } from '../lib/invite-visitor-form.component';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { SettingsService } from '@placeos/common';
+import { InviteVisitorFormComponent } from '../lib/invite-visitor-form.component';
 
 describe('InviteVisitorFormComponent', () => {
     let spectator: SpectatorRouting<InviteVisitorFormComponent>;
@@ -34,7 +34,7 @@ describe('InviteVisitorFormComponent', () => {
                 initialised: of(true),
                 building_list: new BehaviorSubject([]),
             }),
-            MockProvider(SettingsService, { get: jest.fn() })
+            MockProvider(SettingsService, { get: jest.fn() }),
         ],
         declarations: [
             MockComponent(DateFieldComponent),

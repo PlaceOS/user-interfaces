@@ -5,11 +5,7 @@ import {
 } from '@angular/material/bottom-sheet';
 import { Router } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
-import {
-    getInvalidFields,
-    notifyError,
-    SettingsService,
-} from '@placeos/common';
+import { getInvalidFields, i18n, notifyError } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { isBefore, startOfMinute } from 'date-fns';
 import { first } from 'rxjs/operators';
@@ -19,22 +15,21 @@ import { BookLockerFlowConfirmComponent } from './locker-flow-confirm.component'
     selector: 'locker-flow-form',
     styles: [],
     template: `
-        <div class="h-full w-full bg-base-200 overflow-auto">
+        <div class="h-full w-full overflow-auto bg-base-200">
             <div
-                class="max-w-full w-[48rem] mx-auto sm:my-4 bg-base-100 border border-base-200"
+                class="mx-auto w-[48rem] max-w-full border border-base-200 bg-base-100 sm:my-4"
             >
                 <h2
-                    class="w-full p-4 sm:py-4 sm:px-16 text-2xl font-medium border-b border-base-200"
-                    i18n
+                    class="w-full border-b border-base-200 p-4 text-2xl font-medium sm:px-16 sm:py-4"
                 >
-                    Book Locker
+                    {{ 'BOOKINGS.LOCKER_TITLE' | translate }}
                 </h2>
                 <new-locker-form-details
                     [form]="form"
                 ></new-locker-form-details>
-                <div class="sm:mb-2 border-b border-base-200 w-full"></div>
+                <div class="w-full border-b border-base-200 sm:mb-2"></div>
                 <section
-                    class="flex flex-col sm:flex-row items-center sm:space-x-2 p-2 sm:px-16 sm:mb-2"
+                    class="flex flex-col items-center p-2 sm:mb-2 sm:flex-row sm:space-x-2 sm:px-16"
                 >
                     <button
                         btn
@@ -43,17 +38,17 @@ import { BookLockerFlowConfirmComponent } from './locker-flow-confirm.component'
                         confirm
                         class="w-full sm:w-auto"
                         (click)="viewConfirm()"
-                        i18n
                     >
-                        Confirm Locker
+                        {{ 'BOOKINGS.LOCKER_CONFIRM' | translate }}
                     </button>
                 </section>
             </div>
         </div>
     `,
+    standalone: false,
 })
 export class BookLockerFlowFormComponent implements OnInit {
-    public sheet_ref: MatBottomSheetRef<any>;
+    public sheet_ref: MatBottomSheetRef<BookLockerFlowConfirmComponent>;
     public level = '';
     public levels = [];
 
@@ -69,12 +64,12 @@ export class BookLockerFlowFormComponent implements OnInit {
     public readonly viewConfirm = () => {
         if (!this.form.valid)
             return notifyError(
-                `Some fields are invalid. [${getInvalidFields(this.form).join(
-                    ', '
-                )}]`
+                i18n('FORM.INVALID_FIELDS', {
+                    field_list: getInvalidFields(this.form).join(', '),
+                }),
             );
         this.sheet_ref = this._bottom_sheet.open(
-            BookLockerFlowConfirmComponent
+            BookLockerFlowConfirmComponent,
         );
         this.sheet_ref.instance.show_close = true;
         this.sheet_ref.afterDismissed().subscribe((value) => {
@@ -90,7 +85,6 @@ export class BookLockerFlowFormComponent implements OnInit {
         private _router: Router,
         private _org: OrganisationService,
         private _bottom_sheet: MatBottomSheet,
-        private _settings: SettingsService
     ) {}
 
     public async ngOnInit() {

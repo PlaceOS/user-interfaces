@@ -1,11 +1,13 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { i18n, notifyError, notifySuccess } from '@placeos/common';
+import { openConfirmModal } from '@placeos/components';
 import { BuildingLevel, OrganisationService } from '@placeos/organisation';
+import { requestSpacesForZone } from '@placeos/spaces';
 import { PlaceZone, removeZone } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { shareReplay, switchMap } from 'rxjs/operators';
 import { LevelModalComponent } from './level-modal.component';
-import { notifySuccess, openConfirmModal } from '@placeos/common';
 
 export interface LevelListOptions {
     zone?: string;
@@ -24,34 +26,42 @@ export class LevelManagementService {
     public readonly level_list = this._org.level_list;
 
     public readonly filtered_levels = combineLatest([
+        this._org.building_list,
         this.level_list,
         this._options,
     ]).pipe(
-        map(([list, options]) => {
+        switchMap(async ([buildings, list, options]) => {
+            list = list.filter((_) =>
+                buildings.find((bld) => bld.id === _.parent_id),
+            );
             if (options.zone) {
                 list = list.filter((_) => _.parent_id === options.zone);
             }
             if (options.search) {
                 list = list.filter((_) =>
-                    _.name.toLowerCase().includes(options.search.toLowerCase())
+                    _.name.toLowerCase().includes(options.search.toLowerCase()),
                 );
             }
             for (const level of list) {
                 const parent = this._org.buildings.find(
-                    (bld) => bld.id === level.parent_id
+                    (bld) => bld.id === level.parent_id,
                 );
                 if (parent) {
                     (level as any).building =
                         parent.display_name || parent.name;
                 }
+                (level as any).room_count = await requestSpacesForZone(level.id)
+                    .toPromise()
+                    .then((spaces) => spaces.length);
             }
             return list;
-        })
+        }),
+        shareReplay(1),
     );
 
     constructor(
         private _org: OrganisationService,
-        private _dialog: MatDialog
+        private _dialog: MatDialog,
     ) {}
 
     public setFilters(options: Partial<LevelListOptions>) {
@@ -74,18 +84,28 @@ export class LevelManagementService {
     public async removeLevel(level: BuildingLevel) {
         const ref = await openConfirmModal(
             {
-                title: 'Remove Building',
-                content: `Are you sure you want to remove the building "${level.name}"?`,
+                title: i18n('APP.CONCIERGE.LEVELS_REMOVE_TITLE'),
+                content: i18n('APP.CONCIERGE.LEVELS_REMOVE_MSG', {
+                    name: level.name,
+                }),
                 icon: { content: 'delete_forever' },
-                confirm_text: 'Remove',
+                confirm_text: i18n('COMMON.REMOVE'),
             },
-            this._dialog
+            this._dialog,
         );
         if (ref.reason !== 'done') return ref.close();
-        ref.loading('Removing building...');
-        await removeZone(level.id).toPromise();
+        ref.loading(i18n('APP.CONCIERGE.LEVELS_REMOVE_LOADING'));
+        await removeZone(level.id)
+            .toPromise()
+            .catch((e) => {
+                notifyError(
+                    i18n('APP.CONCIERGE.LEVELS_REMOVE_ERROR', { error: e }),
+                );
+                ref.close();
+                throw e;
+            });
         this._org.removeZone({ id: level.id, tags: ['level'] } as any);
-        notifySuccess('Successfully removed building.');
+        notifySuccess(i18n('APP.CONCIERGE.LEVELS_REMOVE_SUCCESS'));
         ref.close();
     }
 }

@@ -1,37 +1,47 @@
 import { Component, Inject } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
-import { SettingsService } from '@placeos/common';
+import { LocaleService, SettingsService } from '@placeos/common';
 import { CustomTooltipData } from '@placeos/components';
 
 @Component({
     selector: 'language-select',
     template: `
         <div
-            class="flex flex-col w-[18.5rem] rounded bg-base-100 shadow relative -top-12 -right-1"
+            class="relative -right-1 -top-12 flex w-[18.5rem] flex-col rounded bg-base-100 shadow"
             (click)="close()"
         >
-            <div class="flex items-center space-x-2  p-2">
+            <div class="flex items-center space-x-2 p-2">
                 <app-icon class="text-2xl">arrow_back</app-icon>
                 <div class="">{{ 'COMMON.LANGUAGE' | translate }}</div>
             </div>
-            <div class="text-xs opacity-60 mb-4 px-2 p-4">
+            <div class="mb-2 px-8 text-xs opacity-60">
                 {{ 'COMMON.LANGUAGE_SELECT' | translate }}
             </div>
             <button
                 *ngFor="let lang of locales"
-                class="w-full p-4 border-t border-base-200 text-left"
+                class="flex h-14 w-full items-center justify-between border-t border-base-200 px-4 text-left"
                 (click)="setLocale(lang.id)"
             >
-                {{ lang.name }} - {{ lang.flag }}
+                <div>
+                    <div>{{ lang.name | translate }}</div>
+                    <div
+                        *ngIf="(lang.name | translate) !== lang.local"
+                        class="text-xs opacity-30"
+                    >
+                        {{ lang.local }}
+                    </div>
+                </div>
+                <!-- <div class="text-3xl">{{ lang.flag }}</div> -->
             </button>
         </div>
     `,
     styles: [``],
+    standalone: false,
 })
 export class LanguageSelectComponent {
     public readonly setLocale = (code: string) => {
-        this._translation.use(code);
+        this._locale.setLocale(code);
         localStorage.setItem('PLACEOS.locale', code);
+        setTimeout(() => location.reload(), 300);
     };
 
     public get locales() {
@@ -43,6 +53,6 @@ export class LanguageSelectComponent {
     constructor(
         @Inject(CustomTooltipData) private _data: any,
         private _settings: SettingsService,
-        private _translation: TranslateService
+        private _locale: LocaleService,
     ) {}
 }

@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
-import { ApplicationIcon, currentUser, SettingsService } from '@placeos/common';
+import { currentUser, SettingsService } from '@placeos/common';
 import { UserControlsComponent } from '@placeos/components';
+import { OrganisationService } from '@placeos/organisation';
 
 const EMPTY = [];
 
@@ -9,34 +10,35 @@ const EMPTY = [];
     template: `
         <div
             topbar
-            class="flex items-center justify-between h-[3.5rem] bg-base-100 border-b border-base-200 z-50 shadow relative"
+            class="relative z-50 flex h-[3.5rem] items-center justify-between border-b border-base-200 bg-base-100 shadow"
         >
             <a
                 name="nav-logo"
-                class="p-2 h-full flex items-center w-48"
+                class="flex h-full w-48 items-center p-2"
                 [routerLink]="['/-']"
             >
                 <img
+                    auth
                     class="h-10 sm:block"
                     [class.hidden]="title"
-                    *ngIf="logo"
-                    [src]="logo.src"
+                    alt="Logo"
+                    [source]="logo?.src || logo"
                 />
                 <span *ngIf="title">{{ title }}</span>
             </a>
             <div
-                class="flex-1 items-center justify-center h-full w-1/2 hidden sm:flex relative"
+                class="relative hidden h-full w-1/2 flex-1 items-center justify-center sm:flex"
             >
                 <top-menu></top-menu>
             </div>
-            <div class="w-48 flex items-center justify-end">
+            <div class="flex w-48 items-center justify-end">
                 <global-search *ngIf="search"></global-search>
                 <button
                     icon
                     matRipple
                     avatar
                     name="user-controls"
-                    class="h-10 w-10 rounded-full mr-2 bg-base-200 flex items-center justify-center"
+                    class="mr-2 flex h-10 w-10 items-center justify-center rounded-full bg-base-200"
                     customTooltip
                     [content]="user_controls"
                 >
@@ -52,16 +54,18 @@ const EMPTY = [];
             }
         `,
     ],
+    standalone: false,
 })
 export class TopbarComponent {
     public show_menu: boolean;
     public readonly user_controls = UserControlsComponent;
 
-    /** Application logo to display */
-    public get logo(): ApplicationIcon {
-        return this._settings.get('theme') === 'dark'
-            ? this._settings.get('app.logo_dark')
-            : this._settings.get('app.logo_light');
+    public get logo() {
+        return (
+            (this._settings.theme === 'dark'
+                ? this._settings.get('app.logo_dark')
+                : this._settings.get('app.logo_light')) || {}
+        );
     }
     /** Text to display for page title */
     public get title(): string {
@@ -70,7 +74,7 @@ export class TopbarComponent {
 
     /** Text to display for page title */
     public get search(): boolean {
-        return this._settings.get('app.general.search') !== false;
+        return this._settings.get('app.global_search') !== false;
     }
 
     public get new_features(): boolean {
@@ -85,5 +89,8 @@ export class TopbarComponent {
         return this._settings.get('app.features') || EMPTY;
     }
 
-    constructor(private _settings: SettingsService) {}
+    constructor(
+        private _settings: SettingsService,
+        private _org: OrganisationService,
+    ) {}
 }

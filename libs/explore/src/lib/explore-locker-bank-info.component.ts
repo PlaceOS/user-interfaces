@@ -1,8 +1,9 @@
-import { Component, ElementRef, Inject } from '@angular/core';
-import { MAP_FEATURE_DATA } from '@placeos/components';
-import { Locker, LockerBank } from 'libs/bookings/src/lib/lockers.service';
-import { ExploreLockerBankModalComponent } from './explore-locker-bank-modal.component';
+import { Component, ElementRef, Inject, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { MAP_FEATURE_DATA } from '@placeos/components';
+
+import { Locker, LockerBank } from 'libs/bookings/src/lib/locker.class';
+import { ExploreLockerBankModalComponent } from './explore-locker-bank-modal.component';
 
 export interface LockerBankInfoData {
     bank: LockerBank;
@@ -15,7 +16,7 @@ export interface LockerBankInfoData {
     selector: 'explore-locker-bank-info',
     template: `
         <button
-            class="h-full w-full pointer-events-auto relative"
+            class="pointer-events-auto relative h-full w-full"
             (click)="openBankModal()"
         >
             <div
@@ -26,7 +27,7 @@ export interface LockerBankInfoData {
                 [yPosition]="'center'"
                 [hover]="true"
                 [delay]="3000"
-                class="h-full w-full pointer-events-auto relative"
+                class="pointer-events-auto relative h-full w-full"
             ></div>
         </button>
         <ng-template #desk_tooltip>
@@ -34,7 +35,7 @@ export interface LockerBankInfoData {
                 name="space-info"
                 [id]="map_id"
                 [class]="
-                    'absolute rounded bg-base-100 p-4 top-0 left-0 shadow pointer-events-none ' +
+                    'pointer-events-none absolute left-0 top-0 rounded bg-base-100 p-4 shadow ' +
                     x_pos +
                     ' ' +
                     y_pos
@@ -42,15 +43,22 @@ export interface LockerBankInfoData {
             >
                 <h3 class="font-medium">{{ bank.name }}</h3>
                 <p class="whitespace-nowrap text-sm">
-                    {{ in_use_count }} lockers in use of
-                    {{ bank.lockers.length || 1 }}
+                    {{
+                        'EXPLORE.LOCKERS_USE'
+                            | translate
+                                : {
+                                      used: in_use_count,
+                                      count: bank.lockers.length || 1,
+                                  }
+                    }}
                 </p>
             </div></ng-template
         >
     `,
     styles: [``],
+    standalone: false,
 })
-export class ExploreLockerBankInfoComponent {
+export class ExploreLockerBankInfoComponent implements OnInit {
     public bank: LockerBank = this._details.bank;
     public in_use_count: number = this._details.in_use_count;
     public y_pos: 'top' | 'bottom';
@@ -59,10 +67,10 @@ export class ExploreLockerBankInfoComponent {
     constructor(
         @Inject(MAP_FEATURE_DATA) private _details: LockerBankInfoData,
         private _element: ElementRef<HTMLElement>,
-        private _dialog: MatDialog
+        private _dialog: MatDialog,
     ) {}
 
-    public ngOnInit(tries: number = 0) {
+    public ngOnInit(tries = 0) {
         if (tries > 10) return;
         setTimeout(() => {
             const parent =

@@ -2,15 +2,17 @@ import { Component } from '@angular/core';
 import { CustomTooltipData } from '@placeos/components';
 import { getModule } from '@placeos/ts-client';
 
-import { ControlStateService, LightScene } from '../control-state.service';
+import { ControlStateService } from '../control-state.service';
 
 @Component({
     selector: 'lighting-tooltip',
     template: `
         <div
-            class="p-4 my-2 bg-base-100 shadow rounded flex flex-col items-center space-y-2"
+            class="my-2 flex flex-col items-center space-y-2 rounded bg-base-100 p-4 shadow"
         >
-            <h3 class="mb-2 text-xl font-medium">Lighting Scenes</h3>
+            <h3 class="mb-2 text-xl font-medium">
+                {{ 'APP.CONTROL.ACTION_LIGHT_SCENES' | translate }}
+            </h3>
             <ng-container *ngIf="(scenes | async).length; else empty_state">
                 <button
                     state
@@ -32,11 +34,12 @@ import { ControlStateService, LightScene } from '../control-state.service';
         </div>
         <ng-template #empty_state>
             <div class="flex items-center justify-center p-8">
-                <p>No scenes available for lighting</p>
+                <p>{{ 'APP.CONTROL.LIGHT_SCENES_EMPTY' | translate }}</p>
             </div>
         </ng-template>
     `,
     styles: [``],
+    standalone: false,
 })
 export class LightingSceneTooltipComponent {
     public readonly scene = this._state.lighting_scene;
@@ -50,7 +53,7 @@ export class LightingSceneTooltipComponent {
 
     constructor(
         private _state: ControlStateService,
-        private _tooltip: CustomTooltipData
+        private _tooltip: CustomTooltipData,
     ) {}
 
     public setScene(name: string) {

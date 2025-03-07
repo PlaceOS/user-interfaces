@@ -1,7 +1,9 @@
-import 'jest-preset-angular/setup-jest';
-import '@angular/localize/init';
-import { TextEncoder, TextDecoder } from 'util';
+import { setupZoneTestEnv } from 'jest-preset-angular/setup-env/zone';
+
+setupZoneTestEnv();
+
 import { setNotifyOutlet } from 'libs/common/src/lib/notifications';
+import { TextDecoder, TextEncoder } from 'util';
 
 global.TextEncoder = TextEncoder;
 global.TextDecoder = TextDecoder;

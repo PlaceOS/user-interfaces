@@ -2,25 +2,24 @@ import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { SettingsService, notifyError, notifySuccess } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
-import { getModule } from '@placeos/ts-client';
 
 @Component({
     selector: 'desk-settings-modal',
     template: `
         <div
-            class="relative p-4 bg-base-100 rounded shadow w-[20rem]"
+            class="relative w-[20rem] rounded bg-base-100 p-4 shadow"
             *ngIf="!edit_presets; else desk_height_tooltip"
         >
-            <div class="text-lg" i18n>Desk Height</div>
-            <div class="text-xs opacity-60 mb-4" i18n>
+            <div class="text-lg">Desk Height</div>
+            <div class="mb-4 text-xs opacity-60">
                 Set your desk height for the best experience
             </div>
-            <div class="flex flex-col mt-2 mb-4">
+            <div class="mb-4 mt-2 flex flex-col">
                 <label>Presets</label>
                 <div class="flex items-center space-x-2 pb-4">
                     <mat-form-field
                         appearance="outline"
-                        class="no-subscript flex-1 w-1/2"
+                        class="no-subscript w-1/2 flex-1"
                     >
                         <mat-select
                             placeholder="No selected preset"
@@ -36,7 +35,7 @@ import { getModule } from '@placeos/ts-client';
                         icon
                         matRipple
                         (click)="edit_presets = true"
-                        class="rounded h-12 w-12 bg-secondary text-secondary-content"
+                        class="h-12 w-12 rounded bg-secondary text-secondary-content"
                     >
                         <app-icon>edit</app-icon>
                     </button>
@@ -57,7 +56,7 @@ import { getModule } from '@placeos/ts-client';
                             (ngModelChange)="updatePreset(height)"
                         />
                     </mat-slider>
-                    <div class="text-sm w-12 text-right">
+                    <div class="w-12 text-right text-sm">
                         {{ height.toFixed(1) }}cm
                     </div>
                 </div>
@@ -69,7 +68,7 @@ import { getModule } from '@placeos/ts-client';
                 icon
                 matRipple
                 mat-dialog-close
-                class="absolute top-0 right-0"
+                class="absolute right-0 top-0"
             >
                 <app-icon>close</app-icon>
             </button>
@@ -82,6 +81,7 @@ import { getModule } from '@placeos/ts-client';
         </ng-template>
     `,
     styles: [],
+    standalone: false,
 })
 export class DeskSettingsModalComponent {
     public readonly desk_id = this._data.id;
@@ -93,7 +93,7 @@ export class DeskSettingsModalComponent {
         @Inject(MAT_DIALOG_DATA) private _data: { id: string },
         private _org: OrganisationService,
         private _settings: SettingsService,
-        private _dialog_ref: MatDialogRef<DeskSettingsModalComponent>
+        private _dialog_ref: MatDialogRef<DeskSettingsModalComponent>,
     ) {}
 
     public ngOnInit() {
@@ -104,7 +104,7 @@ export class DeskSettingsModalComponent {
         }
         const last_height = parseInt(
             localStorage.getItem('PLACEOS.last_desk_height'),
-            10
+            10,
         );
         this.height = last_height || sitting_height || 71;
         if (this.height === sitting_height) {
@@ -128,7 +128,6 @@ export class DeskSettingsModalComponent {
     }
 
     public setPreset(value: string) {
-        console.log('Set preset:', value);
         switch (value) {
             case 'standing':
                 this.height = this._settings.get('desk_standing_height') || 102;
@@ -143,11 +142,10 @@ export class DeskSettingsModalComponent {
     }
 
     public async setDeskHeight() {
-        const sys_id = this._org.binding('desks');
+        const mod = this._org.module('desks', 'DeskControl');
         localStorage.setItem('PLACEOS.last_desk_height', `${this.height}`);
-        if (!sys_id) return this._dialog_ref.close();
-        const module = getModule(sys_id, 'DeskControl');
-        await module
+        if (!mod) return this._dialog_ref.close();
+        await mod
             .execute('set_desk_height', [this.desk_id, this.height])
             .catch((_) => {
                 notifyError('Error setting desk height.' + _);

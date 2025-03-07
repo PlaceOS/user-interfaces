@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
 import { querySystems, showSystem } from '@placeos/ts-client';
-import { first, map } from 'rxjs/operators';
 import { BehaviorSubject } from 'rxjs';
+import { first, map } from 'rxjs/operators';
 
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 
-import { Space } from './space.class';
 import { flatten, SettingsService, unique } from '@placeos/common';
+import { Space } from './space.class';
 import { SpacePipe } from './space.pipe';
 
 let SPACE_PIPE: SpacePipe;
@@ -25,7 +25,7 @@ export class SpacesService {
     public readonly list = this._list.asObservable();
     /** List of available features */
     public readonly features = this.list.pipe(
-        map((_) => unique(flatten(_.map((i) => i.features))))
+        map((_) => unique(flatten(_.map((i) => i.features)))),
     );
     /** Default predicate for filter method */
     protected _compare = (space: Space) =>
@@ -38,7 +38,7 @@ export class SpacesService {
 
     constructor(
         private _org: OrganisationService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         SPACE_PIPE = new SpacePipe(_org);
         this._init();
@@ -80,14 +80,14 @@ export class SpacesService {
             zone_id: this._org.organisation.id,
             limit: 5000,
         })
-            .pipe(map((i) => i.data))
+            ?.pipe(map((i) => i.data))
             .toPromise();
         const space_list = systems.map(
             (sys) =>
                 new Space({
                     ...(sys as any),
                     level: this._org.levelWithID([...sys.zones]),
-                })
+                }),
         );
         // Remove spaces without a map ID
         const valid_spaces = space_list.filter((space) => space.map_id);

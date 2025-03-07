@@ -1,51 +1,61 @@
-import { Component } from '@angular/core';
-import { BuildingManagementService } from './building-management.service';
-import { SettingsService, notifySuccess } from '@placeos/common';
 import { Clipboard } from '@angular/cdk/clipboard';
+import { Component } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { i18n, notifySuccess } from '@placeos/common';
+import { BuildingManagementService } from './building-management.service';
+
+import { BookingPanelSettingsModalComponent } from '../ui/app-settings/booking-panel-settings-modal.component';
+import { ConciergeSettingsFormModalComponent } from '../ui/app-settings/concierge-settings-form-modal.component';
+import { VisitorKioskSettingsFormModalComponent } from '../ui/app-settings/visitor-kiosk-settings-form-modal.component';
+import { WorkplaceSettingsFormModalComponent } from '../ui/app-settings/workplace-settings-form-modal.component';
 
 @Component({
     selector: 'building-list',
     template: `
         <div class="absolute inset-0 overflow-auto px-8">
             <simple-table
-                class="min-w-[62rem] w-full block text-sm"
+                class="block w-full min-w-[62rem] text-sm"
                 [data]="buildings"
-                empty_message="No Buildings"
+                [empty_message]="'APP.CONCIERGE.BUILDINGS_EMPTY' | translate"
                 [columns]="[
                     {
                         key: 'display_name',
-                        name: 'Building Name',
-                        content: name_template
+                        name: 'APP.CONCIERGE.BUILDINGS_NAME' | translate,
+                        content: name_template,
                     },
                     {
                         key: 'location',
                         name: 'Location',
-                        size: '16rem'
+                        size: '13.5rem',
                     },
                     {
                         key: 'timezone',
-                        name: 'Timezone',
-                        size: '14rem',
-                        content: timezone_template
+                        name: 'COMMON.TIMEZONE' | translate,
+                        size: '12rem',
+                        content: timezone_template,
                     },
                     {
                         key: 'region',
-                        name: 'Region',
+                        name: 'RESOURCE.REGION' | translate,
                         size: '11rem',
-                        sortable: false
+                        sortable: false,
                     },
-                    { key: 'level_count', name: 'Levels', size: '6rem' },
+                    {
+                        key: 'level_count',
+                        name: 'APP.CONCIERGE.BUILDINGS_LEVELS' | translate,
+                        size: '5.5rem',
+                    },
                     {
                         key: 'actions',
                         name: ' ',
                         content: action_template,
-                        size: '3rem',
-                        sortable: false
-                    }
+                        size: '3.5rem',
+                        sortable: false,
+                    },
                 ]"
                 [sortable]="true"
             ></simple-table>
-            <div class="w-full h-20"></div>
+            <div class="h-20 w-full"></div>
         </div>
         <ng-template #name_template let-row="row" let-data="data">
             <button
@@ -53,13 +63,13 @@ import { Clipboard } from '@angular/cdk/clipboard';
                 (click)="copyToClipboard(row.id)"
             >
                 <div class="">{{ data }}</div>
-                <div class="text-[0.625rem] opacity-30 font-mono">
+                <div class="font-mono text-[0.625rem] opacity-30">
                     {{ row.id }}
                 </div>
             </button>
         </ng-template>
         <ng-template #timezone_template let-data="data">
-            <div class="p-4 font-mono text-sm">{{ data }}</div>
+            <div class="p-4 font-mono text-xs">{{ data }}</div>
         </ng-template>
         <ng-template #level_template let-data="data">
             {{ (data | level)?.display_name || (data | level)?.name }}
@@ -71,10 +81,12 @@ import { Clipboard } from '@angular/cdk/clipboard';
                 [source]="data[0]"
                 class="max-h-[3rem] max-w-[8rem]"
             />
-            <span *ngIf="!data.length" class="opacity-30">No Images</span>
+            <span *ngIf="!data.length" class="opacity-30">{{
+                'COMMON.IMAGES_EMPTY' | translate
+            }}</span>
         </ng-template>
         <ng-template #action_template let-row="row">
-            <div class="w-full flex justify-end space-x-2">
+            <div class="flex w-full justify-center space-x-2 p-1">
                 <button
                     icon
                     matRipple
@@ -84,16 +96,85 @@ import { Clipboard } from '@angular/cdk/clipboard';
                     <app-icon>more_vert</app-icon>
                 </button>
                 <mat-menu #menu="matMenu">
-                    <button mat-menu-item (click)="editBuildingMetadata(row)">
+                    <button
+                        mat-menu-item
+                        [matMenuTriggerFor]="app_settings_menu"
+                    >
                         <div class="flex items-center space-x-2">
                             <app-icon class="text-xl">edit_square</app-icon>
-                            <span>App Configuration</span>
+                            <div>
+                                {{ 'APP.CONCIERGE.APP_SETTINGS' | translate }}
+                            </div>
                         </div>
                     </button>
+                    <mat-menu #app_settings_menu="matMenu">
+                        <button
+                            mat-menu-item
+                            (click)="editWorkplaceSettings(row)"
+                        >
+                            <div class="flex items-center space-x-2">
+                                <app-icon class="text-xl"
+                                    >meeting_room</app-icon
+                                >
+                                <div>
+                                    {{
+                                        'APP.CONCIERGE.APP_SETTINGS_WORKPLACE'
+                                            | translate
+                                    }}
+                                </div>
+                            </div>
+                        </button>
+                        <button
+                            mat-menu-item
+                            (click)="editConciergeSettings(row)"
+                        >
+                            <div class="flex items-center space-x-2">
+                                <app-icon class="text-xl"
+                                    >support_agent</app-icon
+                                >
+                                <div>
+                                    {{
+                                        'APP.CONCIERGE.APP_SETTINGS_CONCIERGE'
+                                            | translate
+                                    }}
+                                </div>
+                            </div>
+                        </button>
+                        <button
+                            mat-menu-item
+                            (click)="editBookingPanelSettings(row)"
+                        >
+                            <div class="flex items-center space-x-2">
+                                <app-icon class="text-xl">event_busy</app-icon>
+                                <div>
+                                    {{
+                                        'APP.CONCIERGE.APP_SETTINGS_BOOKING_PANEL'
+                                            | translate
+                                    }}
+                                </div>
+                            </div>
+                        </button>
+                        <button
+                            mat-menu-item
+                            (click)="editVisitorKioskSettings(row)"
+                        >
+                            <div class="flex items-center space-x-2">
+                                <app-icon class="text-xl">qr_code</app-icon>
+                                <div>
+                                    {{
+                                        'APP.CONCIERGE.APP_SETTINGS_VISITOR_KIOSK'
+                                            | translate
+                                    }}
+                                </div>
+                            </div>
+                        </button>
+                    </mat-menu>
                     <button mat-menu-item (click)="editBuilding(row)">
                         <div class="flex items-center space-x-2">
                             <app-icon class="text-xl">edit</app-icon>
-                            <span>Edit Building</span>
+                            <div>
+                                {{ 'APP.CONCIERGE.BUILDINGS_EDIT' | translate }}
+                            </div>
                         </div>
                     </button>
                     <button mat-menu-item (click)="setAutoRelease(row)">
@@ -104,7 +185,12 @@ import { Clipboard } from '@angular/cdk/clipboard';
                             >
                                 release_alert
                             </app-icon>
-                            <span>Auto-release Settings</span>
+                            <div>
+                                {{
+                                    'APP.CONCIERGE.BUILDINGS_AUTO_RELEASE'
+                                        | translate
+                                }}
+                            </div>
                         </div>
                     </button>
                     <button mat-menu-item (click)="setInduction(row)">
@@ -115,7 +201,12 @@ import { Clipboard } from '@angular/cdk/clipboard';
                             >
                                 badge
                             </app-icon>
-                            <span>Induction Settings</span>
+                            <div>
+                                {{
+                                    'APP.CONCIERGE.BUILDINGS_INDUCTION'
+                                        | translate
+                                }}
+                            </div>
                         </div>
                     </button>
                     <button mat-menu-item (click)="setSupportIssueTypes(row)">
@@ -126,15 +217,24 @@ import { Clipboard } from '@angular/cdk/clipboard';
                             >
                                 support_agent
                             </app-icon>
-                            <span>Support Request Types</span>
+                            <div>
+                                {{
+                                    'APP.CONCIERGE.BUILDINGS_SUPPORT_TYPES'
+                                        | translate
+                                }}
+                            </div>
                         </div>
                     </button>
                     <button mat-menu-item (click)="removeBuilding(row)">
-                        <div class="flex items-center space-x-2 text-red-500">
-                            <app-icon class="text-error text-xl">
+                        <div class="text-red-500 flex items-center space-x-2">
+                            <app-icon class="text-xl text-error">
                                 delete
                             </app-icon>
-                            <span>Delete Building</span>
+                            <div>
+                                {{
+                                    'APP.CONCIERGE.BUILDINGS_REMOVE' | translate
+                                }}
+                            </div>
                         </div>
                     </button>
                 </mat-menu>
@@ -142,6 +242,7 @@ import { Clipboard } from '@angular/cdk/clipboard';
         </ng-template>
     `,
     styles: [``],
+    standalone: false,
 })
 export class BuildingListComponent {
     public readonly buildings = this._manager.filtered_buildings;
@@ -167,12 +268,36 @@ export class BuildingListComponent {
 
     public readonly copyToClipboard = (id: string) => {
         const success = this._clipboard.copy(id);
-        if (success) notifySuccess('Building ID copied to clipboard.');
+        if (success) notifySuccess(i18n('APP.CONCIERGE.BUILDINGS_COPIED_ID'));
     };
+
+    public editWorkplaceSettings(zone) {
+        this._dialog.open(WorkplaceSettingsFormModalComponent, {
+            data: { zone },
+        });
+    }
+
+    public editConciergeSettings(zone) {
+        this._dialog.open(ConciergeSettingsFormModalComponent, {
+            data: { zone },
+        });
+    }
+
+    public editBookingPanelSettings(zone) {
+        this._dialog.open(BookingPanelSettingsModalComponent, {
+            data: { zone },
+        });
+    }
+
+    public editVisitorKioskSettings(zone) {
+        this._dialog.open(VisitorKioskSettingsFormModalComponent, {
+            data: { zone },
+        });
+    }
 
     constructor(
         private _manager: BuildingManagementService,
-        private _settings: SettingsService,
-        private _clipboard: Clipboard
+        private _clipboard: Clipboard,
+        private _dialog: MatDialog,
     ) {}
 }

@@ -6,7 +6,7 @@ import { PanelStateService } from '../panel-state.service';
     template: `
         <div
             status
-            class="h-12 w-[calc(100% - 2rem)] m-2 rounded shadow"
+            class="w-[calc(100% - 2rem)] m-2 h-12 rounded shadow"
             [class.bg-base-200]="(settings | async)?.status === 'not-bookable'"
             [class.bg-warning]="(settings | async)?.status === 'pending'"
             [class.bg-success]="(settings | async)?.status === 'free'"
@@ -14,6 +14,7 @@ import { PanelStateService } from '../panel-state.service';
         ></div>
     `,
     styles: [``],
+    standalone: false,
 })
 export class PanelStatusComponent {
     public readonly settings = this._state.settings;

@@ -1,26 +1,26 @@
-import { Component, Input } from "@angular/core";
-import { Question, QuestionType } from "../types";
+import { Component, Input } from '@angular/core';
+import { Question } from '../types';
 
 @Component({
     selector: 'base-question',
     styles: [],
-    template: ``
+    template: ``,
+    standalone: false,
 })
-
-export class BaseQuestionComponent{
+export class BaseQuestionComponent {
     @Input() preview: boolean = false;
     // @Input() readonly: boolean = false;
-    @Input() set value(value:Question){
-        if(value){
+    @Input() set value(value: Question) {
+        if (value) {
             this.question = value;
         }
         this.hasValue = !!value;
     }
 
     protected hasValue = false;
-    protected question:Question;
+    protected question: Question;
 
     protected readonly placeholderTitle = 'Enter your question here';
 
-    constructor(){}
+    constructor() {}
 }

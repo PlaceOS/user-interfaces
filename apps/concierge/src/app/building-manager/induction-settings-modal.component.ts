@@ -1,49 +1,54 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { SettingsService, notifyError, notifySuccess } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
 import {
-    querySettings,
-    showMetadata,
-    updateMetadata,
-} from '@placeos/ts-client';
+    SettingsService,
+    i18n,
+    notifyError,
+    notifySuccess,
+} from '@placeos/common';
+import { OrganisationService } from '@placeos/organisation';
+import { showMetadata, updateMetadata } from '@placeos/ts-client';
 
 @Component({
     selector: 'induction-settings-modal',
     template: `
         <header
-            class="flex items-center justify-between border-b border-gray-300 p-4"
+            class="border-gray-300 flex items-center justify-between border-b p-4"
         >
-            <h3 class="text-xl font-medium">Induction Settings</h3>
+            <h3 class="text-xl font-medium">
+                {{ 'APP.CONCIERGE.INDUCTION_HEADER' | translate }}
+            </h3>
             <button icon matRipple mat-dialog-close *ngIf="!loading">
                 <app-icon class="text-2xl">close</app-icon>
             </button>
         </header>
         <main
-            class="p-4 flex flex-col space-y-2"
+            class="flex flex-col space-y-2 p-4"
             *ngIf="!loading; else load_state"
         >
             <mat-form-field
                 appearance="outline"
-                class="w-[36rem] max-w-[80vw] h-[50vh]"
+                class="h-[50vh] w-[36rem] max-w-[80vw]"
             >
                 <textarea
                     matInput
                     [(ngModel)]="induction_details"
-                    placeholder="Induction Details"
-                    class="w-[34rem] max-w-[calc(80vw-2rem)] h-[calc(50vh-2rem)] resize-none"
+                    [placeholder]="
+                        'APP.CONCIERGE.INDUCTION_DETAILS' | translate
+                    "
+                    class="h-[calc(50vh-2rem)] w-[34rem] max-w-[calc(80vw-2rem)] resize-none"
                 ></textarea>
             </mat-form-field>
             <mat-checkbox [(ngModel)]="is_enabled">
-                Enable Induction for Building
+                {{ 'APP.CONCIERGE.INDUCTION_ENABLE' | translate }}
             </mat-checkbox>
         </main>
-        <footer class="px-4 pb-4 flex justify-end" *ngIf="!loading">
+        <footer class="flex justify-end px-4 pb-4" *ngIf="!loading">
             <button btn matRipple class="w-32" (click)="save()">Save</button>
         </footer>
         <ng-template #load_state>
             <main
-                class="flex flex-col items-center justify-center p-32 space-y-2"
+                class="flex flex-col items-center justify-center space-y-2 p-32"
             >
                 <mat-spinner [diameter]="48"></mat-spinner>
                 <p>{{ loading }}</p>
@@ -51,18 +56,19 @@ import {
         </ng-template>
     `,
     styles: [``],
+    standalone: false,
 })
-export class InductionSettingsModalComponent {
+export class InductionSettingsModalComponent implements OnInit {
     public loading = '';
-    public induction_details: string = '';
-    public is_enabled: boolean = false;
+    public induction_details = '';
+    public is_enabled = false;
     public settings: Record<string, any> = {};
 
     constructor(
         @Inject(MAT_DIALOG_DATA) private _zone_id: string,
         private _settings: SettingsService,
         private _org: OrganisationService,
-        private _dialog_ref: MatDialogRef<InductionSettingsModalComponent>
+        private _dialog_ref: MatDialogRef<InductionSettingsModalComponent>,
     ) {}
 
     public ngOnInit() {
@@ -71,7 +77,7 @@ export class InductionSettingsModalComponent {
     }
 
     public async loadSettings() {
-        this.loading = 'Loading induction settings for building...';
+        this.loading = i18n('APP.CONCIERGE.INDUCTION_LOADING');
         const visitor_kiosk_app =
             this._settings.get('app.visitor_kiosk_app') || 'visitor-kiosk_app';
         this.settings = {};
@@ -79,11 +85,11 @@ export class InductionSettingsModalComponent {
             await showMetadata(this._zone_id, visitor_kiosk_app).toPromise(),
             await showMetadata(
                 this._org.organisation.id,
-                visitor_kiosk_app
+                visitor_kiosk_app,
             ).toPromise(),
             await showMetadata(
                 this._org.organisation.id,
-                'settings'
+                'settings',
             ).toPromise(),
         ]);
         this.settings = {
@@ -97,15 +103,26 @@ export class InductionSettingsModalComponent {
     }
 
     public async save() {
-        this.loading = 'Saving induction settings...';
+        this.loading = i18n('APP.CONCIERGE.INDUCTION_SAVING');
         const visitor_kiosk_app =
             this._settings.get('app.visitor_kiosk_app') || 'visitor-kiosk_app';
+        const concierge_app =
+            this._settings.get('app.concierge_app') || 'concierge_app';
         this._dialog_ref.disableClose = true;
         const metadata = await showMetadata(
             this._zone_id,
-            visitor_kiosk_app
+            visitor_kiosk_app,
         ).toPromise();
-        const new_metadata = {
+        const con_metadata = await showMetadata(
+            this._zone_id,
+            concierge_app,
+        ).toPromise();
+        const visitor_metadata = {
+            ...metadata.details,
+            induction_details: this.induction_details,
+            induction_enabled: this.is_enabled,
+        };
+        const concierge_metadata = {
             ...metadata.details,
             induction_details: this.induction_details,
             induction_enabled: this.is_enabled,
@@ -113,16 +130,30 @@ export class InductionSettingsModalComponent {
         const result = await updateMetadata(this._zone_id, {
             name: metadata.name || visitor_kiosk_app,
             description: metadata.description || '',
-            details: new_metadata,
+            details: visitor_metadata,
         })
             .toPromise()
             .catch((err) => {
                 console.error(err);
-                notifyError('Error saving induction settings');
+                notifyError(
+                    i18n('APP.CONCIERGE.INDUCTION_ERROR', { error: err }),
+                );
+            });
+        const result2 = await updateMetadata(this._zone_id, {
+            name: con_metadata.name || concierge_app,
+            description: con_metadata.description || '',
+            details: concierge_metadata,
+        })
+            .toPromise()
+            .catch((err) => {
+                console.error(err);
+                notifyError(
+                    i18n('APP.CONCIERGE.INDUCTION_ERROR', { error: err }),
+                );
             });
         this.loading = '';
         if (result) {
-            notifySuccess('Successfully saved induction settings');
+            notifySuccess(i18n('APP.CONCIERGE.INDUCTION_SUCCESS'));
             this._dialog_ref.close();
         }
     }

@@ -6,7 +6,7 @@ describe('TakePhotoComponent', () => {
     let spectator: Spectator<TakePhotoComponent>;
     const createComponent = createComponentFactory({
         component: TakePhotoComponent,
-        imports: [MatProgressSpinnerModule]
+        imports: [MatProgressSpinnerModule],
     });
 
     beforeEach(() => (spectator = createComponent()));

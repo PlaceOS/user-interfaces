@@ -1,4 +1,4 @@
-import { Component, Renderer2 } from '@angular/core';
+import { Component, OnInit, Renderer2 } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
 import { CustomTooltipData } from '@placeos/components';
 import { getModule } from '@placeos/ts-client';
@@ -16,14 +16,14 @@ export enum ZoomDirection {
     selector: 'camera-tooltip',
     template: `
         <div
-            class="my-2 bg-base-100 shadow rounded flex flex-col"
+            class="my-2 flex flex-col rounded bg-base-100 shadow"
             *ngIf="(camera_list | async)?.length; else empty_state"
         >
             <mat-form-field appearance="outline" class="m-4 h-12">
                 <mat-select
                     [(ngModel)]="active_camera"
                     (ngModelChange)="selectCamera($event)"
-                    placeholder="Select Camera"
+                    [placeholder]="'APP.CONTROL.CAMERA_SELECT' | translate"
                 >
                     <mat-option
                         *ngFor="let cam of camera_list | async"
@@ -33,11 +33,13 @@ export enum ZoomDirection {
                     </mat-option>
                 </mat-select>
             </mat-form-field>
-            <div class="flex relative border-t border-base-200 mt-1">
+            <div class="relative mt-1 flex border-t border-base-200">
                 <div
-                    class="flex flex-col items-center border-r border-base-200 p-4 space-y-2 relative"
+                    class="relative flex flex-col items-center space-y-2 border-r border-base-200 p-4"
                 >
-                    <h3 class="mb-2 text-xl font-medium pr-12">Presets</h3>
+                    <h3 class="mb-2 pr-12 text-xl font-medium">
+                        {{ 'APP.CONTROL.CAMERA_PRESETS' | translate }}
+                    </h3>
                     <ng-container *ngIf="presets?.length; else no_presets">
                         <div
                             class="flex items-center space-x-2"
@@ -48,7 +50,7 @@ export enum ZoomDirection {
                                 btn
                                 matRipple
                                 class="w-48"
-                                [class.inverse]="preset === name"
+                                [class.inverse]="preset !== name"
                                 (click)="recallPreset(name)"
                             >
                                 {{ name }}
@@ -57,7 +59,7 @@ export enum ZoomDirection {
                                 icon
                                 matRipple
                                 *ngIf="presets?.length > 1"
-                                class="rounded bg-error text-white"
+                                class="h-12 w-12 rounded border border-error bg-base-100 text-error"
                                 (click)="removePreset(name)"
                             >
                                 <app-icon>delete</app-icon>
@@ -65,27 +67,32 @@ export enum ZoomDirection {
                         </div>
                     </ng-container>
                     <ng-template #no_presets>
-                        <p>No presets for this camera</p>
+                        <p>
+                            {{ 'APP.CONTROL.CAMERA_PRESETS_EMPTY' | translate }}
+                        </p>
                     </ng-template>
                     <button
                         icon
                         matRipple
-                        class="absolute top-1 right-4"
+                        class="absolute right-4 top-1"
                         [matMenuTriggerFor]="menu"
                     >
                         <app-icon>add</app-icon>
                     </button>
                     <mat-menu #menu="matMenu">
-                        <div class="px-2 w-full flex flex-col">
+                        <div class="flex w-full flex-col px-2">
                             <mat-form-field
                                 appearance="outline"
-                                class="w-full h-[3.5rem]"
+                                class="h-[3.5rem] w-full"
                                 (click)="$event.stopPropagation()"
                             >
                                 <input
                                     matInput
                                     [(ngModel)]="new_preset"
-                                    placeholder="New preset name"
+                                    [placeholder]="
+                                        'APP.CONTROL.CAMERA_PRESETS_NEW'
+                                            | translate
+                                    "
                                 />
                             </mat-form-field>
                             <button
@@ -95,13 +102,18 @@ export enum ZoomDirection {
                                 class="w-full"
                                 (click)="addPreset(new_preset); new_preset = ''"
                             >
-                                Save Preset
+                                {{
+                                    'APP.CONTROL.CAMERA_PRESETS_SAVE'
+                                        | translate
+                                }}
                             </button>
                         </div>
                     </mat-menu>
                 </div>
                 <div class="p-4">
-                    <h3 class="mb-2 text-xl font-medium">Controls</h3>
+                    <h3 class="mb-2 text-xl font-medium">
+                        {{ 'APP.CONTROL.CONTROLS' | translate }}
+                    </h3>
                     <div class="flex items-center space-x-2">
                         <joystick
                             [(pan)]="pan"
@@ -111,7 +123,7 @@ export enum ZoomDirection {
                         ></joystick>
                         <div
                             zoom
-                            class="flex flex-col items-center border border-base-200 rounded"
+                            class="flex flex-col items-center rounded border border-base-200"
                         >
                             <button
                                 zoom-in
@@ -125,9 +137,9 @@ export enum ZoomDirection {
                                 <app-icon>add</app-icon>
                             </button>
                             <div
-                                class="text-xs h-10 w-10 flex items-center justify-center border-t border-b border-base-200"
+                                class="flex h-10 w-10 items-center justify-center border-b border-t border-base-200 text-xs"
                             >
-                                Zoom
+                                {{ 'APP.CONTROL.ZOOM' | translate }}
                             </div>
 
                             <button
@@ -145,10 +157,10 @@ export enum ZoomDirection {
                     </div>
                 </div>
                 <div
-                    class="absolute inset-0 bg-base-100 bg-opacity-75 flex items-center justify-center"
+                    class="absolute inset-0 flex items-center justify-center bg-base-100 bg-opacity-75"
                     *ngIf="!active_camera"
                 >
-                    <p>Select a camera to control.</p>
+                    <p>{{ 'APP.CONTROLS.CAMERA_SELECT_MSG' | translate }}</p>
                 </div>
             </div>
         </div>
@@ -167,21 +179,22 @@ export enum ZoomDirection {
         </div>
         <ng-template #empty_state>
             <div
-                class="my-2 bg-base-100 shadow rounded flex flex-col p-8 text-center"
+                class="my-2 flex flex-col rounded bg-base-100 p-8 text-center shadow"
             >
-                <p>No cameras available for this system</p>
+                <p>{{ 'APP.CONTROL.CAMERAS_EMPTY' | translate }}</p>
             </div>
         </ng-template>
     `,
     styles: [``],
+    standalone: false,
 })
-export class CameraTooltipComponent extends AsyncHandler {
+export class CameraTooltipComponent extends AsyncHandler implements OnInit {
     /** Currently active camera */
     public active_camera: RoomInput;
     /** List of available presets for the active camera */
     public presets: string[] = [];
     /** Currently active preset */
-    public preset: string = '';
+    public preset = '';
     /** Current zoom value for camera */
     public zoom: ZoomDirection = ZoomDirection.Stop;
     /** Current panning value for camera */
@@ -200,7 +213,7 @@ export class CameraTooltipComponent extends AsyncHandler {
     constructor(
         private _state: ControlStateService,
         private _tooltip: CustomTooltipData,
-        private _renderer: Renderer2
+        private _renderer: Renderer2,
     ) {
         super();
     }
@@ -215,7 +228,7 @@ export class CameraTooltipComponent extends AsyncHandler {
                 if (!l?.length) return;
                 this.active_camera =
                     l.find((_) => _.id === cam) || this.active_camera || l[0];
-            })
+            }),
         );
     }
 
@@ -255,15 +268,15 @@ export class CameraTooltipComponent extends AsyncHandler {
                 if (this.tilt !== JoystickTilt.Stop)
                     await mod.execute(
                         'tilt',
-                        index ? [this.tilt, index] : [this.tilt]
+                        index ? [this.tilt, index] : [this.tilt],
                     );
                 if (this.pan !== JoystickPan.Stop)
                     await mod.execute(
                         'pan',
-                        index ? [this.pan, index] : [this.pan]
+                        index ? [this.pan, index] : [this.pan],
                     );
             },
-            50
+            50,
         );
     }
 
@@ -276,12 +289,12 @@ export class CameraTooltipComponent extends AsyncHandler {
         await mod.execute('zoom', index ? [this.zoom, index] : [this.zoom]);
         this.subscription(
             'on_end',
-            this._renderer.listen('window', end_event, (_) => {
+            this._renderer.listen('window', end_event, () => {
                 this.unsub('on_move');
                 this.unsub('on_end');
                 this.zoom = ZoomDirection.Stop;
                 mod.execute('zoom', index ? [this.zoom, index] : [this.zoom]);
-            })
+            }),
         );
     }
 }

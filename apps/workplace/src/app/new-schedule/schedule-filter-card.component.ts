@@ -1,37 +1,39 @@
 import { Component } from '@angular/core';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
+import { SettingsService } from '@placeos/common';
 import { ScheduleStateService } from './schedule-state.service';
 
 @Component({
     selector: 'schedule-filter-card',
     template: `
         <div
-            class="flex items-center border-b border-base-200 space-x-2 mb-4 text-xl"
+            class="mb-4 flex items-center space-x-2 border-b border-base-200 text-xl"
         >
             <button icon matRipple (click)="dismiss()">
                 <app-icon>chevron_left</app-icon>
             </button>
-            <h2 class="flex-1 w-1/2 text-center">
-                {{ 'WPA.BOOKING_TYPES' | translate }}
+            <h2 class="w-1/2 flex-1 text-center">
+                {{ 'APP.WORKPLACE.SCHEDULE_FILTERS' | translate }}
             </h2>
             <app-icon></app-icon>
         </div>
-        <div class="space-y-4 border-b border-base-200 mb-4 pb-4">
+        <div class="mb-4 space-y-4 border-b border-base-200 px-2 pb-4">
             <button
-                name="schedule-toggle-event-filter"
                 matRipple
-                class="flex items-center space-x-2 w-full text-left pr-2"
+                name="schedule-toggle-event-filter"
+                class="flex w-full items-center space-x-2 text-left"
+                *ngIf="hasFeature('spaces')"
                 (click)="toggleType('event')"
             >
                 <div
-                    class="h-10 w-10 rounded-full flex items-center justify-center text-2xl"
+                    class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200 text-2xl"
                 >
-                    <app-icon>meeting_room</app-icon>
+                    <app-icon>place</app-icon>
                 </div>
                 <div class="flex-1">
-                    <div class="">{{ 'WPA.ROOM' | translate }}</div>
+                    <div class="">{{ 'RESOURCE.ROOMS' | translate }}</div>
                     <div class="text-sm opacity-60">
-                        {{ 'WPA.SCHEULD_ROOM_FILTER' | translate }}
+                        {{ 'APP.WORKPLACE.SCHEDULE_FILTER_ROOMS' | translate }}
                     </div>
                 </div>
                 <mat-checkbox
@@ -43,18 +45,19 @@ import { ScheduleStateService } from './schedule-state.service';
             <button
                 matRipple
                 name="schedule-toggle-desk-filter"
-                class="flex items-center space-x-2 w-full text-left pr-2"
+                class="flex w-full items-center space-x-2 text-left"
+                *ngIf="hasFeature('desks')"
                 (click)="toggleType('desk')"
             >
                 <div
-                    class="h-10 w-10 rounded-full flex items-center justify-center text-2xl"
+                    class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200 text-2xl"
                 >
                     <img src="assets/icons/desk-outline.svg" class="w-6" />
                 </div>
                 <div class="flex-1">
-                    <div class="">{{ 'WPA.DESK' | translate }}</div>
+                    <div class="">{{ 'RESOURCE.DESKS' | translate }}</div>
                     <div class="text-sm opacity-60">
-                        {{ 'WPA.SCHEDULE_DESK_FILTER' | translate }}
+                        {{ 'APP.WORKPLACE.SCHEDULE_FILTER_DESKS' | translate }}
                     </div>
                 </div>
                 <mat-checkbox
@@ -64,18 +67,21 @@ import { ScheduleStateService } from './schedule-state.service';
             <button
                 matRipple
                 name="schedule-toggle-parking-filter"
-                class="flex items-center space-x-2 w-full text-left pr-2"
+                class="flex w-full items-center space-x-2 text-left"
+                *ngIf="hasFeature('parking')"
                 (click)="toggleType('parking')"
             >
                 <div
-                    class="h-10 w-10 rounded-full flex items-center justify-center text-2xl"
+                    class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200 text-2xl"
                 >
                     <app-icon>drive_eta</app-icon>
                 </div>
                 <div class="flex-1">
-                    <div class="">{{ 'WPA.PARKING' | translate }}</div>
+                    <div class="">{{ 'RESOURCE.PARKING' | translate }}</div>
                     <div class="text-sm opacity-60">
-                        {{ 'WPA.SCHEDULE_PARKING_FILTER' | translate }}
+                        {{
+                            'APP.WORKPLACE.SCHEDULE_FILTER_PARKING' | translate
+                        }}
                     </div>
                 </div>
                 <mat-checkbox
@@ -87,23 +93,82 @@ import { ScheduleStateService } from './schedule-state.service';
             <button
                 matRipple
                 name="schedule-toggle-visitor-filter"
-                class="flex items-center space-x-2 w-full text-left pr-2"
+                class="flex w-full items-center space-x-2 text-left"
+                *ngIf="hasFeature('visitor-invite')"
                 (click)="toggleType('visitor')"
             >
                 <div
-                    class="h-10 w-10 rounded-full flex items-center justify-center text-2xl"
+                    class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200 text-2xl"
                 >
                     <app-icon>people</app-icon>
                 </div>
                 <div class="flex-1">
-                    <div class="">{{ 'WPA.VISITORS' | translate }}</div>
+                    <div class="">
+                        {{ 'RESOURCE.VISITORS' | translate }}
+                    </div>
                     <div class="text-sm opacity-60">
-                        {{ 'WPA.SCHEDULE_VISITOR_FILTER' | translate }}s
+                        {{
+                            'APP.WORKPLACE.SCHEDULE_FILTER_VISITORS' | translate
+                        }}
                     </div>
                 </div>
                 <mat-checkbox
                     [ngModel]="
                         (filters | async)?.shown_types?.includes('visitor')
+                    "
+                ></mat-checkbox>
+            </button>
+            <button
+                matRipple
+                name="schedule-toggle-locker-filter"
+                class="flex w-full items-center space-x-2 text-left"
+                *ngIf="hasFeature('lockers')"
+                (click)="toggleType('locker')"
+            >
+                <div
+                    class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200 text-2xl"
+                >
+                    <app-icon>door_back</app-icon>
+                </div>
+                <div class="flex-1">
+                    <div class="">
+                        {{ 'RESOURCE.LOCKERS' | translate }}
+                    </div>
+                    <div class="text-sm opacity-60">
+                        {{
+                            'APP.WORKPLACE.SCHEDULE_FILTER_LOCKERS' | translate
+                        }}
+                    </div>
+                </div>
+                <mat-checkbox
+                    [ngModel]="
+                        (filters | async)?.shown_types?.includes('locker')
+                    "
+                ></mat-checkbox>
+            </button>
+            <button
+                matRipple
+                name="schedule-toggle-locker-filter"
+                class="flex w-full items-center space-x-2 text-left"
+                *ngIf="hasFeature('group-events')"
+                (click)="toggleType('group-event')"
+            >
+                <div
+                    class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200 text-2xl"
+                >
+                    <app-icon>door_back</app-icon>
+                </div>
+                <div class="flex-1">
+                    <div class="">
+                        {{ 'RESOURCE.EVENTS' | translate }}
+                    </div>
+                    <div class="text-sm opacity-60">
+                        {{ 'APP.WORKPLACE.SCHEDULE_FILTER_EVENTS' | translate }}
+                    </div>
+                </div>
+                <mat-checkbox
+                    [ngModel]="
+                        (filters | async)?.shown_types?.includes('group-event')
                     "
                 ></mat-checkbox>
             </button>
@@ -116,7 +181,7 @@ import { ScheduleStateService } from './schedule-state.service';
                 class="w-full"
                 (click)="dismiss()"
             >
-                {{ 'WPA.FILTERS_APPLY' | translate }}
+                {{ 'COMMON.APPLY' | translate }}
             </button>
         </div>
     `,
@@ -127,6 +192,7 @@ import { ScheduleStateService } from './schedule-state.service';
             }
         `,
     ],
+    standalone: false,
 })
 export class ScheduleFilterCardComponent {
     public readonly filters = this._state.filters;
@@ -134,8 +200,13 @@ export class ScheduleFilterCardComponent {
     public readonly toggleType = (t) => this._state.toggleType(t);
     public readonly dismiss = () => this._sheet_ref.dismiss();
 
+    public hasFeature(feature: string) {
+        return this._settings.get('app.features')?.includes(feature);
+    }
+
     constructor(
         private _state: ScheduleStateService,
-        private _sheet_ref: MatBottomSheetRef<ScheduleFilterCardComponent>
+        private _settings: SettingsService,
+        private _sheet_ref: MatBottomSheetRef<ScheduleFilterCardComponent>,
     ) {}
 }

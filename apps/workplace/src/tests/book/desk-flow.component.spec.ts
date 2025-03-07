@@ -24,7 +24,7 @@ describe('BookDeskFlowComponent', () => {
                     last_success: null,
                 },
             },
-            { provide: SettingsService, useValue: { get: jest.fn() } }
+            { provide: SettingsService, useValue: { get: jest.fn() } },
         ],
         declarations: [
             MockComponent(DeskFlowFormComponent),

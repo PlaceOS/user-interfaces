@@ -50,12 +50,11 @@ const QR_STORE = new Map<string, string>();
 
 export async function getShortUrlQRCode(
     id: string,
-    format: 'svg' | 'png' = 'svg'
+    format: 'svg' | 'png' = 'svg',
 ): Promise<string> {
     const key = `${id}.${format}`;
     if (QR_STORE.has(key)) return QR_STORE.get(key);
     const tkn = token();
-    console.log('Token:', tkn);
     document.cookie = `${
         tkn === 'x-api-key'
             ? 'api-key=' + encodeURIComponent(apiKey())
@@ -76,7 +75,7 @@ export function createShortURL(data: ShortURL): Observable<ShortURL> {
 
 export function updateShortURL(
     id: string,
-    data: ShortURL
+    data: ShortURL,
 ): Observable<ShortURL> {
     return put(`${ENDPOINT}/${id}`, data).pipe(map((_) => _ as ShortURL));
 }
@@ -87,7 +86,7 @@ export function saveShortURL(data: ShortURL): Observable<ShortURL> {
 
 export function patchShortURL(
     id: string,
-    data: Partial<ShortURL>
+    data: Partial<ShortURL>,
 ): Observable<ShortURL> {
     return patch(`${ENDPOINT}/${id}`, data).pipe(map((_) => _ as ShortURL));
 }

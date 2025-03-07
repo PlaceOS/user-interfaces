@@ -1,6 +1,17 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import {
+    AfterViewInit,
+    Component,
+    ElementRef,
+    OnInit,
+    ViewChild,
+} from '@angular/core';
 import { Router } from '@angular/router';
-import { AsyncHandler, SettingsService } from '@placeos/common';
+import {
+    AsyncHandler,
+    currentUser,
+    i18n,
+    SettingsService,
+} from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 
 @Component({
@@ -12,13 +23,13 @@ import { OrganisationService } from '@placeos/organisation';
             [class.opacity-0]="mobile_menu || checking"
             [class.!h-0]="mobile_menu"
             (window:resize)="checkMenu()"
-            class="flex items-center justify-center h-full w-full overflow-hidden text-base-content min-w-full"
+            class="flex h-full w-full min-w-full items-center justify-center overflow-hidden text-base-content"
         >
             <ng-container *ngFor="let route of routes">
                 <a
                     matRipple
                     [name]="'nav-' + route.id"
-                    class="flex items-center justify-center space-x-2 relative px-8"
+                    class="relative flex items-center justify-center space-x-2 px-8"
                     [routerLink]="[route.route]"
                     routerLinkActive="text-secondary active"
                     [matTooltip]="route.name"
@@ -29,7 +40,7 @@ import { OrganisationService } from '@placeos/organisation';
                     <app-icon
                         outline
                         className="material-icons-outlined"
-                        class="text-xl !m-0"
+                        class="!m-0 text-xl"
                     >
                         {{ route.icon }}
                     </app-icon>
@@ -38,13 +49,13 @@ import { OrganisationService } from '@placeos/organisation';
                     }}</span>
                     <div
                         bar
-                        class="absolute bottom-0 inset-x-0 h-0.5 bg-secondary"
+                        class="absolute inset-x-0 bottom-0 h-0.5 bg-secondary"
                     ></div>
                 </a>
             </ng-container>
         </div>
         <div
-            class="absolute inset-y-0 left-0 -right-16 flex items-center justify-end"
+            class="absolute inset-y-0 -right-16 left-0 flex items-center justify-end"
             *ngIf="mobile_menu"
         >
             <button icon matRipple [matMenuTriggerFor]="menu">
@@ -66,7 +77,7 @@ import { OrganisationService } from '@placeos/organisation';
                         <app-icon
                             outline
                             className="material-icons-outlined"
-                            class="text-xl !m-0"
+                            class="!m-0 text-xl"
                         >
                             {{ route.icon }}
                         </app-icon>
@@ -111,8 +122,12 @@ import { OrganisationService } from '@placeos/organisation';
             }
         `,
     ],
+    standalone: false,
 })
-export class TopMenuComponent extends AsyncHandler {
+export class TopMenuComponent
+    extends AsyncHandler
+    implements OnInit, AfterViewInit
+{
     public readonly buildings = this._org.building_list;
     public readonly building = this._org.active_building;
     public previous_size = 9999;
@@ -122,55 +137,31 @@ export class TopMenuComponent extends AsyncHandler {
 
     public readonly setBuilding = (b) => (this._org.building = b);
 
-    public readonly routes = [
-        { id: 'home', route: this.default_page, icon: 'home', name: 'Home' },
-        {
-            id: 'spaces',
-            route: '/book/meeting',
-            icon: 'meeting_room',
-            name: 'Book Room',
-        },
-        {
-            id: 'desks',
-            route: '/book/new-desks',
-            icon: 'desk',
-            name: 'Book Desk',
-        },
-        {
-            id: 'lockers',
-            route: '/book/locker',
-            icon: 'lock',
-            name: 'Book Locker',
-        },
-        {
-            id: 'parking',
-            route: '/book/new-parking',
-            icon: 'directions_car',
-            name: 'Book Car Space',
-        },
-        {
-            id: 'visitor-invite',
-            route: '/book/visitor',
-            icon: 'person',
-            name: 'Invite Visitors',
-        },
-        { id: 'explore', route: '/explore', icon: 'place', name: 'Spaces' },
-        {
-            id: 'schedule',
-            route: '/your-bookings',
-            icon: 'event',
-            name: 'Your Bookings',
-        },
-        {
-            id: 'group-events',
-            route: '/group-events',
-            icon: 'local_activity',
-            name: 'Events',
-        },
-    ];
+    public routes = [];
+
+    public get feature_list(): string[] {
+        return this._settings.get('app.features') || [];
+    }
 
     public get features(): string[] {
-        return this._settings.get('app.features') || [];
+        const feature_list = this.feature_list;
+        const feature_groups: Record<string, string[]> =
+            this._settings.get('app.feature_groups') || {};
+        const groups = currentUser().groups;
+        return feature_list.filter(
+            (name) =>
+                // this.is_admin ||
+                !feature_groups[name]?.length ||
+                feature_groups[name].find((_) => groups.includes(_)),
+        );
+    }
+
+    public get is_admin() {
+        const groups = currentUser().groups;
+        return (
+            groups.includes('placeos_admin') ||
+            groups.includes('placeos_support')
+        );
     }
 
     public get default_page(): string {
@@ -183,7 +174,7 @@ export class TopMenuComponent extends AsyncHandler {
 
     public get type() {
         const url = this._router.url;
-        if (url.includes('dashboard')) return 'home';
+        if (url.includes(this.default_page)) return 'home';
         if (url.includes('book/spaces')) return 'spaces';
         if (url.includes('book/desks')) return 'desks';
         if (url.includes('book/locker')) return 'lockers';
@@ -199,17 +190,89 @@ export class TopMenuComponent extends AsyncHandler {
         private _element: ElementRef,
         private _settings: SettingsService,
         private _org: OrganisationService,
-        private _router: Router
+        private _router: Router,
     ) {
         super();
     }
 
     public ngOnInit() {
         this.checking = true;
+        this.subscription(
+            'building',
+            this._org.active_building.subscribe(() =>
+                this.timeout('check_route', () => this._checkRoute()),
+            ),
+        );
+        this.routes = [
+            {
+                id: 'home',
+                route: this.default_page,
+                icon: 'home',
+                name: i18n('APP.WORKPLACE.MENU_HOME'),
+            },
+            {
+                id: 'spaces',
+                route: '/book/meeting',
+                icon: 'meeting_room',
+                name: i18n('APP.WORKPLACE.MENU_ROOMS'),
+            },
+            {
+                id: 'desks',
+                route: '/book/new-desks',
+                icon: 'desk',
+                name: i18n('APP.WORKPLACE.MENU_DESKS'),
+            },
+            {
+                id: 'lockers',
+                route: '/book/locker',
+                icon: 'lock',
+                name: i18n('APP.WORKPLACE.MENU_LOCKERS'),
+            },
+            {
+                id: 'parking',
+                route: '/book/new-parking',
+                icon: 'directions_car',
+                name: i18n('APP.WORKPLACE.MENU_PARKING'),
+            },
+            {
+                id: 'visitor-invite',
+                route: '/book/visitor',
+                icon: 'person',
+                name: i18n('APP.WORKPLACE.MENU_VISITORS'),
+            },
+            {
+                id: 'explore',
+                route: '/explore',
+                icon: 'place',
+                name: i18n('APP.WORKPLACE.MENU_EXPLORE'),
+            },
+            {
+                id: 'schedule',
+                route: '/your-bookings',
+                icon: 'event',
+                name: i18n('APP.WORKPLACE.MENU_SCHEDULE'),
+            },
+            {
+                id: 'group-events',
+                route: '/group-events',
+                icon: 'local_activity',
+                name: i18n('APP.WORKPLACE.MENU_EVENTS'),
+            },
+        ];
     }
 
     public ngAfterViewInit() {
         this.timeout('check_menu', () => this.checkMenu());
+    }
+
+    private _checkRoute() {
+        if (
+            this.type &&
+            this.type !== 'home' &&
+            !this.features.includes(this.type)
+        ) {
+            this._router.navigate(['/']);
+        }
     }
 
     public checkMenu() {

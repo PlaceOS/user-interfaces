@@ -2,35 +2,44 @@ import {
     Component,
     EventEmitter,
     Input,
+    OnChanges,
+    OnInit,
     Output,
     SimpleChanges,
 } from '@angular/core';
 import { FormGroup } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { BookingFormService, Locker } from '@placeos/bookings';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
+import { combineLatest } from 'rxjs';
+import { first } from 'rxjs/operators';
 
 @Component({
     selector: 'new-locker-form-details',
     styles: [],
     template: `
         <div
-            class="p-0 sm:py-4 sm:px-16 divide-y divide-base-200 space-y-2"
+            class="space-y-2 divide-y divide-base-200 p-0 sm:px-16 sm:py-4"
             *ngIf="form"
             [formGroup]="form"
         >
             <section class="p-2" [class.!border-none]="allow_groups">
-                <h3 class="space-x-2 flex items-center mb-4">
+                <h3 class="mb-4 flex items-center space-x-2">
                     <div
-                        class="bg-base-200 rounded-full h-6 w-6 flex items-center justify-center"
+                        class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
                     >
                         1
                     </div>
-                    <div class="text-xl" i18n>Details</div>
+                    <div class="text-xl">
+                        {{ 'BOOKINGS.DETAILS' | translate }}
+                    </div>
                 </h3>
-                <div class="flex items-center flex-wrap sm:space-x-2">
-                    <div class="flex-1 min-w-[256px]">
-                        <label for="date" i18n>Building<span>*</span></label>
+                <div class="flex flex-wrap items-center sm:space-x-2">
+                    <div class="min-w-[256px] flex-1">
+                        <label for="date">
+                            {{ 'RESOURCE.BUILDING' | translate }}<span>*</span>
+                        </label>
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
                                 [(ngModel)]="building"
@@ -46,17 +55,33 @@ import { OrganisationService } from '@placeos/organisation';
                             </mat-select>
                         </mat-form-field>
                     </div>
-                    <div class="flex-1 min-w-[256px]">
-                        <label for="date" i18n>Date<span>*</span></label>
-                        <a-date-field name="date" formControlName="date" i18n>
-                            Date and time must be in the future
+                    <div class="relative min-w-[256px] flex-1">
+                        <label for="date">
+                            {{ 'FORM.DATE' | translate }}<span>*</span>
+                        </label>
+                        <a-date-field
+                            name="date"
+                            formControlName="date"
+                            [timezone]="timezone"
+                        >
+                            {{ 'FORM.DATE_REQUIRED' | translate }}
                         </a-date-field>
+                        <mat-checkbox
+                            formControlName="all_day"
+                            *ngIf="allow_all_day && !disable_date"
+                            class="absolute -top-2 right-0"
+                        >
+                            {{ 'COMMON.ALL_DAY' | translate }}
+                        </mat-checkbox>
                     </div>
                 </div>
-                <div class="flex items-center space-x-2">
-                    <div class="flex-1 w-1/3">
-                        <label for="start-time" i18n>
-                            Start Time<span>*</span>
+                <div
+                    class="flex items-center space-x-2"
+                    *ngIf="!form.value.all_day"
+                >
+                    <div class="w-1/3 flex-1">
+                        <label for="start-time">
+                            {{ 'FORM.TIME_START' | translate }}<span>*</span>
                         </label>
                         <a-time-field
                             name="start-time"
@@ -64,35 +89,42 @@ import { OrganisationService } from '@placeos/organisation';
                             (ngModelChange)="form.patchValue({ date: $event })"
                             [ngModelOptions]="{ standalone: true }"
                             [use_24hr]="use_24hr"
-                            [disabled]="form.value.duration > 24 * 60 - 1"
+                            [disabled]="
+                                form.value.duration > 24 * 60 - 1 ||
+                                disable_start
+                            "
+                            [timezone]="timezone"
                         ></a-time-field>
                     </div>
-                    <div class="flex-1 w-1/3 relative">
-                        <label for="end-time" i18n>
-                            End Time<span>*</span>
+                    <div class="relative w-1/3 flex-1" *ngIf="!hide_end">
+                        <label for="end-time">
+                            {{ 'FORM.TIME_END' | translate }}<span>*</span>
                         </label>
                         <a-duration-field
                             name="end-time"
                             formControlName="duration"
                             [time]="form.get('date')?.value"
-                            [max]="10 * 60"
+                            [max]="max_duration"
                             [min]="60"
                             [step]="60"
                             [use_24hr]="use_24hr"
                             [custom_options]="custom_durations"
+                            [timezone]="timezone"
                         >
                         </a-duration-field>
                     </div>
                 </div>
             </section>
             <section class="p-2" *ngIf="form.contains('resources')">
-                <h3 class="space-x-2 flex items-center mb-4">
+                <h3 class="mb-4 flex items-center space-x-2">
                     <div
-                        class="bg-base-200 rounded-full h-6 w-6 flex items-center justify-center"
+                        class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
                     >
                         {{ (options | async)?.group ? 3 : 2 }}
                     </div>
-                    <div class="text-xl" i18n>Locker</div>
+                    <div class="text-xl">
+                        {{ 'RESOURCE.LOCKER' | translate }}
+                    </div>
                 </h3>
                 <locker-list-field
                     formControlName="resources"
@@ -100,8 +132,12 @@ import { OrganisationService } from '@placeos/organisation';
             </section>
         </div>
     `,
+    standalone: false,
 })
-export class LockerFormDetailsComponent extends AsyncHandler {
+export class LockerFormDetailsComponent
+    extends AsyncHandler
+    implements OnChanges, OnInit
+{
     @Input() public form: FormGroup;
     @Output() public find = new EventEmitter<void>();
     /** List of available buildings to select */
@@ -127,8 +163,47 @@ export class LockerFormDetailsComponent extends AsyncHandler {
         this._org.building = bld;
     }
 
+    public get max_duration() {
+        return (
+            this._settings.get('app.lockers.max_duration') ||
+            this._settings.get('app.bookings.max_duration') ||
+            8 * 60
+        );
+    }
+
+    public get disable_date() {
+        return this._settings.get('app.lockers.disabled_date_select');
+    }
+
+    public get disable_start() {
+        return this._settings.get('app.lockers.disabled_start_time');
+    }
+    public get hide_end() {
+        return this._settings.get('app.lockers.hide_end_time');
+    }
+
     public get use_24hr() {
         return this._settings.get('app.use_24_hour_time');
+    }
+
+    public get allow_all_day() {
+        return (
+            this.allow_time_changes &&
+            (this._settings.get('app.lockers.allow_all_day') ??
+                this._settings.get('app.bookings.allow_all_day') ??
+                true)
+        );
+    }
+
+    public get allow_time_changes() {
+        return this._settings.get('app.lockers.allow_time_changes') !== false;
+    }
+
+    public get timezone() {
+        return this._settings.get('app.bookings.use_building_timezone') ||
+            this._settings.get('app.lockers.use_building_timezone')
+            ? this._org.building.timezone
+            : '';
     }
 
     public readonly setOptions = (o) => this._state.setOptions(o);
@@ -138,9 +213,35 @@ export class LockerFormDetailsComponent extends AsyncHandler {
     constructor(
         private _state: BookingFormService,
         private _org: OrganisationService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
+        private _dialog: MatDialog,
     ) {
         super();
+    }
+
+    public async ngOnInit() {
+        await this._org.initialised.pipe(first((_) => !!_)).toPromise();
+        this._state.form.patchValue({
+            all_day: !this.allow_time_changes || this._state.form.value.all_day,
+        });
+        this.subscription(
+            'bld',
+            combineLatest([
+                this._org.active_building,
+                this._dialog.afterAllClosed,
+                this.form.controls.duration.valueChanges,
+            ]).subscribe(() => {
+                this.timeout(
+                    'disable',
+                    () => {
+                        if (this.disable_date) {
+                            this.form.controls.date.disable();
+                        }
+                    },
+                    50,
+                );
+            }),
+        );
     }
 
     public ngOnChanges(changes: SimpleChanges) {
@@ -150,24 +251,28 @@ export class LockerFormDetailsComponent extends AsyncHandler {
                 this.form
                     .get('resources')
                     ?.valueChanges?.subscribe((list) =>
-                        list?.length ? this.setBookingAsset(list[0]) : ''
-                    )
+                        list?.length ? this.setBookingAsset(list[0]) : '',
+                    ),
             );
             this.subscription(
                 'date',
                 this.form
                     .get('date')
-                    ?.valueChanges?.subscribe((d) =>
-                        this._setCustomDateOptions()
-                    )
+                    ?.valueChanges?.subscribe(() =>
+                        this._setCustomDateOptions(),
+                    ),
             );
             this._setCustomDateOptions();
         }
     }
 
     private _setCustomDateOptions() {
-        for (const i of [1, 2, 3, 4, 5, 6, 7]) {
-            this.custom_durations.push(i * 24 * 60);
+        const today = new Date();
+        const hours = 22 - today.getHours();
+        const days = 5 - today.getDay();
+        this.custom_durations = [];
+        for (let i = 1; i <= days; i++) {
+            this.custom_durations.push((24 * i + hours) * 60);
         }
     }
 
@@ -178,11 +283,12 @@ export class LockerFormDetailsComponent extends AsyncHandler {
         this._state.form.patchValue({
             asset_id: locker?.id,
             asset_name: locker.name,
-            map_id: locker?.bank_id || locker?.id,
+            map_id: locker.map_id || locker?.bank_id || locker?.id,
             description: locker.name,
             booking_type: 'locker',
             zones: [this.building.id],
             booking_asset: locker,
+            tags: locker.bank?.tags || [],
         });
     }
 }

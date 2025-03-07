@@ -4,64 +4,79 @@ import { Component, OnInit } from '@angular/core';
     selector: 'points-overview',
     template: `
         <h2
-            class="px-4 py-3 bg-secondary text-white w-full rounded font-medium text-lg shadow"
+            class="w-full rounded bg-secondary px-4 py-3 text-lg font-medium text-white shadow"
         >
-            Point Overview
+            {{ 'APP.CONCIERGE.POINTS_OVERVIEW_HEADER' | translate }}
         </h2>
-        <section class="bg-base-100 w-full">
-            <h2 class="p-2 underline font-medium text-lg">Point Value</h2>
-            <div class="flex items-center space-x-2 p-4 mb-4">
-                <span>1 point =</span>
+        <section class="w-full bg-base-100">
+            <h2 class="p-2 text-lg font-medium underline">
+                {{ 'APP.CONCIERGE.POINTS_VALUE_HEADER' | translate }}
+            </h2>
+            <div class="mb-4 flex items-center space-x-2 p-4">
+                <span class="font-mono"
+                    >{{ 'APP.CONCIERGE.POINTS_ONE_POINT' | translate }} =</span
+                >
                 <a-counter
+                    class="w-48"
                     [step]="0.1"
                     [(ngModel)]="points.value"
                     (ngModelChange)="storePoints()"
                     [render_fn]="renderPrice"
                 ></a-counter>
-                <app-icon matTooltip="Set point redemption caps on menu items">
+                <app-icon
+                    class="text-2xl"
+                    [matTooltip]="'APP.CONCIERGE.POINTS_VALUE_INFO' | translate"
+                >
                     info
                 </app-icon>
             </div>
         </section>
-        <section class="bg-base-100 w-full flex-1">
-            <h2 class="p-2 underline font-medium text-lg">Automatic Rewards</h2>
+        <section class="w-full flex-1 bg-base-100">
+            <h2 class="p-2 text-lg font-medium underline">
+                {{ 'APP.CONCIERGE.POINTS_AUTO_REWARDS' | translate }}
+            </h2>
             <div class="p-4">
                 <div
-                    class="flex items-center space-x-2 p-2 border-b border-base-200"
+                    class="flex items-center space-x-4 border-b border-base-200 p-2"
                 >
                     <a-counter
                         [(ngModel)]="points.desk_checkin"
                         (ngModelChange)="storePoints()"
                     ></a-counter>
-                    <span>Points for desk check-in</span>
+                    <span>{{
+                        'APP.CONCIERGE.POINTS_REWARD_DESK' | translate
+                    }}</span>
                 </div>
                 <div
-                    class="flex items-center space-x-2 p-2 border-b border-base-200"
+                    class="flex items-center space-x-4 border-b border-base-200 p-2"
                 >
                     <a-counter
                         [(ngModel)]="points.room_checkin"
                         (ngModelChange)="storePoints()"
                     ></a-counter>
-                    <span>Points for room check-in</span>
+                    <span>{{
+                        'APP.CONCIERGE.POINTS_REWARD_ROOM' | translate
+                    }}</span>
                 </div>
                 <div
-                    class="flex items-center space-x-2 p-2 border-b border-base-200"
+                    class="flex items-center space-x-4 border-b border-base-200 p-2"
                 >
                     <a-counter
                         [(ngModel)]="points.booking_cancel"
                         (ngModelChange)="storePoints()"
                     ></a-counter>
-                    <span
-                        >Points for booking cancellation with 24 hour
-                        notice</span
-                    >
+                    <span>{{
+                        'APP.CONCIERGE.POINTS_REWARD_CANCEL' | translate
+                    }}</span>
                 </div>
-                <div class="flex items-center space-x-2 p-2 ">
+                <div class="flex items-center space-x-4 p-2">
                     <a-counter
                         [(ngModel)]="points.wellness_card"
                         (ngModelChange)="storePoints()"
                     ></a-counter>
-                    <span>Points for completing wellness card</span>
+                    <span>{{
+                        'APP.CONCIERGE.POINTS_REWARD_WELLNESS' | translate
+                    }}</span>
                 </div>
             </div>
         </section>
@@ -74,6 +89,7 @@ import { Component, OnInit } from '@angular/core';
             }
         `,
     ],
+    standalone: false,
 })
 export class PointsOverviewComponent implements OnInit {
     public points = {
@@ -96,7 +112,7 @@ export class PointsOverviewComponent implements OnInit {
         this.points = {
             ...this.points,
             ...JSON.parse(
-                localStorage.getItem('PLACEOS.point_details') || '{}'
+                localStorage.getItem('PLACEOS.point_details') || '{}',
             ),
         };
     }
@@ -104,7 +120,7 @@ export class PointsOverviewComponent implements OnInit {
     public storePoints() {
         localStorage.setItem(
             'PLACEOS.point_details',
-            JSON.stringify(this.points)
+            JSON.stringify(this.points),
         );
     }
 }

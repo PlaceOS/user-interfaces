@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { Subject, Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import {
-    switchMap,
     debounceTime,
     distinctUntilChanged,
     map,
+    switchMap,
 } from 'rxjs/operators';
 
 import { AsyncHandler, SettingsService } from '@placeos/common';
@@ -16,11 +16,11 @@ const LETTERS = `ABCDEFGHIJKLMNOPQRSTUVWXYZ`.split('');
     selector: '[a-directory-user-list]',
     template: `
         <topbar></topbar>
-        <div class="flex-1 flex sm:flex-row flex-col-reverse h-1/2">
+        <div class="flex h-1/2 flex-1 flex-col-reverse sm:flex-row">
             <div
-                class="relative z-0 flex flex-col flex-1 h-1/2 sm:h-auto overflow-hidden"
+                class="relative z-0 flex h-1/2 flex-1 flex-col overflow-hidden sm:h-auto"
             >
-                <div class="w-full flex items-center justify-center p-2">
+                <div class="flex w-full items-center justify-center p-2">
                     <mat-form-field
                         overlay
                         class="rounded"
@@ -41,7 +41,7 @@ const LETTERS = `ABCDEFGHIJKLMNOPQRSTUVWXYZ`.split('');
                         ></mat-spinner>
                     </mat-form-field>
                 </div>
-                <main class="flex-1 h-1/2 w-full">
+                <main class="h-1/2 w-full flex-1">
                     <ng-container
                         *ngIf="
                             groupedUsers && user_list.length;
@@ -50,7 +50,7 @@ const LETTERS = `ABCDEFGHIJKLMNOPQRSTUVWXYZ`.split('');
                     >
                         <ng-container *ngFor="let letter of letters">
                             <ng-container *ngIf="groupedUsers[letter].length">
-                                <div class="py-2 px-4 font-medium">
+                                <div class="px-4 py-2 font-medium">
                                     {{ letter }}
                                 </div>
                                 <a-directory-user-list-item
@@ -97,6 +97,7 @@ const LETTERS = `ABCDEFGHIJKLMNOPQRSTUVWXYZ`.split('');
             }
         `,
     ],
+    standalone: false,
 })
 export class DirectoryUserListComponent extends AsyncHandler implements OnInit {
     /** List of searchable users */
@@ -128,7 +129,7 @@ export class DirectoryUserListComponent extends AsyncHandler implements OnInit {
         map((list: User[]) => {
             this.loading = false;
             return list;
-        })
+        }),
     );
 
     /** Minimum length of the search string needed to initial a search */
@@ -148,7 +149,7 @@ export class DirectoryUserListComponent extends AsyncHandler implements OnInit {
             this.search_results$.subscribe((list) => {
                 this.user_list = list;
                 this.buildGroups(this.user_list);
-            })
+            }),
         );
         this.search$.next('');
     }
@@ -161,7 +162,7 @@ export class DirectoryUserListComponent extends AsyncHandler implements OnInit {
         const sorted = users.sort((a, b) => a.name.localeCompare(b.name));
         for (const letter of this.letters) {
             this.groupedUsers[letter] = sorted.filter((f) =>
-                f.name.startsWith(letter)
+                f.name.startsWith(letter),
             );
         }
     }

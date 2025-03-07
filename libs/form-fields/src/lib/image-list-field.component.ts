@@ -1,20 +1,20 @@
+import { Clipboard } from '@angular/cdk/clipboard';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { Component, ElementRef, forwardRef, ViewChild } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatChipInputEvent } from '@angular/material/chips';
-import { Clipboard } from '@angular/cdk/clipboard';
 import { Upload } from '@placeos/cloud-uploads';
 
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map, take } from 'rxjs/operators';
 
+import { MatDialog } from '@angular/material/dialog';
 import {
     AsyncHandler,
     notifyInfo,
     unique,
     UploadsService,
 } from '@placeos/common';
-import { MatDialog } from '@angular/material/dialog';
 import { ImageViewerComponent } from 'libs/components/src/lib/image-viewer.component';
 
 export interface UploadDetails {
@@ -42,39 +42,41 @@ export interface UploadDetails {
         <div
             images
             #image_list
-            class="space-x-2 py-2 overflow-hidden mb-2 w-full flex items-center relative"
+            class="relative mb-2 flex w-full items-center space-x-2 overflow-hidden py-2"
             (window:resize)="ngAfterViewInit()"
         >
             <div
                 image
-                class="relative rounded border-2 border-base-200  border-dashed flex-shrink-0 flex flex-col items-center justify-center h-32 w-36 hover:bg-base-content/10 :bg-base-100/10 cursor-pointer"
+                class="relative flex h-32 w-36 flex-shrink-0 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-base-200 hover:border-base-300 hover:bg-base-200"
                 [style.transform]="'translate(-' + offset + '00%)'"
             >
                 <app-icon class="text-4xl opacity-60">add</app-icon>
-                <p class="opacity-60" i18n>Upload Image(s)</p>
+                <p class="px-4 text-center opacity-60">
+                    {{ 'COMMON.IMAGE_UPLOADS' | translate }}
+                </p>
                 <input
                     #file_input
                     type="file"
-                    class="absolute inset-0 opacity-0 h-32 w-32 cursor-pointer"
+                    class="absolute inset-0 h-32 w-32 cursor-pointer opacity-0"
                     (change)="uploadImages($event)"
                 />
             </div>
             <div
                 image
                 *ngFor="let url of list; let i = index"
-                class="bg-center bg-cover h-32 w-36 relative rounded overflow-hidden flex-shrink-0 bg-base-200"
+                class="relative h-32 w-36 flex-shrink-0 overflow-hidden rounded bg-base-200 bg-cover bg-center"
                 [style.transform]="'translate(-' + offset + '00%)'"
             >
                 <img
                     auth
                     [source]="url"
-                    class="object-contain absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-none"
+                    class="pointer-events-none absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 object-contain"
                 />
-                <div overlay class="absolute inset-0 text-base-100 z-20">
-                    <div bg class="absolute inset-0 opacity-0 bg-black"></div>
+                <div overlay class="absolute inset-0 z-20 text-base-100">
+                    <div bg class="absolute inset-0 bg-black opacity-0"></div>
                     <div
                         actions
-                        class="absolute top-0 left-0 right-0 flex items-center justify-center space-x-2 opacity-0"
+                        class="absolute left-0 right-0 top-0 flex items-center justify-center space-x-2 opacity-0"
                     >
                         <button icon (click)="copyLink(url)">
                             <app-icon>link</app-icon>
@@ -91,7 +93,7 @@ export interface UploadDetails {
             <div
                 image
                 *ngFor="let item of uploads | async; let i = index"
-                class="bg-center bg-cover h-32 w-36 rounded border border-base-content/10 /5 bg-base-200  flex items-center justify-center flex-shrink-0"
+                class="border-base-content/10 /5 flex h-32 w-36 flex-shrink-0 items-center justify-center rounded border bg-base-200 bg-cover bg-center"
                 [style.transform]="'translate(-' + offset + '00%)'"
                 [matTooltip]="item.error"
                 (click)="retryUpload(item)"
@@ -102,13 +104,13 @@ export interface UploadDetails {
                     [diameter]="64"
                     mode="determinate"
                 ></mat-progress-spinner>
-                <app-icon *ngIf="item.error" class="text-error text-6xl"
+                <app-icon *ngIf="item.error" class="text-6xl text-error"
                     >warning</app-icon
                 >
                 <div
                     overlay
                     *ngIf="item.error"
-                    class="absolute inset-0 hover:bg-base-content hover:bg-opacity-50 text-base-100 flex items-center justify-center"
+                    class="absolute inset-0 flex items-center justify-center text-base-100 hover:bg-base-content hover:bg-opacity-50"
                 >
                     <app-icon class="text-3xl opacity-0">refresh</app-icon>
                 </div>
@@ -118,7 +120,7 @@ export interface UploadDetails {
                 matRipple
                 *ngIf="length > view_space"
                 [disabled]="offset === 0"
-                class="absolute top-1/2 left-0 transform -translate-y-1/2 bg-base-100"
+                class="absolute left-0 top-1/2 -translate-y-1/2 transform bg-base-100"
                 (click)="offset = offset - 1"
             >
                 <app-icon>chevron_left</app-icon>
@@ -128,7 +130,7 @@ export interface UploadDetails {
                 matRipple
                 *ngIf="length > view_space"
                 [disabled]="offset >= length - view_space"
-                class="absolute top-1/2 right-0 transform -translate-y-1/2 bg-base-100"
+                class="absolute right-0 top-1/2 -translate-y-1/2 transform bg-base-100"
                 (click)="offset = offset + 1"
             >
                 <app-icon>chevron_right</app-icon>
@@ -140,15 +142,14 @@ export interface UploadDetails {
                     *ngFor="let item of list"
                     (removed)="removeImage(item)"
                 >
-                    <div class="truncate max-w-md">{{ item }}</div>
+                    <div class="max-w-md truncate">{{ item }}</div>
                     <button matChipRemove [attr.aria-label]="'Remove ' + item">
                         <app-icon>cancel</app-icon>
                     </button>
                 </mat-chip-row>
             </mat-chip-grid>
             <input
-                placeholder="Add image via URL"
-                i18n-placeholder
+                [placeholder]="'COMMON.IMAGE_ADD_URL' | translate"
                 [matChipInputFor]="chipList"
                 [matChipInputSeparatorKeyCodes]="separators"
                 [matChipInputAddOnBlur]="true"
@@ -192,6 +193,7 @@ export interface UploadDetails {
             multi: true,
         },
     ],
+    standalone: false,
 })
 export class ImageListFieldComponent extends AsyncHandler {
     /** List of images */
@@ -221,7 +223,7 @@ export class ImageListFieldComponent extends AsyncHandler {
     constructor(
         private _clipboard: Clipboard,
         private _uploads: UploadsService,
-        private _dialog: MatDialog
+        private _dialog: MatDialog,
     ) {
         super();
     }
@@ -238,7 +240,7 @@ export class ImageListFieldComponent extends AsyncHandler {
                 const box = this._list_el.nativeElement.getBoundingClientRect();
                 this.view_space = Math.floor(box.width / 152);
             },
-            100
+            100,
         );
         this.subscription(
             'upload_changes',
@@ -249,11 +251,11 @@ export class ImageListFieldComponent extends AsyncHandler {
                     if (item && item.progress >= 100) {
                         this.addImageUrl(item.link);
                         this.upload_ids.next(
-                            this.upload_ids.getValue().filter((_) => _ !== id)
+                            this.upload_ids.getValue().filter((_) => _ !== id),
                         );
                     }
                 }
-            })
+            }),
         );
     }
 
@@ -295,11 +297,11 @@ export class ImageListFieldComponent extends AsyncHandler {
             /* istanbul ignore else */
             if (files.length) {
                 this.interval('update_status', () =>
-                    this._updateUploadHistory()
+                    this._updateUploadHistory(),
                 );
                 for (let i = 0; i < files.length; i++) {
                     const id = await this._uploads.uploadFileWithPermissions(
-                        files[i]
+                        files[i],
                     );
                     this.upload_ids.next([...this.upload_ids.getValue(), id]);
                     this._file_input.nativeElement.value = '';
@@ -333,7 +335,7 @@ export class ImageListFieldComponent extends AsyncHandler {
             .pipe(take(1))
             .toPromise();
         const new_list = global_list.filter((_) =>
-            list.find((i) => i === _.id)
+            list.find((i) => i === _.id),
         );
         const done_list = new_list.filter((file) => file.progress >= 100);
         this._upload_list.next(new_list);

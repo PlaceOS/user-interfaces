@@ -2,21 +2,21 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { first, map, take } from 'rxjs/operators';
 
-import { AsyncHandler, SettingsService } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import { MatDialog } from '@angular/material/dialog';
 import {
     CateringOrdersService,
     CateringStateService,
     ChargeCodeListModalComponent,
 } from '@placeos/catering';
-import { MatDialog } from '@angular/material/dialog';
+import { AsyncHandler, SettingsService } from '@placeos/common';
 import { AvailableRoomsStateModalComponent } from '@placeos/components';
+import { OrganisationService } from '@placeos/organisation';
 import { combineLatest } from 'rxjs';
 
 @Component({
     selector: 'catering-topbar',
     template: `
-        <div class="flex items-center w-full pt-4 pb-2 px-8 space-x-2">
+        <div class="flex w-full items-center space-x-2 px-8 pb-2 pt-4">
             <a
                 icon
                 matRipple
@@ -27,26 +27,29 @@ import { combineLatest } from 'rxjs';
                 <app-icon class="text-2xl">arrow_back</app-icon>
             </a>
             <h2 class="text-2xl font-medium">
-                Catering {{ page === 'menu' ? 'Menu' : 'Orders' }}
+                {{
+                    (page === 'menu' ? 'CATERING.MENU' : 'CATERING.ORDERS')
+                        | translate
+                }}
             </h2>
-            <div class="flex-1 w-px"></div>
+            <div class="w-px flex-1"></div>
             <mat-form-field appearance="outline" class="no-subscript w-64">
                 <input
                     matInput
-                    placeholder="Search..."
+                    [placeholder]="'COMMON.SEARCH' | translate"
                     [ngModel]="filters?.search"
                     (ngModelChange)="setSearch($event)"
                 />
                 <app-icon class="text-xl" matSuffix>search</app-icon>
             </mat-form-field>
         </div>
-        <div class="flex items-center bg-base-100 px-8 pt-2 pb-4 space-x-2">
+        <div class="flex items-center space-x-2 bg-base-100 px-8 pb-4 pt-2">
             <div class="w-12"></div>
             <mat-form-field appearance="outline" class="no-subscript w-60">
                 <mat-select
                     [ngModel]="filters?.zones"
                     (ngModelChange)="updateZones($event)"
-                    placeholder="All Levels"
+                    [placeholder]="'COMMON.LEVEL_ALL' | translate"
                     multiple
                 >
                     <mat-option
@@ -65,15 +68,36 @@ import { combineLatest } from 'rxjs';
                     </mat-option>
                 </mat-select>
             </mat-form-field>
-            <div *ngIf="page === 'menu'" class="flex-1 w-2"></div>
+            <mat-form-field
+                appearance="outline"
+                class="no-subscript w-60"
+                *ngIf="(caterers | async)?.length > 1"
+            >
+                <mat-select
+                    [ngModel]="filters?.caterer"
+                    (ngModelChange)="setCaterer($event)"
+                    [placeholder]="'CATERING.CATERERS_ALL' | translate"
+                >
+                    <mat-option value="">{{
+                        'CATERING.CATERERS_ALL' | translate
+                    }}</mat-option>
+                    <mat-option
+                        *ngFor="let caterer of caterers | async"
+                        [value]="caterer || '<empty>'"
+                    >
+                        {{ caterer || '[No Caterer]' }}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+            <div *ngIf="page === 'menu'" class="w-2 flex-1"></div>
             <button
                 *ngIf="
                     page === 'menu' && (!zones[0] || zones[0] === building?.id)
                 "
                 icon
                 matRipple
-                matTooltip="Add Item"
-                class="bg-secondary text-secondary-content rounded h-12 w-12"
+                [matTooltip]="'CATERING.MENU_ADD' | translate"
+                class="h-12 w-12 rounded bg-secondary text-secondary-content"
                 (click)="addItem()"
             >
                 <app-icon class="text-2xl">add</app-icon>
@@ -82,8 +106,8 @@ import { combineLatest } from 'rxjs';
                 *ngIf="page === 'menu'"
                 icon
                 matRipple
-                matTooltip="Edit Config"
-                class="bg-secondary text-secondary-content rounded h-12 w-12"
+                [matTooltip]="'CATERING.BOOKING_RULES' | translate"
+                class="h-12 w-12 rounded bg-secondary text-secondary-content"
                 (click)="editConfig()"
             >
                 <app-icon class="text-2xl">menu_book</app-icon>
@@ -92,8 +116,8 @@ import { combineLatest } from 'rxjs';
                 *ngIf="page === 'menu'"
                 icon
                 matRipple
-                matTooltip="Import Menu"
-                class="bg-secondary text-secondary-content rounded h-12 w-12"
+                [matTooltip]="'CATERING.MENU_IMPORT' | translate"
+                class="h-12 w-12 rounded bg-secondary text-secondary-content"
                 (click)="importMenu()"
             >
                 <app-icon class="text-2xl">cloud_upload</app-icon>
@@ -102,8 +126,8 @@ import { combineLatest } from 'rxjs';
                 *ngIf="page === 'menu'"
                 icon
                 matRipple
-                matTooltip="Room Availability"
-                class="bg-secondary text-secondary-content rounded h-12 w-12"
+                [matTooltip]="'CATERING.ROOM_AVAILABILITY' | translate"
+                class="h-12 w-12 rounded bg-secondary text-secondary-content"
                 (click)="setRoomAvailability()"
             >
                 <app-icon class="text-2xl">event_available</app-icon>
@@ -112,13 +136,13 @@ import { combineLatest } from 'rxjs';
                 *ngIf="page === 'menu'"
                 icon
                 matRipple
-                matTooltip="Charge Codes"
-                class="bg-secondary text-secondary-content rounded h-12 w-12"
+                [matTooltip]="'CATERING.CHARGE_CODES' | translate"
+                class="h-12 w-12 rounded bg-secondary text-secondary-content"
                 (click)="setChargeCodes()"
             >
                 <app-icon class="text-2xl">payments</app-icon>
             </button>
-            <div *ngIf="page !== 'menu'" class="flex-1 w-2"></div>
+            <div *ngIf="page !== 'menu'" class="w-2 flex-1"></div>
             <!-- <searchbar class="mr-2"></searchbar> -->
             <date-options
                 *ngIf="page !== 'menu'"
@@ -134,6 +158,7 @@ import { combineLatest } from 'rxjs';
             }
         `,
     ],
+    standalone: false,
 })
 export class CateringTopbarComponent extends AsyncHandler implements OnInit {
     /** List of selected levels */
@@ -141,6 +166,7 @@ export class CateringTopbarComponent extends AsyncHandler implements OnInit {
     /** Currently active page */
     public page: string;
     public readonly filters = this._orders.filters;
+    public readonly caterers = this._catering.caterers;
     /** List of levels for the active building */
     public readonly levels = combineLatest([
         this._org.active_building,
@@ -149,8 +175,8 @@ export class CateringTopbarComponent extends AsyncHandler implements OnInit {
         map(([bld, region]) =>
             this._settings.get('app.use_region')
                 ? this._org.levelsForRegion(region)
-                : this._org.levelsForBuilding(bld)
-        )
+                : this._org.levelsForBuilding(bld),
+        ),
     );
     /** Set filtered date */
     public readonly setDate = (date) =>
@@ -162,6 +188,7 @@ export class CateringTopbarComponent extends AsyncHandler implements OnInit {
         this._router.navigate([], {
             relativeTo: this._route,
             queryParams: { zone_ids: z.join(',') },
+            queryParamsHandling: 'merge',
         });
         this._orders.filters = { ...this._orders.filters, zones: [z] };
         this._catering.zone = z[0];
@@ -186,7 +213,7 @@ export class CateringTopbarComponent extends AsyncHandler implements OnInit {
         private _route: ActivatedRoute,
         private _router: Router,
         private _dialog: MatDialog,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         super();
     }
@@ -205,22 +232,22 @@ export class CateringTopbarComponent extends AsyncHandler implements OnInit {
                     this.zones = zones;
                     if (!level) return;
                     this._org.building = this._org.buildings.find(
-                        (bld) => bld.id === level.parent_id
+                        (bld) => bld.id === level.parent_id,
                     );
                 }
                 if (params.has('building_id')) {
                     this._org.building = this._org.buildings.find(
-                        (bld) => bld.id === params.get('building_id')
+                        (bld) => bld.id === params.get('building_id'),
                     );
                 }
-            })
+            }),
         );
         this.subscription(
             'route.params',
             this._route.paramMap.subscribe(
                 (params) =>
-                    (this.page = params.has('view') ? params.get('view') : '')
-            )
+                    (this.page = params.has('view') ? params.get('view') : ''),
+            ),
         );
     }
 
@@ -240,7 +267,7 @@ export class CateringTopbarComponent extends AsyncHandler implements OnInit {
                     .saveSettings({ disabled_rooms: list })
                     .catch();
                 ref.componentInstance.loading = false;
-            })
+            }),
         );
     }
 

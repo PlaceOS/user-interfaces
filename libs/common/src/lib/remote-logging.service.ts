@@ -20,7 +20,7 @@ export interface ClientEvent {
 function hookMethod<T, K extends keyof T>(
     rootObject: T,
     functionToHook: K,
-    hookingFunction: (...args: any[]) => void
+    hookingFunction: (...args: any[]) => void,
 ): T[K] {
     var previousFunction = rootObject[functionToHook];
     (rootObject as any)[functionToHook] = (...args: any[]) => {
@@ -57,9 +57,9 @@ export class RemoteLoggingService extends AsyncHandler {
                         .execute('post_event', [d])
                         .catch();
                     this._disable_handling = false;
-                })
-            )
-        )
+                }),
+            ),
+        ),
     );
 
     public readonly history = this._event_history;
@@ -104,7 +104,7 @@ export class RemoteLoggingService extends AsyncHandler {
             timestamp: Date.now(),
             raw: data,
             data: blob.filter(
-                (_) => typeof _ !== 'string' || !_.startsWith('color:')
+                (_) => typeof _ !== 'string' || !_.startsWith('color:'),
             ),
             metadata: this._metadata || null,
         });

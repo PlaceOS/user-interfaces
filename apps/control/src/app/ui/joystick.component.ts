@@ -7,8 +7,8 @@ import {
     Renderer2,
     ViewChild,
 } from '@angular/core';
-import { Point } from '@placeos/svg-viewer';
 import { AsyncHandler } from '@placeos/common';
+import { Point } from '@placeos/svg-viewer';
 
 /**
  * Grab point details from mouse or touch event
@@ -49,42 +49,43 @@ export enum JoystickPan {
             (contextmenu)="$event.preventDefault()"
             class="relative h-48 w-48 rounded-full bg-base-300 text-white"
         >
-            <div class="absolute inset-0 flex text-5xl items-center">
+            <div class="absolute inset-0 flex items-center text-5xl">
                 <app-icon style="transform: translateX(-.5rem)">
                     chevron_left
                 </app-icon>
             </div>
             <div
-                class="absolute inset-0 flex text-5xl items-center justify-end"
+                class="absolute inset-0 flex items-center justify-end text-5xl"
             >
                 <app-icon style="transform: translateX(.5rem)"
                     >chevron_right</app-icon
                 >
             </div>
-            <div class="absolute inset-0 flex text-5xl justify-center">
+            <div class="absolute inset-0 flex justify-center text-5xl">
                 <app-icon style="transform: translateY(-.5rem)"
                     >expand_less</app-icon
                 >
             </div>
             <div
-                class="absolute inset-0 flex text-5xl items-end justify-center"
+                class="absolute inset-0 flex items-end justify-center text-5xl"
             >
                 <app-icon style="transform: translateY(.5rem)"
                     >expand_more</app-icon
                 >
             </div>
             <div
-                class="absolute top-12 left-12 right-12 bottom-12 bg-base-100 rounded-full flex items-center justify-center"
+                class="absolute bottom-12 left-12 right-12 top-12 flex items-center justify-center rounded-full bg-base-100"
             >
                 <div
                     thumb
                     [style.transform]="thumb_transform"
-                    class="bg-neutral h-12 w-12 rounded-full"
+                    class="h-12 w-12 rounded-full bg-neutral"
                 ></div>
             </div>
         </div>
     `,
     styles: [``],
+    standalone: false,
 })
 export class JoystickComponent extends AsyncHandler {
     @Input() public pan: JoystickPan;
@@ -107,14 +108,14 @@ export class JoystickComponent extends AsyncHandler {
             this.pan === JoystickPan.Stop
                 ? '0'
                 : this.pan === JoystickPan.Left
-                ? '-50'
-                : '50'
+                  ? '-50'
+                  : '50'
         }%, ${
             this.tilt === JoystickTilt.Stop
                 ? '0'
                 : this.tilt === JoystickTilt.Up
-                ? '-50'
-                : '50'
+                  ? '-50'
+                  : '50'
         }%)`;
     }
 
@@ -126,8 +127,8 @@ export class JoystickComponent extends AsyncHandler {
         this.subscription(
             'on_move',
             this._renderer.listen('window', move_event, (e) =>
-                this.handlePan(e)
-            )
+                this.handlePan(e),
+            ),
         );
         this.subscription(
             'on_end',
@@ -138,7 +139,7 @@ export class JoystickComponent extends AsyncHandler {
                 this.pan = JoystickPan.Stop;
                 this.tiltChange.emit(this.tilt);
                 this.panChange.emit(this.pan);
-            })
+            }),
         );
         this.handlePan(event);
     }
@@ -157,14 +158,14 @@ export class JoystickComponent extends AsyncHandler {
             angle >= 150 || angle <= -150 || (angle > -30 && angle < 30)
                 ? JoystickTilt.Stop
                 : angle > 0
-                ? JoystickTilt.Down
-                : JoystickTilt.Up;
+                  ? JoystickTilt.Down
+                  : JoystickTilt.Up;
         this.pan =
             (angle >= 60 && angle <= 120) || (angle <= -60 && angle >= -120)
                 ? JoystickPan.Stop
                 : angle > 90 || angle < -90
-                ? JoystickPan.Left
-                : JoystickPan.Right;
+                  ? JoystickPan.Left
+                  : JoystickPan.Right;
         if (tilt !== this.tilt) this.tiltChange.emit(this.tilt);
         if (pan !== this.pan) this.panChange.emit(this.pan);
     }

@@ -1,6 +1,5 @@
 import { Component, Input } from '@angular/core';
 import { Booking } from '@placeos/bookings';
-import { CalendarEvent } from '@placeos/events';
 import { isAfter } from 'date-fns';
 import { BookingLike } from './schedule-state.service';
 
@@ -9,11 +8,11 @@ import { BookingLike } from './schedule-state.service';
     template: `
         <ng-container *ngIf="item" [ngSwitch]="item?.id">
             <div date *ngSwitchCase="'date'">
-                <div class="mx-4 w-full h-12 text-xl flex items-center">
+                <div class="mx-4 flex h-12 w-full items-center text-xl">
                     {{ item.date | date: 'longDate' }} ({{ item.duration }})
                 </div>
                 <div
-                    class="mx-4 w-full h-10 text-lg text-center font-normal opacity-60"
+                    class="mx-4 h-10 w-full text-center text-lg font-normal opacity-60"
                     *ngIf="!item.duration"
                 >
                     No events for {{ item.date | date: 'longDate' }}
@@ -24,7 +23,7 @@ import { BookingLike } from './schedule-state.service';
                 matRipple
                 item
                 *ngSwitchDefault
-                class="rounded-none my-1 mx-4 w-[calc(100%-2rem)] h-20 bg-base-100 hover:shadow p-0"
+                class="mx-4 my-1 h-20 w-[calc(100%-2rem)] rounded-none bg-base-100 p-0 hover:shadow"
                 [class.opacity-50]="has_ended"
                 [routerLink]="[
                     '/schedule',
@@ -33,13 +32,13 @@ import { BookingLike } from './schedule-state.service';
                         ((item?.system?.email | space | async)?.id
                             ? '|' + (item?.system?.email | space | async)?.id
                             : ''),
-                    type
+                    type,
                 ]"
             >
                 <div class="flex items-center border border-base-200">
                     <div
                         status
-                        class="h-20 w-20 flex flex-col items-center justify-center text-white leading-tight"
+                        class="flex h-20 w-20 flex-col items-center justify-center leading-tight text-white"
                         [class.bg-success]="status === 'approved'"
                         [class.bg-warning]="status === 'tentative'"
                         [class.bg-error]="status === 'declined'"
@@ -52,23 +51,23 @@ import { BookingLike } from './schedule-state.service';
                                     : (item?.date | date: 'shortTime')
                             }}
                         </div>
-                        <div class="capitalize text-xs font-medium">
+                        <div class="text-xs font-medium capitalize">
                             ({{ status }})
                         </div>
                     </div>
-                    <div class="flex-1 flex flex-col text-left p-2">
-                        <div class="text-xl pl-1">
+                    <div class="flex flex-1 flex-col p-2 text-left">
+                        <div class="pl-1 text-xl">
                             {{ item?.title || 'Untitled Event' }}
                         </div>
                         <div
                             class="flex items-center font-normal"
                             *ngIf="item?.location || item?.description"
                         >
-                            <app-icon class="text-lg mr-1">place</app-icon>
+                            <app-icon class="mr-1 text-lg">place</app-icon>
                             <span>
                                 {{
                                     item?.location || item?.description
-                                        | slice: 0:255
+                                        | slice: 0 : 255
                                 }}
                             </span>
                         </div>
@@ -77,6 +76,7 @@ import { BookingLike } from './schedule-state.service';
             </a>
         </ng-container>
     `,
+    standalone: false,
 })
 export class ScheduleListItemComponent {
     @Input() public item: BookingLike;

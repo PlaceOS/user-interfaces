@@ -6,7 +6,7 @@ import { OrganisationService } from '@placeos/organisation';
     selector: 'region-select',
     template: `
         <div
-            class="flex flex-col w-[18.5rem] rounded bg-base-100 shadow p-2 relative -top-12 -right-1 overflow-auto max-h-[65vh]"
+            class="relative -right-1 -top-12 flex max-h-[65vh] w-[18.5rem] flex-col overflow-auto rounded bg-base-100 p-2 shadow"
             (click)="close()"
         >
             <div class="flex items-center space-x-2">
@@ -17,7 +17,9 @@ import { OrganisationService } from '@placeos/organisation';
                     }}
                 </div>
             </div>
-            <div class="text-xs opacity-60 mb-4 px-2" i18n>Select a region</div>
+            <div class="mb-4 px-2 text-xs opacity-60">
+                {{ 'COMMON.REGION_SELECT' | translate }}
+            </div>
             <mat-radio-group
                 [ngModel]="(region | async)?.id"
                 class="flex flex-col space-y-2 px-2"
@@ -33,6 +35,7 @@ import { OrganisationService } from '@placeos/organisation';
         </div>
     `,
     styles: [``],
+    standalone: false,
 })
 export class RegionSelectComponent {
     public readonly regions = this._org.region_list;
@@ -40,7 +43,7 @@ export class RegionSelectComponent {
 
     public readonly setRegion = async (i) => {
         await this._org.setRegion(i);
-        this._org.saveBuilding(this._org.building.id);
+        this._org.setBuilding(this._org.building, true);
         this._data?.close();
     };
 
@@ -48,6 +51,6 @@ export class RegionSelectComponent {
 
     constructor(
         @Inject(CustomTooltipData) private _data: any,
-        private _org: OrganisationService
+        private _org: OrganisationService,
     ) {}
 }

@@ -1,25 +1,27 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
+import { getNextFreeTimeSlot } from '@placeos/events';
 import { startOfMinute } from 'date-fns';
 import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
+
 import { currentPeriod, nextPeriod } from '../new-panel/helpers';
 import { PanelStateService } from '../panel-state.service';
-import { getNextFreeTimeSlot } from '@placeos/events';
 
 @Component({
     selector: 'checkin-view',
     template: `
-        <div class="bg-black relative text-white p-4 h-32">
+        <div class="relative h-32 bg-black p-4 text-white">
             <div
-                class="bg-cover bg-center absolute inset-0"
+                class="absolute inset-0 bg-cover bg-center"
+                *ngIf="room_image"
                 [style.background-image]="'url(' + room_image + ')'"
             ></div>
             <div class="absolute inset-0 bg-black opacity-50"></div>
             <div
                 name
-                class="absolute bottom-4 left-4 text-3xl font-medium z-10"
+                class="absolute bottom-4 left-4 z-10 text-3xl font-medium"
             >
                 {{
                     (system | async)?.display_name ||
@@ -29,19 +31,19 @@ import { getNextFreeTimeSlot } from '@placeos/events';
             </div>
         </div>
         <h3 class="p-4 text-xl font-medium">
-            {{ 'PANEL.UPCOMING' | translate }}
+            {{ 'APP.BOOKING_PANEL.UPCOMING' | translate }}
         </h3>
-        <div class="bg-base-100 divide-y divide-base-200">
+        <div class="divide-y divide-base-200 bg-base-100">
             <div class="flex items-center p-2">
                 <div
-                    class="w-2 h-full min-h-[3rem] rounded"
+                    class="h-full min-h-[3rem] w-2 rounded"
                     [class.bg-error]="(state | async) === 'busy'"
                     [class.bg-success]="(state | async) === 'free'"
                     [class.bg-warning]="(state | async) === 'pending'"
                 ></div>
-                <div class="text-sm  flex-1 px-2">
+                <div class="flex-1 px-2 text-sm">
                     <div class="font-medium uppercase">
-                        {{ 'PANEL.NOW' | translate }}
+                        {{ 'APP.BOOKING_PANEL.NOW' | translate }}
                     </div>
                     <div class="">
                         <ng-container
@@ -62,7 +64,7 @@ import { getNextFreeTimeSlot } from '@placeos/events';
                                     "
                                 >
                                     {{
-                                        'PANEL.FREE_IN_HOURS_AND_MINUTES'
+                                        'APP.BOOKING_PANEL.FREE_IN_HOURS_AND_MINUTES'
                                             | translate
                                                 : {
                                                       hour: (
@@ -70,7 +72,7 @@ import { getNextFreeTimeSlot } from '@placeos/events';
                                                       )?.current[1],
                                                       minute: (
                                                           event_state | async
-                                                      )?.current[2]
+                                                      )?.current[2],
                                                   }
                                     }}
                                 </ng-container>
@@ -80,12 +82,12 @@ import { getNextFreeTimeSlot } from '@placeos/events';
                                     "
                                 >
                                     {{
-                                        'PANEL.FREE_IN_MINUTES'
+                                        'APP.BOOKING_PANEL.FREE_IN_MINUTES'
                                             | translate
                                                 : {
                                                       minute: (
                                                           event_state | async
-                                                      )?.current[2]
+                                                      )?.current[2],
                                                   }
                                     }}
                                 </ng-container>
@@ -97,7 +99,7 @@ import { getNextFreeTimeSlot } from '@placeos/events';
                                     "
                                 >
                                     {{
-                                        'PANEL.FREE_IN_LESS_THAN_MINUTE'
+                                        'APP.BOOKING_PANEL.FREE_IN_LESS_THAN_MINUTE'
                                             | translate
                                     }}
                                 </ng-container>
@@ -107,7 +109,7 @@ import { getNextFreeTimeSlot } from '@placeos/events';
                                     *ngIf="(event_state | async)?.current[1]"
                                 >
                                     {{
-                                        'PANEL.FREE_FOR_HOURS_AND_MINUTES'
+                                        'APP.BOOKING_PANEL.FREE_FOR_HOURS_AND_MINUTES'
                                             | translate
                                                 : {
                                                       hour: (
@@ -115,7 +117,7 @@ import { getNextFreeTimeSlot } from '@placeos/events';
                                                       )?.current[1],
                                                       minute: (
                                                           event_state | async
-                                                      )?.current[2]
+                                                      )?.current[2],
                                                   }
                                     }}
                                 </ng-container>
@@ -123,12 +125,12 @@ import { getNextFreeTimeSlot } from '@placeos/events';
                                     *ngIf="!(event_state | async)?.current[1]"
                                 >
                                     {{
-                                        'PANEL.FREE_FOR_MINUTES'
+                                        'APP.BOOKING_PANEL.FREE_FOR_MINUTES'
                                             | translate
                                                 : {
                                                       minute: (
                                                           event_state | async
-                                                      )?.current[2]
+                                                      )?.current[2],
                                                   }
                                     }}
                                 </ng-container>
@@ -139,14 +141,14 @@ import { getNextFreeTimeSlot } from '@placeos/events';
                                     "
                                 >
                                     {{
-                                        'PANEL.FREE_FOR_LESS_THAN_MINUTE'
+                                        'APP.BOOKING_PANEL.FREE_FOR_LESS_THAN_MINUTE'
                                             | translate
                                     }}
                                 </ng-container>
                             </ng-template>
                         </ng-container>
                         <ng-template #no_current_state>
-                            {{ 'PANEL.NO_CURRENT' | translate }}
+                            {{ 'APP.BOOKING_PANEL.NO_CURRENT' | translate }}
                         </ng-template>
                     </div>
                 </div>
@@ -157,7 +159,7 @@ import { getNextFreeTimeSlot } from '@placeos/events';
                     *ngIf="(state | async) === 'pending'"
                     (click)="checkInCurrent()"
                 >
-                    {{ 'PANEL.CHECKIN' | translate }}
+                    {{ 'APP.BOOKING_PANEL.CHECKIN' | translate }}
                 </button>
                 <button
                     btn
@@ -166,18 +168,18 @@ import { getNextFreeTimeSlot } from '@placeos/events';
                     *ngIf="(state | async) === 'free'"
                     (click)="newBooking()"
                 >
-                    {{ 'PANEL.BOOK' | translate }}
+                    {{ 'APP.BOOKING_PANEL.BOOK' | translate }}
                 </button>
             </div>
             <div class="flex items-center p-2">
                 <div
-                    class="w-2 h-full min-h-[3rem] rounded bg-error"
+                    class="h-full min-h-[3rem] w-2 rounded bg-error"
                     [class.bg-error]="(event_state | async)?.next"
                     [class.bg-success]="!(event_state | async)?.next"
                 ></div>
-                <div class="text-sm flex-1 px-2">
+                <div class="flex-1 px-2 text-sm">
                     <div class="font-medium uppercase">
-                        {{ 'PANEL.NEXT' | translate }}
+                        {{ 'APP.BOOKING_PANEL.NEXT' | translate }}
                     </div>
                     <div class="">
                         {{ (event_state | async)?.next || 'No upcoming event' }}
@@ -190,59 +192,59 @@ import { getNextFreeTimeSlot } from '@placeos/events';
                     *ngIf="!(event_state | async)?.next"
                     (click)="newBooking(start, true)"
                 >
-                    {{ 'PANEL.BOOK' | translate }}
+                    {{ 'APP.BOOKING_PANEL.BOOK' | translate }}
                 </button>
             </div>
         </div>
         <h3 class="p-4 text-xl font-medium">
-            {{ 'PANEL.SCHEDULE' | translate }}
+            {{ 'APP.BOOKING_PANEL.SCHEDULE' | translate }}
         </h3>
-        <div class="bg-base-100 overflow-auto">
+        <div class="overflow-auto bg-base-100">
             <checkin-timetable
                 [events]="bookings | async"
                 (event)="newBooking($event)"
             ></checkin-timetable>
         </div>
         <h3 class="p-4 text-xl font-medium" *ngIf="false">
-            {{ 'PANEL.FEATURES' | translate }}
+            {{ 'APP.BOOKING_PANEL.FEATURES' | translate }}
         </h3>
         <div
-            class="bg-base-100 overflow-auto flex-1 h-px divide-y divide-base-200"
+            class="h-px flex-1 divide-y divide-base-200 overflow-auto bg-base-100"
             *ngIf="false"
         >
-            <button btn matRipple class="flex items-center p-4 w-full">
-                <div class="text-black/40 bg-neutral rounded-full p-2 text-2xl">
+            <button btn matRipple class="flex w-full items-center p-4">
+                <div class="rounded-full bg-neutral p-2 text-2xl text-black/40">
                     <app-icon>lightbulb</app-icon>
                 </div>
-                <div class="flex-1 px-4 font-medium text-left">
-                    {{ 'PANEL.LIGHTS_BLINDS' | translate }}
+                <div class="flex-1 px-4 text-left font-medium">
+                    {{ 'APP.BOOKING_PANEL.LIGHTS_BLINDS' | translate }}
                 </div>
                 <app-icon class="text-2xl opacity-40">chevron_right</app-icon>
             </button>
-            <button btn matRipple class="flex items-center p-4 w-full">
-                <div class="text-black/40 bg-neutral rounded-full p-2 text-2xl">
+            <button btn matRipple class="flex w-full items-center p-4">
+                <div class="rounded-full bg-neutral p-2 text-2xl text-black/40">
                     <app-icon>add_to_queue</app-icon>
                 </div>
-                <div class="flex-1 px-4 font-medium text-left">
-                    {{ 'PANEL.TV' | translate }}
+                <div class="flex-1 px-4 text-left font-medium">
+                    {{ 'APP.BOOKING_PANEL.TV' | translate }}
                 </div>
                 <app-icon class="text-2xl opacity-40">chevron_right</app-icon>
             </button>
-            <button btn matRipple class="flex items-center p-4 w-full">
-                <div class="text-black/40 bg-neutral rounded-full p-2 text-2xl">
+            <button btn matRipple class="flex w-full items-center p-4">
+                <div class="rounded-full bg-neutral p-2 text-2xl text-black/40">
                     <app-icon>restaurant</app-icon>
                 </div>
-                <div class="flex-1 px-4 font-medium text-left">
-                    {{ 'PANEL.CATERING' | translate }}
+                <div class="flex-1 px-4 text-left font-medium">
+                    {{ 'APP.BOOKING_PANEL.CATERING' | translate }}
                 </div>
                 <app-icon class="text-2xl opacity-40">chevron_right</app-icon>
             </button>
-            <button btn matRipple class="flex items-center p-4 w-full">
-                <div class="text-black/40 bg-neutral rounded-full p-2 text-2xl">
+            <button btn matRipple class="flex w-full items-center p-4">
+                <div class="rounded-full bg-neutral p-2 text-2xl text-black/40">
                     <app-icon>help</app-icon>
                 </div>
-                <div class="flex-1 px-4 font-medium text-left">
-                    {{ 'PANEL.HELP' | translate }}
+                <div class="flex-1 px-4 text-left font-medium">
+                    {{ 'APP.BOOKING_PANEL.HELP' | translate }}
                 </div>
                 <app-icon class="text-2xl opacity-40">chevron_right</app-icon>
             </button>
@@ -261,6 +263,7 @@ import { getNextFreeTimeSlot } from '@placeos/events';
         `,
     ],
     providers: [PanelStateService],
+    standalone: false,
 })
 export class CheckinViewComponent extends AsyncHandler implements OnInit {
     public readonly state = this._state.status;
@@ -282,11 +285,11 @@ export class CheckinViewComponent extends AsyncHandler implements OnInit {
         map(([c, n, l]) => ({
             current: currentPeriod(l, c, n),
             next: nextPeriod(n),
-        }))
+        })),
     );
 
     public readonly next_available = this._state.bookings.pipe(
-        map((_) => getNextFreeTimeSlot(_).start)
+        map((_) => getNextFreeTimeSlot(_).start),
     );
 
     public get time() {
@@ -299,7 +302,7 @@ export class CheckinViewComponent extends AsyncHandler implements OnInit {
 
     constructor(
         private _state: PanelStateService,
-        private _route: ActivatedRoute
+        private _route: ActivatedRoute,
     ) {
         super();
     }
@@ -308,7 +311,7 @@ export class CheckinViewComponent extends AsyncHandler implements OnInit {
         this._state.system = '';
         this.subscription(
             'next-available',
-            this.next_available.subscribe((_) => (this.start = _))
+            this.next_available.subscribe((_) => (this.start = _)),
         );
         this.subscription(
             'route.params',
@@ -316,7 +319,7 @@ export class CheckinViewComponent extends AsyncHandler implements OnInit {
                 if (params.has('system_id')) {
                     this._state.system = params.get('system_id');
                 }
-            })
+            }),
         );
         this.subscription(
             'route.query',
@@ -324,7 +327,7 @@ export class CheckinViewComponent extends AsyncHandler implements OnInit {
                 if (params.has('user')) {
                     this.has_user = true;
                 }
-            })
+            }),
         );
     }
 }

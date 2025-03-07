@@ -1,3 +1,9 @@
+import {
+    AbstractControl,
+    FormControl,
+    FormGroup,
+    Validators,
+} from '@angular/forms';
 import { HashMap, predictableRandomInt } from '@placeos/common';
 import { PlaceSystem, PlaceZone, querySystems } from '@placeos/ts-client';
 import { Observable, of } from 'rxjs';
@@ -5,12 +11,6 @@ import { map, shareReplay, tap } from 'rxjs/operators';
 import { USER_DOMAIN } from '../../../users/src/lib/user.utilities';
 import { Space } from './space.class';
 import { updateSpaceList } from './space.pipe';
-import {
-    AbstractControl,
-    FormControl,
-    FormGroup,
-    Validators,
-} from '@angular/forms';
 
 const SPACE_LIST_REQUESTS: Record<string, Observable<Space[]>> = {};
 
@@ -37,12 +37,12 @@ export function generateSystemsFormFields(system?: PlaceSystem) {
         support_url: new FormControl(system.support_url || '', [validateURL]),
         installed_ui_devices: new FormControl(
             system.installed_ui_devices || 0,
-            [Validators.pattern('[0-9]*')]
+            [Validators.pattern('[0-9]*')],
         ),
         features: new FormControl(
             (typeof system.features === 'string'
                 ? (system.features as any).split(' ')
-                : system.features) || []
+                : system.features) || [],
         ),
         capacity: new FormControl(system.capacity || 0, [
             Validators.pattern('[0-9]*'),
@@ -59,7 +59,7 @@ export function generateSystemsFormFields(system?: PlaceSystem) {
     };
     if (!system.id) {
         fields.zone.valueChanges.subscribe((value: PlaceZone) =>
-            fields.zones.setValue([value.id])
+            fields.zones.setValue([value.id]),
         );
     } else delete fields.zone;
     return new FormGroup(fields);
@@ -68,10 +68,14 @@ export function generateSystemsFormFields(system?: PlaceSystem) {
 export function requestSpacesForZone(id: string): Observable<Space[]> {
     if (!id) return of([]);
     if (SPACE_LIST_REQUESTS[id]) return SPACE_LIST_REQUESTS[id];
-    SPACE_LIST_REQUESTS[id] = querySystems({ zone_id: id, limit: 500 }).pipe(
+    SPACE_LIST_REQUESTS[id] = querySystems({
+        zone_id: id,
+        limit: 500,
+        signage: false,
+    }).pipe(
         map((_) => (_.data || []).map((_) => new Space(_ as any))),
         tap((_) => updateSpaceList(_)),
-        shareReplay(1)
+        shareReplay(1),
     );
     return SPACE_LIST_REQUESTS[id];
 }
@@ -108,7 +112,7 @@ export function generateMockSpace(overrides: HashMap = {}): HashMap {
     if (space['configurations'] && space['configurations'].length > 0) {
         space['configurations'].forEach(
             (config) =>
-                (config.capacity = predictableRandomInt(space.capacity) + 1)
+                (config.capacity = predictableRandomInt(space.capacity) + 1),
         );
         space['configurations'][0].capacity = space.capacity;
     }

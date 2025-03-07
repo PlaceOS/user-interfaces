@@ -1,34 +1,52 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import {
+    Component,
+    EventEmitter,
+    Input,
+    OnChanges,
+    OnInit,
+    Output,
+    SimpleChanges,
+} from '@angular/core';
 import { Validators } from '@angular/forms';
 import { first } from 'rxjs/operators';
 
-import { AsyncHandler, SettingsService, currentUser } from '@placeos/common';
-import { notifyError } from 'libs/common/src/lib/notifications';
+import {
+    AsyncHandler,
+    CalEvent,
+    SettingsService,
+    currentUser,
+    generateCalendarFileLink,
+    generateGoogleCalendarLink,
+    generateMicrosoftCalendarLink,
+} from '@placeos/common';
 import { getInvalidFields, randomString } from 'libs/common/src/lib/general';
+import { notifyError } from 'libs/common/src/lib/notifications';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
+import { User } from 'libs/users/src/lib/user.class';
 import { BookingFormService } from './booking-form.service';
 import { Booking } from './booking.class';
-import { User } from 'libs/users/src/lib/user.class';
 
 @Component({
     selector: `invite-visitor-form`,
     template: `
         <ng-container *ngIf="!sent; else send_state">
             <div
-                class="relative flex flex-col bg-base-100 overflow-auto max-h-full"
+                class="relative flex max-h-full flex-col overflow-auto bg-base-100"
                 *ngIf="!(loading | async) && !loading_many; else load_state"
             >
-                <div class="w-full border-b border-base-200 sm:px-16 px-4 py-4">
-                    <h2 class="text-2xl font-medium" i18n>Invite Visitor</h2>
+                <div class="w-full border-b border-base-200 px-4 py-4 sm:px-16">
+                    <h2 class="text-2xl font-medium">
+                        {{ 'BOOKINGS.VISITOR_INVITE_TITLE' | translate }}
+                    </h2>
                 </div>
                 <form
                     *ngIf="form"
                     [formGroup]="form"
-                    class="sm:px-16 px-4 py-4"
+                    class="px-4 py-4 sm:px-16"
                 >
                     <div class="flex flex-col" *ngIf="buildings?.length > 1">
-                        <label for="building" i18n>
-                            Building<span>*</span>
+                        <label for="building">
+                            {{ 'RESOURCE.BUILDING' | translate }}<span>*</span>
                         </label>
                         <mat-form-field appearance="outline">
                             <mat-select
@@ -39,7 +57,6 @@ import { User } from 'libs/users/src/lib/user.class';
                                 [ngModelOptions]="{ standalone: true }"
                                 name="building"
                                 placeholder="Select building"
-                                i18n-placeholder
                             >
                                 <mat-option
                                     *ngFor="let bld of buildings | async"
@@ -51,16 +68,19 @@ import { User } from 'libs/users/src/lib/user.class';
                         </mat-form-field>
                     </div>
                     <div class="flex flex-col">
-                        <label for="date" i18n>Date<span>*</span></label>
+                        <label for="date">
+                            {{ 'FORM.DATE' | translate }}<span>*</span>
+                        </label>
                         <a-date-field
                             name="date"
                             formControlName="date"
                         ></a-date-field>
                     </div>
                     <div class="flex items-center space-x-2">
-                        <div class="flex-1 flex flex-col w-1/3">
-                            <label for="start-time" i18n>
-                                Start Time<span>*</span>
+                        <div class="flex w-1/3 flex-1 flex-col">
+                            <label for="start-time">
+                                {{ 'FORM.TIME_START' | translate }}
+                                <span>*</span>
                             </label>
                             <a-time-field
                                 name="start-time"
@@ -73,29 +93,48 @@ import { User } from 'libs/users/src/lib/user.class';
                                 [use_24hr]="use_24hr"
                             ></a-time-field>
                         </div>
-                        <div class="flex-1 flex flex-col w-1/3">
-                            <label for="end-time" i18n
-                                >End Time<span>*</span></label
-                            >
+                        <div class="flex w-1/3 flex-1 flex-col">
+                            <label for="end-time">
+                                {{ 'FORM.TIME_END' | translate }}
+                                <span>*</span>
+                            </label>
                             <a-duration-field
                                 name="end-time"
                                 formControlName="duration"
                                 [time]="form.value.date"
+                                [max]="max_duration"
                                 [use_24hr]="use_24hr"
                             ></a-duration-field>
                         </div>
                     </div>
+                    <div
+                        *ngIf="can_book_for_others"
+                        class="flex w-full flex-col"
+                    >
+                        <label for="host">
+                            {{ 'FORM.HOST' | translate }}<span>*</span>
+                        </label>
+                        <a-user-search-field
+                            name="host"
+                            class="mb-4"
+                            formControlName="user"
+                        ></a-user-search-field>
+                    </div>
                     <ng-container *ngIf="!multiple; else multi_state">
                         <div class="flex flex-col">
-                            <label for="visitor-name" i18n
-                                >Visitor Name<span>*</span></label
-                            >
+                            <label for="visitor-name">
+                                {{ 'BOOKINGS.VISITOR_NAME' | translate }}
+                                <span>*</span>
+                            </label>
                             <mat-form-field appearance="outline">
                                 <input
                                     matInput
                                     name="visitor-name"
                                     formControlName="asset_name"
-                                    placeholder="Name of the visitor"
+                                    [placeholder]="
+                                        'BOOKINGS.VISITOR_NAME_PLACEHOLDER'
+                                            | translate
+                                    "
                                     (focus)="
                                         filterVisitors(form.value.asset_name)
                                     "
@@ -123,8 +162,9 @@ import { User } from 'libs/users/src/lib/user.class';
                             </mat-autocomplete>
                         </div>
                         <div class="flex flex-col">
-                            <label for="visitor-email" i18n>
-                                Visitor Email<span>*</span>
+                            <label for="visitor-email">
+                                {{ 'BOOKINGS.VISITOR_EMAIL' | translate }}
+                                <span>*</span>
                             </label>
                             <mat-form-field appearance="outline">
                                 <input
@@ -132,14 +172,17 @@ import { User } from 'libs/users/src/lib/user.class';
                                     name="visitor-email"
                                     type="email"
                                     formControlName="asset_id"
-                                    placeholder="Email of the visitor"
+                                    [placeholder]="
+                                        'BOOKINGS.VISITOR_EMAIL_PLACEHOLDER'
+                                            | translate
+                                    "
                                     (focus)="
                                         filterVisitors(form.value.asset_id)
                                     "
                                     [matAutocomplete]="email_auto"
                                 />
-                                <mat-error i18n>
-                                    A valid email is required
+                                <mat-error>
+                                    {{ 'FORM.EMAIL_REQUIRED' | translate }}
                                 </mat-error>
                             </mat-form-field>
                             <mat-autocomplete #email_auto="matAutocomplete">
@@ -163,31 +206,40 @@ import { User } from 'libs/users/src/lib/user.class';
                             </mat-autocomplete>
                         </div>
                         <div class="flex flex-col">
-                            <label for="visitor-name" i18n>Company</label>
+                            <label for="visitor-name">{{
+                                'BOOKINGS.VISITOR_COMPANY' | translate
+                            }}</label>
                             <mat-form-field appearance="outline">
                                 <input
                                     matInput
                                     name="company"
                                     formControlName="company"
-                                    placeholder="Company of the visitor"
+                                    [placeholder]="
+                                        'BOOKINGS.VISITOR_COMPANY' | translate
+                                    "
                                 />
                             </mat-form-field>
                         </div>
                     </ng-container>
                     <div class="flex flex-col">
-                        <label for="reason" i18n>Reason for visit</label>
+                        <label for="reason">{{
+                            'BOOKINGS.VISITOR_REASON' | translate
+                        }}</label>
                         <mat-form-field appearance="outline">
                             <input
                                 name="reason"
                                 matInput
-                                formControlName="description"
-                                placeholder="e.g. Meeting Catchup"
+                                formControlName="title"
+                                [placeholder]="
+                                    'BOOKINGS.VISITOR_REASON_PLACEHOLDER'
+                                        | translate
+                                "
                             />
                         </mat-form-field>
                     </div>
                 </form>
                 <div
-                    class="sticky sm:px-16 px-4 py-4 border-t bg-base-100 border-base-200 bottom-0"
+                    class="sticky bottom-0 border-t border-base-200 bg-base-100 px-4 py-4 sm:px-16"
                 >
                     <button
                         btn
@@ -195,9 +247,8 @@ import { User } from 'libs/users/src/lib/user.class';
                         send
                         class="w-full sm:w-auto"
                         (click)="sendInvite()"
-                        i18n
                     >
-                        Send Visitor Invite
+                        {{ 'BOOKINGS.VISITOR_SEND' | translate }}
                     </button>
                 </div>
             </div>
@@ -205,66 +256,102 @@ import { User } from 'libs/users/src/lib/user.class';
         <ng-template #send_state>
             <div
                 sent
-                class="absolute inset-0 bg-base-100 flex flex-col items-center justify-center text-center"
+                class="absolute inset-0 flex flex-col items-center justify-center bg-base-100 text-center"
             >
-                <div class="w-full max-w-[32rem] flex-1 h-1/2 space-y-2 m-8">
-                    <h2 class="text-3xl" i18n>
-                        Visitor invite sent to
-                        <ng-container *ngIf="!multiple">
-                            {{
-                                last_success?.asset_name ||
-                                    last_success?.asset_id
-                            }}
-                        </ng-container>
-                        <ng-container *ngIf="multiple">
-                            {{ last_count }} visitor{{
-                                last_count == 1 ? '' : 's'
-                            }}
-                        </ng-container>
+                <div class="m-8 h-1/2 w-full max-w-[32rem] flex-1 space-y-2">
+                    <h2 class="text-3xl">
+                        {{
+                            (multiple
+                                ? 'BOOKINGS.VISITOR_SENT_MULTIPLE'
+                                : 'BOOKINGS.VISITOR_SENT_SINGLE'
+                            )
+                                | translate
+                                    : {
+                                          name:
+                                              last_success?.asset_name ||
+                                              last_success?.asset_id,
+                                          count: last_count || 1,
+                                      }
+                        }}
                     </h2>
                     <img class="mx-auto" src="assets/icons/sent.svg" />
-                    <p i18n>
-                        Invite has been sent to
-                        <i>
-                            <ng-container *ngIf="!multiple">
-                                {{
-                                    last_success?.asset_name ||
-                                        last_success?.asset_id
-                                }}
-                            </ng-container>
-                            <ng-container *ngIf="multiple">
-                                {{ last_count }} visitor{{
-                                    last_count == 1 ? '' : 's'
-                                }}
-                            </ng-container>
-                        </i>
-                        to attend
-                        {{ building?.display_name || building?.name }} from
-                        {{ last_success?.date | date: 'mediumDate' }} at
-                        {{ last_success?.date | date: time_format }}
+                    <p>
+                        {{
+                            'BOOKINGS.VISITOR_SENT_MSG'
+                                | translate
+                                    : {
+                                          location:
+                                              building?.display_name ||
+                                              building?.name,
+                                          date:
+                                              last_success?.date
+                                              | date: 'mediumDate',
+                                          time:
+                                              last_success?.date
+                                              | date: time_format,
+                                      }
+                        }}
                     </p>
-                </div>
-                <div class="w-full p-2 border-t border-base-200">
                     <div
-                        class="mx-auto flex items-center space-x-2 w-full max-w-[32rem]"
+                        class="relative flex flex-col items-center space-y-4 p-4"
+                        *ngIf="show_links"
                     >
-                        <button
+                        <a
                             btn
                             matRipple
-                            class="flex-1"
-                            (click)="onDone()"
-                            i18n
+                            name="desk-outlook-link"
+                            class="inverse flex w-64 items-center space-x-2 rounded p-2 pr-4"
+                            [href]="outlook_link | sanitize: 'url'"
+                            target="_blank"
+                            rel="noopener noreferer"
                         >
-                            Great, thanks
+                            <img src="assets/icons/outlook.svg" class="w-6" />
+                            <span>{{
+                                'BOOKINGS.LINK_OUTLOOK' | translate
+                            }}</span>
+                        </a>
+                        <a
+                            btn
+                            matRipple
+                            name="desk-google-link"
+                            class="inverse flex w-64 items-center space-x-2 rounded p-2 pr-4"
+                            [href]="google_link | sanitize: 'url'"
+                            target="_blank"
+                            rel="noopener noreferer"
+                        >
+                            <img src="assets/icons/gcal.svg" class="w-6" />
+                            <span>{{
+                                'BOOKINGS.LINK_GOOGLE' | translate
+                            }}</span>
+                        </a>
+                        <a
+                            btn
+                            matRipple
+                            name="desk-ical-link"
+                            class="inverse flex w-64 items-center space-x-2 rounded p-2 pr-4"
+                            [href]="ical_link | safe: 'url'"
+                            target="_blank"
+                            rel="noopener noreferer"
+                        >
+                            <app-icon class="text-xl">download</app-icon>
+                            <span>{{ 'BOOKINGS.LINK_ICAL' | translate }}</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="w-full border-t border-base-200 p-2">
+                    <div
+                        class="mx-auto flex w-full max-w-[32rem] items-center space-x-2"
+                    >
+                        <button btn matRipple class="flex-1" (click)="onDone()">
+                            {{ 'APP.WORKPLACE.BOOKING_FINISHED' | translate }}
                         </button>
                         <button
                             btn
                             matRipple
                             class="flex-1"
                             (click)="sent = false"
-                            i18n
                         >
-                            Book Another Visitor
+                            {{ 'BOOKINGS.VISITOR_BOOK_ANOTHER' | translate }}
                         </button>
                     </div>
                 </div>
@@ -273,15 +360,18 @@ import { User } from 'libs/users/src/lib/user.class';
         <ng-template #load_state>
             <div
                 loading
-                class="relative flex flex-col items-center justify-center rounded overflow-hidden w-full h-full min-h-[18rem]"
+                class="relative flex h-full min-h-[18rem] w-full flex-col items-center justify-center overflow-hidden rounded"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
-                <p i18n>Sending invitation...</p>
+                <p>{{ 'BOOKINGS.VISITOR_SENDING' | translate }}</p>
             </div>
         </ng-template>
         <ng-template #multi_state>
             <div class="flex flex-col" [formGroup]="form">
-                <label for="visitor-name" i18n>Visitors<span>*</span></label>
+                <label for="visitor-name">
+                    {{ 'BOOKINGS.VISITOR_LIST' | translate }}
+                    <span>*</span>
+                </label>
                 <a-user-list-field
                     formControlName="assets"
                     [guests_only]="true"
@@ -290,9 +380,18 @@ import { User } from 'libs/users/src/lib/user.class';
         </ng-template>
     `,
     styles: [``],
+    standalone: false,
 })
-export class InviteVisitorFormComponent extends AsyncHandler {
+export class InviteVisitorFormComponent
+    extends AsyncHandler
+    implements OnInit, OnChanges
+{
+    @Input() public date: number;
     @Output() public done = new EventEmitter<void>();
+
+    public outlook_link = '';
+    public google_link = '';
+    public ical_link = '';
 
     public sent = false;
     public booking?: Booking;
@@ -304,8 +403,24 @@ export class InviteVisitorFormComponent extends AsyncHandler {
     public visitors = [];
     public filtered_visitors = [];
 
+    public get max_duration() {
+        return (
+            this._settings.get('app.visitors.max_duration') ||
+            this._settings.get('app.bookings.max_duration') ||
+            4 * 60
+        );
+    }
+
     public get multiple() {
         return this._settings.get('app.bookings.multiple_visitors');
+    }
+
+    public get can_book_for_others() {
+        return this._settings.get('app.bookings.can_book_for_others');
+    }
+
+    public get show_links() {
+        return this._settings.get('app.visitors.show_calendar_links');
     }
 
     public get building() {
@@ -329,7 +444,7 @@ export class InviteVisitorFormComponent extends AsyncHandler {
     constructor(
         private _service: BookingFormService,
         private _settings: SettingsService,
-        private _org: OrganisationService
+        private _org: OrganisationService,
     ) {
         super();
     }
@@ -351,16 +466,23 @@ export class InviteVisitorFormComponent extends AsyncHandler {
             'email',
             this.form
                 .get('asset_id')
-                .valueChanges.subscribe((_) => this.filterVisitors(_))
+                .valueChanges.subscribe((_) => this.filterVisitors(_)),
         );
         this.subscription(
             'name',
             this.form
                 .get('asset_name')
-                .valueChanges.subscribe((_) => this.filterVisitors(_))
+                .valueChanges.subscribe((_) => this.filterVisitors(_)),
         );
         if (this.multiple)
             this.form.patchValue({ asset_id: 'multiple@place.tech' });
+        this.form.patchValue({ title: 'Visit' });
+    }
+
+    public ngOnChanges(changes: SimpleChanges) {
+        if (changes.date && this.date) {
+            this.form.patchValue({ date: this.date });
+        }
     }
 
     public setVisitor(item) {
@@ -378,7 +500,7 @@ export class InviteVisitorFormComponent extends AsyncHandler {
             ({ email, name, company }) =>
                 email.toLowerCase().includes(s) ||
                 name.toLowerCase().includes(s) ||
-                company.toLowerCase().includes(s)
+                company.toLowerCase().includes(s),
         );
     }
 
@@ -396,8 +518,11 @@ export class InviteVisitorFormComponent extends AsyncHandler {
             return notifyError(
                 `Some fields are invalid. [${
                     getInvalidFields(this.form).join(', ') || 'visitors'
-                }]`
+                }]`,
             );
+        }
+        if (!this.form.value.user_email || !this.can_book_for_others) {
+            this.form.patchValue({ user: currentUser() });
         }
         const { asset_id, asset_name, company, assets } = this.form.value;
         const visitor_details = `${asset_id}|${asset_name}|${company}`;
@@ -408,13 +533,31 @@ export class InviteVisitorFormComponent extends AsyncHandler {
         ]);
         await (this.multiple ? this._bookForMany() : this._bookForOne());
         this.last_success = this._service.last_success;
+        if (this.last_success) {
+            const event: CalEvent = {
+                ...this.last_success,
+                host: this.last_success.user_email,
+                organiser: {
+                    name: this.last_success.user_name,
+                    email: this.last_success.user_email,
+                } as any,
+                attendees: this.last_success.attendees.map((_) => _.email),
+                body: this.last_success.description,
+                location: this.last_success.asset_name,
+            };
+            this.outlook_link = generateMicrosoftCalendarLink(event);
+            this.google_link = generateGoogleCalendarLink(event);
+            this.ical_link = generateCalendarFileLink(event);
+        }
         await this.initFormZone();
         this.sent = true;
     }
 
     private async initFormZone() {
         await this._org.initialised.pipe(first((_) => _)).toPromise();
+        this._service.loadForm();
         this._service.setOptions({ type: 'visitor' });
+        if (!this.form.value.id) this._service.newForm();
         this.form.patchValue({
             booking_type: 'visitor',
             zones: [this._org.building?.id],

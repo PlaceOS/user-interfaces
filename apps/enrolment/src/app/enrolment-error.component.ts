@@ -5,9 +5,9 @@ import { EnrolmentStateService } from './enrolment-state.service';
     selector: 'enrolment-error',
     template: `
         <div
-            class="bg-warning p-4 mx-auto my-4 border border-base-200 shadow w-[32rem] max-w-[calc(100vw-2rem)] rounded"
+            class="mx-auto my-4 w-[32rem] max-w-[calc(100vw-2rem)] rounded border border-base-200 bg-warning p-4 shadow"
         >
-            <h3 class="text-center text-xl font-medium mb-4">
+            <h3 class="mb-4 text-center text-xl font-medium">
                 Unable to continue
             </h3>
             <p [ngSwitch]="error | async" class="text-center">
@@ -34,6 +34,7 @@ import { EnrolmentStateService } from './enrolment-state.service';
         </div>
     `,
     styles: [``],
+    standalone: false,
 })
 export class EnrolmentErrorComponent {
     public readonly error = this._state.error;

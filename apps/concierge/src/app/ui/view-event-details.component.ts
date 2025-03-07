@@ -1,11 +1,10 @@
 import { Component, Input } from '@angular/core';
-import { format, addMinutes } from 'date-fns';
+import { addMinutes, format } from 'date-fns';
 
-import { CalendarEvent } from '@placeos/events';
-import { SpacesService } from '@placeos/spaces';
-import { EventsStateService } from '../day-view/events-state.service';
-import { OrganisationService } from '@placeos/organisation';
 import { SettingsService } from '@placeos/common';
+import { CalendarEvent } from '@placeos/events';
+import { OrganisationService } from '@placeos/organisation';
+import { EventsStateService } from '../day-view/events-state.service';
 
 @Component({
     selector: 'view-event-details',
@@ -16,25 +15,25 @@ import { SettingsService } from '@placeos/common';
         ></div>
         <div
             name="panel"
-            class="absolute rounded shadow flex flex-col bg-base-100"
+            class="absolute flex flex-col rounded bg-base-100 shadow"
             (click)="$event.stopPropagation()"
         >
-            <div class="p-4 overflow-auto flex-1">
-                <h3 class="pl-6 mb-1">
+            <div class="flex-1 overflow-auto p-4">
+                <h3 class="mb-1 pl-6">
                     {{ event.organiser?.name || event.host }}
                 </h3>
                 <div class="text-bold mb-4 pl-6 opacity-60">
                     {{ event.date | date: 'fullDate' }}
                 </div>
-                <div class="flex items-center mb-2">
+                <div class="mb-2 flex items-center">
                     <app-icon class="mr-1">title</app-icon>
                     <span class="opacity-60">{{ event.title }}</span>
                 </div>
-                <div class="flex items-center mb-2">
+                <div class="mb-2 flex items-center">
                     <app-icon class="mr-1">schedule</app-icon>
                     <span class="opacity-60">{{ time }}</span>
                 </div>
-                <div class="flex items-center mb-2">
+                <div class="mb-2 flex items-center">
                     <app-icon class="mr-1">people</app-icon>
                     <span class="opacity-60"
                         >{{ event.attendees.length }} Attendee{{
@@ -42,13 +41,13 @@ import { SettingsService } from '@placeos/common';
                         }}</span
                     >
                 </div>
-                <div class="flex flex-col mb-2">
+                <div class="mb-2 flex flex-col">
                     <div
-                        class="flex items-center pl-6 mb-1 hover:bg-base-200 rounded"
+                        class="mb-1 flex items-center rounded pl-6 hover:bg-base-200"
                         *ngFor="let user of event.attendees"
                     >
                         <a-user-avatar
-                            class="text-sm pr-2"
+                            class="pr-2 text-sm"
                             [user]="user"
                         ></a-user-avatar>
                         <div class="flex flex-col">
@@ -64,7 +63,7 @@ import { SettingsService } from '@placeos/common';
                         </div>
                     </div>
                 </div>
-                <div class="flex items-center mb-2">
+                <div class="mb-2 flex items-center">
                     <app-icon class="mr-1">place</app-icon>
                     <span class="opacity-60"
                         >{{ building.display_name || building.name }},
@@ -78,7 +77,7 @@ import { SettingsService } from '@placeos/common';
                     <app-icon class="mr-1">format_align_left</app-icon>
                     <span class="opacity-60">Notes</span>
                 </div>
-                <div class="flex items-center pl-6 mb-2">
+                <div class="mb-2 flex items-center pl-6">
                     <span
                         class="opacity-60"
                         [innerHTML]="
@@ -90,9 +89,9 @@ import { SettingsService } from '@placeos/common';
             <div
                 name="actions"
                 *ngIf="!is_delegated"
-                class="flex items-center justify-content p-4 space-x-4"
+                class="justify-content flex items-center space-x-4 p-4"
             >
-                <button class="flex-1 inverse" btn matRipple (click)="remove()">
+                <button class="inverse flex-1" btn matRipple (click)="remove()">
                     Remove Booking
                 </button>
                 <button class="flex-1" btn matRipple (click)="edit()">
@@ -130,6 +129,7 @@ import { SettingsService } from '@placeos/common';
             }
         `,
     ],
+    standalone: false,
 })
 export class ViewEventDetailsComponent {
     /** Event to display */
@@ -176,6 +176,6 @@ export class ViewEventDetailsComponent {
     constructor(
         private _state: EventsStateService,
         private _settings: SettingsService,
-        private _org: OrganisationService
+        private _org: OrganisationService,
     ) {}
 }

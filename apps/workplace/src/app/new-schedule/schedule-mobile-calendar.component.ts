@@ -40,31 +40,27 @@ import {
                     </button>
                 </div>
             </div>
-            <div class="flex items-center justify-center text-sm mb-2">
+            <div class="mb-2 grid grid-cols-7 gap-2">
                 <div
-                    class="opacity-60 text-center w-10 mx-2"
-                    *ngFor="let day of date_list | slice: 0:7"
+                    class="mx-2 w-10 text-center opacity-60"
+                    *ngFor="let day of date_list | slice: 0 : 7"
                 >
                     {{ day.id | date: 'EE' }}
                 </div>
-            </div>
-            <div class="flex items-center justify-between flex-wrap">
                 <button
                     icon
                     matRipple
-                    class="min-w-[calc(14%-1rem)] flex-1 mx-2 h-9 overflow-visible"
+                    class="mx-2 h-9 min-w-[calc(14%-1rem)] flex-1 overflow-visible"
                     *ngFor="let day of list"
                     [class.text-opacity-30]="!day.is_month"
                     [class.text-white]="day.id === active_date"
                     [class.text-black]="day.id !== active_date"
-                    [class.dark:text-white]="day.id !== active_date"
-                    [class.dark:text-opacity-30]="!day.is_month"
                     [class.bg-primary]="day.id === active_date"
                     [class.font-normal]="day.id !== active_date"
                     (click)="setValue(day.id)"
                 >
                     <div
-                        class="absolute -inset-0.5 border border-primary rounded-full"
+                        class="absolute -inset-0.5 rounded-full border border-primary"
                         *ngIf="day.is_today"
                     ></div>
                     {{ day.id | date: 'd' }}
@@ -80,6 +76,7 @@ import {
             multi: true,
         },
     ],
+    standalone: false,
 })
 export class ScheduleMobileCalendarComponent
     implements OnInit, ControlValueAccessor

@@ -7,7 +7,7 @@ import { getHours, getMinutes } from 'date-fns';
     template: `
         <div
             event
-            class="absolute inset-x-1 bg-[#212121] text-white rounded border border-white/50 overflow-hidden px-2 py-1"
+            class="absolute inset-x-1 overflow-hidden rounded border border-white/50 bg-[#212121] px-2 py-1 text-white"
             [style.top]="top + '%'"
             [style.height]="height + '%'"
             [class.!bg-primary]="event?.state === 'in_progress'"
@@ -25,6 +25,7 @@ import { getHours, getMinutes } from 'date-fns';
         </div>
     `,
     styles: [``],
+    standalone: false,
 })
 export class SpaceEventDetailsComponent {
     @Input() public event?: CalendarEvent;

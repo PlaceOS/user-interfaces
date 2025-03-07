@@ -10,13 +10,13 @@ import { BookingUIOptions, EventsStateService } from './events-state.service';
     selector: 'dayview-topbar',
     template: `
         <div
-            class="flex items-center px-4 h-20 bg-base-100 border-b border-base-200"
+            class="flex h-20 items-center border-b border-base-200 bg-base-100 px-4"
         >
             <button
                 btn
                 matRipple
                 new
-                class="w-12 xl:w-auto overflow-hidden"
+                class="w-12 overflow-hidden xl:w-auto"
                 (click)="newBooking()"
             >
                 <div class="flex items-center">
@@ -32,7 +32,7 @@ import { BookingUIOptions, EventsStateService } from './events-state.service';
                     multiple
                     [(ngModel)]="zones"
                     (ngModelChange)="updateZones($event)"
-                    placeholder="All Levels"
+                    [placeholder]="'COMMON.LEVEL_ALL' | translate"
                 >
                     <mat-option
                         *ngFor="let level of levels | async"
@@ -63,7 +63,7 @@ import { BookingUIOptions, EventsStateService } from './events-state.service';
             >
                 <div class="text-xs">Setup / Breakdown</div>
             </mat-slide-toggle>
-            <div class="flex-1 w-0"></div>
+            <div class="w-0 flex-1"></div>
             <!-- <searchbar class="mr-2"></searchbar> -->
             <date-options (dateChange)="setDate($event)"></date-options>
         </div>
@@ -88,6 +88,7 @@ import { BookingUIOptions, EventsStateService } from './events-state.service';
             }
         `,
     ],
+    standalone: false,
 })
 export class DayviewTopbarComponent extends AsyncHandler {
     /** List of selected levels */
@@ -113,8 +114,8 @@ export class DayviewTopbarComponent extends AsyncHandler {
         this._router.navigate([], {
             relativeTo: this._route,
             queryParams: { zone_ids: z.join(',') },
+            queryParamsHandling: 'merge',
         });
-        this._state.setZones(z);
     };
     /** List of levels for the active building */
     public readonly updateTypes = (types) =>
@@ -138,7 +139,7 @@ export class DayviewTopbarComponent extends AsyncHandler {
         private _org: OrganisationService,
         private _route: ActivatedRoute,
         private _router: Router,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         super();
     }
@@ -155,23 +156,11 @@ export class DayviewTopbarComponent extends AsyncHandler {
                         const level = this._org.levelWithID(zones);
                         if (!level) return;
                         this._org.building = this._org.buildings.find(
-                            (bld) => bld.id === level.parent_id
+                            (bld) => bld.id === level.parent_id,
                         );
                     }
                 }
-            })
-        );
-        this.subscription(
-            'levels',
-            this._org.active_levels.subscribe((levels) => {
-                this.zones = this.zones.filter((zone) =>
-                    levels.find((lvl) => lvl.id === zone)
-                );
-                if (!this.zones.length && levels.length) {
-                    this.zones.push(levels[0].id);
-                }
-                this.updateZones(this.zones);
-            })
+            }),
         );
         this.updateTypes(this.type_list);
     }

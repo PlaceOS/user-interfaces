@@ -6,12 +6,12 @@ import { currentUser } from '@placeos/common';
     template: `
         <div
             name="success"
-            class="fixed inset-0 flex flex-col bg-indigo-900 items-center justify-center z-50"
+            class="bg-indigo-900 fixed inset-0 z-50 flex flex-col items-center justify-center"
         >
-            <div class="text-7xl rounded-full bg-base-100 text-success mb-4">
+            <div class="mb-4 rounded-full bg-base-100 text-7xl text-success">
                 <app-icon>done</app-icon>
             </div>
-            <div class="text-center text-lg text-white mb-4 leading-10">
+            <div class="mb-4 text-center text-lg leading-10 text-white">
                 Thank you, your {{ type }} booking was successful!<br />
                 {{ extra }} <br *ngIf="extra" />
                 An event has been added to {{ title }} calendar
@@ -39,6 +39,7 @@ import { currentUser } from '@placeos/common';
         </div>
     `,
     styles: [``],
+    standalone: false,
 })
 export class FlowSuccessComponent {
     @Input() public calendar: string;

@@ -64,14 +64,14 @@ function registerMocks() {
             zones.length
                 ? zones.reduce(
                       (has, zone) => has && space.zones.includes(zone),
-                      true
+                      true,
                   )
                 : systems.length
-                ? systems.includes(space.id)
-                : true
+                  ? systems.includes(space.id)
+                  : true,
         ).filter((space) => {
             const bookings = MOCK_EVENTS.filter((event) =>
-                event.attendees.find((user) => user.id === space.id)
+                event.attendees.find((user) => user.id === space.id),
             );
             for (const event of bookings) {
                 if (
@@ -79,7 +79,7 @@ function registerMocks() {
                         start,
                         end,
                         event.event_start,
-                        event.event_end
+                        event.event_end,
                     )
                 )
                     return false;

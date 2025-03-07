@@ -7,17 +7,17 @@ import { first, take } from 'rxjs/operators';
     selector: 'explore-level-select',
     template: `
         <div
-            class="m-2 rounded overflow-hidden bg-base-100 shadow border border-solid border-base-300"
+            class="m-2 overflow-hidden rounded border border-solid border-base-300 bg-base-100 shadow"
         >
             <button
                 *ngFor="let lvl of levels | async"
-                class="flex flex-col items-center justify-center h-16 w-16 p-2 border-none"
+                class="flex h-16 w-16 flex-col items-center justify-center border-none p-2"
                 [class.active]="lvl.id === (level | async)?.id"
                 (click)="setLevel(lvl)"
                 matRipple
             >
                 <div class="text-2xl">{{ lvl.number }}</div>
-                <p class="text-sm whitespace-nowrap m-0">
+                <p class="m-0 whitespace-nowrap text-sm">
                     {{ lvl.display_name || lvl.name }}
                 </p>
             </button>
@@ -35,6 +35,7 @@ import { first, take } from 'rxjs/operators';
             }
         `,
     ],
+    standalone: false,
 })
 export class ExploreLevelSelectComponent {
     public readonly levels = this._org.active_levels;
@@ -44,7 +45,7 @@ export class ExploreLevelSelectComponent {
 
     constructor(
         private _org: OrganisationService,
-        private _state: ExploreStateService
+        private _state: ExploreStateService,
     ) {}
 
     public async ngOnInit() {

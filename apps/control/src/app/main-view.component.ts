@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 
 import { AsyncHandler, VERSION } from '@placeos/common';
 import { ChangelogModalComponent } from '@placeos/components';
@@ -23,23 +23,27 @@ import { ControlStateService } from './control-state.service';
         <ng-template #power_off_state>
             <div
                 name="splash"
-                class="absolute inset-0 text-white flex flex-col items-center justify-center"
+                class="absolute inset-0 flex flex-col items-center justify-center text-white"
                 (click)="powerOn()"
                 (touchend)="powerOn()"
             >
-                <h2 class="font-light text-4xl mb-4">Touch to Start</h2>
+                <h2 class="mb-4 text-4xl font-light">
+                    {{ 'APP.CONTROL.TOUCH_TO_START' | translate }}
+                </h2>
                 <p class="text-lg">{{ (system | async).name }}</p>
                 <div class="absolute bottom-0 left-0 p-2">
-                    <div class="text-xs opacity-60 w-full">
-                        <ng-container i18n>Version: </ng-container>
+                    <div class="w-full text-xs opacity-60">
+                        <ng-container
+                            >{{ 'COMMON.CONTROLS_VERSION' | translate }}:
+                        </ng-container>
                         <button
-                            class="underline p-0 m-0 bg-none border-none text-xs"
+                            class="m-0 border-none bg-none p-0 text-xs underline"
                             (click)="viewChangelog()"
                         >
                             {{ version.hash }}
                         </button>
                     </div>
-                    <div class="text-xs opacity-60 w-full">
+                    <div class="w-full text-xs opacity-60">
                         {{ version.time | date: 'longDate' }}
                         ({{ version.time | date: 'shortTime' }})
                     </div>
@@ -49,12 +53,11 @@ import { ControlStateService } from './control-state.service';
         <ng-template #load_state>
             <div
                 name="loader"
-                class="absolute inset-0 bg-base-100 text-base-content flex flex-col items-center justify-center"
+                class="absolute inset-0 flex flex-col items-center justify-center bg-base-100 text-base-content"
             >
                 <mat-spinner class="mb-4" [diameter]="64"></mat-spinner>
-                <div class="text-2xl my-4">
-                    Connecting to system(<em>{{ id }}</em
-                    >)...
+                <div class="my-4 text-2xl">
+                    {{ 'APP.CONTROL.CONNECTING' | translate: { id: id } }}
                 </div>
                 <div class="text-base"></div>
             </div>
@@ -76,6 +79,7 @@ import { ControlStateService } from './control-state.service';
             }
         `,
     ],
+    standalone: false,
 })
 export class ControlMainViewComponent extends AsyncHandler implements OnInit {
     public readonly system = this._state.system;
@@ -92,7 +96,7 @@ export class ControlMainViewComponent extends AsyncHandler implements OnInit {
     public async viewChangelog() {
         const changelog = await (
             await fetch(
-                'https://raw.githubusercontent.com/PlaceOS/user-interfaces/develop/CHANGELOG.md'
+                'https://raw.githubusercontent.com/PlaceOS/user-interfaces/develop/CHANGELOG.md',
             )
         ).text();
         this._dialog.open(ChangelogModalComponent, { data: { changelog } });
@@ -100,9 +104,8 @@ export class ControlMainViewComponent extends AsyncHandler implements OnInit {
 
     constructor(
         private _route: ActivatedRoute,
-        private _router: Router,
         private _state: ControlStateService,
-        private _dialog: MatDialog
+        private _dialog: MatDialog,
     ) {
         super();
     }
@@ -113,17 +116,16 @@ export class ControlMainViewComponent extends AsyncHandler implements OnInit {
             this._route.paramMap.subscribe((params) =>
                 params.has('system')
                     ? this._state.setID(params.get('system'))
-                    : ''
-            )
+                    : '',
+            ),
         );
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) =>
-                params.get('join') === 'true' ? this._state.selectMeeting() : ''
-            )
-        );
-        this.timeout('init', () =>
-            !this._state.id ? this._router.navigate(['/bootstrap']) : ''
+                params.get('join') === 'true'
+                    ? this._state.selectMeeting()
+                    : '',
+            ),
         );
     }
 }

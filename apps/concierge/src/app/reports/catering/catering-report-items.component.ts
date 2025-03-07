@@ -7,50 +7,66 @@ import { CateringReportStateService } from './catering-report-state.service';
     selector: 'catering-report-items',
     template: `
         <div
-            class="w-[64rem] max-w-[calc(100%-2rem)] rounded overflow-hidden bg-base-100 border border-base-200 mx-auto my-2"
+            class="mx-auto my-2 w-[64rem] max-w-[calc(100%-2rem)] overflow-hidden rounded border border-base-200 bg-base-100"
         >
             <div
-                class="border-b border-base-200 flex items-center justify-between px-4"
+                class="flex items-center justify-between border-b border-base-200 px-4"
             >
-                <h2 class="py-2 text-xl font-medium">Ordered Items</h2>
+                <h2 class="py-2 text-xl font-medium">
+                    {{
+                        'APP.CONCIERGE.REPORTS_CATERING_ITEMS_HEADER'
+                            | translate
+                    }}
+                </h2>
             </div>
             <simple-table
-                class="w-full block text-sm"
+                class="block w-full text-sm"
                 [data]="items"
                 [columns]="[
-                    { key: 'name', name: 'Name' },
+                    { key: 'name', name: 'FORM.NAME' | translate },
                     {
                         key: 'options',
-                        name: 'Options',
-                        content: option_template
+                        name:
+                            'APP.CONCIERGE.REPORTS_CATERING_OPTIONS'
+                            | translate,
+                        content: option_template,
+                    },
+                    {
+                        key: 'caterer',
+                        name: 'CATERING.CATERER' | translate,
                     },
                     {
                         key: 'quantity',
-                        name: 'Quantity'
+                        name: 'CATERING.QUANTITY' | translate,
                     },
                     {
                         key: 'unit_price',
-                        name: 'Unit Price',
-                        content: cost_template
+                        name: 'COMMON.ITEM_PRICE' | translate,
+                        content: cost_template,
                     },
                     {
                         key: 'total_cost',
-                        name: 'Total Cost',
-                        content: cost_template
-                    }
+                        name: 'CATERING.TOTAL_COST' | translate,
+                        content: cost_template,
+                    },
                 ]"
                 [page_size]="print ? 0 : 10"
-                empty_message="No orders for selected period"
+                [empty_message]="
+                    'APP.CONCIERGE.REPORTS_CATERING_ORDERS_EMPTY' | translate
+                "
                 [sortable]="true"
             ></simple-table>
             <ng-template #option_template let-data="data">
                 <div class="p-4">
                     <span
-                        class="text-xs px-2 py-1 rounded bg-base-200"
+                        class="rounded bg-base-200 px-2 py-1 text-xs"
                         *ngIf="data.length"
                         [matTooltip]="options(data)"
                     >
-                        {{ data.length }} option(s)
+                        {{
+                            'APP.CONCIERGE.REPORTS_CATERING_OPTIONS'
+                                | translate: { count: data?.length || 0 }
+                        }}
                     </span>
                 </div>
             </ng-template>
@@ -60,9 +76,10 @@ import { CateringReportStateService } from './catering-report-state.service';
         </div>
     `,
     styles: [``],
+    standalone: false,
 })
 export class CateringReportItemsComponent {
-    @Input() public print: boolean = false;
+    @Input() public print = false;
     public readonly items = this._report.catering_items;
 
     public get code() {
@@ -71,7 +88,7 @@ export class CateringReportItemsComponent {
 
     constructor(
         private _report: CateringReportStateService,
-        private _org: OrganisationService
+        private _org: OrganisationService,
     ) {}
 
     public options(opts: CateringOption[]) {

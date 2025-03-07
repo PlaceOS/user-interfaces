@@ -6,7 +6,7 @@ import { AsyncHandler, SettingsService } from '@placeos/common';
     template: `
         <button
             matRipple
-            class="flex items-center justify-between hover:bg-base-200 w-full p-2 rounded"
+            class="flex w-full items-center justify-between rounded p-2 hover:bg-base-200"
             (click)="setDarkMode(!dark_mode)"
         >
             <div>Dark Mode</div>
@@ -15,7 +15,7 @@ import { AsyncHandler, SettingsService } from '@placeos/common';
                 (ngModelChange)="setDarkMode($event)"
             ></mat-slide-toggle>
         </button>
-        <button
+        <!-- <button
             matRipple
             class="flex items-center justify-between hover:bg-base-200 w-full p-2 rounded"
             (click)="applySetting('accessible', !accessible)"
@@ -47,9 +47,10 @@ import { AsyncHandler, SettingsService } from '@placeos/common';
             >
                 {{ font_size }}px
             </div>
-        </div>
+        </div> -->
     `,
     styles: [``],
+    standalone: false,
 })
 export class AccessibilityControlsComponent extends AsyncHandler {
     constructor(private _settings: SettingsService) {
@@ -57,11 +58,11 @@ export class AccessibilityControlsComponent extends AsyncHandler {
     }
 
     public get dark_mode() {
-        return this._settings.get('theme') === 'dark';
+        return this.can_change_dark_mode && this._settings.theme === 'dark';
     }
 
     public get can_change_dark_mode() {
-        return !!this._settings.get('app.general.dark_mode');
+        return !!this._settings.get('app.allow_dark_mode');
     }
 
     public get accessible() {
@@ -76,19 +77,19 @@ export class AccessibilityControlsComponent extends AsyncHandler {
         this.timeout(
             'apply_setting',
             () => this._settings.saveUserSetting(n, v),
-            1000
+            1000,
         );
 
     public setDarkMode(state: boolean) {
         this.timeout(
             'dark_mode',
             () => {
-                const theme = this._settings.get('theme');
+                const theme = this._settings.theme;
                 if (state && theme !== 'dark') this._settings.setTheme('dark');
                 else if (!state && theme === 'dark')
                     this._settings.setTheme('light');
             },
-            100
+            100,
         );
     }
 }

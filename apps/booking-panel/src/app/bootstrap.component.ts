@@ -1,44 +1,37 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import {
-    debounceTime,
-    first,
-    map,
-    shareReplay,
-    switchMap,
-    tap,
-} from 'rxjs/operators';
+import { debounceTime, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 
 import { AsyncHandler } from '@placeos/common';
-import { Space } from '@placeos/spaces';
-import { BehaviorSubject, combineLatest, of } from 'rxjs';
-import { querySystems } from '@placeos/ts-client';
 import { OrganisationService } from '@placeos/organisation';
+import { Space } from '@placeos/spaces';
+import { querySystems } from '@placeos/ts-client';
+import { BehaviorSubject, combineLatest, of } from 'rxjs';
 
 @Component({
     selector: '[app-bootstrap]',
     template: `
         <div
-            class="rounded shadow m-4 bg-base-100 border border-base-200 overflow-hidden mx-auto text-center flex flex-col items-center"
+            class="m-4 mx-auto flex flex-col items-center overflow-hidden rounded border border-base-200 bg-base-100 text-center shadow"
         >
-            <h2 class="bg-error text-white py-2 px-4 m-0 w-full text-2xl">
-                {{ 'PANEL.BOOTSTRAP_TITLE' | translate }}
+            <h2 class="m-0 w-full bg-error px-4 py-2 text-2xl text-white">
+                {{ 'APP.BOOKING_PANEL.BOOTSTRAP_TITLE' | translate }}
             </h2>
             <ng-container
                 *ngIf="!loading || loading === 'search'; else load_state"
             >
                 <p class="description py-4">
-                    {{ 'PANEL.BOOTSTRAP_DESCRIPTION' | translate }}
+                    {{ 'COMMON.BOOTSTRAP_DESCRIPTION' | translate }}
                 </p>
                 <mat-form-field appearance="outline">
                     <mat-label>{{
-                        'PANEL.BOOTSTRAP_LABEL' | translate
+                        'COMMON.BOOTSTRAP_LABEL' | translate
                     }}</mat-label>
                     <input
                         matInput
                         [ngModel]="system_id$ | async"
                         [matAutocomplete]="auto"
-                        placeholder="System ID"
+                        [placeholder]="'COMMON.BOOTSTRAP_LABEL' | translate"
                         (ngModelChange)="system_id$.next($event)"
                     />
                     <mat-spinner
@@ -54,7 +47,7 @@ import { OrganisationService } from '@placeos/organisation';
                     >
                         <div class="leading-tight">
                             <div class="name">{{ option.name }}</div>
-                            <div class="text-xs text-dark-fade">
+                            <div class="text-dark-fade text-xs">
                                 {{ option.id }}
                             </div>
                         </div>
@@ -66,7 +59,7 @@ import { OrganisationService } from '@placeos/organisation';
                             !(space_list | async)?.length
                         "
                     >
-                        {{ 'PANEL.BOOTSTRAP_INPUT_PLACEHOLDER' | translate }}
+                        {{ 'COMMON.BOOTSTRAP_INPUT_PLACEHOLDER' | translate }}
                     </mat-option>
                 </mat-autocomplete>
                 <button
@@ -74,17 +67,16 @@ import { OrganisationService } from '@placeos/organisation';
                     matRipple
                     [disabled]="!system_id$.getValue()"
                     (click)="bootstrap()"
-                    i18n
                 >
-                    {{ 'COMMON.CONTINUE' | translate }}
+                    {{ 'COMMON.BOOTSTRAP_SUBMIT' | translate }}
                 </button>
             </ng-container>
         </div>
         <ng-template #load_state>
             <div load class="my-16 flex flex-col items-center">
                 <mat-spinner [diameter]="32"></mat-spinner>
-                <div class="m-4" i18n>
-                    {{ 'PANEL.LOADING_SYSTEM' | translate }} {{ loading }}
+                <div class="m-4">
+                    {{ 'COMMON.BOOTSTRAP_LOADING' | translate }}
                 </div>
             </div>
         </ng-template>
@@ -117,6 +109,7 @@ import { OrganisationService } from '@placeos/organisation';
             }
         `,
     ],
+    standalone: false,
 })
 export class BootstrapComponent extends AsyncHandler implements OnInit {
     /** List of available systems */
@@ -148,8 +141,8 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
                   });
         }),
         map((_) => _.data.map((_) => new Space(_ as any))),
-        tap((_) => (this.loading = '')),
-        shareReplay(1)
+        tap(() => (this.loading = '')),
+        shareReplay(1),
     );
 
     private _event = false;
@@ -157,7 +150,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
     constructor(
         private route: ActivatedRoute,
         private _router: Router,
-        private _org: OrganisationService
+        private _org: OrganisationService,
     ) {
         super();
     }
@@ -172,11 +165,11 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
                 if (params.has('event')) this._event = true;
                 if (params.has('system_id') || params.has('sys_id')) {
                     this.system_id$.next(
-                        params.get('system_id') || params.get('sys_id')
+                        params.get('system_id') || params.get('sys_id'),
                     );
                     this.bootstrap();
                 }
-            })
+            }),
         );
         this.checkBootstrapped();
     }
@@ -194,12 +187,15 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
         this.loading = 'Checks';
         if (localStorage) {
             const system_id = localStorage.getItem('PLACEOS.BOOKINGS.system');
+            this._event =
+                this._event ||
+                localStorage.getItem('PLACEOS.Bookings.event') === 'true';
             if (system_id) {
                 this._router.navigate(
                     [this._event ? 'events' : 'panel', system_id],
                     {
                         queryParamsHandling: 'preserve',
-                    }
+                    },
                 );
                 return;
             }
@@ -217,6 +213,9 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
             localStorage.setItem('PLACEOS.BOOKINGS.system', system_id);
             localStorage.setItem('trust', 'true');
             localStorage.setItem('fixed_device', 'true');
+            if (this._event) {
+                localStorage.setItem('PLACEOS.Bookings.event', 'true');
+            }
         }
         this._router.navigate([this._event ? 'events' : 'panel', system_id], {
             queryParamsHandling: 'preserve',

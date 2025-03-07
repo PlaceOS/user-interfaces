@@ -1,11 +1,11 @@
-import { ChangeDetectorRef, Component, Input, forwardRef } from '@angular/core';
+import { Component, Input, OnDestroy, forwardRef } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 
-import { SettingsService } from 'libs/common/src/lib/settings.service';
-import { Space } from 'libs/spaces/src/lib/space.class';
-import { NewSpaceSelectModalComponent } from 'libs/spaces/src/lib/space-select-modal/new-space-select-modal.component';
 import { OrganisationService } from '@placeos/organisation';
+import { SettingsService } from 'libs/common/src/lib/settings.service';
+import { NewSpaceSelectModalComponent } from 'libs/spaces/src/lib/space-select-modal/new-space-select-modal.component';
+import { Space } from 'libs/spaces/src/lib/space.class';
 import { BehaviorSubject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 
@@ -15,24 +15,38 @@ const EMPTY_FAVS: string[] = [];
     selector: `space-list-field`,
     template: `
         <div>
-            <div class="flex items-center flex-wrap sm:space-x-2 mb-2">
-                <div class="flex-1 min-w-[256px] space-y-2">
-                    <label i18n>Select Room Size<span>*</span></label>
+            <div class="mb-2 flex flex-wrap items-center sm:space-x-2">
+                <div class="min-w-[256px] flex-1 space-y-2">
+                    <label>
+                        {{ 'CALENDAR_EVENT.SPACE_SELECT_SIZE' | translate
+                        }}<span>*</span>
+                    </label>
                     <div class="flex items-center">
                         <mat-radio-group
-                            aria-label="Select Room Size"
+                            [attr.aria-label]="
+                                'CALENDAR_EVENT.SPACE_SELECT_SIZE' | translate
+                            "
                             class="space-x-4"
                             [(ngModel)]="room_size"
                             [ngModelOptions]="{ standalone: true }"
                         >
-                            <mat-radio-button [value]="1" i18n>
-                                Min. 2 People
+                            <mat-radio-button [value]="1">
+                                {{
+                                    'CALENDAR_EVENT.SPACE_SELECT_SIZE_X'
+                                        | translate: { count: 2 }
+                                }}
                             </mat-radio-button>
-                            <mat-radio-button [value]="4" i18n>
-                                Min. 4 People
+                            <mat-radio-button [value]="4">
+                                {{
+                                    'CALENDAR_EVENT.SPACE_SELECT_SIZE_X'
+                                        | translate: { count: 4 }
+                                }}
                             </mat-radio-button>
-                            <mat-radio-button [value]="10" i18n>
-                                Min. 10 People
+                            <mat-radio-button [value]="10">
+                                {{
+                                    'CALENDAR_EVENT.SPACE_SELECT_SIZE_X'
+                                        | translate: { count: 10 }
+                                }}
                             </mat-radio-button>
                         </mat-radio-group>
                     </div>
@@ -42,11 +56,11 @@ const EMPTY_FAVS: string[] = [];
         <div list class="space-y-2">
             <div
                 space
-                class="relative p-2 rounded-lg w-full flex items-center shadow border border-base-200"
+                class="relative flex w-full items-center rounded-lg border border-base-200 p-2 shadow"
                 *ngFor="let space of space_list | async"
             >
                 <div
-                    class="w-24 h-24 rounded-xl bg-base-200 mr-4 overflow-hidden flex items-center justify-center"
+                    class="mr-4 flex h-24 w-24 items-center justify-center overflow-hidden rounded-xl bg-base-200"
                 >
                     <img
                         auth
@@ -61,13 +75,13 @@ const EMPTY_FAVS: string[] = [];
                         />
                     </ng-template>
                 </div>
-                <div class="sm:space-y-2 pb-4">
+                <div class="pb-4 sm:space-y-2">
                     <div class="font-medium">
                         {{
                             space.display_name || space.name || 'Meeting Space'
                         }}
                     </div>
-                    <div class="flex items-center text-sm space-x-2">
+                    <div class="flex items-center space-x-2 text-sm">
                         <app-icon class="text-blue-500">place</app-icon>
                         <p>
                             {{
@@ -77,12 +91,19 @@ const EMPTY_FAVS: string[] = [];
                             }}
                         </p>
                     </div>
-                    <div class="flex items-center text-sm space-x-2">
+                    <div class="flex items-center space-x-2 text-sm">
                         <app-icon class="text-blue-500">people</app-icon>
-                        <p i18n>
-                            {{ space.capacity < 1 ? 2 : space.capacity }} {
-                            space.capacity, plural, =1 { Person } other { People
-                            } }
+                        <p>
+                            {{
+                                'CALENDAR_EVENT.CAPACITY_COUNT'
+                                    | translate
+                                        : {
+                                              count:
+                                                  space.capacity < 1
+                                                      ? 2
+                                                      : space.capacity,
+                                          }
+                            }}
                         </p>
                     </div>
                     <div
@@ -95,9 +116,9 @@ const EMPTY_FAVS: string[] = [];
                             class="clear"
                             (click)="changeSpaces(space)"
                         >
-                            <div class="flex items-center space-x-2" i18n>
+                            <div class="flex items-center space-x-2">
                                 <app-icon>edit</app-icon>
-                                Change
+                                {{ 'COMMON.CHANGE' | translate }}
                             </div>
                         </button>
                         <button
@@ -107,9 +128,9 @@ const EMPTY_FAVS: string[] = [];
                             class="clear"
                             (click)="removeSpace(space)"
                         >
-                            <div class="flex items-center space-x-2" i18n>
+                            <div class="flex items-center space-x-2">
                                 <app-icon>close</app-icon>
-                                Remove
+                                {{ 'COMMON.REMOVE' | translate }}
                             </div>
                         </button>
                     </div>
@@ -118,8 +139,8 @@ const EMPTY_FAVS: string[] = [];
                     icon
                     matRipple
                     name="toggle-space-favourite"
-                    class="absolute top-1 right-1"
-                    [class.text-blue-400]="favorites.includes(space?.id)"
+                    class="absolute right-1 top-1"
+                    [class.text-info]="favorites.includes(space?.id)"
                     (click)="toggleFavourite(space)"
                 >
                     <app-icon>{{
@@ -134,12 +155,12 @@ const EMPTY_FAVS: string[] = [];
             btn
             matRipple
             name="add-space"
-            class="w-full inverse mt-2"
+            class="inverse mt-2 w-full"
             (click)="changeSpaces()"
         >
             <div class="flex items-center justify-center space-x-2">
                 <app-icon>search</app-icon>
-                <span i18n>Add Space</span>
+                <span>{{ 'CALENDAR_EVENT.SPACE_ADD' | translate }}</span>
             </div>
         </button>
     `,
@@ -151,8 +172,11 @@ const EMPTY_FAVS: string[] = [];
             multi: true,
         },
     ],
+    standalone: false,
 })
-export class SpaceListFieldComponent implements ControlValueAccessor {
+export class SpaceListFieldComponent
+    implements ControlValueAccessor, OnDestroy
+{
     @Input() multiday = false;
     public room_size = 4;
     public spaces = new BehaviorSubject<Space[]>([]);
@@ -170,7 +194,7 @@ export class SpaceListFieldComponent implements ControlValueAccessor {
     constructor(
         private _settings: SettingsService,
         private _org: OrganisationService,
-        private _dialog: MatDialog
+        private _dialog: MatDialog,
     ) {}
 
     public ngOnDestroy() {
@@ -239,7 +263,7 @@ export class SpaceListFieldComponent implements ControlValueAccessor {
         } else {
             this._settings.saveUserSetting(
                 'favourite_spaces',
-                fav_list.filter((_) => _ !== space.id)
+                fav_list.filter((_) => _ !== space.id),
             );
         }
     }

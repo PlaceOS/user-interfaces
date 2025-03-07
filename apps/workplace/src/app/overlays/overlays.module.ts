@@ -1,12 +1,12 @@
-import { NgModule, Type } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { NgModule, Type } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
-import { ViewAttendeesModalComponent } from './view-attendees-modal/view-attendees-modal.component';
-import { ViewCateringModalComponent } from './view-catering-modal/view-catering-modal.component';
+import { SharedComponentModule } from '../components/shared.module';
 import { RecurrenceModalComponent } from './recurrence-modal.component';
 import { UserAvailabilityModalComponent } from './user-availability-modal/user-availability.modal.component';
-import { SharedComponentModule } from '../components/shared.module';
+import { ViewAttendeesModalComponent } from './view-attendees-modal/view-attendees-modal.component';
+import { ViewCateringModalComponent } from './view-catering-modal/view-catering-modal.component';
 
 const OVERLAYS: Type<any>[] = [
     ViewAttendeesModalComponent,

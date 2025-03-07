@@ -1,15 +1,14 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { take } from 'rxjs/operators';
-import { CateringOrderStateService } from './catering-order-state.service';
-import { AsyncHandler, SettingsService } from '@placeos/common';
+import { AsyncHandler, i18n, SettingsService } from '@placeos/common';
 import {
     addDays,
     addMinutes,
     differenceInMinutes,
     endOfDay,
-    format,
     startOfDay,
 } from 'date-fns';
+import { take } from 'rxjs/operators';
+import { CateringOrderStateService } from './catering-order-state.service';
 
 const ICONS = {
     coffee: `<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -64,19 +63,40 @@ const ICONS = {
 @Component({
     selector: 'catering-item-filters',
     template: `
-        <div class="px-4 mt-3 mb-2" [class.sm:hidden]="!search">
-            <mat-form-field appearance="outline" class="w-full h-14">
+        <div class="mb-2 mt-2 px-2" [class.sm:hidden]="!search">
+            <mat-form-field appearance="outline" class="h-14 w-full">
                 <app-icon matPrefix class="text-xl">search</app-icon>
                 <input
                     matInput
                     [ngModel]="(filters | async)?.search"
                     (ngModelChange)="setFilters({ search: $event })"
-                    placeholder="Search menu..."
+                    [placeholder]="'CATERING.MENU_SEARCH' | translate"
                 />
             </mat-form-field>
         </div>
-        <h3 class="hidden sm:block font-medium px-2 py-2" *ngIf="!search" i18n>
-            Options
+        <div
+            *ngIf="!search && (caterers | async)?.length > 1"
+            class="hidden px-2 py-2 sm:block"
+        >
+            <label>{{ 'CATERING.CATERER' | translate }}</label>
+            <mat-form-field appearance="outline" class="h-14 w-full">
+                <mat-select
+                    [ngModel]="
+                        (filters | async)?.caterer || (caterers | async)[0]
+                    "
+                    (ngModelChange)="setFilters({ caterer: $event })"
+                >
+                    <mat-option
+                        *ngFor="let caterer of caterers | async"
+                        [value]="caterer || '<empty>'"
+                    >
+                        {{ caterer || '[No caterer]' }}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
+        <h3 class="hidden px-2 py-2 font-medium sm:block" *ngIf="!search">
+            {{ 'COMMON.FILTERS' | translate }}
         </h3>
         <div class="flex flex-col px-2" *ngIf="!search">
             <mat-checkbox
@@ -84,13 +104,13 @@ const ICONS = {
                 (ngModelChange)="at_timeChange.next($event)"
                 [matTooltip]="exact_tooltip"
             >
-                Exact Time
+                {{ 'CATERING.ORDERS_DELIVER_EXACT' | translate }}
             </mat-checkbox>
             <ng-container *ngIf="day_options.length > 1">
-                <label>Deliver Date:</label>
+                <label>{{ 'CATERING.ORDERS_DELIVER_DATE' | translate }}</label>
                 <mat-form-field
                     appearance="outline"
-                    class="w-full no-subscript mb-4"
+                    class="no-subscript mb-4 w-full"
                 >
                     <mat-select
                         [(ngModel)]="offset_day"
@@ -105,7 +125,7 @@ const ICONS = {
                     </mat-select>
                 </mat-form-field>
             </ng-container>
-            <label>Deliver After:</label>
+            <label>{{ 'CATERING.ORDERS_DELIVER_AFTER' | translate }}</label>
             <a-duration-field
                 [(ngModel)]="offset"
                 (ngModelChange)="offsetChange.next($event)"
@@ -118,11 +138,11 @@ const ICONS = {
                 [use_24hr]="use_24hr"
             ></a-duration-field>
         </div>
-        <h3 class="hidden sm:block font-medium px-2 py-4" *ngIf="!search" i18n>
-            Catergories
+        <h3 class="hidden px-2 py-4 font-medium sm:block" *ngIf="!search">
+            {{ 'COMMON.CATEGORIES' | translate }}
         </h3>
         <div
-            class="flex flex-col px-2 space-y-4"
+            class="flex flex-col space-y-2 px-2"
             [class.sm:hidden]="search"
             [class.sm:pt-1]="!search"
         >
@@ -140,9 +160,11 @@ const ICONS = {
         `
             :host {
                 min-width: 16rem;
+                overflow: auto;
             }
         `,
     ],
+    standalone: false,
 })
 export class CateringItemFiltersComponent
     extends AsyncHandler
@@ -167,13 +189,13 @@ export class CateringItemFiltersComponent
     public readonly setFilters = (f) => this._state.setFilters(f);
 
     public readonly categories = this._state.categories;
+    public readonly caterers = this._state.caterers;
 
-    public readonly exact_tooltip =
-        'Deliver at exactly specified time. \nNote that changes to the booking will not be \nreflected in the order if this is set.';
+    public exact_tooltip = '';
 
     public get start_of_date() {
         return startOfDay(
-            addDays(this._state.getFilters().date, this.offset_day)
+            addDays(this._state.getFilters().date, this.offset_day),
         ).valueOf();
     }
 
@@ -188,12 +210,12 @@ export class CateringItemFiltersComponent
     public get max_offset() {
         const end = Math.min(
             endOfDay(
-                addDays(this._state.getFilters().date, this.offset_day)
+                addDays(this._state.getFilters().date, this.offset_day),
             ).valueOf(),
             addMinutes(
                 this._state.getFilters().date,
-                this._state.getFilters().duration
-            ).valueOf()
+                this._state.getFilters().duration,
+            ).valueOf(),
         );
         const diff = differenceInMinutes(end, this._state.getFilters().date);
         return Math.min(diff, Math.min(24 * 60 - 1, this._max_offset));
@@ -207,7 +229,7 @@ export class CateringItemFiltersComponent
 
     constructor(
         private _state: CateringOrderStateService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         super();
     }
@@ -215,18 +237,19 @@ export class CateringItemFiltersComponent
     public ngOnInit() {
         this._min_offset = Math.max(
             this._settings.get('app.catering.min_offset'),
-            0
+            0,
         );
+        this.exact_tooltip = i18n('CATERING.ORDERS_DELIVER_EXACT_INFO');
         this.subscription(
             'filters',
             this._state.filters.subscribe(() => {
                 this._max_offset = Math.max(
                     15,
                     (this._state.getFilters().duration || 60) -
-                        this._settings.get('app.catering.end_offset')
+                        this._settings.get('app.catering.end_offset'),
                 );
                 this._updateDayOptions();
-            })
+            }),
         );
         this._updateDayOptions();
     }
