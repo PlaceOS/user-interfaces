@@ -179,7 +179,11 @@ import { BookingFormService } from '../booking-form.service';
                     <div class="w-1/3 flex-1">
                         <label>{{ 'FORM.TIME_END' | translate }}</label>
                         <a-duration-field
-                            formControlName="duration"
+                            [ngModel]="form.value.duration"
+                            (ngModelChange)="
+                                form.patchValue({ duration: $event })
+                            "
+                            [ngModelOptions]="{ standalone: true }"
                             [time]="form.get('date')?.value"
                             [max]="10 * 60"
                             [min]="60"
