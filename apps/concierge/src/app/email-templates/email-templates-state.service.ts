@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import {
+    AsyncHandler,
     i18n,
     notifyError,
     notifySuccess,
@@ -55,7 +56,7 @@ export interface EmailTemplatesFilters {
 @Injectable({
     providedIn: 'root',
 })
-export class EmailTemplatesStateService {
+export class EmailTemplatesStateService extends AsyncHandler {
     private _filters = new BehaviorSubject<EmailTemplatesFilters>({});
     private _change = new BehaviorSubject(0);
 
@@ -165,7 +166,9 @@ export class EmailTemplatesStateService {
     constructor(
         private _org: OrganisationService,
         private _settings: SettingsService,
-    ) {}
+    ) {
+        super();
+    }
 
     public async loadTemplate(id: string) {
         const template_list = await this.templates.pipe(take(1)).toPromise();
@@ -205,6 +208,7 @@ export class EmailTemplatesStateService {
                 throw e;
             });
         notifySuccess(i18n('APP.CONCIERGE.EMAIL_TEMPLATES_SAVE_SUCCESS'));
+        this.timeout('changed', () => this._change.next(Date.now()));
     }
 
     public async removeTemplate(template: EmailTemplate) {
@@ -230,6 +234,7 @@ export class EmailTemplatesStateService {
                 throw e;
             });
         notifySuccess(i18n('APP.CONCIERGE.EMAIL_TEMPLATES_REMOVE_SUCCESS'));
+        this.timeout('changed', () => this._change.next(Date.now()));
     }
 
     public setFilters(filters: Partial<EmailTemplatesFilters>) {
