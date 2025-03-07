@@ -34,18 +34,22 @@ import { BaseWidget } from './base-widget.component';
     ],
     template: `
         <div
-            class="relative flex h-full max-h-[22rem] min-h-0 w-full flex-col overflow-y-auto"
+            class="relative flex h-full max-h-[22rem] min-h-0 w-full flex-col divide-y divide-base-300 overflow-y-auto"
         >
-            <ng-container *ngIf="chart_data$ | async as data">
-                <div
-                    *ngFor="let d of data"
-                    class="mx-4 flex flex-1 border-b p-2"
-                >
-                    <blockquote>
-                        <span class="text-gray-700">{{ d }}</span>
+            @let data = chart_data$ | async;
+            @if (data?.length) {
+                <div *ngFor="let d of data" class="mx-4 flex flex-1 p-2">
+                    <blockquote class="text-sm">
+                        {{ d }}
                     </blockquote>
                 </div>
-            </ng-container>
+            } @else {
+                <p
+                    class="mx-4 mb-2 rounded bg-base-300 p-8 text-center opacity-30"
+                >
+                    No responses
+                </p>
+            }
         </div>
     `,
     standalone: false,

@@ -13,7 +13,7 @@ import { QuestionType, UISurveyResponse } from '../types';
     template: `
         <div class="flex w-full flex-1 flex-col p-2">
             <div
-                class="flex h-full w-full flex-col rounded border border-base-200 bg-base-100 shadow"
+                class="flex h-full w-full flex-col rounded border border-base-300 bg-base-100"
             >
                 <div class="p-4 pb-2 text-xl">
                     {{ response?.question?.title || '' }}

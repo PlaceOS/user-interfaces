@@ -68,7 +68,7 @@ export function parseRatingStats(data: UISurveyAnswer[], rateMax: number) {
         (acc, curr) => (acc.push(curr.answer_json), acc),
         [],
     );
-    const sum = list.reduce((acc, curr) => acc + curr);
+    const sum = list.reduce((acc, curr) => acc + curr, 0);
     const average = Math.round((sum / list.length) * 10) / 10;
     const percentage = Math.round((average / rateMax) * 1000) / 10;
     return { average, percentage, total: list.length };

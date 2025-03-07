@@ -31,7 +31,7 @@ import { parseRatingAnswers, parseRatingStats } from './survey-helper';
 
                         <div class="progress-bar h-5 bg-base-200">
                             <span
-                                class="progress-bar-fill h-5 rounded-lg bg-warning"
+                                class="h-5 rounded-full bg-warning"
                                 [ngStyle]="{ width: stats.percentage + '%' }"
                             ></span>
                         </div>
@@ -44,16 +44,19 @@ import { parseRatingAnswers, parseRatingStats } from './survey-helper';
                         class="flex w-full flex-row items-center space-x-4"
                     >
                         <div class="flex w-3 justify-end">
-                            <span> {{ i + 1 }}</span>
+                            {{ i + 1 }}
                         </div>
-                        <div class="progress-bar h-3 bg-base-200">
+                        <div
+                            progbar
+                            class="h-3 flex-1 rounded-full bg-base-200"
+                        >
                             <span
-                                class="progress-bar-fill h-3 bg-warning"
+                                class="h-3 rounded-full bg-warning"
                                 [ngStyle]="{ width: d + '%' }"
                             ></span>
                         </div>
-                        <div class="flex min-w-[1.5rem] justify-end">
-                            <span> {{ d / 100 | percent }}</span>
+                        <div class="flex w-6 justify-end font-thin">
+                            {{ d / 100 | percent }}
                         </div>
                     </div>
                 </div>

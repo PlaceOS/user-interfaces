@@ -75,7 +75,7 @@ import {
                     />
                 </date-range-field>
             </header>
-            <div class="flex justify-end space-x-4 px-8">
+            <div class="mb-4 flex justify-end space-x-4 px-8">
                 <div
                     class="flex flex-1 flex-col items-center rounded border border-base-300 p-4"
                 >
@@ -111,12 +111,12 @@ import {
             </div>
             @let question_pages = paged_responses$ | async;
             <div
-                class="h-1/2 flex-1 overflow-auto"
+                class="h-1/2 flex-1 overflow-auto border-t border-base-300 bg-base-200"
                 *ngIf="question_pages?.length > 0; else empty_template"
             >
                 <ng-container *ngFor="let p of question_pages; let i = index">
                     <div
-                        class="flex w-full px-3 pt-2 text-xl font-thin"
+                        class="flex w-full px-8 pt-2 text-xl font-medium"
                         *ngIf="question_pages.length > 1"
                     >
                         {{
@@ -127,7 +127,7 @@ import {
                                 | translate
                                     : {
                                           id: i + 1,
-                                          title: page.title,
+                                          title: p.title,
                                       }
                         }}
                     </div>
@@ -289,12 +289,6 @@ export class SurveyResponsesComponent extends AsyncHandler implements OnInit {
             this._route.paramMap.subscribe((params) => {
                 this._survey_id.next(params.get('id') || '');
             }),
-        );
-        this.subscription(
-            'paged',
-            this.paged_responses$.subscribe((d) =>
-                console.log('Questions:', d),
-            ),
         );
     }
 
