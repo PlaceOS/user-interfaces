@@ -17,7 +17,7 @@ export class BaseWidget extends AsyncHandler {
         this._data.next(value);
     }
 
-    protected hasData: boolean = false;
+    protected hasData = false;
     protected widget_id: string;
 
     @Input() question: Question;

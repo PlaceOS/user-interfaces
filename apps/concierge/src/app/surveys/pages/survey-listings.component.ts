@@ -184,5 +184,6 @@ export class SurveyListingsComponent extends AsyncHandler implements OnInit {
 
     public async onDelete(id: number) {
         await this._service.confirmDeleteSurvey(id);
+        this.timeout('load', () => this._change.next(Date.now()));
     }
 }

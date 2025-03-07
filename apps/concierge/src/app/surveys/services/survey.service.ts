@@ -21,7 +21,7 @@ import {
     updateSurvey,
 } from '@placeos/ts-client';
 import { BehaviorSubject, of } from 'rxjs';
-import { catchError, finalize, first, map } from 'rxjs/operators';
+import { catchError, finalize, first, map, take } from 'rxjs/operators';
 import { SurveyBuilderService } from './survey-builder.service';
 
 export interface SurveyOptions {
@@ -199,15 +199,9 @@ export class SurveyService {
 
     private async deleteSurvey(id: number) {
         this.loading = 'Deleting survey...';
-        const res = await removeSurvey(`${id}`)
-            .pipe(
-                first(),
-                finalize(() => (this.loading = '')),
-            )
-            .toPromise();
-        if (res) {
-            notifySuccess('Successfully deleted survey');
-        }
+        await removeSurvey(`${id}`).pipe(take(1)).toPromise();
+        this.loading = '';
+        notifySuccess('Successfully deleted survey');
     }
 
     private async createSurvey(survey: Survey) {

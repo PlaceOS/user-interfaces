@@ -29,13 +29,13 @@ import { parseRatingAnswers, parseRatingStats } from './survey-helper';
                             >
                         </div>
 
-                        <div class="progress-bar h-5 bg-base-200">
+                        <div class="progress-bar h-5 rounded-full bg-base-200">
                             <span
                                 class="h-5 rounded-full bg-warning"
                                 [ngStyle]="{ width: stats.percentage + '%' }"
                             ></span>
                         </div>
-                        <span>{{ stats.total }} ratings</span>
+                        <div>{{ stats.total }} ratings</div>
                     </ng-container>
                 </div>
                 <div class="flex w-2/3 flex-col-reverse">
@@ -43,6 +43,7 @@ import { parseRatingAnswers, parseRatingStats } from './survey-helper';
                         *ngFor="let d of data; let i = index"
                         class="flex w-full flex-row items-center space-x-4"
                     >
+                        @let percent = d.percentage || 0;
                         <div class="flex w-3 justify-end">
                             {{ i + 1 }}
                         </div>
@@ -52,11 +53,11 @@ import { parseRatingAnswers, parseRatingStats } from './survey-helper';
                         >
                             <span
                                 class="h-3 rounded-full bg-warning"
-                                [ngStyle]="{ width: d + '%' }"
+                                [ngStyle]="{ width: (percent || 0) + '%' }"
                             ></span>
                         </div>
                         <div class="flex w-6 justify-end font-thin">
-                            {{ d / 100 | percent }}
+                            {{ (percent || 0) / 100 | percent }}
                         </div>
                     </div>
                 </div>
