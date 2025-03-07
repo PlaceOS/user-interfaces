@@ -45,7 +45,7 @@ export class SignageService extends AsyncHandler {
                 },
             ).pipe(
                 catchError((_) => of(null)),
-                map((d) => {
+                map((d: any) => {
                     if (!d) {
                         d = JSON.parse(
                             localStorage.getItem(DISPLAY_KEY) || '{}',
@@ -75,7 +75,7 @@ export class SignageService extends AsyncHandler {
     );
 
     public readonly playlist = this.display.pipe(
-        map((item) => {
+        map((item: any) => {
             if (!item) return [];
             // Constuct list of playlists
             let playlists = [...item.playlist_mappings[item.id]];
@@ -84,7 +84,7 @@ export class SignageService extends AsyncHandler {
                 playlists = playlists.concat(item.playlist_mappings[zone]);
             }
             // Map playlists to media
-            let playlist_media = playlists
+            const playlist_media = playlists
                 .map((id) => {
                     const [_, media_list] = item.playlist_config[id] as [
                         SignagePlaylist,

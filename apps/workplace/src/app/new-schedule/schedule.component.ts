@@ -101,21 +101,17 @@ import {
                 <ng-container
                     *ngIf="(booking_dates | async)?.length; else empty_state"
                 >
-                    <ng-container
-                        *ngFor="let date_block of booking_dates | async"
-                    >
+                    @for (
+                        date_block of booking_dates | async;
+                        track date_block.date
+                    ) {
                         <h3 class="my-2 font-medium">
                             {{ date_block.date | date: 'EEE dd LLL yyyy' }}
                             <span *ngIf="date_block.is_today">
                                 ({{ 'COMMON.TODAY' | translate }})
                             </span>
                         </h3>
-                        <ng-container
-                            *ngFor="
-                                let item of date_block.bookings;
-                                trackBy: trackByFn
-                            "
-                        >
+                        @for (item of date_block.bookings; track item.id) {
                             <event-card
                                 *ngIf="isEvent(item); else booking_card"
                                 [event]="item"
@@ -130,8 +126,8 @@ import {
                                     (end)="end(item)"
                                 ></booking-card>
                             </ng-template>
-                        </ng-container>
-                    </ng-container>
+                        }
+                    }
                 </ng-container>
             </div>
             <mat-progress-bar

@@ -18,7 +18,7 @@ describe('SpaceSelectMapComponent', () => {
         component: SpaceSelectMapComponent,
         providers: [
             MockProvider(EventFormService, {
-                spaces: new BehaviorSubject([]),
+                spaces$: new BehaviorSubject([]),
                 available_spaces: new BehaviorSubject([]),
                 options$: new BehaviorSubject({}),
             } as any),
