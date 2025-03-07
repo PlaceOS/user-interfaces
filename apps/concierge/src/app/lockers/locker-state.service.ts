@@ -385,17 +385,15 @@ export class LockerStateService extends AsyncHandler {
             result.loading(i18n('APP.CONCIERGE.LOCKERS_RELEASE_ALL_LOADING'));
             close = result.close;
         }
-        await mod
-            .execute('locker_relrelease_all_lockersease', [])
-            .catch((e) => {
-                notifyError(
-                    i18n('APP.CONCIERGE.LOCKERS_RELEASE_ALL_ERROR', {
-                        error: e,
-                    }),
-                );
-                if (close) close();
-                throw e;
-            });
+        await mod.execute('release_all_lockers', []).catch((e) => {
+            notifyError(
+                i18n('APP.CONCIERGE.LOCKERS_RELEASE_ALL_ERROR', {
+                    error: e,
+                }),
+            );
+            if (close) close();
+            throw e;
+        });
         notifySuccess(i18n(`APP.CONCIERGE.LOCKERS_RELEASE_ALL_SUCCESS`));
         if (close) close();
     }
