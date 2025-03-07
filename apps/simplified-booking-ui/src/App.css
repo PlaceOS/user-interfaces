@@ -1,0 +1,41 @@
+.App {
+  position: relative;   
+  width: 100%;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+.top-right-logo {
+  position: absolute;
+  top: 0px;
+  right: 20px;
+  z-index: 1;
+}
+
+.top-right-logo img {
+  max-width: 120px;
+}
+
+.qr-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%; 
+  z-index: 2; 
+}
+
+.qr-image {
+  max-width: 200px;  
+  width: 50vw;       
+  height: auto;     
+}
+
+.bottom-line {
+  position: absolute;
+  bottom: 20px;       
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background-color: #edecec;
+}
