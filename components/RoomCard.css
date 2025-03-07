@@ -1,0 +1,78 @@
+.room-card {
+    display: flex;
+    align-items: center;
+    position: relative; 
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    margin: 12px 0;
+    padding: 12px;
+    width: 95%;
+    margin: 10px;
+  }
+  
+  .room-image {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-right: 12px;
+  }
+  
+  .room-details {
+    flex: 1;
+  }
+  
+  .room-name {
+    margin: 0;
+    font-size: 16px;
+    font-weight: bold;
+  }
+  
+  .room-location {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 14px;
+    margin: 4px 0;
+  }
+  
+  .location-icon {
+    color: #555;
+  }
+  
+  .capacity {
+    margin: 4px 0;
+    font-size: 14px;
+  }
+  
+  .book-button,
+  .booked-button {
+    margin-top: 8px;
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    outline: none;
+  }
+  
+  .book-button {
+    background-color: #001c6e;
+    color: #fff;
+  }
+  
+  .booked-button {
+    background-color: #ccc;
+    color: #666;
+  }
+  
+  .favorite-icon {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    font-size: 20px;
+    color: #999;
+    cursor: pointer;
+  }
+  

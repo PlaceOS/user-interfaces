@@ -1,0 +1,61 @@
+.filter-panel {
+    display: flex;
+    flex-direction: column;
+    margin-left: 10px;
+    gap: 12px;
+    width: 100%;
+    max-width: 400px; 
+  }
+  
+  .filter-button-row {
+    display: flex;
+    align-items: center;
+  }
+  
+  .filter-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  
+    background-color: #ffffff;
+    border: 1px solid #d9d9d9;
+    border-radius: 6px;
+    padding: 8px 12px;
+    cursor: pointer;
+  
+    font-size: 14px;
+    color: #333;
+  }
+  
+  .filter-icon {
+    font-size: 12px;
+  }
+  
+  .dropdown-row {
+    display: flex;
+    gap: 16px;
+  }
+  
+  .dropdown-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .dropdown-group label {
+    font-size: 14px;
+    color: #000000;
+    font-weight: 600;
+  }
+  
+  .dropdown {
+    padding: 6px;
+    font-size: 14px;
+    color: #333;
+  
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #fff;
+    cursor: pointer;
+  }
+  

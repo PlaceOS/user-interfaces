@@ -1,0 +1,111 @@
+.filter-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+
+.filter-content {
+  background-color: #fff;
+  width: 90%;
+  max-width: 400px;
+  border-radius: 8px;
+  padding: 24px 16px;
+  position: relative;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.filter-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-top: 0;
+  margin-bottom: 12px;
+}
+
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+  font-size: 14px;
+  color: #333;
+}
+
+.checkbox-row input {
+  margin-right: 8px;
+}
+
+.back-button {
+  display: block;
+  margin: 24px auto 0 auto; 
+  background-color: #001c6e;
+  color: #fff;
+  border: none;
+  padding: 12px 32px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.filter-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.3);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.filter-content {
+  background: #fff;
+  width: 90%;
+  max-width: 400px; 
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  padding: 1.5rem;
+}
+
+.filter-content h2 {
+  margin-top: 0; 
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+  color: #333; 
+}
+
+.filter-content hr {
+  border: none;
+  border-top: 1px solid #ccc;
+  margin: 1rem 0;
+}
+
+.radio-group,
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  margin: 0.5rem 0;
+}
+
+.radio-group label,
+.checkbox-row label {
+  margin-right: 8px;
+  font-size: 13px;
+  color: #444;
+}
+
+.radio-group input[type="radio"],
+.checkbox-row input[type="checkbox"] {
+  margin-right: 0.5rem;
+  transform: scale(1.2); 
+  cursor: pointer;
+}
+

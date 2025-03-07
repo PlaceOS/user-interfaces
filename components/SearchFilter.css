@@ -1,0 +1,42 @@
+.search-filter-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    font-family: sans-serif;
+    gap: 8px;
+  }
+  
+  .search-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .search-input {
+    flex: 1;
+    padding: 8px;
+    font-size: 14px;
+  }
+  
+  .filter-button {
+    padding: 8px 16px;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  
+  .dropdown-row {
+    display: flex;
+    gap: 16px;
+  }
+  
+  .dropdown-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .dropdown {
+    padding: 6px;
+    font-size: 14px;
+  }
+  
