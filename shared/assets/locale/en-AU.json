@@ -1378,7 +1378,7 @@
             "LOCKERS_RELEASE_SUCCESS": "Successfully released the locker",
             "LOCKERS_RELEASE_ALL": "Release All Lockers",
             "LOCKERS_RELEASE_ALL_TITLE": "Release All Lockers",
-            "LOCKERS_RELEASE_ALL_MSG": "Are you sure you wish to release all the lockers? This will cancel all bookings all the lockers at this time",
+            "LOCKERS_RELEASE_ALL_MSG": "Are you sure you wish to release all the lockers? This will cancel all bookings for all the lockers at this time",
             "LOCKERS_RELEASE_ALL_LOADING": "Releasing all lockers...",
             "LOCKERS_RELEASE_ALL_ERROR": "Failed to release all lockers. Error: {{ error }}",
             "LOCKERS_RELEASE_ALL_SUCCESS": "Successfully released all locker",
