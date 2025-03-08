@@ -107,7 +107,7 @@ export class ApplicationSidebarComponent
     }
 
     public get is_admin() {
-        const groups = currentUser().groups;
+        const groups = currentUser().groups || [];
         const admin_group = this._settings.get('app.admin_group') || 'admin';
         return (
             groups.includes(admin_group) ||

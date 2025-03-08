@@ -15,7 +15,13 @@ import {
     updateMetadata,
 } from '@placeos/ts-client';
 import { getUnixTime } from 'date-fns';
-import { BehaviorSubject, combineLatest, forkJoin, of } from 'rxjs';
+import {
+    BehaviorSubject,
+    combineLatest,
+    forkJoin,
+    lastValueFrom,
+    of,
+} from 'rxjs';
 import {
     catchError,
     filter,
@@ -175,38 +181,56 @@ export class EmailTemplatesStateService extends AsyncHandler {
         return template_list.find((_) => _.id === id);
     }
 
-    public async saveTemplate(template: EmailTemplate) {
+    public async saveTemplate(template: EmailTemplate, old_zone = '') {
         if (!template.zone_id) return;
-        const template_list = await this.templates.pipe(take(1)).toPromise();
+        if (template.id && old_zone) {
+            const old_metadata = await lastValueFrom(
+                showMetadata(old_zone, 'email_templates'),
+            );
+            if (old_metadata.details instanceof Array) {
+                await lastValueFrom(
+                    updateMetadata(old_zone, {
+                        name: 'email_templates',
+                        details: old_metadata.details.filter(
+                            (_) => _.id !== template.id,
+                        ),
+                        description: old_metadata.description,
+                    }),
+                );
+            }
+        }
         if (!template.id) {
             template.id = `template-${randomString(8)}`;
             template.created_at = getUnixTime(Date.now());
         }
         template.updated_at = getUnixTime(Date.now());
+
+        const metadata = await lastValueFrom(
+            showMetadata(template.zone_id, 'email_templates'),
+        );
+        const template_list =
+            metadata.details instanceof Array ? metadata.details : [];
         const zone_templates = template_list.filter(
             (_) => _.zone_id === template.zone_id,
         );
-        const template_value = { ...template };
-        delete template_value.zone_id;
-        console.log('Templates:', template_list);
         const new_template_list = [
             ...zone_templates.filter((_) => _.id !== template.id),
             template,
         ];
-        await updateMetadata(template.zone_id, {
-            name: `email_templates`,
-            details: new_template_list,
-            description: 'Email Templates for Zone',
-        })
-            .toPromise()
-            .catch((e) => {
-                notifyError(
-                    i18n('APP.CONCIERGE.EMAIL_TEMPLATES_SAVE_ERROR', {
-                        error: e,
-                    }),
-                );
-                throw e;
-            });
+        await lastValueFrom(
+            updateMetadata(template.zone_id, {
+                name: `email_templates`,
+                details: new_template_list,
+                description: 'Email Templates for Zone',
+            }),
+        ).catch((e) => {
+            notifyError(
+                i18n('APP.CONCIERGE.EMAIL_TEMPLATES_SAVE_ERROR', {
+                    error: e,
+                }),
+            );
+            throw e;
+        });
         notifySuccess(i18n('APP.CONCIERGE.EMAIL_TEMPLATES_SAVE_SUCCESS'));
         this.timeout('changed', () => this._change.next(Date.now()));
     }
