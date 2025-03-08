@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { map, shareReplay } from 'rxjs/operators';
+import { map, shareReplay, tap } from 'rxjs/operators';
 import { UISurveyAnswer } from '../types';
 import { BaseWidget } from './base-widget.component';
 import { parseRatingAnswers, parseRatingStats } from './survey-helper';
@@ -8,8 +8,13 @@ import { parseRatingAnswers, parseRatingStats } from './survey-helper';
     selector: 'ratings-widget',
     styles: [
         `
-            :host {
-                padding-bottom: 0.5rem;
+            svg circle {
+                fill: transparent;
+            }
+
+            .progress-bar {
+                stroke-linecap: round;
+                transition: stroke-dashoffset 0.5s ease-in-out;
             }
         `,
     ],
@@ -17,23 +22,46 @@ import { parseRatingAnswers, parseRatingStats } from './survey-helper';
         <ng-container *ngIf="chart_data$ | async as data">
             <div class="flex flex-row space-x-4 p-4">
                 <div
-                    class="relative flex w-1/3 flex-col items-center justify-center space-y-4"
+                    class="relative flex w-1/3 flex-col items-center justify-center space-y-2"
                 >
                     <ng-container *ngIf="stats$ | async as stats">
-                        <div class="flex flex-row items-end">
-                            <span class="text-6xl"
-                                >{{ stats.average || 0 | number: '1.1' }}
-                            </span>
-                            <span class="font-thin"
-                                >/ {{ maxRate | number: '1.1' }}</span
+                        <div class="relative h-28 w-28">
+                            <svg class="h-full w-full -rotate-90">
+                                <circle
+                                    [ngStyle]="{
+                                        cx: size / 2 + 'px',
+                                        cy: size / 2 + 'px',
+                                        r: (size - border_width) / 2 + 'px',
+                                        stroke: 'var(--b2)',
+                                        'stroke-width': border_width + 'px',
+                                        'stroke-dasharray': circle + 'px',
+                                    }"
+                                ></circle>
+                                <circle
+                                    class="progress-bar"
+                                    [ngStyle]="{
+                                        cx: size / 2 + 'px',
+                                        cy: size / 2 + 'px',
+                                        r: (size - border_width) / 2 + 'px',
+                                        stroke:
+                                            progress <= 0.25
+                                                ? 'var(--er)'
+                                                : progress <= 0.5
+                                                  ? 'var(--wa)'
+                                                  : progress <= 0.75
+                                                    ? 'var(--in)'
+                                                    : 'var(--su)',
+                                        'stroke-width': border_width + 'px',
+                                        'stroke-dasharray': circle + 'px',
+                                        'stroke-dashoffset': radius + 'px',
+                                    }"
+                                ></circle>
+                            </svg>
+                            <div
+                                class="absolute inset-0 flex items-center justify-center text-4xl font-medium"
                             >
-                        </div>
-
-                        <div class="progress-bar h-5 rounded-full bg-base-200">
-                            <span
-                                class="h-5 rounded-full bg-warning"
-                                [ngStyle]="{ width: stats.percentage + '%' }"
-                            ></span>
+                                {{ stats.average || 0 | number: '1.1' }}
+                            </div>
                         </div>
                         <div>{{ stats.total }} ratings</div>
                     </ng-container>
@@ -41,20 +69,30 @@ import { parseRatingAnswers, parseRatingStats } from './survey-helper';
                 <div class="flex w-2/3 flex-col-reverse">
                     <div
                         *ngFor="let d of data; let i = index"
-                        class="flex w-full flex-row items-center space-x-4"
+                        class="flex w-full flex-row items-center space-x-4 rounded-xl border border-base-100 px-2 hover:border-base-200"
                     >
-                        @let percent = d.percentage || 0;
-                        <div class="flex w-3 justify-end">
+                        @let percent = d || 0;
+                        <div class="w-5 text-right">
                             {{ i + 1 }}
                         </div>
                         <div
                             progbar
-                            class="h-3 flex-1 rounded-full bg-base-200"
+                            class="h-2.5 flex-1 rounded-full bg-base-200"
                         >
-                            <span
-                                class="h-3 rounded-full bg-warning"
-                                [ngStyle]="{ width: (percent || 0) + '%' }"
-                            ></span>
+                            <div
+                                class="h-2.5 rounded-full"
+                                [ngStyle]="{
+                                    width: (percent || 0) + '%',
+                                    'background-color':
+                                        percent <= 25
+                                            ? 'var(--er)'
+                                            : percent <= 50
+                                              ? 'var(--wa)'
+                                              : percent <= 75
+                                                ? 'var(--in)'
+                                                : 'var(--su)',
+                                }"
+                            ></div>
                         </div>
                         <div class="flex w-6 justify-end font-thin">
                             {{ (percent || 0) / 100 | percent }}
@@ -67,21 +105,31 @@ import { parseRatingAnswers, parseRatingStats } from './survey-helper';
     standalone: false,
 })
 export class RatingsWidgetComponent extends BaseWidget {
+    public readonly size = 7 * 16;
+    public readonly border_width = 0.75 * 16;
+    public progress = 0;
     public chart_data$ = this.data$.pipe(
-        map((data: UISurveyAnswer[]) => parseRatingAnswers(data, this.maxRate)),
+        map((data: UISurveyAnswer[]) =>
+            parseRatingAnswers(data, this.max_rate),
+        ),
         shareReplay(1),
     );
 
     public stats$ = this.data$.pipe(
-        map((data: UISurveyAnswer[]) => parseRatingStats(data, this.maxRate)),
+        map((data: UISurveyAnswer[]) => parseRatingStats(data, this.max_rate)),
+        tap((_) => (this.progress = _.average / this.max_rate)),
         shareReplay(1),
     );
 
-    get maxRate() {
-        return this.question?.rateMax || 10;
+    public get circle() {
+        return Math.round((2 * 3.14159 * (this.size - this.border_width)) / 2);
     }
 
-    constructor() {
-        super();
+    public get radius() {
+        return Math.round(this.circle * (1 - this.progress));
+    }
+
+    get max_rate() {
+        return this.question?.rateMax || 10;
     }
 }
