@@ -277,7 +277,9 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                             has_conflict ? 'close' : 'done'
                         }}</app-icon>
                     </div>
-                    <h3 class="!mt-0 text-xl">{{ 'RESOURCE.ASSETS' }}</h3>
+                    <h3 class="!mt-0 text-xl">
+                        {{ 'RESOURCE.ASSETS' | translate }}
+                    </h3>
                     <div
                         request
                         *ngFor="let request of assets"
