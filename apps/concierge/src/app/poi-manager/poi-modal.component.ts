@@ -17,8 +17,8 @@ import {
 import { Building, OrganisationService } from '@placeos/organisation';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
 import { take } from 'rxjs/operators';
+import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.component';
 import { PointOfInterest } from './poi-management.service';
-import { SelectPOIMapModalComponent } from './select-poi-map-modal.component';
 
 @Component({
     selector: 'poi-modal',
@@ -230,7 +230,7 @@ export class POIModalComponent extends AsyncHandler {
     }
 
     public selectPOIfromMap() {
-        const ref = this._dialog.open(SelectPOIMapModalComponent, {
+        const ref = this._dialog.open(SelectMapItemModalComponent, {
             data: {
                 ...this._data,
                 ...this.form.getRawValue(),

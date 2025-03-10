@@ -1,9 +1,14 @@
 import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { DialogEvent, randomString } from '@placeos/common';
-import { Desk } from '@placeos/organisation';
+import {
+    MAT_DIALOG_DATA,
+    MatDialog,
+    MatDialogRef,
+} from '@angular/material/dialog';
+import { DialogEvent, randomString, unique } from '@placeos/common';
+import { Desk, OrganisationService } from '@placeos/organisation';
 import { showStaff, User } from '@placeos/users';
+import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.component';
 
 const CHARS = '0123456789ABCDEF';
 
@@ -70,20 +75,33 @@ const CHARS = '0123456789ABCDEF';
                         <label for="map-id">
                             {{ 'EXPLORE.MAP_ID' | translate }}<span>*</span>
                         </label>
-                        <mat-form-field appearance="outline" class="w-full">
-                            <input
-                                matInput
-                                name="map-id"
-                                formControlName="map_id"
-                                [placeholder]="
-                                    'APP.CONCIERGE.DESKS_MAP_ID_PLACEHOLDER'
-                                        | translate
+                        <div class="flex space-x-2">
+                            <mat-form-field appearance="outline" class="w-full">
+                                <input
+                                    matInput
+                                    name="map-id"
+                                    formControlName="map_id"
+                                    [placeholder]="
+                                        'APP.CONCIERGE.DESKS_MAP_ID_PLACEHOLDER'
+                                            | translate
+                                    "
+                                />
+                                <mat-error>
+                                    {{ 'EXPLORE.MAP_ID_REQUIRED' | translate }}
+                                </mat-error>
+                            </mat-form-field>
+                            <button
+                                icon
+                                matRipple
+                                class="h-12 w-12 min-w-12 rounded border border-secondary text-secondary"
+                                [matTooltip]="
+                                    'APP.CONCIERGE.POI_MAP_SELECT' | translate
                                 "
-                            />
-                            <mat-error>
-                                {{ 'EXPLORE.MAP_ID_REQUIRED' | translate }}
-                            </mat-error>
-                        </mat-form-field>
+                                (click)="selectItemfromMap()"
+                            >
+                                <app-icon>place</app-icon>
+                            </button>
+                        </div>
                     </div>
                 </div>
                 <label for="user">{{
@@ -206,6 +224,8 @@ export class DeskModalComponent implements OnInit {
     constructor(
         @Inject(MAT_DIALOG_DATA) private _data: { desk?: Desk },
         private _dialog_ref: MatDialogRef<DeskModalComponent>,
+        private _org: OrganisationService,
+        private _dialog: MatDialog,
     ) {
         if (_data?.desk) this.form.patchValue(_data.desk);
         if (!this.form.value.id) {
@@ -244,5 +264,26 @@ export class DeskModalComponent implements OnInit {
         }
         this._dialog_ref.disableClose = true;
         this.event.emit({ reason: 'done', metadata: value });
+    }
+
+    public selectItemfromMap() {
+        let level = this.desk.zone as any;
+        const ref = this._dialog.open(SelectMapItemModalComponent, {
+            data: {
+                location: this.form.value.map_id,
+                level_id: this.form,
+            },
+        });
+        ref.afterClosed().subscribe((d) => {
+            if (!d) return;
+            level = ref.componentInstance.level || level;
+            const zones = unique([
+                this._org.organisation.id,
+                this._org.building.parent_id,
+                this._org.building.id,
+                level?.id,
+            ]);
+            this.form.patchValue({ map_id: d });
+        });
     }
 }

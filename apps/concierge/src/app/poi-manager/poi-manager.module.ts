@@ -13,7 +13,6 @@ import { MapShowElementComponent } from './map-show-element.component';
 import { POIListComponent } from './poi-list.component';
 import { POIManagerComponent } from './poi-manager.component';
 import { POIModalComponent } from './poi-modal.component';
-import { SelectPOIMapModalComponent } from './select-poi-map-modal.component';
 
 const ROUTES: Route[] = [
     { path: '', component: POIManagerComponent },
@@ -25,7 +24,6 @@ const ROUTES: Route[] = [
         POIManagerComponent,
         POIListComponent,
         POIModalComponent,
-        SelectPOIMapModalComponent,
         MapShowElementComponent,
     ],
     imports: [

@@ -38,6 +38,7 @@ import { WorkplaceSettingsFormModalComponent } from './app-settings/workplace-se
 import { ApplicationSidebarComponent } from './app-sidebar.component';
 import { ApplicationTopbarComponent } from './app-topbar.component';
 import { BookingRulesModalComponent } from './booking-rules-modal.component';
+import { SelectMapItemModalComponent } from './select-map-item-modal.component';
 
 const COMPONENTS: Type<any>[] = [
     AppSettingsModalComponent,
@@ -53,6 +54,7 @@ const COMPONENTS: Type<any>[] = [
     WorkplaceSettingsFormModalComponent,
     ConciergeSettingsFormModalComponent,
     VisitorKioskSettingsFormModalComponent,
+    SelectMapItemModalComponent,
 
     UploadButtonComponent,
 ];

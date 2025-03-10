@@ -12,7 +12,11 @@ import {
 import { map } from 'rxjs/operators';
 
 import { FormControl, FormGroup } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import {
+    MAT_DIALOG_DATA,
+    MatDialog,
+    MatDialogRef,
+} from '@angular/material/dialog';
 import {
     AsyncHandler,
     TIMEZONES_IANA,
@@ -25,6 +29,7 @@ import {
 } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { Space, generateSystemsFormFields } from '@placeos/spaces';
+import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.component';
 
 @Component({
     selector: 'room-form-modal',
@@ -289,16 +294,29 @@ import { Space, generateSystemsFormFields } from '@placeos/spaces';
                     <label for="map_id">{{
                         'EXPLORE.MAP_ID' | translate
                     }}</label>
-                    <mat-form-field appearance="outline">
-                        <input
-                            matInput
-                            name="map_id"
-                            [placeholder]="
-                                'EXPLORE.MAP_ID_PLACEHOLDER' | translate
+                    <div class="flex space-x-2">
+                        <mat-form-field appearance="outline">
+                            <input
+                                matInput
+                                name="map_id"
+                                [placeholder]="
+                                    'EXPLORE.MAP_ID_PLACEHOLDER' | translate
+                                "
+                                formControlName="map_id"
+                            />
+                        </mat-form-field>
+                        <button
+                            icon
+                            matRipple
+                            class="h-12 w-12 rounded border border-secondary text-secondary"
+                            [matTooltip]="
+                                'APP.CONCIERGE.POI_MAP_SELECT' | translate
                             "
-                            formControlName="map_id"
-                        />
-                    </mat-form-field>
+                            (click)="selectItemfromMap()"
+                        >
+                            <app-icon>place</app-icon>
+                        </button>
+                    </div>
                 </div>
                 <div class="flex flex-col">
                     <label for="timezone">{{
@@ -384,6 +402,7 @@ export class RoomModalComponent extends AsyncHandler implements OnInit {
         @Inject(MAT_DIALOG_DATA) private _data: { room: Space },
         private _dialog_ref: MatDialogRef<RoomModalComponent>,
         private _org: OrganisationService,
+        private _dialog: MatDialog,
     ) {
         super();
     }
@@ -493,5 +512,26 @@ export class RoomModalComponent extends AsyncHandler implements OnInit {
         this.filtered_timezones = this.timezones.filter((_) =>
             _.toLowerCase().includes(timezone.toLowerCase()),
         );
+    }
+
+    public selectItemfromMap() {
+        let level = this._org.levelWithID(this.form.value.zones as any);
+        const ref = this._dialog.open(SelectMapItemModalComponent, {
+            data: {
+                location: this.form.value.map_id,
+                level_id: this.form,
+            },
+        });
+        ref.afterClosed().subscribe((d) => {
+            if (!d) return;
+            level = ref.componentInstance.level || level;
+            const zones = unique([
+                this._org.organisation.id,
+                this._org.building.parent_id,
+                this._org.building.id,
+                level?.id,
+            ]);
+            this.form.patchValue({ map_id: d, zones });
+        });
     }
 }

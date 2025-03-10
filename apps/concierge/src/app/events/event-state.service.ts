@@ -115,26 +115,22 @@ export class EventStateService extends AsyncHandler {
 
     public viewEvent(event: CalendarEvent) {
         const ref = this._dialog.open(GroupEventDetailsModalComponent, {
-            data: { event, concierge: true },
+            data: {
+                event,
+                concierge: true,
+                edit_fn: (i) =>
+                    this._router.navigate([
+                        '/entertainment',
+                        'events',
+                        'manage',
+                        event.id,
+                    ]),
+                remove_fn: async () => {
+                    await this.removeEvent(event);
+                    ref.close();
+                },
+            },
         });
-        this.subscription(
-            `edit:${event.id}`,
-            ref.componentInstance.edit.subscribe(() => {
-                this._router.navigate([
-                    '/entertainment',
-                    'events',
-                    'manage',
-                    event.id,
-                ]);
-            }),
-        );
-        this.subscription(
-            `remove:${event.id}`,
-            ref.componentInstance.remove.subscribe(async () => {
-                await this.removeEvent(event);
-                ref.close();
-            }),
-        );
     }
 
     public async removeEvent(event: CalendarEvent) {

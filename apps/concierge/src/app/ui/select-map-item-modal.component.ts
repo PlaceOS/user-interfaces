@@ -12,8 +12,8 @@ import {
     take,
     tap,
 } from 'rxjs/operators';
-import { MapShowElementComponent } from './map-show-element.component';
-import { PointOfInterest } from './poi-management.service';
+import { MapShowElementComponent } from '../poi-manager/map-show-element.component';
+import { PointOfInterest } from '../poi-manager/poi-management.service';
 
 type BoundsMap = Record<string, Rect>;
 
@@ -227,7 +227,7 @@ declare let mapsindoors: any;
     styles: [``],
     standalone: false,
 })
-export class SelectPOIMapModalComponent extends AsyncHandler {
+export class SelectMapItemModalComponent extends AsyncHandler {
     public selected_item: any;
     public level: BuildingLevel = new BuildingLevel();
     public map_info: BoundsMap = {};

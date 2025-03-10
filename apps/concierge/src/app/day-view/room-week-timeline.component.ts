@@ -336,18 +336,14 @@ export class RoomWeekBookingsTimelineComponent
     ) {
         if (event.is_system_event) return;
         const ref = this._dialog.open(EventDetailsModalComponent, {
-            data: event,
+            data: {
+                event,
+                edit_fn: (e) => this.edit(e),
+                remove_fn: (e) => this.remove(e),
+            },
         });
         ref.componentInstance.hide_edit = !this._settings.get(
             'app.events.allow_edit',
-        );
-        this.subscription(
-            'remove',
-            ref.componentInstance.remove.subscribe(() => this.remove(event)),
-        );
-        this.subscription(
-            'edit',
-            ref.componentInstance.edit.subscribe(() => this.edit(event)),
         );
         this.subscription(
             'actions',
