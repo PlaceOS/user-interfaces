@@ -95,6 +95,8 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                         {{ 'APP.WORKPLACE.MEETING_BOOKED_ROOM' | translate }}
                     </h3>
                     <ng-container *ngFor="let s of event.resources">
+                        @let space = s.email | space | async;
+                        @let level = space?.zones | level;
                         <div class="flex items-center space-x-2">
                             <app-icon class="text-2xl">layers</app-icon>
                             <div>
@@ -103,7 +105,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                             </div>
                         </div>
                     </ng-container>
-                    <div class="flex items-center space-x-2">
+                    <div class="flex items-center space-x-2" *ngIf="location">
                         <app-icon class="text-2xl">place</app-icon>
                         <div>{{ location }}</div>
                     </div>
