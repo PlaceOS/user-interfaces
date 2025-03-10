@@ -115,15 +115,15 @@ import {
                             <event-card
                                 *ngIf="isEvent(item); else booking_card"
                                 [event]="item"
-                                (edit)="edit(item)"
-                                (remove)="remove(item, $event)"
+                                [edit_fn]="edit_fn"
+                                [remove_fn]="remove_fn"
                             ></event-card>
                             <ng-template #booking_card>
                                 <booking-card
                                     [booking]="item"
-                                    (edit)="editBooking(item)"
-                                    (remove)="remove(item, $event)"
-                                    (end)="end(item)"
+                                    [edit_fn]="edit_booking_fn"
+                                    [remove_fn]="remove_fn"
+                                    [end_fn]="end_fn"
                                 ></booking-card>
                             </ng-template>
                         }
@@ -208,6 +208,11 @@ export class ScheduleComponent extends AsyncHandler implements OnInit {
         return localStorage.getItem('PlaceOS.hide_nav') === 'true';
     }
 
+    public readonly edit_fn = (i) => this.edit(i);
+    public readonly edit_booking_fn = (i) => this.editBooking(i);
+    public readonly remove_fn = (i) => this.remove(i);
+    public readonly end_fn = (i) => this.end(i);
+
     constructor(
         private _state: ScheduleStateService,
         private _event_form: EventFormService,
@@ -233,6 +238,7 @@ export class ScheduleComponent extends AsyncHandler implements OnInit {
     }
 
     public async edit(event: CalendarEvent) {
+        console.log('Edit Event:', event);
         this._router.navigate(['/book', 'meeting', 'form']);
         if (event.creator !== event.mailbox) {
             event =

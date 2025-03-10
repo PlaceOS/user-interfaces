@@ -576,7 +576,7 @@ const EMPTY_ACTIONS = [];
                 <button
                     mat-menu-item
                     mat-dialog-close
-                    (click)="edit.emit(space)"
+                    (click)="edit ? edit(event) : ''"
                     [matTooltip]="!can_edit ? no_edit_message : ''"
                     [disabled]="!can_edit"
                     *ngIf="!hide_edit"
@@ -588,7 +588,10 @@ const EMPTY_ACTIONS = [];
                         </div>
                     </div>
                 </button>
-                <button mat-menu-item (click)="remove.emit()">
+                <button
+                    mat-menu-item
+                    (click)="remove ? remove(event, false) : ''"
+                >
                     <div class="flex items-center space-x-2 pr-2 text-base">
                         <app-icon class="text-2xl text-error">delete</app-icon>
                         <div>
@@ -611,7 +614,7 @@ const EMPTY_ACTIONS = [];
                 <button
                     mat-menu-item
                     *ngIf="event.recurring_event_id"
-                    (click)="remove.emit(true)"
+                    (click)="remove ? remove(event, true) : ''"
                 >
                     <div class="flex items-center space-x-2 pr-2 text-base">
                         <app-icon class="text-2xl text-error">delete</app-icon>
@@ -643,8 +646,8 @@ const EMPTY_ACTIONS = [];
 })
 export class EventDetailsModalComponent implements OnInit {
     @Output() public action = new EventEmitter();
-    @Output() public edit = new EventEmitter();
-    @Output() public remove = new EventEmitter();
+    public edit = this._data.edit_fn;
+    public remove = this._data.remove_fn;
 
     public show_order = {};
     public show_request = {};
@@ -654,7 +657,7 @@ export class EventDetailsModalComponent implements OnInit {
     public raw_body = '';
     public print = false;
     public show_attendees = false;
-    public readonly event = this._event;
+    public readonly event = this._data.event;
     public no_edit_message =
         'Editing bookings long than \n a day is not available';
     public features = [
@@ -708,15 +711,15 @@ export class EventDetailsModalComponent implements OnInit {
             .localeCompare(this._date.transform(this.event.date, 'yyyy-MM-dd'));
     }
 
-    public accept_count = this._event.attendees.reduce(
+    public accept_count = this.event.attendees.reduce(
         (count, user) => (count += user.response_status === 'accepted' ? 1 : 0),
         0,
     );
-    public declined_count = this._event.attendees.reduce(
+    public declined_count = this.event.attendees.reduce(
         (count, user) => (count += user.response_status === 'declined' ? 1 : 0),
         0,
     );
-    public pending_count = this._event.attendees.reduce(
+    public pending_count = this.event.attendees.reduce(
         (count, user) =>
             (count +=
                 user.response_status === 'tentative' ||
@@ -751,7 +754,12 @@ export class EventDetailsModalComponent implements OnInit {
     }
 
     constructor(
-        @Inject(MAT_DIALOG_DATA) private _event: CalendarEvent,
+        @Inject(MAT_DIALOG_DATA)
+        private _data: {
+            event: CalendarEvent;
+            edit_fn: (i) => void;
+            remove_fn: (i, s) => void;
+        },
         private _org: OrganisationService,
         private _space_pipe: SpacePipe,
         private _settings: SettingsService,
@@ -762,6 +770,7 @@ export class EventDetailsModalComponent implements OnInit {
             'text/html',
         );
         this.raw_body = (doc.body.textContent || '').trim();
+        console.log('');
         this._load().then();
     }
 
@@ -814,7 +823,7 @@ export class EventDetailsModalComponent implements OnInit {
 
     private async _load() {
         this.space = await this._space_pipe.transform(
-            this._event.system?.id || this._event.system?.email,
+            this.event.system?.id || this.event.system?.email,
         );
         this.level = this._org.levelWithID(this.space.zones);
         this.building = this._org.buildings.find((bld) =>
@@ -838,14 +847,14 @@ export class EventDetailsModalComponent implements OnInit {
             return;
         }
         const metadata = await getEventMetadata(
-            this._event.id,
+            this.event.id,
             this.space.id,
         ).toPromise();
         if (metadata) {
-            this._event = new CalendarEvent({
-                ...this._event,
+            (this as any).event = new CalendarEvent({
+                ...this.event,
                 extension_data: {
-                    ...this._event.extension_data,
+                    ...this.event.extension_data,
                     ...metadata,
                 },
             });

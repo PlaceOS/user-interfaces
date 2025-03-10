@@ -16,7 +16,12 @@ import {
     SettingsService,
 } from '@placeos/common';
 import { openConfirmModal } from '@placeos/components';
-import { CalendarEvent, EventFormService, removeEvent } from '@placeos/events';
+import {
+    CalendarEvent,
+    EventFormService,
+    queryEvents,
+    removeEvent,
+} from '@placeos/events';
 import { format } from 'date-fns';
 import { LandingStateService } from './landing-state.service';
 
@@ -59,16 +64,16 @@ import { LandingStateService } from './landing-state.service';
                                 *ngSwitchCase="'event'"
                                 [event]="event"
                                 [show_day]="true"
-                                (edit)="edit(event)"
-                                (remove)="remove(event)"
+                                [edit_fn]="edit_fn"
+                                [remove_fn]="remove_fn"
                             ></event-card>
                             <booking-card
                                 *ngSwitchCase="'booking'"
                                 [booking]="event"
                                 [show_day]="true"
-                                (edit)="editBooking(event)"
-                                (remove)="remove(event, true)"
-                                (end)="end(event)"
+                                [edit_fn]="edit_booking_fn"
+                                [remove_fn]="remove_fn"
+                                [end_fn]="end_fn"
                             ></booking-card>
                         </ng-container>
                     </ng-container>
@@ -99,6 +104,11 @@ export class LandingUpcomingComponent
         return event instanceof Booking ? 'booking' : 'event';
     }
 
+    public readonly edit_fn = (i) => this.edit(i);
+    public readonly edit_booking_fn = (i) => this.editBooking(i);
+    public readonly remove_fn = (i) => this.remove(i);
+    public readonly end_fn = (i) => this.end(i);
+
     constructor(
         private _state: LandingStateService,
         private _event_form: EventFormService,
@@ -119,13 +129,28 @@ export class LandingUpcomingComponent
         return item?.id;
     }
 
-    public edit(event: CalendarEvent) {
+    public async edit(event: CalendarEvent) {
+        console.log('Edit Event:', event);
         this._router.navigate(['/book', 'meeting', 'form']);
-        this._event_form.newForm(event);
+        if (event.creator !== event.mailbox) {
+            event =
+                (
+                    await queryEvents({
+                        period_start: event.event_start,
+                        period_end: event.event_end,
+                        ical_uid: event.ical_uid,
+                    }).toPromise()
+                ).find((_) => _.ical_uid === event.ical_uid) || event;
+        }
+        setTimeout(() => this._event_form.newForm(event), 300);
     }
 
     public editBooking(event: Booking) {
-        this._router.navigate(['/book', `new-${event.type}`]);
+        if (event.type === 'locker') {
+            this._router.navigate(['/book', `${event.type}`]);
+        } else {
+            this._router.navigate(['/book', `new-${event.type}`]);
+        }
         this._booking_form.newForm(event);
         setTimeout(() => {
             this._booking_form.form.patchValue({
@@ -140,10 +165,7 @@ export class LandingUpcomingComponent
         }, 100);
     }
 
-    public async remove(
-        item: CalendarEvent | Booking,
-        remove_series: boolean = false,
-    ) {
+    public async remove(item: CalendarEvent | Booking, remove_series = false) {
         const time = `${format(item.date, 'dd MMM yyyy h:mma')}`;
         const resource_name =
             item instanceof CalendarEvent

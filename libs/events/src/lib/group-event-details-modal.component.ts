@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Inject, Output } from '@angular/core';
+import { Component, Inject } from '@angular/core';
 import {
     MAT_DIALOG_DATA,
     MatDialog,
@@ -134,7 +134,7 @@ import {
                         </button>
                         <button
                             mat-menu-item
-                            (click)="edit.emit()"
+                            (click)="edit ? edit(event) : ''"
                             mat-dialog-close
                         >
                             <div class="flex items-center space-x-2">
@@ -159,7 +159,10 @@ import {
                                 </div>
                             </div>
                         </button>
-                        <button mat-menu-item (click)="remove.emit()">
+                        <button
+                            mat-menu-item
+                            (click)="remove ? remove(event, false) : ''"
+                        >
                             <div class="flex items-center space-x-2">
                                 <app-icon class="text-2xl text-error">
                                     delete
@@ -419,8 +422,8 @@ import {
     standalone: false,
 })
 export class GroupEventDetailsModalComponent {
-    @Output() public edit = new EventEmitter();
-    @Output() public remove = new EventEmitter();
+    public edit = this._data.edit_fn;
+    public remove = this._data.remove_fn;
     public space: Space;
     public event: CalendarEvent = this._data.event;
     public concierge = this._data.concierge;
@@ -505,7 +508,12 @@ export class GroupEventDetailsModalComponent {
 
     constructor(
         @Inject(MAT_DIALOG_DATA)
-        private _data: { event: CalendarEvent; concierge: boolean },
+        private _data: {
+            event: CalendarEvent;
+            edit_fn: (i) => void;
+            remove_fn: (i, s) => void;
+            concierge: boolean;
+        },
         private _org: OrganisationService,
         private _settings: SettingsService,
         private _dialog: MatDialog,

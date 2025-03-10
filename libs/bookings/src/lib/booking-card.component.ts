@@ -1,10 +1,8 @@
 import {
     Component,
-    EventEmitter,
     Input,
     OnChanges,
     OnInit,
-    Output,
     SimpleChanges,
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
@@ -155,9 +153,9 @@ export class BookingCardComponent
 {
     @Input() public booking: Booking;
     @Input() public show_day = false;
-    @Output() public edit = new EventEmitter();
-    @Output() public remove = new EventEmitter<boolean>();
-    @Output() public end = new EventEmitter();
+    @Input() public edit_fn = (i) => null;
+    @Input() public remove_fn = (i, s?) => null;
+    @Input() public end_fn = (i) => null;
 
     public raw_description = '';
 
@@ -265,24 +263,33 @@ export class BookingCardComponent
                 this.booking.booking_type === 'group-event'
                     ? GroupEventDetailsModalComponent
                     : BookingDetailsModalComponent;
-            const data =
-                this.booking.booking_type === 'group-event'
-                    ? { booking: this.booking, concierge: false }
-                    : this.booking;
+            const data = {
+                booking:
+                    this.booking.booking_type === 'group-event'
+                        ? { booking: this.booking, concierge: false }
+                        : this.booking,
+                edit_fn: this.edit_fn,
+                remove_fn: this.remove_fn,
+                end_fn: this.end_fn,
+            };
             const ref: any = this._dialog.open(view_component, { data });
             this.subscription(
                 'edit',
-                ref.componentInstance.edit?.subscribe(() => this.edit.emit()),
+                ref.componentInstance.edit?.subscribe(() =>
+                    this.edit_fn(this.booking),
+                ),
             );
             this.subscription(
                 'remove',
                 ref.componentInstance.remove?.subscribe((_) =>
-                    this.remove.emit(_),
+                    this.remove_fn(this.booking, _),
                 ),
             );
             this.subscription(
                 'end',
-                ref.componentInstance.end?.subscribe(() => this.end.emit()),
+                ref.componentInstance.end?.subscribe(() =>
+                    this.end_fn(this.booking),
+                ),
             );
         });
     }

@@ -1,10 +1,8 @@
 import {
     Component,
-    EventEmitter,
     Input,
     OnChanges,
     OnInit,
-    Output,
     SimpleChanges,
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
@@ -153,8 +151,8 @@ export class EventCardComponent
 {
     @Input() public event: CalendarEvent;
     @Input() public show_day = false;
-    @Output() public edit = new EventEmitter();
-    @Output() public remove = new EventEmitter();
+    @Input() public edit_fn = (d) => null;
+    @Input() public remove_fn = (d, t) => null;
 
     public location = '';
 
@@ -271,26 +269,26 @@ export class EventCardComponent
 
     public viewDetails() {
         if (!this.event) return;
+        console.log('View Details:', this.edit_fn, this.remove_fn);
         this.timeout('open', () => {
             if (this.event.extension_data?.shared_event) {
                 this._dialog.open(GroupEventDetailsModalComponent, {
-                    data: { event: this.event, concierge: false },
+                    data: {
+                        event: this.event,
+                        edit_fn: this.edit_fn,
+                        remove_fn: this.remove_fn,
+                        concierge: false,
+                    },
                 });
                 return;
             }
-            const ref = this._dialog.open(EventDetailsModalComponent, {
-                data: this.event,
+            this._dialog.open(EventDetailsModalComponent, {
+                data: {
+                    event: this.event,
+                    edit_fn: this.edit_fn,
+                    remove_fn: this.remove_fn,
+                },
             });
-            this.subscription(
-                'edit',
-                ref.componentInstance.edit.subscribe(() => this.edit.emit()),
-            );
-            this.subscription(
-                'remove',
-                ref.componentInstance.remove.subscribe((_) =>
-                    this.remove.emit(_),
-                ),
-            );
         });
     }
 }

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Inject, Output } from '@angular/core';
+import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
@@ -296,7 +296,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                 mat-menu-item
                 mat-dialog-close
                 *ngIf="can_edit"
-                (click)="edit.emit()"
+                (click)="edit(booking)"
             >
                 <div class="flex items-center space-x-2 text-base">
                     <app-icon>edit</app-icon>
@@ -320,7 +320,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
             <button
                 mat-menu-item
                 *ngIf="!is_in_progress"
-                (click)="remove.emit()"
+                (click)="remove(booking, false)"
             >
                 <div class="flex items-center space-x-2 text-base">
                     <app-icon class="text-error">delete</app-icon>
@@ -334,14 +334,14 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                     booking.booking_type !== 'parking' &&
                     !booking.extension_data.is_assigned
                 "
-                (click)="remove.emit(true)"
+                (click)="remove(booking, true)"
             >
                 <div class="flex items-center space-x-2 text-base">
                     <app-icon class="text-error">delete</app-icon>
                     <div>{{ 'BOOKINGS.ACTION_DELETE_SERIES' | translate }}</div>
                 </div>
             </button>
-            <button mat-menu-item *ngIf="is_in_progress" (click)="end.emit()">
+            <button mat-menu-item *ngIf="is_in_progress" (click)="end(booking)">
                 <div class="flex items-center space-x-2 text-base">
                     <app-icon class="text-error">delete</app-icon>
                     <div>{{ 'BOOKINGS.ACTION_END' | translate }}</div>
@@ -354,10 +354,10 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
     standalone: false,
 })
 export class BookingDetailsModalComponent {
-    @Output() public edit = new EventEmitter();
-    @Output() public remove = new EventEmitter<boolean>();
-    @Output() public end = new EventEmitter();
-    public readonly booking = this._booking;
+    public edit = this._data.edit_fn;
+    public remove = this._data.remove_fn;
+    public end = this._data.end_fn;
+    public readonly booking = this._data.booking;
     public hide_map = false;
     public show_request = {};
     public checked_out = false;
@@ -448,7 +448,13 @@ export class BookingDetailsModalComponent {
     }
 
     constructor(
-        @Inject(MAT_DIALOG_DATA) private _booking: Booking,
+        @Inject(MAT_DIALOG_DATA)
+        private _data: {
+            booking: Booking;
+            edit_fn: (i) => void;
+            remove_fn: (i, s?) => void;
+            end_fn: (i) => void;
+        },
         private _settings: SettingsService,
         private _org: OrganisationService,
         private _dialog: MatDialog,
@@ -523,10 +529,10 @@ export class BookingDetailsModalComponent {
             maxHeight: '95vh',
             data: {
                 item: {
-                    id: this._booking.asset_id,
-                    name: this._booking.asset_name,
+                    id: this.booking.asset_id,
+                    name: this.booking.asset_name,
                     map_id:
-                        this._booking.extension_data.map_id ||
+                        this.booking.extension_data.map_id ||
                         this.booking.asset_id,
                     level: this.level,
                 },
