@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { SettingsService } from '@placeos/common';
+import { Component, OnInit } from '@angular/core';
+import { AsyncHandler, SettingsService } from '@placeos/common';
 import { ParkingStateService } from './parking-state.service';
 
 @Component({
@@ -220,7 +220,10 @@ import { ParkingStateService } from './parking-state.service';
     styles: [``],
     standalone: false,
 })
-export class ParkingBookingsListComponent {
+export class ParkingBookingsListComponent
+    extends AsyncHandler
+    implements OnInit
+{
     public readonly events = this._state.bookings;
     public readonly options = this._state.options;
     public readonly loading = this._state.loading;
@@ -236,5 +239,11 @@ export class ParkingBookingsListComponent {
     constructor(
         private _state: ParkingStateService,
         private _settings: SettingsService,
-    ) {}
+    ) {
+        super();
+    }
+
+    public ngOnInit() {
+        this.subscription('poll', this._state.startPolling());
+    }
 }
