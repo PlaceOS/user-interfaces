@@ -123,8 +123,8 @@ export class LockerStateService extends AsyncHandler {
     ]).pipe(
         map(([{ zones }, search, list]) => {
             search = (search || '').toLowerCase();
+            if (!zones?.length && !search) return list;
             return list.filter((item) => {
-                if (!zones?.length && !search) return;
                 let match = true;
                 if (search) {
                     match =
@@ -150,8 +150,8 @@ export class LockerStateService extends AsyncHandler {
     ]).pipe(
         map(([{ zones }, search, list]) => {
             search = (search || '').toLowerCase();
+            if (!zones?.length && !search) return list;
             return list.filter((item) => {
-                if (!zones?.length && !search) return;
                 let match = true;
                 if (search) {
                     match = item.name.toLowerCase().includes(search);
