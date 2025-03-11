@@ -1,5 +1,6 @@
 import { FormGroup } from '@angular/forms';
 
+import { lastValueFrom, Observable, take } from 'rxjs';
 import { i18n } from './locale.service';
 import { HashMap } from './types';
 
@@ -556,4 +557,12 @@ export function formatDuration(
             `${i18n(seconds === 1 ? 'COMMON.TIME_SECOND' : 'COMMON.TIME_SECONDS', { seconds })}`,
         );
     return value.join(' ');
+}
+
+/**
+ * Create a promise that returns the next value returned by the given observable
+ * @param obs Observable to use
+ */
+export function nextValueFrom<T = any>(obs: Observable<T>): Promise<T> {
+    return lastValueFrom(obs.pipe(take(1)));
 }

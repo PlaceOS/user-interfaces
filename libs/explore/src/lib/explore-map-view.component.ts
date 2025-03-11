@@ -39,6 +39,7 @@ const EMPTY = [];
             [labels]="labels | async"
             [focus]="locate"
             [options]="{ controls: true }"
+            (mapInfo)="map_info = $event || {}"
         ></interactive-map>
         <div
             *ngIf="!(use_mapsindoors$ | async)"
@@ -127,6 +128,7 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
     public readonly setOptions = (o) => this._state.setOptions(o);
 
     public locate = '';
+    public map_info: Record<string, any> = {};
 
     public async toggleZones(enabled: boolean) {
         const options = await this.options.pipe(take(1)).toPromise();
@@ -300,11 +302,15 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
                 (priority.includes(a.type) ? priority.indexOf(a.type) : 999) -
                 (priority.includes(b.type) ? priority.indexOf(b.type) : 999),
         );
-
         if (!locations?.length) throw i18n('EXPLORE.LOCATE_USER_NOT_FOUND');
+        const loc =
+            locations.find(
+                ({ position }) =>
+                    typeof position !== 'string' || position in this.map_info,
+            ) || locations[0];
         this._state.setLevel(this._org.levelWithID([locations[0]?.level])?.id);
-        const pos: any = locations[0].position;
-        const { coordinates_from } = locations[0];
+        const pos: any = loc.position;
+        const { coordinates_from } = loc;
         const feature: any = {
             track_id: `locate-${user.id}`,
             location:
@@ -319,14 +325,12 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
                       }
                     : pos,
             content:
-                locations[0].type === 'wireless'
-                    ? MapRadiusComponent
-                    : MapPinComponent,
+                loc.type === 'wireless' ? MapRadiusComponent : MapPinComponent,
             z_index: 99,
             data: {
                 message: i18n('EXPLORE.LOCATE_USER', { name: user.name }),
-                radius: locations[0].variance,
-                last_seen: locations[0].last_seen,
+                radius: loc.variance,
+                last_seen: loc.last_seen,
             },
         };
         this.timeout('update_location', () => {

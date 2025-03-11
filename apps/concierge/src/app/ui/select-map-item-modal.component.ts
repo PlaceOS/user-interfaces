@@ -1,6 +1,11 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { AsyncHandler, MapsPeopleService, unique } from '@placeos/common';
+import {
+    AsyncHandler,
+    MapsPeopleService,
+    nextValueFrom,
+    unique,
+} from '@placeos/common';
 import { BuildingLevel, OrganisationService } from '@placeos/organisation';
 import { Rect } from '@placeos/svg-viewer/dist/types';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
@@ -227,7 +232,10 @@ declare let mapsindoors: any;
     styles: [``],
     standalone: false,
 })
-export class SelectMapItemModalComponent extends AsyncHandler {
+export class SelectMapItemModalComponent
+    extends AsyncHandler
+    implements OnInit
+{
     public selected_item: any;
     public level: BuildingLevel = new BuildingLevel();
     public map_info: BoundsMap = {};
@@ -267,7 +275,7 @@ export class SelectMapItemModalComponent extends AsyncHandler {
         ),
     );
 
-    public poiItemFromMapsIndoorsItem(item: any) {
+    public itemFromMapsIndoorsItem(item: any) {
         return {
             id: item.properties.externalId || item.properties.roomId || item.id,
             name: item.properties.name,
@@ -293,11 +301,11 @@ export class SelectMapItemModalComponent extends AsyncHandler {
                           q,
                       }).then((l) => {
                           const list = l.map((i) =>
-                              this.poiItemFromMapsIndoorsItem(i),
+                              this.itemFromMapsIndoorsItem(i),
                           );
                           if (this.selected_item) {
                               list.unshift(
-                                  this.poiItemFromMapsIndoorsItem(
+                                  this.itemFromMapsIndoorsItem(
                                       this.selected_item,
                                   ),
                               );
@@ -307,7 +315,7 @@ export class SelectMapItemModalComponent extends AsyncHandler {
                     : of(
                           this.selected_item
                               ? [
-                                    this.poiItemFromMapsIndoorsItem(
+                                    this.itemFromMapsIndoorsItem(
                                         this.selected_item,
                                     ),
                                 ]
@@ -365,9 +373,9 @@ export class SelectMapItemModalComponent extends AsyncHandler {
 
     public selectID(e: any) {
         this.timeout('select_id', async () => {
-            const use_maps_indoors = await this._maps_people.available$
-                .pipe(take(1))
-                .toPromise();
+            const use_maps_indoors = await nextValueFrom(
+                this._maps_people.available$,
+            );
             if (!use_maps_indoors) {
                 const pos: { x: number; y: number } = e;
                 const short_list: [string, number][] = [];
