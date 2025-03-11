@@ -386,7 +386,13 @@ export class EventFormService extends AsyncHandler {
 
     public newForm(event = new CalendarEvent()) {
         this._loading.next('');
-        this._form.reset(event);
+        this._form.reset({
+            ...event,
+            catering: event.extension_data.catering,
+            catering_charge_code:
+                event.extension_data.catering?.[0]?.charge_code,
+            catering_notes: event.extension_data.catering?.[0]?.notes,
+        });
         if (!event.id) return;
         sessionStorage.setItem('PLACEOS.event', JSON.stringify(event.toJSON()));
         this._event.next(event);
