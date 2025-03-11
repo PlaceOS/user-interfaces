@@ -138,6 +138,9 @@ const app = {
         { id: 'ja-JP', name: 'LANGUAGE.JAPANESE', local: '日本語', flag: '🇯🇵' },
         { id: 'ar', name: 'LANGUAGE.ARABIC', local: 'عربية', flag: '' },
     ],
+    catering: {
+        use_bookings: true,
+    },
 };
 
 /**
