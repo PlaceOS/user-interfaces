@@ -312,7 +312,9 @@ export class DesksStateService extends AsyncHandler {
                         RecurrenceDays.TUESDAY |
                         RecurrenceDays.WEDNESDAY |
                         RecurrenceDays.THURSDAY |
-                        RecurrenceDays.FRIDAY,
+                        RecurrenceDays.FRIDAY |
+                        RecurrenceDays.SATURDAY |
+                        RecurrenceDays.SUNDAY,
                     zones: unique([
                         this._org.organisation.id,
                         this._org.region?.id,
