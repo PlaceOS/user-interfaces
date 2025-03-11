@@ -355,8 +355,8 @@ export class EmailTemplateManageComponent extends AsyncHandler {
     public async save() {
         this.loading = i18n('APP.CONCIERGE.EMAIL_TEMPLATES_SAVING');
         const zone =
-            this.template.zone_id !== this.form.value.zone_id
-                ? this.template.zone_id
+            this.template?.zone_id !== this.form.value.zone_id
+                ? this.template?.zone_id
                 : '';
         await this._state
             .saveTemplate(
