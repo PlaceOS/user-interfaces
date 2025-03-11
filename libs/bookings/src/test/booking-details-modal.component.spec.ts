@@ -21,7 +21,7 @@ describe('BookingDetailsModalComponent', () => {
     const createComponent = createComponentFactory({
         component: BookingDetailsModalComponent,
         providers: [
-            MockProvider(MAT_DIALOG_DATA, new Booking()),
+            MockProvider(MAT_DIALOG_DATA, { booking: new Booking() }),
             MockProvider(OrganisationService, {
                 levelWithID: jest.fn(),
                 buildings: [],

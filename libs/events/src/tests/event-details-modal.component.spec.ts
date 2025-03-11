@@ -30,7 +30,7 @@ describe('EventDetailsModalComponent', () => {
     const createComponent = createComponentFactory({
         component: EventDetailsModalComponent,
         providers: [
-            MockProvider(MAT_DIALOG_DATA, new CalendarEvent()),
+            MockProvider(MAT_DIALOG_DATA, { event: new CalendarEvent() }),
             MockProvider(OrganisationService, {
                 levelWithID: jest.fn(),
                 buildings: [],
