@@ -153,7 +153,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                         class="min-w-1/3 mt-4 flex-grow-[3] rounded border-base-200 sm:m-2 sm:w-[16rem] sm:border sm:bg-base-100 sm:p-4"
                     >
                         <h3 class="mx-3 py-2 text-lg font-medium">
-                            {{ 'BOOKINGS.ASSETS' }} ({{
+                            {{ 'RESOURCE.ASSETS' | translate }} ({{
                                 booking.valid_assets?.length || 0
                             }})
                         </h3>
