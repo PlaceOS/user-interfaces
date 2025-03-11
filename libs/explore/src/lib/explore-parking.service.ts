@@ -329,7 +329,7 @@ export class ExploreParkingService extends AsyncHandler {
                         }),
                     );
                 }
-                this._bookings.newForm();
+                this._bookings.newForm('parking');
                 this._bookings.setOptions({ type: 'parking' });
                 options = this._options.getValue();
                 let user = options.host || currentUser();

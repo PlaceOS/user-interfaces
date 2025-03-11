@@ -413,7 +413,7 @@ export class LandingFavouritesComponent extends AsyncHandler implements OnInit {
             ]);
         }
         setTimeout(() => {
-            this._booking_form.newForm();
+            this._booking_form.newForm(type);
             this._booking_form.setOptions({ type });
             this._booking_form.form.patchValue({
                 resources: [item],

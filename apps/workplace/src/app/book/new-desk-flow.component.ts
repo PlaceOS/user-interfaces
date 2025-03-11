@@ -49,7 +49,7 @@ export class NewDeskFlowComponent extends AsyncHandler implements OnInit {
         await this._org.initialised.pipe(first((_) => _)).toPromise();
         this._state.loadForm();
         this._state.setOptions({ type: 'desk' });
-        if (!this._state.form.value.id) this._state.newForm();
+        if (!this._state.form.value.id) this._state.newForm('desk');
         this._state.form.patchValue({ booking_type: 'desk' });
         this.subscription(
             'route.params',

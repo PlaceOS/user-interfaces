@@ -557,7 +557,7 @@ export class InviteVisitorFormComponent
         await this._org.initialised.pipe(first((_) => _)).toPromise();
         this._service.loadForm();
         this._service.setOptions({ type: 'visitor' });
-        if (!this.form.value.id) this._service.newForm();
+        if (!this.form.value.id) this._service.newForm('visitor');
         this.form.patchValue({
             booking_type: 'visitor',
             zones: [this._org.building?.id],

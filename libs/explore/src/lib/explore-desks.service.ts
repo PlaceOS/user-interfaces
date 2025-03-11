@@ -411,7 +411,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
                 i18n('EXPLORE.DESK_GROUP_ERROR', { name: desk.name || 'Desk' }),
             );
         }
-        this._bookings.newForm();
+        this._bookings.newForm('desk');
         this._bookings.setOptions({ type: 'desk' });
         if (options.date) {
             this._bookings.form.patchValue({

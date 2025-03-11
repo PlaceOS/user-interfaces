@@ -216,8 +216,7 @@ export class LockerBookingModalComponent
     }
 
     public ngOnInit() {
-        this._booking_form.newForm(this._data.booking);
-        this._booking_form.setOptions({ type: 'locker' });
+        this._booking_form.newForm('locker', this._data.booking);
         this.subscription(
             'user_changes',
             this.form.controls.user.valueChanges.subscribe((user) => {
@@ -229,12 +228,7 @@ export class LockerBookingModalComponent
                 });
             }),
         );
-        this.form.patchValue({
-            booking_type: 'locker',
-            all_day: this._data.booking
-                ? this._data.booking.duration > 12 * 60
-                : true,
-        });
+        this.form.patchValue({ booking_type: 'locker' });
         if (!this.form.value.user) {
             this.form.patchValue({
                 user:
@@ -280,17 +274,16 @@ export class LockerBookingModalComponent
             combineLatest([
                 this._org.active_building,
                 this.form.controls.duration.valueChanges,
-            ]).subscribe(() => {
+            ]).subscribe(() =>
                 this.timeout(
                     'disable',
-                    () => {
-                        if (this.disable_date) {
-                            this.form.controls.date.disable();
-                        }
-                    },
+                    () =>
+                        this.disable_date
+                            ? this.form.controls.date.disable()
+                            : '',
                     50,
-                );
-            }),
+                ),
+            ),
         );
     }
 

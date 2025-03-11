@@ -214,7 +214,7 @@ export class ScheduleViewBookingComponent extends AsyncHandler {
     }
 
     public editEvent() {
-        this._bookings.newForm(this.event);
+        this._bookings.newForm('desk', this.event);
         this._router.navigate(['/book', 'desks', 'form']);
     }
 

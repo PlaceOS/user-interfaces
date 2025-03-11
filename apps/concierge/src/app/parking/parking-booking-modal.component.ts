@@ -214,7 +214,7 @@ export class ParkingBookingModalComponent
     }
 
     public ngOnInit() {
-        this._booking_form.newForm(this._data.booking);
+        this._booking_form.newForm('parking', this._data.booking);
         this._booking_form.setOptions({ type: 'parking' });
         this.subscription(
             'user_changes',

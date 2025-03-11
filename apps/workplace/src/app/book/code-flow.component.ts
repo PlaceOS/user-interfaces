@@ -296,7 +296,7 @@ export class BookCodeFlowComponent
             this._router.navigate(['/book', 'code', 'error'], {
                 queryParams: { type: 'no_booking', asset_id },
             });
-            this._booking_form.newForm(new Booking({ asset_id, type }));
+            this._booking_form.newForm(type, new Booking({ asset_id, type }));
             this._booking_form.setOptions({ type });
         }
         this.loading = false;

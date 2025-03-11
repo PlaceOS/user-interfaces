@@ -314,9 +314,9 @@ export class BookingFormService extends AsyncHandler {
         return this._resource_use[id];
     }
 
-    public newForm(booking: Booking = new Booking({})) {
+    public newForm(type: BookingType, booking: Booking = new Booking({})) {
+        this.setOptions({ type });
         if (!booking.id) {
-            const type = this._options.getValue().type;
             (booking as any).all_day =
                 this._settings.get(`app.${type}s.all_day_default`) ??
                 this._settings.get(`app.${type}.all_day_default`) ??
@@ -407,7 +407,7 @@ export class BookingFormService extends AsyncHandler {
 
     public resetForm() {
         if (!sessionStorage.getItem('PLACEOS.booking_form')) {
-            return this.newForm();
+            return this.newForm(this._options.getValue().type);
         }
         const booking = this._booking.getValue();
         this.form.reset({ user: currentUser(), booked_by: currentUser() });
@@ -426,7 +426,7 @@ export class BookingFormService extends AsyncHandler {
     public clearForm() {
         sessionStorage.removeItem('PLACEOS.booking_form');
         sessionStorage.removeItem('PLACEOS.booking_form_options');
-        this.newForm();
+        this.newForm(this._options.getValue().type);
     }
 
     public storeForm() {

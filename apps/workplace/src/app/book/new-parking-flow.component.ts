@@ -84,7 +84,7 @@ export class NewParkingFlowComponent extends AsyncHandler implements OnInit {
     public ngOnInit() {
         this._state.loadForm();
         this._state.setOptions({ type: 'parking' });
-        if (!this._state.form.value.id) this._state.newForm();
+        if (!this._state.form.value.id) this._state.newForm('parking');
         this._state.form.patchValue({ booking_type: 'parking' });
         this.subscription(
             'route.params',

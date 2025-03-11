@@ -133,7 +133,7 @@ export class MeetingFlowSuccessComponent {
     public startDeskBooking() {
         this._router.navigate(['/book', 'new-desks', 'form']);
         setTimeout(async () => {
-            this._booking_form.newForm();
+            this._booking_form.newForm('desk');
             const space = await this._space_pipe.transform(
                 this.space.id || this.space.email,
             );

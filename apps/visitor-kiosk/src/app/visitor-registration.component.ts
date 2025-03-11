@@ -160,7 +160,7 @@ export class VisitorRegistrationComponent implements OnInit {
 
     public ngOnInit() {
         this._booking_form.clearOldState();
-        this._booking_form.newForm();
+        this._booking_form.newForm('visitor');
         this._booking_form.setOptions({ type: 'visitor' });
         this.form
             .get('asset_id')
