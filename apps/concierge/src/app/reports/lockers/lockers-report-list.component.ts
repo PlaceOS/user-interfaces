@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
-import { downloadFile, i18n, jsonToCsv } from '@placeos/common';
+import { downloadFile, i18n, jsonToCsv, nextValueFrom } from '@placeos/common';
 import { format } from 'date-fns';
-import { map, take } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { LockersReportService } from './lockers-report.service';
 
 @Component({
@@ -121,7 +121,7 @@ export class LockersReportListComponent {
     );
 
     public readonly download = async () => {
-        const data = await this.lockers_bookings.pipe(take(1)).toPromise();
+        const data = await nextValueFrom(this.lockers_bookings);
         for (const bkn of data) {
             bkn.date = format(bkn.date, 'yyyy-MM-dd HH:mm');
         }

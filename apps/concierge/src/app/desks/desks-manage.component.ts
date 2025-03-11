@@ -7,6 +7,7 @@ import {
     csvToJson,
     i18n,
     loadTextFileFromInputEvent,
+    nextValueFrom,
     notifyError,
     notifySuccess,
     randomInt,
@@ -15,7 +16,6 @@ import { openConfirmModal } from '@placeos/components';
 import { Desk, OrganisationService } from '@placeos/organisation';
 import { updateMetadata } from '@placeos/ts-client';
 import { generateQRCode } from 'libs/common/src/lib/qr-code';
-import { take } from 'rxjs/operators';
 import { DesksStateService } from './desks-state.service';
 
 const QR_CODES = {};
@@ -267,9 +267,9 @@ export class DesksManageComponent extends AsyncHandler {
         );
         if (resp.reason !== 'done') return;
         resp.close();
-        const desks = await this.desks.pipe(take(1)).toPromise();
+        const desks = await nextValueFrom(this.desks);
         const updated_desks = desks.filter((_) => _.id !== desk.id);
-        const filters = await this.filters.pipe(take(1)).toPromise();
+        const filters = await nextValueFrom(this.filters);
         const level = this._org.levelWithID(filters.zones);
         this.loading = i18n('APP.CONCIERGE.DESKS_REMOVE_LOADING');
         await updateMetadata(level.id, {

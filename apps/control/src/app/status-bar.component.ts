@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { AsyncHandler } from '@placeos/common';
-import { map, take } from 'rxjs/operators';
+import { AsyncHandler, nextValueFrom } from '@placeos/common';
+import { map } from 'rxjs/operators';
 import { ControlStateService } from './control-state.service';
 
 @Component({
@@ -151,7 +151,7 @@ export class ControlStatusBarComponent extends AsyncHandler {
 
     public readonly setVolume = (v) => this._state.setVolume(v);
     public readonly toggleMute = async () => {
-        const sys = await this.system.pipe(take(1)).toPromise();
+        const sys = await nextValueFrom(this.system);
         this._state.setMute(!sys.mute);
     };
 

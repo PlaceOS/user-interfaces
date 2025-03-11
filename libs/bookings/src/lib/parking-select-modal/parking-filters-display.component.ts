@@ -1,8 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
-import { AsyncHandler, SettingsService } from '@placeos/common';
+import { AsyncHandler, nextValueFrom, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
-import { take } from 'rxjs/operators';
 import { BookingFormService } from '../booking-form.service';
 import { ParkingSpaceFiltersComponent } from './parking-filters.component';
 
@@ -138,7 +137,7 @@ export class ParkingSpaceFiltersDisplayComponent extends AsyncHandler {
     }
 
     public async removeFeature(feat: string) {
-        const value = await this._event_form.options.pipe(take(1)).toPromise();
+        const value = await nextValueFrom(this._event_form.options);
         this._event_form.setOptions({
             ...value,
             features: (value.features || []).filter((_) => _ !== feat),

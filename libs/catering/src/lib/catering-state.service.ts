@@ -13,12 +13,11 @@ import {
     map,
     shareReplay,
     switchMap,
-    take,
     tap,
 } from 'rxjs/operators';
 
 import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
-import { flatten, unique } from 'libs/common/src/lib/general';
+import { flatten, nextValueFrom, unique } from 'libs/common/src/lib/general';
 import { i18n } from 'libs/common/src/lib/locale.service';
 import { notifyError, notifySuccess } from 'libs/common/src/lib/notifications';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
@@ -387,7 +386,7 @@ export class CateringStateService extends AsyncHandler {
 
     public async editConfig() {
         const config = await this.getCateringConfig(this._org.building.id);
-        const { require_notes } = await this.settings.pipe(take(1)).toPromise();
+        const { require_notes } = await nextValueFrom(this.settings);
         const menu = this._menu.getValue();
         const types = unique(flatten(menu.map((i) => [i.category, ...i.tags])));
         const ref = this._dialog.open<
@@ -450,7 +449,7 @@ export class CateringStateService extends AsyncHandler {
     }
 
     public async saveSettings(settings: CateringSettings) {
-        const old_settings = await this.settings.pipe(take(1)).toPromise();
+        const old_settings = await nextValueFrom(this.settings);
         const result = await updateMetadata(this._org.building.id, {
             id: this._org.building.id,
             name: 'catering-settings',

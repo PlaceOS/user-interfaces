@@ -11,7 +11,6 @@ import {
     startOfWeek,
 } from 'date-fns';
 import { BehaviorSubject, of, timer } from 'rxjs';
-import { take } from 'rxjs/operators';
 import { EventsStateService } from '../../app/day-view/events-state.service';
 
 jest.mock('@placeos/events');
@@ -19,6 +18,7 @@ jest.mock('@placeos/events');
 import * as events_mod from '@placeos/events';
 import { MockProvider } from 'ng-mocks';
 
+import { nextValueFrom } from '@placeos/common';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { Building } from 'libs/organisation/src/lib/building.class';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
@@ -54,9 +54,7 @@ describe('EventsStateService', () => {
         await timer(4).toPromise();
         spectator.service.stopPolling();
         await timer(301).toPromise();
-        let events = await spectator.service.event_list
-            .pipe(take(1))
-            .toPromise();
+        let events = await nextValueFrom(spectator.service.event_list);
         expect(events).toHaveLength(0);
         (events_mod as any).queryEvents = jest.fn(() =>
             of([
@@ -66,7 +64,7 @@ describe('EventsStateService', () => {
         );
         spectator.service.setZones(['bld-234']);
         await timer(301).toPromise();
-        events = await spectator.service.event_list.pipe(take(1)).toPromise();
+        events = await nextValueFrom(spectator.service.event_list);
         expect(events).toHaveLength(2);
     });
 
@@ -78,7 +76,7 @@ describe('EventsStateService', () => {
         await timer(5).toPromise();
         spectator.service.stopPolling();
         await timer(305).toPromise();
-        let events = await spectator.service.filtered.pipe(take(1)).toPromise();
+        let events = await nextValueFrom(spectator.service.filtered);
         expect(events).toHaveLength(0);
         (events_mod as any).queryEvents = jest.fn(() =>
             of([
@@ -91,7 +89,7 @@ describe('EventsStateService', () => {
         );
         spectator.service.setZones([]);
         await timer(305).toPromise();
-        events = await spectator.service.filtered.pipe(take(1)).toPromise();
+        events = await nextValueFrom(spectator.service.filtered);
         // expect(events).toHaveLength(1);
     });
 

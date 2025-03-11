@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { AsyncHandler } from '@placeos/common';
+import { AsyncHandler, nextValueFrom } from '@placeos/common';
 import { ExploreParkingService, ExploreStateService } from '@placeos/explore';
 import { OrganisationService } from '@placeos/organisation';
-import { first, take } from 'rxjs/operators';
+import { first } from 'rxjs/operators';
 import { ParkingStateService } from './parking-state.service';
 
 @Component({
@@ -64,9 +64,7 @@ export class ParkingMapComponent extends AsyncHandler implements OnInit {
             }),
         );
         this._ex_parking.on_book = async (space) => {
-            const options = await this._parking.options
-                .pipe(take(1))
-                .toPromise();
+            const options = await nextValueFrom(this._parking.options);
             await this._parking.editReservation(undefined, {
                 space: {
                     ...space,

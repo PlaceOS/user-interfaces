@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { nextValueFrom } from '@placeos/common';
 import { getModule } from '@placeos/ts-client';
-import { take } from 'rxjs/operators';
 import { ControlStateService } from '../control-state.service';
 import { VideoCallStateService } from './video-call-state.service';
 
@@ -87,9 +87,7 @@ export class VideoCallDialViewComponent {
     public readonly show_camera_pip = this._call.show_camera_pip;
 
     public readonly toggleCamera = async () =>
-        this._call.showCameraPIP(
-            !(await this.show_camera_pip.pipe(take(1)).toPromise()),
-        );
+        this._call.showCameraPIP(!(await nextValueFrom(this.show_camera_pip)));
 
     public get id() {
         return this._control.id;

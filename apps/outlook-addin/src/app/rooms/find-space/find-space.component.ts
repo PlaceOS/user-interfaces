@@ -1,13 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { Router } from '@angular/router';
-import { AsyncHandler, HashMap, i18n } from '@placeos/common';
+import { AsyncHandler, HashMap, i18n, nextValueFrom } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
 import { Space, SpacesService } from '@placeos/spaces';
 import { ViewAction, ViewerFeature, ViewerStyles } from '@placeos/svg-viewer';
 import { BehaviorSubject, Observable, combineLatest, of } from 'rxjs';
-import { filter, first, map, take, tap } from 'rxjs/operators';
+import { filter, first, map, tap } from 'rxjs/operators';
 import { FeaturesFilterService } from '../features-filter.service';
 import { FilterSpaceComponent } from '../filter-space/filter-space.component';
 import { Locatable, MapService, MapsList } from '../map.service';
@@ -125,7 +125,7 @@ export class FindSpaceComponent extends AsyncHandler implements OnInit {
 
         await this._org.initialised.pipe(first((_) => !!_)).toPromise();
         await this._spaces.initialised.pipe(first((_) => !!_)).toPromise();
-        await this._state.available_spaces.pipe(take(1)).toPromise();
+        await nextValueFrom(this._state.available_spaces);
 
         this.setBuilding(this._org.building);
         this.book_space = {};

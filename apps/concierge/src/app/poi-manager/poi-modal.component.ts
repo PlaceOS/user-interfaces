@@ -10,13 +10,13 @@ import {
     SettingsService,
     createShortURL,
     getInvalidFields,
+    nextValueFrom,
     notifyError,
     randomString,
     updateShortURL,
 } from '@placeos/common';
 import { Building, OrganisationService } from '@placeos/organisation';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
-import { take } from 'rxjs/operators';
 import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.component';
 import { PointOfInterest } from './poi-management.service';
 
@@ -224,7 +224,7 @@ export class POIModalComponent extends AsyncHandler {
 
     public async ngOnInit() {
         if (!this.form.value.level_id) {
-            const levels = await this.level_list.pipe(take(1)).toPromise();
+            const levels = await nextValueFrom(this.level_list);
             if (levels.length) this.form.patchValue({ level_id: levels[0].id });
         }
     }

@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { SettingsService } from '@placeos/common';
+import { nextValueFrom, SettingsService } from '@placeos/common';
 import { addMonths, addWeeks, format } from 'date-fns';
-import { map, shareReplay, take } from 'rxjs/operators';
+import { map, shareReplay } from 'rxjs/operators';
 import { EventStateService } from './event-state.service';
 
 @Component({
@@ -113,7 +113,7 @@ export class EventCalendarComponent {
     }
 
     public async nextPeriod() {
-        const { date, period } = await this.options.pipe(take(1)).toPromise();
+        const { date, period } = await nextValueFrom(this.options);
         this._router.navigate([], {
             relativeTo: this._route,
             queryParams: {
@@ -127,7 +127,7 @@ export class EventCalendarComponent {
     }
 
     public async previousPeriod() {
-        const { date, period } = await this.options.pipe(take(1)).toPromise();
+        const { date, period } = await nextValueFrom(this.options);
         this._router.navigate([], {
             relativeTo: this._route,
             queryParams: {

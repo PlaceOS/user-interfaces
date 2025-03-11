@@ -1,10 +1,11 @@
 import { Component, ViewChild } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
+import { nextValueFrom } from '@placeos/common';
 import { CustomTooltipComponent } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest } from 'rxjs';
-import { filter, map, shareReplay, switchMap, take } from 'rxjs/operators';
+import { filter, map, shareReplay, switchMap } from 'rxjs/operators';
 
 @Component({
     selector: 'role-management-modal',
@@ -109,7 +110,7 @@ export class RoleManagementModalComponent {
         if (!role) return;
         this.loading = true;
         this._dialog_ref.disableClose = true;
-        const data: any = await this.data.pipe(take(1)).toPromise();
+        const data: any = await nextValueFrom(this.data);
         await updateMetadata(this._org.building.id, {
             name: 'emergency_contacts',
             description: 'Emergency Contacts',
@@ -133,7 +134,7 @@ export class RoleManagementModalComponent {
         this.loading = true;
         this._tooltip.close();
         this._dialog_ref.disableClose = true;
-        const data: any = await this.data.pipe(take(1)).toPromise();
+        const data: any = await nextValueFrom(this.data);
         await updateMetadata(this._org.building.id, {
             name: 'emergency_contacts',
             description: 'Emergency Contacts',

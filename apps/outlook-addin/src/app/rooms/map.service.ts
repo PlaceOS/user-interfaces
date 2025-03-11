@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
-import { AsyncHandler } from '@placeos/common';
+import { AsyncHandler, nextValueFrom } from '@placeos/common';
 import { MapPinComponent } from '@placeos/components';
 import { BuildingLevel } from '@placeos/organisation';
 import { Space } from '@placeos/spaces';
 import { ViewAction, ViewerFeature, ViewerStyles } from '@placeos/svg-viewer';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { first, map, take } from 'rxjs/operators';
+import { first, map } from 'rxjs/operators';
 import { RoomConfirmService } from './room-confirm.service';
 import { RoomTileComponent } from './room-tile/room-tile.component';
 
@@ -96,7 +96,7 @@ export class MapService extends AsyncHandler {
     }
 
     async locateSpaces(available_spaces: Observable<Space[]>) {
-        await available_spaces?.pipe(take(1)).toPromise();
+        await nextValueFrom(available_spaces);
 
         available_spaces?.subscribe(
             (spaces) =>

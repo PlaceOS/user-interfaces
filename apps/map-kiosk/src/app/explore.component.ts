@@ -7,6 +7,7 @@ import {
     flatten,
     log,
     MapsPeopleService,
+    nextValueFrom,
     notifyError,
     SettingsService,
     unique,
@@ -31,7 +32,7 @@ import { MapLocation, showStaff, User } from '@placeos/users';
 import { startOfMinute } from 'date-fns';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 import { combineLatest } from 'rxjs';
-import { first, map, take } from 'rxjs/operators';
+import { first, map } from 'rxjs/operators';
 
 @Component({
     selector: '[app-explore]',
@@ -354,7 +355,7 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
     }
 
     public async toggleZones(enabled: boolean) {
-        const options = await this.options.pipe(take(1)).toPromise();
+        const options = await nextValueFrom(this.options);
         const disable = !enabled
             ? unique([...(options.disable || []), 'zones', 'devices'])
             : options.disable.filter((_) => _ !== 'zones' && _ !== 'devices') ||

@@ -1,7 +1,6 @@
 import { Component, Input } from '@angular/core';
-import { downloadFile, jsonToCsv } from '@placeos/common';
+import { downloadFile, jsonToCsv, nextValueFrom } from '@placeos/common';
 import { format } from 'date-fns';
-import { take } from 'rxjs/operators';
 
 import { ReportsStateService } from '../reports-state.service';
 
@@ -78,7 +77,7 @@ export class ReportDesksOverallListComponent {
     public readonly day_list = this._state.day_list;
 
     public readonly download = async () => {
-        let data = await this.day_list.pipe(take(1)).toPromise();
+        let data = await nextValueFrom(this.day_list);
         data = data.map((d) => ({
             ...d,
             date: format(d.date, 'MMM d, y(EEE)'),

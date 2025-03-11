@@ -69,12 +69,12 @@ describe('BookingFormService', () => {
     });
 
     it('should handle form changes', () => {
-        spectator.service.newForm();
+        spectator.service.newForm('desk');
         const form = spectator.service.form;
         expect(spectator.service.form).toBeInstanceOf(FormGroup);
         const spy = jest.spyOn(spectator.service, 'storeForm');
         expect(spectator.service.storeForm).not.toBeCalled();
-        let date = endOfYear(Date.now()).valueOf();
+        const date = endOfYear(Date.now()).valueOf();
         spectator.service.form.patchValue({ date });
         expect(spectator.service.storeForm).toBeCalled();
         expect(spectator.service.form.value.date).toBe(date);

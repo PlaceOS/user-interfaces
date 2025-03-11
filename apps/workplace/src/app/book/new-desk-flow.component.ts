@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
-import { AsyncHandler, notifyInfo } from '@placeos/common';
+import { AsyncHandler, nextValueFrom, notifyInfo } from '@placeos/common';
 import { Desk, OrganisationService } from '@placeos/organisation';
-import { first, take } from 'rxjs/operators';
+import { first } from 'rxjs/operators';
 
 @Component({
     selector: 'placeos-new-book-desk-flow',
@@ -66,10 +66,10 @@ export class NewDeskFlowComponent extends AsyncHandler implements OnInit {
                 }
                 if (params.has('asset_id')) {
                     const id = params.get('asset_id');
-                    const resources = await this._state.resources
-                        .pipe(take(1))
-                        .toPromise();
-                    let asset = resources.find((_) => _.id === id);
+                    const resources = await nextValueFrom(
+                        this._state.resources,
+                    );
+                    const asset = resources.find((_) => _.id === id);
                     if (!asset) {
                         return notifyInfo(
                             'Unable to find desk with given asset ID.',

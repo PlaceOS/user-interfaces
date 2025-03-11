@@ -100,9 +100,7 @@ describe('OrganisationService', () => {
     //     await spectator.service.loadLevels();
     //     expect(spectator.service.levels).toHaveLength(2);
     //     expect(spectator.service.levels[0]).toBeInstanceOf(BuildingLevel);
-    //     const levels = await spectator.service.level_list
-    //         .pipe(take(1))
-    //         .toPromise();
+    //     const levels = await nextValueFrom(spectator.service.level_list);
     //     expect(levels).toEqual(spectator.service.levels);
     // });
 

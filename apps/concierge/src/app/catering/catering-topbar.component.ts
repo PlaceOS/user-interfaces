@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { first, map, take } from 'rxjs/operators';
+import { first, map } from 'rxjs/operators';
 
 import { MatDialog } from '@angular/material/dialog';
 import {
@@ -8,7 +8,7 @@ import {
     CateringStateService,
     ChargeCodeListModalComponent,
 } from '@placeos/catering';
-import { AsyncHandler, SettingsService } from '@placeos/common';
+import { AsyncHandler, nextValueFrom, SettingsService } from '@placeos/common';
 import { AvailableRoomsStateModalComponent } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
 import { combineLatest } from 'rxjs';
@@ -243,9 +243,9 @@ export class CateringTopbarComponent extends AsyncHandler implements OnInit {
         const ref = this._dialog.open(AvailableRoomsStateModalComponent, {
             data: {
                 type: 'Catering',
-                disabled_rooms: await this._catering.availability
-                    .pipe(take(1))
-                    .toPromise(),
+                disabled_rooms: await nextValueFrom(
+                    this._catering.availability,
+                ),
             },
         });
         this.subscription(

@@ -1,9 +1,8 @@
 import { Component, EventEmitter, Inject, Output } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { unique } from '@placeos/common';
+import { nextValueFrom, unique } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { requestSpacesForZone } from 'libs/spaces/src/lib/space.utilities';
-import { take } from 'rxjs/operators';
 
 @Component({
     selector: 'available-rooms-state-modal',
@@ -137,7 +136,7 @@ export class AvailableRoomsStateModalComponent {
 
     public async toggleRoom(id: string) {
         if (id === '*') {
-            const rooms = await this.rooms.pipe(take(1)).toPromise();
+            const rooms = await nextValueFrom(this.rooms);
             if (this.selected.length !== rooms.length)
                 this.selected = rooms.map((_) => _.id);
             else this.selected = [];

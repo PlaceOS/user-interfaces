@@ -3,6 +3,7 @@ import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import {
     BookingRuleset,
     i18n,
+    nextValueFrom,
     notifyError,
     notifySuccess,
     randomString,
@@ -17,7 +18,6 @@ import {
     map,
     shareReplay,
     switchMap,
-    take,
 } from 'rxjs/operators';
 
 @Component({
@@ -280,7 +280,7 @@ export class BookingRulesModalComponent {
         );
         if (result.reason !== 'done') return;
         result.loading('Removing Ruleset...');
-        const rules = await this.booking_rules.pipe(take(1)).toPromise();
+        const rules = await nextValueFrom(this.booking_rules);
         const index = rules.findIndex((_) => _.id === ruleset.id);
         if (index >= 0) {
             rules.splice(index, 1);
@@ -304,7 +304,7 @@ export class BookingRulesModalComponent {
         ruleset: BookingRuleset,
         position_change: number,
     ) {
-        const rules = await this.booking_rules.pipe(take(1)).toPromise();
+        const rules = await nextValueFrom(this.booking_rules);
         // Move ruleset up or down in array based on position change
         const index = rules.findIndex((_) => _.id === ruleset.id);
         if (index >= 0) {
@@ -329,7 +329,7 @@ export class BookingRulesModalComponent {
 
     public async save(new_ruleset?: BookingRuleset) {
         this.loading = true;
-        const rules = await this.booking_rules.pipe(take(1)).toPromise();
+        const rules = await nextValueFrom(this.booking_rules);
         if (new_ruleset) {
             const index = rules.findIndex((_) => _.id === new_ruleset?.id);
             if (index >= 0) {

@@ -24,6 +24,7 @@ import {
     AsyncHandler,
     SettingsService,
     flatten,
+    nextValueFrom,
     notifySuccess,
     unique,
 } from '@placeos/common';
@@ -52,7 +53,6 @@ import {
     map,
     shareReplay,
     switchMap,
-    take,
     tap,
 } from 'rxjs/operators';
 import { AssetCategoryFormComponent } from './asset-category-form.component';
@@ -382,7 +382,7 @@ export class AssetManagerStateService extends AsyncHandler {
     }
 
     public async deleteActiveProduct() {
-        const item = await this.active_product.pipe(take(1)).toPromise();
+        const item = await nextValueFrom(this.active_product);
         if (!item?.id) return;
         await deleteAssetGroup(item.id).toPromise();
         this._change.next(Date.now());
@@ -416,7 +416,7 @@ export class AssetManagerStateService extends AsyncHandler {
 
     public async editConfig() {
         const config = await this.getConfig(this._org.building.id);
-        const items = await this.products.pipe(take(1)).toPromise();
+        const items = await nextValueFrom(this.products);
         const types = unique(flatten(items.map((i) => [i.name])));
         const ref = this._dialog.open<
             AttachedResourceConfigModalComponent,
@@ -460,7 +460,7 @@ export class AssetManagerStateService extends AsyncHandler {
     }
 
     public async saveSettings(settings: Record<string, any>) {
-        const old_settings = await this.settings.pipe(take(1)).toPromise();
+        const old_settings = await nextValueFrom(this.settings);
         const result = await updateMetadata(this._org.building.id, {
             id: this._org.building.id,
             name: 'assets-settings',

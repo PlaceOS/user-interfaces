@@ -1,10 +1,10 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
-import { SettingsService } from '@placeos/common';
+import { nextValueFrom, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { combineLatest } from 'rxjs';
-import { map, take } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { InviteVisitorModalComponent } from './invite-visitor-modal.component';
 import { VisitorsStateService } from './visitors-state.service';
 
@@ -141,12 +141,9 @@ export class NewVisitorsComponent implements OnInit, OnDestroy {
     public async inviteVisitor() {
         this._dialog.open(InviteVisitorModalComponent, {
             data: {
-                date: await this._state.filters
-                    .pipe(
-                        take(1),
-                        map((f) => f.date || Date.now()),
-                    )
-                    .toPromise(),
+                date: await nextValueFrom(
+                    this._state.filters.pipe(map((f) => f.date || Date.now())),
+                ),
             },
         });
     }

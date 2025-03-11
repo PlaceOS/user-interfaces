@@ -6,11 +6,12 @@ import { MatChipInputEvent } from '@angular/material/chips';
 import { Upload } from '@placeos/cloud-uploads';
 
 import { BehaviorSubject, combineLatest } from 'rxjs';
-import { map, take } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 
 import { MatDialog } from '@angular/material/dialog';
 import {
     AsyncHandler,
+    nextValueFrom,
     notifyInfo,
     unique,
     UploadsService,
@@ -331,9 +332,7 @@ export class ImageListFieldComponent extends AsyncHandler {
     private async _updateUploadHistory() {
         const list = this.upload_ids.getValue();
         if (list.length === 0) return;
-        const global_list = await this._uploads.upload_list
-            .pipe(take(1))
-            .toPromise();
+        const global_list = await nextValueFrom(this._uploads.upload_list);
         const new_list = global_list.filter((_) =>
             list.find((i) => i === _.id),
         );

@@ -19,7 +19,6 @@ import {
     shareReplay,
     startWith,
     switchMap,
-    take,
     tap,
 } from 'rxjs/operators';
 
@@ -27,6 +26,7 @@ import {
     AsyncHandler,
     currentUser,
     log,
+    nextValueFrom,
     notifyError,
     notifySuccess,
     notifyWarn,
@@ -297,16 +297,16 @@ export class PanelStateService extends AsyncHandler {
         // if (date <= Date.now() && !user) {
         //     return this.confirmBookNow();
         // }
-        const current = await this._current.pipe(take(1)).toPromise();
+        const current = await nextValueFrom(this._current);
         if (
             current &&
-            isAfter(date, current!.date) &&
-            isBefore(date, addMinutes(current!.date, current!.duration))
+            isAfter(date, current.date) &&
+            isBefore(date, addMinutes(current.date, current.duration))
         )
             return notifyError('Booking already exists for this time');
 
         let max_duration = this._settings.getValue().max_duration;
-        const next = await this.next.pipe(take(1)).toPromise();
+        const next = await nextValueFrom(this.next);
         if (next && date <= Date.now()) {
             const diff = Math.abs(differenceInMinutes(next.date, date));
             const max = this._settings.getValue().max_duration || 480;
@@ -358,16 +358,16 @@ export class PanelStateService extends AsyncHandler {
 
     public async confirmBookNow() {
         const date = Date.now();
-        const current = await this._current.pipe(take(1)).toPromise();
+        const current = await nextValueFrom(this._current);
         if (
             current &&
-            isAfter(date, current!.date) &&
-            isBefore(date, addMinutes(current!.date, current!.duration))
+            isAfter(date, current.date) &&
+            isBefore(date, addMinutes(current.date, current.duration))
         ) {
             return notifyError('Booking already exists for this time');
         }
         let max_duration = undefined;
-        const next = await this._next.pipe(take(1)).toPromise();
+        const next = await nextValueFrom(this._next);
         if (next && date <= Date.now()) {
             const diff = Math.abs(differenceInMinutes(next.date, date));
             const max = this._settings.getValue().max_duration || 480;
@@ -461,8 +461,8 @@ export class PanelStateService extends AsyncHandler {
             );
         }
         const meeting =
-            (await this._current.pipe(take(1)).toPromise()) ||
-            (await this._next.pipe(take(1)).toPromise());
+            (await nextValueFrom(this._current)) ||
+            (await nextValueFrom(this._next));
         const mod = getModule(this.system, 'Bookings');
         if (!meeting || !mod) return;
         await mod
@@ -495,7 +495,7 @@ export class PanelStateService extends AsyncHandler {
      * @param reason Reason for ending the meeting early
      */
     public async endCurrent(reason = 'user_input') {
-        const current = await this._current.pipe(take(1)).toPromise();
+        const current = await nextValueFrom(this._current);
         const module = getModule(this.system, 'Bookings');
         if (current && module) {
             await module

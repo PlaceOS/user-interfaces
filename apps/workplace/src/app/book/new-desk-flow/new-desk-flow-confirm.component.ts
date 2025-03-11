@@ -7,13 +7,14 @@ import {
     SettingsService,
     getTimezoneOffsetString,
     i18n,
+    nextValueFrom,
     notifyError,
 } from '@placeos/common';
 import { formatRecurrence } from '@placeos/events';
 import { Desk, OrganisationService } from '@placeos/organisation';
 import { addMinutes, endOfDay } from 'date-fns';
 import { AssetRequest } from 'libs/assets/src/lib/asset-request.class';
-import { map, take } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 
 @Component({
     selector: 'new-desk-flow-confirm',
@@ -223,7 +224,7 @@ export class NewDeskFlowConfirmComponent extends AsyncHandler {
 
     public readonly postForm = async () => {
         try {
-            if ((await this._state.options.pipe(take(1)).toPromise())?.group) {
+            if ((await nextValueFrom(this._state.options))?.group) {
                 await this._state.postFormForGroup();
             } else {
                 await this._state.postForm();
@@ -340,7 +341,7 @@ export class NewDeskFlowConfirmComponent extends AsyncHandler {
     }
 
     public async ngOnInit() {
-        const resources = await this._state.resources.pipe(take(1)).toPromise();
+        const resources = await nextValueFrom(this._state.resources);
         const asset = this.booking.booking_asset;
         this.booking_asset = resources.find((_) => _.id == asset.id) as Desk;
     }

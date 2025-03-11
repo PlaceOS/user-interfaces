@@ -1,6 +1,7 @@
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { Component, Input, SimpleChanges } from '@angular/core';
 import { Router } from '@angular/router';
+import { nextValueFrom } from '@placeos/common';
 import {
     listSignagePlaylistMedia,
     MediaAnimation,
@@ -16,7 +17,6 @@ import {
     shareReplay,
     startWith,
     switchMap,
-    take,
 } from 'rxjs/operators';
 import { SignageStateService } from './signage-state.service';
 
@@ -269,12 +269,12 @@ export class SignagePlaylistMediaListComponent {
     private _playlist = new BehaviorSubject<string>('');
 
     public readonly editPlaylist = async () => {
-        const playlist = await this.selected_playlist.pipe(take(1)).toPromise();
+        const playlist = await nextValueFrom(this.selected_playlist);
         this._state.editPlaylist(playlist);
     };
 
     public readonly removeItem = async (item: SignageMedia) => {
-        const playlist = await this._playlist_media.pipe(take(1)).toPromise();
+        const playlist = await nextValueFrom(this._playlist_media);
         const list = playlist.items.filter((_) => _ !== item.id);
         await this._state.updatePlaylistMedia(this.playlist, list);
         this._playlist.next(this.playlist);
@@ -287,9 +287,7 @@ export class SignagePlaylistMediaListComponent {
         this._state.editMedia(item);
 
     public readonly removePlaylist = async () => {
-        this._state.removePlaylist(
-            await this.selected_playlist.pipe(take(1)).toPromise(),
-        );
+        this._state.removePlaylist(await nextValueFrom(this.selected_playlist));
         this._router.navigate(['/signage/media', {}]);
     };
 
@@ -367,8 +365,8 @@ export class SignagePlaylistMediaListComponent {
 
     public async drop(event: CdkDragDrop<SignageMedia[]>) {
         if (event.previousIndex === event.currentIndex) return;
-        const id = await this._playlist.pipe(take(1)).toPromise();
-        const playlist = await this._playlist_media.pipe(take(1)).toPromise();
+        const id = await nextValueFrom(this._playlist);
+        const playlist = await nextValueFrom(this._playlist_media);
         if (!id && playlist) return;
         const list = [...playlist.items];
         moveItemInArray(list, event.previousIndex, event.currentIndex);

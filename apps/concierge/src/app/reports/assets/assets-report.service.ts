@@ -10,6 +10,7 @@ import {
     downloadFile,
     i18n,
     jsonToCsv,
+    nextValueFrom,
     notifyError,
     SettingsService,
     unique,
@@ -201,7 +202,7 @@ export class AssetsReportService {
 
     public async downloadReport() {
         const options = this._options.getValue();
-        const bookings = await this.bookings$.pipe(take(1)).toPromise();
+        const bookings = await nextValueFrom(this.bookings$);
         if (!bookings?.length) return;
         const is_same = isSameDay(options.start, options.end);
         const date = is_same

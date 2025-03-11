@@ -16,6 +16,7 @@ import {
 import {
     AsyncHandler,
     i18n,
+    nextValueFrom,
     notifyError,
     notifySuccess,
     randomInt,
@@ -35,7 +36,6 @@ import {
     map,
     shareReplay,
     switchMap,
-    take,
     tap,
 } from 'rxjs/operators';
 import { ParkingBookingModalComponent } from './parking-booking-modal.component';
@@ -258,7 +258,7 @@ export class ParkingStateService extends AsyncHandler {
             zone,
             id: state.metadata.id || `parking-${zone}.${randomInt(999_999)}`,
         };
-        const spaces = await this.spaces.pipe(take(1)).toPromise();
+        const spaces = await nextValueFrom(this.spaces);
         const idx = spaces.findIndex((_) => _.id === new_space.id);
         if (space.assigned_to && space.assigned_to !== new_space.assigned_to) {
             this._clearAssignedBooking(space);
@@ -267,7 +267,7 @@ export class ParkingStateService extends AsyncHandler {
             space.assigned_to !== new_space.assigned_to &&
             new_space.assigned_to
         ) {
-            const users = await this.users.pipe(take(1)).toPromise();
+            const users = await nextValueFrom(this.users);
             const user = users.find((_) => _.email === new_space.assigned_to);
             const date = set(Date.now(), { hours: 1, minutes: 0, seconds: 0 });
             await saveBooking(
@@ -328,7 +328,7 @@ export class ParkingStateService extends AsyncHandler {
         if (state?.reason !== 'done') return;
         state.loading('Removing parking space...');
         const zone = this._options.getValue().zones[0];
-        const spaces = await this.spaces.pipe(take(1)).toPromise();
+        const spaces = await nextValueFrom(this.spaces);
         this._clearAssignedBooking(space);
         await updateMetadata(zone, {
             name: 'parking-spaces',
@@ -356,7 +356,7 @@ export class ParkingStateService extends AsyncHandler {
             id: state.metadata.id || `P:USR-${randomInt(999_999)}`,
         };
         if ('user' in new_user) delete new_user.user;
-        const users = await this.users.pipe(take(1)).toPromise();
+        const users = await nextValueFrom(this.users);
         const idx = users.findIndex((_) => _.id === new_user.id);
         if (idx >= 0) users[idx] = new_user;
         else users.push(new_user);
@@ -384,7 +384,7 @@ export class ParkingStateService extends AsyncHandler {
         if (state?.reason !== 'done') return;
         state.loading(i18n('APP.CONCIERGE.PARKING_USER_REMOVE_LOADING'));
         const zone = this._org.building.id;
-        const users = await this.users.pipe(take(1)).toPromise();
+        const users = await nextValueFrom(this.users);
         await updateMetadata(zone, {
             name: 'parking-users',
             details: users.filter((_) => _.id !== user.id),
@@ -425,8 +425,8 @@ export class ParkingStateService extends AsyncHandler {
         } = {},
     ) {
         return new Promise<string>(async (resolve) => {
-            const levels = await this.levels.pipe(take(1)).toPromise();
-            const spaces = await this.spaces.pipe(take(1)).toPromise();
+            const levels = await nextValueFrom(this.levels);
+            const spaces = await nextValueFrom(this.spaces);
             if (!space && reservation?.asset_id) {
                 space = spaces.find((_) => _.id === reservation.asset_id);
             }

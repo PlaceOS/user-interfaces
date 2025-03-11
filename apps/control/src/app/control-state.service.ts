@@ -10,13 +10,18 @@ import {
     map,
     shareReplay,
     switchMap,
-    take,
     tap,
 } from 'rxjs/operators';
 
 import { Router } from '@angular/router';
 import { Calendar, CalendarService } from '@placeos/calendar';
-import { AsyncHandler, currentUser, HashMap, log } from '@placeos/common';
+import {
+    AsyncHandler,
+    currentUser,
+    HashMap,
+    log,
+    nextValueFrom,
+} from '@placeos/common';
 import { CalendarEvent, queryEvents } from '@placeos/events';
 import { Space, SpacesService } from '@placeos/spaces';
 import { endOfDay, getUnixTime } from 'date-fns';
@@ -459,7 +464,7 @@ export class ControlStateService extends AsyncHandler {
 
     /** Open select meeting modal */
     public async selectMeeting(input?: string) {
-        const cals = await this.calendars.pipe(take(1)).toPromise();
+        const cals = await nextValueFrom(this.calendars);
         if (cals?.length) this.setCalendar(cals[0]);
         this._dialog.open(SelectMeetingModalComponent, {
             data: { input },
@@ -470,12 +475,9 @@ export class ControlStateService extends AsyncHandler {
     public async viewHelp(id?: string) {
         this._dialog.open(HelpModalComponent, {
             data: {
-                items: await this.help_items
-                    .pipe(
-                        filter((_) => !!_),
-                        take(1),
-                    )
-                    .toPromise(),
+                items: await nextValueFrom(
+                    this.help_items.pipe(filter((_) => !!_)),
+                ),
                 active_id: id,
             },
         });

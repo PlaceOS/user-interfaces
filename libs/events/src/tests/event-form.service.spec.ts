@@ -101,18 +101,15 @@ describe('EventFormService', () => {
     //     // spectator.service.form.patchValue({
     //     //     date: addDays(Date.now(), 7).valueOf(),
     //     // });
-    //     // let spaces = await spectator.service.available_spaces
-    //     //     .pipe(take(1))
-    //     //     .toPromise();
+    //     // let spaces = await nextValueFrom(spectator.service.available_spaces);
     //     // expect(spaces).toEqual([]);
     //     // (cal_mod.querySpaceAvailability as any).mockImplementation(() =>
     //     //     of([...space_list])
     //     // );
     //     // spectator.service.setView('find');
     //     // await timer(301).toPromise();
-    //     // spaces = await spectator.service.available_spaces
-    //     //     .pipe(take(1))
-    //     //     .toPromise();
+    //     // spaces = await nextValueFrom(spectator.service.available_spaces
+    //     //     );
     //     // TODO: Fix
     //     // expect(spaces).toEqual(space_list);
     // });
@@ -123,7 +120,7 @@ describe('EventFormService', () => {
     //     // (ts_client.querySystems as any) = jest.fn(() => of(space_list))
     //     // spectator.service.setView('find');
     //     // spectator.service.newForm(new CalendarEvent({ event_start: 1 }));
-    //     // await spectator.service.available_spaces.pipe(take(1)).toPromise();
+    //     // await nextValueFrom(spectator.service.available_spaces);
     //     // expect(cal_mod.querySpaceAvailability).toBeCalledWith(
     //     //     {
     //     //         period_start: 1,
@@ -140,7 +137,7 @@ describe('EventFormService', () => {
     //     //     capacity: 32,
     //     // });
     //     // await timer(301).toPromise();
-    //     // await spectator.service.available_spaces.pipe(take(1)).toPromise();
+    //     // await nextValueFrom(spectator.service.available_spaces);
     //     // expect(cal_mod.querySpaceAvailability).toBeCalledWith(
     //     //     {
     //     //         period_start: 1,

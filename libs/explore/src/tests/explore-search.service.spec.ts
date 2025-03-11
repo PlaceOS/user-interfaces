@@ -52,17 +52,13 @@ describe('ExploreSearchService', () => {
         //     )
         // );
         // spectator.service.setFilter('Jim');
-        // let result = await spectator.service.search_results
-        //     .pipe(take(1))
-        //     .toPromise();
+        // let result = await nextValueFrom(spectator.service.search_results);
         // expect(result).toHaveLength(1);
         // expect(result[0].type).toBe('user');
         // expect(user_mod.searchStaff).toHaveBeenCalledWith('Jim');
         // spectator.service.setFilter('James');
         // await timer(401).toPromise();
-        // result = await spectator.service.search_results
-        //     .pipe(take(1))
-        //     .toPromise();
+        // result = await nextValueFrom(spectator.service.search_results);
         // expect(result).toHaveLength(0);
         // expect(user_mod.searchStaff).toHaveBeenCalledWith('James');
     });
@@ -78,16 +74,12 @@ describe('ExploreSearchService', () => {
         // (user_mod.searchStaff as any) = jest.fn(() => of([]));
         // const spaces = spectator.inject(SpacesService);
         // spectator.service.setFilter('Space');
-        // let result = await spectator.service.search_results
-        //     .pipe(take(1))
-        //     .toPromise();
+        // let result = await nextValueFrom(spectator.service.search_results);
         // expect(result).toHaveLength(2);
         // expect(result[0].type).toBe('space');
         // spectator.service.setFilter('Space 1');
         // await timer(401).toPromise();
-        // result = await spectator.service.search_results
-        //     .pipe(take(1))
-        //     .toPromise();
+        // result = await nextValueFrom(spectator.service.search_results);
         // expect(result).toHaveLength(1);
     });
 
@@ -106,15 +98,13 @@ describe('ExploreSearchService', () => {
         // spectator.service.search_fn = (q) => of([]);
         // await spectator.service.init();
         // spectator.service.setFilter('John');
-        // let result = await spectator.service.search_results
-        //     .pipe(take(1))
-        //     .toPromise();
+        // let result = await nextValueFrom(spectator.service.search_results
+        //     );
         // expect(result).toHaveLength(1);
         // expect(result[0].type).toBe('first_aid');
         // spectator.service.setFilter('fjggfdytrtuuf');
-        // result = await spectator.service.search_results
-        //     .pipe(take(1))
-        //     .toPromise();
+        // result = await nextValueFrom(spectator.service.search_results
+        //     );
         // expect(result).toHaveLength(0);
     });
 });

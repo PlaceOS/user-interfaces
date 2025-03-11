@@ -1,6 +1,11 @@
 import { Component, Input } from '@angular/core';
-import { downloadFile, jsonToCsv, unique } from '@placeos/common';
-import { map, take } from 'rxjs/operators';
+import {
+    downloadFile,
+    jsonToCsv,
+    nextValueFrom,
+    unique,
+} from '@placeos/common';
+import { map } from 'rxjs/operators';
 import { AssetsReportService } from './assets-report.service';
 
 @Component({
@@ -90,7 +95,7 @@ export class AssetReportUsersComponent {
     );
 
     public readonly download = async () => {
-        const data = await this.users.pipe(take(1)).toPromise();
+        const data = await nextValueFrom(this.users);
         downloadFile('report-assets-users.csv', jsonToCsv(data));
     };
 

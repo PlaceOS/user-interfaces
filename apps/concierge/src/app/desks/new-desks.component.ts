@@ -8,13 +8,14 @@ import {
     downloadFile,
     jsonToCsv,
     loadTextFileFromInputEvent,
+    nextValueFrom,
     notifyError,
     randomInt,
 } from '@placeos/common';
 import { Desk, OrganisationService } from '@placeos/organisation';
 
 import { combineLatest } from 'rxjs';
-import { map, take } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';
 import { DeskBookModalComponent } from './desk-book-modal.component';
 import { DeskQrCodeModalComponent } from './desk-qr-code-modal.component';
@@ -389,9 +390,7 @@ export class NewDesksComponent
                 'zone-changes',
                 this._org.active_levels.subscribe(async (lvls) => {
                     if (!lvls.length) return;
-                    const { zones } = await this._state.filters
-                        .pipe(take(1))
-                        .toPromise();
+                    const { zones } = await nextValueFrom(this._state.filters);
                     const levels_in_zones =
                         zones?.length &&
                         zones.some((z) => lvls.find((lvl) => lvl.id === z));

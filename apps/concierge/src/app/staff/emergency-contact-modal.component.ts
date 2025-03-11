@@ -3,6 +3,7 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import {
     i18n,
+    nextValueFrom,
     notifyError,
     notifySuccess,
     randomString,
@@ -11,7 +12,7 @@ import { CustomTooltipComponent } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest } from 'rxjs';
-import { filter, map, shareReplay, switchMap, take } from 'rxjs/operators';
+import { filter, map, shareReplay, switchMap } from 'rxjs/operators';
 import { EmergencyContact } from './emergency-contacts.component';
 
 @Component({
@@ -223,7 +224,7 @@ export class EmergencyContactModalComponent {
         this._tooltip.close();
         this.loading = true;
         this._dialog_ref.disableClose = true;
-        const data: any = await this.data.pipe(take(1)).toPromise();
+        const data: any = await nextValueFrom(this.data);
         await updateMetadata(this._org.building.id, {
             name: 'emergency_contacts',
             description: 'Emergency Contacts',
@@ -254,7 +255,7 @@ export class EmergencyContactModalComponent {
     public async save() {
         this.loading = true;
         this._dialog_ref.disableClose = true;
-        const data: any = await this.data.pipe(take(1)).toPromise();
+        const data: any = await nextValueFrom(this.data);
         const contacts = data?.contacts || [];
         const new_contacts = [
             ...contacts.filter((_) => _.id !== this.contact?.id),

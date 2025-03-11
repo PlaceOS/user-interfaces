@@ -7,10 +7,10 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
 import { MockComponent, ngMocks } from 'ng-mocks';
 import { of } from 'rxjs';
-import { take } from 'rxjs/operators';
 import { BookModule } from '../app/rooms/book.module';
 import { FeaturesFilterService } from '../app/rooms/features-filter.service';
 
+import { nextValueFrom } from '@placeos/common';
 import { ComponentsModule } from '@placeos/components';
 import { EventFormService } from '@placeos/events';
 import { FilterSpaceComponent } from '../app/rooms/filter-space/filter-space.component';
@@ -91,7 +91,7 @@ describe('FeatureFilterService', () => {
         room_with_views.value = true;
         await spectator.service.getSelectedFeatures();
         await spectator.service.applyFilter();
-        await spectator.service.updated_spaces$?.pipe(take(1)).toPromise();
+        await nextValueFrom(spectator.service.updated_spaces$);
 
         spectator.service.updated_spaces_emitter?.subscribe((result) =>
             expect(result).toBe(true),
@@ -99,9 +99,9 @@ describe('FeatureFilterService', () => {
     });
 
     it('should update spaces based on feature selections', async () => {
-        const spaces_before_filter = await spectator.service.spaces$
-            .pipe(take(1))
-            .toPromise();
+        const spaces_before_filter = await nextValueFrom(
+            spectator.service.spaces$,
+        );
 
         expect(spaces_before_filter.length).toBe(4);
 

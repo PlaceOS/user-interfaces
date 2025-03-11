@@ -1,6 +1,11 @@
 import { Component, Input } from '@angular/core';
-import { downloadFile, jsonToCsv, unique } from '@placeos/common';
-import { map, take } from 'rxjs/operators';
+import {
+    downloadFile,
+    jsonToCsv,
+    nextValueFrom,
+    unique,
+} from '@placeos/common';
+import { map } from 'rxjs/operators';
 import { VisitorsReportService } from './visitors-report.service';
 
 @Component({
@@ -88,7 +93,7 @@ export class VisitorReportDailyUsageComponent {
     );
 
     public readonly download = async () => {
-        const data = await this.daily_stats.pipe(take(1)).toPromise();
+        const data = await nextValueFrom(this.daily_stats);
         downloadFile('report-visitors-daily-usage.csv', jsonToCsv(data));
     };
 

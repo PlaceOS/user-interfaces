@@ -3,10 +3,10 @@ import { TimetableStateService } from '../app/timetable-state.service';
 
 jest.mock('@placeos/ts-client');
 
+import { nextValueFrom } from '@placeos/common';
 import { CalendarEvent } from '@placeos/events';
 import * as placeos from '@placeos/ts-client';
 import { Observable, of } from 'rxjs';
-import { take } from 'rxjs/operators';
 
 describe('TimetableStateService', () => {
     let spectator: SpectatorService<TimetableStateService>;
@@ -25,7 +25,7 @@ describe('TimetableStateService', () => {
         const obs = spectator.service.bookingsFor('test');
         expect(obs).toBeInstanceOf(Observable);
         expect(placeos.getModule).toBeCalledWith('test', 'Bookings');
-        const value = await obs.pipe(take(1)).toPromise();
+        const value = await nextValueFrom(obs);
         expect(value).toHaveLength(1);
         expect(value[0]).toBeInstanceOf(CalendarEvent);
     });

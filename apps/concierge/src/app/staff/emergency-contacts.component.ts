@@ -1,12 +1,12 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { notifySuccess } from '@placeos/common';
+import { nextValueFrom, notifySuccess } from '@placeos/common';
 import { openConfirmModal } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest } from 'rxjs';
-import { filter, map, shareReplay, switchMap, take } from 'rxjs/operators';
+import { filter, map, shareReplay, switchMap } from 'rxjs/operators';
 import { EmergencyContactModalComponent } from './emergency-contact-modal.component';
 import { RoleManagementModalComponent } from './role-management-modal.component';
 
@@ -282,7 +282,7 @@ export class EmergencyContactsComponent {
         );
         if (result.reason !== 'done') return;
         result.loading('Removing contact...');
-        const data: any = await this.data.pipe(take(1)).toPromise();
+        const data: any = await nextValueFrom(this.data);
         const new_contacts = (data?.contacts || []).filter(
             (_) => _.id !== contact.id,
         );

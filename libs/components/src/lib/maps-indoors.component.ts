@@ -14,13 +14,13 @@ import {
     calculateDistance,
     i18n,
     log,
+    nextValueFrom,
     notifyError,
     notifyWarn,
     randomString,
 } from '@placeos/common';
 import { BuildingLevel, OrganisationService } from '@placeos/organisation';
 import { MapService } from 'libs/common/src/lib/mapspeople.service';
-import { take } from 'rxjs/operators';
 import { MapMetadata } from './interactive-map.component';
 
 declare let mapsindoors: any;
@@ -357,7 +357,7 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
         const floor = this._floor_list.find((_) => _.index === index);
         const id = floor?.externalId || floor?.id;
         if (!this._services) return;
-        const levels = await this._org.active_levels.pipe(take(1)).toPromise();
+        const levels = await nextValueFrom(this._org.active_levels);
         if (!levels) return;
         const new_level = levels.find((_) => _.map_id === id || _.id === id);
         if (!new_level) return;

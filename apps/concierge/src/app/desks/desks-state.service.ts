@@ -16,7 +16,6 @@ import {
     scan,
     shareReplay,
     switchMap,
-    take,
     tap,
 } from 'rxjs/operators';
 
@@ -34,6 +33,7 @@ import {
 import {
     AsyncHandler,
     i18n,
+    nextValueFrom,
     notifyError,
     notifyInfo,
     notifySuccess,
@@ -243,7 +243,7 @@ export class DesksStateService extends AsyncHandler {
 
     public async addDesks(list: Desk[]) {
         const zone = this._filters.getValue().zones[0];
-        const desk_list = await this.desks.pipe(take(1)).toPromise();
+        const desk_list = await nextValueFrom(this.desks);
         for (const desk of list) {
             const idx = desk_list.findIndex((_) => _.id === desk.id);
             if (idx >= 0) desk_list[idx] = desk;
@@ -273,7 +273,7 @@ export class DesksStateService extends AsyncHandler {
                 state.metadata.id ||
                 `desk-${zone.slice(-3)}.${randomInt(999_999)}`,
         };
-        const desk_list = await this.desks.pipe(take(1)).toPromise();
+        const desk_list = await nextValueFrom(this.desks);
         const idx = desk_list.findIndex((_) => _.id === new_desk.id);
         if (idx >= 0) desk_list[idx] = new_desk;
         else desk_list.push(new_desk);

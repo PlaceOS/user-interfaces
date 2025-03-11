@@ -1,7 +1,12 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
-import { notifyError, notifySuccess, SettingsService } from '@placeos/common';
+import {
+    nextValueFrom,
+    notifyError,
+    notifySuccess,
+    SettingsService,
+} from '@placeos/common';
 import { openConfirmModal } from '@placeos/components';
 import {
     generateNewSurvey,
@@ -21,7 +26,7 @@ import {
     updateSurvey,
 } from '@placeos/ts-client';
 import { BehaviorSubject, of } from 'rxjs';
-import { catchError, finalize, first, map, take } from 'rxjs/operators';
+import { catchError, finalize, first, map } from 'rxjs/operators';
 import { SurveyBuilderService } from './survey-builder.service';
 
 export interface SurveyOptions {
@@ -199,7 +204,7 @@ export class SurveyService {
 
     private async deleteSurvey(id: number) {
         this.loading = 'Deleting survey...';
-        await removeSurvey(`${id}`).pipe(take(1)).toPromise();
+        await nextValueFrom(removeSurvey(`${id}`));
         this.loading = '';
         notifySuccess('Successfully deleted survey');
     }

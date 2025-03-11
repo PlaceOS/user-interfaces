@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
-import { downloadFile, jsonToCsv } from '@placeos/common';
+import { downloadFile, jsonToCsv, nextValueFrom } from '@placeos/common';
 import { format } from 'date-fns';
-import { map, take } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { AssetsReportService } from './assets-report.service';
 
 @Component({
@@ -104,7 +104,7 @@ export class AssetReportDailyUsageComponent {
     );
 
     public readonly download = async () => {
-        const data = await this.daily_products.pipe(take(1)).toPromise();
+        const data = await nextValueFrom(this.daily_products);
         for (const bkn of data) {
             bkn.date = format(bkn.date, 'yyyy-MM-dd HH:mm');
         }

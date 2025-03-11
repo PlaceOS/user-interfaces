@@ -11,7 +11,6 @@ import {
     map,
     shareReplay,
     switchMap,
-    take,
     tap,
 } from 'rxjs/operators';
 
@@ -20,6 +19,7 @@ import {
     BookingRuleset,
     currentUser,
     i18n,
+    nextValueFrom,
     notifyError,
     notifySuccess,
     rulesForResource,
@@ -163,7 +163,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
                 restrictions,
             ]) => {
                 this._statuses = {};
-                const level = await this._state.level.pipe(take(1)).toPromise();
+                const level = await nextValueFrom(this._state.level);
                 for (const { id, bookable, map_id } of desks) {
                     const d_id = map_id || id;
                     const is_used = in_use.some((i) => d_id === i);
@@ -443,7 +443,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
             zones: desk.zone ? [desk.zone?.parent_id, desk.zone?.id] : [],
         });
 
-        const restrictions = await this.booking_rules.pipe(take(1)).toPromise();
+        const restrictions = await nextValueFrom(this.booking_rules);
         const is_restricted = rulesForResource(
             {
                 date,

@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
-import { csvToJson, notifyError, unique } from '@placeos/common';
-import { take } from 'rxjs/operators';
+import { csvToJson, nextValueFrom, notifyError, unique } from '@placeos/common';
 import { CateringStateService } from './catering-state.service';
 
 @Component({
@@ -91,7 +90,7 @@ export class ChargeCodeListModalComponent implements OnInit {
 
     public async ngOnInit() {
         this.charge_codes =
-            (await this._state.charge_codes.pipe(take(1)).toPromise()) || [];
+            (await nextValueFrom(this._state.charge_codes)) || [];
     }
 
     public newCode() {

@@ -4,6 +4,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { Router } from '@angular/router';
 import { SpectatorRouting, createRoutingFactory } from '@ngneat/spectator/jest';
+import { nextValueFrom } from '@placeos/common';
 import {
     Building,
     BuildingLevel,
@@ -12,7 +13,6 @@ import {
 } from '@placeos/organisation';
 import { MockProvider } from 'ng-mocks';
 import { BehaviorSubject, of } from 'rxjs';
-import { take } from 'rxjs/operators';
 import { BootstrapComponent } from '../app/bootstrap.component';
 
 describe('BootstrapComponent', () => {
@@ -62,9 +62,9 @@ describe('BootstrapComponent', () => {
 
         expect(spectator.component.active_building.id).toBe('1');
         expect(spectator.component.active_level).toBeFalsy();
-        expect(
-            (await spectator.component.levels.pipe(take(1)).toPromise()).length,
-        ).toBe(2);
+        expect((await nextValueFrom(spectator.component.levels)).length).toBe(
+            2,
+        );
         expect('[level]').toExist();
         spectator.click('[level]');
         spectator.click(document.querySelector('mat-option'));

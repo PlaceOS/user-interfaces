@@ -1,7 +1,7 @@
 import { Component, Input, SimpleChanges } from '@angular/core';
-import { AsyncHandler } from '@placeos/common';
+import { AsyncHandler, nextValueFrom } from '@placeos/common';
 import { BehaviorSubject, combineLatest } from 'rxjs';
-import { map, take } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { ControlStateService, RoomOutput } from '../control-state.service';
 import { ICON_MAP } from '../ui/output-display.component';
 
@@ -76,7 +76,7 @@ export class DeviceOutputListItemComponent extends AsyncHandler {
     public readonly setMute = (s) => this._state.setMute(s, this.item?.id);
     public readonly setActiveOutput = async () => {
         const { selected_input } =
-            (await this._state.system.pipe(take(1)).toPromise()) || {};
+            (await nextValueFrom(this._state.system)) || {};
         this.item?.source === selected_input
             ? this._state.unroute(this.item.id)
             : this._state.setOutput(this.item?.id);

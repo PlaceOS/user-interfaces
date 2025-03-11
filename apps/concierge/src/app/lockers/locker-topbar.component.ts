@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
-import { first, take } from 'rxjs/operators';
+import { first } from 'rxjs/operators';
 
-import { AsyncHandler, SettingsService } from '@placeos/common';
+import { AsyncHandler, nextValueFrom, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 
 import { MatDialog } from '@angular/material/dialog';
@@ -219,7 +219,7 @@ export class LockersTopbarComponent extends AsyncHandler implements OnInit {
     }
 
     public async newBooking() {
-        const { date } = await this.options.pipe(take(1)).toPromise();
+        const { date } = await nextValueFrom(this.options);
         this._state.editBooking(undefined, {
             date: date || Date.now(),
             allow_time_changes: true,

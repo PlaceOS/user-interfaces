@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { nextValueFrom } from '@placeos/common';
 import { CalendarEvent, checkinEventGuest, showEvent } from '@placeos/events';
 import { setToken } from '@placeos/ts-client';
 import { showGuest, updateGuest } from '@placeos/users';
 import { getUnixTime } from 'date-fns';
 import { BehaviorSubject, combineLatest } from 'rxjs';
-import { filter, shareReplay, switchMap, take, tap } from 'rxjs/operators';
+import { filter, shareReplay, switchMap, tap } from 'rxjs/operators';
 
 export type EnrolmentView = 'event' | 'guest' | 'error' | 'complete';
 
@@ -109,7 +110,7 @@ export class EnrolmentStateService {
         this.form.markAllAsTouched();
         if (!this.form.valid) return;
         this._loading.next('Updating your details...');
-        const details = await this.guest.pipe(take(1)).toPromise();
+        const details = await nextValueFrom(this.guest);
         await updateGuest(details.id, { ...details, ...this.form.value });
         this._loading.next('');
     }

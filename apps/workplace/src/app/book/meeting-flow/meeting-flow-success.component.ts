@@ -4,6 +4,7 @@ import { BookingFormService, findNearbyFeature } from '@placeos/bookings';
 import {
     currentUser,
     i18n,
+    nextValueFrom,
     notifyError,
     SettingsService,
 } from '@placeos/common';
@@ -11,7 +12,6 @@ import { EventFormService } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
 import { SpacePipe } from '@placeos/spaces';
 import { set } from 'date-fns';
-import { take } from 'rxjs/operators';
 
 @Component({
     selector: 'meeting-flow-success',
@@ -149,9 +149,9 @@ export class MeetingFlowSuccessComponent {
                 booking_type: 'desk',
                 user: currentUser(),
             });
-            const resources = await this._booking_form.available_resources
-                .pipe(take(1))
-                .toPromise();
+            const resources = await nextValueFrom(
+                this._booking_form.available_resources,
+            );
             const bookable_desks = resources
                 .map((_) => _.map_id || _.id)
                 .filter((i) => i);

@@ -4,6 +4,7 @@ import {
     currentUser,
     downloadFile,
     jsonToCsv,
+    nextValueFrom,
     notifyError,
     notifyWarn,
 } from '@placeos/common';
@@ -19,7 +20,6 @@ import {
     shareReplay,
     startWith,
     switchMap,
-    take,
     tap,
 } from 'rxjs/operators';
 import { ReportsStateService } from '../reports-state.service';
@@ -132,10 +132,8 @@ export class ContactTracingStateService {
     }
 
     public async downloadReport() {
-        const { start, end } = await this._reports.options
-            .pipe(take(1))
-            .toPromise();
-        const events = await this.events.pipe(take(1)).toPromise();
+        const { start, end } = await nextValueFrom(this._reports.options);
+        const events = await nextValueFrom(this.events);
         const pipe = new GetUserPipe();
         const processed_events = await Promise.all(
             events.map(async (_) => ({

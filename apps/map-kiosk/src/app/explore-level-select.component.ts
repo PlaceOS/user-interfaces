@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
+import { nextValueFrom } from '@placeos/common';
 import { ExploreStateService } from '@placeos/explore';
 import { OrganisationService } from '@placeos/organisation';
-import { first, take } from 'rxjs/operators';
+import { first } from 'rxjs/operators';
 
 @Component({
     selector: 'explore-level-select',
@@ -50,6 +51,6 @@ export class ExploreLevelSelectComponent {
 
     public async ngOnInit() {
         await this._org.initialised.pipe(first((_) => _)).toPromise();
-        const levels = await this._org.active_levels.pipe(take(1)).toPromise();
+        const levels = await nextValueFrom(this._org.active_levels);
     }
 }

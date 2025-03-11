@@ -1,5 +1,10 @@
 import { Injectable } from '@angular/core';
-import { MapsPeopleService, SettingsService, flatten } from '@placeos/common';
+import {
+    MapsPeopleService,
+    SettingsService,
+    flatten,
+    nextValueFrom,
+} from '@placeos/common';
 import {
     PlaceZoneMetadata,
     authority,
@@ -17,7 +22,6 @@ import {
     map,
     shareReplay,
     switchMap,
-    take,
     tap,
 } from 'rxjs/operators';
 
@@ -373,9 +377,7 @@ export class ExploreSearchService {
     public async init() {
         await this._org.initialised.pipe(first((_) => _)).toPromise();
         await timer(500).toPromise();
-        const { is_public } = await this._state.options
-            .pipe(take(1))
-            .toPromise();
+        const { is_public } = await nextValueFrom(this._state.options);
         if (is_public) return;
         const mod = this._org.module('location_services', 'LocationServices');
         if (mod) {

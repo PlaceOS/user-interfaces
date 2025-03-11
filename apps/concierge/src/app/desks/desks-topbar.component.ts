@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { first, take } from 'rxjs/operators';
+import { first } from 'rxjs/operators';
 
 import { MatDialog } from '@angular/material/dialog';
 import { showBooking } from '@placeos/bookings';
@@ -10,6 +10,7 @@ import {
     downloadFile,
     jsonToCsv,
     loadTextFileFromInputEvent,
+    nextValueFrom,
     notifyError,
     notifyInfo,
     randomInt,
@@ -192,7 +193,7 @@ export class DesksTopbarComponent extends AsyncHandler implements OnInit {
         this.subscription(
             'levels',
             this._org.active_levels.subscribe(async (levels) => {
-                const filters = await this.filters.pipe(take(1)).toPromise();
+                const filters = await nextValueFrom(this.filters);
                 const zones =
                     filters?.zones?.filter(
                         (zone) =>

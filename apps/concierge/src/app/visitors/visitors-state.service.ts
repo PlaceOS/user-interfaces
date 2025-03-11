@@ -8,7 +8,6 @@ import {
     map,
     shareReplay,
     switchMap,
-    take,
     tap,
 } from 'rxjs/operators';
 
@@ -28,6 +27,7 @@ import {
     downloadFile,
     i18n,
     jsonToCsv,
+    nextValueFrom,
     notifyError,
     notifySuccess,
 } from '@placeos/common';
@@ -247,7 +247,7 @@ export class VisitorsStateService extends AsyncHandler {
 
     public async setCheckinStateForEvent(event_id: string, state = true) {
         if (!event_id) return;
-        const bookings = await this.bookings.pipe(take(1)).toPromise();
+        const bookings = (await nextValueFrom(this.bookings)) || [];
         const event_bookings = bookings.filter(
             (_) =>
                 _.parent_id === event_id ||
@@ -279,7 +279,7 @@ export class VisitorsStateService extends AsyncHandler {
     }
 
     public async downloadVisitorsList() {
-        const bookings = await this.filtered_bookings.pipe(take(1)).toPromise();
+        const bookings = await nextValueFrom(this.filtered_bookings);
         if (!bookings.length) return;
         const { date } = this._filters.getValue();
         const list = bookings.map((_) => ({

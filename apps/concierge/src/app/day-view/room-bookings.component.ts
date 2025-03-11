@@ -1,9 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AsyncHandler, i18n, SettingsService } from '@placeos/common';
+import {
+    AsyncHandler,
+    i18n,
+    nextValueFrom,
+    SettingsService,
+} from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { combineLatest } from 'rxjs';
-import { debounceTime, filter, map, take } from 'rxjs/operators';
+import { debounceTime, filter, map } from 'rxjs/operators';
 import { EventsStateService } from './events-state.service';
 
 const EMPTY = [];
@@ -272,9 +277,9 @@ export class RoomBookingsComponent extends AsyncHandler implements OnInit {
                 .pipe(debounceTime(300))
                 .subscribe(async (levels) => {
                     if (this.use_region) return;
-                    const zones = (
-                        await this.zones.pipe(take(1)).toPromise()
-                    ).filter((zone) => levels.find((lvl) => lvl.id === zone));
+                    const zones = (await nextValueFrom(this.zones)).filter(
+                        (zone) => levels.find((lvl) => lvl.id === zone),
+                    );
                     if (!zones.length && levels.length) {
                         zones.push(levels[0].id);
                     }
@@ -286,7 +291,7 @@ export class RoomBookingsComponent extends AsyncHandler implements OnInit {
             this._org.active_region
                 .pipe(filter((_) => !!_))
                 .subscribe(async (_) => {
-                    const zones = await this.zones.pipe(take(1)).toPromise();
+                    const zones = await nextValueFrom(this.zones);
                     if (zones.length) return;
                     this.updateZones([_.id]);
                 }),

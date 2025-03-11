@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { AsyncHandler } from '@placeos/common';
+import { AsyncHandler, nextValueFrom } from '@placeos/common';
 import { getModule } from '@placeos/ts-client';
 import {
     VideoCallDetails,
@@ -11,7 +11,6 @@ import {
     map,
     shareReplay,
     switchMap,
-    take,
 } from 'rxjs/operators';
 import { ControlStateService } from '../control-state.service';
 
@@ -112,7 +111,7 @@ export class VideoCallStateService extends AsyncHandler {
     public async toggleCallOnHold() {
         const id = this._control.id;
         if (!id) return;
-        const call = await this.call.pipe(take(1)).toPromise();
+        const call = await nextValueFrom(this.call);
         if (!call) return;
         return getModule(id, 'VidConf').execute(
             call.Status === 'OnHold' ? 'call_resume' : 'call_place_on_hold',

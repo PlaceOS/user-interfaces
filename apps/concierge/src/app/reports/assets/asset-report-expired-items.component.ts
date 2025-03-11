@@ -1,6 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { downloadFile, jsonToCsv } from '@placeos/common';
-import { take } from 'rxjs/operators';
+import { downloadFile, jsonToCsv, nextValueFrom } from '@placeos/common';
 import { AssetsReportService } from './assets-report.service';
 
 @Component({
@@ -82,7 +81,7 @@ export class AssetReportExpiredItemsComponent {
     public readonly expired_items = this._state.expired_items$;
 
     public readonly download = async () => {
-        const data = await this.expired_items.pipe(take(1)).toPromise();
+        const data = await nextValueFrom(this.expired_items);
         downloadFile('report-assets-expired-items.csv', jsonToCsv(data));
     };
 

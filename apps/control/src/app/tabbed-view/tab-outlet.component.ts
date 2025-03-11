@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AsyncHandler } from '@placeos/common';
+import { AsyncHandler, nextValueFrom } from '@placeos/common';
 import { BehaviorSubject, combineLatest } from 'rxjs';
-import { debounceTime, map, take } from 'rxjs/operators';
+import { debounceTime, map } from 'rxjs/operators';
 import { ControlStateService } from '../control-state.service';
 import { VideoCallStateService } from '../video-call/video-call-state.service';
 
@@ -204,7 +204,7 @@ export class TabOutletComponent extends AsyncHandler implements OnInit {
 
     public setInput = (s) => this._service.setOutputSource(s.id);
     public viewHelp = async () =>
-        this._service.viewHelp((await this.tab.pipe(take(1)).toPromise()).help);
+        this._service.viewHelp((await nextValueFrom(this.tab)).help);
 
     public get id() {
         return this._service.id;

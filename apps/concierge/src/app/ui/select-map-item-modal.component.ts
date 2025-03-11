@@ -9,14 +9,7 @@ import {
 import { BuildingLevel, OrganisationService } from '@placeos/organisation';
 import { Rect } from '@placeos/svg-viewer/dist/types';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
-import {
-    debounceTime,
-    map,
-    shareReplay,
-    switchMap,
-    take,
-    tap,
-} from 'rxjs/operators';
+import { debounceTime, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { MapShowElementComponent } from '../poi-manager/map-show-element.component';
 import { PointOfInterest } from '../poi-manager/poi-management.service';
 
@@ -356,7 +349,7 @@ export class SelectMapItemModalComponent
         if (this._data?.location && typeof this._data.location === 'string') {
             this.selected.next(this._data.location as string);
         }
-        const levels = await this.level_list.pipe(take(1)).toPromise();
+        const levels = await nextValueFrom(this.level_list);
         if (levels.length) {
             let level = levels[0];
             if (this._data?.level_id) {

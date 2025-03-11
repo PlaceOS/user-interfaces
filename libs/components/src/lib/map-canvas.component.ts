@@ -5,9 +5,12 @@ import {
     OnInit,
     ViewChild,
 } from '@angular/core';
-import { AsyncHandler, shiftColorTowards } from '@placeos/common';
+import {
+    AsyncHandler,
+    nextValueFrom,
+    shiftColorTowards,
+} from '@placeos/common';
 import { Observable, combineLatest } from 'rxjs';
-import { take } from 'rxjs/operators';
 import { MAP_FEATURE_DATA } from './interactive-map.component';
 
 export interface Polygon {
@@ -96,7 +99,7 @@ export class MapCanvasComponent extends AsyncHandler implements OnInit {
         canvas.width = width;
         canvas.height = height;
 
-        const polygons = await this._data.polygons$.pipe(take(1)).toPromise();
+        const polygons = await nextValueFrom(this._data.polygons$);
         this._handleStateChange(polygons);
     }
 

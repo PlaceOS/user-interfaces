@@ -564,5 +564,5 @@ export function formatDuration(
  * @param obs Observable to use
  */
 export function nextValueFrom<T = any>(obs: Observable<T>): Promise<T> {
-    return lastValueFrom(obs.pipe(take(1)));
+    return obs ? lastValueFrom(obs.pipe(take(1))) : Promise.resolve(null);
 }

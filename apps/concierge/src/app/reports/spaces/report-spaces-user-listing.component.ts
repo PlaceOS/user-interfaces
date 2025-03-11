@@ -1,7 +1,12 @@
 import { Component, Input } from '@angular/core';
-import { downloadFile, formatDuration, jsonToCsv } from '@placeos/common';
+import {
+    downloadFile,
+    formatDuration,
+    jsonToCsv,
+    nextValueFrom,
+} from '@placeos/common';
 import { combineLatest } from 'rxjs';
-import { debounceTime, map, shareReplay, take } from 'rxjs/operators';
+import { debounceTime, map, shareReplay } from 'rxjs/operators';
 import { ReportsStateService } from '../reports-state.service';
 
 @Component({
@@ -121,7 +126,7 @@ export class ReportSpacesUserListingComponent {
     );
 
     public readonly download = async () => {
-        const data = await this.user_list.pipe(take(1)).toPromise();
+        const data = await nextValueFrom(this.user_list);
         for (const item of data) {
             delete item.attendance;
             delete item.avg_attendance;

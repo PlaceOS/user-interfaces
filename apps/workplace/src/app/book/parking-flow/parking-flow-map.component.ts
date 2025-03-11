@@ -234,9 +234,7 @@ export class ParkingFlowMapComponent extends AsyncHandler {
 
     public readonly setLevel = (l) => this._state.setLevel(l);
     public readonly reserveSpace = async () => {
-        // const events = await this._parking.user_events
-        //     .pipe(take(1))
-        //     .toPromise();
+        // const events = await nextValueFrom(this._parking.user_events);
         // if (events.length) this._booking.form.patchValue({ id: events[0].id }); // Prevent booking duplicate parking spaces
         // await this._booking.postForm();
         // this._router.navigate(['book', 'parking', 'success']);

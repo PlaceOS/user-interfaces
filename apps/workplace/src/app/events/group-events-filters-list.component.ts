@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
+import { nextValueFrom } from '@placeos/common';
 import { differenceInDays, endOfDay, startOfDay } from 'date-fns';
-import { map, take } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { GroupEventsStateService } from './group-events-state.service';
 
 @Component({
@@ -68,7 +69,7 @@ export class GroupEventsFiltersListComponent {
     constructor(private _state: GroupEventsStateService) {}
 
     public async removeTag(tag: string) {
-        const tags = (await this.filters.pipe(take(1)).toPromise())?.tags || [];
+        const tags = (await nextValueFrom(this.filters))?.tags || [];
         this._state.setFilters({ tags: tags.filter((_) => _ !== tag) });
     }
 }

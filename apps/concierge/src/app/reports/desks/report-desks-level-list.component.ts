@@ -1,9 +1,14 @@
 import { Component, Input } from '@angular/core';
-import { downloadFile, jsonToCsv, SettingsService } from '@placeos/common';
+import {
+    downloadFile,
+    jsonToCsv,
+    nextValueFrom,
+    SettingsService,
+} from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { differenceInDays } from 'date-fns';
 import { combineLatest } from 'rxjs';
-import { map, shareReplay, take } from 'rxjs/operators';
+import { map, shareReplay } from 'rxjs/operators';
 
 import { ReportsStateService } from '../reports-state.service';
 
@@ -120,7 +125,7 @@ export class ReportDesksLevelListComponent {
     );
 
     public readonly download = async () => {
-        const data = await this.level_list.pipe(take(1)).toPromise();
+        const data = await nextValueFrom(this.level_list);
         downloadFile('desks-levels-usage.csv', jsonToCsv(data));
     };
 

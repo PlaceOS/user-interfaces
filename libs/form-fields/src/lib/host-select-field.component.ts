@@ -1,12 +1,12 @@
 import { Component, forwardRef } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { currentUser, unique } from '@placeos/common';
+import { currentUser, nextValueFrom, unique } from '@placeos/common';
 import { Calendar } from 'libs/calendar/src/lib/calendar.class';
 import { queryCalendars } from 'libs/calendar/src/lib/calendar.fn';
 import { showStaff } from 'libs/users/src/lib/staff.fn';
 import { User } from 'libs/users/src/lib/user.class';
-import { of, zip } from 'rxjs';
-import { catchError, map, shareReplay, switchMap, take } from 'rxjs/operators';
+import { combineLatest, of, zip } from 'rxjs';
+import { catchError, map, shareReplay, switchMap } from 'rxjs/operators';
 
 @Component({
     selector: 'host-select-field',
@@ -48,14 +48,13 @@ import { catchError, map, shareReplay, switchMap, take } from 'rxjs/operators';
 })
 export class HostSelectFieldComponent implements ControlValueAccessor {
     public item?: User;
-    public readonly users = of(1).pipe(
-        switchMap(() =>
-            queryCalendars().pipe(catchError((_) => of([] as Calendar[]))),
-        ),
-        switchMap((list) =>
+    public readonly users = combineLatest([
+        queryCalendars().pipe(catchError(() => of([] as Calendar[]))),
+    ]).pipe(
+        switchMap(([list]) =>
             zip(
                 ...list.map((_) =>
-                    showStaff(_.id).pipe(catchError((_) => of(null))),
+                    showStaff(_.id).pipe(catchError(() => of(null))),
                 ),
             ),
         ),
@@ -72,7 +71,7 @@ export class HostSelectFieldComponent implements ControlValueAccessor {
      * @param new_value New value to set on the form field
      */
     public async setValue(email: string) {
-        const users = await this.users.pipe(take(1)).toPromise();
+        const users = (await nextValueFrom(this.users)) || [];
         this.item = users?.find((_) => _.email === email);
         if (!this.item) this.item = new User({ email });
         if (this._onChange) this._onChange(this.item);

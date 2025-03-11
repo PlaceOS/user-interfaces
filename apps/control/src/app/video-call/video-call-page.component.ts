@@ -1,8 +1,13 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { AsyncHandler, i18n, notifyError } from '@placeos/common';
+import {
+    AsyncHandler,
+    i18n,
+    nextValueFrom,
+    notifyError,
+} from '@placeos/common';
 import { getModule } from '@placeos/ts-client';
-import { filter, take } from 'rxjs/operators';
+import { filter } from 'rxjs/operators';
 import { ControlStateService } from '../control-state.service';
 import { VideoCallStateService } from './video-call-state.service';
 
@@ -228,13 +233,9 @@ export class VideoCallPageComponent extends AsyncHandler implements OnInit {
         this._state.setPresentationMode(d);
     public readonly setVideoLayout = (d) => this._state.setVideoLayout(d);
     public readonly toggleCamera = async () =>
-        this._state.showCameraPIP(
-            !(await this.show_camera_pip.pipe(take(1)).toPromise()),
-        );
+        this._state.showCameraPIP(!(await nextValueFrom(this.show_camera_pip)));
     public readonly toggleMute = async () =>
-        this._state.muteMicrophone(
-            !(await this.mic_mute.pipe(take(1)).toPromise()),
-        );
+        this._state.muteMicrophone(!(await nextValueFrom(this.mic_mute)));
     public readonly toggleOnHold = () => this._state.toggleCallOnHold();
     public readonly endCall = async () => {
         this.loading = i18n('APP.CONTROL.VC_LEAVE_LOADING');
@@ -264,12 +265,7 @@ export class VideoCallPageComponent extends AsyncHandler implements OnInit {
             },
             5000,
         );
-        await this._state.call
-            .pipe(
-                filter((_) => !!_),
-                take(1),
-            )
-            .toPromise();
+        await nextValueFrom(this._state.call.pipe(filter((_) => !!_)));
         this.loading = '';
         this.clearTimeout('check_call');
     }

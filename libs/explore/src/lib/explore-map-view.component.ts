@@ -2,11 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Point } from '@placeos/svg-viewer';
 import { Observable } from 'rxjs';
-import { first, take } from 'rxjs/operators';
+import { first } from 'rxjs/operators';
 
 import {
     AsyncHandler,
     i18n,
+    nextValueFrom,
     notifyError,
     SettingsService,
     unique,
@@ -131,10 +132,10 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
     public map_info: Record<string, any> = {};
 
     public async toggleZones(enabled: boolean) {
-        const options = await this.options.pipe(take(1)).toPromise();
+        const options = await nextValueFrom(this.options);
         const disable = !enabled
-            ? unique([...(options.disable || []), 'zones', 'devices'])
-            : options.disable?.filter(
+            ? unique([...(options?.disable || []), 'zones', 'devices'])
+            : options?.disable?.filter(
                   (_) => _ !== 'zones' && _ !== 'devices',
               ) || [];
         this.setOptions({ disable });

@@ -1,7 +1,12 @@
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { AsyncHandler, i18n, notifySuccess } from '@placeos/common';
+import {
+    AsyncHandler,
+    i18n,
+    nextValueFrom,
+    notifySuccess,
+} from '@placeos/common';
 import {
     listZoneTriggers,
     SignagePlaylist,
@@ -9,7 +14,7 @@ import {
     updateZone,
 } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest } from 'rxjs';
-import { map, shareReplay, switchMap, take, tap } from 'rxjs/operators';
+import { map, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { SignageStateService } from './signage-state.service';
 
 @Component({
@@ -213,8 +218,8 @@ export class SignageZonesComponent extends AsyncHandler implements OnInit {
     }
 
     public async addPlaylist(playlist: SignagePlaylist) {
-        const zone = await this.active_zone.pipe(take(1)).toPromise();
-        const trigger = await this.active_trigger.pipe(take(1)).toPromise();
+        const zone = await nextValueFrom(this.active_zone);
+        const trigger = await nextValueFrom(this.active_trigger);
         const item = trigger || zone;
         const playlists = [...item.playlists, playlist.id];
         const method: any = trigger ? updateTrigger : updateZone;
@@ -235,8 +240,8 @@ export class SignageZonesComponent extends AsyncHandler implements OnInit {
     }
 
     public async removePlaylist(playlist: SignagePlaylist) {
-        const zone = await this.active_zone.pipe(take(1)).toPromise();
-        const trigger = await this.active_trigger.pipe(take(1)).toPromise();
+        const zone = await nextValueFrom(this.active_zone);
+        const trigger = await nextValueFrom(this.active_trigger);
         const item = trigger || zone;
         const playlists = item.filter((id) => playlist.id !== id);
         const method: any = trigger ? updateTrigger : updateZone;
@@ -257,8 +262,8 @@ export class SignageZonesComponent extends AsyncHandler implements OnInit {
     }
 
     public async drop(event: CdkDragDrop<SignagePlaylist[]>) {
-        const zone = await this.active_zone.pipe(take(1)).toPromise();
-        const trigger = await this.active_trigger.pipe(take(1)).toPromise();
+        const zone = await nextValueFrom(this.active_zone);
+        const trigger = await nextValueFrom(this.active_trigger);
         const item = trigger || zone;
         const old_playlist = item.playlists;
         const playlists = [...old_playlist];

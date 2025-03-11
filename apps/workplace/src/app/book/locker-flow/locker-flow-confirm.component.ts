@@ -1,9 +1,13 @@
 import { Component, Input, Optional } from '@angular/core';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { BookingAsset, BookingFormService } from '@placeos/bookings';
-import { AsyncHandler, SettingsService, notifyError } from '@placeos/common';
+import {
+    AsyncHandler,
+    SettingsService,
+    nextValueFrom,
+    notifyError,
+} from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
-import { take } from 'rxjs/operators';
 
 @Component({
     selector: 'locker-flow-confirm',
@@ -102,7 +106,7 @@ export class BookLockerFlowConfirmComponent extends AsyncHandler {
 
     public readonly postForm = async () => {
         try {
-            if ((await this._state.options.pipe(take(1)).toPromise())?.group) {
+            if ((await nextValueFrom(this._state.options))?.group) {
                 await this._state.postFormForGroup();
             } else {
                 await this._state.postForm();

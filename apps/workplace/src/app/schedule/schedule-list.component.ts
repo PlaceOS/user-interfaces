@@ -1,8 +1,8 @@
 import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { currentUser } from '@placeos/common';
+import { currentUser, nextValueFrom } from '@placeos/common';
 import { addDays, addMonths, isSameDay } from 'date-fns';
-import { map, take } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { BookingLike, ScheduleStateService } from './schedule-state.service';
 
 @Component({
@@ -162,13 +162,13 @@ export class ScheduleListComponent implements OnInit, OnDestroy {
     }
 
     public async updateDate(index) {
-        const events = (await this.event_list.pipe(take(1)).toPromise()) || [];
+        const events = (await nextValueFrom(this.event_list)) || [];
         const event = events[index] || {};
         if (event) this.setDate(event.date);
     }
 
     public async scrollTo(date: Date) {
-        const events = await this.event_list.pipe(take(1)).toPromise();
+        const events = await nextValueFrom(this.event_list);
         const index = events.findIndex(
             (_) => _.id === 'date' && isSameDay(_.date, date),
         );

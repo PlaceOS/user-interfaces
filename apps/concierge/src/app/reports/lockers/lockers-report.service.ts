@@ -1,7 +1,12 @@
 import { formatDate } from '@angular/common';
 import { Injectable } from '@angular/core';
 import { Booking } from '@placeos/bookings';
-import { downloadFile, jsonToCsv, SettingsService } from '@placeos/common';
+import {
+    downloadFile,
+    jsonToCsv,
+    nextValueFrom,
+    SettingsService,
+} from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { showMetadata } from '@placeos/ts-client';
 import { format, isSameDay } from 'date-fns';
@@ -12,7 +17,6 @@ import {
     map,
     shareReplay,
     switchMap,
-    take,
 } from 'rxjs/operators';
 import { REMOVE_KEYS, ReportsStateService } from '../reports-state.service';
 
@@ -113,7 +117,7 @@ export class LockersReportService {
 
     public async downloadReport() {
         const options = this._options.getValue();
-        const bookings = await this.bookings$.pipe(take(1)).toPromise();
+        const bookings = await nextValueFrom(this.bookings$);
         if (!bookings?.length) return;
         const is_same = isSameDay(options.start, options.end);
         const date = is_same

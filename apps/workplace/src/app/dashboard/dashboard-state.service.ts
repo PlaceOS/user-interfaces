@@ -16,7 +16,6 @@ import {
     map,
     shareReplay,
     switchMap,
-    take,
 } from 'rxjs/operators';
 
 import { Booking, queryBookings } from '@placeos/bookings';
@@ -25,6 +24,7 @@ import {
     AsyncHandler,
     currentUser,
     HashMap,
+    nextValueFrom,
     SettingsService,
     unique,
 } from '@placeos/common';
@@ -184,9 +184,7 @@ export class DashboardStateService extends AsyncHandler {
             show_fav: false,
         });
         this._event_form.form.patchValue({ date: Date.now(), duration: mins });
-        const list = await this._event_form.available_spaces
-            .pipe(take(1))
-            .toPromise();
+        const list = await nextValueFrom(this._event_form.available_spaces);
         list.sort((a, b) => a.capacity - b.capacity);
         this._free_spaces.next(list);
     }

@@ -6,9 +6,9 @@ import {
     SimpleChanges,
     TemplateRef,
 } from '@angular/core';
-import { AsyncHandler } from '@placeos/common';
+import { AsyncHandler, nextValueFrom } from '@placeos/common';
 import { BehaviorSubject, Observable, combineLatest } from 'rxjs';
-import { debounceTime, map, shareReplay, take } from 'rxjs/operators';
+import { debounceTime, map, shareReplay } from 'rxjs/operators';
 
 export interface TableColumn {
     key: string;
@@ -395,7 +395,7 @@ export class SimpleTableComponent<T extends object = any> extends AsyncHandler {
     }
 
     public async selectAll(state: boolean) {
-        const list = await this.data_view$.pipe(take(1)).toPromise();
+        const list = await nextValueFrom(this.data_view$);
         if (state) this.selected = list.map((_, i) => i);
         else this.selected = [];
     }

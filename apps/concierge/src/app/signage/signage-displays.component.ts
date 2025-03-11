@@ -4,6 +4,7 @@ import { ActivatedRoute } from '@angular/router';
 import {
     AsyncHandler,
     i18n,
+    nextValueFrom,
     notifySuccess,
     SettingsService,
 } from '@placeos/common';
@@ -14,7 +15,7 @@ import {
     updateTrigger,
 } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest } from 'rxjs';
-import { map, shareReplay, switchMap, take, tap } from 'rxjs/operators';
+import { map, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { SignageStateService } from './signage-state.service';
 
 @Component({
@@ -291,9 +292,7 @@ export class SignageDisplaysComponent extends AsyncHandler implements OnInit {
     );
 
     public readonly removeDisplay = async () =>
-        this._state.removeDisplay(
-            await this.active_display.pipe(take(1)).toPromise(),
-        );
+        this._state.removeDisplay(await nextValueFrom(this.active_display));
 
     public get signage_path() {
         return this._settings.get('app.signage_path') || '/signage';
@@ -320,8 +319,8 @@ export class SignageDisplaysComponent extends AsyncHandler implements OnInit {
     }
 
     public async addPlaylist(playlist: SignagePlaylist) {
-        const display = await this.active_display.pipe(take(1)).toPromise();
-        const trigger = await this.active_trigger.pipe(take(1)).toPromise();
+        const display = await nextValueFrom(this.active_display);
+        const trigger = await nextValueFrom(this.active_trigger);
         const item = trigger || display;
         const playlists = [...item.playlists, playlist.id];
         const method: any = trigger ? updateTrigger : updateSystem;
@@ -342,8 +341,8 @@ export class SignageDisplaysComponent extends AsyncHandler implements OnInit {
     }
 
     public async removePlaylist(playlist: SignagePlaylist) {
-        const display = await this.active_display.pipe(take(1)).toPromise();
-        const trigger = await this.active_trigger.pipe(take(1)).toPromise();
+        const display = await nextValueFrom(this.active_display);
+        const trigger = await nextValueFrom(this.active_trigger);
         const item = trigger || display;
         const playlists = item.playlists.filter((id) => playlist.id !== id);
         const method: any = trigger ? updateTrigger : updateSystem;
@@ -364,8 +363,8 @@ export class SignageDisplaysComponent extends AsyncHandler implements OnInit {
     }
 
     public async drop(event: CdkDragDrop<SignagePlaylist[]>) {
-        const display = await this.active_display.pipe(take(1)).toPromise();
-        const trigger = await this.active_trigger.pipe(take(1)).toPromise();
+        const display = await nextValueFrom(this.active_display);
+        const trigger = await nextValueFrom(this.active_trigger);
         const item = trigger || display;
         const old_playlist = item.playlists;
         const playlists = [...old_playlist];

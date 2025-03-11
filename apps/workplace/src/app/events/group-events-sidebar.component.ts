@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { AsyncHandler, SettingsService } from '@placeos/common';
+import { AsyncHandler, nextValueFrom, SettingsService } from '@placeos/common';
 import {
     addDays,
     addMonths,
@@ -9,7 +9,6 @@ import {
     startOfWeek,
 } from 'date-fns';
 import { BehaviorSubject } from 'rxjs';
-import { take } from 'rxjs/operators';
 import { GroupEventsStateService } from './group-events-state.service';
 
 @Component({
@@ -132,7 +131,7 @@ export class GroupEventsSidebarComponent
     }
 
     public async toggleTag(tag: string) {
-        const tags = (await this.filters.pipe(take(1)).toPromise())?.tags || [];
+        const tags = (await nextValueFrom(this.filters))?.tags || [];
         if (tags.includes(tag)) {
             this._state.setFilters({ tags: tags.filter((_) => _ !== tag) });
         } else {

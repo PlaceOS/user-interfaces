@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import {
     AsyncHandler,
     i18n,
+    nextValueFrom,
     notifyError,
     notifySuccess,
     randomString,
@@ -28,7 +29,6 @@ import {
     map,
     shareReplay,
     switchMap,
-    take,
     tap,
 } from 'rxjs/operators';
 
@@ -177,7 +177,7 @@ export class EmailTemplatesStateService extends AsyncHandler {
     }
 
     public async loadTemplate(id: string) {
-        const template_list = await this.templates.pipe(take(1)).toPromise();
+        const template_list = await nextValueFrom(this.templates);
         return template_list.find((_) => _.id === id);
     }
 
@@ -236,7 +236,7 @@ export class EmailTemplatesStateService extends AsyncHandler {
     }
 
     public async removeTemplate(template: EmailTemplate) {
-        const template_list = await this.templates.pipe(take(1)).toPromise();
+        const template_list = await nextValueFrom(this.templates);
         const zone_templates = template_list.filter(
             (_) => _.zone_id === template.zone_id,
         );

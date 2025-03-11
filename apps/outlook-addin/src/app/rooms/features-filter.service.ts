@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
+import { nextValueFrom } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
 import { Space } from '@placeos/spaces';
 import { BehaviorSubject, Observable, Subscription } from 'rxjs';
-import { map, take } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 
 @Injectable({
     providedIn: 'root',
@@ -48,11 +49,11 @@ export class FeaturesFilterService {
         this.selected_features$ = this.features$.pipe(
             map((arr) => arr.filter((item) => item.value == true)),
         );
-        await this.selected_features$.pipe(take(1)).toPromise();
+        await nextValueFrom(this.selected_features$);
         this.selected_features$?.subscribe(this._selected_features);
     }
     async applyFilter() {
-        await this.selected_features$.pipe(take(1)).toPromise();
+        await nextValueFrom(this.selected_features$);
 
         const requested_features = await this.sortSelectedFeatures(
             this.selected_features,
@@ -67,7 +68,7 @@ export class FeaturesFilterService {
                 }),
             ),
         );
-        await this.updated_spaces$?.pipe(take(1)).toPromise();
+        await nextValueFrom(this.updated_spaces$);
         this.updated_spaces_emitter.next(true);
     }
 

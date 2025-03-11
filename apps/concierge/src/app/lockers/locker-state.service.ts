@@ -10,7 +10,6 @@ import {
     scan,
     shareReplay,
     switchMap,
-    take,
     tap,
 } from 'rxjs/operators';
 
@@ -32,6 +31,7 @@ import {
 import {
     AsyncHandler,
     i18n,
+    nextValueFrom,
     notifyError,
     notifyInfo,
     notifySuccess,
@@ -370,7 +370,7 @@ export class LockerStateService extends AsyncHandler {
         const mod = this._org.module('lockers', 'Lockers');
         if (!mod) return notifyError(i18n('APP.CONCIERGE.LOCKERS_NO_DRIVER'));
         let close: () => void;
-        const lockers = await this.lockers$.pipe(take(1)).toPromise();
+        const lockers = await nextValueFrom(this.lockers$);
         if (!lockers.length) return;
         if (confirm) {
             const result = await openConfirmModal(
@@ -479,7 +479,7 @@ export class LockerStateService extends AsyncHandler {
             zone,
             id: bank.id || `locker-bank-${randomInt(999_999)}`,
         };
-        const banks = await this.lockers_banks$.pipe(take(1)).toPromise();
+        const banks = await nextValueFrom(this.lockers_banks$);
         const idx = banks.findIndex((_) => _.id === new_bank.id);
         if (idx >= 0) banks[idx] = new_bank;
         else banks.push(new_bank);
@@ -515,7 +515,7 @@ export class LockerStateService extends AsyncHandler {
             zone,
             id: locker.id || `locker-${zone}.${randomInt(999_999)}`,
         };
-        const lockers = await this.lockers$.pipe(take(1)).toPromise();
+        const lockers = await nextValueFrom(this.lockers$);
         const idx = lockers.findIndex((_) => _.id === new_locker.id);
         if (
             locker.assigned_to &&
@@ -592,7 +592,7 @@ export class LockerStateService extends AsyncHandler {
         if (state?.reason !== 'done') return;
         state.loading(i18n('APP.CONCIERGE.LOCKERS_BANK_REMOVE_LOADING'));
         const zone = this._org.building.id;
-        const banks = await this.lockers_banks$.pipe(take(1)).toPromise();
+        const banks = await nextValueFrom(this.lockers_banks$);
         await updateMetadata(zone, {
             name: 'locker_banks',
             details: banks.filter((_) => _.id !== bank.id),
@@ -626,7 +626,7 @@ export class LockerStateService extends AsyncHandler {
         if (state?.reason !== 'done') return;
         state.loading(i18n('APP.CONCIERGE.LOCKERS_REMOVE_LOADING'));
         const zone = this._org.building.id;
-        const lockers = await this.lockers$.pipe(take(1)).toPromise();
+        const lockers = await nextValueFrom(this.lockers$);
         this._clearAssignedBooking(locker);
         await updateMetadata(zone, {
             name: 'lockers',
@@ -665,8 +665,8 @@ export class LockerStateService extends AsyncHandler {
             external_user?: boolean;
         } = {},
     ) {
-        const levels = await this.levels.pipe(take(1)).toPromise();
-        const spaces = await this.lockers$.pipe(take(1)).toPromise();
+        const levels = await nextValueFrom(this.levels);
+        const spaces = await nextValueFrom(this.lockers$);
         if (!space && booking?.asset_id) {
             space = spaces.find((_) => _.id === booking.asset_id);
         }

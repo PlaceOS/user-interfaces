@@ -9,7 +9,6 @@ import {
     map,
     shareReplay,
     switchMap,
-    take,
 } from 'rxjs/operators';
 
 import {
@@ -18,6 +17,7 @@ import {
     currentUser,
     HashMap,
     i18n,
+    nextValueFrom,
     rulesForResource,
     SettingsService,
 } from '@placeos/common';
@@ -134,12 +134,10 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
         this.subscription('spaces', this._bind.subscribe());
     }
 
-    public async bookSpace(space: Space, force: boolean = false) {
+    public async bookSpace(space: Space, force = false) {
         if (this._panning && this._last_action === 'down') return;
-        const booking_rules = await this.booking_rules
-            .pipe(take(1))
-            .toPromise();
-        const room_alerts = await this.room_alerts.pipe(take(1)).toPromise();
+        const booking_rules = await nextValueFrom(this.booking_rules);
+        const room_alerts = await nextValueFrom(this.room_alerts);
         const { hidden } =
             rulesForResource(
                 {

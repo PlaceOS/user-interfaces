@@ -1,9 +1,8 @@
 import { Component, Input } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { AsyncHandler, SettingsService } from '@placeos/common';
+import { AsyncHandler, nextValueFrom, SettingsService } from '@placeos/common';
 import { AvailableRoomsStateModalComponent } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
-import { take } from 'rxjs/operators';
 import { AssetManagerStateService } from './asset-manager-state.service';
 
 @Component({
@@ -179,9 +178,7 @@ export class AssetManagerTopbarComponent extends AsyncHandler {
         const ref = this._dialog.open(AvailableRoomsStateModalComponent, {
             data: {
                 type: 'Assets',
-                disabled_rooms: await this._state.availability
-                    .pipe(take(1))
-                    .toPromise(),
+                disabled_rooms: await nextValueFrom(this._state.availability),
             },
         });
         this.subscription(

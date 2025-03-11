@@ -6,6 +6,7 @@ import {
     currentUser,
     flatten,
     i18n,
+    nextValueFrom,
     notifyError,
     notifySuccess,
     rulesForResource,
@@ -31,7 +32,6 @@ import {
     map,
     shareReplay,
     switchMap,
-    take,
 } from 'rxjs/operators';
 
 import { BookingFormService } from 'libs/bookings/src/lib/booking-form.service';
@@ -242,15 +242,13 @@ export class ExploreParkingService extends AsyncHandler {
         const actions = [];
         const colours = this._settings.get('app.explore.colors') || {};
         let options = this._options.getValue();
-        const assigned_space = await this._parking.assigned_space
-            .pipe(take(1))
-            .toPromise();
-        const deny_parking_access = await this._parking.deny_parking_access
-            .pipe(take(1))
-            .toPromise();
-        const booked_space = await this._parking.booked_space
-            .pipe(take(1))
-            .toPromise();
+        const assigned_space = await nextValueFrom(
+            this._parking.assigned_space,
+        );
+        const deny_parking_access = await nextValueFrom(
+            this._parking.deny_parking_access,
+        );
+        const booked_space = await nextValueFrom(this._parking.booked_space);
         for (const space of spaces) {
             const can_book = !!available.find((_) => _.id === space.id);
             const is_workplace =

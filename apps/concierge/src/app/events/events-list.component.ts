@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AsyncHandler, SettingsService } from '@placeos/common';
+import { AsyncHandler, nextValueFrom, SettingsService } from '@placeos/common';
 import {
     addDays,
     addMonths,
@@ -11,7 +11,7 @@ import {
     startOfWeek,
     subMonths,
 } from 'date-fns';
-import { distinctUntilChanged, map, take } from 'rxjs/operators';
+import { distinctUntilChanged, map } from 'rxjs/operators';
 import { EventStateService } from './event-state.service';
 
 @Component({
@@ -235,7 +235,7 @@ export class EventsListComponent extends AsyncHandler implements OnInit {
     private _generatePeriods() {
         this.timeout('generate_periods', async () => {
             const periods = [];
-            const period_type = await this.period.pipe(take(1)).toPromise();
+            const period_type = await nextValueFrom(this.period);
             let date = subMonths(Date.now(), 6).valueOf();
             const end_date = addMonths(Date.now(), 6).valueOf();
             const week_offset = this._settings.get('app.week_start') || 0;

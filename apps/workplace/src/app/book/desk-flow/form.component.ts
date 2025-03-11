@@ -4,13 +4,14 @@ import { BookingFormService, findNearbyFeature } from '@placeos/bookings';
 import {
     currentUser,
     getInvalidFields,
+    nextValueFrom,
     notifyError,
     randomInt,
     SettingsService,
 } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { addDays, addMinutes, roundToNearestMinutes, setHours } from 'date-fns';
-import { first, take } from 'rxjs/operators';
+import { first } from 'rxjs/operators';
 
 @Component({
     selector: 'desk-flow-form',
@@ -184,9 +185,7 @@ export class DeskFlowFormComponent implements OnInit {
             this._router.navigate(['/book', 'desks', 'map']);
             return;
         }
-        const desk_list = await this._state.available_resources
-            .pipe(take(1))
-            .toPromise();
+        const desk_list = await nextValueFrom(this._state.available_resources);
         const desk_id = level.map_id
             ? await findNearbyFeature(
                   lvl.map_id,

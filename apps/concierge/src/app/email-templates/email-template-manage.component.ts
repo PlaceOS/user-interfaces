@@ -6,10 +6,10 @@ import {
     AsyncHandler,
     extractTextFromHTML,
     i18n,
+    nextValueFrom,
     notifySuccess,
 } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
-import { take } from 'rxjs/operators';
 import {
     EmailTemplate,
     EmailTemplatesStateService,
@@ -334,9 +334,9 @@ export class EmailTemplateManageComponent extends AsyncHandler {
             'trigger',
             this.form.valueChanges.subscribe(async (value) => {
                 if (value.trigger) {
-                    const trigger_list = await this._state.template_definitions
-                        .pipe(take(1))
-                        .toPromise();
+                    const trigger_list = await nextValueFrom(
+                        this._state.template_definitions,
+                    );
                     this.active_trigger = trigger_list.find(
                         (_) => _.id === value.trigger,
                     );

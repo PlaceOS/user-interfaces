@@ -8,6 +8,7 @@ import {
     flatten,
     getInvalidFields,
     i18n,
+    nextValueFrom,
     notifyError,
     notifyWarn,
     rulesForResource,
@@ -39,7 +40,6 @@ import {
     map,
     shareReplay,
     switchMap,
-    take,
     tap,
 } from 'rxjs/operators';
 
@@ -351,7 +351,7 @@ export class BookingFormService extends AsyncHandler {
         this.timeout('set-resource', async () => {
             const resources = this.form.getRawValue().resources;
             if (!resources?.length) return;
-            const item_list = await this.resources.pipe(take(1)).toPromise();
+            const item_list = await nextValueFrom(this.resources);
             const new_list = resources.map(
                 (asset) => item_list.find((_) => _.id == asset.id) || asset,
             );
@@ -678,9 +678,7 @@ export class BookingFormService extends AsyncHandler {
         );
         if (extra_members.length <= 0) throw i18n('BOOKINGS.GROUP_NO_MEMBERS');
         const form = this.form.getRawValue();
-        const asset_list = await this.available_resources
-            .pipe(take(1))
-            .toPromise();
+        const asset_list = await nextValueFrom(this.available_resources);
         const active_resource = asset_list.find(
             (_) => _.id === form.asset_id || _.map_id === form.asset_id,
         );

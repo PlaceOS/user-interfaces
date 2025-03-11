@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
-import { SettingsService } from '@placeos/common';
+import { nextValueFrom, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { BehaviorSubject, combineLatest } from 'rxjs';
-import { debounceTime, map, shareReplay, take } from 'rxjs/operators';
+import { debounceTime, map, shareReplay } from 'rxjs/operators';
 
 export interface BannerDetails {
     id: string;
@@ -72,7 +72,7 @@ export class GlobalBannerComponent {
     ) {}
 
     public async close() {
-        const banner = await this.banner.pipe(take(1)).toPromise();
+        const banner = await nextValueFrom(this.banner);
         localStorage.setItem('PLACE.last_banner', banner?.id || '');
         this._change.next(Date.now());
     }

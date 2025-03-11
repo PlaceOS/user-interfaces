@@ -1,11 +1,16 @@
 import { Component, Input, SimpleChanges } from '@angular/core';
 
-import { AsyncHandler, SettingsService, unique } from '@placeos/common';
+import {
+    AsyncHandler,
+    nextValueFrom,
+    SettingsService,
+    unique,
+} from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { LineChart, PieChart } from 'chartist';
 import { format, parse } from 'date-fns';
 import { combineLatest } from 'rxjs';
-import { map, take } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { ParkingReportService } from './parking-report.service';
 
 @Component({
@@ -121,11 +126,9 @@ export class ParkingReportChartsComponent extends AsyncHandler {
         this.timeout(
             'update_charts',
             async () => {
-                const day_list = await this.day_list.pipe(take(1)).toPromise();
+                const day_list = await nextValueFrom(this.day_list);
                 this.updateDailyChart(day_list);
-                const [mappings, counts] = await this.stats
-                    .pipe(take(1))
-                    .toPromise();
+                const [mappings, counts] = await nextValueFrom(this.stats);
                 this.updateLevelChart({ zones: mappings }, counts);
                 this.timeout(
                     'update_charts',

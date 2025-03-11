@@ -1,11 +1,16 @@
 import { Injectable } from '@angular/core';
 import { Booking } from '@placeos/bookings';
 import { CateringItem, CateringOrder } from '@placeos/catering';
-import { downloadFile, flatten, jsonToCsv } from '@placeos/common';
+import {
+    downloadFile,
+    flatten,
+    jsonToCsv,
+    nextValueFrom,
+} from '@placeos/common';
 import { CalendarEvent } from '@placeos/events';
 import { endOfDay, format, startOfDay } from 'date-fns';
 import { combineLatest } from 'rxjs';
-import { map, shareReplay, take } from 'rxjs/operators';
+import { map, shareReplay } from 'rxjs/operators';
 import { ReportsStateService } from '../reports-state.service';
 
 @Injectable({
@@ -80,7 +85,7 @@ export class CateringReportStateService {
     constructor(private _reports: ReportsStateService) {}
 
     public async downloadOrders() {
-        const orders = await this.catering_orders.pipe(take(1)).toPromise();
+        const orders = await nextValueFrom(this.catering_orders);
         const data = orders.map((_) => ({ ..._ }));
         for (const bkn of data) {
             (bkn as any).date = format((bkn as any)._time, 'yyyy-MM-dd HH:mm');

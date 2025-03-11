@@ -7,8 +7,8 @@ import {
     Output,
     SimpleChanges,
 } from '@angular/core';
-import { AsyncHandler, SettingsService } from '@placeos/common';
-import { map, take } from 'rxjs/operators';
+import { AsyncHandler, nextValueFrom, SettingsService } from '@placeos/common';
+import { map } from 'rxjs/operators';
 
 import { OrganisationService } from '@placeos/organisation';
 import { ExploreParkingInfoComponent } from 'libs/explore/src/lib/explore-parking-info.component';
@@ -208,7 +208,7 @@ export class ParkingSpaceMapComponent
         );
         this.timeout('check_level', async () => {
             if (!this.level) {
-                const list = await this.levels.pipe(take(1)).toPromise();
+                const list = await nextValueFrom(this.levels);
                 this._state.setOptions({ zone_id: list[0].id });
             }
         });

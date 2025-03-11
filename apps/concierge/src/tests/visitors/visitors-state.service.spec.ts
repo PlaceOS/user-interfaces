@@ -1,7 +1,7 @@
 import { MatDialog } from '@angular/material/dialog';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
 import { MockProvider } from 'ng-mocks';
-import { of } from 'rxjs';
+import { lastValueFrom, of } from 'rxjs';
 import { take } from 'rxjs/operators';
 
 import { SettingsService } from '@placeos/common';
@@ -47,19 +47,19 @@ describe('VisitorStateService', () => {
         (booking_mod as any).queryBookings = jest.fn(() =>
             of([{ extension_data: {} }]),
         );
-        expect(booking_mod.queryBookings).not.toBeCalled();
+        expect(booking_mod.queryBookings).not.toHaveBeenCalled();
         const events = await spectator.service.bookings
             .pipe(take(1))
             .toPromise();
         expect(events).toHaveLength(1);
-        expect(booking_mod.queryBookings).toBeCalled();
+        expect(booking_mod.queryBookings).toHaveBeenCalled();
     });
 
     it('should allow filtering of visitor events', async () => {
         (booking_mod as any).queryBookings = jest.fn(() =>
             of([{ asset_name: 'true', extension_data: {} }]),
         );
-        expect(booking_mod.queryBookings).not.toBeCalled();
+        expect(booking_mod.queryBookings).not.toHaveBeenCalled();
         let events = await spectator.service.filtered_bookings
             .pipe(take(1))
             .toPromise();
@@ -74,16 +74,16 @@ describe('VisitorStateService', () => {
     it('should allow polling of visitor events', async () => {
         // TODO: Handle base class not being mocked
         // (event_mod as any).queryEvents = jest.fn(() => of([]));
-        // expect(event_mod.queryEvents).not.toBeCalled();
+        // expect(event_mod.queryEvents).not.toHaveBeenCalled();
         // spectator.service.events.subscribe();
         // await timer(155).toPromise();
-        // expect(event_mod.queryEvents).toBeCalledTimes(1);
+        // expect(event_mod.queryEvents).toHaveBeenCalledTimes(1);
         // spectator.service.startPolling(300);
         // await timer(455).toPromise();
-        // expect(event_mod.queryEvents).toBeCalledTimes(2);
+        // expect(event_mod.queryEvents).toHaveBeenCalledTimes(2);
         // spectator.service.stopPolling();
         // await timer(400).toPromise();
-        // expect(event_mod.queryEvents).toBeCalledTimes(2);
+        // expect(event_mod.queryEvents).toHaveBeenCalledTimes(2);
     });
 
     it('should allow checking in visitors', async () => {
@@ -94,19 +94,19 @@ describe('VisitorStateService', () => {
         );
         (common_mod as any).notifySuccess = jest.fn(() => null);
         (common_mod as any).unique = jest.fn(() => []);
-        expect(booking_mod.checkinBooking).not.toBeCalled();
+        expect(booking_mod.checkinBooking).not.toHaveBeenCalled();
         await spectator.service.setCheckinState({ id: '1' } as any);
 
-        expect(booking_mod.checkinBooking).toBeCalledWith('1', true);
+        expect(booking_mod.checkinBooking).toHaveBeenCalledWith('1', true);
     });
 
     it('should allow checking out visitors', async () => {
         (booking_mod as any).checkinBooking = jest.fn(() => of({}));
         (common_mod as any).notifySuccess = jest.fn(() => null);
         (common_mod as any).unique = jest.fn(() => []);
-        expect(booking_mod.checkinBooking).not.toBeCalled();
+        expect(booking_mod.checkinBooking).not.toHaveBeenCalled();
         await spectator.service.setCheckinState({ id: '1' } as any, false);
-        expect(booking_mod.checkinBooking).toBeCalledWith('1', false);
+        expect(booking_mod.checkinBooking).toHaveBeenCalledWith('1', false);
     });
 
     it('should allow checking in all visitors', async () => {
@@ -116,9 +116,12 @@ describe('VisitorStateService', () => {
         (booking_mod as any).checkinBooking = jest.fn(() => of({}));
         (common_mod as any).notifySuccess = jest.fn(() => null);
         (common_mod as any).unique = jest.fn(() => []);
-        expect(booking_mod.checkinBooking).not.toBeCalled();
+        (common_mod as any).nextValueFrom = jest.fn((obs) =>
+            lastValueFrom(obs.pipe(take(1))),
+        );
+        expect(booking_mod.checkinBooking).not.toHaveBeenCalled();
         await spectator.service.setCheckinStateForEvent('1');
-        expect(booking_mod.checkinBooking).toBeCalled();
+        expect(booking_mod.checkinBooking).toHaveBeenCalled();
     });
 
     it('should allow checking out all visitors', async () => {
@@ -128,8 +131,11 @@ describe('VisitorStateService', () => {
         (booking_mod as any).checkinBooking = jest.fn(() => of({}));
         (common_mod as any).notifySuccess = jest.fn(() => null);
         (common_mod as any).unique = jest.fn(() => []);
-        expect(booking_mod.checkinBooking).not.toBeCalled();
+        (common_mod as any).nextValueFrom = jest.fn((obs) =>
+            lastValueFrom(obs.pipe(take(1))),
+        );
+        expect(booking_mod.checkinBooking).not.toHaveBeenCalled();
         await spectator.service.setCheckinStateForEvent('1');
-        expect(booking_mod.checkinBooking).toBeCalled();
+        expect(booking_mod.checkinBooking).toHaveBeenCalled();
     });
 });

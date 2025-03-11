@@ -10,10 +10,10 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
 import { MockComponent, ngMocks } from 'ng-mocks';
 import { of } from 'rxjs';
-import { take } from 'rxjs/operators';
 import { BookModule } from '../app/rooms/book.module';
 import { MapService } from '../app/rooms/map.service';
 
+import { nextValueFrom } from '@placeos/common';
 import { ComponentsModule, MapPinComponent } from '@placeos/components';
 import { RoomConfirmService } from '../app/rooms/room-confirm.service';
 import { RoomTileComponent } from '../app/rooms/room-tile/room-tile.component';
@@ -87,19 +87,16 @@ describe('MapService', () => {
             mockSpace,
             mockSpace,
         ]);
-        let maps_list;
         const map_list_spy = jest.spyOn(spectator.service, 'loadMap');
         await spectator.service.locateSpaces(available_spaces);
-        maps_list = await spectator.service.maps_list$
-            .pipe(take(1))
-            .toPromise();
+        const maps_list = await nextValueFrom(spectator.service.maps_list$);
 
         expect(maps_list.length).toBe(1); //3 spaces with the same map_ID were passed through, only 1 should be returned
         expect(map_list_spy).toHaveBeenCalled();
     });
     it('should have a flag indicating whether the map has loaded', async () => {
         let flag;
-        await spectator.service.map_loaded$.pipe(take(1)).toPromise();
+        await nextValueFrom(spectator.service.map_loaded$);
         spectator.service.map_loaded$.subscribe((value) => (flag = value));
         expect(flag).toBe(false);
 
@@ -108,22 +105,15 @@ describe('MapService', () => {
     });
 
     it('should create map actions for all available spaces', async () => {
-        let map_actions;
-        let spaces_count;
         const available_spaces = of([
             mockSpace,
             mockSpace,
             mockSpace,
             mockSpace,
         ]);
-
         await spectator.service.locateSpaces(available_spaces);
-
-        map_actions = await spectator.service.map_actions$
-            .pipe(take(1))
-            .toPromise();
-
-        spaces_count = await available_spaces.pipe(take(1)).toPromise();
+        const map_actions = await nextValueFrom(spectator.service.map_actions$);
+        const spaces_count = await nextValueFrom(available_spaces);
 
         expect(map_actions.length).toBe(spaces_count.length);
 

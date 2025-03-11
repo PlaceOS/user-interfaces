@@ -6,10 +6,14 @@ import {
     ViewChild,
 } from '@angular/core';
 import { Router } from '@angular/router';
-import { AsyncHandler, SettingsService, notifyError } from '@placeos/common';
+import {
+    AsyncHandler,
+    SettingsService,
+    nextValueFrom,
+    notifyError,
+} from '@placeos/common';
 import QrScanner from 'qr-scanner';
 
-import { take } from 'rxjs/operators';
 import { CheckinStateService } from './checkin-state.service';
 
 @Component({
@@ -166,7 +170,7 @@ export class CheckinQRScanComponent
                     this.checking_code = false;
                     throw err;
                 });
-            const event = await this._checkin.event.pipe(take(1)).toPromise();
+            const event = await nextValueFrom(this._checkin.event);
             if (event.rejected) {
                 this.handleError('Your meeting has been rejected.');
                 this.checking_code = false;
@@ -198,7 +202,7 @@ export class CheckinQRScanComponent
             );
             throw err;
         });
-        const event = await this._checkin.event.pipe(take(1)).toPromise();
+        const event = await nextValueFrom(this._checkin.event);
         if (event.checked_out_at) {
             this.handleError('Your meeting has already finished.');
             this.checking_code = false;

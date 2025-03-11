@@ -1,9 +1,14 @@
 import { Component, Input } from '@angular/core';
-import { downloadFile, jsonToCsv, unique } from '@placeos/common';
+import {
+    downloadFile,
+    jsonToCsv,
+    nextValueFrom,
+    unique,
+} from '@placeos/common';
 import { Space, SpacePipe } from '@placeos/spaces';
 import { differenceInDays } from 'date-fns';
 import { combineLatest } from 'rxjs';
-import { debounceTime, map, switchMap, take } from 'rxjs/operators';
+import { debounceTime, map, switchMap } from 'rxjs/operators';
 import { ReportsStateService } from '../reports-state.service';
 
 @Component({
@@ -202,7 +207,7 @@ export class ReportSpacesSpaceListingComponent {
     );
 
     public readonly download = async () => {
-        const data = await this.space_list.pipe(take(1)).toPromise();
+        const data = await nextValueFrom(this.space_list);
         for (const item of data) {
             delete item.attendance;
             delete item.avg_attendance;

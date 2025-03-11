@@ -9,6 +9,7 @@ import {
 import {
     AsyncHandler,
     flatten,
+    nextValueFrom,
     SettingsService,
     unique,
 } from '@placeos/common';
@@ -16,7 +17,7 @@ import { OrganisationService } from '@placeos/organisation';
 import { LineChart, PieChart } from 'chartist';
 import { format, parse } from 'date-fns';
 import { combineLatest } from 'rxjs';
-import { map, take } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { LockersReportService } from './lockers-report.service';
 
 @Component({
@@ -149,11 +150,9 @@ export class LockersReportChartsComponent
         this.timeout(
             'update_charts',
             async () => {
-                const day_list = await this.day_list.pipe(take(1)).toPromise();
+                const day_list = await nextValueFrom(this.day_list);
                 this.updateDailyChart(day_list);
-                const [mappings, counts] = await this.stats
-                    .pipe(take(1))
-                    .toPromise();
+                const [mappings, counts] = await nextValueFrom(this.stats);
                 this.updateLevelChart({ zones: mappings }, counts);
                 this.timeout(
                     'update_charts',

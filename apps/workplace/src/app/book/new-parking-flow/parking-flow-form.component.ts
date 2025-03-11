@@ -7,10 +7,10 @@ import {
     AsyncHandler,
     currentUser,
     getInvalidFields,
+    nextValueFrom,
     notifyError,
     SettingsService,
 } from '@placeos/common';
-import { take } from 'rxjs/operators';
 import { NewParkingFlowConfirmComponent } from './parking-flow-confirm.component';
 
 @Component({
@@ -157,7 +157,7 @@ export class ParkingFlowFormComponent extends AsyncHandler {
     public async ngOnInit() {
         this._state.setOptions({ type: 'parking' });
         this.form.patchValue({ all_day: true, user: currentUser() });
-        const user = await this._parking.user_details.pipe(take(1)).toPromise();
+        const user = await nextValueFrom(this._parking.user_details);
         if (user?.email) {
             this.form.patchValue({ plate_number: user.plate_number });
         }

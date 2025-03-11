@@ -7,12 +7,11 @@ import {
 } from '@angular/core';
 import { ReportsStateService } from '../reports-state.service';
 
-import { AsyncHandler, SettingsService } from '@placeos/common';
+import { AsyncHandler, nextValueFrom, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { LineChart, PieChart } from 'chartist';
 import { format } from 'date-fns';
 import { combineLatest } from 'rxjs';
-import { take } from 'rxjs/operators';
 
 @Component({
     selector: 'report-spaces-charts',
@@ -103,11 +102,9 @@ export class ReportSpacesChartsComponent
         this.timeout(
             'update_charts',
             async () => {
-                const day_list = await this.day_list.pipe(take(1)).toPromise();
+                const day_list = await nextValueFrom(this.day_list);
                 this.updateDailyChart(day_list);
-                const [mappings, counts] = await this.stats
-                    .pipe(take(1))
-                    .toPromise();
+                const [mappings, counts] = await nextValueFrom(this.stats);
                 this.updateLevelChart(mappings, counts);
                 this.timeout(
                     'update_charts',

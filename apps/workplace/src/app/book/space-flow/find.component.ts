@@ -1,12 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { HashMap, i18n, SettingsService } from '@placeos/common';
+import { HashMap, i18n, nextValueFrom, SettingsService } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
 import { Space } from '@placeos/spaces';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 import { combineLatest } from 'rxjs';
-import { filter, first, map, take } from 'rxjs/operators';
+import { filter, first, map } from 'rxjs/operators';
 
 @Component({
     selector: 'space-flow-find',
@@ -262,7 +262,7 @@ export class SpaceFlowFindComponent implements OnInit {
     public readonly spaces = this._state.available_spaces;
     public readonly features = this._state.features;
     public async setBuilding(bld) {
-        const opts = await this.options.pipe(take(1)).toPromise();
+        const opts = await nextValueFrom(this.options);
         if (bld) this._org.building = bld;
         const levels = this._org.levelsForBuilding(this._org.building);
         const lvl = levels.find((_) => opts.zones?.includes(_.id));

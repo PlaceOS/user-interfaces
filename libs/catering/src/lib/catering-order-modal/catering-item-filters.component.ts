@@ -1,5 +1,10 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { AsyncHandler, i18n, SettingsService } from '@placeos/common';
+import {
+    AsyncHandler,
+    i18n,
+    nextValueFrom,
+    SettingsService,
+} from '@placeos/common';
 import {
     addDays,
     addMinutes,
@@ -7,7 +12,6 @@ import {
     endOfDay,
     startOfDay,
 } from 'date-fns';
-import { take } from 'rxjs/operators';
 import { CateringOrderStateService } from './catering-order-state.service';
 
 const ICONS = {
@@ -255,7 +259,7 @@ export class CateringItemFiltersComponent
     }
 
     public async toggleCategory(name: string) {
-        const { categories } = await this.filters.pipe(take(1)).toPromise();
+        const { categories } = await nextValueFrom(this.filters);
         if (categories.includes(name))
             this.setFilters({
                 categories: categories.filter((_) => _ !== name),
@@ -264,7 +268,7 @@ export class CateringItemFiltersComponent
     }
 
     public async toggleTag(tag: string) {
-        const { tags } = await this.filters.pipe(take(1)).toPromise();
+        const { tags } = await nextValueFrom(this.filters);
         if (tags.includes(tag))
             this.setFilters({ tags: tags.filter((_) => _ !== tag) });
         else this.setFilters({ tags: [...tags, tag] });
