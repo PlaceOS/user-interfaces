@@ -97,6 +97,10 @@ export class CateringReportComponent extends AsyncHandler implements OnInit {
         ),
     );
 
+    public get using_bookings() {
+        return this._settings.get('app.catering.use_bookings') == true;
+    }
+
     constructor(
         private _state: ReportsStateService,
         private _settings: SettingsService,
@@ -107,7 +111,14 @@ export class CateringReportComponent extends AsyncHandler implements OnInit {
     }
 
     public ngOnInit() {
-        this._state.setOptions({ type: 'events' });
+        this.subscription(
+            'bld',
+            this._org.active_building.subscribe(() => {
+                this._state.setOptions({
+                    type: this.using_bookings ? 'catering' : 'events',
+                });
+            }),
+        );
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {

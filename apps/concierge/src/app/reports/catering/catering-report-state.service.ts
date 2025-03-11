@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { Booking } from '@placeos/bookings';
 import { CateringItem, CateringOrder } from '@placeos/catering';
 import { downloadFile, flatten, jsonToCsv } from '@placeos/common';
 import { CalendarEvent } from '@placeos/events';
@@ -16,11 +17,15 @@ export class CateringReportStateService {
         this._reports.options,
         this._reports.bookings,
     ]).pipe(
-        map(([{ start, end }, list]: [any, CalendarEvent[]]) => {
+        map(([{ start, end }, list]: [any, (CalendarEvent | Booking)[]]) => {
             const start_date = startOfDay(start).valueOf();
             const end_date = endOfDay(end).valueOf();
             const orders: CateringOrder[] = flatten(
-                list.map((_) => _.valid_catering || []),
+                list.map((_) =>
+                    _ instanceof CalendarEvent
+                        ? _.valid_catering || []
+                        : [new CateringItem(_.extension_data.details)],
+                ),
             );
             const out = orders
                 .filter(

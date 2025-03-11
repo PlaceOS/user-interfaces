@@ -47,7 +47,7 @@ import {
 } from './reports.utilities';
 
 export interface ReportOptions {
-    type?: 'desks' | 'events' | 'parking' | 'lockers' | 'assets';
+    type?: 'desks' | 'events' | 'parking' | 'lockers' | 'assets' | 'catering';
     start?: number | Date;
     end?: number | Date;
     zones?: string[];
@@ -164,6 +164,13 @@ export class ReportsStateService {
                         ...query,
                         zones: zones,
                         type: 'asset-request',
+                        limit: 1000,
+                    });
+                case 'catering':
+                    return queryAllBookings({
+                        ...query,
+                        zones: zones,
+                        type: 'locker',
                         limit: 1000,
                     });
                 case 'events':
