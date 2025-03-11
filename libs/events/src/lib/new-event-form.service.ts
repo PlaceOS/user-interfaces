@@ -2,7 +2,14 @@ import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Event, NavigationEnd, Router } from '@angular/router';
 import { startOfDay } from 'date-fns';
-import { BehaviorSubject, combineLatest, forkJoin, Observable, of } from 'rxjs';
+import {
+    BehaviorSubject,
+    combineLatest,
+    forkJoin,
+    lastValueFrom,
+    Observable,
+    of,
+} from 'rxjs';
 import {
     catchError,
     debounceTime,
@@ -269,11 +276,18 @@ export class EventFormService extends AsyncHandler {
         shareReplay(1),
     );
 
-    public last_success: CalendarEvent = new CalendarEvent(
-        JSON.parse(
-            sessionStorage?.getItem('PLACEOS.last_booked_event') || '{}',
-        ),
-    );
+    private _last_event: CalendarEvent;
+
+    public get last_success() {
+        const event = new CalendarEvent(
+            JSON.parse(
+                sessionStorage?.getItem('PLACEOS.last_modified_event') || '{}',
+            ),
+        );
+        if (this._last_event?.date === event.date) return this._last_event;
+        this._last_event = event;
+        return event;
+    }
 
     public get form() {
         return this._form;
@@ -373,12 +387,9 @@ export class EventFormService extends AsyncHandler {
     public newForm(event = new CalendarEvent()) {
         this._loading.next('');
         this._form.reset(event);
-        if (event.id) {
-            sessionStorage.setItem(
-                'PLACEOS.event',
-                JSON.stringify(event.toJSON()),
-            );
-        }
+        if (!event.id) return;
+        sessionStorage.setItem('PLACEOS.event', JSON.stringify(event.toJSON()));
+        this._event.next(event);
     }
 
     public resetForm() {
@@ -463,8 +474,11 @@ export class EventFormService extends AsyncHandler {
 
         // Validate that all selected room resource are available
         if (spaces.length && has_time_changed) {
+            const space_list = await Promise.all(
+                changed_spaces.map((_) => this._space_pipe.transform(_.email)),
+            );
             await this._checkResourcesAvailable(
-                changed_spaces,
+                space_list,
                 this.form.value.all_day
                     ? startOfDay(this.form.value.date).valueOf()
                     : this.form.value.date,
@@ -649,16 +663,12 @@ export class EventFormService extends AsyncHandler {
     ) {
         if (!spaces?.length) return true;
         const event = this._event.getValue();
-        const response = await (
+        const id_list = spaces.map((_) => _.id);
+        const response = await lastValueFrom(
             this.book_internal
-                ? queryResourceAvailability(
-                      spaces.map((_) => _.id),
-                      date,
-                      duration,
-                      ignore,
-                  )
+                ? queryResourceAvailability(id_list, date, duration, ignore)
                 : querySpaceAvailability(
-                      spaces.map(({ id }) => id),
+                      id_list,
                       date,
                       duration,
                       event?.resources[0]?.id ||
@@ -667,8 +677,8 @@ export class EventFormService extends AsyncHandler {
                           undefined,
                       undefined,
                       [event?.date, event?.duration],
-                  )
-        ).toPromise();
+                  ),
+        );
         if (!response.every((_) => _)) {
             throw i18n(
                 spaces.length > 1
