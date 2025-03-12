@@ -749,6 +749,7 @@
             "MENU_PARKING": "Book Parking",
             "MENU_VISITORS": "Invite Visitor",
             "MENU_SCHEDULE": "Your Bookings",
+            "MENU_CONTROL": "Room Control",
             "MENU_EXPLORE": "Spaces",
             "MENU_EVENTS": "Events",
             "GLOBAL_SEARCH": "Search for people or spaces...",

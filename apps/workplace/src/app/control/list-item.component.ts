@@ -8,17 +8,19 @@ import { Space } from '@placeos/spaces';
     selector: 'a-control-space-list-item',
     template: `
         <div
-            class="mb-2 flex flex-wrap items-center overflow-hidden bg-base-100 p-2 pl-4 hover:bg-base-200 sm:space-x-4"
+            class="mx-auto mb-2 flex max-w-[40rem] flex-wrap items-center overflow-hidden rounded border border-base-200 bg-base-100 p-2 pl-4 hover:border-info sm:space-x-4"
             *ngIf="space"
             [class.with-image]="show_image"
         >
             <div class="flex flex-1 flex-col">
-                <div class="text-xl">{{ space.name }}</div>
+                <div class="text-xl">
+                    {{ space.display_name || space.name }}
+                </div>
                 <div class="flex w-full items-center text-sm">
                     <div class="flex-1">{{ location }}</div>
-                    <div class="flex items-center text-lg">
-                        <app-icon>account_circle</app-icon>
-                        {{ space.capacity || '0' }}
+                    <div class="flex items-center space-x-2 text-lg">
+                        <app-icon class="text-2xl">account_circle</app-icon>
+                        <div>{{ space.capacity || '0' }}</div>
                     </div>
                 </div>
             </div>

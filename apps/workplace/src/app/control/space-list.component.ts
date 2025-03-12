@@ -8,7 +8,9 @@ import { Space, SpacesService } from '@placeos/spaces';
 @Component({
     selector: 'a-control-space-list',
     template: `
-        <div class="flex w-full items-center justify-center p-2">
+        <div
+            class="flex w-full items-center justify-center border-b border-base-300 bg-base-100 p-2"
+        >
             <mat-form-field overlay class="h-12 rounded" appearance="outline">
                 <app-icon class="text-xl" matPrefix>search</app-icon>
                 <input
@@ -25,7 +27,7 @@ import { Space, SpacesService } from '@placeos/spaces';
             </mat-form-field>
         </div>
         <div
-            class="flex w-full flex-1 flex-col overflow-auto"
+            class="flex w-full flex-1 flex-col overflow-auto p-4"
             *ngIf="filtered_list.length; else empty_state"
         >
             <a-control-space-list-item

@@ -253,6 +253,12 @@ export class TopMenuComponent
                 name: i18n('APP.WORKPLACE.MENU_SCHEDULE'),
             },
             {
+                id: 'control',
+                route: '/control',
+                icon: 'remote_gen',
+                name: i18n('APP.WORKPLACE.MENU_CONTROL'),
+            },
+            {
                 id: 'group-events',
                 route: '/group-events',
                 icon: 'local_activity',
