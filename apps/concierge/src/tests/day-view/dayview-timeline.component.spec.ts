@@ -10,7 +10,10 @@ import { DayviewTimelineComponent } from '../../app/day-view/dayview-timeline.co
 import { EventsStateService } from '../../app/day-view/events-state.service';
 import { ViewEventDetailsComponent } from '../../app/ui/view-event-details.component';
 
-jest.mock('@placeos/ts-client');
+jest.mock('@placeos/ts-client', () => {
+    class CLASS {}
+    return { querySystems: jest.fn(), PlaceZone: CLASS, PlaceSystem: CLASS };
+});
 
 import { fakeAsync } from '@angular/core/testing';
 import * as client from '@placeos/ts-client';
@@ -50,7 +53,7 @@ describe('DayviewTimelineComponent', () => {
     });
 
     beforeEach(() => {
-        (client.querySystems as any) = jest.fn(() => of({ data: [] }));
+        (client.querySystems as any).mockImplementation(() => of({ data: [] }));
         spectator = createComponent();
     });
 

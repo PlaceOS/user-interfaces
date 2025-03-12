@@ -2,8 +2,11 @@ import { Component, Inject, OnDestroy } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { i18n, notifyError, notifySuccess } from '@placeos/common';
-import { SignageMedia, updateSignageMedia } from '@placeos/ts-client';
-import { MediaAnimation } from '@placeos/ts-client/dist/esm/signage/media.class';
+import {
+    MediaAnimation,
+    SignageMedia,
+    updateSignageMedia,
+} from '@placeos/ts-client';
 import { addYears, endOfDay, getUnixTime, startOfDay } from 'date-fns';
 
 @Component({

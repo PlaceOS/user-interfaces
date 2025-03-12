@@ -8,7 +8,6 @@ import { StaffTopbarComponent } from '../../app/staff/staff-topbar.component';
 import { StaffComponent } from '../../app/staff/staff.component';
 import { ApplicationSidebarComponent } from '../../app/ui/app-sidebar.component';
 import { ApplicationTopbarComponent } from '../../app/ui/app-topbar.component';
-import { SidebarComponent } from '../../app/ui/sidebar.component';
 
 describe('StaffComponent', () => {
     let spectator: Spectator<StaffComponent>;
@@ -29,7 +28,6 @@ describe('StaffComponent', () => {
             MockComponent(ApplicationSidebarComponent),
             MockComponent(StaffListingComponent),
             MockComponent(StaffTopbarComponent),
-            MockComponent(SidebarComponent),
         ],
         imports: [MatProgressBarModule],
     });

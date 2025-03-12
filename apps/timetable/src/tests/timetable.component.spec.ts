@@ -1,9 +1,10 @@
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { SettingsService } from '@placeos/common';
 import { SpacesService } from '@placeos/spaces';
-import { MockComponent } from 'ng-mocks';
+import { MockComponent, MockDirective, MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 
+import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { SpaceTimetableComponent } from '../app/space-timetable.component';
 import { AppTimetableComponent } from '../app/timetable.component';
 
@@ -12,13 +13,16 @@ describe('AppTimetableComponent', () => {
     const createComponent = createRoutingFactory({
         component: AppTimetableComponent,
         providers: [
-            { provide: SettingsService, useValue: { get: jest.fn() } },
-            {
-                provide: SpacesService,
-                useValue: { initialised: of(true), find: jest.fn() },
-            },
+            MockProvider(SettingsService, { get: jest.fn() }),
+            MockProvider(SpacesService, {
+                initialised: of(true),
+                find: jest.fn(),
+            }),
         ],
-        declarations: [MockComponent(SpaceTimetableComponent)],
+        declarations: [
+            MockComponent(SpaceTimetableComponent),
+            MockDirective(AuthenticatedImageDirective),
+        ],
     });
 
     beforeEach(() => (spectator = createComponent()));

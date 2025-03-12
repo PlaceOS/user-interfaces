@@ -42,8 +42,7 @@ import {
 import { OrganisationService } from '@placeos/organisation';
 
 import { openConfirmModal } from '@placeos/components';
-import { updateMetadata } from '@placeos/ts-client';
-import { QueryResponse } from '@placeos/ts-client/dist/esm/resources/functions';
+import { QueryResponse, updateMetadata } from '@placeos/ts-client';
 import { StaffUser } from '@placeos/users';
 import { User } from '@sentry/angular';
 import { SelectUserModalComponent } from 'libs/users/src/lib/select-user-modal.component';

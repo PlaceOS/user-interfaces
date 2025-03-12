@@ -10,7 +10,6 @@ import { CateringTopbarComponent } from '../../app/catering/catering-topbar.comp
 import { CateringComponent } from '../../app/catering/catering.component';
 import { ApplicationSidebarComponent } from '../../app/ui/app-sidebar.component';
 import { ApplicationTopbarComponent } from '../../app/ui/app-topbar.component';
-import { SidebarComponent } from '../../app/ui/sidebar.component';
 
 describe('CateringComponent', () => {
     let spectator: SpectatorRouting<CateringComponent>;
@@ -23,7 +22,6 @@ describe('CateringComponent', () => {
             MockComponent(ApplicationSidebarComponent),
             MockComponent(CateringMenuComponent),
             MockComponent(CateringOrderListComponent),
-            MockComponent(SidebarComponent),
         ],
     });
 

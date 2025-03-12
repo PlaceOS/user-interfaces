@@ -6,8 +6,7 @@ import {
     MatDialogRef,
 } from '@angular/material/dialog';
 import { notifyError } from '@placeos/common';
-import { SignagePlaylist } from '@placeos/ts-client';
-import { MediaAnimation } from '@placeos/ts-client/dist/esm/signage/media.class';
+import { MediaAnimation, SignagePlaylist } from '@placeos/ts-client';
 import { getUnixTime } from 'date-fns';
 import { BehaviorSubject } from 'rxjs';
 import { SignageStateService } from './signage-state.service';

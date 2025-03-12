@@ -4,10 +4,27 @@ import { of } from 'rxjs';
 
 import { CheckinStateService } from '../../app/checkin/checkin-state.service';
 
-jest.mock('@placeos/ts-client');
-jest.mock('@placeos/events');
-jest.mock('@placeos/bookings');
-jest.mock('@placeos/users');
+jest.mock('@placeos/ts-client', () => {
+    class ZONE {}
+    return {
+        updateMetadata: jest.fn(),
+        PlaceZone: ZONE,
+    };
+});
+jest.mock('@placeos/events', () => ({
+    checkinEventGuest: jest.fn(),
+    showEvent: jest.fn(),
+}));
+jest.mock('@placeos/bookings', () => ({
+    queryAllBookings: jest.fn(),
+    showBooking: jest.fn(),
+    checkinBooking: jest.fn(),
+}));
+jest.mock('@placeos/users', () => ({
+    listGuestMeetings: jest.fn(),
+    generateGuestForm: jest.fn(),
+    showGuest: jest.fn(),
+}));
 
 import * as booking_mod from '@placeos/bookings';
 import * as events_mod from '@placeos/events';
@@ -27,18 +44,18 @@ describe('CheckinStateService', () => {
     });
 
     it('should allow loading guest and event details', async () => {
-        (events_mod.showEvent as any) = jest.fn(() => of({}));
-        (users_mod.showGuest as any) = jest.fn(() => of({}));
-        (booking_mod.showBooking as any) = jest.fn(() =>
+        (events_mod.showEvent as any).mockImplementation(() => of({}));
+        (users_mod.showGuest as any).mockImplementation(() => of({}));
+        (booking_mod.showBooking as any).mockImplementation(() =>
             of({ asset_id: 'a@b.com' }),
         );
-        (booking_mod.queryAllBookings as any) = jest.fn(() =>
+        (booking_mod.queryAllBookings as any).mockImplementation(() =>
             of([{ date: Date.now(), asset_id: 'a@b.com' }]),
         );
-        (users_mod.listGuestMeetings as any) = jest.fn(() =>
+        (users_mod.listGuestMeetings as any).mockImplementation(() =>
             of([{ date: Date.now() }]),
         );
-        (users_mod.generateGuestForm as any) = jest.fn(() =>
+        (users_mod.generateGuestForm as any).mockImplementation(() =>
             of(new FormGroup({})),
         );
         await spectator.service.loadGuestAndEvent('a@b.com');
@@ -49,21 +66,23 @@ describe('CheckinStateService', () => {
     });
 
     it('should allow updating guests', async () => {
-        (events_mod.showEvent as any) = jest.fn(() => of({}));
-        (users_mod.showGuest as any) = jest.fn(() => of({}));
-        (booking_mod.showBooking as any) = jest.fn(() => of({}));
-        (placeos.updateMetadata as any) = jest.fn(() => of({}));
+        (events_mod.showEvent as any).mockImplementation(() => of({}));
+        (users_mod.showGuest as any).mockImplementation(() => of({}));
+        (booking_mod.showBooking as any).mockImplementation(() => of({}));
+        (placeos.updateMetadata as any).mockImplementation(() => of({}));
         await spectator.service.loadGuestAndEvent('a@b.com', 'event-1234');
         await spectator.service.updateGuest({ one: true });
         // expect(placeos.updateMetadata).toBeCalled();
     });
 
     it('should allow checking in guests', async () => {
-        (events_mod.showEvent as any) = jest.fn(() => of({ resources: [{}] }));
-        (users_mod.showGuest as any) = jest.fn(() => of({}));
-        (booking_mod.showBooking as any) = jest.fn(() => of({}));
-        (booking_mod.checkinBooking as any) = jest.fn(() => of({}));
-        (events_mod.checkinEventGuest as any) = jest.fn(() => of({}));
+        (events_mod.showEvent as any).mockImplementation(() =>
+            of({ resources: [{}] }),
+        );
+        (users_mod.showGuest as any).mockImplementation(() => of({}));
+        (booking_mod.showBooking as any).mockImplementation(() => of({}));
+        (booking_mod.checkinBooking as any).mockImplementation(() => of({}));
+        (events_mod.checkinEventGuest as any).mockImplementation(() => of({}));
         await spectator.service.loadGuestAndEvent('a@b.com', 'event-1234');
         await spectator.service.checkinGuest();
         expect(booking_mod.checkinBooking).toBeCalled();

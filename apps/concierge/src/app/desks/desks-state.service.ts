@@ -44,7 +44,7 @@ import {
 import { Desk, OrganisationService } from '@placeos/organisation';
 
 import { openConfirmModal } from '@placeos/components';
-import { QueryResponse } from '@placeos/ts-client/dist/esm/resources/functions';
+import { QueryResponse } from '@placeos/ts-client';
 import { generateQRCode } from 'libs/common/src/lib/qr-code';
 import { DeskModalComponent } from './desk-modal.component';
 

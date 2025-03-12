@@ -13,8 +13,8 @@ import {
     queryQuestions,
     removeQuestion,
     SurveyQuestion,
+    updateQuestion,
 } from '@placeos/ts-client';
-import { updateQuestion } from '@placeos/ts-client/dist/esm/staff/questions/functions';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { catchError, filter, finalize, first, map, tap } from 'rxjs/operators';
 import { ModQuestionOverlayComponent } from '../overlays/mod-question-overlay.component';

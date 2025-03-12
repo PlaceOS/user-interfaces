@@ -1,7 +1,10 @@
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
 import { TimetableStateService } from '../app/timetable-state.service';
 
-jest.mock('@placeos/ts-client');
+jest.mock('@placeos/ts-client', () => {
+    class ZONE {}
+    return { getModule: jest.fn(), PlaceZone: ZONE };
+});
 
 import { nextValueFrom } from '@placeos/common';
 import { CalendarEvent } from '@placeos/events';
@@ -21,10 +24,10 @@ describe('TimetableStateService', () => {
     it('should allow listing for space bookings', async () => {
         const binding = { bind: jest.fn(), listen: jest.fn(() => of([{}])) };
         const mod = { binding: jest.fn(() => binding) };
-        (placeos as any).getModule = jest.fn(() => mod);
+        (placeos as any).getModule.mockImplementation(() => mod);
         const obs = spectator.service.bookingsFor('test');
         expect(obs).toBeInstanceOf(Observable);
-        expect(placeos.getModule).toBeCalledWith('test', 'Bookings');
+        expect(placeos.getModule).toHaveBeenCalledWith('test', 'Bookings');
         const value = await nextValueFrom(obs);
         expect(value).toHaveLength(1);
         expect(value[0]).toBeInstanceOf(CalendarEvent);

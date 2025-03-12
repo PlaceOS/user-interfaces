@@ -10,7 +10,6 @@ import {
 } from '@placeos/bookings';
 import { AsyncHandler, timePeriodsIntersect } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
-import { HashMap } from '@placeos/ts-client/dist/esm/utilities/types';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { map, shareReplay, switchMap } from 'rxjs/operators';
 
@@ -24,8 +23,8 @@ export interface StaffFilters {
     providedIn: 'root',
 })
 export class StaffStateService extends AsyncHandler {
-    private _onsite: HashMap<boolean> = {};
-    private _events: HashMap<Booking> = {};
+    private _onsite: Record<string, boolean> = {};
+    private _events: Record<string, Booking> = {};
 
     private _filters = new BehaviorSubject<StaffFilters>({});
 

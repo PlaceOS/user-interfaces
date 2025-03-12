@@ -17,7 +17,10 @@ import { ControlStateService } from '../../app/control-state.service';
 import { CameraTooltipComponent } from '../../app/ui/camera-tooltip.component';
 import { JoystickComponent } from '../../app/ui/joystick.component';
 
-jest.mock('@placeos/ts-client');
+jest.mock('@placeos/ts-client', () => {
+    class ZONE {}
+    return { getModule: jest.fn(), PlaceZone: ZONE };
+});
 
 import * as client from '@placeos/ts-client';
 
@@ -54,7 +57,7 @@ describe('CameraTooltipComponent', () => {
     });
 
     beforeEach(() => {
-        (client.getModule as any) = jest.fn(() => ({
+        (client.getModule as any).mockImplementation(() => ({
             execute: async () => null,
         }));
         spectator = createComponent();
