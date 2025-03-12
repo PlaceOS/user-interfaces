@@ -47,7 +47,7 @@
                     "shared/styles/custom-element.scss",
                     "shared/styles/native-element.scss",
                     "shared/styles/utility.scss",
-                    "./node_modules/survey-core/modern.min.css"
+                    "./node_modules/survey-core/survey-core.min.css"
                 ],
                 "scripts": [],
                 "extractLicenses": false,

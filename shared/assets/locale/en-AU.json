@@ -1191,6 +1191,7 @@
             "SURVEY_ADD": "Add Survey",
             "SURVEY_NEW": "New Survey",
             "SURVEY_EDIT": "Edit Survey",
+            "SURVEY_TEST": "Test Survey",
             "SURVEY_REMOVE": "Delete Survey",
             "SURVEY_RESPONSES": "Survey Responses",
             "SURVEY_BUILDING_COUNT": "{{ count }} Building(s)",

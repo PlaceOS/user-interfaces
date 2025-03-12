@@ -114,6 +114,19 @@ import { SurveyService } from '../services/survey.service';
                             }}</span>
                         </div>
                     </a>
+                    <a
+                        mat-menu-item
+                        [routerLink]="['/surveys', 'run', row.id]"
+                        target="_blank"
+                        rel="noopener noreferer"
+                    >
+                        <div class="flex items-center space-x-2">
+                            <app-icon class="text-xl">open_in_new</app-icon>
+                            <span>{{
+                                'APP.CONCIERGE.SURVEY_TEST' | translate
+                            }}</span>
+                        </div>
+                    </a>
                     <button mat-menu-item (click)="onDelete(row.id)">
                         <div class="flex items-center space-x-2">
                             <app-icon class="text-xl text-error">
