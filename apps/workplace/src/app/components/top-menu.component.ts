@@ -165,7 +165,7 @@ export class TopMenuComponent
     }
 
     public get default_page(): string {
-        return this._settings.get('app.default_route') || '/dashboard';
+        return this._settings.get('app.default_route') || '/landing';
     }
 
     public get new_features(): boolean {
@@ -218,7 +218,7 @@ export class TopMenuComponent
             },
             {
                 id: 'desks',
-                route: '/book/new-desks',
+                route: '/book/desks',
                 icon: 'desk',
                 name: i18n('APP.WORKPLACE.MENU_DESKS'),
             },
@@ -230,7 +230,7 @@ export class TopMenuComponent
             },
             {
                 id: 'parking',
-                route: '/book/new-parking',
+                route: '/book/parking',
                 icon: 'directions_car',
                 name: i18n('APP.WORKPLACE.MENU_PARKING'),
             },

@@ -14,11 +14,11 @@ import { BookComponent } from './book.component';
 import { CodeFlowErrorComponent } from './code-flow-error.component';
 import { CodeFlowSuccessComponent } from './code-flow-success.component';
 import { BookCodeFlowComponent } from './code-flow.component';
-import { BookDeskFlowComponent } from './desk-flow.component';
-import { DeskFlowConfirmComponent } from './desk-flow/confirm.component';
-import { DeskFlowDetailedFormComponent } from './desk-flow/detailed-form.component';
-import { DeskFlowFormComponent } from './desk-flow/form.component';
-import { DeskFlowMapComponent } from './desk-flow/map.component';
+import { NewDeskFlowComponent } from './desk-flow.component';
+import { NewDeskFlowConfirmComponent } from './desk-flow/desk-flow-confirm.component';
+import { NewDeskFlowFormComponent } from './desk-flow/desk-flow-form.component';
+import { NewDeskFlowSuccessComponent } from './desk-flow/desk-flow-success.component';
+import { NewDeskFormDetailsComponent } from './desk-flow/desk-form-details.component';
 import { FlowSuccessComponent } from './flow-success.component';
 import { BookLockerFlowComponent } from './locker-flow.component';
 import { BookLockerFlowConfirmComponent } from './locker-flow/locker-flow-confirm.component';
@@ -31,25 +31,11 @@ import { MeetingFlowConfirmComponent } from './meeting-flow/meeting-flow-confirm
 import { MeetingFlowFormComponent } from './meeting-flow/meeting-flow-form.component';
 import { MeetingFlowSuccessComponent } from './meeting-flow/meeting-flow-success.component';
 import { MeetingFormDetailsComponent } from './meeting-flow/meeting-form-details.component';
-import { NewDeskFlowComponent } from './new-desk-flow.component';
-import { NewDeskFlowConfirmComponent } from './new-desk-flow/new-desk-flow-confirm.component';
-import { NewDeskFlowFormComponent } from './new-desk-flow/new-desk-flow-form.component';
-import { NewDeskFlowSuccessComponent } from './new-desk-flow/new-desk-flow-success.component';
-import { NewDeskFormDetailsComponent } from './new-desk-flow/new-desk-form-details.component';
-import { NewParkingFlowComponent } from './new-parking-flow.component';
-import { NewParkingFlowConfirmComponent } from './new-parking-flow/parking-flow-confirm.component';
-import { ParkingFlowFormComponent } from './new-parking-flow/parking-flow-form.component';
-import { ParkingFlowSuccessComponent } from './new-parking-flow/parking-flow-success.component';
-import { ParkingFormDetailsComponent } from './new-parking-flow/parking-form-details.component';
-import { BookParkingFlowComponent } from './parking-flow.component';
-import { ParkingFlowConfirmComponent } from './parking-flow/parking-flow-confirm.component';
-import { ParkingFlowMapComponent } from './parking-flow/parking-flow-map.component';
-import { BookSpaceFlowComponent } from './space-flow.component';
-import { SpaceFlowConfirmComponent } from './space-flow/confirm.component';
-import { DetailBookSpaceFormComponent } from './space-flow/detailed-form.component';
-import { SpaceFlowFindItemComponent } from './space-flow/find-item.component';
-import { SpaceFlowFindComponent } from './space-flow/find.component';
-import { SpaceFlowFormComponent } from './space-flow/form.component';
+import { NewParkingFlowComponent } from './parking-flow.component';
+import { NewParkingFlowConfirmComponent } from './parking-flow/parking-flow-confirm.component';
+import { ParkingFlowFormComponent } from './parking-flow/parking-flow-form.component';
+import { ParkingFlowSuccessComponent } from './parking-flow/parking-flow-success.component';
+import { ParkingFormDetailsComponent } from './parking-flow/parking-form-details.component';
 import { VisitorFlowComponent } from './visitor-flow.component';
 
 const ROUTES: Route[] = [
@@ -60,20 +46,14 @@ const ROUTES: Route[] = [
             { path: 'code', component: BookCodeFlowComponent },
             { path: 'code/success', component: CodeFlowSuccessComponent },
             { path: 'code/error', component: CodeFlowErrorComponent },
-            { path: 'new-desk', redirectTo: 'new-desks/form' },
-            { path: 'new-desks', redirectTo: 'new-desks/form' },
-            { path: 'new-desks/:step', component: NewDeskFlowComponent },
-            { path: 'new-desk', redirectTo: 'new-desks/form' },
+            { path: 'desk', redirectTo: 'desks/form' },
             { path: 'desks', redirectTo: 'desks/form' },
-            { path: 'desks/:step', component: BookDeskFlowComponent },
-            { path: 'spaces', redirectTo: 'spaces/form' },
-            { path: 'spaces/:step', component: BookSpaceFlowComponent },
+            { path: 'desks/:step', component: NewDeskFlowComponent },
+            { path: 'desk', redirectTo: 'desks/form' },
             { path: 'meeting', redirectTo: 'meeting/form' },
             { path: 'meeting/:step', component: BookMeetingFlowComponent },
             { path: 'parking', redirectTo: 'parking/form' },
-            { path: 'parking/:step', component: BookParkingFlowComponent },
-            { path: 'new-parking', redirectTo: 'new-parking/form' },
-            { path: 'new-parking/:step', component: NewParkingFlowComponent },
+            { path: 'parking/:step', component: NewParkingFlowComponent },
             { path: 'visitor', redirectTo: 'visitor/form' },
             { path: 'visitor/:step', component: VisitorFlowComponent },
             { path: 'locker', redirectTo: 'locker/form' },
@@ -87,23 +67,9 @@ const ROUTES: Route[] = [
 @NgModule({
     declarations: [
         BookComponent,
-        BookSpaceFlowComponent,
-        SpaceFlowFormComponent,
-        SpaceFlowFindComponent,
-        SpaceFlowFindItemComponent,
-        SpaceFlowConfirmComponent,
-        DetailBookSpaceFormComponent,
-        BookDeskFlowComponent,
-        DeskFlowFormComponent,
-        DeskFlowDetailedFormComponent,
-        DeskFlowMapComponent,
-        DeskFlowConfirmComponent,
         BookCodeFlowComponent,
         CodeFlowSuccessComponent,
         CodeFlowErrorComponent,
-        BookParkingFlowComponent,
-        ParkingFlowMapComponent,
-        ParkingFlowConfirmComponent,
         FlowSuccessComponent,
         BookMeetingFlowComponent,
         MeetingFlowFormComponent,

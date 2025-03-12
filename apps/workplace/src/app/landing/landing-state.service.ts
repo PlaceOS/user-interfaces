@@ -35,7 +35,7 @@ import { BuildingLevel, OrganisationService } from '@placeos/organisation';
 import { requestSpacesForZone } from '@placeos/spaces';
 import { searchStaff, StaffUser, User } from '@placeos/users';
 import { isSameDay } from 'date-fns';
-import { ScheduleStateService } from '../new-schedule/schedule-state.service';
+import { ScheduleStateService } from '../schedule/schedule-state.service';
 
 export interface LandingOptions {
     search?: string;

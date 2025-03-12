@@ -1,32 +1,17 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
-import { AsyncHandler } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import { AsyncHandler, nextValueFrom, notifyInfo } from '@placeos/common';
+import { Desk, OrganisationService } from '@placeos/organisation';
 import { first } from 'rxjs/operators';
 
 @Component({
-    selector: 'placeos-book-desk-flow',
+    selector: 'placeos-new-book-desk-flow',
     template: `
-        <div class="h-full w-full bg-base-100">
+        <div class="z-50 h-full w-full bg-base-100">
             <ng-container [ngSwitch]="view">
-                <ng-container *ngSwitchCase="'map'">
-                    <desk-flow-map></desk-flow-map>
-                </ng-container>
-                <ng-container *ngSwitchCase="'confirm'">
-                    <desk-flow-confirm></desk-flow-confirm>
-                </ng-container>
                 <ng-container *ngSwitchCase="'success'">
-                    <flow-success
-                        type="desk"
-                        route="desks"
-                        [calendar]="last_success?.user_email"
-                        [extra]="
-                            last_success?.extension_data?.secondary_resource
-                                ? 'Locker E-093 has been allocated for this booking.'
-                                : ''
-                        "
-                    ></flow-success>
+                    <desk-flow-success></desk-flow-success>
                 </ng-container>
                 <ng-container *ngSwitchDefault>
                     <desk-flow-form></desk-flow-form>
@@ -37,7 +22,6 @@ import { first } from 'rxjs/operators';
     styles: [
         `
             :host {
-                position: relative;
                 height: 100%;
                 width: 100%;
             }
@@ -45,7 +29,7 @@ import { first } from 'rxjs/operators';
     ],
     standalone: false,
 })
-export class BookDeskFlowComponent extends AsyncHandler implements OnInit {
+export class NewDeskFlowComponent extends AsyncHandler implements OnInit {
     public get view() {
         return this._state.view;
     }
@@ -64,7 +48,8 @@ export class BookDeskFlowComponent extends AsyncHandler implements OnInit {
     public async ngOnInit() {
         await this._org.initialised.pipe(first((_) => _)).toPromise();
         this._state.loadForm();
-        if (!this._state.form) this._state.newForm('desk');
+        this._state.setOptions({ type: 'desk' });
+        if (!this._state.form.value.id) this._state.newForm('desk');
         this._state.form.patchValue({ booking_type: 'desk' });
         this.subscription(
             'route.params',
@@ -75,9 +60,30 @@ export class BookDeskFlowComponent extends AsyncHandler implements OnInit {
         );
         this.subscription(
             'route.query',
-            this._route.queryParamMap.subscribe((param) => {
-                if (param.has('success'))
-                    this._state.setView(param.get('success') as any);
+            this._route.queryParamMap.subscribe(async (params) => {
+                if (params.has('success')) {
+                    this._state.setView(params.get('success') as any);
+                }
+                if (params.has('asset_id')) {
+                    const id = params.get('asset_id');
+                    const resources = await nextValueFrom(
+                        this._state.resources,
+                    );
+                    const asset = resources.find((_) => _.id === id);
+                    if (!asset) {
+                        return notifyInfo(
+                            'Unable to find desk with given asset ID.',
+                        );
+                    }
+                    this._state.form.patchValue({
+                        resources: [
+                            new Desk({
+                                id: asset.id,
+                                name: asset.name || asset.id,
+                            }),
+                        ],
+                    });
+                }
             }),
         );
     }

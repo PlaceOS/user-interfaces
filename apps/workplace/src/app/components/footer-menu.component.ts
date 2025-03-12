@@ -45,9 +45,7 @@ import { SettingsService } from '@placeos/common';
                     matRipple
                     name="footer-nav-desks"
                     [routerLink]="
-                        new_features
-                            ? ['/book', 'new-desks']
-                            : ['/book', 'desks']
+                        new_features ? ['/book', 'desks'] : ['/book', 'desks']
                     "
                     routerLinkActive="active"
                     *ngIf="features.includes('desks')"
@@ -71,7 +69,7 @@ import { SettingsService } from '@placeos/common';
                 <a
                     matRipple
                     name="footer-nav-parking"
-                    [routerLink]="['/book', 'new-parking']"
+                    [routerLink]="['/book', 'parking']"
                     routerLinkActive="active"
                     *ngIf="features.includes('parking')"
                     class="m-2 flex w-1/3 flex-col items-center justify-center space-y-2 text-base"
@@ -117,9 +115,7 @@ import { SettingsService } from '@placeos/common';
                 <a
                     matRipple
                     name="footer-nav-my-day"
-                    [routerLink]="
-                        new_features ? ['/your-bookings'] : ['/schedule']
-                    "
+                    [routerLink]="['/your-bookings']"
                     *ngIf="features.includes('schedule')"
                     routerLinkActive="active"
                     class="m-2 flex w-1/3 flex-col items-center justify-center space-y-2 text-base"
@@ -254,15 +250,11 @@ export class FooterMenuComponent {
     public show_book_items = false;
 
     public get default_page(): string {
-        return this._settings.get('app.default_route') || '/dashboard';
+        return this._settings.get('app.default_route') || '/landing';
     }
 
     public get features(): string[] {
         return this._settings.get('app.features') || [];
-    }
-
-    public get new_features(): boolean {
-        return !!this._settings.get('app.new_features');
     }
 
     public get dark_mode() {

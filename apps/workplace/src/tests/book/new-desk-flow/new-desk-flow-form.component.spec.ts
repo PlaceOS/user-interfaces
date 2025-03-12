@@ -5,8 +5,8 @@ import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { BookingFormService } from '@placeos/bookings';
 import { SettingsService } from '@placeos/common';
 import { Building, OrganisationService } from '@placeos/organisation';
-import { NewDeskFlowFormComponent } from 'apps/workplace/src/app/book/new-desk-flow/new-desk-flow-form.component';
-import { NewDeskFormDetailsComponent } from 'apps/workplace/src/app/book/new-desk-flow/new-desk-form-details.component';
+import { NewDeskFlowFormComponent } from 'apps/workplace/src/app/book/desk-flow/desk-flow-form.component';
+import { NewDeskFormDetailsComponent } from 'apps/workplace/src/app/book/desk-flow/desk-form-details.component';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { BehaviorSubject, of } from 'rxjs';
 
@@ -41,8 +41,7 @@ describe('NewDeskFlowFormComponent', () => {
     it('should create component', () =>
         expect(spectator.component).toBeTruthy());
 
-    it('should show form details', () =>
-        expect('new-desk-form-details').toExist());
+    it('should show form details', () => expect('desk-form-details').toExist());
 
     it('should allow navigation to confirm page', () => {
         expect('button[confirm]').toExist();

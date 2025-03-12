@@ -7,7 +7,7 @@ import { CalendarService } from 'libs/calendar/src/lib/calendar.service';
 import { Organisation } from 'libs/organisation/src/lib/organisation.class';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { LandingStateService } from '../../app/landing/landing-state.service';
-import { ScheduleStateService } from '../../app/new-schedule/schedule-state.service';
+import { ScheduleStateService } from '../../app/schedule/schedule-state.service';
 
 describe('LandingStateService', () => {
     let spectator: SpectatorService<LandingStateService>;

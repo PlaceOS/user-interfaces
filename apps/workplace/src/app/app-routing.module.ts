@@ -12,15 +12,6 @@ const routes: Routes = [
     { path: 'unauthorised', component: UnauthorisedComponent },
     { path: 'misconfigured', component: MisconfiguredComponent },
     {
-        path: 'dashboard',
-        canActivate: [AuthorisedUserGuard],
-        canLoad: [AuthorisedUserGuard],
-        loadChildren: () =>
-            import('./dashboard/dashboard.module').then(
-                (m) => m.DashboardModule,
-            ),
-    },
-    {
         path: 'landing',
         canActivate: [AuthorisedUserGuard],
         canLoad: [AuthorisedUserGuard],
@@ -59,15 +50,6 @@ const routes: Routes = [
     },
     {
         path: 'your-bookings',
-        canActivate: [AuthorisedUserGuard],
-        canLoad: [AuthorisedUserGuard],
-        loadChildren: () =>
-            import('./new-schedule/schedule.module').then(
-                (m) => m.AppScheduleModule,
-            ),
-    },
-    {
-        path: 'schedule',
         canActivate: [AuthorisedUserGuard],
         canLoad: [AuthorisedUserGuard],
         loadChildren: () =>

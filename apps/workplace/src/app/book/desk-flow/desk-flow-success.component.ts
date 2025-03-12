@@ -8,7 +8,7 @@ import {
 } from 'libs/common/src/lib/calendar-links';
 
 @Component({
-    selector: 'new-desk-flow-success',
+    selector: 'desk-flow-success',
     styles: [],
     template: `
         <div

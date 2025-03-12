@@ -4,9 +4,9 @@ import { BookingFormService } from '@placeos/bookings';
 import { OrganisationService } from '@placeos/organisation';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
-import { NewDeskFlowComponent } from '../../app/book/new-desk-flow.component';
-import { NewDeskFlowFormComponent } from '../../app/book/new-desk-flow/new-desk-flow-form.component';
-import { NewDeskFlowSuccessComponent } from '../../app/book/new-desk-flow/new-desk-flow-success.component';
+import { NewDeskFlowComponent } from '../../app/book/desk-flow.component';
+import { NewDeskFlowFormComponent } from '../../app/book/desk-flow/desk-flow-form.component';
+import { NewDeskFlowSuccessComponent } from '../../app/book/desk-flow/desk-flow-success.component';
 
 describe('NewDeskFlowComponent', () => {
     let spectator: SpectatorRouting<NewDeskFlowComponent>;
@@ -46,20 +46,20 @@ describe('NewDeskFlowComponent', () => {
         expect(spectator.component).toBeTruthy());
 
     it('should show form view by default', () => {
-        expect('new-desk-flow-form').toExist();
+        expect('desk-flow-form').toExist();
         spectator.inject(BookingFormService).setView('success');
-        expect('new-desk-flow-form').not.toExist();
+        expect('desk-flow-form').not.toExist();
     });
 
     it('should show success view when set', () => {
-        expect('new-desk-flow-success').not.toExist();
+        expect('desk-flow-success').not.toExist();
         spectator.inject(BookingFormService).setView('success');
-        expect('new-desk-flow-success').toExist();
+        expect('desk-flow-success').toExist();
     });
 
     it('should set view based of route params', () => {
-        expect('new-desk-flow-success').not.toExist();
+        expect('desk-flow-success').not.toExist();
         spectator.setRouteParam('step', 'success');
-        expect('new-desk-flow-success').toExist();
+        expect('desk-flow-success').toExist();
     });
 });

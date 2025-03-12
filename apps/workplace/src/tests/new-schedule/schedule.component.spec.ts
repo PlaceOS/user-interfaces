@@ -9,11 +9,11 @@ import { MockComponent, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 import { FooterMenuComponent } from '../../app/components/footer-menu.component';
 import { TopbarComponent } from '../../app/components/topbar.component';
-import { ScheduleFiltersComponent } from '../../app/new-schedule/schedule-filters.component';
-import { ScheduleMobileCalendarComponent } from '../../app/new-schedule/schedule-mobile-calendar.component';
-import { ScheduleSidebarComponent } from '../../app/new-schedule/schedule-sidebar.component';
-import { ScheduleStateService } from '../../app/new-schedule/schedule-state.service';
-import { ScheduleComponent } from '../../app/new-schedule/schedule.component';
+import { ScheduleFiltersComponent } from '../../app/schedule/schedule-filters.component';
+import { ScheduleMobileCalendarComponent } from '../../app/schedule/schedule-mobile-calendar.component';
+import { ScheduleSidebarComponent } from '../../app/schedule/schedule-sidebar.component';
+import { ScheduleStateService } from '../../app/schedule/schedule-state.service';
+import { ScheduleComponent } from '../../app/schedule/schedule.component';
 
 describe('ScheduleComponent', () => {
     let spectator: SpectatorRouting<ScheduleComponent>;

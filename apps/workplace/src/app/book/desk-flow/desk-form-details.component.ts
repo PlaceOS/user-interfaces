@@ -17,7 +17,7 @@ import { Desk, OrganisationService } from '@placeos/organisation';
 import { addDays, endOfDay, getUnixTime, set } from 'date-fns';
 
 @Component({
-    selector: 'new-desk-form-details',
+    selector: 'desk-form-details',
     styles: [],
     template: `
         <!-- <div class="m-2 bg-warning p-2 text-center rounded shadow text-sm">

@@ -14,10 +14,10 @@ import {
 import { OrganisationService } from '@placeos/organisation';
 import { isBefore, startOfMinute } from 'date-fns';
 import { first } from 'rxjs/operators';
-import { NewDeskFlowConfirmComponent } from './new-desk-flow-confirm.component';
+import { NewDeskFlowConfirmComponent } from './desk-flow-confirm.component';
 
 @Component({
-    selector: 'new-desk-flow-form',
+    selector: 'desk-flow-form',
     styles: [],
     template: `
         <div class="h-full w-full overflow-auto bg-base-200">
@@ -29,10 +29,10 @@ import { NewDeskFlowConfirmComponent } from './new-desk-flow-confirm.component';
                 >
                     {{ 'BOOKINGS.DESK_TITLE' | translate }}
                 </h2>
-                <new-desk-form-details
+                <desk-form-details
                     class="block p-0 sm:px-16 sm:py-4"
                     [form]="form"
-                ></new-desk-form-details>
+                ></desk-form-details>
                 <div class="w-full border-b border-base-200 sm:mb-2"></div>
                 <section
                     class="flex flex-col items-center p-2 sm:mb-2 sm:flex-row sm:space-x-2 sm:px-16"
@@ -83,7 +83,7 @@ export class NewDeskFlowFormComponent implements OnInit {
         this.sheet_ref.afterDismissed().subscribe((value) => {
             if (value) {
                 this._state.setView('success');
-                this._router.navigate(['/book', 'new-desks', 'success']);
+                this._router.navigate(['/book', 'desks', 'success']);
             }
         });
     };

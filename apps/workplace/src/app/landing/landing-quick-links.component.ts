@@ -31,7 +31,7 @@ import { SettingsService } from '@placeos/common';
             <a
                 matRipple
                 class="flex w-64 min-w-64 snap-start items-center space-x-4 rounded border border-base-200 bg-base-100 p-2 shadow"
-                [routerLink]="['/book', 'new-desk']"
+                [routerLink]="['/book', 'desk']"
                 *ngIf="features.includes('desks')"
             >
                 <div
@@ -49,7 +49,7 @@ import { SettingsService } from '@placeos/common';
             <a
                 matRipple
                 class="flex w-64 min-w-64 snap-start items-center space-x-4 rounded border border-base-200 bg-base-100 p-2 shadow"
-                [routerLink]="['/book', 'new-parking']"
+                [routerLink]="['/book', 'parking']"
                 *ngIf="features.includes('parking')"
             >
                 <div

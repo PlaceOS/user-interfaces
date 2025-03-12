@@ -6,8 +6,8 @@ import { IconComponent } from '@placeos/components';
 import { DateCalendarComponent } from 'libs/form-fields/src/lib/date-calendar.component';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
-import { ScheduleSidebarComponent } from '../../app/new-schedule/schedule-sidebar.component';
-import { ScheduleStateService } from '../../app/new-schedule/schedule-state.service';
+import { ScheduleSidebarComponent } from '../../app/schedule/schedule-sidebar.component';
+import { ScheduleStateService } from '../../app/schedule/schedule-state.service';
 
 describe('ScheduleSidebarComponent', () => {
     let spectator: Spectator<ScheduleSidebarComponent>;

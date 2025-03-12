@@ -6,8 +6,8 @@ import { SettingsService } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
-import { ScheduleFilterCardComponent } from '../../app/new-schedule/schedule-filter-card.component';
-import { ScheduleStateService } from '../../app/new-schedule/schedule-state.service';
+import { ScheduleFilterCardComponent } from '../../app/schedule/schedule-filter-card.component';
+import { ScheduleStateService } from '../../app/schedule/schedule-state.service';
 
 describe('ScheduleFilterCardComponent', () => {
     let spectator: Spectator<ScheduleFilterCardComponent>;

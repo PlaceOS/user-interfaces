@@ -4,7 +4,7 @@ import { of } from 'rxjs';
 
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
-import { ScheduleStateService } from '../../app/new-schedule/schedule-state.service';
+import { ScheduleStateService } from '../../app/schedule/schedule-state.service';
 
 describe('ScheduleStateService', () => {
     let spectator: SpectatorService<ScheduleStateService>;

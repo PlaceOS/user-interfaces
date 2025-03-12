@@ -17,7 +17,7 @@ import { AssetRequest } from 'libs/assets/src/lib/asset-request.class';
 import { map } from 'rxjs/operators';
 
 @Component({
-    selector: 'new-desk-flow-confirm',
+    selector: 'desk-flow-confirm',
     template: `
         <header
             class="m-2 flex h-12 items-center justify-between rounded bg-base-200 p-2"

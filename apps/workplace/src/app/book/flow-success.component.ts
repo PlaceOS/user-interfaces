@@ -30,7 +30,7 @@ import { currentUser } from '@placeos/common';
                     btn
                     matRipple
                     class="w-32 border border-white"
-                    [routerLink]="['/schedule']"
+                    [routerLink]="['/your-bookings']"
                     [queryParams]="{ email: calendar }"
                 >
                     Your Bookings

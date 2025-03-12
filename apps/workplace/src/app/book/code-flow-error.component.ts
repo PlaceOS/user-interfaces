@@ -49,7 +49,7 @@ const VALID_TYPES = ['not_started', 'wrong_resource', 'other'];
                     btn
                     matRipple
                     class="w-full max-w-[32rem]"
-                    [routerLink]="['/book', 'new-desk']"
+                    [routerLink]="['/book', 'desk']"
                     [queryParams]="{ asset_id: asset_id }"
                     *ngIf="type === 'no_booking'"
                 >

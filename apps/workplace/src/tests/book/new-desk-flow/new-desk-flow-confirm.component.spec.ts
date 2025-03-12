@@ -6,7 +6,7 @@ import { BookingFormService, generateBookingForm } from '@placeos/bookings';
 import { SettingsService } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
-import { NewDeskFlowConfirmComponent } from 'apps/workplace/src/app/book/new-desk-flow/new-desk-flow-confirm.component';
+import { NewDeskFlowConfirmComponent } from 'apps/workplace/src/app/book/desk-flow/desk-flow-confirm.component';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 

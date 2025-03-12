@@ -397,10 +397,10 @@ export class LandingFavouritesComponent extends AsyncHandler implements OnInit {
             this._router.navigate([
                 '/book',
                 type === 'desk'
-                    ? 'new-desk'
+                    ? 'desk'
                     : type === 'locker'
                       ? 'locker'
-                      : 'new-parking',
+                      : 'parking',
             ]);
         } else {
             this._router.navigate([

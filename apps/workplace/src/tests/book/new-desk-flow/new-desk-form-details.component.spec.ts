@@ -14,7 +14,7 @@ import {
     UserSearchFieldComponent,
 } from '@placeos/form-fields';
 import { Building, OrganisationService } from '@placeos/organisation';
-import { NewDeskFormDetailsComponent } from 'apps/workplace/src/app/book/new-desk-flow/new-desk-form-details.component';
+import { NewDeskFormDetailsComponent } from 'apps/workplace/src/app/book/desk-flow/desk-form-details.component';
 import { AssetListFieldComponent } from 'libs/assets/src/lib/asset-list-field.component';
 import { DeskListFieldComponent } from 'libs/bookings/src/lib/desk-list-field.component';
 import { RecurrenceFieldComponent } from 'libs/form-fields/src/lib/recurrence-field.component';
