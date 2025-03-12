@@ -2,8 +2,9 @@ import { FormsModule } from '@angular/forms';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { IconComponent } from '@placeos/components';
 import { CounterComponent } from '@placeos/form-fields';
-import { MockComponent } from 'ng-mocks';
+import { MockComponent, MockModule } from 'ng-mocks';
 
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { PointsOverviewComponent } from '../../app/points/points-overview.component';
 
 describe('PointsOverviewComponent', () => {
@@ -15,7 +16,7 @@ describe('PointsOverviewComponent', () => {
             MockComponent(CounterComponent),
             MockComponent(IconComponent),
         ],
-        imports: [FormsModule],
+        imports: [FormsModule, MockModule(MatTooltipModule)],
     });
 
     beforeEach(() => (spectator = createComponent()));

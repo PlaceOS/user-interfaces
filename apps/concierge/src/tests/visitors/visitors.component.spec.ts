@@ -11,6 +11,7 @@ import { ActivatedRoute } from '@angular/router';
 import { SettingsService } from '@placeos/common';
 import { ApplicationSidebarComponent } from '../../app/ui/app-sidebar.component';
 import { ApplicationTopbarComponent } from '../../app/ui/app-topbar.component';
+import { DateOptionsComponent } from '../../app/ui/date-options.component';
 import { SearchbarComponent } from '../../app/ui/searchbar.component';
 import { GuestListingComponent } from '../../app/visitors/guest-listing.component';
 import { VisitorsStateService } from '../../app/visitors/visitors-state.service';
@@ -36,6 +37,7 @@ describe('VisitorsComponent', () => {
             MockComponent(GuestListingComponent),
             MockComponent(VisitorsTopbarComponent),
             MockComponent(SearchbarComponent),
+            MockComponent(DateOptionsComponent),
         ],
         imports: [
             MatProgressBarModule,

@@ -7,11 +7,13 @@ import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { SettingsService } from '@placeos/common';
+import { IconComponent } from '@placeos/components';
 import { DesksStateService } from '../../app/desks/desks-state.service';
 import { DesksTopbarComponent } from '../../app/desks/desks-topbar.component';
 import { DesksComponent } from '../../app/desks/desks.component';
 import { ApplicationSidebarComponent } from '../../app/ui/app-sidebar.component';
 import { ApplicationTopbarComponent } from '../../app/ui/app-topbar.component';
+import { SearchbarComponent } from '../../app/ui/searchbar.component';
 
 describe('DesksComponent', () => {
     let spectator: SpectatorRouting<DesksComponent>;
@@ -21,6 +23,8 @@ describe('DesksComponent', () => {
             MockComponent(ApplicationTopbarComponent),
             MockComponent(ApplicationSidebarComponent),
             MockComponent(DesksTopbarComponent),
+            MockComponent(IconComponent),
+            MockComponent(SearchbarComponent),
         ],
         providers: [
             MockProvider(DesksStateService, { refresh: jest.fn() }),
