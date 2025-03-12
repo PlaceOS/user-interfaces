@@ -1,21 +1,27 @@
 import { Component } from '@angular/core';
 
 @Component({
-    selector: '[app-room-manager]',
+    selector: '[app-new-room-manager]',
     template: `
-        <sidebar></sidebar>
-        <main class="relative flex flex-col overflow-hidden">
-            <room-manager-topbar class="block w-full"></room-manager-topbar>
-            <room-list class="relative block h-1/2 w-full flex-1"></room-list>
-        </main>
+        <app-topbar></app-topbar>
+        <div class="flex h-px flex-1">
+            <app-sidebar></app-sidebar>
+            <main class="flex h-full w-1/2 flex-1 flex-col">
+                <room-manager-topbar class="block w-full"></room-manager-topbar>
+                <room-list
+                    class="relative block h-1/2 w-full flex-1"
+                ></room-list>
+            </main>
+        </div>
     `,
     styles: [
         `
             :host {
                 display: flex;
+                flex-direction: column;
                 height: 100%;
                 width: 100%;
-                background: var(--b1);
+                background-color: var(--b1);
             }
 
             sidebar {

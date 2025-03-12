@@ -28,7 +28,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 <a
                     icon
                     matRipple
-                    [routerLink]="['/book/assets', 'new', 'list', 'items']"
+                    [routerLink]="['/book/assets', 'list', 'items']"
                 >
                     <app-icon>arrow_back</app-icon>
                 </a>

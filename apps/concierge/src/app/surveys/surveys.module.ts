@@ -24,7 +24,6 @@ import { SurveySuiteModule } from '@placeos/survey-suite';
 import { SurveyModule } from 'survey-angular-ui';
 import { QuestionBankComponent } from './components/question-bank/question-bank.component';
 import { SearchInputComponent } from './components/search-input.component';
-import { NewSurveyComponent } from './new-survey.component';
 import { ModQuestionOverlayComponent } from './overlays/mod-question-overlay.component';
 import { ModSurveyComponent } from './pages/mod-survey.component';
 import { RunSurveyComponent } from './pages/run-survey.component';
@@ -35,16 +34,16 @@ import { SurveyBuilderService } from './services/survey-builder.service';
 import { SurveyService } from './services/survey.service';
 import { SurveyComponent } from './survey.component';
 
-import { StylesManager } from 'survey-core';
+// import { StylesManager } from 'survey-core';
 
-//SurveyJS styling
-StylesManager.applyTheme('modern');
+// //SurveyJS styling
+// StylesManager.applyTheme('modern');
 
 const routes: Route[] = [
     { path: 'run/:id', component: RunSurveyComponent },
     {
         path: '',
-        component: NewSurveyComponent,
+        component: SurveyComponent,
         children: [
             { path: '', component: BuildingListComponent },
             { path: 'survey-list/:id', component: SurveyListingsComponent },
@@ -59,7 +58,6 @@ const routes: Route[] = [
 
 const COMPONENTS = [
     SurveyComponent,
-    NewSurveyComponent,
     BuildingListComponent,
     NotFoundComponent,
     ModQuestionOverlayComponent,

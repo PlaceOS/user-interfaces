@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
-import { first } from 'rxjs/operators';
+import { debounceTime, first } from 'rxjs/operators';
 
 import { AsyncHandler, nextValueFrom, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
@@ -143,6 +143,7 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
         this._state.setOptions({ search: str });
     /** List of levels for the active building */
     public readonly updateZones = (z) => {
+        if (!this._router.url.includes('parking')) return;
         this._router.navigate([], {
             relativeTo: this._route,
             queryParams: { zone_ids: z.join(',') },
@@ -197,7 +198,7 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
         );
         this.subscription(
             'levels',
-            this._state.levels.subscribe((levels) => {
+            this._state.levels.pipe(debounceTime(100)).subscribe((levels) => {
                 if (this.use_region) return;
                 this.zones = this.zones.filter((zone) =>
                     levels.find((lvl) => lvl.id === zone),

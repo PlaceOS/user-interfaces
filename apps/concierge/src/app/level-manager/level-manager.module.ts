@@ -13,10 +13,7 @@ import { LevelListComponent } from './level-list.component';
 import { LevelManagerComponent } from './level-manager.component';
 import { LevelModalComponent } from './level-modal.component';
 
-const ROUTES: Route[] = [
-    { path: '', component: LevelManagerComponent },
-    { path: 'new', component: LevelManagerComponent },
-];
+const ROUTES: Route[] = [{ path: '', component: LevelManagerComponent }];
 
 @NgModule({
     declarations: [

@@ -6,7 +6,6 @@ import { Route, RouterModule } from '@angular/router';
 import { UIModule } from '../ui/ui.module';
 import { EmergencyContactModalComponent } from './emergency-contact-modal.component';
 import { EmergencyContactsComponent } from './emergency-contacts.component';
-import { NewStaffComponent } from './new-staff.component';
 import { RoleManagementModalComponent } from './role-management-modal.component';
 import { StaffDetailsComponent } from './staff-details.component';
 import { StaffListingComponent } from './staff-listing.component';
@@ -15,12 +14,10 @@ import { StaffComponent } from './staff.component';
 
 const ROUTES: Route[] = [
     { path: '', component: StaffComponent },
-    { path: 'new', component: NewStaffComponent },
     { path: 'emergency-contacts', component: EmergencyContactsComponent },
 ];
 
 export const COMPONENTS: Type<any>[] = [
-    NewStaffComponent,
     StaffComponent,
     StaffTopbarComponent,
     StaffListingComponent,

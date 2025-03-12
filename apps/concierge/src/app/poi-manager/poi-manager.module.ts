@@ -14,10 +14,7 @@ import { POIListComponent } from './poi-list.component';
 import { POIManagerComponent } from './poi-manager.component';
 import { POIModalComponent } from './poi-modal.component';
 
-const ROUTES: Route[] = [
-    { path: '', component: POIManagerComponent },
-    { path: 'new', component: POIManagerComponent },
-];
+const ROUTES: Route[] = [{ path: '', component: POIManagerComponent }];
 
 @NgModule({
     declarations: [

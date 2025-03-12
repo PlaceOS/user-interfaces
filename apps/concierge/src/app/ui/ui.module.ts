@@ -26,7 +26,6 @@ import { PaymentsModule } from '@placeos/payments';
 import { SharedSpacesModule } from '@placeos/spaces';
 import { DateOptionsComponent } from './date-options.component';
 import { SearchbarComponent } from './searchbar.component';
-import { SidebarComponent } from './sidebar.component';
 import { ViewEventDetailsComponent } from './view-event-details.component';
 
 import { AppSettingsModalComponent } from './app-settings-modal.component';
@@ -42,7 +41,6 @@ import { SelectMapItemModalComponent } from './select-map-item-modal.component';
 
 const COMPONENTS: Type<any>[] = [
     AppSettingsModalComponent,
-    SidebarComponent,
     DateOptionsComponent,
     SearchbarComponent,
     ViewEventDetailsComponent,

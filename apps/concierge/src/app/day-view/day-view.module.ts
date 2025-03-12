@@ -5,7 +5,6 @@ import { Route, RouterModule } from '@angular/router';
 
 import { UIModule } from '../ui/ui.module';
 
-import { DayViewComponent } from './day-view.component';
 import { DayviewEventComponent } from './dayview-event.component';
 import { DayviewSpaceComponent } from './dayview-space.component';
 import { DayviewTimelineComponent } from './dayview-timeline.component';
@@ -16,28 +15,24 @@ import { SharedSpacesModule } from '@placeos/spaces';
 import { SharedUsersModule } from '@placeos/users';
 import { MeetingFormDetailsComponent } from 'apps/workplace/src/app/book/meeting-flow/meeting-form-details.component';
 import { BookingModalComponent } from './booking-modal.component';
+import { DayViewComponent } from './day-view.component';
 import { EventBookModalComponent } from './event-book-modal.component';
 import { EventFormComponent } from './event-form.component';
-import { NewDayViewComponent } from './new-dayview.component';
 import { RoomBookingsApprovalsComponent } from './room-approvals.component';
 import { RoomBookingSearchComponent } from './room-booking-search.component';
 import { RoomBookingsComponent } from './room-bookings.component';
 import { RoomBookingsTimelineComponent } from './room-timeline.component';
 import { RoomWeekBookingsTimelineComponent } from './room-week-timeline.component';
 
-const ROUTES: Route[] = [
-    { path: '', component: DayViewComponent },
-    { path: 'new', component: NewDayViewComponent },
-];
+const ROUTES: Route[] = [{ path: '', component: DayViewComponent }];
 
 @NgModule({
     declarations: [
-        DayViewComponent,
         DayviewTopbarComponent,
         DayviewTimelineComponent,
         DayviewSpaceComponent,
         DayviewEventComponent,
-        NewDayViewComponent,
+        DayViewComponent,
 
         BookingModalComponent,
         EventFormComponent,

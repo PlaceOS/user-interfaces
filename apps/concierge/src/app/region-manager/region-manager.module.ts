@@ -13,10 +13,7 @@ import { RegionListComponent } from './region-list.component';
 import { RegionManagerComponent } from './region-manager.component';
 import { RegionModalComponent } from './region-modal.component';
 
-const ROUTES: Route[] = [
-    { path: '', component: RegionManagerComponent },
-    { path: 'new', component: RegionManagerComponent },
-];
+const ROUTES: Route[] = [{ path: '', component: RegionManagerComponent }];
 
 @NgModule({
     declarations: [

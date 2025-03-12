@@ -16,7 +16,6 @@ import { DeskBookingsComponent } from './desk-bookings.component';
 import { DeskMapViewComponent } from './desk-map-view.component';
 import { DesksManageComponent } from './desks-manage.component';
 import { DesksTopbarComponent } from './desks-topbar.component';
-import { DesksComponent } from './desks.component';
 
 import { SharedBookingsModule } from '@placeos/bookings';
 import { FormFieldsModule } from '@placeos/form-fields';
@@ -24,19 +23,9 @@ import { NewDeskFormDetailsComponent } from 'apps/workplace/src/app/book/new-des
 import { DeskBookModalComponent } from './desk-book-modal.component';
 import { DeskModalComponent } from './desk-modal.component';
 import { DeskQrCodeModalComponent } from './desk-qr-code-modal.component';
-import { NewDesksComponent } from './new-desks.component';
+import { DesksComponent } from './desks.component';
 
 const ROUTES: Route[] = [
-    {
-        path: 'new',
-        component: NewDesksComponent,
-        children: [
-            { path: 'events', component: DeskBookingsComponent },
-            { path: 'map', component: DeskMapViewComponent },
-            { path: 'manage', component: DesksManageComponent },
-            { path: '**', redirectTo: 'events' },
-        ],
-    },
     {
         path: '',
         component: DesksComponent,
@@ -51,7 +40,6 @@ const ROUTES: Route[] = [
 
 @NgModule({
     declarations: [
-        NewDesksComponent,
         DesksComponent,
         DeskBookingsComponent,
         DesksTopbarComponent,

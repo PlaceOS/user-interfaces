@@ -3,26 +3,30 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { StaffStateService } from './staff-state.service';
 
 @Component({
-    selector: '[app-staff]',
+    selector: '[app-new-staff]',
     template: `
-        <sidebar></sidebar>
-        <main class="relative flex flex-1 flex-col overflow-hidden">
-            <staff-topbar class="w-full"></staff-topbar>
-            <staff-listings class="h-0 w-full flex-1"></staff-listings>
-            <mat-progress-bar
-                class="w-full"
-                *ngIf="loading | async"
-                mode="indeterminate"
-            ></mat-progress-bar>
-        </main>
+        <app-topbar></app-topbar>
+        <div class="flex h-px flex-1">
+            <app-sidebar></app-sidebar>
+            <main class="flex h-full w-1/2 flex-1 flex-col">
+                <staff-topbar class="w-full"></staff-topbar>
+                <staff-listings class="h-0 w-full flex-1"></staff-listings>
+                <mat-progress-bar
+                    class="w-full"
+                    *ngIf="loading | async"
+                    mode="indeterminate"
+                ></mat-progress-bar>
+            </main>
+        </div>
     `,
     styles: [
         `
             :host {
                 display: flex;
+                flex-direction: column;
                 height: 100%;
                 width: 100%;
-                background: var(--b1);
+                background-color: var(--b1);
             }
         `,
     ],

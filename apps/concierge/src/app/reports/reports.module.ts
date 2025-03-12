@@ -31,7 +31,6 @@ import { LockersReportDailyUsageComponent } from './lockers/lockers-report-daily
 import { LockersReportListComponent } from './lockers/lockers-report-list.component';
 import { LockersReportOverallComponent } from './lockers/lockers-report-overall.component';
 import { LockersReportComponent } from './lockers/lockers-report.component';
-import { NewReportsComponent } from './new-reports.component';
 import { ParkingReportChartsComponent } from './parking/parking-report-charts.component';
 import { ParkingReportDailyUsageComponent } from './parking/parking-report-daily-usage.component';
 import { ParkingReportListComponent } from './parking/parking-report-list.component';
@@ -68,14 +67,10 @@ const children: Route[] = [
     { path: '**', redirectTo: 'desks', pathMatch: 'full' },
 ];
 
-const ROUTES: Route[] = [
-    { path: 'new', component: NewReportsComponent, children },
-    { path: '', component: ReportsComponent, children },
-];
+const ROUTES: Route[] = [{ path: '', component: ReportsComponent, children }];
 
 @NgModule({
     declarations: [
-        NewReportsComponent,
         ReportsComponent,
         ReportsOptionsComponent,
 

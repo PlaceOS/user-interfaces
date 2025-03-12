@@ -3,18 +3,22 @@ import { Component } from '@angular/core';
 @Component({
     selector: '[asset-manager]',
     template: `
-        <sidebar></sidebar>
-        <main class="relative w-1/2 flex-1 overflow-hidden bg-base-100">
-            <router-outlet></router-outlet>
-        </main>
+        <app-topbar></app-topbar>
+        <div class="flex h-px flex-1">
+            <app-sidebar></app-sidebar>
+            <main class="flex h-full w-1/2 flex-1 flex-col">
+                <router-outlet></router-outlet>
+            </main>
+        </div>
     `,
     styles: [
         `
             :host {
                 display: flex;
+                flex-direction: column;
                 height: 100%;
                 width: 100%;
-                background: var(--b1);
+                background-color: var(--b1);
             }
         `,
     ],

@@ -17,10 +17,7 @@ import { BuildingModalComponent } from './building-modal.component';
 import { InductionSettingsModalComponent } from './induction-settings-modal.component';
 import { ItemListModalComponent } from './item-list-modal.component';
 
-const ROUTES: Route[] = [
-    { path: '', component: BuildingManagerComponent },
-    { path: 'new', component: BuildingManagerComponent },
-];
+const ROUTES: Route[] = [{ path: '', component: BuildingManagerComponent }];
 
 @NgModule({
     declarations: [

@@ -130,19 +130,9 @@ export class SurveyService {
     public back() {
         const building_id = this._options.getValue()?.building_id || '';
         if (building_id?.length) {
-            this.router.navigate([
-                this._settings.get('app.default_route').includes('new')
-                    ? '/surveys'
-                    : '/surveys',
-                'survey-list',
-                building_id,
-            ]);
+            this.router.navigate(['/surveys', 'survey-list', building_id]);
         } else {
-            this.router.navigate([
-                this._settings.get('app.default_route').includes('new')
-                    ? '/surveys'
-                    : '/surveys',
-            ]);
+            this.router.navigate(['/surveys']);
         }
     }
 

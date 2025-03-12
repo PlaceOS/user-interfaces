@@ -62,7 +62,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
 })
 export class AssetListingComponent extends AsyncHandler {
     public active = 'requests';
-    public is_new = false;
+    public is_new = true;
 
     public get base_route() {
         return this._state.base_route;
@@ -76,7 +76,6 @@ export class AssetListingComponent extends AsyncHandler {
     }
 
     public ngOnInit() {
-        this.is_new = this._router.url.includes('new');
         this.active = this._router.url.includes('requests')
             ? 'requests'
             : this._router.url.includes('items')
@@ -86,7 +85,6 @@ export class AssetListingComponent extends AsyncHandler {
             'router.events',
             this._router.events.subscribe((e) => {
                 if (e instanceof NavigationEnd) {
-                    this.is_new = this._router.url.includes('new');
                     this.active = this._router.url.includes('requests')
                         ? 'requests'
                         : this._router.url.includes('items')

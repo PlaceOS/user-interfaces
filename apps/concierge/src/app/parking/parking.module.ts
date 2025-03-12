@@ -8,7 +8,6 @@ import { FormFieldsModule } from '@placeos/form-fields';
 import { UIModule } from '../ui/ui.module';
 
 import { SharedBookingsModule } from '@placeos/bookings';
-import { NewParkingComponent } from './new-parking.component';
 import { ParkingBookingModalComponent } from './parking-booking-modal.component';
 import { ParkingBookingsListComponent } from './parking-bookings-list.component';
 import { ParkingMapComponent } from './parking-map.component';
@@ -20,7 +19,6 @@ import { ParkingUsersListComponent } from './parking-users-list.component';
 import { ParkingComponent } from './parking.component';
 
 const COMPONENTS = [
-    NewParkingComponent,
     ParkingComponent,
     ParkingBookingsListComponent,
     ParkingBookingModalComponent,
@@ -34,22 +32,12 @@ const COMPONENTS = [
 
 const ROUTES: Route[] = [
     {
-        path: 'new',
-        component: NewParkingComponent,
-        children: [
-            { path: 'events', component: ParkingBookingsListComponent },
-            { path: 'manage/users', component: ParkingUsersListComponent },
-            { path: 'manage/map', component: ParkingMapComponent },
-            { path: 'manage', component: ParkingSpaceListComponent },
-            { path: '**', redirectTo: 'events' },
-        ],
-    },
-    {
         path: '',
         component: ParkingComponent,
         children: [
             { path: 'events', component: ParkingBookingsListComponent },
-            { path: 'users', component: ParkingUsersListComponent },
+            { path: 'manage/users', component: ParkingUsersListComponent },
+            { path: 'manage/map', component: ParkingMapComponent },
             { path: 'manage', component: ParkingSpaceListComponent },
             { path: '**', redirectTo: 'events' },
         ],

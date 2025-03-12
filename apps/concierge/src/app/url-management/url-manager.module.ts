@@ -13,10 +13,7 @@ import { UrlListComponent } from './url-list.component';
 import { UrlManagerComponent } from './url-manager.component';
 import { ShortUrlModalComponent } from './url-modal.component';
 
-const ROUTES: Route[] = [
-    { path: '', component: UrlManagerComponent },
-    { path: 'new', component: UrlManagerComponent },
-];
+const ROUTES: Route[] = [{ path: '', component: UrlManagerComponent }];
 
 @NgModule({
     declarations: [

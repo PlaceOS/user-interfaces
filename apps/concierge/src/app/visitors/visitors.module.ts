@@ -8,20 +8,15 @@ import { UIModule } from '../ui/ui.module';
 import { SharedBookingsModule } from '@placeos/bookings';
 import { GuestListingComponent } from './guest-listing.component';
 import { InviteVisitorModalComponent } from './invite-visitor-modal.component';
-import { NewVisitorsComponent } from './new-visitors.component';
 import { VisitorInductionModalComponent } from './visitor-induction-modal.component';
 import { VisitorNotesModalComponent } from './visitor-notes-modal.component';
 import { VisitorsTopbarComponent } from './visitors-topbar.component';
 import { VisitorsComponent } from './visitors.component';
 
-const ROUTES: Route[] = [
-    { path: '', component: VisitorsComponent },
-    { path: 'new', component: NewVisitorsComponent },
-];
+const ROUTES: Route[] = [{ path: '', component: VisitorsComponent }];
 
 @NgModule({
     declarations: [
-        NewVisitorsComponent,
         VisitorsComponent,
         VisitorsTopbarComponent,
         GuestListingComponent,

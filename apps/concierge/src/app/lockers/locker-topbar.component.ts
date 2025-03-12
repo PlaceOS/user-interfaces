@@ -144,6 +144,7 @@ export class LockersTopbarComponent extends AsyncHandler implements OnInit {
         this._state.releaseAllLockers(true);
     /** List of levels for the active building */
     public readonly updateZones = (z) => {
+        if (!this._router.url.includes('lockers')) return;
         this._router.navigate([], {
             relativeTo: this._route,
             queryParams: { zone_ids: z.join(',') },

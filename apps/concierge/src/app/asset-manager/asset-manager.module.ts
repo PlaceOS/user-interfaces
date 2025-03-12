@@ -24,11 +24,9 @@ import { AssetRequestDetailsComponent } from './asset-request-details.component'
 import { AssetRequestListComponent } from './asset-request-list.component';
 import { AssetViewComponent } from './asset-view.component';
 import { DurationFormatPipe } from './duration.pipe';
-import { NewAssetManagerComponent } from './new-asset-manager.component';
 import { SplitJoinPipe } from './split-join.pipe';
 
 const COMPONENTS = [
-    NewAssetManagerComponent,
     AssetManagerComponent,
     AssetManagerTopbarComponent,
     AssetListingComponent,
@@ -81,11 +79,6 @@ const children = [
 ];
 
 const ROUTES: Route[] = [
-    {
-        path: 'new',
-        component: NewAssetManagerComponent,
-        children,
-    },
     {
         path: '',
         component: AssetManagerComponent,

@@ -6,22 +6,12 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { Route, RouterModule } from '@angular/router';
 import { UIModule } from '../ui/ui.module';
 import { PointsAssetModalComponent } from './asset-modal.component';
-import { NewPointsComponent } from './new-points.component';
 import { PointsAssetsComponent } from './points-assets.component';
 import { PointsOverviewComponent } from './points-overview.component';
 import { PointsTopbarComponent } from './points-topbar.component';
 import { PointsComponent } from './points.component';
 
 const ROUTES: Route[] = [
-    {
-        path: 'new',
-        component: NewPointsComponent,
-        children: [
-            { path: 'assets', component: PointsAssetsComponent },
-            { path: 'overview', component: PointsOverviewComponent },
-            { path: '**', redirectTo: 'overview', pathMatch: 'full' },
-        ],
-    },
     {
         path: '',
         component: PointsComponent,
@@ -35,7 +25,6 @@ const ROUTES: Route[] = [
 
 @NgModule({
     declarations: [
-        NewPointsComponent,
         PointsComponent,
         PointsTopbarComponent,
         PointsOverviewComponent,

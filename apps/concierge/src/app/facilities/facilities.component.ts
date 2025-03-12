@@ -1,23 +1,30 @@
 import { Component } from '@angular/core';
 
 @Component({
-    selector: '[app-facilities]',
+    selector: '[app-new-facilities]',
     template: `
-        <sidebar></sidebar>
-        <main class="relative flex w-full flex-col bg-base-200">
-            <facilities-topbar></facilities-topbar>
-            <div class="flex flex-1">
-                <facilities-map class="h-full flex-1"></facilities-map>
-                <facilities-status class="h-full space-y-4"></facilities-status>
-            </div>
-        </main>
+        <app-topbar></app-topbar>
+        <div class="flex h-px flex-1">
+            <app-sidebar></app-sidebar>
+            <main class="flex h-full w-1/2 flex-1 flex-col">
+                <facilities-topbar></facilities-topbar>
+                <div class="flex flex-1">
+                    <facilities-map class="h-full flex-1"></facilities-map>
+                    <facilities-status
+                        class="h-full space-y-4"
+                    ></facilities-status>
+                </div>
+            </main>
+        </div>
     `,
     styles: [
         `
             :host {
                 display: flex;
+                flex-direction: column;
                 height: 100%;
                 width: 100%;
+                background-color: var(--b1);
             }
 
             facilities-map {

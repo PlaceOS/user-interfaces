@@ -11,21 +11,14 @@ import { UIModule } from '../ui/ui.module';
 import { SharedCateringModule } from '@placeos/catering';
 import { CateringTopbarComponent } from './catering-topbar.component';
 import { CateringComponent } from './catering.component';
-import { NewCateringComponent } from './new-catering.component';
 
 const ROUTES: Route[] = [
     { path: '', component: CateringComponent },
-    { path: 'new', component: NewCateringComponent },
     { path: ':view', component: CateringComponent },
-    { path: 'new/:view', component: NewCateringComponent },
 ];
 
 @NgModule({
-    declarations: [
-        CateringComponent,
-        NewCateringComponent,
-        CateringTopbarComponent,
-    ],
+    declarations: [CateringComponent, CateringTopbarComponent],
     imports: [
         CommonModule,
         FormsModule,

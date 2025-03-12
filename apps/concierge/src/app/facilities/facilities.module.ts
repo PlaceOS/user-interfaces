@@ -8,19 +8,14 @@ import { UIModule } from '../ui/ui.module';
 import { FacilitiesMapComponent } from './facilities-map.component';
 import { FacilitiesStatusComponent } from './facilities-status.component';
 import { FacilitiesTopbarComponent } from './facilities-topbar.component';
-import { FacilitiesComponent } from './facilities.component';
 
 import { SharedExploreModule } from '@placeos/explore';
-import { NewFacilitiesComponent } from './new-facilities.component';
+import { FacilitiesComponent } from './facilities.component';
 
-const ROUTES: Route[] = [
-    { path: '', component: FacilitiesComponent },
-    { path: 'new', component: NewFacilitiesComponent },
-];
+const ROUTES: Route[] = [{ path: '', component: FacilitiesComponent }];
 
 @NgModule({
     declarations: [
-        NewFacilitiesComponent,
         FacilitiesComponent,
         FacilitiesTopbarComponent,
         FacilitiesStatusComponent,

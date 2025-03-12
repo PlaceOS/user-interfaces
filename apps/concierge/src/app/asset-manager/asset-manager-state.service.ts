@@ -292,9 +292,7 @@ export class AssetManagerStateService extends AsyncHandler {
     }
 
     public get is_new_ui() {
-        return (
-            location.hash.includes('new') || location.pathname.includes('new')
-        );
+        return true;
     }
 
     public get base_route() {

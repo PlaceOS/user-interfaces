@@ -14,7 +14,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { LockerBookingsComponent } from './locker-bookings.component';
 import { LockersTopbarComponent } from './locker-topbar.component';
-import { LockersComponent } from './lockers.component';
 
 import { SharedBookingsModule } from '@placeos/bookings';
 import { FormFieldsModule } from '@placeos/form-fields';
@@ -22,19 +21,10 @@ import { LockerBankModalComponent } from './locker-bank-modal.component';
 import { LockerBookingModalComponent } from './locker-booking-modal.component';
 import { LockerListComponent } from './locker-list.component';
 import { LockerModalComponent } from './locker-modal.component';
-import { NewLockersComponent } from './new-lockers.component';
+import { LockersComponent } from './lockers.component';
 import { ViewLockerBankModalComponent } from './view-locker-bank-modal.component';
 
 const ROUTES: Route[] = [
-    {
-        path: 'new',
-        component: NewLockersComponent,
-        children: [
-            { path: 'events', component: LockerBookingsComponent },
-            { path: 'manage', component: LockerListComponent },
-            { path: '**', redirectTo: 'events' },
-        ],
-    },
     {
         path: '',
         component: LockersComponent,
@@ -48,7 +38,6 @@ const ROUTES: Route[] = [
 
 @NgModule({
     declarations: [
-        NewLockersComponent,
         LockersComponent,
         LockerBookingsComponent,
         LockersTopbarComponent,

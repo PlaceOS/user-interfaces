@@ -4,47 +4,60 @@ import { AsyncHandler } from '@placeos/common';
 import { PointsStateService } from './points-state.service';
 
 @Component({
-    selector: 'placeos-points',
+    selector: 'placeos-new-points',
     template: `
-        <sidebar></sidebar>
-        <main class="relative flex w-full flex-col bg-base-200">
-            <points-topbar class="relative z-10">
-                <button
-                    *ngIf="page === 'assets'"
-                    btn
-                    matRipple
-                    (click)="newAsset()"
+        <app-topbar></app-topbar>
+        <div class="flex h-px flex-1">
+            <app-sidebar></app-sidebar>
+            <main class="flex h-full w-1/2 flex-1 flex-col">
+                <points-topbar class="relative z-10">
+                    <button
+                        *ngIf="page === 'assets'"
+                        btn
+                        matRipple
+                        class="w-40"
+                        (click)="newAsset()"
+                    >
+                        {{ 'APP.CONCIERGE.POINTS_ASSETS_ADD' | translate }}
+                    </button>
+                </points-topbar>
+                <div class="mb-4 px-8">
+                    <nav mat-tab-nav-bar [tabPanel]="tabPanel">
+                        <a
+                            mat-tab-link
+                            [routerLink]="['/points-management', 'overview']"
+                            [active]="page === 'overview'"
+                        >
+                            {{
+                                'APP.CONCIERGE.POINTS_TAB_OVERVIEW' | translate
+                            }}
+                        </a>
+                        <a
+                            mat-tab-link
+                            [routerLink]="['/points-management', 'assets']"
+                            [active]="page === 'assets'"
+                        >
+                            {{ 'APP.CONCIERGE.POINTS_TAB_ASSETS' | translate }}
+                        </a>
+                    </nav>
+                </div>
+                <mat-tab-nav-panel
+                    class="h-1/2 w-full flex-1 overflow-auto px-8"
+                    #tabPanel
                 >
-                    {{ 'APP.CONCIERGE.POINTS_ASSETS_ADD' | translate }}
-                </button>
-            </points-topbar>
-            <nav mat-tab-nav-bar>
-                <a
-                    mat-tab-link
-                    [routerLink]="['/points', 'overview']"
-                    [active]="page === 'overview'"
-                >
-                    {{ 'APP.CONCIERGE.POINTS_TAB_OVERVIEW' | translate }}
-                </a>
-                <a
-                    mat-tab-link
-                    [routerLink]="['/points', 'assets']"
-                    [active]="page === 'assets'"
-                >
-                    {{ 'APP.CONCIERGE.POINTS_TAB_ASSETS' | translate }}
-                </a>
-            </nav>
-            <div class="h-1/2 w-full flex-1 overflow-auto">
-                <router-outlet></router-outlet>
-            </div>
-        </main>
+                    <router-outlet></router-outlet>
+                </mat-tab-nav-panel>
+            </main>
+        </div>
     `,
     styles: [
         `
             :host {
                 display: flex;
+                flex-direction: column;
                 height: 100%;
                 width: 100%;
+                background-color: var(--b1);
             }
         `,
     ],

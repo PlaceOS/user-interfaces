@@ -17,15 +17,6 @@ const routes: Routes = [
         canLoad: [AuthorisedUserGuard],
     },
     {
-        path: 'week-view',
-        loadChildren: () =>
-            import('./week-view/week-view.module').then(
-                (m) => m.WeekViewModule,
-            ),
-        canActivate: [AuthorisedUserGuard],
-        canLoad: [AuthorisedUserGuard],
-    },
-    {
         path: 'facilities',
         loadChildren: () =>
             import('./facilities/facilities.module').then(

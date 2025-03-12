@@ -165,10 +165,6 @@ export class BuildingListComponent {
         shareReplay(1),
     );
 
-    public get new_routes() {
-        return (this._settings.get('app.default_route') || '').includes('new');
-    }
-
     constructor(
         private _org: OrganisationService,
         private _settings: SettingsService,
