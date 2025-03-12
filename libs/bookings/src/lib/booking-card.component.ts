@@ -272,25 +272,7 @@ export class BookingCardComponent
                 remove_fn: this.remove_fn,
                 end_fn: this.end_fn,
             };
-            const ref: any = this._dialog.open(view_component, { data });
-            this.subscription(
-                'edit',
-                ref.componentInstance.edit?.subscribe(() =>
-                    this.edit_fn(this.booking),
-                ),
-            );
-            this.subscription(
-                'remove',
-                ref.componentInstance.remove?.subscribe((_) =>
-                    this.remove_fn(this.booking, _),
-                ),
-            );
-            this.subscription(
-                'end',
-                ref.componentInstance.end?.subscribe(() =>
-                    this.end_fn(this.booking),
-                ),
-            );
+            this._dialog.open(view_component, { data });
         });
     }
 }

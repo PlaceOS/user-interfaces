@@ -156,7 +156,7 @@ export class ParkingFlowFormComponent extends AsyncHandler {
 
     public async ngOnInit() {
         this._state.setOptions({ type: 'parking' });
-        this.form.patchValue({ all_day: true, user: currentUser() });
+        this.form.patchValue({ user: currentUser() });
         const user = await nextValueFrom(this._parking.user_details);
         if (user?.email) {
             this.form.patchValue({ plate_number: user.plate_number });
