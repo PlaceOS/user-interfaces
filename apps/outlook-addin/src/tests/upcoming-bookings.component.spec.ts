@@ -5,7 +5,7 @@ import { CalendarEvent, EventCardComponent } from '@placeos/events';
 import { MockComponent } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 
-import { ScheduleStateService } from 'apps/workplace/src/app/new-schedule/schedule-state.service';
+import { ScheduleStateService } from 'apps/workplace/src/app/schedule/schedule-state.service';
 import { UpcomingBookingsComponent } from '../app/rooms/upcoming-bookings/upcoming-bookings.component';
 
 describe('UpcomingBookingsComponent', () => {

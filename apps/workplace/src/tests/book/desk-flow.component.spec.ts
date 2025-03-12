@@ -1,74 +1,65 @@
+import { FormGroup } from '@angular/forms';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { BookingFormService } from '@placeos/bookings';
-import { SettingsService } from '@placeos/common';
-import { MockComponent } from 'ng-mocks';
+import { OrganisationService } from '@placeos/organisation';
+import { MockComponent, MockProvider } from 'ng-mocks';
+import { BehaviorSubject } from 'rxjs';
+import { NewDeskFlowComponent } from '../../app/book/desk-flow.component';
+import { NewDeskFlowFormComponent } from '../../app/book/desk-flow/desk-flow-form.component';
+import { NewDeskFlowSuccessComponent } from '../../app/book/desk-flow/desk-flow-success.component';
 
-import { BookDeskFlowComponent } from '../../app/book/desk-flow.component';
-import { DeskFlowConfirmComponent } from '../../app/book/desk-flow/confirm.component';
-import { DeskFlowFormComponent } from '../../app/book/desk-flow/form.component';
-import { DeskFlowMapComponent } from '../../app/book/desk-flow/map.component';
-import { FlowSuccessComponent } from '../../app/book/flow-success.component';
-
-describe('BookDeskFlowComponent', () => {
-    let spectator: SpectatorRouting<BookDeskFlowComponent>;
+describe('NewDeskFlowComponent', () => {
+    let spectator: SpectatorRouting<NewDeskFlowComponent>;
     const createComponent = createRoutingFactory({
-        component: BookDeskFlowComponent,
+        component: NewDeskFlowComponent,
         providers: [
-            {
-                provide: BookingFormService,
-                useValue: {
-                    loadForm: jest.fn(),
-                    newForm: jest.fn(),
-                    setView: jest.fn(),
-                    view: '',
-                    last_success: null,
-                },
-            },
-            { provide: SettingsService, useValue: { get: jest.fn() } },
+            MockProvider(BookingFormService, {
+                loadForm: jest.fn(),
+                newForm: jest.fn(),
+                setView: jest.fn(),
+                setOptions: jest.fn(),
+                form: new FormGroup({}),
+                view: '',
+                last_success: null,
+            } as any),
+            MockProvider(OrganisationService, {
+                initialised: new BehaviorSubject(true),
+            }),
         ],
         declarations: [
-            MockComponent(DeskFlowFormComponent),
-            MockComponent(DeskFlowMapComponent),
-            MockComponent(DeskFlowConfirmComponent),
-            MockComponent(FlowSuccessComponent),
+            MockComponent(NewDeskFlowFormComponent),
+            MockComponent(NewDeskFlowSuccessComponent),
         ],
     });
 
-    beforeEach(() => (spectator = createComponent()));
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
+    beforeEach(() => {
+        spectator = createComponent();
+        const book_service: any = spectator.inject(BookingFormService);
+        book_service.setView.mockImplementation((e) => {
+            book_service.view = e;
+            spectator.detectChanges();
+        });
+        book_service.setView('form');
     });
 
-    it('should show form page', () => {
+    it('should create component', () =>
+        expect(spectator.component).toBeTruthy());
+
+    it('should show form view by default', () => {
         expect('desk-flow-form').toExist();
-        const service = spectator.inject(BookingFormService);
-        (service as any).view = 'confirm';
-        spectator.detectChanges();
+        spectator.inject(BookingFormService).setView('success');
         expect('desk-flow-form').not.toExist();
     });
 
-    it('should show desk map page', () => {
-        expect('desk-flow-map').not.toExist();
-        const service = spectator.inject(BookingFormService);
-        (service as any).view = 'map';
-        spectator.detectChanges();
-        expect('desk-flow-map').toExist();
+    it('should show success view when set', () => {
+        expect('desk-flow-success').not.toExist();
+        spectator.inject(BookingFormService).setView('success');
+        expect('desk-flow-success').toExist();
     });
 
-    it('should show confirm page', () => {
-        expect('desk-flow-confirm').not.toExist();
-        const service = spectator.inject(BookingFormService);
-        (service as any).view = 'confirm';
-        spectator.detectChanges();
-        expect('desk-flow-confirm').toExist();
-    });
-
-    it('should show success page', () => {
-        expect('flow-success').not.toExist();
-        const service = spectator.inject(BookingFormService);
-        (service as any).view = 'success';
-        spectator.detectChanges();
-        expect('flow-success').toExist();
+    it('should set view based of route params', () => {
+        expect('desk-flow-success').not.toExist();
+        spectator.setRouteParam('step', 'success');
+        expect('desk-flow-success').toExist();
     });
 });

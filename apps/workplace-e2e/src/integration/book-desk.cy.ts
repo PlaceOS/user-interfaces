@@ -1,9 +1,9 @@
 describe('Booking Desks', () => {
-    beforeEach(() => cy.visit('/#/book/new-desks/form?mock=true'));
+    beforeEach(() => cy.visit('/#/book/desks/form?mock=true'));
 
     it('should display booking form', () => {
         cy.get('global-loading');
-        cy.get('new-desk-flow-form');
+        cy.get('desk-flow-form');
     });
 
     // #region SINGLE BOOKINGS
@@ -33,7 +33,7 @@ describe('Booking Desks', () => {
                         force: true,
                     })
                     .then(() => {
-                        cy.get('new-desk-flow-confirm').should('not.exist');
+                        cy.get('desk-flow-confirm').should('not.exist');
                     });
 
                 // ********************************
@@ -47,14 +47,14 @@ describe('Booking Desks', () => {
                 //         force: true,
                 //     })
                 //     .then(() => {
-                //         cy.get('new-desk-flow-confirm').should('not.exist');
+                //         cy.get('desk-flow-confirm').should('not.exist');
                 //     });
             });
     });
 
     it('should allow All Day bookings to be added to the form', () => {
         cy.wait(3000);
-        cy.get('new-desk-flow-confirm').should('not.exist');
+        cy.get('desk-flow-confirm').should('not.exist');
         cy.get('mat-checkbox[formcontrolname="all_day"]')
             .find('input[type=checkbox]')
             .check()
@@ -78,10 +78,10 @@ describe('Booking Desks', () => {
                                         force: true,
                                     })
                                     .then(() => {
-                                        cy.get('new-desk-flow-confirm').should(
+                                        cy.get('desk-flow-confirm').should(
                                             'exist',
                                         );
-                                        cy.get('new-desk-flow-confirm')
+                                        cy.get('desk-flow-confirm')
                                             .contains('div', 'All Day')
                                             .should('be.visible');
                                         cy.get('button[name="confirm-desk"]')
@@ -137,7 +137,7 @@ describe('Booking Desks', () => {
                                             })
                                             .then(() => {
                                                 cy.get(
-                                                    'new-desk-flow-confirm',
+                                                    'desk-flow-confirm',
                                                 ).should('exist');
                                                 cy.get(
                                                     'button[name="confirm-desk"]',
@@ -189,7 +189,7 @@ describe('Booking Desks', () => {
                                         force: true,
                                     })
                                     .then(() => {
-                                        cy.get('new-desk-flow-confirm')
+                                        cy.get('desk-flow-confirm')
                                             .contains('dual_monitor')
                                             .should('be.visible');
                                     });
@@ -266,9 +266,7 @@ describe('Booking Desks', () => {
                                 force: true,
                             })
                             .then(() => {
-                                cy.get('new-desk-flow-confirm').should(
-                                    'not.exist',
-                                );
+                                cy.get('desk-flow-confirm').should('not.exist');
                             });
 
                         // ********************************
@@ -282,7 +280,7 @@ describe('Booking Desks', () => {
                         //         force: true,
                         //     })
                         //     .then(() => {
-                        //         cy.get('new-desk-flow-confirm').should(
+                        //         cy.get('desk-flow-confirm').should(
                         //             'not.exist'
                         //         );
                         //     });
@@ -293,7 +291,7 @@ describe('Booking Desks', () => {
     it('should allow All Day bookings to be added to the form for Group Bookings', () => {
         cy.get('button').find('div').contains('Group').click({ force: true });
         cy.wait(3000);
-        cy.get('new-desk-flow-confirm').should('not.exist');
+        cy.get('desk-flow-confirm').should('not.exist');
 
         cy.get('input[name="user_email"]')
             .type('testuser@test.com')
@@ -327,10 +325,10 @@ describe('Booking Desks', () => {
                                         force: true,
                                     })
                                     .then(() => {
-                                        cy.get('new-desk-flow-confirm').should(
+                                        cy.get('desk-flow-confirm').should(
                                             'exist',
                                         );
-                                        cy.get('new-desk-flow-confirm')
+                                        cy.get('desk-flow-confirm')
                                             .contains('div', 'All Day')
                                             .should('be.visible');
                                         cy.get('button[name="confirm-desk"]')
@@ -397,7 +395,7 @@ describe('Booking Desks', () => {
                                             })
                                             .then(() => {
                                                 cy.get(
-                                                    'new-desk-flow-confirm',
+                                                    'desk-flow-confirm',
                                                 ).should('exist');
                                                 cy.get(
                                                     'button[name="confirm-desk"]',
@@ -460,7 +458,7 @@ describe('Booking Desks', () => {
                                         force: true,
                                     })
                                     .then(() => {
-                                        cy.get('new-desk-flow-confirm')
+                                        cy.get('desk-flow-confirm')
                                             .contains('dual_monitor')
                                             .should('be.visible');
                                     });

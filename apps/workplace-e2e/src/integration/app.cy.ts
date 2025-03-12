@@ -220,7 +220,7 @@ describe('workplace', () => {
                     .click()
                     .then(() => {
                         cy.wait(3000);
-                        cy.url().should('include', '/book/new-desks');
+                        cy.url().should('include', '/book/desks');
                     });
 
                 cy.get('a[name="nav-meeting"]')
@@ -236,7 +236,7 @@ describe('workplace', () => {
                     .click()
                     .then(() => {
                         cy.wait(3000);
-                        cy.url().should('include', '/book/new-parking');
+                        cy.url().should('include', '/book/parking');
                     });
 
                 cy.get('a[name="nav-visitor-invite"]')

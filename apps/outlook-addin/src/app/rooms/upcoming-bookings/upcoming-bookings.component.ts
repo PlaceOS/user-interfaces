@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { AsyncHandler, currentUser } from '@placeos/common';
 import { CalendarEvent } from '@placeos/events';
 
-import { ScheduleStateService } from 'apps/workplace/src/app/new-schedule/schedule-state.service';
+import { ScheduleStateService } from 'apps/workplace/src/app/schedule/schedule-state.service';
 
 @Component({
     selector: 'placeos-upcoming-bookings',

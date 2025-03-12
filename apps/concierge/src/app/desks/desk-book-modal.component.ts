@@ -27,7 +27,7 @@ import { BehaviorSubject } from 'rxjs';
             "
             (confirm)="save()"
         >
-            <new-desk-form-details [form]="form"></new-desk-form-details>
+            <desk-form-details [form]="form"></desk-form-details>
         </fullscreen-modal-shell>
     `,
     styles: [``],

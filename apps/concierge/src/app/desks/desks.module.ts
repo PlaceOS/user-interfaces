@@ -19,7 +19,7 @@ import { DesksTopbarComponent } from './desks-topbar.component';
 
 import { SharedBookingsModule } from '@placeos/bookings';
 import { FormFieldsModule } from '@placeos/form-fields';
-import { NewDeskFormDetailsComponent } from 'apps/workplace/src/app/book/desk-flow/new-desk-form-details.component';
+import { NewDeskFormDetailsComponent } from 'apps/workplace/src/app/book/desk-flow/desk-form-details.component';
 import { DeskBookModalComponent } from './desk-book-modal.component';
 import { DeskModalComponent } from './desk-modal.component';
 import { DeskQrCodeModalComponent } from './desk-qr-code-modal.component';

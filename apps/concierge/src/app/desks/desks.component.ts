@@ -22,7 +22,7 @@ import { DeskQrCodeModalComponent } from './desk-qr-code-modal.component';
 import { DesksStateService } from './desks-state.service';
 
 @Component({
-    selector: '[app-new-desks]',
+    selector: '[app-desks]',
     template: `
         <app-topbar class="print:hidden"></app-topbar>
         <div class="flex h-px flex-1 print:hidden">

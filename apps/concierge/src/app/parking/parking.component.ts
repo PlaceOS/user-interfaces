@@ -4,7 +4,7 @@ import { AsyncHandler } from '@placeos/common';
 import { ParkingStateService } from './parking-state.service';
 
 @Component({
-    selector: 'app-new-parking',
+    selector: 'app-parking',
     template: `
         <app-topbar></app-topbar>
         <div class="flex h-px flex-1">
