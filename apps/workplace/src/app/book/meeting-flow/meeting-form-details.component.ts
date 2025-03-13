@@ -116,6 +116,7 @@ import {
                         [ngModel]="form.getRawValue().date"
                         (ngModelChange)="form.patchValue({ date: $event })"
                         [ngModelOptions]="{ standalone: true }"
+                        [disabled]="form.controls.date.disabled"
                         [use_24hr]="use_24hr"
                         [timezone]="timezone"
                     ></a-time-field>
