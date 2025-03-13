@@ -254,11 +254,8 @@ export class ScheduleComponent extends AsyncHandler implements OnInit {
     }
 
     public editBooking(event: Booking) {
-        if (event.type === 'locker') {
-            this._router.navigate(['/book', `${event.type}`]);
-        } else {
-            this._router.navigate(['/book', `new-${event.type}`]);
-        }
+        console.log('Edit Booking:', event.type);
+        this._router.navigate(['/book', `${event.type}`]);
         this._booking_form.newForm(event.booking_type, event);
         setTimeout(() => {
             this._booking_form.form.patchValue({
