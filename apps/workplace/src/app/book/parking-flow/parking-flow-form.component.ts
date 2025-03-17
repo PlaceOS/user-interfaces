@@ -158,7 +158,7 @@ export class ParkingFlowFormComponent extends AsyncHandler {
         this._state.setOptions({ type: 'parking' });
         this.form.patchValue({ user: currentUser() });
         const user = await nextValueFrom(this._parking.user_details);
-        if (user?.email) {
+        if (user?.email && !this.form.value.plate_number) {
             this.form.patchValue({ plate_number: user.plate_number });
         }
     }
