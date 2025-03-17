@@ -85,11 +85,12 @@ import { first } from 'rxjs/operators';
                         </label>
                         <a-time-field
                             name="start-time"
-                            [ngModel]="form.value.date"
+                            [ngModel]="form.getRawValue().date"
                             (ngModelChange)="form.patchValue({ date: $event })"
                             [ngModelOptions]="{ standalone: true }"
                             [use_24hr]="use_24hr"
                             [disabled]="
+                                form.controls.date.disabled ||
                                 form.value.duration > 24 * 60 - 1 ||
                                 disable_start
                             "
@@ -103,7 +104,7 @@ import { first } from 'rxjs/operators';
                         <a-duration-field
                             name="end-time"
                             formControlName="duration"
-                            [time]="form.get('date')?.value"
+                            [time]="form.getRawValue().value"
                             [max]="max_duration"
                             [min]="60"
                             [step]="60"

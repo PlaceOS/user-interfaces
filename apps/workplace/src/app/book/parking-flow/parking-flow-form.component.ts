@@ -11,6 +11,7 @@ import {
     notifyError,
     SettingsService,
 } from '@placeos/common';
+import { roundToNearestMinutes } from 'date-fns';
 import { NewParkingFlowConfirmComponent } from './parking-flow-confirm.component';
 
 @Component({
@@ -164,10 +165,23 @@ export class ParkingFlowFormComponent extends AsyncHandler {
     }
 
     public readonly viewConfirm = () => {
-        const { asset_id, resources } = this.form.getRawValue();
+        const { asset_id, resources, date } = this.form.getRawValue();
+        console.log('Form:', this.form.getRawValue().date);
         if (resources?.length && !asset_id) {
             this.form.patchValue({ asset_id: resources[0].id });
         }
+        if (!date) {
+            const state = this.form.controls.date.disabled;
+            if (state) this.form.controls.date.enable();
+            this.form.patchValue({
+                date: roundToNearestMinutes(Date.now(), {
+                    nearestTo: 5,
+                    roundingMethod: 'ceil',
+                }).valueOf(),
+            });
+            if (state) this.form.controls.date.disable();
+        }
+        console.log('Form:', this.form.getRawValue().date);
         if (!this.form.valid)
             return notifyError(
                 `Some fields are invalid. [${getInvalidFields(this.form).join(

@@ -79,10 +79,11 @@ import { addDays, endOfDay } from 'date-fns';
                     >
                     <a-time-field
                         name="start-time"
-                        [ngModel]="form.value.date"
+                        [ngModel]="form.getRawValue().date"
                         (ngModelChange)="form.patchValue({ date: $event })"
                         [ngModelOptions]="{ standalone: true }"
                         [use_24hr]="use_24hr"
+                        [disabled]="form.controls.date.disabled"
                         [timezone]="timezone"
                     ></a-time-field>
                 </div>
@@ -93,7 +94,7 @@ import { addDays, endOfDay } from 'date-fns';
                     <a-duration-field
                         name="end-time"
                         formControlName="duration"
-                        [time]="form?.value?.date"
+                        [time]="form?.getRawValue()?.date"
                         [max]="max_duration"
                         [use_24hr]="use_24hr"
                         [timezone]="timezone"
