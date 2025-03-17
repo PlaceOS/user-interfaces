@@ -88,7 +88,7 @@ import { addDays, endOfDay } from 'date-fns';
                 </div>
                 <div class="relative w-1/3 flex-1">
                     <label for="end-time">
-                        {{ 'FORM.TIME_START' | translate }}<span>*</span>
+                        {{ 'FORM.TIME_END' | translate }}<span>*</span>
                     </label>
                     <a-duration-field
                         name="end-time"
