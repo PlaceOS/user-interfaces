@@ -11,6 +11,8 @@ export class BuildingLevel {
     /** Capacity for the level */
     public readonly capacity: number;
     /** Number or letter representing the level */
+    public readonly code: string;
+    /** Number or letter representing the level */
     public readonly number: string;
     /** URL of the map associated with the level */
     public readonly map_id: string;
@@ -35,6 +37,7 @@ export class BuildingLevel {
         this.locations = _data.locations || [];
         this.tags = _data.tags || [];
         this.images = _data.images || [];
+        this.code = _data.code || '';
         const parts = this.display_name.split(' ');
         this.number = (
             (parts.length >= 2

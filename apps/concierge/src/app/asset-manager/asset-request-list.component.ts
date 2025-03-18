@@ -51,7 +51,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                             sortable: false,
                         },
                         {
-                            key: 'level',
+                            key: 'level_code',
                             name: 'RESOURCE.LEVEL' | translate,
                             content: level_template,
                             size: '9rem',
@@ -305,6 +305,7 @@ export class AssetRequestListComponent extends AsyncHandler implements OnInit {
         const zones = item.zones;
         const level = this._org.levelWithID(zones);
         item.level = level?.display_name || level?.name || zones[0] || '';
+        item.level_code = level?.code || zones[0] || '';
         return level;
     }
 
