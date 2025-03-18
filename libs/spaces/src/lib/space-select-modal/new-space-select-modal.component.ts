@@ -194,6 +194,7 @@ export class NewSpaceSelectModalComponent {
     ) {
         this.selected = [...(_data.spaces || [])];
         this._event_form.setOptions(_data.options);
+        this._event_form.setFilters(_data.options as any);
     }
 
     public isSelected(id: string) {

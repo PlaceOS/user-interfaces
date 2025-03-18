@@ -217,7 +217,8 @@ export class EventFormService extends AsyncHandler {
             }
             if (filters.capacity > 0) {
                 list = list.filter(
-                    ({ capacity }) => filters.capacity <= capacity,
+                    ({ capacity }) =>
+                        filters.capacity <= capacity || capacity < 0,
                 );
             }
             if (filters.features) {
