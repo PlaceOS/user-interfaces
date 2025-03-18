@@ -195,27 +195,24 @@ import { BookingFormService } from '../booking-form.service';
                     </div>
                 </div>
             </section>
-            <section favs class="space-y-2 pb-4">
+            <section favs class="space-y-2 pb-4" *ngIf="!hide_levels">
                 <h2 class="text-lg font-medium">
                     {{ 'COMMON.FAVOURITES' | translate }}
                 </h2>
-                <div class="flex items-center">
-                    <div for="fav" class="w-1/2 flex-1">
-                        {{ 'COMMON.FAVOURITES_ONLY' | translate }}
-                    </div>
-                    <mat-checkbox
-                        name="fav"
+                <div class="flex w-full items-center">
+                    <settings-toggle
+                        class="w-full"
+                        [name]="'COMMON.FAVOURITES_ONLY' | translate"
                         [ngModel]="(options | async)?.show_fav"
                         (ngModelChange)="setOptions({ show_fav: $event })"
                         [ngModelOptions]="{ standalone: true }"
-                    >
-                    </mat-checkbox>
+                    ></settings-toggle>
                 </div>
             </section>
             <section
                 class="space-y-2"
                 features
-                *ngIf="(features | async)?.length"
+                *ngIf="(features | async)?.length && !hide_levels"
             >
                 <h2 class="text-lg font-medium">
                     {{ 'COMMON.TYPE' | translate }}

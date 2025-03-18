@@ -224,25 +224,23 @@ import { SpacesService } from '../spaces.service';
                     </div>
                 </div>
             </section>
+            @let has_mapspeople = using_mapspeople | async;
             <section
                 favs
                 class="space-y-2 pb-4"
-                *ngIf="!viewing_map || !(using_mapspeople | async)"
+                *ngIf="!hide_levels && (!viewing_map || !has_mapspeople)"
             >
-                <h2 class="text-lg font-medium">
+                <h2 class="mt-2 text-lg font-medium">
                     {{ 'COMMON.FAVOURITES' | translate }}
                 </h2>
-                <div class="flex items-center">
-                    <div for="fav" class="w-1/2 flex-1">
-                        {{ 'APP.WORKPLACE.FAVOURITES_SHOW' | translate }}
-                    </div>
-                    <mat-checkbox
-                        name="fav"
+                <div class="flex w-full items-center">
+                    <settings-toggle
+                        class="w-full"
+                        [name]="'COMMON.FAVOURITES_ONLY' | translate"
                         [ngModel]="(options | async)?.show_fav"
                         (ngModelChange)="setOptions({ show_fav: $event })"
                         [ngModelOptions]="{ standalone: true }"
-                    >
-                    </mat-checkbox>
+                    ></settings-toggle>
                 </div>
             </section>
             <section
@@ -250,26 +248,25 @@ import { SpacesService } from '../spaces.service';
                 class="space-y-2"
                 *ngIf="
                     (features | async)?.length &&
-                    (!viewing_map || !(using_mapspeople | async))
+                    (!viewing_map || !has_mapspeople) &&
+                    !hide_levels
                 "
             >
-                <h2 class="text-lg font-medium">Facilities</h2>
+                <h2 class="mt-2 text-lg font-medium">Facilities</h2>
                 <ng-container *ngFor="let feat of features | async">
                     <div
                         class="flex items-center"
                         *ngIf="!hide_features.includes(feat)"
                     >
-                        <div for="feat" class="w-1/2 flex-1">
-                            {{ feature_display[feat] || feat }}
-                        </div>
-                        <mat-checkbox
-                            name="feat"
+                        <settings-toggle
+                            class="w-full"
+                            [name]="feature_display[feat] || feat"
                             [ngModel]="
                                 (options | async)?.features?.includes(feat)
                             "
                             (ngModelChange)="toggleFeature(feat, $event)"
                             [ngModelOptions]="{ standalone: true }"
-                        ></mat-checkbox>
+                        ></settings-toggle>
                     </div>
                 </ng-container>
             </section>

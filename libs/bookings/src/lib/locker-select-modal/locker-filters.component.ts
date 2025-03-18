@@ -190,7 +190,7 @@ import { BookingFormService } from '../booking-form.service';
                     </div>
                 </div>
             </section>
-            <section favs class="space-y-4 pb-4">
+            <section favs class="space-y-4 pb-4" *ngIf="!hide_levels">
                 <!-- <settings-toggle
                     [name]="'APP.WORKPLACE.FAVOURITES_SHOW' | translate"
                     [ngModel]="(options | async)?.show_fav"
@@ -207,23 +207,24 @@ import { BookingFormService } from '../booking-form.service';
             <section
                 class="space-y-2"
                 features
-                *ngIf="(features | async)?.length"
+                *ngIf="(features | async)?.length && !hide_levels"
             >
-                <h2 class="text-lg font-medium">
+                <h2 class="mt-2 text-lg font-medium">
                     {{ 'COMMON.TYPE' | translate }}
                 </h2>
                 <div
                     *ngFor="let feat of features | async"
                     class="flex flex-wrap items-center space-x-2"
                 >
-                    <div for="feat" class="w-1/2 flex-1">{{ feat }}</div>
-                    <mat-checkbox
+                    <settings-toggle
+                        class="w-full capitalize"
+                        [name]="feat"
                         [ngModel]="
                             ((options | async)?.features || []).includes(feat)
                         "
                         (ngModelChange)="setFeature(feat, $event)"
                         [ngModelOptions]="{ standalone: true }"
-                    ></mat-checkbox>
+                    ></settings-toggle>
                 </div>
             </section>
         </form>
