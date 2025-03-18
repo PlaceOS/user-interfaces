@@ -22,7 +22,7 @@ export const FAV_LOCKER_KEY = 'favourite_lockers';
                     <app-icon>close</app-icon>
                 </button>
                 <h3>{{ 'BOOKINGS.LOCKER_FIND' | translate }}</h3>
-                <div class="hidden flex-1 items-center justify-end sm:flex">
+                <!-- <div class="hidden flex-1 items-center justify-end sm:flex">
                     <button
                         btn
                         matRipple
@@ -43,7 +43,7 @@ export const FAV_LOCKER_KEY = 'favourite_lockers';
                     >
                         {{ 'COMMON.LIST' | translate }}
                     </button>
-                </div>
+                </div> -->
             </header>
             <main
                 class="flex h-[65vh] min-h-[65vh] w-full flex-1 items-center divide-x divide-base-200 overflow-hidden sm:max-h-[65vh] sm:max-w-[95vw]"
