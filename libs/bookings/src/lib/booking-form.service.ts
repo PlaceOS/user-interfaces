@@ -315,6 +315,7 @@ export class BookingFormService extends AsyncHandler {
     }
 
     public newForm(type: BookingType, booking: Booking = new Booking({})) {
+        if (type !== this._options.getValue().type) this.clearForm();
         this.setOptions({ type });
         if (!booking.id) {
             (booking as any).all_day =
