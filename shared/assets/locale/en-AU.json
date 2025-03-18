@@ -600,6 +600,7 @@
         "BOOK_NEARBY_DESK": "Book nearby desk",
         "SPACE_SELECT_SIZE": "Select room size",
         "SPACE_SELECT_SIZE_X": "Min. {{ count }} people",
+        "SPACE_SELECT_SIZE_1": "Min. 1 person",
         "SPACE_ADD": "Add Space",
         "CAPACITY_COUNT": "Capacity {{ count }}",
         "SPACE_SELECT_FIND": "Find Space",

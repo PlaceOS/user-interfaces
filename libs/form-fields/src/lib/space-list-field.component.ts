@@ -32,8 +32,8 @@ const EMPTY_FAVS: string[] = [];
                         >
                             <mat-radio-button [value]="1">
                                 {{
-                                    'CALENDAR_EVENT.SPACE_SELECT_SIZE_X'
-                                        | translate: { count: 2 }
+                                    'CALENDAR_EVENT.SPACE_SELECT_SIZE_1'
+                                        | translate
                                 }}
                             </mat-radio-button>
                             <mat-radio-button [value]="4">
