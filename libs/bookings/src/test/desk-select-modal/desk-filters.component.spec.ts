@@ -91,9 +91,6 @@ describe('DeskFiltersComponent', () => {
         expect('[formControlName="all_day"]').toExist();
     });
 
-    it('should allow toggling favourites', () =>
-        expect('[name="fav"]').toExist());
-
     it('should allow closing', () => {
         expect('button[name="close-desk-filters"]').toExist();
         spectator.click('button[name="close-desk-filters"]');

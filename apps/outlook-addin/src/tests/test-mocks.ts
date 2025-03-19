@@ -1,7 +1,7 @@
 import { Validators } from '@angular/forms';
 import { Space } from '@placeos/spaces';
 
-export let mockForm = {
+export const mockForm = {
     id: 1,
     host: ['host@test.com', Validators.required],
     organiser: ['organiser@test.com', Validators.required],
@@ -118,6 +118,7 @@ export const mockSpace: Space = {
         tags: ['tag-1'],
         settings: {},
         location: '',
+        code: '',
         locations: [] as any,
         images: [],
     },
@@ -157,6 +158,7 @@ export const mockSpaceWithViews: Space = {
         tags: ['tag-1'],
         settings: {},
         location: '',
+        code: '',
         locations: [],
         images: [],
     },
