@@ -161,7 +161,6 @@ export class AssetManagerStateService extends AsyncHandler {
                             end;
                         return (
                             request?.deliver_at >= start &&
-                            request?.deliver_at < end &&
                             request?.deliver_at < event_end
                         );
                     }),
