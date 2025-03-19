@@ -318,6 +318,8 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
         const list = [];
         const actions = [];
         const options = this._options.getValue();
+        const show_desk_users =
+            this._settings.get('app.desks.show_users') ?? true;
         for (const desk of desks) {
             list.push({
                 track_id: `desk:hover:${desk.map_id || desk.id}`,
@@ -329,7 +331,9 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
                     id: desk.map_id || desk.id,
                     map_id: desk.name,
                     name: desk.name || desk.map_id,
-                    user: this._users[desk.map_id] || desk.staff_name,
+                    user: show_desk_users
+                        ? this._users[desk.map_id] || desk.staff_name
+                        : '',
                     status: this._statuses[desk.map_id],
                     department: this._departments[desk.map_id] || '',
                 },
