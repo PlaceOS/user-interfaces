@@ -12,7 +12,7 @@
 
 ## Development
 
-To run the dev server use the command `nx serve <project>` e.g. `nx serve control`
+To run the dev server use the command `nx serve --no-hmr <project>` e.g. `nx serve --no-hmr control`
 
 By default the dev web server proxies all requests to the set live system, if you wish to use a mock requests and systems press `Ctrl + Alt/Option + Shift + M` to reload the page in mock mode. To leave mock mode you can repeat the keypresses.
 
