@@ -36,7 +36,6 @@ import { WFHSettingsModalComponent } from 'libs/users/src/lib/wfh-settings-modal
                     <app-icon>edit_note</app-icon>
                 </button>
             </div>
-
             <h3 class="px-4 text-sm font-medium">
                 {{ now | date: 'fullDate' }}
             </h3>
@@ -75,14 +74,14 @@ import { WFHSettingsModalComponent } from 'libs/users/src/lib/wfh-settings-modal
                         <button
                             matRipple
                             class="flex items-center space-x-2 rounded px-2 py-1 font-medium hover:bg-base-200"
-                            [matMenuTriggerFor]="menu"
+                            [matMenuTriggerFor]="work_menu"
                         >
                             <div>
                                 {{ location(timeFrom(block.start_time)) }}
                             </div>
                             <app-icon>expand_more</app-icon>
                         </button>
-                        <mat-menu #menu="matMenu">
+                        <mat-menu #work_menu="matMenu">
                             <button
                                 mat-menu-item
                                 *ngFor="let loc of locations"

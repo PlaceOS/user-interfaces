@@ -10,17 +10,13 @@ export interface ChangelogModalData {
 @Component({
     selector: 'changelog-modal',
     template: `
-        <header>
-            <h3 mat-dialog-title>Changelog</h3>
-            <button icon mat-dialog-close>
-                <app-icon>close</app-icon>
-            </button>
-        </header>
-        <main
-            class="markdown max-h-[65vh] max-w-[80vw] overflow-auto p-4"
-            *ngIf="changelog; else empty_state"
-            [innerHTML]="changelog | safe: 'html'"
-        ></main>
+        <fullscreen-modal-shell [heading]="'Changelog'" [hide_confirm]="true">
+            <div
+                *ngIf="changelog; else empty_state"
+                class="markdown"
+                [innerHTML]="changelog | safe: 'html'"
+            ></div>
+        </fullscreen-modal-shell>
         <ng-template #empty_state>
             <div class="flex flex-col items-center justify-center space-y-2">
                 <app-icon class="text-3xl">close</app-icon>
