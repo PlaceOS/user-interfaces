@@ -136,5 +136,8 @@ export class CateringReportComponent extends AsyncHandler implements OnInit {
                 } else this._state.setOptions({ zones: [] });
             }),
         );
+        this._state.setOptions({
+            type: this.using_bookings ? 'catering' : 'events',
+        });
     }
 }

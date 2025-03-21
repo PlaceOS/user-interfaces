@@ -170,7 +170,7 @@ export class ReportsStateService {
                     return queryAllBookings({
                         ...query,
                         zones: zones,
-                        type: 'locker',
+                        type: 'catering-order',
                         limit: 1000,
                     });
                 case 'events':

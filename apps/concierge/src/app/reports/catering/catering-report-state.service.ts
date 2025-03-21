@@ -29,7 +29,12 @@ export class CateringReportStateService {
                 list.map((_) =>
                     _ instanceof CalendarEvent
                         ? _.valid_catering || []
-                        : [new CateringItem(_.extension_data.details)],
+                        : [
+                              new CateringOrder({
+                                  ..._.extension_data.details,
+                                  event: _.linked_event,
+                              }),
+                          ],
                 ),
             );
             const out = orders
