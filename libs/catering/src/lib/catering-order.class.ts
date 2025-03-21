@@ -8,7 +8,10 @@ import { randomInt } from 'libs/common/src/lib/general';
 import { CalendarEvent } from 'libs/events/src/lib/event.class';
 
 function deliverAtTime(order: CateringOrder) {
-    let date = order.event?.date || (order as any)._time;
+    let date =
+        order.event?.date ||
+        order.event?.event_start * 1000 ||
+        (order as any)._time;
     if (order.deliver_time) {
         date = set(date, {
             hours: Math.floor(order.deliver_time),
