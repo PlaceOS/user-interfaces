@@ -32,10 +32,12 @@ import {
     unique,
 } from '@placeos/common';
 import { BuildingLevel, OrganisationService } from '@placeos/organisation';
-import { requestSpacesForZone } from '@placeos/spaces';
+import { requestSpacesForZone, Space } from '@placeos/spaces';
 import { searchStaff, StaffUser, User } from '@placeos/users';
 import { isSameDay } from 'date-fns';
 import { ScheduleStateService } from '../schedule/schedule-state.service';
+
+import { querySpaceAvailability } from '@placeos/events'
 
 export interface LandingOptions {
     search?: string;
@@ -45,6 +47,9 @@ export interface LandingOptions {
     providedIn: 'root',
 })
 export class LandingStateService extends AsyncHandler {
+
+    public selectedData: number = 0;
+
     private _options = new BehaviorSubject<LandingOptions>({});
     private _loading = new BehaviorSubject<string>('');
     private _loading_spaces = new BehaviorSubject<boolean>(false);
@@ -283,4 +288,35 @@ export class LandingStateService extends AsyncHandler {
             }),
         );
     }
+
+
+    // Method to get the list of spaces as an array
+    public getSpaces(): Observable<any[]> {
+        return this._space_list;
+    }
+
+    // Method to get the list of spaces as an array (synchronous)
+    public async getSpacesArray(): Promise<any[]> {
+        return await this._space_list.pipe(first()).toPromise();
+    }
+
+    public async getSpaceAvailability(spaces_list, select_date: number) {
+        return await querySpaceAvailability(spaces_list.map((s) => s.id), select_date, 60).toPromise();
+    }
+
+    async getAvailable(select_date){
+
+        const spaces_list = await this.getSpacesArray();
+        const available = await this.getSpaceAvailability(spaces_list, select_date);
+
+        let final_list: Space[] = [];
+        for (let i=0; i < spaces_list.length; i++){
+            if (available[i]){
+                final_list.push(spaces_list[i]);
+            }
+        }
+
+        return final_list;       
+    }
+    
 }

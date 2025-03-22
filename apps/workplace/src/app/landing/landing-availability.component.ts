@@ -5,6 +5,7 @@ import { OrganisationService } from '@placeos/organisation';
 import { Space } from '@placeos/spaces';
 import { LandingStateService } from './landing-state.service';
 import { CalendarEventQueryParams } from '@placeos/events';
+import { from, Observable } from 'rxjs';
 
 
 @Component({
@@ -14,7 +15,27 @@ import { CalendarEventQueryParams } from '@placeos/events';
 
 
 
-
+            <!-- ADDED BY: Mohamad Itani -->
+            <!-- DATE: 2025-03-20 -->
+            <!-- Date Picker -->
+            <div class="mb-2 px-4 font-medium sm:mb-4 sm:text-lg">
+                <label for="date" class="mr-2"
+                    >{{ 'FORM.DATE' | translate }}:</label
+                >
+                <mat-form-field appearance="fill">
+                    <input
+                        matInput
+                        [matDatepicker]="picker"
+                        [(ngModel)]="selectedDate"
+                        (ngModelChange)="onDateChange($event)"
+                    />
+                    <mat-datepicker-toggle
+                        matSuffix
+                        [for]="picker"
+                    ></mat-datepicker-toggle>
+                    <mat-datepicker #picker></mat-datepicker>
+                </mat-form-field>
+            </div>
 
 
 
@@ -179,14 +200,16 @@ import { CalendarEventQueryParams } from '@placeos/events';
     providers: [ExploreSpacesService],
     standalone: false,
 })
-export class LandingAvailabilityComponent implements OnInit {
-    public readonly space_list = this._state.free_space_list;
+export class LandingAvailabilityComponent {
+
+    // ADDED BY: Mohamad Itani
+    // DATE: 2025-03-20
+    selectedDate: Date | null = null; // Initialize with null or a default date
+
+    public space_list = this._state.free_space_list;
     
     public readonly loading_spaces = this._state.loading_spaces;
     public readonly levels_free = this._state.level_occupancy;
-
-    
-
 
     public book = (s) => this._explore.bookSpace(s, true);
 
@@ -215,19 +238,18 @@ export class LandingAvailabilityComponent implements OnInit {
         private _org: OrganisationService,
         private _settings: SettingsService,
         private _explore: ExploreSpacesService,
-    ) {
-       
+        
+    ) {}
+
+    // Method to get the list of spaces as an array
+    public getSpaces(newDate: number): Observable<Space[]> {
+        return from(this._state.getAvailable(newDate));
     }
-   async  ngOnInit() {
-        
 
-        this.space_list.subscribe((space_data) => {
-            console.log(space_data);
-        });
-
-        
-
-
+    // ADDED BY: Mohamad Itani
+    // DATE: 2025-03-20
+    public onDateChange(newDate: Date) {
+        this.space_list = this.getSpaces(newDate.getTime());
     }
     
 }
