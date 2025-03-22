@@ -92,10 +92,17 @@ import { LandingStateService } from './landing-state.service';
                     *ngIf="loading_spaces | async"
                 ></mat-spinner>
             </div>
+            <!-- MDI TASK: Convert Rooms Available from horizontal to vertical -->
             <div
-                class="mx-4 flex w-[calc(100%-2rem)] snap-x items-center space-x-2 overflow-auto py-2"
+                class="mx-4 flex w-[calc(100%-2rem)] snap-y flex-col space-y-2 overflow-auto py-2"
                 *ngIf="!hide_rooms"
             >
+            <!-- <div
+                class="mx-4 flex w-[calc(100%-2rem)] snap-x items-center space-x-2 overflow-auto py-2"
+                *ngIf="!hide_rooms"
+            > -->
+
+                <!-- MDI TASK: Convert Button class from w-64 to w-full to fix design -->
                 <button
                     name="landing-book-room"
                     matRipple
@@ -103,7 +110,7 @@ import { LandingStateService } from './landing-state.service';
                         let space of space_list | async;
                         trackBy: trackBySpaceId
                     "
-                    class="flex w-64 snap-start items-center space-x-4 rounded border border-base-200 bg-base-100 p-2 shadow"
+                    class="flex w-full snap-start items-center space-x-4 rounded border border-base-200 bg-base-100 p-2 shadow"
                     (click)="book(space)"
                 >
                     <div
