@@ -141,13 +141,17 @@ const explore = {
 /**
  * ROOT APPLICATION SETTINGS
  */
+
+// MDI TASK: Update Company Logo. Replace place os logo with company logo
 const app = {
     name: 'Workplace',
     title: 'Workplace Application',
     description: 'PlaceOS Workplace UI written with Angular Framework',
     short_name: 'STAFF',
-    logo_light: 'assets/logo-light.svg',
-    logo_dark: 'assets/logo-dark.svg',
+    // logo_light: 'assets/logo-light.svg',
+    // logo_dark: 'assets/logo-dark.svg',
+    logo_light: 'assets/img/company_logo.jpeg',
+    logo_dark: 'assets/img/company_logo.jpeg',
     locales: [
         { id: 'en-AU', name: 'LANGUAGE.ENGLISH', local: 'English', flag: '🇦🇺' },
         {
