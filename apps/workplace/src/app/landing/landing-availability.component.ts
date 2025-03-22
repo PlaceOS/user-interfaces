@@ -1,14 +1,25 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { SettingsService } from '@placeos/common';
 import { ExploreSpacesService } from '@placeos/explore';
 import { OrganisationService } from '@placeos/organisation';
 import { Space } from '@placeos/spaces';
 import { LandingStateService } from './landing-state.service';
+import { CalendarEventQueryParams } from '@placeos/events';
+
 
 @Component({
     selector: 'landing-availability',
     template: `
         <div class="py-2">
+
+
+
+
+
+
+
+
+
             <div
                 class="mb-2 px-4 font-medium sm:mb-4 sm:text-lg"
                 *ngIf="!hide_rooms || !hide_spaces"
@@ -168,10 +179,14 @@ import { LandingStateService } from './landing-state.service';
     providers: [ExploreSpacesService],
     standalone: false,
 })
-export class LandingAvailabilityComponent {
+export class LandingAvailabilityComponent implements OnInit {
     public readonly space_list = this._state.free_space_list;
+    
     public readonly loading_spaces = this._state.loading_spaces;
     public readonly levels_free = this._state.level_occupancy;
+
+    
+
 
     public book = (s) => this._explore.bookSpace(s, true);
 
@@ -200,5 +215,19 @@ export class LandingAvailabilityComponent {
         private _org: OrganisationService,
         private _settings: SettingsService,
         private _explore: ExploreSpacesService,
-    ) {}
+    ) {
+       
+    }
+   async  ngOnInit() {
+        
+
+        this.space_list.subscribe((space_data) => {
+            console.log(space_data);
+        });
+
+        
+
+
+    }
+    
 }
