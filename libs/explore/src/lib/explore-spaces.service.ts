@@ -134,20 +134,27 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
         this.subscription('spaces', this._bind.subscribe());
     }
 
-    public async bookSpace(space: Space, force = false) {
+    public async bookSpace(space: Space, force = false, selected_date?: number) {
+
         if (this._panning && this._last_action === 'down') return;
         const booking_rules = await nextValueFrom(this.booking_rules);
         const room_alerts = await nextValueFrom(this.room_alerts);
         const { hidden } =
             rulesForResource(
                 {
-                    date: Date.now(),
+                    date: selected_date || Date.now(),
+                    // date: Date.now(),
                     duration: 60,
                     resource: space,
                     host: currentUser(),
                 },
                 booking_rules,
             ) || {};
+
+
+            console.log('hidden', hidden);
+
+
         if (hidden) {
             return notifyError(i18n('EXPLORE.SPACES_PERMISSIONS_ERROR'));
         }
@@ -165,6 +172,10 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
         this._event_form.form.patchValue({
             host: currentUser()?.email,
             resources: [space],
+
+            date: selected_date || Date.now(),
+            duration: 15,
+
         });
         if (room_alerts[space.id]?.[0] === 'closed') {
             return notifyError(`${room_alerts[space.id][1]}`);
