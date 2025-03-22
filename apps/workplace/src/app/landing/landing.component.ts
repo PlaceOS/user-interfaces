@@ -77,9 +77,10 @@ import { startOfMinute } from 'date-fns';
                             }}
                         </div>
                     </div>
-                    <div class="h-32 pt-4">
+                    <!-- MDI TASK: Remove due to client Request  -->
+                    <!-- <div class="h-32 pt-4">
                         <img src="assets/img/landing.svg" />
-                    </div>
+                    </div> -->
                 </header>
                 <landing-quick-links
                     *ngIf="show_quick_links"
