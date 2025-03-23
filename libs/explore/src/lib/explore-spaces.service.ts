@@ -142,7 +142,7 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
         const { hidden } =
             rulesForResource(
                 {
-                    date: selected_date || Date.now(),
+                    date: selected_date,
                     // date: Date.now(),
                     duration: 60,
                     resource: space,
@@ -173,7 +173,7 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
             host: currentUser()?.email,
             resources: [space],
 
-            date: selected_date || Date.now(),
+            date: selected_date,
             duration: 15,
 
         });

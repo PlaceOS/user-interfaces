@@ -204,7 +204,7 @@ export class LandingAvailabilityComponent {
 
     // ADDED BY: Mohamad Itani
     // DATE: 2025-03-20
-    selectedDate: Date | null = null; // Initialize with null or a default date
+    selectedDate: Date | null = new Date; // Initialize with null or a default date
 
     public space_list = this._state.free_space_list;
     

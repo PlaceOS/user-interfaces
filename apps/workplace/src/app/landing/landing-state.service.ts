@@ -88,7 +88,7 @@ export class LandingStateService extends AsyncHandler {
             filterResourcesFromRules(
                 list,
                 {
-                    date: Date.now(),
+                    date: this.selectedData,
                     duration: 60,
                     host: currentUser(),
                     resource: null,
