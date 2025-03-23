@@ -162,6 +162,19 @@ import { from, Observable } from 'rxjs';
                         <div class="max-w-full truncate px-1.5 font-medium">
                             {{ space.display_name || space.name }}
                         </div>
+
+                        <!-- MDI TASK: Adding Space Capacity -->
+                        <div
+                            class="flex max-w-full items-center truncate text-sm opacity-60"
+                        >
+                            <app-icon class="text-blue-500 text-lg"
+                                >people</app-icon
+                            >
+                            <span>Capacity: {{space.capacity}}</span>
+
+                           
+                        </div>
+                       
                         <div
                             class="flex max-w-full items-center truncate text-sm opacity-60"
                         >
@@ -172,6 +185,8 @@ import { from, Observable } from 'rxjs';
                                 level(space.zones)?.display_name ||
                                     level(space.zones)?.name
                             }}</span>
+
+                           
                         </div>
                     </div>
                 </button>

@@ -8,7 +8,8 @@ import { startOfMinute } from 'date-fns';
     template: `
         <topbar class="z-10" *ngIf="!hide_nav"></topbar>
         <div class="flex h-1/2 flex-1 bg-base-200">
-            <div
+            <!-- MDI Task: Remove side nav due to client Request  -->
+            <!-- <div
                 class="relative hidden h-full w-[18rem] flex-col overflow-hidden border-r border-base-300 bg-base-100 sm:flex"
                 *ngIf="!hide_landing_sidebar"
             >
@@ -51,7 +52,7 @@ import { startOfMinute } from 'date-fns';
                         *ngIf="tab === 'fav' || hide_colleagues"
                     ></landing-favourites>
                 </div>
-            </div>
+            </div> -->
             <div class="z-0 h-full w-1/2 flex-1 overflow-auto sm:px-4">
                 <header
                     class="sticky top-0 z-50 mb-4 flex items-center justify-between overflow-hidden bg-ternary px-4 sm:rounded-b"
@@ -77,7 +78,7 @@ import { startOfMinute } from 'date-fns';
                             }}
                         </div>
                     </div>
-                    <!-- MDI TASK: Remove due to client Request  -->
+                    <!-- MDI Task: Remove due to client Request  -->
                     <!-- <div class="h-32 pt-4">
                         <img src="assets/img/landing.svg" />
                     </div> -->
