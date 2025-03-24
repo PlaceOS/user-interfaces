@@ -346,6 +346,7 @@
         "LOCATE_CURRENT_FAILED": "Failed to retrieve your current location.",
         "LOCATE_USER_FAILED": "Failed to locate user \"{{ name }}\".",
         "LOCATE_USER_NOT_FOUND": "No location for the given user",
+        "LOCATE_USER_FOUND_NO_PIN": "Unable to resolve user's exact location on this level",
         "LOCATE_USER_DETAILS_FAILED": "Failed to find user details for \"{{ name }}\".",
         "LOCATE_SPACE_DETAILS_FAILED": "Failed to find space details.",
         "LOCATE_SERVICE_UNAVAILABLE": "Location services is not setup for this application.",

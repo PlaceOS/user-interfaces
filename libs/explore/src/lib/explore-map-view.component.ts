@@ -9,6 +9,7 @@ import {
     i18n,
     nextValueFrom,
     notifyError,
+    notifyWarn,
     SettingsService,
     unique,
 } from '@placeos/common';
@@ -304,11 +305,14 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
                 (priority.includes(b.type) ? priority.indexOf(b.type) : 999),
         );
         if (!locations?.length) throw i18n('EXPLORE.LOCATE_USER_NOT_FOUND');
-        const loc =
-            locations.find(
-                ({ position }) =>
-                    typeof position !== 'string' || position in this.map_info,
-            ) || locations[0];
+        let loc = locations.find(
+            ({ position }) =>
+                typeof position !== 'string' || position in this.map_info,
+        );
+        if (!loc) {
+            loc = locations[0];
+            notifyWarn(i18n(`EXPLORE.LOCATE_USER_FOUND_NO_PIN`));
+        }
         this._state.setLevel(this._org.levelWithID([locations[0]?.level])?.id);
         const pos: any = loc.position;
         const { coordinates_from } = loc;
