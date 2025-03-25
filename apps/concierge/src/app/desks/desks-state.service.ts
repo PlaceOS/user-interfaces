@@ -139,6 +139,7 @@ export class DesksStateService extends AsyncHandler {
                     type: 'desk',
                     zones: zones.join(','),
                     include_checked_out: true,
+                    include_deleted: 'all',
                     limit: 500,
                 }).pipe(
                     catchError((_) => of({ data: [], total: 0, next: null })),
@@ -390,6 +391,29 @@ export class DesksStateService extends AsyncHandler {
         notifySuccess(i18n('APP.CONCIERGE.DESKS_REJECT_SUCCESS'));
         (desk as any).approved = false;
         (desk as any).rejected = true;
+        this.setFilters({});
+    }
+
+    public async cancelBooking(booking: Booking) {
+        const result = await openConfirmModal(
+            {
+                title: i18n('APP.CONCIERGE.DESKS_BOOKING_DELETE_TITLE'),
+                content: i18n('APP.CONCIERGE.DESKS_BOOKING_DELETE_CONTENT'),
+                icon: { content: 'event_busy' },
+            },
+            this._dialog,
+        );
+        if (result.reason !== 'done') return;
+        result.loading(i18n('APP.CONCIERGE.DESKS_BOOKING_DELETE_LOADING'));
+        await nextValueFrom(removeBooking(booking.id)).catch((e) => {
+            notifyError(
+                i18n('APP.CONCIERGE.DESKS_BOOKING_DELETE_ERROR', { error: e }),
+            );
+            result.close();
+            throw e;
+        });
+        notifySuccess(i18n('APP.CONCIERGE.DESKS_BOOKING_DELETE_SUCCESS'));
+        result.close();
         this.setFilters({});
     }
 

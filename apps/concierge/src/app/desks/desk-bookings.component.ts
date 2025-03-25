@@ -62,6 +62,13 @@ import { DesksStateService } from './desks-state.service';
                         size: '7rem',
                         sortable: false,
                     },
+                    {
+                        key: 'actions',
+                        name: ' ',
+                        content: action_template,
+                        size: '3.5rem',
+                        sortable: false,
+                    },
                 ]"
                 [empty_message]="
                     ((filters | async)?.search
@@ -124,9 +131,11 @@ import { DesksStateService } from './desks-state.service';
                             class="rounded-3xl bg-error px-4 py-2 text-xs text-white"
                         >
                             {{
-                                (row.status === 'ended'
-                                    ? 'APP.CONCIERGE.BOOKING_ENDED'
-                                    : 'APP.CONCIERGE.BOOKING_EXPIRED'
+                                (row.deleted
+                                    ? 'APP.CONCIERGE.BOOKING_DELETED'
+                                    : row.status === 'ended'
+                                      ? 'APP.CONCIERGE.BOOKING_ENDED'
+                                      : 'APP.CONCIERGE.BOOKING_EXPIRED'
                                 ) | translate
                             }}
                         </div>
@@ -260,6 +269,28 @@ import { DesksStateService } from './desks-state.service';
                     </button>
                 </mat-menu>
             </ng-template>
+            <ng-template #action_template let-row="row">
+                <div class="mx-auto flex items-center justify-end space-x-2">
+                    <button
+                        icon
+                        matRipple
+                        class="h-12 w-12 rounded"
+                        [matMenuTriggerFor]="actionMenu"
+                    >
+                        <app-icon class="text-2xl">more_vert</app-icon>
+                    </button>
+                    <mat-menu #actionMenu="matMenu">
+                        <button mat-menu-item (click)="cancel(row)">
+                            <div class="flex items-center space-x-2">
+                                <app-icon class="text-2xl">event_busy</app-icon>
+                                <div>
+                                    {{ 'COMMON.CANCEL_BOOKING' | translate }}
+                                </div>
+                            </div>
+                        </button>
+                    </mat-menu>
+                </div>
+            </ng-template>
         </div>
         <button
             btn
@@ -291,6 +322,7 @@ export class DeskBookingsComponent {
     public readonly bookings = this._state.bookings;
 
     public readonly rejectAll = () => this._state.rejectAllDesks();
+    public readonly cancel = (b) => this._state.cancelBooking(b);
     public readonly loadMore = () => this._state.nextPage();
 
     public get columns() {

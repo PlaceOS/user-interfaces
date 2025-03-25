@@ -16,6 +16,7 @@ export interface Attachment {
 export interface UserComplete extends User {
     sys_admin?: boolean;
     support?: boolean;
+    image?: string;
 }
 
 export type EventResponseStatus =
@@ -78,7 +79,7 @@ export class User {
         this.phone = data.phone || '';
         this.organisation = data.organisation || '';
         this.notes = data.notes || '';
-        this.photo = data.photo || '';
+        this.photo = data.photo || data.image || '';
         this.username = data.username || '';
         this.organizer = !!data.organizer;
         this.checked_in = !!data.checked_in;
