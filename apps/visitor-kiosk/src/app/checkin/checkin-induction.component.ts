@@ -64,6 +64,13 @@ export class CheckinInductionComponent {
         return this._settings.get('app.induction_after_details');
     }
 
+    public get allow_user_photo() {
+        return (
+            this._settings.get('app.allow_user_photo') &&
+            this._settings.get('app.allow_printing_label') !== false
+        );
+    }
+
     public get is_enabled() {
         return (
             this._settings.get('app.induction_enabled') &&
@@ -110,7 +117,10 @@ export class CheckinInductionComponent {
         });
         notifySuccess('Induction completed successfully');
         if (this.induction_after_details) {
-            this._router.navigate(['/checkin', 'results']);
+            this._router.navigate([
+                '/checkin',
+                this.allow_user_photo ? 'photo' : 'results',
+            ]);
         } else {
             this._router.navigate(['/checkin', 'details']);
         }

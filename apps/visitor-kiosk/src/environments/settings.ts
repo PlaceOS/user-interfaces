@@ -69,6 +69,7 @@ const app = {
     logo_light: 'assets/logo-light.svg',
     logo_dark: 'assets/logo-dark.svg',
     allow_self_registration: true,
+    allow_user_photo: true,
     explore,
     home,
     welcome_background: 'assets/img/skyline.png',

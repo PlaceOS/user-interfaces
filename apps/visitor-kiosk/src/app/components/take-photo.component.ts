@@ -1,53 +1,77 @@
 import {
     Component,
+    ElementRef,
     EventEmitter,
-    HostBinding,
     OnDestroy,
     OnInit,
     Output,
+    ViewChild,
 } from '@angular/core';
+import { AsyncHandler } from '@placeos/common';
 
 @Component({
     selector: 'a-take-photo',
     template: `
         <div
             name="camera"
-            class="relative flex flex-col items-center justify-center overflow-hidden rounded"
+            class="relative flex h-[22rem] w-[22rem] flex-col items-center justify-center overflow-hidden rounded-full border-2 border-base-300 bg-base-200"
         >
-            <mat-spinner diameter="32"></mat-spinner>
-            <div class="text">Please wait...</div>
             <video
                 id="video"
                 #video
                 autoplay
-                width="360"
-                height="400"
-                class="absolute inset-0"
+                [class.opacity-0]="has_photo"
+                class="absolute left-1/2 top-1/2 mx-auto min-h-full min-w-full -translate-x-1/2 -translate-y-1/2 object-cover"
             ></video>
             <canvas
                 id="canvas"
                 #canvas
-                class="absolute inset-0"
-                width="360"
+                width="400"
                 height="400"
+                class="absolute left-1/2 top-1/2 mx-auto h-full w-full -translate-x-1/2 -translate-y-1/2 object-cover"
+                [class.opacity-0]="!has_photo"
             ></canvas>
+            @if (loading) {
+                <div
+                    class="absolute inset-0 flex flex-col items-center justify-center space-y-4"
+                >
+                    <mat-spinner diameter="32"></mat-spinner>
+                    <div class="text">Please wait...</div>
+                </div>
+            }
         </div>
-        <div class="mt-4 flex items-center justify-center space-x-2">
-            <button
-                class="take-photo"
-                *ngIf="!hasPhoto; else accept_state"
-                btn
-                matRipple
-                (click)="takePhoto()"
-            >
-                Take Photo
-            </button>
+        <div class="mt-4 flex w-full items-center justify-center space-x-2">
+            <ng-container *ngIf="!has_photo; else accept_state">
+                <button
+                    class="inverse flex-1"
+                    btn
+                    matRipple
+                    (click)="back.emit()"
+                >
+                    Back
+                </button>
+                <button
+                    class="take-photo flex-1"
+                    btn
+                    matRipple
+                    (click)="takePhoto()"
+                >
+                    Take Photo
+                </button>
+            </ng-container>
         </div>
         <ng-template #accept_state>
-            <button class="inverse" btn matRipple (click)="cancelPhoto()">
+            <button
+                class="inverse flex-1"
+                btn
+                matRipple
+                (click)="cancelPhoto()"
+            >
                 Cancel
             </button>
-            <button btn matRipple (click)="acceptPhoto()">Accept</button>
+            <button btn matRipple class="flex-1" (click)="acceptPhoto()">
+                Accept
+            </button>
         </ng-template>
     `,
     styles: [
@@ -70,99 +94,98 @@ import {
     ],
     standalone: false,
 })
-export class TakePhotoComponent implements OnInit, OnDestroy {
-    @Output() public photoAccepted = new EventEmitter();
-    @HostBinding('class.has-photo') public hasPhoto = false;
-    public video: HTMLVideoElement;
-    public canvas: HTMLCanvasElement;
-    private canvasContext = null;
+export class TakePhotoComponent
+    extends AsyncHandler
+    implements OnInit, OnDestroy
+{
+    @Output() public captured = new EventEmitter();
+    @Output() public back = new EventEmitter();
+    public has_photo = false;
+    public loading = false;
+
+    @ViewChild('video', { static: true })
+    private _video_el: ElementRef<HTMLVideoElement>;
+    @ViewChild('canvas', { static: true })
+    private _canvas_el: ElementRef<HTMLCanvasElement>;
 
     private constraints = {
         audio: false,
         video: {
-            width: { min: 360, max: 360 },
-            height: { min: 400, max: 400 },
+            aspectRatio: { ideal: 1, exact: 1 },
         },
     };
 
-    public imgSrc = null;
+    public image_url = null;
 
     public ngOnInit() {
-        setTimeout(() => this.getCanvasContext(), 500);
+        this.loading = true;
+        this.startCapture();
     }
 
     public ngOnDestroy() {
         this.stopCapture();
-        this.video = null;
-        this.canvasContext = null;
-        this.canvas = null;
-        this.imgSrc = null;
     }
 
-    private startCapture() {
-        this.imgSrc = null;
-        this.video = document.getElementById('video') as any;
-        if (!this.video) {
-            return setTimeout(() => this.startCapture(), 200);
-        } else {
-            navigator.mediaDevices
-                .getUserMedia(this.constraints)
-                .then((stream) => {
-                    this.video.srcObject = stream;
-                });
-        }
+    private async startCapture() {
+        this.image_url = null;
+        const stream = await navigator.mediaDevices.getUserMedia(
+            this.constraints,
+        );
+        this._video_el.nativeElement.srcObject = stream;
+        this.loading = false;
     }
 
     private stopCapture() {
-        if (this.video?.srcObject) {
-            (this.video.srcObject as any)
-                .getVideoTracks()
-                .forEach((track) => track.stop());
+        const el = this._video_el.nativeElement;
+        if (!el?.srcObject) return;
+        const stream = el.srcObject as MediaStream;
+        for (const track of stream.getVideoTracks()) {
+            track.stop();
         }
-    }
-
-    private getCanvasContext() {
-        this.canvas = document.getElementById('canvas') as any;
-        if (!this.canvas) {
-            return setTimeout(() => this.getCanvasContext(), 200);
-        }
-        this.canvasContext = this.canvas.getContext('2d');
-        setTimeout(() => this.startCapture(), 200);
     }
 
     public takePhoto() {
-        this.canvasContext.drawImage(
-            this.video,
-            0,
-            0,
-            this.canvas.width,
-            this.canvas.height,
-        );
-        this.hasPhoto = true;
+        this.loading = true;
+        const canvas = this._canvas_el.nativeElement;
+        const ctx = canvas.getContext('2d');
+        const vid_el = this._video_el.nativeElement;
+        const { videoWidth, videoHeight } = vid_el;
+
+        const cw = canvas.width;
+        const ch = canvas.height;
+
+        const min_dim = Math.min(videoWidth, videoHeight);
+        const sw = Math.min(min_dim, canvas.width);
+        const sh = Math.min(min_dim, canvas.height);
+
+        const sx = (videoWidth - sw) / 2;
+        const sy = (videoHeight - sh) / 2;
+        ctx.drawImage(vid_el, sx, sy, sw, sh, 0, 0, cw, ch);
+        this.has_photo = true;
         this.stopCapture();
+        this.loading = false;
     }
 
     public cancelPhoto() {
-        this.canvasContext.clearRect(
-            0,
-            0,
-            this.canvas.width,
-            this.canvas.height,
-        );
-        this.hasPhoto = false;
+        this.loading = true;
+        const canvas = this._canvas_el.nativeElement;
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        this.has_photo = false;
         this.startCapture();
     }
 
     public acceptPhoto() {
+        const canvas = this._canvas_el.nativeElement;
         try {
-            this.imgSrc = this.canvas.toDataURL('image/jpeg', 0.75);
-            this.photoAccepted.emit(this.imgSrc);
+            this.image_url = canvas.toDataURL('image/jpeg', 0.75);
+            this.captured.emit(this.image_url);
         } catch (err) {
             console.error(
-                'TakePhotoComponent::acceptPhoto Error converting image',
+                'Failed to convert canvas blob into JPEG image. Error: ',
                 err,
             );
-            this.photoAccepted.emit(null);
+            this.captured.emit(null);
             this.cancelPhoto();
         }
     }
