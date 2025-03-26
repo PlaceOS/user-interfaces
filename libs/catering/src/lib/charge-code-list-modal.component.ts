@@ -1,6 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
-import { csvToJson, nextValueFrom, notifyError, unique } from '@placeos/common';
+import {
+    csvToJson,
+    downloadFile,
+    nextValueFrom,
+    notifyError,
+    unique,
+} from '@placeos/common';
 import { CateringStateService } from './catering-state.service';
 
 @Component({
@@ -20,33 +26,37 @@ import { CateringStateService } from './catering-state.service';
             *ngIf="!loading; else load_state"
             class="flex max-h-[65vh] min-h-[20rem] flex-col overflow-auto"
         >
-            @for (code of charge_codes; track i; let i = $index) {
-                <div
-                    class="flex w-full items-center space-x-2 px-2 py-1 hover:bg-base-200"
-                >
-                    <mat-form-field
-                        appearance="outline"
-                        class="no-subscript flex-1"
+            <ng-container *ngIf="charge_codes.length; else empty_state">
+                @for (code of charge_codes; track i; let i = $index) {
+                    <div
+                        class="flex w-full items-center space-x-2 px-2 py-1 hover:bg-base-200"
                     >
-                        <input
-                            matInput
-                            [(ngModel)]="charge_codes[i]"
-                            [placeholder]="'CATERING.CHARGE_CODES' | translate"
-                        />
-                    </mat-form-field>
-                    <button
-                        icon
-                        matRipple
-                        class="h-12 w-12 rounded border border-error text-error"
-                        [matTooltip]="
-                            'CATERING.CHARGE_CODES_REMOVE' | translate
-                        "
-                        (click)="removeCode(i)"
-                    >
-                        <app-icon class="text-2xl">delete</app-icon>
-                    </button>
-                </div>
-            }
+                        <mat-form-field
+                            appearance="outline"
+                            class="no-subscript flex-1"
+                        >
+                            <input
+                                matInput
+                                [(ngModel)]="charge_codes[i]"
+                                [placeholder]="
+                                    'CATERING.CHARGE_CODES' | translate
+                                "
+                            />
+                        </mat-form-field>
+                        <button
+                            icon
+                            matRipple
+                            class="h-12 w-12 rounded border border-error text-error"
+                            [matTooltip]="
+                                'CATERING.CHARGE_CODES_REMOVE' | translate
+                            "
+                            (click)="removeCode(i)"
+                        >
+                            <app-icon class="text-2xl">delete</app-icon>
+                        </button>
+                    </div>
+                }
+            </ng-container>
         </main>
         <footer
             class="flex items-center space-x-2 border-t border-base-200 p-2"
@@ -60,6 +70,15 @@ import { CateringStateService } from './catering-state.service';
                     (change)="addCodesFromFile($event)"
                 />
             </button>
+            <button
+                icon
+                matRipple
+                (click)="downloadTemplate()"
+                [matTooltip]="'CATERING.CHARGE_CODE_DOWNLOAD' | translate"
+                class="h-12 w-12 rounded border border-secondary text-secondary"
+            >
+                <app-icon>download</app-icon>
+            </button>
             <button btn matRipple class="w-48" (click)="newCode()">
                 {{ 'CATERING.CHARGE_CODES_ADD' | translate }}
             </button>
@@ -72,7 +91,16 @@ import { CateringStateService } from './catering-state.service';
                 class="flex flex-col items-center justify-center space-y-2 p-20"
             >
                 <mat-spinner diameter="32"></mat-spinner>
-                <p>Saving changes to charge codes...</p>
+                <p>{{ 'CATERING.CHARGE_CODE_SAVE' | translate }}</p>
+            </main>
+        </ng-template>
+        <ng-template #empty_state>
+            <main
+                class="flex h-full min-h-[20rem] w-full flex-col items-center justify-center space-y-2"
+            >
+                <p class="opacity-30">
+                    {{ 'CATERING.CHARGE_CODE_EMPTY' | translate }}
+                </p>
             </main>
         </ng-template>
     `,
@@ -111,6 +139,13 @@ export class ChargeCodeListModalComponent implements OnInit {
             const file = event.target.files[0];
             /* istanbul ignore else */
             if (file) {
+                if (
+                    file.type !== 'text/csv' &&
+                    file.type !== 'text/tab-separated-values'
+                ) {
+                    notifyError('Only CSV and TSV files are accepted.');
+                    return;
+                }
                 const reader = new FileReader();
                 reader.readAsText(file, 'UTF-8');
                 reader.addEventListener('load', (evt) => {
@@ -127,6 +162,11 @@ export class ChargeCodeListModalComponent implements OnInit {
                 );
             }
         }
+    }
+
+    public downloadTemplate() {
+        const template = `code,description\ncode-1,Some Code\ncode-2,Another Code`;
+        downloadFile('template.csv', template);
     }
 
     public async saveChargeCodes() {
