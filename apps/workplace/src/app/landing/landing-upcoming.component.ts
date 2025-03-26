@@ -106,7 +106,7 @@ export class LandingUpcomingComponent
 
     public readonly edit_fn = (i) => this.edit(i);
     public readonly edit_booking_fn = (i) => this.editBooking(i);
-    public readonly remove_fn = (i) => this.remove(i);
+    public readonly remove_fn = (i, s?) => this.remove(i, s);
     public readonly end_fn = (i) => this.end(i);
 
     constructor(

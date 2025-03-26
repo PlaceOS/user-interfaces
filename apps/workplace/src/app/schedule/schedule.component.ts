@@ -210,7 +210,7 @@ export class ScheduleComponent extends AsyncHandler implements OnInit {
 
     public readonly edit_fn = (i) => this.edit(i);
     public readonly edit_booking_fn = (i) => this.editBooking(i);
-    public readonly remove_fn = (i) => this.remove(i);
+    public readonly remove_fn = (i, t?) => this.remove(i, t);
     public readonly end_fn = (i) => this.end(i);
 
     constructor(
