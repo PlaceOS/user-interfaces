@@ -329,11 +329,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
             </button>
             <button
                 mat-menu-item
-                *ngIf="
-                    booking.instance &&
-                    booking.booking_type !== 'parking' &&
-                    !booking.extension_data.is_assigned
-                "
+                *ngIf="booking.instance && allow_series_delete"
                 (click)="remove(booking, true)"
             >
                 <div class="flex items-center space-x-2 text-base">
@@ -407,6 +403,17 @@ export class BookingDetailsModalComponent {
                 `app.${this.booking?.type || 'bookings'}.hide_checkin`,
             ) &&
             !this._settings.get('app.bookings.hide_checkin')
+        );
+    }
+
+    public get allow_series_delete() {
+        const multi_key = `app.${this.booking?.type}s.allow_series_delete`;
+        const single_key = `app.${this.booking?.type}.allow_series_delete`;
+        const gen_key = `app.bookings.allow_series_delete`;
+        return (
+            this._settings.get(multi_key) ??
+            this._settings.get(single_key) ??
+            this._settings.get(gen_key)
         );
     }
 
