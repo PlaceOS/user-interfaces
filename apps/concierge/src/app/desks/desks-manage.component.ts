@@ -44,11 +44,6 @@ const QR_CODES = {};
                         name: 'APP.CONCIERGE.DESKS_NAME' | translate,
                     },
                     {
-                        key: 'groups',
-                        name: 'COMMON.GROUPS' | translate,
-                        content: item_list_template,
-                    },
-                    {
                         key: 'assigned_to',
                         name: 'Assigned',
                         content: assigned_template,
