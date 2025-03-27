@@ -41,21 +41,20 @@ import { VideoCallStateService } from './video-call-state.service';
                         </button>
                     </div>
                     <div class="w-full px-2">
+                        @let show_pip = show_camera_pip | async;
                         <button
                             btn
                             matRipple
                             class="w-full"
                             (click)="toggleCamera()"
-                            [class.inverse]="show_camera_pip | async"
+                            [class.inverse]="show_pip"
                         >
                             <div class="flex items-center space-x-4">
                                 <app-icon>{{
-                                    !(show_camera_pip | async)
-                                        ? 'visibility_off'
-                                        : 'visibility'
+                                    !show_pip ? 'visibility_off' : 'visibility'
                                 }}</app-icon>
                                 <span>{{
-                                    (show_camera_pip | async)
+                                    show_pip
                                         ? 'Hide Camera PIP'
                                         : 'Show Camera PIP'
                                 }}</span>
@@ -120,5 +119,6 @@ export class VideoCallDialViewComponent {
             this._router.navigate(['call'], { relativeTo: this._route });
         }
         this.close.emit();
+        this.dial_number = '';
     }
 }
