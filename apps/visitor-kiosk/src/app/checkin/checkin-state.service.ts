@@ -29,6 +29,7 @@ export class CheckinStateService {
     private _form = new BehaviorSubject(generateGuestForm());
     private _space_pipe = new SpacePipe();
 
+    public readonly photo = this._photo.asObservable();
     public readonly event = this._booking.asObservable();
     public readonly guest = this._guest.asObservable();
     public readonly error = this._error.asObservable();

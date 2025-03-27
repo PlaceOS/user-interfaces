@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { notifyError } from '@placeos/common';
 import { CheckinStateService } from './checkin-state.service';
@@ -7,21 +7,16 @@ import { CheckinStateService } from './checkin-state.service';
     selector: 'checkin-photo',
     template: `
         <div
-            class="relative flex flex-col items-center overflow-hidden rounded bg-base-100 p-4 shadow"
+            class="relative flex w-[24rem] flex-col items-center overflow-hidden rounded bg-base-100 p-4 shadow"
             *ngIf="!loading; else load_state"
         >
             <h3 class="mb-4 text-xl">
                 {{ 'APP.VISITOR_KIOSK.TAKE_PHOTO' | translate }}
             </h3>
-            <a-take-photo (photoAccepted)="handlePhoto($event)"></a-take-photo>
-            <a
-                icon
-                matRipple
-                class="absolute right-0 top-0"
-                [routerLink]="['/welcome']"
-            >
-                <app-icon>close</app-icon>
-            </a>
+            <a-take-photo
+                (captured)="handlePhoto($event)"
+                (back)="home()"
+            ></a-take-photo>
         </div>
         <ng-template #load_state>
             <div class="m-auto flex flex-col items-center">
@@ -32,47 +27,35 @@ import { CheckinStateService } from './checkin-state.service';
             </div>
         </ng-template>
     `,
-    styles: [
-        `
-            :host {
-                position: absolute;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background-color: rgba(0, 0, 0, 0.5);
-            }
-
-            .absolute {
-                position: absolute;
-            }
-        `,
-    ],
+    styles: [``],
     standalone: false,
 })
-export class CheckinPhotoComponent {
+export class CheckinPhotoComponent implements OnInit {
     /** Whether guest pass is being loaded */
-    public loading: boolean;
+    public loading = false;
 
     constructor(
         private _checkin: CheckinStateService,
         private _router: Router,
     ) {}
 
+    public ngOnInit() {
+        this.loading = false;
+    }
+
+    public home() {
+        this._router.navigate(['/welcome']);
+    }
+
     public async handlePhoto(event: any) {
-        if (!event) {
-            return notifyError('Error saving image, please try again');
-        }
+        if (!event) return notifyError('Error saving image, please try again');
         this.loading = true;
         this._checkin.setPhoto(event);
-        await this._checkin.printPass().catch((e) => {
-            this.loading = false;
-            notifyError(e);
-            throw e;
-        });
+        // await this._checkin.printPass().catch((e) => {
+        //     this.loading = false;
+        //     notifyError(e);
+        //     throw e;
+        // });
         this.loading = false;
         this._router.navigate(['/checkin', 'results']);
     }

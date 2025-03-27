@@ -51,6 +51,7 @@ const DEFAULT_TEMPLATE = `
                                     (event | async)?.asset_name ||
                                     (event | async)?.description,
                                 email: (event | async)?.asset_id,
+                                photo: photo | async,
                             }"
                         ></a-user-avatar>
                     </div>
@@ -161,6 +162,7 @@ export class CheckinResultsComponent extends AsyncHandler implements OnInit {
     public e;
     public readonly event = this._checkin.event;
     public readonly guest = this._checkin.guest;
+    public readonly photo = this._checkin.photo;
     public readonly level = combineLatest([
         this.event,
         this._org.initialised,

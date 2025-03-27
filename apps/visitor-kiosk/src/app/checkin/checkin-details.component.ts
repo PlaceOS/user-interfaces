@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { SettingsService } from '@placeos/common';
+import { nextValueFrom, SettingsService } from '@placeos/common';
 import { first } from 'rxjs/operators';
 import { CheckinStateService } from './checkin-state.service';
 
@@ -143,6 +143,13 @@ export class CheckinDetailsComponent implements OnInit {
         return this._settings.get('app.induction_after_details');
     }
 
+    public get allow_user_photo() {
+        return (
+            this._settings.get('app.allow_user_photo') &&
+            this._settings.get('app.allow_printing_label') !== false
+        );
+    }
+
     constructor(
         private _checkin: CheckinStateService,
         private _router: Router,
@@ -150,8 +157,8 @@ export class CheckinDetailsComponent implements OnInit {
     ) {}
 
     public async ngOnInit() {
-        const form = await this.form.pipe(first()).toPromise();
-        const event = await this._checkin.event.pipe(first()).toPromise();
+        const form = await nextValueFrom(this.form.pipe(first()));
+        const event = await nextValueFrom(this._checkin.event.pipe(first()));
         if (this._checkin.metadata === 'registered') {
             this.updateGuest(false);
         } else {
@@ -171,7 +178,10 @@ export class CheckinDetailsComponent implements OnInit {
         if (this.induction_after_details) {
             this._router.navigate(['/checkin', 'induction']);
         } else {
-            this._router.navigate(['/checkin', 'results']);
+            this._router.navigate([
+                '/checkin',
+                this.allow_user_photo ? 'photo' : 'results',
+            ]);
         }
     }
 
