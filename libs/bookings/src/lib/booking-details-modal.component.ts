@@ -407,14 +407,21 @@ export class BookingDetailsModalComponent {
     }
 
     public get allow_series_delete() {
-        const multi_key = `app.${this.booking?.type}s.allow_series_delete`;
-        const single_key = `app.${this.booking?.type}.allow_series_delete`;
-        const gen_key = `app.bookings.allow_series_delete`;
-        return (
-            this._settings.get(multi_key) ??
-            this._settings.get(single_key) ??
-            this._settings.get(gen_key)
-        );
+        const is_assigned = this.booking.extension_data.is_assigned;
+        const check_list = [
+            `${this.booking?.type}s`,
+            this.booking?.type,
+            'bookings',
+        ];
+        const key = is_assigned
+            ? `app.{v}.allow_assigned_series_delete`
+            : `app.{v}.allow_series_delete`;
+        for (const check of check_list) {
+            const check_key = key.replace('{v}', check);
+            const value = this._settings.get(check_key);
+            if (value != null) return !!value;
+        }
+        return false;
     }
 
     public get auto_checkin() {

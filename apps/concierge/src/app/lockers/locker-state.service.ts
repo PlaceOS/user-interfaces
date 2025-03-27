@@ -557,6 +557,7 @@ export class LockerStateService extends AsyncHandler {
                     extension_data: {
                         asset_name: new_locker.name,
                         tags: bank.tags || [],
+                        is_assigned: true,
                     },
                 }),
             ).toPromise();
