@@ -128,7 +128,7 @@ export class TakePhotoComponent
 
     private async startCapture() {
         this.image_url = null;
-        const stream = await navigator.mediaDevices.getUserMedia(
+        const stream = await navigator.mediaDevices?.getUserMedia(
             this.constraints,
         );
         this._video_el.nativeElement.srcObject = stream;
