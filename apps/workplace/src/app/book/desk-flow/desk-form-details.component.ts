@@ -2,19 +2,17 @@ import {
     Component,
     EventEmitter,
     Input,
+    OnChanges,
     Output,
     SimpleChanges,
 } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import {
-    BookingFormService,
-    DAYS_OF_WEEK_INDEX,
-    RecurrenceDays,
-} from '@placeos/bookings';
+import { BookingFormService } from '@placeos/bookings';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { RecurrenceDetails } from '@placeos/events';
+import { BookingRecurrence } from '@placeos/form-fields';
 import { Desk, OrganisationService } from '@placeos/organisation';
-import { addDays, endOfDay, getUnixTime, set } from 'date-fns';
+import { addDays, endOfDay, set } from 'date-fns';
 
 @Component({
     selector: 'desk-form-details',
@@ -164,7 +162,7 @@ import { addDays, endOfDay, getUnixTime, set } from 'date-fns';
                     <recurrence-field
                         name="recurrence"
                         [date]="form.getRawValue().date"
-                        [(ngModel)]="recurrence"
+                        [ngModel]="form.value"
                         (ngModelChange)="onRecurrenceChange($event)"
                         [ngModelOptions]="{ standalone: true }"
                     ></recurrence-field>
@@ -259,7 +257,10 @@ import { addDays, endOfDay, getUnixTime, set } from 'date-fns';
     `,
     standalone: false,
 })
-export class NewDeskFormDetailsComponent extends AsyncHandler {
+export class NewDeskFormDetailsComponent
+    extends AsyncHandler
+    implements OnChanges
+{
     @Input() public form: FormGroup;
     @Output() public find = new EventEmitter<void>();
     /** List of available buildings to select */
@@ -377,71 +378,10 @@ export class NewDeskFormDetailsComponent extends AsyncHandler {
             if (this.selected_desk?.id) {
                 this.form.patchValue({ resources: [this.selected_desk] });
             }
-            this.initialiseRecurrence();
         }
     }
 
-    public initialiseRecurrence() {
-        const {
-            recurrence_type,
-            recurrence_days,
-            recurrence_interval,
-            recurrence_end,
-            date,
-        } = this.form.value;
-        if (!this.can_recurr) return;
-        this.recurrence = {
-            pattern: recurrence_type,
-            days_of_week: new Array(7)
-                .fill(0)
-                .map((_, i) => i)
-                .filter((i) => recurrence_days & DAYS_OF_WEEK_INDEX[i]),
-            interval: recurrence_interval,
-            start: date,
-            end: recurrence_end,
-        };
-    }
-
-    public onRecurrenceChange(recurrence: RecurrenceDetails) {
-        if (!recurrence.pattern) {
-            this.form.patchValue({ recurrence_type: 'none' });
-        } else if (recurrence.pattern === 'daily') {
-            this.form.patchValue({
-                recurrence_type: 'daily',
-                recurrence_days:
-                    RecurrenceDays.MONDAY |
-                    RecurrenceDays.TUESDAY |
-                    RecurrenceDays.WEDNESDAY |
-                    RecurrenceDays.THURSDAY |
-                    RecurrenceDays.FRIDAY,
-                recurrence_interval: recurrence.interval,
-                recurrence_end: getUnixTime(recurrence.end),
-            });
-        } else if (recurrence.pattern === 'weekly') {
-            this.form.patchValue({
-                recurrence_type: 'weekly',
-                recurrence_days: recurrence.days_of_week.reduce(
-                    (d, i) => d | DAYS_OF_WEEK_INDEX[i],
-                    0,
-                ),
-                recurrence_interval: recurrence.interval,
-                recurrence_end: getUnixTime(recurrence.end),
-            });
-        } else if (
-            recurrence.pattern === 'monthly' ||
-            recurrence.pattern === 'month_day'
-        ) {
-            const date = new Date(this.form.value.date).getDate();
-            let instance = Math.floor(date / 7) + (date % 7 ? 1 : 0);
-            if ((instance === 4 && date >= 25) || instance === 5) instance = -1;
-            this.form.patchValue({
-                recurrence_type: 'monthly',
-                recurrence_interval: recurrence.interval,
-                recurrence_nth_of_month: instance,
-                recurrence_end: getUnixTime(recurrence.end),
-            });
-        } else {
-            this.form.patchValue({ recurrence_type: 'none' });
-        }
+    public onRecurrenceChange(recurrence: BookingRecurrence) {
+        this.form.patchValue(recurrence);
     }
 }

@@ -174,6 +174,7 @@ import {
                 </label>
                 <recurrence-field
                     name="recurrence"
+                    type="event"
                     [date]="form.getRawValue().date"
                     formControlName="recurrence"
                 ></recurrence-field>

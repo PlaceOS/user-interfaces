@@ -2,11 +2,11 @@ import { Component, forwardRef, Input } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 @Component({
-    selector: 'a-counter',
+    selector: 'compact-counter',
     template: `
         <div
             counter
-            class="flex items-center text-base"
+            class="flex items-center space-x-1 text-base"
             (window:keydown.shift)="shift_key = true"
             (window:keydown.control)="ctrl_key = true"
             (window:keydown.meta)="ctrl_key = true"
@@ -15,22 +15,11 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
             (window:keyup.meta)="ctrl_key = false"
             [class.disabled]="disabled"
         >
-            <button
-                decrease
-                icon
-                matRipple
-                type="button"
-                class="z-10 h-12 w-12 rounded-l rounded-r-none border border-secondary text-secondary"
-                [disabled]="!value || value === min"
-                (click)="remove()"
-            >
-                <app-icon>remove</app-icon>
-            </button>
             <div
                 value
-                class="relative z-0 -mx-px flex h-12 min-w-16 flex-1 items-center justify-center rounded-none border border-secondary p-2 focus-within:z-20"
+                class="relative z-0 -mx-px flex h-12 min-w-16 flex-1 items-center justify-center rounded border border-secondary p-1 focus-within:z-20"
             >
-                <span *ngIf="!focused">
+                <span *ngIf="!focused" class="px-3">
                     {{ (render_fn ? render_fn(value) : value) || '0' }}
                 </span>
                 <input
@@ -42,17 +31,30 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
                     limitInput
                 />
             </div>
-            <button
-                increase
-                icon
-                matRipple
-                type="button"
-                class="z-10 h-12 w-12 rounded-l-none rounded-r border border-secondary text-secondary"
-                [disabled]="value === max"
-                (click)="add()"
-            >
-                <app-icon>add</app-icon>
-            </button>
+            <div class="flex flex-col justify-center space-y-1">
+                <button
+                    increase
+                    icon
+                    matRipple
+                    type="button"
+                    class="z-10 h-[1.375rem] w-[1.375rem] min-w-0 rounded border border-secondary text-sm text-secondary"
+                    [disabled]="value === max"
+                    (click)="add()"
+                >
+                    <app-icon>add</app-icon>
+                </button>
+                <button
+                    decrease
+                    icon
+                    matRipple
+                    type="button"
+                    class="z-10 h-[1.375rem] w-[1.375rem] min-w-0 rounded border border-secondary text-sm text-secondary"
+                    [disabled]="!value || value === min"
+                    (click)="remove()"
+                >
+                    <app-icon>remove</app-icon>
+                </button>
+            </div>
         </div>
     `,
     styles: [
@@ -66,13 +68,13 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
         {
             provide: NG_VALUE_ACCESSOR,
             /* istanbul ignore next */
-            useExisting: forwardRef(() => CounterComponent),
+            useExisting: forwardRef(() => CompactCounterComponent),
             multi: true,
         },
     ],
     standalone: false,
 })
-export class CounterComponent implements ControlValueAccessor {
+export class CompactCounterComponent implements ControlValueAccessor {
     /** Size of a single step */
     @Input() public step = 1;
     /** Maximum amount for the counter */

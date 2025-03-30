@@ -1,157 +1,137 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
+import { FormControl, FormGroup } from '@angular/forms';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { addDays } from 'date-fns';
+import { AsyncHandler } from '@placeos/common';
+import { addDays, addMonths, startOfWeek } from 'date-fns';
 
-import { RecurrenceDetails } from 'libs/events/src/lib/event.interfaces';
+export type DayIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6;
+export type WeekIndex = 1 | 2 | 3 | 4 | 5 | -1;
+export type RecurrType = 'none' | 'daily' | 'weekly' | 'monthly' | 'yearly';
+export type MonthlyType = 'day_of_month' | 'day_of_week';
+export type RecurrEndType = 'never' | 'date' | 'instances';
+
+export interface Recurrence {
+    _custom: boolean;
+    type: RecurrType;
+    interval: number;
+    weekdays?: Set<DayIndex>;
+    week?: WeekIndex;
+    monthly_type?: MonthlyType;
+    end_type: RecurrEndType;
+    end_date?: number;
+    end_instances?: number;
+}
 
 @Component({
     selector: 'recurrence-modal',
     template: `
-        <header>
-            <h2>{{ 'FORM.RECURRENCE_CUSTOM_HEADER' | translate }}</h2>
-            <button btn icon mat-dialog-close matRipple>
-                <app-icon>close</app-icon>
-            </button>
+        <header
+            class="m-2 flex h-14 w-[calc(100%-1rem)] items-center justify-between rounded border-none bg-base-200 px-4 py-2"
+        >
+            <h3 class="text-xl font-medium">
+                {{ 'FORM.RECURRENCE_CUSTOM_HEADER' | translate }}
+            </h3>
         </header>
-        <main class="p-4">
-            <div class="mb-4 flex items-center space-x-2">
-                <div>{{ 'FORM.RECURRENCE_REPEAT_EVERY' | translate }}</div>
-                <mat-form-field appearance="outline" class="w-16">
-                    <input matInput type="number" [(ngModel)]="data.interval" />
-                </mat-form-field>
-                <mat-form-field appearance="outline">
-                    <mat-select [(ngModel)]="data.pattern">
-                        <mat-option value="daily">
-                            day{{ data.interval === 1 ? '' : 's' }}
-                        </mat-option>
-                        <mat-option value="weekly">
-                            week{{ data.interval === 1 ? '' : 's' }}
-                        </mat-option>
-                        <mat-option value="month_day">
-                            month{{ data.interval === 1 ? '' : 's' }}
-                        </mat-option>
-                        <!-- <mat-option value="yearly">
-                            year{{ data.interval === 1 ? '' : 's' }}
-                        </mat-option> -->
+        <main
+            class="flex min-w-[24rem] flex-col space-y-2 px-4"
+            [formGroup]="form"
+        >
+            <label class="w-auto">{{
+                'FORM.RECURRENCE_REPEAT_EVERY' | translate
+            }}</label>
+            <div class="mt-2 flex items-center space-x-4 pb-4">
+                <compact-counter
+                    formControlName="interval"
+                    [min]="1"
+                    [max]="60"
+                ></compact-counter>
+                <mat-form-field appearance="outline" class="no-subscript">
+                    <mat-select formControlName="type">
+                        <mat-option value="daily">{{
+                            (form.value.interval === 1
+                                ? 'FORM.RECURRENCE_DAY'
+                                : 'FORM.RECURRENCE_DAYS'
+                            ) | translate
+                        }}</mat-option>
+                        <mat-option value="weekly">{{
+                            (form.value.interval === 1
+                                ? 'FORM.RECURRENCE_WEEK'
+                                : 'FORM.RECURRENCE_WEEKS'
+                            ) | translate
+                        }}</mat-option>
+                        <mat-option value="monthly">{{
+                            (form.value.interval === 1
+                                ? 'FORM.RECURRENCE_MONTH'
+                                : 'FORM.RECURRENCE_MONTHS'
+                            ) | translate
+                        }}</mat-option>
                     </mat-select>
                 </mat-form-field>
             </div>
-            <h2 for="repeat-on" class="mb-2" *ngIf="data.pattern === 'weekly'">
-                {{ 'FORM.RECURRENCE_REPEAT_ON' | translate }}
-            </h2>
-            <div
-                class="mb-4 flex items-center space-x-2"
-                name="repeat-on"
-                *ngIf="data.pattern === 'weekly'"
-            >
-                <button
-                    btn
-                    matRipple
-                    class="w-12"
-                    [class.inverse]="!data.days_of_week?.includes(0)"
-                    (click)="toggleDayOfWeek(0)"
-                >
-                    S
-                </button>
-                <button
-                    btn
-                    matRipple
-                    class="w-12"
-                    [class.inverse]="!data.days_of_week?.includes(1)"
-                    (click)="toggleDayOfWeek(1)"
-                >
-                    M
-                </button>
-                <button
-                    btn
-                    matRipple
-                    class="w-12"
-                    [class.inverse]="!data.days_of_week?.includes(2)"
-                    (click)="toggleDayOfWeek(2)"
-                >
-                    T
-                </button>
-                <button
-                    btn
-                    matRipple
-                    class="w-12"
-                    [class.inverse]="!data.days_of_week?.includes(3)"
-                    (click)="toggleDayOfWeek(3)"
-                >
-                    W
-                </button>
-                <button
-                    btn
-                    matRipple
-                    class="w-12"
-                    [class.inverse]="!data.days_of_week?.includes(4)"
-                    (click)="toggleDayOfWeek(4)"
-                >
-                    T
-                </button>
-                <button
-                    btn
-                    matRipple
-                    class="w-12"
-                    [class.inverse]="!data.days_of_week?.includes(5)"
-                    (click)="toggleDayOfWeek(5)"
-                >
-                    F
-                </button>
-                <button
-                    btn
-                    matRipple
-                    class="w-12"
-                    [class.inverse]="!data.days_of_week?.includes(6)"
-                    (click)="toggleDayOfWeek(6)"
-                >
-                    S
-                </button>
+            @if (form.value.type === 'weekly') {
+                <label class="w-auto">{{
+                    'FORM.RECURRENCE_REPEAT_ON' | translate
+                }}</label>
+                <div class="flex items-center space-x-2 pb-4">
+                    @for (day of weekdays; track day[1]) {
+                        @let has_date = hasDate(day[1]);
+                        <button
+                            icon
+                            matRipple
+                            class="h-12 w-12 rounded border border-secondary"
+                            [class.bg-secondary]="has_date"
+                            [class.text-secondary]="!has_date"
+                            [class.text-base-200]="has_date"
+                            (click)="toggleDate(day[1])"
+                        >
+                            {{ day[0] | date: 'EEEEE' }}
+                        </button>
+                    }
+                </div>
+            }
+            @if (form.value.type === 'monthly') {
+                <mat-form-field appearance="outline">
+                    <mat-select formControlName="monthly_type"> </mat-select>
+                </mat-form-field>
+            }
+            <label class="w-auto">{{
+                'FORM.RECURRENCE_ENDS' | translate
+            }}</label>
+            <div class="pb-4">
+                <mat-radio-group formControlName="end_type">
+                    <div class="flex items-center">
+                        <mat-radio-button value="never">{{
+                            'FORM.RECURRENCE_ENDS_NEVER' | translate
+                        }}</mat-radio-button>
+                    </div>
+                    <div class="mt-2 flex items-center">
+                        <mat-radio-button value="date">{{
+                            'FORM.RECURRENCE_ENDS_ON' | translate
+                        }}</mat-radio-button>
+                        <a-date-field formControlName="end_date"></a-date-field>
+                    </div>
+                    <div class="mt-2 flex items-center">
+                        <mat-radio-button value="instances">{{
+                            'FORM.RECURRENCE_ENDS_AFTER' | translate
+                        }}</mat-radio-button>
+                        <compact-counter
+                            class="flex-1"
+                            formControlName="end_instances"
+                            [render_fn]="instance_fn"
+                            [min]="1"
+                            [max]="53"
+                        ></compact-counter>
+                    </div>
+                </mat-radio-group>
             </div>
-            <h2 for="ends-at">{{ 'FORM.RECURRENCE_ENDS' | translate }}</h2>
-            <mat-radio-group name="ends-at" [(ngModel)]="ends_key">
-                <div class="flex items-center">
-                    <mat-radio-button
-                        value="never"
-                        (click)="data.occurrences = 0"
-                    >
-                        {{ 'FORM.RECURRENCE_ENDS_NEVER' | translate }}
-                    </mat-radio-button>
-                </div>
-                <div class="flex items-center space-x-2">
-                    <mat-radio-button value="on">On</mat-radio-button>
-                    <a-date-field
-                        [(ngModel)]="data.end"
-                        [disabled]="ends_key !== 'on'"
-                    ></a-date-field>
-                </div>
-                <div class="flex items-center space-x-2">
-                    <mat-radio-button value="after">After</mat-radio-button>
-                    <mat-form-field appearance="outline">
-                        <input
-                            matInput
-                            type="number"
-                            [(ngModel)]="data.occurrences"
-                            [disabled]="ends_key !== 'after'"
-                        />
-                        <span matSuffix>occurences</span>
-                    </mat-form-field>
-                </div>
-            </mat-radio-group>
         </main>
         <footer
-            class="flex items-center justify-end border-t border-base-200 px-4 py-2"
+            class="flex items-center justify-end space-x-2 border-t border-base-200 px-4 py-2"
         >
-            <button
-                btn
-                class="w-32"
-                matRipple
-                (click)="
-                    data.occurrences =
-                        ends_key === 'never' ? 0 : data.occurrences
-                "
-                [mat-dialog-close]="data"
-            >
+            <button btn matRipple class="inverse w-32" mat-dialog-close>
+                {{ 'COMMON.CANCEL' | translate }}
+            </button>
+            <button btn matRipple class="w-32" [mat-dialog-close]="form.value">
                 {{ 'COMMON.SAVE' | translate }}
             </button>
         </footer>
@@ -170,26 +150,60 @@ import { RecurrenceDetails } from 'libs/events/src/lib/event.interfaces';
     ],
     standalone: false,
 })
-export class RecurrenceModalComponent {
-    public data: RecurrenceDetails = {
-        ...this._data.value,
-        end: this._data.value.end || addDays(new Date(), 7).valueOf(),
-        interval: this._data.value.interval || 1,
-        pattern: this._data.value.pattern ? this._data.value.pattern : 'weekly',
-        occurrences: this._data.value.occurrences || 1,
-    };
-    public ends_key = 'never';
+export class RecurrenceModalComponent extends AsyncHandler implements OnInit {
+    public readonly instance_fn = (v) => `${v} instances`;
+    public readonly weekdays = new Array(7).fill(0).map((_, idx) => {
+        const date = addDays(startOfWeek(Date.now()), idx);
+        return [date.valueOf(), date.getDay()];
+    });
 
-    constructor(
-        @Inject(MAT_DIALOG_DATA) private _data: { value: RecurrenceDetails },
-    ) {}
+    public readonly form = new FormGroup({
+        _custom: new FormControl(true),
+        type: new FormControl<RecurrType>('daily'),
+        interval: new FormControl(1),
+        weekdays: new FormControl(
+            new Set<DayIndex>([new Date().getDay() as any]),
+        ),
+        monthly_type: new FormControl<MonthlyType>('day_of_month'),
+        end_type: new FormControl<RecurrEndType>('never'),
+        end_date: new FormControl(addMonths(Date.now(), 3)),
+        end_instances: new FormControl(13),
+    });
 
-    public toggleDayOfWeek(day: number) {
-        if (!this.data.days_of_week) this.data.days_of_week = [];
-        if (this.data.days_of_week.includes(day)) {
-            this.data.days_of_week = this.data.days_of_week.filter(
-                (d) => d !== day,
-            );
-        } else this.data.days_of_week.push(day);
+    constructor(@Inject(MAT_DIALOG_DATA) private _data: { value: Recurrence }) {
+        super();
+    }
+
+    public ngOnInit() {
+        this.subscription(
+            'end_type',
+            this.form.controls.end_type.valueChanges.subscribe((type) =>
+                this._onEndTypeChange(type),
+            ),
+        );
+        this.form.patchValue({ ...this._data.value, _custom: true });
+        if (!this.form.value.type || this.form.value.type === 'none') {
+            this.form.patchValue({ type: 'daily' });
+        }
+        this._onEndTypeChange(this.form.value.end_type);
+    }
+
+    public hasDate(idx: DayIndex) {
+        return this.form.value.weekdays.has(idx);
+    }
+
+    public toggleDate(idx: DayIndex) {
+        const set = this.form.value.weekdays;
+        set.has(idx) ? set.delete(idx) : set.add(idx);
+        this.form.patchValue({ weekdays: set });
+    }
+
+    private _onEndTypeChange(type: RecurrEndType) {
+        type !== 'date'
+            ? this.form.controls.end_date.disable()
+            : this.form.controls.end_date.enable();
+        type !== 'instances'
+            ? this.form.controls.end_instances.disable()
+            : this.form.controls.end_instances.enable();
     }
 }

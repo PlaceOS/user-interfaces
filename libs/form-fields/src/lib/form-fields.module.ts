@@ -17,6 +17,7 @@ import { ComponentsModule } from 'libs/components/src/lib/components.module';
 
 import { ActionFieldComponent } from './action-field.component';
 import { BookingRulesFormComponent } from './booking-rules-form.component';
+import { CompactCounterComponent } from './compact-counter.component';
 import { CounterComponent } from './counter.component';
 import { DateCalendarComponent } from './date-calendar.component';
 import { DateFieldComponent } from './date-field.component';
@@ -41,6 +42,7 @@ import { UserSearchFieldComponent } from './user-search-field.component';
 const COMPONENTS: Type<any>[] = [
     ActionFieldComponent,
     CounterComponent,
+    CompactCounterComponent,
     DateFieldComponent,
     DateRangeFieldComponent,
     DateRangeCalendarComponent,
