@@ -2,6 +2,7 @@ import {
     Component,
     ElementRef,
     EventEmitter,
+    Input,
     OnDestroy,
     OnInit,
     Output,
@@ -100,9 +101,9 @@ export class TakePhotoComponent
     extends AsyncHandler
     implements OnInit, OnDestroy
 {
+    @Input() public back_text = '';
     @Output() public captured = new EventEmitter();
     @Output() public back = new EventEmitter();
-    @Output() public back_text = '';
     public has_photo = false;
     public loading = false;
 
