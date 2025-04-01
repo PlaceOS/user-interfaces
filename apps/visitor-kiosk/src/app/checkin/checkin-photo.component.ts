@@ -15,7 +15,8 @@ import { CheckinStateService } from './checkin-state.service';
             </h3>
             <a-take-photo
                 (captured)="handlePhoto($event)"
-                (back)="home()"
+                [back_text]="'APP.VISITOR_KIOSK.SKIP' | translate"
+                (back)="skip()"
             ></a-take-photo>
         </div>
         <ng-template #load_state>
@@ -43,8 +44,8 @@ export class CheckinPhotoComponent implements OnInit {
         this.loading = false;
     }
 
-    public home() {
-        this._router.navigate(['/welcome']);
+    public skip() {
+        this._router.navigate(['/checkin', 'results']);
     }
 
     public async handlePhoto(event: any) {

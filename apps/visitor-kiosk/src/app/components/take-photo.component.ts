@@ -36,7 +36,9 @@ import { AsyncHandler } from '@placeos/common';
                     class="absolute inset-0 flex flex-col items-center justify-center space-y-4"
                 >
                     <mat-spinner diameter="32"></mat-spinner>
-                    <div class="text">Please wait...</div>
+                    <div class="text">
+                        {{ 'APP.VISITOR_KIOSK.PLEASE_WAIT' | translate }}
+                    </div>
                 </div>
             }
         </div>
@@ -48,7 +50,7 @@ import { AsyncHandler } from '@placeos/common';
                     matRipple
                     (click)="back.emit()"
                 >
-                    Back
+                    {{ back_text || ('COMMON.BACK' | translate) }}
                 </button>
                 <button
                     class="take-photo flex-1"
@@ -56,7 +58,7 @@ import { AsyncHandler } from '@placeos/common';
                     matRipple
                     (click)="takePhoto()"
                 >
-                    Take Photo
+                    {{ 'APP.VISITOR_KIOSK.TAKE_PHOTO_ACTION' | translate }}
                 </button>
             </ng-container>
         </div>
@@ -67,10 +69,10 @@ import { AsyncHandler } from '@placeos/common';
                 matRipple
                 (click)="cancelPhoto()"
             >
-                Cancel
+                {{ 'COMMON.CANCEL' | translate }}
             </button>
             <button btn matRipple class="flex-1" (click)="acceptPhoto()">
-                Accept
+                {{ 'COMMON.ACCEPT' | translate }}
             </button>
         </ng-template>
     `,
@@ -100,6 +102,7 @@ export class TakePhotoComponent
 {
     @Output() public captured = new EventEmitter();
     @Output() public back = new EventEmitter();
+    @Output() public back_text = '';
     public has_photo = false;
     public loading = false;
 
