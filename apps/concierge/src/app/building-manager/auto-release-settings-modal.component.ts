@@ -16,6 +16,7 @@ import {
     updateMetadata,
     updateSettings,
 } from '@placeos/ts-client';
+import { setHours, startOfMinute } from 'date-fns';
 import * as yaml from 'js-yaml';
 import { map } from 'rxjs/operators';
 
@@ -56,6 +57,25 @@ import { map } from 'rxjs/operators';
                         [(ngModel)]="settings.time_after"
                     ></a-duration-field>
                 </div>
+            </div>
+            <div class="flex items-end space-x-2">
+                <div class="flex-1">
+                    <label>{{
+                        'APP.CONCIERGE.AUTO_RELEASE_ALL_DAY_START' | translate
+                    }}</label>
+                    <a-time-field
+                        [no_past_times]="false"
+                        [ngModel]="start_hour"
+                        (ngModelChange)="setStartHour($event)"
+                    ></a-time-field>
+                </div>
+                <settings-toggle
+                    class="mb-4 flex-1"
+                    [name]="
+                        'APP.CONCIERGE.AUTO_RELEASE_OUTSIDE_HOURS' | translate
+                    "
+                    [(ngModel)]="settings.release_outside_hours"
+                ></settings-toggle>
             </div>
             <label>{{ 'APP.CONCIERGE.AUTO_RELEASE_TYPES' | translate }}</label>
             <mat-form-field appearance="outline" class="w-full">
@@ -145,6 +165,16 @@ export class AutoReleaseSettingsModalComponent implements OnInit {
         custom: [],
     };
 
+    public get start_hour() {
+        return startOfMinute(
+            setHours(Date.now(), this.settings.all_day_start || 8),
+        ).valueOf();
+    }
+    public readonly setStartHour = (t) => {
+        const d = new Date(t);
+        this.settings.all_day_start = d.getHours() + d.getMinutes() / 60;
+    };
+
     constructor(
         @Inject(MAT_DIALOG_DATA) private _id: string,
         private _dialog_ref: MatDialogRef<AutoReleaseSettingsModalComponent>,
@@ -189,6 +219,8 @@ export class AutoReleaseSettingsModalComponent implements OnInit {
             if (key in this.settings) this.settings.custom.push(name);
         }
         this.loading = '';
+        console.log('START HOUR:', this.start_hour);
+        setTimeout(() => console.log('START HOUR:', this.start_hour), 1000);
     }
 
     public async save() {

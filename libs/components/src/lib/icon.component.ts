@@ -29,7 +29,7 @@ import { ApplicationIcon } from 'libs/common/src/lib/types';
     standalone: false,
 })
 export class IconComponent {
-    @Input() public className: string = 'material-icons';
+    @Input() public className = 'material-icons';
     /** Icon details */
     @Input() public icon: ApplicationIcon;
 }

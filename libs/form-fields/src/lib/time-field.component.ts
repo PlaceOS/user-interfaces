@@ -31,10 +31,10 @@ import {
     template: `
         <button
             time-field
+            matRipple
             class="flex h-12 w-full items-center justify-between rounded border border-neutral px-2"
             [disabled]="disabled"
             [class.opacity-30]="disabled"
-            matRipple
             [matMenuTriggerFor]="menu"
         >
             <div

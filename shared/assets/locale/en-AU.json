@@ -1089,6 +1089,8 @@
             "AUTO_RELEASE_PARKING": "Custom parking auto-release",
             "AUTO_RELEASE_VISITOR": "Custom visitor auto-release",
             "AUTO_RELEASE_LOCKER": "Custom locker auto-release",
+            "AUTO_RELEASE_ALL_DAY_START": "All Day Release time",
+            "AUTO_RELEASE_OUTSIDE_HOURS": "Release outside business hours",
             "INDUCTION_HEADER": "Induction Settings",
             "INDUCTION_DETAILS": "Induction Details",
             "INDUCTION_ENABLE": "Enable induction for building",
