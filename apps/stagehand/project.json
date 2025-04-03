@@ -1,0 +1,140 @@
+{
+    "name": "stagehand",
+    "$schema": "../../node_modules/nx/schemas/project-schema.json",
+    "projectType": "application",
+    "prefix": "app",
+    "sourceRoot": "apps/stagehand/src",
+    "tags": [],
+    "targets": {
+        "build": {
+            "executor": "@angular-devkit/build-angular:application",
+            "outputs": ["{options.outputPath}"],
+            "options": {
+                "outputPath": "dist/apps/stagehand",
+                "index": "apps/stagehand/src/index.html",
+                "browser": "apps/stagehand/src/main.ts",
+                "polyfills": ["zone.js"],
+                "tsConfig": "apps/stagehand/tsconfig.app.json",
+                "fileReplacements": [
+                    {
+                        "replace": "libs/common/src/lib/settings.ts",
+                        "with": "apps/stagehand/src/environments/settings.ts"
+                    }
+                ],
+                "assets": [
+                    {
+                        "glob": "**/*",
+                        "input": "apps/stagehand/public"
+                    },
+                    {
+                        "glob": "oauth-resp.html",
+                        "input": "node_modules/@placeos/ts-client/dist/",
+                        "output": "/"
+                    },
+                    "apps/stagehand/src/manifest.webmanifest"
+                ],
+                "styles": [
+                    "apps/stagehand/src/styles.css",
+                    "./node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
+                    "shared/styles/application.scss",
+                    "shared/styles/custom-element.scss",
+                    "shared/styles/native-element.scss",
+                    "shared/styles/utility.scss"
+                ],
+                "scripts": []
+            },
+            "configurations": {
+                "staging": {
+                    "optimization": true,
+                    "fileReplacements": [
+                        {
+                            "replace": "apps/stagehand/src/environments/environment.ts",
+                            "with": "apps/stagehand/src/environments/environment.prod.ts"
+                        },
+                        {
+                            "replace": "libs/common/src/lib/settings.ts",
+                            "with": "apps/stagehand/src/environments/settings.ts"
+                        }
+                    ],
+                    "serviceWorker": "apps/stagehand/ngsw-config.json"
+                },
+                "production": {
+                    "fileReplacements": [
+                        {
+                            "replace": "libs/mocks/src/index.ts",
+                            "with": "libs/mocks/src/empty.ts"
+                        },
+                        {
+                            "replace": "apps/stagehand/src/environments/environment.ts",
+                            "with": "apps/stagehand/src/environments/environment.prod.ts"
+                        },
+                        {
+                            "replace": "libs/common/src/lib/settings.ts",
+                            "with": "apps/stagehand/src/environments/settings.ts"
+                        }
+                    ],
+                    "budgets": [
+                        {
+                            "type": "initial",
+                            "maximumWarning": "500kb",
+                            "maximumError": "2.5mb"
+                        },
+                        {
+                            "type": "anyComponentStyle",
+                            "maximumWarning": "4kb",
+                            "maximumError": "16kb"
+                        }
+                    ],
+                    "outputHashing": "all",
+                    "serviceWorker": "apps/stagehand/ngsw-config.json"
+                },
+                "development": {
+                    "optimization": false,
+                    "extractLicenses": false,
+                    "sourceMap": true
+                }
+            },
+            "defaultConfiguration": "production"
+        },
+        "serve": {
+            "executor": "@angular-devkit/build-angular:dev-server",
+            "options": {
+                "proxyConfig": "config/proxy.conf.js"
+            },
+            "configurations": {
+                "production": {
+                    "buildTarget": "stagehand:build:production"
+                },
+                "development": {
+                    "buildTarget": "stagehand:build:development"
+                }
+            },
+            "defaultConfiguration": "development"
+        },
+        "extract-i18n": {
+            "executor": "@angular-devkit/build-angular:extract-i18n",
+            "options": {
+                "buildTarget": "stagehand:build"
+            }
+        },
+        "lint": {
+            "executor": "@nx/eslint:lint"
+        },
+        "test": {
+            "executor": "@nx/jest:jest",
+            "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+            "options": {
+                "jestConfig": "apps/stagehand/jest.config.ts"
+            }
+        },
+        "serve-static": {
+            "executor": "@nx/web:file-server",
+            "options": {
+                "buildTarget": "stagehand:build",
+                "port": 4200,
+                "staticFilePath": "dist/apps/stagehand/browser",
+                "spa": true
+            }
+        }
+    }
+}

@@ -8,10 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 
-import { CardInputFieldComponent } from './card-input-field.component';
-import { PaymentModalComponent } from './payment-modal.component';
-
-const COMPONENTS = [PaymentModalComponent, CardInputFieldComponent];
+const COMPONENTS = [];
 
 @NgModule({
     declarations: [...COMPONENTS],

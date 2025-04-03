@@ -65,6 +65,11 @@
         },
         "e2e-ci--**/*": {
             "dependsOn": ["concierge:build", "workplace:build"]
+        },
+        "@angular-devkit/build-angular:application": {
+            "cache": true,
+            "dependsOn": ["^build"],
+            "inputs": ["production", "^production"]
         }
     },
     "namedInputs": {

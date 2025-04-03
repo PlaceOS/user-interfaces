@@ -540,57 +540,58 @@ custom-table[header-dark] {
     }
 }
 
+
+
 button[btn]:not([icon]),
 a[btn] {
-    --color: var(--s);
-    background-color: var(--color);
-    border: 1px solid var(--color);
-    color: var(--sc);
-    font-size: 1rem;
-    min-height: 3em;
-    padding: 0 1em;
+    --bg-color: var(--s);
+    --color: var(--sc);
+    background-color: var(--bg-color);
+    border: 1px solid var(--bg-color);
+    color: var(--color);
+    padding: 0 1rem;
+    min-height: 3rem;
+    border-radius: 0.25rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 0.25rem;
 
     &.inverse {
-        background: none;
-        color: var(--color);
-        border-color: currentColor;
-    }
-
-    &.success {
-        --color: var(--su);
+        color: var(--bg-color);
+        background-color: transparent;
     }
 
     &.clear {
+        --color: var(--bc);
         background: none;
         border: none;
-        color: var(--bc);
+    }
+
+    &.info {
+        --bg-color: var(--in);
+        --color: var(--inc);
     }
 
     &.error {
-        --color: var(--er);
-        color: var(--erc);
+        --bg-color: var(--er);
+        --color: var(--erc);
     }
 
-    &.black {
-        --color: var(--bc);
+    &.success {
+        --bg-color: var(--su);
+        --color: var(--suc);
     }
 
     &.base {
-        --color: var(--b1);
-        background-color: var(--color);
-        color: var(--bc);
+        --bg-color: var(--b1);
+        --color: var(--bc);
     }
 
-    &[disabled] {
-        background-color: var(--n);
-        color: var(--nc);
-        border-color: var(--n);
-        pointer-events: none;
+    &:not([disabled="false"])[disabled] {
+        --bg-color: var(--b4);
+        --color: var(--bc);
         opacity: 0.3;
+        pointer-events: none;
     }
 }
 
