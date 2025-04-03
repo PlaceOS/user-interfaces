@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
-import { first } from 'rxjs/operators';
+import { Component } from '@angular/core';
+import { filter, map } from 'rxjs/operators';
 
 import { AsyncHandler } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { Space, SpacesService } from '@placeos/spaces';
+import { BehaviorSubject, combineLatest } from 'rxjs';
 
 @Component({
     selector: 'a-control-space-list',
@@ -15,7 +16,8 @@ import { Space, SpacesService } from '@placeos/spaces';
                 <app-icon class="text-xl" matPrefix>search</app-icon>
                 <input
                     matInput
-                    [(ngModel)]="search_str"
+                    [ngModel]="search.getValue()"
+                    (ngModelChange)="search.next($event)"
                     placeholder="Search..."
                 />
                 <mat-spinner
@@ -26,22 +28,23 @@ import { Space, SpacesService } from '@placeos/spaces';
                 ></mat-spinner>
             </mat-form-field>
         </div>
+        @let spaces = filtered_spaces | async;
         <div
             class="flex w-full flex-1 flex-col overflow-auto p-4"
-            *ngIf="filtered_list.length; else empty_state"
+            *ngIf="spaces.length; else empty_state"
         >
             <a-control-space-list-item
-                *ngFor="let space of filtered_list"
+                *ngFor="let space of spaces"
                 [space]="space"
             ></a-control-space-list-item>
         </div>
         <ng-template #empty_state>
-            <div class="flex flex-col items-center p-8">
-                <app-icon>close</app-icon>
+            <div class="flex flex-col items-center space-y-4 p-8 opacity-30">
+                <app-icon class="text-6xl">no_meeting_room</app-icon>
                 <p>
                     {{
                         search_str
-                            ? ' No matches for "' + search_str + '"'
+                            ? ' No matches for "' + search.getValue() + '"'
                             : 'No controllable spaces'
                     }}
                 </p>
@@ -65,11 +68,46 @@ import { Space, SpacesService } from '@placeos/spaces';
     ],
     standalone: false,
 })
-export class ControlSpaceListComponent extends AsyncHandler implements OnInit {
-    /** List of controllable spaces */
-    public space_list: Space[] = [];
+export class ControlSpaceListComponent extends AsyncHandler {
     /** Filter string */
-    public search_str: string;
+    public readonly search = new BehaviorSubject('');
+    /** List of controlable spaces for the active building */
+    public readonly space_list = combineLatest([
+        this._org.active_building,
+        this._spaces.initialised,
+    ]).pipe(
+        filter(([_]) => !!_),
+        map(([bld]) =>
+            this._spaces.filter(
+                (s) => !!s.support_url && s.zones.includes(bld.id),
+            ),
+        ),
+        map((spaces) => spaces.sort((a, b) => this.sortSpaces(a, b))),
+    );
+    // Filtered list of controlable spaces
+    public readonly filtered_spaces = combineLatest([
+        this.space_list,
+        this.search,
+    ]).pipe(
+        map(([list, s]) => {
+            const search = (s || '').toLowerCase();
+            return (list || []).filter((space) => {
+                const bld = this._org.buildings.find(
+                    (building) => building.id === space.level.parent_id,
+                );
+                const space_name = (space.name || '').toLowerCase();
+                const level_name = (
+                    (space.level ? space.level.name : '') || ''
+                ).toLowerCase();
+                const bld_name = ((bld ? bld.name : '') || '').toLowerCase();
+                return (
+                    space_name.indexOf(search) >= 0 ||
+                    (level_name && level_name.indexOf(search) >= 0) ||
+                    (bld_name && bld_name.indexOf(search) >= 0)
+                );
+            });
+        }),
+    );
     /** Whether space list is being filtered */
     public loading: boolean;
 
@@ -78,32 +116,6 @@ export class ControlSpaceListComponent extends AsyncHandler implements OnInit {
         private _org: OrganisationService,
     ) {
         super();
-    }
-
-    public async ngOnInit() {
-        await this._spaces.initialised.pipe(first((_) => _)).toPromise();
-        this.space_list = this._spaces.filter((space) => !!space.support_url);
-        this.space_list.sort((a, b) => this.sortSpaces(a, b));
-    }
-
-    /** List of spaces filtered using the search string */
-    public get filtered_list(): Space[] {
-        const search = (this.search_str || '').toLowerCase();
-        return (this.space_list || []).filter((space) => {
-            const bld = this._org.buildings.find(
-                (building) => building.id === space.level.parent_id,
-            );
-            const space_name = (space.name || '').toLowerCase();
-            const level_name = (
-                (space.level ? space.level.name : '') || ''
-            ).toLowerCase();
-            const bld_name = ((bld ? bld.name : '') || '').toLowerCase();
-            return (
-                space_name.indexOf(search) >= 0 ||
-                (level_name && level_name.indexOf(search) >= 0) ||
-                (bld_name && bld_name.indexOf(search) >= 0)
-            );
-        });
     }
 
     private sortSpaces(first: Space, second: Space) {

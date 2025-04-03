@@ -24,6 +24,7 @@ import { OrganisationService } from '@placeos/organisation';
             [class.!h-0]="mobile_menu"
             (window:resize)="checkMenu()"
             class="flex h-full w-full min-w-full items-center justify-center overflow-hidden text-base-content"
+            *ngIf="routes.length > 1"
         >
             <ng-container *ngFor="let route of routes">
                 <a

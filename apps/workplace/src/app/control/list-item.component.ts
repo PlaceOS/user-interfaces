@@ -43,6 +43,7 @@ import { Space } from '@placeos/spaces';
                     class="inverse w-32 flex-1 sm:flex-none"
                     [routerLink]="['/explore']"
                     [queryParams]="{ space: space.id }"
+                    *ngIf="allow_locate"
                 >
                     Find
                 </a>
@@ -58,6 +59,10 @@ export class ControlSpaceListItemComponent {
 
     public get show_image() {
         return this._settings.get('app.spaces.show_images');
+    }
+
+    public get allow_locate() {
+        return (this._settings.get('app.features') || []).includes('explore');
     }
 
     /** Display location of the space */
