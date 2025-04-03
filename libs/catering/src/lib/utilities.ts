@@ -1,4 +1,4 @@
-import { isAfter, isBefore, setHours, subHours } from 'date-fns';
+import { isAfter, isBefore, setHours, subMinutes } from 'date-fns';
 
 import { stringToMinutes } from '@placeos/common';
 import { AttachedResourceRuleset } from '@placeos/components';
@@ -34,6 +34,7 @@ export function cateringItemAvailable(
     event: CalendarEvent,
 ) {
     let is_available = true;
+    const now = Date.now();
     for (const rule of rules) {
         if (
             item.category === rule.name ||
@@ -43,50 +44,37 @@ export function cateringItemAvailable(
             rule.name === '*'
         ) {
             let matches = 0;
-            for (const condition of rule.rules) {
+            for (const [type, value] of rule.rules) {
                 const date = new Date(event.date);
-                switch (condition[0]) {
+                const v =
+                    typeof value === 'string'
+                        ? stringToMinutes(value)
+                        : +value * 60;
+                switch (type) {
                     case 'is_before':
-                        matches += isBefore(
-                            Date.now(),
-                            subHours(date, condition[1]),
-                        )
-                            ? 1
-                            : 0;
+                        matches += isBefore(now, subMinutes(date, v)) ? 1 : 0;
                         break;
                     case 'within_hours':
-                        matches += isAfter(
-                            Date.now(),
-                            subHours(date, condition[1]),
-                        )
-                            ? 1
-                            : 0;
+                        matches += isAfter(now, subMinutes(date, v)) ? 1 : 0;
                         break;
                     case 'after_hour':
-                        matches += isAfter(date, setHours(date, condition[1]))
+                        matches += isAfter(date, setHours(date, v / 60))
                             ? 1
                             : 0;
                         break;
                     case 'before_hour':
-                        matches += isBefore(date, setHours(date, condition[1]))
+                        matches += isBefore(date, setHours(date, v / 60))
                             ? 1
                             : 0;
                         break;
                     case 'min_length':
-                        matches +=
-                            event.duration >= stringToMinutes(condition[1])
-                                ? 1
-                                : 0;
+                        matches += event.duration >= v ? 1 : 0;
                         break;
                     case 'max_length':
-                        matches +=
-                            event.duration <= stringToMinutes(condition[1])
-                                ? 1
-                                : 0;
+                        matches += event.duration <= v ? 1 : 0;
                         break;
                     case 'visitor_type':
-                        matches +=
-                            event.ext('visitor_type') === condition[1] ? 1 : 0;
+                        matches += event.ext('visitor_type') === value ? 1 : 0;
                         break;
                     default:
                         matches += 1;
