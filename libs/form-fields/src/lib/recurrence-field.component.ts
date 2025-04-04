@@ -126,7 +126,7 @@ function fromBookingRecurrence(r: BookingRecurrence): Recurrence {
         recurr.end_date = r.recurrence_end * 1000; // Convert from seconds to milliseconds
     }
 
-    if (r.recurrence_type === 'weekly' && r.recurrence_days) {
+    if (r.recurrence_type === 'daily' && r.recurrence_days) {
         const weekdays = new Set<DayIndex>();
         // Convert bit flags to day indices (0-6)
         for (let i = 0; i < 7; i++) {
@@ -177,6 +177,7 @@ function toBookingRecurrence(r: Recurrence): BookingRecurrence {
             days |= 1 << (6 - day);
         });
         booking.recurrence_days = days;
+        booking.recurrence_type = 'daily';
     }
 
     if ((r.type === 'monthly' || r.type === 'yearly') && r.weekdays) {
