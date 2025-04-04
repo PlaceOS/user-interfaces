@@ -266,7 +266,10 @@ export class MapRendererComponent
                 actions: this.actions,
                 options: this.options,
             });
-        } catch (e) {}
+        } catch (e) {
+            console.warn('[MAP] Update viewer error.', e);
+            return this.timeout('update_view', () => this.updateView());
+        }
     }
 
     /** Update zoom and center position of viewer */
@@ -279,7 +282,10 @@ export class MapRendererComponent
                 desired_center: this.center,
                 options: this.options,
             });
-        } catch (e) {}
+        } catch (e) {
+            console.warn('[MAP] Update view display error.', e);
+            return this.timeout('update_display', () => this.updateDisplay());
+        }
     }
 
     private async createView() {
