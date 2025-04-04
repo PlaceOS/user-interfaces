@@ -258,7 +258,9 @@ import { Booking } from './booking.class';
                 sent
                 class="absolute inset-0 flex flex-col items-center justify-center bg-base-100 text-center"
             >
-                <div class="m-8 h-1/2 w-full max-w-[32rem] flex-1 space-y-2">
+                <div
+                    class="z-0 m-8 h-1/2 w-full max-w-[32rem] flex-1 space-y-2 overflow-auto"
+                >
                     <h2 class="text-3xl">
                         {{
                             (multiple
@@ -338,7 +340,9 @@ import { Booking } from './booking.class';
                         </a>
                     </div>
                 </div>
-                <div class="w-full border-t border-base-200 p-2">
+                <div
+                    class="z-10 w-full border-t border-base-200 bg-base-100 p-2"
+                >
                     <div
                         class="mx-auto flex w-full max-w-[32rem] items-center space-x-2"
                     >
