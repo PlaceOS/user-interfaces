@@ -537,22 +537,7 @@ export class InviteVisitorFormComponent
         ]);
         await (this.multiple ? this._bookForMany() : this._bookForOne());
         this.last_success = this._service.last_success;
-        if (this.last_success) {
-            const event: CalEvent = {
-                ...this.last_success,
-                host: this.last_success.user_email,
-                organiser: {
-                    name: this.last_success.user_name,
-                    email: this.last_success.user_email,
-                } as any,
-                attendees: this.last_success.attendees.map((_) => _.email),
-                body: this.last_success.description,
-                location: this.last_success.asset_name,
-            };
-            this.outlook_link = generateMicrosoftCalendarLink(event);
-            this.google_link = generateGoogleCalendarLink(event);
-            this.ical_link = generateCalendarFileLink(event);
-        }
+        if (this.last_success) this._generateLinks();
         await this.initFormZone();
         this.sent = true;
     }
@@ -622,5 +607,25 @@ export class InviteVisitorFormComponent
             });
         }
         this.loading_many = false;
+    }
+
+    private _generateLinks() {
+        const event: CalEvent = {
+            ...this.last_success,
+            host: this.last_success.user_email,
+            organiser: {
+                name: this.last_success.user_name,
+                email: this.last_success.user_email,
+            } as any,
+            attendees: this.last_success.attendees.map((_) => _.email),
+            body: this.last_success.description,
+            location:
+                this._org.building.display_name || this._org.building.name,
+        };
+        event.attendees.push(this.last_success.asset_id);
+        console.log('Event:', event);
+        this.outlook_link = generateMicrosoftCalendarLink(event);
+        this.google_link = generateGoogleCalendarLink(event);
+        this.ical_link = generateCalendarFileLink(event);
     }
 }
