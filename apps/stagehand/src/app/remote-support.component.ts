@@ -9,7 +9,9 @@ import { Component } from '@angular/core';
                 <header
                     class="flex h-[4.5rem] w-full items-center justify-between border-base-400 bg-base-100 p-4"
                 >
-                    <h1 class="text-2xl font-bold">AV Systems Monitor</h1>
+                    <h1 class="text-2xl font-bold">
+                        AV Systems Remote Support
+                    </h1>
                 </header>
                 <main class="w-full flex-1 overflow-auto">
                     <div class="flex items-center space-x-4 p-4">
@@ -25,6 +27,21 @@ import { Component } from '@angular/core';
                                 [(ngModel)]="search"
                                 placeholder="Search rooms..."
                             />
+                        </mat-form-field>
+                        <mat-form-field
+                            appearance="outline"
+                            class="no-subscript bg-base-100"
+                        >
+                            <mat-select placeholder="All Rooms">
+                                <mat-option>All Rooms</mat-option>
+                                <mat-option value="in_use">In Use</mat-option>
+                                <mat-option value="available"
+                                    >Available</mat-option
+                                >
+                                <mat-option value="issues"
+                                    >Has Issues</mat-option
+                                >
+                            </mat-select>
                         </mat-form-field>
                     </div>
                     <div class="overflow-auto p-4">

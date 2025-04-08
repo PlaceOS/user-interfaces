@@ -22,7 +22,7 @@ interface Alert {
                 <header
                     class="flex h-[4.5rem] w-full items-center justify-between border-base-400 bg-base-100 p-4"
                 >
-                    <h1 class="text-2xl font-bold">AV Systems Monitor</h1>
+                    <h1 class="text-2xl font-bold">AV Systems Alerts</h1>
                     <button btn matRipple>Generate report</button>
                 </header>
                 <main class="w-full flex-1 overflow-auto bg-base-200">
