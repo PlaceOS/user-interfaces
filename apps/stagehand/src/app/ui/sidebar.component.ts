@@ -30,6 +30,10 @@ let compact_state = false;
                     matRipple
                     class="rounded"
                     (click)="toggleCompact()"
+                    [matTooltip]="
+                        is_compact ? 'Expand Sidebar' : 'Collapse Sidebar'
+                    "
+                    matTooltipPosition="right"
                 >
                     <icon class="text-2xl">{{
                         is_compact ? 'menu' : 'close'
