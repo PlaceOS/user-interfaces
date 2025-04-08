@@ -208,7 +208,12 @@ export class CheckinPreferencesComponent
                 this._createCateringOrder(booking, order);
             }
         } else {
-            this._createCateringOrder(booking);
+            this._createCateringOrder(
+                booking,
+                booking.linked_bookings[0]
+                    ? booking.linked_bookings[0].extension_data.details
+                    : undefined,
+            );
         }
         notifySuccess(i18n('APP.VISITOR_KIOSK.BEVERAGE_SUCCESS'));
         this.loading = false;
