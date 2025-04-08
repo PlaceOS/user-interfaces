@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 
-import { updateBooking } from '@placeos/bookings';
+import { Booking, saveBooking, updateBooking } from '@placeos/bookings';
 import {
     CateringItem,
     CateringOrder,
@@ -11,10 +11,12 @@ import {
     AsyncHandler,
     i18n,
     log,
+    nextValueFrom,
     notifyError,
     notifySuccess,
 } from '@placeos/common';
 import { CalendarEvent, showEvent, updateEvent } from '@placeos/events';
+import { lastValueFrom } from 'rxjs';
 import { first, map, tap } from 'rxjs/operators';
 import { CheckinStateService } from './checkin-state.service';
 
@@ -142,21 +144,21 @@ export class CheckinPreferencesComponent
         this.type = 'save';
         if (!this.beverage) return this.next();
         this.loading = true;
-        const booking = await this._checkin.event
-            .pipe(first((_) => !!_))
-            .toPromise();
+        const booking = await nextValueFrom(this._checkin.event);
         if (!booking) return notifyError(i18n('APP.VISITOR_KIOSK.LOAD_ERROR'));
-        await updateBooking(booking.id, {
-            ...booking,
-            extension_data: {
-                ...booking.extension_data,
-                beverage: this.beverage,
-            },
-        });
+        await lastValueFrom(
+            updateBooking(booking.id, {
+                ...booking.toJSON(),
+                extension_data: {
+                    ...booking.extension_data,
+                    beverage: this.beverage,
+                },
+            }),
+        );
         if (booking.linked_event) {
-            const event = await showEvent(booking.linked_event.event_id)
-                .toPromise()
-                .catch(() => null);
+            const event = await lastValueFrom(
+                showEvent(booking.linked_event.event_id),
+            ).catch(() => null);
             console.log('Event:', event);
             if (event) {
                 const order_list = event.ext('catering') || [];
@@ -185,23 +187,28 @@ export class CheckinPreferencesComponent
                         ],
                     });
                 }
-                await updateEvent(
-                    event.id,
-                    new CalendarEvent({
-                        ...event,
-                        extension_data: {
-                            ...event.extension_data,
-                            catering: [
-                                ...(event.extension_data.catering?.filter(
-                                    (_) => _.id !== order.id,
-                                ) || []),
-                                order,
-                            ],
-                        },
-                    }),
-                    { calendar: event.host },
-                ).toPromise();
+                await lastValueFrom(
+                    updateEvent(
+                        event.id,
+                        new CalendarEvent({
+                            ...event,
+                            extension_data: {
+                                ...event.extension_data,
+                                catering: [
+                                    ...(event.extension_data.catering?.filter(
+                                        (_) => _.id !== order.id,
+                                    ) || []),
+                                    order,
+                                ],
+                            },
+                        }),
+                        { calendar: event.host },
+                    ),
+                );
+                this._createCateringOrder(booking, order);
             }
+        } else {
+            this._createCateringOrder(booking);
         }
         notifySuccess(i18n('APP.VISITOR_KIOSK.BEVERAGE_SUCCESS'));
         this.loading = false;
@@ -210,5 +217,43 @@ export class CheckinPreferencesComponent
 
     public next() {
         this._router.navigate(['/welcome']);
+    }
+
+    private async _createCateringOrder(
+        parent: Booking,
+        old_order: CateringOrder = new CateringOrder(),
+    ) {
+        const order = new CateringOrder({
+            ...old_order,
+            caterer: this.beverage.caterer,
+            items: [
+                ...old_order.items,
+                new CateringItem({
+                    ...this.beverage,
+                    quantity: 1,
+                }),
+            ],
+        });
+        const booking = new Booking({
+            type: 'catering-order',
+            booking_type: 'catering-order',
+            date: parent.date,
+            duration: parent.duration,
+            description: parent.title,
+            user_id: parent.user_id,
+            user_email: parent.user_email,
+            booked_by_email: parent.asset_id,
+            asset_id: order.id,
+            title: `Catering order for ${parent.user_name}`,
+            attendees: [],
+            approved: true,
+            extension_data: {
+                parent_id: parent.id,
+                details: order,
+            },
+            parent_id: parent.id,
+            zones: parent.zones,
+        });
+        await lastValueFrom(saveBooking(booking, {}));
     }
 }
