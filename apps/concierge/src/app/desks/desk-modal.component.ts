@@ -36,7 +36,7 @@ const CHARS = '0123456789ABCDEF';
                 class="flex max-h-[65vh] flex-col overflow-auto p-4"
                 [formGroup]="form"
             >
-                <div class="w-full" *ngIf="!id">
+                <div class="w-full">
                     <label for="id">
                         {{ 'APP.CONCIERGE.DESKS_ID' | translate }}
                         <span>*</span>
