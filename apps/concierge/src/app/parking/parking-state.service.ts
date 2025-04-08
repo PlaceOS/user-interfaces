@@ -260,11 +260,17 @@ export class ParkingStateService extends AsyncHandler {
         };
         const spaces = await nextValueFrom(this.spaces);
         const idx = spaces.findIndex((_) => _.id === new_space.id);
-        if (space.assigned_to && space.assigned_to !== new_space.assigned_to) {
+        let recreate = false;
+        if (
+            space.assigned_to &&
+            (space.assigned_to !== new_space.assigned_to ||
+                space.id !== new_space.id)
+        ) {
             this._clearAssignedBooking(space);
+            recreate = true;
         }
         if (
-            space.assigned_to !== new_space.assigned_to &&
+            (space.assigned_to !== new_space.assigned_to || recreate) &&
             new_space.assigned_to
         ) {
             const users = await nextValueFrom(this.users);

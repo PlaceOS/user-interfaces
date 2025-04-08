@@ -291,10 +291,19 @@ export class DesksStateService extends AsyncHandler {
                 ref.componentInstance.loading = false;
                 throw e;
             });
-        if (desk.assigned_to && desk.assigned_to !== new_desk.assigned_to) {
+        let recreate = false;
+        if (
+            desk.assigned_to &&
+            (desk.assigned_to !== new_desk.assigned_to ||
+                desk.id !== new_desk.id)
+        ) {
             this._clearAssignedBooking(desk);
+            recreate = true;
         }
-        if (desk.assigned_to !== new_desk.assigned_to && new_desk.assigned_to) {
+        if (
+            (desk.assigned_to !== new_desk.assigned_to || recreate) &&
+            new_desk.assigned_to
+        ) {
             const date = set(Date.now(), { hours: 1, minutes: 0, seconds: 0 });
             await saveBooking(
                 new Booking({
