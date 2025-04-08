@@ -10,12 +10,21 @@ import * as Sentry from '@sentry/angular';
 
 import { AppComponent } from 'libs/components/src/lib/app.component';
 import { environment } from '../environments/environment';
+import { AlertsComponent } from './alerts.component';
+import { AnalyticsComponent } from './analytics.component';
 import { AppRoutingModule } from './app-routing.module';
 import { DashboardComponent } from './dashboard.component';
+import { RemoteSupportComponent } from './remote-support.component';
 import { UiModule } from './ui/ui.module';
 
 @NgModule({
-    declarations: [AppComponent, DashboardComponent],
+    declarations: [
+        AppComponent,
+        DashboardComponent,
+        AlertsComponent,
+        RemoteSupportComponent,
+        AnalyticsComponent,
+    ],
     imports: [
         BrowserModule,
         BrowserAnimationsModule,

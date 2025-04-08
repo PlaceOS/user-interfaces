@@ -42,6 +42,8 @@ let compact_state = false;
                     class="relative flex w-full items-center space-x-4 p-2"
                     routerLinkActive="bg-secondary-focus"
                     [routerLink]="['/dashboard']"
+                    [matTooltip]="is_compact ? 'Dashboard' : ''"
+                    matTooltipPosition="right"
                 >
                     <div
                         class="absolute inset-0 bg-base-100 opacity-0 hover:opacity-10"
@@ -54,6 +56,8 @@ let compact_state = false;
                     class="relative flex w-full items-center space-x-4 p-2"
                     routerLinkActive="bg-secondary-focus"
                     [routerLink]="['/alerts']"
+                    [matTooltip]="is_compact ? 'Alerts' : ''"
+                    matTooltipPosition="right"
                 >
                     <div
                         class="absolute inset-0 bg-base-100 opacity-0 hover:opacity-10"
@@ -66,6 +70,8 @@ let compact_state = false;
                     class="relative flex w-full items-center space-x-4 p-2"
                     routerLinkActive="bg-secondary-focus"
                     [routerLink]="['/remote-support']"
+                    [matTooltip]="is_compact ? 'Remote Support' : ''"
+                    matTooltipPosition="right"
                 >
                     <div
                         class="absolute inset-0 bg-base-100 opacity-0 hover:opacity-10"
@@ -80,6 +86,8 @@ let compact_state = false;
                     class="relative flex w-full items-center space-x-4 p-2"
                     routerLinkActive="bg-secondary-focus"
                     [routerLink]="['/analytics']"
+                    [matTooltip]="is_compact ? 'Analytics' : ''"
+                    matTooltipPosition="right"
                 >
                     <div
                         class="absolute inset-0 bg-base-100 opacity-0 hover:opacity-10"
