@@ -275,7 +275,7 @@ export class DesksStateService extends AsyncHandler {
                 `desk-${zone.slice(-3)}.${randomInt(999_999)}`,
         };
         const desk_list = await nextValueFrom(this.desks);
-        const idx = desk_list.findIndex((_) => _.id === new_desk.id);
+        const idx = desk_list.findIndex((_) => _.id === desk.id);
         if (idx >= 0) desk_list[idx] = new_desk;
         else desk_list.push(new_desk);
         await updateMetadata(zone, {
