@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { BehaviorSubject, combineLatest, map } from 'rxjs';
 
 @Component({
     selector: 'stagehand-remote-support',
@@ -32,7 +33,11 @@ import { Component } from '@angular/core';
                             appearance="outline"
                             class="no-subscript bg-base-100"
                         >
-                            <mat-select placeholder="All Rooms">
+                            <mat-select
+                                placeholder="All Rooms"
+                                [ngModel]="state.getValue()"
+                                (ngModelChange)="state.next($event)"
+                            >
                                 <mat-option>All Rooms</mat-option>
                                 <mat-option value="in_use">In Use</mat-option>
                                 <mat-option value="available"
@@ -47,7 +52,7 @@ import { Component } from '@angular/core';
                     <div class="overflow-auto p-4">
                         <simple-table
                             class="block w-full min-w-[88rem] overflow-hidden bg-base-100 text-sm"
-                            [data]="room_list"
+                            [data]="filtered_rooms"
                             [filter]="search"
                             [columns]="[
                                 {
@@ -215,7 +220,8 @@ import { Component } from '@angular/core';
 })
 export class RemoteSupportComponent {
     public search = '';
-    public readonly room_list = [
+    public readonly state = new BehaviorSubject('');
+    public readonly room_list = new BehaviorSubject([
         {
             name: 'Lecture Theatre 1',
             available: false,
@@ -257,5 +263,23 @@ export class RemoteSupportComponent {
             feed: '',
             issues: [],
         },
-    ];
+    ]);
+    public readonly filtered_rooms = combineLatest([
+        this.room_list,
+        this.state,
+    ]).pipe(
+        map(([list, type]) => {
+            return list.filter((room) => {
+                switch (type) {
+                    case 'in_use':
+                        return !room.available;
+                    case 'available':
+                        return room.available;
+                    case 'issues':
+                        return room.issues.length > 0;
+                }
+                return true;
+            });
+        }),
+    );
 }

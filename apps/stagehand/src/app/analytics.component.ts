@@ -1,4 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { AsyncHandler } from '@placeos/common';
+import { addWeeks, endOfDay, startOfDay } from 'date-fns';
 
 @Component({
     selector: 'stagehand-analytics',
@@ -14,21 +17,34 @@ import { Component } from '@angular/core';
                 </header>
                 <main class="w-full flex-1 overflow-auto">
                     <div class="flex items-center space-x-4 p-4">
-                        <date-range-field
-                            class="rounded bg-base-100"
-                        ></date-range-field>
+                        <date-range-field class="rounded bg-base-100">
+                            <input
+                                #startDate
+                                [ngModel]="start_date"
+                                (ngModelChange)="
+                                    $event ? setStartDate($event) : ''
+                                " />
+                            <input
+                                #endDate
+                                [ngModel]="end_date"
+                                (ngModelChange)="
+                                    $event ? setEndDate($event) : ''
+                                "
+                        /></date-range-field>
                         <mat-form-field
                             appearance="outline"
                             class="no-subscript bg-base-100"
                         >
-                            <mat-select placeholder="All Rooms">
-                                <mat-option>All Rooms</mat-option>
-                                <mat-option value="in_use">In Use</mat-option>
-                                <mat-option value="available"
-                                    >Available</mat-option
+                            <mat-select placeholder="All Spaces">
+                                <mat-option>All Spaces</mat-option>
+                                <mat-option value="lecture"
+                                    >Lecture Theatres</mat-option
                                 >
-                                <mat-option value="issues"
-                                    >Has Issues</mat-option
+                                <mat-option value="seminar"
+                                    >Seminar Rooms</mat-option
+                                >
+                                <mat-option value="meeting"
+                                    >Meeting Rooms</mat-option
                                 >
                             </mat-select>
                         </mat-form-field>
@@ -141,4 +157,42 @@ import { Component } from '@angular/core';
     styles: [``],
     standalone: false,
 })
-export class AnalyticsComponent {}
+export class AnalyticsComponent extends AsyncHandler implements OnInit {
+    public start_date = addWeeks(startOfDay(Date.now()), -1).valueOf();
+    public end_date = endOfDay(Date.now()).valueOf();
+
+    public readonly setStartDate = (date) => {
+        if (date instanceof Date) date = date.valueOf();
+        this._router.navigate([], {
+            relativeTo: this._route,
+            queryParams: { start: date },
+            queryParamsHandling: 'merge',
+        });
+    };
+
+    public readonly setEndDate = (date) => {
+        if (date instanceof Date) date = date.valueOf();
+        this._router.navigate([], {
+            relativeTo: this._route,
+            queryParams: { end: endOfDay(date).valueOf() },
+            queryParamsHandling: 'merge',
+        });
+    };
+
+    constructor(
+        private _route: ActivatedRoute,
+        private _router: Router,
+    ) {
+        super();
+    }
+
+    public ngOnInit() {
+        this.subscription(
+            'route.query',
+            this._route.queryParamMap.subscribe((params) => {
+                if (params.has('start')) this.start_date = +params.get('start');
+                if (params.has('end')) this.end_date = +params.get('end');
+            }),
+        );
+    }
+}

@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { BehaviorSubject, combineLatest, map } from 'rxjs';
 
 type AlertSeverity = 'critical' | 'warning' | 'info';
 type AlertStatus = 'open' | 'in progress' | 'closed' | 'resolved';
@@ -114,7 +115,11 @@ interface Alert {
                             appearance="outline"
                             class="no-subscript w-44 bg-base-100"
                         >
-                            <mat-select placeholder="All Severities">
+                            <mat-select
+                                placeholder="All Severities"
+                                [ngModel]="severity$.getValue()"
+                                (ngModelChange)="severity$.next($event)"
+                            >
                                 <mat-option value="">All Severities</mat-option>
                                 <mat-option value="critical"
                                     >Critical</mat-option
@@ -127,7 +132,11 @@ interface Alert {
                             appearance="outline"
                             class="no-subscript w-40 bg-base-100"
                         >
-                            <mat-select placeholder="All Statuses">
+                            <mat-select
+                                placeholder="All Statuses"
+                                [ngModel]="status$.getValue()"
+                                (ngModelChange)="status$.next($event)"
+                            >
                                 <mat-option value="">All Statuses</mat-option>
                                 <mat-option value="open">Open</mat-option>
                                 <mat-option value="in progress"
@@ -143,7 +152,11 @@ interface Alert {
                             appearance="outline"
                             class="no-subscript w-48 bg-base-100"
                         >
-                            <mat-select placeholder="All Device Types">
+                            <mat-select
+                                placeholder="All Device Types"
+                                [ngModel]="device_type$.getValue()"
+                                (ngModelChange)="device_type$.next($event)"
+                            >
                                 <mat-option value="">All Devices</mat-option>
                                 <mat-option value="display">Display</mat-option>
                                 <mat-option value="audio">Audio</mat-option>
@@ -158,7 +171,7 @@ interface Alert {
                     <div class="overflow-auto p-4">
                         <simple-table
                             class="block w-full min-w-[64rem] overflow-hidden bg-base-100 text-sm"
-                            [data]="alert_list"
+                            [data]="filtered_alerts"
                             [filter]="search"
                             [columns]="[
                                 {
@@ -281,7 +294,10 @@ export class AlertsComponent {
         network: { icon: 'lan', text: 'Network' },
         control: { icon: 'tv_remote', text: 'Control System' },
     };
-    public readonly alert_list: Alert[] = [
+    public readonly severity$ = new BehaviorSubject('');
+    public readonly device_type$ = new BehaviorSubject('');
+    public readonly status$ = new BehaviorSubject('');
+    public readonly alert_list = new BehaviorSubject([
         {
             severity: 'critical',
             type: 'display',
@@ -322,5 +338,19 @@ export class AlertsComponent {
             body: 'Main projector has lost input signal during active class',
             status: 'open',
         },
-    ];
+    ]);
+
+    public readonly filtered_alerts = combineLatest([
+        this.alert_list,
+        this.severity$,
+        this.device_type$,
+        this.status$,
+    ]).pipe(
+        map(([list, severity, device_type, status]) => {
+            if (severity) list = list.filter((a) => a.severity === severity);
+            if (device_type) list = list.filter((a) => a.type === device_type);
+            if (status) list = list.filter((a) => a.status === status);
+            return list;
+        }),
+    );
 }
