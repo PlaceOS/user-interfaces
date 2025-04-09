@@ -254,16 +254,22 @@ export class CheckinPreferencesComponent
         parent: Booking,
         old_order: CateringOrder = new CateringOrder(),
     ) {
+        const existing_item = old_order.items.find(
+            (_) => _.custom_id === this.beverage.custom_id,
+        );
+        (existing_item as any).quantity += 1;
         const order = new CateringOrder({
             ...old_order,
             caterer: this.beverage.caterer,
-            items: [
-                ...old_order.items,
-                new CateringItem({
-                    ...this.beverage,
-                    quantity: 1,
-                }),
-            ],
+            items: existing_item
+                ? [...old_order.items]
+                : [
+                      ...old_order.items,
+                      new CateringItem({
+                          ...this.beverage,
+                          quantity: 1,
+                      }),
+                  ],
         });
         const booking = new Booking({
             type: 'catering-order',
