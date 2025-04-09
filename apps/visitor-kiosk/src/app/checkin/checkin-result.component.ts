@@ -1,7 +1,7 @@
 import { DatePipe } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { AsyncHandler, SettingsService } from '@placeos/common';
+import { AsyncHandler, nextValueFrom, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { roundToNearestMinutes, startOfMinute } from 'date-fns';
 import { generateQRCode } from 'libs/common/src/lib/qr-code';
@@ -263,8 +263,9 @@ export class CheckinResultsComponent extends AsyncHandler implements OnInit {
         this._router.navigate(['/checkin']);
     }
 
-    public next(): void {
-        this._settings.get('app.allow_beverages')
+    public async next(): void {
+        const event = await nextValueFrom(this.event);
+        this._settings.get('app.allow_beverages') && event.linked_event
             ? this._router.navigate(['/checkin', 'preferences'])
             : this._router.navigate(['/welcome']);
     }
