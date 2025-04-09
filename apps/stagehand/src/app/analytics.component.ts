@@ -1,7 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AsyncHandler } from '@placeos/common';
-import { addWeeks, endOfDay, startOfDay } from 'date-fns';
+import { AsyncHandler, randomInt } from '@placeos/common';
+import { addDays, addWeeks, endOfDay, format, startOfDay } from 'date-fns';
+
+import Chart from 'chart.js/auto';
 
 @Component({
     selector: 'stagehand-analytics',
@@ -114,25 +116,62 @@ import { addWeeks, endOfDay, startOfDay } from 'date-fns';
                         </div>
                     </div>
                     <div
-                        class="mx-4 flex h-64 items-center rounded-lg border border-base-300 bg-base-100 p-4 shadow"
-                    ></div>
+                        class="mx-4 flex max-w-full flex-col rounded-lg border border-base-300 bg-base-100 p-4 shadow"
+                    >
+                        <h3 class="text-xl font-medium">
+                            Space Utilization vs Energy Usage
+                        </h3>
+                        <div class="mb-4 text-sm">
+                            Comparing scheduled occupancy, actual occupancy, and
+                            energy consumption
+                        </div>
+                        <div class="flex">
+                            <div class="h-48 w-px flex-1">
+                                <canvas #line_graph></canvas>
+                            </div>
+                        </div>
+                    </div>
                     <div
                         class="grid w-full flex-1 grid-cols-1 gap-4 p-4 lg:grid-cols-2"
                     >
                         <div
-                            class="flex h-48 items-center rounded-lg border border-base-300 bg-base-100 p-4 shadow"
-                        ></div>
+                            class="flex flex-col rounded-lg border border-base-300 bg-base-100 p-4 shadow"
+                        >
+                            <h3 class="text-xl font-medium">
+                                AV System Usage Distribution
+                            </h3>
+                            <div class="mb-4 text-sm">
+                                Breakdown of AV input sources used
+                            </div>
+                            <div class="flex">
+                                <div class="h-48 w-px flex-1">
+                                    <canvas #distro_graph></canvas>
+                                </div>
+                            </div>
+                        </div>
                         <div
-                            class="flex h-48 items-center rounded-lg border border-base-300 bg-base-100 p-4 shadow"
-                        ></div>
+                            class="flex flex-col rounded-lg border border-base-300 bg-base-100 p-4 shadow"
+                        >
+                            <h3 class="text-xl font-medium">
+                                Room Utilization Analysis
+                            </h3>
+                            <div class="mb-4 text-sm">
+                                Comparing scheduled vs actual room usage
+                            </div>
+                            <div class="flex">
+                                <div class="h-48 w-px flex-1">
+                                    <canvas #usage_graph></canvas>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div
                         class="mx-4 mb-4 flex flex-col rounded-lg border border-base-300 bg-base-100 p-4 shadow"
                     >
-                        <h3 class="text-2xl font-medium">
+                        <h3 class="text-xl font-medium">
                             Space Utilisation Insights
                         </h3>
-                        <div class="mb-4">
+                        <div class="mb-4 text-sm">
                             Key findings from the selected date range
                         </div>
                         <ul class="list-disc pl-6">
@@ -179,6 +218,18 @@ export class AnalyticsComponent extends AsyncHandler implements OnInit {
         });
     };
 
+    @ViewChild('line_graph', { static: true })
+    private _line_graph_el: ElementRef<HTMLCanvasElement>;
+    private _line_graph: Chart;
+
+    @ViewChild('distro_graph', { static: true })
+    private _distro_graph_el: ElementRef<HTMLCanvasElement>;
+    private _distro_graph: Chart;
+
+    @ViewChild('usage_graph', { static: true })
+    private _usage_graph_el: ElementRef<HTMLCanvasElement>;
+    private _usage_graph: Chart;
+
     constructor(
         private _route: ActivatedRoute,
         private _router: Router,
@@ -194,5 +245,87 @@ export class AnalyticsComponent extends AsyncHandler implements OnInit {
                 if (params.has('end')) this.end_date = +params.get('end');
             }),
         );
+        const data = new Array(7).fill(0).map((_, idx) => {
+            const scheduled = randomInt(1000) / 10;
+            return {
+                date: format(addDays(Date.now(), 7 - idx), 'dd MMM'),
+                scheduled: scheduled,
+                actual: scheduled + randomInt(100) / 10,
+                usage: scheduled + randomInt(50, -50) / 10,
+            };
+        });
+        this._line_graph = new Chart(this._line_graph_el.nativeElement, {
+            type: 'line',
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+            },
+            data: {
+                labels: data.map((row) => row.date),
+                datasets: [
+                    {
+                        label: 'Scheduled Occupancy',
+                        data: data.map((row) => row.scheduled),
+                    },
+                    {
+                        label: 'Actual Occupancy',
+                        data: data.map((row) => row.actual),
+                    },
+                    {
+                        label: 'Energy Usage (kWh)',
+                        data: data.map((row) => row.usage),
+                    },
+                ],
+            },
+        });
+        const room_names = [
+            'Lecture Theatre 1',
+            'Seminar Room 1',
+            'Meeting Room 1',
+            'Lecture Theatre 2',
+            'Seminar Room 2',
+            'Meeting Room 2',
+            'Meeting Room 3',
+        ];
+        this._distro_graph = new Chart(this._distro_graph_el.nativeElement, {
+            type: 'doughnut',
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                    },
+                },
+            },
+            data: {
+                labels: data.map((_, idx) => room_names[idx]),
+                datasets: [
+                    {
+                        data: data.map((row) => row.scheduled),
+                    },
+                ],
+            },
+        });
+        this._usage_graph = new Chart(this._usage_graph_el.nativeElement, {
+            type: 'bar',
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+            },
+            data: {
+                labels: data.map((_, idx) => room_names[idx]),
+                datasets: [
+                    {
+                        label: 'Scheduled Occupancy',
+                        data: data.map((row) => row.scheduled),
+                    },
+                    {
+                        label: 'Actual Occupancy',
+                        data: data.map((row) => row.actual),
+                    },
+                ],
+            },
+        });
     }
 }
