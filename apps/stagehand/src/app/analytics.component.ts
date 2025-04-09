@@ -246,12 +246,12 @@ export class AnalyticsComponent extends AsyncHandler implements OnInit {
             }),
         );
         const data = new Array(7).fill(0).map((_, idx) => {
-            const scheduled = randomInt(1000) / 10;
+            const scheduled = randomInt(900, 100) / 10;
             return {
                 date: format(addDays(Date.now(), 7 - idx), 'dd MMM'),
                 scheduled: scheduled,
-                actual: scheduled + randomInt(100) / 10,
-                usage: scheduled + randomInt(50, -50) / 10,
+                actual: scheduled + randomInt(100, -100) / 10,
+                usage: scheduled + randomInt(100, -100) / 10,
             };
         });
         this._line_graph = new Chart(this._line_graph_el.nativeElement, {
