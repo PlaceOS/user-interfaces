@@ -275,7 +275,7 @@ export class DesksStateService extends AsyncHandler {
                 `desk-${zone.slice(-3)}.${randomInt(999_999)}`,
         };
         const desk_list = await nextValueFrom(this.desks);
-        const idx = desk_list.findIndex((_) => _.id === new_desk.id);
+        const idx = desk_list.findIndex((_) => _.id === desk.id);
         if (idx >= 0) desk_list[idx] = new_desk;
         else desk_list.push(new_desk);
         await updateMetadata(zone, {
@@ -291,10 +291,19 @@ export class DesksStateService extends AsyncHandler {
                 ref.componentInstance.loading = false;
                 throw e;
             });
-        if (desk.assigned_to && desk.assigned_to !== new_desk.assigned_to) {
+        let recreate = false;
+        if (
+            desk.assigned_to &&
+            (desk.assigned_to !== new_desk.assigned_to ||
+                desk.id !== new_desk.id)
+        ) {
             this._clearAssignedBooking(desk);
+            recreate = true;
         }
-        if (desk.assigned_to !== new_desk.assigned_to && new_desk.assigned_to) {
+        if (
+            (desk.assigned_to !== new_desk.assigned_to || recreate) &&
+            new_desk.assigned_to
+        ) {
             const date = set(Date.now(), { hours: 1, minutes: 0, seconds: 0 });
             await saveBooking(
                 new Booking({

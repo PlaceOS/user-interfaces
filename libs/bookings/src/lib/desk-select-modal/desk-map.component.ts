@@ -23,7 +23,7 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
             <mat-form-field
                 levels
                 appearance="outline"
-                class="w-full"
+                class="no-subscript w-full"
                 *ngIf="(levels | async)?.length"
             >
                 <mat-select
@@ -79,7 +79,7 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
     standalone: false,
 })
 export class DeskMapComponent extends AsyncHandler implements OnInit {
-    @Input() public is_displayed: boolean = false;
+    @Input() public is_displayed = false;
     @Input() public active = '';
     @Output() public onSelect = new EventEmitter<BookingAsset>();
 
@@ -104,6 +104,9 @@ export class DeskMapComponent extends AsyncHandler implements OnInit {
             const viewable_levels = level_list.filter(
                 (lvl) => !lvl.tags.includes('parking'),
             );
+            if (!this.level && viewable_levels.length) {
+                this.level = viewable_levels[0];
+            }
             return viewable_levels.sort(
                 (a, b) =>
                     a.parent_id.localeCompare(b.parent_id) ||

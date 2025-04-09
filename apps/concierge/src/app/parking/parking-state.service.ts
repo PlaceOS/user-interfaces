@@ -259,12 +259,18 @@ export class ParkingStateService extends AsyncHandler {
             id: state.metadata.id || `parking-${zone}.${randomInt(999_999)}`,
         };
         const spaces = await nextValueFrom(this.spaces);
-        const idx = spaces.findIndex((_) => _.id === new_space.id);
-        if (space.assigned_to && space.assigned_to !== new_space.assigned_to) {
+        const idx = spaces.findIndex((_) => _.id === space.id);
+        let recreate = false;
+        if (
+            space.assigned_to &&
+            (space.assigned_to !== new_space.assigned_to ||
+                space.id !== new_space.id)
+        ) {
             this._clearAssignedBooking(space);
+            recreate = true;
         }
         if (
-            space.assigned_to !== new_space.assigned_to &&
+            (space.assigned_to !== new_space.assigned_to || recreate) &&
             new_space.assigned_to
         ) {
             const users = await nextValueFrom(this.users);

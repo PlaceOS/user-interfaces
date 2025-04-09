@@ -10,7 +10,10 @@ import { MatDialog } from '@angular/material/dialog';
 
 import { addDays, addYears, endOfDay } from 'date-fns';
 
-import { WeekOfMonth } from 'libs/bookings/src/lib/booking.class';
+import {
+    DAYS_OF_WEEK_INDEX,
+    WeekOfMonth,
+} from 'libs/bookings/src/lib/booking.class';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { RecurrenceDetails } from 'libs/events/src/lib/event.interfaces';
 import { formatRecurrence } from 'libs/events/src/lib/helpers';
@@ -126,7 +129,7 @@ function fromBookingRecurrence(r: BookingRecurrence): Recurrence {
         recurr.end_date = r.recurrence_end * 1000; // Convert from seconds to milliseconds
     }
 
-    if (r.recurrence_type === 'weekly' && r.recurrence_days) {
+    if (r.recurrence_type === 'daily' && r.recurrence_days) {
         const weekdays = new Set<DayIndex>();
         // Convert bit flags to day indices (0-6)
         for (let i = 0; i < 7; i++) {
@@ -143,7 +146,7 @@ function fromBookingRecurrence(r: BookingRecurrence): Recurrence {
             const weekdays = new Set<DayIndex>();
             // Convert bit flags to day indices (0-6)
             for (let i = 0; i < 7; i++) {
-                if (r.recurrence_days & (1 << (6 - i))) {
+                if (r.recurrence_days & DAYS_OF_WEEK_INDEX[i]) {
                     weekdays.add(i as DayIndex);
                 }
             }
@@ -174,9 +177,10 @@ function toBookingRecurrence(r: Recurrence): BookingRecurrence {
         let days = 0;
         // Convert day indices (0-6) to bit flags
         r.weekdays.forEach((day) => {
-            days |= 1 << (6 - day);
+            days |= DAYS_OF_WEEK_INDEX[day];
         });
         booking.recurrence_days = days;
+        booking.recurrence_type = 'daily';
     }
 
     if ((r.type === 'monthly' || r.type === 'yearly') && r.weekdays) {

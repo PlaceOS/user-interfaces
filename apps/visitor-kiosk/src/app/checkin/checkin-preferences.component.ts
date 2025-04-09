@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
-import { updateBooking } from '@placeos/bookings';
+import { Booking, saveBooking, updateBooking } from '@placeos/bookings';
 import {
     CateringItem,
     CateringOrder,
@@ -11,10 +11,12 @@ import {
     AsyncHandler,
     i18n,
     log,
+    nextValueFrom,
     notifyError,
     notifySuccess,
 } from '@placeos/common';
 import { CalendarEvent, showEvent, updateEvent } from '@placeos/events';
+import { lastValueFrom } from 'rxjs';
 import { first, map, tap } from 'rxjs/operators';
 import { CheckinStateService } from './checkin-state.service';
 
@@ -113,6 +115,7 @@ export class CheckinPreferencesComponent
     );
 
     constructor(
+        private _route: ActivatedRoute,
         private _router: Router,
         private _checkin: CheckinStateService,
         private _catering: CateringStateService,
@@ -122,19 +125,39 @@ export class CheckinPreferencesComponent
 
     public ngOnInit(): void {
         this.loading = true;
-        this.type = 'menu';
-        this.event.pipe(first()).subscribe((event) => {
-            if (event) {
-                if (!event.linked_event) {
-                    log(
-                        'CHECKIN',
-                        'Visitor booking does not support catering.',
-                        undefined,
-                        'info',
-                    );
+        this.subscription(
+            '',
+            this._route.queryParamMap.subscribe(async (params) => {
+                if (params.has('email')) {
+                    await this._checkin
+                        .loadGuestAndEvent(params.get('email'))
+                        .catch((err) => {
+                            this.handleError(
+                                'Unable to find visitor or a meeting associated with the given email address.',
+                            );
+                            throw err;
+                        });
                 }
-            } else this.next();
-        });
+            }),
+        );
+        this.type = 'menu';
+        this.timeout(
+            'event',
+            () => {
+                this.event.pipe(first()).subscribe((event) => {
+                    if (!event) return this.next();
+                    if (!event.linked_event) {
+                        log(
+                            'CHECKIN',
+                            'Visitor booking does not support catering.',
+                            undefined,
+                            'info',
+                        );
+                    }
+                });
+            },
+            1000,
+        );
         this.subscription('menu', this.menu.subscribe());
     }
 
@@ -142,21 +165,21 @@ export class CheckinPreferencesComponent
         this.type = 'save';
         if (!this.beverage) return this.next();
         this.loading = true;
-        const booking = await this._checkin.event
-            .pipe(first((_) => !!_))
-            .toPromise();
+        const booking = await nextValueFrom(this._checkin.event);
         if (!booking) return notifyError(i18n('APP.VISITOR_KIOSK.LOAD_ERROR'));
-        await updateBooking(booking.id, {
-            ...booking,
-            extension_data: {
-                ...booking.extension_data,
-                beverage: this.beverage,
-            },
-        });
+        await lastValueFrom(
+            updateBooking(booking.id, {
+                ...booking.toJSON(),
+                extension_data: {
+                    ...booking.extension_data,
+                    beverage: this.beverage,
+                },
+            }),
+        );
         if (booking.linked_event) {
-            const event = await showEvent(booking.linked_event.event_id)
-                .toPromise()
-                .catch(() => null);
+            const event = await lastValueFrom(
+                showEvent(booking.linked_event.event_id),
+            ).catch(() => null);
             console.log('Event:', event);
             if (event) {
                 const order_list = event.ext('catering') || [];
@@ -185,23 +208,33 @@ export class CheckinPreferencesComponent
                         ],
                     });
                 }
-                await updateEvent(
-                    event.id,
-                    new CalendarEvent({
-                        ...event,
-                        extension_data: {
-                            ...event.extension_data,
-                            catering: [
-                                ...(event.extension_data.catering?.filter(
-                                    (_) => _.id !== order.id,
-                                ) || []),
-                                order,
-                            ],
-                        },
-                    }),
-                    { calendar: event.host },
-                ).toPromise();
+                await lastValueFrom(
+                    updateEvent(
+                        event.id,
+                        new CalendarEvent({
+                            ...event,
+                            extension_data: {
+                                ...event.extension_data,
+                                catering: [
+                                    ...(event.extension_data.catering?.filter(
+                                        (_) => _.id !== order.id,
+                                    ) || []),
+                                    order,
+                                ],
+                            },
+                        }),
+                        { calendar: event.host },
+                    ),
+                );
+                this._createCateringOrder(booking, order);
             }
+        } else {
+            this._createCateringOrder(
+                booking,
+                booking.linked_bookings[0]
+                    ? booking.linked_bookings[0].extension_data.details
+                    : undefined,
+            );
         }
         notifySuccess(i18n('APP.VISITOR_KIOSK.BEVERAGE_SUCCESS'));
         this.loading = false;
@@ -210,5 +243,54 @@ export class CheckinPreferencesComponent
 
     public next() {
         this._router.navigate(['/welcome']);
+    }
+
+    private handleError(message: any) {
+        this._checkin.setError(message?.statusText || message);
+        this._router.navigate(['/checkin', 'error']);
+    }
+
+    private async _createCateringOrder(
+        parent: Booking,
+        old_order: CateringOrder = new CateringOrder(),
+    ) {
+        const existing_item = old_order.items.find(
+            (_) => _.custom_id === this.beverage.custom_id,
+        );
+        (existing_item as any).quantity += 1;
+        const order = new CateringOrder({
+            ...old_order,
+            caterer: this.beverage.caterer,
+            items: existing_item
+                ? [...old_order.items]
+                : [
+                      ...old_order.items,
+                      new CateringItem({
+                          ...this.beverage,
+                          quantity: 1,
+                      }),
+                  ],
+        });
+        const booking = new Booking({
+            type: 'catering-order',
+            booking_type: 'catering-order',
+            date: parent.date,
+            duration: parent.duration,
+            description: parent.title,
+            user_id: parent.user_id,
+            user_email: parent.user_email,
+            booked_by_email: parent.asset_id,
+            asset_id: order.id,
+            title: `Catering order for ${parent.user_name}`,
+            attendees: [],
+            approved: true,
+            extension_data: {
+                parent_id: parent.id,
+                details: order,
+            },
+            parent_id: parent.id,
+            zones: parent.zones,
+        });
+        await lastValueFrom(saveBooking(booking, {}));
     }
 }

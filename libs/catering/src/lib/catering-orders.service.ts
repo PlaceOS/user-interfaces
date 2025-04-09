@@ -32,6 +32,7 @@ import {
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 
+import { newCalendarEventFromBooking } from '@placeos/events';
 import { CateringOrder } from './catering-order.class';
 import { CateringOrderStatus } from './catering.interfaces';
 
@@ -129,16 +130,23 @@ export class CateringOrdersService extends AsyncHandler {
                             BOOKINGS[bkn.asset_id] = bkn;
                             const order = new CateringOrder({
                                 ...bkn.extension_data.details,
-                                event: new CalendarEvent({
-                                    ...bkn.linked_event,
-                                }),
+                                event: bkn.linked_event
+                                    ? new CalendarEvent({
+                                          ...bkn.linked_event,
+                                      })
+                                    : newCalendarEventFromBooking(
+                                          (bkn.linked_bookings[0] as any) ||
+                                              bkn,
+                                      ),
                             });
-                            this._space_pipe
-                                .transform(bkn.linked_event.system_id)
-                                .then((space) => {
-                                    (order as any).space = space;
-                                    (order.event as any).system = space;
-                                });
+                            if (bkn.linked_event) {
+                                this._space_pipe
+                                    .transform(bkn.linked_event.system_id)
+                                    .then((space) => {
+                                        (order as any).space = space;
+                                        (order.event as any).system = space;
+                                    });
+                            }
                             return order;
                         }),
                     ),
@@ -222,6 +230,7 @@ export class CateringOrdersService extends AsyncHandler {
     }
     /** Filtered list of catering orders */
     public readonly filtered = combineLatest([this.orders, this._filters]).pipe(
+        tap(([l]) => console.log('Orders:', l)),
         map(([list, filters]) =>
             list
                 .filter((order) => checkOrder(order, filters))

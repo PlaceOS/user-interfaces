@@ -258,7 +258,9 @@ import { Booking } from './booking.class';
                 sent
                 class="absolute inset-0 flex flex-col items-center justify-center bg-base-100 text-center"
             >
-                <div class="m-8 h-1/2 w-full max-w-[32rem] flex-1 space-y-2">
+                <div
+                    class="z-0 m-8 h-1/2 w-full max-w-[32rem] flex-1 space-y-2 overflow-auto"
+                >
                     <h2 class="text-3xl">
                         {{
                             (multiple
@@ -338,7 +340,9 @@ import { Booking } from './booking.class';
                         </a>
                     </div>
                 </div>
-                <div class="w-full border-t border-base-200 p-2">
+                <div
+                    class="z-10 w-full border-t border-base-200 bg-base-100 p-2"
+                >
                     <div
                         class="mx-auto flex w-full max-w-[32rem] items-center space-x-2"
                     >
@@ -533,22 +537,7 @@ export class InviteVisitorFormComponent
         ]);
         await (this.multiple ? this._bookForMany() : this._bookForOne());
         this.last_success = this._service.last_success;
-        if (this.last_success) {
-            const event: CalEvent = {
-                ...this.last_success,
-                host: this.last_success.user_email,
-                organiser: {
-                    name: this.last_success.user_name,
-                    email: this.last_success.user_email,
-                } as any,
-                attendees: this.last_success.attendees.map((_) => _.email),
-                body: this.last_success.description,
-                location: this.last_success.asset_name,
-            };
-            this.outlook_link = generateMicrosoftCalendarLink(event);
-            this.google_link = generateGoogleCalendarLink(event);
-            this.ical_link = generateCalendarFileLink(event);
-        }
+        if (this.last_success) this._generateLinks();
         await this.initFormZone();
         this.sent = true;
     }
@@ -618,5 +607,25 @@ export class InviteVisitorFormComponent
             });
         }
         this.loading_many = false;
+    }
+
+    private _generateLinks() {
+        const event: CalEvent = {
+            ...this.last_success,
+            host: this.last_success.user_email,
+            organiser: {
+                name: this.last_success.user_name,
+                email: this.last_success.user_email,
+            } as any,
+            attendees: this.last_success.attendees.map((_) => _.email),
+            body: this.last_success.description,
+            location:
+                this._org.building.display_name || this._org.building.name,
+        };
+        event.attendees.push(this.last_success.asset_id);
+        console.log('Event:', event);
+        this.outlook_link = generateMicrosoftCalendarLink(event);
+        this.google_link = generateGoogleCalendarLink(event);
+        this.ical_link = generateCalendarFileLink(event);
     }
 }
