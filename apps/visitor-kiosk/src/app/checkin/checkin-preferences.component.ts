@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { Booking, saveBooking, updateBooking } from '@placeos/bookings';
 import {
@@ -115,6 +115,7 @@ export class CheckinPreferencesComponent
     );
 
     constructor(
+        private _route: ActivatedRoute,
         private _router: Router,
         private _checkin: CheckinStateService,
         private _catering: CateringStateService,
@@ -124,19 +125,39 @@ export class CheckinPreferencesComponent
 
     public ngOnInit(): void {
         this.loading = true;
-        this.type = 'menu';
-        this.event.pipe(first()).subscribe((event) => {
-            if (event) {
-                if (!event.linked_event) {
-                    log(
-                        'CHECKIN',
-                        'Visitor booking does not support catering.',
-                        undefined,
-                        'info',
-                    );
+        this.subscription(
+            '',
+            this._route.queryParamMap.subscribe(async (params) => {
+                if (params.has('email')) {
+                    await this._checkin
+                        .loadGuestAndEvent(params.get('email'))
+                        .catch((err) => {
+                            this.handleError(
+                                'Unable to find visitor or a meeting associated with the given email address.',
+                            );
+                            throw err;
+                        });
                 }
-            } else this.next();
-        });
+            }),
+        );
+        this.type = 'menu';
+        this.timeout(
+            'event',
+            () => {
+                this.event.pipe(first()).subscribe((event) => {
+                    if (!event) return this.next();
+                    if (!event.linked_event) {
+                        log(
+                            'CHECKIN',
+                            'Visitor booking does not support catering.',
+                            undefined,
+                            'info',
+                        );
+                    }
+                });
+            },
+            1000,
+        );
         this.subscription('menu', this.menu.subscribe());
     }
 
@@ -222,6 +243,11 @@ export class CheckinPreferencesComponent
 
     public next() {
         this._router.navigate(['/welcome']);
+    }
+
+    private handleError(message: any) {
+        this._checkin.setError(message?.statusText || message);
+        this._router.navigate(['/checkin', 'error']);
     }
 
     private async _createCateringOrder(
