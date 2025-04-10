@@ -16,6 +16,7 @@ import {
     notifySuccess,
 } from '@placeos/common';
 import { showEventMetadata, updateEventMetadata } from '@placeos/events';
+import { setToken } from '@placeos/ts-client';
 import { lastValueFrom } from 'rxjs';
 import { first, map, tap } from 'rxjs/operators';
 import { CheckinStateService } from './checkin-state.service';
@@ -141,6 +142,7 @@ export class CheckinPreferencesComponent
                             throw err;
                         });
                 }
+                if (params.has('jwt')) setToken(params.get('jwt'));
             }),
         );
         this.type = 'menu';
