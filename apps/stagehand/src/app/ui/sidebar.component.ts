@@ -114,6 +114,9 @@ let compact_state = false;
                     [class.clear]="is_compact"
                     [matTooltip]="is_compact ? 'Launch PlaceOS Backoffice' : ''"
                     matTooltipPosition="right"
+                    [href]="backoffice_link"
+                    target="_blank"
+                    ref="noopener noreferrer"
                 >
                     <span class="truncate text-sm" *ngIf="!is_compact">
                         Launch PlaceOS Backoffice
@@ -141,6 +144,10 @@ let compact_state = false;
 export class SidebarComponent {
     public get is_compact() {
         return compact_state;
+    }
+
+    public get backoffice_link() {
+        return `${location.origin}/backoffice/`;
     }
 
     public toggleCompact() {

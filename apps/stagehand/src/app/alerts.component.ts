@@ -265,11 +265,50 @@ interface Alert {
                                 {{ data }}
                             </div>
                         </ng-template>
-                        <ng-template #actions_template>
+                        <ng-template #actions_template let-row="row">
                             <div class="p-2">
-                                <button icon matRipple class="rounded">
+                                <button
+                                    icon
+                                    matRipple
+                                    class="rounded"
+                                    [matMenuTriggerFor]="menu"
+                                >
                                     <icon class="text-2xl">more_vert</icon>
                                 </button>
+                                <mat-menu #menu="matMenu">
+                                    <a
+                                        mat-menu-item
+                                        [href]="
+                                            backoffice_link +
+                                            '#/systems/' +
+                                            row.id
+                                        "
+                                        target="_blank"
+                                        ref="noopener noreferrer"
+                                    >
+                                        <div
+                                            class="flex items-center space-x-2"
+                                        >
+                                            <icon class="text-2xl">build</icon>
+                                            <div>Manage Room</div>
+                                        </div>
+                                    </a>
+                                    <a
+                                        mat-menu-item
+                                        [href]="service_link"
+                                        target="_blank"
+                                        ref="noopener noreferrer"
+                                    >
+                                        <div
+                                            class="flex items-center space-x-2"
+                                        >
+                                            <icon class="text-2xl"
+                                                >confirmation_number</icon
+                                            >
+                                            <div>Raise Ticket</div>
+                                        </div>
+                                    </a>
+                                </mat-menu>
                             </div>
                         </ng-template>
                     </div>
@@ -353,4 +392,12 @@ export class AlertsComponent {
             return list;
         }),
     );
+
+    public get backoffice_link() {
+        return `${location.origin}/backoffice/`;
+    }
+
+    public get service_link() {
+        return `https://service-now.example.com`;
+    }
 }

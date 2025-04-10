@@ -203,11 +203,52 @@ import { BehaviorSubject, combineLatest, map } from 'rxjs';
                                 <div class="p-4 opacity-30">No issues</div>
                             }
                         </ng-template>
-                        <ng-template #actions_template>
+                        <ng-template #actions_template let-row="row">
                             <div class="p-2">
-                                <button icon matRipple class="rounded">
+                                <button
+                                    icon
+                                    matRipple
+                                    class="rounded"
+                                    [matMenuTriggerFor]="menu"
+                                >
                                     <icon class="text-2xl">more_vert</icon>
                                 </button>
+                                <mat-menu #menu="matMenu">
+                                    <a
+                                        mat-menu-item
+                                        [href]="
+                                            backoffice_link +
+                                            '#/systems/' +
+                                            row.id
+                                        "
+                                        target="_blank"
+                                        ref="noopener noreferrer"
+                                    >
+                                        <div
+                                            class="flex items-center space-x-2"
+                                        >
+                                            <icon class="text-2xl">build</icon>
+                                            <div>Manage Room</div>
+                                        </div>
+                                    </a>
+                                    <a
+                                        mat-menu-item
+                                        [href]="
+                                            control_link + '#/tabbed/' + row.id
+                                        "
+                                        target="_blank"
+                                        ref="noopener noreferrer"
+                                    >
+                                        <div
+                                            class="flex items-center space-x-2"
+                                        >
+                                            <icon class="text-2xl"
+                                                >devices</icon
+                                            >
+                                            <div>Control Room</div>
+                                        </div>
+                                    </a>
+                                </mat-menu>
                             </div>
                         </ng-template>
                     </div>
@@ -282,4 +323,12 @@ export class RemoteSupportComponent {
             });
         }),
     );
+
+    public get backoffice_link() {
+        return `${location.origin}/backoffice/`;
+    }
+
+    public get service_link() {
+        return `${location.origin}/control/`;
+    }
 }
