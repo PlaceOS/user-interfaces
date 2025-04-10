@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1739322326869,
+  "timestamp": 1744248077585,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -13,10 +13,10 @@
       "urls": [
         "./favicon.ico",
         "./index.html",
-        "./main-SRMYPSPH.js",
+        "./main-U3NT3WUH.js",
         "./manifest.webmanifest",
         "./polyfills-EONH2QZO.js",
-        "./styles-C7E7V4KH.css"
+        "./styles-OKMSRYVM.css"
       ],
       "patterns": []
     },
@@ -70,6 +70,7 @@
         "./assets/icons/outlook.svg",
         "./assets/icons/parking-success.svg",
         "./assets/icons/payment-confirmed.svg",
+        "./assets/icons/permission-none.svg",
         "./assets/icons/place-filled.svg",
         "./assets/icons/place-outline.svg",
         "./assets/icons/room-placeholder.svg",
@@ -78,6 +79,7 @@
         "./assets/icons/today-filled.svg",
         "./assets/icons/today-outline.svg",
         "./assets/icons/visa.svg",
+        "./assets/icons/visitor-placeholder.svg",
         "./assets/locale/ar.json",
         "./assets/locale/en-AU.json",
         "./assets/locale/en-GB.json",
@@ -141,7 +143,7 @@
     "./assets/icons/icon-512x512.png": "1550b23f89e525cc26d6cd0e32d138393111c9c0",
     "./assets/icons/icon-72x72.png": "4cafcc4849255c17aecd773bcad36cc964aed700",
     "./assets/icons/icon-96x96.png": "16e23c2626b65a64f1d479c013f7f55df2694ca8",
-    "./assets/icons/locker-placeholder.svg": "a6abc6523abe014126c1e625548e3fb7f352ad44",
+    "./assets/icons/locker-placeholder.svg": "6e84a00041c55c3e7153a52847b6d26810771078",
     "./assets/icons/locker-success.svg": "20169b2a608943dac0ecc2033b291e2127542326",
     "./assets/icons/mastercard.svg": "79fcc68055a5038b0ab81cecd407496fdfd350c9",
     "./assets/icons/meeting-room-filled.svg": "cdc43c2a31283ba4bbe5f8c32169dd057e6e7065",
@@ -157,6 +159,7 @@
     "./assets/icons/outlook.svg": "af709f8c546089eb91c03c88af0860cb302eb28a",
     "./assets/icons/parking-success.svg": "f50d3173f7e5ff00f4175ac6fd85f0bd1f5da57b",
     "./assets/icons/payment-confirmed.svg": "f011484b0d845fa2a1b5c9db5107e2bb9c3d2c09",
+    "./assets/icons/permission-none.svg": "b1a2acd18617135947b503f992656371733bb464",
     "./assets/icons/place-filled.svg": "89ab65674b9e909b284ad78a7f8d7544a13ab74a",
     "./assets/icons/place-outline.svg": "6059875d2deb6a48ea76d30ac29bd329a888a48d",
     "./assets/icons/room-placeholder.svg": "34f3ab3edf77261db961c011e099b0c38d2ebe3e",
@@ -165,15 +168,16 @@
     "./assets/icons/today-filled.svg": "1410738877666c872263634fc33cfe9b2c3ac6f1",
     "./assets/icons/today-outline.svg": "40fc045c0b90aa2313cc5385260781ba5b55b8ad",
     "./assets/icons/visa.svg": "11187e2ea86894625af0aeb5b85c17bcbf8fe192",
+    "./assets/icons/visitor-placeholder.svg": "744f6d0a7c3f96db704b4e4cc301aff7bed145d2",
     "./assets/locale/ar.json": "2bb6cad15009056d7e34cfaa633a11f8bf5b7b0e",
-    "./assets/locale/en-AU.json": "6dbe36d58e274fb2e71c52550ac4b53e692e39f0",
+    "./assets/locale/en-AU.json": "92054acdbf3fd0efbc93a61669a224e9b3125156",
     "./assets/locale/en-GB.json": "c0ccea7cf0d1be466199f8be84e2956618590456",
     "./assets/locale/en-US.json": "9ed46549ef1c8db6d6fe673fd4bcceec3c999329",
     "./assets/locale/es.json": "670567bd810a9800c2da52771140090617da0019",
-    "./assets/locale/fr-CA.json": "81580a4b946381d083fae5a64a2072be13c8d157",
+    "./assets/locale/fr-CA.json": "0a02e23f54acdecfd9062fec6839098d5ec8e01b",
     "./assets/locale/fr.json": "5ed599982114b42005fefcc5f69e1df8656fb946",
     "./assets/locale/it.json": "d9d36d36b56b23c9ce33cf606538cc47ac34355b",
-    "./assets/locale/ja-JP.json": "7631d6c42ee1714d397a3720fb273d07a00c6851",
+    "./assets/locale/ja-JP.json": "8e45b7d2abb227041c807719e38375f5d5cfce69",
     "./assets/locale/pt.json": "ceebfd2f96ae602a8e27f930b7b0d9e9150cfa88",
     "./assets/locale/zh.json": "078399d877e574be484e7a0fc1809f7b71da8ad1",
     "./assets/logo-dark.svg": "3c5dbbd620a781a0d1e3680cb697982dd44a1613",
@@ -187,7 +191,7 @@
     "./assets/mocks/building1.jpg": "9170087fb243e25d0dbd5a29c58aafd4e1a4daee",
     "./assets/mocks/building2.jpg": "9fcdd5204d4294effd515b8b97fac937f494d7e4",
     "./assets/mocks/building3.jpg": "782111d26faa182f2c163fd972a021357fd384c8",
-    "./assets/not-supported.html": "eee844456ef3bda3481d919b95e4e558dbc95549",
+    "./assets/not-supported.html": "71a889ea40e681a39f8156a976ebf66ff148f785",
     "./assets/room_free.svg": "3df6318c5ca260b37c8335fb98bae0df2e9679c7",
     "./assets/room_in_use.svg": "55ab0a19b17159de24d236047d6d6dd71ca3ded7",
     "./assets/room_pending.svg": "36abfe55b105aa197a3c61ad75af87d141d9f469",
@@ -197,11 +201,11 @@
     "./assets/support/opera-logo.svg": "23f8e25409598ac843eefe81ea3c09b4f460844d",
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
-    "./index.html": "1ec70c2a1ca3a7807bd9460de6ade9621dc70d32",
-    "./main-SRMYPSPH.js": "979bbfa9155be48747fbe016e72242e34eb028cf",
+    "./index.html": "d9ef5cef7a039cb70ec25fd28e88fa25dedfd1ad",
+    "./main-U3NT3WUH.js": "55e2cb9aaa327652a95bec4b60ea3bfa07d3b18e",
     "./manifest.webmanifest": "1403ffbb424e3924fdbd03de6cc312e4a7a0b0b6",
     "./polyfills-EONH2QZO.js": "e61db933651ae257d0c246b446cd1f470be08f78",
-    "./styles-C7E7V4KH.css": "9d4643fc3327ee6eb176a511b113250754476506"
+    "./styles-OKMSRYVM.css": "c3086f174680c0e936cef32c1da711e5c293f640"
   },
   "navigationUrls": [
     {
