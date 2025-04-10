@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
     <head>
         <meta charset="utf-8" />
@@ -39,8 +39,9 @@
                 for (let i = 0; i < str_pairs.length; i++) {
                     var split_pair = str_pairs[i].split('=');
                     if (split_pair[1]) {
-                        map[decodeURIComponent(split_pair[0].replace('?', ''))] =
-                            decodeURIComponent(split_pair[1]);
+                        map[
+                            decodeURIComponent(split_pair[0].replace('?', ''))
+                        ] = decodeURIComponent(split_pair[1]);
                     }
                 }
                 return map;
@@ -59,7 +60,7 @@
                             'Returning credentials to plugin...';
                         Office.onReady(() => {
                             Office.context.ui.messageParent(
-                                query.access_token || ''
+                                query.access_token || '',
                             );
                         });
                     } else {
@@ -67,8 +68,9 @@
                             'Unable to complete login. <pre>' +
                             JSON.stringify(query, undefined, 4) +
                             '</pre>' +
-                            window.location.search + ' | '
-                            location.href;
+                            window.location.search +
+                            ' | ';
+                        location.href;
                     }
                 } catch (e) {
                     element.innerHTML =
@@ -97,7 +99,7 @@
             if (window.addEventListener) {
                 window.addEventListener(
                     'DOMContentLoaded',
-                    handleAuthAndContinue
+                    handleAuthAndContinue,
                 );
             } else {
                 handleAuthAndContinue(); // IE 8
