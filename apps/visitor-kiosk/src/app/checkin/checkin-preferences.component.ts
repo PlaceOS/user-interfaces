@@ -15,7 +15,7 @@ import {
     notifyError,
     notifySuccess,
 } from '@placeos/common';
-import { CalendarEvent, showEvent, updateEvent } from '@placeos/events';
+import { showEventMetadata, updateEventMetadata } from '@placeos/events';
 import { lastValueFrom } from 'rxjs';
 import { first, map, tap } from 'rxjs/operators';
 import { CheckinStateService } from './checkin-state.service';
@@ -130,7 +130,10 @@ export class CheckinPreferencesComponent
             this._route.queryParamMap.subscribe(async (params) => {
                 if (params.has('email')) {
                     await this._checkin
-                        .loadGuestAndEvent(params.get('email'))
+                        .loadGuestAndEvent(
+                            params.get('email'),
+                            params.get('event_id'),
+                        )
                         .catch((err) => {
                             this.handleError(
                                 'Unable to find visitor or a meeting associated with the given email address.',
@@ -177,57 +180,50 @@ export class CheckinPreferencesComponent
             }),
         );
         if (booking.linked_event) {
-            const event = await lastValueFrom(
-                showEvent(booking.linked_event.event_id),
-            ).catch(() => null);
-            console.log('Event:', event);
-            if (event) {
-                const order_list = event.ext('catering') || [];
-                let order =
-                    order_list.find(
-                        (_) => _.caterer == this.beverage.caterer,
-                    ) || new CateringOrder({ caterer: this.beverage.caterer });
-                if (
-                    order.items.find(
-                        (_) => _.custom_id === this.beverage.custom_id,
-                    )
-                ) {
-                    const existing_item = order.items.find(
-                        (_) => _.custom_id === this.beverage.custom_id,
-                    );
-                    existing_item.quantity += 1;
-                } else {
-                    order = new CateringOrder({
-                        ...order,
-                        items: [
-                            ...order.items,
-                            new CateringItem({
-                                ...this.beverage,
-                                quantity: 1,
-                            }),
-                        ],
-                    });
-                }
-                await lastValueFrom(
-                    updateEvent(
-                        event.id,
-                        new CalendarEvent({
-                            ...event,
-                            extension_data: {
-                                ...event.extension_data,
-                                catering: [
-                                    ...(event.extension_data.catering?.filter(
-                                        (_) => _.id !== order.id,
-                                    ) || []),
-                                    order,
-                                ],
-                            },
-                        }),
-                        { calendar: event.host },
-                    ),
+            const event = booking.linked_event;
+            const metadata = await lastValueFrom(
+                showEventMetadata(event.id, event.system_id),
+            );
+            const order_list = metadata.catering || [];
+            let order =
+                order_list.find((_) => _.caterer == this.beverage.caterer) ||
+                new CateringOrder({ caterer: this.beverage.caterer });
+            if (
+                order.items.find((_) => _.custom_id === this.beverage.custom_id)
+            ) {
+                const existing_item: any = order.items.find(
+                    (_) => _.custom_id === this.beverage.custom_id,
                 );
-                this._createCateringOrder(booking, order);
+                existing_item.quantity += 1;
+            } else {
+                order = new CateringOrder({
+                    ...order,
+                    items: [
+                        ...order.items,
+                        new CateringItem({
+                            ...this.beverage,
+                            quantity: 1,
+                        }),
+                    ],
+                });
             }
+            await lastValueFrom(
+                updateEventMetadata(
+                    event.id,
+                    event.system_id,
+                    {
+                        ...metadata,
+                        catering: [
+                            ...(metadata.catering?.filter(
+                                (_) => _.id !== order.id,
+                            ) || []),
+                            order,
+                        ],
+                    },
+                    { ical_uid: event.ical_uid },
+                ),
+            );
+            this._createCateringOrder(booking, order);
         } else {
             this._createCateringOrder(
                 booking,
