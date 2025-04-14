@@ -195,25 +195,7 @@ export class CheckinPreferencesComponent
             let order =
                 order_list.find((_) => _.caterer == this.beverage.caterer) ||
                 new CateringOrder({ caterer: this.beverage.caterer });
-            if (
-                order.items.find((_) => _.custom_id === this.beverage.custom_id)
-            ) {
-                const existing_item: any = order.items.find(
-                    (_) => _.custom_id === this.beverage.custom_id,
-                );
-                existing_item.quantity += 1;
-            } else {
-                order = new CateringOrder({
-                    ...order,
-                    items: [
-                        ...order.items,
-                        new CateringItem({
-                            ...this.beverage,
-                            quantity: 1,
-                        }),
-                    ],
-                });
-            }
+            order = await this._createCateringOrder(booking, order, event);
             await lastValueFrom(
                 updateEventMetadata(
                     event.event_id,
@@ -230,7 +212,6 @@ export class CheckinPreferencesComponent
                     { ical_uid: event.ical_uid },
                 ),
             );
-            this._createCateringOrder(booking, order, event);
         } else {
             this._createCateringOrder(
                 booking,
@@ -262,6 +243,8 @@ export class CheckinPreferencesComponent
             (_) => _.custom_id === this.beverage.custom_id,
         );
         (existing_item as any).quantity += 1;
+        console.log('Existing item:', existing_item, old_order, parent);
+        debugger;
         const order = new CateringOrder({
             ...old_order,
             caterer: this.beverage.caterer,
@@ -301,5 +284,6 @@ export class CheckinPreferencesComponent
             query.ical_uid = event.ical_uid;
         }
         await lastValueFrom(saveBooking(booking, query));
+        return order;
     }
 }
