@@ -242,7 +242,7 @@ export class CheckinPreferencesComponent
         const existing_item = old_order.items.find(
             (_) => _.custom_id === this.beverage.custom_id,
         );
-        (existing_item as any).quantity += 1;
+        if (existing_item) (existing_item as any).quantity += 1;
         const order = new CateringOrder({
             ...old_order,
             caterer: this.beverage.caterer,
