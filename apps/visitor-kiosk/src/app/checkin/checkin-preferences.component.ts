@@ -1,7 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { Booking, saveBooking, updateBooking } from '@placeos/bookings';
+import {
+    Booking,
+    LinkedCalendarEvent,
+    saveBooking,
+    updateBooking,
+} from '@placeos/bookings';
 import {
     CateringItem,
     CateringOrder,
@@ -225,7 +230,7 @@ export class CheckinPreferencesComponent
                     { ical_uid: event.ical_uid },
                 ),
             );
-            this._createCateringOrder(booking, order);
+            this._createCateringOrder(booking, order, event);
         } else {
             this._createCateringOrder(
                 booking,
@@ -251,6 +256,7 @@ export class CheckinPreferencesComponent
     private async _createCateringOrder(
         parent: Booking,
         old_order: CateringOrder = new CateringOrder(),
+        event?: LinkedCalendarEvent,
     ) {
         const existing_item = old_order.items.find(
             (_) => _.custom_id === this.beverage.custom_id,
@@ -289,6 +295,11 @@ export class CheckinPreferencesComponent
             parent_id: parent.id,
             zones: parent.zones,
         });
-        await lastValueFrom(saveBooking(booking, {}));
+        const query: Record<string, any> = { booking_id: booking.id };
+        if (event) {
+            query.event_id = event.id;
+            query.ical_uid = event.ical_uid;
+        }
+        await lastValueFrom(saveBooking(booking, query));
     }
 }
