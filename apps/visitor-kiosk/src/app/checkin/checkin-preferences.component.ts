@@ -243,8 +243,6 @@ export class CheckinPreferencesComponent
             (_) => _.custom_id === this.beverage.custom_id,
         );
         (existing_item as any).quantity += 1;
-        console.log('Existing item:', existing_item, old_order, parent);
-        debugger;
         const order = new CateringOrder({
             ...old_order,
             caterer: this.beverage.caterer,
