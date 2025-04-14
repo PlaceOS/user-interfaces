@@ -17,11 +17,7 @@ import { SettingsService } from '@placeos/common';
                 <a
                     name="footer-nav-meeting"
                     matRipple
-                    [routerLink]="
-                        new_features
-                            ? ['/book', 'meeting']
-                            : ['/book', 'spaces']
-                    "
+                    [routerLink]="['/book', 'meeting']"
                     *ngIf="features.includes('spaces')"
                     routerLinkActive="active"
                     class="m-2 flex w-1/3 flex-col items-center justify-center space-y-2"
@@ -44,9 +40,7 @@ import { SettingsService } from '@placeos/common';
                 <a
                     matRipple
                     name="footer-nav-desks"
-                    [routerLink]="
-                        new_features ? ['/book', 'desks'] : ['/book', 'desks']
-                    "
+                    [routerLink]="['/book', 'desks']"
                     routerLinkActive="active"
                     *ngIf="features.includes('desks')"
                     class="m-2 flex w-1/3 flex-col items-center justify-center space-y-2"
