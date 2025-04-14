@@ -184,7 +184,7 @@ export class CheckinPreferencesComponent
         if (booking.linked_event) {
             const event = booking.linked_event;
             const metadata = await lastValueFrom(
-                showEventMetadata(event.id, event.system_id),
+                showEventMetadata(event.event_id, event.system_id),
             );
             const order_list = metadata.catering || [];
             let order =
@@ -211,7 +211,7 @@ export class CheckinPreferencesComponent
             }
             await lastValueFrom(
                 updateEventMetadata(
-                    event.id,
+                    event.event_id,
                     event.system_id,
                     {
                         ...metadata,
