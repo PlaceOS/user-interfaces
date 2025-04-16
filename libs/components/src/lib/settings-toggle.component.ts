@@ -16,13 +16,23 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
                 *ngIf="value"
             ></div>
             <div class="ml-2 flex flex-1 items-center space-x-2 text-left">
-                <div>{{ name }}</div>
+                <div>
+                    {{ name }}
+                    <ng-content></ng-content>
+                </div>
                 <app-icon *ngIf="info" [matTooltip]="info">info</app-icon>
             </div>
-            <mat-checkbox
-                [(ngModel)]="value"
-                class="pointer-events-none"
-            ></mat-checkbox>
+            @if (toggle) {
+                <mat-slide-toggle
+                    [(ngModel)]="value"
+                    class="pointer-events-none"
+                ></mat-slide-toggle>
+            } @else {
+                <mat-checkbox
+                    [(ngModel)]="value"
+                    class="pointer-events-none"
+                ></mat-checkbox>
+            }
         </button>
     `,
     styles: [
@@ -42,6 +52,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
     standalone: false,
 })
 export class SettingsToggleComponent implements ControlValueAccessor {
+    @Input() public toggle: boolean;
     @Input() public name: string;
     @Input() public info: string;
 

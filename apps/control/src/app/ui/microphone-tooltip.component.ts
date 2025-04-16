@@ -21,6 +21,27 @@ import { ControlStateService } from '../control-state.service';
             >
                 <div *ngFor="let mic of mic_list | async">
                     <label [for]="mic.id">{{ mic.name }}</label>
+                    <div class="flex flex-wrap" *ngIf="mic.rooms">
+                        @for (room of mic.rooms; track room.name) {
+                            <div hidden>
+                                <i
+                                    binding
+                                    [sys]="id"
+                                    [mod]="mic.module_id || mic.mod"
+                                    [bind]="room.ids[0]"
+                                    exec="mute"
+                                    [(model)]="room.muted"
+                                    [params]="[room.ids, room.muted]"
+                                ></i>
+                            </div>
+                            <settings-toggle
+                                [toggle]="true"
+                                [(ngModel)]="room.muted"
+                            >
+                                {{ room.name }}
+                            </settings-toggle>
+                        }
+                    </div>
                     <div
                         class="flex w-64 items-center space-x-2"
                         [attr.name]="mic.id"
