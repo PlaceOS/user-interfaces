@@ -526,6 +526,10 @@ export class ControlStateService extends AsyncHandler {
     private bindSources(type: 'input' | 'output', alias_list: string[]) {
         const id = this._id.getValue();
         if (!id) return;
+
+        if (type === 'input') this._input_data.next([]);
+        else this._output_data.next([]);
+
         for (const alias of alias_list) {
             this.bindTo(id, `${type}/${alias}`, undefined, (d) =>
                 this.updateSourceData(type, alias, d),
