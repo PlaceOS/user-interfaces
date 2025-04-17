@@ -499,7 +499,7 @@ export class ControlStateService extends AsyncHandler {
         this.bindTo(id, 'selected_input');
         this.bindTo(id, 'mute');
         this.bindTo(id, 'volume');
-        this.bindTo(id, 'inputs', undefined, (l) => this._inputs.next(l));
+        this.bindTo(id, 'local_inputs', undefined, (l) => this._inputs.next(l));
         this.bindTo(id, 'available_outputs', undefined, (l) =>
             this._outputs.next(l),
         );
