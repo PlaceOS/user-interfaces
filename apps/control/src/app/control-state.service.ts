@@ -193,10 +193,9 @@ export class ControlStateService extends AsyncHandler {
         ),
     );
     /** List of available camera input sources */
-    public readonly camera_list = this._input_data.pipe(
-        map((list) =>
-            list?.filter((_) => _.type === 'cam' || _.mod?.includes('Camera')),
-        ),
+    public readonly camera_list = this.system_id.pipe(
+        switchMap((id) => this._listenToSystemBinding(id, 'available_cameras')),
+        shareReplay(1),
     );
     public readonly selected_camera = this.system_id.pipe(
         switchMap((id) => this._listenToSystemBinding(id, 'selected_camera')),
@@ -499,7 +498,9 @@ export class ControlStateService extends AsyncHandler {
         this.bindTo(id, 'selected_input');
         this.bindTo(id, 'mute');
         this.bindTo(id, 'volume');
-        this.bindTo(id, 'local_inputs', undefined, (l) => this._inputs.next(l));
+        this.bindTo(id, 'available_inputs', undefined, (l) =>
+            this._inputs.next(l),
+        );
         this.bindTo(id, 'available_outputs', undefined, (l) =>
             this._outputs.next(l),
         );
