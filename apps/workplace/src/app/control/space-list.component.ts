@@ -91,6 +91,7 @@ export class ControlSpaceListComponent extends AsyncHandler {
     ]).pipe(
         map(([list, s]) => {
             const search = (s || '').toLowerCase();
+            if (!search) return list;
             return (list || []).filter((space) => {
                 const bld = this._org.buildings.find(
                     (building) => building.id === space.level.parent_id,

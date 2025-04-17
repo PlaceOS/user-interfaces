@@ -217,7 +217,7 @@ import { SettingsService } from '@placeos/common';
         <ng-template #simple_state>
             <div
                 class="relative z-40 flex h-16 w-full items-center justify-center border-t border-base-200 bg-base-100 shadow sm:hidden"
-                *ngIf="features > 1"
+                *ngIf="features.length > 1"
             >
                 <top-menu></top-menu>
             </div>
