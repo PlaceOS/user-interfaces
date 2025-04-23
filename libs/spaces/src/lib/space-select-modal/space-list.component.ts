@@ -64,7 +64,7 @@ import { Space } from '../space.class';
                                 />
                             </ng-template>
                             <div
-                                class="pointer-events-auto absolute bottom-1 left-1 flex h-6 w-6 rotate-12 items-center justify-center rounded-full"
+                                class="pointer-events-auto absolute bottom-1 left-1 flex h-6 w-6 items-center justify-center rounded-full"
                                 *ngIf="(room_alerts | async)[space.id]"
                                 [matTooltip]="
                                     (room_alerts | async)[space.id][1]
