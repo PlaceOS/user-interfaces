@@ -24,7 +24,7 @@ import { VisitorsStateService } from './visitors-state.service';
             [columns]="[
                 {
                     key: 'state',
-                    name: 'COMMON.CHECKED_IN' | translate,
+                    name: 'COMMON.STATUS' | translate,
                     content: state_template,
                     size: '6.5rem',
                     show: !hide_field('state'),
