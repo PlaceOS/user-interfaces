@@ -9,10 +9,11 @@ import { EventFormService } from '@placeos/events';
         >
             <h3 class="text-3xl">Booking Confirmed!</h3>
             <img src="assets/tick_success.svg" />
+            @let room = last_success?.system?.email || '' | space;
             <p>
                 Your meeting booking for
                 <i>{{
-                    last_success?.location || last_success?.system?.display_name
+                    last_success?.location || room.display_name || room.name
                 }}</i>
                 has been successfully booked for the
                 {{ last_success?.date | date: 'dd MMMM yyyy' }} at

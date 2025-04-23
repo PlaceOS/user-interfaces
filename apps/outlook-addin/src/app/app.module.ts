@@ -18,6 +18,7 @@ import { FormFieldsModule } from '@placeos/form-fields';
 import { PaymentsModule } from '@placeos/payments';
 
 import { MatSelectModule } from '@angular/material/select';
+import { SharedSpacesModule } from '@placeos/spaces';
 import { MeetingFlowConfirmComponent } from 'apps/workplace/src/app/book/meeting-flow/meeting-flow-confirm.component';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 import { environment } from '../environments/environment';
@@ -61,6 +62,7 @@ import { BookModule } from './rooms/book.module';
         ReactiveFormsModule,
         SharedCateringModule,
         SharedExploreModule,
+        SharedSpacesModule,
         ServiceWorkerModule.register('ngsw-worker.js', {
             enabled: environment.production,
         }),
