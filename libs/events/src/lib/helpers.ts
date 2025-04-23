@@ -8,7 +8,6 @@ import {
     addYears,
     differenceInMinutes,
     endOfDay,
-    format,
     getUnixTime,
     isAfter,
     isBefore,
@@ -96,66 +95,6 @@ export function parseRecurrence(data: RecurrenceDetails) {
                 typeof _ === 'number' ? DAYS_OF_WEEK[_] : _,
             ) || [],
     };
-}
-
-export function formatRecurrence({
-    interval,
-    pattern,
-    start,
-    end,
-    occurrences,
-}: RecurrenceDetails) {
-    let details = '';
-
-    if (interval) {
-        switch (pattern) {
-            case 'daily':
-                details = details.concat(
-                    interval > 1 ? `Every ${interval} days` : 'Daily',
-                );
-                if (occurrences > 1)
-                    end = addDays(
-                        start || Date.now(),
-                        (occurrences - 1) * interval,
-                    ).valueOf();
-                break;
-            case 'weekly':
-                details = details.concat(
-                    interval > 1 ? `Every ${interval} weeks` : 'Weekly',
-                );
-                if (occurrences > 1)
-                    end = addWeeks(
-                        start || Date.now(),
-                        (occurrences - 1) * interval,
-                    ).valueOf();
-                break;
-            case 'month_day':
-            case 'monthly':
-                details = details.concat(
-                    interval > 1 ? `Every ${interval} months` : 'Monthly',
-                );
-                if (occurrences > 1)
-                    end = addMonths(
-                        start || Date.now(),
-                        (occurrences - 1) * interval,
-                    ).valueOf();
-                break;
-            case 'yearly':
-                details = details.concat(
-                    interval > 1 ? `Every ${interval} yeats` : 'Yearly',
-                );
-                if (occurrences > 1)
-                    end = addYears(
-                        start || Date.now(),
-                        (occurrences - 1) * interval,
-                    ).valueOf();
-                break;
-        }
-        if (occurrences >= 1) {
-            details = details.concat(`, until ${format(end, 'MMM do, yyyy')}`);
-        }
-    }
-    return details;
 }
 
 /**

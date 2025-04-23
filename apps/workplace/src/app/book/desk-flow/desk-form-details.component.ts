@@ -8,9 +8,12 @@ import {
 } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { BookingFormService } from '@placeos/bookings';
-import { AsyncHandler, SettingsService } from '@placeos/common';
+import {
+    AsyncHandler,
+    BookingRecurrence,
+    SettingsService,
+} from '@placeos/common';
 import { RecurrenceDetails } from '@placeos/events';
-import { BookingRecurrence } from '@placeos/form-fields';
 import { Desk, OrganisationService } from '@placeos/organisation';
 import { addDays, endOfDay, set } from 'date-fns';
 

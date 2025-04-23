@@ -552,7 +552,8 @@
         "VISITOR_BOOK_ANOTHER": "Book another visitor",
         "SPACE_REMOVE": "Remove this space",
         "SPACE_ADD_TO": "Add this space",
-        "INDUCTED": "Inducted"
+        "INDUCTED": "Inducted",
+        "RECURRING_TOOLTIP": "This booking is part of a recurring series"
     },
     "CALENDAR_EVENT": {
         "CATERING": "Catering",
@@ -652,7 +653,8 @@
         "GROUP_DATE_TIME": "Date and Time",
         "GROUP_ABOUT": "About this event",
         "GROUP_ATTENDEES": "{{ going }} going, {{ interested }} interested",
-        "FIND_AVAILABILITY": "Find Availability"
+        "FIND_AVAILABILITY": "Find Availability",
+        "RECURRING_TOOLTIP": "This event is part of a recurring series"
     },
     "CATERING": {
         "MENU": "Catering Menu",

@@ -1,5 +1,3 @@
-import { format } from 'date-fns';
-
 export interface RecurrenceDetails {
     /** Start of the recurrence in unix ms */
     start: number;
@@ -21,12 +19,4 @@ export interface RecurrenceDetails {
     interval: number;
     /** Number of re-occurences to create for this event */
     occurrences?: number;
-}
-
-export function formatRecurrence(details: RecurrenceDetails): string {
-    let pattern: string = details.pattern || '';
-    pattern = pattern.charAt(0).toUpperCase() + pattern.slice(1);
-    return pattern
-        ? `${pattern} until ${format(new Date(details.end), 'do MMM yyyy')}`
-        : '<No Recurrence>';
 }

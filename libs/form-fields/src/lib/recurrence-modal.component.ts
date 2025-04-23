@@ -1,26 +1,15 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { AsyncHandler } from '@placeos/common';
+import {
+    AsyncHandler,
+    DayIndex,
+    MonthlyType,
+    Recurrence,
+    RecurrEndType,
+    RecurrType,
+} from '@placeos/common';
 import { addDays, addMonths, startOfWeek } from 'date-fns';
-
-export type DayIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6;
-export type WeekIndex = 1 | 2 | 3 | 4 | 5 | -1;
-export type RecurrType = 'none' | 'daily' | 'weekly' | 'monthly' | 'yearly';
-export type MonthlyType = 'day_of_month' | 'day_of_week';
-export type RecurrEndType = 'never' | 'date' | 'instances';
-
-export interface Recurrence {
-    _custom: boolean;
-    type: RecurrType;
-    interval: number;
-    weekdays?: Set<DayIndex>;
-    week?: WeekIndex;
-    monthly_type?: MonthlyType;
-    end_type: RecurrEndType;
-    end_date?: number;
-    end_instances?: number;
-}
 
 @Component({
     selector: 'recurrence-modal',

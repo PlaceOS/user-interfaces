@@ -6,16 +6,14 @@ import { CateringItem } from '@placeos/catering';
 import {
     AsyncHandler,
     SettingsService,
+    formatRecurrence,
+    fromEventRecurrence,
     getTimezoneOffsetString,
     i18n,
     notifyError,
 } from '@placeos/common';
 import { openConfirmModal } from '@placeos/components';
-import {
-    CalendarEvent,
-    EventFormService,
-    formatRecurrence,
-} from '@placeos/events';
+import { CalendarEvent, EventFormService } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
 
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
@@ -123,7 +121,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                 class="inverse w-full"
                 *ngIf="loading | async"
                 (click)="cancelPost()"
-               
+
             >
                 Undo
             </button> -->
@@ -223,10 +221,12 @@ export class MeetingFlowConfirmComponent
     }
 
     public get formatted_recurrence() {
-        return formatRecurrence({
-            ...this.event.recurrence,
-            start: this.event.date || this.event.recurrence.start,
-        });
+        return formatRecurrence(
+            fromEventRecurrence({
+                ...this.event.recurrence,
+                start: this.event.date || this.event.recurrence.start,
+            }),
+        );
     }
 
     public get event(): CalendarEvent {

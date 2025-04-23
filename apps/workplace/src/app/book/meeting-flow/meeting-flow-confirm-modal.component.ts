@@ -10,12 +10,14 @@ import { CateringItem, CateringOrder } from '@placeos/catering';
 import {
     AsyncHandler,
     SettingsService,
+    formatRecurrence,
+    fromEventRecurrence,
     getTimezoneOffsetString,
     i18n,
     notifyError,
 } from '@placeos/common';
 import { openConfirmModal } from '@placeos/components';
-import { EventFormService, formatRecurrence } from '@placeos/events';
+import { EventFormService } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
 import { Space } from '@placeos/spaces';
 
@@ -499,10 +501,12 @@ export class MeetingFlowConfirmModalComponent
     }
 
     public get formatted_recurrence() {
-        return formatRecurrence({
-            ...this.event.recurrence,
-            start: this.event.date || this.event.recurrence.start,
-        });
+        return formatRecurrence(
+            fromEventRecurrence({
+                ...this.event.recurrence,
+                start: this.event.date || this.event.recurrence.start,
+            }),
+        );
     }
 
     constructor(
