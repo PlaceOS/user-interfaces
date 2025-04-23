@@ -1114,6 +1114,7 @@
             "VISITORS_ACTION_REMOTE": "Set visitor as Remote",
             "VISITORS_ACTION_ONSITE": "Set visitor as Onsite",
             "VISITORS_ACTION_PRINT_QR": "Print QR Code",
+            "VISITORS_ACTION_PRINT_PASS": "Print Guest Pass",
             "VISITORS_ACTION_EMAIL_HOST": "Email Host",
             "VISITORS_ACTION_EMAIL_GUEST": "Email Guest",
             "VISITORS_ACTION_CHECKIN": "Check-in Guest",

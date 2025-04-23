@@ -11,8 +11,8 @@ import { VisitorsStateService } from './visitors-state.service';
 @Component({
     selector: '[app-new-visitors]',
     template: `
-        <app-topbar></app-topbar>
-        <div class="flex h-px flex-1">
+        <app-topbar class="print:hidden">></app-topbar>
+        <div class="flex h-px flex-1 print:hidden">
             <app-sidebar></app-sidebar>
             <main class="flex h-full w-1/2 flex-1 flex-col">
                 <div class="flex items-center space-x-2 px-8 py-4">

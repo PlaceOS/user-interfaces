@@ -9,6 +9,8 @@ import {
 import { OrganisationService } from '@placeos/organisation';
 import { showMetadata } from '@placeos/ts-client';
 import { User } from '@placeos/users';
+import { generateQRCode } from 'libs/common/src/lib/qr-code';
+import { lastValueFrom } from 'rxjs';
 import { ParkingStateService } from '../parking/parking-state.service';
 import { VisitorsStateService } from './visitors-state.service';
 
@@ -353,6 +355,89 @@ import { VisitorsStateService } from './visitors-state.service';
                 <button icon matRipple [matMenuTriggerFor]="guest_menu">
                     <app-icon>more_horiz</app-icon>
                 </button>
+                <div
+                    printable
+                    class="print-only relative m-4 h-[14rem] w-[24rem] rounded-xl border border-neutral bg-base-100 p-4"
+                >
+                    <div class="flex h-full flex-col leading-tight">
+                        <div
+                            class="mb-2 flex h-[4.75rem] w-[4.75rem] items-center justify-center overflow-hidden rounded-full border-base-400 bg-base-200 text-3xl print:border-2"
+                        >
+                            <a-user-avatar
+                                [user]="{
+                                    name: row?.asset_name || row?.description,
+                                    email: row?.asset_id,
+                                    photo: row.photo,
+                                }"
+                            ></a-user-avatar>
+                        </div>
+                        <div class="text-2xl">
+                            {{ row?.asset_name || row?.description }}
+                        </div>
+                        <div class="text-sm">
+                            {{
+                                'APP.VISITOR_KIOSK.LABEL_FOR'
+                                    | translate: { title: row?.title }
+                            }}
+                        </div>
+                        <div class="text-sm opacity-60">
+                            {{
+                                'APP.VISITOR_KIOSK.LABEL_HOST'
+                                    | translate: { host_name: row?.user_name }
+                            }}
+                        </div>
+                    </div>
+                    <div
+                        class="absolute bottom-4 left-4 mt-2 w-32 rounded-lg border border-black px-2 py-1 text-center text-sm font-medium uppercase text-black"
+                    >
+                        {{ 'APP.VISITOR_KIOSK.VISITOR' | translate }}
+                    </div>
+                    <div class="absolute right-4 top-4 flex flex-col items-end">
+                        <img
+                            auth
+                            class="h-10"
+                            alt="Logo"
+                            [src]="logo?.src || logo"
+                        />
+                        <div class="text-right text-xs" *ngIf="zones | level">
+                            {{
+                                'APP.VISITOR_KIOSK.LABEL_LOCATION'
+                                    | translate
+                                        : {
+                                              location:
+                                                  (zones | level)
+                                                      ?.display_name ||
+                                                  (zones | level)?.name,
+                                          }
+                            }}
+                        </div>
+                        <pre class="text-right">
+                            {{ row?.extension_data?.extra_details }}
+                        </pre
+                        >
+                    </div>
+                    <div
+                        class="absolute bottom-4 right-4 flex items-end space-x-2"
+                    >
+                        <div class="text-right font-medium leading-tight">
+                            <div>
+                                {{ row?.date || date | date: 'shortTime' }}
+                            </div>
+                            <div>
+                                {{ row?.date || date | date: 'mediumDate' }}
+                            </div>
+                        </div>
+                        <div
+                            class="relative h-16 w-16 rounded-lg border border-base-200 p-2"
+                        >
+                            <img
+                                class="h-12 w-12 object-contain object-center"
+                                *ngIf="qr_code"
+                                [src]="qr_code"
+                            />
+                        </div>
+                    </div>
+                </div>
                 <mat-menu #guest_menu="matMenu">
                     <button
                         mat-menu-item
@@ -445,6 +530,21 @@ import { VisitorsStateService } from './visitors-state.service';
                             <div>
                                 {{
                                     'APP.CONCIERGE.VISITORS_ACTION_PRINT_QR'
+                                        | translate
+                                }}
+                            </div>
+                        </div>
+                    </button>
+                    <button
+                        mat-menu-item
+                        *ngIf="allow_printing_label"
+                        (click)="printVisitorPass(row, $event)"
+                    >
+                        <div class="flex items-center space-x-2">
+                            <app-icon class="text-2xl">badge</app-icon>
+                            <div>
+                                {{
+                                    'APP.CONCIERGE.VISITORS_ACTION_PRINT_PASS'
                                         | translate
                                 }}
                             </div>
@@ -570,6 +670,7 @@ export class GuestListingComponent extends AsyncHandler {
     public readonly search = this._state.search;
     public readonly filters = this._state.filters;
     public inductions_enabled = false;
+    public qr_code = '';
 
     public hide_field(id: string) {
         return (this._settings.get('app.visitors.hide_fields') || []).includes(
@@ -595,6 +696,12 @@ export class GuestListingComponent extends AsyncHandler {
         const tz = this.timezone;
         if (!tz) return '';
         return getTimezoneOffsetString(tz);
+    }
+
+    public get allow_printing_label() {
+        return (
+            this._settings.get('app.visitors.allow_printing_label') !== false
+        );
     }
 
     public readonly downloadVisitorList = () =>
@@ -638,6 +745,17 @@ export class GuestListingComponent extends AsyncHandler {
         return this._settings.time_format;
     }
 
+    public get logo() {
+        return this._settings.theme === 'dark'
+            ? this._settings.get('app.logo_dark')
+            : this._settings.get('app.logo_light');
+    }
+
+    public printVisitorPass(item: Booking) {
+        this.qr_code = generateQRCode(item.asset_id);
+        this.timeout('print', () => window.print());
+    }
+
     public inducted(item: Booking) {
         if (item.checked_in) return true;
         return item.induction == 'declined'
@@ -664,14 +782,12 @@ export class GuestListingComponent extends AsyncHandler {
                 const visitor_kiosk_app =
                     this._settings.get('app.visitor_kiosk_app') ||
                     'visitor-kiosk_app';
-                const metadata: any = await showMetadata(
-                    bld.id,
-                    visitor_kiosk_app,
-                ).toPromise();
-                const org_metadata: any = await showMetadata(
-                    this._org.organisation.id,
-                    visitor_kiosk_app,
-                ).toPromise();
+                const metadata: any = await lastValueFrom(
+                    showMetadata(bld.id, visitor_kiosk_app),
+                );
+                const org_metadata: any = await lastValueFrom(
+                    showMetadata(this._org.organisation.id, visitor_kiosk_app),
+                );
                 const data = {
                     ...(org_metadata.details || {}),
                     ...(metadata.details || {}),
@@ -683,7 +799,6 @@ export class GuestListingComponent extends AsyncHandler {
     }
 
     public async reserveParking(item: Booking) {
-        console.log('Item:', item);
         const id = await this._parking.editReservation(undefined, {
             parent_id: item.id,
             user: new User({ email: item.asset_id, name: item.asset_name }),
@@ -692,9 +807,11 @@ export class GuestListingComponent extends AsyncHandler {
             external_user: true,
         });
         if (id) {
-            await saveBooking(
-                new Booking({ ...item, parking_booking_id: id } as any),
-            ).toPromise();
+            await lastValueFrom(
+                saveBooking(
+                    new Booking({ ...item, parking_booking_id: id } as any),
+                ),
+            );
             this._state.poll();
         }
     }
