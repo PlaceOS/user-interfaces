@@ -156,8 +156,8 @@ import { SettingsService } from '@placeos/common';
         </div>
         <div
             class="relative z-40 flex h-16 w-full items-center justify-center border-t border-base-200 bg-base-100 shadow sm:hidden"
-            *ngIf="features.length > 3; else simple_state"
             [attr.dark]="dark_mode"
+            *ngIf="features.length > 1"
         >
             <a
                 matRipple
@@ -193,6 +193,8 @@ import { SettingsService } from '@placeos/common';
                 matRipple
                 class="relative flex flex-1 flex-col items-center justify-center"
                 [routerLink]="['/explore']"
+                [attr.disabled]="!features.includes('explore')"
+                [class.opacity-0]="!features.includes('explore')"
                 routerLinkActive="text-secondary active"
             >
                 <app-icon filled class="text-2xl">place</app-icon>
@@ -214,14 +216,6 @@ import { SettingsService } from '@placeos/common';
                 ></div>
             </div>
         </div>
-        <ng-template #simple_state>
-            <div
-                class="relative z-40 flex h-16 w-full items-center justify-center border-t border-base-200 bg-base-100 shadow sm:hidden"
-                *ngIf="features.length > 1"
-            >
-                <top-menu></top-menu>
-            </div>
-        </ng-template>
     `,
     styles: [
         `
