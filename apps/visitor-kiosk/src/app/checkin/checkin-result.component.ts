@@ -265,7 +265,11 @@ export class CheckinResultsComponent extends AsyncHandler implements OnInit {
 
     public async next() {
         const event = await nextValueFrom(this.event);
-        this._settings.get('app.allow_beverages') && event.linked_event
+        const standalone_location = this._settings.get(
+            'app.standalone_visitor_location',
+        );
+        this._settings.get('app.allow_beverages') &&
+        (event.linked_event || standalone_location)
             ? this._router.navigate(['/checkin', 'preferences'])
             : this._router.navigate(['/welcome']);
     }

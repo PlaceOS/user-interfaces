@@ -213,11 +213,16 @@ export class CheckinPreferencesComponent
                 ),
             );
         } else {
+            const standalone_location = this._settings.get(
+                'app.standalone_visitor_location',
+            );
             this._createCateringOrder(
                 booking,
                 booking.linked_bookings[0]
                     ? booking.linked_bookings[0].extension_data.details
                     : undefined,
+                undefined,
+                standalone_location,
             );
         }
         notifySuccess(i18n('APP.VISITOR_KIOSK.BEVERAGE_SUCCESS'));
@@ -238,6 +243,7 @@ export class CheckinPreferencesComponent
         parent: Booking,
         old_order: CateringOrder = new CateringOrder(),
         event?: LinkedCalendarEvent,
+        location?: string,
     ) {
         const existing_item = old_order.items.find(
             (_) => _.custom_id === this.beverage.custom_id,
@@ -275,6 +281,7 @@ export class CheckinPreferencesComponent
             },
             parent_id: parent.id,
             zones: parent.zones,
+            location: location || parent.location,
         });
         const query: Record<string, any> = { booking_id: booking.id };
         if (event) {
