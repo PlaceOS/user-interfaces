@@ -6,7 +6,14 @@ import {
     updateMetadata,
 } from '@placeos/ts-client';
 import { addHours, endOfDay, getUnixTime, set, startOfDay } from 'date-fns';
-import { BehaviorSubject, combineLatest, Observable, of, Subject } from 'rxjs';
+import {
+    BehaviorSubject,
+    combineLatest,
+    lastValueFrom,
+    Observable,
+    of,
+    Subject,
+} from 'rxjs';
 import {
     catchError,
     debounceTime,
@@ -440,12 +447,11 @@ export class DesksStateService extends AsyncHandler {
             );
         }
         notifySuccess(i18n('APP.CONCIERGE.DESKS_ACCESS_SUCCESS'));
-        this._desk_bookings = [...this._desk_bookings, status] as any;
         this.setFilters({});
     }
 
     public async rejectAllDesks() {
-        const list = this._desk_bookings || [];
+        const list = await nextValueFrom(this.bookings);
         if (list.length <= 0)
             return notifyInfo('No desks to reject for the selected date');
         const resp = await openConfirmModal(
@@ -476,14 +482,18 @@ export class DesksStateService extends AsyncHandler {
     }
 
     private async _clearAssignedBooking(desk: Desk) {
-        const booking_list = await queryBookings({
-            period_start: getUnixTime(startOfDay(Date.now())),
-            period_end: getUnixTime(endOfDay(Date.now())),
-            type: 'desk',
-            email: desk.assigned_to,
-            include_checked_out: true,
-        }).toPromise();
+        const booking_list = await lastValueFrom(
+            queryBookings({
+                period_start: getUnixTime(startOfDay(Date.now())),
+                period_end: getUnixTime(endOfDay(Date.now())),
+                type: 'desk',
+                email: desk.assigned_to,
+                include_checked_out: true,
+            }),
+        );
         const filtered = booking_list.filter((_) => _.asset_id === desk.id);
-        await Promise.all(filtered.map((_) => removeBooking(_.id).toPromise()));
+        await Promise.all(
+            filtered.map((_) => lastValueFrom(removeBooking(_.id))),
+        );
     }
 }
