@@ -537,7 +537,7 @@ import { VisitorsStateService } from './visitors-state.service';
                     </button>
                     <button
                         mat-menu-item
-                        *ngIf="allow_printing_label"
+                        *ngIf="allow_printing_label && row.checked_in"
                         (click)="printVisitorPass(row, $event)"
                     >
                         <div class="flex items-center space-x-2">
