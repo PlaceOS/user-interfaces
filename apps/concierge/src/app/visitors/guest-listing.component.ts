@@ -806,13 +806,12 @@ export class GuestListingComponent extends AsyncHandler {
             date: item.date,
             external_user: true,
         });
-        if (id) {
-            await lastValueFrom(
-                saveBooking(
-                    new Booking({ ...item, parking_booking_id: id } as any),
-                ),
-            );
-            this._state.poll();
-        }
+        if (!id) return;
+        await lastValueFrom(
+            saveBooking(
+                new Booking({ ...item, parking_booking_id: id } as any),
+            ),
+        );
+        this._state.poll();
     }
 }
