@@ -19,6 +19,7 @@ import {
     nextValueFrom,
     notifyError,
     notifySuccess,
+    SettingsService,
 } from '@placeos/common';
 import { showEventMetadata, updateEventMetadata } from '@placeos/events';
 import { setToken } from '@placeos/ts-client';
@@ -125,6 +126,7 @@ export class CheckinPreferencesComponent
         private _router: Router,
         private _checkin: CheckinStateService,
         private _catering: CateringStateService,
+        private _settings: SettingsService,
     ) {
         super();
     }
