@@ -280,6 +280,7 @@ export class CheckinPreferencesComponent
             extension_data: {
                 parent_id: parent.id,
                 details: order,
+                location: location || parent.location,
             },
             parent_id: parent.id,
             zones: parent.zones,
