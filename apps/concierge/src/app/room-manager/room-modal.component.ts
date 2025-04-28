@@ -213,25 +213,14 @@ import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.compone
                 </div>
                 <div class="mb-4 flex space-x-2">
                     <div
-                        class="flex flex-1 flex-col"
-                        *ngIf="form.controls.capacity"
+                        class="flex flex-1 flex-col pt-4"
+                        *ngIf="form.controls.approval"
                     >
-                        <label
-                            for="capacity"
-                            [class.error]="
-                                form.controls.capacity.invalid &&
-                                form.controls.capacity.touched
-                            "
+                        <settings-toggle
+                            [name]="'COMMON.REQUIRE_APPROVAL' | translate"
+                            formControlName="approval"
                         >
-                            {{ 'COMMON.CAPACITY' | translate }}
-                        </label>
-                        <a-counter
-                            name="capacity"
-                            class="w-full"
-                            formControlName="capacity"
-                            [min]="0"
-                            [max]="256"
-                        ></a-counter>
+                        </settings-toggle>
                     </div>
                     <div
                         class="flex flex-1 flex-col pt-4"
@@ -243,6 +232,24 @@ import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.compone
                         >
                         </settings-toggle>
                     </div>
+                </div>
+                <div class="mb-4 flex flex-col" *ngIf="form.controls.capacity">
+                    <label
+                        for="capacity"
+                        [class.error]="
+                            form.controls.capacity.invalid &&
+                            form.controls.capacity.touched
+                        "
+                    >
+                        {{ 'COMMON.CAPACITY' | translate }}
+                    </label>
+                    <a-counter
+                        name="capacity"
+                        class="w-full"
+                        formControlName="capacity"
+                        [min]="0"
+                        [max]="256"
+                    ></a-counter>
                 </div>
                 <div class="flex flex-col" *ngIf="form.controls.description">
                     <label for="description">{{

@@ -226,7 +226,9 @@
         "USER_NEW": "New External User",
         "USER_EDIT": "Edit External User",
         "USER_SAVING": "Saving user...",
-        "ORGANISATION": "Organisation"
+        "ORGANISATION": "Organisation",
+        "APPROVAL": "Approval",
+        "REQUIRE_APPROVAL": "Bookings require approval"
     },
     "LANGUAGE": {
         "ENGLISH": "English",

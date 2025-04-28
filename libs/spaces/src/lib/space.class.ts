@@ -40,6 +40,8 @@ export class Space {
     public readonly level: BuildingLevel;
     /** List of features associated with the space */
     public readonly features: string[];
+    /** Whether the space bookings need approval */
+    public readonly approval: boolean;
 
     public readonly availability: CalendarAvailability[];
 
@@ -60,6 +62,7 @@ export class Space {
         this.response_status = data.response_status || 'tentative';
         this.level = data.level || new BuildingLevel();
         this.availability = data.availability || [];
+        this.approval = data.approval ?? false;
     }
 
     public inUseAt(start: number, duration: number): boolean {

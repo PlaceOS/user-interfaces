@@ -34,6 +34,13 @@ import { RoomManagementService } from './room-management.service';
                         size: '8rem',
                     },
                     {
+                        key: 'approval',
+                        name: 'COMMON.APPROVAL' | translate,
+                        size: '5.5rem',
+                        content: bool_template,
+                        sortable: false,
+                    },
+                    {
                         key: 'bookable',
                         name: 'COMMON.BOOKABLE' | translate,
                         size: '5.5rem',
@@ -78,6 +85,7 @@ import { RoomManagementService } from './room-management.service';
             <div
                 [class.bg-error]="!data"
                 [class.bg-success]="data"
+                *ngIf="data"
                 class="mx-auto flex h-8 w-8 items-center justify-center rounded text-2xl text-white"
             >
                 <app-icon>{{ data ? 'done' : 'close' }}</app-icon>
