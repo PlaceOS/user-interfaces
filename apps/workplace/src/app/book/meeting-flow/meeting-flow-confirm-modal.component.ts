@@ -359,6 +359,12 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                 </h3>
                 <div [innerHTML]="event.body | sanitize"></div>
             </div>
+            <div
+                *ngIf="requires_approval"
+                class="mt-2 rounded !border-none bg-warning px-2 py-1 text-center text-sm text-warning-content"
+            >
+                {{ 'CALENDAR_EVENT.APPROVAL_REQUIRED_MSG' | translate }}
+            </div>
         </main>
         <footer
             class="flex items-center justify-end border-t border-base-200 p-2"
@@ -399,6 +405,10 @@ export class MeetingFlowConfirmModalComponent
         return request.conflict
             ? i18n('FORM.ASSETS_CLASH_ERROR')
             : i18n('FORM.ASSETS_TIME_ERROR');
+    }
+
+    public get requires_approval() {
+        return this.event.resources.some((s) => s.approval);
     }
 
     public get has_assets() {

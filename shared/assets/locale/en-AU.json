@@ -228,6 +228,7 @@
         "USER_SAVING": "Saving user...",
         "ORGANISATION": "Organisation",
         "APPROVAL": "Approval",
+        "APPROVAL_REQUIRED": "Approval Required",
         "REQUIRE_APPROVAL": "Bookings require approval"
     },
     "LANGUAGE": {
@@ -656,7 +657,8 @@
         "GROUP_ABOUT": "About this event",
         "GROUP_ATTENDEES": "{{ going }} going, {{ interested }} interested",
         "FIND_AVAILABILITY": "Find Availability",
-        "RECURRING_TOOLTIP": "This event is part of a recurring series"
+        "RECURRING_TOOLTIP": "This event is part of a recurring series",
+        "APPROVAL_REQUIRED_MSG": "Room selected for this booking requires approval and may not be confirmed until a later date."
     },
     "CATERING": {
         "MENU": "Catering Menu",

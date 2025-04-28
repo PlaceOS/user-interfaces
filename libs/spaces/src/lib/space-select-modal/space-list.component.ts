@@ -155,6 +155,12 @@ import { Space } from '../space.class';
                                 : 'favorite_border'
                         }}</app-icon>
                     </button>
+                    <div
+                        *ngIf="space.approval"
+                        class="absolute bottom-1 right-1 rounded bg-warning px-2 py-1 text-[0.625rem] font-medium text-warning-content"
+                    >
+                        {{ 'COMMON.APPROVAL_REQUIRED' | translate }}
+                    </div>
                 </li>
             </ul>
         </ng-container>
