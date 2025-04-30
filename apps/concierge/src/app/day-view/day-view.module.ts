@@ -24,7 +24,10 @@ import { RoomBookingsComponent } from './room-bookings.component';
 import { RoomBookingsTimelineComponent } from './room-timeline.component';
 import { RoomWeekBookingsTimelineComponent } from './room-week-timeline.component';
 
-const ROUTES: Route[] = [{ path: '', component: DayViewComponent }];
+const ROUTES: Route[] = [
+    { path: '', component: DayViewComponent },
+    { path: '**', redirectTo: '' },
+];
 
 @NgModule({
     declarations: [
