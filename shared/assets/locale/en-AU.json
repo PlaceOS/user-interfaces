@@ -229,7 +229,10 @@
         "ORGANISATION": "Organisation",
         "APPROVAL": "Approval",
         "APPROVAL_REQUIRED": "Approval Required",
-        "REQUIRE_APPROVAL": "Bookings require approval"
+        "REQUIRE_APPROVAL": "Bookings require approval",
+        "WFO": "Work from Office",
+        "WFH": "Work from Home",
+        "AOL": "Away on Leave"
     },
     "LANGUAGE": {
         "ENGLISH": "English",
@@ -1097,6 +1100,9 @@
             "AUTO_RELEASE_LOCKER": "Custom locker auto-release",
             "AUTO_RELEASE_ALL_DAY_START": "All Day Release time",
             "AUTO_RELEASE_OUTSIDE_HOURS": "Release outside business hours",
+            "AUTO_RELEASE_DEFAULT_HOURS": "Default Work Hours",
+            "AUTO_RELEASE_DEFAULT_HOURS_EMPTY": "No default works hours set",
+            "AUTO_RELEASE_DEFAULT_HOURS_SET": "Set default works hours",
             "INDUCTION_HEADER": "Induction Settings",
             "INDUCTION_DETAILS": "Induction Details",
             "INDUCTION_ENABLE": "Enable induction for building",
