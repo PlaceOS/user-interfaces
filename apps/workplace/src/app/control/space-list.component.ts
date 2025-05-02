@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { filter, map } from 'rxjs/operators';
+import { filter, map, startWith } from 'rxjs/operators';
 
 import { AsyncHandler } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
@@ -108,6 +108,7 @@ export class ControlSpaceListComponent extends AsyncHandler {
                 );
             });
         }),
+        startWith([]),
     );
     /** Whether space list is being filtered */
     public loading: boolean;

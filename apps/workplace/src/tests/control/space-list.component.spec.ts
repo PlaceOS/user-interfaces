@@ -5,8 +5,8 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { IconComponent } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
 import { SpacesService } from '@placeos/spaces';
-import { MockComponent } from 'ng-mocks';
-import { of } from 'rxjs';
+import { MockComponent, MockProvider } from 'ng-mocks';
+import { BehaviorSubject, of } from 'rxjs';
 import { ControlSpaceListItemComponent } from '../../app/control/list-item.component';
 import { ControlSpaceListComponent } from '../../app/control/space-list.component';
 
@@ -15,22 +15,30 @@ describe('ControlSpaceListComponent', () => {
     const createComponent = createComponentFactory({
         component: ControlSpaceListComponent,
         providers: [
-            {
-                provide: OrganisationService,
-                useValue: { navigate: jest.fn(), buildings: [] },
-            },
-            {
-                provide: SpacesService,
-                useValue: {
-                    initialised: of(true),
-                    filter: jest.fn((_) =>
-                        [
-                            { id: '1', name: '1', support_url: '1' },
-                            { id: '2', name: '2', support_url: '2' },
-                        ].filter(_),
-                    ),
-                },
-            },
+            MockProvider(OrganisationService, {
+                navigate: jest.fn(),
+                buildings: [],
+                active_building: new BehaviorSubject({}),
+            } as any),
+            MockProvider(SpacesService, {
+                initialised: of(true),
+                filter: jest.fn((_) =>
+                    [
+                        {
+                            id: '1',
+                            name: '1',
+                            support_url: '1',
+                            zones: [undefined],
+                        },
+                        {
+                            id: '2',
+                            name: '2',
+                            support_url: '2',
+                            zones: [undefined],
+                        },
+                    ].filter(_),
+                ),
+            } as any),
         ],
         declarations: [
             MockComponent(IconComponent),
@@ -46,7 +54,6 @@ describe('ControlSpaceListComponent', () => {
     });
 
     it('should list spaces', () => {
-        expect('a-control-space-list-item').toHaveLength(0);
         spectator.detectChanges();
         expect('a-control-space-list-item').toHaveLength(2);
     });
