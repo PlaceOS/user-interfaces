@@ -63,7 +63,7 @@ const EMPTY_ACTIONS = [];
                     {{ event.title }}
                 </h3>
                 <div class="w-full items-center justify-between sm:flex">
-                    <div class="m-2 flex space-x-2">
+                    <div class="m-2 flex items-center space-x-4">
                         <status-pill [status]="event_status">
                             <div
                                 class="flex flex-col leading-tight"
@@ -80,6 +80,7 @@ const EMPTY_ACTIONS = [];
                         </status-pill>
                         <icon
                             *ngIf="event.recurring_event_id"
+                            class="text-2xl"
                             [matTooltip]="recurr_tooltip"
                             >event_repeat</icon
                         >

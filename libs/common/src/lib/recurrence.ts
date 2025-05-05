@@ -296,7 +296,7 @@ export function formatRecurrence(recurrence: Recurrence): string {
 
     switch (type) {
         case 'none':
-            result = 'No recurrence';
+            result = '';
             break;
         case 'daily':
             result = `Every ${interval} ${plural(interval, 'day')}`;
