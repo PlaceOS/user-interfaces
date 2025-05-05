@@ -123,7 +123,7 @@ export function toEventRecurrence(
             end: date,
         };
     }
-    let end = date;
+    let end = addMonths(date, 6).valueOf();
     if (r.end_type === 'date' && r.end_date) {
         end = r.end_date;
     } else if (r.end_type === 'instances') {
