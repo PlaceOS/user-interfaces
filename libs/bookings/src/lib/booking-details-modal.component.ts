@@ -50,7 +50,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                     {{ booking.title }}
                 </h3>
                 <div class="w-full items-center justify-between sm:flex">
-                    <div class="m-2 flex items-center space-x-4">
+                    <div class="m-2 flex items-center space-x-2">
                         <status-pill [status]="booking_status">
                             {{ period }}
                         </status-pill>

@@ -63,7 +63,7 @@ const EMPTY_ACTIONS = [];
                     {{ event.title }}
                 </h3>
                 <div class="w-full items-center justify-between sm:flex">
-                    <div class="m-2 flex items-center space-x-4">
+                    <div class="m-2 flex items-center space-x-2">
                         <status-pill [status]="event_status">
                             <div
                                 class="flex flex-col leading-tight"
