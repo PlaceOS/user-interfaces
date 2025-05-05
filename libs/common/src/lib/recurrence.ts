@@ -1,3 +1,4 @@
+import { addDays, addMonths, addWeeks } from 'date-fns';
 import { RecurrenceDetails } from './formatting';
 
 export enum WeekOfMonth {
@@ -122,13 +123,25 @@ export function toEventRecurrence(
             end: date,
         };
     }
+    let end = date;
+    if (r.end_type === 'date' && r.end_date) {
+        end = r.end_date;
+    } else if (r.end_type === 'instances') {
+        const end_step = r.interval * r.end_instances;
+        end =
+            r.type === 'daily'
+                ? addDays(date, end_step).valueOf()
+                : r.type === 'weekly'
+                  ? addWeeks(date, end_step).valueOf()
+                  : addMonths(date, end_step).valueOf();
+    }
     const details: RecurrenceDetails = {
         _pattern: r._custom ? 'custom_display' : r.type,
         pattern: r.type,
         interval: r.interval,
         days_of_week: [],
         start: date,
-        end: r.end_type === 'date' && r.end_date ? r.end_date : date,
+        end,
     };
     if ((r.type === 'weekly' || r.type === 'monthly') && r.weekdays) {
         details.days_of_week = Array.from(r.weekdays);
