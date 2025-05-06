@@ -147,7 +147,7 @@ export function generateMicrosoftCalendarLink(
         location: event.location,
         allday: event.all_day ?? false,
         // availability: status,
-        freebusy: status,
+        // freebusy: status,
     };
     if (event.all_day) delete data.enddt;
     const emails = (event.attendees || []).map((_: any) => _.email || _);
@@ -155,7 +155,9 @@ export function generateMicrosoftCalendarLink(
         (event.resources?.length ? event.resources : null) || [event.system]
     ).map((_: any) => _?.email || _);
     if (emails.length || resources.length)
-        data.to = unique([...emails, ...resources]).join();
+        data.to = unique([...emails, ...resources])
+            .filter((_) => !!_)
+            .join(',');
     return type === 'office'
         ? `https://outlook.office.com/calendar/deeplink/compose?${toQueryString(
               data,
