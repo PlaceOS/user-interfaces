@@ -198,7 +198,7 @@ export class StaffUser extends User {
     }
 
     public location_time(datetime: number = Date.now()) {
-        return this.work_preference(datetime)?.location || 'wfo';
+        return this.work_preference(datetime)?.location || 'ooo';
     }
 
     public get location_name() {

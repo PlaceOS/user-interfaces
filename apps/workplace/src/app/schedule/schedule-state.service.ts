@@ -44,7 +44,14 @@ import {
     startOfMinute,
     startOfWeek,
 } from 'date-fns';
-import { BehaviorSubject, combineLatest, interval, Observable, of } from 'rxjs';
+import {
+    BehaviorSubject,
+    combineLatest,
+    interval,
+    lastValueFrom,
+    Observable,
+    of,
+} from 'rxjs';
 import {
     catchError,
     debounceTime,
@@ -468,16 +475,20 @@ export class ScheduleStateService extends AsyncHandler {
                             auto_release.time_before ||
                             0,
                     );
-                    const bookings = await queryBookings({
-                        period_start: getUnixTime(startOfMinute(Date.now())),
-                        period_end: getUnixTime(
-                            addMinutes(
-                                Date.now(),
-                                (time_after || 5) + time_before,
+                    const bookings = await lastValueFrom(
+                        queryBookings({
+                            period_start: getUnixTime(
+                                startOfMinute(Date.now()),
                             ),
-                        ),
-                        type,
-                    }).toPromise();
+                            period_end: getUnixTime(
+                                addMinutes(
+                                    Date.now(),
+                                    (time_after || 5) + time_before,
+                                ),
+                            ),
+                            type,
+                        }),
+                    );
                     const check_block = (time_after || 0) + time_before;
                     for (const booking of bookings) {
                         if (
@@ -525,7 +536,7 @@ export class ScheduleStateService extends AsyncHandler {
                             continue;
                         }
                         result.loading('Checking in booking...');
-                        await checkinBooking(booking.id, true).toPromise();
+                        await lastValueFrom(checkinBooking(booking.id, true));
                         result.close();
                     }
                 }

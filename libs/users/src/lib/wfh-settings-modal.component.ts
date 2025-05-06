@@ -221,7 +221,7 @@ export class WFHSettingsModalComponent implements OnInit {
 
     public ngOnInit() {
         const user = currentUser();
-        const prefs = this._data.local
+        const prefs = this._data?.local
             ? this._data.preferences
             : user.work_preferences;
         this.settings = [
