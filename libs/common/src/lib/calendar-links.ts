@@ -136,10 +136,8 @@ export function generateMicrosoftCalendarLink(
     const data: any = {
         // path: '/calendar/deeplink/compose',
         // rru: 'addevent',
-        startdt: new Date(event.date).toISOString().split('.')[0],
-        enddt: addMinutes(event.date, event.duration ?? 60)
-            .toISOString()
-            .split('.')[0],
+        startdt: new Date(event.date).toISOString(),
+        enddt: addMinutes(event.date, event.duration ?? 60).toISOString(),
         subject: event.title,
         body: `${event.body || ''}${
             event.id ? '\n\n[ID|' + event.id + ']' : ''
