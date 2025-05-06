@@ -458,20 +458,27 @@ export class ScheduleStateService extends AsyncHandler {
                 (auto_release.time_after || auto_release.time_before) &&
                 auto_release.resources?.length
             ) {
-                const time_before = Math.min(60, auto_release.time_before || 0);
                 for (const type of auto_release.resources) {
+                    const time_after =
+                        auto_release[`${type}_time_after`] ||
+                        auto_release.time_after;
+                    const time_before = Math.min(
+                        60,
+                        auto_release[`${type}_time_before`] ||
+                            auto_release.time_before ||
+                            0,
+                    );
                     const bookings = await queryBookings({
                         period_start: getUnixTime(startOfMinute(Date.now())),
                         period_end: getUnixTime(
                             addMinutes(
                                 Date.now(),
-                                (auto_release.time_after || 5) + time_before,
+                                (time_after || 5) + time_before,
                             ),
                         ),
                         type,
                     }).toPromise();
-                    const check_block =
-                        (auto_release.time_after || 0) + time_before;
+                    const check_block = (time_after || 0) + time_before;
                     for (const booking of bookings) {
                         if (
                             this._ignore_cancel.includes(booking.id) ||
@@ -482,17 +489,11 @@ export class ScheduleStateService extends AsyncHandler {
                         }
                         this._dialog.closeAll();
                         const diff = differenceInMinutes(
-                            addMinutes(
-                                booking.date,
-                                auto_release.time_after || 0,
-                            ),
+                            addMinutes(booking.date, time_after || 0),
                             Date.now(),
                         );
                         if (diff > check_block || diff < 0) continue;
-                        const time = addMinutes(
-                            booking.date,
-                            auto_release.time_after || 0,
-                        );
+                        const time = addMinutes(booking.date, time_after || 0);
                         const close_after = differenceInMilliseconds(
                             time.getTime() + 60 * 1000,
                             Date.now(),
@@ -502,7 +503,7 @@ export class ScheduleStateService extends AsyncHandler {
                         const result = await openConfirmModal(
                             {
                                 title: `Keep ${type} ${wording}`,
-                                content: `You have indicated you are not in the office. 
+                                content: `You have indicated you are not in the office.
                                 Your  ${wording} for "<i>${
                                     booking.asset_name || booking.title
                                 }</i>" at ${format(
