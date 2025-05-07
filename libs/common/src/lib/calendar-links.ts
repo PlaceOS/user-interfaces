@@ -133,12 +133,13 @@ export function generateMicrosoftCalendarLink(
     status: 'free' | 'busy' | 'tentative' | 'oof' = 'free',
 ): string {
     if (!event.date) event.date = Date.now();
+    const utc_date = localToTimezone(event.date, 'UTC');
     const data: any = {
         // path: '/calendar/deeplink/compose',
         // rru: 'addevent',
-        startdt: `${new Date(event.date).toISOString().split('.')[0]}Z`,
+        startdt: `${new Date(utc_date).toISOString().split('.')[0]}Z`,
         enddt: `${
-            addMinutes(event.date, event.duration ?? 60)
+            addMinutes(utc_date, event.duration ?? 60)
                 .toISOString()
                 .split('.')[0]
         }Z`,
