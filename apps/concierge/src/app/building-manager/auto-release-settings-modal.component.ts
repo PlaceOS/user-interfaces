@@ -46,7 +46,10 @@ import { map } from 'rxjs/operators';
                 <app-icon class="text-2xl">close</app-icon>
             </button>
         </header>
-        <main class="w-[32rem] px-4" *ngIf="!loading; else load_state">
+        <main
+            class="w-[32rem] overflow-auto px-4"
+            *ngIf="!loading; else load_state"
+        >
             <div class="flex space-x-2">
                 <div class="flex-1">
                     <label>
