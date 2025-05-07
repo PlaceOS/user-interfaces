@@ -40,6 +40,7 @@ import {
     isAfter,
     isBefore,
     isSameDay,
+    setHours,
     startOfDay,
     startOfMinute,
     startOfWeek,
@@ -498,13 +499,16 @@ export class ScheduleStateService extends AsyncHandler {
                         ) {
                             continue;
                         }
+                        const start_time = booking.is_all_day
+                            ? setHours(booking.date, auto_release.all_day_start)
+                            : booking.date;
                         this._dialog.closeAll();
                         const diff = differenceInMinutes(
-                            addMinutes(booking.date, time_after || 0),
+                            addMinutes(start_time, time_after || 0),
                             Date.now(),
                         );
                         if (diff > check_block || diff < 0) continue;
-                        const time = addMinutes(booking.date, time_after || 0);
+                        const time = addMinutes(start_time, time_after || 0);
                         const close_after = differenceInMilliseconds(
                             time.getTime() + 60 * 1000,
                             Date.now(),
