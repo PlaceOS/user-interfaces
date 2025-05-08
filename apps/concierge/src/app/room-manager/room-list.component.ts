@@ -8,7 +8,7 @@ import { RoomManagementService } from './room-management.service';
     template: `
         <div class="absolute inset-0 overflow-auto px-8">
             <simple-table
-                class="block min-w-[48rem] text-sm"
+                class="block min-w-[56rem] text-sm"
                 [data]="rooms"
                 empty_message="No rooms for selected level or building"
                 [columns]="[
