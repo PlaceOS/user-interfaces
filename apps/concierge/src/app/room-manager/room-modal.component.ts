@@ -42,9 +42,7 @@ import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.compone
                 ) | translate
             "
             [loading]="
-                (loading | async)
-                    ? ('APP.CONCIERGE.ROOMS_SAVING' | translate)
-                    : ''
+                loading ? ('APP.CONCIERGE.ROOMS_SAVING' | translate) : ''
             "
             (confirm)="save()"
         >
