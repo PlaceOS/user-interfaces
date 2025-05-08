@@ -127,22 +127,21 @@ export function generateGoogleCalendarLink(event: CalEvent): string {
     )}`;
 }
 
+function dateToISO(date: Date | number) {
+    return `${format(date, 'yyyy-MM-dd')}T${format(date, 'HH:mm:ss')}`;
+}
+
 export function generateMicrosoftCalendarLink(
     event: CalEvent,
     type: 'outlook' | 'office' = 'office',
     status: 'free' | 'busy' | 'tentative' | 'oof' = 'free',
 ): string {
     if (!event.date) event.date = Date.now();
-    const utc_date = localToTimezone(event.date, 'UTC');
     const data: any = {
         // path: '/calendar/deeplink/compose',
         // rru: 'addevent',
-        startdt: `${new Date(utc_date).toISOString().split('.')[0]}`,
-        enddt: `${
-            addMinutes(utc_date, event.duration ?? 60)
-                .toISOString()
-                .split('.')[0]
-        }`,
+        startdt: dateToISO(event.date),
+        enddt: dateToISO(addMinutes(event.date, event.duration ?? 60)),
         subject: event.title,
         body: `${event.body || ''}${
             event.id ? '\n\n\n[ID|' + event.id + ']' : ''
