@@ -22,6 +22,7 @@ import {
 } from '@placeos/ts-client';
 import { WorktimePreference } from '@placeos/users';
 import {
+    set,
     setDay,
     setHours,
     setMinutes,
@@ -160,7 +161,7 @@ import { map } from 'rxjs/operators';
                     <mat-option value="parking">
                         {{ 'RESOURCE.PARKING' | translate }}
                     </mat-option>
-                    <mat-option value="lockers">
+                    <mat-option value="locker">
                         {{ 'RESOURCE.LOCKERS' | translate }}
                     </mat-option>
                 </mat-select>
@@ -229,7 +230,11 @@ export class AutoReleaseSettingsModalComponent implements OnInit {
 
     public get start_hour() {
         return startOfMinute(
-            setHours(Date.now(), this.settings.all_day_start || 8),
+            set(Date.now(), {
+                hours: Math.floor(this.settings.all_day_start || 8),
+                minutes:
+                    Math.floor((this.settings.all_day_start || 0) * 60) % 60,
+            }),
         ).valueOf();
     }
     public readonly setStartHour = (t) => {
