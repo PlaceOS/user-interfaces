@@ -1,24 +1,27 @@
-import { Component, Input, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { AsyncHandler, nextValueFrom } from '@placeos/common';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ControlStateService, RoomOutput } from '../control-state.service';
 import { ICON_MAP } from '../ui/output-display.component';
 
+const STATUS = {};
+
 @Component({
     selector: 'device-output-list-item',
     template: `
-        <button
-            matRipple
-            class="m-2 h-40 w-full flex-1 rounded border bg-base-100 p-2 shadow"
+        <div
+            class="relative m-2 h-40 w-full flex-1 rounded border bg-base-100 p-2 shadow"
             [class.border-base-200]="!active"
             [class.border-primary]="active"
             *ngIf="item || true"
-            (click)="setActiveOutput()"
         >
-            <div
-                class="relative flex h-full w-full flex-col items-center justify-center rounded bg-info"
-                [class.!bg-base-300]="!(input | async)"
+            @let source = input | async;
+            <button
+                matRipple
+                class="relative z-0 flex h-full w-full flex-col items-center justify-center rounded bg-info"
+                [class.!bg-base-300]="!source"
+                (click)="setActiveOutput()"
             >
                 <div
                     class="absolute left-1 top-1 rounded bg-base-300 p-1 text-sm text-white"
@@ -27,23 +30,28 @@ import { ICON_MAP } from '../ui/output-display.component';
                     {{ item?.name || 'Display' }}
                 </div>
                 <app-icon class="text-5xl">
-                    {{
-                        (input | async)?.icon ||
-                            icons[(input | async)?.type] ||
-                            'add_to_queue'
-                    }}
+                    {{ source?.icon || icons[source?.type] || 'add_to_queue' }}
                 </app-icon>
-                <span
-                    class="text-sm text-white"
-                    [class.opacity-60]="!(input | async)"
-                >
+                <span class="text-sm text-white" [class.opacity-60]="!source">
                     {{
-                        (input | async)?.name ||
-                            ('APP.CONTROL.INPUT_EMPTY' | translate)
+                        source?.name || ('APP.CONTROL.INPUT_EMPTY' | translate)
                     }}
                 </span>
-            </div>
-        </button>
+            </button>
+            @if (source) {
+                @let muted = mute || input.id === 'mute';
+                <button
+                    icon
+                    matRipple
+                    class="absolute bottom-2 right-2 z-10 hover:shadow"
+                    (click)="
+                        setMute(input.id, !muted); $event.stopPropagation()
+                    "
+                >
+                    <icon>{{ muted ? 'volume_off' : 'volume_up' }}</icon>
+                </button>
+            }
+        </div>
     `,
     styles: [
         `
@@ -65,6 +73,8 @@ export class DeviceOutputListItemComponent
     /** Current mute state of the output */
     public mute: boolean;
 
+    public last_input: string;
+
     public readonly icons = ICON_MAP;
     /** ID of the input associated with the displayed output */
     private _input = new BehaviorSubject('');
@@ -76,7 +86,10 @@ export class DeviceOutputListItemComponent
 
     public readonly setVolume = (v) =>
         this.timeout('volume', () => this._state.setVolume(v, this.item?.id));
-    public readonly setMute = (s) => this._state.setMute(s, this.item?.id);
+    public readonly setMute = (i, s) => {
+        this._state.setRoute(s ? 'mute' : this.last_input, this.item?.id);
+        this.last_input = i;
+    };
     public readonly setActiveOutput = async () => {
         const { selected_input } =
             (await nextValueFrom(this._state.system)) || {};
