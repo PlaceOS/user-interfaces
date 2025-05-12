@@ -1,5 +1,11 @@
-import { Component, Inject } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { Component, Inject, NO_ERRORS_SCHEMA } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import {
+    MAT_DIALOG_DATA,
+    MatDialogModule,
+    MatDialogRef,
+} from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { UploadPermissions } from '@placeos/common';
 
 @Component({
@@ -8,7 +14,7 @@ import { UploadPermissions } from '@placeos/common';
         <header>
             <h2>Upload File</h2>
             <button btn icon mat-dialog-close>
-                <app-icon>close</app-icon>
+                <icon>close</icon>
             </button>
         </header>
         <main class="min-w-[20rem] p-4">
@@ -50,14 +56,15 @@ import { UploadPermissions } from '@placeos/common';
             </button>
         </footer>
     `,
+    schemas: [NO_ERRORS_SCHEMA],
     styles: [``],
-    standalone: false,
+    imports: [MatDialogModule, MatFormFieldModule, FormsModule],
 })
 export class UploadPermissionsModalComponent {
     /** File to upload */
     public readonly file: File = this._data.file;
     /** Whether file should be public */
-    public is_public: boolean = true;
+    public is_public = true;
     /** Permissions for file */
     public permissions: UploadPermissions = 'none';
 

@@ -50,8 +50,15 @@ import {
 import { MOCKS } from '@placeos/mocks';
 import { setCustomHeaders } from '@placeos/svg-viewer';
 import * as Sentry from '@sentry/angular';
+import { lastValueFrom } from 'rxjs';
 
 const START_QUERY = location.search;
+
+declare global {
+    interface Window {
+        pasteToken: (t: string) => void;
+    }
+}
 
 export function initSentry(dsn: string, sample_rate = 0.1) {
     if (!dsn) return;
@@ -69,16 +76,14 @@ export function initSentry(dsn: string, sample_rate = 0.1) {
         // Set 'tracePropagationTargets' to control for which URLs distributed tracing should be enabled
         tracePropagationTargets: [
             'localhost',
-            /^https:\/\/[a-zA-Z0-9_\-]*\.[a-zA-Z0-9]*\/api/,
-            /^https:\/\/[a-zA-Z0-9_\-]*\.placeos\.run*\/api/,
+            /^https:\/\/[a-zA-Z0-9_-]*\.[a-zA-Z0-9]*\/api/,
+            /^https:\/\/[a-zA-Z0-9_-]*\.placeos\.run*\/api/,
         ],
         // Session Replay
         replaysSessionSampleRate: sample_rate, // This sets the sample rate at 10%. You may want to change it to 100% while in development and then sample at a lower rate in production.
         replaysOnErrorSampleRate: 1.0, // If you're not already sampling the entire session, change the sample rate to 100% when sampling sessions where errors occur.
     });
 }
-
-(window as any).global = window;
 
 @Component({
     selector: 'app-root',
@@ -156,7 +161,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
                 ?.readText()
                 .then((tkn) => this._pasteToken(tkn));
         });
-        (window as any).pasteToken = (t) => this._pasteToken(t);
+        window.pasteToken = (t) => this._pasteToken(t);
         this._route.queryParamMap.subscribe((params) => {
             if (params.has('hide_nav'))
                 localStorage.setItem('PlaceOS.hide_nav', 'true');
@@ -172,7 +177,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
         setNotifyOutlet(this._snackbar);
         setTranslationService(this._locale);
         /** Wait for settings to initialise */
-        await this._settings.initialised.pipe(first((_) => _)).toPromise();
+        await lastValueFrom(this._settings.initialised.pipe(first((_) => _)));
         setAppName(this._settings.get('app.short_name'));
         const settings = this._settings.get('composer') || {};
         settings.mock =
@@ -188,7 +193,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
         }
         /** Wait for authentication details to load */
         await setupPlace(settings).catch((_) => console.error(_));
-        await this._org.initialised.pipe(first((_) => _)).toPromise();
+        await lastValueFrom(this._org.initialised.pipe(first((_) => _)));
         if (this._locale) {
             this._locale.zone_id = this._org.organisation.id;
             this._locale.init();
@@ -197,7 +202,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
         if (!settings.local_login) {
             this.timeout('wait_for_user', () => this.onInitError(), 30 * 1000);
         }
-        await current_user.pipe(first((_) => !!_)).toPromise();
+        await lastValueFrom(current_user.pipe(first((_) => !!_)));
         this.clearTimeout('wait_for_user');
         this._initLocale();
         setInternalUserDomain(
@@ -210,7 +215,14 @@ export class AppComponent extends AsyncHandler implements OnInit {
             this._setSafariHeaders();
             this._initUploads();
             this._initFixedDevice();
-        } catch {}
+        } catch {
+            log(
+                'APP',
+                'Failed to initialise background services.',
+                undefined,
+                'warn',
+            );
+        }
     }
 
     private onInitError() {
@@ -246,7 +258,14 @@ export class AppComponent extends AsyncHandler implements OnInit {
                     }
                 }
             }
-        } catch {}
+        } catch {
+            log(
+                'APP',
+                'Failed to initialise locale service.',
+                undefined,
+                'warn',
+            );
+        }
     }
 
     private _pasteToken(tkn: string) {

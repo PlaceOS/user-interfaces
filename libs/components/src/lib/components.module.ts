@@ -89,7 +89,6 @@ import { StatusPillComponent } from './status-pill.component';
 import { ThumbnailPipe } from './thumbnail.pipe';
 import { TranslatePipe } from './translate.pipe';
 import { UnauthorisedComponent } from './unauthorised.component';
-import { UploadPermissionsModalComponent } from './upload-permissions-modal.component';
 import { UserControlsComponent } from './user-controls.component';
 import { VirtualKeyboardComponent } from './virtual-keyboard.component';
 import { WorkLocationTooltipComponent } from './work-location-tooltip.component';
@@ -173,7 +172,6 @@ const COMPONENTS = [
     HelpTooltipComponent,
     AccessibilityTooltipComponent,
     LanguageSelectComponent,
-    UploadPermissionsModalComponent,
     PrintableComponent,
     ChatComponent,
     AttachedResourceConfigModalComponent,
