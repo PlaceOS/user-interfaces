@@ -92,6 +92,7 @@ export interface RoomOutput {
     inputs: string[];
     following: string;
     hidden?: boolean;
+    hide_on_join?: boolean;
 }
 
 export interface SystemState {
@@ -154,16 +155,6 @@ export class ControlStateService extends AsyncHandler {
     );
     public readonly presentables$ = this._input_data.pipe(
         map((l) => l.filter((_) => _.presentable !== false)),
-        shareReplay(1),
-    );
-    /** List of available output sources */
-    public readonly output_list = combineLatest([
-        this._output_data,
-        this._outputs,
-    ]).pipe(
-        map(([l, a]) =>
-            l.filter((_) => !_.hidden && (!_.id || (a || []).includes(_.id))),
-        ),
         shareReplay(1),
     );
     public readonly system_id = this._id.asObservable();
@@ -239,6 +230,22 @@ export class ControlStateService extends AsyncHandler {
         this.join_modes,
         this.joined_id,
     ]).pipe(map(([modes, id]) => (modes ? modes[id] : null)));
+    /** List of available output sources */
+    public readonly output_list = combineLatest([
+        this._output_data,
+        this._outputs,
+        this.joined,
+    ]).pipe(
+        map(([l, a, j]) =>
+            l.filter(
+                (_) =>
+                    !_.hidden &&
+                    (!_.hide_on_join || !j) &&
+                    (!_.id || (a || []).includes(_.id)),
+            ),
+        ),
+        shareReplay(1),
+    );
     /** List of help items */
     public readonly help_items = this.system_id.pipe(
         switchMap((id) => this._listenToSystemBinding(id, 'help')),
