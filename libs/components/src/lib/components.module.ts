@@ -29,7 +29,6 @@ import {
 
 import { ActionIconComponent } from './action-icon.component';
 import { BindingDirective } from './binding.directive';
-import { IconComponent } from './icon.component';
 import { PopoutMenuComponent } from './popout-menu.component';
 import { UserAvatarComponent } from './user-avatar.component';
 
@@ -56,6 +55,7 @@ import { FullscreenModalShellComponent } from './fullscreen-modal-shell.componen
 import { GlobalBannerComponent } from './global-banner.component';
 import { GlobalLoadingComponent } from './global-loading.component';
 import { HelpTooltipComponent } from './help-tooltip.component';
+import { IconComponent } from './icon.component';
 import { ImageCarouselComponent } from './image-carousel.component';
 import { ImageViewerComponent } from './image-viewer.component';
 import { IndoorMapsComponent } from './indoor-maps.component';
@@ -123,7 +123,6 @@ const MAT_MODULES = [
 
 const COMPONENTS = [
     ActionIconComponent,
-    IconComponent,
     PopoutMenuComponent,
     UserAvatarComponent,
 
@@ -192,13 +191,14 @@ const DIRECTIVES = [
 
 @NgModule({
     declarations: [...COMPONENTS, ...DIRECTIVES],
-    exports: [...COMPONENTS, ...DIRECTIVES, ...MAT_MODULES],
+    exports: [...COMPONENTS, ...DIRECTIVES, ...MAT_MODULES, IconComponent],
     imports: [
         CommonModule,
         FormsModule,
         ReactiveFormsModule,
         RouterModule,
         ...MAT_MODULES,
+        IconComponent,
     ],
     providers: [
         { provide: MAP_FEATURE_DATA, useValue: {} },

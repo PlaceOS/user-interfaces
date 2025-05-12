@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AsyncHandler, nextValueFrom } from '@placeos/common';
+import { AsyncHandler, log, nextValueFrom } from '@placeos/common';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { debounceTime, map } from 'rxjs/operators';
 import { ControlStateService } from '../control-state.service';
@@ -257,7 +257,12 @@ export class TabOutletComponent extends AsyncHandler implements OnInit {
                     if (has_selected || !this._user_action) return;
                     input_list.length
                         ? this._service.setSelectedInput(input_list[0].id)
-                        : '';
+                        : log(
+                              'TABS',
+                              'No available inputs to select on the tab.',
+                              undefined,
+                              'warn',
+                          );
                 }),
         );
     }
