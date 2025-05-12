@@ -54,7 +54,10 @@ import { ICON_MAP } from '../ui/output-display.component';
     ],
     standalone: false,
 })
-export class DeviceOutputListItemComponent extends AsyncHandler {
+export class DeviceOutputListItemComponent
+    extends AsyncHandler
+    implements OnChanges
+{
     @Input() public item: RoomOutput;
     @Input() public active: boolean;
     /** Current volume level for output */
@@ -68,7 +71,7 @@ export class DeviceOutputListItemComponent extends AsyncHandler {
     /** Details of the associated input */
     public readonly input = combineLatest([
         this._input,
-        this._state.input_list,
+        this._state.available_inputs,
     ]).pipe(map(([id, list]) => list.find((_) => _.id === id || _.ref === id)));
 
     public readonly setVolume = (v) =>

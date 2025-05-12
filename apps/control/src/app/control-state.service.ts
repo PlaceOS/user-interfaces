@@ -112,6 +112,7 @@ export class ControlStateService extends AsyncHandler {
     private _id = new BehaviorSubject<string>('');
     private _system = new BehaviorSubject<SystemState>({});
     private _inputs = new BehaviorSubject<string[]>([]);
+    private _available_inputs = new BehaviorSubject<string[]>([]);
     private _outputs = new BehaviorSubject<string[]>([]);
     private _volume = new BehaviorSubject<number>(0);
     private _mute = new BehaviorSubject<boolean>(false);
@@ -153,6 +154,10 @@ export class ControlStateService extends AsyncHandler {
         map((l) => l.filter((_) => !_.hidden)),
         shareReplay(1),
     );
+    public readonly available_inputs = combineLatest([
+        this._available_inputs,
+        this.input_list,
+    ]).pipe(map(([ids, list]) => list.filter((_) => ids.includes(_.id))));
     public readonly presentables$ = this._input_data.pipe(
         map((l) => l.filter((_) => _.presentable !== false)),
         shareReplay(1),
@@ -507,8 +512,9 @@ export class ControlStateService extends AsyncHandler {
         this.bindTo(id, 'selected_input');
         this.bindTo(id, 'mute');
         this.bindTo(id, 'volume');
+        this.bindTo(id, 'inputs', undefined, (l) => this._inputs.next(l));
         this.bindTo(id, 'available_inputs', undefined, (l) =>
-            this._inputs.next(l),
+            this._available_inputs.next(l || []),
         );
         this.bindTo(id, 'available_outputs', undefined, (l) =>
             this._outputs.next(l),

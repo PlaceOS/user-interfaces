@@ -96,7 +96,7 @@ export class SourceSelectComponent implements OnChanges {
     /** List of inputs available for selected output */
     public readonly input_list = combineLatest([
         this.output_id,
-        this._state.input_list,
+        this._state.available_inputs,
     ]).pipe(
         map(([id, list]) =>
             list.filter((_) => !_.outputs || _.outputs.includes(id)),

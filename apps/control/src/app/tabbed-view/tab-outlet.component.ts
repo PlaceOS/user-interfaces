@@ -180,7 +180,7 @@ export class TabOutletComponent extends AsyncHandler implements OnInit {
     public readonly inputs = combineLatest([
         this.active_tab,
         this.tabs,
-        this._service.input_list,
+        this._service.available_inputs,
     ]).pipe(
         map(([id, tabs, inputs]) => {
             const tab = tabs.find((_: any) => (_.id || _.name) === id);
