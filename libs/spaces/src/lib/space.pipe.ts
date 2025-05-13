@@ -78,6 +78,14 @@ export class SpacePipe {
         return EMPTY_SPACE;
     }
 
+    public get(space_id: string) {
+        return (
+            SPACE_LIST.find(
+                ({ id, email }) => id === space_id || email === space_id,
+            ) || EMPTY_SPACE
+        );
+    }
+
     public updateSpaceList(space_list: Space[]) {
         updateSpaceList(space_list);
     }

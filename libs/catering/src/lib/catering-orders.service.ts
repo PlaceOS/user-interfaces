@@ -47,21 +47,27 @@ export interface CateringOrderFilters {
     caterer?: string;
 }
 
+const SPACE_PIPE = new SpacePipe();
+
 function checkOrder(
     order: CateringOrder,
     filters: CateringOrderFilters,
 ): boolean {
     const s = (filters.search || '').toLowerCase();
-    return !!order.items.find(
-        (item) =>
+    const space = SPACE_PIPE.get(order.event?.extension_data.system_id);
+    const location = order.event?.location || space.display_name || space.name;
+    return !!order.items.find((item) => {
+        return (
             (!filters?.caterer ||
                 (filters.caterer === '<empty>' && !item.caterer) ||
                 item.caterer === filters.caterer) &&
             (item.name.toLowerCase().includes(s) ||
                 !!item.options.find((option) =>
                     option.name.toLowerCase().includes(s),
-                )),
-    );
+                ) ||
+                location.toLowerCase().includes(s))
+        );
+    });
 }
 
 const BOOKINGS: Record<string, Booking> = {};
@@ -230,7 +236,6 @@ export class CateringOrdersService extends AsyncHandler {
     }
     /** Filtered list of catering orders */
     public readonly filtered = combineLatest([this.orders, this._filters]).pipe(
-        tap(([l]) => console.log('Orders:', l)),
         map(([list, filters]) =>
             list
                 .filter((order) => checkOrder(order, filters))
