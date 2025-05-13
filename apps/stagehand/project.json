@@ -10,6 +10,7 @@
             "executor": "@angular-devkit/build-angular:application",
             "outputs": ["{options.outputPath}"],
             "options": {
+                "baseHref": "./",
                 "outputPath": "dist/apps/stagehand",
                 "index": "apps/stagehand/src/index.html",
                 "browser": "apps/stagehand/src/main.ts",

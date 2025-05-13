@@ -19,6 +19,7 @@ interface Alert {
     template: `
         <div class="absolute inset-0 flex bg-base-200">
             <sidebar />
+
             <div class="flex w-px flex-1 flex-col">
                 <header
                     class="flex h-[4.5rem] w-full items-center justify-between border-base-400 bg-base-100 p-4"
