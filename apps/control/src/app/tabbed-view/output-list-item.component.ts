@@ -38,19 +38,6 @@ const STATUS = {};
                     }}
                 </span>
             </button>
-            @if (source) {
-                @let muted = mute || input.id === 'mute';
-                <button
-                    icon
-                    matRipple
-                    class="absolute bottom-2 right-2 z-10 hover:shadow"
-                    (click)="
-                        setMute(input.id, !muted); $event.stopPropagation()
-                    "
-                >
-                    <icon>{{ muted ? 'volume_off' : 'volume_up' }}</icon>
-                </button>
-            }
         </div>
     `,
     styles: [
@@ -93,6 +80,7 @@ export class DeviceOutputListItemComponent
     public readonly setActiveOutput = async () => {
         const { selected_input } =
             (await nextValueFrom(this._state.system)) || {};
+        console.log('Input:', selected_input, this.item?.source);
         this.item?.source === selected_input
             ? this._state.unroute(this.item.id)
             : this._state.setOutput(this.item?.id);
