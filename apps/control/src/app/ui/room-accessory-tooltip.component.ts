@@ -25,13 +25,7 @@ import { ControlStateService } from '../control-state.service';
                         matRipple
                         *ngFor="let ctrl of item.controls"
                         class="rounded border border-solid border-primary text-primary"
-                        (click)="
-                            performAction(
-                                item.module,
-                                ctrl.function_name,
-                                ctrl.arguments
-                            )
-                        "
+                        (click)="performAction(item.name, ctrl.name)"
                     >
                         <app-icon>{{ ctrl.icon }}</app-icon>
                     </button>
@@ -61,9 +55,9 @@ export class RoomAccessoryTooltipComponent {
         private _tooltip: CustomTooltipData,
     ) {}
 
-    public performAction(module: string, method: string, args: any[]) {
-        const mod = getModule(this.id, module);
+    public performAction(name: string, method: string) {
+        const mod = getModule(this.id, 'System');
         if (!mod) return;
-        mod.execute(method, args);
+        mod.execute('accessory_exec', [name, method]);
     }
 }
