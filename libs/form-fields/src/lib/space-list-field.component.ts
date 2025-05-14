@@ -1,6 +1,14 @@
+import { CommonModule } from '@angular/common';
 import { Component, Input, OnDestroy, forwardRef } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import {
+    ControlValueAccessor,
+    FormsModule,
+    NG_VALUE_ACCESSOR,
+} from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatRadioModule } from '@angular/material/radio';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 
 import { OrganisationService } from '@placeos/organisation';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
@@ -82,7 +90,7 @@ const EMPTY_FAVS: string[] = [];
                         }}
                     </div>
                     <div class="flex items-center space-x-2 text-sm">
-                        <app-icon class="text-blue-500">place</app-icon>
+                        <icon class="text-blue-500">place</icon>
                         <p>
                             {{
                                 space.location ||
@@ -92,7 +100,7 @@ const EMPTY_FAVS: string[] = [];
                         </p>
                     </div>
                     <div class="flex items-center space-x-2 text-sm">
-                        <app-icon class="text-blue-500">people</app-icon>
+                        <icon class="text-blue-500">people</icon>
                         <p>
                             {{
                                 'CALENDAR_EVENT.CAPACITY_COUNT'
@@ -117,7 +125,7 @@ const EMPTY_FAVS: string[] = [];
                             (click)="changeSpaces(space)"
                         >
                             <div class="flex items-center space-x-2">
-                                <app-icon>edit</app-icon>
+                                <icon>edit</icon>
                                 {{ 'COMMON.CHANGE' | translate }}
                             </div>
                         </button>
@@ -129,7 +137,7 @@ const EMPTY_FAVS: string[] = [];
                             (click)="removeSpace(space)"
                         >
                             <div class="flex items-center space-x-2">
-                                <app-icon>close</app-icon>
+                                <icon>close</icon>
                                 {{ 'COMMON.REMOVE' | translate }}
                             </div>
                         </button>
@@ -143,11 +151,11 @@ const EMPTY_FAVS: string[] = [];
                     [class.text-info]="favorites.includes(space?.id)"
                     (click)="toggleFavourite(space)"
                 >
-                    <app-icon>{{
+                    <icon>{{
                         favorites.includes(space?.id)
                             ? 'favorite'
                             : 'favorite_border'
-                    }}</app-icon>
+                    }}</icon>
                 </button>
             </div>
         </div>
@@ -159,7 +167,7 @@ const EMPTY_FAVS: string[] = [];
             (click)="changeSpaces()"
         >
             <div class="flex items-center justify-center space-x-2">
-                <app-icon>search</app-icon>
+                <icon>search</icon>
                 <span>{{ 'CALENDAR_EVENT.SPACE_ADD' | translate }}</span>
             </div>
         </button>
@@ -172,7 +180,14 @@ const EMPTY_FAVS: string[] = [];
             multi: true,
         },
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatRadioModule,
+        FormsModule,
+        IconComponent,
+        MatRippleModule,
+        TranslatePipe,
+    ],
 })
 export class SpaceListFieldComponent
     implements ControlValueAccessor, OnDestroy

@@ -5,7 +5,11 @@ import {
     OnChanges,
     SimpleChanges,
 } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import {
+    ControlValueAccessor,
+    FormsModule,
+    NG_VALUE_ACCESSOR,
+} from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import {
     BookingRecurrence,
@@ -20,6 +24,10 @@ import {
 
 import { addDays, addYears, endOfDay } from 'date-fns';
 
+import { CommonModule } from '@angular/common';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { TranslatePipe } from '@placeos/components';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { RecurrenceDetails } from 'libs/events/src/lib/event.interfaces';
 import { RecurrenceModalComponent } from './recurrence-modal.component';
@@ -87,7 +95,13 @@ import { RecurrenceModalComponent } from './recurrence-modal.component';
             multi: true,
         },
     ],
-    standalone: false,
+    imports: [
+        MatFormFieldModule,
+        MatSelectModule,
+        CommonModule,
+        TranslatePipe,
+        FormsModule,
+    ],
 })
 export class RecurrenceFieldComponent
     implements ControlValueAccessor, OnChanges

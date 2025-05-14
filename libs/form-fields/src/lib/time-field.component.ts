@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import {
     Component,
     forwardRef,
@@ -8,12 +9,15 @@ import {
     ViewChild,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatSelect } from '@angular/material/select';
 import {
     AsyncHandler,
     getTimezoneOffsetString,
     Identity,
 } from '@placeos/common';
+import { IconComponent } from '@placeos/components';
 import {
     addMinutes,
     endOfDay,
@@ -47,7 +51,7 @@ import {
                     {{ active_time | date: time_format + ' (z)' : tz }}
                 </div>
             </div>
-            <app-icon class="text-2xl">arrow_drop_down</app-icon>
+            <icon class="text-2xl">arrow_drop_down</icon>
         </button>
         <mat-menu #menu="matMenu" class="max-h-[15rem] min-w-[18rem]">
             <button
@@ -66,12 +70,12 @@ import {
                             {{ force_time | date: time_format + ' (z)' : tz }}
                         </div>
                     </div>
-                    <app-icon
+                    <icon
                         *ngIf="active_time === force_time"
                         class="ml-2 text-2xl"
                     >
                         done
-                    </app-icon>
+                    </icon>
                 </div>
             </button>
             <button
@@ -91,12 +95,12 @@ import {
                             {{ option.date | date: time_format + ' (z)' : tz }}
                         </div>
                     </div>
-                    <app-icon
+                    <icon
                         *ngIf="active_time === option.date"
                         class="ml-2 text-2xl"
                     >
                         done
-                    </app-icon>
+                    </icon>
                 </div>
             </button>
         </mat-menu>
@@ -116,7 +120,7 @@ import {
             multi: true,
         },
     ],
-    standalone: false,
+    imports: [CommonModule, MatMenuModule, MatFormFieldModule, IconComponent],
 })
 export class TimeFieldComponent
     extends AsyncHandler

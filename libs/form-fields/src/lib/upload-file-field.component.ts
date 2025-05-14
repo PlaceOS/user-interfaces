@@ -4,7 +4,10 @@ import { randomInt } from '@placeos/common';
 import { Attachment } from '@placeos/users';
 import { takeWhile } from 'rxjs/operators';
 
+import { CommonModule } from '@angular/common';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { uploadFiles } from '@placeos/cloud-uploads';
+import { IconComponent } from '@placeos/components';
 import * as blobUtil from 'blob-util';
 
 @Component({
@@ -51,10 +54,10 @@ import * as blobUtil from 'blob-util';
                     target="_blank"
                     rel="noopener noreferrer"
                 >
-                    <app-icon>link</app-icon>
+                    <icon>link</icon>
                 </a>
                 <button icon (click)="writeValue(null)">
-                    <app-icon>close</app-icon>
+                    <icon>close</icon>
                 </button>
             </div>
         </div>
@@ -74,7 +77,7 @@ import * as blobUtil from 'blob-util';
             multi: true,
         },
     ],
-    standalone: false,
+    imports: [CommonModule, MatProgressSpinnerModule, IconComponent],
 })
 export class UploadFileFieldComponent implements ControlValueAccessor {
     public item: Attachment;

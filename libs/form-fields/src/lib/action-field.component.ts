@@ -1,4 +1,6 @@
+import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { IconComponent } from '@placeos/components';
 
 @Component({
     selector: 'an-action-field',
@@ -20,9 +22,9 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
             >
                 <ng-content></ng-content>
             </div>
-            <app-icon class="text-xl" (click)="performAction()">
+            <icon class="text-xl" (click)="performAction()">
                 arrow_drop_{{ show_tooltip ? 'up' : 'down' }}
-            </app-icon>
+            </icon>
         </button>
     `,
     styles: [
@@ -32,7 +34,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
             }
         `,
     ],
-    standalone: false,
+    imports: [CommonModule, IconComponent],
 })
 export class ActionFieldComponent {
     /** Name of the field */

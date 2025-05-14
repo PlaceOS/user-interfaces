@@ -8,7 +8,11 @@ import {
     Output,
     ViewChild,
 } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import {
+    ControlValueAccessor,
+    FormsModule,
+    NG_VALUE_ACCESSOR,
+} from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import {
     AsyncHandler,
@@ -29,6 +33,12 @@ import {
     tap,
 } from 'rxjs/operators';
 
+import { CommonModule } from '@angular/common';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatRippleModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { TranslatePipe } from '@placeos/components';
 import { authority, queryUsers } from '@placeos/ts-client';
 import { searchGuests } from 'libs/users/src/lib/guests.fn';
 import { NewUserModalComponent } from 'libs/users/src/lib/new-user-modal.component';
@@ -215,12 +225,7 @@ const DENIED_FILE_TYPES = [
             </div>
         </div>
     `,
-    styles: [
-        `
-            [search] {
-            }
-        `,
-    ],
+    styles: [``],
     providers: [
         {
             provide: NG_VALUE_ACCESSOR,
@@ -228,7 +233,15 @@ const DENIED_FILE_TYPES = [
             multi: true,
         },
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatFormFieldModule,
+        MatChipsModule,
+        MatAutocompleteModule,
+        FormsModule,
+        MatRippleModule,
+        TranslatePipe,
+    ],
 })
 export class UserListFieldComponent
     extends AsyncHandler

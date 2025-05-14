@@ -1,6 +1,10 @@
+import { CommonModule } from '@angular/common';
 import { Component, Inject, OnInit } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatRadioModule } from '@angular/material/radio';
+import { MatSelectModule } from '@angular/material/select';
 import {
     AsyncHandler,
     DayIndex,
@@ -9,7 +13,10 @@ import {
     RecurrEndType,
     RecurrType,
 } from '@placeos/common';
+import { TranslatePipe } from '@placeos/components';
 import { addDays, addMonths, startOfWeek } from 'date-fns';
+import { CompactCounterComponent } from './compact-counter.component';
+import { DateFieldComponent } from './date-field.component';
 
 @Component({
     selector: 'recurrence-modal',
@@ -137,7 +144,17 @@ import { addDays, addMonths, startOfWeek } from 'date-fns';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        MatFormFieldModule,
+        MatRadioModule,
+        MatSelectModule,
+        MatDialogModule,
+        CompactCounterComponent,
+        DateFieldComponent,
+        TranslatePipe,
+    ],
 })
 export class RecurrenceModalComponent extends AsyncHandler implements OnInit {
     public readonly instance_fn = (v) => `${v} instances`;

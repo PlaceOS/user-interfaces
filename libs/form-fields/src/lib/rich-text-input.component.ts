@@ -37,7 +37,6 @@ import Quill from 'quill';
             multi: true,
         },
     ],
-    standalone: false,
 })
 export class RichTextInputComponent
     extends AsyncHandler
@@ -151,13 +150,13 @@ export class RichTextInputComponent
         if (!range) return;
         const { index } = range;
         // Create a File input element
-        var file_input = document.createElement('input');
+        const file_input = document.createElement('input');
         file_input.setAttribute('type', 'file');
         file_input.setAttribute('accept', 'image/*');
         file_input.click();
 
         file_input.onchange = () => {
-            var file = file_input.files[0];
+            const file = file_input.files[0];
             uploadFile(file, true).subscribe(({ link, progress }) => {
                 if (!link || progress !== 100) return;
                 this._editor.insertEmbed(index, 'image', link);
@@ -171,12 +170,12 @@ export class RichTextInputComponent
         if (!range) return;
         const { index } = range;
         // Create a File input element
-        var file_input = document.createElement('input');
+        const file_input = document.createElement('input');
         file_input.setAttribute('type', 'file');
         file_input.click();
 
         file_input.onchange = () => {
-            var file = file_input.files[0];
+            const file = file_input.files[0];
             uploadFile(file, true).subscribe(({ link, progress }) => {
                 if (!link || progress !== 100) return;
                 this._editor.insertText(range.index, file.name, 'link', link);

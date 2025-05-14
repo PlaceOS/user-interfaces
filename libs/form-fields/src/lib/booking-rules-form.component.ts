@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import {
     Component,
     EventEmitter,
@@ -6,7 +7,15 @@ import {
     Output,
     SimpleChanges,
 } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import {
+    FormControl,
+    FormGroup,
+    FormsModule,
+    ReactiveFormsModule,
+    Validators,
+} from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
 import {
     BookingRuleset,
     SettingsService,
@@ -15,9 +24,11 @@ import {
     notifyError,
     randomString,
 } from '@placeos/common';
+import { TranslatePipe } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
 import { queryZones } from '@placeos/ts-client';
 import { endOfDay, set, startOfDay } from 'date-fns';
+import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
 import { of } from 'rxjs';
 import {
     catchError,
@@ -26,6 +37,9 @@ import {
     shareReplay,
     switchMap,
 } from 'rxjs/operators';
+import { DateFieldComponent } from './date-field.component';
+import { DurationFieldComponent } from './duration-field.component';
+import { ItemListFieldComponent } from './item-list-field.component';
 
 @Component({
     selector: 'booking-rules-form',
@@ -423,7 +437,18 @@ import {
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatFormFieldModule,
+        FormsModule,
+        ReactiveFormsModule,
+        ItemListFieldComponent,
+        MatSelectModule,
+        DateFieldComponent,
+        DurationFieldComponent,
+        SettingsToggleComponent,
+        TranslatePipe,
+    ],
 })
 export class BookingRulesFormComponent implements OnChanges {
     @Input() public ruleset?: BookingRuleset;

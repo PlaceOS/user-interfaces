@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import {
     Component,
     forwardRef,
@@ -7,6 +8,7 @@ import {
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { AsyncHandler, SettingsService } from '@placeos/common';
+import { IconComponent } from '@placeos/components';
 import {
     addDays,
     addMonths,
@@ -40,7 +42,7 @@ interface DateItem {
                         [disabled]="date_list[0]?.id < from"
                         (click)="changeMonth(-1)"
                     >
-                        <app-icon>chevron_left</app-icon>
+                        <icon>chevron_left</icon>
                     </button>
                     <button
                         icon
@@ -49,7 +51,7 @@ interface DateItem {
                         [disabled]="date_list[34]?.id > to"
                         (click)="changeMonth(1)"
                     >
-                        <app-icon>chevron_right</app-icon>
+                        <icon>chevron_right</icon>
                     </button>
                 </div>
             </div>
@@ -100,7 +102,7 @@ interface DateItem {
             multi: true,
         },
     ],
-    standalone: false,
+    imports: [CommonModule, IconComponent],
 })
 export class DateCalendarComponent
     extends AsyncHandler

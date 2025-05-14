@@ -8,7 +8,6 @@ const EMPTY_USER = new StaffUser();
 
 @Pipe({
     name: 'placeuser',
-    standalone: false,
 })
 export class PlaceUserPipe {
     /**

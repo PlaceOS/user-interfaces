@@ -1,11 +1,14 @@
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
+import { CommonModule } from '@angular/common';
 import { Component, forwardRef, Input } from '@angular/core';
 import {
     ControlValueAccessor,
     FormControl,
     NG_VALUE_ACCESSOR,
 } from '@angular/forms';
-import { MatChipInputEvent } from '@angular/material/chips';
+import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { IconComponent } from '@placeos/components';
 
 /**
  * Add a tag to the list of tags for the item
@@ -93,7 +96,7 @@ export function removeChipItem<T = string>(
             multi: true,
         },
     ],
-    standalone: false,
+    imports: [MatFormFieldModule, MatChipsModule, IconComponent, CommonModule],
 })
 export class ItemListFieldComponent<T = any> implements ControlValueAccessor {
     @Input() public separators: number[] = [ENTER, COMMA];

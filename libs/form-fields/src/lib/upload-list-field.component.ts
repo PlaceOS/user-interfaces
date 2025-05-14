@@ -4,7 +4,11 @@ import { randomInt } from '@placeos/common';
 import { Attachment } from '@placeos/users';
 import { takeWhile } from 'rxjs/operators';
 
+import { CommonModule } from '@angular/common';
+import { MatRippleModule } from '@angular/material/core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { uploadFiles } from '@placeos/cloud-uploads';
+import { IconComponent } from '@placeos/components';
 import * as blobUtil from 'blob-util';
 
 @Component({
@@ -14,7 +18,7 @@ import * as blobUtil from 'blob-util';
             <div
                 class="relative flex h-48 w-52 cursor-pointer flex-col items-center justify-center rounded border-2 border-dashed border-base-200 hover:bg-neutral"
             >
-                <app-icon class="mb-2 text-3xl">upload_file</app-icon>
+                <icon class="mb-2 text-3xl">upload_file</icon>
                 <p class="text-center">Drop files</p>
                 <p class="my-1 text-center text-xs">or</p>
                 <button btn matRipple class="w-28">Browse</button>
@@ -68,10 +72,10 @@ import * as blobUtil from 'blob-util';
                             target="_blank"
                             rel="noopener noreferrer"
                         >
-                            <app-icon>link</app-icon>
+                            <icon>link</icon>
                         </a>
                         <button icon (click)="removeFile(item)">
-                            <app-icon>close</app-icon>
+                            <icon>close</icon>
                         </button>
                     </div>
                 </div>
@@ -93,7 +97,12 @@ import * as blobUtil from 'blob-util';
             multi: true,
         },
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatProgressSpinnerModule,
+        IconComponent,
+        MatRippleModule,
+    ],
 })
 export class UploadListFieldComponent implements ControlValueAccessor {
     public list: Attachment[] = [];

@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import {
     Component,
     EventEmitter,
@@ -7,6 +8,7 @@ import {
     Output,
     SimpleChanges,
 } from '@angular/core';
+import { IconComponent } from '@placeos/components';
 import {
     addDays,
     addMonths,
@@ -29,10 +31,10 @@ import {
             </div>
             <div class="flex items-center space-x-2">
                 <button icon matRipple (click)="previousMonth()">
-                    <app-icon>chevron_left</app-icon>
+                    <icon>chevron_left</icon>
                 </button>
                 <button icon matRipple (click)="nextMonth()">
-                    <app-icon>chevron_right</app-icon>
+                    <icon>chevron_right</icon>
                 </button>
             </div>
         </div>
@@ -89,7 +91,7 @@ import {
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [CommonModule, IconComponent],
 })
 export class DateRangeCalendarComponent implements OnInit, OnChanges {
     /** Earliest date available the user is allowed to pick */

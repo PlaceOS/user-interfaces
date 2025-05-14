@@ -1,4 +1,4 @@
-import { DatePipe } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import {
     Component,
     forwardRef,
@@ -9,13 +9,16 @@ import {
 } from '@angular/core';
 import {
     ControlValueAccessor,
+    FormsModule,
     NG_VALUE_ACCESSOR,
     NgControl,
 } from '@angular/forms';
 import { getTimezoneOffsetString } from '@placeos/common';
+import { IconComponent } from '@placeos/components';
 import { addYears, endOfDay, set, startOfDay } from 'date-fns';
 import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
 import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
+import { DateCalendarComponent } from './date-calendar.component';
 
 export enum TimezoneDiffRange {
     Both,
@@ -54,7 +57,7 @@ export enum TimezoneDiffRange {
                 </div>
             </div>
             <div class="flex h-10 w-10 items-center justify-center text-2xl">
-                <app-icon>today</app-icon>
+                <icon>today</icon>
             </div>
         </button>
         <div class="error h-5 p-1 text-xs text-error">
@@ -80,7 +83,13 @@ export enum TimezoneDiffRange {
             multi: true,
         },
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        FormsModule,
+        DateCalendarComponent,
+        IconComponent,
+        CustomTooltipComponent,
+    ],
 })
 export class DateFieldComponent
     extends AsyncHandler

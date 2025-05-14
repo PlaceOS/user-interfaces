@@ -7,7 +7,11 @@ import {
     OnInit,
     ViewChild,
 } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import {
+    ControlValueAccessor,
+    FormsModule,
+    NG_VALUE_ACCESSOR,
+} from '@angular/forms';
 import { forkJoin, Observable, of, Subject } from 'rxjs';
 import {
     catchError,
@@ -17,7 +21,13 @@ import {
     switchMap,
 } from 'rxjs/operators';
 
+import { CommonModule } from '@angular/common';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AsyncHandler, flatten, SettingsService } from '@placeos/common';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { authority, queryUsers } from '@placeos/ts-client';
 import { searchGuests } from 'libs/users/src/lib/guests.fn';
 import { searchStaff } from 'libs/users/src/lib/staff.fn';
@@ -121,7 +131,16 @@ import { User } from 'libs/users/src/lib/user.class';
             multi: true,
         },
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatProgressSpinnerModule,
+        MatAutocompleteModule,
+        FormsModule,
+        IconComponent,
+        TranslatePipe,
+    ],
 })
 export class UserSearchFieldComponent
     extends AsyncHandler

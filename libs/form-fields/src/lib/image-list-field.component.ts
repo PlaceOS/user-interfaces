@@ -2,13 +2,16 @@ import { Clipboard } from '@angular/cdk/clipboard';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { Component, ElementRef, forwardRef, ViewChild } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
-import { MatChipInputEvent } from '@angular/material/chips';
+import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
 import { Upload } from '@placeos/cloud-uploads';
 
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 
+import { CommonModule } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {
     AsyncHandler,
     nextValueFrom,
@@ -16,6 +19,7 @@ import {
     unique,
     UploadsService,
 } from '@placeos/common';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { ImageViewerComponent } from 'libs/components/src/lib/image-viewer.component';
 
 export interface UploadDetails {
@@ -51,7 +55,7 @@ export interface UploadDetails {
                 class="relative flex h-32 w-36 flex-shrink-0 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-base-200 hover:border-base-300 hover:bg-base-200"
                 [style.transform]="'translate(-' + offset + '00%)'"
             >
-                <app-icon class="text-4xl opacity-60">add</app-icon>
+                <icon class="text-4xl opacity-60">add</icon>
                 <p class="px-4 text-center opacity-60">
                     {{ 'COMMON.IMAGE_UPLOADS' | translate }}
                 </p>
@@ -80,13 +84,13 @@ export interface UploadDetails {
                         class="absolute left-0 right-0 top-0 flex items-center justify-center space-x-2 opacity-0"
                     >
                         <button icon (click)="copyLink(url)">
-                            <app-icon>link</app-icon>
+                            <icon>link</icon>
                         </button>
                         <button icon (click)="viewImage(url)">
-                            <app-icon>visibility</app-icon>
+                            <icon>visibility</icon>
                         </button>
                         <button icon (click)="removeImage(url)">
-                            <app-icon>close</app-icon>
+                            <icon>close</icon>
                         </button>
                     </div>
                 </div>
@@ -105,15 +109,15 @@ export interface UploadDetails {
                     [diameter]="64"
                     mode="determinate"
                 ></mat-progress-spinner>
-                <app-icon *ngIf="item.error" class="text-6xl text-error"
-                    >warning</app-icon
+                <icon *ngIf="item.error" class="text-6xl text-error"
+                    >warning</icon
                 >
                 <div
                     overlay
                     *ngIf="item.error"
                     class="absolute inset-0 flex items-center justify-center text-base-100 hover:bg-base-content hover:bg-opacity-50"
                 >
-                    <app-icon class="text-3xl opacity-0">refresh</app-icon>
+                    <icon class="text-3xl opacity-0">refresh</icon>
                 </div>
             </div>
             <button
@@ -124,7 +128,7 @@ export interface UploadDetails {
                 class="absolute left-0 top-1/2 -translate-y-1/2 transform bg-base-100"
                 (click)="offset = offset - 1"
             >
-                <app-icon>chevron_left</app-icon>
+                <icon>chevron_left</icon>
             </button>
             <button
                 icon
@@ -134,7 +138,7 @@ export interface UploadDetails {
                 class="absolute right-0 top-1/2 -translate-y-1/2 transform bg-base-100"
                 (click)="offset = offset + 1"
             >
-                <app-icon>chevron_right</app-icon>
+                <icon>chevron_right</icon>
             </button>
         </div>
         <mat-form-field appearance="outline" class="w-full">
@@ -145,7 +149,7 @@ export interface UploadDetails {
                 >
                     <div class="max-w-md truncate">{{ item }}</div>
                     <button matChipRemove [attr.aria-label]="'Remove ' + item">
-                        <app-icon>cancel</app-icon>
+                        <icon>cancel</icon>
                     </button>
                 </mat-chip-row>
             </mat-chip-grid>
@@ -169,7 +173,7 @@ export interface UploadDetails {
             }
 
             [image]:hover [actions],
-            [image]:hover > app-icon {
+            [image]:hover > icon {
                 opacity: 1 !important;
             }
 
@@ -178,7 +182,7 @@ export interface UploadDetails {
             }
 
             [actions],
-            [image] > app-icon {
+            [image] > icon {
                 transition: opacity 200ms;
             }
 
@@ -194,7 +198,14 @@ export interface UploadDetails {
             multi: true,
         },
     ],
-    standalone: false,
+    imports: [
+        MatFormFieldModule,
+        MatChipsModule,
+        MatProgressSpinnerModule,
+        IconComponent,
+        CommonModule,
+        TranslatePipe,
+    ],
 })
 export class ImageListFieldComponent extends AsyncHandler {
     /** List of images */

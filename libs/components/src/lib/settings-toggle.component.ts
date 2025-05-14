@@ -1,5 +1,13 @@
+import { CommonModule } from '@angular/common';
 import { Component, forwardRef, Input } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import {
+    ControlValueAccessor,
+    FormsModule,
+    NG_VALUE_ACCESSOR,
+} from '@angular/forms';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { IconComponent } from './icon.component';
 
 @Component({
     selector: 'settings-toggle',
@@ -49,7 +57,13 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
             multi: true,
         },
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatCheckboxModule,
+        MatSlideToggleModule,
+        FormsModule,
+        IconComponent,
+    ],
 })
 export class SettingsToggleComponent implements ControlValueAccessor {
     @Input() public toggle: boolean;

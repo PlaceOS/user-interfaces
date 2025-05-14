@@ -1,5 +1,6 @@
 import { Overlay, OverlayRef } from '@angular/cdk/overlay';
-import { CdkPortal } from '@angular/cdk/portal';
+import { CdkPortal, PortalModule } from '@angular/cdk/portal';
+import { CommonModule } from '@angular/common';
 import {
     Component,
     ElementRef,
@@ -49,7 +50,7 @@ export class CustomTooltipData<T = any> {
             </div>
         </ng-template>
     `,
-    standalone: false,
+    imports: [CommonModule, PortalModule],
 })
 export class CustomTooltipComponent<T = any>
     extends AsyncHandler

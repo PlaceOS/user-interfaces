@@ -137,7 +137,6 @@ const COMPONENTS = [
     IndoorMapsComponent,
     StatusOverlayComponent,
     CustomTableComponent,
-    CustomTooltipComponent,
     VirtualKeyboardComponent,
     GlobalLoadingComponent,
     GlobalBannerComponent,
@@ -151,7 +150,6 @@ const COMPONENTS = [
     ImageViewerComponent,
     SimpleTableComponent,
     WorkLocationTooltipComponent,
-    SettingsToggleComponent,
 
     FixedPipe,
     SafePipe,
@@ -163,7 +161,6 @@ const COMPONENTS = [
     MediaDurationPipe,
     ThumbnailPipe,
     ZonePipe,
-    TranslatePipe,
 
     UserControlsComponent,
     BuildingSelectComponent,
@@ -189,16 +186,28 @@ const DIRECTIVES = [
     LimitInputDirective,
 ];
 
+const STANDALONE_COMPONENTS = [
+    IconComponent,
+    CustomTooltipComponent,
+    TranslatePipe,
+    SettingsToggleComponent,
+];
+
 @NgModule({
     declarations: [...COMPONENTS, ...DIRECTIVES],
-    exports: [...COMPONENTS, ...DIRECTIVES, ...MAT_MODULES, IconComponent],
+    exports: [
+        ...COMPONENTS,
+        ...DIRECTIVES,
+        ...MAT_MODULES,
+        ...STANDALONE_COMPONENTS,
+    ],
     imports: [
         CommonModule,
         FormsModule,
         ReactiveFormsModule,
         RouterModule,
         ...MAT_MODULES,
-        IconComponent,
+        ...STANDALONE_COMPONENTS,
     ],
     providers: [
         { provide: MAP_FEATURE_DATA, useValue: {} },
