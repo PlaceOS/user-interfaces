@@ -80,6 +80,8 @@ export interface PanelSettings {
     catering_ui?: string;
     /** Whether the QR code should be shown */
     show_qr_code?: boolean;
+    /** Whether to hide the text under the QR code */
+    hide_qr_text?: boolean;
     /** URL of the image to display for the space */
     room_image?: string;
     /** Whether sensors detect presence in the space */
@@ -265,6 +267,7 @@ export class PanelStateService extends AsyncHandler {
                 'room_image',
                 'offline_image',
                 'show_qr_code',
+                'hide_qr_text',
                 'presence',
                 'room_capacity',
             ];
