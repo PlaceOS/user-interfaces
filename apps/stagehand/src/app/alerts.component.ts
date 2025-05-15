@@ -390,6 +390,7 @@ export class AlertsComponent {
             if (severity) list = list.filter((a) => a.severity === severity);
             if (device_type) list = list.filter((a) => a.type === device_type);
             if (status) list = list.filter((a) => a.status === status);
+
             return list;
         }),
     );
