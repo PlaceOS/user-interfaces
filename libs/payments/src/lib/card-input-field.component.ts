@@ -5,8 +5,12 @@ import {
     FormControl,
     FormGroup,
     NG_VALUE_ACCESSOR,
+    ReactiveFormsModule,
     Validators,
 } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 import { AsyncHandler } from '@placeos/common';
 import { addYears, setMonth } from 'date-fns';
 
@@ -124,7 +128,12 @@ const DATE_PIPE = new DatePipe('en-us', '');
             multi: true,
         },
     ],
-    standalone: false,
+    imports: [
+        MatFormFieldModule,
+        MatInputModule,
+        MatSelectModule,
+        ReactiveFormsModule,
+    ],
 })
 export class CardInputFieldComponent
     extends AsyncHandler

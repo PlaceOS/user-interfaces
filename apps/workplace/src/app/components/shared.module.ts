@@ -10,7 +10,6 @@ import { SharedBookingsModule } from '@placeos/bookings';
 import { ComponentsModule } from '@placeos/components';
 import { SharedEventsModule } from '@placeos/events';
 import { FormFieldsModule } from '@placeos/form-fields';
-import { PaymentsModule } from '@placeos/payments';
 import { SharedSpacesModule } from '@placeos/spaces';
 
 import { MatBadgeModule } from '@angular/material/badge';
@@ -83,7 +82,6 @@ const MATERIAL_MODULES: any[] = [
         SharedEventsModule,
         SharedBookingsModule,
         SharedSpacesModule,
-        PaymentsModule,
         ...MATERIAL_MODULES,
     ],
     exports: [
@@ -94,7 +92,6 @@ const MATERIAL_MODULES: any[] = [
         SharedBookingsModule,
         SharedSpacesModule,
         AssetsModule,
-        PaymentsModule,
         ...MATERIAL_MODULES,
     ],
 })

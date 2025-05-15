@@ -1,9 +1,15 @@
 import { Component, EventEmitter, Inject, Output } from '@angular/core';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Observable } from 'rxjs';
 
+import { MatRippleModule } from '@angular/material/core';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
-import { PaymentCardDetails } from './card-input-field.component';
+import {
+    CardInputFieldComponent,
+    PaymentCardDetails,
+} from './card-input-field.component';
 
 export interface PaymentData {
     type: string; // Resource Type
@@ -103,7 +109,11 @@ export interface PaymentData {
         </ng-template>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CardInputFieldComponent,
+        MatProgressSpinnerModule,
+        MatRippleModule,
+    ],
 })
 export class PaymentModalComponent {
     @Output() public readonly event = new EventEmitter();
