@@ -2,14 +2,14 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 
+import { AsyncHandler, SettingsService, unique } from '@placeos/common';
+import { OrganisationService } from '@placeos/organisation';
+
 import {
     loadLockerBanks,
     loadLockers,
-    Locker,
-    LockerBank,
-} from '@placeos/bookings';
-import { AsyncHandler, SettingsService, unique } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+} from 'libs/bookings/src/lib/booking.utilities';
+import { Locker, LockerBank } from 'libs/bookings/src/lib/locker.class';
 
 import { ExploreLockerBankInfoComponent } from './explore-locker-bank-info.component';
 import { DEFAULT_COLOURS } from './explore-spaces.service';

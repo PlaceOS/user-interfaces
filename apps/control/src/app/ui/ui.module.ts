@@ -9,8 +9,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSliderModule } from '@angular/material/slider';
 
-import { ComponentsModule } from '@placeos/components';
-
 import { VideoCallDialViewComponent } from '../video-call/video-call-dial-view.component';
 import { CameraControlsComponent } from './camera-controls.component';
 import { CameraTooltipComponent } from './camera-tooltip.component';
@@ -33,6 +31,17 @@ import { SourceSelectModalComponent } from './source-select-modal.component';
 import { SourceSelectComponent } from './source-select.component';
 import { VideoConferenceTooltipComponent } from './video-conf-tooltip.component';
 import { VoiceAssistantComponent } from './voice-assistant.component';
+
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatSelectModule } from '@angular/material/select';
+import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
+import { BindingDirective } from 'libs/components/src/lib/binding.directive';
+import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { SafePipe } from 'libs/components/src/lib/safe.pipe';
+import { SanitizePipe } from 'libs/components/src/lib/sanitise.pipe';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 
 const COMPONENTS: Type<any>[] = [
     LightingTooltipComponent,
@@ -66,24 +75,32 @@ const MAT_MODULES: any[] = [
     MatAutocompleteModule,
     MatSliderModule,
     MatRippleModule,
+
+    MatMenuModule,
+    MatSelectModule,
+    MatDialogModule,
 ];
 
-const ANGULAR_MODULES: any[] = [FormsModule, ReactiveFormsModule];
+const STANDALONE_COMPONENTS: any[] = [
+    AuthenticatedImageDirective,
+    TranslatePipe,
+    IconComponent,
+    BindingDirective,
+    SanitizePipe,
+    SafePipe,
+    CustomTooltipComponent,
+];
 
 @NgModule({
     declarations: [...COMPONENTS],
     imports: [
         CommonModule,
-        ComponentsModule,
+        FormsModule,
+        ReactiveFormsModule,
         ...MAT_MODULES,
-        ...ANGULAR_MODULES,
+        ...STANDALONE_COMPONENTS,
         RouterModule.forChild([]),
     ],
-    exports: [
-        ComponentsModule,
-        ...COMPONENTS,
-        ...MAT_MODULES,
-        ...ANGULAR_MODULES,
-    ],
+    exports: [...COMPONENTS, ...MAT_MODULES],
 })
 export class UIModule {}

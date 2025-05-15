@@ -2,7 +2,8 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { IconComponent, TranslatePipe } from '@placeos/components';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { ExploreStateService } from './explore-state.service';
 
 @Component({

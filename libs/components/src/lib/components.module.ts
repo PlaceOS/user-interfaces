@@ -117,7 +117,6 @@ const COMPONENTS = [
     PopoutMenuComponent,
     UserAvatarComponent,
 
-    ConfirmModalComponent,
     MapPinComponent,
     MapRadiusComponent,
     MapPolygonComponent,
@@ -129,7 +128,6 @@ const COMPONENTS = [
     RedirectComponent,
     DebugConsoleComponent,
     JsonDisplayComponent,
-    ChangelogModalComponent,
     StatusPillComponent,
     ImageViewerComponent,
     WorkLocationTooltipComponent,
@@ -153,15 +151,15 @@ const COMPONENTS = [
 
     DeskHeightPresetsComponent,
     LoginComponent,
-    FullscreenModalShellComponent,
 
     MisconfiguredComponent,
 ];
 
-const DIRECTIVES = [BindingDirective, LimitInputDirective];
+const DIRECTIVES = [LimitInputDirective];
 
 const STANDALONE_COMPONENTS = [
     IconComponent,
+    ConfirmModalComponent,
     CustomTooltipComponent,
     SettingsToggleComponent,
     GlobalBannerComponent,
@@ -173,10 +171,13 @@ const STANDALONE_COMPONENTS = [
     VirtualKeyboardComponent,
     SimpleTableComponent,
     AvailableRoomsStateModalComponent,
+    ChangelogModalComponent,
 
     UnauthorisedComponent,
+    FullscreenModalShellComponent,
 
     AuthenticatedImageDirective,
+    BindingDirective,
 
     TranslatePipe,
     MediaDurationPipe,

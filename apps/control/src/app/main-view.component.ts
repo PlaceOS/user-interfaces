@@ -3,7 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
 
 import { AsyncHandler, VERSION } from '@placeos/common';
-import { ChangelogModalComponent } from '@placeos/components';
+import { ChangelogModalComponent } from 'libs/components/src/lib/changelog-modal.component';
 
 import { ControlStateService } from './control-state.service';
 

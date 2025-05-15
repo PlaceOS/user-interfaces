@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { i18n, notifySuccess } from '@placeos/common';
-import { openConfirmModal } from '@placeos/components';
-import { CalendarEvent } from '@placeos/events';
 import { format } from 'date-fns';
+import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
+import { CalendarEvent } from 'libs/events/src/lib/event.class';
 import { ControlStateService } from '../control-state.service';
 
 @Component({

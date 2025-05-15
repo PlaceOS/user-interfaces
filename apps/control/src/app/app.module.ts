@@ -28,8 +28,38 @@ import { DeviceOutputListComponent } from './tabbed-view/output-list.component';
 import { TabOutletComponent } from './tabbed-view/tab-outlet.component';
 import { ControlTabbedViewComponent } from './tabbed-view/tabbed-view.component';
 
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import * as Sentry from '@sentry/angular';
 import { TVControlsComponent } from './tabbed-view/tv-controls.component';
+
+import { MatMenuModule } from '@angular/material/menu';
+import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
+import { BindingDirective } from 'libs/components/src/lib/binding.directive';
+import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
+import { GlobalBannerComponent } from 'libs/components/src/lib/global-banner.component';
+import { GlobalLoadingComponent } from 'libs/components/src/lib/global-loading.component';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { SafePipe } from 'libs/components/src/lib/safe.pipe';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+
+const STANDALONE_COMPONENTS = [
+    AuthenticatedImageDirective,
+    GlobalBannerComponent,
+    GlobalLoadingComponent,
+    IconComponent,
+    TranslatePipe,
+    BindingDirective,
+    SafePipe,
+    CustomTooltipComponent,
+];
+
+const MAT_MODULES = [
+    MatMenuModule,
+    MatSnackBarModule,
+    MatDialogModule,
+    MatProgressSpinnerModule,
+    MatSliderModule,
+];
 
 @NgModule({
     declarations: [
@@ -52,11 +82,11 @@ import { TVControlsComponent } from './tabbed-view/tv-controls.component';
         BrowserModule,
         BrowserAnimationsModule,
         AppRoutingModule,
-        MatSnackBarModule,
-        MatDialogModule,
-        MatProgressSpinnerModule,
+        FormsModule,
+        ReactiveFormsModule,
         UIModule,
-        MatSliderModule,
+        ...MAT_MODULES,
+        ...STANDALONE_COMPONENTS,
         ServiceWorkerModule.register('ngsw-worker.js', {
             enabled: environment.production,
         }),

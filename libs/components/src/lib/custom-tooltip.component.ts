@@ -57,9 +57,9 @@ export class CustomTooltipComponent<T = any>
     implements OnChanges, OnDestroy
 {
     /** Horizontal position of the rendered overlay */
-    @Input('xPosition') public x_pos: 'start' | 'center' | 'end';
+    @Input('xPosition') public x_pos: 'start' | 'center' | 'end' = 'end';
     /** Vertical position of the rendered overlay */
-    @Input('yPosition') public y_pos: 'top' | 'center' | 'bottom';
+    @Input('yPosition') public y_pos: 'top' | 'center' | 'bottom' = 'top';
     /** Content to render in the tooltip */
     @Input() public content: TemplateRef<any> | Type<any> | string;
     /** Data associated with the tooltip content */

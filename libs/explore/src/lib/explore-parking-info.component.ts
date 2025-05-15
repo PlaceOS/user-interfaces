@@ -1,8 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, ElementRef, Inject } from '@angular/core';
 import { SettingsService } from '@placeos/common';
-import { MAP_FEATURE_DATA, TranslatePipe } from '@placeos/components';
 import { ParkingSpace } from 'libs/bookings/src/lib/parking.service';
+import { MAP_FEATURE_DATA } from 'libs/components/src/lib/interactive-map.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 
 interface ParkingSpaceExtended extends ParkingSpace {
     user: string;

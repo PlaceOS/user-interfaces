@@ -1,6 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Point } from '@placeos/svg-viewer';
+
+import { CommonModule } from '@angular/common';
+import { MatRippleModule } from '@angular/material/core';
+import { MatSlideToggle } from '@angular/material/slide-toggle';
+
 import { Observable } from 'rxjs';
 import { first } from 'rxjs/operators';
 
@@ -13,18 +18,19 @@ import {
     SettingsService,
     unique,
 } from '@placeos/common';
-import { MapLocation, showStaff, User } from '@placeos/users';
 
-import { CommonModule } from '@angular/common';
-import { MatRippleModule } from '@angular/material/core';
-import { MatSlideToggle } from '@angular/material/slide-toggle';
-import { InteractiveMapComponent, TranslatePipe } from '@placeos/components';
 import { MapsPeopleService } from 'libs/common/src/lib/mapspeople.service';
+import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
 import { MapPinComponent } from 'libs/components/src/lib/map-pin.component';
 import { MapRadiusComponent } from 'libs/components/src/lib/map-radius.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 import { SpacesService } from 'libs/spaces/src/lib/spaces.service';
+import { MapLocation } from 'libs/users/src/lib/location.class';
+import { showStaff } from 'libs/users/src/lib/staff.fn';
+import { User } from 'libs/users/src/lib/user.class';
+
 import { ExploreDesksService } from './explore-desks.service';
 import { ExploreLockersService } from './explore-lockers.service';
 import { ExploreMapControlComponent } from './explore-map-control.component';

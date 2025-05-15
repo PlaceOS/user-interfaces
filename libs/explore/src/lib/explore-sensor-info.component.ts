@@ -1,11 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, Inject } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
-import {
-    CustomTooltipComponent,
-    IconComponent,
-    MAP_FEATURE_DATA,
-} from '@placeos/components';
+import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { MAP_FEATURE_DATA } from 'libs/components/src/lib/interactive-map.component';
 
 export interface SensorInfoData {
     id: string;

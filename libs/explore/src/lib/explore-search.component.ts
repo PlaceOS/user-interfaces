@@ -7,11 +7,9 @@ import { FormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import {
-    IconComponent,
-    TranslatePipe,
-    VirtualKeyboardComponent,
-} from '@placeos/components';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { VirtualKeyboardComponent } from 'libs/components/src/lib/virtual-keyboard.component';
 import { ExploreSearchService, SearchResult } from './explore-search.service';
 
 @Component({

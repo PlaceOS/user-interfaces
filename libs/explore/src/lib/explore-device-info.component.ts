@@ -5,8 +5,9 @@ import { Observable } from 'rxjs';
 
 import { CommonModule } from '@angular/common';
 import { AsyncHandler, SettingsService } from '@placeos/common';
-import { CustomTooltipComponent, TranslatePipe } from '@placeos/components';
+import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
 import { MAP_FEATURE_DATA } from 'libs/components/src/lib/interactive-map.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 
 export interface DeviceInfoData {
     mac: string;

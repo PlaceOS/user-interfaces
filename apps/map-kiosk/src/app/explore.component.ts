@@ -13,11 +13,6 @@ import {
     unique,
 } from '@placeos/common';
 import {
-    MapPinComponent,
-    MapRadiusComponent,
-    VirtualKeyboardComponent,
-} from '@placeos/components';
-import {
     ExploreDesksService,
     ExploreParkingService,
     ExploreSpacesService,
@@ -25,12 +20,17 @@ import {
     ExploreZonesService,
 } from '@placeos/explore';
 import { OrganisationService } from '@placeos/organisation';
-import { SpacesService } from '@placeos/spaces';
 import { Point } from '@placeos/svg-viewer';
 import { getModule } from '@placeos/ts-client';
-import { MapLocation, showStaff, User } from '@placeos/users';
 import { startOfMinute } from 'date-fns';
+import { MapPinComponent } from 'libs/components/src/lib/map-pin.component';
+import { MapRadiusComponent } from 'libs/components/src/lib/map-radius.component';
+import { VirtualKeyboardComponent } from 'libs/components/src/lib/virtual-keyboard.component';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
+import { SpacesService } from 'libs/spaces/src/lib/spaces.service';
+import { MapLocation } from 'libs/users/src/lib/location.class';
+import { showStaff } from 'libs/users/src/lib/staff.fn';
+import { User } from 'libs/users/src/lib/user.class';
 import { combineLatest } from 'rxjs';
 import { first, map } from 'rxjs/operators';
 
@@ -82,9 +82,7 @@ import { first, map } from 'rxjs/operators';
                         [matMenuTriggerFor]="levelMenu"
                     >
                         <div class="flex-1 text-left font-medium">Level</div>
-                        <icon class="text-2xl"
-                            >keyboard_arrow_down</icon
-                        >
+                        <icon class="text-2xl">keyboard_arrow_down</icon>
                     </button>
                     <mat-menu #levelMenu="matMenu">
                         <button
@@ -104,9 +102,7 @@ import { first, map } from 'rxjs/operators';
                         [matMenuTriggerFor]="legendMenu"
                     >
                         <div class="flex-1 text-left font-medium">Legend</div>
-                        <icon class="text-2xl"
-                            >keyboard_arrow_down</icon
-                        >
+                        <icon class="text-2xl">keyboard_arrow_down</icon>
                     </button>
                     <mat-menu #legendMenu="matMenu">
                         <div

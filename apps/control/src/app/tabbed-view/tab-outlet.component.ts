@@ -32,7 +32,11 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
                     *ngFor="let tab of tabs | async"
                     (click)="onAction()"
                 >
-                    <icon class="text-5xl">{{ tab.icon }}</icon>
+                    <icon
+                        class="text-5xl"
+                        className="material-symbols-outlined"
+                        >{{ tab.icon }}</icon
+                    >
                     <p>{{ tab.name }}</p>
                 </a>
                 <div class="absolute bottom-2 right-0 top-0 flex space-x-2">

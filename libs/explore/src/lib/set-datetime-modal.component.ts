@@ -9,8 +9,9 @@ import {
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { SettingsService } from '@placeos/common';
-import { IconComponent, TranslatePipe } from '@placeos/components';
 import { BookingAsset } from 'libs/bookings/src/lib/booking-form.service';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { DateFieldComponent } from 'libs/form-fields/src/lib/date-field.component';
 import { DurationFieldComponent } from 'libs/form-fields/src/lib/duration-field.component';
 import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.component';

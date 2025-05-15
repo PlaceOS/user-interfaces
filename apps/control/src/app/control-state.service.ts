@@ -22,9 +22,11 @@ import {
     log,
     nextValueFrom,
 } from '@placeos/common';
-import { CalendarEvent, queryEvents } from '@placeos/events';
-import { Space, SpacesService } from '@placeos/spaces';
 import { endOfDay, getUnixTime } from 'date-fns';
+import { CalendarEvent } from 'libs/events/src/lib/event.class';
+import { queryEvents } from 'libs/events/src/lib/events.fn';
+import { Space } from 'libs/spaces/src/lib/space.class';
+import { SpacesService } from 'libs/spaces/src/lib/spaces.service';
 import { HelpModalComponent } from './ui/help-modal.component';
 import { SelectMeetingModalComponent } from './ui/select-meeting-modal.component';
 import { SourceSelectModalComponent } from './ui/source-select-modal.component';

@@ -1,5 +1,5 @@
 import { Component, Inject } from '@angular/core';
-import { CustomTooltipData } from '@placeos/components';
+import { CustomTooltipData } from 'libs/components/src/lib/custom-tooltip.component';
 
 import { VideoCallStateService } from '../video-call/video-call-state.service';
 

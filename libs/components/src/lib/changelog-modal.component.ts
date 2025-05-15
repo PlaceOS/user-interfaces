@@ -1,7 +1,11 @@
+import { CommonModule } from '@angular/common';
 import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import { marked } from 'marked';
+import { FullscreenModalShellComponent } from './fullscreen-modal-shell.component';
+import { IconComponent } from './icon.component';
+import { SafePipe } from './safe.pipe';
 
 export interface ChangelogModalData {
     changelog: string;
@@ -25,7 +29,12 @@ export interface ChangelogModalData {
         </ng-template>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        FullscreenModalShellComponent,
+        SafePipe,
+        IconComponent,
+    ],
 })
 export class ChangelogModalComponent {
     /** Whether the changelog is loading */

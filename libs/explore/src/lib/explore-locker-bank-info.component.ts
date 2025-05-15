@@ -1,10 +1,9 @@
 import { Component, ElementRef, Inject, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import {
-    CustomTooltipComponent,
-    MAP_FEATURE_DATA,
-    TranslatePipe,
-} from '@placeos/components';
+import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
+
+import { MAP_FEATURE_DATA } from 'libs/components/src/lib/interactive-map.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 
 import { CommonModule } from '@angular/common';
 import { Locker, LockerBank } from 'libs/bookings/src/lib/locker.class';

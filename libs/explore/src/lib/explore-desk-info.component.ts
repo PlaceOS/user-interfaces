@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, ElementRef, Inject, OnInit } from '@angular/core';
-import { CustomTooltipComponent } from '@placeos/components';
+import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
 
 import { MAP_FEATURE_DATA } from 'libs/components/src/lib/interactive-map.component';
 

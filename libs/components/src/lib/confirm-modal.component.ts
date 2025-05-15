@@ -6,8 +6,13 @@ import {
 } from '@angular/material/dialog';
 import { first } from 'rxjs/operators';
 
+import { CommonModule } from '@angular/common';
+import { MatRippleModule } from '@angular/material/core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
 import { ApplicationIcon, DialogEvent } from 'libs/common/src/lib/types';
+import { IconComponent } from './icon.component';
+import { TranslatePipe } from './translate.pipe';
 
 export interface ConfirmModalData {
     /** Title of the modal */
@@ -102,7 +107,13 @@ export async function openConfirmModal(
         </ng-template>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatProgressSpinnerModule,
+        TranslatePipe,
+        IconComponent,
+        MatRippleModule,
+    ],
 })
 export class ConfirmModalComponent extends AsyncHandler implements OnInit {
     /** Loading state */

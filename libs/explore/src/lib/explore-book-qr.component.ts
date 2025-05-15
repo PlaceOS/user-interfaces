@@ -2,7 +2,8 @@ import { CommonModule } from '@angular/common';
 import { Component, Inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { IconComponent, TranslatePipe } from '@placeos/components';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 
 import { generateQRCode } from 'libs/common/src/lib/qr-code';
 import { SettingsService } from 'libs/common/src/lib/settings.service';

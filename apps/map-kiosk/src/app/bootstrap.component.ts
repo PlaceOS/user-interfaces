@@ -2,13 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { AsyncHandler, Identity } from '@placeos/common';
-import { VirtualKeyboardComponent } from '@placeos/components';
 import {
     Building,
     BuildingLevel,
     OrganisationService,
     Region,
 } from '@placeos/organisation';
+import { VirtualKeyboardComponent } from 'libs/components/src/lib/virtual-keyboard.component';
 import { first } from 'rxjs/operators';
 
 @Component({
