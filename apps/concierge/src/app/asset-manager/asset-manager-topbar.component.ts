@@ -61,27 +61,34 @@ import { AssetManagerStateService } from './asset-manager-state.service';
             class="mb-2 flex items-center space-x-2 px-8"
             *ngIf="active === 'items'"
         >
-            <mat-button-toggle-group
-                [ngModel]="(options | async)?.view"
-                (ngModelChange)="setOptions({ view: $event })"
-            >
-                <mat-button-toggle
-                    value="grid"
+            <div class="flex items-center rounded border border-secondary">
+                <button
+                    icon
+                    matRipple
+                    class="h-12 w-14 rounded-l rounded-r-none"
+                    [class.bg-secondary]="(options | async)?.view === 'grid'"
+                    [class.text-secondary-content]="
+                        (options | async)?.view === 'grid'
+                    "
+                    (click)="setOptions({ view: 'grid' })"
                     [matTooltip]="'COMMON.VIEW_AS_GRID' | translate"
                 >
-                    <div class="flex h-12 w-8 items-center justify-center">
-                        <icon class="text-2xl">view_module</icon>
-                    </div>
-                </mat-button-toggle>
-                <mat-button-toggle
-                    value="list"
+                    <icon class="text-2xl">view_module</icon>
+                </button>
+                <button
+                    icon
+                    matRipple
+                    class="h-12 w-14 rounded-l-none rounded-r"
+                    [class.bg-secondary]="(options | async)?.view === 'list'"
+                    [class.text-secondary-content]="
+                        (options | async)?.view === 'list'
+                    "
+                    (click)="setOptions({ view: 'list' })"
                     [matTooltip]="'COMMON.VIEW_AS_LIST' | translate"
                 >
-                    <div class="flex h-12 w-8 items-center justify-center">
-                        <icon class="text-2xl">view_list</icon>
-                    </div>
-                </mat-button-toggle>
-            </mat-button-toggle-group>
+                    <icon class="text-2xl">view_list</icon>
+                </button>
+            </div>
             <div class="flex-1"></div>
             <button
                 icon

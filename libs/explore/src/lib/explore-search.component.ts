@@ -2,6 +2,16 @@ import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
 
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatRippleModule } from '@angular/material/core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import {
+    IconComponent,
+    TranslatePipe,
+    VirtualKeyboardComponent,
+} from '@placeos/components';
 import { ExploreSearchService, SearchResult } from './explore-search.service';
 
 @Component({
@@ -105,7 +115,16 @@ import { ExploreSearchService, SearchResult } from './explore-search.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        IconComponent,
+        TranslatePipe,
+        MatRippleModule,
+        MatProgressSpinnerModule,
+        MatAutocompleteModule,
+        VirtualKeyboardComponent,
+        FormsModule,
+    ],
 })
 export class ExploreSearchComponent extends AsyncHandler implements OnInit {
     public show = false;

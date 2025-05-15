@@ -58,9 +58,9 @@ export class SurveyBuilderService {
         const details = await openConfirmModal(
             {
                 title: 'Confirm delete page',
-                content: `Are you sure you want to delete this page?\n 
+                content: `Are you sure you want to delete this page?\n
                           All marked-for-deletion questions will also be removed.`,
-                icon: { class: 'material-icons', content: 'delete' },
+                icon: { class: 'material-symbols-rounded', content: 'delete' },
             },
             this._dialog,
         );
@@ -75,10 +75,13 @@ export class SurveyBuilderService {
             const details = await openConfirmModal(
                 {
                     title: 'Question marked for deletion',
-                    content: `This question has been marked for deletion.\n 
-                                You will not be able to add this question back after removing it from the survey.\n 
+                    content: `This question has been marked for deletion.\n
+                                You will not be able to add this question back after removing it from the survey.\n
                                 Are you sure you want to delete this question?`,
-                    icon: { class: 'material-icons', content: 'delete' },
+                    icon: {
+                        class: 'material-symbols-rounded',
+                        content: 'delete',
+                    },
                 },
                 this._dialog,
             );

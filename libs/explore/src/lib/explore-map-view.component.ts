@@ -15,6 +15,10 @@ import {
 } from '@placeos/common';
 import { MapLocation, showStaff, User } from '@placeos/users';
 
+import { CommonModule } from '@angular/common';
+import { MatRippleModule } from '@angular/material/core';
+import { MatSlideToggle } from '@angular/material/slide-toggle';
+import { InteractiveMapComponent, TranslatePipe } from '@placeos/components';
 import { MapsPeopleService } from 'libs/common/src/lib/mapspeople.service';
 import { MapPinComponent } from 'libs/components/src/lib/map-pin.component';
 import { MapRadiusComponent } from 'libs/components/src/lib/map-radius.component';
@@ -23,6 +27,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 import { SpacesService } from 'libs/spaces/src/lib/spaces.service';
 import { ExploreDesksService } from './explore-desks.service';
 import { ExploreLockersService } from './explore-lockers.service';
+import { ExploreMapControlComponent } from './explore-map-control.component';
 import { ExploreParkingService } from './explore-parking.service';
 import { ExploreSpacesService } from './explore-spaces.service';
 import { ExploreStateService } from './explore-state.service';
@@ -107,7 +112,14 @@ const EMPTY = [];
         ExploreLockersService,
         SpacePipe,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        InteractiveMapComponent,
+        MatSlideToggle,
+        MatRippleModule,
+        ExploreMapControlComponent,
+    ],
 })
 export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
     /** Observable for the active map */

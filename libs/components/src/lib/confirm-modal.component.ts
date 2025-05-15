@@ -121,7 +121,7 @@ export class ConfirmModalComponent extends AsyncHandler implements OnInit {
         this._data.cancel_text || 'COMMON.CANCEL';
     /** Display icon properties */
     public readonly icon: ApplicationIcon = this._data.icon || {
-        class: 'material-icons',
+        class: 'material-symbols-rounded',
         content: 'done',
     };
     /** Prevent user from closing the modal */

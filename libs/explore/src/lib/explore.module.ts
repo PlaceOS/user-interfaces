@@ -1,20 +1,9 @@
-import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { ComponentsModule } from '@placeos/components';
-
-import { OverlayModule } from '@angular/cdk/overlay';
-import { PortalModule } from '@angular/cdk/portal';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-
-import { SharedBookingsModule } from 'libs/bookings/src/lib/bookings.module';
-import { FormFieldsModule } from 'libs/form-fields/src/lib/form-fields.module';
 
 import { ExploreBookQrComponent } from './explore-book-qr.component';
 import { ExploreBookingModalComponent } from './explore-booking-modal.component';
 import { ExploreDeskInfoComponent } from './explore-desk-info.component';
 import { ExploreDeviceInfoComponent } from './explore-device-info.component';
-import { ExploreIconComponent } from './explore-icon.component';
 import { ExploreLockerBankInfoComponent } from './explore-locker-bank-info.component';
 import { ExploreLockerBankModalComponent } from './explore-locker-bank-modal.component';
 import { ExploreMapControlComponent } from './explore-map-control.component';
@@ -26,7 +15,7 @@ import { ExploreSpaceInfoComponent } from './explore-space-info.component';
 import { ExploreZoomControlComponent } from './explore-zoom-control.component';
 import { SetDatetimeModalComponent } from './set-datetime-modal.component';
 
-const COMPONENTS = [
+const STANDALONE_COMPONENTS = [
     ExploreMapControlComponent,
     ExploreMapViewComponent,
     ExploreSearchComponent,
@@ -41,22 +30,11 @@ const COMPONENTS = [
     ExploreLockerBankInfoComponent,
     ExploreLockerBankModalComponent,
     ExploreParkingInfoComponent,
-    ExploreIconComponent,
 ];
 
 @NgModule({
-    declarations: [...COMPONENTS],
-    imports: [
-        CommonModule,
-        ComponentsModule,
-        FormsModule,
-        ReactiveFormsModule,
-        MatSlideToggleModule,
-        OverlayModule,
-        PortalModule,
-        FormFieldsModule,
-        SharedBookingsModule,
-    ],
-    exports: [...COMPONENTS],
+    declarations: [],
+    imports: [...STANDALONE_COMPONENTS],
+    exports: [...STANDALONE_COMPONENTS],
 })
 export class SharedExploreModule {}

@@ -1,6 +1,7 @@
+import { CommonModule } from '@angular/common';
 import { Component, Inject } from '@angular/core';
 import { ApplicationIcon } from '@placeos/common';
-import { MAP_FEATURE_DATA } from '@placeos/components';
+import { IconComponent, MAP_FEATURE_DATA } from '@placeos/components';
 
 @Component({
     selector: `explore-icon`,
@@ -24,7 +25,7 @@ import { MAP_FEATURE_DATA } from '@placeos/components';
             }
         `,
     ],
-    standalone: false,
+    imports: [CommonModule, IconComponent],
 })
 export class ExploreIconComponent {
     public readonly icon = this._details.icon || { content: 'done' };

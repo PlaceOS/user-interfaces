@@ -31,7 +31,7 @@ body {
     box-shadow: 0px -4px 10px rgba(200, 200, 200, 0.75);
 }
 
-.material-icons.blue-icon {
+.material-symbols-rounded.blue-icon {
     color: var(--blueIcon);
     display: flex;
     align-items: center;

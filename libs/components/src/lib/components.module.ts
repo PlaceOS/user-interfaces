@@ -4,7 +4,6 @@ import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatRippleModule } from '@angular/material/core';
@@ -111,7 +110,6 @@ const MAT_MODULES = [
     MatRadioModule,
     MatSliderModule,
     MatSlideToggleModule,
-    MatButtonToggleModule,
 ];
 
 const COMPONENTS = [
@@ -120,18 +118,12 @@ const COMPONENTS = [
     UserAvatarComponent,
 
     ConfirmModalComponent,
-    InteractiveMapComponent,
-    MapRendererComponent,
-    MapsIndoorsComponent,
     MapPinComponent,
     MapRadiusComponent,
     MapPolygonComponent,
     MapCanvasComponent,
     IndoorMapsComponent,
     StatusOverlayComponent,
-    VirtualKeyboardComponent,
-    GlobalLoadingComponent,
-    GlobalBannerComponent,
     MapLocateModalComponent,
     ImageCarouselComponent,
     RedirectComponent,
@@ -150,7 +142,6 @@ const COMPONENTS = [
     LevelPipe,
     BuildingPipe,
     DateFromPipe,
-    MediaDurationPipe,
     ThumbnailPipe,
     ZonePipe,
 
@@ -161,14 +152,12 @@ const COMPONENTS = [
     AccessibilityTooltipComponent,
     LanguageSelectComponent,
     PrintableComponent,
-    ChatComponent,
     AttachedResourceConfigModalComponent,
     AvailableRoomsStateModalComponent,
     DeskHeightPresetsComponent,
     LoginComponent,
     FullscreenModalShellComponent,
 
-    UnauthorisedComponent,
     MisconfiguredComponent,
 ];
 
@@ -181,8 +170,19 @@ const DIRECTIVES = [
 const STANDALONE_COMPONENTS = [
     IconComponent,
     CustomTooltipComponent,
-    TranslatePipe,
     SettingsToggleComponent,
+    GlobalBannerComponent,
+    GlobalLoadingComponent,
+    ChatComponent,
+    InteractiveMapComponent,
+    MapRendererComponent,
+    MapsIndoorsComponent,
+    VirtualKeyboardComponent,
+
+    UnauthorisedComponent,
+
+    TranslatePipe,
+    MediaDurationPipe,
 ];
 
 @NgModule({

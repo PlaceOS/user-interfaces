@@ -3,7 +3,9 @@ import { getModule } from '@placeos/ts-client';
 import { differenceInMinutes, formatDistanceToNow } from 'date-fns';
 import { Observable } from 'rxjs';
 
+import { CommonModule } from '@angular/common';
 import { AsyncHandler, SettingsService } from '@placeos/common';
+import { CustomTooltipComponent, TranslatePipe } from '@placeos/components';
 import { MAP_FEATURE_DATA } from 'libs/components/src/lib/interactive-map.component';
 
 export interface DeviceInfoData {
@@ -139,7 +141,7 @@ const EMPTY = [];
             }
         `,
     ],
-    standalone: false,
+    imports: [CommonModule, TranslatePipe, CustomTooltipComponent],
 })
 export class ExploreDeviceInfoComponent extends AsyncHandler implements OnInit {
     /** Name of the user associated with the mac address */

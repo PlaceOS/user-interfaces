@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import {
     Component,
     EventEmitter,
@@ -7,6 +8,7 @@ import {
     Output,
     SimpleChanges,
 } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
 import { AsyncHandler, MapsPeopleService, log } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import {
@@ -16,6 +18,10 @@ import {
     ViewerStyles,
 } from '@placeos/svg-viewer';
 import { ExploreStateService } from 'libs/explore/src/lib/explore-state.service';
+import { IconComponent } from './icon.component';
+import { MapRendererComponent } from './map-renderer.component';
+import { MapsIndoorsComponent } from './maps-indoors.component';
+import { TranslatePipe } from './translate.pipe';
 
 export const MAP_FEATURE_DATA = new InjectionToken<any>(
     'Data for Map Features',
@@ -106,7 +112,14 @@ export interface MapMetadata {
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        IconComponent,
+        TranslatePipe,
+        MatRippleModule,
+        MapsIndoorsComponent,
+        MapRendererComponent,
+    ],
 })
 export class InteractiveMapComponent extends AsyncHandler implements OnChanges {
     @Input() public src: string;

@@ -50,7 +50,7 @@ const explore = {
                 name: 'Bin',
                 icon: {
                     type: 'icon',
-                    class: 'material-icons',
+                    class: 'material-symbols-rounded',
                     content: 'delete',
                 },
             },

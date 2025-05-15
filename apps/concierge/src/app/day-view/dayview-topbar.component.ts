@@ -22,7 +22,10 @@ import { BookingUIOptions, EventsStateService } from './events-state.service';
                 <div class="flex items-center">
                     <icon
                         class="mr-2"
-                        [icon]="{ class: 'material-icons', content: 'add' }"
+                        [icon]="{
+                            class: 'material-symbols-rounded',
+                            content: 'add',
+                        }"
                     ></icon>
                     <div class="hidden xl:block">New Booking</div>
                 </div>

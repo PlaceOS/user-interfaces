@@ -19,6 +19,8 @@ import {
 } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
 
+import { CommonModule } from '@angular/common';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {
     applyGlobalStyles,
     createViewer,
@@ -37,6 +39,7 @@ import { apiKey, authority, token } from '@placeos/ts-client';
 import { BehaviorSubject } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { MAP_FEATURE_DATA } from './interactive-map.component';
+import { TranslatePipe } from './translate.pipe';
 
 function isSamePoint(p1: Point, p2: Point): boolean {
     return p1.x === p2.x && p1.y === p2.y;
@@ -122,7 +125,7 @@ function isSamePoint(p1: Point, p2: Point): boolean {
             }
         `,
     ],
-    standalone: false,
+    imports: [CommonModule, TranslatePipe, MatProgressSpinnerModule],
 })
 export class MapRendererComponent
     extends AsyncHandler

@@ -460,7 +460,7 @@ export class DesksStateService extends AsyncHandler {
                 content: i18n('APP.CONCIERGE.DESKS_REJECT_ALL_MSG'),
                 icon: {
                     type: 'icon',
-                    class: 'material-icons',
+                    class: 'material-symbols-rounded',
                     content: 'delete',
                 },
             },

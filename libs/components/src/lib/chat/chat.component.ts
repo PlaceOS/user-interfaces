@@ -1,7 +1,12 @@
+import { CommonModule } from '@angular/common';
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
 import { AsyncHandler, SettingsService, current_user } from '@placeos/common';
 import { StaffUser } from '@placeos/users';
 import { map } from 'rxjs/operators';
+import { IconComponent } from '../icon.component';
+import { TranslatePipe } from '../translate.pipe';
 import { ChatService } from './chat.service';
 
 @Component({
@@ -171,7 +176,13 @@ import { ChatService } from './chat.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        MatRippleModule,
+        FormsModule,
+        IconComponent,
+    ],
 })
 export class ChatComponent extends AsyncHandler implements OnInit {
     public show = false;

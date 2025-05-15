@@ -1,4 +1,6 @@
+import { CommonModule } from '@angular/common';
 import { Component, ElementRef, Inject, OnInit } from '@angular/core';
+import { CustomTooltipComponent } from '@placeos/components';
 
 import { MAP_FEATURE_DATA } from 'libs/components/src/lib/interactive-map.component';
 
@@ -80,7 +82,7 @@ export interface DeskInfoData {
             }
         `,
     ],
-    standalone: false,
+    imports: [CommonModule, CustomTooltipComponent],
 })
 export class ExploreDeskInfoComponent implements OnInit {
     /** Space to display details for */

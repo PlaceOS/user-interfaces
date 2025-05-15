@@ -1,5 +1,9 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import {
+    MAT_DIALOG_DATA,
+    MatDialogModule,
+    MatDialogRef,
+} from '@angular/material/dialog';
 import {
     currentUser,
     i18n,
@@ -8,8 +12,17 @@ import {
     SettingsService,
 } from '@placeos/common';
 
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router } from '@angular/router';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
+import { DurationFieldComponent } from 'libs/form-fields/src/lib/duration-field.component';
+import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-field.component';
 import { Space } from 'libs/spaces/src/lib/space.class';
 
 export interface ExploreBookingModalData {
@@ -130,7 +143,19 @@ export interface ExploreBookingModalData {
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        MatRippleModule,
+        MatProgressSpinnerModule,
+        DurationFieldComponent,
+        UserSearchFieldComponent,
+        MatFormFieldModule,
+        MatInputModule,
+        ReactiveFormsModule,
+        IconComponent,
+        MatDialogModule,
+    ],
 })
 export class ExploreBookingModalComponent implements OnInit {
     public readonly loading = this._event_form.loading$;

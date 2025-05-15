@@ -771,7 +771,7 @@ export class LockerStateService extends AsyncHandler {
                 content: i18n('APP.CONCIERGE.LOCKERS_REJECT_ALL_MSG'),
                 icon: {
                     type: 'icon',
-                    class: 'material-icons',
+                    class: 'material-symbols-rounded',
                     content: 'delete',
                 },
             },

@@ -1,6 +1,5 @@
 import { NgModule } from '@angular/core';
 
-import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -25,7 +24,6 @@ const MATERIAL_MODULES = [
     MatTooltipModule,
     MatDialogModule,
     MatProgressSpinnerModule,
-    MatButtonToggleModule,
     MatSlideToggleModule,
 ];
 

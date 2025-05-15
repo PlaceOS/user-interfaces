@@ -5,7 +5,6 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { Router } from '@angular/router';
 import { ServiceWorkerModule } from '@angular/service-worker';
 
-import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -52,7 +51,6 @@ import { FooterMenuComponent } from './footer-menu.component';
         MatDialogModule,
         MatProgressSpinnerModule,
         MatRippleModule,
-        MatButtonToggleModule,
         MatSlideToggleModule,
         ComponentsModule,
         FormFieldsModule,

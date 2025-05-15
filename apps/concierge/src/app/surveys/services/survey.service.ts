@@ -95,7 +95,7 @@ export class SurveyService {
                 title: 'Confirm delete question',
                 content: `Are you sure you want to delete this survey? \n
                             Note: This action is irreversible.`,
-                icon: { class: 'material-icons', content: 'delete' },
+                icon: { class: 'material-symbols-rounded', content: 'delete' },
             },
             this.dialog,
         );

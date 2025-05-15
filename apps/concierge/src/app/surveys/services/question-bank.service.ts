@@ -136,10 +136,10 @@ export class QuestionBankService extends AsyncHandler {
         const details = await openConfirmModal(
             {
                 title: 'Confirm delete question',
-                content: `Are you sure you want to delete this question? \n 
+                content: `Are you sure you want to delete this question? \n
                             <pre>'${q.title}'</pre> \n
                             Note: This action is irreversible.`,
-                icon: { class: 'material-icons', content: 'delete' },
+                icon: { class: 'material-symbols-rounded', content: 'delete' },
             },
             this._dialog,
         );

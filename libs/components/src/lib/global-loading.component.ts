@@ -3,7 +3,10 @@ import { AsyncHandler, SettingsService } from '@placeos/common';
 import { authority, isOnline, token } from '@placeos/ts-client';
 import { first } from 'rxjs/operators';
 
+import { CommonModule } from '@angular/common';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
+import { TranslatePipe } from './translate.pipe';
 
 @Component({
     selector: 'global-loading',
@@ -34,7 +37,7 @@ import { OrganisationService } from 'libs/organisation/src/lib/organisation.serv
             }
         `,
     ],
-    standalone: false,
+    imports: [MatProgressSpinnerModule, CommonModule, TranslatePipe],
 })
 export class GlobalLoadingComponent extends AsyncHandler implements OnInit {
     public loading: boolean;

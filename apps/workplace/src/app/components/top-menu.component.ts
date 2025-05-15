@@ -40,7 +40,7 @@ import { OrganisationService } from '@placeos/organisation';
                     <icon filled class="text-xl">{{ route.icon }}</icon>
                     <icon
                         outline
-                        className="material-icons-outlined"
+                        className="material-symbols-outlined"
                         class="!m-0 text-xl"
                     >
                         {{ route.icon }}
@@ -75,7 +75,7 @@ import { OrganisationService } from '@placeos/organisation';
                         <icon filled class="text-xl">{{ route.icon }}</icon>
                         <icon
                             outline
-                            className="material-icons-outlined"
+                            className="material-symbols-outlined"
                             class="!m-0 text-xl"
                         >
                             {{ route.icon }}

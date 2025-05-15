@@ -56,9 +56,7 @@ export class SignagePanelComponent extends AsyncHandler {
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {
-                if (params.has('debug')) {
-                    this.debug = true;
-                }
+                if (params.has('debug')) this.debug = true;
             }),
         );
     }

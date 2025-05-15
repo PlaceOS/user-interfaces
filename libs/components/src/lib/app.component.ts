@@ -21,7 +21,6 @@ import {
     AsyncHandler,
     current_user,
     currentUser,
-    GoogleAnalyticsService,
     hasNewVersion,
     HotkeysService,
     isMobileSafari,
@@ -36,6 +35,7 @@ import {
     setupCache,
     setupPlace,
 } from '@placeos/common';
+import { GoogleAnalyticsService } from 'libs/common/src/lib/google-analytics.service';
 import { MapsPeopleService } from 'libs/common/src/lib/mapspeople.service';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { setInternalUserDomain } from 'libs/users/src/lib/user.utilities';
@@ -94,7 +94,7 @@ export function initSentry(dsn: string, sample_rate = 0.1) {
         </div>
         <global-chat *ngIf="has_chat"></global-chat>
         <global-loading></global-loading>
-        <debug-console *ngIf="debug"></debug-console>
+        <!-- <debug-console *ngIf="debug"></debug-console> -->
     `,
     styles: [
         `

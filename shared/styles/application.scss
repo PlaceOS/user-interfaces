@@ -1,6 +1,5 @@
 @use 'chartist/dist/index.css';
 @use 'material-symbols';
-@use '@material-design-icons/font';
 
 @import 'quill/dist/quill.core.css';
 @import 'quill/dist/quill.snow.css';
@@ -209,14 +208,17 @@ body {
     box-sizing: border-box;
 }
 
-.material-icons,
 .material-symbols,
 .material-symbols-outlined {
     font-size: 1em;
 }
 .material-symbols-rounded {
     font-size: 1em;
-    font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    font-variation-settings:
+        'FILL' 1,
+        'wght' 400,
+        'GRAD' 0,
+        'opsz' 24;
 }
 
 span.highlight {

@@ -1,5 +1,10 @@
+import { CommonModule } from '@angular/common';
 import { Component, ElementRef, Inject, OnInit } from '@angular/core';
-import { MAP_FEATURE_DATA } from '@placeos/components';
+import {
+    CustomTooltipComponent,
+    MAP_FEATURE_DATA,
+    TranslatePipe,
+} from '@placeos/components';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { CalendarEvent } from 'libs/events/src/lib/event.class';
 import { Space } from 'libs/spaces/src/lib/space.class';
@@ -132,7 +137,8 @@ export interface SpaceInfoData {
             }
         `,
     ],
-    standalone: false,
+
+    imports: [CommonModule, CustomTooltipComponent, TranslatePipe],
 })
 export class ExploreSpaceInfoComponent implements OnInit {
     /** Space to display details for */

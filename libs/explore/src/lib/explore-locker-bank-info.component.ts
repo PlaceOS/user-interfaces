@@ -1,7 +1,12 @@
 import { Component, ElementRef, Inject, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { MAP_FEATURE_DATA } from '@placeos/components';
+import {
+    CustomTooltipComponent,
+    MAP_FEATURE_DATA,
+    TranslatePipe,
+} from '@placeos/components';
 
+import { CommonModule } from '@angular/common';
 import { Locker, LockerBank } from 'libs/bookings/src/lib/locker.class';
 import { ExploreLockerBankModalComponent } from './explore-locker-bank-modal.component';
 
@@ -56,7 +61,7 @@ export interface LockerBankInfoData {
         >
     `,
     styles: [``],
-    standalone: false,
+    imports: [CommonModule, TranslatePipe, CustomTooltipComponent],
 })
 export class ExploreLockerBankInfoComponent implements OnInit {
     public bank: LockerBank = this._details.bank;

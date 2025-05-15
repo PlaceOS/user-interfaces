@@ -1,6 +1,11 @@
+import { CommonModule } from '@angular/common';
 import { Component, Inject } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
-import { MAP_FEATURE_DATA } from '@placeos/components';
+import {
+    CustomTooltipComponent,
+    IconComponent,
+    MAP_FEATURE_DATA,
+} from '@placeos/components';
 
 export interface SensorInfoData {
     id: string;
@@ -53,7 +58,7 @@ let shown_id = '';
         </ng-template>
     `,
     styles: [``],
-    standalone: false,
+    imports: [CommonModule, CustomTooltipComponent, IconComponent],
 })
 export class ExploreSensorInfoComponent extends AsyncHandler {
     public readonly temp = this._details.temp || 0;

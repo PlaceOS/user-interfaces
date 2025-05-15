@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { nextValueFrom, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
@@ -43,7 +44,7 @@ export interface BannerDetails {
             }
         `,
     ],
-    standalone: false,
+    imports: [CommonModule],
 })
 export class GlobalBannerComponent {
     private _change = new BehaviorSubject(0);

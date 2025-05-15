@@ -1,5 +1,8 @@
+import { CommonModule } from '@angular/common';
 import { Component, Inject } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 
 import { generateQRCode } from 'libs/common/src/lib/qr-code';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
@@ -15,7 +18,7 @@ const DEFAULT_PATH = `workplace/#/explore?space={{id}}`;
                 {{ 'EXPLORE.BOOK_RESOURCE' | translate: { name: space?.name } }}
             </h2>
             <div class="flex-1"></div>
-            <button icon mat-dialog-close>
+            <button icon matRipple mat-dialog-close>
                 <icon>close</icon>
             </button>
         </header>
@@ -24,7 +27,7 @@ const DEFAULT_PATH = `workplace/#/explore?space={{id}}`;
         </main>
     `,
     styles: [``],
-    standalone: false,
+    imports: [CommonModule, TranslatePipe, MatRippleModule, IconComponent],
 })
 export class ExploreBookQrComponent {
     public readonly space = this._data.space;

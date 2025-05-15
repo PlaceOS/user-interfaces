@@ -1,5 +1,6 @@
 import { Overlay, OverlayRef } from '@angular/cdk/overlay';
-import { CdkPortal } from '@angular/cdk/portal';
+import { CdkPortal, PortalModule } from '@angular/cdk/portal';
+import { CommonModule } from '@angular/common';
 import {
     Component,
     ElementRef,
@@ -9,6 +10,7 @@ import {
     SimpleChanges,
     ViewChild,
 } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
 import { AsyncHandler } from '@placeos/common';
 
 const DEFAULT_KEYS = [
@@ -34,7 +36,8 @@ const DEFAULT_KEYS = [
                     *ngFor="let row of keyset"
                 >
                     <ng-container *ngFor="let key of row">
-                        <div
+                        <button
+                            matRipple
                             [attr.key]="key"
                             tabindex="0"
                             class="relative cursor-pointer rounded-xl border border-base-200 bg-base-100 p-2"
@@ -58,7 +61,7 @@ const DEFAULT_KEYS = [
                                 class="absolute right-2 top-2 h-2 w-2 rounded-full bg-base-200"
                                 [class.bg-success]="state === 'shift'"
                             ></div>
-                        </div>
+                        </button>
                     </ng-container>
                 </div>
             </div>
@@ -96,7 +99,7 @@ const DEFAULT_KEYS = [
             }
         `,
     ],
-    standalone: false,
+    imports: [CommonModule, MatRippleModule, PortalModule],
 })
 export class VirtualKeyboardComponent
     extends AsyncHandler

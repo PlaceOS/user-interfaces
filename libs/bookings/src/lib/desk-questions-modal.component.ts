@@ -49,7 +49,7 @@ import { DialogEvent } from '@placeos/common';
                 <button btn matRipple (click)="submit()">Submit</button>
             </footer>
             <button close icon matRipple mat-dialog-close>
-                <i class="material-icons">close</i>
+                <i class="material-symbols-rounded">close</i>
             </button>
         </div>
         <ng-template #fail_state>
@@ -61,7 +61,7 @@ import { DialogEvent } from '@placeos/common';
                     change in a way that changes your answer to the questions.
                 </p>
                 <button close icon matRipple mat-dialog-close>
-                    <i class="material-icons">close</i>
+                    <i class="material-symbols-rounded">close</i>
                 </button>
             </main>
         </ng-template>

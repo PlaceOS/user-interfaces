@@ -1,4 +1,8 @@
+import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { ExploreStateService } from './explore-state.service';
 
 @Component({
@@ -58,7 +62,13 @@ import { ExploreStateService } from './explore-state.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatRippleModule,
+        TranslatePipe,
+        IconComponent,
+        MatTooltipModule,
+    ],
 })
 export class ExploreZoomControlComponent {
     public readonly zoomIn = () =>

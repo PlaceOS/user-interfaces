@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { AsyncHandler, i18n, Identity } from '@placeos/common';
-import { VirtualKeyboardComponent } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
 import { PlaceSystem, querySystems } from '@placeos/ts-client';
 import { of } from 'rxjs';
@@ -14,6 +13,8 @@ import {
     shareReplay,
     switchMap,
 } from 'rxjs/operators';
+
+import { VirtualKeyboardComponent } from 'libs/components/src/lib/virtual-keyboard.component';
 
 const STORE_PREFIX = 'PlaceOS.SIGNAGE';
 const STORE_DISPLAY_KEY = `${STORE_PREFIX}.display`;
@@ -219,6 +220,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
         this.loading = i18n('APP.SIGNAGE.BOOTSTRAP_LOADING_CHECK');
         const bld_id = localStorage?.getItem(STORE_BUILDING_KEY);
         const display_id = localStorage?.getItem(STORE_DISPLAY_KEY);
+
         if (bld_id && display_id) {
             this._router.navigate(['/signage', display_id]);
         }

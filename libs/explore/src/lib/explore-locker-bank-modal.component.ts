@@ -1,6 +1,10 @@
+import { CommonModule } from '@angular/common';
 import { Component, Inject } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Locker, LockerBank } from '@placeos/bookings';
+import { IconComponent } from '@placeos/components';
+import { LockerGridComponent } from 'libs/bookings/src/lib/locker-grid.component';
 
 export interface LockerBankModalData {
     bank: LockerBank;
@@ -21,7 +25,12 @@ export interface LockerBankModalData {
         </main>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatRippleModule,
+        LockerGridComponent,
+        IconComponent,
+    ],
 })
 export class ExploreLockerBankModalComponent {
     public readonly bank = this._data.bank;

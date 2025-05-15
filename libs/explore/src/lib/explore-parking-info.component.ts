@@ -1,6 +1,7 @@
+import { CommonModule } from '@angular/common';
 import { Component, ElementRef, Inject } from '@angular/core';
 import { SettingsService } from '@placeos/common';
-import { MAP_FEATURE_DATA } from '@placeos/components';
+import { MAP_FEATURE_DATA, TranslatePipe } from '@placeos/components';
 import { ParkingSpace } from 'libs/bookings/src/lib/parking.service';
 
 interface ParkingSpaceExtended extends ParkingSpace {
@@ -57,7 +58,7 @@ interface ParkingSpaceExtended extends ParkingSpace {
             }
         `,
     ],
-    standalone: false,
+    imports: [CommonModule, TranslatePipe],
 })
 export class ExploreParkingInfoComponent {
     public readonly status =

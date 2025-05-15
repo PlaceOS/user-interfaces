@@ -1,8 +1,20 @@
+import { CommonModule } from '@angular/common';
 import { Component, Inject } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import {
+    FormControl,
+    FormGroup,
+    FormsModule,
+    ReactiveFormsModule,
+} from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
+import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { SettingsService } from '@placeos/common';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { BookingAsset } from 'libs/bookings/src/lib/booking-form.service';
+import { DateFieldComponent } from 'libs/form-fields/src/lib/date-field.component';
+import { DurationFieldComponent } from 'libs/form-fields/src/lib/duration-field.component';
+import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.component';
+import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-field.component';
 import { User } from 'libs/users/src/lib/user.class';
 
 @Component({
@@ -10,7 +22,7 @@ import { User } from 'libs/users/src/lib/user.class';
     template: `
         <header classs="flex items-center justify-between">
             <h2>Set date and time</h2>
-            <button icon mat-dialog-close>
+            <button icon matRipple mat-dialog-close>
                 <icon>close</icon>
             </button>
         </header>
@@ -88,12 +100,24 @@ import { User } from 'libs/users/src/lib/user.class';
             class="flex w-full items-center justify-center border-t border-base-200 p-2"
         >
             <button btn matRipple [mat-dialog-close]="form.value" class="w-32">
-                Continue
+                {{ 'COMMON.CONTINUE' | translate }}
             </button>
         </footer>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatRippleModule,
+        MatDialogModule,
+        IconComponent,
+        DurationFieldComponent,
+        TimeFieldComponent,
+        DateFieldComponent,
+        UserSearchFieldComponent,
+        FormsModule,
+        ReactiveFormsModule,
+        TranslatePipe,
+    ],
 })
 export class SetDatetimeModalComponent {
     public host = this._data.host;

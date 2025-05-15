@@ -1,4 +1,6 @@
+import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
 import { SettingsService } from '@placeos/common';
 import { DEFAULT_COLOURS } from 'libs/explore/src/lib/explore-spaces.service';
 import { Locker, LockerBank } from './locker.class';
@@ -70,7 +72,7 @@ import { Locker, LockerBank } from './locker.class';
             }
         `,
     ],
-    standalone: false,
+    imports: [CommonModule, MatRippleModule],
 })
 export class LockerGridComponent {
     @Input() public show_name = true;

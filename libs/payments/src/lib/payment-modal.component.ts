@@ -71,7 +71,7 @@ export interface PaymentData {
                     mat-dialog-close
                     class="absolute left-1 top-1"
                 >
-                    <i class="material-icons text-2xl">close</i>
+                    <i class="material-symbols-rounded text-2xl">close</i>
                 </button>
             </ng-container>
         </div>

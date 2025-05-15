@@ -75,7 +75,6 @@ const COMPONENTS = [
     DeskListFieldComponent,
     DeskSettingsModalComponent,
 
-    LockerGridComponent,
     LockerListFieldComponent,
     LockerSelectModalComponent,
     LockerFiltersComponent,
@@ -83,6 +82,9 @@ const COMPONENTS = [
     LockerBankListComponent,
     LockerMapComponent,
 ];
+
+const STANDALONE_COMPONENTS = [LockerGridComponent];
+
 @NgModule({
     declarations: [...COMPONENTS],
     imports: [
@@ -103,8 +105,9 @@ const COMPONENTS = [
         SharedSpacesModule,
         SharedEventsModule,
         SharedUsersModule,
+        ...STANDALONE_COMPONENTS,
     ],
     providers: [ReactiveFormsModule],
-    exports: [...COMPONENTS],
+    exports: [...COMPONENTS, ...STANDALONE_COMPONENTS],
 })
 export class SharedBookingsModule {}

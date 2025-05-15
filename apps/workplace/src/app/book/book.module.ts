@@ -2,7 +2,6 @@ import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
-import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { Route, RouterModule } from '@angular/router';
 
 import { SharedBookingsModule } from '@placeos/bookings';
@@ -103,7 +102,6 @@ const ROUTES: Route[] = [
         SharedCateringModule,
         SharedExploreModule,
         ReactiveFormsModule,
-        MatButtonToggleModule,
         MatBottomSheetModule,
         SharedBookingsModule,
         RouterModule.forChild(ROUTES),

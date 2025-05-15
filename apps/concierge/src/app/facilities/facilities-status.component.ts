@@ -27,7 +27,7 @@ import { Component } from '@angular/core';
                 <icon
                     class="bg-light px-1 text-2xl"
                     [icon]="{
-                        class: 'material-icons',
+                        class: 'material-symbols-rounded',
                         content: 'sentiment_very_satisfied',
                     }"
                 ></icon>

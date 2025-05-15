@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import {
     Component,
     ElementRef,
@@ -8,6 +9,8 @@ import {
     SimpleChanges,
     ViewChild,
 } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {
     AsyncHandler,
     MapsPeopleService,
@@ -58,7 +61,7 @@ const RESOURCE_MAP: Record<string, any> = {};
         </button>
     `,
     styles: [``],
-    standalone: false,
+    imports: [CommonModule, MatRippleModule, MatProgressSpinnerModule],
 })
 export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
     @Input() public zone: BuildingLevel;

@@ -446,7 +446,10 @@ export class PanelStateService extends AsyncHandler {
                 content: `If you don't start your meeting it will be cancelled ${
                     this._settings.getValue().pending_period / 60
                 } minutes after the start time.`,
-                icon: { class: 'material-icons', content: 'play_arrow' },
+                icon: {
+                    class: 'material-symbols-rounded',
+                    content: 'play_arrow',
+                },
             },
             this._dialog,
         );
@@ -483,7 +486,10 @@ export class PanelStateService extends AsyncHandler {
                 title: 'Are you sure want to end your meeting?',
                 content:
                     'Ending your meeting early will free up this room for others to use',
-                icon: { class: 'material-icons', content: 'event_busy' },
+                icon: {
+                    class: 'material-symbols-rounded',
+                    content: 'event_busy',
+                },
             },
             this._dialog,
         );
@@ -547,7 +553,10 @@ export class PanelStateService extends AsyncHandler {
             {
                 title: 'Do you wish to call a waiter?',
                 content: `Note that it can take up to 15 minutes for them to turn up.`,
-                icon: { class: 'material-icons', content: 'room_service' },
+                icon: {
+                    class: 'material-symbols-rounded',
+                    content: 'room_service',
+                },
             },
             this._dialog,
         );

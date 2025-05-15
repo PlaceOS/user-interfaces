@@ -29,7 +29,7 @@ import { SettingsService } from '@placeos/common';
                         <icon
                             outline
                             class="text-neutral"
-                            className="material-icons-outlined"
+                            className="material-symbols-outlined"
                             >meeting_room</icon
                         >
                     </div>
@@ -52,7 +52,7 @@ import { SettingsService } from '@placeos/common';
                         <icon
                             outline
                             class="text-neutral"
-                            className="material-icons-outlined"
+                            className="material-symbols-outlined"
                             >desk</icon
                         >
                     </div>
@@ -75,7 +75,7 @@ import { SettingsService } from '@placeos/common';
                         <icon
                             outline
                             class="text-neutral"
-                            className="material-icons-outlined"
+                            className="material-symbols-outlined"
                             >directions_car</icon
                         >
                     </div>
@@ -98,7 +98,7 @@ import { SettingsService } from '@placeos/common';
                         <icon
                             outline
                             class="text-neutral"
-                            className="material-icons-outlined"
+                            className="material-symbols-outlined"
                             >person_add</icon
                         >
                     </div>
@@ -121,7 +121,7 @@ import { SettingsService } from '@placeos/common';
                         <icon
                             outline
                             class="text-neutral"
-                            className="material-icons-outlined"
+                            className="material-symbols-outlined"
                             >today</icon
                         >
                     </div>
@@ -144,7 +144,7 @@ import { SettingsService } from '@placeos/common';
                         <icon
                             outline
                             class="text-neutral"
-                            className="material-icons-outlined"
+                            className="material-symbols-outlined"
                             >local_activity</icon
                         >
                     </div>
@@ -169,7 +169,7 @@ import { SettingsService } from '@placeos/common';
                 <icon filled class="text-2xl">home</icon>
                 <icon
                     outline
-                    className="material-icons-outlined"
+                    className="material-symbols-outlined"
                     class="!m-0 text-2xl"
                     >home</icon
                 >
@@ -200,7 +200,7 @@ import { SettingsService } from '@placeos/common';
                 <icon filled class="text-2xl">place</icon>
                 <icon
                     outline
-                    className="material-icons-outlined"
+                    className="material-symbols-outlined"
                     class="!m-0 text-2xl"
                     >place</icon
                 >

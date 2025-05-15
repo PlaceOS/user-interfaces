@@ -314,7 +314,7 @@ export class CateringStateService extends AsyncHandler {
                 content: i18n('CATERING.ITEM_REMOVE_MSG', { name: item.name }),
                 icon: {
                     type: 'icon',
-                    class: 'material-icons',
+                    class: 'material-symbols-outlined',
                     content: 'delete',
                 },
             },
@@ -346,7 +346,7 @@ export class CateringStateService extends AsyncHandler {
                 }),
                 icon: {
                     type: 'icon',
-                    class: 'material-icons',
+                    class: 'material-symbols-outlined',
                     content: 'delete',
                 },
             },

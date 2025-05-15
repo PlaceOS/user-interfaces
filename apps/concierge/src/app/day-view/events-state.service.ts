@@ -327,7 +327,7 @@ export class EventsStateService extends AsyncHandler {
                     time,
                 }),
 
-                icon: { class: 'material-icons', content: 'delete' },
+                icon: { class: 'material-symbols-rounded', content: 'delete' },
             },
             this._dialog,
         );

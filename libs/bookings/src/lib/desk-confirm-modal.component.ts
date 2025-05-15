@@ -23,7 +23,7 @@ export interface DeskConfirmModalData {
             <h2>Confirm Booking</h2>
             <div class="flex-1"></div>
             <button icon mat-dialog-close *ngIf="!loading">
-                <i class="material-icons">close</i>
+                <i class="material-symbols-rounded">close</i>
             </button>
         </header>
         <ng-container *ngIf="!loading; else load_state">

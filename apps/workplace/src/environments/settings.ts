@@ -19,7 +19,7 @@ const help = [
         link: 'https://place.technology/resources',
         icon: {
             type: 'icon',
-            class: 'material-icons',
+            class: 'material-symbols-rounded',
             content: 'dns',
         },
         background:
@@ -30,7 +30,7 @@ const help = [
         link: 'mailto:equiries@place.technology?subject=Staff%20App%20Demo',
         icon: {
             type: 'icon',
-            class: 'material-icons',
+            class: 'material-symbols-rounded',
             content: 'mail',
         },
         background: 'assets/img/it-banner.jpg',
@@ -40,7 +40,7 @@ const help = [
         link: 'https://place.technology/contact-1',
         icon: {
             type: 'icon',
-            class: 'material-icons',
+            class: 'material-symbols-rounded',
             content: 'call',
         },
         background:
@@ -51,7 +51,7 @@ const help = [
         link: 'https://place.technology/',
         icon: {
             type: 'icon',
-            class: 'material-icons',
+            class: 'material-symbols-rounded',
             content: 'business',
         },
         background:

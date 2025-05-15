@@ -28,6 +28,7 @@ export type MediaPlayerState = 'PAUSED' | 'PLAYING';
 @Component({
     selector: 'media-player',
     template: `
+        {{ controls }}
         <div #previous_container class="absolute left-0 top-0 h-full w-full">
             <img
                 #previous_image_el
@@ -116,9 +117,7 @@ export type MediaPlayerState = 'PAUSED' | 'PLAYING';
                                   }
                     "
                 >
-                    <icon>{{
-                        muted ? 'volume_off' : 'volume_up'
-                    }}</icon>
+                    <icon>{{ muted ? 'volume_off' : 'volume_up' }}</icon>
                 </button>
                 <button
                     icon
@@ -233,9 +232,7 @@ export type MediaPlayerState = 'PAUSED' | 'PLAYING';
                 class="absolute right-6 top-6 border border-base-200 bg-base-100 shadow"
                 (click)="show_playlist = !show_playlist"
             >
-                <icon>{{
-                    show_playlist ? 'close' : 'queue_music'
-                }}</icon>
+                <icon>{{ show_playlist ? 'close' : 'queue_music' }}</icon>
             </button>
         }
     `,

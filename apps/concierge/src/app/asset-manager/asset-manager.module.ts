@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
-import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatStepperModule } from '@angular/material/stepper';
 import { Route, RouterModule } from '@angular/router';
@@ -93,7 +92,6 @@ const ROUTES: Route[] = [
         CommonModule,
         UIModule,
         ComponentsModule,
-        MatButtonToggleModule,
         MatProgressBarModule,
         MatTabsModule,
         MatStepperModule,

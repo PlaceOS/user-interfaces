@@ -30,7 +30,7 @@ import { ApplicationIcon } from 'libs/common/src/lib/types';
     imports: [CommonModule],
 })
 export class IconComponent {
-    @Input() public className = 'material-icons';
+    @Input() public className = 'material-symbols-rounded';
     /** Icon details */
     @Input() public icon: ApplicationIcon;
 }

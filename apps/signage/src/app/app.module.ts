@@ -1,7 +1,6 @@
 import { ErrorHandler, LOCALE_ID, NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { Router } from '@angular/router';
 import { ServiceWorkerModule } from '@angular/service-worker';
 
@@ -11,18 +10,20 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 
-import { ComponentsModule } from '@placeos/components';
-
 import { AppComponent } from 'libs/components/src/lib/app.component';
 import { environment } from '../environments/environment';
 import { AppRoutingModule } from './app-routing.module';
 import { BootstrapComponent } from './bootstrap.component';
 
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { LocaleService } from '@placeos/common';
-import { SharedExploreModule } from '@placeos/explore';
-import { PaymentsModule } from '@placeos/payments';
-import { SharedSpacesModule } from '@placeos/spaces';
 import * as Sentry from '@sentry/angular';
+import { ChatComponent } from 'libs/components/src/lib/chat/chat.component';
+import { GlobalBannerComponent } from 'libs/components/src/lib/global-banner.component';
+import { GlobalLoadingComponent } from 'libs/components/src/lib/global-loading.component';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { MediaDurationPipe } from 'libs/components/src/lib/media-duration.pipe';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { MediaPlayerComponent } from './media-player.component';
 import { SignagePanelComponent } from './signage.component';
 
@@ -35,7 +36,6 @@ import { SignagePanelComponent } from './signage.component';
     ],
     imports: [
         BrowserModule,
-        BrowserAnimationsModule,
         FormsModule,
         ReactiveFormsModule,
         AppRoutingModule,
@@ -44,10 +44,13 @@ import { SignagePanelComponent } from './signage.component';
         MatRippleModule,
         MatFormFieldModule,
         MatSelectModule,
-        SharedSpacesModule,
-        ComponentsModule,
-        SharedExploreModule,
-        PaymentsModule,
+        MatTooltipModule,
+        IconComponent,
+        GlobalLoadingComponent,
+        GlobalBannerComponent,
+        ChatComponent,
+        TranslatePipe,
+        MediaDurationPipe,
         ServiceWorkerModule.register('ngsw-worker.js', {
             enabled: environment.production,
         }),

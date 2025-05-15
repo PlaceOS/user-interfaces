@@ -55,7 +55,7 @@ export class ActionIconComponent {
     /** Icon to display */
     @Input() public icon: ApplicationIcon;
     /** Icon to display */
-    @Input() public className: string = 'material-icons';
+    @Input() public className: string = 'material-symbols-rounded';
     /** Icon to display */
     @Input() public content: string;
     /** Whether action is being processed */

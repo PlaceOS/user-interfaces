@@ -1,5 +1,4 @@
 export { AsyncHandler as AsyncHandler } from './async-handler.class';
-export { GoogleAnalyticsService } from './google-analytics.service';
 export { HotkeysService } from './hotkeys.service';
 export { MapsPeopleService } from './mapspeople.service';
 export { SettingsService } from './settings.service';
