@@ -2,7 +2,6 @@ import { CommonModule } from '@angular/common';
 import { NgModule, Type } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { MatButtonModule } from '@angular/material/button';
 import { RouterModule } from '@angular/router';
 
 import { AssetsModule } from '@placeos/assets';
@@ -12,12 +11,10 @@ import { SharedEventsModule } from '@placeos/events';
 import { FormFieldsModule } from '@placeos/form-fields';
 import { SharedSpacesModule } from '@placeos/spaces';
 
-import { MatBadgeModule } from '@angular/material/badge';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialogModule } from '@angular/material/dialog';
-import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
@@ -48,7 +45,6 @@ const COMPONENTS: Type<any>[] = [
 ];
 
 const MATERIAL_MODULES: any[] = [
-    MatButtonModule,
     MatSnackBarModule,
     MatDialogModule,
     MatFormFieldModule,
@@ -61,9 +57,7 @@ const MATERIAL_MODULES: any[] = [
     MatRippleModule,
     MatMenuModule,
     MatCheckboxModule,
-    MatExpansionModule,
     MatTabsModule,
-    MatBadgeModule,
     MatTooltipModule,
     MatRadioModule,
     MatSlideToggleModule,

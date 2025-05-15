@@ -6,7 +6,6 @@ import { RouterModule } from '@angular/router';
 
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
-import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatRippleModule } from '@angular/material/core';
@@ -28,7 +27,6 @@ import { TopbarHeaderComponent } from './topbar-header.component';
 const COMPONENTS: Type<any>[] = [TopbarHeaderComponent, TakePhotoComponent];
 
 const MATERIAL_MODULES: any[] = [
-    MatButtonModule,
     MatSnackBarModule,
     MatDialogModule,
     MatFormFieldModule,

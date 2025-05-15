@@ -1,6 +1,5 @@
 import { ErrorHandler, LOCALE_ID, NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatNativeDateModule } from '@angular/material/core';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -40,7 +39,6 @@ import { LocaleService } from '@placeos/common';
         FormsModule,
         SharedOverlaysModule,
         SharedComponentModule,
-        MatNativeDateModule,
         MatSnackBarModule,
         SharedBookingsModule,
     ],

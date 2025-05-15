@@ -7,7 +7,6 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
-import { MatNativeDateModule } from '@angular/material/core';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { ServiceWorkerModule } from '@angular/service-worker';
 
@@ -53,7 +52,6 @@ import { BookModule } from './rooms/book.module';
         SharedComponentModule,
         BrowserAnimationsModule,
         FormsModule,
-        MatNativeDateModule,
         MatSnackBarModule,
         MatSelectModule,
         PaymentsModule,

@@ -1,16 +1,11 @@
 import { NgModule, Type } from '@angular/core';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { MatButtonModule } from '@angular/material/button';
 
-import { MatBadgeModule } from '@angular/material/badge';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatRippleModule } from '@angular/material/core';
-import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatDialogModule } from '@angular/material/dialog';
-import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -30,12 +25,9 @@ import { NotFoundComponent } from './not-found/not-found.component';
 const COMPONENTS: Type<any>[] = [NotFoundComponent];
 
 const MATERIAL_MODULES: any[] = [
-    MatButtonModule,
     MatSnackBarModule,
-    MatDatepickerModule,
     MatDialogModule,
     MatFormFieldModule,
-    MatIconModule,
     MatInputModule,
     MatProgressSpinnerModule,
     MatProgressBarModule,
@@ -45,9 +37,7 @@ const MATERIAL_MODULES: any[] = [
     MatRippleModule,
     MatMenuModule,
     MatCheckboxModule,
-    MatExpansionModule,
     MatTabsModule,
-    MatBadgeModule,
     MatTooltipModule,
     MatRadioModule,
     MatSliderModule,

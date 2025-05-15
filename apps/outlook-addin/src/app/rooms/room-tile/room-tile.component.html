@@ -22,10 +22,7 @@
                 />
 
                 <div *ngIf="space?.images?.length == 0">
-                    <mat-icon
-                        class="material-icons-outlined flex items-center justify-center text-[8rem]"
-                        >image</mat-icon
-                    >
+                    <icon class="text-[8rem]">image</icon>
                 </div>
             </div>
             <div class="mb-4 flex flex-col">
@@ -34,10 +31,7 @@
                 >
 
                 <div class="mx-3 mt-1 flex flex-row items-center text-base">
-                    <mat-icon
-                        class="material-icons-outlined blue-icon flex items-center"
-                        >room</mat-icon
-                    >
+                    <icon class="text-info">room</icon>
                     <span class="text-gray-500">
                         {{ space?.level?.name }},
                         {{ space?.level?.parent_id }}</span
@@ -45,10 +39,7 @@
                 </div>
 
                 <div class="mx-3 mt-1 flex flex-row items-center text-base">
-                    <mat-icon
-                        class="material-icons-outlined blue-icon flex items-center"
-                        >people</mat-icon
-                    >
+                    <icon class="flex items-center text-info">people</icon>
                     <span class="text-gray-500"> {{ space?.capacity }}</span>
                 </div>
             </div>

@@ -6,7 +6,6 @@ export * from './lib/available-rooms-state-modal.component';
 export * from './lib/binding.directive';
 export * from './lib/changelog-modal.component';
 export * from './lib/confirm-modal.component';
-export * from './lib/custom-table.component';
 export * from './lib/custom-tooltip.component';
 export * from './lib/fixed.pipe';
 export * from './lib/global-loading.component';

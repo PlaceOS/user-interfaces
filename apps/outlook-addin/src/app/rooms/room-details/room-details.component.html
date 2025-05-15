@@ -42,15 +42,13 @@
     >
         <span class="text-base font-bold">Details</span>
         <div class="mt-3 flex flex-row items-center text-sm">
-            <mat-icon class="material-icons-outlined blue-icon"
-                >people</mat-icon
-            >
+            <icon class="text-info">people</icon>
             <span class="text-gray-500 text-sm">
                 {{ space?.capacity }} People</span
             >
         </div>
         <div class="mt-1 flex flex-row items-center text-sm">
-            <mat-icon class="material-icons-outlined blue-icon">room</mat-icon>
+            <icon class="text-info">room</icon>
             <span class="text-gray-500">
                 {{ space?.level?.name }}, {{ space?.level?.parent_id }}</span
             >
@@ -68,34 +66,22 @@
         >
             <div [ngSwitch]="facility">
                 <div *ngSwitchCase="'Views'">
-                    <mat-icon class="material-symbols-outlined blue-icon"
-                        >panorama</mat-icon
-                    >
+                    <icon class="text-info">panorama</icon>
                 </div>
                 <div *ngSwitchCase="'Projector'">
-                    <mat-icon class="material-symbols-outlined blue-icon"
-                        >video_camera_front</mat-icon
-                    >
+                    <icon class="text-info">video_camera_front</icon>
                 </div>
                 <div *ngSwitchCase="'VidConf'">
-                    <mat-icon class="material-symbols-outlined blue-icon"
-                        >contact_phone</mat-icon
-                    >
+                    <icon class="text-info">contact_phone</icon>
                 </div>
                 <div *ngSwitchCase="'Whiteboard'">
-                    <mat-icon class="material-symbols-outlined blue-icon"
-                        >drive_file_rename_outline</mat-icon
-                    >
+                    <icon class="text-info">drive_file_rename_outline</icon>
                 </div>
                 <div *ngSwitchCase="'Jamboard'">
-                    <mat-icon class="material-symbols-outlined blue-icon"
-                        >draw</mat-icon
-                    >
+                    <icon class="text-info">draw</icon>
                 </div>
                 <div *ngSwitchCase="'Wifi'">
-                    <mat-icon class="material-symbols-outlined blue-icon"
-                        >nest_remote_comfort_sensor</mat-icon
-                    >
+                    <icon class="text-info">nest_remote_comfort_sensor</icon>
                 </div>
             </div>
 

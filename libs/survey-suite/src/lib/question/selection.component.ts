@@ -36,16 +36,16 @@ import { BaseQuestionComponent } from './base-question.component';
                             </mat-form-field>
                             <button
                                 matSuffix
-                                mat-icon-button
+                                icon-button
                                 (click)="deleteOption(i)"
                             >
-                                <mat-icon> delete_outline </mat-icon>
+                                <icon> delete_outline </icon>
                             </button>
                         </div>
                     </div>
                     <button mat-stroked-button (click)="addOption()">
                         <div class="text-gray-800 flex flex-row items-center">
-                            <mat-icon>add_circle</mat-icon>
+                            <icon>add_circle</icon>
                             <span>Add option</span>
                         </div>
                     </button>

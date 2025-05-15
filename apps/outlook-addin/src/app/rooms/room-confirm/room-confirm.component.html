@@ -23,17 +23,13 @@
             </span>
 
             <div class="text-gray-700 mt-2 flex items-center text-sm">
-                <mat-icon class="material-icons-outlined flex items-center"
-                    >calendar_today</mat-icon
-                >
+                <icon class="flex items-center">calendar_today</icon>
                 <span class="flex">
                     {{ unix_time | date: 'dd MMMM yyyy' }}
                 </span>
             </div>
             <div class="text-gray-700 mt-2 flex items-center text-sm">
-                <mat-icon class="material-icons-outlined flex items-center"
-                    >schedule</mat-icon
-                >
+                <icon class="flex items-center">schedule</icon>
                 <span class="flex">{{ start_time }} -{{ end_time }}</span>
             </div>
         </div>
@@ -54,9 +50,7 @@
                 *ngFor="let attendee of attendees"
             >
                 <div class="flex flex-col">
-                    <mat-icon class="material-icons-outlined flex items-center"
-                        >people</mat-icon
-                    >
+                    <icon class="flex items-center">people</icon>
                 </div>
                 <div class="flex flex-col">
                     <span class="w-full">{{ attendee?.email }}</span>
@@ -65,9 +59,7 @@
 
             <div class="text-gray-700 mt-2 flex flex-row items-center text-sm">
                 <div class="flex flex-col">
-                    <mat-icon class="material-icons-outlined flex items-center"
-                        >people</mat-icon
-                    >
+                    <icon class="flex items-center">people</icon>
                 </div>
                 <div class="flex flex-col">
                     <span>{{ form?.controls?.creator?.value }}</span>
@@ -84,17 +76,13 @@
             <span class="text-gray-700 flex text-base font-bold">Rooms </span>
 
             <div class="text-gray-700 mt-2 flex items-center text-sm">
-                <mat-icon class="material-icons-outlined flex items-center"
-                    >meeting_room</mat-icon
-                >
+                <icon class="flex items-center">meeting_room</icon>
                 <span class="flex">
                     {{ space?.name }}
                 </span>
             </div>
             <div class="text-gray-700 mt-2 flex items-center text-sm">
-                <mat-icon class="material-icons-outlined flex items-center"
-                    >room</mat-icon
-                >
+                <icon class="flex items-center">room</icon>
                 <span class="flex"> {{ space?.level?.name }}</span>
             </div>
         </div>

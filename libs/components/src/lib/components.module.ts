@@ -1,6 +1,5 @@
 import { ClipboardModule } from '@angular/cdk/clipboard';
 import { PortalModule } from '@angular/cdk/portal';
-import { CdkTableModule } from '@angular/cdk/table';
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -9,7 +8,6 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatRippleModule } from '@angular/material/core';
-import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -33,7 +31,6 @@ import { PopoutMenuComponent } from './popout-menu.component';
 import { UserAvatarComponent } from './user-avatar.component';
 
 import { ScrollingModule } from '@angular/cdk/scrolling';
-import { MatSortModule } from '@angular/material/sort';
 import { RouterModule } from '@angular/router';
 import { AccessibilityTooltipComponent } from './accessibility-tooltip.component';
 import { AttachedResourceConfigModalComponent } from './attached-resource-config-modal.component';
@@ -44,7 +41,6 @@ import { BuildingPipe } from './building.pipe';
 import { ChangelogModalComponent } from './changelog-modal.component';
 import { ChatComponent } from './chat/chat.component';
 import { ConfirmModalComponent } from './confirm-modal.component';
-import { CustomTableComponent } from './custom-table.component';
 import { CustomTooltipComponent } from './custom-tooltip.component';
 import { DateFromPipe } from './date-from.pipe';
 import { DebugConsoleComponent } from './debug-console.component';
@@ -103,15 +99,12 @@ const MAT_MODULES = [
     MatAutocompleteModule,
     MatSelectModule,
     MatDialogModule,
-    MatDatepickerModule,
     MatInputModule,
     ClipboardModule,
     MatProgressSpinnerModule,
     MatChipsModule,
     MatPaginatorModule,
-    CdkTableModule,
     PortalModule,
-    MatSortModule,
     ScrollingModule,
     MatTooltipModule,
     MatCheckboxModule,
@@ -136,7 +129,6 @@ const COMPONENTS = [
     MapCanvasComponent,
     IndoorMapsComponent,
     StatusOverlayComponent,
-    CustomTableComponent,
     VirtualKeyboardComponent,
     GlobalLoadingComponent,
     GlobalBannerComponent,

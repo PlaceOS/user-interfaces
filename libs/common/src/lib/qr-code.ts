@@ -1,4 +1,4 @@
-import { VanillaQR } from './vanillaqr.min';
+import { encodeQR } from 'qr';
 
 /** Generates a DataURL for QR code image */
 export function generateQRCode(
@@ -6,15 +6,9 @@ export function generateQRCode(
     colorLight = '#fff0',
     colorDark = '#000',
 ) {
-    const qr = new VanillaQR({
-        url: code || 'Hello',
-        size: 360,
-        colorLight,
-        colorDark,
-        toTable: false,
-        ecclevel: 1,
-        noBorder: true,
-        borderSize: 0,
-    });
-    return qr?.toImage('svg+xml')?.src;
+    let svg = encodeQR(code, 'svg', { ecc: 'low', border: 1 });
+    console.log('SVG:', svg);
+    svg = svg.replace('<path', `<path style="fill:${colorDark};"`);
+    const encoded_svg = encodeURIComponent(svg);
+    return `data:image/svg+xml,${encoded_svg}`;
 }

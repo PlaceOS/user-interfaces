@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MatNativeDateModule, NativeDateModule } from '@angular/material/core';
+import { NativeDateModule } from '@angular/material/core';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { Route, RouterModule } from '@angular/router';
 
@@ -45,11 +45,9 @@ const ROUTES: Route[] = [
         SharedComponentModule,
         FormsModule,
         ReactiveFormsModule,
-        MatNativeDateModule,
         NativeDateModule,
         FormFieldsModule,
         MatBottomSheetModule,
-        MatNativeDateModule,
         MatSnackBarModule,
         MatButtonToggleModule,
         ComponentsModule,
