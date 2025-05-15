@@ -21,7 +21,7 @@ import { StaffUser } from './user.class';
                 {{ 'COMMON.SELECT_USER_TITLE' | translate }}
             </h2>
             <button icon matRipple mat-dialog-close>
-                <app-icon>close</app-icon>
+                <icon>close</icon>
             </button>
         </header>
         <main class="h-[60vh] overflow-auto px-2 pb-2">
@@ -29,9 +29,7 @@ import { StaffUser } from './user.class';
                 class="no-subscript sticky top-0 z-10 mb-2 w-full bg-base-100"
                 appearance="outline"
             >
-                <app-icon class="relative -left-2 text-2xl" matPrefix
-                    >search</app-icon
-                >
+                <icon class="relative -left-2 text-2xl" matPrefix>search</icon>
                 <input
                     matInput
                     [placeholder]="'COMMON.SELECT_USER_SEARCH' | translate"

@@ -161,7 +161,7 @@ import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
                 *ngIf="!loading"
                 class="absolute right-2 top-2"
             >
-                <app-icon>close</app-icon>
+                <icon>close</icon>
             </button>
         </div>
         <ng-template #load_state>

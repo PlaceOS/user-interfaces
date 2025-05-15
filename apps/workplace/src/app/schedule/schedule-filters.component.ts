@@ -29,7 +29,7 @@ import { ScheduleStateService } from './schedule-state.service';
                         name="schedule-remove-event-filter"
                         (click)="toggleType('event', true)"
                     >
-                        <app-icon>close</app-icon>
+                        <icon>close</icon>
                     </button>
                 </div>
                 <div
@@ -45,7 +45,7 @@ import { ScheduleStateService } from './schedule-state.service';
                         name="schedule-remove-desk-filter"
                         (click)="toggleType('desk', true)"
                     >
-                        <app-icon>close</app-icon>
+                        <icon>close</icon>
                     </button>
                 </div>
                 <div
@@ -64,7 +64,7 @@ import { ScheduleStateService } from './schedule-state.service';
                         name="schedule-remove-parking-filter"
                         (click)="toggleType('parking', true)"
                     >
-                        <app-icon>close</app-icon>
+                        <icon>close</icon>
                     </button>
                 </div>
                 <div
@@ -83,7 +83,7 @@ import { ScheduleStateService } from './schedule-state.service';
                         name="schedule-remove-visitor-filter"
                         (click)="toggleType('visitor', true)"
                     >
-                        <app-icon>close</app-icon>
+                        <icon>close</icon>
                     </button>
                 </div>
                 <div
@@ -102,7 +102,7 @@ import { ScheduleStateService } from './schedule-state.service';
                         name="schedule-remove-locker-filter"
                         (click)="toggleType('locker', true)"
                     >
-                        <app-icon>close</app-icon>
+                        <icon>close</icon>
                     </button>
                 </div>
                 <div
@@ -120,7 +120,7 @@ import { ScheduleStateService } from './schedule-state.service';
                         name="schedule-remove-locker-filter"
                         (click)="toggleType('group-event', true)"
                     >
-                        <app-icon>close</app-icon>
+                        <icon>close</icon>
                     </button>
                 </div>
             </div>
@@ -134,7 +134,7 @@ import { ScheduleStateService } from './schedule-state.service';
                 (click)="openFilters()"
             >
                 <div class="flex items-center justify-center space-x-2">
-                    <app-icon class="text-xl">filter_list</app-icon>
+                    <icon class="text-xl">filter_list</icon>
                     <!-- <div class="mr-2">{{ "APP.WORKPLACE.FILTERS" | translate }}</div> -->
                 </div>
             </button>
@@ -151,7 +151,7 @@ import { ScheduleStateService } from './schedule-state.service';
                     name="schedule-remove-event-filter-mobile"
                     (click)="toggleType('event', true)"
                 >
-                    <app-icon>close</app-icon>
+                    <icon>close</icon>
                 </button>
             </div>
             <div
@@ -167,7 +167,7 @@ import { ScheduleStateService } from './schedule-state.service';
                     name="schedule-remove-desk-filter-mobile"
                     (click)="toggleType('desk', true)"
                 >
-                    <app-icon>close</app-icon>
+                    <icon>close</icon>
                 </button>
             </div>
             <div
@@ -183,7 +183,7 @@ import { ScheduleStateService } from './schedule-state.service';
                     name="schedule-remove-parking-filter-mobile"
                     (click)="toggleType('parking', true)"
                 >
-                    <app-icon>close</app-icon>
+                    <icon>close</icon>
                 </button>
             </div>
             <div
@@ -199,7 +199,7 @@ import { ScheduleStateService } from './schedule-state.service';
                     name="schedule-remove-visitor-filter-mobile"
                     (click)="toggleType('visitor', true)"
                 >
-                    <app-icon>close</app-icon>
+                    <icon>close</icon>
                 </button>
             </div>
             <div
@@ -215,7 +215,7 @@ import { ScheduleStateService } from './schedule-state.service';
                     name="schedule-remove-locker-filter-mobile"
                     (click)="toggleType('locker', true)"
                 >
-                    <app-icon>close</app-icon>
+                    <icon>close</icon>
                 </button>
             </div>
             <div
@@ -231,7 +231,7 @@ import { ScheduleStateService } from './schedule-state.service';
                     name="schedule-remove-locker-filter-mobile"
                     (click)="toggleType('group-event', true)"
                 >
-                    <app-icon>close</app-icon>
+                    <icon>close</icon>
                 </button>
             </div>
         </div>

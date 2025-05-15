@@ -28,7 +28,7 @@ import { EventsStateService } from './events-state.service';
                     matTooltipPosition="left"
                     (click)="show = !show"
                 >
-                    <app-icon>chevron_right</app-icon>
+                    <icon>chevron_right</icon>
                 </button>
                 <h3 class="flex-1 py-3 text-center">
                     {{
@@ -51,11 +51,11 @@ import { EventsStateService } from './events-state.service';
                     [ngModel]="search | async"
                     (ngModelChange)="search.next($event)"
                 />
-                <app-icon
+                <icon
                     class="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-2xl"
                 >
                     search
-                </app-icon>
+                </icon>
             </div>
             <div class="flex-1 space-y-2 overflow-auto p-3">
                 <div
@@ -95,7 +95,7 @@ import { EventsStateService } from './events-state.service';
                         <div
                             class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
                         >
-                            <app-icon class="text-xl">place</app-icon>
+                            <icon class="text-xl">place</icon>
                         </div>
                         <div class="flex-1 text-xs">
                             {{
@@ -109,7 +109,7 @@ import { EventsStateService } from './events-state.service';
                         <div
                             class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
                         >
-                            <app-icon class="text-xl">person</app-icon>
+                            <icon class="text-xl">person</icon>
                         </div>
                         <div class="flex-1 text-xs">
                             {{ event.organiser?.name || event.host }}
@@ -131,7 +131,7 @@ import { EventsStateService } from './events-state.service';
                                     ) | translate
                                 }}
                             </div>
-                            <app-icon class="text-success">done</app-icon>
+                            <icon class="text-success">done</icon>
                         </button>
                         <button
                             btn
@@ -148,7 +148,7 @@ import { EventsStateService } from './events-state.service';
                                     ) | translate
                                 }}
                             </div>
-                            <app-icon class="text-error">close</app-icon>
+                            <icon class="text-error">close</icon>
                         </button>
                     </div>
                 </div>
@@ -174,7 +174,7 @@ import { EventsStateService } from './events-state.service';
             [matTooltip]="'APP.CONCIERGE.ROOMS_PENDING_SHOW' | translate"
             matTooltipPosition="left"
         >
-            <app-icon>chevron_left</app-icon>
+            <icon>chevron_left</icon>
         </button>
     `,
     styles: [

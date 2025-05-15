@@ -24,20 +24,20 @@ import { OrganisationService } from '@placeos/organisation';
                     *ngIf="show_close"
                     (click)="dismiss()"
                 >
-                    <app-icon class="text-2xl">close</app-icon>
+                    <icon class="text-2xl">close</icon>
                 </button>
             </div>
         </header>
         <section period class="flex space-x-1 px-2 py-4 text-base">
-            <app-icon class="text-2xl text-success">done</app-icon>
+            <icon class="text-2xl text-success">done</icon>
             <div details class="space-y-2 text-base">
                 <h3 class="text-xl">{{ booking.title || '~Untitled~' }}</h3>
                 <div class="flex items-center space-x-2">
-                    <app-icon>calendar_today</app-icon>
+                    <icon>calendar_today</icon>
                     <div date>{{ booking.date | date: 'fullDate' }}</div>
                 </div>
                 <div class="flex items-center space-x-2">
-                    <app-icon>schedule</app-icon>
+                    <icon>schedule</icon>
                     <div time>
                         {{
                             booking.all_day
@@ -56,22 +56,22 @@ import { OrganisationService } from '@placeos/organisation';
             class="flex space-x-1 border-t px-2 py-4 text-base"
             *ngIf="booking_asset?.id"
         >
-            <app-icon class="text-2xl text-success">done</app-icon>
+            <icon class="text-2xl text-success">done</icon>
             <div details class="space-y-2 text-base">
                 <h3 class="text-xl">
                     {{ booking_asset?.name || booking_asset?.id || '' }}
                 </h3>
                 <div class="flex items-center space-x-2">
-                    <app-icon>person</app-icon>
+                    <icon>person</icon>
                     <span>{{ 'RESOURCE.PARKING_SPACE' | translate }}</span>
                 </div>
                 <div class="flex items-center space-x-2">
-                    <app-icon>place</app-icon>
+                    <icon>place</icon>
                     <div>{{ location }}</div>
                 </div>
                 <ng-container *ngFor="let feat of booking_asset.features">
                     <div features class="flex items-center space-x-2">
-                        <app-icon>arrow_upward</app-icon>
+                        <icon>arrow_upward</icon>
                         <div>{{ feat }}</div>
                     </div>
                 </ng-container>
@@ -91,7 +91,7 @@ import { OrganisationService } from '@placeos/organisation';
         </footer>`,
     styles: [
         `
-            section > app-icon {
+            section > icon {
                 font-size: 1.5rem;
                 margin-top: 0.3rem;
             }

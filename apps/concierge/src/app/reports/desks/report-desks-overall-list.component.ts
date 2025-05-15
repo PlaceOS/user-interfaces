@@ -24,7 +24,7 @@ import { ReportsStateService } from '../reports-state.service';
                         *ngIf="!print"
                         (click)="download()"
                     >
-                        <app-icon>download</app-icon>
+                        <icon>download</icon>
                     </button>
                 </div>
                 <simple-table

@@ -30,7 +30,6 @@ import { ControlTabbedViewComponent } from './tabbed-view/tabbed-view.component'
 
 import { AssetsModule } from '@placeos/assets';
 import { SharedExploreModule } from '@placeos/explore';
-import { PaymentsModule } from '@placeos/payments';
 import * as Sentry from '@sentry/angular';
 import { TVControlsComponent } from './tabbed-view/tv-controls.component';
 
@@ -60,7 +59,6 @@ import { TVControlsComponent } from './tabbed-view/tv-controls.component';
         MatProgressSpinnerModule,
         UIModule,
         MatSliderModule,
-        PaymentsModule,
         AssetsModule,
         SharedExploreModule,
         ServiceWorkerModule.register('ngsw-worker.js', {

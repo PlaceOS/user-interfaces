@@ -13,7 +13,7 @@ import { Observable } from 'rxjs';
                 {{ 'APP.CONCIERGE.ASSETS_MANAGE_CATEGORIES' | translate }}
             </h2>
             <button icon matRipple mat-dialog-close>
-                <app-icon>close</app-icon>
+                <icon>close</icon>
             </button>
         </header>
         <main class="h-[32rem] max-h-[65vh] min-w-[28rem]">
@@ -32,7 +32,7 @@ import { Observable } from 'rxjs';
                         class="h-12 w-12 rounded border border-secondary text-secondary"
                         (click)="edit(category)"
                     >
-                        <app-icon>edit</app-icon>
+                        <icon>edit</icon>
                     </button>
                     <button
                         icon
@@ -43,7 +43,7 @@ import { Observable } from 'rxjs';
                         class="h-12 w-12 rounded border border-error text-error"
                         (click)="remove(category)"
                     >
-                        <app-icon>delete</app-icon>
+                        <icon>delete</icon>
                     </button>
                 </div>
             }
@@ -57,7 +57,7 @@ import { Observable } from 'rxjs';
             <div class="truncate pl-2">
                 {{ 'APP.CONCIERGE.ASSETS_CATEGORY_NEW' | translate }}
             </div>
-            <app-icon class="text-2xl">add</app-icon>
+            <icon class="text-2xl">add</icon>
         </button>
     `,
     styles: [``],

@@ -21,7 +21,7 @@ export interface Locatable {
     template: `
         <div class="h-[calc(100vh-4rem)] w-screen sm:h-auto sm:w-auto">
             <header class="p-4">
-                <app-icon class="text-2xl">place</app-icon>
+                <icon class="text-2xl">place</icon>
                 <h1 class="ml-2 text-xl font-medium">
                     {{ item.display_name || item.name }}
                 </h1>

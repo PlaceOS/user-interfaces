@@ -15,7 +15,7 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
                 matRipple
                 mat-dialog-close
             >
-                <app-icon>close</app-icon>
+                <icon>close</icon>
             </button>
         </div>
     `,

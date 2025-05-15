@@ -40,7 +40,7 @@ import { StaffStateService } from './staff-state.service';
                     [attr.disabled]="!user?.email"
                     [href]="'mailto:' + user?.email"
                 >
-                    <app-icon>email</app-icon>
+                    <icon>email</icon>
                 </a>
                 <a
                     icon
@@ -49,7 +49,7 @@ import { StaffStateService } from './staff-state.service';
                     [attr.disabled]="!user?.phone"
                     [href]="'tel:' + user?.phone"
                 >
-                    <app-icon>call</app-icon>
+                    <icon>call</icon>
                 </a>
             </div>
         </div>

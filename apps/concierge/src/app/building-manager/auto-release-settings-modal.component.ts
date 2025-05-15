@@ -44,7 +44,7 @@ import { map } from 'rxjs/operators';
                 {{ 'APP.CONCIERGE.AUTO_RELEASE_HEADER' | translate }}
             </h3>
             <button icon matRipple mat-dialog-close *ngIf="!loading">
-                <app-icon class="text-2xl">close</app-icon>
+                <icon class="text-2xl">close</icon>
             </button>
         </header>
         <main

@@ -53,11 +53,11 @@ import { NewParkingFlowConfirmComponent } from './parking-flow-confirm.component
                                     hide_block.details = !hide_block.details
                                 "
                             >
-                                <app-icon>{{
+                                <icon>{{
                                     hide_block.details
                                         ? 'expand_more'
                                         : 'expand_less'
-                                }}</app-icon>
+                                }}</icon>
                             </button>
                         </h3>
                         <div
@@ -86,11 +86,11 @@ import { NewParkingFlowConfirmComponent } from './parking-flow-confirm.component
                                 matRipple
                                 (click)="hide_block.space = !hide_block.space"
                             >
-                                <app-icon>{{
+                                <icon>{{
                                     hide_block.space
                                         ? 'expand_more'
                                         : 'expand_less'
-                                }}</app-icon>
+                                }}</icon>
                             </button>
                         </h3>
                         <div

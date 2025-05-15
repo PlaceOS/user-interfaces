@@ -54,8 +54,8 @@ const EMPTY_FAVS: string[] = [];
                         {{ item.name || 'Locker' }}
                     </div>
                     <div class="flex items-center space-x-2 text-sm">
-                        <app-icon class="text-blue-500 text-base"
-                            >place</app-icon
+                        <icon class="text-blue-500 text-base"
+                            >place</icon
                         >
                         <p>
                             {{
@@ -68,8 +68,8 @@ const EMPTY_FAVS: string[] = [];
                         class="flex items-center space-x-2 text-sm"
                         *ngIf="item.accessible"
                     >
-                        <app-icon class="text-blue-500 text-base"
-                            >accessible</app-icon
+                        <icon class="text-blue-500 text-base"
+                            >accessible</icon
                         >
                         <p>{{ 'BOOKINGS.LOCKER_ACCESSIBLE' | translate }}</p>
                     </div>
@@ -84,7 +84,7 @@ const EMPTY_FAVS: string[] = [];
                             (click)="changeResources(item)"
                         >
                             <div class="flex items-center space-x-2">
-                                <app-icon>edit</app-icon>
+                                <icon>edit</icon>
                                 {{ 'COMMON.CHANGE' | translate }}
                             </div>
                         </button>
@@ -96,7 +96,7 @@ const EMPTY_FAVS: string[] = [];
                             (click)="removeResource(item)"
                         >
                             <div class="flex items-center space-x-2">
-                                <app-icon>close</app-icon>
+                                <icon>close</icon>
                                 {{ 'COMMON.REMOVE' | translate }}
                             </div>
                         </button>
@@ -112,7 +112,7 @@ const EMPTY_FAVS: string[] = [];
             (click)="changeResources()"
         >
             <div class="flex items-center justify-center space-x-2">
-                <app-icon>search</app-icon>
+                <icon>search</icon>
                 <span>{{ 'BOOKINGS.LOCKER_ADD' | translate }}</span>
             </div>
         </button>

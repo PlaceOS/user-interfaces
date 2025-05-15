@@ -3,7 +3,7 @@ import { Component, Input } from '@angular/core';
 import { ApplicationIcon } from 'libs/common/src/lib/types';
 
 @Component({
-    selector: 'app-icon,icon',
+    selector: 'icon,icon',
     template: `
         <div class="flex h-[1.25em] w-[1.25em] items-center justify-center">
             <i

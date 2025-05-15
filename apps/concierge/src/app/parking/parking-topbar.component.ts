@@ -46,7 +46,7 @@ import { ParkingStateService } from './parking-state.service';
                     <div class="pl-2">
                         {{ 'APP.CONCIERGE.PARKING_SPACE_ADD' | translate }}
                     </div>
-                    <app-icon>add</app-icon>
+                    <icon>add</icon>
                 </button>
             </div>
             <button
@@ -59,7 +59,7 @@ import { ParkingStateService } from './parking-state.service';
                 <div class="pl-2">
                     {{ 'APP.CONCIERGE.PARKING_USER_ADD' | translate }}
                 </div>
-                <app-icon>add</app-icon>
+                <icon>add</icon>
             </button>
             <button
                 btn
@@ -71,7 +71,7 @@ import { ParkingStateService } from './parking-state.service';
                 <div class="pl-2">
                     {{ 'APP.CONCIERGE.PARKING_ADD' | translate }}
                 </div>
-                <app-icon>add</app-icon>
+                <icon>add</icon>
             </button>
         </div>
         <div class="mb-2 flex h-14 items-center bg-base-100 px-8">
@@ -105,7 +105,7 @@ import { ParkingStateService } from './parking-state.service';
                 [matTooltip]="'APP.CONCIERGE.PARKING_BOOKING_RULES' | translate"
                 *ngIf="path !== 'events' && path !== 'map'"
             >
-                <app-icon>lock_open</app-icon>
+                <icon>lock_open</icon>
             </button>
             <date-options
                 *ngIf="path === 'events' || path === 'map'"

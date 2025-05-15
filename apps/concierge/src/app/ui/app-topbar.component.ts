@@ -16,9 +16,9 @@ import { OrganisationService } from '@placeos/organisation';
                 appearance="outline"
                 class="flex-1 max-w-[65vw] h-[3.25rem]"
             >
-                <app-icon matPrefix class="text-2xl relative -left-1">
+                <icon matPrefix class="text-2xl relative -left-1">
                     search
-                </app-icon>
+                </icon>
                 <input
                     matInput
                     placeholder="Search for bookings, people or locations"
@@ -26,7 +26,7 @@ import { OrganisationService } from '@placeos/organisation';
             </mat-form-field> -->
             <div class="flex flex-1 items-center justify-end space-x-2">
                 <button btn icon matRipple>
-                    <app-icon class="text-2xl">notifications</app-icon>
+                    <icon class="text-2xl">notifications</icon>
                 </button>
                 <button
                     matRipple

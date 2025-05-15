@@ -12,7 +12,7 @@ import { ExploreStateService } from './explore-state.service';
             (click)="zoomIn()"
             [matTooltip]="'EXPLORE.ZOOM_IN' | translate"
         >
-            <app-icon>add</app-icon>
+            <icon>add</icon>
         </button>
         <button
             z-out
@@ -22,7 +22,7 @@ import { ExploreStateService } from './explore-state.service';
             (click)="zoomOut()"
             [matTooltip]="'EXPLORE.ZOOM_OUT' | translate"
         >
-            <app-icon>remove</app-icon>
+            <icon>remove</icon>
         </button>
         <button
             reset
@@ -32,7 +32,7 @@ import { ExploreStateService } from './explore-state.service';
             (click)="reset()"
             [matTooltip]="'EXPLORE.ZOOM_RESET' | translate"
         >
-            <app-icon>autorenew</app-icon>
+            <icon>autorenew</icon>
         </button>
     `,
     styles: [

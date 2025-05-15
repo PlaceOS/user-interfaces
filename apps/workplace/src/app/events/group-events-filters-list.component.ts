@@ -38,7 +38,7 @@ import { GroupEventsStateService } from './group-events-state.service';
                 >
                     <div class="mr-2 flex-1 text-sm">{{ tag }}</div>
                     <button icon matRipple (click)="removeTag(tag)">
-                        <app-icon>close</app-icon>
+                        <icon>close</icon>
                     </button>
                 </div>
             </div>

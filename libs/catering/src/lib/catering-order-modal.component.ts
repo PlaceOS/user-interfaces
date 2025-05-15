@@ -91,7 +91,7 @@ export interface CateringOrderModalData {
                                                 matRipple
                                                 [disabled]="true"
                                             >
-                                                <app-icon>remove</app-icon>
+                                                <icon>remove</icon>
                                             </button>
                                         </div>
                                         <div
@@ -104,7 +104,7 @@ export interface CateringOrderModalData {
                                             matRipple
                                             (click)="addItem(item)"
                                         >
-                                            <app-icon>add</app-icon>
+                                            <icon>add</icon>
                                         </button>
                                     </div>
                                 </div>

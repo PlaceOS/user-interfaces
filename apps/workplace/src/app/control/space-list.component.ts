@@ -13,7 +13,7 @@ import { BehaviorSubject, combineLatest } from 'rxjs';
             class="flex w-full items-center justify-center border-b border-base-300 bg-base-100 p-2"
         >
             <mat-form-field overlay class="h-12 rounded" appearance="outline">
-                <app-icon class="text-xl" matPrefix>search</app-icon>
+                <icon class="text-xl" matPrefix>search</icon>
                 <input
                     matInput
                     [ngModel]="search.getValue()"
@@ -40,7 +40,7 @@ import { BehaviorSubject, combineLatest } from 'rxjs';
         </div>
         <ng-template #empty_state>
             <div class="flex flex-col items-center space-y-4 p-8 opacity-30">
-                <app-icon class="text-6xl">no_meeting_room</app-icon>
+                <icon class="text-6xl">no_meeting_room</icon>
                 <p>
                     {{
                         search_str

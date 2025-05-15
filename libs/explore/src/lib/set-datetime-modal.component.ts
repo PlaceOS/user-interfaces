@@ -11,7 +11,7 @@ import { User } from 'libs/users/src/lib/user.class';
         <header classs="flex items-center justify-between">
             <h2>Set date and time</h2>
             <button icon mat-dialog-close>
-                <app-icon>close</app-icon>
+                <icon>close</icon>
             </button>
         </header>
         <main

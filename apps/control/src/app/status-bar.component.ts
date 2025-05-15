@@ -55,7 +55,7 @@ import { ControlStateService } from './control-state.service';
             </div>
             <div class="flex h-12 w-12 items-center justify-center">
                 <button icon matRipple mute class="rounded-none">
-                    <app-icon>fiber_manual_record</app-icon>
+                    <icon>fiber_manual_record</icon>
                 </button>
             </div>
             <div class="flex h-12 w-12 items-center justify-center">
@@ -72,9 +72,9 @@ import { ControlStateService } from './control-state.service';
                     onEvent="click"
                     [exec]="rec_status === 'playing' ? 'pause' : 'start'"
                 >
-                    <app-icon>{{
+                    <icon>{{
                         rec_status === 'playing' ? 'pause' : 'play_arrow'
-                    }}</app-icon>
+                    }}</icon>
                 </button>
             </div>
             <div class="flex h-12 w-32 flex-col p-2">
@@ -108,13 +108,13 @@ import { ControlStateService } from './control-state.service';
             class="flex w-[32rem] max-w-[50%] items-center space-x-2 px-4 py-2 text-base-content"
         >
             <button icon matRipple (click)="toggleMute()">
-                <app-icon>{{
+                <icon>{{
                     (system | async).mute
                         ? 'volume_off'
                         : (system | async).volume > 0
                           ? 'volume_up'
                           : 'volume_mute'
-                }}</app-icon>
+                }}</icon>
             </button>
             <mat-slider class="flex-1">
                 <input

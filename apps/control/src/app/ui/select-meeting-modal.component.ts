@@ -16,7 +16,7 @@ import { ControlStateService } from '../control-state.service';
                 mat-dialog-close
                 class="absolute right-2 top-2"
             >
-                <app-icon>close</app-icon>
+                <icon>close</icon>
             </button>
             <div class="mx-auto w-[40rem] max-w-full p-2">
                 <h2 class="my-4 w-full text-center text-2xl font-medium">

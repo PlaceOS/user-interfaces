@@ -70,7 +70,7 @@ import { CheckinStateService } from './checkin-state.service';
                 class="absolute right-2 top-2"
                 [routerLink]="['/welcome']"
             >
-                <app-icon>close</app-icon>
+                <icon>close</icon>
             </a>
         </div>
         <ng-template #load_state>

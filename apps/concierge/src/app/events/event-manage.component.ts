@@ -50,7 +50,7 @@ const EMPTY = [];
                     *ngIf="!loading"
                     [routerLink]="['/entertainment', 'events']"
                 >
-                    <app-icon>close</app-icon>
+                    <icon>close</icon>
                 </a>
             </header>
             <form
@@ -97,7 +97,7 @@ const EMPTY = [];
                                     (removed)="removeTag(tag)"
                                 >
                                     {{ tag }}
-                                    <app-icon matChipRemove>close</app-icon>
+                                    <icon matChipRemove>close</icon>
                                 </mat-chip-row>
                                 <input
                                     placeholder="Add new tags relevant to this event..."
@@ -219,9 +219,9 @@ const EMPTY = [];
                                 {{ 'COMMON.TIMEZONE' | translate }}
                             </label>
                             <mat-form-field appearance="outline">
-                                <app-icon matPrefix class="text-2xl">
+                                <icon matPrefix class="text-2xl">
                                     search
-                                </app-icon>
+                                </icon>
                                 <input
                                     matInput
                                     formControlName="timezone"
@@ -268,7 +268,7 @@ const EMPTY = [];
                                     })
                                 "
                             >
-                                <app-icon class="text-2xl">domain</app-icon>
+                                <icon class="text-2xl">domain</icon>
                                 <div class="mx-2">
                                     {{
                                         'APP.CONCIERGE.EVENTS_LOCATION_ONSITE'
@@ -289,7 +289,7 @@ const EMPTY = [];
                                     })
                                 "
                             >
-                                <app-icon class="text-2xl">laptop_mac</app-icon>
+                                <icon class="text-2xl">laptop_mac</icon>
                                 <div class="mx-2">
                                     {{
                                         'APP.CONCIERGE.EVENTS_LOCATION_ONLINE'
@@ -308,7 +308,7 @@ const EMPTY = [];
                                     form.patchValue({ attendance_type: 'ANY' })
                                 "
                             >
-                                <app-icon class="text-2xl">add</app-icon>
+                                <icon class="text-2xl">add</icon>
                                 <div class="mx-2">
                                     {{
                                         'APP.CONCIERGE.EVENTS_LOCATION_BOTH'

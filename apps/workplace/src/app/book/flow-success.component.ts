@@ -9,7 +9,7 @@ import { currentUser } from '@placeos/common';
             class="bg-indigo-900 fixed inset-0 z-50 flex flex-col items-center justify-center"
         >
             <div class="mb-4 rounded-full bg-base-100 text-7xl text-success">
-                <app-icon>done</app-icon>
+                <icon>done</icon>
             </div>
             <div class="mb-4 text-center text-lg leading-10 text-white">
                 Thank you, your {{ type }} booking was successful!<br />

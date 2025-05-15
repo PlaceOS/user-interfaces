@@ -32,7 +32,7 @@ import { AsyncHandler, LocaleService, SettingsService } from '@placeos/common';
                             <div class="ml-2">
                                 {{ 'APP.VISITOR_KIOSK.CHECK_IN' | translate }}
                             </div>
-                            <app-icon class="text-2xl">chevron_right</app-icon>
+                            <icon class="text-2xl">chevron_right</icon>
                         </div>
                     </a>
                     <a
@@ -46,7 +46,7 @@ import { AsyncHandler, LocaleService, SettingsService } from '@placeos/common';
                             <div class="ml-2">
                                 {{ 'APP.VISITOR_KIOSK.REGISTER' | translate }}
                             </div>
-                            <app-icon class="text-2xl">chevron_right</app-icon>
+                            <icon class="text-2xl">chevron_right</icon>
                         </div>
                     </a>
                     <a
@@ -60,7 +60,7 @@ import { AsyncHandler, LocaleService, SettingsService } from '@placeos/common';
                             <div class="ml-2">
                                 {{ 'APP.VISITOR_KIOSK.EXPLORE' | translate }}
                             </div>
-                            <app-icon class="text-2xl">place</app-icon>
+                            <icon class="text-2xl">place</icon>
                         </div>
                     </a>
                 </div>
@@ -74,7 +74,7 @@ import { AsyncHandler, LocaleService, SettingsService } from '@placeos/common';
                 [matMenuTriggerFor]="menu"
             >
                 <div class="flex items-center justify-between">
-                    <app-icon class="text-2xl text-white">language</app-icon>
+                    <icon class="text-2xl text-white">language</icon>
                     <div class="ml-2 text-left leading-tight text-white">
                         <div>{{ 'COMMON.LANGUAGE' | translate }}</div>
                         <div

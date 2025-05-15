@@ -33,7 +33,7 @@ import { WFHSettingsModalComponent } from 'libs/users/src/lib/wfh-settings-modal
                     class="hover:bg-base-200"
                     (click)="editSettings()"
                 >
-                    <app-icon>edit_note</app-icon>
+                    <icon>edit_note</icon>
                 </button>
             </div>
             <h3 class="px-4 text-sm font-medium">
@@ -66,9 +66,9 @@ import { WFHSettingsModalComponent } from 'libs/users/src/lib/wfh-settings-modal
                             now <= timeFrom(block.end_time)
                         "
                     >
-                        <app-icon class="text-2xl">{{
+                        <icon class="text-2xl">{{
                             location_icon(timeFrom(block.start_time))
-                        }}</app-icon>
+                        }}</icon>
                     </div>
                     <div class="ml-2 flex-1">
                         <button
@@ -79,7 +79,7 @@ import { WFHSettingsModalComponent } from 'libs/users/src/lib/wfh-settings-modal
                             <div>
                                 {{ location(timeFrom(block.start_time)) }}
                             </div>
-                            <app-icon>expand_more</app-icon>
+                            <icon>expand_more</icon>
                         </button>
                         <mat-menu #work_menu="matMenu">
                             <button
@@ -88,9 +88,7 @@ import { WFHSettingsModalComponent } from 'libs/users/src/lib/wfh-settings-modal
                                 (click)="setLocation(i, loc.id)"
                             >
                                 <div class="flex items-center space-x-2">
-                                    <app-icon class="text-2xl">{{
-                                        loc.icon
-                                    }}</app-icon>
+                                    <icon class="text-2xl">{{ loc.icon }}</icon>
                                     <div class="pr-8">
                                         {{ loc.name | translate }}
                                     </div>
@@ -114,7 +112,7 @@ import { WFHSettingsModalComponent } from 'libs/users/src/lib/wfh-settings-modal
             <div
                 class="flex w-full flex-col items-center justify-center space-y-2 p-8 opacity-30"
             >
-                <app-icon class="text-6xl">event_busy</app-icon>
+                <icon class="text-6xl">event_busy</icon>
                 <p class="text-center text-sm">
                     {{ 'COMMON.WORK_LOCATION_EMPTY' | translate }}
                 </p>

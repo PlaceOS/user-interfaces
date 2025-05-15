@@ -11,7 +11,7 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
                 View Locker Bank - {{ bank.name }}
             </h2>
             <button icon matRipple mat-dialog-close>
-                <app-icon>close</app-icon>
+                <icon>close</icon>
             </button>
         </header>
         <main class="h-[65vh] w-[65vw] overflow-auto px-2 pb-2">

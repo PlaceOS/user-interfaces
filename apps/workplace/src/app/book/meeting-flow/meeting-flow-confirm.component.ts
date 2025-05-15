@@ -35,22 +35,22 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
             <mat-spinner diameter="32" *ngIf="loading | async"></mat-spinner>
         </header>
         <section period class="flex space-x-1 px-2">
-            <app-icon class="mt-1 text-success">done</app-icon>
+            <icon class="mt-1 text-success">done</icon>
             <div details class="leading-6">
                 <h3>{{ event.title || 'Meeting Details' }}</h3>
                 <div class="flex items-center space-x-2">
-                    <app-icon class="text-2xl">today</app-icon>
+                    <icon class="text-2xl">today</icon>
                     <div date>{{ event.date | date: 'fullDate' }}</div>
                 </div>
                 <div
                     class="flex items-center space-x-2"
                     *ngIf="event.recurrence?.pattern"
                 >
-                    <app-icon class="text-2xl">update</app-icon>
+                    <icon class="text-2xl">update</icon>
                     <div date>{{ formatted_recurrence }}</div>
                 </div>
                 <div class="flex items-center space-x-2">
-                    <app-icon class="text-2xl">schedule</app-icon>
+                    <icon class="text-2xl">schedule</icon>
                     <div class="flex flex-col leading-tight">
                         <div time>{{ formattedTime() }}</div>
                         <div class="text-xs opacity-30" *ngIf="timezone">
@@ -65,7 +65,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
             class="flex space-x-1 px-2"
             *ngIf="event.attendees?.length"
         >
-            <app-icon class="mt-1 text-success">done</app-icon>
+            <icon class="mt-1 text-success">done</icon>
             <div details class="leading-6">
                 <h3>
                     {{
@@ -77,7 +77,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                     <mat-chip-list #chipList aria-label="User selection">
                         <mat-chip *ngFor="let user of event.attendees">
                             <div class="flex items-center">
-                                <app-icon class="mr-2">business</app-icon>
+                                <icon class="mr-2">business</icon>
                                 {{ user.name || user.email }}
                             </div>
                         </mat-chip>
@@ -86,12 +86,12 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
             </div>
         </section>
         <section spaces class="flex space-x-1 px-2" *ngIf="space?.id">
-            <app-icon class="mt-1 text-success">done</app-icon>
+            <icon class="mt-1 text-success">done</icon>
             <div details class="leading-6">
                 <h3>{{ 'APP.WORKPLACE.MEETING_BOOKED_ROOM' | translate }}</h3>
                 <ng-container *ngFor="let s of event.resources">
                     <div class="flex items-center space-x-2">
-                        <app-icon class="text-2xl">meeting_room</app-icon>
+                        <icon class="text-2xl">meeting_room</icon>
                         <div>
                             {{ level?.display_name || level?.name }},
                             {{ s.display_name || s.name }}
@@ -99,7 +99,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                     </div>
                 </ng-container>
                 <div class="flex items-center space-x-2">
-                    <app-icon class="text-2xl">place</app-icon>
+                    <icon class="text-2xl">place</icon>
                     <div>{{ location }}</div>
                 </div>
             </div>
@@ -137,7 +137,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
     `,
     styles: [
         `
-            section > app-icon {
+            section > icon {
                 font-size: 1.5rem;
             }
 

@@ -15,7 +15,7 @@ import { Space } from '../space.class';
         >
             <header class="flex w-full items-center space-x-4">
                 <button icon matRipple mat-dialog-close class="bg-base-200">
-                    <app-icon>close</app-icon>
+                    <icon>close</icon>
                 </button>
                 <h3>{{ 'CALENDAR_EVENT.SPACE_SELECT_FIND' | translate }}</h3>
                 <div class="hidden flex-1 items-center justify-end sm:flex">
@@ -116,7 +116,7 @@ import { Space } from '../space.class';
                     class="clear text-secondary"
                 >
                     <div class="flex items-center">
-                        <app-icon class="text-xl">arrow_back</app-icon>
+                        <icon class="text-xl">arrow_back</icon>
                         <div class="mr-1 underline">
                             {{ 'COMMON.BACK_TO_FORM' | translate }}
                         </div>
@@ -137,9 +137,9 @@ import { Space } from '../space.class';
                     (click)="setSelected(displayed, !isSelected(displayed?.id))"
                 >
                     <div class="flex items-center">
-                        <app-icon class="text-xl">{{
+                        <icon class="text-xl">{{
                             isSelected(displayed?.id) ? 'remove' : 'add'
-                        }}</app-icon>
+                        }}</icon>
                         <div class="mr-1">
                             {{
                                 (isSelected(displayed?.id)

@@ -33,12 +33,12 @@ import { SignageStateService } from './signage-state.service';
                 [matMenuTriggerFor]="menu"
                 class="absolute right-2 top-2 !m-0"
             >
-                <app-icon>more_vert</app-icon>
+                <icon>more_vert</icon>
             </button>
             <mat-menu #menu="matMenu">
                 <button mat-menu-item (click)="editPlaylist()">
                     <div class="flex items-center space-x-2">
-                        <app-icon class="text-2xl">edit</app-icon>
+                        <icon class="text-2xl">edit</icon>
                         <div class="pr-2">
                             {{
                                 'APP.CONCIERGE.SIGNAGE_PLAYLISTS_EDIT'
@@ -49,7 +49,7 @@ import { SignageStateService } from './signage-state.service';
                 </button>
                 <button mat-menu-item (click)="removePlaylist()">
                     <div class="flex items-center space-x-2">
-                        <app-icon class="text-2xl text-error">delete</app-icon>
+                        <icon class="text-2xl text-error">delete</icon>
                         <div class="pr-2">
                             {{
                                 'APP.CONCIERGE.SIGNAGE_PLAYLISTS_REMOVE'
@@ -151,9 +151,9 @@ import { SignageStateService } from './signage-state.service';
                                 class="flex min-h-10 min-w-10 items-center justify-center rounded-2xl border-4 border-dashed border-base-400 bg-base-300"
                                 *cdkDragPlaceholder
                             >
-                                <app-icon class="text-2xl text-base-100">
+                                <icon class="text-2xl text-base-100">
                                     add
-                                </app-icon>
+                                </icon>
                             </div>
                             <button
                                 matRipple
@@ -161,7 +161,7 @@ import { SignageStateService } from './signage-state.service';
                                 class="flex h-full w-6 items-center justify-center rounded hover:bg-base-200"
                                 matTooltip="Drag to reorder"
                             >
-                                <app-icon>drag_handle</app-icon>
+                                <icon>drag_handle</icon>
                             </button>
                             <div
                                 preview
@@ -184,14 +184,12 @@ import { SignageStateService } from './signage-state.service';
                                 aria-label="Media Actions"
                                 [matMenuTriggerFor]="menu"
                             >
-                                <app-icon>more_vert</app-icon>
+                                <icon>more_vert</icon>
                             </button>
                             <mat-menu #menu="matMenu">
                                 <button mat-menu-item (click)="editItem(item)">
                                     <div class="flex items-center space-x-2">
-                                        <app-icon class="text-2xl">
-                                            edit
-                                        </app-icon>
+                                        <icon class="text-2xl"> edit </icon>
                                         <div class="pr-2">
                                             {{
                                                 'APP.CONCIERGE.SIGNAGE_MEDIA_EDIT'
@@ -205,9 +203,9 @@ import { SignageStateService } from './signage-state.service';
                                     (click)="previewItem(item)"
                                 >
                                     <div class="flex items-center space-x-2">
-                                        <app-icon class="text-2xl">
+                                        <icon class="text-2xl">
                                             visibility
-                                        </app-icon>
+                                        </icon>
                                         <div class="pr-2">
                                             {{
                                                 'APP.CONCIERGE.SIGNAGE_MEDIA_PREVIEW'
@@ -221,9 +219,9 @@ import { SignageStateService } from './signage-state.service';
                                     (click)="removeItem(item)"
                                 >
                                     <div class="flex items-center space-x-2">
-                                        <app-icon class="text-2xl text-error">
+                                        <icon class="text-2xl text-error">
                                             delete
-                                        </app-icon>
+                                        </icon>
                                         <div class="pr-2">
                                             {{
                                                 'APP.CONCIERGE.SIGNAGE_MEDIA_REMOVE'
@@ -240,7 +238,7 @@ import { SignageStateService } from './signage-state.service';
                 <div
                     class="mx-auto flex flex-1 flex-col items-center justify-center space-y-2 p-8 opacity-30"
                 >
-                    <app-icon class="text-6xl">hide_image</app-icon>
+                    <icon class="text-6xl">hide_image</icon>
                     <p>
                         {{
                             'APP.CONCIERGE.SIGNAGE_PLAYLIST_MEDIA_EMPTY'

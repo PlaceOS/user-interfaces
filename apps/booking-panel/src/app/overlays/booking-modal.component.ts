@@ -60,7 +60,7 @@ export async function openBookingModal(
                         {{ 'APP.BOOKING_PANEL.BOOKING_NEW' | translate }}
                     </h2>
                     <button icon matRipple mat-dialog-close *ngIf="!loading">
-                        <app-icon>close</app-icon>
+                        <icon>close</icon>
                     </button>
                 </header>
                 <form

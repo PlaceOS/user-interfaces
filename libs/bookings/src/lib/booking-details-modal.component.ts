@@ -91,11 +91,11 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                                     class="flex items-center justify-center space-x-2"
                                     *ngIf="!checking_in; else loading_state"
                                 >
-                                    <app-icon>{{
+                                    <icon>{{
                                         booking.checked_in
                                             ? 'done'
                                             : 'arrow_back'
-                                    }}</app-icon>
+                                    }}</icon>
                                     <div class="mr-4">
                                         {{
                                             (booking.checked_in
@@ -119,7 +119,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                             [matMenuTriggerFor]="menu"
                             class="h-12 w-12 rounded bg-secondary text-white"
                         >
-                            <app-icon>more_horiz</app-icon>
+                            <icon>more_horiz</icon>
                         </button>
                     </div>
                 </div>
@@ -132,22 +132,22 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                         {{ 'BOOKINGS.DETAILS' | translate }}
                     </h3>
                     <div class="flex items-center space-x-2 px-2">
-                        <app-icon>event</app-icon>
+                        <icon>event</icon>
                         <div>{{ booking.date | date: 'EEEE, dd LLLL y' }}</div>
                     </div>
                     <div class="flex items-center space-x-2 px-2">
-                        <app-icon>schedule</app-icon>
+                        <icon>schedule</icon>
                         <div>{{ period }}</div>
                     </div>
                     <div class="flex items-center space-x-2 px-2">
-                        <app-icon>map</app-icon>
+                        <icon>map</icon>
                         <div>
                             {{ level?.display_name || level?.name }},
                             {{ booking.asset_name || booking.asset_id }}
                         </div>
                     </div>
                     <div class="flex items-center space-x-2 px-2">
-                        <app-icon>place</app-icon>
+                        <icon>place</icon>
                         <div>
                             {{ building?.display_name || building?.name }}
                             {{
@@ -220,7 +220,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                                             request.state || 'Tentative'
                                         "
                                     >
-                                        <app-icon>
+                                        <icon>
                                             {{
                                                 request.state === 'approved'
                                                     ? 'done'
@@ -229,18 +229,18 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                                                       ? 'close'
                                                       : 'schedule'
                                             }}
-                                        </app-icon>
+                                        </icon>
                                     </div>
                                     <div
                                         class="flex h-8 w-8 items-center justify-center rounded-full"
                                     >
-                                        <app-icon class="text-2xl">
+                                        <icon class="text-2xl">
                                             {{
                                                 show_request[request.id]
                                                     ? 'expand_less'
                                                     : 'expand_more'
                                             }}
-                                        </app-icon>
+                                        </icon>
                                     </div>
                                 </button>
                                 <div
@@ -296,7 +296,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                 mat-dialog-close
                 class="absolute left-2 top-0 bg-neutral text-white"
             >
-                <app-icon>close</app-icon>
+                <icon>close</icon>
             </button>
         </div>
         <mat-menu #menu="matMenu" xPosition="before">
@@ -307,7 +307,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                 (click)="edit(booking)"
             >
                 <div class="flex items-center space-x-2 text-base">
-                    <app-icon>edit</app-icon>
+                    <icon>edit</icon>
                     <div>{{ 'BOOKINGS.ACTION_EDIT' | translate }}</div>
                 </div>
             </button>
@@ -317,9 +317,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                 (click)="setDeskHeight()"
             >
                 <div class="flex items-center space-x-2 text-base">
-                    <app-icon className="material-symbols-rounded">
-                        height
-                    </app-icon>
+                    <icon className="material-symbols-rounded"> height </icon>
                     <div>
                         {{ 'BOOKINGS.ACTION_SET_DESK_HEIGHT' | translate }}
                     </div>
@@ -331,7 +329,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                 (click)="remove(booking, false)"
             >
                 <div class="flex items-center space-x-2 text-base">
-                    <app-icon class="text-error">delete</app-icon>
+                    <icon class="text-error">delete</icon>
                     <div>{{ 'BOOKINGS.ACTION_DELETE' | translate }}</div>
                 </div>
             </button>
@@ -341,13 +339,13 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                 (click)="remove(booking, true)"
             >
                 <div class="flex items-center space-x-2 text-base">
-                    <app-icon class="text-error">delete</app-icon>
+                    <icon class="text-error">delete</icon>
                     <div>{{ 'BOOKINGS.ACTION_DELETE_SERIES' | translate }}</div>
                 </div>
             </button>
             <button mat-menu-item *ngIf="is_in_progress" (click)="end(booking)">
                 <div class="flex items-center space-x-2 text-base">
-                    <app-icon class="text-error">delete</app-icon>
+                    <icon class="text-error">delete</icon>
                     <div>{{ 'BOOKINGS.ACTION_END' | translate }}</div>
                 </div>
             </button>

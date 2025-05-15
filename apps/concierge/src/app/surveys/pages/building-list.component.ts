@@ -37,10 +37,10 @@ import { map, shareReplay, startWith, switchMap } from 'rxjs/operators';
                                 class="h-full w-full object-cover object-center"
                                 [source]="building.images[0]"
                             />
-                            <app-icon
+                            <icon
                                 *ngIf="!building.images?.length"
                                 class="text-6xl text-base-100"
-                                >domain</app-icon
+                                >domain</icon
                             >
                         </div>
                         <div class="flex-1 py-4">
@@ -89,11 +89,11 @@ import { map, shareReplay, startWith, switchMap } from 'rxjs/operators';
                                 </div>
                             </div>
                         </div>
-                        <app-icon
+                        <icon
                             class="absolute right-2 top-1/2 -translate-y-1/2 text-4xl"
                         >
                             chevron_right
-                        </app-icon>
+                        </icon>
                     </a>
                 }
             </div>

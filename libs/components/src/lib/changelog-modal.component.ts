@@ -19,7 +19,7 @@ export interface ChangelogModalData {
         </fullscreen-modal-shell>
         <ng-template #empty_state>
             <div class="flex flex-col items-center justify-center space-y-2">
-                <app-icon class="text-3xl">close</app-icon>
+                <icon class="text-3xl">close</icon>
                 <div class="text">No changelog</div>
             </div>
         </ng-template>

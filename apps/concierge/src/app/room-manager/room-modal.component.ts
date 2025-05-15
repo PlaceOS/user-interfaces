@@ -171,14 +171,14 @@ import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.compone
                             {{
                                 'APP.CONCIERGE.ROOMS_DEFAULT_SETUP' | translate
                             }}
-                            <app-icon
+                            <icon
                                 class="ml-2"
                                 [matTooltip]="
                                     'APP.CONCIERGE.ROOMS_SETUP_INFO' | translate
                                 "
                             >
                                 info_outline
-                            </app-icon>
+                            </icon>
                         </label>
                         <a-duration-field
                             name="setup"
@@ -192,7 +192,7 @@ import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.compone
                                 'APP.CONCIERGE.ROOMS_DEFAULT_BREAKDOWN'
                                     | translate
                             }}
-                            <app-icon
+                            <icon
                                 class="ml-2"
                                 [matTooltip]="
                                     'APP.CONCIERGE.ROOMS_BREAKDOWN_INFO'
@@ -200,7 +200,7 @@ import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.compone
                                 "
                             >
                                 info_outline
-                            </app-icon>
+                            </icon>
                         </label>
                         <a-duration-field
                             name="breakdown"
@@ -283,7 +283,7 @@ import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.compone
                                 (removed)="removeFeature(feature)"
                             >
                                 {{ feature }}
-                                <app-icon matChipRemove>close</app-icon>
+                                <icon matChipRemove>close</icon>
                             </mat-chip-row>
                             <input
                                 [placeholder]="'COMMON.FEATURES' | translate"
@@ -319,7 +319,7 @@ import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.compone
                             "
                             (click)="selectItemfromMap()"
                         >
-                            <app-icon>place</app-icon>
+                            <icon>place</icon>
                         </button>
                     </div>
                 </div>
@@ -328,7 +328,7 @@ import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.compone
                         'COMMON.TIMEZONE' | translate
                     }}</label>
                     <mat-form-field appearance="outline">
-                        <app-icon matPrefix class="text-2xl">search</app-icon>
+                        <icon matPrefix class="text-2xl">search</icon>
                         <input
                             matInput
                             formControlName="timezone"

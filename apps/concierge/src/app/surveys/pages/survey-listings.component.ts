@@ -14,7 +14,7 @@ import { SurveyService } from '../services/survey.service';
         <div class="flex w-full items-center justify-between px-8 py-4">
             <div class="flex">
                 <a icon matRipple [routerLink]="['/surveys']">
-                    <app-icon class="mr-2 flex">arrow_back</app-icon>
+                    <icon class="mr-2 flex">arrow_back</icon>
                 </a>
                 <div class="flex flex-col">
                     <span class="text-2xl">{{
@@ -35,7 +35,7 @@ import { SurveyService } from '../services/survey.service';
                 <span class="ml-4">{{
                     'APP.CONCIERGE.SURVEY_ADD' | translate
                 }}</span>
-                <app-icon class="text-xl">add</app-icon>
+                <icon class="text-xl">add</icon>
             </a>
         </div>
         <div class="flex h-1/2 w-full flex-1 overflow-auto px-8">
@@ -88,7 +88,7 @@ import { SurveyService } from '../services/survey.service';
                     class="h-12 w-12 rounded"
                     [matMenuTriggerFor]="actionsMenu"
                 >
-                    <app-icon>more_vert</app-icon>
+                    <icon>more_vert</icon>
                 </button>
                 <mat-menu #actionsMenu="matMenu">
                     <a
@@ -96,7 +96,7 @@ import { SurveyService } from '../services/survey.service';
                         [routerLink]="['/surveys', 'responses', row.id]"
                     >
                         <div class="flex items-center space-x-2">
-                            <app-icon class="text-xl">analytics</app-icon>
+                            <icon class="text-xl">analytics</icon>
                             <span>{{
                                 'APP.CONCIERGE.SURVEY_RESPONSES' | translate
                             }}</span>
@@ -108,7 +108,7 @@ import { SurveyService } from '../services/survey.service';
                         [queryParams]="{ survey_id: row.id }"
                     >
                         <div class="flex items-center space-x-2">
-                            <app-icon class="text-xl">edit</app-icon>
+                            <icon class="text-xl">edit</icon>
                             <span>{{
                                 'APP.CONCIERGE.SURVEY_EDIT' | translate
                             }}</span>
@@ -121,7 +121,7 @@ import { SurveyService } from '../services/survey.service';
                         rel="noopener noreferer"
                     >
                         <div class="flex items-center space-x-2">
-                            <app-icon class="text-xl">open_in_new</app-icon>
+                            <icon class="text-xl">open_in_new</icon>
                             <span>{{
                                 'APP.CONCIERGE.SURVEY_TEST' | translate
                             }}</span>
@@ -129,9 +129,7 @@ import { SurveyService } from '../services/survey.service';
                     </a>
                     <button mat-menu-item (click)="onDelete(row.id)">
                         <div class="flex items-center space-x-2">
-                            <app-icon class="text-xl text-error">
-                                delete
-                            </app-icon>
+                            <icon class="text-xl text-error"> delete </icon>
                             <span>{{
                                 'APP.CONCIERGE.SURVEY_REMOVE' | translate
                             }}</span>

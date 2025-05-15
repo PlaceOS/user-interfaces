@@ -62,39 +62,39 @@ import { ParkingService } from './parking.service';
                     <div class="flex max-w-[33%] items-center px-4">
                         @switch (type) {
                             @case ('desk') {
-                                <app-icon
+                                <icon
                                     [matTooltip]="'RESOURCE.DESK' | translate"
                                     matTooltipPosition="right"
-                                    >desk</app-icon
+                                    >desk</icon
                                 >
                             }
                             @case ('locker') {
-                                <app-icon
+                                <icon
                                     [matTooltip]="'RESOURCE.LOCKER' | translate"
                                     matTooltipPosition="right"
-                                    >lock</app-icon
+                                    >lock</icon
                                 >
                             }
                             @case ('parking') {
-                                <app-icon
+                                <icon
                                     [matTooltip]="
                                         'RESOURCE.PARKING' | translate
                                     "
                                     matTooltipPosition="right"
-                                    >drive_eta</app-icon
+                                    >drive_eta</icon
                                 >
                             }
                             @case ('visitor') {
-                                <app-icon
+                                <icon
                                     [matTooltip]="
                                         'RESOURCE.VISITOR' | translate
                                     "
                                     matTooltipPosition="right"
-                                    >people</app-icon
+                                    >people</icon
                                 >
                             }
                             @default {
-                                <app-icon>book</app-icon>
+                                <icon>book</icon>
                             }
                         }
                         <div class="mx-2 w-1/2 flex-1 truncate">
@@ -106,15 +106,15 @@ import { ParkingService } from './parking.service';
                         </div>
                     </div>
                     <div class="flex items-center px-4" *ngIf="location">
-                        <app-icon>place</app-icon>
+                        <icon>place</icon>
                         <div class="mx-2 truncate">{{ location }}</div>
                     </div>
                 </div>
-                <app-icon
+                <icon
                     class="absolute right-1 top-1/2 -translate-y-1/2 text-4xl"
                 >
                     chevron_right
-                </app-icon>
+                </icon>
                 <div
                     class="bg-warning/50 absolute right-2 top-2 rounded-xl px-2 py-1 text-xs"
                     *ngIf="

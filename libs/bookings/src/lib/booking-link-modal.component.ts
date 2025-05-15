@@ -43,12 +43,12 @@ import { Booking } from './booking.class';
                 target="_blank"
                 rel="noopener noreferer"
             >
-                <app-icon class="text-xl">download</app-icon>
+                <icon class="text-xl">download</icon>
                 <span>Download iCal File</span>
             </a>
         </div>
         <button icon mat-dialog-close class="absolute right-0 top-2">
-            <app-icon>close</app-icon>
+            <icon>close</icon>
         </button>
     `,
     styles: [

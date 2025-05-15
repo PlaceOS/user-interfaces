@@ -15,7 +15,7 @@ import { User } from 'libs/users/src/lib/user.class';
                     *ngIf="!hide_close"
                     (click)="close.emit()"
                 >
-                    <app-icon>arrow_back</app-icon>
+                    <icon>arrow_back</icon>
                 </button>
                 <div class="flex-1 text-center font-medium">
                     {{ list.length }}

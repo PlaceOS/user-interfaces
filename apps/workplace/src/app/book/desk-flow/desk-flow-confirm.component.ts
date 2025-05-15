@@ -38,16 +38,16 @@ import { map } from 'rxjs/operators';
                     *ngIf="show_close"
                     (click)="dismiss()"
                 >
-                    <app-icon class="text-2xl">close</app-icon>
+                    <icon class="text-2xl">close</icon>
                 </button>
             </div>
         </header>
         <section period class="flex space-x-1 px-2 py-4 text-base">
-            <app-icon class="text-2xl text-success">done</app-icon>
+            <icon class="text-2xl text-success">done</icon>
             <div details class="space-y-2">
                 <h3 class="text-xl">{{ booking.title || '~Untitled~' }}</h3>
                 <div class="flex items-center space-x-2">
-                    <app-icon class="text-xl">calendar_today</app-icon>
+                    <icon class="text-xl">calendar_today</icon>
                     <div date>{{ booking.date | date: 'fullDate' }}</div>
                 </div>
                 <div
@@ -57,11 +57,11 @@ import { map } from 'rxjs/operators';
                         booking.recurrence_type !== 'none'
                     "
                 >
-                    <app-icon class="text-xl">update</app-icon>
+                    <icon class="text-xl">update</icon>
                     <div date>{{ formatted_recurrence }}</div>
                 </div>
                 <div class="flex items-center space-x-2">
-                    <app-icon class="text-xl">schedule</app-icon>
+                    <icon class="text-xl">schedule</icon>
                     <div time>
                         <div time>{{ formattedTime() }}</div>
                         <div class="text-xs opacity-30" *ngIf="timezone">
@@ -76,13 +76,13 @@ import { map } from 'rxjs/operators';
             class="flex space-x-1 border-t border-neutral px-2 py-4 text-base"
             *ngIf="booking_asset?.id"
         >
-            <app-icon class="text-2xl text-success">done</app-icon>
+            <icon class="text-2xl text-success">done</icon>
             <div details class="space-y-2">
                 <h3 class="text-xl">
                     {{ booking_asset?.name || booking_asset?.id || '' }}
                 </h3>
                 <div class="flex items-center space-x-2">
-                    <app-icon>person</app-icon>
+                    <icon>person</icon>
                     <span>
                         {{
                             ((is_group | async)
@@ -93,12 +93,12 @@ import { map } from 'rxjs/operators';
                     </span>
                 </div>
                 <div class="flex items-center space-x-2">
-                    <app-icon>place</app-icon>
+                    <icon>place</icon>
                     <div>{{ location }}</div>
                 </div>
                 <ng-container *ngFor="let feat of booking_asset.features">
                     <div features class="flex items-center space-x-2">
-                        <app-icon>arrow_upward</app-icon>
+                        <icon>arrow_upward</icon>
                         <div>{{ feat }}</div>
                     </div>
                 </ng-container>
@@ -109,7 +109,7 @@ import { map } from 'rxjs/operators';
             class="flex max-h-[50vh] space-x-1 overflow-auto border-t px-2 py-4"
             *ngIf="assets.length"
         >
-            <app-icon class="text-success">done</app-icon>
+            <icon class="text-success">done</icon>
             <div details class="w-1/2 flex-1 pr-2 leading-6">
                 <h3>{{ 'BOOKINGS.DESK_ASSETS_REQUESTED' | translate }}</h3>
                 <div
@@ -142,7 +142,7 @@ import { map } from 'rxjs/operators';
                                     request.conflict
                                 "
                             >
-                                <app-icon>priority_high</app-icon>
+                                <icon>priority_high</icon>
                             </div>
                             <div class="flex-1"></div>
                             <div
@@ -183,7 +183,7 @@ import { map } from 'rxjs/operators';
             class="flex space-x-1 border-t px-2 py-4"
             *ngIf="needs_locker"
         >
-            <app-icon class="text-success">done</app-icon>
+            <icon class="text-success">done</icon>
             <div details class="leading-6">
                 <h3>{{ 'BOOKINGS.DESK_LOCKER_REQUESTED' | translate }}</h3>
                 <div class="flex space-x-2">

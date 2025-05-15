@@ -9,7 +9,7 @@ import { showMetadata, updateMetadata } from '@placeos/ts-client';
         <header>
             <h2>{{ 'APP.CONCIERGE.SUPPORT_TYPES_HEADER' | translate }}</h2>
             <button icon matRipple mat-dialog-close="">
-                <app-icon>close</app-icon>
+                <icon>close</icon>
             </button>
         </header>
         <main class="h-[50vh] w-[36rem] space-y-2 overflow-auto p-2">
@@ -50,7 +50,7 @@ import { showMetadata, updateMetadata } from '@placeos/ts-client';
                     class="h-12 w-12 rounded border border-error text-error"
                     (click)="item_list.splice(i, 1)"
                 >
-                    <app-icon class="text-2xl">delete</app-icon>
+                    <icon class="text-2xl">delete</icon>
                 </button>
             </div>
         </main>

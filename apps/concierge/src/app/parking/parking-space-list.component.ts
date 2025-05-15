@@ -68,7 +68,7 @@ import { ParkingStateService } from './parking-state.service';
                 [matTooltip]="statusTooltip(space_status[row.id]) | translate"
                 matTooltipPosition="left"
             >
-                <app-icon class="text-2xl">
+                <icon class="text-2xl">
                     {{
                         space_status[row.id]?.includes('assigned')
                             ? 'person'
@@ -76,7 +76,7 @@ import { ParkingStateService } from './parking-state.service';
                               ? 'event_available'
                               : 'question_mark'
                     }}
-                </app-icon>
+                </icon>
             </div>
         </ng-template>
         <ng-template #name_template let-row="row" let-data="data">
@@ -118,7 +118,7 @@ import { ParkingStateService } from './parking-state.service';
                         'APP.CONCIERGE.PARKING_SPACE_EDIT' | translate
                     "
                 >
-                    <app-icon>edit</app-icon>
+                    <icon>edit</icon>
                 </button>
                 <button
                     icon
@@ -129,7 +129,7 @@ import { ParkingStateService } from './parking-state.service';
                     "
                     (click)="removeSpace(row)"
                 >
-                    <app-icon>delete</app-icon>
+                    <icon>delete</icon>
                 </button>
             </div>
         </ng-template>

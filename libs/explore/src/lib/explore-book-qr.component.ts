@@ -16,7 +16,7 @@ const DEFAULT_PATH = `workplace/#/explore?space={{id}}`;
             </h2>
             <div class="flex-1"></div>
             <button icon mat-dialog-close>
-                <app-icon>close</app-icon>
+                <icon>close</icon>
             </button>
         </header>
         <main class="p-4">

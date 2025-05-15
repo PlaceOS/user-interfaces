@@ -19,7 +19,7 @@ import { NotFoundComponent } from './pages/not-found.component';
 
 import { SurveySuiteModule } from '@placeos/survey-suite';
 import { SurveyModule } from 'survey-angular-ui';
-import { QuestionBankComponent } from './components/question-bank/question-bank.component';
+import { QuestionBankComponent } from './components/question-bank.component';
 import { SearchInputComponent } from './components/search-input.component';
 import { ModQuestionOverlayComponent } from './overlays/mod-question-overlay.component';
 import { ModSurveyComponent } from './pages/mod-survey.component';

@@ -41,7 +41,7 @@ const EMPTY_FAVS: string[] = [];
                         {{ space.name || 'Meeting Resource' }}
                     </div>
                     <div class="flex items-center space-x-2 text-sm">
-                        <app-icon class="text-blue-500">place</app-icon>
+                        <icon class="text-blue-500">place</icon>
                         <p>
                             {{
                                 space.location ||
@@ -63,7 +63,7 @@ const EMPTY_FAVS: string[] = [];
                             (click)="changeResources(space)"
                         >
                             <div class="flex items-center space-x-2">
-                                <app-icon class="text-2xl">edit</app-icon>
+                                <icon class="text-2xl">edit</icon>
                                 <div>{{ 'COMMON.CHANGE' | translate }}</div>
                             </div>
                         </button>
@@ -75,7 +75,7 @@ const EMPTY_FAVS: string[] = [];
                             (click)="removeResource(space)"
                         >
                             <div class="flex items-center space-x-2">
-                                <app-icon class="text-2xl">close</app-icon>
+                                <icon class="text-2xl">close</icon>
                                 <div>{{ 'COMMON.REMOVE' | translate }}</div>
                             </div>
                         </button>
@@ -89,11 +89,11 @@ const EMPTY_FAVS: string[] = [];
                     [class.text-info]="favorites.includes(asset?.id)"
                     (click)="toggleFavourite(asset)"
                 >
-                    <app-icon>{{
+                    <icon>{{
                         favorites.includes(asset?.id)
                             ? 'favorite'
                             : 'favorite_border'
-                    }}</app-icon>
+                    }}</icon>
                 </button>
             </div>
         </div>
@@ -105,7 +105,7 @@ const EMPTY_FAVS: string[] = [];
             (click)="changeResources()"
         >
             <div class="flex items-center justify-center space-x-2">
-                <app-icon class="text-2xl">search</app-icon>
+                <icon class="text-2xl">search</icon>
                 <span>{{ 'BOOKINGS.PARKING_ADD' | translate }}</span>
             </div>
         </button>

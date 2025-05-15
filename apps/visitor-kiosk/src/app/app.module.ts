@@ -17,7 +17,6 @@ import { AssetsModule } from '@placeos/assets';
 import { SharedBookingsModule } from '@placeos/bookings';
 import { LocaleService } from '@placeos/common';
 import { ComponentsModule } from '@placeos/components';
-import { PaymentsModule } from '@placeos/payments';
 import { SharedSpacesModule } from '@placeos/spaces';
 import * as Sentry from '@sentry/angular';
 import { FormFieldsModule } from '../../../../libs/form-fields/src/lib/form-fields.module';
@@ -51,7 +50,6 @@ import localeZh from '@angular/common/locales/zh';
         SharedSpacesModule,
         SharedComponentsModule,
         SharedBookingsModule,
-        PaymentsModule,
         AssetsModule,
         FormFieldsModule,
         ReactiveFormsModule,

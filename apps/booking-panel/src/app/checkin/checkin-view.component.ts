@@ -214,39 +214,39 @@ import { PanelStateService } from '../panel-state.service';
         >
             <button btn matRipple class="flex w-full items-center p-4">
                 <div class="rounded-full bg-neutral p-2 text-2xl text-black/40">
-                    <app-icon>lightbulb</app-icon>
+                    <icon>lightbulb</icon>
                 </div>
                 <div class="flex-1 px-4 text-left font-medium">
                     {{ 'APP.BOOKING_PANEL.LIGHTS_BLINDS' | translate }}
                 </div>
-                <app-icon class="text-2xl opacity-40">chevron_right</app-icon>
+                <icon class="text-2xl opacity-40">chevron_right</icon>
             </button>
             <button btn matRipple class="flex w-full items-center p-4">
                 <div class="rounded-full bg-neutral p-2 text-2xl text-black/40">
-                    <app-icon>add_to_queue</app-icon>
+                    <icon>add_to_queue</icon>
                 </div>
                 <div class="flex-1 px-4 text-left font-medium">
                     {{ 'APP.BOOKING_PANEL.TV' | translate }}
                 </div>
-                <app-icon class="text-2xl opacity-40">chevron_right</app-icon>
+                <icon class="text-2xl opacity-40">chevron_right</icon>
             </button>
             <button btn matRipple class="flex w-full items-center p-4">
                 <div class="rounded-full bg-neutral p-2 text-2xl text-black/40">
-                    <app-icon>restaurant</app-icon>
+                    <icon>restaurant</icon>
                 </div>
                 <div class="flex-1 px-4 text-left font-medium">
                     {{ 'APP.BOOKING_PANEL.CATERING' | translate }}
                 </div>
-                <app-icon class="text-2xl opacity-40">chevron_right</app-icon>
+                <icon class="text-2xl opacity-40">chevron_right</icon>
             </button>
             <button btn matRipple class="flex w-full items-center p-4">
                 <div class="rounded-full bg-neutral p-2 text-2xl text-black/40">
-                    <app-icon>help</app-icon>
+                    <icon>help</icon>
                 </div>
                 <div class="flex-1 px-4 text-left font-medium">
                     {{ 'APP.BOOKING_PANEL.HELP' | translate }}
                 </div>
-                <app-icon class="text-2xl opacity-40">chevron_right</app-icon>
+                <icon class="text-2xl opacity-40">chevron_right</icon>
             </button>
         </div>
     `,

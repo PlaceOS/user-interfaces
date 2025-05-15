@@ -30,7 +30,7 @@ import { EmergencyContact } from './emergency-contacts.component';
                 }}
             </h2>
             <button icon matRipple mat-dialog-close *ngIf="!loading">
-                <app-icon>close</app-icon>
+                <icon>close</icon>
             </button>
         </header>
         <main class="w-[36rem] p-4" *ngIf="!loading; else load_state">
@@ -136,7 +136,7 @@ import { EmergencyContact } from './emergency-contacts.component';
                             customTooltip
                             [content]="role_form"
                         >
-                            <app-icon>add</app-icon>
+                            <icon>add</icon>
                             <div class="pr-2">
                                 {{
                                     'APP.CONCIERGE.CONTACTS_ROLES_ADD'

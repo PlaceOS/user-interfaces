@@ -9,7 +9,7 @@ import { CustomTooltipData } from '@placeos/components';
             class="relative -right-1 -top-12 flex w-[18.5rem] flex-col overflow-hidden rounded bg-base-100 shadow"
         >
             <div class="flex items-center space-x-2 p-2" (click)="close()">
-                <app-icon class="text-2xl">arrow_back</app-icon>
+                <icon class="text-2xl">arrow_back</icon>
                 <div class="">
                     {{ 'COMMON.CONTROLS_ACCESSIBILITY' | translate }}
                 </div>
@@ -22,7 +22,7 @@ import { CustomTooltipData } from '@placeos/components';
                 <div
                     class="my-2 flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
                 >
-                    <app-icon class="text-xl">mode_night</app-icon>
+                    <icon class="text-xl">mode_night</icon>
                 </div>
                 <div class="flex-1 text-sm">
                     {{ 'COMMON.DARK_MODE' | translate }}
@@ -39,7 +39,7 @@ import { CustomTooltipData } from '@placeos/components';
                 <div
                     class="my-2 flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
                 >
-                    <app-icon class="text-xl">playlist_add</app-icon>
+                    <icon class="text-xl">playlist_add</icon>
                 </div>
                 <div class="flex-1 text-sm">
                     {{ 'COMMON.TEXT_SIZE' | translate }}

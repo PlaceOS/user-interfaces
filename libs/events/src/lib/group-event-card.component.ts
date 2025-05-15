@@ -47,7 +47,7 @@ import { GroupEventDetailsModalComponent } from './group-event-details-modal.com
                     </p>
                 </div>
                 <div class="flex items-center space-x-2 text-sm">
-                    <app-icon class="text-info">place</app-icon>
+                    <icon class="text-info">place</icon>
                     <div *ngIf="is_onsite && has_space">
                         {{ space.display_name || space.name || '' }}
                     </div>
@@ -59,7 +59,7 @@ import { GroupEventDetailsModalComponent } from './group-event-details-modal.com
                     </div>
                 </div>
                 <div class="flex items-center space-x-2 text-sm">
-                    <app-icon class="text-info">people</app-icon>
+                    <icon class="text-info">people</icon>
                     <div class="">
                         {{
                             'CALENDAR_EVENT.GROUP_ATTENDING'
@@ -89,7 +89,7 @@ import { GroupEventDetailsModalComponent } from './group-event-details-modal.com
                 <div
                     class="absolute left-0 top-0 flex items-center space-x-2 rounded-br-xl bg-info py-2 pl-2 pr-4 text-sm text-info-content"
                 >
-                    <app-icon class="text-base">star</app-icon>
+                    <icon class="text-base">star</icon>
                     <div class="uppercase">
                         {{ 'CALEDAR_EVENT.GROUP_FEATURED' | translate }}
                     </div>
@@ -124,7 +124,7 @@ import { GroupEventDetailsModalComponent } from './group-event-details-modal.com
                             </p>
                         </div>
                         <div class="flex items-center space-x-2 text-sm">
-                            <app-icon class="text-info">place</app-icon>
+                            <icon class="text-info">place</icon>
                             <div *ngIf="is_onsite && has_space">
                                 {{ space.display_name || space.name || '' }}
                             </div>
@@ -142,7 +142,7 @@ import { GroupEventDetailsModalComponent } from './group-event-details-modal.com
                             </div>
                         </div>
                         <div class="flex items-center space-x-2 text-sm">
-                            <app-icon class="text-info">people</app-icon>
+                            <icon class="text-info">people</icon>
                             <div class="">
                                 {{
                                     'CALENDAR_EVENT.GROUP_ATTENDING'

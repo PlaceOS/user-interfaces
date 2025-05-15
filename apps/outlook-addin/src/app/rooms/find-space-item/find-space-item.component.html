@@ -6,14 +6,14 @@
     (click)="toggleSelected()"
 >
     <div class="flex w-full flex-row items-center space-x-2">
-        <app-icon class="text-lg">meeting_room</app-icon>
+        <icon class="text-lg">meeting_room</icon>
         <div>
             {{ space?.level?.display_name || space?.level?.name }},
             {{ space?.display_name || space?.name }}
         </div>
     </div>
     <div class="flex w-full flex-row items-center space-x-2">
-        <app-icon class="text-lg">group</app-icon>
+        <icon class="text-lg">group</icon>
         <div>{{ space?.capacity || 0 }} People</div>
     </div>
 </button>

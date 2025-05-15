@@ -21,9 +21,9 @@ import { AssetManagerStateService } from './asset-manager-state.service';
             </h2>
             <div class="w-px flex-1"></div>
             <mat-form-field appearance="outline" class="no-subscript">
-                <app-icon matPrefix class="relative -left-1 top-1 text-2xl">
+                <icon matPrefix class="relative -left-1 top-1 text-2xl">
                     search
-                </app-icon>
+                </icon>
                 <input
                     matInput
                     [ngModel]="(options | async)?.search"
@@ -70,7 +70,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     [matTooltip]="'COMMON.VIEW_AS_GRID' | translate"
                 >
                     <div class="flex h-12 w-8 items-center justify-center">
-                        <app-icon class="text-2xl">view_module</app-icon>
+                        <icon class="text-2xl">view_module</icon>
                     </div>
                 </mat-button-toggle>
                 <mat-button-toggle
@@ -78,7 +78,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     [matTooltip]="'COMMON.VIEW_AS_LIST' | translate"
                 >
                     <div class="flex h-12 w-8 items-center justify-center">
-                        <app-icon class="text-2xl">view_list</app-icon>
+                        <icon class="text-2xl">view_list</icon>
                     </div>
                 </mat-button-toggle>
             </mat-button-toggle-group>
@@ -90,7 +90,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 [matTooltip]="'APP.CONCIERGE.ASSETS_MANAGE_CONFIG' | translate"
                 (click)="editConfig()"
             >
-                <app-icon>menu_book</app-icon>
+                <icon>menu_book</icon>
             </button>
             <button
                 icon
@@ -101,7 +101,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 "
                 (click)="setRoomAvailability()"
             >
-                <app-icon>event_available</app-icon>
+                <icon>event_available</icon>
             </button>
             <button
                 icon
@@ -113,7 +113,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 "
                 (click)="manageCategories()"
             >
-                <app-icon>list_alt</app-icon>
+                <icon>list_alt</icon>
             </button>
         </div>
         <div

@@ -64,7 +64,7 @@ import { LevelManagementService } from './level-management.service';
                 *ngIf="row.tags?.includes('parking')"
                 class="mx-auto flex h-8 w-8 items-center justify-center rounded bg-success text-2xl text-success-content"
             >
-                <app-icon>done</app-icon>
+                <icon>done</icon>
             </div>
         </ng-template>
         <ng-template #action_template let-row="row">
@@ -75,12 +75,12 @@ import { LevelManagementService } from './level-management.service';
                     class="h-12 w-12 rounded"
                     [matMenuTriggerFor]="menu"
                 >
-                    <app-icon>more_vert</app-icon>
+                    <icon>more_vert</icon>
                 </button>
                 <mat-menu #menu="matMenu">
                     <button mat-menu-item (click)="editLevel(row)">
                         <div class="flex items-center space-x-2">
-                            <app-icon class="text-2xl">edit</app-icon>
+                            <icon class="text-2xl">edit</icon>
                             <span>{{
                                 'APP.CONCIERGE.LEVELS_EDIT' | translate
                             }}</span>
@@ -91,12 +91,12 @@ import { LevelManagementService } from './level-management.service';
                         (click)="editBookingPanelSettings(row)"
                     >
                         <div class="flex items-center space-x-2">
-                            <app-icon
+                            <icon
                                 className="material-symbols-rounded"
                                 class="text-2xl"
                             >
                                 top_panel_open
-                            </app-icon>
+                            </icon>
                             <span>{{
                                 'APP.CONCIERGE.APP_SETTINGS_BOOKING_PANEL'
                                     | translate
@@ -105,9 +105,7 @@ import { LevelManagementService } from './level-management.service';
                     </button>
                     <button mat-menu-item (click)="removeLevel(row)">
                         <div class="flex items-center space-x-2">
-                            <app-icon class="text-2xl text-error">
-                                delete
-                            </app-icon>
+                            <icon class="text-2xl text-error"> delete </icon>
                             <span>
                                 {{ 'APP.CONCIERGE.LEVELS_REMOVE' | translate }}
                             </span>

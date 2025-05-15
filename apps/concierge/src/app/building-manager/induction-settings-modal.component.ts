@@ -19,7 +19,7 @@ import { showMetadata, updateMetadata } from '@placeos/ts-client';
                 {{ 'APP.CONCIERGE.INDUCTION_HEADER' | translate }}
             </h3>
             <button icon matRipple mat-dialog-close *ngIf="!loading">
-                <app-icon class="text-2xl">close</app-icon>
+                <icon class="text-2xl">close</icon>
             </button>
         </header>
         <main

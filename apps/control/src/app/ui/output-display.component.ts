@@ -30,11 +30,11 @@ export const ICON_MAP = {
                 >
                     {{ item?.name }}
                 </div>
-                <app-icon class="text-7xl">{{
+                <icon class="text-7xl">{{
                     (input | async)?.icon ||
                         icons[(input | async)?.type] ||
                         'add_to_queue'
-                }}</app-icon>
+                }}</icon>
                 <p class="font-medium">
                     {{
                         (input | async)?.name || 'Click to select input source'
@@ -48,13 +48,13 @@ export const ICON_MAP = {
             </div>
             <div class="flex w-full items-center space-x-2">
                 <button icon matRipple (click)="setMute(!item.mute)">
-                    <app-icon>{{
+                    <icon>{{
                         item.mute
                             ? 'volume_off'
                             : item.volume > 0
                               ? 'volume_up'
                               : 'volume_mute'
-                    }}</app-icon>
+                    }}</icon>
                 </button>
                 <mat-slider class="flex-1"
                     ><input

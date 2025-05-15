@@ -24,7 +24,7 @@ import { combineLatest } from 'rxjs';
                 matTooltip="Back to Home"
                 [routerLink]="['/']"
             >
-                <app-icon class="text-2xl">arrow_back</app-icon>
+                <icon class="text-2xl">arrow_back</icon>
             </a>
             <h2 class="text-2xl font-medium">
                 {{
@@ -40,7 +40,7 @@ import { combineLatest } from 'rxjs';
                     [ngModel]="filters?.search"
                     (ngModelChange)="setSearch($event)"
                 />
-                <app-icon class="text-xl" matSuffix>search</app-icon>
+                <icon class="text-xl" matSuffix>search</icon>
             </mat-form-field>
         </div>
         <div class="flex items-center space-x-2 bg-base-100 px-8 pb-4 pt-2">
@@ -100,7 +100,7 @@ import { combineLatest } from 'rxjs';
                 class="h-12 w-12 rounded bg-secondary text-secondary-content"
                 (click)="addItem()"
             >
-                <app-icon class="text-2xl">add</app-icon>
+                <icon class="text-2xl">add</icon>
             </button>
             <button
                 *ngIf="page === 'menu'"
@@ -110,7 +110,7 @@ import { combineLatest } from 'rxjs';
                 class="h-12 w-12 rounded bg-secondary text-secondary-content"
                 (click)="editConfig()"
             >
-                <app-icon class="text-2xl">menu_book</app-icon>
+                <icon class="text-2xl">menu_book</icon>
             </button>
             <button
                 *ngIf="page === 'menu'"
@@ -120,7 +120,7 @@ import { combineLatest } from 'rxjs';
                 class="h-12 w-12 rounded bg-secondary text-secondary-content"
                 (click)="importMenu()"
             >
-                <app-icon class="text-2xl">cloud_upload</app-icon>
+                <icon class="text-2xl">cloud_upload</icon>
             </button>
             <button
                 *ngIf="page === 'menu'"
@@ -130,7 +130,7 @@ import { combineLatest } from 'rxjs';
                 class="h-12 w-12 rounded bg-secondary text-secondary-content"
                 (click)="setRoomAvailability()"
             >
-                <app-icon class="text-2xl">event_available</app-icon>
+                <icon class="text-2xl">event_available</icon>
             </button>
             <button
                 *ngIf="page === 'menu'"
@@ -140,7 +140,7 @@ import { combineLatest } from 'rxjs';
                 class="h-12 w-12 rounded bg-secondary text-secondary-content"
                 (click)="setChargeCodes()"
             >
-                <app-icon class="text-2xl">payments</app-icon>
+                <icon class="text-2xl">payments</icon>
             </button>
             <div *ngIf="page !== 'menu'" class="w-2 flex-1"></div>
             <!-- <searchbar class="mr-2"></searchbar> -->

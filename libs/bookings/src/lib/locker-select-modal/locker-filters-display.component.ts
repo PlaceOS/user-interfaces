@@ -91,7 +91,7 @@ import { LockerFiltersComponent } from './locker-filters.component';
                     class="-mr-4"
                     (click)="setFeature(feat, false)"
                 >
-                    <app-icon>close</app-icon>
+                    <icon>close</icon>
                 </button>
             </div>
             <div filter-item *ngIf="(options | async)?.show_fav">
@@ -103,7 +103,7 @@ import { LockerFiltersComponent } from './locker-filters.component';
                     class="-mr-4"
                     (click)="setOptions({ show_fav: false })"
                 >
-                    <app-icon>close</app-icon>
+                    <icon>close</icon>
                 </button>
             </div>
             <div filter-item *ngIf="(options | async)?.show_accessible">
@@ -115,7 +115,7 @@ import { LockerFiltersComponent } from './locker-filters.component';
                     class="-mr-4"
                     (click)="setOptions({ show_accessible: false })"
                 >
-                    <app-icon>close</app-icon>
+                    <icon>close</icon>
                 </button>
             </div>
         </section>

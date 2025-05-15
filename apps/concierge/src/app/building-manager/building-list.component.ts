@@ -93,7 +93,7 @@ import { WorkplaceSettingsFormModalComponent } from '../ui/app-settings/workplac
                     class="h-12 w-12 rounded"
                     [matMenuTriggerFor]="menu"
                 >
-                    <app-icon>more_vert</app-icon>
+                    <icon>more_vert</icon>
                 </button>
                 <mat-menu #menu="matMenu">
                     <button
@@ -101,7 +101,7 @@ import { WorkplaceSettingsFormModalComponent } from '../ui/app-settings/workplac
                         [matMenuTriggerFor]="app_settings_menu"
                     >
                         <div class="flex items-center space-x-2">
-                            <app-icon class="text-xl">edit_square</app-icon>
+                            <icon class="text-xl">edit_square</icon>
                             <div>
                                 {{ 'APP.CONCIERGE.APP_SETTINGS' | translate }}
                             </div>
@@ -113,8 +113,8 @@ import { WorkplaceSettingsFormModalComponent } from '../ui/app-settings/workplac
                             (click)="editWorkplaceSettings(row)"
                         >
                             <div class="flex items-center space-x-2">
-                                <app-icon class="text-xl"
-                                    >meeting_room</app-icon
+                                <icon class="text-xl"
+                                    >meeting_room</icon
                                 >
                                 <div>
                                     {{
@@ -129,8 +129,8 @@ import { WorkplaceSettingsFormModalComponent } from '../ui/app-settings/workplac
                             (click)="editConciergeSettings(row)"
                         >
                             <div class="flex items-center space-x-2">
-                                <app-icon class="text-xl"
-                                    >support_agent</app-icon
+                                <icon class="text-xl"
+                                    >support_agent</icon
                                 >
                                 <div>
                                     {{
@@ -145,7 +145,7 @@ import { WorkplaceSettingsFormModalComponent } from '../ui/app-settings/workplac
                             (click)="editBookingPanelSettings(row)"
                         >
                             <div class="flex items-center space-x-2">
-                                <app-icon class="text-xl">event_busy</app-icon>
+                                <icon class="text-xl">event_busy</icon>
                                 <div>
                                     {{
                                         'APP.CONCIERGE.APP_SETTINGS_BOOKING_PANEL'
@@ -159,7 +159,7 @@ import { WorkplaceSettingsFormModalComponent } from '../ui/app-settings/workplac
                             (click)="editVisitorKioskSettings(row)"
                         >
                             <div class="flex items-center space-x-2">
-                                <app-icon class="text-xl">qr_code</app-icon>
+                                <icon class="text-xl">qr_code</icon>
                                 <div>
                                     {{
                                         'APP.CONCIERGE.APP_SETTINGS_VISITOR_KIOSK'
@@ -171,7 +171,7 @@ import { WorkplaceSettingsFormModalComponent } from '../ui/app-settings/workplac
                     </mat-menu>
                     <button mat-menu-item (click)="editBuilding(row)">
                         <div class="flex items-center space-x-2">
-                            <app-icon class="text-xl">edit</app-icon>
+                            <icon class="text-xl">edit</icon>
                             <div>
                                 {{ 'APP.CONCIERGE.BUILDINGS_EDIT' | translate }}
                             </div>
@@ -179,12 +179,12 @@ import { WorkplaceSettingsFormModalComponent } from '../ui/app-settings/workplac
                     </button>
                     <button mat-menu-item (click)="setAutoRelease(row)">
                         <div class="flex items-center space-x-2">
-                            <app-icon
+                            <icon
                                 className="material-symbols-rounded"
                                 class="text-xl"
                             >
                                 release_alert
-                            </app-icon>
+                            </icon>
                             <div>
                                 {{
                                     'APP.CONCIERGE.BUILDINGS_AUTO_RELEASE'
@@ -195,12 +195,12 @@ import { WorkplaceSettingsFormModalComponent } from '../ui/app-settings/workplac
                     </button>
                     <button mat-menu-item (click)="setInduction(row)">
                         <div class="flex items-center space-x-2">
-                            <app-icon
+                            <icon
                                 className="material-symbols-rounded"
                                 class="text-xl"
                             >
                                 badge
-                            </app-icon>
+                            </icon>
                             <div>
                                 {{
                                     'APP.CONCIERGE.BUILDINGS_INDUCTION'
@@ -211,12 +211,12 @@ import { WorkplaceSettingsFormModalComponent } from '../ui/app-settings/workplac
                     </button>
                     <button mat-menu-item (click)="setSupportIssueTypes(row)">
                         <div class="flex items-center space-x-2">
-                            <app-icon
+                            <icon
                                 className="material-symbols-rounded"
                                 class="text-xl"
                             >
                                 support_agent
-                            </app-icon>
+                            </icon>
                             <div>
                                 {{
                                     'APP.CONCIERGE.BUILDINGS_SUPPORT_TYPES'
@@ -227,9 +227,9 @@ import { WorkplaceSettingsFormModalComponent } from '../ui/app-settings/workplac
                     </button>
                     <button mat-menu-item (click)="removeBuilding(row)">
                         <div class="text-red-500 flex items-center space-x-2">
-                            <app-icon class="text-xl text-error">
+                            <icon class="text-xl text-error">
                                 delete
-                            </app-icon>
+                            </icon>
                             <div>
                                 {{
                                     'APP.CONCIERGE.BUILDINGS_REMOVE' | translate

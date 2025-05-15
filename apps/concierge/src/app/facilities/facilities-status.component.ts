@@ -9,7 +9,7 @@ import { Component } from '@angular/core';
                 class="mb-2 flex w-full items-center rounded-lg border border-base-200"
             >
                 <div name="status" class="rounded-full">
-                    <app-icon>account_circle</app-icon>
+                    <icon>account_circle</icon>
                 </div>
                 <div class="text-bold flex-1 text-xs">
                     {{ 'Admin Services' }}
@@ -24,13 +24,13 @@ import { Component } from '@angular/core';
                 name="mood"
                 class="flex w-full items-center overflow-hidden rounded-lg border border-base-200"
             >
-                <app-icon
+                <icon
                     class="bg-light px-1 text-2xl"
                     [icon]="{
                         class: 'material-icons',
                         content: 'sentiment_very_satisfied',
                     }"
-                ></app-icon>
+                ></icon>
                 <div class="text-bold px-4 text-sm">4/5 Satisfied</div>
             </div>
             <h4>Feedback:</h4>
@@ -51,7 +51,7 @@ import { Component } from '@angular/core';
                 background-color: rgba(0, 0, 0, 0.05);
             }
 
-            [name='mood'] app-icon {
+            [name='mood'] icon {
             }
 
             [name='status'] {

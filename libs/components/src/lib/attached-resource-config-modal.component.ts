@@ -52,7 +52,7 @@ export interface AttachedResourceConfigModalData {
                 }}
             </h2>
             <button icon matRipple mat-dialog-close *ngIf="!loading">
-                <app-icon>close</app-icon>
+                <icon>close</icon>
             </button>
         </header>
         <main
@@ -98,7 +98,7 @@ export interface AttachedResourceConfigModalData {
                         class="h-12 w-12 rounded"
                         [matMenuTriggerFor]="menu"
                     >
-                        <app-icon>more_vert</app-icon>
+                        <icon>more_vert</icon>
                     </button>
                     <mat-menu #menu="matMenu">
                         <button
@@ -109,7 +109,7 @@ export interface AttachedResourceConfigModalData {
                             "
                         >
                             <div class="flex items-center space-x-2">
-                                <app-icon class="text-2xl">add</app-icon>
+                                <icon class="text-2xl">add</icon>
                                 <div>
                                     {{
                                         'RESOURCE.RULESET_ADD_RULE' | translate
@@ -124,11 +124,11 @@ export interface AttachedResourceConfigModalData {
                             "
                         >
                             <div class="flex items-center space-x-2">
-                                <app-icon class="text-2xl">{{
+                                <icon class="text-2xl">{{
                                     show_rules === set.id
                                         ? 'expand_less'
                                         : 'expand_more'
-                                }}</app-icon>
+                                }}</icon>
                                 <div>
                                     {{
                                         (show_rules === set.id
@@ -141,7 +141,7 @@ export interface AttachedResourceConfigModalData {
                         </button>
                         <button mat-menu-item (click)="rulesets.splice(i, 1)">
                             <div class="flex items-center space-x-2 text-error">
-                                <app-icon class="text-2xl">delete</app-icon>
+                                <icon class="text-2xl">delete</icon>
                                 <div>
                                     {{
                                         'RESOURCE.RULESET_REMOVE_RULES'
@@ -205,7 +205,7 @@ export interface AttachedResourceConfigModalData {
                             class="h-12 w-12 rounded border border-error text-error"
                             (click)="set.rules.splice(i, 1)"
                         >
-                            <app-icon>delete</app-icon>
+                            <icon>delete</icon>
                         </button>
                     </div>
                 </div>

@@ -28,7 +28,7 @@ import { PanelStateService } from '../panel-state.service';
                 (click)="newEvent()"
             >
                 <div class="flex items-center justify-center">
-                    <app-icon class="text-xl">add_circle_outline</app-icon>
+                    <icon class="text-xl">add_circle_outline</icon>
                     <span class="mx-2">New Event</span>
                 </div>
             </button>
@@ -41,7 +41,7 @@ import { PanelStateService } from '../panel-state.service';
                 (click)="viewControl()"
             >
                 <div class="flex items-center justify-center">
-                    <app-icon class="text-xl">settings_remote</app-icon>
+                    <icon class="text-xl">settings_remote</icon>
                     <span class="mx-2">View Control</span>
                 </div>
             </button>
@@ -54,7 +54,7 @@ import { PanelStateService } from '../panel-state.service';
                 (click)="callWaiter()"
             >
                 <div class="flex items-center justify-center">
-                    <app-icon class="text-xl">room_service</app-icon>
+                    <icon class="text-xl">room_service</icon>
                     <span class="mx-2">Call Waiter</span>
                 </div>
             </button>

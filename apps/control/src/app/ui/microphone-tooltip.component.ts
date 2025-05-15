@@ -52,13 +52,13 @@ import { ControlStateService } from '../control-state.service';
                             matRipple
                             (click)="mute[mic.id] = !mute[mic.id]"
                         >
-                            <app-icon>{{
+                            <icon>{{
                                 mute[mic.id]
                                     ? 'volume_off'
                                     : volume[mic.id] > 0
                                       ? 'volume_up'
                                       : 'volume_mute'
-                            }}</app-icon>
+                            }}</icon>
                         </button>
                         <mat-slider class="flex-1">
                             <input
@@ -103,13 +103,13 @@ import { ControlStateService } from '../control-state.service';
                             [disabled]="!mic.mute_id?.length"
                             (click)="mute[i] = !mute[i]"
                         >
-                            <app-icon>{{
+                            <icon>{{
                                 mute[i]
                                     ? 'volume_off'
                                     : volume[i] > 0
                                       ? 'volume_up'
                                       : 'volume_mute'
-                            }}</app-icon>
+                            }}</icon>
                         </button>
                         <mat-slider
                             [disabled]="!mic.level_id?.length"

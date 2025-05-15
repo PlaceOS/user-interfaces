@@ -10,7 +10,7 @@ import { OrganisationService } from '@placeos/organisation';
             (click)="close()"
         >
             <div class="flex items-center space-x-2">
-                <app-icon class="text-2xl">arrow_back</app-icon>
+                <icon class="text-2xl">arrow_back</icon>
                 <div class="">
                     {{
                         (region | async)?.display_name || (region | async)?.name

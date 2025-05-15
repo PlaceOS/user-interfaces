@@ -29,9 +29,9 @@ const STATUS = {};
                 >
                     {{ item?.name || 'Display' }}
                 </div>
-                <app-icon class="text-5xl">
+                <icon class="text-5xl">
                     {{ source?.icon || icons[source?.type] || 'add_to_queue' }}
-                </app-icon>
+                </icon>
                 <span class="text-sm text-white" [class.opacity-60]="!source">
                     {{
                         source?.name || ('APP.CONTROL.INPUT_EMPTY' | translate)

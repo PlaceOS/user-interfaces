@@ -31,7 +31,7 @@ import { RegionManagementService } from './region-management.service';
                         [matMenuTriggerFor]="app_settings_menu"
                         [matTooltip]="'Organisation App Settings'"
                     >
-                        <app-icon>more_vert</app-icon>
+                        <icon>more_vert</icon>
                     </button>
                     <mat-menu #app_settings_menu="matMenu">
                         <button
@@ -39,9 +39,7 @@ import { RegionManagementService } from './region-management.service';
                             (click)="editWorkplaceSettings(org)"
                         >
                             <div class="flex items-center space-x-2">
-                                <app-icon class="text-xl"
-                                    >meeting_room</app-icon
-                                >
+                                <icon class="text-xl">meeting_room</icon>
                                 <div>
                                     {{
                                         'APP.CONCIERGE.APP_SETTINGS_WORKPLACE'
@@ -55,9 +53,7 @@ import { RegionManagementService } from './region-management.service';
                             (click)="editConciergeSettings(org)"
                         >
                             <div class="flex items-center space-x-2">
-                                <app-icon class="text-xl"
-                                    >support_agent</app-icon
-                                >
+                                <icon class="text-xl">support_agent</icon>
                                 <div>
                                     {{
                                         'APP.CONCIERGE.APP_SETTINGS_CONCIERGE'
@@ -71,7 +67,7 @@ import { RegionManagementService } from './region-management.service';
                             (click)="editBookingPanelSettings(org)"
                         >
                             <div class="flex items-center space-x-2">
-                                <app-icon class="text-xl">event_busy</app-icon>
+                                <icon class="text-xl">event_busy</icon>
                                 <div>
                                     {{
                                         'APP.CONCIERGE.APP_SETTINGS_BOOKING_PANEL'
@@ -85,7 +81,7 @@ import { RegionManagementService } from './region-management.service';
                             (click)="editVisitorKioskSettings(org)"
                         >
                             <div class="flex items-center space-x-2">
-                                <app-icon class="text-xl">qr_code</app-icon>
+                                <icon class="text-xl">qr_code</icon>
                                 <div>
                                     {{
                                         'APP.CONCIERGE.APP_SETTINGS_VISITOR_KIOSK'

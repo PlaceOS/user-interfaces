@@ -117,7 +117,7 @@ import { VisitorsStateService } from './visitors-state.service';
                 "
                 matTooltipPosition="right"
             >
-                <app-icon>done</app-icon>
+                <icon>done</icon>
             </div>
             <div
                 *ngIf="!row?.checked_in && !row.checked_out_at"
@@ -127,7 +127,7 @@ import { VisitorsStateService } from './visitors-state.service';
                 "
                 matTooltipPosition="right"
             >
-                <app-icon>question_mark</app-icon>
+                <icon>question_mark</icon>
             </div>
             <div
                 *ngIf="row?.checked_in"
@@ -143,7 +143,7 @@ import { VisitorsStateService } from './visitors-state.service';
                 "
                 matTooltipPosition="right"
             >
-                <app-icon>done</app-icon>
+                <icon>done</icon>
             </div>
         </ng-template>
         <ng-template #person_template let-row="row">
@@ -219,7 +219,7 @@ import { VisitorsStateService } from './visitors-state.service';
                 *ngIf="row.extension_data.parking_booking_id"
                 class="mx-auto flex h-8 w-8 items-center justify-center rounded bg-success text-2xl text-success-content"
             >
-                <app-icon>done</app-icon>
+                <icon>done</icon>
             </div>
         </ng-template>
         <ng-template #induction_template let-data="data">
@@ -234,7 +234,7 @@ import { VisitorsStateService } from './visitors-state.service';
                 [class.bg-error]="data === 'declined'"
                 [class.text-error-content]="data === 'declined'"
             >
-                <app-icon>
+                <icon>
                     {{
                         data === 'accepted'
                             ? 'done'
@@ -242,7 +242,7 @@ import { VisitorsStateService } from './visitors-state.service';
                               ? 'close'
                               : 'question_mark'
                     }}
-                </app-icon>
+                </icon>
             </div>
         </ng-template>
         <ng-template #status_template let-row="row">
@@ -286,7 +286,7 @@ import { VisitorsStateService } from './visitors-state.service';
                                 ) | translate
                             }}
                         </div>
-                        <app-icon
+                        <icon
                             class="text-2xl"
                             *ngIf="
                                 !(
@@ -296,14 +296,14 @@ import { VisitorsStateService } from './visitors-state.service';
                             "
                         >
                             arrow_drop_down
-                        </app-icon>
+                        </icon>
                     </div>
                 </button>
             </div>
             <mat-menu #menu="matMenu">
                 <button mat-menu-item (click)="approveVisitor(row)">
                     <div class="flex items-center space-x-2">
-                        <app-icon class="text-2xl">event_available</app-icon>
+                        <icon class="text-2xl">event_available</icon>
                         <div class="pr-2">
                             {{
                                 'APP.CONCIERGE.VISITORS_ACTION_APPROVE'
@@ -314,9 +314,7 @@ import { VisitorsStateService } from './visitors-state.service';
                 </button>
                 <button mat-menu-item (click)="declineVisitor(row)">
                     <div class="flex items-center space-x-2">
-                        <app-icon class="text-2xl text-error">
-                            event_busy
-                        </app-icon>
+                        <icon class="text-2xl text-error"> event_busy </icon>
                         <div class="pr-2">
                             {{
                                 'APP.CONCIERGE.VISITORS_ACTION_DECLINE'
@@ -353,7 +351,7 @@ import { VisitorsStateService } from './visitors-state.service';
         <ng-template #action_template let-row="row">
             <div class="flex items-center justify-end px-2">
                 <button icon matRipple [matMenuTriggerFor]="guest_menu">
-                    <app-icon>more_horiz</app-icon>
+                    <icon>more_horiz</icon>
                 </button>
                 <div
                     printable
@@ -445,7 +443,7 @@ import { VisitorsStateService } from './visitors-state.service';
                         [matMenuTriggerFor]="attachment_menu"
                     >
                         <div class="flex items-center space-x-2">
-                            <app-icon class="text-2xl">attachment</app-icon>
+                            <icon class="text-2xl">attachment</icon>
                             <div>
                                 {{
                                     'APP.CONCIERGE.VISITORS_ACTION_ATTACHMENTS'
@@ -463,7 +461,7 @@ import { VisitorsStateService } from './visitors-state.service';
                         (click)="reserveParking(row)"
                     >
                         <div class="flex items-center space-x-2">
-                            <app-icon class="text-2xl">directions_car</app-icon>
+                            <icon class="text-2xl">directions_car</icon>
                             <div>
                                 {{
                                     'APP.CONCIERGE.VISITORS_ACTION_PARKING'
@@ -478,7 +476,7 @@ import { VisitorsStateService } from './visitors-state.service';
                         (click)="emailVisitor(row)"
                     >
                         <div class="flex items-center space-x-2">
-                            <app-icon class="text-2xl">attach_email</app-icon>
+                            <icon class="text-2xl">attach_email</icon>
                             <div>
                                 {{
                                     'APP.CONCIERGE.VISITORS_ACTION_EMAIL'
@@ -503,13 +501,13 @@ import { VisitorsStateService } from './visitors-state.service';
                         "
                     >
                         <div class="flex items-center space-x-2">
-                            <app-icon class="text-2xl">
+                            <icon class="text-2xl">
                                 {{
                                     row.extension_data.remote
                                         ? 'business'
                                         : 'laptop'
                                 }}
-                            </app-icon>
+                            </icon>
                             <div>
                                 {{
                                     (row.extension_data.remote
@@ -526,7 +524,7 @@ import { VisitorsStateService } from './visitors-state.service';
                         (click)="printQRCode()"
                     >
                         <div class="flex items-center space-x-2">
-                            <app-icon class="text-2xl">print</app-icon>
+                            <icon class="text-2xl">print</icon>
                             <div>
                                 {{
                                     'APP.CONCIERGE.VISITORS_ACTION_PRINT_QR'
@@ -541,7 +539,7 @@ import { VisitorsStateService } from './visitors-state.service';
                         (click)="printVisitorPass(row, $event)"
                     >
                         <div class="flex items-center space-x-2">
-                            <app-icon class="text-2xl">badge</app-icon>
+                            <icon class="text-2xl">badge</icon>
                             <div>
                                 {{
                                     'APP.CONCIERGE.VISITORS_ACTION_PRINT_PASS'
@@ -552,7 +550,7 @@ import { VisitorsStateService } from './visitors-state.service';
                     </button>
                     <a mat-menu-item [href]="'mailto:' + row?.asset_id">
                         <div class="flex items-center space-x-2">
-                            <app-icon class="text-2xl">email</app-icon>
+                            <icon class="text-2xl">email</icon>
                             <div>
                                 {{
                                     (row?.user_email === row?.asset_id
@@ -569,13 +567,13 @@ import { VisitorsStateService } from './visitors-state.service';
                         *ngIf="!row.checked_out_at"
                     >
                         <div class="flex items-center space-x-2">
-                            <app-icon class="text-2xl">
+                            <icon class="text-2xl">
                                 {{
                                     row.checked_in
                                         ? 'event_busy'
                                         : 'event_available'
                                 }}
-                            </app-icon>
+                            </icon>
                             <div>
                                 {{
                                     (row.checked_in
@@ -589,9 +587,7 @@ import { VisitorsStateService } from './visitors-state.service';
                     <ng-container *ngIf="row.linked_event">
                         <button mat-menu-item (click)="checkinAllVisitors(row)">
                             <div class="flex items-center space-x-2">
-                                <app-icon class="text-2xl">
-                                    event_available
-                                </app-icon>
+                                <icon class="text-2xl"> event_available </icon>
                                 <div>
                                     {{
                                         'APP.CONCIERGE.VISITORS_ACTION_CHECKIN_ALL'
@@ -605,9 +601,9 @@ import { VisitorsStateService } from './visitors-state.service';
                             (click)="checkoutAllVisitors(row)"
                         >
                             <div class="flex items-center space-x-2">
-                                <app-icon class="text-2xl text-error">
+                                <icon class="text-2xl text-error">
                                     event_busy
-                                </app-icon>
+                                </icon>
                                 <div>
                                     {{
                                         'APP.CONCIERGE.VISITORS_ACTION_CHECKOUT_ALL'
@@ -631,7 +627,7 @@ import { VisitorsStateService } from './visitors-state.service';
                     matRipple
                     (click)="editVisitorNotes(row)"
                 >
-                    <app-icon class="text-2xl">edit_square</app-icon>
+                    <icon class="text-2xl">edit_square</icon>
                 </button>
                 <div
                     class="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-info text-info-content"
@@ -640,12 +636,9 @@ import { VisitorsStateService } from './visitors-state.service';
                         'APP.CONCIERGE.VISITORS_NOTES_AVAILABLE' | translate
                     "
                 >
-                    <app-icon
-                        className="material-symbols-rounded"
-                        class="text-sm"
-                    >
+                    <icon className="material-symbols-rounded" class="text-sm">
                         info_i
-                    </app-icon>
+                    </icon>
                 </div>
             </div>
         </ng-template>
@@ -658,7 +651,7 @@ import { VisitorsStateService } from './visitors-state.service';
             *ngIf="(guests | async)?.length"
             (click)="downloadVisitorList()"
         >
-            <app-icon>download</app-icon>
+            <icon>download</icon>
         </button>
         <div class="h-8 w-full"></div>
     `,

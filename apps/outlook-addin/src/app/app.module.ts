@@ -14,7 +14,6 @@ import { AssetsModule } from '@placeos/assets';
 import { SharedCateringModule } from '@placeos/catering';
 import { SharedExploreModule } from '@placeos/explore';
 import { FormFieldsModule } from '@placeos/form-fields';
-import { PaymentsModule } from '@placeos/payments';
 
 import { MatSelectModule } from '@angular/material/select';
 import { SharedSpacesModule } from '@placeos/spaces';
@@ -54,7 +53,6 @@ import { BookModule } from './rooms/book.module';
         FormsModule,
         MatSnackBarModule,
         MatSelectModule,
-        PaymentsModule,
         AssetsModule,
         FormFieldsModule,
         ReactiveFormsModule,

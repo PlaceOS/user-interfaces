@@ -64,7 +64,7 @@ import { ParkingStateService } from './parking-state.service';
                 *ngIf="data"
                 class="mx-auto flex h-8 w-8 items-center justify-center rounded bg-error text-2xl text-error-content"
             >
-                <app-icon>close</app-icon>
+                <icon>close</icon>
             </div>
         </ng-template>
         <ng-template #plate_template let-data="data">
@@ -83,7 +83,7 @@ import { ParkingStateService } from './parking-state.service';
                     (click)="editUser(row)"
                     [matTooltip]="'APP.CONCIERGE.PARKING_USER_EDIT' | translate"
                 >
-                    <app-icon>edit</app-icon>
+                    <icon>edit</icon>
                 </button>
                 <button
                     icon
@@ -93,7 +93,7 @@ import { ParkingStateService } from './parking-state.service';
                         'APP.CONCIERGE.PARKING_USER_REMOVE' | translate
                     "
                 >
-                    <app-icon>delete</app-icon>
+                    <icon>delete</icon>
                 </button>
             </div>
         </ng-template>

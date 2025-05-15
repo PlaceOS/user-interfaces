@@ -38,7 +38,7 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
                                 class="absolute left-1 top-1 flex h-6 w-6 items-center justify-center rounded-full border border-neutral bg-base-200 text-white"
                                 *ngIf="selected.includes(space.id)"
                             >
-                                <app-icon>done</app-icon>
+                                <icon>done</icon>
                             </div>
                             <img
                                 auth
@@ -58,7 +58,7 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
                                 {{ space.name || 'Meeting Space' }}
                             </div>
                             <div class="flex items-center space-x-2 text-sm">
-                                <app-icon class="text-info">place</app-icon>
+                                <icon class="text-info">place</icon>
                                 <p>
                                     {{
                                         space.location ||
@@ -79,11 +79,11 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
                         [class.text-info]="isFavourite(space.id)"
                         (click)="toggleFav.emit(space)"
                     >
-                        <app-icon>{{
+                        <icon>{{
                             isFavourite(space.id)
                                 ? 'favorite'
                                 : 'favorite_border'
-                        }}</app-icon>
+                        }}</icon>
                     </button>
                 </li>
             </ul>

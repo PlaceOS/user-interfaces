@@ -91,7 +91,7 @@ import { combineLatest } from 'rxjs';
                 class="h-12 w-12 rounded bg-secondary text-secondary-content"
                 (click)="addItem()"
             >
-                <app-icon class="text-2xl">add</app-icon>
+                <icon class="text-2xl">add</icon>
             </button>
             <button
                 *ngIf="page === 'menu'"
@@ -101,7 +101,7 @@ import { combineLatest } from 'rxjs';
                 class="h-12 w-12 rounded bg-secondary text-secondary-content"
                 (click)="editConfig()"
             >
-                <app-icon class="text-2xl">menu_book</app-icon>
+                <icon class="text-2xl">menu_book</icon>
             </button>
             <button
                 *ngIf="page === 'menu'"
@@ -111,7 +111,7 @@ import { combineLatest } from 'rxjs';
                 class="h-12 w-12 rounded bg-secondary text-secondary-content"
                 (click)="importMenu()"
             >
-                <app-icon class="text-2xl">cloud_upload</app-icon>
+                <icon class="text-2xl">cloud_upload</icon>
             </button>
             <button
                 *ngIf="page === 'menu'"
@@ -121,7 +121,7 @@ import { combineLatest } from 'rxjs';
                 class="h-12 w-12 rounded bg-secondary text-secondary-content"
                 (click)="setRoomAvailability()"
             >
-                <app-icon class="text-2xl">event_available</app-icon>
+                <icon class="text-2xl">event_available</icon>
             </button>
             <button
                 *ngIf="page === 'menu'"
@@ -131,7 +131,7 @@ import { combineLatest } from 'rxjs';
                 class="h-12 w-12 rounded bg-secondary text-secondary-content"
                 (click)="setChargeCodes()"
             >
-                <app-icon class="text-2xl">payments</app-icon>
+                <icon class="text-2xl">payments</icon>
             </button>
             <div *ngIf="page !== 'menu'" class="w-2 flex-1"></div>
             <!-- <searchbar class="mr-2"></searchbar> -->

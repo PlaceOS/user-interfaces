@@ -109,11 +109,11 @@ const EMPTY_ACTIONS = [];
                             <div
                                 class="flex items-center justify-center space-x-2"
                             >
-                                <app-icon class="text-2xl">{{
+                                <icon class="text-2xl">{{
                                     room_status === 'pending'
                                         ? 'arrow_back'
                                         : 'done'
-                                }}</app-icon>
+                                }}</icon>
                                 <div class="pr-4">
                                     {{
                                         (room_status === 'pending'
@@ -131,7 +131,7 @@ const EMPTY_ACTIONS = [];
                             class="h-12 w-12 rounded bg-secondary text-white"
                             *ngIf="allow_edit"
                         >
-                            <app-icon>more_horiz</app-icon>
+                            <icon>more_horiz</icon>
                         </button>
                     </div>
                 </div>
@@ -144,7 +144,7 @@ const EMPTY_ACTIONS = [];
                         {{ 'CALENDAR_EVENT.DETAILS' | translate }}
                     </h3>
                     <div class="flex items-center space-x-2 px-2">
-                        <app-icon>event</app-icon>
+                        <icon>event</icon>
                         <div class="flex flex-col leading-tight">
                             <div>
                                 {{ event.date | date: 'EEEE, dd LLLL y' }}
@@ -161,7 +161,7 @@ const EMPTY_ACTIONS = [];
                         </div>
                     </div>
                     <div class="flex items-center space-x-2 px-2">
-                        <app-icon>schedule</app-icon>
+                        <icon>schedule</icon>
                         <div class="flex flex-col leading-tight">
                             <div>{{ period }}</div>
                             <div
@@ -173,7 +173,7 @@ const EMPTY_ACTIONS = [];
                         </div>
                     </div>
                     <div class="flex items-center space-x-2 px-2">
-                        <app-icon>map</app-icon>
+                        <icon>map</icon>
                         <div>
                             <ng-container *ngIf="level">
                                 {{ level?.display_name || level?.name }},
@@ -189,7 +189,7 @@ const EMPTY_ACTIONS = [];
                         class="flex items-center space-x-2 px-2"
                         *ngIf="building"
                     >
-                        <app-icon>place</app-icon>
+                        <icon>place</icon>
                         <div>
                             {{ building?.display_name || building?.name }},
                             {{ building?.address }}
@@ -349,13 +349,13 @@ const EMPTY_ACTIONS = [];
                                                 !show_order[order.id]
                                         "
                                     >
-                                        <app-icon>
+                                        <icon>
                                             {{
                                                 show_order[order.id]
                                                     ? 'expand_less'
                                                     : 'expand_more'
                                             }}
-                                        </app-icon>
+                                        </icon>
                                     </button>
                                 </div>
                                 <div
@@ -513,7 +513,7 @@ const EMPTY_ACTIONS = [];
                                             request.state || 'Tentative'
                                         "
                                     >
-                                        <app-icon>
+                                        <icon>
                                             {{
                                                 request.state === 'approved'
                                                     ? 'done'
@@ -522,18 +522,18 @@ const EMPTY_ACTIONS = [];
                                                       ? 'close'
                                                       : 'schedule'
                                             }}
-                                        </app-icon>
+                                        </icon>
                                     </div>
                                     <div
                                         class="flex h-8 w-8 items-center justify-center rounded-full print:hidden"
                                     >
-                                        <app-icon class="text-2xl">
+                                        <icon class="text-2xl">
                                             {{
                                                 show_request[request.id]
                                                     ? 'expand_less'
                                                     : 'expand_more'
                                             }}
-                                        </app-icon>
+                                        </icon>
                                     </div>
                                 </button>
                                 <div
@@ -570,7 +570,7 @@ const EMPTY_ACTIONS = [];
                     mat-dialog-close
                     class="absolute left-2 top-2 bg-neutral text-white print:hidden"
                 >
-                    <app-icon>close</app-icon>
+                    <icon>close</icon>
                 </button>
                 <div class="absolute inset-0 z-50" *ngIf="show_attendees">
                     <attendee-list
@@ -590,7 +590,7 @@ const EMPTY_ACTIONS = [];
                     *ngIf="!hide_edit"
                 >
                     <div class="flex items-center space-x-2 pr-2 text-base">
-                        <app-icon class="text-2xl">edit</app-icon>
+                        <icon class="text-2xl">edit</icon>
                         <div>
                             {{ 'CALENDAR_EVENT.ACTION_EDIT' | translate }}
                         </div>
@@ -601,7 +601,7 @@ const EMPTY_ACTIONS = [];
                     (click)="remove ? remove(event, false) : ''"
                 >
                     <div class="flex items-center space-x-2 pr-2 text-base">
-                        <app-icon class="text-2xl text-error">delete</app-icon>
+                        <icon class="text-2xl text-error">delete</icon>
                         <div>
                             {{ 'CALENDAR_EVENT.ACTION_DELETE' | translate }}
                         </div>
@@ -613,7 +613,7 @@ const EMPTY_ACTIONS = [];
                     (click)="printEvent()"
                 >
                     <div class="flex items-center space-x-2 pr-2 text-base">
-                        <app-icon class="text-2xl">print</app-icon>
+                        <icon class="text-2xl">print</icon>
                         <div>
                             {{ 'CALENDAR_EVENT.ACTION_PRINT' | translate }}
                         </div>
@@ -625,7 +625,7 @@ const EMPTY_ACTIONS = [];
                     (click)="remove ? remove(event, true) : ''"
                 >
                     <div class="flex items-center space-x-2 pr-2 text-base">
-                        <app-icon class="text-2xl text-error">delete</app-icon>
+                        <icon class="text-2xl text-error">delete</icon>
                         <div>
                             {{
                                 'CALENDAR_EVENT.ACTION_DELETE_SERIES'
@@ -640,7 +640,7 @@ const EMPTY_ACTIONS = [];
                     (click)="action.emit(act.id)"
                 >
                     <div class="flex items-center space-x-2 pr-2 text-base">
-                        <app-icon class="text-2xl">{{ act.icon }}</app-icon>
+                        <icon class="text-2xl">{{ act.icon }}</icon>
                         <div>{{ act.name }}</div>
                     </div>
                 </button>

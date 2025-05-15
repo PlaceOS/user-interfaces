@@ -70,7 +70,7 @@ export async function openConfirmModal(
             *ngIf="!loading; else load_state"
             class="flex max-w-[80vw] flex-col items-center space-y-4 p-4"
         >
-            <app-icon [icon]="icon" class="text-5xl"></app-icon>
+            <icon [icon]="icon" class="text-5xl"></icon>
             <p content class="text-center" [innerHTML]="content"></p>
         </main>
         <footer

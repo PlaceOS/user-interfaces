@@ -123,9 +123,9 @@ function degreesToRadians(degrees: number): number {
                         matTooltip="Search..."
                         (click)="onSearch()"
                     >
-                        <app-icon matPrefix class="relative text-2xl">
+                        <icon matPrefix class="relative text-2xl">
                             search
-                        </app-icon>
+                        </icon>
                     </button>
                 </div>
             </mat-form-field>
@@ -144,7 +144,7 @@ function degreesToRadians(degrees: number): number {
                         (click)="search_result_items = []"
                         matTooltip="Clear Results"
                     >
-                        <app-icon>close</app-icon>
+                        <icon>close</icon>
                     </button>
                 </div>
                 <ul

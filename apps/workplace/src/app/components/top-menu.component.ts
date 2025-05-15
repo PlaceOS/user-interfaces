@@ -37,14 +37,14 @@ import { OrganisationService } from '@placeos/organisation';
                     *ngIf="features.includes(route.id) || route.id === 'home'"
                     matTooltipPosition="below"
                 >
-                    <app-icon filled class="text-xl">{{ route.icon }}</app-icon>
-                    <app-icon
+                    <icon filled class="text-xl">{{ route.icon }}</icon>
+                    <icon
                         outline
                         className="material-icons-outlined"
                         class="!m-0 text-xl"
                     >
                         {{ route.icon }}
-                    </app-icon>
+                    </icon>
                     <span *ngIf="!hide_text" class="truncate">{{
                         route.name
                     }}</span>
@@ -60,7 +60,7 @@ import { OrganisationService } from '@placeos/organisation';
             *ngIf="mobile_menu"
         >
             <button icon matRipple [matMenuTriggerFor]="menu">
-                <app-icon>menu</app-icon>
+                <icon>menu</icon>
             </button>
         </div>
         <mat-menu #menu="matMenu">
@@ -72,16 +72,14 @@ import { OrganisationService } from '@placeos/organisation';
                     routerLinkActive="text-secondary active"
                 >
                     <div class="flex items-center space-x-2">
-                        <app-icon filled class="text-xl">{{
-                            route.icon
-                        }}</app-icon>
-                        <app-icon
+                        <icon filled class="text-xl">{{ route.icon }}</icon>
+                        <icon
                             outline
                             className="material-icons-outlined"
                             class="!m-0 text-xl"
                         >
                             {{ route.icon }}
-                        </app-icon>
+                        </icon>
                         <div class="truncate">{{ route.name }}</div>
                     </div>
                 </a>

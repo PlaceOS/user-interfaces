@@ -54,7 +54,7 @@ import { RoomManagementService } from './room-management.service';
                 (click)="manageRestrictions()"
                 [matTooltip]="'APP.CONCIERGE.ROOMS_BOOKING_RULES' | translate"
             >
-                <app-icon>lock_open</app-icon>
+                <icon>lock_open</icon>
             </button>
         </div>
     `,

@@ -23,7 +23,7 @@ let shown_id = '';
             xPosition="center"
             class="pointer-events-auto absolute left-1/2 top-1/2 h-7 w-7 min-w-0 -translate-x-1/2 -translate-y-1/2 bg-base-100 shadow"
         >
-            <app-icon> visibility </app-icon>
+            <icon> visibility </icon>
         </button>
         <ng-template #stats>
             <div
@@ -33,21 +33,21 @@ let shown_id = '';
                     class="flex items-center space-x-2 whitespace-nowrap pr-2"
                     *ngIf="temp"
                 >
-                    <app-icon>thermostat</app-icon>
+                    <icon>thermostat</icon>
                     <div class="">{{ temp }}˚{{ temp_unit }}</div>
                 </div>
                 <div
                     class="flex items-center space-x-2 whitespace-nowrap pr-2"
                     *ngIf="humidity"
                 >
-                    <app-icon>opacity</app-icon>
+                    <icon>opacity</icon>
                     <div class="">{{ humidity }}%</div>
                 </div>
                 <div
                     *ngIf="temp > 82"
                     class="absolute right-0 top-0 -translate-y-1/2 translate-x-1/2 rounded-full border border-base-200 bg-base-100"
                 >
-                    <app-icon class="text-xl text-error">error</app-icon>
+                    <icon class="text-xl text-error">error</icon>
                 </div>
             </div>
         </ng-template>

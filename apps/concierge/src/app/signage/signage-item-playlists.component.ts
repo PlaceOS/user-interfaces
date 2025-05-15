@@ -52,7 +52,7 @@ const PLAYLIST_ITEM_COUNTS = {};
                                     | translate
                             "
                         >
-                            <app-icon>drag_handle</app-icon>
+                            <icon>drag_handle</icon>
                         </button>
                         <div class="w-1/2 flex-1 text-base-content">
                             <div class="truncate">
@@ -72,7 +72,7 @@ const PLAYLIST_ITEM_COUNTS = {};
                             aria-label="Media Actions"
                             [matMenuTriggerFor]="menu"
                         >
-                            <app-icon>more_vert</app-icon>
+                            <icon>more_vert</icon>
                         </button>
                         <mat-menu #menu="matMenu">
                             <a
@@ -83,9 +83,7 @@ const PLAYLIST_ITEM_COUNTS = {};
                                 }"
                             >
                                 <div class="flex items-center space-x-2">
-                                    <app-icon class="text-2xl">
-                                        visibility
-                                    </app-icon>
+                                    <icon class="text-2xl"> visibility </icon>
                                     <div class="pr-2">
                                         {{
                                             'APP.CONCIERGE.SIGNAGE_PLAYLISTS_VIEW'
@@ -96,9 +94,9 @@ const PLAYLIST_ITEM_COUNTS = {};
                             </a>
                             <button mat-menu-item (click)="remove.next(item)">
                                 <div class="flex items-center space-x-2">
-                                    <app-icon class="text-2xl text-error">
+                                    <icon class="text-2xl text-error">
                                         delete
-                                    </app-icon>
+                                    </icon>
                                     <div class="pr-2">
                                         {{
                                             'APP.CONCIERGE.SIGNAGE_PLAYLISTS_REMOVE'
@@ -121,7 +119,7 @@ const PLAYLIST_ITEM_COUNTS = {};
                 <div
                     class="flex flex-col items-center justify-center opacity-30"
                 >
-                    <app-icon class="text-6xl">hide_image</app-icon>
+                    <icon class="text-6xl">hide_image</icon>
                     <p>
                         {{
                             'APP.CONCIERGE.SIGNAGE_DISPLAYS_PLAYLISTS_EMPTY'

@@ -45,7 +45,7 @@ import { SurveyOptions, SurveyService } from '../services/survey.service';
                         bld_id || survey?.building_id,
                     ]"
                 >
-                    <app-icon class="flex">arrow_back</app-icon>
+                    <icon class="flex">arrow_back</icon>
                 </a>
                 <h2 class="text-2xl">
                     {{
@@ -202,7 +202,7 @@ import { SurveyOptions, SurveyService } from '../services/survey.service';
                                         | translate
                                 "
                             >
-                                <app-icon>add_circle_outline</app-icon>
+                                <icon>add_circle_outline</icon>
                             </button>
                         </div>
                         <div
@@ -273,10 +273,10 @@ import { SurveyOptions, SurveyService } from '../services/survey.service';
                                         <div
                                             class="flex h-full flex-col items-center py-2"
                                         >
-                                            <app-icon
+                                            <icon
                                                 cdkDragHandle
                                                 class="hover:cursor-move"
-                                                >drag_indicator</app-icon
+                                                >drag_indicator</icon
                                             >
                                             <button
                                                 class="mt-auto text-error"
@@ -288,11 +288,11 @@ import { SurveyOptions, SurveyService } from '../services/survey.service';
                                                 "
                                                 (click)="onRemove(i)"
                                             >
-                                                <app-icon>{{
+                                                <icon>{{
                                                     q.deleted
                                                         ? 'delete_forever'
                                                         : 'delete'
-                                                }}</app-icon>
+                                                }}</icon>
                                             </button>
                                         </div>
                                     </div>

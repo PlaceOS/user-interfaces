@@ -158,7 +158,7 @@ import { currentPeriod, nextPeriod } from './helpers';
                             ) | translate
                         }}
                     </p>
-                    <app-icon>arrow_forward</app-icon>
+                    <icon>arrow_forward</icon>
                 </div>
                 <div
                     class="absolute inset-x-0 top-0 flex items-center justify-center space-x-4 bg-[#0008] p-4 text-2xl"
@@ -172,7 +172,7 @@ import { currentPeriod, nextPeriod } from './helpers';
                             ) | translate
                         }}
                     </p>
-                    <app-icon>arrow_forward</app-icon>
+                    <icon>arrow_forward</icon>
                 </div>
                 <div
                     class="absolute inset-x-0 top-0 flex items-center justify-center space-x-4 bg-[#0008] p-4 text-2xl"
@@ -181,7 +181,7 @@ import { currentPeriod, nextPeriod } from './helpers';
                     <p class="uppercase">
                         {{ 'APP.BOOKING_PANEL.END_INPUT' | translate }}
                     </p>
-                    <app-icon>arrow_forward</app-icon>
+                    <icon>arrow_forward</icon>
                 </div>
             </div>
             <div

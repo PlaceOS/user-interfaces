@@ -14,7 +14,6 @@ import { AppTimetableComponent } from './timetable.component';
 
 import { AssetsModule } from '@placeos/assets';
 import { SharedExploreModule } from '@placeos/explore';
-import { PaymentsModule } from '@placeos/payments';
 import * as Sentry from '@sentry/angular';
 
 @NgModule({
@@ -29,7 +28,6 @@ import * as Sentry from '@sentry/angular';
         BrowserAnimationsModule,
         ComponentsModule,
         MatSnackBarModule,
-        PaymentsModule,
         AssetsModule,
         SharedExploreModule,
         RouterModule.forRoot(

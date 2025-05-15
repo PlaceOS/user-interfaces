@@ -50,9 +50,9 @@ import { VideoCallStateService } from './video-call-state.service';
                             [class.inverse]="show_pip"
                         >
                             <div class="flex items-center space-x-4">
-                                <app-icon>{{
+                                <icon>{{
                                     !show_pip ? 'visibility_off' : 'visibility'
-                                }}</app-icon>
+                                }}</icon>
                                 <span>{{
                                     show_pip
                                         ? 'Hide Camera PIP'

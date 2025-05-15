@@ -50,27 +50,27 @@ export enum JoystickPan {
             class="relative h-48 w-48 rounded-full bg-base-300 text-white"
         >
             <div class="absolute inset-0 flex items-center text-5xl">
-                <app-icon style="transform: translateX(-.5rem)">
+                <icon style="transform: translateX(-.5rem)">
                     chevron_left
-                </app-icon>
+                </icon>
             </div>
             <div
                 class="absolute inset-0 flex items-center justify-end text-5xl"
             >
-                <app-icon style="transform: translateX(.5rem)"
-                    >chevron_right</app-icon
+                <icon style="transform: translateX(.5rem)"
+                    >chevron_right</icon
                 >
             </div>
             <div class="absolute inset-0 flex justify-center text-5xl">
-                <app-icon style="transform: translateY(-.5rem)"
-                    >expand_less</app-icon
+                <icon style="transform: translateY(-.5rem)"
+                    >expand_less</icon
                 >
             </div>
             <div
                 class="absolute inset-0 flex items-end justify-center text-5xl"
             >
-                <app-icon style="transform: translateY(.5rem)"
-                    >expand_more</app-icon
+                <icon style="transform: translateY(.5rem)"
+                    >expand_more</icon
                 >
             </div>
             <div

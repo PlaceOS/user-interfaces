@@ -101,7 +101,7 @@ import { SignageStateService } from './signage-state.service';
                     <div
                         class="flex flex-col items-center justify-center space-y-2 p-8 opacity-30"
                     >
-                        <app-icon class="text-6xl">hide_image</app-icon>
+                        <icon class="text-6xl">hide_image</icon>
                         <p class="text-center">
                             {{
                                 (search.getValue()
@@ -131,7 +131,7 @@ import { SignageStateService } from './signage-state.service';
                     <div
                         class="absolute inset-0 flex flex-col items-center justify-center space-y-2 opacity-30"
                     >
-                        <app-icon class="text-6xl">desktop_windows</app-icon>
+                        <icon class="text-6xl">desktop_windows</icon>
                         <p>
                             {{
                                 'APP.CONCIERGE.SIGNAGE_ZONES_SELECT' | translate

@@ -116,7 +116,7 @@ import { VideoCallStateService } from './video-call-state.service';
                         (click)="endCall()"
                     >
                         <div class="flex items-center space-x-4">
-                            <app-icon>call_end</app-icon>
+                            <icon>call_end</icon>
                             <span>{{
                                 'APP.CONTROL.VC_END_CALL' | translate
                             }}</span>
@@ -130,9 +130,9 @@ import { VideoCallStateService } from './video-call-state.service';
                         [class.inverse]="!(mic_mute | async)"
                     >
                         <div class="flex items-center space-x-4">
-                            <app-icon>{{
+                            <icon>{{
                                 (mic_mute | async) ? 'mic_off' : 'mic'
-                            }}</app-icon>
+                            }}</icon>
                             <span>{{
                                 ((mic_mute | async)
                                     ? 'APP.CONTROL.VC_MICS_UNMUTE'
@@ -149,11 +149,11 @@ import { VideoCallStateService } from './video-call-state.service';
                         (click)="toggleOnHold()"
                     >
                         <div class="flex items-center space-x-4">
-                            <app-icon>{{
+                            <icon>{{
                                 (call | async)?.Status !== 'OnHold'
                                     ? 'stop'
                                     : 'play_arrow'
-                            }}</app-icon>
+                            }}</icon>
                             <span>{{
                                 ((call | async)?.Status !== 'OnHold'
                                     ? 'APP.CONTROL.VC_ON_HOLD'
@@ -170,11 +170,11 @@ import { VideoCallStateService } from './video-call-state.service';
                         [class.inverse]="show_camera_pip | async"
                     >
                         <div class="flex items-center space-x-4">
-                            <app-icon>{{
+                            <icon>{{
                                 !(show_camera_pip | async)
                                     ? 'visibility_off'
                                     : 'visibility'
-                            }}</app-icon>
+                            }}</icon>
                             <span>{{
                                 ((show_camera_pip | async)
                                     ? 'APP.CONTROL.VC_PIP_HIDE'

@@ -54,7 +54,7 @@ import { CheckinStateService } from './checkin-state.service';
                 <div
                     class="absolute left-1/2 top-1/2 z-0 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center space-y-2 opacity-30"
                 >
-                    <app-icon class="text-6xl">videocam_off</app-icon>
+                    <icon class="text-6xl">videocam_off</icon>
                     <p class="text-center">
                         {{ 'APP.VISITOR_KIOSK.CAMERA_UNAVAILABLE' | translate }}
                     </p>
@@ -75,7 +75,7 @@ import { CheckinStateService } from './checkin-state.service';
                 class="absolute right-0 top-0"
                 [routerLink]="['/welcome']"
             >
-                <app-icon>close</app-icon>
+                <icon>close</icon>
             </a>
         </div>
         <div

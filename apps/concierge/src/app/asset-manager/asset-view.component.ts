@@ -30,7 +30,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     matRipple
                     [routerLink]="['/book/assets', 'list', 'items']"
                 >
-                    <app-icon>arrow_back</app-icon>
+                    <icon>arrow_back</icon>
                 </a>
                 <div class="flex flex-col">
                     <h2 class="text-2xl font-medium">
@@ -47,7 +47,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     [queryParams]="{ id: (item | async)?.id }"
                 >
                     <div class="flex items-center space-x-2">
-                        <app-icon class="text-xl">edit</app-icon>
+                        <icon class="text-xl">edit</icon>
                         <div class="pr-2">{{ 'COMMON.EDIT' | translate }}</div>
                     </div>
                 </a>
@@ -59,7 +59,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     [content]="delete_tooltip"
                 >
                     <div class="flex items-center space-x-2">
-                        <app-icon class="text-xl">delete</app-icon>
+                        <icon class="text-xl">delete</icon>
                         <div class="pr-2">
                             {{ 'COMMON.DELETE' | translate }}
                         </div>
@@ -249,7 +249,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                             | translate
                                     "
                                 >
-                                    <app-icon>edit</app-icon>
+                                    <icon>edit</icon>
                                 </a>
                                 <button
                                     icon
@@ -261,7 +261,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                             | translate
                                     "
                                 >
-                                    <app-icon>delete</app-icon>
+                                    <icon>delete</icon>
                                 </button>
                             </div>
                         </ng-template>
@@ -381,7 +381,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                         group_id: row?.id,
                                     }"
                                 >
-                                    <app-icon class="text-lg">edit</app-icon>
+                                    <icon class="text-lg">edit</icon>
                                 </a>
                                 <button
                                     icon
@@ -389,7 +389,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                     class="text-error"
                                     (click)="removePurchaseOrder(row)"
                                 >
-                                    <app-icon class="text-lg">delete</app-icon>
+                                    <icon class="text-lg">delete</icon>
                                 </button>
                             </div>
                         </ng-template>

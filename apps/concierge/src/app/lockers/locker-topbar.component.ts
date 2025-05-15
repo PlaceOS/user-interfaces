@@ -47,7 +47,7 @@ import { LockerStateService } from './locker-state.service';
                     <div class="pl-4">
                         {{ 'APP.CONCIERGE.LOCKERS_BANK_ADD' | translate }}
                     </div>
-                    <app-icon class="text-2xl">add</app-icon>
+                    <icon class="text-2xl">add</icon>
                 </button>
             </div>
             <button
@@ -60,7 +60,7 @@ import { LockerStateService } from './locker-state.service';
                 <div class="pl-2">
                     {{ 'APP.CONCIERGE.NEW_BOOKING' | translate }}
                 </div>
-                <app-icon class="text-2xl">add</app-icon>
+                <icon class="text-2xl">add</icon>
             </button>
         </div>
         <div class="mb-2 flex h-14 items-center bg-base-100 px-8">
@@ -94,7 +94,7 @@ import { LockerStateService } from './locker-state.service';
                 [matTooltip]="'APP.CONCIERGE.LOCKERS_RELEASE_ALL' | translate"
                 *ngIf="path !== 'events' && path !== 'map'"
             >
-                <app-icon>open_in_new</app-icon>
+                <icon>open_in_new</icon>
             </button>
             <button
                 icon
@@ -104,7 +104,7 @@ import { LockerStateService } from './locker-state.service';
                 [matTooltip]="'APP.CONCIERGE.LOCKERS_BOOKING_RULES' | translate"
                 *ngIf="path !== 'events' && path !== 'map'"
             >
-                <app-icon>lock_open</app-icon>
+                <icon>lock_open</icon>
             </button>
             <date-options
                 *ngIf="path === 'events' || path === 'map'"

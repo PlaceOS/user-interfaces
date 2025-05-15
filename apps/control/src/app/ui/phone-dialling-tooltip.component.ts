@@ -22,7 +22,7 @@ import { ControlStateService } from '../control-state.service';
                     matSuffix
                     (click)="clear()"
                 >
-                    <app-icon>close</app-icon>
+                    <icon>close</icon>
                 </button>
             </mat-form-field>
             <dialpad [inline]="true" (pressed)="handleInput($event)"></dialpad>

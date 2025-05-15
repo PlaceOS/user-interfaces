@@ -32,15 +32,15 @@ const DAY_IN_MINUTES = 24 * 60;
         >
             <div class="px-2 py-1 font-medium">{{ event.organiser?.name }}</div>
             <div class="flex items-center py-1" *ngIf="event.duration > 30">
-                <app-icon class="mx-2">title</app-icon>
+                <icon class="mx-2">title</icon>
                 {{ event.title }}
             </div>
             <div class="flex items-center py-1" *ngIf="event.duration > 60">
-                <app-icon class="mx-2">schedule</app-icon>
+                <icon class="mx-2">schedule</icon>
                 {{ time }}
             </div>
             <div class="flex items-center py-1" *ngIf="event.duration > 90">
-                <app-icon class="mx-2">people</app-icon>
+                <icon class="mx-2">people</icon>
                 {{ event.attendees.length }} Attendee{{
                     event.attendees.length === 1 ? '' : 's'
                 }}
@@ -59,9 +59,9 @@ const DAY_IN_MINUTES = 24 * 60;
                     event.ext('cleaning_status')
                 "
             >
-                <app-icon>{{
+                <icon>{{
                     event.ext('cleaning_status') === 'done' ? 'done' : 'warning'
-                }}</app-icon>
+                }}</icon>
             </div>
             <div class="w-1/2 flex-1">
                 {{

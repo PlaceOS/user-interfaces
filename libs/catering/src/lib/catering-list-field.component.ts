@@ -56,7 +56,7 @@ const EMPTY_FAVS = [];
                                 [matTooltip]="err_tooltip"
                                 *ngIf="end_time < order.deliver_at"
                             >
-                                <app-icon>priority_high</app-icon>
+                                <icon>priority_high</icon>
                             </div>
                         </div>
                         <div class="text-xs opacity-60">
@@ -82,7 +82,7 @@ const EMPTY_FAVS = [];
                         *ngIf="!disabled"
                         (click)="duplicateOrder(order)"
                     >
-                        <app-icon>content_copy</app-icon>
+                        <icon>content_copy</icon>
                     </button>
                     <button
                         icon
@@ -93,7 +93,7 @@ const EMPTY_FAVS = [];
                         *ngIf="!disabled"
                         (click)="editOrder(order)"
                     >
-                        <app-icon>edit</app-icon>
+                        <icon>edit</icon>
                     </button>
                     <button
                         icon
@@ -103,7 +103,7 @@ const EMPTY_FAVS = [];
                         *ngIf="!disabled"
                         (click)="removeOrder(order)"
                     >
-                        <app-icon>delete</app-icon>
+                        <icon>delete</icon>
                     </button>
                     <button
                         icon
@@ -116,13 +116,13 @@ const EMPTY_FAVS = [];
                         "
                         (click)="show_order[order.id] = !show_order[order.id]"
                     >
-                        <app-icon>
+                        <icon>
                             {{
                                 show_order[order.id]
                                     ? 'expand_less'
                                     : 'expand_more'
                             }}
-                        </app-icon>
+                        </icon>
                     </button>
                 </div>
                 <div
@@ -173,7 +173,7 @@ const EMPTY_FAVS = [];
                             *ngIf="!disabled"
                             (click)="removeOrderItem(order, item)"
                         >
-                            <app-icon>delete</app-icon>
+                            <icon>delete</icon>
                         </button>
                         <button
                             icon
@@ -188,11 +188,11 @@ const EMPTY_FAVS = [];
                             [class.text-info]="favorites.includes(item.id)"
                             (click)="toggleFavourite(item)"
                         >
-                            <app-icon>{{
+                            <icon>{{
                                 favorites.includes(item.id)
                                     ? 'favorite'
                                     : 'favorite_border'
-                            }}</app-icon>
+                            }}</icon>
                         </button>
                     </div>
                 </div>
@@ -207,7 +207,7 @@ const EMPTY_FAVS = [];
             (click)="editOrder()"
         >
             <div class="flex items-center justify-center space-x-2">
-                <app-icon>search</app-icon>
+                <icon>search</icon>
                 <span>
                     {{ 'CALENDAR_EVENT.CATERING_ORDER_ADD' | translate }}
                 </span>

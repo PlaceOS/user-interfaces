@@ -10,7 +10,7 @@ import { MAP_FEATURE_DATA } from '@placeos/components';
             [style.background-color]="color"
             [style.color]="text_color"
         >
-            <app-icon [icon]="icon" class="text-xl"></app-icon>
+            <icon [icon]="icon" class="text-xl"></icon>
         </div>
     `,
     styles: [

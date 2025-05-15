@@ -89,7 +89,7 @@ import { currentBooking } from './panel-state.service';
                         (click)="close()"
                         (contextmenu)="$event.preventDefault()"
                     >
-                        <app-icon>close</app-icon>
+                        <icon>close</icon>
                     </button>
                     <button
                         widget

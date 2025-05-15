@@ -42,7 +42,7 @@ const EMPTY = [];
                     customTooltip
                     [content]="user_controls"
                 >
-                    <app-icon class="text-2xl">person</app-icon>
+                    <icon class="text-2xl">person</icon>
                 </button>
             </div>
         </div>

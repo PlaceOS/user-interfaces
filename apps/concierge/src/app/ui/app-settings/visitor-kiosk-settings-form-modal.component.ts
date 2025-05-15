@@ -25,7 +25,7 @@ import { DEFAULT_SETTINGS } from 'apps/visitor-kiosk/src/environments/settings';
                     {{ zone.display_name || zone.name }}
                 </h2>
                 <button icon matRipple mat-dialog-close *ngIf="!loading">
-                    <app-icon>close</app-icon>
+                    <icon>close</icon>
                 </button>
             </header>
             <main
@@ -381,7 +381,7 @@ import { DEFAULT_SETTINGS } from 'apps/visitor-kiosk/src/environments/settings';
                                     class="h-12 w-12 rounded border border-error text-error"
                                     (click)="removeLegend(i)"
                                 >
-                                    <app-icon>delete</app-icon>
+                                    <icon>delete</icon>
                                 </button>
                             </div>
                             <button

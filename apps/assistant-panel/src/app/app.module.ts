@@ -26,7 +26,6 @@ import { BootstrapComponent } from './bootstrap.component';
 import { PanelViewComponent } from './panel-view.component';
 
 import { SharedExploreModule } from '@placeos/explore';
-import { PaymentsModule } from '@placeos/payments';
 
 const MAT_MODULES: any[] = [
     MatFormFieldModule,
@@ -50,7 +49,6 @@ const MAT_MODULES: any[] = [
             enabled: environment.production,
         }),
         SharedExploreModule,
-        PaymentsModule,
     ],
     providers: [
         {

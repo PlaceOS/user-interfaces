@@ -54,9 +54,9 @@ export interface AppLocale {
                         <div
                             class="z-20 flex h-10 w-10 items-center justify-center rounded-full bg-info text-info-content"
                         >
-                            <app-icon class="text-2xl">{{
+                            <icon class="text-2xl">{{
                                 location_icon(timeFrom(active_block.start_time))
-                            }}</app-icon>
+                            }}</icon>
                         </div>
                         <div class="ml-2 flex-1">
                             {{ locations | json }}
@@ -72,7 +72,7 @@ export interface AppLocale {
                                         )
                                     }}
                                 </div>
-                                <app-icon>expand_more</app-icon>
+                                <icon>expand_more</icon>
                             </button>
                             <mat-menu #work_menu="matMenu">
                                 <button
@@ -81,9 +81,9 @@ export interface AppLocale {
                                     (click)="setLocation(active_index, loc.id)"
                                 >
                                     <div class="flex items-center space-x-2">
-                                        <app-icon class="text-2xl">{{
+                                        <icon class="text-2xl">{{
                                             loc.icon
-                                        }}</app-icon>
+                                        }}</icon>
                                         <div class="pr-8">
                                             {{ loc.name | translate }}
                                         </div>
@@ -120,7 +120,7 @@ export interface AppLocale {
                         <div
                             class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
                         >
-                            <app-icon>layers</app-icon>
+                            <icon>layers</icon>
                         </div>
                         <div class="w-px flex-1 truncate">
                             {{
@@ -128,9 +128,7 @@ export interface AppLocale {
                                     (region | async)?.name
                             }}
                         </div>
-                        <app-icon class="text-2xl opacity-60">
-                            chevron_right
-                        </app-icon>
+                        <icon class="text-2xl opacity-60"> chevron_right </icon>
                     </div>
                 </button>
             </div>
@@ -145,7 +143,7 @@ export interface AppLocale {
                         <div
                             class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
                         >
-                            <app-icon>business</app-icon>
+                            <icon>business</icon>
                         </div>
                         <div class="w-px flex-1 truncate">
                             {{
@@ -153,9 +151,7 @@ export interface AppLocale {
                                     (building | async)?.name
                             }}
                         </div>
-                        <app-icon class="text-2xl opacity-60">
-                            chevron_right
-                        </app-icon>
+                        <icon class="text-2xl opacity-60"> chevron_right </icon>
                     </div>
                 </button>
             </div>
@@ -169,14 +165,12 @@ export interface AppLocale {
                         <div
                             class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
                         >
-                            <app-icon>help</app-icon>
+                            <icon>help</icon>
                         </div>
                         <div class="flex-1">
                             {{ 'COMMON.CONTROLS_HELP' | translate }}
                         </div>
-                        <app-icon class="text-2xl opacity-60">
-                            chevron_right
-                        </app-icon>
+                        <icon class="text-2xl opacity-60"> chevron_right </icon>
                     </div>
                 </button>
             </div>
@@ -190,14 +184,12 @@ export interface AppLocale {
                         <div
                             class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
                         >
-                            <app-icon>share_location</app-icon>
+                            <icon>share_location</icon>
                         </div>
                         <div class="flex-1">
                             {{ 'COMMON.CONTROLS_WORK_LOCATION' | translate }}
                         </div>
-                        <app-icon class="text-2xl opacity-60"
-                            >chevron_right</app-icon
-                        >
+                        <icon class="text-2xl opacity-60">chevron_right</icon>
                     </div>
                 </button>
             </div>
@@ -211,14 +203,12 @@ export interface AppLocale {
                         <div
                             class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
                         >
-                            <app-icon>mode_night</app-icon>
+                            <icon>mode_night</icon>
                         </div>
                         <div class="flex-1">
                             {{ 'COMMON.CONTROLS_ACCESSIBILITY' | translate }}
                         </div>
-                        <app-icon class="text-2xl opacity-60"
-                            >chevron_right</app-icon
-                        >
+                        <icon class="text-2xl opacity-60">chevron_right</icon>
                     </div>
                 </button>
             </div>
@@ -233,14 +223,12 @@ export interface AppLocale {
                         <div
                             class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
                         >
-                            <app-icon>desk</app-icon>
+                            <icon>desk</icon>
                         </div>
                         <div class="flex-1">
                             {{ 'COMMON.CONTROLS_DESKS' | translate }}
                         </div>
-                        <app-icon class="text-2xl opacity-60">
-                            chevron_right
-                        </app-icon>
+                        <icon class="text-2xl opacity-60"> chevron_right </icon>
                     </div>
                 </button>
             </div>
@@ -258,7 +246,7 @@ export interface AppLocale {
                         <div
                             class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
                         >
-                            <app-icon>language</app-icon>
+                            <icon>language</icon>
                         </div>
                         <div
                             class="flex flex-1 items-center justify-between space-x-4"
@@ -282,9 +270,7 @@ export interface AppLocale {
                                 {{ active_locale | translate }}
                             </div>
                         </div>
-                        <app-icon class="text-2xl opacity-60">
-                            chevron_right
-                        </app-icon>
+                        <icon class="text-2xl opacity-60"> chevron_right </icon>
                     </div>
                 </button>
             </div>
@@ -300,7 +286,7 @@ export interface AppLocale {
                     <div
                         class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
                     >
-                        <app-icon>support_agent</app-icon>
+                        <icon>support_agent</icon>
                     </div>
                     <div class="flex-1">
                         {{ 'COMMON.CONTROLS_SUPPORT' | translate }}

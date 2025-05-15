@@ -69,7 +69,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                 class="relative"
                             >
                                 <div class="flex items-center space-x-2">
-                                    <app-icon>add</app-icon>
+                                    <icon>add</icon>
                                     <p>
                                         {{ 'COMMON.CATEGORY_NEW' | translate }}
                                     </p>

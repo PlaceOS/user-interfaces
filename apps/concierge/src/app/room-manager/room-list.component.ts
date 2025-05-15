@@ -88,7 +88,7 @@ import { RoomManagementService } from './room-management.service';
                 *ngIf="data"
                 class="mx-auto flex h-8 w-8 items-center justify-center rounded text-2xl text-white"
             >
-                <app-icon>{{ data ? 'done' : 'close' }}</app-icon>
+                <icon>{{ data ? 'done' : 'close' }}</icon>
             </div>
         </ng-template>
         <ng-template #alert_template let-data="data">
@@ -103,13 +103,13 @@ import { RoomManagementService } from './room-management.service';
                 [matTooltip]="data.message"
                 class="mx-auto flex h-8 w-8 items-center justify-center rounded text-2xl text-white"
             >
-                <app-icon>{{
+                <icon>{{
                     data.status === 'warn'
                         ? 'warning'
                         : data.status === 'info'
                           ? 'info'
                           : 'close'
-                }}</app-icon>
+                }}</icon>
             </div>
         </ng-template>
         <ng-template #action_template let-row="row">
@@ -120,13 +120,13 @@ import { RoomManagementService } from './room-management.service';
                     class="h-12 w-12 rounded"
                     [matMenuTriggerFor]="menu"
                 >
-                    <app-icon>more_vert</app-icon>
+                    <icon>more_vert</icon>
                 </button>
             </div>
             <mat-menu #menu="matMenu">
                 <button mat-menu-item (click)="editRoom(row)">
                     <div class="flex items-center space-x-2">
-                        <app-icon class="text-xl">edit</app-icon>
+                        <icon class="text-xl">edit</icon>
                         <span>{{
                             'APP.CONCIERGE.ROOMS_EDIT' | translate
                         }}</span>
@@ -134,9 +134,7 @@ import { RoomManagementService } from './room-management.service';
                 </button>
                 <button mat-menu-item (click)="setRoomAlert(row)">
                     <div class="flex items-center space-x-2">
-                        <app-icon class="text-xl"
-                            >notification_important</app-icon
-                        >
+                        <icon class="text-xl">notification_important</icon>
                         <span>{{
                             'APP.CONCIERGE.ROOMS_SET_ALERT' | translate
                         }}</span>
@@ -153,10 +151,10 @@ import { RoomManagementService } from './room-management.service';
                     ref="noopener noreferrer"
                 >
                     <div class="flex items-center space-x-2">
-                        <app-icon
+                        <icon
                             class="text-xl"
                             className="material-symbols-rounded"
-                            >tv_remote</app-icon
+                            >tv_remote</icon
                         >
                         <span>{{
                             'APP.CONCIERGE.ROOMS_VIEW_CONTROL' | translate

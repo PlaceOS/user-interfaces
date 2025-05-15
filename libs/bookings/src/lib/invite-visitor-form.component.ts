@@ -335,7 +335,7 @@ import { Booking } from './booking.class';
                             target="_blank"
                             rel="noopener noreferer"
                         >
-                            <app-icon class="text-xl">download</app-icon>
+                            <icon class="text-xl">download</icon>
                             <span>{{ 'BOOKINGS.LINK_ICAL' | translate }}</span>
                         </a>
                     </div>

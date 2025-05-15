@@ -20,10 +20,10 @@ import { BookingUIOptions, EventsStateService } from './events-state.service';
                 (click)="newBooking()"
             >
                 <div class="flex items-center">
-                    <app-icon
+                    <icon
                         class="mr-2"
                         [icon]="{ class: 'material-icons', content: 'add' }"
-                    ></app-icon>
+                    ></icon>
                     <div class="hidden xl:block">New Booking</div>
                 </div>
             </button>

@@ -37,7 +37,7 @@ import { addDays, endOfDay, set } from 'date-fns';
                     [class.text-secondary]="!(options | async)?.group"
                     (click)="setOptions({ group: false, members: [] })"
                 >
-                    <app-icon class="text-2xl">person</app-icon>
+                    <icon class="text-2xl">person</icon>
                     <div class="">{{ 'BOOKINGS.DESK_LONE' | translate }}</div>
                     <div
                         class="absolute inset-x-0 bottom-0 !m-0 h-1"
@@ -51,7 +51,7 @@ import { addDays, endOfDay, set } from 'date-fns';
                     [class.text-secondary]="(options | async)?.group"
                     (click)="setOptions({ group: true })"
                 >
-                    <app-icon class="text-2xl">group_add</app-icon>
+                    <icon class="text-2xl">group_add</icon>
                     <div class="">{{ 'BOOKINGS.DESK_GROUP' | translate }}</div>
                     <div
                         class="absolute inset-x-0 bottom-0 !m-0 h-1"

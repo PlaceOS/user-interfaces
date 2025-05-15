@@ -21,7 +21,7 @@ import { debounceTime, distinctUntilChanged, map } from 'rxjs/operators';
             class="w-full {{ classNames ? classNames : '' }} "
         >
             <div class="-ml-2 mr-1" matPrefix>
-                <app-icon class="text-2xl">search</app-icon>
+                <icon class="text-2xl">search</icon>
             </div>
             <input
                 matInput
@@ -40,7 +40,7 @@ import { debounceTime, distinctUntilChanged, map } from 'rxjs/operators';
                 aria-label="Clear"
                 (click)="clearSearch()"
             >
-                <app-icon>close</app-icon>
+                <icon>close</icon>
             </button>
         </mat-form-field>
     `,

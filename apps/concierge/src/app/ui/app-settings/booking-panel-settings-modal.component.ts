@@ -34,7 +34,7 @@ import * as yaml from 'js-yaml';
                     {{ zone.display_name || zone.name }}
                 </h2>
                 <button icon matRipple mat-dialog-close *ngIf="!loading">
-                    <app-icon>close</app-icon>
+                    <icon>close</icon>
                 </button>
             </header>
             <main
@@ -190,7 +190,7 @@ don't detect presence in room after a period of time"
                                     [disabled]="uploading"
                                     class="h-12 w-12 rounded bg-secondary text-secondary-content"
                                 >
-                                    <app-icon>cloud_upload</app-icon>
+                                    <icon>cloud_upload</icon>
                                     <input
                                         type="file"
                                         class="absolute inset-0 opacity-0"
@@ -224,7 +224,7 @@ don't detect presence in room after a period of time"
                                     [disabled]="uploading"
                                     class="relative h-12 w-12 rounded bg-secondary text-secondary-content"
                                 >
-                                    <app-icon>cloud_upload</app-icon>
+                                    <icon>cloud_upload</icon>
                                     <input
                                         type="file"
                                         class="absolute inset-0 opacity-0"

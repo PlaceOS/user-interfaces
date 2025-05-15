@@ -102,7 +102,7 @@ import { SignageStateService } from './signage-state.service';
                     <div
                         class="flex flex-col items-center justify-center space-y-2 p-8 opacity-30"
                     >
-                        <app-icon class="text-6xl">hide_image</app-icon>
+                        <icon class="text-6xl">hide_image</icon>
                         <p class="text-center">
                             {{
                                 (search.getValue()
@@ -171,7 +171,7 @@ import { SignageStateService } from './signage-state.service';
                             [matMenuTriggerFor]="menu"
                             class="absolute right-2 top-2 !m-0"
                         >
-                            <app-icon>more_vert</app-icon>
+                            <icon>more_vert</icon>
                         </button>
                         <mat-menu #menu="matMenu">
                             <a
@@ -185,9 +185,7 @@ import { SignageStateService } from './signage-state.service';
                                 ref="noopener noreferrer"
                             >
                                 <div class="flex items-center space-x-2">
-                                    <app-icon class="text-2xl"
-                                        >open_in_new</app-icon
-                                    >
+                                    <icon class="text-2xl">open_in_new</icon>
                                     <div class="pr-2">
                                         {{
                                             'APP.CONCIERGE.SIGNAGE_DISPLAYS_OPEN_PLAYER'
@@ -198,8 +196,8 @@ import { SignageStateService } from './signage-state.service';
                             </a>
                             <button mat-menu-item (click)="removeDisplay()">
                                 <div class="flex items-center space-x-2">
-                                    <app-icon class="text-2xl text-error"
-                                        >delete</app-icon
+                                    <icon class="text-2xl text-error"
+                                        >delete</icon
                                     >
                                     <div class="pr-2">
                                         {{
@@ -215,7 +213,7 @@ import { SignageStateService } from './signage-state.service';
                     <div
                         class="absolute inset-0 flex flex-col items-center justify-center space-y-2 opacity-30"
                     >
-                        <app-icon class="text-6xl">desktop_windows</app-icon>
+                        <icon class="text-6xl">desktop_windows</icon>
                         <p>
                             {{
                                 'APP.CONCIERGE.SIGNAGE_DISPLAYS_SELECT'

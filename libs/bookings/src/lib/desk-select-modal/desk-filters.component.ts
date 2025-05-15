@@ -33,7 +33,7 @@ import { BookingFormService } from '../booking-form.service';
                     *ngIf="can_close"
                     (click)="close()"
                 >
-                    <app-icon>keyboard_arrow_left</app-icon>
+                    <icon>keyboard_arrow_left</icon>
                 </button>
             </div>
             <h3 class="flex-2 text-center font-medium">

@@ -7,7 +7,6 @@ export function generateQRCode(
     colorDark = '#000',
 ) {
     let svg = encodeQR(code, 'svg', { ecc: 'low', border: 1 });
-    console.log('SVG:', svg);
     svg = svg.replace('<path', `<path style="fill:${colorDark};"`);
     const encoded_svg = encodeURIComponent(svg);
     return `data:image/svg+xml,${encoded_svg}`;

@@ -37,7 +37,7 @@ import { ContactTracingStateService } from './contact-tracing-state.service';
                 [disabled]="!(options | async)?.user"
                 (click)="download.emit()"
             >
-                <app-icon>download</app-icon>
+                <icon>download</icon>
             </button>
             <button
                 icon
@@ -47,7 +47,7 @@ import { ContactTracingStateService } from './contact-tracing-state.service';
                 matTooltip="Print Report"
                 (click)="print()"
             >
-                <app-icon>print</app-icon>
+                <icon>print</icon>
             </button>
         </div>
     `,

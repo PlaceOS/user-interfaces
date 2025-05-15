@@ -14,7 +14,7 @@ import { Component } from '@angular/core';
                 routerLinkActive="!bg-primary !text-white"
             >
                 <div class="flex flex-col items-center justify-center">
-                    <app-icon class="text-2xl">book</app-icon>
+                    <icon class="text-2xl">book</icon>
                     <p class="m-0">Book Desk</p>
                 </div>
             </a>
@@ -26,7 +26,7 @@ import { Component } from '@angular/core';
                 routerLinkActive="!bg-primary !text-white"
             >
                 <div class="flex flex-col items-center justify-center">
-                    <app-icon class="text-2xl">place</app-icon>
+                    <icon class="text-2xl">place</icon>
                     <p class="m-0">Map</p>
                 </div>
             </a>

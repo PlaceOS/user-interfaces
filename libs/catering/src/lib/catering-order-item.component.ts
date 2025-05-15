@@ -25,7 +25,7 @@ const ACTIVE_ITEMS = new Set<string>();
                     [class.border-solid]="active"
                     (click)="toggle()"
                 >
-                    <app-icon>{{ active ? 'done' : 'local_pizza' }}</app-icon>
+                    <icon>{{ active ? 'done' : 'local_pizza' }}</icon>
                 </button>
             </div>
             <div

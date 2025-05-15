@@ -52,7 +52,7 @@ import { Locker, LockerBank } from '../locker.class';
                                 class="absolute left-1 top-1 flex h-6 w-6 items-center justify-center rounded-full border border-neutral bg-base-200 text-white"
                                 *ngIf="selected.includes(locker_bank.id)"
                             >
-                                <app-icon>done</app-icon>
+                                <icon>done</icon>
                             </div>
                             <img
                                 auth
@@ -79,7 +79,7 @@ import { Locker, LockerBank } from '../locker.class';
                                 }}
                             </span>
                             <div class="flex items-center space-x-2 text-sm">
-                                <app-icon class="text-blue-500">place</app-icon>
+                                <icon class="text-blue-500">place</icon>
                                 <p class="text-xs">
                                     {{
                                         (locker_bank.zones | level)
@@ -91,8 +91,8 @@ import { Locker, LockerBank } from '../locker.class';
                                 </p>
                             </div>
                             <div class="flex items-center space-x-2 text-sm">
-                                <app-icon class="text-blue-500"
-                                    >people</app-icon
+                                <icon class="text-blue-500"
+                                    >people</icon
                                 >
                                 <p class="text-xs">
                                     {{
@@ -119,11 +119,11 @@ import { Locker, LockerBank } from '../locker.class';
                         [class.text-info]="isFavourite(locker_bank.id)"
                         (click)="toggleFav.emit(locker_bank)"
                     >
-                        <app-icon>{{
+                        <icon>{{
                             isFavourite(locker_bank.id)
                                 ? 'favorite'
                                 : 'favorite_border'
-                        }}</app-icon>
+                        }}</icon>
                     </button> -->
                     <div
                         class="absolute bottom-2 right-2 rounded bg-base-200 px-2 py-1 font-mono text-xs"

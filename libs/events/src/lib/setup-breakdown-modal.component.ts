@@ -11,7 +11,7 @@ import { saveEvent, updateEventMetadata } from './events.fn';
         <header class="min-h-16 space-x-4">
             <h2>Set Event's Setup and Breakdown</h2>
             <button btn icon mat-dialog-close matRipple *ngIf="!loading">
-                <app-icon>close</app-icon>
+                <icon>close</icon>
             </button>
         </header>
         <main

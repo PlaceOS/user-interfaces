@@ -30,7 +30,7 @@ import { EventStateService } from './event-state.service';
                     <div class="ml-2">
                         {{ 'APP.CONCIERGE.EVENTS_ADD' | translate }}
                     </div>
-                    <app-icon class="text-2xl">chevron_right</app-icon>
+                    <icon class="text-2xl">chevron_right</icon>
                 </a>
             </div>
             <div filters class="flex items-center space-x-2 px-8 pb-4">
@@ -42,7 +42,7 @@ import { EventStateService } from './event-state.service';
                     (click)="setView('list')"
                 >
                     <div class="flex items-center space-x-2">
-                        <app-icon class="text-xl">list</app-icon>
+                        <icon class="text-xl">list</icon>
                         <div class="pr-2">{{ 'COMMON.LIST' | translate }}</div>
                     </div>
                 </button>
@@ -54,7 +54,7 @@ import { EventStateService } from './event-state.service';
                     (click)="setView('calendar')"
                 >
                     <div class="flex items-center space-x-2">
-                        <app-icon class="text-xl">event</app-icon>
+                        <icon class="text-xl">event</icon>
                         <div class="pr-2">
                             {{ 'COMMON.CALENDAR' | translate }}
                         </div>

@@ -19,7 +19,7 @@ import { ParkingUser } from './parking-state.service';
                     }}
                 </h2>
                 <button *ngIf="!loading" icon matRipple mat-dialog-close>
-                    <app-icon>close</app-icon>
+                    <icon>close</icon>
                 </button>
             </header>
             <main
@@ -47,9 +47,9 @@ import { ParkingUser } from './parking-state.service';
                             })
                         "
                     >
-                        <app-icon className="material-symbols-outlined">
+                        <icon className="material-symbols-outlined">
                             person_cancel
-                        </app-icon>
+                        </icon>
                     </button>
                 </div>
                 <label for="name">{{ 'FORM.NAME' | translate }}</label>

@@ -14,7 +14,7 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
                 }}
             </h1>
             <button icon matRipple mat-dialog-close>
-                <app-icon>close</app-icon>
+                <icon>close</icon>
             </button>
         </header>
         <main class="bg-base-200" *ngIf="!loading; else load_state">

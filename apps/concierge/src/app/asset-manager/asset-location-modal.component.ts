@@ -15,14 +15,14 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 mat-dialog-close
                 class="absolute right-4 top-4"
             >
-                <app-icon>close</app-icon>
+                <icon>close</icon>
             </button>
             <h2 class="mb-2 font-medium">
                 {{ (asset | async)?.name }} in use location:
                 {{ (requests | async)?.length }}
             </h2>
             <mat-form-field appearance="outline" class="mb-2 h-[3.5rem]">
-                <app-icon matPrefix>search</app-icon>
+                <icon matPrefix>search</icon>
                 <input matInput placeholder="Search..." />
             </mat-form-field>
             <div class="flex w-[90vw] items-center space-x-4 text-sm">
@@ -97,25 +97,25 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                 'In Storage'
                         }}
                     </div>
-                    <app-icon class="text-2xl">expand_more</app-icon>
+                    <icon class="text-2xl">expand_more</icon>
                 </button>
             </div>
             <mat-menu #tracking_menu="matMenu">
                 <button mat-menu-item (click)="setTracking(row, 'in_storage')">
                     <div class="flex items-center space-x-2">
-                        <app-icon class="text-2xl">inventory</app-icon>
+                        <icon class="text-2xl">inventory</icon>
                         <div class="pr-2">In Storage</div>
                     </div>
                 </button>
                 <button mat-menu-item (click)="setTracking(row, 'in_transit')">
                     <div class="flex items-center space-x-2">
-                        <app-icon class="text-2xl">trolley</app-icon>
+                        <icon class="text-2xl">trolley</icon>
                         <div class="pr-2">In Transit</div>
                     </div>
                 </button>
                 <button mat-menu-item (click)="setTracking(row, 'at_location')">
                     <div class="flex items-center space-x-2">
-                        <app-icon class="text-2xl">place</app-icon>
+                        <icon class="text-2xl">place</icon>
                         <div class="pr-2">At Location</div>
                     </div>
                 </button>

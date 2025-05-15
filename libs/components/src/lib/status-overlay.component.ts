@@ -14,7 +14,7 @@ import { ApplicationLink } from '@placeos/common';
                     [class.text-success]="!error"
                     [class.text-error]="error"
                 >
-                    <app-icon>{{ error ? 'close' : 'done' }}</app-icon>
+                    <icon>{{ error ? 'close' : 'done' }}</icon>
                 </div>
                 <div class="mb-4 text-center text-lg">
                     <ng-container *ngIf="!error; else error_msg">

@@ -31,7 +31,7 @@ export interface BannerDetails {
                 {{ (banner | async)?.content || (banner | async)?.message }}
             </div>
             <button icon matRipple (click)="close()">
-                <app-icon>close</app-icon>
+                <icon>close</icon>
             </button>
         </div>
     `,

@@ -21,7 +21,7 @@ import { ParkingSpace } from './parking-state.service';
                     }}
                 </h2>
                 <button icon matRipple mat-dialog-close *ngIf="!loading">
-                    <app-icon>close</app-icon>
+                    <icon>close</icon>
                 </button>
             </header>
             <main
@@ -79,9 +79,9 @@ import { ParkingSpace } from './parking-state.service';
                             })
                         "
                     >
-                        <app-icon className="material-symbols-outlined">
+                        <icon className="material-symbols-outlined">
                             person_cancel
-                        </app-icon>
+                        </icon>
                     </button>
                 </div>
                 <label for="notes">{{ 'FORM.NOTES' | translate }}</label>

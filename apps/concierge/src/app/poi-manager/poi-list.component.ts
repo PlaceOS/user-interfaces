@@ -56,7 +56,7 @@ import {
                 *ngIf="data"
                 class="mx-auto flex h-8 w-8 items-center justify-center rounded bg-success text-2xl text-success-content"
             >
-                <app-icon>done</app-icon>
+                <icon>done</icon>
             </div>
         </ng-template>
         <ng-template #action_template let-row="row">
@@ -69,7 +69,7 @@ import {
                         [content]="qr_menu"
                         (click)="loadQrCode(row)"
                     >
-                        <app-icon>qr_code</app-icon>
+                        <icon>qr_code</icon>
                     </button>
                 </div>
                 <div [matTooltip]="'APP.CONCIERGE.POI_PUBLIC_QR' | translate">
@@ -81,7 +81,7 @@ import {
                         [content]="qr_menu"
                         (click)="loadPublicQrCode(row)"
                     >
-                        <app-icon>qr_code</app-icon>
+                        <icon>qr_code</icon>
                     </button>
                 </div>
                 <ng-template #qr_menu>
@@ -112,12 +112,12 @@ import {
                     </div>
                 </ng-template>
                 <button btn icon matRipple [matMenuTriggerFor]="menu">
-                    <app-icon>more_vert</app-icon>
+                    <icon>more_vert</icon>
                 </button>
                 <mat-menu #menu="matMenu">
                     <button mat-menu-item (click)="edit(row)">
                         <div class="flex items-center space-x-2">
-                            <app-icon>edit</app-icon>
+                            <icon>edit</icon>
                             <span>{{
                                 'APP.CONCIERGE.POI_EDIT' | translate
                             }}</span>
@@ -125,7 +125,7 @@ import {
                     </button>
                     <button mat-menu-item (click)="remove(row)">
                         <div class="text-red-500 flex items-center space-x-2">
-                            <app-icon class="text-error">delete</app-icon>
+                            <icon class="text-error">delete</icon>
                             <span>{{
                                 'APP.CONCIERGE.POI_REMOVE' | translate
                             }}</span>

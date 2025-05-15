@@ -12,7 +12,7 @@ import { notifyError, uploadFile } from '@placeos/common';
             class="h-12 w-12 rounded bg-secondary text-secondary-content"
             [title]="value"
         >
-            <app-icon *ngIf="!uploading">cloud_upload</app-icon>
+            <icon *ngIf="!uploading">cloud_upload</icon>
             <input
                 type="file"
                 class="absolute inset-0 opacity-0"

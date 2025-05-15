@@ -46,7 +46,7 @@ import { CalendarEvent } from './event.class';
                 rel="noopener noreferer"
                 (click)="has_actioned = true"
             >
-                <app-icon class="text-xl">download</app-icon>
+                <icon class="text-xl">download</icon>
                 <span>Download iCal File</span>
             </a>
             <button class="w-64" btn matRipple (click)="close()">Close</button>
@@ -57,7 +57,7 @@ import { CalendarEvent } from './event.class';
             [mat-dialog-close]="has_actioned"
             class="absolute right-0 top-2"
         >
-            <app-icon>close</app-icon>
+            <icon>close</icon>
         </button>
     `,
     styles: [

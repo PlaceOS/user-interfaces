@@ -23,7 +23,7 @@ import { DesksStateService } from '../desks/desks-state.service';
                 }}
             </h2>
             <button icon matRipple mat-dialog-close *ngIf="!loading">
-                <app-icon>close</app-icon>
+                <icon>close</icon>
             </button>
         </header>
         <main
@@ -50,11 +50,11 @@ import { DesksStateService } from '../desks/desks-state.service';
             <div class="flex flex-col">
                 <label>{{ 'RESOURCE.ASSET' | translate }}</label>
                 <mat-form-field appearance="outline" class="h-[3.25rem] flex-1">
-                    <app-icon
+                    <icon
                         matPrefix
                         class="text-2xl"
                         [class.opacity-30]="!form.get('type').value"
-                        >search</app-icon
+                        >search</icon
                     >
                     <input
                         matInput
@@ -191,7 +191,7 @@ import { DesksStateService } from '../desks/desks-state.service';
                 </div>
                 <button btn matRipple class="clear w-full" (click)="newRule()">
                     <div class="flex w-full items-center justify-center">
-                        <app-icon class="text-lg">add</app-icon>
+                        <icon class="text-lg">add</icon>
                         <span class="underline">{{
                             'APP.CONCIERGE.POINTS_RATE_RULES_NEW' | translate
                         }}</span>

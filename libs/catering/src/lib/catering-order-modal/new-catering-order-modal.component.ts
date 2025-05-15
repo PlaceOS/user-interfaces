@@ -16,7 +16,7 @@ const EMPTY_FAVS: string[] = [];
             <header class="flex w-full items-center justify-between space-x-4">
                 <h3>{{ 'CATERING.ORDER' | translate }}</h3>
                 <button icon matRipple [mat-dialog-close]="selected">
-                    <app-icon>close</app-icon>
+                    <icon>close</icon>
                 </button>
             </header>
             <main
@@ -96,7 +96,7 @@ const EMPTY_FAVS: string[] = [];
                     class="clear text-secondary"
                 >
                     <div class="flex items-center">
-                        <app-icon class="text-xl">arrow_back</app-icon>
+                        <icon class="text-xl">arrow_back</icon>
                         <div class="mr-1 underline">
                             {{ 'COMMON.BACK_TO_FORM' | translate }}
                         </div>
@@ -122,9 +122,9 @@ const EMPTY_FAVS: string[] = [];
                     "
                 >
                     <div class="flex items-center">
-                        <app-icon class="text-xl">{{
+                        <icon class="text-xl">{{
                             isSelected(displayed?.custom_id) ? 'remove' : 'add'
-                        }}</app-icon>
+                        }}</icon>
                         <div class="mr-1">
                             {{
                                 (isSelected(displayed?.custom_id)

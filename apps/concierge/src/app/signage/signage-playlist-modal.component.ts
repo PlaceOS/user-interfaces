@@ -66,12 +66,12 @@ import { SignageStateService } from './signage-state.service';
                         class="m-0 flex w-auto min-w-0 items-center space-x-2"
                     >
                         <div>Default Play Time</div>
-                        <app-icon
+                        <icon
                             class="text-xl"
                             matTooltip="Default length of time to hold images on screen"
                         >
                             info
-                        </app-icon>
+                        </icon>
                     </label>
                     <div class="font-mono text-xs">
                         {{ form.value.default_duration / 1000 | mediaDuration }}

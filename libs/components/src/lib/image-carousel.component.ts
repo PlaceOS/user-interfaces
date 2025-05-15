@@ -21,7 +21,7 @@ import { Component, Input } from '@angular/core';
                 class="relative flex h-full w-full flex-col items-center justify-center space-y-2 opacity-30"
                 *ngIf="!images?.length"
             >
-                <app-icon class="text-6xl">image_not_supported</app-icon>
+                <icon class="text-6xl">image_not_supported</icon>
                 <p>{{ 'COMMON.IMAGES_EMPTY' | translate }}</p>
             </div>
             <button
@@ -34,7 +34,7 @@ import { Component, Input } from '@angular/core';
                     matRipple
                     class="absolute left-4 top-1/2 h-10 w-10 -translate-y-1/2 rounded-full border border-base-300 bg-base-100 text-base-content shadow"
                 >
-                    <app-icon class="text-3xl">chevron_left</app-icon>
+                    <icon class="text-3xl">chevron_left</icon>
                 </div>
             </button>
             <button
@@ -47,7 +47,7 @@ import { Component, Input } from '@angular/core';
                     matRipple
                     class="absolute right-4 top-1/2 h-10 w-10 -translate-y-1/2 rounded-full border border-base-300 bg-base-100 text-base-content shadow"
                 >
-                    <app-icon class="text-3xl">chevron_right</app-icon>
+                    <icon class="text-3xl">chevron_right</icon>
                 </div>
             </button>
             <div

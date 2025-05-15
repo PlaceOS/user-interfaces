@@ -66,7 +66,7 @@ import { DesksStateService } from './desks-state.service';
                 (click)="newDesk()"
                 [matTooltip]="'APP.CONCIERGE.DESKS_NEW' | translate"
             >
-                <app-icon>add</app-icon>
+                <icon>add</icon>
             </button>
             <button
                 btn
@@ -76,7 +76,7 @@ import { DesksStateService } from './desks-state.service';
                 class="relative rounded bg-primary text-white"
                 [matTooltip]="'APP.CONCIERGE.DESKS_LIST_UPLOAD' | translate"
             >
-                <app-icon>cloud_upload</app-icon>
+                <icon>cloud_upload</icon>
                 <input
                     type="file"
                     class="absolute inset-0 opacity-0"
@@ -92,7 +92,7 @@ import { DesksStateService } from './desks-state.service';
                 (click)="downloadTemplate()"
                 [matTooltip]="'APP.CONCIERGE.DESKS_LIST_DOWNLOAD' | translate"
             >
-                <app-icon>download</app-icon>
+                <icon>download</icon>
             </button>
             <button
                 btn
@@ -103,7 +103,7 @@ import { DesksStateService } from './desks-state.service';
                 (click)="manageRestrictions()"
                 [matTooltip]="'APP.CONCIERGE.DESKS_BOOKING_RULES' | translate"
             >
-                <app-icon>lock_open</app-icon>
+                <icon>lock_open</icon>
             </button>
             <div class="w-2 flex-1"></div>
             <searchbar

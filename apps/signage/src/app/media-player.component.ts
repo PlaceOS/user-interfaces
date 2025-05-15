@@ -74,7 +74,7 @@ export type MediaPlayerState = 'PAUSED' | 'PLAYING';
                     (click)="previousItem()"
                     [matTooltip]="'APP.SIGNAGE.PREVIOUS' | translate"
                 >
-                    <app-icon>skip_previous</app-icon>
+                    <icon>skip_previous</icon>
                 </button>
                 <button
                     icon
@@ -88,9 +88,9 @@ export type MediaPlayerState = 'PAUSED' | 'PLAYING';
                         ) | translate
                     "
                 >
-                    <app-icon>{{
+                    <icon>{{
                         state === 'PLAYING' ? 'pause' : 'play_arrow'
-                    }}</app-icon>
+                    }}</icon>
                 </button>
                 <button
                     icon
@@ -99,7 +99,7 @@ export type MediaPlayerState = 'PAUSED' | 'PLAYING';
                     (click)="nextItem()"
                     [matTooltip]="'APP.SIGNAGE.NEXT' | translate"
                 >
-                    <app-icon>skip_next</app-icon>
+                    <icon>skip_next</icon>
                 </button>
                 <button
                     icon
@@ -116,9 +116,9 @@ export type MediaPlayerState = 'PAUSED' | 'PLAYING';
                                   }
                     "
                 >
-                    <app-icon>{{
+                    <icon>{{
                         muted ? 'volume_off' : 'volume_up'
-                    }}</app-icon>
+                    }}</icon>
                 </button>
                 <button
                     icon
@@ -134,7 +134,7 @@ export type MediaPlayerState = 'PAUSED' | 'PLAYING';
                         ) | translate
                     "
                 >
-                    <app-icon [class.opacity-30]="loop === 'NONE'">
+                    <icon [class.opacity-30]="loop === 'NONE'">
                         {{
                             loop === 'ALL'
                                 ? 'repeat'
@@ -142,7 +142,7 @@ export type MediaPlayerState = 'PAUSED' | 'PLAYING';
                                   ? 'repeat_one'
                                   : 'repeat'
                         }}
-                    </app-icon>
+                    </icon>
                 </button>
                 <button
                     icon
@@ -159,7 +159,7 @@ export type MediaPlayerState = 'PAUSED' | 'PLAYING';
                                   }
                     "
                 >
-                    <app-icon [class.opacity-30]="!shuffle"> shuffle </app-icon>
+                    <icon [class.opacity-30]="!shuffle"> shuffle </icon>
                 </button>
             </div>
             <div
@@ -194,14 +194,14 @@ export type MediaPlayerState = 'PAUSED' | 'PLAYING';
                                         *ngIf="$index === index"
                                         class="absolute z-0 inline-flex h-full w-full animate-ping rounded-full bg-info opacity-75"
                                     ></span>
-                                    <app-icon
+                                    <icon
                                         class="relative z-10 text-2xl"
                                         [class.opacity-30]="$index !== index"
                                         >{{
                                             $index === index
                                                 ? 'play_arrow'
                                                 : 'not_started'
-                                        }}</app-icon
+                                        }}</icon
                                     >
                                 </div>
                             </div>
@@ -233,9 +233,9 @@ export type MediaPlayerState = 'PAUSED' | 'PLAYING';
                 class="absolute right-6 top-6 border border-base-200 bg-base-100 shadow"
                 (click)="show_playlist = !show_playlist"
             >
-                <app-icon>{{
+                <icon>{{
                     show_playlist ? 'close' : 'queue_music'
-                }}</app-icon>
+                }}</icon>
             </button>
         }
     `,

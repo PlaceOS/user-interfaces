@@ -188,7 +188,7 @@ import { EventStateService } from './event-state.service';
                 *ngIf="data === 'OPEN' || data === 'open'"
                 class="mx-auto flex h-8 w-8 items-center justify-center rounded bg-success text-2xl text-success-content"
             >
-                <app-icon>done</app-icon>
+                <icon>done</icon>
             </div>
         </ng-template>
         <ng-template #status_template let-item="row">
@@ -234,14 +234,12 @@ import { EventStateService } from './event-state.service';
                 [matMenuTriggerFor]="menu"
                 [disabled]="row.state === 'done'"
             >
-                <app-icon>more_vert</app-icon>
+                <icon>more_vert</icon>
             </button>
             <mat-menu #menu="matMenu">
                 <button mat-menu-item [disabled]="true">
                     <div class="flex items-center space-x-2">
-                        <app-icon class="text-2xl">
-                            confirmation_number
-                        </app-icon>
+                        <icon class="text-2xl"> confirmation_number </icon>
                         <div class="mr-2">
                             {{ 'APP.CONCIERGE.EVENTS_PROMOTE' | translate }}
                         </div>
@@ -249,7 +247,7 @@ import { EventStateService } from './event-state.service';
                 </button>
                 <button mat-menu-item (click)="viewEvent(row)">
                     <div class="flex items-center space-x-2">
-                        <app-icon class="text-2xl">visibility</app-icon>
+                        <icon class="text-2xl">visibility</icon>
                         <div class="mr-2">
                             {{ 'APP.CONCIERGE.EVENTS_VIEW' | translate }}
                         </div>
@@ -265,7 +263,7 @@ import { EventStateService } from './event-state.service';
                     ]"
                 >
                     <div class="flex items-center space-x-2">
-                        <app-icon class="text-2xl">edit</app-icon>
+                        <icon class="text-2xl">edit</icon>
                         <div class="mr-2">
                             {{ 'APP.CONCIERGE.EVENTS_EDIT' | translate }}
                         </div>
@@ -273,7 +271,7 @@ import { EventStateService } from './event-state.service';
                 </a>
                 <button mat-menu-item [disabled]="true">
                     <div class="flex items-center space-x-2">
-                        <app-icon class="text-2xl">content_copy</app-icon>
+                        <icon class="text-2xl">content_copy</icon>
                         <div class="mr-2">
                             {{ 'APP.CONCIERGE.EVENTS_COPY_URL' | translate }}
                         </div>
@@ -281,7 +279,7 @@ import { EventStateService } from './event-state.service';
                 </button>
                 <button mat-menu-item (click)="removeEvent(row)">
                     <div class="flex items-center space-x-2">
-                        <app-icon class="text-2xl text-error">delete</app-icon>
+                        <icon class="text-2xl text-error">delete</icon>
                         <div class="mr-2">
                             {{ 'APP.CONCIERGE.EVENTS_REMOVE' | translate }}
                         </div>

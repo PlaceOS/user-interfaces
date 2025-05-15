@@ -16,11 +16,11 @@ const DEFAULT_FEATURES = ['desks', 'spaces', 'catering', 'contact-tracing'];
                     *ngIf="features.includes('desks')"
                     class="flex h-64 w-64 flex-col items-center justify-center rounded border border-base-200 bg-base-100 p-4 shadow hover:opacity-80"
                 >
-                    <app-icon class="text-8xl">room</app-icon>
+                    <icon class="text-8xl">room</icon>
                     <h3 class="mb-4 text-xl font-bold">Desks</h3>
                     <div class="flex items-center">
                         <p>View Report</p>
-                        <app-icon class="ml-2">chevron_right</app-icon>
+                        <icon class="ml-2">chevron_right</icon>
                     </div>
                 </a>
                 <a
@@ -29,11 +29,11 @@ const DEFAULT_FEATURES = ['desks', 'spaces', 'catering', 'contact-tracing'];
                     *ngIf="features.includes('spaces')"
                     class="flex h-64 w-64 flex-col items-center justify-center rounded border border-base-200 bg-base-100 p-4 shadow hover:opacity-80"
                 >
-                    <app-icon class="text-8xl">meeting_room</app-icon>
+                    <icon class="text-8xl">meeting_room</icon>
                     <h3 class="mb-4 text-xl font-bold">Rooms</h3>
                     <div class="flex items-center">
                         <p>View Report</p>
-                        <app-icon class="ml-2">chevron_right</app-icon>
+                        <icon class="ml-2">chevron_right</icon>
                     </div>
                 </a>
                 <a
@@ -42,11 +42,11 @@ const DEFAULT_FEATURES = ['desks', 'spaces', 'catering', 'contact-tracing'];
                     *ngIf="features.includes('catering')"
                     class="flex h-64 w-64 flex-col items-center justify-center rounded border border-base-200 bg-base-100 p-4 shadow hover:opacity-80"
                 >
-                    <app-icon class="text-8xl">room_service</app-icon>
+                    <icon class="text-8xl">room_service</icon>
                     <h3 class="mb-4 text-xl font-bold">Catering</h3>
                     <div class="flex items-center">
                         <p>View Report</p>
-                        <app-icon class="ml-2">chevron_right</app-icon>
+                        <icon class="ml-2">chevron_right</icon>
                     </div>
                 </a>
                 <a
@@ -55,13 +55,11 @@ const DEFAULT_FEATURES = ['desks', 'spaces', 'catering', 'contact-tracing'];
                     *ngIf="features.includes('contact-tracing')"
                     class="flex h-64 w-64 flex-col items-center justify-center rounded border border-base-200 bg-base-100 p-4 shadow hover:opacity-80"
                 >
-                    <app-icon class="text-8xl"
-                        >connect_without_contact</app-icon
-                    >
+                    <icon class="text-8xl">connect_without_contact</icon>
                     <h3 class="mb-4 text-xl font-bold">Contact Tracing</h3>
                     <div class="flex items-center">
                         <p>View Report</p>
-                        <app-icon class="ml-2">chevron_right</app-icon>
+                        <icon class="ml-2">chevron_right</icon>
                     </div>
                 </a>
                 <a
@@ -70,11 +68,11 @@ const DEFAULT_FEATURES = ['desks', 'spaces', 'catering', 'contact-tracing'];
                     *ngFor="let report of custom_reports"
                     class="flex h-64 w-64 flex-col items-center justify-center rounded border border-base-200 bg-base-100 p-4 shadow hover:opacity-80"
                 >
-                    <app-icon class="text-8xl">{{ report.icon }}</app-icon>
+                    <icon class="text-8xl">{{ report.icon }}</icon>
                     <h3 class="mb-4 text-xl font-bold">{{ report.name }}</h3>
                     <div class="flex items-center">
                         <p>View Report</p>
-                        <app-icon class="ml-2">chevron_right</app-icon>
+                        <icon class="ml-2">chevron_right</icon>
                     </div>
                 </a>
             </div>

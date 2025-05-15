@@ -62,7 +62,7 @@ export enum ZoomDirection {
                                 class="h-12 w-12 rounded border border-error bg-base-100 text-error"
                                 (click)="removePreset(name)"
                             >
-                                <app-icon>delete</app-icon>
+                                <icon>delete</icon>
                             </button>
                         </div>
                     </ng-container>
@@ -77,7 +77,7 @@ export enum ZoomDirection {
                         class="absolute right-4 top-1"
                         [matMenuTriggerFor]="menu"
                     >
-                        <app-icon>add</app-icon>
+                        <icon>add</icon>
                     </button>
                     <mat-menu #menu="matMenu">
                         <div class="flex w-full flex-col px-2">
@@ -134,7 +134,7 @@ export enum ZoomDirection {
                                 (touchstart)="startZoom('in', $event)"
                                 (contextmenu)="$event.preventDefault()"
                             >
-                                <app-icon>add</app-icon>
+                                <icon>add</icon>
                             </button>
                             <div
                                 class="flex h-10 w-10 items-center justify-center border-b border-t border-base-200 text-xs"
@@ -151,7 +151,7 @@ export enum ZoomDirection {
                                 (touchstart)="startZoom('out', $event)"
                                 (contextmenu)="$event.preventDefault()"
                             >
-                                <app-icon>remove</app-icon>
+                                <icon>remove</icon>
                             </button>
                         </div>
                     </div>

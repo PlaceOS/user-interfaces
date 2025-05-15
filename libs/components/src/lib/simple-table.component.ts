@@ -74,7 +74,7 @@ export interface TableColumn {
                         <div class="font-medium">
                             {{ column.name || column.key }}
                         </div>
-                        <app-icon
+                        <icon
                             class="text-[1.25em]"
                             *ngIf="sortable && column.sortable !== false"
                         >
@@ -83,7 +83,7 @@ export interface TableColumn {
                                     ? 'arrow_upward'
                                     : 'arrow_downward'
                             }}
-                        </app-icon>
+                        </icon>
                     </button>
                 }
             }
@@ -220,7 +220,7 @@ export interface TableColumn {
                 [disabled]="page === 0"
                 (click)="setPage(page - 1)"
             >
-                <app-icon>chevron_left</app-icon>
+                <icon>chevron_left</icon>
             </button>
             <button
                 icon
@@ -228,10 +228,10 @@ export interface TableColumn {
                 [disabled]="page === total_pages - 1"
                 (click)="setPage(page + 1)"
             >
-                <app-icon>chevron_right</app-icon>
+                <icon>chevron_right</icon>
             </button>
             <button icon matRipple [disabled]="page === 0" (click)="setPage(0)">
-                <app-icon>first_page</app-icon>
+                <icon>first_page</icon>
             </button>
             <button
                 icon
@@ -239,7 +239,7 @@ export interface TableColumn {
                 [disabled]="page === total_pages - 1"
                 (click)="setPage(total_pages - 1)"
             >
-                <app-icon>last_page</app-icon>
+                <icon>last_page</icon>
             </button>
         </div>
     `,
@@ -250,16 +250,16 @@ export interface TableColumn {
                 min-width: 100%;
             }
 
-            [header] app-icon {
+            [header] icon {
                 opacity: 0;
             }
-            [header]:hover app-icon {
+            [header]:hover icon {
                 opacity: 0.3;
             }
-            [header]:hover.pointer-events-none app-icon {
+            [header]:hover.pointer-events-none icon {
                 opacity: 0;
             }
-            [header].active app-icon {
+            [header].active icon {
                 opacity: 1;
             }
         `,

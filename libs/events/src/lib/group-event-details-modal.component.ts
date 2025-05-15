@@ -47,7 +47,7 @@ import {
                 class="absolute left-0 top-0 flex items-center space-x-2 rounded-br bg-info py-2 pl-2 pr-4 text-sm text-info-content"
                 *ngIf="featured"
             >
-                <app-icon class="text-base">star</app-icon>
+                <icon class="text-base">star</icon>
                 <div class="uppercase">
                     {{ 'CALENDAR_EVENT.GROUP_FEATURED' | translate }}
                 </div>
@@ -58,7 +58,7 @@ import {
                 class="absolute right-1 top-1 overflow-hidden"
             >
                 <div class="absolute inset-0 z-0 bg-base-100 opacity-30"></div>
-                <app-icon class="z-10">close</app-icon>
+                <icon class="z-10">close</icon>
             </button>
             <div
                 class="flex items-center justify-between border-b border-base-200 px-8 py-4"
@@ -78,7 +78,7 @@ import {
                             [class.text-success-content]="is_interested"
                             [class.opacity-100]="is_interested"
                         >
-                            <app-icon>star</app-icon>
+                            <icon>star</icon>
                             <div class="pr-2">
                                 {{
                                     (is_interested
@@ -98,7 +98,7 @@ import {
                             [class.text-success-content]="is_going"
                             [class.opacity-100]="is_going"
                         >
-                            <app-icon>help</app-icon>
+                            <icon>help</icon>
                             <div class="pr-2">
                                 {{
                                     (is_going
@@ -116,14 +116,14 @@ import {
                         [disabled]="event.state === 'done'"
                         [matMenuTriggerFor]="concierge ? concierge_menu : menu"
                     >
-                        <app-icon class="text-2xl">more_horiz</app-icon>
+                        <icon class="text-2xl">more_horiz</icon>
                     </button>
                     <mat-menu #concierge_menu="matMenu">
                         <button mat-menu-item [disabled]="true">
                             <div class="flex items-center space-x-2">
-                                <app-icon class="text-2xl">
+                                <icon class="text-2xl">
                                     confirmation_number
-                                </app-icon>
+                                </icon>
                                 <div class="mr-2">
                                     {{
                                         'CALENDAR_EVENT.GROUP_PREMOTE'
@@ -138,7 +138,7 @@ import {
                             mat-dialog-close
                         >
                             <div class="flex items-center space-x-2">
-                                <app-icon class="text-2xl">edit</app-icon>
+                                <icon class="text-2xl">edit</icon>
                                 <div class="mr-2">
                                     {{
                                         'CALENDAR_EVENT.GROUP_EDIT' | translate
@@ -148,8 +148,8 @@ import {
                         </button>
                         <button mat-menu-item [disabled]="true">
                             <div class="flex items-center space-x-2">
-                                <app-icon class="text-2xl"
-                                    >content_copy</app-icon
+                                <icon class="text-2xl"
+                                    >content_copy</icon
                                 >
                                 <div class="mr-2">
                                     {{
@@ -164,9 +164,9 @@ import {
                             (click)="remove ? remove(event, false) : ''"
                         >
                             <div class="flex items-center space-x-2">
-                                <app-icon class="text-2xl text-error">
+                                <icon class="text-2xl text-error">
                                     delete
-                                </app-icon>
+                                </icon>
                                 <div class="mr-2">
                                     {{
                                         'CALENDAR_EVENT.GROUP_DELETE'
@@ -183,9 +183,9 @@ import {
                             (click)="toggleInterest()"
                         >
                             <div class="flex items-center space-x-2">
-                                <app-icon [class.text-error]="is_interested">
+                                <icon [class.text-error]="is_interested">
                                     star
-                                </app-icon>
+                                </icon>
                                 <span>
                                     {{
                                         (is_interested
@@ -198,9 +198,9 @@ import {
                         </button>
                         <button mat-menu-item (click)="toggleAttendance()">
                             <div class="flex items-center space-x-2">
-                                <app-icon [class.text-error]="is_going">
+                                <icon [class.text-error]="is_going">
                                     help
-                                </app-icon>
+                                </icon>
                                 <span>
                                     {{
                                         (is_going
@@ -222,7 +222,7 @@ import {
                         <div
                             class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200"
                         >
-                            <app-icon>person</app-icon>
+                            <icon>person</icon>
                         </div>
                         <div>
                             {{
@@ -243,7 +243,7 @@ import {
                         <div
                             class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200"
                         >
-                            <app-icon>calendar_today</app-icon>
+                            <icon>calendar_today</icon>
                         </div>
                         <div class="flex flex-col">
                             <div class="text-sm">
@@ -265,7 +265,7 @@ import {
                         <div
                             class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200"
                         >
-                            <app-icon>place</app-icon>
+                            <icon>place</icon>
                         </div>
                         <div class="flex flex-col text-sm">
                             <div *ngIf="is_onsite && has_space">
@@ -298,7 +298,7 @@ import {
                         <div
                             class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200"
                         >
-                            <app-icon>person</app-icon>
+                            <icon>person</icon>
                         </div>
                         <div>
                             {{

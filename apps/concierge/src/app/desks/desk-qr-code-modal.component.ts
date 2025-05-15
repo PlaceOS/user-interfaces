@@ -16,7 +16,7 @@ import { map } from 'rxjs/operators';
                     {{ 'APP.CONCIERGE.DESKS_ACTION_PRINT_QR_LIST' | translate }}
                 </button>
                 <button icon matRipple mat-dialog-close>
-                    <app-icon>close</app-icon>
+                    <icon>close</icon>
                 </button>
             </div>
             <div

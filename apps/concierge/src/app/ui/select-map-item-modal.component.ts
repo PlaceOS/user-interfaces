@@ -23,7 +23,7 @@ declare let mapsindoors: any;
         <header>
             <h2>{{ 'APP.CONCIERGE.POI_MAP_SELECT_HEADER' | translate }}</h2>
             <button icon matRipple mat-dialog-close>
-                <app-icon>close</app-icon>
+                <icon>close</icon>
             </button>
         </header>
         <main
@@ -72,7 +72,7 @@ declare let mapsindoors: any;
                             [ngModel]="search | async"
                             (ngModelChange)="search.next($event)"
                         />
-                        <app-icon matPrefix class="text-2xl">search</app-icon>
+                        <icon matPrefix class="text-2xl">search</icon>
                     </mat-form-field>
                 </div>
                 <div
@@ -144,7 +144,7 @@ declare let mapsindoors: any;
                             [disabled]="page === 0"
                             (click)="page = page - 1"
                         >
-                            <app-icon>chevron_left</app-icon>
+                            <icon>chevron_left</icon>
                         </button>
                         <button
                             icon
@@ -157,7 +157,7 @@ declare let mapsindoors: any;
                             1
                         </button>
                         <button icon [class.opacity-0]="page < 2">
-                            <app-icon>more_horiz</app-icon>
+                            <icon>more_horiz</icon>
                         </button>
                         <button
                             icon
@@ -168,7 +168,7 @@ declare let mapsindoors: any;
                             {{ page + 1 }}
                         </button>
                         <button icon [class.opacity-0]="page > last_page - 2">
-                            <app-icon>more_horiz</app-icon>
+                            <icon>more_horiz</icon>
                         </button>
                         <button
                             icon
@@ -188,7 +188,7 @@ declare let mapsindoors: any;
                             [disabled]="page === last_page"
                             (click)="page = page + 1"
                         >
-                            <app-icon>chevron_right</app-icon>
+                            <icon>chevron_right</icon>
                         </button>
                     </div>
                     <ng-template #empty_state>

@@ -53,7 +53,7 @@ import { DesksStateService } from './desks-state.service';
                         <div class="pl-2">
                             {{ 'APP.CONCIERGE.NEW_BOOKING' | translate }}
                         </div>
-                        <app-icon class="text-2xl">add</app-icon>
+                        <icon class="text-2xl">add</icon>
                     </button>
                     <button
                         btn
@@ -65,7 +65,7 @@ import { DesksStateService } from './desks-state.service';
                         <div class="pl-2">
                             {{ 'APP.CONCIERGE.DESKS_NEW' | translate }}
                         </div>
-                        <app-icon class="text-2xl">add</app-icon>
+                        <icon class="text-2xl">add</icon>
                     </button>
                 </div>
                 <div class="mb-4 flex w-full items-center space-x-2 px-8">
@@ -152,7 +152,7 @@ import { DesksStateService } from './desks-state.service';
                             (click)="refresh()"
                             [disabled]="loading | async"
                         >
-                            <app-icon>refresh</app-icon>
+                            <icon>refresh</icon>
                         </button>
                         <button
                             btn
@@ -165,7 +165,7 @@ import { DesksStateService } from './desks-state.service';
                             (click)="rejectAll()"
                             [disabled]="loading | async"
                         >
-                            <app-icon>event_busy</app-icon>
+                            <icon>event_busy</icon>
                         </button>
                     </ng-container>
                     <ng-container *ngIf="path === 'manage'">
@@ -180,7 +180,7 @@ import { DesksStateService } from './desks-state.service';
                             "
                             (click)="viewQRCodes()"
                         >
-                            <app-icon>qr_code</app-icon>
+                            <icon>qr_code</icon>
                         </button>
                         <button
                             btn
@@ -191,7 +191,7 @@ import { DesksStateService } from './desks-state.service';
                                 'APP.CONCIERGE.DESKS_LIST_UPLOAD' | translate
                             "
                         >
-                            <app-icon>cloud_upload</app-icon>
+                            <icon>cloud_upload</icon>
                             <input
                                 type="file"
                                 class="absolute inset-0 opacity-0"
@@ -208,7 +208,7 @@ import { DesksStateService } from './desks-state.service';
                                 'APP.CONCIERGE.DESKS_LIST_DOWNLOAD' | translate
                             "
                         >
-                            <app-icon>download</app-icon>
+                            <icon>download</icon>
                         </button>
                         <button
                             icon
@@ -219,7 +219,7 @@ import { DesksStateService } from './desks-state.service';
                                 'APP.CONCIERGE.DESKS_BOOKING_RULES' | translate
                             "
                         >
-                            <app-icon>lock_open</app-icon>
+                            <icon>lock_open</icon>
                         </button>
                     </ng-container>
                 </div>

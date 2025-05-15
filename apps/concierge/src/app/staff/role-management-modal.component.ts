@@ -17,7 +17,7 @@ import { filter, map, shareReplay, switchMap } from 'rxjs/operators';
                 {{ 'APP.CONCIERGE.CONTACTS_ROLES_MANAGE' | translate }}
             </h2>
             <button icon matRipple mat-dialog-close *ngIf="!loading">
-                <app-icon>close</app-icon>
+                <icon>close</icon>
             </button>
         </header>
         <main class="h-[32rem] max-h-[65vh] min-w-[28rem] overflow-y-auto">
@@ -34,7 +34,7 @@ import { filter, map, shareReplay, switchMap } from 'rxjs/operators';
                         customTooltip
                         [content]="role_form"
                     >
-                        <app-icon>edit</app-icon>
+                        <icon>edit</icon>
                     </button>
                     <button
                         icon
@@ -42,7 +42,7 @@ import { filter, map, shareReplay, switchMap } from 'rxjs/operators';
                         class="h-12 w-12 rounded border border-error text-error"
                         (click)="removeRole(role)"
                     >
-                        <app-icon>delete</app-icon>
+                        <icon>delete</icon>
                     </button>
                 </div>
             </ng-container>
@@ -59,7 +59,7 @@ import { filter, map, shareReplay, switchMap } from 'rxjs/operators';
                 <div class="truncate pl-2">
                     {{ 'APP.CONCIERGE.CONTACTS_ROLES_ADD' | translate }}
                 </div>
-                <app-icon class="text-2xl">add</app-icon>
+                <icon class="text-2xl">add</icon>
             </button>
         </footer>
         <ng-template #role_form>

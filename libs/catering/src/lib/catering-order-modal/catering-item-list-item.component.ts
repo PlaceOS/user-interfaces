@@ -98,9 +98,9 @@ import { CateringItem } from '../catering-item.class';
                 [class.text-info]="favourite"
                 (click)="toggleFav.emit()"
             >
-                <app-icon>{{
+                <icon>{{
                     favourite ? 'favorite' : 'favorite_border'
-                }}</app-icon>
+                }}</icon>
             </button>
         </li>
     `,

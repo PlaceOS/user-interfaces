@@ -37,7 +37,7 @@ import { OrganisationService } from '@placeos/organisation';
                         (click)="edit_presets = true"
                         class="h-12 w-12 rounded bg-secondary text-secondary-content"
                     >
-                        <app-icon>edit</app-icon>
+                        <icon>edit</icon>
                     </button>
                 </div>
                 <label>Current Height</label>
@@ -70,7 +70,7 @@ import { OrganisationService } from '@placeos/organisation';
                 mat-dialog-close
                 class="absolute right-0 top-0"
             >
-                <app-icon>close</app-icon>
+                <icon>close</icon>
             </button>
         </div>
         <ng-template #desk_height_tooltip>

@@ -25,12 +25,12 @@ import { SettingsService } from '@placeos/common';
                     <div
                         class="flex h-12 w-12 items-center justify-center rounded-full bg-base-100 text-2xl text-base-content"
                     >
-                        <app-icon filled>meeting_room</app-icon>
-                        <app-icon
+                        <icon filled>meeting_room</icon>
+                        <icon
                             outline
                             class="text-neutral"
                             className="material-icons-outlined"
-                            >meeting_room</app-icon
+                            >meeting_room</icon
                         >
                     </div>
                     <div class="text-xs">
@@ -48,12 +48,12 @@ import { SettingsService } from '@placeos/common';
                     <div
                         class="flex h-12 w-12 items-center justify-center rounded-full bg-base-100 text-2xl text-base-content"
                     >
-                        <app-icon filled>desk</app-icon>
-                        <app-icon
+                        <icon filled>desk</icon>
+                        <icon
                             outline
                             class="text-neutral"
                             className="material-icons-outlined"
-                            >desk</app-icon
+                            >desk</icon
                         >
                     </div>
                     <div class="text-xs">
@@ -71,12 +71,12 @@ import { SettingsService } from '@placeos/common';
                     <div
                         class="flex h-12 w-12 items-center justify-center rounded-full bg-base-100 text-2xl text-base-content"
                     >
-                        <app-icon filled>directions_car</app-icon>
-                        <app-icon
+                        <icon filled>directions_car</icon>
+                        <icon
                             outline
                             class="text-neutral"
                             className="material-icons-outlined"
-                            >directions_car</app-icon
+                            >directions_car</icon
                         >
                     </div>
                     <div class="text-xs">
@@ -94,12 +94,12 @@ import { SettingsService } from '@placeos/common';
                     <div
                         class="flex h-12 w-12 items-center justify-center rounded-full bg-base-100 text-2xl text-base-content"
                     >
-                        <app-icon filled>person_add</app-icon>
-                        <app-icon
+                        <icon filled>person_add</icon>
+                        <icon
                             outline
                             class="text-neutral"
                             className="material-icons-outlined"
-                            >person_add</app-icon
+                            >person_add</icon
                         >
                     </div>
                     <div class="text-xs">
@@ -117,12 +117,12 @@ import { SettingsService } from '@placeos/common';
                     <div
                         class="flex h-12 w-12 items-center justify-center rounded-full bg-base-100 text-2xl text-base-content"
                     >
-                        <app-icon filled>today</app-icon>
-                        <app-icon
+                        <icon filled>today</icon>
+                        <icon
                             outline
                             class="text-neutral"
                             className="material-icons-outlined"
-                            >today</app-icon
+                            >today</icon
                         >
                     </div>
                     <div class="text-xs">
@@ -140,12 +140,12 @@ import { SettingsService } from '@placeos/common';
                     <div
                         class="flex h-12 w-12 items-center justify-center rounded-full bg-base-100 text-2xl text-base-content"
                     >
-                        <app-icon filled>local_activity</app-icon>
-                        <app-icon
+                        <icon filled>local_activity</icon>
+                        <icon
                             outline
                             class="text-neutral"
                             className="material-icons-outlined"
-                            >local_activity</app-icon
+                            >local_activity</icon
                         >
                     </div>
                     <div class="text-xs">
@@ -166,12 +166,12 @@ import { SettingsService } from '@placeos/common';
                 name="footer-nav-home"
                 routerLinkActive="text-secondary active"
             >
-                <app-icon filled class="text-2xl">home</app-icon>
-                <app-icon
+                <icon filled class="text-2xl">home</icon>
+                <icon
                     outline
                     className="material-icons-outlined"
                     class="!m-0 text-2xl"
-                    >home</app-icon
+                    >home</icon
                 >
                 <span class="text-sm">{{
                     'APP.WORKPLACE.MENU_HOME' | translate
@@ -185,9 +185,9 @@ import { SettingsService } from '@placeos/common';
                 [class.text-white]="show_book_items"
                 [class.bg-base-200]="!show_book_items"
             >
-                <app-icon class="text-2xl">{{
+                <icon class="text-2xl">{{
                     show_book_items ? 'close' : 'add'
-                }}</app-icon>
+                }}</icon>
             </button>
             <a
                 matRipple
@@ -197,12 +197,12 @@ import { SettingsService } from '@placeos/common';
                 [class.opacity-0]="!features.includes('explore')"
                 routerLinkActive="text-secondary active"
             >
-                <app-icon filled class="text-2xl">place</app-icon>
-                <app-icon
+                <icon filled class="text-2xl">place</icon>
+                <icon
                     outline
                     className="material-icons-outlined"
                     class="!m-0 text-2xl"
-                    >place</app-icon
+                    >place</icon
                 >
                 <span class="text-sm">{{
                     'APP.WORKPLACE.MENU_EXPLORE' | translate
@@ -219,7 +219,7 @@ import { SettingsService } from '@placeos/common';
     `,
     styles: [
         `
-            a.active app-icon {
+            a.active icon {
                 color: var(--s) !important;
             }
 

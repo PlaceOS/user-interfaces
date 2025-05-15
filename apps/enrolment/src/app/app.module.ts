@@ -19,7 +19,6 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { AssetsModule } from '@placeos/assets';
 import { SharedExploreModule } from '@placeos/explore';
-import { PaymentsModule } from '@placeos/payments';
 import { SharedSpacesModule } from '@placeos/spaces';
 import * as Sentry from '@sentry/angular';
 
@@ -45,7 +44,6 @@ const ROUTES: Route[] = [
         MatSnackBarModule,
         MatCheckboxModule,
         BrowserAnimationsModule,
-        PaymentsModule,
         AssetsModule,
         SharedSpacesModule,
         SharedExploreModule,

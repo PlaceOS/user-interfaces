@@ -54,7 +54,7 @@ export enum ZoomDirection {
                             (touchstart)="startZoom('in', $event)"
                             (contextmenu)="$event.preventDefault()"
                         >
-                            <app-icon>add</app-icon>
+                            <icon>add</icon>
                         </button>
                         <div
                             class="flex h-10 w-10 items-center justify-center border-b border-t border-base-200 text-xs"
@@ -71,7 +71,7 @@ export enum ZoomDirection {
                             (touchstart)="startZoom('out', $event)"
                             (contextmenu)="$event.preventDefault()"
                         >
-                            <app-icon>remove</app-icon>
+                            <icon>remove</icon>
                         </button>
                     </div>
                 </div>

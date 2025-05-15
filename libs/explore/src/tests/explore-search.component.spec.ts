@@ -39,7 +39,7 @@ describe('ExploreSearchComponent', () => {
 
     it('should allow searching for spaces and users', () => {
         const service = spectator.inject(ExploreSearchService);
-        spectator.click('app-icon');
+        spectator.click('icon');
         expect(spectator.component.show).toBeTruthy();
         expect('mat-option').not.toExist();
         spectator.typeInElement('test', 'input');
@@ -71,7 +71,7 @@ describe('ExploreSearchComponent', () => {
             relativeTo: spectator.inject(ActivatedRoute),
             queryParams: { user: '1' },
         });
-        spectator.click('app-icon');
+        spectator.click('icon');
         expect(spectator.component.show).toBeFalsy();
     });
 });

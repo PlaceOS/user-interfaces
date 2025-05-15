@@ -10,7 +10,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
                 [(ngModel)]="model"
                 (ngModelChange)="modelChange.emit($event)"
             />
-            <app-icon class="text-xl" matSuffix>search</app-icon>
+            <icon class="text-xl" matSuffix>search</icon>
         </mat-form-field>
     `,
     styles: [``],

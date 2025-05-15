@@ -76,7 +76,7 @@ export interface PointAsset {
                 [class.bg-success]="data"
                 class="mx-auto flex h-8 w-8 items-center justify-center rounded text-2xl text-white"
             >
-                <app-icon>{{ data ? 'done' : 'close' }}</app-icon>
+                <icon>{{ data ? 'done' : 'close' }}</icon>
             </div>
         </ng-template>
         <ng-template #discount_template let-data="data">
@@ -85,10 +85,10 @@ export interface PointAsset {
         <ng-template #action_template let-row="row">
             <div class="mx-auto flex items-center justify-end p-2">
                 <button icon matRipple (click)="edit(row)">
-                    <app-icon>edit</app-icon>
+                    <icon>edit</icon>
                 </button>
                 <button icon matRipple (click)="remove(row)">
-                    <app-icon class="text-error">delete</app-icon>
+                    <icon class="text-error">delete</icon>
                 </button>
             </div>
         </ng-template>

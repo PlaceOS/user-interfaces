@@ -79,12 +79,12 @@ import { LockerStateService } from './locker-state.service';
         <ng-template #action_template let-row="row" let-data="data">
             <div class="flex w-full items-center justify-end space-x-2 px-2">
                 <button icon matRipple [matMenuTriggerFor]="menu">
-                    <app-icon>more_vert</app-icon>
+                    <icon>more_vert</icon>
                 </button>
                 <mat-menu #menu="matMenu">
                     <button mat-menu-item (click)="editLocker(row)">
                         <div class="flex items-center space-x-2">
-                            <app-icon class="text-xl">add</app-icon>
+                            <icon class="text-xl">add</icon>
                             <span>{{
                                 'APP.CONCIERGE.LOCKERS_ADD' | translate
                             }}</span>
@@ -92,13 +92,13 @@ import { LockerStateService } from './locker-state.service';
                     </button>
                     <button mat-menu-item (click)="viewBank(row)">
                         <div class="flex items-center space-x-2">
-                            <app-icon class="text-xl">visibility</app-icon>
+                            <icon class="text-xl">visibility</icon>
                             <span>View Locker Bank Layout</span>
                         </div>
                     </button>
                     <button mat-menu-item (click)="editLockerBank(row)">
                         <div class="flex items-center space-x-2">
-                            <app-icon class="text-xl">edit</app-icon>
+                            <icon class="text-xl">edit</icon>
                             <span>{{
                                 'APP.CONCIERGE.LOCKERS_BANK_EDIT' | translate
                             }}</span>
@@ -106,9 +106,7 @@ import { LockerStateService } from './locker-state.service';
                     </button>
                     <button mat-menu-item (click)="removeLockerBank(row)">
                         <div class="flex items-center space-x-2">
-                            <app-icon class="text-xl text-error"
-                                >delete</app-icon
-                            >
+                            <icon class="text-xl text-error">delete</icon>
                             <span>{{
                                 'APP.CONCIERGE.LOCKERS_BANK_REMOVE' | translate
                             }}</span>
@@ -121,13 +119,13 @@ import { LockerStateService } from './locker-state.service';
                     [disabled]="!row.lockers?.length"
                     (click)="show_children[row.id] = !show_children[row.id]"
                 >
-                    <app-icon class="text-2xl">
+                    <icon class="text-2xl">
                         {{
                             show_children[row.id]
                                 ? 'keyboard_arrow_down'
                                 : 'chevron_right'
                         }}
-                    </app-icon>
+                    </icon>
                 </button>
                 <mat-menu></mat-menu>
             </div>
@@ -253,7 +251,7 @@ import { LockerStateService } from './locker-state.service';
                             'APP.CONCIERGE.LOCKERS_ACCESSIBLE_INFO' | translate
                         "
                     >
-                        <app-icon class="text-2xl">accessible</app-icon>
+                        <icon class="text-2xl">accessible</icon>
                     </div>
                 </div>
             </ng-template>
@@ -263,7 +261,7 @@ import { LockerStateService } from './locker-state.service';
                     class="mx-auto flex h-8 w-8 items-center justify-center rounded bg-success text-2xl text-success-content"
                     [matTooltip]="'COMMON.BOOKABLE' | translate"
                 >
-                    <app-icon>done</app-icon>
+                    <icon>done</icon>
                 </div>
             </ng-template>
             <ng-template #locker_action_template let-row="row">
@@ -271,13 +269,13 @@ import { LockerStateService } from './locker-state.service';
                     class="flex w-full items-center justify-end space-x-2 px-2"
                 >
                     <button icon matRipple [matMenuTriggerFor]="locker_menu">
-                        <app-icon>more_vert</app-icon>
+                        <icon>more_vert</icon>
                     </button>
                 </div>
                 <mat-menu #locker_menu="matMenu">
                     <button mat-menu-item (click)="editLocker(bank, row)">
                         <div class="flex items-center space-x-2">
-                            <app-icon class="text-xl">edit</app-icon>
+                            <icon class="text-xl">edit</icon>
                             <span>{{
                                 'APP.CONCIERGE.LOCKERS_EDIT' | translate
                             }}</span>
@@ -286,9 +284,7 @@ import { LockerStateService } from './locker-state.service';
                     @if (has_driver) {
                         <button mat-menu-item (click)="openLocker(row)">
                             <div class="flex items-center space-x-2">
-                                <app-icon class="text-xl"
-                                    >meeting_room</app-icon
-                                >
+                                <icon class="text-xl">meeting_room</icon>
                                 <span>{{
                                     'APP.CONCIERGE.LOCKERS_OPEN' | translate
                                 }}</span>
@@ -296,7 +292,7 @@ import { LockerStateService } from './locker-state.service';
                         </button>
                         <button mat-menu-item (click)="shareLocker(row)">
                             <div class="flex items-center space-x-2">
-                                <app-icon class="text-xl">share</app-icon>
+                                <icon class="text-xl">share</icon>
                                 <span>{{
                                     'APP.CONCIERGE.LOCKERS_SHARE' | translate
                                 }}</span>
@@ -304,7 +300,7 @@ import { LockerStateService } from './locker-state.service';
                         </button>
                         <button mat-menu-item (click)="releaseLocker(row)">
                             <div class="flex items-center space-x-2">
-                                <app-icon class="text-xl">event_busy</app-icon>
+                                <icon class="text-xl">event_busy</icon>
                                 <span>{{
                                     'APP.CONCIERGE.LOCKERS_RELEASE' | translate
                                 }}</span>
@@ -313,9 +309,7 @@ import { LockerStateService } from './locker-state.service';
                     }
                     <button mat-menu-item (click)="removeLocker(row)">
                         <div class="flex items-center space-x-2">
-                            <app-icon class="text-xl text-error"
-                                >delete</app-icon
-                            >
+                            <icon class="text-xl text-error">delete</icon>
                             <span>{{
                                 'APP.CONCIERGE.LOCKERS_REMOVE' | translate
                             }}</span>

@@ -15,7 +15,7 @@ import { ExploreSearchService, SearchResult } from './explore-search.service';
             (window:resize)="checkButtonPosition()"
             (click)="show ? closeSearch($event) : showSearch()"
         >
-            <app-icon>{{ show || search_str ? 'close' : 'search' }}</app-icon>
+            <icon>{{ show || search_str ? 'close' : 'search' }}</icon>
         </button>
         <div
             role="search"

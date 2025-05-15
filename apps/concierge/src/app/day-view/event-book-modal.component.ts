@@ -52,11 +52,11 @@ import { map, tap } from 'rxjs/operators';
                             matRipple
                             (click)="hide_block.details = !hide_block.details"
                         >
-                            <app-icon>{{
+                            <icon>{{
                                 hide_block.details
                                     ? 'expand_more'
                                     : 'expand_less'
-                            }}</app-icon>
+                            }}</icon>
                         </button>
                     </h3>
                     <div
@@ -96,11 +96,11 @@ import { map, tap } from 'rxjs/operators';
                                 hide_block.attendees = !hide_block.attendees
                             "
                         >
-                            <app-icon>{{
+                            <icon>{{
                                 hide_block.attendees
                                     ? 'expand_more'
                                     : 'expand_less'
-                            }}</app-icon>
+                            }}</icon>
                         </button>
                     </h3>
                     <div
@@ -133,11 +133,11 @@ import { map, tap } from 'rxjs/operators';
                                 hide_block.resources = !hide_block.resources
                             "
                         >
-                            <app-icon>{{
+                            <icon>{{
                                 hide_block.resources
                                     ? 'expand_more'
                                     : 'expand_less'
-                            }}</app-icon>
+                            }}</icon>
                         </button>
                     </h3>
                     <div
@@ -178,11 +178,11 @@ import { map, tap } from 'rxjs/operators';
                             matRipple
                             (click)="hide_block.catering = !hide_block.catering"
                         >
-                            <app-icon>{{
+                            <icon>{{
                                 hide_block.catering
                                     ? 'expand_more'
                                     : 'expand_less'
-                            }}</app-icon>
+                            }}</icon>
                         </button>
                     </h3>
                     <div
@@ -285,11 +285,11 @@ import { map, tap } from 'rxjs/operators';
                             matRipple
                             (click)="hide_block.assets = !hide_block.assets"
                         >
-                            <app-icon>{{
+                            <icon>{{
                                 hide_block.assets
                                     ? 'expand_more'
                                     : 'expand_less'
-                            }}</app-icon>
+                            }}</icon>
                         </button>
                     </h3>
                     <div

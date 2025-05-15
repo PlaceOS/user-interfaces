@@ -24,7 +24,7 @@ import { VERSION } from '@placeos/common';
                     Workplace Settings - {{ zone.display_name || zone.name }}
                 </h2>
                 <button icon matRipple mat-dialog-close *ngIf="!loading">
-                    <app-icon>close</app-icon>
+                    <icon>close</icon>
                 </button>
             </header>
             <main
@@ -1267,7 +1267,7 @@ import { VERSION } from '@placeos/common';
                                     class="h-12 w-12 rounded border border-error text-error"
                                     (click)="removeLegend(i)"
                                 >
-                                    <app-icon>delete</app-icon>
+                                    <icon>delete</icon>
                                 </button>
                             </div>
                             <button

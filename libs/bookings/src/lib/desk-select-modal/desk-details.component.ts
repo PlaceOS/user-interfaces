@@ -48,7 +48,7 @@ import { BookingAsset } from '../booking-form.service';
                     (click)="close.emit()"
                     class="absolute left-2 top-2 bg-base-200 text-base-content sm:hidden"
                 >
-                    <app-icon>arrow_back</app-icon>
+                    <icon>arrow_back</icon>
                 </button>
                 <button
                     icon
@@ -59,9 +59,7 @@ import { BookingAsset } from '../booking-form.service';
                     (click)="toggleFav.emit()"
                     class="absolute right-2 top-2 bg-base-200"
                 >
-                    <app-icon>{{
-                        fav ? 'favorite' : 'favorite_border'
-                    }}</app-icon>
+                    <icon>{{ fav ? 'favorite' : 'favorite_border' }}</icon>
                 </button>
             </section>
             <div
@@ -77,17 +75,17 @@ import { BookingAsset } from '../booking-form.service';
                         {{ 'BOOKINGS.DETAILS' | translate }}
                     </h2>
                     <div class="flex items-center space-x-2">
-                        <app-icon>person</app-icon>
+                        <icon>person</icon>
                         <p>{{ 'BOOKINGS.DESK_COUNT_LONE' | translate }}</p>
                     </div>
                     <div class="flex items-center space-x-2">
-                        <app-icon>desk</app-icon>
+                        <icon>desk</icon>
                         <p>
                             {{ desk.display_name || desk.name || desk.id }}
                         </p>
                     </div>
                     <div class="flex items-center space-x-2">
-                        <app-icon>place</app-icon>
+                        <icon>place</icon>
                         <p>{{ desk.zone?.display_name || desk.zone?.name }}</p>
                     </div>
                 </section>
@@ -132,9 +130,9 @@ import { BookingAsset } from '../booking-form.service';
                     (click)="active = !active; activeChange.emit(active)"
                 >
                     <div class="flex items-center justify-center">
-                        <app-icon class="text-2xl">{{
+                        <icon class="text-2xl">{{
                             active ? 'remove' : 'add'
-                        }}</app-icon>
+                        }}</icon>
                         <p>
                             {{
                                 (active

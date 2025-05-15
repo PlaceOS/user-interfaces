@@ -17,7 +17,7 @@ export interface CateringOrderOptionsModalData {
         <header>
             <h3>Select options</h3>
             <button icon mat-dialog-close>
-                <app-icon>close</app-icon>
+                <icon>close</icon>
             </button>
         </header>
         <main class="overflow-auto">

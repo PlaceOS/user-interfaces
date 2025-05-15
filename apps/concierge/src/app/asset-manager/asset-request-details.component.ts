@@ -22,7 +22,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     (click)="request = null; requestChange.emit(request)"
                     class="absolute right-1 top-1"
                 >
-                    <app-icon>close</app-icon>
+                    <icon>close</icon>
                 </button>
                 <div class="flex space-x-4 border-b border-base-200 px-2 py-4">
                     <a-user-avatar
@@ -32,7 +32,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     <div details class="space-y-1">
                         <div class="font-medium">{{ request.user_name }}</div>
                         <div class="flex items-center space-x-2 text-sm">
-                            <app-icon>mail</app-icon>
+                            <icon>mail</icon>
                             <a
                                 class="underline"
                                 [href]="'mailto:' + request.user_email"
@@ -41,7 +41,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                             </a>
                         </div>
                         <div class="flex items-center space-x-2 text-sm">
-                            <app-icon>call</app-icon>
+                            <icon>call</icon>
                             <a
                                 class="underline"
                                 [href]="'tel:' + request.user_phone"
@@ -50,7 +50,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                             </a>
                         </div>
                         <div class="flex items-center space-x-2 text-sm">
-                            <app-icon>work_outline</app-icon>
+                            <icon>work_outline</icon>
                             <div>{{ request.user_company || 'PlaceOS' }}</div>
                         </div>
                     </div>
@@ -60,7 +60,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                         <div
                             class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200 text-secondary"
                         >
-                            <app-icon class="text-sm">send</app-icon>
+                            <icon class="text-sm">send</icon>
                         </div>
                         <div class="font-medium">
                             {{
@@ -83,7 +83,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                         <div
                             class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200 text-secondary"
                         >
-                            <app-icon class="text-sm">event</app-icon>
+                            <icon class="text-sm">event</icon>
                         </div>
                         <div class="font-medium">
                             {{
@@ -98,7 +98,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                         <div
                             class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200 text-secondary"
                         >
-                            <app-icon class="text-sm">schedule</app-icon>
+                            <icon class="text-sm">schedule</icon>
                         </div>
                         <div class="font-medium">
                             {{ 'COMMON.PERIOD' | translate }}
@@ -116,7 +116,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                         <div
                             class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200 text-secondary"
                         >
-                            <app-icon class="text-sm">place</app-icon>
+                            <icon class="text-sm">place</icon>
                         </div>
                         <div class="font-medium">Floor</div>
                     </div>
@@ -127,7 +127,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                         <div
                             class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200 text-secondary"
                         >
-                            <app-icon class="text-sm">meeting_room</app-icon>
+                            <icon class="text-sm">meeting_room</icon>
                         </div>
                         <div class="font-medium">
                             {{ 'RESOURCE.ROOM' | translate }}
@@ -146,7 +146,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                             [matMenuTriggerFor]="menu"
                             [disabled]="loading"
                         >
-                            <app-icon
+                            <icon
                                 class="text-xl"
                                 [class.text-green-600]="
                                     request.status === 'approved'
@@ -165,11 +165,11 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                           ? 'close'
                                           : 'warning'
                                 }}
-                            </app-icon>
+                            </icon>
                             <div class="flex-1 capitalize">
                                 {{ request.status }}
                             </div>
-                            <app-icon class="text-2xl">expand_more</app-icon>
+                            <icon class="text-2xl">expand_more</icon>
                         </button>
                         <mat-menu #menu="matMenu" class="w-36">
                             <button
@@ -197,7 +197,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                         | splitjoin) || 'In Storage'
                                 }}
                             </div>
-                            <app-icon class="text-2xl">expand_more</app-icon>
+                            <icon class="text-2xl">expand_more</icon>
                         </button>
                         <mat-menu #tracking_menu="matMenu" class="w-36">
                             <button

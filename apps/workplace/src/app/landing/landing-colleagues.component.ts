@@ -67,7 +67,7 @@ import { LandingStateService } from './landing-state.service';
                         class="!rounded bg-base-200"
                         [matMenuTriggerFor]="menu"
                     >
-                        <app-icon>more_horiz</app-icon>
+                        <icon>more_horiz</icon>
                     </button>
                     <mat-menu #menu="matMenu" xPosition="before">
                         <button
@@ -76,7 +76,7 @@ import { LandingStateService } from './landing-state.service';
                             (click)="newMeeting(user)"
                         >
                             <div class="flex items-center space-x-2">
-                                <app-icon class="text-2xl">today</app-icon>
+                                <icon class="text-2xl">today</icon>
                                 <div>
                                     {{
                                         'APP.WORKPLACE.COLLEAGUE_NEW_MEETING'
@@ -91,7 +91,7 @@ import { LandingStateService } from './landing-state.service';
                             (click)="removeUser(user)"
                         >
                             <div class="flex items-center space-x-2">
-                                <app-icon class="text-2xl">cancel</app-icon>
+                                <icon class="text-2xl">cancel</icon>
                                 <div>
                                     {{
                                         'APP.WORKPLACE.COLLEAGUE_REMOVE'
@@ -131,7 +131,7 @@ import { LandingStateService } from './landing-state.service';
                 class="absolute right-0 top-0"
                 (click)="show_search = false"
             >
-                <app-icon>close</app-icon>
+                <icon>close</icon>
             </button>
             <div
                 class="flex h-1/2 flex-1 flex-col space-y-2 overflow-auto"

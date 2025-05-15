@@ -30,13 +30,13 @@ import {
             [class.pointer-events-none]="disabled"
             [class.opacity-30]="disabled"
         >
-            <app-icon>today</app-icon>
+            <icon>today</icon>
         </button>
         <button icon matRipple (click)="previousDay()">
-            <app-icon>keyboard_arrow_left</app-icon>
+            <icon>keyboard_arrow_left</icon>
         </button>
         <button icon matRipple (click)="nextDay()" *ngIf="!is_new">
-            <app-icon>keyboard_arrow_right</app-icon>
+            <icon>keyboard_arrow_right</icon>
         </button>
         <div
             class="display relative mx-4 flex h-12 w-28 items-center justify-center leading-none"
@@ -52,7 +52,7 @@ import {
             </div>
         </div>
         <button icon matRipple (click)="nextDay()" *ngIf="is_new">
-            <app-icon>keyboard_arrow_right</app-icon>
+            <icon>keyboard_arrow_right</icon>
         </button>
         <button
             icon
@@ -65,7 +65,7 @@ import {
             [class.pointer-events-none]="disabled"
             [class.opacity-30]="disabled"
         >
-            <app-icon>today</app-icon>
+            <icon>today</icon>
         </button>
         <ng-template #calendar_picker>
             <div class="relative w-[19rem] rounded bg-base-100 px-2 py-4">

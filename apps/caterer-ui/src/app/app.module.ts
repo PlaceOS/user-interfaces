@@ -23,7 +23,6 @@ import { CateringComponent } from './catering.component';
 import { MatRippleModule } from '@angular/material/core';
 import { AssetsModule } from '@placeos/assets';
 import { SharedExploreModule } from '@placeos/explore';
-import { PaymentsModule } from '@placeos/payments';
 import { SharedSpacesModule } from '@placeos/spaces';
 import * as Sentry from '@sentry/angular';
 
@@ -54,7 +53,6 @@ import { DateOptionsComponent } from 'apps/concierge/src/app/ui/date-options.com
         SharedExploreModule,
         FormFieldsModule,
         MatRippleModule,
-        PaymentsModule,
         AssetsModule,
         ServiceWorkerModule.register('ngsw-worker.js', {
             enabled: environment.production,

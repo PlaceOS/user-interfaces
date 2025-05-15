@@ -69,7 +69,7 @@ const ICONS = {
     template: `
         <div class="mb-2 mt-2 px-2" [class.sm:hidden]="!search">
             <mat-form-field appearance="outline" class="h-14 w-full">
-                <app-icon matPrefix class="text-xl">search</app-icon>
+                <icon matPrefix class="text-xl">search</icon>
                 <input
                     matInput
                     [ngModel]="(filters | async)?.search"

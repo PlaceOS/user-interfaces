@@ -68,7 +68,7 @@ enum TOOLTIP {
                         [class.!bg-success]="item.enabled"
                         (click)="item.action ? item.action() : ''"
                     >
-                        <app-icon>{{ item.icon }}</app-icon>
+                        <icon>{{ item.icon }}</icon>
                     </button>
                 </div>
             </ng-container>
@@ -79,7 +79,7 @@ enum TOOLTIP {
             [matMenuTriggerFor]="menu"
             class="mr-2 bg-none sm:hidden"
         >
-            <app-icon>more_vert</app-icon>
+            <icon>more_vert</icon>
         </button>
         <mat-menu #menu="matMenu">
             <ng-container *ngFor="let item of action_list">
@@ -94,7 +94,7 @@ enum TOOLTIP {
                 >
                     <button [attr.type]="item.id" mat-menu-item>
                         <div class="flex items-center text-base">
-                            <app-icon class="mr-2">{{ item.icon }}</app-icon>
+                            <icon class="mr-2">{{ item.icon }}</icon>
                             <span>{{ item.name }}</span>
                         </div>
                     </button>

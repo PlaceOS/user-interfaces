@@ -19,7 +19,7 @@ export const FAV_LOCKER_KEY = 'favourite_lockers';
         >
             <header class="flex w-full items-center space-x-4">
                 <button icon mat-dialog-close class="bg-base-200">
-                    <app-icon>close</app-icon>
+                    <icon>close</icon>
                 </button>
                 <h3>{{ 'BOOKINGS.LOCKER_FIND' | translate }}</h3>
                 <!-- <div class="hidden flex-1 items-center justify-end sm:flex">
@@ -107,7 +107,7 @@ export const FAV_LOCKER_KEY = 'favourite_lockers';
                     class="clear text-secondary"
                 >
                     <div class="flex items-center">
-                        <app-icon class="text-xl">arrow_back</app-icon>
+                        <icon class="text-xl">arrow_back</icon>
                         <div class="mr-1 underline">
                             {{ 'COMMON.BACK_TO_FORM' | translate }}
                         </div>
@@ -141,9 +141,9 @@ export const FAV_LOCKER_KEY = 'favourite_lockers';
                         "
                     >
                         <div class="flex items-center">
-                            <app-icon class="text-xl">{{
+                            <icon class="text-xl">{{
                                 isSelected(displayed?.id) ? 'remove' : 'add'
-                            }}</app-icon>
+                            }}</icon>
                             <div class="mr-1">
                                 {{
                                     (isSelected(displayed?.id)

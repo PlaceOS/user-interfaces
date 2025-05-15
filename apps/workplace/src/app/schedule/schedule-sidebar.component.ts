@@ -81,7 +81,7 @@ import {
                     <div
                         class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200 text-2xl"
                     >
-                        <app-icon>place</app-icon>
+                        <icon>place</icon>
                     </div>
                     <div class="flex-1">
                         <div class="">{{ 'RESOURCE.ROOMS' | translate }}</div>
@@ -135,7 +135,7 @@ import {
                     <div
                         class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200 text-2xl"
                     >
-                        <app-icon>drive_eta</app-icon>
+                        <icon>drive_eta</icon>
                     </div>
                     <div class="flex-1">
                         <div class="">{{ 'RESOURCE.PARKING' | translate }}</div>
@@ -162,7 +162,7 @@ import {
                     <div
                         class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200 text-2xl"
                     >
-                        <app-icon>people</app-icon>
+                        <icon>people</icon>
                     </div>
                     <div class="flex-1">
                         <div class="">
@@ -191,7 +191,7 @@ import {
                     <div
                         class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200 text-2xl"
                     >
-                        <app-icon>lock</app-icon>
+                        <icon>lock</icon>
                     </div>
                     <div class="flex-1">
                         <div class="">
@@ -220,7 +220,7 @@ import {
                     <div
                         class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200 text-2xl"
                     >
-                        <app-icon>event_available</app-icon>
+                        <icon>event_available</icon>
                     </div>
                     <div class="flex-1">
                         <div class="">

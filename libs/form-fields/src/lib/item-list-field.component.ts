@@ -74,7 +74,7 @@ export function removeChipItem<T = string>(
                 >
                     <span class="max-w-md truncate">{{ item }}</span>
                     <button matChipRemove [attr.aria-label]="'Remove ' + item">
-                        <app-icon>cancel</app-icon>
+                        <icon>cancel</icon>
                     </button>
                 </mat-chip-row>
             </mat-chip-grid>

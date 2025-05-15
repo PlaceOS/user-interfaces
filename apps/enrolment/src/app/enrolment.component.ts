@@ -32,9 +32,7 @@ import { EnrolmentStateService } from './enrolment-state.service';
                             class="m-4 rounded border border-base-200 bg-base-100 p-4 shadow"
                             *ngSwitchCase="'complete'"
                         >
-                            <app-icon class="text-7xl text-success"
-                                >done</app-icon
-                            >
+                            <icon class="text-7xl text-success">done</icon>
                             <p>
                                 You are now checked in. See you
                                 {{

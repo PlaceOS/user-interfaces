@@ -138,9 +138,9 @@ import {
                         [class.bg-success]="row.rules[key]"
                         class="mx-auto flex h-8 w-8 items-center justify-center rounded text-2xl text-white"
                     >
-                        <app-icon>{{
+                        <icon>{{
                             row.rules[key] ? 'done' : 'close'
-                        }}</app-icon>
+                        }}</icon>
                     </div>
                 </ng-template>
                 <ng-template #actions_template let-row="row">
@@ -155,7 +155,7 @@ import {
                                 'APP.CONCIERGE.BOOKING_RULESET_EDIT' | translate
                             "
                         >
-                            <app-icon>edit</app-icon>
+                            <icon>edit</icon>
                         </button>
                         <button
                             icon
@@ -166,7 +166,7 @@ import {
                                     | translate
                             "
                         >
-                            <app-icon>arrow_upward</app-icon>
+                            <icon>arrow_upward</icon>
                         </button>
                         <button
                             icon
@@ -177,7 +177,7 @@ import {
                                     | translate
                             "
                         >
-                            <app-icon>arrow_downward</app-icon>
+                            <icon>arrow_downward</icon>
                         </button>
                         <button
                             icon
@@ -188,7 +188,7 @@ import {
                                     | translate
                             "
                         >
-                            <app-icon class="text-error">delete</app-icon>
+                            <icon class="text-error">delete</icon>
                         </button>
                     </div>
                 </ng-template>

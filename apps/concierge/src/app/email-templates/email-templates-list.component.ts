@@ -30,7 +30,7 @@ import {
                 <div class="ml-2">
                     {{ 'APP.CONCIERGE.EMAIL_TEMPLATES_ADD' | translate }}
                 </div>
-                <app-icon class="text-2xl">add</app-icon>
+                <icon class="text-2xl">add</icon>
             </a>
         </div>
         <div class="relative h-1/2 w-full flex-1 overflow-y-auto px-8">
@@ -101,12 +101,12 @@ import {
                         [matMenuTriggerFor]="menu"
                         class="mx-auto"
                     >
-                        <app-icon>more_vert</app-icon>
+                        <icon>more_vert</icon>
                     </button>
                     <mat-menu #menu="matMenu">
                         <button mat-menu-item (click)="sendTestEmail(row)">
                             <div class="flex items-center space-x-2">
-                                <app-icon class="text-2xl">send</app-icon>
+                                <icon class="text-2xl">send</icon>
                                 <div>
                                     {{
                                         'APP.CONCIERGE.EMAIL_TEMPLATES_SEND_TEST'
@@ -124,7 +124,7 @@ import {
                             ]"
                         >
                             <div class="flex items-center space-x-2">
-                                <app-icon class="text-2xl">edit</app-icon>
+                                <icon class="text-2xl">edit</icon>
                                 <div>
                                     {{
                                         'APP.CONCIERGE.EMAIL_TEMPLATES_EDIT'
@@ -135,9 +135,9 @@ import {
                         </a>
                         <button mat-menu-item (click)="removeTemplate(row)">
                             <div class="flex items-center space-x-2">
-                                <app-icon class="text-2xl text-error">
+                                <icon class="text-2xl text-error">
                                     delete
-                                </app-icon>
+                                </icon>
                                 <div>
                                     {{
                                         'APP.CONCIERGE.EMAIL_TEMPLATES_REMOVE'

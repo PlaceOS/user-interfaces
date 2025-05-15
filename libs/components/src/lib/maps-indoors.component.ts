@@ -50,7 +50,7 @@ const RESOURCE_MAP: Record<string, any> = {};
             class="absolute bottom-2 left-2 z-10 space-x-2 border-base-200 bg-base-100 text-base-content shadow"
             (click)="toggleDirections()"
         >
-            <app-icon>place</app-icon>
+            <icon>place</icon>
             <div class="pr-2">
                 {{ viewing_directions ? 'Hide' : 'Show' }} Directions
             </div>

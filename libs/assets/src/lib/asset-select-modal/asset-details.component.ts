@@ -23,7 +23,7 @@ import { AssetGroup } from '../asset.class';
                     (click)="close.emit()"
                     class="absolute left-2 top-2 bg-base-200 sm:hidden"
                 >
-                    <app-icon>arrow_back</app-icon>
+                    <icon>arrow_back</icon>
                 </button>
                 <button
                     icon
@@ -34,9 +34,9 @@ import { AssetGroup } from '../asset.class';
                     (click)="toggleFav.emit()"
                     class="absolute right-2 top-2 bg-base-200"
                 >
-                    <app-icon>
+                    <icon>
                         {{ fav ? 'favorite' : 'favorite_border' }}
-                    </app-icon>
+                    </icon>
                 </button>
             </section>
             <div class="h-1/2 flex-1 space-y-2 overflow-auto p-2">
@@ -83,9 +83,9 @@ import { AssetGroup } from '../asset.class';
                     (click)="active = !active; activeChange.emit(active)"
                 >
                     <div class="flex items-center justify-center">
-                        <app-icon class="text-2xl">
+                        <icon class="text-2xl">
                             {{ active ? 'remove' : 'add' }}
-                        </app-icon>
+                        </icon>
                         <p>
                             {{
                                 active ? 'Remove this asset' : 'Add this asset'

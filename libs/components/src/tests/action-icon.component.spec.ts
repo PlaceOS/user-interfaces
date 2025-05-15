@@ -21,22 +21,22 @@ describe('ActionIconComponent', () => {
     });
 
     it('should show icon', () => {
-        expect('app-icon[root]').toExist();
+        expect('icon[root]').toExist();
     });
 
     it('should allow toggling of states', () => {
-        expect('.state app-icon').not.toExist();
+        expect('.state icon').not.toExist();
         spectator.setInput({ state: 'success' });
         spectator.detectChanges();
-        expect('.state app-icon').toExist();
-        expect('.state app-icon').toContainText('done');
+        expect('.state icon').toExist();
+        expect('.state icon').toContainText('done');
         spectator.setInput({ state: 'error' });
         spectator.detectChanges();
-        expect('.state app-icon').toExist();
-        expect('.state app-icon').toContainText('close');
+        expect('.state icon').toExist();
+        expect('.state icon').toContainText('close');
         spectator.setInput({ state: '' });
         spectator.detectChanges();
-        expect('.state app-icon').not.toExist();
+        expect('.state icon').not.toExist();
     });
 
     it('should allow toggling of loading state', () => {

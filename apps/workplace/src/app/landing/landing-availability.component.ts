@@ -59,8 +59,8 @@ import { LandingStateService } from './landing-state.service';
                         <div
                             class="flex max-w-full items-center truncate text-sm opacity-60"
                         >
-                            <app-icon class="text-blue-500 text-lg"
-                                >place</app-icon
+                            <icon class="text-blue-500 text-lg"
+                                >place</icon
                             >
                             <span>{{
                                 building(lvl.parent_id)?.display_name ||
@@ -124,8 +124,8 @@ import { LandingStateService } from './landing-state.service';
                         <div
                             class="flex max-w-full items-center truncate text-sm opacity-60"
                         >
-                            <app-icon class="text-blue-500 text-lg"
-                                >place</app-icon
+                            <icon class="text-blue-500 text-lg"
+                                >place</icon
                             >
                             <span>{{
                                 level(space.zones)?.display_name ||

@@ -65,7 +65,7 @@ import { UrlManagementService } from './url-management.service';
                     [content]="qr_menu"
                     (click)="loadQrCode(row)"
                 >
-                    <app-icon>qr_code</app-icon>
+                    <icon>qr_code</icon>
                 </button>
                 <ng-template #qr_menu>
                     <div class="rounded bg-base-100 py-2 shadow">
@@ -95,12 +95,12 @@ import { UrlManagementService } from './url-management.service';
                     </div>
                 </ng-template>
                 <button btn icon matRipple [matMenuTriggerFor]="menu">
-                    <app-icon>more_vert</app-icon>
+                    <icon>more_vert</icon>
                 </button>
                 <mat-menu #menu="matMenu">
                     <button mat-menu-item (click)="edit(row)">
                         <div class="flex items-center space-x-2">
-                            <app-icon>edit</app-icon>
+                            <icon>edit</icon>
                             <span>{{
                                 'APP.CONCIERGE.URLS_EDIT' | translate
                             }}</span>
@@ -108,7 +108,7 @@ import { UrlManagementService } from './url-management.service';
                     </button>
                     <button mat-menu-item (click)="remove(row)">
                         <div class="text-red-500 flex items-center space-x-2">
-                            <app-icon class="text-error">delete</app-icon>
+                            <icon class="text-error">delete</icon>
                             <span>{{
                                 'APP.CONCIERGE.URLS_REMOVE' | translate
                             }}</span>

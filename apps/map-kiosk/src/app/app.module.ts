@@ -18,7 +18,6 @@ import { FormFieldsModule } from '@placeos/form-fields';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { AssetsModule } from '@placeos/assets';
 import { SharedBookingsModule } from '@placeos/bookings';
-import { PaymentsModule } from '@placeos/payments';
 import * as Sentry from '@sentry/angular';
 
 import { AppComponent } from 'libs/components/src/lib/app.component';
@@ -59,7 +58,6 @@ import { FooterMenuComponent } from './footer-menu.component';
         FormFieldsModule,
         SharedExploreModule,
         SharedBookingsModule,
-        PaymentsModule,
         AssetsModule,
         ServiceWorkerModule.register('ngsw-worker.js', {
             enabled: environment.production,

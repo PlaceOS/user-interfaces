@@ -22,7 +22,7 @@ export type StatusValue = 'success' | 'warning' | 'error' | 'info' | 'neutral';
                 [class.text-base-content]="status === 'neutral'"
                 [class.opacity-40]="status === 'neutral'"
             >
-                <app-icon class="text-2xl" [ngSwitch]="status">
+                <icon class="text-2xl" [ngSwitch]="status">
                     <ng-container *ngSwitchCase="'success'">
                         check_circle
                     </ng-container>
@@ -30,7 +30,7 @@ export type StatusValue = 'success' | 'warning' | 'error' | 'info' | 'neutral';
                     <ng-container *ngSwitchCase="'neutral'">block</ng-container>
                     <ng-container *ngSwitchCase="'info'">info</ng-container>
                     <ng-container *ngSwitchDefault>warning</ng-container>
-                </app-icon>
+                </icon>
             </div>
             <div
                 [class.opacity-40]="status === 'neutral'"

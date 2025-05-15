@@ -78,7 +78,7 @@ const DENIED_FILE_TYPES = [
                         >
                             <div class="flex items-center space-x-2">
                                 <div>{{ item.name || item.email }}</div>
-                                <app-icon
+                                <icon
                                     *ngIf="!item.is_external"
                                     [matTooltip]="
                                         (
@@ -95,7 +95,7 @@ const DENIED_FILE_TYPES = [
                                             | async
                                         )?.location_icon(time)
                                     }}
-                                </app-icon>
+                                </icon>
                             </div>
                             <button
                                 matChipRemove
@@ -106,7 +106,7 @@ const DENIED_FILE_TYPES = [
                                             : { name: item.name || item.email }
                                 "
                             >
-                                <app-icon>cancel</app-icon>
+                                <icon>cancel</icon>
                             </button>
                         </mat-chip-row>
                     </mat-chip-grid>

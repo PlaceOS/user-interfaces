@@ -36,7 +36,7 @@ import { debounceTime, map } from 'rxjs/operators';
                                 class="absolute bottom-0 right-0 h-12 w-12 translate-y-1/2 rounded-full bg-base-300"
                             ></div>
                         </div>
-                        <app-icon>{{ item.icon || 'help' }}</app-icon>
+                        <icon>{{ item.icon || 'help' }}</icon>
                         <div class="ml-4">{{ item.title }}</div>
                         <div
                             class="absolute inset-0 overflow-hidden rounded-3xl"
@@ -71,7 +71,7 @@ import { debounceTime, map } from 'rxjs/operators';
                 class="absolute right-2 top-2"
                 mat-dialog-close
             >
-                <app-icon>close</app-icon>
+                <icon>close</icon>
             </button>
         </div>
     `,

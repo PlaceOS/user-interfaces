@@ -60,7 +60,7 @@ import { first, map } from 'rxjs/operators';
                     [content]="accessibility_controls"
                     class="flex bg-base-200 sm:hidden"
                 >
-                    <app-icon>accessible</app-icon>
+                    <icon>accessible</icon>
                 </button>
                 <ng-template #accessibility_controls>
                     <div class="w-[18rem] rounded bg-base-100 p-2">
@@ -82,8 +82,8 @@ import { first, map } from 'rxjs/operators';
                         [matMenuTriggerFor]="levelMenu"
                     >
                         <div class="flex-1 text-left font-medium">Level</div>
-                        <app-icon class="text-2xl"
-                            >keyboard_arrow_down</app-icon
+                        <icon class="text-2xl"
+                            >keyboard_arrow_down</icon
                         >
                     </button>
                     <mat-menu #levelMenu="matMenu">
@@ -104,8 +104,8 @@ import { first, map } from 'rxjs/operators';
                         [matMenuTriggerFor]="legendMenu"
                     >
                         <div class="flex-1 text-left font-medium">Legend</div>
-                        <app-icon class="text-2xl"
-                            >keyboard_arrow_down</app-icon
+                        <icon class="text-2xl"
+                            >keyboard_arrow_down</icon
                         >
                     </button>
                     <mat-menu #legendMenu="matMenu">
@@ -137,13 +137,13 @@ import { first, map } from 'rxjs/operators';
                         class="items clear flex w-full space-x-4 hover:bg-base-200"
                         (click)="show_levels = !show_levels"
                     >
-                        <app-icon class="text-2xl">corporate_fare</app-icon>
+                        <icon class="text-2xl">corporate_fare</icon>
                         <div class="flex-1 text-left font-medium">Level</div>
-                        <app-icon class="text-2xl">{{
+                        <icon class="text-2xl">{{
                             show_levels
                                 ? 'keyboard_arrow_up'
                                 : 'keyboard_arrow_down'
-                        }}</app-icon>
+                        }}</icon>
                     </button>
                     <div class="px-8" [@show]="show_levels ? 'show' : 'hide'">
                         <div class="space-y-2 py-4">
@@ -172,13 +172,13 @@ import { first, map } from 'rxjs/operators';
                         class="items clear flex w-full space-x-4 hover:bg-base-200"
                         (click)="show_legend = !show_legend"
                     >
-                        <app-icon class="text-2xl">place</app-icon>
+                        <icon class="text-2xl">place</icon>
                         <div class="flex-1 text-left font-medium">Legend</div>
-                        <app-icon class="text-2xl">{{
+                        <icon class="text-2xl">{{
                             show_legend
                                 ? 'keyboard_arrow_up'
                                 : 'keyboard_arrow_down'
-                        }}</app-icon>
+                        }}</icon>
                     </button>
                     <div class="px-8" [@show]="show_legend ? 'show' : 'hide'">
                         <div class="space-y-2 py-4">
@@ -204,15 +204,15 @@ import { first, map } from 'rxjs/operators';
                     class="items clear flex w-full space-x-4 hover:bg-base-200"
                     (click)="show_accessibility = !show_accessibility"
                 >
-                    <app-icon class="text-2xl">accessible</app-icon>
+                    <icon class="text-2xl">accessible</icon>
                     <div class="flex-1 text-left font-medium">
                         Accessibility
                     </div>
-                    <app-icon class="text-2xl">{{
+                    <icon class="text-2xl">{{
                         show_accessibility
                             ? 'keyboard_arrow_up'
                             : 'keyboard_arrow_down'
-                    }}</app-icon>
+                    }}</icon>
                 </button>
                 <div
                     class="px-8"

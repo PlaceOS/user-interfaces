@@ -48,7 +48,7 @@ import {
                             (survey$ | async)?.building_id,
                         ]"
                     >
-                        <app-icon class="flex">arrow_back</app-icon>
+                        <icon class="flex">arrow_back</icon>
                     </a>
                     <div class="space-y-2">
                         <div class="mt-1 text-2xl">

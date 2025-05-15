@@ -21,7 +21,7 @@ export interface BookingModalData {
             <h2>{{ form?.value.id ? 'Edit' : 'New' }} Booking</h2>
             <div class="w-0 flex-1"></div>
             <button icon mat-dialog-close>
-                <app-icon>close</app-icon>
+                <icon>close</icon>
             </button>
         </header>
         <main class="relative p-4" [class.overflow-auto]="!(loading | async)">

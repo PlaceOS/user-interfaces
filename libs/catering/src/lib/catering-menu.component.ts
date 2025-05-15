@@ -73,7 +73,7 @@ import { CateringStateService } from './catering-state.service';
                     [class.opacity-0]="!can_edit"
                     [matMenuTriggerFor]="menu"
                 >
-                    <app-icon>more_vert</app-icon>
+                    <icon>more_vert</icon>
                 </button>
                 <mat-menu #menu="matMenu">
                     <button
@@ -82,7 +82,7 @@ import { CateringStateService } from './catering-state.service';
                         (click)="addOption(row)"
                     >
                         <div class="flex items-center space-x-2 pr-2">
-                            <app-icon>add</app-icon>
+                            <icon>add</icon>
                             <div>
                                 {{ 'CATERING.ITEM_OPTION_ADD' | translate }}
                             </div>
@@ -94,7 +94,7 @@ import { CateringStateService } from './catering-state.service';
                         (click)="editItem(row)"
                     >
                         <div class="flex items-center space-x-2 pr-2">
-                            <app-icon>edit</app-icon>
+                            <icon>edit</icon>
                             <div>{{ 'CATERING.ITEM_EDIT' | translate }}</div>
                         </div>
                     </button>
@@ -104,7 +104,7 @@ import { CateringStateService } from './catering-state.service';
                         (click)="removeItem(row)"
                     >
                         <div class="flex items-center space-x-2 pr-2">
-                            <app-icon class="text-error">delete</app-icon>
+                            <icon class="text-error">delete</icon>
                             <div>{{ 'CATERING.ITEM_REMOVE' | translate }}</div>
                         </div>
                     </button>
@@ -123,13 +123,13 @@ import { CateringStateService } from './catering-state.service';
                     "
                     (click)="show_children[row.id] = !show_children[row.id]"
                 >
-                    <app-icon>
+                    <icon>
                         {{
                             show_children[row.id]
                                 ? 'keyboard_arrow_down'
                                 : 'chevron_right'
                         }}
-                    </app-icon>
+                    </icon>
                 </button>
             </div>
         </ng-template>
@@ -154,7 +154,7 @@ import { CateringStateService } from './catering-state.service';
                     (click)="editOption(row, option)"
                     *ngIf="can_edit"
                 >
-                    <app-icon>edit</app-icon>
+                    <icon>edit</icon>
                 </button>
                 <button
                     icon
@@ -164,7 +164,7 @@ import { CateringStateService } from './catering-state.service';
                     (click)="removeOption(row, option)"
                     *ngIf="can_edit"
                 >
-                    <app-icon class="text-error">delete</app-icon>
+                    <icon class="text-error">delete</icon>
                 </button>
             </div>
         </ng-template>

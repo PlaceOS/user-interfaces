@@ -22,7 +22,7 @@ import {
                 }}
             </h2>
             <button icon matRipple mat-dialog-close>
-                <app-icon>close</app-icon>
+                <icon>close</icon>
             </button>
         </header>
         <main class="min-w-[40rem] overflow-x-hidden">

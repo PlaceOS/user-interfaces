@@ -34,7 +34,7 @@ export interface EmbeddedControlModalData {
                 (click)="close()"
                 (contextmenu)="$event.preventDefault()"
             >
-                <app-icon class="mx-2 text-2xl">close</app-icon>
+                <icon class="mx-2 text-2xl">close</icon>
             </button>
         </div>
     `,

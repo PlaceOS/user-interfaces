@@ -14,11 +14,11 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
                 </h2>
                 @if (!close?.length) {
                     <button icon matRipple mat-dialog-close *ngIf="!loading">
-                        <app-icon>close</app-icon>
+                        <icon>close</icon>
                     </button>
                 } @else {
                     <a icon matRipple [routerLink]="close" *ngIf="!loading">
-                        <app-icon>close</app-icon>
+                        <icon>close</icon>
                     </a>
                 }
             </header>

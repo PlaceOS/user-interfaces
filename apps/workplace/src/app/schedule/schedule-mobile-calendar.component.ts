@@ -26,17 +26,17 @@ import {
                 </button>
                 <div class="flex items-center">
                     <button icon matRipple (click)="changeMonth(-1)">
-                        <app-icon>chevron_left</app-icon>
+                        <icon>chevron_left</icon>
                     </button>
                     <button icon matRipple (click)="changeMonth(1)">
-                        <app-icon>chevron_right</app-icon>
+                        <icon>chevron_right</icon>
                     </button>
                     <button
                         icon
                         matRipple
                         (click)="show_shortlist = !show_shortlist"
                     >
-                        <app-icon>arrow_drop_down</app-icon>
+                        <icon>arrow_drop_down</icon>
                     </button>
                 </div>
             </div>

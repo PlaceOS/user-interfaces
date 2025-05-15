@@ -165,18 +165,14 @@ import { LockerStateService } from './locker-state.service';
                                     ) | translate
                                 }}
                             </div>
-                            <app-icon class="text-2xl">
-                                arrow_drop_down
-                            </app-icon>
+                            <icon class="text-2xl"> arrow_drop_down </icon>
                         </div>
                     </button>
                 </div>
                 <mat-menu #menu="matMenu">
                     <button mat-menu-item (click)="approve(row)">
                         <div class="flex items-center space-x-2">
-                            <app-icon class="text-2xl"
-                                >event_available</app-icon
-                            >
+                            <icon class="text-2xl">event_available</icon>
                             <div class="pr-2">
                                 {{
                                     'APP.CONCIERGE.LOCKERS_APPROVE' | translate
@@ -186,7 +182,7 @@ import { LockerStateService } from './locker-state.service';
                     </button>
                     <button mat-menu-item (click)="reject(row)">
                         <div class="flex items-center space-x-2">
-                            <app-icon class="text-2xl">event_busy</app-icon>
+                            <icon class="text-2xl">event_busy</icon>
                             <div class="pr-2">
                                 {{
                                     'APP.CONCIERGE.LOCKERS_DECLINE' | translate
@@ -221,22 +217,20 @@ import { LockerStateService } from './locker-state.service';
                                         | translate
                                 }}
                             </div>
-                            <app-icon class="text-2xl">
-                                arrow_drop_down
-                            </app-icon>
+                            <icon class="text-2xl"> arrow_drop_down </icon>
                         </div>
                     </button>
                 </div>
                 <mat-menu #checkinMenu="matMenu">
                     <button mat-menu-item (click)="checkin(row, true)">
                         <div class="flex items-center space-x-2">
-                            <app-icon class="text-2xl">check</app-icon>
+                            <icon class="text-2xl">check</icon>
                             <div>{{ 'COMMON.CHECK_IN' | translate }}</div>
                         </div>
                     </button>
                     <button mat-menu-item (click)="checkin(row, false)">
                         <div class="flex items-center space-x-2">
-                            <app-icon class="text-2xl">cancel</app-icon>
+                            <icon class="text-2xl">cancel</icon>
                             <div>{{ 'COMMON.CHECK_OUT' | translate }}</div>
                         </div>
                     </button>

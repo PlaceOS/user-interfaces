@@ -24,14 +24,14 @@ interface ImportItem {
                 {{ 'CATERING.MENU_IMPORT' | translate }}
             </h2>
             <button icon matRipple mat-dialog-close *ngIf="!loading">
-                <app-icon>close</app-icon>
+                <icon>close</icon>
             </button>
         </header>
         <main *ngIf="!loading; else load_state">
             <div
                 class="relative mx-2 flex h-[24rem] w-[24rem] cursor-pointer flex-col items-center justify-center space-y-4 rounded-xl border-4 border-dashed border-base-300 p-4 hover:bg-base-200"
             >
-                <app-icon class="text-8xl opacity-30">cloud_upload</app-icon>
+                <icon class="text-8xl opacity-30">cloud_upload</icon>
                 <p class="px-4 text-center opacity-30">
                     {{ 'CATERING.MENU_IMPORT_FILE_SELECT' | translate }}
                 </p>

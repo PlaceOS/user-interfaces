@@ -17,7 +17,7 @@ export interface PopoutAction extends ApplicationIcon {
             [style.top]="show ? -110 * i - 60 + '%' : ''"
             (click)="action.emit(item.id); show = false"
         >
-            <app-icon [icon]="item"></app-icon>
+            <icon [icon]="item"></icon>
         </button>
         <button
             name="root"
@@ -27,7 +27,7 @@ export interface PopoutAction extends ApplicationIcon {
             (click)="show = !show"
             (window:click)="show ? close() : ''"
         >
-            <app-icon>{{ show ? 'add' : 'more_vert' }}</app-icon>
+            <icon>{{ show ? 'add' : 'more_vert' }}</icon>
         </button>
     `,
     styles: [
@@ -36,7 +36,7 @@ export interface PopoutAction extends ApplicationIcon {
                 position: relative;
             }
 
-            app-icon {
+            icon {
                 transition: transform 200ms;
             }
 
@@ -48,7 +48,7 @@ export interface PopoutAction extends ApplicationIcon {
                 width: 2.5em;
             }
 
-            button.show app-icon {
+            button.show icon {
                 transform: rotate(45deg);
             }
 

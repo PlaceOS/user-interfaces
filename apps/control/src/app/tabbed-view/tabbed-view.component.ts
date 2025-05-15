@@ -34,8 +34,8 @@ import { ControlStateService } from '../control-state.service';
                         [source]="(logo | async)?.src || (logo | async)"
                     />
                 </div>
-                <app-icon class="relative z-10 text-8xl text-base-content"
-                    >lock</app-icon
+                <icon class="relative z-10 text-8xl text-base-content"
+                    >lock</icon
                 >
                 <p class="relative z-10 text-2xl text-base-content">
                     {{ 'APP.CONTROL.ROOMS_JOINED' | translate }}

@@ -81,7 +81,7 @@ import { statusList } from './catering.vars';
                     <div
                         class="flex items-center justify-center rounded-full bg-base-200 p-2 text-2xl"
                     >
-                        <app-icon>room_service</app-icon>
+                        <icon>room_service</icon>
                     </div>
                 </div>
             </ng-template>
@@ -146,7 +146,7 @@ import { statusList } from './catering.vars';
                         <div class="mx-2 flex text-center capitalize">
                             {{ status(data)?.name }}
                         </div>
-                        <app-icon class="pl-2">arrow_drop_down</app-icon>
+                        <icon class="pl-2">arrow_drop_down</icon>
                     </button>
                 </div>
                 <mat-menu #menu="matMenu">
@@ -178,7 +178,7 @@ import { statusList } from './catering.vars';
                         [content]="notes_template"
                         [disabled]="!row.notes"
                     >
-                        <app-icon>description</app-icon>
+                        <icon>description</icon>
                     </button>
                     <ng-template #notes_template>
                         <div
@@ -197,13 +197,13 @@ import { statusList } from './catering.vars';
                         matRipple
                         (click)="show_children[row.id] = !show_children[row.id]"
                     >
-                        <app-icon>
+                        <icon>
                             {{
                                 show_children[row.id]
                                     ? 'keyboard_arrow_down'
                                     : 'chevron_right'
                             }}
-                        </app-icon>
+                        </icon>
                     </button>
                 </div>
             </ng-template>

@@ -24,9 +24,9 @@ import { ControlStateService } from '../control-state.service';
                     (click)="setScene(item.name)"
                 >
                     <div class="flex flex-1 items-center space-x-4">
-                        <app-icon [style.opacity]="item.opacity || 1">{{
+                        <icon [style.opacity]="item.opacity || 1">{{
                             item.icon
-                        }}</app-icon>
+                        }}</icon>
                         <div class="flex-1">{{ item.name }}</div>
                     </div>
                 </button>

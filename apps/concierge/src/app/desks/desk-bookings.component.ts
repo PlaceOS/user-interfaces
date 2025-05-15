@@ -190,17 +190,17 @@ import { DesksStateService } from './desks-state.service';
                                     ) | translate
                                 }}
                             </div>
-                            <app-icon class="text-2xl">
+                            <icon class="text-2xl">
                                 arrow_drop_down
-                            </app-icon>
+                            </icon>
                         </div>
                     </button>
                 </div>
                 <mat-menu #menu="matMenu">
                     <button mat-menu-item (click)="approve(row)">
                         <div class="flex items-center space-x-2">
-                            <app-icon class="text-2xl"
-                                >event_available</app-icon
+                            <icon class="text-2xl"
+                                >event_available</icon
                             >
                             <div class="pr-2">
                                 {{
@@ -212,7 +212,7 @@ import { DesksStateService } from './desks-state.service';
                     </button>
                     <button mat-menu-item (click)="reject(row)">
                         <div class="flex items-center space-x-2">
-                            <app-icon class="text-2xl">event_busy</app-icon>
+                            <icon class="text-2xl">event_busy</icon>
                             <div class="pr-2">
                                 {{
                                     'APP.CONCIERGE.DESKS_ACTION_DECLINE'
@@ -248,22 +248,22 @@ import { DesksStateService } from './desks-state.service';
                                         | translate
                                 }}
                             </div>
-                            <app-icon class="text-2xl">
+                            <icon class="text-2xl">
                                 arrow_drop_down
-                            </app-icon>
+                            </icon>
                         </div>
                     </button>
                 </div>
                 <mat-menu #checkinMenu="matMenu">
                     <button mat-menu-item (click)="checkin(row, true)">
                         <div class="flex items-center space-x-2">
-                            <app-icon class="text-2xl">check</app-icon>
+                            <icon class="text-2xl">check</icon>
                             <div>{{ 'COMMON.CHECK_IN' | translate }}</div>
                         </div>
                     </button>
                     <button mat-menu-item (click)="checkin(row, false)">
                         <div class="flex items-center space-x-2">
-                            <app-icon class="text-2xl">cancel</app-icon>
+                            <icon class="text-2xl">cancel</icon>
                             <div>{{ 'COMMON.CHECK_OUT' | translate }}</div>
                         </div>
                     </button>
@@ -277,12 +277,12 @@ import { DesksStateService } from './desks-state.service';
                         class="h-12 w-12 rounded"
                         [matMenuTriggerFor]="actionMenu"
                     >
-                        <app-icon class="text-2xl">more_vert</app-icon>
+                        <icon class="text-2xl">more_vert</icon>
                     </button>
                     <mat-menu #actionMenu="matMenu">
                         <button mat-menu-item (click)="cancel(row)">
                             <div class="flex items-center space-x-2">
-                                <app-icon class="text-2xl">event_busy</app-icon>
+                                <icon class="text-2xl">event_busy</icon>
                                 <div>
                                     {{ 'COMMON.CANCEL_BOOKING' | translate }}
                                 </div>

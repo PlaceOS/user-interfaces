@@ -24,9 +24,7 @@ import { debounceTime, filter, first } from 'rxjs/operators';
                         [routerLink]="link.route"
                         routerLinkActive="active"
                     >
-                        <app-icon class="text-2xl opacity-60">{{
-                            link.icon
-                        }}</app-icon>
+                        <icon class="text-2xl opacity-60">{{ link.icon }}</icon>
                         <span class="font-medium">{{ link.name }}</span>
                     </a>
                 </ng-container>
@@ -40,13 +38,13 @@ import { debounceTime, filter, first } from 'rxjs/operators';
                                 !show_block[link.id || link._id]
                         "
                     >
-                        <app-icon class="text-2xl opacity-60">
+                        <icon class="text-2xl opacity-60">
                             {{ link.icon }}
-                        </app-icon>
+                        </icon>
                         <div class="flex-1 text-left font-medium">
                             {{ link.name }}
                         </div>
-                        <app-icon class="text-2xl">arrow_drop_down</app-icon>
+                        <icon class="text-2xl">arrow_drop_down</icon>
                     </button>
                     <section
                         class="w-full overflow-hidden"
@@ -61,7 +59,7 @@ import { debounceTime, filter, first } from 'rxjs/operators';
                             [routerLink]="child.route"
                             routerLinkActive="active"
                         >
-                            <app-icon class="text-2xl"></app-icon>
+                            <icon class="text-2xl"></icon>
                             <span>{{ child.name }}</span>
                         </a>
                     </section>

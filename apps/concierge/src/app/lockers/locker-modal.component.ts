@@ -45,7 +45,7 @@ function validateNoOverlap(box: Box, check_boxes: Box[]): boolean {
                     }}
                 </h2>
                 <button icon matRipple mat-dialog-close *ngIf="!loading">
-                    <app-icon>close</app-icon>
+                    <icon>close</icon>
                 </button>
             </header>
             <main
@@ -87,9 +87,9 @@ function validateNoOverlap(box: Box, check_boxes: Box[]): boolean {
                             })
                         "
                     >
-                        <app-icon className="material-symbols-outlined">
+                        <icon className="material-symbols-outlined">
                             person_cancel
-                        </app-icon>
+                        </icon>
                     </button>
                 </div>
                 <div class="mb-4 flex space-x-4">
@@ -221,7 +221,7 @@ function validateNoOverlap(box: Box, check_boxes: Box[]): boolean {
                                     'COMMON.ITEM_REMOVE' | translate
                                 "
                             >
-                                <app-icon>cancel</app-icon>
+                                <icon>cancel</icon>
                             </button>
                         </mat-chip-row>
                     </mat-chip-grid>

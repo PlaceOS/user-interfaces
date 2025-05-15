@@ -109,7 +109,7 @@ const QR_CODES = {};
                     [class.bg-success]="data"
                     class="mx-auto flex h-8 w-8 items-center justify-center rounded text-2xl text-white"
                 >
-                    <app-icon>{{ data ? 'done' : 'close' }}</app-icon>
+                    <icon>{{ data ? 'done' : 'close' }}</icon>
                 </div>
             </ng-template>
             <ng-template #assigned_template let-row="row" let-data="data">
@@ -142,7 +142,7 @@ const QR_CODES = {};
                         "
                         (click)="loadQrCode(row)"
                     >
-                        <app-icon>qr_code</app-icon>
+                        <icon>qr_code</icon>
                     </button>
                     <button
                         icon
@@ -152,7 +152,7 @@ const QR_CODES = {};
                         "
                         (click)="editDesk(row)"
                     >
-                        <app-icon>edit</app-icon>
+                        <icon>edit</icon>
                     </button>
                     <button
                         icon
@@ -162,7 +162,7 @@ const QR_CODES = {};
                         "
                         (click)="removeDesk(row)"
                     >
-                        <app-icon class="text-error">delete</app-icon>
+                        <icon class="text-error">delete</icon>
                     </button>
                     <ng-template #qr_menu>
                         <div class="rounded bg-base-100 py-2 shadow">

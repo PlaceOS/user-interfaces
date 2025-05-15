@@ -66,7 +66,7 @@ import { combineLatest } from 'rxjs';
                 [matTooltip]="'APP.CONCIERGE.REPORTS_DOWNLOAD' | translate"
                 (click)="download.emit()"
             >
-                <app-icon>download</app-icon>
+                <icon>download</icon>
             </button>
             <button
                 icon
@@ -76,7 +76,7 @@ import { combineLatest } from 'rxjs';
                 [matTooltip]="'APP.CONCIERGE.REPORTS_PRINT' | translate"
                 (click)="print()"
             >
-                <app-icon>print</app-icon>
+                <icon>print</icon>
             </button>
         </div>
     `,

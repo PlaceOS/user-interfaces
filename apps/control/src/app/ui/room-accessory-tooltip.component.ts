@@ -27,7 +27,7 @@ import { ControlStateService } from '../control-state.service';
                         class="rounded border border-solid border-primary text-primary"
                         (click)="performAction(item.name, ctrl.name)"
                     >
-                        <app-icon>{{ ctrl.icon }}</app-icon>
+                        <icon>{{ ctrl.icon }}</icon>
                     </button>
                 </div>
             </ng-container>

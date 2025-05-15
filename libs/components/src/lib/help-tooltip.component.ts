@@ -10,7 +10,7 @@ import { CustomTooltipData } from '@placeos/components';
             (click)="close()"
         >
             <div class="flex items-center space-x-2 border-b p-2">
-                <app-icon class="text-2xl">arrow_back</app-icon>
+                <icon class="text-2xl">arrow_back</icon>
                 <div class="">{{ 'COMMON.CONTROLS_HELP' | translate }}</div>
             </div>
             <a
@@ -26,7 +26,7 @@ import { CustomTooltipData } from '@placeos/components';
                     <div
                         class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
                     >
-                        <app-icon class="text-xl" [icon]="tile.icon"></app-icon>
+                        <icon class="text-xl" [icon]="tile.icon"></icon>
                     </div>
                     <div class="flex-1">{{ tile.name }}</div>
                 </div>

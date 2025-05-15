@@ -41,9 +41,9 @@ export interface EmergencyContactData {
                                 class="no-subscript"
                                 appearance="outline"
                             >
-                                <app-icon class="text-2xl" matPrefix>
+                                <icon class="text-2xl" matPrefix>
                                     search
-                                </app-icon>
+                                </icon>
                                 <input
                                     matInput
                                     [(ngModel)]="search"
@@ -59,7 +59,7 @@ export interface EmergencyContactData {
                                 class="space-x-2"
                                 (click)="editContact()"
                             >
-                                <app-icon class="text-2xl">add</app-icon>
+                                <icon class="text-2xl">add</icon>
                                 <div class="pr-2">
                                     {{
                                         'APP.CONCIERGE.CONTACTS_ADD' | translate
@@ -104,7 +104,7 @@ export interface EmergencyContactData {
                                 "
                                 (click)="manageRoles()"
                             >
-                                <app-icon>list_alt</app-icon>
+                                <icon>list_alt</icon>
                             </button>
                         </div>
                     </div>
@@ -189,7 +189,7 @@ export interface EmergencyContactData {
                                 "
                                 (click)="editContact(row)"
                             >
-                                <app-icon>edit</app-icon>
+                                <icon>edit</icon>
                             </button>
                             <button
                                 icon
@@ -200,7 +200,7 @@ export interface EmergencyContactData {
                                     'APP.CONCIERGE.CONTACTS_REMOVE' | translate
                                 "
                             >
-                                <app-icon>delete</app-icon>
+                                <icon>delete</icon>
                             </button>
                         </div>
                     </ng-template>

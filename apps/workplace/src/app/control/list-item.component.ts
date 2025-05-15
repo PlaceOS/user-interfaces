@@ -19,7 +19,7 @@ import { Space } from '@placeos/spaces';
                 <div class="flex w-full items-center text-sm">
                     <div class="flex-1">{{ location }}</div>
                     <div class="flex items-center space-x-2 text-lg">
-                        <app-icon class="text-2xl">account_circle</app-icon>
+                        <icon class="text-2xl">account_circle</icon>
                         <div>{{ space.capacity || '0' }}</div>
                     </div>
                 </div>

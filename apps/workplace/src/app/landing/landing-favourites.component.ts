@@ -85,8 +85,8 @@ const EMPTY = [];
                                 <div
                                     class="flex items-center space-x-1 text-xs opacity-60"
                                 >
-                                    <app-icon class="text-blue-500"
-                                        >place</app-icon
+                                    <icon class="text-blue-500"
+                                        >place</icon
                                     >
                                     <div class="w-1/2 flex-1 truncate">
                                         {{ level(space)?.display_name }}
@@ -95,9 +95,9 @@ const EMPTY = [];
                                 <div
                                     class="flex items-center space-x-2 truncate text-xs opacity-60"
                                 >
-                                    <app-icon class="text-blue-500">
+                                    <icon class="text-blue-500">
                                         people
-                                    </app-icon>
+                                    </icon>
                                     <div>
                                         {{
                                             'APP.WORKPLACE.CAPACITY'
@@ -128,14 +128,14 @@ const EMPTY = [];
                             [matMenuTriggerFor]="menu"
                             class="absolute right-0 top-2 !m-0 !rounded bg-base-200"
                         >
-                            <app-icon>more_horiz</app-icon>
+                            <icon>more_horiz</icon>
                         </button>
                         <mat-menu #menu="matMenu" xPosition="before">
                             <!-- <button
                             mat-menu-item
                             class="flex items-center space-x-2"
                         >
-                            <app-icon class="text-2xl">info</app-icon>
+                            <icon class="text-2xl">info</icon>
                             <div>{{ 'APP.WORKPLACE.VIEW_DETAILS' | translate }}</div>
                         </button> -->
                             <button
@@ -144,8 +144,8 @@ const EMPTY = [];
                                 (click)="removeFavourite('space', item)"
                             >
                                 <div class="flex items-center space-x-2">
-                                    <app-icon class="text-2xl text-error"
-                                        >delete</app-icon
+                                    <icon class="text-2xl text-error"
+                                        >delete</icon
                                     >
                                     <div>
                                         {{
@@ -200,7 +200,7 @@ const EMPTY = [];
                             <div
                                 class="flex items-center space-x-1 text-xs opacity-60"
                             >
-                                <app-icon class="text-blue-500">place</app-icon>
+                                <icon class="text-blue-500">place</icon>
                                 <div class="w-1/2 flex-1 truncate">
                                     {{ item?.zone?.display_name }}
                                 </div>
@@ -222,7 +222,7 @@ const EMPTY = [];
                         [matMenuTriggerFor]="menu"
                         class="top-22 absolute right-0 !m-0 !rounded bg-base-200"
                     >
-                        <app-icon>more_horiz</app-icon>
+                        <icon>more_horiz</icon>
                     </button>
                     <mat-menu #menu="matMenu" xPosition="before">
                         <!-- <button
@@ -230,7 +230,7 @@ const EMPTY = [];
                             class="flex items-center space-x-2"
                         >
                             <div class="flex items-center space-x-2">
-                                <app-icon class="text-2xl">info</app-icon>
+                                <icon class="text-2xl">info</icon>
                                 <div>{{ 'APP.WORKPLACE.VIEW_DETAILS' | translate }}</div>
                             </div>
                         </button> -->
@@ -240,9 +240,9 @@ const EMPTY = [];
                             (click)="removeFavourite(item.type, item.id)"
                         >
                             <div class="flex items-center space-x-2">
-                                <app-icon class="text-2xl text-error">
+                                <icon class="text-2xl text-error">
                                     delete
-                                </app-icon>
+                                </icon>
                                 <div class="pr-4">
                                     {{
                                         'APP.WORKPLACE.FAVOURITES_REMOVE'

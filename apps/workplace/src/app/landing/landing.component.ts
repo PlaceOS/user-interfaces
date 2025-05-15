@@ -22,7 +22,7 @@ import { startOfMinute } from 'date-fns';
                         (click)="tab = 'people'"
                     >
                         <div class="flex items-center space-x-2 capitalize">
-                            <app-icon>people</app-icon>
+                            <icon>people</icon>
                             <div class="pr-2">
                                 {{ 'APP.WORKPLACE.COLLEAGUES' | translate }}
                             </div>
@@ -36,7 +36,7 @@ import { startOfMinute } from 'date-fns';
                         (click)="tab = 'fav'"
                     >
                         <div class="flex items-center space-x-2 capitalize">
-                            <app-icon>favorite</app-icon>
+                            <icon>favorite</icon>
                             <div class="pr-2">
                                 {{ 'COMMON.FAVOURITES' | translate }}
                             </div>

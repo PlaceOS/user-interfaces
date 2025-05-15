@@ -70,17 +70,17 @@ import { GroupEventDetailsModalComponent } from './group-event-details-modal.com
                     class="divide-base-200-500 flex flex-col flex-wrap space-y-2 py-2 sm:flex-row sm:space-y-0 sm:divide-x"
                 >
                     <div class="flex items-center px-4">
-                        <app-icon
+                        <icon
                             [matTooltip]="'RESOURCE.ROOM' | translate"
                             matTooltipPosition="right"
-                            >meeting_room</app-icon
+                            >meeting_room</icon
                         >
                         <div class="mx-2 truncate">
                             {{ location }}
                         </div>
                     </div>
                     <div class="flex items-center px-4">
-                        <app-icon>person_outline</app-icon>
+                        <icon>person_outline</icon>
                         <div class="mx-2">
                             {{
                                 event?.organiser?.name ||
@@ -92,13 +92,13 @@ import { GroupEventDetailsModalComponent } from './group-event-details-modal.com
                         class="flex items-center px-4"
                         *ngIf="event?.ext('catering')?.length"
                     >
-                        <app-icon>restaurant</app-icon>
+                        <icon>restaurant</icon>
                         <div class="mx-2">
                             {{ 'CALENDAR_EVENT.CATERED' | translate }}
                         </div>
                     </div>
                     <div class="flex items-center px-4">
-                        <app-icon>people</app-icon>
+                        <icon>people</icon>
                         <div class="mx-2">
                             {{
                                 'CALENDAR_EVENT.ATTENDEE_COUNT'
@@ -111,11 +111,11 @@ import { GroupEventDetailsModalComponent } from './group-event-details-modal.com
                         </div>
                     </div>
                 </div>
-                <app-icon
+                <icon
                     class="absolute right-1 top-1/2 -translate-y-1/2 text-4xl"
                 >
                     chevron_right
-                </app-icon>
+                </icon>
                 <div
                     class="absolute bottom-2 right-2 flex items-center pr-4 text-sm sm:bottom-auto sm:top-2 sm:text-base"
                     *ngIf="event?.attendees?.length"

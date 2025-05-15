@@ -28,7 +28,7 @@ import { IconComponent } from './icon.component';
                     {{ name }}
                     <ng-content></ng-content>
                 </div>
-                <app-icon *ngIf="info" [matTooltip]="info">info</app-icon>
+                <icon *ngIf="info" [matTooltip]="info">info</icon>
             </div>
             @if (toggle) {
                 <mat-slide-toggle

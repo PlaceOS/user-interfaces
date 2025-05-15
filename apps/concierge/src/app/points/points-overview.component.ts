@@ -23,12 +23,12 @@ import { Component, OnInit } from '@angular/core';
                     (ngModelChange)="storePoints()"
                     [render_fn]="renderPrice"
                 ></a-counter>
-                <app-icon
+                <icon
                     class="text-2xl"
                     [matTooltip]="'APP.CONCIERGE.POINTS_VALUE_INFO' | translate"
                 >
                     info
-                </app-icon>
+                </icon>
             </div>
         </section>
         <section class="w-full flex-1 bg-base-100">

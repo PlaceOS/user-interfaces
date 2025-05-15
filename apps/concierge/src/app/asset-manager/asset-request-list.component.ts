@@ -152,7 +152,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     (click)="$event.stopPropagation()"
                     [disabled]="loading[row.id]"
                 >
-                    <app-icon class="text-xl">
+                    <icon class="text-xl">
                         {{
                             row.status === 'approved'
                                 ? 'done'
@@ -160,15 +160,15 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                   ? 'close'
                                   : 'warning'
                         }}
-                    </app-icon>
+                    </icon>
                     <div class="flex-1 capitalize">{{ row.status }}</div>
-                    <app-icon class="text-2xl">expand_more</app-icon>
+                    <icon class="text-2xl">expand_more</icon>
                 </button>
             </div>
             <mat-menu #menu="matMenu">
                 <button mat-menu-item (click)="setStatus(row, 'approved')">
                     <div class="flex items-center space-x-2">
-                        <app-icon class="text-2xl">event_available</app-icon>
+                        <icon class="text-2xl">event_available</icon>
                         <div class="pr-2">
                             {{
                                 'APP.CONCIERGE.ASSETS_REQUESTS_ACTION_APPROVE'
@@ -179,7 +179,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 </button>
                 <button mat-menu-item (click)="setStatus(row, 'declined')">
                     <div class="flex items-center space-x-2">
-                        <app-icon class="text-2xl">event_busy</app-icon>
+                        <icon class="text-2xl">event_busy</icon>
                         <div class="pr-2">
                             {{
                                 'APP.CONCIERGE.ASSETS_REQUESTS_ACTION_DECLINE'
@@ -205,13 +205,13 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                 'In Storage'
                         }}
                     </div>
-                    <app-icon class="text-2xl">expand_more</app-icon>
+                    <icon class="text-2xl">expand_more</icon>
                 </button>
             </div>
             <mat-menu #tracking_menu="matMenu">
                 <button mat-menu-item (click)="setTracking(row, 'in_storage')">
                     <div class="flex items-center space-x-2">
-                        <app-icon class="text-2xl">inventory</app-icon>
+                        <icon class="text-2xl">inventory</icon>
                         <div class="pr-2">
                             {{
                                 'APP.CONCIERGE.ASSETS_REQUESTS_TRACKING_STORAGE'
@@ -222,7 +222,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 </button>
                 <button mat-menu-item (click)="setTracking(row, 'in_transit')">
                     <div class="flex items-center space-x-2">
-                        <app-icon class="text-2xl">trolley</app-icon>
+                        <icon class="text-2xl">trolley</icon>
                         <div class="pr-2">
                             {{
                                 'APP.CONCIERGE.ASSETS_REQUESTS_TRACKING_TRANSIT'
@@ -233,7 +233,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 </button>
                 <button mat-menu-item (click)="setTracking(row, 'at_location')">
                     <div class="flex items-center space-x-2">
-                        <app-icon class="text-2xl">place</app-icon>
+                        <icon class="text-2xl">place</icon>
                         <div class="pr-2">
                             {{
                                 'APP.CONCIERGE.ASSETS_REQUESTS_TRACKING_LOCATION'

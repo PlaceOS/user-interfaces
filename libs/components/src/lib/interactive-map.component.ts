@@ -81,7 +81,7 @@ export interface MapMetadata {
                 class="rounded-none"
                 (click)="zoom = zoom * 1.1"
             >
-                <app-icon>add</app-icon>
+                <icon>add</icon>
             </button>
             <button
                 icon
@@ -91,7 +91,7 @@ export interface MapMetadata {
                 class="rounded-none"
                 (click)="zoom = zoom * (10 / 11)"
             >
-                <app-icon>remove</app-icon>
+                <icon>remove</icon>
             </button>
             <button
                 icon
@@ -101,7 +101,7 @@ export interface MapMetadata {
                 class="rounded-none"
                 (click)="reset = reset + 1"
             >
-                <app-icon>refresh</app-icon>
+                <icon>refresh</icon>
             </button>
         </div>
     `,

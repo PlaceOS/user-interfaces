@@ -26,15 +26,15 @@ import { EventsStateService } from '../day-view/events-state.service';
                     {{ event.date | date: 'fullDate' }}
                 </div>
                 <div class="mb-2 flex items-center">
-                    <app-icon class="mr-1">title</app-icon>
+                    <icon class="mr-1">title</icon>
                     <span class="opacity-60">{{ event.title }}</span>
                 </div>
                 <div class="mb-2 flex items-center">
-                    <app-icon class="mr-1">schedule</app-icon>
+                    <icon class="mr-1">schedule</icon>
                     <span class="opacity-60">{{ time }}</span>
                 </div>
                 <div class="mb-2 flex items-center">
-                    <app-icon class="mr-1">people</app-icon>
+                    <icon class="mr-1">people</icon>
                     <span class="opacity-60"
                         >{{ event.attendees.length }} Attendee{{
                             event.attendees.length === 1 ? '' : 's'
@@ -64,7 +64,7 @@ import { EventsStateService } from '../day-view/events-state.service';
                     </div>
                 </div>
                 <div class="mb-2 flex items-center">
-                    <app-icon class="mr-1">place</app-icon>
+                    <icon class="mr-1">place</icon>
                     <span class="opacity-60"
                         >{{ building.display_name || building.name }},
                         {{
@@ -74,7 +74,7 @@ import { EventsStateService } from '../day-view/events-state.service';
                     >
                 </div>
                 <div class="flex items-center">
-                    <app-icon class="mr-1">format_align_left</app-icon>
+                    <icon class="mr-1">format_align_left</icon>
                     <span class="opacity-60">Notes</span>
                 </div>
                 <div class="mb-2 flex items-center pl-6">
@@ -99,7 +99,7 @@ import { EventsStateService } from '../day-view/events-state.service';
                 </button>
             </div>
             <button name="close" icon matRipple (click)="close()">
-                <app-icon>close</app-icon>
+                <icon>close</icon>
             </button>
         </div>
     `,

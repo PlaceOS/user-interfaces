@@ -29,7 +29,6 @@ import { MatRippleModule } from '@angular/material/core';
 import { AssetsModule } from '@placeos/assets';
 import { LocaleService } from '@placeos/common';
 import { SharedExploreModule } from '@placeos/explore';
-import { PaymentsModule } from '@placeos/payments';
 import * as Sentry from '@sentry/angular';
 import { AppCheckinModule } from './checkin/checkin.module';
 import { EventPanelComponent } from './event-panel.component';
@@ -77,7 +76,6 @@ const MAT_MODULES: any[] = [
         AppPanelViewModule,
         AppCheckinModule,
         ComponentsModule,
-        PaymentsModule,
         AssetsModule,
         SharedExploreModule,
         ...MAT_MODULES,

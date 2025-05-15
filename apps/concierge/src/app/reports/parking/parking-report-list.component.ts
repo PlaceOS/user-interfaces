@@ -25,7 +25,7 @@ import { ParkingReportService } from './parking-report.service';
                     (click)="download()"
                     *ngIf="!print"
                 >
-                    <app-icon>download</app-icon>
+                    <icon>download</icon>
                 </button>
             </div>
             <simple-table

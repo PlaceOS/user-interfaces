@@ -27,7 +27,7 @@ import { WorktimeBlock, WorktimePreference } from './user.class';
                 class="bg-base-200"
                 *ngIf="!loading"
             >
-                <app-icon>close</app-icon>
+                <icon>close</icon>
             </button>
         </header>
         <main
@@ -125,7 +125,7 @@ import { WorktimeBlock, WorktimePreference } from './user.class';
                                         addBlock(settings[day.getDay()], i)
                                     "
                                 >
-                                    <app-icon>add</app-icon>
+                                    <icon>add</icon>
                                 </button>
                                 <button
                                     icon
@@ -136,7 +136,7 @@ import { WorktimeBlock, WorktimePreference } from './user.class';
                                         removeBlock(settings[day.getDay()], i)
                                     "
                                 >
-                                    <app-icon>delete</app-icon>
+                                    <icon>delete</icon>
                                 </button>
                             </div>
                         </div>

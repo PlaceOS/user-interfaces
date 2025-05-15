@@ -12,14 +12,14 @@ import { ApplicationIcon } from 'libs/common/src/lib/types';
             [disabled]="loading || disabled"
             title=""
         >
-            <app-icon root [className]="className" [icon]="icon">
+            <icon root [className]="className" [icon]="icon">
                 {{ content }}
                 <ng-content></ng-content>
-            </app-icon>
+            </icon>
             <div [class]="'state center ' + state" *ngIf="!loading && state">
-                <app-icon>
+                <icon>
                     {{ state === 'success' ? 'done' : 'close' }}
-                </app-icon>
+                </icon>
             </div>
             <div class="loader center" *ngIf="loading">
                 <mat-spinner [diameter]="16"></mat-spinner>
@@ -28,7 +28,7 @@ import { ApplicationIcon } from 'libs/common/src/lib/types';
     `,
     styles: [
         `
-            .action-icon.fade > app-icon {
+            .action-icon.fade > icon {
                 opacity: 0.35;
             }
 
@@ -36,7 +36,7 @@ import { ApplicationIcon } from 'libs/common/src/lib/types';
                 pointer-events: none;
             }
 
-            .success app-icon[root] {
+            .success icon[root] {
                 opacity: 0.2;
             }
 

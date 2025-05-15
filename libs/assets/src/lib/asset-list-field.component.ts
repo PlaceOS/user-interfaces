@@ -54,7 +54,7 @@ const EMPTY_FAVS: string[] = [];
                                     request.conflict
                                 "
                             >
-                                <app-icon>priority_high</app-icon>
+                                <icon>priority_high</icon>
                             </div>
                         </div>
                     </div>
@@ -64,7 +64,7 @@ const EMPTY_FAVS: string[] = [];
                         [matTooltip]="'FORM.ASSETS_DUPLICATE' | translate"
                         (click)="duplicateRequest(request)"
                     >
-                        <app-icon>content_copy</app-icon>
+                        <icon>content_copy</icon>
                     </button>
                     <button
                         icon
@@ -72,7 +72,7 @@ const EMPTY_FAVS: string[] = [];
                         [matTooltip]="'FORM.ASSETS_EDIT' | translate"
                         (click)="editRequest(request)"
                     >
-                        <app-icon>edit</app-icon>
+                        <icon>edit</icon>
                     </button>
                     <button
                         icon
@@ -81,7 +81,7 @@ const EMPTY_FAVS: string[] = [];
                         class="text-error"
                         (click)="removeRequest(request)"
                     >
-                        <app-icon>delete</app-icon>
+                        <icon>delete</icon>
                     </button>
                     <button
                         icon
@@ -96,13 +96,13 @@ const EMPTY_FAVS: string[] = [];
                             show_request[request.id] = !show_request[request.id]
                         "
                     >
-                        <app-icon>
+                        <icon>
                             {{
                                 show_request[request.id]
                                     ? 'expand_less'
                                     : 'expand_more'
                             }}
-                        </app-icon>
+                        </icon>
                     </button>
                 </div>
                 <div
@@ -128,7 +128,7 @@ const EMPTY_FAVS: string[] = [];
                             class="text-error"
                             (click)="removeRequestItem(request, item)"
                         >
-                            <app-icon>delete</app-icon>
+                            <icon>delete</icon>
                         </button>
                         <button
                             icon
@@ -143,11 +143,11 @@ const EMPTY_FAVS: string[] = [];
                             [class.text-info]="favorites.includes(item.id)"
                             (click)="toggleFavourite(item)"
                         >
-                            <app-icon>{{
+                            <icon>{{
                                 favorites.includes(item.id)
                                     ? 'favorite'
                                     : 'favorite_border'
-                            }}</app-icon>
+                            }}</icon>
                         </button>
                     </div>
                 </div>
@@ -162,7 +162,7 @@ const EMPTY_FAVS: string[] = [];
             (click)="editRequest()"
         >
             <div class="flex items-center justify-center space-x-2">
-                <app-icon>search</app-icon>
+                <icon>search</icon>
                 <span>{{ 'FORM.ASSETS_ADD' | translate }}</span>
             </div>
         </button>

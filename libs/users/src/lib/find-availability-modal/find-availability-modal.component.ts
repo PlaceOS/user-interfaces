@@ -51,7 +51,7 @@ export interface FindAvailabilityData {
                 mat-dialog-close
                 class="absolute left-1 top-1/2 -translate-y-1/2"
             >
-                <app-icon>close</app-icon>
+                <icon>close</icon>
             </button>
         </header>
         <main
@@ -124,7 +124,7 @@ export interface FindAvailabilityData {
                             class="absolute -left-1 -top-1"
                             (click)="removeUser(user)"
                         >
-                            <app-icon>close</app-icon>
+                            <icon>close</icon>
                         </button>
                     </div>
                 </div>
@@ -220,7 +220,7 @@ export interface FindAvailabilityData {
                 class="clear text-secondary"
             >
                 <div class="flex items-center">
-                    <app-icon class="text-xl">arrow_back</app-icon>
+                    <icon class="text-xl">arrow_back</icon>
                     <div class="mr-1 underline">
                         {{ 'COMMON.BACK_TO_FORM' | translate }}
                     </div>

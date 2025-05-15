@@ -112,7 +112,7 @@ import { ParkingStateService } from './parking-state.service';
                 "
                 matTooltipPosition="right"
             >
-                <app-icon>done</app-icon>
+                <icon>done</icon>
             </div>
             <div
                 *ngIf="!row?.checked_in && !row.checked_out_at"
@@ -122,7 +122,7 @@ import { ParkingStateService } from './parking-state.service';
                 "
                 matTooltipPosition="right"
             >
-                <app-icon>question_mark</app-icon>
+                <icon>question_mark</icon>
             </div>
             <div
                 *ngIf="row?.checked_in"
@@ -130,7 +130,7 @@ import { ParkingStateService } from './parking-state.service';
                 [matTooltip]="'APP.CONCIERGE.PARKING_CHECKED_IN' | translate"
                 matTooltipPosition="right"
             >
-                <app-icon>done</app-icon>
+                <icon>done</icon>
             </div>
         </ng-template>
         <ng-template #plate_template let-row="row">
@@ -174,14 +174,14 @@ import { ParkingStateService } from './parking-state.service';
                                 ) | translate
                             }}
                         </div>
-                        <app-icon class="text-2xl">arrow_drop_down</app-icon>
+                        <icon class="text-2xl">arrow_drop_down</icon>
                     </div>
                 </button>
             </div>
             <mat-menu #menu="matMenu">
                 <button mat-menu-item (click)="approve(row)">
                     <div class="flex items-center space-x-2">
-                        <app-icon class="text-2xl">event_available</app-icon>
+                        <icon class="text-2xl">event_available</icon>
                         <div class="pr-2">
                             {{ 'APP.CONCIERGE.PARKING_APPROVE' | translate }}
                         </div>
@@ -189,7 +189,7 @@ import { ParkingStateService } from './parking-state.service';
                 </button>
                 <button mat-menu-item (click)="reject(row)">
                     <div class="flex items-center space-x-2">
-                        <app-icon class="text-2xl">event_busy</app-icon>
+                        <icon class="text-2xl">event_busy</icon>
                         <div class="pr-2">
                             {{ 'APP.CONCIERGE.PARKING_DECLINE' | translate }}
                         </div>
@@ -211,7 +211,7 @@ import { ParkingStateService } from './parking-state.service';
                     [matTooltip]="'APP.CONCIERGE.PARKING_EDIT' | translate"
                     (click)="editReservation(row)"
                 >
-                    <app-icon class="text-2xl">edit</app-icon>
+                    <icon class="text-2xl">edit</icon>
                 </button>
             </div>
         </ng-template>

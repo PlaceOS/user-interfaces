@@ -17,9 +17,9 @@ import { VoiceAssistantService } from './voice-assistant.service';
                     *ngIf="active | async"
                     class="absolute inline-flex h-10 w-10 animate-ping rounded-full bg-success opacity-75"
                 ></span>
-                <app-icon class="text-2xl">{{
+                <icon class="text-2xl">{{
                     error.speech_recognition ? 'mic_off' : 'mic'
-                }}</app-icon>
+                }}</icon>
                 <button
                     matRipple
                     class="absolute inset-0 opacity-0"
@@ -31,9 +31,9 @@ import { VoiceAssistantService } from './voice-assistant.service';
                 *ngIf="(active | async) && (progress | async)"
             >
                 <div class="flex items-center space-x-2">
-                    <app-icon class="text-2xl">{{
+                    <icon class="text-2xl">{{
                         icons[(progress | async)?.function] || 'info'
-                    }}</app-icon>
+                    }}</icon>
                     <p class="truncate pr-4 text-sm">
                         {{
                             (progress | async)?.message ||

@@ -27,11 +27,11 @@ import { BehaviorSubject } from 'rxjs';
                     (ngModelChange)="search.next($event)"
                     [placeholder]="'COMMON.SEARCH' | translate"
                 />
-                <app-icon
+                <icon
                     class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-3xl"
                 >
                     search
-                </app-icon>
+                </icon>
             </div>
             <div
                 class="z-10 mx-auto max-h-[65%] w-[32rem] max-w-[calc(100%-2rem)] overflow-auto rounded"
@@ -78,7 +78,7 @@ import { BehaviorSubject } from 'rxjs';
                 matRipple
                 class="absolute right-8 top-10 h-12 w-12 text-xl text-base-100"
             >
-                <app-icon>close</app-icon>
+                <icon>close</icon>
             </button>
         </div>
     `,

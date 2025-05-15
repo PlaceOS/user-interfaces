@@ -31,7 +31,7 @@ describe('TimeFieldComponent', () => {
     });
 
     it('should allow the user to select a time', fakeAsync(() => {
-        // spectator.click('app-icon');
+        // spectator.click('icon');
         // spectator.detectChanges();
         // spectator.tick(300);
         // spectator.detectChanges();

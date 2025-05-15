@@ -30,7 +30,7 @@ const LETTERS = `ABCDEFGHIJKLMNOPQRSTUVWXYZ`.split('');
                         class="rounded"
                         appearance="outline"
                     >
-                        <app-icon class="text-xl" matPrefix>search</app-icon>
+                        <icon class="text-xl" matPrefix>search</icon>
                         <input
                             matInput
                             [ngModel]="search$.getValue()"
@@ -115,11 +115,11 @@ const LETTERS = `ABCDEFGHIJKLMNOPQRSTUVWXYZ`.split('');
         <ng-template #empty_state>
             @let search_str = search$ | async;
             <div class="flex flex-col items-center p-8">
-                <app-icon class="text-5xl">{{
+                <icon class="text-5xl">{{
                     search_str?.length >= min_search_length
                         ? 'close'
                         : 'arrow_upward'
-                }}</app-icon>
+                }}</icon>
                 <div class="text">
                     {{
                         search_str?.length >= min_search_length

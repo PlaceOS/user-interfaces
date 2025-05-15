@@ -39,7 +39,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                 *ngIf="show_close"
                 class="absolute left-2 top-1/2 -translate-y-1/2"
             >
-                <app-icon>close</app-icon>
+                <icon>close</icon>
             </button>
             <h2 class="text-xl font-medium">
                 {{ 'APP.WORKPLACE.MEETING_CONFIRM' | translate }}
@@ -58,24 +58,24 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                     <div
                         class="absolute left-4 top-4 flex items-center justify-center rounded-full border border-success text-2xl text-success"
                     >
-                        <app-icon>done</app-icon>
+                        <icon>done</icon>
                     </div>
                     <h3 class="!mt-0 text-xl">
                         {{ event.title || 'Meeting Details' }}
                     </h3>
                     <div class="flex items-center space-x-2">
-                        <app-icon class="text-2xl">today</app-icon>
+                        <icon class="text-2xl">today</icon>
                         <div date>{{ event.date | date: 'fullDate' }}</div>
                     </div>
                     <div
                         class="flex items-center space-x-2"
                         *ngIf="event.recurrence?.pattern"
                     >
-                        <app-icon class="text-2xl">update</app-icon>
+                        <icon class="text-2xl">update</icon>
                         <div date>{{ formatted_recurrence }}</div>
                     </div>
                     <div class="flex items-center space-x-2">
-                        <app-icon class="text-2xl">schedule</app-icon>
+                        <icon class="text-2xl">schedule</icon>
                         <div class="flex flex-col leading-tight">
                             <div time>{{ formattedTime() }}</div>
                             <div class="text-xs opacity-30" *ngIf="timezone">
@@ -91,7 +91,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                     <div
                         class="absolute left-4 top-4 flex items-center justify-center rounded-full border border-success text-2xl text-success"
                     >
-                        <app-icon>done</app-icon>
+                        <icon>done</icon>
                     </div>
                     <h3 class="!mt-0 text-xl">
                         {{ 'APP.WORKPLACE.MEETING_BOOKED_ROOM' | translate }}
@@ -100,7 +100,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                         @let space = s.email | space | async;
                         @let level = space?.zones | level;
                         <div class="flex items-center space-x-2">
-                            <app-icon class="text-2xl">layers</app-icon>
+                            <icon class="text-2xl">layers</icon>
                             <div>
                                 {{ level?.display_name || level?.name }},
                                 {{ s.display_name || s.name }}
@@ -108,7 +108,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                         </div>
                     </ng-container>
                     <div class="flex items-center space-x-2" *ngIf="location">
-                        <app-icon class="text-2xl">place</app-icon>
+                        <icon class="text-2xl">place</icon>
                         <div>{{ location }}</div>
                     </div>
                 </div>
@@ -120,7 +120,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                 <div
                     class="absolute left-4 top-4 flex items-center justify-center rounded-full border border-success text-2xl text-success"
                 >
-                    <app-icon>done</app-icon>
+                    <icon>done</icon>
                 </div>
                 <h3 class="!mt-0 text-xl">
                     {{
@@ -132,7 +132,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                     <mat-chip-list #chipList aria-label="User selection">
                         <mat-chip *ngFor="let user of event.attendees">
                             <div class="flex items-center">
-                                <app-icon class="mr-2">business</app-icon>
+                                <icon class="mr-2">business</icon>
                                 {{ user.name || user.email }}
                             </div>
                         </mat-chip>
@@ -150,7 +150,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                     <div
                         class="absolute left-4 top-4 flex items-center justify-center rounded-full border border-success text-2xl text-success"
                     >
-                        <app-icon>done</app-icon>
+                        <icon>done</icon>
                     </div>
                     <h3 class="!mt-0 text-xl">
                         {{ 'RESOURCE.CATERING' | translate }}
@@ -185,7 +185,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                                         [matTooltip]="err_tooltip"
                                         *ngIf="end_time < order.deliver_at"
                                     >
-                                        <app-icon>priority_high</app-icon>
+                                        <icon>priority_high</icon>
                                     </div>
                                     <div class="flex-1"></div>
                                     <div
@@ -275,9 +275,9 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                         [class.!border-error]="has_conflict"
                         [class.!text-error]="has_conflict"
                     >
-                        <app-icon>{{
+                        <icon>{{
                             has_conflict ? 'close' : 'done'
-                        }}</app-icon>
+                        }}</icon>
                     </div>
                     <h3 class="!mt-0 text-xl">
                         {{ 'RESOURCE.ASSETS' | translate }}
@@ -312,7 +312,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                                         request.conflict
                                     "
                                 >
-                                    <app-icon>priority_high</app-icon>
+                                    <icon>priority_high</icon>
                                 </div>
                                 <div class="flex-1"></div>
                                 <div
@@ -352,7 +352,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                 <div
                     class="absolute left-4 top-4 flex items-center justify-center rounded-full border border-success text-2xl text-success"
                 >
-                    <app-icon>done</app-icon>
+                    <icon>done</icon>
                 </div>
                 <h3 class="!mt-0 text-xl">
                     {{ 'CALENDAR_EVENT.NOTES_HEADER' | translate }}

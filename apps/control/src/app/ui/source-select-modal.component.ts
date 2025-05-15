@@ -31,7 +31,7 @@ export class SourceSelectModalData {
                 [class.top-2]="simple"
                 [class.right-2]="simple"
             >
-                <app-icon>close</app-icon>
+                <icon>close</icon>
             </button>
         </div>
     `,

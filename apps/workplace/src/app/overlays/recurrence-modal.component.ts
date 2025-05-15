@@ -25,7 +25,7 @@ export const RECURRENCE_METADATA = {
         <header>
             <div class="heading" mat-dialog-title>Booking Recurrence</div>
             <button icon mat-dialog-close>
-                <app-icon>close</app-icon>
+                <icon>close</icon>
             </button>
         </header>
         <main class="p-4" *ngIf="!loading; else load_state">

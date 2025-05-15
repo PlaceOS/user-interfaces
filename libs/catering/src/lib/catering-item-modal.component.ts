@@ -29,7 +29,7 @@ export interface CateringItemModalData {
                 }}
             </h2>
             <button icon matRipple mat-dialog-close *ngIf="!loading">
-                <app-icon>close</app-icon>
+                <icon>close</icon>
             </button>
         </header>
         <form
@@ -184,7 +184,7 @@ export interface CateringItemModalData {
                                         | translate: { item: item }
                                 "
                             >
-                                <app-icon>cancel</app-icon>
+                                <icon>cancel</icon>
                             </button>
                         </mat-chip-row>
                     </mat-chip-grid>

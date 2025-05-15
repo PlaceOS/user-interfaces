@@ -53,7 +53,7 @@ import { User } from 'libs/users/src/lib/user.class';
                 (blur)="resetSearchString()"
                 (focus)="cancelReset()"
             />
-            <app-icon matPrefix class="relative text-2xl">search</app-icon>
+            <icon matPrefix class="relative text-2xl">search</icon>
             <mat-spinner *ngIf="loading" matSuffix diameter="16"></mat-spinner>
         </mat-form-field>
         <mat-autocomplete
@@ -118,7 +118,7 @@ import { User } from 'libs/users/src/lib/user.class';
             :host {
                 display: block;
             }
-            app-icon {
+            icon {
                 top: 0.15em;
                 left: -0.15em;
             }

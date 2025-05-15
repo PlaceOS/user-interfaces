@@ -13,7 +13,7 @@ export interface LockerBankModalData {
         <header>
             <h2 class="text-xl font-medium">{{ bank.name }}</h2>
             <button btn icon matRipple mat-dialog-close>
-                <app-icon>close</app-icon>
+                <icon>close</icon>
             </button>
         </header>
         <main class="h-[65vh] overflow-hidden">

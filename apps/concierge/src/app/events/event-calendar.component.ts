@@ -22,10 +22,10 @@ import { EventStateService } from './event-state.service';
                     {{ (options | async)?.date | date: 'MMM yyyy' }}
                 </div>
                 <button icon matRipple (click)="previousPeriod()">
-                    <app-icon>chevron_left</app-icon>
+                    <icon>chevron_left</icon>
                 </button>
                 <button icon matRipple (click)="nextPeriod()">
-                    <app-icon>chevron_right</app-icon>
+                    <icon>chevron_right</icon>
                 </button>
             </div>
             <div class="flex flex-1 items-center justify-end space-x-2 py-2">

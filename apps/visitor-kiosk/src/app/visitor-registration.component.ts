@@ -38,7 +38,7 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                         {{ 'APP.VISITOR_KIOSK.REGISTRATION' | translate }}
                     </h3>
                     <a icon matRipple [routerLink]="['/welcome']">
-                        <app-icon>close</app-icon>
+                        <icon>close</icon>
                     </a>
                 </div>
                 <div class="p-4">

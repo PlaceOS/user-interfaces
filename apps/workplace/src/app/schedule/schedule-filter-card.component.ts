@@ -10,12 +10,12 @@ import { ScheduleStateService } from './schedule-state.service';
             class="mb-4 flex items-center space-x-2 border-b border-base-200 text-xl"
         >
             <button icon matRipple (click)="dismiss()">
-                <app-icon>chevron_left</app-icon>
+                <icon>chevron_left</icon>
             </button>
             <h2 class="w-1/2 flex-1 text-center">
                 {{ 'APP.WORKPLACE.SCHEDULE_FILTERS' | translate }}
             </h2>
-            <app-icon></app-icon>
+            <icon></icon>
         </div>
         <div class="mb-4 space-y-4 border-b border-base-200 px-2 pb-4">
             <button
@@ -28,7 +28,7 @@ import { ScheduleStateService } from './schedule-state.service';
                 <div
                     class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200 text-2xl"
                 >
-                    <app-icon>place</app-icon>
+                    <icon>place</icon>
                 </div>
                 <div class="flex-1">
                     <div class="">{{ 'RESOURCE.ROOMS' | translate }}</div>
@@ -74,7 +74,7 @@ import { ScheduleStateService } from './schedule-state.service';
                 <div
                     class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200 text-2xl"
                 >
-                    <app-icon>drive_eta</app-icon>
+                    <icon>drive_eta</icon>
                 </div>
                 <div class="flex-1">
                     <div class="">{{ 'RESOURCE.PARKING' | translate }}</div>
@@ -100,7 +100,7 @@ import { ScheduleStateService } from './schedule-state.service';
                 <div
                     class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200 text-2xl"
                 >
-                    <app-icon>people</app-icon>
+                    <icon>people</icon>
                 </div>
                 <div class="flex-1">
                     <div class="">
@@ -128,7 +128,7 @@ import { ScheduleStateService } from './schedule-state.service';
                 <div
                     class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200 text-2xl"
                 >
-                    <app-icon>door_back</app-icon>
+                    <icon>door_back</icon>
                 </div>
                 <div class="flex-1">
                     <div class="">
@@ -156,7 +156,7 @@ import { ScheduleStateService } from './schedule-state.service';
                 <div
                     class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200 text-2xl"
                 >
-                    <app-icon>door_back</app-icon>
+                    <icon>door_back</icon>
                 </div>
                 <div class="flex-1">
                     <div class="">

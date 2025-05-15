@@ -46,7 +46,7 @@ const URL_STARTS = [
             >
                 <div class="p-2">{{ 'COMMON.CONSOLE' | translate }}</div>
                 <button icon matRipple (click)="show = false">
-                    <app-icon>close</app-icon>
+                    <icon>close</icon>
                 </button>
             </div>
             <cdk-virtual-scroll-viewport

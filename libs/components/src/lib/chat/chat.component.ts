@@ -14,7 +14,7 @@ import { ChatService } from './chat.service';
                 class="rounded-full border border-base-300 bg-base-100 shadow"
                 (click)="toggleChat()"
             >
-                <app-icon>chat</app-icon>
+                <icon>chat</icon>
             </button>
             <div
                 class="absolute bottom-2 right-2 w-[40rem] max-w-[calc(100vw-1rem)] overflow-hidden rounded-xl border border-base-300 bg-base-200 shadow"
@@ -27,14 +27,14 @@ import { ChatService } from './chat.service';
                         {{ 'APP.WORKPLACE.CHAT_TITLE' | translate }}
                     </h3>
                     <button icon matRipple (click)="toggleChat()">
-                        <app-icon>close</app-icon>
+                        <icon>close</icon>
                     </button>
                 </div>
                 <div class="h-[32rem] max-h-[60vh] overflow-auto" #container>
                     <div
                         class="flex w-full flex-col items-center justify-center space-y-2 p-8"
                     >
-                        <app-icon class="text-8xl">forum</app-icon>
+                        <icon class="text-8xl">forum</icon>
                         <p class="text-center text-xl">
                             {{
                                 'APP.WORKPLACE.CHAT_HELLO'
@@ -85,9 +85,9 @@ import { ChatService } from './chat.service';
                             (click)="show_info = !show_info"
                         >
                             <div class="flex items-center space-x-2">
-                                <app-icon class="text-2xl">{{
+                                <icon class="text-2xl">{{
                                     icons[(progress | async).function] || 'info'
-                                }}</app-icon>
+                                }}</icon>
                                 <p class="text-sm">
                                     {{
                                         (progress | async).message ||
@@ -151,7 +151,7 @@ import { ChatService } from './chat.service';
                         class="mt-2"
                         (click)="sendMessage()"
                     >
-                        <app-icon>send</app-icon>
+                        <icon>send</icon>
                     </button>
                 </div>
             </div>

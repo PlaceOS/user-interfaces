@@ -14,7 +14,7 @@ import { ExploreSearchService } from '@placeos/explore';
                 class="h-10 w-10 rounded-full bg-base-200"
                 (click)="showInput()"
             >
-                <app-icon class="text-2xl">search</app-icon>
+                <icon class="text-2xl">search</icon>
             </button>
             <div
                 search
@@ -28,7 +28,7 @@ import { ExploreSearchService } from '@placeos/explore';
                 }"
                 (click)="showInput()"
             >
-                <app-icon class="text-2xl">search</app-icon>
+                <icon class="text-2xl">search</icon>
                 <input
                     #input
                     [placeholder]="'APP.WORKPLACE.GLOBAL_SEARCH' | translate"

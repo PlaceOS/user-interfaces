@@ -38,7 +38,7 @@ const EMPTY = [];
                     <div class="pl-2">
                         {{ 'APP.CONCIERGE.ROOMS_BOOK_ADD' | translate }}
                     </div>
-                    <app-icon class="text-2xl">add</app-icon>
+                    <icon class="text-2xl">add</icon>
                 </button>
             </div>
             <div class="flex w-full items-center">
@@ -98,7 +98,7 @@ const EMPTY = [];
                         class="inverse"
                         [matMenuTriggerFor]="menu"
                     >
-                        <app-icon>filter_list</app-icon>
+                        <icon>filter_list</icon>
                         <div class="mx-2">
                             {{ 'COMMON.FILTERS' | translate }}
                         </div>
@@ -136,7 +136,7 @@ const EMPTY = [];
                                     matRipple
                                     (click)="setFilter(type.id, true)"
                                 >
-                                    <app-icon class="text-xl">close</app-icon>
+                                    <icon class="text-xl">close</icon>
                                 </button>
                             </div>
                         }

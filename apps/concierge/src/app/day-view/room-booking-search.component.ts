@@ -17,7 +17,7 @@ import { EventsStateService } from './events-state.service';
     template: `
         <div class="relative">
             <button icon matRipple (click)="showSearch()">
-                <app-icon>search</app-icon>
+                <icon>search</icon>
             </button>
             <input
                 #input_el
@@ -29,12 +29,12 @@ import { EventsStateService } from './events-state.service';
                 (blur)="hideSearch()"
                 [placeholder]="'APP.CONCIERGE.ROOMS_SEARCH' | translate"
             />
-            <app-icon
+            <icon
                 *ngIf="show"
                 class="absolute right-[17.5rem] top-1/2 -translate-y-1/2 text-2xl"
             >
                 search
-            </app-icon>
+            </icon>
             <div
                 class="absolute right-4 top-full max-h-[65vh] w-[18rem] translate-y-2 overflow-auto rounded border border-base-300 bg-base-100 shadow"
                 *ngIf="show"

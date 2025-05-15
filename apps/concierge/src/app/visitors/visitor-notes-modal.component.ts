@@ -16,7 +16,7 @@ import { i18n, notifyError, notifySuccess } from '@placeos/common';
                 </span>
             </h2>
             <button icon mat-dialog-close *ngIf="!loading">
-                <app-icon>close</app-icon>
+                <icon>close</icon>
             </button>
         </header>
         <main

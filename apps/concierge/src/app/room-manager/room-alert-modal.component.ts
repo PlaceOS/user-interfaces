@@ -16,7 +16,7 @@ import { PlaceSystem, showMetadata, updateMetadata } from '@placeos/ts-client';
                 }}
             </h2>
             <button btn icon mat-dialog-close *ngIf="!loading">
-                <app-icon>close</app-icon>
+                <icon>close</icon>
             </button>
         </header>
         <main

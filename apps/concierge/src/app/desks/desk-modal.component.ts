@@ -28,7 +28,7 @@ const CHARS = '0123456789ABCDEF';
                     }}
                 </h2>
                 <button icon matRipple mat-dialog-close *ngIf="!loading">
-                    <app-icon>close</app-icon>
+                    <icon>close</icon>
                 </button>
             </header>
             <main
@@ -99,7 +99,7 @@ const CHARS = '0123456789ABCDEF';
                                 "
                                 (click)="selectItemfromMap()"
                             >
-                                <app-icon>place</app-icon>
+                                <icon>place</icon>
                             </button>
                         </div>
                     </div>
@@ -126,9 +126,9 @@ const CHARS = '0123456789ABCDEF';
                             })
                         "
                     >
-                        <app-icon className="material-symbols-outlined">
+                        <icon className="material-symbols-outlined">
                             person_cancel
-                        </app-icon>
+                        </icon>
                     </button>
                 </div>
                 <div class="flex space-x-4 pb-4">

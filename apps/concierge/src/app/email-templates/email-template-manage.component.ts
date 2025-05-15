@@ -36,7 +36,7 @@ import {
                     [routerLink]="['/email-templates']"
                     *ngIf="!loading"
                 >
-                    <app-icon>close</app-icon>
+                    <icon>close</icon>
                 </a>
             </header>
             <form
@@ -116,9 +116,9 @@ import {
                                     {{ 'COMMON.TRIGGER_SELECT' | translate }}
                                 </div>
                             </div>
-                            <app-icon class="text-2xl">
+                            <icon class="text-2xl">
                                 arrow_drop_down
-                            </app-icon>
+                            </icon>
                         </button>
                         <mat-menu #trigger_menu="matMenu" class="max-h-[24rem]">
                             <button
@@ -155,12 +155,12 @@ import {
                                                 <span class="opacity-0">:</span>
                                             </div>
                                         </div>
-                                        <app-icon
+                                        <icon
                                             class="text-2xl"
                                             *ngIf="
                                                 form.value.trigger === tmpl.id
                                             "
-                                            >done</app-icon
+                                            >done</icon
                                         >
                                     </div>
                                 </button>
@@ -237,9 +237,9 @@ import {
                     </mat-form-field>
                 </div>
                 <mat-form-field appearance="outline" class="w-full">
-                    <app-icon matPrefix class="relative -left-1 text-2xl">
+                    <icon matPrefix class="relative -left-1 text-2xl">
                         description
-                    </app-icon>
+                    </icon>
                     <input
                         matInput
                         placeholder="Template Subject"

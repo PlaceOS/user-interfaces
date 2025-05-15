@@ -10,7 +10,7 @@ import { CustomTooltipData } from '@placeos/components';
             (click)="close()"
         >
             <div class="flex items-center space-x-2 p-2">
-                <app-icon class="text-2xl">arrow_back</app-icon>
+                <icon class="text-2xl">arrow_back</icon>
                 <div class="">{{ 'COMMON.LANGUAGE' | translate }}</div>
             </div>
             <div class="mb-2 px-8 text-xs opacity-60">

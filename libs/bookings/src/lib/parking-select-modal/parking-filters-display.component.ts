@@ -66,7 +66,7 @@ import { ParkingSpaceFiltersComponent } from './parking-filters.component';
                     class="-mr-4"
                     (click)="removeFeature(feat)"
                 >
-                    <app-icon>close</app-icon>
+                    <icon>close</icon>
                 </button>
             </div>
         </section>

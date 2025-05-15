@@ -59,7 +59,7 @@ declare let loadVosklet: any;
                     class="absolute bottom-4 right-4 flex h-12 w-12 items-center justify-center rounded-full bg-success text-success-content"
                     *ngIf="listening"
                 >
-                    <app-icon class="text-2xl">mic</app-icon>
+                    <icon class="text-2xl">mic</icon>
                 </div>
                 <canvas
                     #canvas
@@ -128,9 +128,9 @@ declare let loadVosklet: any;
                             (click)="show_info = !show_info"
                         >
                             <div class="flex items-center space-x-2">
-                                <app-icon class="text-2xl">{{
+                                <icon class="text-2xl">{{
                                     icons[(progress | async).function] || 'info'
-                                }}</app-icon>
+                                }}</icon>
                                 <p class="text-sm">
                                     {{
                                         (progress | async).message ||
@@ -180,7 +180,7 @@ declare let loadVosklet: any;
             *ngIf="setup"
             (click)="endService()"
         >
-            <app-icon class="text-2xl">call_end</app-icon>
+            <icon class="text-2xl">call_end</icon>
         </button>
         <button
             splash

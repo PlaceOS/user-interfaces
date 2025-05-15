@@ -27,7 +27,7 @@ import { map } from 'rxjs/operators';
                     }}
                 </h2>
                 <button icon matRipple mat-dialog-close *ngIf="!loading">
-                    <app-icon>close</app-icon>
+                    <icon>close</icon>
                 </button>
             </header>
             <main
@@ -127,7 +127,7 @@ import { map } from 'rxjs/operators';
                                     'COMMON.ITEM_REMOVE' | translate
                                 "
                             >
-                                <app-icon>cancel</app-icon>
+                                <icon>cancel</icon>
                             </button>
                         </mat-chip-row>
                     </mat-chip-grid>

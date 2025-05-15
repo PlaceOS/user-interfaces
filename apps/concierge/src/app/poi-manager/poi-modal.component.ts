@@ -129,7 +129,7 @@ import { PointOfInterest } from './poi-management.service';
                             "
                             (click)="selectPOIfromMap()"
                         >
-                            <app-icon>place</app-icon>
+                            <icon>place</icon>
                         </button>
                     </div>
                     <div

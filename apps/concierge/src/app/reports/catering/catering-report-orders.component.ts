@@ -26,7 +26,7 @@ import { CateringReportStateService } from './catering-report-state.service';
                         'APP.CONCIERGE.REPORTS_DOWNLOAD_TABLE' | translate
                     "
                 >
-                    <app-icon>download</app-icon>
+                    <icon>download</icon>
                 </button>
             </div>
             <simple-table

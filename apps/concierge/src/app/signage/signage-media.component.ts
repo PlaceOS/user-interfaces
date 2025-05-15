@@ -75,7 +75,7 @@ import { SignageStateService } from './signage-state.service';
                     <div
                         class="flex flex-col items-center justify-center space-y-2 p-8 opacity-30"
                     >
-                        <app-icon class="text-6xl">hide_image</app-icon>
+                        <icon class="text-6xl">hide_image</icon>
                         <p class="text-center">
                             {{
                                 (search.getValue()
@@ -93,7 +93,7 @@ import { SignageStateService } from './signage-state.service';
                         (click)="addPlaylist()"
                     >
                         <div class="flex w-full items-center justify-center">
-                            <app-icon class="text-2xl">add</app-icon>
+                            <icon class="text-2xl">add</icon>
                             <span class="ml-2 mr-4">{{
                                 'APP.CONCIERGE.SIGNAGE_PLAYLISTS_ADD'
                                     | translate
@@ -131,7 +131,7 @@ import { SignageStateService } from './signage-state.service';
                     <div
                         class="absolute inset-4 flex flex-col items-center justify-center space-y-4 rounded-2xl border-4 border-dashed border-base-300 text-base-100"
                     >
-                        <app-icon class="text-6xl">cloud_upload</app-icon>
+                        <icon class="text-6xl">cloud_upload</icon>
                         <p>
                             {{
                                 'APP.CONCIERGE.SIGNAGE_MEDIA_DROP_UPLOAD'
