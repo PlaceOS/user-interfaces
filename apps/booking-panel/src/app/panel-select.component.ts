@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { AsyncHandler, HashMap } from '@placeos/common';
-import { CalendarEvent } from '@placeos/events';
+import { CalendarEvent } from 'libs/events/src/lib/event.class';
 import { currentBooking } from './panel-state.service';
 
 @Component({

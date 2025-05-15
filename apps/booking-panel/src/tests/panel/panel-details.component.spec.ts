@@ -1,7 +1,8 @@
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 
-import { IconComponent } from '@placeos/components';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { MockComponent } from 'ng-mocks';
+
 import { BehaviorSubject } from 'rxjs';
 import { PanelStateService } from '../../app/panel-state.service';
 import { PanelDetailsComponent } from '../../app/panel/panel-details.component';

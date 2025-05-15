@@ -33,10 +33,11 @@ import {
     SettingsService,
     timePeriodsIntersect,
 } from '@placeos/common';
-import { CalendarEvent, EventFormService } from '@placeos/events';
-import { Space, SpacesService } from '@placeos/spaces';
+import { CalendarEvent } from 'libs/events/src/lib/event.class';
+import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
+import { Space } from 'libs/spaces/src/lib/space.class';
+import { SpacesService } from 'libs/spaces/src/lib/spaces.service';
 
-import { openConfirmModal } from '@placeos/components';
 import {
     addMinutes,
     differenceInMinutes,
@@ -45,6 +46,7 @@ import {
     isBefore,
     startOfMinute,
 } from 'date-fns';
+import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 import { openBookingModal } from './overlays/booking-modal.component';
 import { EmbeddedControlModalComponent } from './overlays/embedded-control-modal.component';

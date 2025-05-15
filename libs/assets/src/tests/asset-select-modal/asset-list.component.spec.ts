@@ -1,6 +1,6 @@
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { createRoutingFactory, Spectator } from '@ngneat/spectator/jest';
-import { IconComponent } from '@placeos/components';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { MockComponent, MockModule } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 import { AssetListComponent } from '../../lib/asset-select-modal/asset-list.component';

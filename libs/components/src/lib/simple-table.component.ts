@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import {
     Component,
     EventEmitter,
@@ -6,9 +7,12 @@ import {
     SimpleChanges,
     TemplateRef,
 } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
 import { AsyncHandler, nextValueFrom } from '@placeos/common';
 import { BehaviorSubject, Observable, combineLatest } from 'rxjs';
 import { debounceTime, map, shareReplay } from 'rxjs/operators';
+import { IconComponent } from './icon.component';
+import { TranslatePipe } from './translate.pipe';
 
 export interface TableColumn {
     key: string;
@@ -264,7 +268,7 @@ export interface TableColumn {
             }
         `,
     ],
-    standalone: false,
+    imports: [CommonModule, MatRippleModule, TranslatePipe, IconComponent],
 })
 export class SimpleTableComponent<T extends object = any> extends AsyncHandler {
     @Input() public data: T[] | Observable<T[]>;

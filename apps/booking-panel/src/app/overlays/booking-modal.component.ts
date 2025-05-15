@@ -63,7 +63,7 @@ export async function openBookingModal(
                         <icon>close</icon>
                     </button>
                 </header>
-                <form
+                <div
                     *ngIf="form && !loading; else load_state"
                     [formGroup]="form"
                     class="w-full px-4"
@@ -122,7 +122,7 @@ export async function openBookingModal(
                             />
                         </mat-form-field>
                     </div>
-                </form>
+                </div>
                 <footer
                     *ngIf="!loading"
                     class="flex w-full items-center justify-end space-x-2 border-t border-base-200 px-4 py-2"

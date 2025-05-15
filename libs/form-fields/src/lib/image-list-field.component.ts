@@ -19,8 +19,9 @@ import {
     unique,
     UploadsService,
 } from '@placeos/common';
-import { IconComponent, TranslatePipe } from '@placeos/components';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { ImageViewerComponent } from 'libs/components/src/lib/image-viewer.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 
 export interface UploadDetails {
     /** Unique ID for the upload */

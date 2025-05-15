@@ -8,8 +8,8 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 
-import { IconComponent } from '@placeos/components';
 import { generateMockUser, User } from '@placeos/users';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
 
 import * as users_fn from '@placeos/users';
 

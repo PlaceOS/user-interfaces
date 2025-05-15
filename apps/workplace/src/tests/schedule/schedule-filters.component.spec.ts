@@ -1,7 +1,7 @@
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { SettingsService } from '@placeos/common';
-import { IconComponent } from '@placeos/components';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 import { ScheduleFiltersComponent } from '../../app/schedule/schedule-filters.component';

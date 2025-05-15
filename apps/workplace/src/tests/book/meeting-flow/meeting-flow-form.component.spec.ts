@@ -3,7 +3,6 @@ import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatDialog } from '@angular/material/dialog';
 import { createRoutingFactory, Spectator } from '@ngneat/spectator/jest';
 import { SettingsService } from '@placeos/common';
-import { IconComponent } from '@placeos/components';
 import { EventFormService, generateEventForm } from '@placeos/events';
 import { UserListFieldComponent } from '@placeos/form-fields';
 import { OrganisationService } from '@placeos/organisation';
@@ -12,6 +11,7 @@ import { MeetingFormDetailsComponent } from 'apps/workplace/src/app/book/meeting
 import { AssetListFieldComponent } from 'libs/assets/src/lib/asset-list-field.component';
 import { CateringListFieldComponent } from 'libs/catering/src/lib/catering-list-field.component';
 import { CateringOrderStateService } from 'libs/catering/src/lib/catering-order-modal/catering-order-state.service';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { RichTextInputComponent } from 'libs/form-fields/src/lib/rich-text-input.component';
 import { SpaceListFieldComponent } from 'libs/form-fields/src/lib/space-list-field.component';
 import { MockComponent, MockProvider } from 'ng-mocks';

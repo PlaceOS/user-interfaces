@@ -5,7 +5,7 @@ import {
     FormsModule,
     NG_VALUE_ACCESSOR,
 } from '@angular/forms';
-import { IconComponent } from '@placeos/components';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
 
 @Component({
     selector: 'a-counter',

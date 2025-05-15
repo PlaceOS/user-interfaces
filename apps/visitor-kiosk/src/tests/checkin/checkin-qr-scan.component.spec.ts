@@ -2,7 +2,7 @@ import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
-import { IconComponent } from '@placeos/components';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 

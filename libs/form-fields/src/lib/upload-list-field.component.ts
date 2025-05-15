@@ -8,8 +8,8 @@ import { CommonModule } from '@angular/common';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { uploadFiles } from '@placeos/cloud-uploads';
-import { IconComponent } from '@placeos/components';
 import * as blobUtil from 'blob-util';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
 
 @Component({
     selector: 'upload-list',

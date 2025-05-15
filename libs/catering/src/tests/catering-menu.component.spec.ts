@@ -3,7 +3,7 @@ import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 
 import { MatTabsModule } from '@angular/material/tabs';
-import { IconComponent } from '@placeos/components';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { SimpleTableComponent } from 'libs/components/src/lib/simple-table.component';
 import { CateringMenuComponent } from '../lib/catering-menu.component';
 import { CateringOrdersService } from '../lib/catering-orders.service';

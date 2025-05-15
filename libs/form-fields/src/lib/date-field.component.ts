@@ -14,10 +14,10 @@ import {
     NgControl,
 } from '@angular/forms';
 import { getTimezoneOffsetString } from '@placeos/common';
-import { IconComponent } from '@placeos/components';
 import { addYears, endOfDay, set, startOfDay } from 'date-fns';
 import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
 import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { DateCalendarComponent } from './date-calendar.component';
 
 export enum TimezoneDiffRange {

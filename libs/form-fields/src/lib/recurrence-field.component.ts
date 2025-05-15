@@ -27,8 +27,8 @@ import { addDays, addYears, endOfDay } from 'date-fns';
 import { CommonModule } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
-import { TranslatePipe } from '@placeos/components';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { RecurrenceDetails } from 'libs/events/src/lib/event.interfaces';
 import { RecurrenceModalComponent } from './recurrence-modal.component';
 

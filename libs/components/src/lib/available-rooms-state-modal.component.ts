@@ -1,8 +1,13 @@
+import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Inject, Output } from '@angular/core';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatRippleModule } from '@angular/material/core';
+import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { nextValueFrom, unique } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { requestSpacesForZone } from 'libs/spaces/src/lib/space.utilities';
+import { TranslatePipe } from './translate.pipe';
 
 @Component({
     selector: 'available-rooms-state-modal',
@@ -119,7 +124,14 @@ import { requestSpacesForZone } from 'libs/spaces/src/lib/space.utilities';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatProgressSpinnerModule,
+        MatRippleModule,
+        MatCheckboxModule,
+        MatDialogModule,
+        TranslatePipe,
+    ],
 })
 export class AvailableRoomsStateModalComponent {
     @Output() public change = new EventEmitter<string[]>();

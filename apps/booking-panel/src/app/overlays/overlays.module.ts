@@ -1,12 +1,18 @@
 import { CommonModule } from '@angular/common';
 import { NgModule, Type } from '@angular/core';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MatDialogModule } from '@angular/material/dialog';
 
-import { ComponentsModule } from '@placeos/components';
-import { FormFieldsModule } from '@placeos/form-fields';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+
 import { BookingModalComponent } from './booking-modal.component';
 import { EmbeddedControlModalComponent } from './embedded-control-modal.component';
+
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { SafePipe } from 'libs/components/src/lib/safe.pipe';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { DurationFieldComponent } from 'libs/form-fields/src/lib/duration-field.component';
+import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-field.component';
 
 const OVERLAYS: Type<any>[] = [
     EmbeddedControlModalComponent,
@@ -17,11 +23,14 @@ const OVERLAYS: Type<any>[] = [
     declarations: [...OVERLAYS],
     imports: [
         CommonModule,
-        FormsModule,
-        ReactiveFormsModule,
-        ComponentsModule,
-        FormFieldsModule,
+        IconComponent,
+        TranslatePipe,
+        SafePipe,
         MatDialogModule,
+        MatFormFieldModule,
+        MatInputModule,
+        UserSearchFieldComponent,
+        DurationFieldComponent,
     ],
     exports: [...OVERLAYS],
 })

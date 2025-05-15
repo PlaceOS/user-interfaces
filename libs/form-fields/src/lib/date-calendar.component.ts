@@ -8,7 +8,6 @@ import {
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { AsyncHandler, SettingsService } from '@placeos/common';
-import { IconComponent } from '@placeos/components';
 import {
     addDays,
     addMonths,
@@ -19,6 +18,7 @@ import {
     startOfMonth,
     startOfWeek,
 } from 'date-fns';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
 
 interface DateItem {
     id: number;

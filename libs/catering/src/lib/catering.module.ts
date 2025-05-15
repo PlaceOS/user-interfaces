@@ -12,10 +12,6 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
-import { FormFieldsModule } from '@placeos/form-fields';
-
-import { ComponentsModule } from 'libs/components/src/lib/components.module';
-
 import { CateringImportMenuModalComponent } from './catering-import-menu-modal.component';
 import { CateringItemModalComponent } from './catering-item-modal.component';
 import { CateringMenuComponent } from './catering-menu.component';
@@ -32,6 +28,12 @@ import { CateringItemListItemComponent } from './catering-order-modal/catering-i
 import { CateringItemListComponent } from './catering-order-modal/catering-item-list.component';
 import { NewCateringOrderModalComponent } from './catering-order-modal/new-catering-order-modal.component';
 import { ChargeCodeListModalComponent } from './charge-code-list-modal.component';
+
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { SimpleTableComponent } from 'libs/components/src/lib/simple-table.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 
 const COMPONENTS: Type<any>[] = [
     CateringOrderOptionsModalComponent,
@@ -53,24 +55,35 @@ const COMPONENTS: Type<any>[] = [
     ChargeCodeListModalComponent,
 ];
 
+const STANDALONE_COMPONENTS = [
+    IconComponent,
+    TranslatePipe,
+    SimpleTableComponent,
+];
+
+const MAT_MODULES = [
+    MatMenuModule,
+    MatTabsModule,
+    MatAutocompleteModule,
+    MatDialogModule,
+    MatCheckboxModule,
+    MatRadioModule,
+    MatTooltipModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatProgressSpinnerModule,
+    MatProgressBarModule,
+];
+
 @NgModule({
     declarations: [...COMPONENTS],
     imports: [
         CommonModule,
-        MatMenuModule,
-        MatTabsModule,
-        MatAutocompleteModule,
-        MatDialogModule,
-        MatCheckboxModule,
-        MatRadioModule,
-        MatTooltipModule,
         FormsModule,
         ReactiveFormsModule,
-        ComponentsModule,
-        MatFormFieldModule,
-        FormFieldsModule,
-        MatProgressSpinnerModule,
-        MatProgressBarModule,
+        ...MAT_MODULES,
+        ...STANDALONE_COMPONENTS,
     ],
     providers: [],
     exports: [...COMPONENTS],

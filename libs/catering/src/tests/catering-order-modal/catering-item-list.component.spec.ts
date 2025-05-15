@@ -1,5 +1,5 @@
 import { createRoutingFactory, Spectator } from '@ngneat/spectator/jest';
-import { IconComponent } from '@placeos/components';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 import { CateringItemListItemComponent } from '../../lib/catering-order-modal/catering-item-list-item.component';

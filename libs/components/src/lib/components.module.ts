@@ -132,12 +132,9 @@ const COMPONENTS = [
     ChangelogModalComponent,
     StatusPillComponent,
     ImageViewerComponent,
-    SimpleTableComponent,
     WorkLocationTooltipComponent,
 
     FixedPipe,
-    SafePipe,
-    SanitizePipe,
     DurationPipe,
     LevelPipe,
     BuildingPipe,
@@ -153,7 +150,7 @@ const COMPONENTS = [
     LanguageSelectComponent,
     PrintableComponent,
     AttachedResourceConfigModalComponent,
-    AvailableRoomsStateModalComponent,
+
     DeskHeightPresetsComponent,
     LoginComponent,
     FullscreenModalShellComponent,
@@ -161,11 +158,7 @@ const COMPONENTS = [
     MisconfiguredComponent,
 ];
 
-const DIRECTIVES = [
-    BindingDirective,
-    AuthenticatedImageDirective,
-    LimitInputDirective,
-];
+const DIRECTIVES = [BindingDirective, LimitInputDirective];
 
 const STANDALONE_COMPONENTS = [
     IconComponent,
@@ -178,11 +171,17 @@ const STANDALONE_COMPONENTS = [
     MapRendererComponent,
     MapsIndoorsComponent,
     VirtualKeyboardComponent,
+    SimpleTableComponent,
+    AvailableRoomsStateModalComponent,
 
     UnauthorisedComponent,
 
+    AuthenticatedImageDirective,
+
     TranslatePipe,
     MediaDurationPipe,
+    SafePipe,
+    SanitizePipe,
 ];
 
 @NgModule({

@@ -17,7 +17,6 @@ import {
     getTimezoneOffsetString,
     Identity,
 } from '@placeos/common';
-import { IconComponent } from '@placeos/components';
 import {
     addMinutes,
     endOfDay,
@@ -29,6 +28,7 @@ import {
     startOfDay,
     startOfMinute,
 } from 'date-fns';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
 
 @Component({
     selector: 'a-time-field',

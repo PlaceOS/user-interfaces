@@ -5,14 +5,13 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { Router } from '@angular/router';
 import { ServiceWorkerModule } from '@angular/service-worker';
 
-import { MatChipsModule } from '@angular/material/chips';
+import { MatRippleModule } from '@angular/material/core';
 import { MatDialogModule } from '@angular/material/dialog';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatTabsModule } from '@angular/material/tabs';
 
 import { SharedCateringModule } from '@placeos/catering';
-import { ComponentsModule } from '@placeos/components';
 
 import { AppComponent } from '../../../../libs/components/src/lib/app.component';
 import { environment } from '../environments/environment';
@@ -20,14 +19,27 @@ import { AppRoutingModule } from './app-routing.module';
 import { CateringTopbarComponent } from './catering-topbar.component';
 import { CateringComponent } from './catering.component';
 
-import { MatRippleModule } from '@angular/material/core';
-import { AssetsModule } from '@placeos/assets';
-import { SharedExploreModule } from '@placeos/explore';
-import { SharedSpacesModule } from '@placeos/spaces';
+import { GlobalBannerComponent } from 'libs/components/src/lib/global-banner.component';
+import { GlobalLoadingComponent } from 'libs/components/src/lib/global-loading.component';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { SafePipe } from 'libs/components/src/lib/safe.pipe';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+
 import * as Sentry from '@sentry/angular';
 
-import { FormFieldsModule } from '@placeos/form-fields';
+import { AvailableRoomsStateModalComponent } from 'libs/components/src/lib/available-rooms-state-modal.component';
+
+import { MatInputModule } from '@angular/material/input';
 import { DateOptionsComponent } from 'apps/concierge/src/app/ui/date-options.component';
+
+const STANDALONE_COMPONENTS = [
+    GlobalBannerComponent,
+    GlobalLoadingComponent,
+    IconComponent,
+    TranslatePipe,
+    SafePipe,
+    AvailableRoomsStateModalComponent,
+];
 
 @NgModule({
     declarations: [
@@ -44,16 +56,12 @@ import { DateOptionsComponent } from 'apps/concierge/src/app/ui/date-options.com
         AppRoutingModule,
         MatSnackBarModule,
         MatDialogModule,
-        MatProgressSpinnerModule,
-        MatTabsModule,
-        MatChipsModule,
-        SharedCateringModule,
-        ComponentsModule,
-        SharedSpacesModule,
-        SharedExploreModule,
-        FormFieldsModule,
         MatRippleModule,
-        AssetsModule,
+        MatFormFieldModule,
+        MatSelectModule,
+        MatInputModule,
+        SharedCateringModule,
+        ...STANDALONE_COMPONENTS,
         ServiceWorkerModule.register('ngsw-worker.js', {
             enabled: environment.production,
         }),

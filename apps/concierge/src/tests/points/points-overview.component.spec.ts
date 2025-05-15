@@ -1,7 +1,7 @@
 import { FormsModule } from '@angular/forms';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { IconComponent } from '@placeos/components';
 import { CounterComponent } from '@placeos/form-fields';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { MockComponent, MockModule } from 'ng-mocks';
 
 import { MatTooltipModule } from '@angular/material/tooltip';

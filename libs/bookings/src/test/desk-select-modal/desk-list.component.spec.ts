@@ -1,8 +1,8 @@
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { BookingFormService } from '@placeos/bookings';
-import { IconComponent } from '@placeos/components';
 import { Desk } from '@placeos/organisation';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 import { DeskListComponent } from '../../lib/desk-select-modal/desk-list.component';

@@ -2,8 +2,10 @@ import { CommonModule } from '@angular/common';
 import { Component, ContentChild, Input, ViewChild } from '@angular/core';
 import { NgControl } from '@angular/forms';
 import { AsyncHandler } from '@placeos/common';
-import { CustomTooltipComponent, IconComponent } from '@placeos/components';
 import { startOfDay } from 'date-fns';
+
+import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { DateRangeCalendarComponent } from './date-range-calendar.component';
 
 @Component({

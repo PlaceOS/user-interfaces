@@ -18,7 +18,6 @@ import { BootstrapComponent } from './bootstrap.component';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { LocaleService } from '@placeos/common';
 import * as Sentry from '@sentry/angular';
-import { ChatComponent } from 'libs/components/src/lib/chat/chat.component';
 import { GlobalBannerComponent } from 'libs/components/src/lib/global-banner.component';
 import { GlobalLoadingComponent } from 'libs/components/src/lib/global-loading.component';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -48,7 +47,6 @@ import { SignagePanelComponent } from './signage.component';
         IconComponent,
         GlobalLoadingComponent,
         GlobalBannerComponent,
-        ChatComponent,
         TranslatePipe,
         MediaDurationPipe,
         ServiceWorkerModule.register('ngsw-worker.js', {

@@ -5,8 +5,8 @@ import {
 } from '@angular/material/dialog';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { SettingsService } from '@placeos/common';
-import { IconComponent } from '@placeos/components';
 import { Desk } from '@placeos/organisation';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 import { BookingFormService } from '../../lib/booking-form.service';
 import { DeskDetailsComponent } from '../../lib/desk-select-modal/desk-details.component';

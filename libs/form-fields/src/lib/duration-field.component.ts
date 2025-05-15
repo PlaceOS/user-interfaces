@@ -11,8 +11,8 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatMenuModule } from '@angular/material/menu';
 import { formatDuration, getTimezoneOffsetString } from '@placeos/common';
-import { IconComponent } from '@placeos/components';
 import { addMinutes } from 'date-fns';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
 
 export interface DurationOption {
     id: number;

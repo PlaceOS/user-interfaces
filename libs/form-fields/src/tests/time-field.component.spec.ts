@@ -10,7 +10,7 @@ import {
 } from 'date-fns';
 import { MockComponent } from 'ng-mocks';
 
-import { IconComponent } from '@placeos/components';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TimeFieldComponent } from '../lib/time-field.component';
 
 import { MatFormFieldModule } from '@angular/material/form-field';

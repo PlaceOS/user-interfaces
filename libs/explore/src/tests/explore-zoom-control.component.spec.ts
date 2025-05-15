@@ -1,7 +1,7 @@
 import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
 import { MockComponent, MockModule } from 'ng-mocks';
 
-import { IconComponent } from '@placeos/components';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
 
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ExploreStateService } from '../lib/explore-state.service';

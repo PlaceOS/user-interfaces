@@ -24,11 +24,11 @@ import {
     notifyError,
     randomString,
 } from '@placeos/common';
-import { TranslatePipe } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
 import { queryZones } from '@placeos/ts-client';
 import { endOfDay, set, startOfDay } from 'date-fns';
 import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { of } from 'rxjs';
 import {
     catchError,

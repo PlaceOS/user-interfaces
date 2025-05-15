@@ -11,13 +11,13 @@ import { MatSelectModule } from '@angular/material/select';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { BookingFormService } from '@placeos/bookings';
 import { SettingsService } from '@placeos/common';
-import { IconComponent } from '@placeos/components';
 import {
     DateFieldComponent,
     DurationFieldComponent,
     TimeFieldComponent,
 } from '@placeos/form-fields';
 import { Building, OrganisationService, Region } from '@placeos/organisation';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 import { BehaviorSubject, of } from 'rxjs';
 import { DeskFiltersComponent } from '../../lib/desk-select-modal/desk-filters.component';

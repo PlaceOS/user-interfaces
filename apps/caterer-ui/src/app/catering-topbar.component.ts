@@ -9,9 +9,10 @@ import {
     ChargeCodeListModalComponent,
 } from '@placeos/catering';
 import { AsyncHandler, nextValueFrom, SettingsService } from '@placeos/common';
-import { AvailableRoomsStateModalComponent } from '@placeos/components';
-import { OrganisationService } from '@placeos/organisation';
 import { combineLatest } from 'rxjs';
+
+import { OrganisationService } from '@placeos/organisation';
+import { AvailableRoomsStateModalComponent } from 'libs/components/src/lib/available-rooms-state-modal.component';
 
 @Component({
     selector: 'catering-topbar',

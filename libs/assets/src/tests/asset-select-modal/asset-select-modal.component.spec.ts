@@ -1,7 +1,7 @@
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { createRoutingFactory, Spectator } from '@ngneat/spectator/jest';
 import { SettingsService } from '@placeos/common';
-import { IconComponent } from '@placeos/components';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { MockComponent } from 'ng-mocks';
 import { AssetDetailsComponent } from '../../lib/asset-select-modal/asset-details.component';
 import { AssetFiltersDisplayComponent } from '../../lib/asset-select-modal/asset-filters-display.component';

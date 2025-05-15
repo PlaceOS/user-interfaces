@@ -14,24 +14,27 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 
-import { ComponentsModule } from 'libs/components/src/lib/components.module';
-
 import * as Sentry from '@sentry/angular';
 
 import { AppComponent } from 'libs/components/src/lib/app.component';
 import { environment } from '../environments/environment';
 import { routes } from './app.routes';
 
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { GlobalBannerComponent } from 'libs/components/src/lib/global-banner.component';
+import { GlobalLoadingComponent } from 'libs/components/src/lib/global-loading.component';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+
 import { BootstrapComponent } from './bootstrap.component';
 import { PanelViewComponent } from './panel-view.component';
-
-import { SharedExploreModule } from '@placeos/explore';
 
 const MAT_MODULES: any[] = [
     MatFormFieldModule,
     MatInputModule,
     MatSnackBarModule,
     MatRippleModule,
+    MatAutocompleteModule,
 ];
 
 @NgModule({
@@ -43,12 +46,14 @@ const MAT_MODULES: any[] = [
         RouterModule.forRoot(routes, { useHash: true }),
         FormsModule,
         ReactiveFormsModule,
-        ComponentsModule,
         ...MAT_MODULES,
+        GlobalLoadingComponent,
+        GlobalBannerComponent,
+        IconComponent,
+        TranslatePipe,
         ServiceWorkerModule.register('ngsw-worker.js', {
             enabled: environment.production,
         }),
-        SharedExploreModule,
     ],
     providers: [
         {

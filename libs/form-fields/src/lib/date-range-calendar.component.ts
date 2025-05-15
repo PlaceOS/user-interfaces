@@ -8,7 +8,6 @@ import {
     Output,
     SimpleChanges,
 } from '@angular/core';
-import { IconComponent } from '@placeos/components';
 import {
     addDays,
     addMonths,
@@ -21,6 +20,7 @@ import {
     startOfMonth,
     startOfWeek,
 } from 'date-fns';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
 
 @Component({
     selector: `date-range-calendar`,

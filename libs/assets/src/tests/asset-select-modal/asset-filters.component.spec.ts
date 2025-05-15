@@ -3,7 +3,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { createRoutingFactory, Spectator } from '@ngneat/spectator/jest';
 import { SettingsService } from '@placeos/common';
-import { IconComponent } from '@placeos/components';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { DurationFieldComponent } from 'libs/form-fields/src/lib/duration-field.component';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 import { AssetFiltersComponent } from '../../lib/asset-select-modal/asset-filters.component';

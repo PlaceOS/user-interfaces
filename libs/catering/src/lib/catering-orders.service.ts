@@ -32,7 +32,7 @@ import {
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 
-import { newCalendarEventFromBooking } from '@placeos/events';
+import { newCalendarEventFromBooking } from 'libs/events/src/lib/utilities';
 import { CateringOrder } from './catering-order.class';
 import { CateringOrderStatus } from './catering.interfaces';
 
@@ -90,8 +90,8 @@ export class CateringOrdersService extends AsyncHandler {
             const end = getUnixTime(endOfDay(date || Date.now()));
             if (!zones?.length) {
                 zones = this._settings.get('app.use_region')
-                    ? [this._org.region.id]
-                    : [this._org.building.id];
+                    ? [this._org.region?.id]
+                    : [this._org.building?.id];
             }
             return queryEvents({
                 zone_ids: (zones || []).join(','),
@@ -196,17 +196,17 @@ export class CateringOrdersService extends AsyncHandler {
 
     public readonly caterers = this.orders.pipe(
         map((_) => {
-            const provider_groups =
+            const provider_groups: Record<string, string[]> =
                 this._settings.get('app.catering_provider_groups') || {};
             let provider_list = Object.keys(provider_groups);
             const is_admin =
-                currentUser().groups.includes('placeos_admin') ||
-                currentUser().groups.includes('placeos_support');
+                currentUser()?.groups?.includes('placeos_admin') ||
+                currentUser()?.groups?.includes('placeos_support');
             if (!provider_list.length || is_admin)
                 return unique(_.map((i) => i.caterer));
             provider_list = provider_list.filter((caterer) =>
                 provider_groups[caterer].find((group) =>
-                    currentUser().groups.includes(group),
+                    currentUser()?.groups?.includes(group),
                 ),
             );
             if (

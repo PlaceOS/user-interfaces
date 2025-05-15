@@ -1,11 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { AsyncHandler, SettingsService } from '@placeos/common';
-import { CalendarEvent } from '@placeos/events';
-import { OrganisationService } from '@placeos/organisation';
 import { startOfMinute } from 'date-fns';
-import { generateQRCode } from 'libs/common/src/lib/qr-code';
 import { debounceTime, first, map } from 'rxjs/operators';
+
+import { AsyncHandler, SettingsService } from '@placeos/common';
+import { OrganisationService } from '@placeos/organisation';
+
+import { generateQRCode } from 'libs/common/src/lib/qr-code';
+import { CalendarEvent } from 'libs/events/src/lib/event.class';
 import { PanelStateService } from './panel-state.service';
 
 @Component({

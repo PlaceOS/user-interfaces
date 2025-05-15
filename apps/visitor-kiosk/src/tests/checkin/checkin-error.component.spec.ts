@@ -1,6 +1,6 @@
 import { SpectatorRouting } from '@ngneat/spectator';
 import { createRoutingFactory } from '@ngneat/spectator/jest';
-import { IconComponent } from '@placeos/components';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { MockComponent } from 'ng-mocks';
 import { CheckinErrorComponent } from '../../app/checkin/checkin-error.component';
 

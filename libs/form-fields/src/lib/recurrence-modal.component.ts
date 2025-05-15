@@ -13,8 +13,8 @@ import {
     RecurrEndType,
     RecurrType,
 } from '@placeos/common';
-import { TranslatePipe } from '@placeos/components';
 import { addDays, addMonths, startOfWeek } from 'date-fns';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { CompactCounterComponent } from './compact-counter.component';
 import { DateFieldComponent } from './date-field.component';
 

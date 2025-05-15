@@ -28,8 +28,6 @@ import { DeviceOutputListComponent } from './tabbed-view/output-list.component';
 import { TabOutletComponent } from './tabbed-view/tab-outlet.component';
 import { ControlTabbedViewComponent } from './tabbed-view/tabbed-view.component';
 
-import { AssetsModule } from '@placeos/assets';
-import { SharedExploreModule } from '@placeos/explore';
 import * as Sentry from '@sentry/angular';
 import { TVControlsComponent } from './tabbed-view/tv-controls.component';
 
@@ -59,8 +57,6 @@ import { TVControlsComponent } from './tabbed-view/tv-controls.component';
         MatProgressSpinnerModule,
         UIModule,
         MatSliderModule,
-        AssetsModule,
-        SharedExploreModule,
         ServiceWorkerModule.register('ngsw-worker.js', {
             enabled: environment.production,
         }),

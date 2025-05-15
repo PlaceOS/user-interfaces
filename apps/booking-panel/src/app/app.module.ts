@@ -10,7 +10,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 
-import { ComponentsModule } from '@placeos/components';
 import { AppRoutingModule } from './app-routing.module';
 
 import { AppComponent } from 'libs/components/src/lib/app.component';
@@ -26,15 +25,20 @@ import { BookingPanelComponent } from './panel/panel.component';
 import { PanelTopbarComponent } from './panel/topbar.component';
 
 import { MatRippleModule } from '@angular/material/core';
-import { AssetsModule } from '@placeos/assets';
 import { LocaleService } from '@placeos/common';
-import { SharedExploreModule } from '@placeos/explore';
 import * as Sentry from '@sentry/angular';
 import { AppCheckinModule } from './checkin/checkin.module';
 import { EventPanelComponent } from './event-panel.component';
 import { AppPanelViewModule } from './new-panel/panel-view.module';
 import { PanelStatusComponent } from './panel/panel-status.component';
 import { PanelTimelineComponent } from './panel/timeline.component';
+
+import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
+import { GlobalBannerComponent } from 'libs/components/src/lib/global-banner.component';
+import { GlobalLoadingComponent } from 'libs/components/src/lib/global-loading.component';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { SafePipe } from 'libs/components/src/lib/safe.pipe';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 
 import { registerLocaleData } from '@angular/common';
 import localeAr from '@angular/common/locales/ar';
@@ -43,11 +47,24 @@ import localeFr from '@angular/common/locales/fr';
 import localeIt from '@angular/common/locales/it';
 import localeJa from '@angular/common/locales/ja';
 import localeZh from '@angular/common/locales/zh';
+import { MatDialogModule } from '@angular/material/dialog';
 
 const MAT_MODULES: any[] = [
     MatFormFieldModule,
     MatInputModule,
     MatAutocompleteModule,
+    MatSnackBarModule,
+    MatRippleModule,
+    MatDialogModule,
+];
+
+const STANDALONE_COMPONENTS = [
+    GlobalBannerComponent,
+    GlobalLoadingComponent,
+    IconComponent,
+    AuthenticatedImageDirective,
+    TranslatePipe,
+    SafePipe,
 ];
 
 @NgModule({
@@ -70,15 +87,11 @@ const MAT_MODULES: any[] = [
         BrowserAnimationsModule,
         AppRoutingModule,
         FormsModule,
-        MatSnackBarModule,
-        MatRippleModule,
         SharedOverlaysModule,
         AppPanelViewModule,
         AppCheckinModule,
-        ComponentsModule,
-        AssetsModule,
-        SharedExploreModule,
         ...MAT_MODULES,
+        ...STANDALONE_COMPONENTS,
         ServiceWorkerModule.register('ngsw-worker.js', {
             enabled: environment.production,
         }),
