@@ -74,13 +74,12 @@ export class ControlSpaceListComponent extends AsyncHandler {
     /** List of controlable spaces for the active building */
     public readonly space_list = combineLatest([
         this._org.active_building,
+        this._spaces.all_spaces,
         this._spaces.initialised,
     ]).pipe(
         filter(([_]) => !!_),
-        map(([bld]) =>
-            this._spaces.filter(
-                (s) => !!s.support_url && s.zones.includes(bld.id),
-            ),
+        map(([bld, list]) =>
+            list.filter((s) => !!s.support_url && s.zones.includes(bld.id)),
         ),
         map((spaces) => spaces.sort((a, b) => this.sortSpaces(a, b))),
     );
