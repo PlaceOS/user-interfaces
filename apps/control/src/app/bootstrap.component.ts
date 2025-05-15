@@ -47,9 +47,26 @@ const STORE_KEY = 'PLACEOS.CONTROL.system';
                         *ngFor="let option of space_list | async"
                         [value]="option.id"
                     >
-                        <div class="leading-tight">
-                            <div class="name">{{ option.name }}</div>
-                            <div class="text-dark-fade text-xs">
+                        <div
+                            class="flex w-full items-center space-x-4 leading-tight"
+                        >
+                            <div class="flex flex-1 flex-col">
+                                <div>
+                                    {{ option.display_name || option.name }}
+                                </div>
+                                <div
+                                    class="text-xs opacity-30"
+                                    *ngIf="
+                                        option.display_name &&
+                                        option.display_name !== option.name
+                                    "
+                                >
+                                    {{ option.name }}
+                                </div>
+                            </div>
+                            <div
+                                class="rounded bg-base-200 px-2 py-1 font-mono text-[0.625rem]"
+                            >
                                 {{ option.id }}
                             </div>
                         </div>
@@ -136,6 +153,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
                 : querySystems({
                       q: search,
                       limit: 20,
+                      fields: ['id', 'name', 'display_name', 'email'].join(','),
                       zone_id: this._org.organisation.id,
                   });
         }),

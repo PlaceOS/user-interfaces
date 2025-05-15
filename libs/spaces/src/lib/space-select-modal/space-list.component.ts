@@ -64,7 +64,7 @@ import { Space } from '../space.class';
                                 />
                             </ng-template>
                             <div
-                                class="pointer-events-auto absolute bottom-1 left-1 flex h-6 w-6 rotate-12 items-center justify-center rounded-full"
+                                class="pointer-events-auto absolute bottom-1 left-1 flex h-6 w-6 items-center justify-center rounded-full"
                                 *ngIf="(room_alerts | async)[space.id]"
                                 [matTooltip]="
                                     (room_alerts | async)[space.id][1]
@@ -155,6 +155,12 @@ import { Space } from '../space.class';
                                 : 'favorite_border'
                         }}</app-icon>
                     </button>
+                    <div
+                        *ngIf="space.approval"
+                        class="absolute bottom-1 right-1 rounded bg-warning px-2 py-1 text-[0.625rem] font-medium text-warning-content"
+                    >
+                        {{ 'COMMON.APPROVAL_REQUIRED' | translate }}
+                    </div>
                 </li>
             </ul>
         </ng-container>

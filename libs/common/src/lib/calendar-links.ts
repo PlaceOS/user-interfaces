@@ -127,6 +127,10 @@ export function generateGoogleCalendarLink(event: CalEvent): string {
     )}`;
 }
 
+function dateToISO(date: Date | number) {
+    return `${format(date, 'yyyy-MM-dd')}T${format(date, 'HH:mm:ss')}`;
+}
+
 export function generateMicrosoftCalendarLink(
     event: CalEvent,
     type: 'outlook' | 'office' = 'office',
@@ -134,18 +138,18 @@ export function generateMicrosoftCalendarLink(
 ): string {
     if (!event.date) event.date = Date.now();
     const data: any = {
-        path: '/calendar/action/compose',
-        rru: 'addevent',
-        startdt: new Date(event.date).toISOString(),
-        enddt: addMinutes(event.date, event.duration ?? 60).toISOString(),
+        // path: '/calendar/deeplink/compose',
+        // rru: 'addevent',
+        startdt: dateToISO(event.date),
+        enddt: dateToISO(addMinutes(event.date, event.duration ?? 60)),
         subject: event.title,
         body: `${event.body || ''}${
-            event.id ? '\n\n[ID|' + event.id + ']' : ''
+            event.id ? '\n\n\n[ID|' + event.id + ']' : ''
         }`,
         location: event.location,
         allday: event.all_day ?? false,
-        availability: status,
-        freebusy: status,
+        // availability: status,
+        // freebusy: status,
     };
     if (event.all_day) delete data.enddt;
     const emails = (event.attendees || []).map((_: any) => _.email || _);
@@ -153,7 +157,9 @@ export function generateMicrosoftCalendarLink(
         (event.resources?.length ? event.resources : null) || [event.system]
     ).map((_: any) => _?.email || _);
     if (emails.length || resources.length)
-        data.to = unique([...emails, ...resources]).join();
+        data.to = unique([...emails, ...resources])
+            .filter((_) => !!_)
+            .join(',');
     return type === 'office'
         ? `https://outlook.office.com/calendar/deeplink/compose?${toQueryString(
               data,

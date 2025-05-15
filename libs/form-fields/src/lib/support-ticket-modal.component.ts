@@ -1,6 +1,18 @@
+import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { MatDialogRef } from '@angular/material/dialog';
+import {
+    FormControl,
+    FormGroup,
+    FormsModule,
+    ReactiveFormsModule,
+    Validators,
+} from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
+import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
 import {
     currentUser,
     i18n,
@@ -8,7 +20,10 @@ import {
     notifySuccess,
     SettingsService,
 } from '@placeos/common';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
+import { ImageListFieldComponent } from './image-list-field.component';
+import { RichTextInputComponent } from './rich-text-input.component';
 
 export interface SupportRequestType {
     name: string;
@@ -19,13 +34,13 @@ export interface SupportRequestType {
     selector: 'support-ticket-modal',
     template: `
         <header class="flex items-center justify-between">
-            <h2>Raise a support ticket</h2>
-            <button icon mat-dialog-close>
-                <app-icon>close</app-icon>
+            <h2 class="text-lg font-medium">Raise a support ticket</h2>
+            <button icon matRipple mat-dialog-close>
+                <icon class="text-2xl">close</icon>
             </button>
         </header>
         <main class="w-[32rem] max-w-[85vw]" *ngIf="!loading; else load_state">
-            <form class="p-2" [formGroup]="form">
+            <form class="px-4 py-2" [formGroup]="form">
                 <div class="flex flex-wrap items-center sm:space-x-2">
                     <div class="flex flex-1 flex-col">
                         <label
@@ -122,7 +137,7 @@ export interface SupportRequestType {
             </div>
         </main>
         <footer
-            class="flex items-center justify-center border-t border-base-200 p-2"
+            class="flex items-center justify-end border-t border-base-200 px-4 py-2"
             *ngIf="!loading"
         >
             <button btn matRipple class="w-32" (click)="submit()">
@@ -145,7 +160,22 @@ export interface SupportRequestType {
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatFormFieldModule,
+        MatInputModule,
+        FormsModule,
+        ReactiveFormsModule,
+        MatProgressSpinnerModule,
+        IconComponent,
+        MatRippleModule,
+        RichTextInputComponent,
+        ImageListFieldComponent,
+        MatSelectModule,
+        TranslatePipe,
+        MatDialogModule,
+        MatRippleModule,
+    ],
 })
 export class SupportTicketModalComponent {
     public loading = false;

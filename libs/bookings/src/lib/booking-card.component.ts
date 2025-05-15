@@ -11,6 +11,8 @@ import {
     SettingsService,
     currentUser,
     formatDuration,
+    formatRecurrence,
+    fromBookingRecurrence,
     i18n,
 } from '@placeos/common';
 import { addMinutes, format, isSameDay } from 'date-fns';
@@ -45,8 +47,14 @@ import { ParkingService } from './parking.service';
                 class="relative w-full rounded-xl border border-base-300 bg-base-100 py-4 shadow"
             >
                 <h4 class="px-4 text-lg">{{ booking?.title }}</h4>
-                <div class="mx-4 my-2 flex">
+                <div class="mx-4 my-2 flex items-center space-x-2">
                     <status-pill [status]="status">{{ period }}</status-pill>
+                    <icon
+                        *ngIf="booking.instance"
+                        class="text-2xl"
+                        [matTooltip]="recurr_tooltip"
+                        >event_repeat</icon
+                    >
                 </div>
                 <div
                     class="divide-base-200-500 flex flex-col flex-wrap space-y-2 py-2 sm:flex-row sm:space-y-0 sm:divide-x"
@@ -187,6 +195,13 @@ export class BookingCardComponent
         if (this.booking?.status === 'cancelled') return 'error';
         if (this.booking?.status === 'tentative') return 'warning';
         return 'warning';
+    }
+
+    public get recurr_tooltip() {
+        return (
+            formatRecurrence(fromBookingRecurrence(this.booking)) ||
+            i18n('CALENDAR_EVENT.RECURRING_TOOLTIP')
+        );
     }
 
     constructor(

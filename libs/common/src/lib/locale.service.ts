@@ -11,9 +11,9 @@ export function setTranslationService(service: LocaleService) {
     _service = service;
 }
 
-export function i18n(key: string, args: Record<string, any> = {}) {
+export function i18n(key: string, args: Record<string, any> = {}, plural = 0) {
     if (!_service) return key;
-    return _service.get(key, args);
+    return _service.get(key, args, plural);
 }
 
 declare global {
@@ -106,12 +106,35 @@ export class LocaleService {
         }
     }
 
-    public get(key: string, args: Record<string, any> = {}) {
-        let value =
-            (this._locale_mappings[this._current_locale] || {})[key] ||
-            (this._locale_mappings[this._current_locale_short] || {})[key] ||
-            this._default_mappings[key] ||
-            key;
+    public get(key: string, args: Record<string, any> = {}, plural = 0) {
+        let key_value = key;
+        let value = key;
+        const map = this._locale_mappings[this._current_locale] || {};
+        const map_short =
+            this._locale_mappings[this._current_locale_short] || {};
+        const map_default = this._default_mappings || {};
+        if (plural) {
+            key_value = `${key}_${plural}`;
+            value =
+                map[key_value] ||
+                map_short[key_value] ||
+                map_default[key_value] ||
+                key;
+            if (value === key) {
+                key_value = `${key}_N`;
+                value =
+                    map[key_value] ||
+                    map_short[key_value] ||
+                    map_default[key_value] ||
+                    key;
+            }
+        } else {
+            value =
+                map[key_value] ||
+                map_short[key_value] ||
+                map_default[key_value] ||
+                key;
+        }
         for (const id in args) {
             value = value
                 .replace(`{{ ${id} }}`, args[id])

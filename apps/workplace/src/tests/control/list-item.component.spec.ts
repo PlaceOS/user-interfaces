@@ -3,7 +3,7 @@ import { createRoutingFactory } from '@ngneat/spectator/jest';
 import { SettingsService } from '@placeos/common';
 import { IconComponent, SafePipe } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
-import { MockComponent } from 'ng-mocks';
+import { MockComponent, MockProvider } from 'ng-mocks';
 import { ControlSpaceListItemComponent } from '../../app/control/list-item.component';
 
 describe('ControlSpaceListItemComponent', () => {
@@ -11,8 +11,10 @@ describe('ControlSpaceListItemComponent', () => {
     const createComponent = createRoutingFactory({
         component: ControlSpaceListItemComponent,
         providers: [
-            { provide: SettingsService, useValue: { get: jest.fn() } },
-            { provide: OrganisationService, useValue: { buildings: [] } },
+            MockProvider(SettingsService, {
+                get: jest.fn(() => ['explore']),
+            } as any),
+            MockProvider(OrganisationService, { buildings: [] }),
         ],
         declarations: [MockComponent(IconComponent), SafePipe],
     });

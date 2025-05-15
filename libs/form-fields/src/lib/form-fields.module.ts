@@ -1,19 +1,4 @@
-import { CommonModule } from '@angular/common';
-import { NgModule, Type } from '@angular/core';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-
-import { ClipboardModule } from '@angular/cdk/clipboard';
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatRippleModule } from '@angular/material/core';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatRadioModule } from '@angular/material/radio';
-import { MatSelectModule } from '@angular/material/select';
-import { MatTooltipModule } from '@angular/material/tooltip';
-
-import { ComponentsModule } from 'libs/components/src/lib/components.module';
+import { NgModule } from '@angular/core';
 
 import { ActionFieldComponent } from './action-field.component';
 import { BookingRulesFormComponent } from './booking-rules-form.component';
@@ -39,53 +24,37 @@ import { UploadListFieldComponent } from './upload-list-field.component';
 import { UserListFieldComponent } from './user-list-field.component';
 import { UserSearchFieldComponent } from './user-search-field.component';
 
-const COMPONENTS: Type<any>[] = [
+const COMPONENTS = [
     ActionFieldComponent,
     CounterComponent,
     CompactCounterComponent,
     DateFieldComponent,
+    DateCalendarComponent,
     DateRangeFieldComponent,
     DateRangeCalendarComponent,
     DurationFieldComponent,
+    HostSelectFieldComponent,
+    ItemListFieldComponent,
+    ImageListFieldComponent,
+    RecurrenceFieldComponent,
+    RichTextInputComponent,
+    SpaceListFieldComponent,
+    SupportTicketModalComponent,
     TimeFieldComponent,
+    UploadFileFieldComponent,
+    UploadListFieldComponent,
     UserListFieldComponent,
     UserSearchFieldComponent,
-    ItemListFieldComponent,
-    UploadListFieldComponent,
-    UploadFileFieldComponent,
-    SpaceListFieldComponent,
-    RichTextInputComponent,
-    HostSelectFieldComponent,
-    ImageListFieldComponent,
-    SupportTicketModalComponent,
 
-    RecurrenceFieldComponent,
     RecurrenceModalComponent,
-    DateCalendarComponent,
     BookingRulesFormComponent,
 
     PlaceUserPipe,
 ];
 
 @NgModule({
-    declarations: [...COMPONENTS],
-    imports: [
-        CommonModule,
-        FormsModule,
-        ReactiveFormsModule,
-        MatRippleModule,
-        ReactiveFormsModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatSelectModule,
-        MatAutocompleteModule,
-        MatTooltipModule,
-        MatCheckboxModule,
-        MatRadioModule,
-        MatChipsModule,
-        ClipboardModule,
-        ComponentsModule,
-    ],
+    declarations: [],
+    imports: [...COMPONENTS],
     exports: [...COMPONENTS],
 })
 export class FormFieldsModule {}

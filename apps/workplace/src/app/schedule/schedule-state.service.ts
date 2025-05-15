@@ -40,11 +40,19 @@ import {
     isAfter,
     isBefore,
     isSameDay,
+    setHours,
     startOfDay,
     startOfMinute,
     startOfWeek,
 } from 'date-fns';
-import { BehaviorSubject, combineLatest, interval, Observable, of } from 'rxjs';
+import {
+    BehaviorSubject,
+    combineLatest,
+    interval,
+    lastValueFrom,
+    Observable,
+    of,
+} from 'rxjs';
 import {
     catchError,
     debounceTime,
@@ -458,20 +466,31 @@ export class ScheduleStateService extends AsyncHandler {
                 (auto_release.time_after || auto_release.time_before) &&
                 auto_release.resources?.length
             ) {
-                const time_before = Math.min(60, auto_release.time_before || 0);
                 for (const type of auto_release.resources) {
-                    const bookings = await queryBookings({
-                        period_start: getUnixTime(startOfMinute(Date.now())),
-                        period_end: getUnixTime(
-                            addMinutes(
-                                Date.now(),
-                                (auto_release.time_after || 5) + time_before,
+                    const time_after =
+                        auto_release[`${type}_time_after`] ||
+                        auto_release.time_after;
+                    const time_before = Math.min(
+                        60,
+                        auto_release[`${type}_time_before`] ||
+                            auto_release.time_before ||
+                            0,
+                    );
+                    const bookings = await lastValueFrom(
+                        queryBookings({
+                            period_start: getUnixTime(
+                                startOfMinute(Date.now()),
                             ),
-                        ),
-                        type,
-                    }).toPromise();
-                    const check_block =
-                        (auto_release.time_after || 0) + time_before;
+                            period_end: getUnixTime(
+                                addMinutes(
+                                    Date.now(),
+                                    (time_after || 5) + time_before,
+                                ),
+                            ),
+                            type,
+                        }),
+                    );
+                    const check_block = (time_after || 0) + time_before;
                     for (const booking of bookings) {
                         if (
                             this._ignore_cancel.includes(booking.id) ||
@@ -480,19 +499,16 @@ export class ScheduleStateService extends AsyncHandler {
                         ) {
                             continue;
                         }
+                        const start_time = booking.is_all_day
+                            ? setHours(booking.date, auto_release.all_day_start)
+                            : booking.date;
                         this._dialog.closeAll();
                         const diff = differenceInMinutes(
-                            addMinutes(
-                                booking.date,
-                                auto_release.time_after || 0,
-                            ),
+                            addMinutes(start_time, time_after || 0),
                             Date.now(),
                         );
                         if (diff > check_block || diff < 0) continue;
-                        const time = addMinutes(
-                            booking.date,
-                            auto_release.time_after || 0,
-                        );
+                        const time = addMinutes(start_time, time_after || 0);
                         const close_after = differenceInMilliseconds(
                             time.getTime() + 60 * 1000,
                             Date.now(),
@@ -502,7 +518,7 @@ export class ScheduleStateService extends AsyncHandler {
                         const result = await openConfirmModal(
                             {
                                 title: `Keep ${type} ${wording}`,
-                                content: `You have indicated you are not in the office. 
+                                content: `You have indicated you are not in the office.
                                 Your  ${wording} for "<i>${
                                     booking.asset_name || booking.title
                                 }</i>" at ${format(
@@ -524,7 +540,7 @@ export class ScheduleStateService extends AsyncHandler {
                             continue;
                         }
                         result.loading('Checking in booking...');
-                        await checkinBooking(booking.id, true).toPromise();
+                        await lastValueFrom(checkinBooking(booking.id, true));
                         result.close();
                     }
                 }

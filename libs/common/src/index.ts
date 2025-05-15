@@ -5,6 +5,7 @@ export * from './lib/feature-available.guard';
 export * from './lib/fixed-device-helpers';
 export * from './lib/keep-alive.service';
 export * from './lib/locale.service';
+export * from './lib/recurrence';
 export * from './lib/remote-logging.service';
 export * from './lib/shorten.fn';
 export * from './lib/timezone-helpers';

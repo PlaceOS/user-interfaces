@@ -107,6 +107,7 @@ export const mockSpace: Space = {
     configurations: [''] as any,
     images: [],
     response_status: '' as any,
+    approval: false,
     level: {
         id: '123',
         parent_id: '',
@@ -147,6 +148,7 @@ export const mockSpaceWithViews: Space = {
     configurations: [''] as any,
     images: [],
     response_status: '' as any,
+    approval: false,
     level: {
         id: '123',
         parent_id: '',

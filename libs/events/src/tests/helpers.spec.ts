@@ -1,7 +1,6 @@
-import { addMinutes, format } from 'date-fns';
+import { addMinutes } from 'date-fns';
 import {
     eventStatus,
-    formatRecurrence,
     getFreeTimeSlots,
     getNextFreeTimeSlot,
 } from '../lib/helpers';
@@ -32,69 +31,6 @@ describe('CalendarEvent[Methods]', () => {
                     ],
                 }),
             ).toBe('tentative');
-        });
-    });
-
-    describe('formatRecurrence', () => {
-        it('should handle no value', () => {
-            expect(formatRecurrence({} as any)).toBe('');
-        });
-        it('should handle daily recurrence', () => {
-            const end = new Date();
-            expect(
-                formatRecurrence({
-                    interval: 1,
-                    pattern: 'daily',
-                    end,
-                    occurrences: 1,
-                } as any),
-            ).toBe(`Daily, until ${format(end, 'MMM do, yyyy')}`);
-            expect(
-                formatRecurrence({
-                    interval: 2,
-                    pattern: 'daily',
-                    end,
-                    occurrences: 1,
-                } as any),
-            ).toBe(`Every 2 days, until ${format(end, 'MMM do, yyyy')}`);
-        });
-        it('should handle weekly recurrence', () => {
-            const end = new Date();
-            expect(
-                formatRecurrence({
-                    interval: 1,
-                    pattern: 'weekly',
-                    end,
-                    occurrences: 1,
-                } as any),
-            ).toBe(`Weekly, until ${format(end, 'MMM do, yyyy')}`);
-            expect(
-                formatRecurrence({
-                    interval: 2,
-                    pattern: 'weekly',
-                    end,
-                    occurrences: 1,
-                } as any),
-            ).toBe(`Every 2 weeks, until ${format(end, 'MMM do, yyyy')}`);
-        });
-        it('should handle monthly recurrence', () => {
-            const end = new Date();
-            expect(
-                formatRecurrence({
-                    interval: 1,
-                    pattern: 'monthly',
-                    end,
-                    occurrences: 1,
-                } as any),
-            ).toBe(`Monthly, until ${format(end, 'MMM do, yyyy')}`);
-            expect(
-                formatRecurrence({
-                    interval: 2,
-                    pattern: 'monthly',
-                    end,
-                    occurrences: 1,
-                } as any),
-            ).toBe(`Every 2 months, until ${format(end, 'MMM do, yyyy')}`);
         });
     });
 

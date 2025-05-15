@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { filter, map } from 'rxjs/operators';
+import { filter, map, startWith } from 'rxjs/operators';
 
 import { AsyncHandler } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
@@ -91,6 +91,7 @@ export class ControlSpaceListComponent extends AsyncHandler {
     ]).pipe(
         map(([list, s]) => {
             const search = (s || '').toLowerCase();
+            if (!search) return list;
             return (list || []).filter((space) => {
                 const bld = this._org.buildings.find(
                     (building) => building.id === space.level.parent_id,
@@ -107,6 +108,7 @@ export class ControlSpaceListComponent extends AsyncHandler {
                 );
             });
         }),
+        startWith([]),
     );
     /** Whether space list is being filtered */
     public loading: boolean;

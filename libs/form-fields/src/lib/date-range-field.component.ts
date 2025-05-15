@@ -1,8 +1,10 @@
+import { CommonModule } from '@angular/common';
 import { Component, ContentChild, Input, ViewChild } from '@angular/core';
 import { NgControl } from '@angular/forms';
 import { AsyncHandler } from '@placeos/common';
-import { CustomTooltipComponent } from '@placeos/components';
+import { CustomTooltipComponent, IconComponent } from '@placeos/components';
 import { startOfDay } from 'date-fns';
+import { DateRangeCalendarComponent } from './date-range-calendar.component';
 
 @Component({
     selector: 'date-range-field',
@@ -25,7 +27,7 @@ import { startOfDay } from 'date-fns';
             <div class="flex-1 whitespace-nowrap">
                 {{ end_date?.value || now | date: 'MMM d, yyyy' }}
             </div>
-            <app-icon class="text-2xl">today</app-icon>
+            <icon class="text-2xl">today</icon>
         </button>
         <div class="hidden">
             <ng-content select="input[startDate]"></ng-content>
@@ -45,7 +47,12 @@ import { startOfDay } from 'date-fns';
         </ng-template>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        DateRangeCalendarComponent,
+        IconComponent,
+        CustomTooltipComponent,
+    ],
 })
 export class DateRangeFieldComponent extends AsyncHandler {
     /** Earliest date available the user is allowed to pick */

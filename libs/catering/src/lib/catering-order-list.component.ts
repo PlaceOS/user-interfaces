@@ -104,15 +104,19 @@ import { statusList } from './catering.vars';
             </ng-template>
             <ng-template #location_template let-data="data">
                 @let space = data?.system;
-                <div class="px-4 py-2">
-                    {{ space?.display_name || space?.name || '' }}
-                    <span
-                        class="opacity-30"
-                        *ngIf="!(space?.display_name || space?.name)"
-                    >
-                        {{ 'CATERING.ORDERS_LOCATION_EMPTY' | translate }}
-                    </span>
-                </div>
+                @if (space || !data?.location) {
+                    <div class="px-4 py-2">
+                        {{ space?.display_name || space?.name || '' }}
+                        <span
+                            class="opacity-30"
+                            *ngIf="!(space?.display_name || space?.name)"
+                        >
+                            {{ 'CATERING.ORDERS_LOCATION_EMPTY' | translate }}
+                        </span>
+                    </div>
+                } @else {
+                    <div class="px-4 py-2">{{ data?.location }}</div>
+                }
             </ng-template>
             <ng-template #host_template let-data="data">
                 <div class="px-4 py-2">

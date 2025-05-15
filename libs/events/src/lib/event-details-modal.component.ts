@@ -5,6 +5,8 @@ import { getUnixTime } from 'date-fns';
 import { DatePipe } from '@angular/common';
 import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
+    formatRecurrence,
+    fromEventRecurrence,
     getTimezoneOffsetString,
     i18n,
     notifyError,
@@ -61,7 +63,7 @@ const EMPTY_ACTIONS = [];
                     {{ event.title }}
                 </h3>
                 <div class="w-full items-center justify-between sm:flex">
-                    <div class="m-2 flex">
+                    <div class="m-2 flex items-center space-x-2">
                         <status-pill [status]="event_status">
                             <div
                                 class="flex flex-col leading-tight"
@@ -76,6 +78,12 @@ const EMPTY_ACTIONS = [];
                                 </div>
                             </div>
                         </status-pill>
+                        <icon
+                            *ngIf="event.recurring_event_id"
+                            class="text-2xl"
+                            [matTooltip]="recurr_tooltip"
+                            >event_repeat</icon
+                        >
                     </div>
                     <div
                         actions
@@ -810,6 +818,13 @@ export class EventDetailsModalComponent implements OnInit {
 
     public optionList(item: CateringItem) {
         return item.option_list?.map((_) => _.name).join('\n');
+    }
+
+    public get recurr_tooltip() {
+        return (
+            formatRecurrence(fromEventRecurrence(this.event.recurrence)) ||
+            i18n('CALENDAR_EVENT.RECURRING_TOOLTIP')
+        );
     }
 
     public async checkin() {

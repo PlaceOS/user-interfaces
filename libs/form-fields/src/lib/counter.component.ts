@@ -1,5 +1,11 @@
+import { CommonModule } from '@angular/common';
 import { Component, forwardRef, Input } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import {
+    ControlValueAccessor,
+    FormsModule,
+    NG_VALUE_ACCESSOR,
+} from '@angular/forms';
+import { IconComponent } from '@placeos/components';
 
 @Component({
     selector: 'a-counter',
@@ -24,7 +30,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
                 [disabled]="!value || value === min"
                 (click)="remove()"
             >
-                <app-icon>remove</app-icon>
+                <icon>remove</icon>
             </button>
             <div
                 value
@@ -51,7 +57,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
                 [disabled]="value === max"
                 (click)="add()"
             >
-                <app-icon>add</app-icon>
+                <icon>add</icon>
             </button>
         </div>
     `,
@@ -70,7 +76,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
             multi: true,
         },
     ],
-    standalone: false,
+    imports: [CommonModule, FormsModule, IconComponent],
 })
 export class CounterComponent implements ControlValueAccessor {
     /** Size of a single step */

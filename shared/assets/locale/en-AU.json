@@ -226,7 +226,13 @@
         "USER_NEW": "New External User",
         "USER_EDIT": "Edit External User",
         "USER_SAVING": "Saving user...",
-        "ORGANISATION": "Organisation"
+        "ORGANISATION": "Organisation",
+        "APPROVAL": "Approval",
+        "APPROVAL_REQUIRED": "Approval Required",
+        "REQUIRE_APPROVAL": "Bookings require approval",
+        "WFO": "Work from Office",
+        "WFH": "Work from Home",
+        "AOL": "Away on Leave"
     },
     "LANGUAGE": {
         "ENGLISH": "English",
@@ -552,7 +558,8 @@
         "VISITOR_BOOK_ANOTHER": "Book another visitor",
         "SPACE_REMOVE": "Remove this space",
         "SPACE_ADD_TO": "Add this space",
-        "INDUCTED": "Inducted"
+        "INDUCTED": "Inducted",
+        "RECURRING_TOOLTIP": "This booking is part of a recurring series"
     },
     "CALENDAR_EVENT": {
         "CATERING": "Catering",
@@ -652,7 +659,9 @@
         "GROUP_DATE_TIME": "Date and Time",
         "GROUP_ABOUT": "About this event",
         "GROUP_ATTENDEES": "{{ going }} going, {{ interested }} interested",
-        "FIND_AVAILABILITY": "Find Availability"
+        "FIND_AVAILABILITY": "Find Availability",
+        "RECURRING_TOOLTIP": "This event is part of a recurring series",
+        "APPROVAL_REQUIRED_MSG": "Room selected for this booking requires approval and may not be confirmed until a later date."
     },
     "CATERING": {
         "MENU": "Catering Menu",
@@ -1091,6 +1100,9 @@
             "AUTO_RELEASE_LOCKER": "Custom locker auto-release",
             "AUTO_RELEASE_ALL_DAY_START": "All Day Release time",
             "AUTO_RELEASE_OUTSIDE_HOURS": "Release outside business hours",
+            "AUTO_RELEASE_DEFAULT_HOURS": "Default Work Hours",
+            "AUTO_RELEASE_DEFAULT_HOURS_EMPTY": "No default works hours set",
+            "AUTO_RELEASE_DEFAULT_HOURS_SET": "Set default works hours",
             "INDUCTION_HEADER": "Induction Settings",
             "INDUCTION_DETAILS": "Induction Details",
             "INDUCTION_ENABLE": "Enable induction for building",
@@ -1112,6 +1124,7 @@
             "VISITORS_ACTION_REMOTE": "Set visitor as Remote",
             "VISITORS_ACTION_ONSITE": "Set visitor as Onsite",
             "VISITORS_ACTION_PRINT_QR": "Print QR Code",
+            "VISITORS_ACTION_PRINT_PASS": "Print Guest Pass",
             "VISITORS_ACTION_EMAIL_HOST": "Email Host",
             "VISITORS_ACTION_EMAIL_GUEST": "Email Guest",
             "VISITORS_ACTION_CHECKIN": "Check-in Guest",

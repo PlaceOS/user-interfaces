@@ -73,7 +73,7 @@ import { VideoCallStateService } from './video-call-state.service';
                                 'APP.CONTROL.VC_CONTENT_DEST_LOCAL' | translate
                             }}</mat-option>
                             <mat-option value="Remote">{{
-                                'APP.CONTROL.VC_CONTENT_DEST_ALL'
+                                'APP.CONTROL.VC_CONTENT_DEST_ALL' | translate
                             }}</mat-option>
                         </mat-select>
                     </mat-form-field>

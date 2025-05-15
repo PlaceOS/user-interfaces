@@ -56,6 +56,7 @@ export function generateSystemsFormFields(system?: PlaceSystem) {
         zone: new FormControl<PlaceZone | null>(null, [Validators.required]),
         zones: new FormControl(system.zones, [Validators.required]),
         version: new FormControl(system.version),
+        approval: new FormControl((system as any).approval || false),
     };
     if (!system.id) {
         fields.zone.valueChanges.subscribe((value: PlaceZone) =>

@@ -85,7 +85,7 @@ export class OutputDisplayComponent extends AsyncHandler implements OnChanges {
     /** Details of the associated input */
     public readonly input = combineLatest([
         this._input,
-        this._state.input_list,
+        this._state.available_inputs,
     ]).pipe(map(([id, list]) => list.find((_) => _.id === id || _.ref === id)));
 
     public readonly icons = ICON_MAP;

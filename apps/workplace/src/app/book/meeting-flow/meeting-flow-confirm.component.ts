@@ -6,16 +6,14 @@ import { CateringItem } from '@placeos/catering';
 import {
     AsyncHandler,
     SettingsService,
+    formatRecurrence,
+    fromEventRecurrence,
     getTimezoneOffsetString,
     i18n,
     notifyError,
 } from '@placeos/common';
 import { openConfirmModal } from '@placeos/components';
-import {
-    CalendarEvent,
-    EventFormService,
-    formatRecurrence,
-} from '@placeos/events';
+import { CalendarEvent, EventFormService } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
 
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
@@ -26,13 +24,13 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
         <button
             icon
             matRipple
-            name="close-meeting-confirm"
+            class="absolute right-2 top-2"
             *ngIf="show_close"
             (click)="dismiss()"
         >
-            <app-icon>close</app-icon>
+            <icon class="text-2xl">close</icon>
         </button>
-        <header class="flex items-center justify-between px-2">
+        <header class="mt-4 flex items-center justify-between px-4">
             <h2>{{ 'APP.WORKPLACE.MEETING_CONFIRM' | translate }}</h2>
             <mat-spinner diameter="32" *ngIf="loading | async"></mat-spinner>
         </header>
@@ -106,6 +104,14 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                 </div>
             </div>
         </section>
+        <section class="px-2 pt-4">
+            <div
+                *ngIf="requires_approval"
+                class="rounded !border-none bg-warning px-2 py-1 text-center text-sm text-warning-content"
+            >
+                {{ 'CALENDAR_EVENT.APPROVAL_REQUIRED_MSG' | translate }}
+            </div>
+        </section>
         <footer class="mt-4 w-full border-t border-base-200 p-2">
             <button
                 btn
@@ -123,7 +129,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                 class="inverse w-full"
                 *ngIf="loading | async"
                 (click)="cancelPost()"
-               
+
             >
                 Undo
             </button> -->
@@ -182,6 +188,10 @@ export class MeetingFlowConfirmComponent
     public readonly cancelPost = () => this._event_form.cancelPostForm();
     public readonly dismiss = (e?) => this._sheet_ref?.dismiss(e);
 
+    public get requires_approval() {
+        return this.event.resources.some((s) => s.approval);
+    }
+
     public formattedTime(tz?: string) {
         const date = this.event.date;
         const date_end = this.event.date_end;
@@ -223,10 +233,12 @@ export class MeetingFlowConfirmComponent
     }
 
     public get formatted_recurrence() {
-        return formatRecurrence({
-            ...this.event.recurrence,
-            start: this.event.date || this.event.recurrence.start,
-        });
+        return formatRecurrence(
+            fromEventRecurrence({
+                ...this.event.recurrence,
+                start: this.event.date || this.event.recurrence.start,
+            }),
+        );
     }
 
     public get event(): CalendarEvent {

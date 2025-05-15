@@ -137,6 +137,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
             querySystems({
                 zone_id: this._org.organisation?.id,
                 limit: 500,
+                fields: ['id', 'name', 'display_name', 'email'].join(','),
                 signage: true,
             }).pipe(catchError(() => of({ data: [] }))),
         ),

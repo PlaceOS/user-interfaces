@@ -8,7 +8,7 @@ import { RoomManagementService } from './room-management.service';
     template: `
         <div class="absolute inset-0 overflow-auto px-8">
             <simple-table
-                class="block min-w-[48rem] text-sm"
+                class="block min-w-[56rem] text-sm"
                 [data]="rooms"
                 empty_message="No rooms for selected level or building"
                 [columns]="[
@@ -32,6 +32,13 @@ import { RoomManagementService } from './room-management.service';
                         key: 'type',
                         name: 'APP.CONCIERGE.ROOMS_TYPE' | translate,
                         size: '8rem',
+                    },
+                    {
+                        key: 'approval',
+                        name: 'COMMON.APPROVAL' | translate,
+                        size: '5.5rem',
+                        content: bool_template,
+                        sortable: false,
                     },
                     {
                         key: 'bookable',
@@ -78,6 +85,7 @@ import { RoomManagementService } from './room-management.service';
             <div
                 [class.bg-error]="!data"
                 [class.bg-success]="data"
+                *ngIf="data"
                 class="mx-auto flex h-8 w-8 items-center justify-center rounded text-2xl text-white"
             >
                 <app-icon>{{ data ? 'done' : 'close' }}</app-icon>
@@ -88,6 +96,9 @@ import { RoomManagementService } from './room-management.service';
                 [class.bg-warning]="data.status === 'warn'"
                 [class.bg-error]="data.status === 'closed'"
                 [class.bg-info]="data.status === 'info'"
+                [class.text-warning-content]="data.status === 'warn'"
+                [class.text-error-content]="data.status === 'closed'"
+                [class.text-info-content]="data.status === 'info'"
                 *ngIf="data"
                 [matTooltip]="data.message"
                 class="mx-auto flex h-8 w-8 items-center justify-center rounded text-2xl text-white"

@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { MatDialogRef } from '@angular/material/dialog';
+import { Component, Inject, OnInit } from '@angular/core';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import {
     currentUser,
     i18n,
@@ -8,6 +8,7 @@ import {
 } from '@placeos/common';
 import { showUser, updateUser } from '@placeos/ts-client';
 import { addDays, set, startOfMinute, startOfWeek } from 'date-fns';
+import { lastValueFrom } from 'rxjs';
 import { WorktimeBlock, WorktimePreference } from './user.class';
 
 @Component({
@@ -212,12 +213,19 @@ export class WFHSettingsModalComponent implements OnInit {
         return startOfMinute(Date.now()).getTime();
     }
 
-    constructor(private _dialog_ref: MatDialogRef<WFHSettingsModalComponent>) {}
+    constructor(
+        @Inject(MAT_DIALOG_DATA)
+        private _data: { local?: boolean; preferences?: WorktimePreference[] },
+        private _dialog_ref: MatDialogRef<WFHSettingsModalComponent>,
+    ) {}
 
     public ngOnInit() {
         const user = currentUser();
+        const prefs = this._data?.local
+            ? this._data.preferences
+            : user.work_preferences;
         this.settings = [
-            ...(user.work_preferences || []).map((_) => ({
+            ...(prefs || []).map((_) => ({
                 ..._,
                 blocks: [...(_?.blocks || [])],
             })),
@@ -303,7 +311,6 @@ export class WFHSettingsModalComponent implements OnInit {
     public async saveChanges(close = true) {
         this.loading = true;
         this._dialog_ref.disableClose = true;
-        const user = await showUser('current').toPromise();
         const new_settings = new Array(7)
             .fill(0)
             .map((_, idx) => ({ day_of_week: idx, blocks: [] }));
@@ -316,26 +323,28 @@ export class WFHSettingsModalComponent implements OnInit {
                 };
             }
         }
-        console.log('Update user...');
-        await updateUser(user.id, {
-            ...user,
-            groups: user.groups.filter((_) => !_.startsWith('placeos_')),
-            work_preferences: new_settings,
-        } as any)
-            .toPromise()
-            .catch((e) => {
+        if (!this._data.local) {
+            const user = await lastValueFrom(showUser('current'));
+            await lastValueFrom(
+                updateUser(user.id, {
+                    ...user,
+                    groups: user.groups.filter(
+                        (_) => !_.startsWith('placeos_'),
+                    ),
+                    work_preferences: new_settings,
+                } as any),
+            ).catch((e) => {
                 this.loading = false;
                 this._dialog_ref.disableClose = false;
                 notifyError('Unable to save user work preferences.');
                 throw e;
             });
-        console.log('Updated user');
+        }
         this.loading = false;
         this._dialog_ref.disableClose = false;
         if (close) {
-            reloadUserData();
-            console.log('Close WFH Modal');
-            this._dialog_ref.close();
+            if (!this._data.local) reloadUserData();
+            this._dialog_ref.close(new_settings);
         }
     }
 }

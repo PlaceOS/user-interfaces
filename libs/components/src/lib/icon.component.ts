@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { ApplicationIcon } from 'libs/common/src/lib/types';
 
@@ -26,7 +27,7 @@ import { ApplicationIcon } from 'libs/common/src/lib/types';
             }
         `,
     ],
-    standalone: false,
+    imports: [CommonModule],
 })
 export class IconComponent {
     @Input() public className = 'material-icons';

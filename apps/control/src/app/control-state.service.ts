@@ -92,6 +92,7 @@ export interface RoomOutput {
     inputs: string[];
     following: string;
     hidden?: boolean;
+    hide_on_join?: boolean;
 }
 
 export interface SystemState {
@@ -111,6 +112,7 @@ export class ControlStateService extends AsyncHandler {
     private _id = new BehaviorSubject<string>('');
     private _system = new BehaviorSubject<SystemState>({});
     private _inputs = new BehaviorSubject<string[]>([]);
+    private _available_inputs = new BehaviorSubject<string[]>([]);
     private _outputs = new BehaviorSubject<string[]>([]);
     private _volume = new BehaviorSubject<number>(0);
     private _mute = new BehaviorSubject<boolean>(false);
@@ -152,18 +154,12 @@ export class ControlStateService extends AsyncHandler {
         map((l) => l.filter((_) => !_.hidden)),
         shareReplay(1),
     );
+    public readonly available_inputs = combineLatest([
+        this._available_inputs,
+        this.input_list,
+    ]).pipe(map(([ids, list]) => list.filter((_) => ids.includes(_.id))));
     public readonly presentables$ = this._input_data.pipe(
         map((l) => l.filter((_) => _.presentable !== false)),
-        shareReplay(1),
-    );
-    /** List of available output sources */
-    public readonly output_list = combineLatest([
-        this._output_data,
-        this._outputs,
-    ]).pipe(
-        map(([l, a]) =>
-            l.filter((_) => !_.hidden && (!_.id || (a || []).includes(_.id))),
-        ),
         shareReplay(1),
     );
     public readonly system_id = this._id.asObservable();
@@ -197,6 +193,7 @@ export class ControlStateService extends AsyncHandler {
         map((list) =>
             list?.filter((_) => _.type === 'cam' || _.mod?.includes('Camera')),
         ),
+        shareReplay(1),
     );
     public readonly selected_camera = this.system_id.pipe(
         switchMap((id) => this._listenToSystemBinding(id, 'selected_camera')),
@@ -238,6 +235,22 @@ export class ControlStateService extends AsyncHandler {
         this.join_modes,
         this.joined_id,
     ]).pipe(map(([modes, id]) => (modes ? modes[id] : null)));
+    /** List of available output sources */
+    public readonly output_list = combineLatest([
+        this._output_data,
+        this._outputs,
+        this.joined,
+    ]).pipe(
+        map(([l, a, j]) =>
+            l.filter(
+                (_) =>
+                    !_.hidden &&
+                    (!_.hide_on_join || !j) &&
+                    (!_.id || (a || []).includes(_.id)),
+            ),
+        ),
+        shareReplay(1),
+    );
     /** List of help items */
     public readonly help_items = this.system_id.pipe(
         switchMap((id) => this._listenToSystemBinding(id, 'help')),
@@ -500,6 +513,9 @@ export class ControlStateService extends AsyncHandler {
         this.bindTo(id, 'mute');
         this.bindTo(id, 'volume');
         this.bindTo(id, 'inputs', undefined, (l) => this._inputs.next(l));
+        this.bindTo(id, 'available_inputs', undefined, (l) =>
+            this._available_inputs.next(l || []),
+        );
         this.bindTo(id, 'available_outputs', undefined, (l) =>
             this._outputs.next(l),
         );
@@ -526,6 +542,10 @@ export class ControlStateService extends AsyncHandler {
     private bindSources(type: 'input' | 'output', alias_list: string[]) {
         const id = this._id.getValue();
         if (!id) return;
+
+        if (type === 'input') this._input_data.next([]);
+        else this._output_data.next([]);
+
         for (const alias of alias_list) {
             this.bindTo(id, `${type}/${alias}`, undefined, (d) =>
                 this.updateSourceData(type, alias, d),

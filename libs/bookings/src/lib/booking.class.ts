@@ -66,6 +66,7 @@ export interface LinkedCalendarEvent {
     resource_calendar: string;
     event_id: string;
     host_email: string;
+    ical_uid?: string;
 }
 
 export enum WeekOfMonth {

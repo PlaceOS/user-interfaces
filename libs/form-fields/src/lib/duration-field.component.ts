@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import {
     Component,
     forwardRef,
@@ -7,7 +8,10 @@ import {
     SimpleChanges,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatMenuModule } from '@angular/material/menu';
 import { formatDuration, getTimezoneOffsetString } from '@placeos/common';
+import { IconComponent } from '@placeos/components';
 import { addMinutes } from 'date-fns';
 
 export interface DurationOption {
@@ -45,7 +49,7 @@ export interface DurationOption {
                     {{ selected?.date | date: time_format + ' (z)' : tz }}
                 </div>
             </div>
-            <app-icon class="text-2xl">arrow_drop_down</app-icon>
+            <icon class="text-2xl">arrow_drop_down</icon>
         </button>
         <mat-menu #menu="matMenu" class="max-h-[15rem] min-w-[18rem]">
             <button
@@ -80,12 +84,12 @@ export interface DurationOption {
                         </div>
                     </ng-container>
                     <div>{{ force }}</div>
-                    <app-icon
+                    <icon
                         *ngIf="selected?.id === option.id"
                         class="ml-2 text-2xl"
                     >
                         done
-                    </app-icon>
+                    </icon>
                 </div>
             </button>
         </mat-menu>
@@ -109,7 +113,7 @@ export interface DurationOption {
             multi: true,
         },
     ],
-    standalone: false,
+    imports: [MatMenuModule, MatFormFieldModule, CommonModule, IconComponent],
 })
 export class DurationFieldComponent
     implements OnInit, OnChanges, ControlValueAccessor

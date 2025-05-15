@@ -1,5 +1,9 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import {
+    MAT_DIALOG_DATA,
+    MatDialog,
+    MatDialogRef,
+} from '@angular/material/dialog';
 import {
     SettingsService,
     i18n,
@@ -16,8 +20,18 @@ import {
     updateMetadata,
     updateSettings,
 } from '@placeos/ts-client';
-import { setHours, startOfMinute } from 'date-fns';
+import { WorktimePreference } from '@placeos/users';
+import {
+    set,
+    setDay,
+    setHours,
+    setMinutes,
+    startOfDay,
+    startOfMinute,
+} from 'date-fns';
 import * as yaml from 'js-yaml';
+import { WFHSettingsModalComponent } from 'libs/users/src/lib/wfh-settings-modal.component';
+import { lastValueFrom } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 @Component({
@@ -33,7 +47,10 @@ import { map } from 'rxjs/operators';
                 <app-icon class="text-2xl">close</app-icon>
             </button>
         </header>
-        <main class="w-[32rem] px-4" *ngIf="!loading; else load_state">
+        <main
+            class="w-[32rem] overflow-auto px-4"
+            *ngIf="!loading; else load_state"
+        >
             <div class="flex space-x-2">
                 <div class="flex-1">
                     <label>
@@ -77,6 +94,52 @@ import { map } from 'rxjs/operators';
                     [(ngModel)]="settings.release_outside_hours"
                 ></settings-toggle>
             </div>
+            <label>{{
+                'APP.CONCIERGE.AUTO_RELEASE_DEFAULT_HOURS' | translate
+            }}</label>
+            <div class="my-2 grid grid-cols-2 gap-2">
+                @if (!settings.default_work_preferences?.length) {
+                    <div
+                        class="col-span-2 mb-2 flex w-full items-center justify-center rounded bg-base-200 py-4 opacity-30"
+                    >
+                        {{
+                            'APP.CONCIERGE.AUTO_RELEASE_DEFAULT_HOURS_EMPTY'
+                                | translate
+                        }}
+                    </div>
+                } @else {
+                    @for (pref of default_work_preferences; track pref.date) {
+                        @if (pref.blocks.length) {
+                            <div
+                                class="relative rounded border border-base-300 px-2 pb-2 pt-4"
+                            >
+                                <div
+                                    class="absolute -top-2 left-2 rounded bg-base-100 px-2 text-sm"
+                                >
+                                    <span class="relative -top-0.5">{{
+                                        pref.date | date: 'EEEE'
+                                    }}</span>
+                                </div>
+                                @for (block of pref.blocks; track block.i) {
+                                    <div class="mb-1 text-xs opacity-60">
+                                        {{ block.start | date: 'shortTime' }} -
+                                        {{ block.end | date: 'shortTime' }} |
+                                        {{ block.location }}
+                                    </div>
+                                }
+                            </div>
+                        }
+                    }
+                }
+            </div>
+            <button
+                btn
+                matRipple
+                (click)="setDefaultWorkHourPreferences()"
+                class="mb-4 w-full"
+            >
+                {{ 'APP.CONCIERGE.AUTO_RELEASE_DEFAULT_HOURS_SET' | translate }}
+            </button>
             <label>{{ 'APP.CONCIERGE.AUTO_RELEASE_TYPES' | translate }}</label>
             <mat-form-field appearance="outline" class="w-full">
                 <mat-select
@@ -98,7 +161,7 @@ import { map } from 'rxjs/operators';
                     <mat-option value="parking">
                         {{ 'RESOURCE.PARKING' | translate }}
                     </mat-option>
-                    <mat-option value="lockers">
+                    <mat-option value="locker">
                         {{ 'RESOURCE.LOCKERS' | translate }}
                     </mat-option>
                 </mat-select>
@@ -167,7 +230,11 @@ export class AutoReleaseSettingsModalComponent implements OnInit {
 
     public get start_hour() {
         return startOfMinute(
-            setHours(Date.now(), this.settings.all_day_start || 8),
+            set(Date.now(), {
+                hours: Math.floor(this.settings.all_day_start || 8),
+                minutes:
+                    Math.floor((this.settings.all_day_start || 0) * 60) % 60,
+            }),
         ).valueOf();
     }
     public readonly setStartHour = (t) => {
@@ -175,8 +242,43 @@ export class AutoReleaseSettingsModalComponent implements OnInit {
         this.settings.all_day_start = d.getHours() + d.getMinutes() / 60;
     };
 
+    public get default_work_preferences() {
+        return (this.settings.default_work_preferences || []).map(
+            (pref: WorktimePreference) => ({
+                date: startOfDay(
+                    setDay(Date.now(), pref.day_of_week),
+                ).valueOf(),
+                blocks: pref.blocks.map((block, idx) => ({
+                    i: idx,
+                    start: startOfMinute(
+                        setHours(
+                            setMinutes(
+                                Date.now(),
+                                Math.floor(block.start_time * 60) % 60,
+                            ),
+                            block.start_time,
+                        ),
+                    ),
+                    end: startOfMinute(
+                        setHours(
+                            setMinutes(
+                                Date.now(),
+                                Math.floor(block.end_time * 60) % 60,
+                            ),
+                            block.end_time,
+                        ),
+                    ),
+                    location: block.location
+                        ? i18n(`COMMON.${block.location.toUpperCase()}`)
+                        : '',
+                })),
+            }),
+        );
+    }
+
     constructor(
         @Inject(MAT_DIALOG_DATA) private _id: string,
+        private _dialog: MatDialog,
         private _dialog_ref: MatDialogRef<AutoReleaseSettingsModalComponent>,
         private _settings: SettingsService,
     ) {}
@@ -197,6 +299,18 @@ export class AutoReleaseSettingsModalComponent implements OnInit {
             delete this.settings[name + '_time_before'];
             delete this.settings[name + '_time_after'];
         }
+    }
+
+    public async setDefaultWorkHourPreferences() {
+        const ref = this._dialog.open(WFHSettingsModalComponent, {
+            data: {
+                local: true,
+                preferences: this.settings.default_work_preferences || [],
+            },
+        });
+        const result = await lastValueFrom(ref.afterClosed());
+        if (!result) return;
+        this.settings.default_work_preferences = result;
     }
 
     public async loadSettings(id: string) {

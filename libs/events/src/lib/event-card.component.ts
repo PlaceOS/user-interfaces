@@ -9,6 +9,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
 import {
     AsyncHandler,
+    formatRecurrence,
+    fromEventRecurrence,
     getTimezoneOffsetString,
     i18n,
     SettingsService,
@@ -42,7 +44,7 @@ import { GroupEventDetailsModalComponent } from './group-event-details-modal.com
                 class="relative w-full rounded-xl border border-base-300 bg-base-100 py-4 shadow"
             >
                 <h4 class="px-4 text-lg">{{ event?.title }}</h4>
-                <div class="mx-4 my-2 flex">
+                <div class="mx-4 my-2 flex items-center space-x-2">
                     <status-pill [status]="status">
                         <div
                             class="flex flex-col leading-tight"
@@ -57,6 +59,12 @@ import { GroupEventDetailsModalComponent } from './group-event-details-modal.com
                             </div>
                         </div>
                     </status-pill>
+                    <icon
+                        *ngIf="event.recurring_event_id"
+                        class="text-2xl"
+                        [matTooltip]="recurr_tooltip"
+                        >event_repeat</icon
+                    >
                 </div>
                 <div
                     class="divide-base-200-500 flex flex-col flex-wrap space-y-2 py-2 sm:flex-row sm:space-y-0 sm:divide-x"
@@ -184,6 +192,13 @@ export class EventCardComponent
 
     public get period_tz() {
         return this.formattedTime(this.tz);
+    }
+
+    public get recurr_tooltip() {
+        return (
+            formatRecurrence(fromEventRecurrence(this.event.recurrence)) ||
+            i18n('CALENDAR_EVENT.RECURRING_TOOLTIP')
+        );
     }
 
     private _date: DatePipe = new DatePipe('en');

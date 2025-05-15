@@ -1,16 +1,17 @@
 import { DatePipe } from '@angular/common';
 import { Component, Input, Optional } from '@angular/core';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
-import { BookingFormService, DAYS_OF_WEEK_INDEX } from '@placeos/bookings';
+import { BookingFormService } from '@placeos/bookings';
 import {
     AsyncHandler,
     SettingsService,
+    formatRecurrence,
+    fromBookingRecurrence,
     getTimezoneOffsetString,
     i18n,
     nextValueFrom,
     notifyError,
 } from '@placeos/common';
-import { formatRecurrence } from '@placeos/events';
 import { Desk, OrganisationService } from '@placeos/organisation';
 import { addMinutes, endOfDay } from 'date-fns';
 import { AssetRequest } from 'libs/assets/src/lib/asset-request.class';
@@ -317,18 +318,7 @@ export class NewDeskFlowConfirmComponent extends AsyncHandler {
     }
 
     public get formatted_recurrence() {
-        return formatRecurrence({
-            pattern: this.booking.recurrence_type,
-            start: this.booking.date,
-            end: this.booking.recurrence_end * 1000,
-            interval: this.booking.recurrence_interval,
-            days_of_week: new Array(7)
-                .fill(0)
-                .map((_, i) => i)
-                .filter(
-                    (i) => this.booking.recurrence_days & DAYS_OF_WEEK_INDEX[i],
-                ),
-        });
+        return formatRecurrence(fromBookingRecurrence(this.booking));
     }
 
     constructor(

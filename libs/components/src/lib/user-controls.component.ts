@@ -363,7 +363,7 @@ export class UserControlsComponent implements OnInit {
         const pref = this.overrides[date]
             ? this.overrides[date]
             : this.work_prefs.find((pref) => pref.day_of_week === day);
-        return pref.blocks?.find(
+        return pref?.blocks?.find(
             (_) =>
                 this.now >= this.timeFrom(_.start_time) &&
                 this.now < this.timeFrom(_.end_time),
@@ -376,7 +376,7 @@ export class UserControlsComponent implements OnInit {
         const pref = this.overrides[date]
             ? this.overrides[date]
             : this.work_prefs.find((pref) => pref.day_of_week === day);
-        return pref.blocks?.findIndex(
+        return pref?.blocks?.findIndex(
             (_) =>
                 this.now >= this.timeFrom(_.start_time) &&
                 this.now < this.timeFrom(_.end_time),

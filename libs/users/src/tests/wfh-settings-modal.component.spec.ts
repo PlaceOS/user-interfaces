@@ -1,8 +1,8 @@
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { MockComponent } from 'ng-mocks';
+import { MockComponent, MockProvider } from 'ng-mocks';
 
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -24,11 +24,12 @@ describe('WFHSettingsModalComponent', () => {
     const createComponent = createComponentFactory({
         component: WFHSettingsModalComponent,
         providers: [
-            { provide: MatDialogRef, useValue: { close: jest.fn() } },
-            {
-                provide: SettingsService,
-                useValue: { get: jest.fn(), saveUserSetting: jest.fn() },
-            },
+            MockProvider(MatDialogRef, { close: jest.fn() }),
+            MockProvider(SettingsService, {
+                get: jest.fn(),
+                saveUserSetting: jest.fn(),
+            }),
+            MockProvider(MAT_DIALOG_DATA, {}),
         ],
         declarations: [
             MockComponent(IconComponent),

@@ -295,7 +295,7 @@ export class AssetManagerStateService extends AsyncHandler {
     }
 
     public get base_route() {
-        return this.is_new_ui ? '/book/assets/new' : '/book/assets';
+        return '/book/assets';
     }
 
     constructor(

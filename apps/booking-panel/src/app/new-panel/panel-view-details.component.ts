@@ -28,7 +28,7 @@ import { PanelStateService } from '../panel-state.service';
                 class="absolute right-4 top-4 z-50 w-40 space-y-4 text-xl"
             >
                 <img class="w-full" [src]="qr_code" />
-                <div class="w-full text-lg" *ngIf="!custom_qr">
+                <div class="w-full text-lg" *ngIf="!hide_qr_text">
                     {{ 'APP.BOOKING_PANEL.SCAN_QR_CODE' | translate }}
                 </div>
             </div>
@@ -108,6 +108,10 @@ export class PanelViewDetailsComponent {
 
     public get custom_qr() {
         return !!this._state.setting('custom_qr_url');
+    }
+
+    public get hide_qr_text() {
+        return this._state.setting('hide_qr_text');
     }
 
     constructor(private _state: PanelStateService) {}

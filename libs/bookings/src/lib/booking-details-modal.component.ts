@@ -3,6 +3,8 @@ import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
     formatDuration,
+    formatRecurrence,
+    fromBookingRecurrence,
     i18n,
     notifyError,
     notifySuccess,
@@ -48,10 +50,16 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                     {{ booking.title }}
                 </h3>
                 <div class="w-full items-center justify-between sm:flex">
-                    <div class="m-2 flex">
+                    <div class="m-2 flex items-center space-x-2">
                         <status-pill [status]="booking_status">
                             {{ period }}
                         </status-pill>
+                        <icon
+                            *ngIf="booking.instance"
+                            class="text-2xl"
+                            [matTooltip]="recurr_tooltip"
+                            >event_repeat</icon
+                        >
                     </div>
                     <div
                         actions
@@ -520,6 +528,13 @@ export class BookingDetailsModalComponent {
             ),
         );
         this.checking_in = false;
+    }
+
+    public get recurr_tooltip() {
+        return (
+            formatRecurrence(fromBookingRecurrence(this.booking)) ||
+            i18n('CALENDAR_EVENT.RECURRING_TOOLTIP')
+        );
     }
 
     public status(id: string): string {

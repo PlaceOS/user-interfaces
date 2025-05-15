@@ -10,12 +10,14 @@ import { CateringItem, CateringOrder } from '@placeos/catering';
 import {
     AsyncHandler,
     SettingsService,
+    formatRecurrence,
+    fromEventRecurrence,
     getTimezoneOffsetString,
     i18n,
     notifyError,
 } from '@placeos/common';
 import { openConfirmModal } from '@placeos/components';
-import { EventFormService, formatRecurrence } from '@placeos/events';
+import { EventFormService } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
 import { Space } from '@placeos/spaces';
 
@@ -357,6 +359,12 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                 </h3>
                 <div [innerHTML]="event.body | sanitize"></div>
             </div>
+            <div
+                *ngIf="requires_approval"
+                class="mt-2 rounded !border-none bg-warning px-2 py-1 text-center text-sm text-warning-content"
+            >
+                {{ 'CALENDAR_EVENT.APPROVAL_REQUIRED_MSG' | translate }}
+            </div>
         </main>
         <footer
             class="flex items-center justify-end border-t border-base-200 p-2"
@@ -397,6 +405,10 @@ export class MeetingFlowConfirmModalComponent
         return request.conflict
             ? i18n('FORM.ASSETS_CLASH_ERROR')
             : i18n('FORM.ASSETS_TIME_ERROR');
+    }
+
+    public get requires_approval() {
+        return this.event.resources.some((s) => s.approval);
     }
 
     public get has_assets() {
@@ -499,10 +511,12 @@ export class MeetingFlowConfirmModalComponent
     }
 
     public get formatted_recurrence() {
-        return formatRecurrence({
-            ...this.event.recurrence,
-            start: this.event.date || this.event.recurrence.start,
-        });
+        return formatRecurrence(
+            fromEventRecurrence({
+                ...this.event.recurrence,
+                start: this.event.date || this.event.recurrence.start,
+            }),
+        );
     }
 
     constructor(
