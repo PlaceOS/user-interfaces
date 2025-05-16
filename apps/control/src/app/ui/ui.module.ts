@@ -41,6 +41,7 @@ import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.c
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { SafePipe } from 'libs/components/src/lib/safe.pipe';
 import { SanitizePipe } from 'libs/components/src/lib/sanitise.pipe';
+import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 
 const COMPONENTS: Type<any>[] = [
@@ -89,6 +90,7 @@ const STANDALONE_COMPONENTS: any[] = [
     SanitizePipe,
     SafePipe,
     CustomTooltipComponent,
+    SettingsToggleComponent,
 ];
 
 @NgModule({

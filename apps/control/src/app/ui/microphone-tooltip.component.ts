@@ -8,7 +8,7 @@ import { ControlStateService } from '../control-state.service';
     selector: 'microphone-tooltip',
     template: `
         <div
-            class="my-2 flex max-h-[65vh] flex-col items-center space-y-2 overflow-y-auto overflow-x-hidden rounded bg-base-100 p-4 shadow"
+            class="my-2 flex max-h-[65vh] max-w-[32rem] flex-col items-center space-y-2 overflow-y-auto overflow-x-hidden rounded bg-base-100 p-4 shadow"
         >
             <h3 class="mb-2 text-xl font-medium">
                 {{ 'APP.CONTROL.ACTION_MICS' | translate }}
@@ -92,6 +92,31 @@ import { ControlStateService } from '../control-state.service';
                 </div>
                 <div *ngFor="let mic of microphones | async; let i = index">
                     <label [for]="mic.name">{{ mic.name }}</label>
+                    <div
+                        class="mt-2 flex flex-wrap space-x-2"
+                        *ngIf="mic.rooms"
+                    >
+                        @for (room of mic.rooms; track room.name) {
+                            <div hidden>
+                                <i
+                                    binding
+                                    [sys]="id"
+                                    [mod]="mic.module_id || mic.mod"
+                                    [bind]="room.ids[0]"
+                                    exec="mute"
+                                    [(model)]="room.muted"
+                                    [params]="[room.ids, room.muted]"
+                                ></i>
+                            </div>
+                            <settings-toggle
+                                [toggle]="true"
+                                [ngModel]="!room.muted"
+                                (ngModelChanged)="room.muted = !$event"
+                            >
+                                {{ room.name }}
+                            </settings-toggle>
+                        }
+                    </div>
                     <div
                         class="flex w-64 items-center space-x-2"
                         [attr.name]="mic.name"

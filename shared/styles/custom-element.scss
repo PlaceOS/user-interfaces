@@ -1140,6 +1140,10 @@ mat-list-option.mdc-list-item--selected {
     overflow-x: hidden;
 }
 
+#placeos mat-slide-toggle.pointer-events-none > * {
+    pointer-events: none !important;
+}
+
 .ct-label {
     color: var(--bc);
 }

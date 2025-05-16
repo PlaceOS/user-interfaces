@@ -19,25 +19,27 @@ import { IconComponent } from './icon.component';
             [class.border-info]="value"
             (click)="setValue(!value)"
         >
-            <div
-                class="absolute inset-0 bg-info opacity-10"
-                *ngIf="value"
-            ></div>
-            <div class="ml-2 flex flex-1 items-center space-x-2 text-left">
+            <div class="z-10 flex flex-1 items-center space-x-2 p-2 text-left">
                 <div>
                     {{ name }}
                     <ng-content></ng-content>
                 </div>
                 <icon *ngIf="info" [matTooltip]="info">info</icon>
             </div>
+            <div
+                class="absolute inset-0 z-0 !m-0 bg-info opacity-10"
+                *ngIf="value"
+            ></div>
             @if (toggle) {
                 <mat-slide-toggle
                     [(ngModel)]="value"
+                    (ngModelChanged)="setValue($event)"
                     class="pointer-events-none"
                 ></mat-slide-toggle>
             } @else {
                 <mat-checkbox
                     [(ngModel)]="value"
+                    (ngModelChanged)="setValue($event)"
                     class="pointer-events-none"
                 ></mat-checkbox>
             }
