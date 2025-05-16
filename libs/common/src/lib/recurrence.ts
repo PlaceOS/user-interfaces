@@ -1,4 +1,11 @@
-import { addDays, addMonths, addWeeks, startOfDay } from 'date-fns';
+import {
+    addDays,
+    addMonths,
+    addWeeks,
+    endOfMonth,
+    endOfWeek,
+    startOfDay,
+} from 'date-fns';
 import { RecurrenceDetails } from './formatting';
 
 export enum WeekOfMonth {
@@ -125,6 +132,12 @@ export function toEventRecurrence(
     }
     let date_obj = new Date(date);
     let end = addMonths(date, 6).valueOf();
+    if (r.type === 'monthly' || r.type === 'yearly') {
+        end = endOfMonth(end).valueOf();
+    }
+    if (r.type === 'weekly') {
+        end = endOfWeek(end).valueOf();
+    }
     if (r.end_type === 'date' && r.end_date) {
         end = r.end_date;
     } else if (r.end_type === 'instances') {
