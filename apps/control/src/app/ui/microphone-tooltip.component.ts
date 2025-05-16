@@ -115,9 +115,6 @@ import { ControlStateService } from '../control-state.service';
                                     [(model)]="room.muted"
                                 ></i>
                             </div>
-                            {{ room | json }}
-                            <br /><br />
-                            {{ mic | json }}
                             <settings-toggle
                                 [toggle]="true"
                                 [ngModel]="!room.muted"
