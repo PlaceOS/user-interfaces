@@ -52,7 +52,7 @@ import { IconComponent } from './icon.component';
             } @else {
                 <mat-checkbox
                     [(ngModel)]="value"
-                    (ngModelChanged)="setValue($event)"
+                    (ngModelChange)="setValue($event)"
                     class="pointer-events-none"
                 ></mat-checkbox>
             }

@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
 import { CustomTooltipData } from 'libs/components/src/lib/custom-tooltip.component';
 
+import { getModule } from '@placeos/ts-client';
 import { ControlStateService } from '../control-state.service';
 
 @Component({
@@ -29,14 +30,19 @@ import { ControlStateService } from '../control-state.service';
                                     [sys]="id"
                                     [mod]="mic.module_id || mic.mod"
                                     [bind]="room.ids[0]"
-                                    exec="mute"
                                     [(model)]="room.muted"
-                                    [params]="[room.ids, room.muted]"
                                 ></i>
                             </div>
                             <settings-toggle
                                 [toggle]="true"
-                                [(ngModel)]="room.muted"
+                                [ngModel]="!room.muted"
+                                (ngModelChange)="
+                                    setRoomMute(
+                                        mic.module_id || mic.mod,
+                                        room,
+                                        !$event
+                                    )
+                                "
                             >
                                 {{ room.name }}
                             </settings-toggle>
@@ -106,15 +112,22 @@ import { ControlStateService } from '../control-state.service';
                                     [sys]="id"
                                     [mod]="mic.module_id || mic.mod"
                                     [bind]="room.ids[0]"
-                                    exec="mute"
                                     [(model)]="room.muted"
-                                    [params]="[room.ids, room.muted]"
                                 ></i>
                             </div>
+                            {{ room | json }}
+                            <br /><br />
+                            {{ mic | json }}
                             <settings-toggle
                                 [toggle]="true"
                                 [ngModel]="!room.muted"
-                                (ngModelChanged)="room.muted = !$event"
+                                (ngModelChange)="
+                                    setRoomMute(
+                                        mic.module_id || mic.mod,
+                                        room,
+                                        !$event
+                                    )
+                                "
                             >
                                 {{ room.name }}
                             </settings-toggle>
@@ -209,6 +222,12 @@ export class MicrophoneTooltipComponent extends AsyncHandler {
         private _tooltip: CustomTooltipData,
     ) {
         super();
+    }
+
+    public setRoomMute(mod_id: string, room: { ids: string[] }, state: string) {
+        const mod = getModule(this.id, mod_id);
+        if (!mod) return;
+        mod.execute('mute', [room.ids, state]);
     }
 
     public setVolume(idx: number, value: number) {
