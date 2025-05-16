@@ -80,8 +80,9 @@ export class DeviceOutputListItemComponent
     public readonly setActiveOutput = async () => {
         const { selected_input } =
             (await nextValueFrom(this._state.system)) || {};
-        console.log('Input:', selected_input, this.item?.source);
-        this.item?.source === selected_input
+        const input = await nextValueFrom(this.input);
+        console.log('Input:', selected_input, this.item, input);
+        input.id === selected_input
             ? this._state.unroute(this.item.id)
             : this._state.setOutput(this.item?.id);
     };
