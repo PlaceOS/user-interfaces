@@ -123,6 +123,7 @@ export function toEventRecurrence(
             end: date,
         };
     }
+    let date_obj = new Date(date);
     let end = addMonths(date, 6).valueOf();
     if (r.end_type === 'date' && r.end_date) {
         end = r.end_date;
@@ -141,7 +142,7 @@ export function toEventRecurrence(
         _pattern: r._custom ? 'custom_display' : r.type,
         pattern: r.type,
         interval: r.interval,
-        days_of_week: [],
+        days_of_week: [date_obj.getDay()],
         start: date,
         end,
     };
