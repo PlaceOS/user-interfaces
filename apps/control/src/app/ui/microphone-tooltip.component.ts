@@ -19,7 +19,7 @@ import { ControlStateService } from '../control-state.service';
                     else empty_state
                 "
             >
-                <div *ngFor="let mic of mic_list | async">
+                <div class="w-full" *ngFor="let mic of mic_list | async">
                     <label [for]="mic.id">{{ mic.name }}</label>
                     <div class="flex flex-wrap" *ngIf="mic.rooms">
                         @for (room of mic.rooms; track room.name) {
@@ -90,7 +90,10 @@ import { ControlStateService } from '../control-state.service';
                         ></i>
                     </div>
                 </div>
-                <div *ngFor="let mic of microphones | async; let i = index">
+                <div
+                    class="w-full"
+                    *ngFor="let mic of microphones | async; let i = index"
+                >
                     <label [for]="mic.name">{{ mic.name }}</label>
                     <div
                         class="mt-2 flex flex-wrap space-x-2"
@@ -118,7 +121,7 @@ import { ControlStateService } from '../control-state.service';
                         }
                     </div>
                     <div
-                        class="flex w-64 items-center space-x-2"
+                        class="flex min-w-64 items-center space-x-2"
                         [attr.name]="mic.name"
                     >
                         <button

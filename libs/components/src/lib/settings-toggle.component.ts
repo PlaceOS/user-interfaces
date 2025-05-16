@@ -6,7 +6,6 @@ import {
     NG_VALUE_ACCESSOR,
 } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { IconComponent } from './icon.component';
 
 @Component({
@@ -31,11 +30,25 @@ import { IconComponent } from './icon.component';
                 *ngIf="value"
             ></div>
             @if (toggle) {
-                <mat-slide-toggle
-                    [(ngModel)]="value"
-                    (ngModelChanged)="setValue($event)"
-                    class="pointer-events-none"
-                ></mat-slide-toggle>
+                <div class="p-2">
+                    <div
+                        toggle
+                        class="relative h-8 w-12 rounded-full border-2 border-base-400"
+                        [class.bg-base-300]="!value"
+                        [class.bg-info]="value"
+                        [class.!border-info]="value"
+                    >
+                        <div
+                            class="absolute top-1/2 flex h-6 w-6 -translate-x-0.5 -translate-y-1/2 items-center justify-center rounded-full shadow"
+                            [class.left-1]="!value"
+                            [class.left-5]="value"
+                            [class.bg-base-400]="!value"
+                            [class.bg-info-light]="value"
+                        >
+                            <icon>{{ value ? 'done' : 'remove' }}</icon>
+                        </div>
+                    </div>
+                </div>
             } @else {
                 <mat-checkbox
                     [(ngModel)]="value"
@@ -50,6 +63,12 @@ import { IconComponent } from './icon.component';
             :host {
                 display: flex;
             }
+
+            [toggle] {
+                transition:
+                    background 200ms,
+                    left 200ms;
+            }
         `,
     ],
     providers: [
@@ -59,13 +78,7 @@ import { IconComponent } from './icon.component';
             multi: true,
         },
     ],
-    imports: [
-        CommonModule,
-        MatCheckboxModule,
-        MatSlideToggleModule,
-        FormsModule,
-        IconComponent,
-    ],
+    imports: [CommonModule, MatCheckboxModule, FormsModule, IconComponent],
 })
 export class SettingsToggleComponent implements ControlValueAccessor {
     @Input() public toggle: boolean;
