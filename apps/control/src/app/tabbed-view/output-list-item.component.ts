@@ -82,7 +82,7 @@ export class DeviceOutputListItemComponent
             (await nextValueFrom(this._state.system)) || {};
         const input = await nextValueFrom(this.input);
         console.log('Input:', selected_input, this.item, input);
-        input.id === selected_input
+        input?.id === selected_input
             ? this._state.unroute(this.item.id)
             : this._state.setOutput(this.item?.id);
     };
