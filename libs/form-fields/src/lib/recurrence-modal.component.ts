@@ -41,7 +41,10 @@ import { DateFieldComponent } from './date-field.component';
                     [min]="1"
                     [max]="60"
                 ></compact-counter>
-                <mat-form-field appearance="outline" class="no-subscript">
+                <mat-form-field
+                    appearance="outline"
+                    class="no-subscript flex-1"
+                >
                     <mat-select formControlName="type">
                         <mat-option value="daily">{{
                             (form.value.interval === 1
@@ -87,7 +90,15 @@ import { DateFieldComponent } from './date-field.component';
             }
             @if (form.value.type === 'monthly') {
                 <mat-form-field appearance="outline">
-                    <mat-select formControlName="monthly_type"> </mat-select>
+                    <mat-select formControlName="monthly_type">
+                        <mat-option value="day_of_month"
+                            >Monthly on day {{ date | date: 'd' }}</mat-option
+                        >
+                        <mat-option value="day_of_week"
+                            >Monthly on {{ month_instance }}
+                            {{ date | date: 'EEEE' }}</mat-option
+                        >
+                    </mat-select>
                 </mat-form-field>
             }
             <label class="w-auto">{{
@@ -158,6 +169,18 @@ import { DateFieldComponent } from './date-field.component';
 })
 export class RecurrenceModalComponent extends AsyncHandler implements OnInit {
     public readonly instance_fn = (v) => `${v} instances`;
+    public readonly date = this._data.date || Date.now();
+    public readonly week = this._data.iom ?? 1;
+    public readonly month_instance =
+        this.week === -1
+            ? 'Last'
+            : this.week === 1
+              ? '1st'
+              : this.week === 2
+                ? '2nd'
+                : this.week === 3
+                  ? '3rd'
+                  : `${this.week}th`;
     public readonly weekdays = new Array(7).fill(0).map((_, idx) => {
         const date = addDays(startOfWeek(Date.now()), idx);
         return [date.valueOf(), date.getDay()];
@@ -170,13 +193,17 @@ export class RecurrenceModalComponent extends AsyncHandler implements OnInit {
         weekdays: new FormControl(
             new Set<DayIndex>([new Date().getDay() as any]),
         ),
+        week: new FormControl(0),
         monthly_type: new FormControl<MonthlyType>('day_of_month'),
         end_type: new FormControl<RecurrEndType>('never'),
         end_date: new FormControl(addMonths(Date.now(), 3)),
         end_instances: new FormControl(13),
     });
 
-    constructor(@Inject(MAT_DIALOG_DATA) private _data: { value: Recurrence }) {
+    constructor(
+        @Inject(MAT_DIALOG_DATA)
+        private _data: { value: Recurrence; iom: number; date: number },
+    ) {
         super();
     }
 

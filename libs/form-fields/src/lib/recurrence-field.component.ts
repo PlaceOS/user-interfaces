@@ -183,7 +183,7 @@ export class RecurrenceFieldComponent
 
     public openCustomRecurrenceModal() {
         const ref = this._dialog.open(RecurrenceModalComponent, {
-            data: { value: this.value },
+            data: { value: this.value, iom: this.iom, date: this.date },
         });
         ref.afterClosed().subscribe((d?) =>
             setTimeout(() => {
