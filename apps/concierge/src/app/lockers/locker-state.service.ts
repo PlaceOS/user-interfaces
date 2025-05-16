@@ -41,10 +41,10 @@ import {
 } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 
-import { openConfirmModal } from '@placeos/components';
 import { QueryResponse, updateMetadata } from '@placeos/ts-client';
 import { StaffUser } from '@placeos/users';
 import { User } from '@sentry/angular';
+import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
 import { SelectUserModalComponent } from 'libs/users/src/lib/select-user-modal.component';
 import { LockerBankModalComponent } from './locker-bank-modal.component';
 import { LockerBookingModalComponent } from './locker-booking-modal.component';

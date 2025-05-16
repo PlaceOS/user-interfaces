@@ -4,8 +4,8 @@ import {
     AuthorisedUserGuard,
     MisconfiguredComponent,
     RedirectComponent,
-    UnauthorisedComponent,
 } from '@placeos/components';
+import { UnauthorisedComponent } from 'libs/components/src/lib/unauthorised.component';
 
 const routes: Routes = [
     { path: '-', component: RedirectComponent },

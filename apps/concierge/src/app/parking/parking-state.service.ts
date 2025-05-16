@@ -23,11 +23,11 @@ import {
     SettingsService,
     unique,
 } from '@placeos/common';
-import { openConfirmModal } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
 import { User } from '@placeos/users';
 import { addHours, endOfDay, getUnixTime, set, startOfDay } from 'date-fns';
+import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import {
     debounceTime,

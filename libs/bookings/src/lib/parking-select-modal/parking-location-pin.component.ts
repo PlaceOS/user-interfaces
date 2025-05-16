@@ -1,5 +1,5 @@
 import { Component, Inject } from '@angular/core';
-import { MAP_FEATURE_DATA } from '@placeos/components';
+import { MAP_FEATURE_DATA } from 'libs/components/src/lib/interactive-map.component';
 
 @Component({
     selector: 'parking-space-location-pin',
@@ -84,5 +84,6 @@ export class ParkingSpaceLocationPinComponent {
     public get selected() {
         return this._data.selected === true;
     }
+
     constructor(@Inject(MAP_FEATURE_DATA) private _data: any) {}
 }

@@ -1,6 +1,6 @@
 import { Component, Inject } from '@angular/core';
-import { CustomTooltipData } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
+import { CustomTooltipData } from './custom-tooltip.component';
 
 @Component({
     selector: 'building-select',

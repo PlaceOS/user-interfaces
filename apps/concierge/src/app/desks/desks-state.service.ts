@@ -50,9 +50,9 @@ import {
 } from '@placeos/common';
 import { Desk, OrganisationService } from '@placeos/organisation';
 
-import { openConfirmModal } from '@placeos/components';
 import { QueryResponse } from '@placeos/ts-client';
 import { generateQRCode } from 'libs/common/src/lib/qr-code';
+import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
 import { DeskModalComponent } from './desk-modal.component';
 
 function addQRCodeToBooking(booking: Booking): Booking {

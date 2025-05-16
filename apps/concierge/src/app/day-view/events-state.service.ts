@@ -38,7 +38,7 @@ import { CalendarEvent, declineEvent, queryEvents } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
 import { Space, requestSpacesForZone } from '@placeos/spaces';
 
-import { openConfirmModal } from '@placeos/components';
+import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
 import { EventBookModalComponent } from './event-book-modal.component';
 
 export type BookingType =

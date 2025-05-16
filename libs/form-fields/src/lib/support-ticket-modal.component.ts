@@ -20,8 +20,9 @@ import {
     notifySuccess,
     SettingsService,
 } from '@placeos/common';
-import { IconComponent, TranslatePipe } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { ImageListFieldComponent } from './image-list-field.component';
 import { RichTextInputComponent } from './rich-text-input.component';
 

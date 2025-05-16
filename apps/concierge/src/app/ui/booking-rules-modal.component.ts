@@ -8,9 +8,9 @@ import {
     notifySuccess,
     randomString,
 } from '@placeos/common';
-import { openConfirmModal } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
+import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
 import { BehaviorSubject, Observable, combineLatest, of } from 'rxjs';
 import {
     catchError,
@@ -138,9 +138,7 @@ import {
                         [class.bg-success]="row.rules[key]"
                         class="mx-auto flex h-8 w-8 items-center justify-center rounded text-2xl text-white"
                     >
-                        <icon>{{
-                            row.rules[key] ? 'done' : 'close'
-                        }}</icon>
+                        <icon>{{ row.rules[key] ? 'done' : 'close' }}</icon>
                     </div>
                 </ng-template>
                 <ng-template #actions_template let-row="row">

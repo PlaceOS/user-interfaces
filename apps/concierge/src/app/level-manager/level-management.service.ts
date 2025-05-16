@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { i18n, notifyError, notifySuccess } from '@placeos/common';
-import { openConfirmModal } from '@placeos/components';
 import { BuildingLevel, OrganisationService } from '@placeos/organisation';
 import { requestSpacesForZone } from '@placeos/spaces';
 import { PlaceZone, removeZone } from '@placeos/ts-client';
+import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { shareReplay, switchMap } from 'rxjs/operators';
 import { LevelModalComponent } from './level-modal.component';

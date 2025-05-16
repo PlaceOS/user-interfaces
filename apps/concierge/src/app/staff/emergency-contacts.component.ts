@@ -2,9 +2,9 @@ import { Clipboard } from '@angular/cdk/clipboard';
 import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { nextValueFrom, notifySuccess } from '@placeos/common';
-import { openConfirmModal } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
+import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { filter, map, shareReplay, switchMap } from 'rxjs/operators';
 import { EmergencyContactModalComponent } from './emergency-contact-modal.component';
@@ -41,9 +41,7 @@ export interface EmergencyContactData {
                                 class="no-subscript"
                                 appearance="outline"
                             >
-                                <icon class="text-2xl" matPrefix>
-                                    search
-                                </icon>
+                                <icon class="text-2xl" matPrefix> search </icon>
                                 <input
                                     matInput
                                     [(ngModel)]="search"

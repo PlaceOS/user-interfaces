@@ -31,8 +31,8 @@ import {
     notifyError,
     notifySuccess,
 } from '@placeos/common';
-import { openConfirmModal } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
+import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
 import { VisitorInductionModalComponent } from './visitor-induction-modal.component';
 import { VisitorNotesModalComponent } from './visitor-notes-modal.component';
 

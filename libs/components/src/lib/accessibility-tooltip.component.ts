@@ -1,6 +1,6 @@
 import { Component, Inject } from '@angular/core';
 import { AsyncHandler, SettingsService } from '@placeos/common';
-import { CustomTooltipData } from '@placeos/components';
+import { CustomTooltipData } from './custom-tooltip.component';
 
 @Component({
     selector: 'accessibility-tooltip',

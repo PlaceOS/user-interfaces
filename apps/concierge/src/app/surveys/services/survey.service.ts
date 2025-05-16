@@ -7,7 +7,6 @@ import {
     notifySuccess,
     SettingsService,
 } from '@placeos/common';
-import { openConfirmModal } from '@placeos/components';
 import {
     generateNewSurvey,
     Question,
@@ -25,6 +24,7 @@ import {
     Survey,
     updateSurvey,
 } from '@placeos/ts-client';
+import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
 import { BehaviorSubject, of } from 'rxjs';
 import { catchError, finalize, first, map } from 'rxjs/operators';
 import { SurveyBuilderService } from './survey-builder.service';

@@ -8,9 +8,9 @@ import {
     notifySuccess,
     randomString,
 } from '@placeos/common';
-import { CustomTooltipComponent } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
+import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { filter, map, shareReplay, switchMap } from 'rxjs/operators';
 import { EmergencyContact } from './emergency-contacts.component';

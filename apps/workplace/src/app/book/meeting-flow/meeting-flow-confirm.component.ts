@@ -12,9 +12,9 @@ import {
     i18n,
     notifyError,
 } from '@placeos/common';
-import { openConfirmModal } from '@placeos/components';
 import { CalendarEvent, EventFormService } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
+import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
 
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 

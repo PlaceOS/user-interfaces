@@ -6,14 +6,18 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { ComponentsModule } from '@placeos/components';
-import { SharedExploreModule } from 'libs/explore/src/lib/explore.module';
-import { FormFieldsModule } from 'libs/form-fields/src/lib/form-fields.module';
+
+import { GlobalBannerComponent } from 'libs/components/src/lib/global-banner.component';
+import { GlobalLoadingComponent } from 'libs/components/src/lib/global-loading.component';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { SimpleTableComponent } from 'libs/components/src/lib/simple-table.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { DateRangeFieldComponent } from 'libs/form-fields/src/lib/date-range-field.component';
+
 import { SidebarComponent } from './sidebar.component';
 
 const MATERIAL_MODULES = [
@@ -24,25 +28,26 @@ const MATERIAL_MODULES = [
     MatTooltipModule,
     MatDialogModule,
     MatProgressSpinnerModule,
-    MatSlideToggleModule,
-];
-
-const PLACEOS_MODULES = [
-    ComponentsModule,
-    FormFieldsModule,
-    SharedExploreModule,
 ];
 
 const COMPONENTS = [SidebarComponent];
+const STANDALONE_COMPONENTS = [
+    GlobalLoadingComponent,
+    GlobalBannerComponent,
+    TranslatePipe,
+    IconComponent,
+    SimpleTableComponent,
+    DateRangeFieldComponent,
+];
 
 @NgModule({
     declarations: [...COMPONENTS],
     imports: [
         CommonModule,
         ...MATERIAL_MODULES,
-        ...PLACEOS_MODULES,
+        ...STANDALONE_COMPONENTS,
         RouterModule,
     ],
-    exports: [...MATERIAL_MODULES, ...PLACEOS_MODULES, ...COMPONENTS],
+    exports: [...MATERIAL_MODULES, ...COMPONENTS, ...STANDALONE_COMPONENTS],
 })
 export class UiModule {}

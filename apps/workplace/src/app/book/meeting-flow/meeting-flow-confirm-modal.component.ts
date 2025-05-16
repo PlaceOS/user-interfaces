@@ -16,12 +16,12 @@ import {
     i18n,
     notifyError,
 } from '@placeos/common';
-import { openConfirmModal } from '@placeos/components';
 import { EventFormService } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
 import { Space } from '@placeos/spaces';
 
 import { AssetRequest } from 'libs/assets/src/lib/asset-request.class';
+import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 
 @Component({
@@ -275,9 +275,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                         [class.!border-error]="has_conflict"
                         [class.!text-error]="has_conflict"
                     >
-                        <icon>{{
-                            has_conflict ? 'close' : 'done'
-                        }}</icon>
+                        <icon>{{ has_conflict ? 'close' : 'done' }}</icon>
                     </div>
                     <h3 class="!mt-0 text-xl">
                         {{ 'RESOURCE.ASSETS' | translate }}

@@ -2,7 +2,6 @@ import { CdkDragDrop } from '@angular/cdk/drag-drop';
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { AsyncHandler, notifyError, notifySuccess } from '@placeos/common';
-import { openConfirmModal } from '@placeos/components';
 import {
     Question,
     translateToQuestion,
@@ -15,6 +14,7 @@ import {
     SurveyQuestion,
     updateQuestion,
 } from '@placeos/ts-client';
+import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { catchError, filter, finalize, first, map, tap } from 'rxjs/operators';
 import { ModQuestionOverlayComponent } from '../overlays/mod-question-overlay.component';

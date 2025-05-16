@@ -33,8 +33,6 @@ import { UiModule } from './ui/ui.module';
         AppRoutingModule,
         MatSnackBarModule,
         UiModule,
-        FormsModule,
-        ReactiveFormsModule,
         ServiceWorkerModule.register('ngsw-worker.js', {
             enabled: environment.production,
         }),

@@ -15,7 +15,6 @@ import {
     notifySuccess,
     SettingsService,
 } from '@placeos/common';
-import { openConfirmModal } from '@placeos/components';
 import {
     CalendarEvent,
     EventFormService,
@@ -23,6 +22,7 @@ import {
     removeEvent,
 } from '@placeos/events';
 import { format } from 'date-fns';
+import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
 import { LandingStateService } from './landing-state.service';
 
 @Component({

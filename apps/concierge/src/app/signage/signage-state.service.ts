@@ -39,7 +39,7 @@ import {
 } from 'rxjs/operators';
 
 import { MatDialog } from '@angular/material/dialog';
-import { openConfirmModal } from '@placeos/components';
+import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
 import { SignageDisplayModalComponent } from './signage-display-modal.component';
 import { SignageMediaModalComponent } from './signage-media-modal.component';
 import { SignageMediaPreviewModalComponent } from './signage-media-preview-modal.component';

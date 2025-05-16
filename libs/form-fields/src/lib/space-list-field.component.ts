@@ -6,12 +6,17 @@ import {
     NG_VALUE_ACCESSOR,
 } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import {
+    MatDialog,
+    MatDialogModule,
+    MatDialogRef,
+} from '@angular/material/dialog';
 import { MatRadioModule } from '@angular/material/radio';
-import { IconComponent, TranslatePipe } from '@placeos/components';
 
 import { OrganisationService } from '@placeos/organisation';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { NewSpaceSelectModalComponent } from 'libs/spaces/src/lib/space-select-modal/new-space-select-modal.component';
 import { Space } from 'libs/spaces/src/lib/space.class';
 import { BehaviorSubject } from 'rxjs';
@@ -187,6 +192,7 @@ const EMPTY_FAVS: string[] = [];
         IconComponent,
         MatRippleModule,
         TranslatePipe,
+        MatDialogModule,
     ],
 })
 export class SpaceListFieldComponent
