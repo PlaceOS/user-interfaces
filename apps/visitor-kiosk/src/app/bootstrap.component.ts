@@ -8,8 +8,9 @@ import {
     OrganisationService,
     Region,
 } from '@placeos/organisation';
-import { VirtualKeyboardComponent } from 'libs/components/src/lib/virtual-keyboard.component';
 import { first } from 'rxjs/operators';
+
+import { VirtualKeyboardComponent } from 'libs/components/src/lib/virtual-keyboard.component';
 
 @Component({
     selector: '[bootstrap]',

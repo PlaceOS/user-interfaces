@@ -3,26 +3,18 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { Router } from '@angular/router';
+import { LocaleService } from '@placeos/common';
+
+import { MatRippleModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
 import { ServiceWorkerModule } from '@angular/service-worker';
 
-import { AppComponent } from '../../../../libs/components/src/lib/app.component';
-
-import { environment } from '../environments/environment';
-import { AppRoutingModule } from './app-routing.module';
-import { BootstrapComponent } from './bootstrap.component';
-import { SharedComponentsModule } from './components/shared-components.module';
-import { WelcomeComponent } from './welcome.component';
-
-import { AssetsModule } from '@placeos/assets';
-import { SharedBookingsModule } from '@placeos/bookings';
-import { LocaleService } from '@placeos/common';
-import { ComponentsModule } from '@placeos/components';
-import { SharedSpacesModule } from '@placeos/spaces';
-import * as Sentry from '@sentry/angular';
-import { FormFieldsModule } from '../../../../libs/form-fields/src/lib/form-fields.module';
-import { VisitorRegistrationComponent } from './visitor-registration.component';
-
 import { registerLocaleData } from '@angular/common';
+
 import localeAr from '@angular/common/locales/ar';
 import localeEs from '@angular/common/locales/es';
 import localeFr from '@angular/common/locales/fr';
@@ -30,12 +22,54 @@ import localeIt from '@angular/common/locales/it';
 import localeJa from '@angular/common/locales/ja';
 import localeZh from '@angular/common/locales/zh';
 
+import { AppComponent } from '../../../../libs/components/src/lib/app.component';
+
+import { environment } from '../environments/environment';
+import { AppRoutingModule } from './app-routing.module';
+import { BootstrapComponent } from './bootstrap.component';
+import { VisitorRegistrationComponent } from './visitor-registration.component';
+import { WelcomeComponent } from './welcome.component';
+
+import * as Sentry from '@sentry/angular';
+
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+
+import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
+import { GlobalBannerComponent } from 'libs/components/src/lib/global-banner.component';
+import { GlobalLoadingComponent } from 'libs/components/src/lib/global-loading.component';
+import { SanitizePipe } from 'libs/components/src/lib/sanitise.pipe';
+import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-field.component';
+import { TakePhotoComponent } from './components/take-photo.component';
+import { TopbarHeaderComponent } from './components/topbar-header.component';
+
+const MAT_MODULES = [
+    MatProgressSpinner,
+    MatRippleModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    MatInputModule,
+    MatMenuModule,
+];
+
+const STANDALONE_COMPONENTS = [
+    GlobalLoadingComponent,
+    GlobalBannerComponent,
+    IconComponent,
+    TranslatePipe,
+    SanitizePipe,
+    AuthenticatedImageDirective,
+    UserSearchFieldComponent,
+];
+
 @NgModule({
     declarations: [
         AppComponent,
         BootstrapComponent,
         WelcomeComponent,
         VisitorRegistrationComponent,
+        TakePhotoComponent,
+        TopbarHeaderComponent,
     ],
     bootstrap: [AppComponent],
     imports: [
@@ -46,14 +80,9 @@ import localeZh from '@angular/common/locales/zh';
             enabled: environment.production,
         }),
         FormsModule,
-        ComponentsModule,
-        SharedSpacesModule,
-        SharedComponentsModule,
-        SharedBookingsModule,
-        AssetsModule,
-        FormFieldsModule,
         ReactiveFormsModule,
-        FormFieldsModule,
+        ...MAT_MODULES,
+        ...STANDALONE_COMPONENTS,
     ],
     providers: [
         {

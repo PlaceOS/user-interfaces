@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { BookingFormService } from '@placeos/bookings';
+import { startOfMinute } from 'date-fns';
+
 import {
     getInvalidFields,
     i18n,
@@ -10,8 +11,9 @@ import {
     unique,
 } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
-import { User } from '@placeos/users';
-import { startOfMinute } from 'date-fns';
+import { User } from 'libs/users/src/lib/user.class';
+
+import { BookingFormService } from 'libs/bookings/src/lib/booking-form.service';
 import { CheckinStateService } from './checkin/checkin-state.service';
 
 @Component({

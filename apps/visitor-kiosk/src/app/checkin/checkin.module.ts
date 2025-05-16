@@ -2,8 +2,16 @@ import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Route, RouterModule } from '@angular/router';
-import { SharedComponentsModule } from '../components/shared-components.module';
 
+import { MatRippleModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatRadioModule } from '@angular/material/radio';
+import { MatSelectModule } from '@angular/material/select';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { CheckinCovidComponent } from './checkin-covid.component';
 import { CheckinDetailsComponent } from './checkin-details.component';
 import { CheckinErrorComponent } from './checkin-error.component';
@@ -35,6 +43,18 @@ const ROUTES: Route[] = [
     { path: '**', redirectTo: '' },
 ];
 
+const MAT_MODULES = [
+    MatProgressSpinnerModule,
+    MatRippleModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    MatInputModule,
+    MatMenuModule,
+    MatRadioModule,
+];
+
+const STANDALONE_COMPONENTS = [IconComponent, TranslatePipe];
+
 @NgModule({
     declarations: [
         CheckinComponent,
@@ -52,8 +72,9 @@ const ROUTES: Route[] = [
         CommonModule,
         FormsModule,
         ReactiveFormsModule,
-        SharedComponentsModule,
         RouterModule.forChild(ROUTES),
+        ...MAT_MODULES,
+        ...STANDALONE_COMPONENTS,
     ],
 })
 export class VisitorCheckinModule {}

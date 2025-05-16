@@ -26,7 +26,7 @@ import { AsyncHandler, LocaleService, SettingsService } from '@placeos/common';
                         btn
                         matRipple
                         [routerLink]="['/checkin']"
-                        class="base w-40"
+                        class="w-40 bg-base-100 text-base-content"
                     >
                         <div class="flex items-center space-x-2">
                             <div class="ml-2">
@@ -39,7 +39,7 @@ import { AsyncHandler, LocaleService, SettingsService } from '@placeos/common';
                         btn
                         matRipple
                         [routerLink]="['/register']"
-                        class="base w-40"
+                        class="w-40 bg-base-100 text-base-content"
                         *ngIf="can_register"
                     >
                         <div class="flex items-center space-x-2">
@@ -54,7 +54,7 @@ import { AsyncHandler, LocaleService, SettingsService } from '@placeos/common';
                         btn
                         matRipple
                         [routerLink]="['/explore', level]"
-                        class="base w-40"
+                        class="w-40 bg-base-100 text-base-content"
                     >
                         <div class="flex items-center space-x-2">
                             <div class="ml-2">
@@ -131,7 +131,6 @@ import { AsyncHandler, LocaleService, SettingsService } from '@placeos/common';
         `
             a {
                 height: 3.5rem;
-                background-color: rgba(255, 255, 255, 0.25);
             }
         `,
     ],

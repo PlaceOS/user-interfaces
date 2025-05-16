@@ -2,12 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import {
-    Booking,
-    LinkedCalendarEvent,
-    saveBooking,
-    updateBooking,
-} from '@placeos/bookings';
-import {
     CateringItem,
     CateringOrder,
     CateringStateService,
@@ -21,8 +15,16 @@ import {
     notifySuccess,
     SettingsService,
 } from '@placeos/common';
-import { showEventMetadata, updateEventMetadata } from '@placeos/events';
 import { setToken } from '@placeos/ts-client';
+import {
+    Booking,
+    LinkedCalendarEvent,
+} from 'libs/bookings/src/lib/booking.class';
+import { saveBooking, updateBooking } from 'libs/bookings/src/lib/bookings.fn';
+import {
+    showEventMetadata,
+    updateEventMetadata,
+} from 'libs/events/src/lib/events.fn';
 import { lastValueFrom } from 'rxjs';
 import { first, map, tap } from 'rxjs/operators';
 import { CheckinStateService } from './checkin-state.service';
