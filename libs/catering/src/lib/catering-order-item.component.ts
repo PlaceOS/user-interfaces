@@ -1,5 +1,8 @@
 import { Component, Input, OnInit } from '@angular/core';
 
+import { CommonModule } from '@angular/common';
+import { MatRippleModule } from '@angular/material/core';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { CateringItem } from './catering-item.class';
 
 const ACTIVE_ITEMS = new Set<string>();
@@ -59,7 +62,7 @@ const ACTIVE_ITEMS = new Set<string>();
             }
         `,
     ],
-    standalone: false,
+    imports: [CommonModule, MatRippleModule, IconComponent],
 })
 export class CateringOrderItemComponent implements OnInit {
     @Input() public order_id: string;

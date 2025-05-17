@@ -1,4 +1,8 @@
+import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
+import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { CateringItem } from '../catering-item.class';
 
 @Component({
@@ -98,14 +102,24 @@ import { CateringItem } from '../catering-item.class';
                 [class.text-info]="favourite"
                 (click)="toggleFav.emit()"
             >
-                <icon>{{
-                    favourite ? 'favorite' : 'favorite_border'
-                }}</icon>
+                <icon
+                    [className]="
+                        favourite
+                            ? 'material-symbols-rounded'
+                            : 'material-symbols-outlined'
+                    "
+                    >favorite</icon
+                >
             </button>
         </li>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        IconComponent,
+        MatRippleModule,
+        AuthenticatedImageDirective,
+    ],
 })
 export class CateringItemListItemComponent {
     @Input() public item: CateringItem;

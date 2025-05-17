@@ -1,5 +1,11 @@
+import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { MatDialogRef } from '@angular/material/dialog';
+import { FormsModule } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
+import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {
     csvToJson,
     downloadFile,
@@ -7,6 +13,8 @@ import {
     notifyError,
     unique,
 } from '@placeos/common';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { CateringStateService } from './catering-state.service';
 
 @Component({
@@ -105,7 +113,17 @@ import { CateringStateService } from './catering-state.service';
         </ng-template>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        MatProgressSpinnerModule,
+        MatRippleModule,
+        IconComponent,
+        MatDialogModule,
+        MatFormFieldModule,
+        MatInputModule,
+        FormsModule,
+    ],
 })
 export class ChargeCodeListModalComponent implements OnInit {
     public charge_codes: string[] = [];

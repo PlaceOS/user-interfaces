@@ -1,10 +1,24 @@
 import { Component, EventEmitter, Inject, Output } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import {
+    FormControl,
+    FormGroup,
+    ReactiveFormsModule,
+    Validators,
+} from '@angular/forms';
+import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 
 import { randomInt } from 'libs/common/src/lib/general';
 import { DialogEvent } from 'libs/common/src/lib/types';
 
+import { CommonModule } from '@angular/common';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatRippleModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { CateringItem } from './catering-item.class';
 import { CateringOption } from './catering.interfaces';
 
@@ -132,7 +146,19 @@ export interface CateringItemOptionModalData {
         </mat-autocomplete>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        MatRippleModule,
+        MatProgressSpinnerModule,
+        MatAutocompleteModule,
+        MatFormFieldModule,
+        MatInputModule,
+        SettingsToggleComponent,
+        MatDialogModule,
+        IconComponent,
+        ReactiveFormsModule,
+    ],
 })
 export class CateringItemOptionModalComponent {
     /** Emitter for events on the modal */

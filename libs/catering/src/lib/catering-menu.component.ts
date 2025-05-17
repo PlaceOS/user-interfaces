@@ -1,6 +1,15 @@
 import { Component } from '@angular/core';
 
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatRippleModule } from '@angular/material/core';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { unique } from '@placeos/common';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { SimpleTableComponent } from 'libs/components/src/lib/simple-table.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { CateringItem } from './catering-item.class';
@@ -179,7 +188,17 @@ import { CateringStateService } from './catering-state.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        MatRippleModule,
+        IconComponent,
+        MatMenuModule,
+        MatCheckboxModule,
+        MatTooltipModule,
+        SimpleTableComponent,
+        FormsModule,
+    ],
 })
 export class CateringMenuComponent {
     public show_children: Record<string, boolean> = {};

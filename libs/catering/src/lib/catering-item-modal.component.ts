@@ -1,13 +1,28 @@
 import { COMMA, ENTER, SPACE } from '@angular/cdk/keycodes';
-import { CurrencyPipe } from '@angular/common';
+import { CommonModule, CurrencyPipe } from '@angular/common';
 import { Component, EventEmitter, Inject, Output } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { MatChipInputEvent } from '@angular/material/chips';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import {
+    FormControl,
+    FormGroup,
+    ReactiveFormsModule,
+    Validators,
+} from '@angular/forms';
+import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
+import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { DialogEvent, randomInt } from '@placeos/common';
 
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatRippleModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { CounterComponent } from 'libs/form-fields/src/lib/counter.component';
+import { ImageListFieldComponent } from 'libs/form-fields/src/lib/image-list-field.component';
 import { CateringItem } from './catering-item.class';
 
 export interface CateringItemModalData {
@@ -308,7 +323,22 @@ export interface CateringItemModalData {
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        IconComponent,
+        TranslatePipe,
+        MatRippleModule,
+        MatAutocompleteModule,
+        MatDialogModule,
+        MatProgressSpinnerModule,
+        MatFormFieldModule,
+        MatInputModule,
+        CounterComponent,
+        ImageListFieldComponent,
+        SettingsToggleComponent,
+        MatChipsModule,
+        ReactiveFormsModule,
+    ],
 })
 export class CateringItemModalComponent {
     /** Emitter for events on the modal */

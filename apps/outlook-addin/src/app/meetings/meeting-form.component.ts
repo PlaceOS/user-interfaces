@@ -66,8 +66,8 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                             </mat-select>
                         </mat-form-field>
                     </div>
-                    <div class="flex flex-wrap items-center space-x-2">
-                        <div class="w-1/3 flex-1">
+                    <div class="flex flex-col sm:flex-row sm:space-x-2">
+                        <div class="w-full sm:flex-1">
                             <label for="title">Add Title<span>*</span></label>
                             <mat-form-field appearance="outline" class="w-full">
                                 <input
@@ -81,15 +81,24 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                                 >
                             </mat-form-field>
                         </div>
-                        <div class="w-1/3 flex-1">
+                        <div class="relative w-full sm:flex-1">
                             <label for="date">Date<span>*</span></label>
                             <a-date-field name="date" formControlName="date">
                                 Date and time must be in the future
                             </a-date-field>
+                            <mat-checkbox
+                                formControlName="all_day"
+                                *ngIf="allow_all_day"
+                                class="absolute -top-2 right-0"
+                                >All Day</mat-checkbox
+                            >
                         </div>
                     </div>
-                    <div class="flex items-center space-x-2">
-                        <div class="w-1/3 flex-1">
+                    <div
+                        class="flex flex-col sm:flex-row sm:space-x-2"
+                        *ngIf="!form.value.all_day"
+                    >
+                        <div class="w-full sm:flex-1">
                             <label for="start-time"
                                 >Start Time<span>*</span></label
                             >
@@ -102,7 +111,7 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                                 [ngModelOptions]="{ standalone: true }"
                             ></a-time-field>
                         </div>
-                        <div class="relative w-1/3 flex-1">
+                        <div class="w-full sm:flex-1">
                             <label for="end-time">End Time<span>*</span></label>
                             <a-duration-field
                                 name="end-time"
@@ -110,14 +119,7 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                                 [time]="form?.value?.date"
                                 [max]="max_duration"
                             >
-                                Meeting must end at a future time.
                             </a-duration-field>
-                            <mat-checkbox
-                                formControlName="all_day"
-                                *ngIf="allow_all_day"
-                                class="absolute -top-2 right-0"
-                                >All Day</mat-checkbox
-                            >
                         </div>
                     </div>
                     <div *ngIf="can_book_for_others" class="w-full">

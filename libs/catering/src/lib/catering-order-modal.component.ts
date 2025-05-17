@@ -10,8 +10,16 @@ import {
     unique,
 } from '@placeos/common';
 
+import { CommonModule } from '@angular/common';
+import { MatRippleModule } from '@angular/material/core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { AttachedResourceRuleset } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { CounterComponent } from 'libs/form-fields/src/lib/counter.component';
 import { CateringItem } from './catering-item.class';
 import { CateringOrder } from './catering-order.class';
 import { CateringOption } from './catering.interfaces';
@@ -228,7 +236,16 @@ export interface CateringOrderModalData {
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        MatRippleModule,
+        CounterComponent,
+        MatTooltipModule,
+        MatProgressSpinnerModule,
+        MatTabsModule,
+        IconComponent,
+    ],
 })
 export class CateringOrderModalComponent
     extends AsyncHandler

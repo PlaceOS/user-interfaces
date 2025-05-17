@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import {
     Component,
     EventEmitter,
@@ -6,8 +7,11 @@ import {
     Output,
     SimpleChanges,
 } from '@angular/core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { BehaviorSubject } from 'rxjs';
 import { CateringItem } from '../catering-item.class';
+import { CateringItemListItemComponent } from './catering-item-list-item.component';
 import { CateringOrderStateService } from './catering-order-state.service';
 
 @Component({
@@ -87,7 +91,12 @@ import { CateringOrderStateService } from './catering-order-state.service';
         </ng-template>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        MatProgressSpinnerModule,
+        CateringItemListItemComponent,
+    ],
 })
 export class CateringItemListComponent implements OnChanges {
     @Input() public active = '';

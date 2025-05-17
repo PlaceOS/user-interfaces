@@ -1,6 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 
+import { CommonModule } from '@angular/common';
+import { MatRippleModule } from '@angular/material/core';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { AsyncHandler, SettingsService } from '@placeos/common';
+import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
+import { SimpleTableComponent } from 'libs/components/src/lib/simple-table.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { CateringOrderItemComponent } from './catering-order-item.component';
 import { CateringOrdersService } from './catering-orders.service';
 import { statusList } from './catering.vars';
 
@@ -233,7 +241,16 @@ import { statusList } from './catering.vars';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        CateringOrderItemComponent,
+        MatRippleModule,
+        TranslatePipe,
+        CustomTooltipComponent,
+        MatMenuModule,
+        SimpleTableComponent,
+        MatProgressBarModule,
+    ],
 })
 export class CateringOrderListComponent extends AsyncHandler implements OnInit {
     /** List of filtered orders */

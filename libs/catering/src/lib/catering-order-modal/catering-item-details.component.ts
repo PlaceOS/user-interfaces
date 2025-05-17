@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import {
     Component,
     EventEmitter,
@@ -6,7 +7,15 @@ import {
     Output,
     SimpleChanges,
 } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatRippleModule } from '@angular/material/core';
+import { MatRadioModule } from '@angular/material/radio';
 import { unique } from '@placeos/common';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { ImageCarouselComponent } from 'libs/components/src/lib/image-carousel.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { CounterComponent } from 'libs/form-fields/src/lib/counter.component';
 import { CateringItem } from '../catering-item.class';
 import { CateringOption } from '../catering.interfaces';
 
@@ -214,7 +223,17 @@ interface CateringOptionGroup {
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        MatRippleModule,
+        IconComponent,
+        MatCheckboxModule,
+        MatRadioModule,
+        FormsModule,
+        CounterComponent,
+        ImageCarouselComponent,
+    ],
 })
 export class CateringItemDetailsComponent implements OnChanges {
     @Input() public item?: CateringItem;

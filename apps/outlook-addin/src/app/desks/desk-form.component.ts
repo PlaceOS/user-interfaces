@@ -21,7 +21,7 @@ import { Desk } from '@placeos/organisation';
                     <div class="text-xl">Details</div>
                 </h3>
                 <div class="flex flex-wrap items-center sm:space-x-2">
-                    <div class="min-w-[256px] flex-1">
+                    <div class="w-full sm:flex-1">
                         <label for="title">Add Title<span>*</span></label>
                         <mat-form-field appearance="outline" class="w-full">
                             <input
@@ -33,15 +33,15 @@ import { Desk } from '@placeos/organisation';
                             <mat-error>Booking title is required.</mat-error>
                         </mat-form-field>
                     </div>
-                    <div class="min-w-[256px] flex-1">
+                    <div class="w-full sm:flex-1">
                         <label for="date">Date<span>*</span></label>
                         <a-date-field name="date" formControlName="date">
                             Date and time must be in the future
                         </a-date-field>
                     </div>
                 </div>
-                <div class="flex items-center space-x-2">
-                    <div class="w-1/3 flex-1">
+                <div class="flex flex-wrap items-center sm:space-x-2">
+                    <div class="w-full sm:flex-1">
                         <label for="start-time">Start Time<span>*</span></label>
                         <a-time-field
                             name="start-time"
@@ -50,7 +50,7 @@ import { Desk } from '@placeos/organisation';
                             [ngModelOptions]="{ standalone: true }"
                         ></a-time-field>
                     </div>
-                    <div class="relative w-1/3 flex-1">
+                    <div class="w-full sm:flex-1">
                         <label for="end-time">End Time<span>*</span></label>
                         <a-duration-field
                             name="end-time"

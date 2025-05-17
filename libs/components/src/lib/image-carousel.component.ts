@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { AuthenticatedImageDirective } from './authenticated-image.directive';
+import { IconComponent } from './icon.component';
 import { TranslatePipe } from './translate.pipe';
 
 @Component({
@@ -25,7 +26,7 @@ import { TranslatePipe } from './translate.pipe';
                 class="relative flex h-full w-full flex-col items-center justify-center space-y-2 opacity-30"
                 *ngIf="!images?.length"
             >
-                <icon class="text-6xl">image_not_supported</icon>
+                <icon class="text-6xl">image</icon>
                 <p>{{ 'COMMON.IMAGES_EMPTY' | translate }}</p>
             </div>
             <button
@@ -99,6 +100,7 @@ import { TranslatePipe } from './translate.pipe';
         MatRippleModule,
         TranslatePipe,
         AuthenticatedImageDirective,
+        IconComponent,
     ],
 })
 export class ImageCarouselComponent {

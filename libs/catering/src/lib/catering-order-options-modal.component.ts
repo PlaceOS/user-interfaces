@@ -1,9 +1,15 @@
 import { Component, EventEmitter, Inject, Output } from '@angular/core';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 
 import { unique } from 'libs/common/src/lib/general';
 import { DialogEvent, HashMap } from 'libs/common/src/lib/types';
 
+import { CommonModule } from '@angular/common';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatRippleModule } from '@angular/material/core';
+import { MatRadioModule } from '@angular/material/radio';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { CateringOption, CateringOptionGroup } from './catering.interfaces';
 
 export interface CateringOrderOptionsModalData {
@@ -83,7 +89,7 @@ export interface CateringOrderOptionsModalData {
         </main>
         <footer class="p-2">
             <button btn matRipple class="w-32" (click)="saveOptions()">
-                Save
+                {{ 'COMMON.SAVE' | translate }}
             </button>
         </footer>
     `,
@@ -96,7 +102,15 @@ export interface CateringOrderOptionsModalData {
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatRippleModule,
+        TranslatePipe,
+        MatCheckboxModule,
+        MatRadioModule,
+        MatDialogModule,
+        IconComponent,
+    ],
 })
 export class CateringOrderOptionsModalComponent {
     /** Emitter for events on the modal */

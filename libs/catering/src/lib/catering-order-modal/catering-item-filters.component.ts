@@ -1,4 +1,10 @@
+import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 import {
     AsyncHandler,
     i18n,
@@ -12,6 +18,9 @@ import {
     endOfDay,
     startOfDay,
 } from 'date-fns';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { DurationFieldComponent } from 'libs/form-fields/src/lib/duration-field.component';
 import { CateringOrderStateService } from './catering-order-state.service';
 
 const ICONS = {
@@ -168,7 +177,17 @@ const ICONS = {
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        MatCheckboxModule,
+        IconComponent,
+        MatFormFieldModule,
+        DurationFieldComponent,
+        MatSelectModule,
+        MatInputModule,
+        FormsModule,
+    ],
 })
 export class CateringItemFiltersComponent
     extends AsyncHandler

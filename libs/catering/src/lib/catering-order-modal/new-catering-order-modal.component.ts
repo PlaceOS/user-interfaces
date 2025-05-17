@@ -1,8 +1,15 @@
+import { CommonModule } from '@angular/common';
 import { Component, Inject } from '@angular/core';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatRippleModule } from '@angular/material/core';
+import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { CateringItem } from '../catering-item.class';
+import { CateringItemDetailsComponent } from './catering-item-details.component';
+import { CateringItemFiltersComponent } from './catering-item-filters.component';
+import { CateringItemListComponent } from './catering-item-list.component';
 import { CateringOrderStateService } from './catering-order-state.service';
 
 const EMPTY_FAVS: string[] = [];
@@ -139,7 +146,16 @@ const EMPTY_FAVS: string[] = [];
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        IconComponent,
+        MatRippleModule,
+        MatDialogModule,
+        CateringItemDetailsComponent,
+        CateringItemListComponent,
+        CateringItemFiltersComponent,
+    ],
 })
 export class NewCateringOrderModalComponent {
     public displayed: CateringItem | null = null;
