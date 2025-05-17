@@ -115,7 +115,6 @@ const MAT_MODULES = [
 const COMPONENTS = [
     ActionIconComponent,
     PopoutMenuComponent,
-    UserAvatarComponent,
 
     MapPinComponent,
     MapRadiusComponent,
@@ -124,7 +123,6 @@ const COMPONENTS = [
     IndoorMapsComponent,
     StatusOverlayComponent,
     MapLocateModalComponent,
-    ImageCarouselComponent,
     RedirectComponent,
     DebugConsoleComponent,
     JsonDisplayComponent,
@@ -133,12 +131,8 @@ const COMPONENTS = [
     WorkLocationTooltipComponent,
 
     FixedPipe,
-    DurationPipe,
-    LevelPipe,
-    BuildingPipe,
     DateFromPipe,
     ThumbnailPipe,
-    ZonePipe,
 
     UserControlsComponent,
     BuildingSelectComponent,
@@ -172,6 +166,8 @@ const STANDALONE_COMPONENTS = [
     SimpleTableComponent,
     AvailableRoomsStateModalComponent,
     ChangelogModalComponent,
+    ImageCarouselComponent,
+    UserAvatarComponent,
 
     UnauthorisedComponent,
     FullscreenModalShellComponent,
@@ -183,6 +179,10 @@ const STANDALONE_COMPONENTS = [
     MediaDurationPipe,
     SafePipe,
     SanitizePipe,
+    DurationPipe,
+    LevelPipe,
+    BuildingPipe,
+    ZonePipe,
 ];
 
 @NgModule({

@@ -7,7 +7,7 @@ import {
     SimpleChanges,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
     i18n,
@@ -15,10 +15,15 @@ import {
     SettingsService,
 } from '@placeos/common';
 
+import { CommonModule } from '@angular/common';
+import { MatRippleModule } from '@angular/material/core';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { OrganisationService } from '@placeos/organisation';
 import { endOfDay, startOfDay } from 'date-fns';
 import { CateringItem } from 'libs/catering/src/lib/catering-item.class';
 import { NewCateringOrderModalComponent } from 'libs/catering/src/lib/catering-order-modal/new-catering-order-modal.component';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { CateringOrder } from './catering-order.class';
 
 const EMPTY_FAVS = [];
@@ -224,7 +229,14 @@ const EMPTY_FAVS = [];
             multi: true,
         },
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        IconComponent,
+        TranslatePipe,
+        MatRippleModule,
+        MatTooltipModule,
+        MatDialogModule,
+    ],
 })
 export class CateringListFieldComponent
     implements ControlValueAccessor, OnInit, OnChanges

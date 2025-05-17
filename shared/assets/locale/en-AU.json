@@ -16,6 +16,7 @@
         "RETURN": "Return",
         "FILTERS": "Filters",
         "FILTERS_CLEAR": "Clear Filters",
+        "OPTIONS": "Options",
         "COLUMN": "Column",
         "ROW": "Row",
         "DUPLICATE": "Duplicate",
@@ -559,7 +560,18 @@
         "SPACE_REMOVE": "Remove this space",
         "SPACE_ADD_TO": "Add this space",
         "INDUCTED": "Inducted",
-        "RECURRING_TOOLTIP": "This booking is part of a recurring series"
+        "RECURRING_TOOLTIP": "This booking is part of a recurring series",
+        "ASSETS_ADD_HEADER": "Add Assets",
+        "ASSETS_ADD": "Add this Asset",
+        "ASSETS_REMOVE": "Remove this Asset",
+        "ASSETS_SELECT": "Select an asset to view it's details",
+        "ASSETS_SEARCH": "Search assets...",
+        "ASSETS_LOADING": "Finding assets...",
+        "ASSETS_EMPTY": "No available assets for selected time and/or filters",
+        "ASSETS_DELIVER_TOGGLE": "Exact Time",
+        "ASSETS_DELIVER_DATE": "Delivery Date",
+        "ASSETS_DELIVER_TIME": "Deliver After",
+        "ASSETS_AVAILABLE": "{{ count }} available"
     },
     "CALENDAR_EVENT": {
         "CATERING": "Catering",

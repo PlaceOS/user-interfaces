@@ -1,5 +1,6 @@
 import { Pipe } from '@angular/core';
 
+import { lastValueFrom } from 'rxjs';
 import { AssetGroup } from './asset.class';
 import { showAssetGroup } from './assets.fn';
 
@@ -17,7 +18,6 @@ export function updateAssetGroupList(assetgroup_list: AssetGroup[]) {
 
 @Pipe({
     name: 'assetgroup',
-    standalone: false,
 })
 export class AssetGroupPipe {
     /**
@@ -28,9 +28,9 @@ export class AssetGroupPipe {
         if (!group_id) return EMPTY_ASSET_GROUP;
         let asset_group = ASSET_GROUP_LIST.find(({ id }) => id === group_id);
         if (asset_group) return asset_group;
-        const group = await showAssetGroup(group_id)
-            .toPromise()
-            .catch((_) => null);
+        const group = await lastValueFrom(showAssetGroup(group_id)).catch(
+            () => null,
+        );
         if (group) {
             asset_group = { ...group };
             ASSET_GROUP_LIST.push(asset_group);

@@ -18,6 +18,7 @@ import { addYears, endOfDay, set, startOfDay } from 'date-fns';
 import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
 import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { DateCalendarComponent } from './date-calendar.component';
 
 export enum TimezoneDiffRange {
@@ -89,6 +90,7 @@ export enum TimezoneDiffRange {
         DateCalendarComponent,
         IconComponent,
         CustomTooltipComponent,
+        TranslatePipe,
     ],
 })
 export class DateFieldComponent

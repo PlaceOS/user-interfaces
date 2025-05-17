@@ -3,10 +3,17 @@ import { AsyncHandler, SettingsService } from '@placeos/common';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { debounceTime, map } from 'rxjs/operators';
 
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+
+import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
 import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
 import { DEFAULT_COLOURS } from 'libs/explore/src/lib/explore-spaces.service';
 import { BuildingLevel } from 'libs/organisation/src/lib/level.class';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
+
 import { Space } from '../space.class';
 import { SpaceLocationPinComponent } from './space-location-pin.component';
 
@@ -69,7 +76,14 @@ import { SpaceLocationPinComponent } from './space-location-pin.component';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        InteractiveMapComponent,
+        MatFormFieldModule,
+        MatSelectModule,
+        FormsModule,
+        SpaceLocationPinComponent,
+    ],
 })
 export class SpaceSelectMapComponent extends AsyncHandler implements OnInit {
     @Input() public selected: string[] = [];

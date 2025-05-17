@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import {
     Component,
     EventEmitter,
@@ -5,6 +6,9 @@ import {
     Output,
     SimpleChanges,
 } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { AssetStateService } from '../asset-state.service';
@@ -75,11 +79,16 @@ import { AssetGroup } from '../asset.class';
                                 >
                                     <p>
                                         {{
-                                            asset.available ||
-                                                asset.assets?.length ||
-                                                '0'
+                                            'BOOKINGS.ASSETS_AVAILABLE'
+                                                | translate
+                                                    : {
+                                                          count:
+                                                              asset.available ||
+                                                              asset.assets
+                                                                  ?.length ||
+                                                              '0',
+                                                      }
                                         }}
-                                        Available
                                     </p>
                                 </div>
                             </div>
@@ -108,7 +117,7 @@ import { AssetGroup } from '../asset.class';
                 class="flex flex-col items-center justify-center space-y-2 p-16"
             >
                 <p class="text-center opacity-30">
-                    No available assets for selected time and/or filters
+                    {{ 'BOOKINGS.ASSETS_EMPTY' | translate }}
                 </p>
             </div>
         </ng-template>
@@ -118,7 +127,9 @@ import { AssetGroup } from '../asset.class';
                 class="flex flex-col items-center justify-center space-y-2 p-16"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
-                <p class="opacity-30">Finding available assets...</p>
+                <p class="opacity-30">
+                    {{ 'BOOKINGS.ASSETS_LOADING' | translate }}
+                </p>
             </div>
         </ng-template>
     `,
@@ -130,10 +141,15 @@ import { AssetGroup } from '../asset.class';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatProgressSpinnerModule,
+        MatRippleModule,
+        TranslatePipe,
+    ],
 })
 export class AssetListComponent {
-    @Input() public selected: string = '';
+    @Input() public selected = '';
     @Input() public favorites: string[] = [];
     @Input() public selected_items: AssetGroup[] = [];
     @Input() public requested: Record<string, number> = {};

@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import {
     Component,
     EventEmitter,
@@ -5,6 +6,10 @@ import {
     Output,
     SimpleChanges,
 } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { ImageCarouselComponent } from 'libs/components/src/lib/image-carousel.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { AssetGroup } from '../asset.class';
 
 @Component({
@@ -88,7 +93,10 @@ import { AssetGroup } from '../asset.class';
                         </icon>
                         <p>
                             {{
-                                active ? 'Remove this asset' : 'Add this asset'
+                                (active
+                                    ? 'BOOKINGS.ASSETS_REMOVE'
+                                    : 'BOOKINGS.ASSETS_ADD'
+                                ) | translate
                             }}
                         </p>
                     </div>
@@ -101,7 +109,7 @@ import { AssetGroup } from '../asset.class';
                 class="flex flex-col items-center justify-center space-y-2 p-16"
             >
                 <p class="text-center opacity-30">
-                    Select an asset to view it's details
+                    {{ 'BOOKINGS.ASSETS_SELECT' | translate }}
                 </p>
             </div>
         </ng-template>
@@ -118,12 +126,18 @@ import { AssetGroup } from '../asset.class';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        ImageCarouselComponent,
+        IconComponent,
+        TranslatePipe,
+        MatRippleModule,
+    ],
 })
 export class AssetDetailsComponent {
     @Input() public item?: AssetGroup;
-    @Input() public active: boolean = false;
-    @Input() public fav: boolean = false;
+    @Input() public active = false;
+    @Input() public fav = false;
 
     @Output() public toggleFav = new EventEmitter<void>();
     @Output() public activeChange = new EventEmitter<boolean>();

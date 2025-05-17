@@ -1,15 +1,30 @@
+import { CommonModule } from '@angular/common';
 import { Component, Inject, OnInit } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatRippleModule } from '@angular/material/core';
+import {
+    MAT_DIALOG_DATA,
+    MatDialogModule,
+    MatDialogRef,
+} from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { showUser, updateUser } from '@placeos/ts-client';
+import { addDays, set, startOfMinute, startOfWeek } from 'date-fns';
+import { lastValueFrom } from 'rxjs';
+
 import {
     currentUser,
     i18n,
     notifyError,
     reloadUserData,
 } from '@placeos/common';
-import { showUser, updateUser } from '@placeos/ts-client';
-import { addDays, set, startOfMinute, startOfWeek } from 'date-fns';
-import { lastValueFrom } from 'rxjs';
+
 import { WorktimeBlock, WorktimePreference } from './user.class';
+
+import { FormsModule } from '@angular/forms';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.component';
 
 @Component({
     selector: `wfh-settings-modal`,
@@ -185,7 +200,17 @@ import { WorktimeBlock, WorktimePreference } from './user.class';
         </ng-template>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatDialogModule,
+        TranslatePipe,
+        MatRippleModule,
+        MatFormFieldModule,
+        MatSelectModule,
+        TimeFieldComponent,
+        MatCheckboxModule,
+        FormsModule,
+    ],
 })
 export class WFHSettingsModalComponent implements OnInit {
     public options = [];

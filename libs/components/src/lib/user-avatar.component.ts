@@ -1,5 +1,7 @@
+import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { User } from 'libs/users/src/lib/user.class';
+import { AuthenticatedImageDirective } from './authenticated-image.directive';
 
 @Component({
     selector: 'a-user-avatar',
@@ -22,7 +24,7 @@ import { User } from 'libs/users/src/lib/user.class';
         </ng-template>
     `,
     styles: [``],
-    standalone: false,
+    imports: [CommonModule, AuthenticatedImageDirective],
 })
 export class UserAvatarComponent {
     /** User to display avatar for */

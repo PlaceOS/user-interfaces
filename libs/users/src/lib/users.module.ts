@@ -1,14 +1,4 @@
-import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatDialogModule } from '@angular/material/dialog';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-
-import { ComponentsModule } from 'libs/components/src/lib/components.module';
-import { FormFieldsModule } from 'libs/form-fields/src/lib/form-fields.module';
 
 import { FindAvailabilityModalComponent } from './find-availability-modal/find-availability-modal.component';
 import { UserAvailabilityComponent } from './find-availability-modal/user-availability.component';
@@ -18,7 +8,7 @@ import { UserFormComponent } from './user-form.component';
 import { UserPipe } from './user.pipe';
 import { WFHSettingsModalComponent } from './wfh-settings-modal.component';
 
-const COMPONENTS = [
+const STANDALONE_COMPONENTS = [
     NewUserModalComponent,
     UserFormComponent,
     WFHSettingsModalComponent,
@@ -29,18 +19,8 @@ const COMPONENTS = [
 ];
 
 @NgModule({
-    declarations: [...COMPONENTS],
-    imports: [
-        CommonModule,
-        FormsModule,
-        ReactiveFormsModule,
-        MatDialogModule,
-        FormFieldsModule,
-        ComponentsModule,
-        MatCheckboxModule,
-        MatProgressSpinnerModule,
-        MatMenuModule,
-    ],
-    exports: [...COMPONENTS],
+    declarations: [],
+    imports: [...STANDALONE_COMPONENTS],
+    exports: [...STANDALONE_COMPONENTS],
 })
 export class SharedUsersModule {}

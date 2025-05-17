@@ -1,4 +1,8 @@
+import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
+import { AuthenticatedImageDirective } from './authenticated-image.directive';
+import { TranslatePipe } from './translate.pipe';
 
 @Component({
     selector: 'image-carousel',
@@ -90,7 +94,12 @@ import { Component, Input } from '@angular/core';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatRippleModule,
+        TranslatePipe,
+        AuthenticatedImageDirective,
+    ],
 })
 export class ImageCarouselComponent {
     @Input() public images: string[] = [];

@@ -2,11 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import {
-    CateringItem,
-    CateringOrder,
-    CateringStateService,
-} from '@placeos/catering';
-import {
     AsyncHandler,
     i18n,
     log,
@@ -15,18 +10,29 @@ import {
     notifySuccess,
     SettingsService,
 } from '@placeos/common';
-import { setToken } from '@placeos/ts-client';
+import { OrganisationService } from '@placeos/organisation';
+import { setToken, showMetadata } from '@placeos/ts-client';
 import {
     Booking,
     LinkedCalendarEvent,
 } from 'libs/bookings/src/lib/booking.class';
 import { saveBooking, updateBooking } from 'libs/bookings/src/lib/bookings.fn';
+import { CateringItem } from 'libs/catering/src/lib/catering-item.class';
+import { CateringOrder } from 'libs/catering/src/lib/catering-order.class';
 import {
     showEventMetadata,
     updateEventMetadata,
 } from 'libs/events/src/lib/events.fn';
-import { lastValueFrom } from 'rxjs';
-import { first, map, tap } from 'rxjs/operators';
+import { lastValueFrom, of } from 'rxjs';
+import {
+    catchError,
+    filter,
+    first,
+    map,
+    shareReplay,
+    startWith,
+    switchMap,
+} from 'rxjs/operators';
 import { CheckinStateService } from './checkin-state.service';
 
 @Component({
@@ -109,26 +115,35 @@ export class CheckinPreferencesComponent
     public beverage: CateringItem;
     public readonly event = this._checkin.event;
 
-    public readonly menu = this._catering.menu.pipe(
-        map((l) => {
-            return l.filter((_) =>
+    public readonly menu = this._org.active_building.pipe(
+        filter((_) => !!_),
+        switchMap((bld) =>
+            showMetadata(bld.id, 'catering').pipe(
+                catchError(() => of({ details: [] })),
+                map(({ details }) => (details instanceof Array ? details : [])),
+                map((menu) => menu.map((i) => new CateringItem(i))),
+            ),
+        ),
+        map((menu) =>
+            menu.filter((_) =>
                 (_.tags || []).find(
                     (_) =>
                         _.toLowerCase() === 'drink' ||
                         _.toLowerCase() === 'drinks' ||
                         _.toLowerCase() === 'beverage',
                 ),
-            );
-        }),
-        tap(() => (this.loading = false)),
+            ),
+        ),
+        startWith([]),
+        shareReplay(1),
     );
 
     constructor(
         private _route: ActivatedRoute,
         private _router: Router,
         private _checkin: CheckinStateService,
-        private _catering: CateringStateService,
         private _settings: SettingsService,
+        private _org: OrganisationService,
     ) {
         super();
     }

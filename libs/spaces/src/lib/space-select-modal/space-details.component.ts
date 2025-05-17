@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import {
     Component,
     EventEmitter,
@@ -6,8 +7,12 @@ import {
     Output,
     SimpleChanges,
 } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
 import { ViewerFeature } from '@placeos/svg-viewer';
+import { ImageCarouselComponent } from 'libs/components/src/lib/image-carousel.component';
+import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
 import { MapPinComponent } from 'libs/components/src/lib/map-pin.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { Space } from '../space.class';
 
@@ -181,7 +186,13 @@ import { Space } from '../space.class';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        MatRippleModule,
+        InteractiveMapComponent,
+        ImageCarouselComponent,
+    ],
 })
 export class SpaceDetailsComponent implements OnChanges {
     @Input() public space?: Space;

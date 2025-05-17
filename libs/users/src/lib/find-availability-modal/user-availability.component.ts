@@ -1,5 +1,6 @@
 import { Component, Input } from '@angular/core';
 
+import { CommonModule } from '@angular/common';
 import { User } from '../user.class';
 
 export interface AvailabilityBlock {
@@ -39,7 +40,7 @@ export interface AvailabilityBlock {
             }
         `,
     ],
-    standalone: false,
+    imports: [CommonModule],
 })
 export class UserAvailabilityComponent {
     @Input() public user: User;

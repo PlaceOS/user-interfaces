@@ -10,8 +10,19 @@ import { addDays, endOfDay, startOfDay } from 'date-fns';
 import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 
+import { CommonModule } from '@angular/common';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatRippleModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
 import { Region } from '@placeos/organisation';
+import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
+import { DateFieldComponent } from 'libs/form-fields/src/lib/date-field.component';
+import { DurationFieldComponent } from 'libs/form-fields/src/lib/duration-field.component';
+import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.component';
 import { Building } from 'libs/organisation/src/lib/building.class';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { SpacesService } from '../spaces.service';
@@ -296,7 +307,20 @@ import { SpacesService } from '../spaces.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatRippleModule,
+        TranslatePipe,
+        SettingsToggleComponent,
+        DurationFieldComponent,
+        TimeFieldComponent,
+        MatCheckboxModule,
+        DateFieldComponent,
+        MatFormFieldModule,
+        MatSelectModule,
+        FormsModule,
+        ReactiveFormsModule,
+    ],
 })
 export class SpaceFiltersComponent {
     @Input() public multiday: boolean;

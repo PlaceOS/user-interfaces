@@ -1,7 +1,7 @@
 import { FormGroup } from '@angular/forms';
-
+import { formatDuration as duration } from 'date-fns';
 import { lastValueFrom, Observable, take } from 'rxjs';
-import { i18n } from './locale.service';
+import { i18n, i18nAvailable } from './locale.service';
 import { HashMap } from './types';
 
 /** Available console output streams. */
@@ -539,6 +539,9 @@ export function formatDuration(
     },
     { zero }: { zero?: boolean } = {},
 ): string {
+    if (!i18nAvailable()) {
+        return duration({ days, hours, minutes, seconds }, { zero });
+    }
     const value = [];
     if (days || (zero && days === 0))
         value.push(

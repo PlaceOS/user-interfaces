@@ -5,7 +5,6 @@ export * from './lib/attached-resource-config-modal.component';
 export * from './lib/available-rooms-state-modal.component';
 export * from './lib/changelog-modal.component';
 export * from './lib/fixed.pipe';
-export * from './lib/image-carousel.component';
 export * from './lib/login.component';
 export * from './lib/map-locate-modal.component';
 export * from './lib/map-pin.component';

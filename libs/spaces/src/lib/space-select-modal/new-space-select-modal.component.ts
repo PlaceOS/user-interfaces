@@ -1,11 +1,23 @@
+import { CommonModule } from '@angular/common';
 import { Component, Inject } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MatRippleModule } from '@angular/material/core';
+import {
+    MAT_DIALOG_DATA,
+    MatDialogModule,
+    MatDialogRef,
+} from '@angular/material/dialog';
 import { SettingsService } from '@placeos/common';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import {
     EventFormOptions,
     EventFormService,
 } from 'libs/events/src/lib/new-event-form.service';
 import { Space } from '../space.class';
+import { SpaceDetailsComponent } from './space-details.component';
+import { SpaceFiltersDisplayComponent } from './space-filters-display.component';
+import { SpaceFiltersComponent } from './space-filters.component';
+import { SpaceListComponent } from './space-list.component';
 
 @Component({
     selector: 'new-space-select-modal',
@@ -164,7 +176,17 @@ import { Space } from '../space.class';
         </ng-template>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatRippleModule,
+        TranslatePipe,
+        SpaceDetailsComponent,
+        SpaceListComponent,
+        SpaceFiltersComponent,
+        SpaceFiltersDisplayComponent,
+        IconComponent,
+        MatDialogModule,
+    ],
 })
 export class NewSpaceSelectModalComponent {
     public displayed?: Space;

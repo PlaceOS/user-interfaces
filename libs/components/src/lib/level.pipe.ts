@@ -3,7 +3,6 @@ import { BuildingLevel, OrganisationService } from '@placeos/organisation';
 
 @Pipe({
     name: 'level',
-    standalone: false,
 })
 export class LevelPipe implements PipeTransform {
     constructor(private _org: OrganisationService) {}

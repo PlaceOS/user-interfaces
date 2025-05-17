@@ -1,4 +1,10 @@
+import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import {
     addDays,
@@ -7,6 +13,8 @@ import {
     endOfDay,
     startOfDay,
 } from 'date-fns';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { DurationFieldComponent } from 'libs/form-fields/src/lib/duration-field.component';
 import { AssetStateService } from '../asset-state.service';
 
 @Component({
@@ -19,12 +27,12 @@ import { AssetStateService } from '../asset-state.service';
                     matInput
                     [ngModel]="search_value | async"
                     (ngModelChange)="setSearch($event)"
-                    placeholder="Search menu..."
+                    [placeholder]="'BOOKINGS.ASSETS_SEARCH' | translate"
                 />
             </mat-form-field>
         </div>
         <h3 class="hidden px-2 py-2 font-medium sm:block" *ngIf="!search">
-            Options
+            {{ 'COMMON.OPTIONS' | translate }}
         </h3>
         <div class="flex flex-col px-2" *ngIf="!search">
             <mat-checkbox
@@ -32,10 +40,10 @@ import { AssetStateService } from '../asset-state.service';
                 (ngModelChange)="at_timeChange.next($event)"
                 [matTooltip]="exact_tooltip"
             >
-                Exact Time
+                {{ 'BOOKINGS.ASSETS_DELIVER_TOGGLE' | translate }}
             </mat-checkbox>
             <ng-container *ngIf="day_options.length > 1">
-                <label>Deliver Date:</label>
+                <label>{{ 'BOOKINGS.ASSETS_DELIVER_DATE' | translate }}</label>
                 <mat-form-field
                     appearance="outline"
                     class="no-subscript mb-4 w-full"
@@ -53,7 +61,7 @@ import { AssetStateService } from '../asset-state.service';
                     </mat-select>
                 </mat-form-field>
             </ng-container>
-            <label>Deliver After:</label>
+            <label>{{ 'BOOKINGS.ASSETS_DELIVER_TIME' | translate }}</label>
             <a-duration-field
                 [(ngModel)]="offset"
                 (ngModelChange)="offsetChange.next($event)"
@@ -93,7 +101,16 @@ import { AssetStateService } from '../asset-state.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatCheckboxModule,
+        FormsModule,
+        MatSelectModule,
+        TranslatePipe,
+        DurationFieldComponent,
+    ],
 })
 export class AssetFiltersComponent extends AsyncHandler {
     @Input() public search = false;

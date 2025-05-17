@@ -1,8 +1,16 @@
+import { CommonModule } from '@angular/common';
 import { Component, Inject } from '@angular/core';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatRippleModule } from '@angular/material/core';
+import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { SettingsService } from '@placeos/common';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { AssetStateService } from '../asset-state.service';
 import { AssetGroup } from '../asset.class';
+import { AssetDetailsComponent } from './asset-details.component';
+import { AssetFiltersDisplayComponent } from './asset-filters-display.component';
+import { AssetFiltersComponent } from './asset-filters.component';
+import { AssetListComponent } from './asset-list.component';
 
 const EMPTY_FAVS: string[] = [];
 
@@ -16,7 +24,7 @@ const EMPTY_FAVS: string[] = [];
                 <button icon mat-dialog-close class="bg-base-200">
                     <icon>close</icon>
                 </button>
-                <h3>Add Assets</h3>
+                <h3>{{ 'BOOKINGS.ASSETS_ADD_HEADER' | translate }}</h3>
             </header>
             <main
                 class="flex h-[65vh] min-h-[65vh] w-full flex-1 items-center divide-x divide-base-200 overflow-hidden sm:max-h-[65vh] sm:max-w-[95vw]"
@@ -74,7 +82,7 @@ const EMPTY_FAVS: string[] = [];
                     *ngIf="displayed"
                     (click)="displayed = null"
                 >
-                    Back
+                    {{ 'COMMON.BACK' | translate }}
                 </button>
                 <button
                     btn
@@ -84,7 +92,7 @@ const EMPTY_FAVS: string[] = [];
                     [class.mb-2]="displayed"
                     class="w-full sm:mb-0 sm:w-auto"
                 >
-                    View List
+                    {{ 'COMMON.VIEW_LIST' | translate }}
                 </button>
             </footer>
             <footer
@@ -115,9 +123,10 @@ const EMPTY_FAVS: string[] = [];
                         </icon>
                         <div class="mr-1">
                             {{
-                                isSelected(displayed?.id)
-                                    ? 'Remove from Booking'
-                                    : 'Add to booking'
+                                (isSelected(displayed?.id)
+                                    ? 'COMMON.REMOVE_FROM'
+                                    : 'COMMON.ADD_TO'
+                                ) | translate
                             }}
                         </div>
                     </div>
@@ -126,7 +135,18 @@ const EMPTY_FAVS: string[] = [];
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        IconComponent,
+        MatRippleModule,
+        MatDialogModule,
+        AssetDetailsComponent,
+        AssetListComponent,
+        AssetFiltersComponent,
+        AssetFiltersDisplayComponent,
+        AssetDetailsComponent,
+        TranslatePipe,
+    ],
 })
 export class AssetSelectModalComponent {
     public displayed: AssetGroup | null = null;

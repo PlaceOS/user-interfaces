@@ -4,6 +4,5 @@ import { Component } from '@angular/core';
     selector: 'asset-filters-display',
     template: ``,
     styles: [``],
-    standalone: false,
 })
 export class AssetFiltersDisplayComponent {}

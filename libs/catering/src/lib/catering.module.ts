@@ -45,7 +45,6 @@ const COMPONENTS: Type<any>[] = [
     CateringOrderItemComponent,
     CateringImportMenuModalComponent,
 
-    CateringListFieldComponent,
     NewCateringOrderModalComponent,
     CateringItemListComponent,
     CateringItemDetailsComponent,
@@ -55,11 +54,9 @@ const COMPONENTS: Type<any>[] = [
     ChargeCodeListModalComponent,
 ];
 
-const STANDALONE_COMPONENTS = [
-    IconComponent,
-    TranslatePipe,
-    SimpleTableComponent,
-];
+const STANDALONE_IMPORTS = [IconComponent, TranslatePipe, SimpleTableComponent];
+
+const STANDALONE_COMPONENTS = [CateringListFieldComponent];
 
 const MAT_MODULES = [
     MatMenuModule,
@@ -83,9 +80,10 @@ const MAT_MODULES = [
         FormsModule,
         ReactiveFormsModule,
         ...MAT_MODULES,
+        ...STANDALONE_IMPORTS,
         ...STANDALONE_COMPONENTS,
     ],
     providers: [],
-    exports: [...COMPONENTS],
+    exports: [...COMPONENTS, ...STANDALONE_COMPONENTS],
 })
 export class SharedCateringModule {}

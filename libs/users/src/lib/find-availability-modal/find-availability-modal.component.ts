@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import {
     AfterViewInit,
     Component,
@@ -6,7 +7,13 @@ import {
     Renderer2,
     ViewChild,
 } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { FormsModule } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
+import {
+    MAT_DIALOG_DATA,
+    MatDialogModule,
+    MatDialogRef,
+} from '@angular/material/dialog';
 import { AsyncHandler } from '@placeos/common';
 import {
     addMinutes,
@@ -19,6 +26,12 @@ import {
     startOfDay,
 } from 'date-fns';
 import { queryUserFreeBusy } from 'libs/calendar/src/lib/calendar.fn';
+import { DurationPipe } from 'libs/components/src/lib/duration.pipe';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { UserAvatarComponent } from 'libs/components/src/lib/user-avatar.component';
+import { DateFieldComponent } from 'libs/form-fields/src/lib/date-field.component';
+import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-field.component';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import {
     catchError,
@@ -29,7 +42,10 @@ import {
     switchMap,
 } from 'rxjs/operators';
 import { User } from '../user.class';
-import { AvailabilityBlock } from './user-availability.component';
+import {
+    AvailabilityBlock,
+    UserAvailabilityComponent,
+} from './user-availability.component';
 
 export interface FindAvailabilityData {
     host: User;
@@ -244,7 +260,19 @@ export interface FindAvailabilityData {
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatRippleModule,
+        TranslatePipe,
+        UserAvailabilityComponent,
+        UserAvatarComponent,
+        UserSearchFieldComponent,
+        DateFieldComponent,
+        IconComponent,
+        MatDialogModule,
+        DurationPipe,
+        FormsModule,
+    ],
 })
 export class FindAvailabilityModalComponent
     extends AsyncHandler

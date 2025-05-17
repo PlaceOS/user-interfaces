@@ -1,7 +1,13 @@
 import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { AsyncHandler, DialogEvent } from '@placeos/common';
 
+import { CommonModule } from '@angular/common';
+import { MatRippleModule } from '@angular/material/core';
+
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+
+import { UserFormComponent } from './user-form.component';
 import { User } from './user.class';
 import { generateUserForm } from './user.utilities';
 
@@ -57,7 +63,13 @@ import { generateUserForm } from './user.utilities';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        MatRippleModule,
+        UserFormComponent,
+        MatDialogModule,
+    ],
 })
 export class NewUserModalComponent extends AsyncHandler implements OnInit {
     /** Emitter for user action on the modal */

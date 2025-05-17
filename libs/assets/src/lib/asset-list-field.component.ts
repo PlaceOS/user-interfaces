@@ -1,8 +1,11 @@
 import { Component, Input, SimpleChanges, forwardRef } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 
+import { CommonModule } from '@angular/common';
+import { MatRippleModule } from '@angular/material/core';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
     i18n,
@@ -12,6 +15,8 @@ import {
 } from '@placeos/common';
 import { endOfDay, startOfDay } from 'date-fns';
 import { AssetSelectModalComponent } from 'libs/assets/src/lib/asset-select-modal/asset-select-modal.component';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { AssetItem, AssetRequest } from './asset-request.class';
 import { AssetStateService } from './asset-state.service';
 
@@ -177,7 +182,14 @@ const EMPTY_FAVS: string[] = [];
         },
     ],
     animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
-    standalone: false,
+    imports: [
+        CommonModule,
+        IconComponent,
+        TranslatePipe,
+        MatRippleModule,
+        MatTooltipModule,
+        MatDialogModule,
+    ],
 })
 export class AssetListFieldComponent implements ControlValueAccessor {
     @Input() public options: {

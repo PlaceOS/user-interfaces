@@ -11,6 +11,10 @@ export function setTranslationService(service: LocaleService) {
     _service = service;
 }
 
+export function i18nAvailable() {
+    return !!_service;
+}
+
 export function i18n(key: string, args: Record<string, any> = {}, plural = 0) {
     if (!_service) return key;
     return _service.get(key, args, plural);

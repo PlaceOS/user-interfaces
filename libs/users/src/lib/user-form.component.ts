@@ -1,5 +1,11 @@
+import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 
 @Component({
     selector: 'user-form',
@@ -101,7 +107,14 @@ import { FormGroup } from '@angular/forms';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatCheckboxModule,
+        MatFormFieldModule,
+        MatInputModule,
+        ReactiveFormsModule,
+        TranslatePipe,
+    ],
 })
 export class UserFormComponent {
     /** Group of form fields used for creating the system */
