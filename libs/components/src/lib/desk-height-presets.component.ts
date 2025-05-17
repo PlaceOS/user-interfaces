@@ -1,5 +1,10 @@
+import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
+import { MatSliderModule } from '@angular/material/slider';
 import { SettingsService } from '@placeos/common';
+import { TranslatePipe } from './translate.pipe';
 
 @Component({
     selector: 'desk-height-presets',
@@ -78,7 +83,13 @@ import { SettingsService } from '@placeos/common';
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        MatRippleModule,
+        MatSliderModule,
+        FormsModule,
+    ],
 })
 export class DeskHeightPresetsComponent {
     @Input() public show_close = false;

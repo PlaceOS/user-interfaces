@@ -1,4 +1,6 @@
+import { CommonModule } from '@angular/common';
 import { Component, Inject } from '@angular/core';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { MAP_FEATURE_DATA } from 'libs/components/src/lib/interactive-map.component';
 
 @Component({
@@ -78,7 +80,7 @@ import { MAP_FEATURE_DATA } from 'libs/components/src/lib/interactive-map.compon
         </div>
     `,
     styles: [],
-    standalone: false,
+    imports: [CommonModule, IconComponent],
 })
 export class ParkingSpaceLocationPinComponent {
     public get selected() {

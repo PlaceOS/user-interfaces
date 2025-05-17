@@ -30,6 +30,7 @@ import { BookModule } from './rooms/book.module';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MeetingFlowConfirmComponent } from 'apps/workplace/src/app/book/meeting-flow/meeting-flow-confirm.component';
 import { AssetListFieldComponent } from 'libs/assets/src/lib/asset-list-field.component';
+import { DeskListFieldComponent } from 'libs/bookings/src/lib/desk-list-field.component';
 import { CateringListFieldComponent } from 'libs/catering/src/lib/catering-list-field.component';
 import { GlobalBannerComponent } from 'libs/components/src/lib/global-banner.component';
 import { GlobalLoadingComponent } from 'libs/components/src/lib/global-loading.component';
@@ -69,6 +70,7 @@ const STANDALONE_COMPONENTS = [
     UserListFieldComponent,
     HostSelectFieldComponent,
     SpaceListFieldComponent,
+    DeskListFieldComponent,
     CateringListFieldComponent,
     AssetListFieldComponent,
     RichTextInputComponent,

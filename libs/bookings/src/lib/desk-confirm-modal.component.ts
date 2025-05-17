@@ -1,7 +1,16 @@
+import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Inject, Output } from '@angular/core';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatRippleModule } from '@angular/material/core';
+import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { DialogEvent, SettingsService } from '@placeos/common';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { DateFieldComponent } from 'libs/form-fields/src/lib/date-field.component';
+import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-field.component';
 
 import { Desk } from 'libs/organisation/src/lib/desk.class';
 import { BuildingLevel } from 'libs/organisation/src/lib/level.class';
@@ -23,20 +32,20 @@ export interface DeskConfirmModalData {
             <h2>Confirm Booking</h2>
             <div class="flex-1"></div>
             <button icon mat-dialog-close *ngIf="!loading">
-                <i class="material-symbols-rounded">close</i>
+                <icon>close</icon>
             </button>
         </header>
         <ng-container *ngIf="!loading; else load_state">
             <main class="p-4">
                 <div host class="flex flex-col" *ngIf="can_set_host">
-                    <label>Host</label>
+                    <label>{{ 'FORM.HOST' | translate }}</label>
                     <a-user-search-field
                         [(ngModel)]="host"
                         class="mb-4"
                     ></a-user-search-field>
                 </div>
                 <div date class="mb-4">
-                    <label>Date</label>
+                    <label>{{ 'FORM.DATE' | translate }}</label>
                     <div *ngIf="!can_set_date">
                         {{ date | date: 'mediumDate' }}
                     </div>
@@ -80,7 +89,18 @@ export interface DeskConfirmModalData {
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        IconComponent,
+        MatProgressSpinnerModule,
+        MatRippleModule,
+        MatFormFieldModule,
+        MatInputModule,
+        DateFieldComponent,
+        UserSearchFieldComponent,
+        MatDialogModule,
+    ],
 })
 export class DeskConfirmModalComponent {
     @Output() public event = new EventEmitter<DialogEvent>();

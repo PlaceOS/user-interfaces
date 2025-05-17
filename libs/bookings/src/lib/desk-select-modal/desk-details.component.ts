@@ -7,7 +7,13 @@ import {
 } from '@angular/core';
 import { ViewerFeature } from '@placeos/svg-viewer';
 
+import { CommonModule } from '@angular/common';
+import { MatRippleModule } from '@angular/material/core';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { ImageCarouselComponent } from 'libs/components/src/lib/image-carousel.component';
+import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
 import { MapPinComponent } from 'libs/components/src/lib/map-pin.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { BookingAsset } from '../booking-form.service';
 
 @Component({
@@ -59,7 +65,14 @@ import { BookingAsset } from '../booking-form.service';
                     (click)="toggleFav.emit()"
                     class="absolute right-2 top-2 bg-base-200"
                 >
-                    <icon>{{ fav ? 'favorite' : 'favorite_border' }}</icon>
+                    <icon
+                        [className]="
+                            fav
+                                ? 'material-symbols-rounded'
+                                : 'material-symbols-outlined'
+                        "
+                        >favorite</icon
+                    >
                 </button>
             </section>
             <div
@@ -156,7 +169,14 @@ import { BookingAsset } from '../booking-form.service';
             </div>
         </ng-template>
     `,
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        IconComponent,
+        InteractiveMapComponent,
+        ImageCarouselComponent,
+        MatRippleModule,
+    ],
 })
 export class DeskDetailsComponent {
     @Input() public desk?: BookingAsset;

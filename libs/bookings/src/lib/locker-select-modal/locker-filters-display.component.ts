@@ -2,7 +2,11 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 
+import { CommonModule } from '@angular/common';
+import { MatRippleModule } from '@angular/material/core';
 import { endOfDay } from 'date-fns';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { BookingFormService } from '../booking-form.service';
 import { LockerFiltersComponent } from './locker-filters.component';
 
@@ -120,7 +124,7 @@ import { LockerFiltersComponent } from './locker-filters.component';
             </div>
         </section>
     `,
-    standalone: false,
+    imports: [CommonModule, TranslatePipe, IconComponent, MatRippleModule],
 })
 export class LockerFiltersDisplayComponent extends AsyncHandler {
     @Input() public view: 'map' | 'list' = 'list';

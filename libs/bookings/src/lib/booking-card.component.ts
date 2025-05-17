@@ -6,7 +6,7 @@ import {
     SimpleChanges,
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import {
     SettingsService,
     currentUser,
@@ -18,7 +18,12 @@ import {
 import { addMinutes, format, isSameDay } from 'date-fns';
 import { map } from 'rxjs/operators';
 
+import { CommonModule } from '@angular/common';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { StatusPillComponent } from 'libs/components/src/lib/status-pill.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { GroupEventDetailsModalComponent } from '../../../events/src/lib/group-event-details-modal.component';
 import { BookingDetailsModalComponent } from './booking-details-modal.component';
@@ -153,7 +158,14 @@ import { ParkingService } from './parking.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        IconComponent,
+        StatusPillComponent,
+        RouterModule,
+        MatTooltipModule,
+    ],
 })
 export class BookingCardComponent
     extends AsyncHandler

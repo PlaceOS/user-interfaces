@@ -3,6 +3,18 @@ import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { SettingsService } from '@placeos/common';
 import { addDays, endOfDay } from 'date-fns';
 
+import { CommonModule } from '@angular/common';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatRippleModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { DateFieldComponent } from 'libs/form-fields/src/lib/date-field.component';
+import { DurationFieldComponent } from 'libs/form-fields/src/lib/duration-field.component';
+import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.component';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -236,7 +248,21 @@ import { BookingFormService } from '../booking-form.service';
             </button>
         </div>
     `,
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        MatRippleModule,
+        IconComponent,
+        SettingsToggleComponent,
+        DurationFieldComponent,
+        TimeFieldComponent,
+        DateFieldComponent,
+        MatFormFieldModule,
+        MatSelectModule,
+        MatCheckboxModule,
+        FormsModule,
+        ReactiveFormsModule,
+    ],
 })
 export class DeskFiltersComponent {
     @Input() public hide_levels: boolean;

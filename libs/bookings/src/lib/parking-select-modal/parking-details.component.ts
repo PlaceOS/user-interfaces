@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import {
     Component,
     EventEmitter,
@@ -5,9 +6,14 @@ import {
     Output,
     SimpleChanges,
 } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
 import { MapPinComponent } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
 import { ViewerFeature } from '@placeos/svg-viewer';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { ImageCarouselComponent } from 'libs/components/src/lib/image-carousel.component';
+import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { BookingAsset } from '../booking-form.service';
 
 @Component({
@@ -139,7 +145,14 @@ import { BookingAsset } from '../booking-form.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        MatRippleModule,
+        InteractiveMapComponent,
+        IconComponent,
+        ImageCarouselComponent,
+    ],
 })
 export class ParkingSpaceDetailsComponent {
     @Input() public map_open = false;

@@ -1,5 +1,9 @@
 import { Component, Inject } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
+import {
+    MAT_DIALOG_DATA,
+    MatDialog,
+    MatDialogModule,
+} from '@angular/material/dialog';
 import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
     formatDuration,
@@ -18,6 +22,15 @@ import { OrganisationService } from 'libs/organisation/src/lib/organisation.serv
 import { Booking } from './booking.class';
 import { checkinBooking, checkinBookingInstance } from './bookings.fn';
 
+import { CommonModule } from '@angular/common';
+import { MatRippleModule } from '@angular/material/core';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { ImageCarouselComponent } from 'libs/components/src/lib/image-carousel.component';
+import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
+import { StatusPillComponent } from 'libs/components/src/lib/status-pill.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { DeskSettingsModalComponent } from './desk-settings-modal.component';
 
 @Component({
@@ -353,7 +366,18 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
     `,
     styles: [``],
     animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatMenuModule,
+        TranslatePipe,
+        IconComponent,
+        InteractiveMapComponent,
+        MatDialogModule,
+        MatProgressSpinnerModule,
+        StatusPillComponent,
+        ImageCarouselComponent,
+        MatRippleModule,
+    ],
 })
 export class BookingDetailsModalComponent {
     public edit = this._data.edit_fn;

@@ -2,7 +2,13 @@ import { Component, forwardRef, Input } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 
+import { CommonModule } from '@angular/common';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatRippleModule } from '@angular/material/core';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
+import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { BookingAsset } from './booking-form.service';
 import {
     FAV_LOCKER_KEY,
@@ -54,9 +60,7 @@ const EMPTY_FAVS: string[] = [];
                         {{ item.name || 'Locker' }}
                     </div>
                     <div class="flex items-center space-x-2 text-sm">
-                        <icon class="text-blue-500 text-base"
-                            >place</icon
-                        >
+                        <icon class="text-blue-500 text-base">place</icon>
                         <p>
                             {{
                                 (item?.zones | level)?.display_name ||
@@ -68,9 +72,7 @@ const EMPTY_FAVS: string[] = [];
                         class="flex items-center space-x-2 text-sm"
                         *ngIf="item.accessible"
                     >
-                        <icon class="text-blue-500 text-base"
-                            >accessible</icon
-                        >
+                        <icon class="text-base text-info">accessible</icon>
                         <p>{{ 'BOOKINGS.LOCKER_ACCESSIBLE' | translate }}</p>
                     </div>
                     <div
@@ -128,7 +130,14 @@ const EMPTY_FAVS: string[] = [];
             multi: true,
         },
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        IconComponent,
+        TranslatePipe,
+        MatRippleModule,
+        AuthenticatedImageDirective,
+        MatCheckboxModule,
+    ],
 })
 export class LockerListFieldComponent implements ControlValueAccessor {
     @Input() public features: string[] = [];

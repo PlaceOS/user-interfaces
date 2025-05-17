@@ -1,6 +1,11 @@
+import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Output } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatRadioModule } from '@angular/material/radio';
 import { DialogEvent } from '@placeos/common';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
 
 @Component({
     selector: 'desk-question-modal',
@@ -49,7 +54,7 @@ import { DialogEvent } from '@placeos/common';
                 <button btn matRipple (click)="submit()">Submit</button>
             </footer>
             <button close icon matRipple mat-dialog-close>
-                <i class="material-symbols-rounded">close</i>
+                <icon>close</icon>
             </button>
         </div>
         <ng-template #fail_state>
@@ -61,7 +66,7 @@ import { DialogEvent } from '@placeos/common';
                     change in a way that changes your answer to the questions.
                 </p>
                 <button close icon matRipple mat-dialog-close>
-                    <i class="material-symbols-rounded">close</i>
+                    <icon>close</icon>
                 </button>
             </main>
         </ng-template>
@@ -80,7 +85,14 @@ import { DialogEvent } from '@placeos/common';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        IconComponent,
+        MatDialogModule,
+        MatRippleModule,
+        MatRadioModule,
+        ReactiveFormsModule,
+    ],
 })
 export class DeskQuestionsModalComponent {
     @Output() public event = new EventEmitter<DialogEvent>();

@@ -2,6 +2,12 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 
+import { CommonModule } from '@angular/common';
+import { MatRippleModule } from '@angular/material/core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { BookingAsset, BookingFormService } from '../booking-form.service';
 
 @Component({
@@ -79,11 +85,14 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
                         [class.text-info]="isFavourite(space.id)"
                         (click)="toggleFav.emit(space)"
                     >
-                        <icon>{{
-                            isFavourite(space.id)
-                                ? 'favorite'
-                                : 'favorite_border'
-                        }}</icon>
+                        <icon
+                            [className]="
+                                isFavourite(space.id)
+                                    ? 'material-symbols-rounded'
+                                    : 'material-symbols-outlined'
+                            "
+                            >favorite</icon
+                        >
                     </button>
                 </li>
             </ul>
@@ -120,7 +129,14 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        IconComponent,
+        MatProgressSpinnerModule,
+        MatRippleModule,
+        AuthenticatedImageDirective,
+    ],
 })
 export class ParkingSpaceListComponent {
     @Input() public active = '';

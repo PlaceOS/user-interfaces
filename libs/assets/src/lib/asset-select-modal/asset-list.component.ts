@@ -101,11 +101,14 @@ import { AssetGroup } from '../asset.class';
                             [class.text-info]="isFavourite(asset.id)"
                             (click)="toggleFav.emit(asset)"
                         >
-                            <icon>{{
-                                isFavourite(asset.id)
-                                    ? 'favorite'
-                                    : 'favorite_border'
-                            }}</icon>
+                            <icon
+                                [className]="
+                                    isFavourite(asset.id)
+                                        ? 'material-symbols-rounded'
+                                        : 'material-symbols-outlined'
+                                "
+                                >favorite</icon
+                            >
                         </button>
                     </li>
                 </ul>

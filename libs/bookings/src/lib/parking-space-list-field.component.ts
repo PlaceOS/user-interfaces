@@ -2,7 +2,12 @@ import { Component, Input, forwardRef } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 
+import { CommonModule } from '@angular/common';
+import { MatRippleModule } from '@angular/material/core';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
+import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { BookingAsset } from './booking-form.service';
 import {
     FAV_PARKING_KEY,
@@ -89,11 +94,14 @@ const EMPTY_FAVS: string[] = [];
                     [class.text-info]="favorites.includes(asset?.id)"
                     (click)="toggleFavourite(asset)"
                 >
-                    <icon>{{
-                        favorites.includes(asset?.id)
-                            ? 'favorite'
-                            : 'favorite_border'
-                    }}</icon>
+                    <icon
+                        [className]="
+                            favorites.includes(asset?.id)
+                                ? 'material-symbols-rounded'
+                                : 'material-symbols-outlined'
+                        "
+                        >favorite</icon
+                    >
                 </button>
             </div>
         </div>
@@ -121,7 +129,13 @@ const EMPTY_FAVS: string[] = [];
             multi: true,
         },
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        IconComponent,
+        MatRippleModule,
+        AuthenticatedImageDirective,
+    ],
 })
 export class ParkingSpaceListFieldComponent implements ControlValueAccessor {
     @Input() public disable_date = false;

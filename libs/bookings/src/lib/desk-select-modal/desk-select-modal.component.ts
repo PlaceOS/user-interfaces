@@ -1,11 +1,24 @@
+import { CommonModule } from '@angular/common';
 import { Component, Inject } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MatRippleModule } from '@angular/material/core';
+import {
+    MAT_DIALOG_DATA,
+    MatDialogModule,
+    MatDialogRef,
+} from '@angular/material/dialog';
 import { SettingsService } from '@placeos/common';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import {
     BookingAsset,
     BookingFlowOptions,
     BookingFormService,
 } from '../booking-form.service';
+import { DeskDetailsComponent } from './desk-details.component';
+import { DeskFiltersDisplayComponent } from './desk-filters-display.component';
+import { DeskFiltersComponent } from './desk-filters.component';
+import { DeskListComponent } from './desk-list.component';
+import { DeskMapComponent } from './desk-map.component';
 
 export const FAV_DESK_KEY = 'favourite_desks';
 
@@ -162,7 +175,18 @@ export const FAV_DESK_KEY = 'favourite_desks';
             </desk-map>
         </ng-template>
     `,
-    standalone: false,
+    imports: [
+        CommonModule,
+        DeskMapComponent,
+        TranslatePipe,
+        IconComponent,
+        MatRippleModule,
+        MatDialogModule,
+        DeskDetailsComponent,
+        DeskListComponent,
+        DeskFiltersComponent,
+        DeskFiltersDisplayComponent,
+    ],
 })
 export class DeskSelectModalComponent {
     public displayed?: BookingAsset;

@@ -1,6 +1,12 @@
+import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
+import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { combineLatest, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { BookingAsset, BookingFormService } from '../booking-form.service';
@@ -91,9 +97,7 @@ import { Locker, LockerBank } from '../locker.class';
                                 </p>
                             </div>
                             <div class="flex items-center space-x-2 text-sm">
-                                <icon class="text-blue-500"
-                                    >people</icon
-                                >
+                                <icon class="text-blue-500">people</icon>
                                 <p class="text-xs">
                                     {{
                                         'COMMON.AVAILABLE_COUNT'
@@ -119,11 +123,12 @@ import { Locker, LockerBank } from '../locker.class';
                         [class.text-info]="isFavourite(locker_bank.id)"
                         (click)="toggleFav.emit(locker_bank)"
                     >
-                        <icon>{{
-                            isFavourite(locker_bank.id)
-                                ? 'favorite'
-                                : 'favorite_border'
-                        }}</icon>
+                        <icon
+                        [className]="
+                        isFavourite(locker_bank.id)
+                                ? 'material-symbols-rounded'
+                                : 'material-symbols-outlined'
+                        ">favorite</icon>
                     </button> -->
                     <div
                         class="absolute bottom-2 right-2 rounded bg-base-200 px-2 py-1 font-mono text-xs"
@@ -156,7 +161,14 @@ import { Locker, LockerBank } from '../locker.class';
             </div>
         </ng-template>
     `,
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        IconComponent,
+        MatRippleModule,
+        MatProgressSpinnerModule,
+        AuthenticatedImageDirective,
+    ],
 })
 export class LockerBankListComponent {
     @Input() public active = '';

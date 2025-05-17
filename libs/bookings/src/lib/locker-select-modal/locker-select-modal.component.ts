@@ -1,12 +1,24 @@
+import { CommonModule } from '@angular/common';
 import { Component, Inject, OnInit } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MatRippleModule } from '@angular/material/core';
+import {
+    MAT_DIALOG_DATA,
+    MatDialogModule,
+    MatDialogRef,
+} from '@angular/material/dialog';
 import { AsyncHandler, SettingsService } from '@placeos/common';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import {
     BookingAsset,
     BookingFlowOptions,
     BookingFormService,
 } from '../booking-form.service';
+import { LockerGridComponent } from '../locker-grid.component';
 import { LockerBank } from '../locker.class';
+import { LockerBankListComponent } from './locker-bank-list.component';
+import { LockerFiltersDisplayComponent } from './locker-filters-display.component';
+import { LockerFiltersComponent } from './locker-filters.component';
 
 export const FAV_LOCKER_KEY = 'favourite_lockers';
 
@@ -180,7 +192,17 @@ export const FAV_LOCKER_KEY = 'favourite_lockers';
             </div>
         </ng-template>
     `,
-    standalone: false,
+    imports: [
+        CommonModule,
+        LockerGridComponent,
+        TranslatePipe,
+        IconComponent,
+        MatRippleModule,
+        MatDialogModule,
+        LockerBankListComponent,
+        LockerFiltersComponent,
+        LockerFiltersDisplayComponent,
+    ],
 })
 export class LockerSelectModalComponent extends AsyncHandler implements OnInit {
     public displayed?: BookingAsset;

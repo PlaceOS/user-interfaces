@@ -7,9 +7,16 @@ import {
     Output,
     SimpleChanges,
 } from '@angular/core';
-import { Validators } from '@angular/forms';
+import { ReactiveFormsModule, Validators } from '@angular/forms';
 import { first } from 'rxjs/operators';
 
+import { CommonModule } from '@angular/common';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatRippleModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
 import {
     AsyncHandler,
     CalEvent,
@@ -21,6 +28,13 @@ import {
 } from '@placeos/common';
 import { getInvalidFields, randomString } from 'libs/common/src/lib/general';
 import { notifyError } from 'libs/common/src/lib/notifications';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { DateFieldComponent } from 'libs/form-fields/src/lib/date-field.component';
+import { DurationFieldComponent } from 'libs/form-fields/src/lib/duration-field.component';
+import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.component';
+import { UserListFieldComponent } from 'libs/form-fields/src/lib/user-list-field.component';
+import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-field.component';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { User } from 'libs/users/src/lib/user.class';
 import { BookingFormService } from './booking-form.service';
@@ -384,7 +398,23 @@ import { Booking } from './booking.class';
         </ng-template>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        IconComponent,
+        MatRippleModule,
+        UserListFieldComponent,
+        ReactiveFormsModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatAutocompleteModule,
+        UserSearchFieldComponent,
+        DurationFieldComponent,
+        TimeFieldComponent,
+        DateFieldComponent,
+        MatSelectModule,
+        MatProgressSpinnerModule,
+    ],
 })
 export class InviteVisitorFormComponent
     extends AsyncHandler

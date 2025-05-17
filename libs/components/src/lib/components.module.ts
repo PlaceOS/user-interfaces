@@ -142,7 +142,6 @@ const COMPONENTS = [
     PrintableComponent,
     AttachedResourceConfigModalComponent,
 
-    DeskHeightPresetsComponent,
     LoginComponent,
 
     MisconfiguredComponent,
@@ -168,6 +167,7 @@ const STANDALONE_COMPONENTS = [
     ImageCarouselComponent,
     UserAvatarComponent,
     StatusPillComponent,
+    DeskHeightPresetsComponent,
 
     UnauthorisedComponent,
     FullscreenModalShellComponent,

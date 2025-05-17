@@ -2,7 +2,12 @@ import { Component, forwardRef, Input } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 
+import { CommonModule } from '@angular/common';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatRippleModule } from '@angular/material/core';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { BookingAsset } from './booking-form.service';
 import {
     DeskSelectModalComponent,
@@ -94,11 +99,14 @@ const EMPTY_FAVS: string[] = [];
                     [class.text-info]="favorites.includes(item?.id)"
                     (click)="toggleFavourite(item)"
                 >
-                    <icon>{{
-                        favorites.includes(item?.id)
-                            ? 'favorite'
-                            : 'favorite_border'
-                    }}</icon>
+                    <icon
+                        [className]="
+                            favorites.includes(item?.id)
+                                ? 'material-symbols-rounded'
+                                : 'material-symbols-outlined'
+                        "
+                        >favorite</icon
+                    >
                 </button>
             </div>
         </div>
@@ -126,7 +134,13 @@ const EMPTY_FAVS: string[] = [];
             multi: true,
         },
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        IconComponent,
+        TranslatePipe,
+        MatRippleModule,
+        MatCheckboxModule,
+    ],
 })
 export class DeskListFieldComponent implements ControlValueAccessor {
     @Input() public features: string[] = [];

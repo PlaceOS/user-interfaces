@@ -1,4 +1,10 @@
+import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { BookingAsset, BookingFormService } from '../booking-form.service';
@@ -87,11 +93,14 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
                         [class.text-info]="isFavourite(desk.id)"
                         (click)="toggleFav.emit(desk)"
                     >
-                        <icon>{{
-                            isFavourite(desk.id)
-                                ? 'favorite'
-                                : 'favorite_border'
-                        }}</icon>
+                        <icon
+                            [className]="
+                                isFavourite(desk.id)
+                                    ? 'material-symbols-rounded'
+                                    : 'material-symbols-outlined'
+                            "
+                            >favorite</icon
+                        >
                     </button>
                 </li>
             </ul>
@@ -118,7 +127,14 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
             </div>
         </ng-template>
     `,
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        MatRippleModule,
+        MatProgressSpinnerModule,
+        IconComponent,
+        AuthenticatedImageDirective,
+    ],
 })
 export class DeskListComponent {
     @Input() public active = '';

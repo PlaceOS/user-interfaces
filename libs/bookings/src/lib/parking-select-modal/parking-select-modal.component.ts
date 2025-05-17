@@ -1,11 +1,24 @@
+import { CommonModule } from '@angular/common';
 import { Component, Inject } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MatRippleModule } from '@angular/material/core';
+import {
+    MAT_DIALOG_DATA,
+    MatDialogModule,
+    MatDialogRef,
+} from '@angular/material/dialog';
 import { SettingsService } from '@placeos/common';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import {
     BookingAsset,
     BookingFlowOptions,
     BookingFormService,
 } from '../booking-form.service';
+import { ParkingSpaceDetailsComponent } from './parking-details.component';
+import { ParkingSpaceFiltersDisplayComponent } from './parking-filters-display.component';
+import { ParkingSpaceFiltersComponent } from './parking-filters.component';
+import { ParkingSpaceListComponent } from './parking-list.component';
+import { ParkingSpaceMapComponent } from './parking-map.component';
 
 export const FAV_PARKING_KEY = 'favourite_parking_spaces';
 
@@ -160,7 +173,18 @@ export const FAV_PARKING_KEY = 'favourite_parking_spaces';
         </ng-template>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        ParkingSpaceMapComponent,
+        TranslatePipe,
+        IconComponent,
+        MatRippleModule,
+        MatDialogModule,
+        ParkingSpaceDetailsComponent,
+        ParkingSpaceListComponent,
+        ParkingSpaceFiltersComponent,
+        ParkingSpaceFiltersDisplayComponent,
+    ],
 })
 export class ParkingSpaceSelectModalComponent {
     public displayed?: BookingAsset;

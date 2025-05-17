@@ -39,9 +39,14 @@ import { AssetGroup } from '../asset.class';
                     (click)="toggleFav.emit()"
                     class="absolute right-2 top-2 bg-base-200"
                 >
-                    <icon>
-                        {{ fav ? 'favorite' : 'favorite_border' }}
-                    </icon>
+                    <icon
+                        [className]="
+                            fav
+                                ? 'material-symbols-rounded'
+                                : 'material-symbols-outlined'
+                        "
+                        >favorite</icon
+                    >
                 </button>
             </section>
             <div class="h-1/2 flex-1 space-y-2 overflow-auto p-2">
