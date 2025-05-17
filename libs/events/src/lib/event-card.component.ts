@@ -6,7 +6,7 @@ import {
     SimpleChanges,
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import {
     AsyncHandler,
     formatRecurrence,
@@ -17,7 +17,13 @@ import {
 } from '@placeos/common';
 import { format, isSameDay } from 'date-fns';
 
-import { DatePipe } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
+import { MatRippleModule } from '@angular/material/core';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { StatusPillComponent } from 'libs/components/src/lib/status-pill.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { UserAvatarComponent } from 'libs/components/src/lib/user-avatar.component';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 import { EventDetailsModalComponent } from './event-details-modal.component';
@@ -151,7 +157,16 @@ import { GroupEventDetailsModalComponent } from './group-event-details-modal.com
         `,
     ],
     providers: [SpacePipe],
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        MatRippleModule,
+        RouterModule,
+        MatTooltipModule,
+        StatusPillComponent,
+        IconComponent,
+        UserAvatarComponent,
+    ],
 })
 export class EventCardComponent
     extends AsyncHandler

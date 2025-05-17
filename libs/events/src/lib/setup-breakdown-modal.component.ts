@@ -1,7 +1,15 @@
+import { CommonModule } from '@angular/common';
 import { Component, Inject } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MatRippleModule } from '@angular/material/core';
+import {
+    MAT_DIALOG_DATA,
+    MatDialogModule,
+    MatDialogRef,
+} from '@angular/material/dialog';
 import { notifyError, notifySuccess } from '@placeos/common';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { CalendarEvent } from './event.class';
 import { saveEvent, updateEventMetadata } from './events.fn';
 
@@ -9,7 +17,7 @@ import { saveEvent, updateEventMetadata } from './events.fn';
     selector: 'setup-breakdown-modal',
     template: `
         <header class="min-h-16 space-x-4">
-            <h2>Set Event's Setup and Breakdown</h2>
+            <h2>{{ 'CALENDAR_EVENT.SETUP_BREAKDOWN_HEADER' | translate }}</h2>
             <button btn icon mat-dialog-close matRipple *ngIf="!loading">
                 <icon>close</icon>
             </button>
@@ -20,7 +28,9 @@ import { saveEvent, updateEventMetadata } from './events.fn';
             *ngIf="!loading; else load_state"
         >
             <div class="flex flex-col space-y-2">
-                <label for="setup">Setup Duration</label>
+                <label for="setup">{{
+                    'CALENDAR_EVENT.SETUP_DURATION' | translate
+                }}</label>
                 <a-duration-field
                     name="setup"
                     formControlName="setup"
@@ -29,7 +39,11 @@ import { saveEvent, updateEventMetadata } from './events.fn';
                 ></a-duration-field>
             </div>
             <div class="flex flex-col space-y-2">
-                <label for="breakdown">Breakdown Duration</label>
+                <label for="breakdown">
+                    {{
+                        'CALENDAR_EVENT.BREAKDOWN_DURATION' | translate
+                    }}Breakdown Duration</label
+                >
                 <a-duration-field
                     name="breakdown"
                     [min]="0"
@@ -42,7 +56,9 @@ import { saveEvent, updateEventMetadata } from './events.fn';
             *ngIf="!loading"
             class="flex justify-end border-t border-base-200 px-4 py-2"
         >
-            <button btn matRipple (click)="save()">Save Changes</button>
+            <button btn matRipple (click)="save()">
+                {{ 'COMMON.SAVE' | translate }}
+            </button>
         </footer>
         <ng-template #load_state>
             <div class="flex h-64 w-64 flex-col items-center justify-center">
@@ -54,7 +70,13 @@ import { saveEvent, updateEventMetadata } from './events.fn';
         </ng-template>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatRippleModule,
+        TranslatePipe,
+        IconComponent,
+        MatDialogModule,
+    ],
 })
 export class SetupBreakdownModalComponent {
     public loading = false;

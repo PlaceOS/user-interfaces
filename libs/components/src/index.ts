@@ -16,7 +16,6 @@ export * from './lib/redirect.component';
 export * from './lib/safe.pipe';
 export * from './lib/sanitise.pipe';
 export * from './lib/status-overlay.component';
-export * from './lib/user-avatar.component';
 export * from './lib/user-controls.component';
 
 export * from './lib/authorised-admin.guard';

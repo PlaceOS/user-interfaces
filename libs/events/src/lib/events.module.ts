@@ -1,17 +1,4 @@
-import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-
-import { MatRippleModule } from '@angular/material/core';
-import { MatDialogModule } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatRadioModule } from '@angular/material/radio';
-
-import { ComponentsModule } from 'libs/components/src/lib/components.module';
-import { FormFieldsModule } from 'libs/form-fields/src/lib/form-fields.module';
-import { SharedSpacesModule } from 'libs/spaces/src/lib/spaces.module';
 
 import { AttendeeListComponent } from './attendee-list.component';
 import { EventCardComponent } from './event-card.component';
@@ -21,7 +8,7 @@ import { GroupEventCardComponent } from './group-event-card.component';
 import { GroupEventDetailsModalComponent } from './group-event-details-modal.component';
 import { SetupBreakdownModalComponent } from './setup-breakdown-modal.component';
 
-const COMPONENTS = [
+const STANDALONE_COMPONENTS = [
     EventDetailsModalComponent,
     AttendeeListComponent,
     EventCardComponent,
@@ -32,22 +19,8 @@ const COMPONENTS = [
 ];
 
 @NgModule({
-    declarations: [...COMPONENTS],
-    imports: [
-        CommonModule,
-        FormsModule,
-        ReactiveFormsModule,
-        MatRadioModule,
-        MatInputModule,
-        MatFormFieldModule,
-        MatDialogModule,
-        MatProgressSpinnerModule,
-        FormFieldsModule,
-        ComponentsModule,
-        MatRippleModule,
-        SharedSpacesModule,
-    ],
-    providers: [ReactiveFormsModule],
-    exports: [...COMPONENTS],
+    declarations: [],
+    imports: [...STANDALONE_COMPONENTS],
+    exports: [...STANDALONE_COMPONENTS],
 })
 export class SharedEventsModule {}

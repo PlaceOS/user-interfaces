@@ -73,6 +73,7 @@
         "CHECK_IN": "Check-in",
         "CHECK_OUT": "Check-out",
         "CHECKED_IN": "Checked-in",
+        "CHECKED_IN_NOT": "Not Checked-in",
         "CHECKED_OUT": "Checked-out",
         "CHECKED_IN_AT": "Checked-in at",
         "CHECKED_OUT_AT": "Checked-out at",
@@ -514,6 +515,7 @@
         "DESK_SUCCESS_GROUP_ALLDAY": "You group of {{ size }} desks have been successfully booked for {{ date }}",
         "ASSETS_BOOKED": "Booking includes {{ count }} asset(s)",
         "SUCCESS_WAIT_APPROVED": "Please allow up to 5 minutes for you booking to be approved.",
+        "LINK_HEADER": "Add to event to your calendar",
         "LINK_OUTLOOK": "Add to Outlook",
         "LINK_GOOGLE": "Add to Google Calendar",
         "LINK_ICAL": "Download iCal File",
@@ -586,6 +588,8 @@
         "CATERING_ORDER_ADD": "Add Order",
         "CATERING_ORDER_ERROR": "Delivery time is outside of the event time.\nThis order will be ignored.",
         "CATERED": "Catered",
+        "ATTENDEES_COUNT_1": "{{ count }} attendee",
+        "ATTENDEES_COUNT_N": "{{ count }} attendees",
         "ATTENDEE_COUNT": "{{ count }} attendee(s)",
         "ATTENDEES": "Attendees",
         "DETAILS": "Details",
@@ -673,7 +677,10 @@
         "GROUP_ATTENDEES": "{{ going }} going, {{ interested }} interested",
         "FIND_AVAILABILITY": "Find Availability",
         "RECURRING_TOOLTIP": "This event is part of a recurring series",
-        "APPROVAL_REQUIRED_MSG": "Room selected for this booking requires approval and may not be confirmed until a later date."
+        "APPROVAL_REQUIRED_MSG": "Room selected for this booking requires approval and may not be confirmed until a later date.",
+        "SETUP_BREAKDOWN_HEADER": "Set Event's Setup and Breakdown",
+        "SETUP_DURATION": "Setup Duration",
+        "BREAKDOWN_DURATION": "Breakdown Duration"
     },
     "CATERING": {
         "MENU": "Catering Menu",

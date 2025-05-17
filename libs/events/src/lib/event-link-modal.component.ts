@@ -1,17 +1,28 @@
+import { CommonModule } from '@angular/common';
 import { Component, Inject } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MatRippleModule } from '@angular/material/core';
+import {
+    MAT_DIALOG_DATA,
+    MatDialogModule,
+    MatDialogRef,
+} from '@angular/material/dialog';
 import { notifyError } from '@placeos/common';
+import { SafePipe, SanitizePipe } from '@placeos/components';
 import {
     generateCalendarFileLink,
     generateGoogleCalendarLink,
     generateMicrosoftCalendarLink,
 } from 'libs/common/src/lib/calendar-links';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { CalendarEvent } from './event.class';
 
 @Component({
     selector: 'event-link-modal',
     template: `
-        <div class="w-full p-4 pb-2">Add event to your calendar</div>
+        <div class="w-full p-4 pb-2">
+            {{ 'BOOKINGS.LINK_HEADER' | translate }}
+        </div>
         <div class="relative flex flex-col items-center space-y-4 p-4">
             <a
                 btn
@@ -23,7 +34,7 @@ import { CalendarEvent } from './event.class';
                 (click)="has_actioned = true"
             >
                 <img src="assets/icons/outlook.svg" class="w-6" />
-                <span>Create in Outlook</span>
+                <span>{{ 'BOOKINGS.LINK_OUTLOOK' | translate }}</span>
             </a>
             <a
                 btn
@@ -35,7 +46,7 @@ import { CalendarEvent } from './event.class';
                 (click)="has_actioned = true"
             >
                 <img src="assets/icons/gcal.svg" class="w-6" />
-                <span>Create in Google Calendar</span>
+                <span>{{ 'BOOKINGS.LINK_GOOGLE' | translate }}</span>
             </a>
             <a
                 btn
@@ -47,9 +58,11 @@ import { CalendarEvent } from './event.class';
                 (click)="has_actioned = true"
             >
                 <icon class="text-xl">download</icon>
-                <span>Download iCal File</span>
+                <span>{{ 'BOOKINGS.LINK_ICAL' | translate }}</span>
             </a>
-            <button class="w-64" btn matRipple (click)="close()">Close</button>
+            <button class="w-64" btn matRipple (click)="close()">
+                {{ 'COMMON.CLOSE' | translate }}
+            </button>
         </div>
         <button
             icon
@@ -67,7 +80,15 @@ import { CalendarEvent } from './event.class';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        CommonModule,
+        IconComponent,
+        TranslatePipe,
+        MatRippleModule,
+        MatDialogModule,
+        SafePipe,
+        SanitizePipe,
+    ],
 })
 export class EventLinkModalComponent {
     public readonly outlook_link = generateMicrosoftCalendarLink(

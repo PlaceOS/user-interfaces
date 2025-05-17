@@ -1,24 +1,37 @@
+import { CommonModule } from '@angular/common';
 import { Component, Inject } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
 import {
     MAT_DIALOG_DATA,
     MatDialog,
+    MatDialogModule,
     MatDialogRef,
 } from '@angular/material/dialog';
+import { MatMenuModule } from '@angular/material/menu';
 import {
     SettingsService,
     currentUser,
     notifyInfo,
     unique,
 } from '@placeos/common';
-import { MapLocateModalComponent, MapPinComponent } from '@placeos/components';
+import {
+    MapLocateModalComponent,
+    MapPinComponent,
+    SanitizePipe,
+} from '@placeos/components';
 import {
     Building,
     BuildingLevel,
     OrganisationService,
 } from '@placeos/organisation';
 import { ViewerFeature } from '@placeos/svg-viewer';
+import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { Space } from 'libs/spaces/src/lib/space.class';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
+import { AttendeeListComponent } from './attendee-list.component';
 import { CalendarEvent } from './event.class';
 import {
     addEventGuest,
@@ -148,9 +161,7 @@ import {
                         </button>
                         <button mat-menu-item [disabled]="true">
                             <div class="flex items-center space-x-2">
-                                <icon class="text-2xl"
-                                    >content_copy</icon
-                                >
+                                <icon class="text-2xl">content_copy</icon>
                                 <div class="mr-2">
                                     {{
                                         'CALENDAR_EVENT.GROUP_COPY_URL'
@@ -419,7 +430,18 @@ import {
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        IconComponent,
+        MatRippleModule,
+        AttendeeListComponent,
+        InteractiveMapComponent,
+        SanitizePipe,
+        MatMenuModule,
+        MatDialogModule,
+        AuthenticatedImageDirective,
+    ],
 })
 export class GroupEventDetailsModalComponent {
     public edit = this._data.edit_fn;

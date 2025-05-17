@@ -1,4 +1,6 @@
+import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
+import { IconComponent } from './icon.component';
 
 export type StatusValue = 'success' | 'warning' | 'error' | 'info' | 'neutral';
 
@@ -41,7 +43,7 @@ export type StatusValue = 'success' | 'warning' | 'error' | 'info' | 'neutral';
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [CommonModule, IconComponent],
 })
 export class StatusPillComponent {
     @Input() public status: string;

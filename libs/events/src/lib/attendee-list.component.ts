@@ -1,4 +1,9 @@
+import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { UserAvatarComponent } from 'libs/components/src/lib/user-avatar.component';
 import { User } from 'libs/users/src/lib/user.class';
 
 @Component({
@@ -22,9 +27,8 @@ import { User } from 'libs/users/src/lib/user.class';
                     {{
                         custom_title
                             ? custom_title
-                            : list.length === 1
-                              ? 'Attendee'
-                              : 'Attendees'
+                            : ('ATTENDEES_COUNT'
+                              | translate: { count: list.length } : list.length)
                     }}
                 </div>
                 <div class="w-12" *ngIf="!hide_close"></div>
@@ -45,7 +49,7 @@ import { User } from 'libs/users/src/lib/user.class';
                                 class="text-sm opacity-60"
                                 *ngIf="host === user.email"
                             >
-                                Host
+                                {{ 'FORM.HOST' | translate }}
                             </div>
                         </div>
                         <div class="p-2">
@@ -54,9 +58,10 @@ import { User } from 'libs/users/src/lib/user.class';
                                 [class.bg-success]="user.checked_in"
                                 [class.bg-pending]="!user.checked_in"
                                 [matTooltip]="
-                                    user.checked_in
-                                        ? 'Checked in'
-                                        : 'Not checked in'
+                                    (user.checked_in
+                                        ? 'COMMON.CHECKED_IN'
+                                        : 'COMMON.CHECKED_IN_NOT'
+                                    ) | translate
                                 "
                             ></div>
                         </div>
@@ -66,10 +71,16 @@ import { User } from 'libs/users/src/lib/user.class';
         </div>
     `,
     styles: [``],
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        MatRippleModule,
+        IconComponent,
+        UserAvatarComponent,
+    ],
 })
 export class AttendeeListComponent {
-    @Input() public host: string = '';
+    @Input() public host = '';
     @Input() public show_host = true;
     @Input() public list: User[] = [];
     @Input() public hide_close = false;

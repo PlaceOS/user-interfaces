@@ -8,7 +8,11 @@ import { LocaleService } from 'libs/common/src/lib/locale.service';
 export class TranslatePipe implements PipeTransform {
     constructor(private _locale: LocaleService) {}
 
-    public transform(value: string, args: Record<string, any> = {}) {
-        return this._locale.get(value, args);
+    public transform(
+        value: string,
+        args: Record<string, any> = {},
+        plural?: number,
+    ) {
+        return this._locale.get(value, args, plural);
     }
 }

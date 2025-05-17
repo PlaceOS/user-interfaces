@@ -126,7 +126,6 @@ const COMPONENTS = [
     RedirectComponent,
     DebugConsoleComponent,
     JsonDisplayComponent,
-    StatusPillComponent,
     ImageViewerComponent,
     WorkLocationTooltipComponent,
 
@@ -168,6 +167,7 @@ const STANDALONE_COMPONENTS = [
     ChangelogModalComponent,
     ImageCarouselComponent,
     UserAvatarComponent,
+    StatusPillComponent,
 
     UnauthorisedComponent,
     FullscreenModalShellComponent,
