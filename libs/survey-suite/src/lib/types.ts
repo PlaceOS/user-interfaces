@@ -19,6 +19,7 @@ export enum QuestionType {
     Drop_Down = 'dropdown',
     Check_Box = 'checkbox',
     Rating = 'rating',
+    Empty = '0[EMPTY]',
 }
 
 /** Enum Options key-value pair */

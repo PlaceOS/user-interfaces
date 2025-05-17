@@ -1,4 +1,7 @@
+import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { BaseQuestionComponent } from './base-question.component';
 
 @Component({
@@ -14,10 +17,6 @@ import { BaseQuestionComponent } from './base-question.component';
             </mat-form-field>
         </div>
     `,
-    standalone: false,
+    imports: [CommonModule, MatFormFieldModule, MatInputModule],
 })
-export class SingleLineTextComponent extends BaseQuestionComponent {
-    constructor() {
-        super();
-    }
-}
+export class SingleLineTextComponent extends BaseQuestionComponent {}

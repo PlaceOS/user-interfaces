@@ -5,22 +5,17 @@ import { Question } from '../types';
     selector: 'base-question',
     styles: [],
     template: ``,
-    standalone: false,
 })
 export class BaseQuestionComponent {
-    @Input() preview: boolean = false;
+    @Input() public preview = false;
     // @Input() readonly: boolean = false;
-    @Input() set value(value: Question) {
-        if (value) {
-            this.question = value;
-        }
-        this.hasValue = !!value;
+    @Input() public set value(value: Question) {
+        if (value) this.question = value;
+        this._has_value = !!value;
     }
 
-    protected hasValue = false;
+    protected _has_value = false;
     protected question: Question;
 
     protected readonly placeholderTitle = 'Enter your question here';
-
-    constructor() {}
 }

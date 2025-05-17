@@ -1,4 +1,8 @@
+import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
+import { MatSliderModule } from '@angular/material/slider';
+
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { BaseQuestionComponent } from './base-question.component';
 
 @Component({
@@ -26,7 +30,7 @@ import { BaseQuestionComponent } from './base-question.component';
             </div>
         </div>
     `,
-    standalone: false,
+    imports: [CommonModule, TranslatePipe, MatSliderModule],
 })
 export class RatingsComponent extends BaseQuestionComponent implements OnInit {
     constructor() {

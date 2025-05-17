@@ -1,7 +1,8 @@
+import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { map } from 'rxjs/operators';
 import { UISurveyAnswer } from '../types';
-import { BaseWidget } from './base-widget.component';
+import { BaseWidgetComponent } from './base-widget.component';
 
 @Component({
     selector: 'table-widget',
@@ -52,16 +53,12 @@ import { BaseWidget } from './base-widget.component';
             }
         </div>
     `,
-    standalone: false,
+    imports: [CommonModule],
 })
-export class TableWidgetComponent extends BaseWidget {
+export class TableWidgetComponent extends BaseWidgetComponent {
     public chart_data$ = this.data$.pipe(
         map((data: UISurveyAnswer[]) =>
             data.reduce((acc, curr) => (acc.push(curr.answer_json), acc), []),
         ),
     );
-
-    constructor() {
-        super();
-    }
 }

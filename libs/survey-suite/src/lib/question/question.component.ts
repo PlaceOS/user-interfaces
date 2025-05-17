@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import {
     AfterViewInit,
     Component,
@@ -5,7 +6,17 @@ import {
     Input,
     ViewChild,
 } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { Question, QuestionType, QuestionTypeOptions } from '../types';
+import { MultiLineTextComponent } from './multi-line-text.component';
+import { RatingsComponent } from './rating.component';
+import { SelectionComponent } from './selection.component';
+import { SingleLineTextComponent } from './single-line-text.component';
 
 @Component({
     selector: 'placeos-question',
@@ -85,51 +96,53 @@ import { Question, QuestionType, QuestionTypeOptions } from '../types';
                 class="flex w-full flex-row items-center justify-end space-x-4"
                 *ngIf="!preview"
             >
-                <!-- <mat-form-field appearance="outline" class="h-[2rem]">
-                    <div class="mat-form-field-wrapper" style="margin-bottom: 0;">
-                        <mat-select [(ngModel)]="question.type">
+                <mat-form-field appearance="outline" class="no-subscript">
+                    <mat-select [(ngModel)]="question.type">
+                        @for (item of typeOptions; track item) {
                             <mat-option
-                                *ngFor="let item of typeOptions"
+                                *ngIf="item.value[0] !== '0'"
                                 [value]="item.value"
                             >
                                 {{ item.name }}
                             </mat-option>
-                        </mat-select>
-                    </div>
-                </mat-form-field> -->
+                        }
+                    </mat-select>
+                </mat-form-field>
 
-                <select [(ngModel)]="question.type">
-                    <option
-                        *ngFor="let item of typeOptions"
-                        [value]="item.value"
-                    >
-                        {{ item.name }}
-                    </option>
-                </select>
-
-                <mat-slide-toggle [(ngModel)]="question.isRequired">
-                    {{ 'COMMON.REQUIRED' | translate }}
-                </mat-slide-toggle>
+                <settings-toggle
+                    [(ngModel)]="question.isRequired"
+                    [name]="'COMMON.REQUIRED' | translate"
+                ></settings-toggle>
                 <!-- <mat-slide-toggle [(ngModel)]="preview"> Preview</mat-slide-toggle> -->
             </div>
         </div>
     `,
-    standalone: false,
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        MatFormFieldModule,
+        MatSelectModule,
+        MatInputModule,
+        SettingsToggleComponent,
+        FormsModule,
+        MultiLineTextComponent,
+        SingleLineTextComponent,
+        SelectionComponent,
+        RatingsComponent,
+    ],
 })
 export class QuestionComponent implements AfterViewInit {
-    @Input() isCard = true;
-    @Input() preview = false;
-    @Input() set value(value: Question) {
-        if (value) {
-            this.question = value;
-        }
-        this.hasValue = !!value;
+    @Input() public isCard = true;
+    @Input() public preview = false;
+    @Input() public set value(value: Question) {
+        if (value) this.question = value;
+        this.has_value = !!value;
     }
 
     public QuestionType = QuestionType;
     public typeOptions = QuestionTypeOptions;
 
-    public hasValue = false;
+    public has_value = false;
     public question: Question;
 
     @ViewChild('container_el', { static: true })

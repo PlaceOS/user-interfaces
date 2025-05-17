@@ -1,7 +1,8 @@
+import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { map, shareReplay, tap } from 'rxjs/operators';
 import { UISurveyAnswer } from '../types';
-import { BaseWidget } from './base-widget.component';
+import { BaseWidgetComponent } from './base-widget.component';
 import { parseRatingAnswers, parseRatingStats } from './survey-helper';
 
 @Component({
@@ -102,9 +103,9 @@ import { parseRatingAnswers, parseRatingStats } from './survey-helper';
             </div>
         </ng-container>
     `,
-    standalone: false,
+    imports: [CommonModule],
 })
-export class RatingsWidgetComponent extends BaseWidget {
+export class RatingsWidgetComponent extends BaseWidgetComponent {
     public readonly size = 7 * 16;
     public readonly border_width = 0.75 * 16;
     public progress = 0;

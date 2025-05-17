@@ -1,4 +1,7 @@
+import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
 import { QuestionType } from '../types';
 import { BaseQuestionComponent } from './base-question.component';
 
@@ -79,7 +82,7 @@ import { BaseQuestionComponent } from './base-question.component';
             </div>
         </ng-container>
     `,
-    standalone: false,
+    imports: [CommonModule, MatFormFieldModule, MatSelectModule],
 })
 export class SelectionComponent
     extends BaseQuestionComponent
@@ -92,17 +95,17 @@ export class SelectionComponent
         return this.question?.type === QuestionType.Check_Box;
     }
 
-    ngOnInit() {
+    public ngOnInit() {
         if (!this.question?.choices) {
             this.question.choices = [];
         }
     }
 
-    addOption() {
+    public addOption() {
         this.question.choices.push({ text: '' });
     }
 
-    deleteOption(index: number) {
+    public deleteOption(index: number) {
         this.question.choices.splice(index, 1);
     }
 }

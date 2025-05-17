@@ -1,7 +1,8 @@
+import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { map } from 'rxjs/operators';
 import { UISurveyAnswer } from '../types';
-import { BaseWidget } from './base-widget.component';
+import { BaseWidgetComponent } from './base-widget.component';
 import { parseSelectionAnswers } from './survey-helper';
 
 @Component({
@@ -58,10 +59,10 @@ import { parseSelectionAnswers } from './survey-helper';
             }
         </div>
     `,
-    standalone: false,
+    imports: [CommonModule],
 })
-export class SelectionWidgetComponent extends BaseWidget {
-    chart_data$ = this.data$.pipe(
+export class SelectionWidgetComponent extends BaseWidgetComponent {
+    public chart_data$ = this.data$.pipe(
         map((data: UISurveyAnswer[]) =>
             parseSelectionAnswers(
                 data,
@@ -69,8 +70,4 @@ export class SelectionWidgetComponent extends BaseWidget {
             ),
         ),
     );
-
-    constructor() {
-        super();
-    }
 }
