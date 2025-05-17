@@ -11,19 +11,23 @@ import { MeetingFlowConfirmComponent } from 'apps/workplace/src/app/book/meeting
 @Component({
     selector: 'meeting-booking',
     template: `
-        <div class="absolute inset-0 bg-base-200">
+        <div class="absolute inset-0 overflow-auto bg-base-200">
             <div
-                class="mx-auto max-h-screen w-full max-w-[32rem] overflow-auto"
+                class="mx-auto w-[40rem] max-w-full border-x border-base-300 bg-base-100"
             >
-                <h3 class="p-4 text-2xl font-medium">Book Meeting</h3>
+                <header
+                    class="sticky top-2 z-10 mx-auto mb-2 flex h-14 w-full max-w-[calc(100%-1rem)] items-center justify-between rounded border-none bg-base-200 px-4 py-2"
+                >
+                    <h2 class="text-xl font-medium capitalize">Book Meeting</h2>
+                </header>
                 <meeting-booking-form></meeting-booking-form>
                 <div
-                    class="flex flex-col space-y-2 border-t border-base-200 p-4"
+                    class="sticky bottom-0 flex flex-col items-center space-y-2 border-t border-base-200 bg-base-100 px-4 py-2 sm:flex-row sm:space-x-2 sm:space-y-0"
                 >
                     <button
                         btn
                         matRipple
-                        class="w-full"
+                        class="w-full sm:flex-1"
                         (click)="makeBooking()"
                     >
                         Book Meeting
@@ -31,7 +35,7 @@ import { MeetingFlowConfirmComponent } from 'apps/workplace/src/app/book/meeting
                     <button
                         btn
                         matRipple
-                        class="inverse w-full"
+                        class="inverse w-full sm:flex-1"
                         (click)="clearForm()"
                     >
                         Clear Form

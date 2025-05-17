@@ -1,7 +1,10 @@
-import { DatePipe } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { Component, Input, OnInit, Optional } from '@angular/core';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { CateringItem } from '@placeos/catering';
 import {
     AsyncHandler,
@@ -15,6 +18,8 @@ import {
 import { CalendarEvent, EventFormService } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
 import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 
@@ -155,7 +160,14 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
         `,
     ],
     providers: [SpacePipe],
-    standalone: false,
+    imports: [
+        CommonModule,
+        MatProgressSpinnerModule,
+        MatRippleModule,
+        TranslatePipe,
+        IconComponent,
+        MatChipsModule,
+    ],
 })
 export class MeetingFlowConfirmComponent
     extends AsyncHandler

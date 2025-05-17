@@ -14,7 +14,7 @@ import { Desk } from '@placeos/organisation';
             <section class="p-4">
                 <h3 class="mb-4 flex items-center space-x-2">
                     <div
-                        class="flex h-6 w-6 items-center justify-center rounded-full border border-base-200"
+                        class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
                     >
                         1
                     </div>
@@ -93,7 +93,7 @@ import { Desk } from '@placeos/organisation';
             <section class="p-4">
                 <h3 class="mb-4 flex items-center space-x-2">
                     <div
-                        class="flex h-6 w-6 items-center justify-center rounded-full border border-base-200"
+                        class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
                     >
                         2
                     </div>
@@ -104,7 +104,7 @@ import { Desk } from '@placeos/organisation';
             <section class="p-4" *ngIf="allow_assets">
                 <h3 class="mb-4 flex items-center space-x-2">
                     <div
-                        class="flex h-6 w-6 items-center justify-center rounded-full border border-base-200"
+                        class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
                     >
                         3
                     </div>

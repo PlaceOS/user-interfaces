@@ -63,6 +63,8 @@ const ROUTES: Route[] = [
     { path: '*', redirectTo: 'spaces/form' },
 ];
 
+const STANDALONE_COMPONENTS = [MeetingFlowConfirmComponent];
+
 @NgModule({
     declarations: [
         BookComponent,
@@ -73,9 +75,9 @@ const ROUTES: Route[] = [
         BookMeetingFlowComponent,
         MeetingFlowFormComponent,
         MeetingFormDetailsComponent,
-        MeetingFlowConfirmComponent,
         MeetingFlowConfirmModalComponent,
         MeetingFlowSuccessComponent,
+
         NewDeskFlowFormComponent,
         NewDeskFormDetailsComponent,
         NewDeskFlowComponent,
@@ -105,6 +107,7 @@ const ROUTES: Route[] = [
         MatBottomSheetModule,
         SharedBookingsModule,
         RouterModule.forChild(ROUTES),
+        ...STANDALONE_COMPONENTS,
     ],
 })
 export class BookModule {}

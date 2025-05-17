@@ -1,0 +1,103 @@
+import { Component, Inject, OnInit } from '@angular/core';
+import {
+    MAT_BOTTOM_SHEET_DATA,
+    MatBottomSheetRef,
+} from '@angular/material/bottom-sheet';
+import { Space } from '@placeos/spaces';
+import { RoomConfirmService } from './room-confirm.service';
+
+@Component({
+    selector: 'placeos-room-tile',
+    template: `
+        <div
+            class="z-0 flex min-h-min w-full min-w-[400px] flex-1 flex-col overflow-hidden"
+        >
+            <div
+                class="justify-content mx-auto flex w-[calc(100%-2rem)] max-w-[375px] items-center"
+                (click)="openRoomDetail()"
+            >
+                <div
+                    class="mx-4 flex h-full w-full flex-col rounded-lg border bg-base-100"
+                >
+                    <div
+                        class="text-gray-500 m-3 flex h-44 items-center justify-center rounded-lg bg-base-200"
+                    >
+                        <img
+                            auth
+                            *ngIf="space?.images?.length > 0"
+                            [source]="space.images[0]"
+                            alt="image of building "
+                            width="100%"
+                            height="100%"
+                            class="z-20 flex rounded-lg"
+                        />
+
+                        <div *ngIf="space?.images?.length == 0">
+                            <icon class="text-[8rem]">image</icon>
+                        </div>
+                    </div>
+                    <div class="mb-4 flex flex-col">
+                        <span class="mx-3 mt-1 text-xl font-bold">
+                            {{ space?.name }}</span
+                        >
+
+                        <div
+                            class="mx-3 mt-1 flex flex-row items-center text-base"
+                        >
+                            <icon class="text-info">room</icon>
+                            <span class="text-gray-500">
+                                {{ space?.level?.name }},
+                                {{ space?.level?.parent_id }}</span
+                            >
+                        </div>
+
+                        <div
+                            class="mx-3 mt-1 flex flex-row items-center text-base"
+                        >
+                            <icon class="flex items-center text-info"
+                                >people</icon
+                            >
+                            <span class="text-gray-500">
+                                {{ space?.capacity }}</span
+                            >
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div
+            class="top-box-shadow -mx-4 mb-10 mt-5 flex h-full flex-col items-center border-t border-base-200 bg-base-100 p-3"
+        >
+            <button
+                btn
+                matRipple
+                (click)="cancel()"
+                class="mx-4 ml-2 w-[460px] border-secondary bg-base-100"
+            >
+                <span class="text-secondary">Back</span>
+            </button>
+        </div>
+    `,
+    styles: [``],
+    standalone: false,
+})
+export class RoomTileComponent implements OnInit {
+    space: Space;
+    constructor(
+        @Inject(MAT_BOTTOM_SHEET_DATA) public data: any,
+        private _bottomSheetRef: MatBottomSheetRef<RoomTileComponent>,
+        private _roomConfirmService: RoomConfirmService,
+    ) {}
+
+    ngOnInit() {
+        this.space = this.data;
+    }
+
+    openRoomDetail() {
+        this._roomConfirmService.openRoomDetail(this.space);
+    }
+
+    cancel() {
+        this._bottomSheetRef.dismiss(null);
+    }
+}

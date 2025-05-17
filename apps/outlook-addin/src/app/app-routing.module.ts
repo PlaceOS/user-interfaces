@@ -1,17 +1,17 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { AuthorisedUserGuard } from '@placeos/components';
+import { AuthorisedUserGuard } from 'libs/components/src/lib/authorised-user.guard';
 
 import { UnauthorisedComponent } from 'libs/components/src/lib/unauthorised.component';
-import { NotFoundComponent } from './components/not-found/not-found.component';
 import { DeskBookingComponent } from './desks/desk-booking.component';
 import { DeskBookingSuccessComponent } from './desks/desk-success.component';
 import { MeetingBookingComponent } from './meetings/meeting-booking.component';
 import { MeetingBookingSuccessComponent } from './meetings/meeting-success.component';
-import { BookingConfirmedComponent } from './rooms/booking-confirmed/booking-confirmed.component';
-import { FindSpaceComponent } from './rooms/find-space/find-space.component';
+import { NotFoundComponent } from './not-found.component';
+import { BookingConfirmedComponent } from './rooms/booking-confirmed.component';
+import { FindSpaceComponent } from './rooms/find-space.component';
 import { RoomBookingComponent } from './rooms/room-booking.component';
-import { UpcomingBookingsComponent } from './rooms/upcoming-bookings/upcoming-bookings.component';
+import { UpcomingBookingsComponent } from './rooms/upcoming-bookings.component';
 
 const routes: Routes = [
     { path: 'unauthorised', component: UnauthorisedComponent },

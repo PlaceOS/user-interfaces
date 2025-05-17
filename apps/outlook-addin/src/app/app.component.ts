@@ -28,7 +28,6 @@ declare let OfficeRuntime: any;
     template: `
         <router-outlet></router-outlet>
         <global-loading></global-loading>
-        <debug-console></debug-console>
     `,
     styles: [``],
     standalone: false,

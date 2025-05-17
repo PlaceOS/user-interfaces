@@ -6,8 +6,8 @@ import { EventFormService } from '@placeos/events';
 import { Space, SpacesService } from '@placeos/spaces';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { RoomConfirmComponent } from './room-confirm/room-confirm.component';
-import { RoomDetailsComponent } from './room-details/room-details.component';
+import { RoomConfirmComponent } from './room-confirm.component';
+import { RoomDetailsComponent } from './room-details.component';
 
 @Injectable({
     providedIn: 'root',

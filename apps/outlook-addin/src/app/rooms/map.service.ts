@@ -8,7 +8,7 @@ import { ViewAction, ViewerFeature, ViewerStyles } from '@placeos/svg-viewer';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { first, map } from 'rxjs/operators';
 import { RoomConfirmService } from './room-confirm.service';
-import { RoomTileComponent } from './room-tile/room-tile.component';
+import { RoomTileComponent } from './room-tile.component';
 
 export interface Locatable {
     id: string;

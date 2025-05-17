@@ -21,7 +21,7 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
             <section class="p-4">
                 <h3 class="flex items-center space-x-2">
                     <div
-                        class="flex h-6 w-6 items-center justify-center rounded-full bg-neutral"
+                        class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
                     >
                         1
                     </div>
@@ -132,7 +132,7 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
             <section class="p-4" *ngIf="!hide_attendees">
                 <h3 class="flex items-center space-x-2">
                     <div
-                        class="flex h-6 w-6 items-center justify-center rounded-full bg-neutral"
+                        class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
                     >
                         2
                     </div>
@@ -168,7 +168,7 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
             <section class="p-4">
                 <h3 class="flex items-center space-x-2">
                     <div
-                        class="flex h-6 w-6 items-center justify-center rounded-full bg-neutral"
+                        class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
                     >
                         3
                     </div>
@@ -197,7 +197,7 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
             <section class="p-4" *ngIf="has_catering">
                 <h3 class="flex items-center space-x-2">
                     <div
-                        class="flex h-6 w-6 items-center justify-center rounded-full bg-neutral"
+                        class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
                     >
                         4
                     </div>
@@ -230,7 +230,7 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
             <section class="p-4">
                 <h3 class="flex items-center space-x-2">
                     <div
-                        class="flex h-6 w-6 items-center justify-center rounded-full bg-neutral"
+                        class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
                     >
                         {{ !has_catering ? '4' : '5' }}
                     </div>
@@ -260,7 +260,7 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
             <section class="p-4" *ngIf="!hide_notes">
                 <h3 class="mb-4 flex items-center space-x-2">
                     <div
-                        class="flex h-6 w-6 items-center justify-center rounded-full bg-neutral"
+                        class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
                     >
                         {{ !has_catering ? '5' : '6' }}
                     </div>
