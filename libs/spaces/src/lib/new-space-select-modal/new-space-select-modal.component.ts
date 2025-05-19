@@ -6,140 +6,143 @@ import {
     MatDialogModule,
     MatDialogRef,
 } from '@angular/material/dialog';
+
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { SettingsService } from '@placeos/common';
+
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import {
-    EventFormOptions,
-    EventFormService,
-} from 'libs/events/src/lib/new-event-form.service';
+
+import { EventFormOptions, EventFormService } from '@placeos/events';
 import { Space } from '../space.class';
-import { SpaceDetailsComponent } from './space-details.component';
-import { SpaceFiltersDisplayComponent } from './space-filters-display.component';
-import { SpaceFiltersComponent } from './space-filters.component';
-import { SpaceListComponent } from './space-list.component';
+import { NewSpaceDetailsComponent } from './new-space-details.component';
+import { NewSpaceFiltersDisplayComponent } from './new-space-filters-display.component';
+import { NewSpaceFiltersComponent } from './new-space-filters.component';
+import { NewSpaceListComponent } from './new-space-list.component';
+import { NewSpaceMapComponent } from './new-space-map.component';
+
+export const FAV_DESK_KEY = 'favourite_spaces';
 
 @Component({
     selector: 'new-space-select-modal',
     template: `
         <div
-            class="flex h-[100vh] w-[100vw] flex-col bg-base-100 sm:relative sm:h-auto sm:w-auto"
+            class="flex h-screen w-screen flex-col space-y-2 overflow-hidden bg-base-100 p-2 sm:h-auto sm:w-auto"
         >
-            <header class="flex w-full items-center space-x-4">
-                <button icon matRipple mat-dialog-close class="bg-base-200">
-                    <icon>close</icon>
-                </button>
-                <h3>{{ 'CALENDAR_EVENT.SPACE_SELECT_FIND' | translate }}</h3>
-                <div class="hidden flex-1 items-center justify-end sm:flex">
+            <header
+                class="flex h-14 w-full items-center space-x-2 rounded border-none bg-base-200 p-2"
+            >
+                <h2 class="flex-1 px-2 text-xl font-medium capitalize">
+                    {{ 'CALENDAR_EVENT.SPACE_SELECT_FIND' | translate }}
+                </h2>
+                <div
+                    class="flex divide-x divide-secondary rounded border border-secondary"
+                >
                     <button
-                        btn
+                        icon
                         matRipple
-                        map
                         class="rounded-l rounded-r-none"
-                        [class.inverse]="view !== 'map'"
-                        (click)="view = 'map'"
-                    >
-                        {{ 'COMMON.MAP' | translate }}
-                    </button>
-                    <button
-                        btn
-                        matRipple
-                        list
-                        class="rounded-l-none rounded-r"
-                        [class.inverse]="view !== 'list'"
+                        [class.bg-base-100]="view !== 'list'"
+                        [class.bg-secondary]="view === 'list'"
+                        [class.text-secondary-content]="view === 'list'"
+                        [matTooltip]="'COMMON.LIST' | translate"
                         (click)="view = 'list'"
                     >
-                        {{ 'COMMON.LIST' | translate }}
+                        <icon>list</icon>
+                    </button>
+                    <button
+                        icon
+                        matRipple
+                        class="rounded-l-none rounded-r"
+                        [class.bg-base-100]="view !== 'map'"
+                        [class.bg-secondary]="view === 'map'"
+                        [class.text-secondary-content]="view === 'map'"
+                        [matTooltip]="'COMMON.MAP' | translate"
+                        (click)="view = 'map'"
+                    >
+                        <icon>map</icon>
                     </button>
                 </div>
+                <button icon matRipple mat-dialog-close>
+                    <icon>close</icon>
+                </button>
             </header>
             <main
-                class="flex h-[65vh] min-h-[65vh] w-full flex-1 items-center divide-x divide-base-200 overflow-hidden sm:max-h-[65vh] sm:max-w-[95vw]"
+                class="relative flex h-1/2 flex-1 sm:h-[65vh] sm:flex-none sm:space-x-2"
             >
-                <space-filters
-                    class="hidden h-full max-w-[20rem] sm:flex sm:h-[65vh] sm:max-h-full"
-                    [multiday]="multiday"
-                    [hide_levels]="view !== 'list'"
-                    [viewing_map]="view === 'map'"
-                ></space-filters>
                 <div
-                    class="flex h-full w-1/2 flex-1 flex-col items-center sm:h-[65vh]"
+                    class="h-full w-full overflow-y-auto overflow-x-hidden rounded border border-base-300 shadow sm:block sm:w-[20rem]"
+                    [class.hidden]="!show_filters"
                 >
-                    <space-filters-display
-                        class="w-full border-b border-base-200"
+                    <new-space-filters
+                        [hide_levels]="view !== 'list'"
+                    ></new-space-filters>
+                </div>
+                <div
+                    class="h-full w-full overflow-auto rounded border border-base-300 bg-base-200 sm:w-[20rem] lg:block"
+                    [class.hidden]="show_filters || displayed"
+                    [class.sm:hidden]="displayed"
+                    [class.md:block]="!displayed"
+                    [class.p-2]="view === 'list'"
+                >
+                    <new-space-filters-display
+                        *ngIf="view === 'list'"
                         [(view)]="view"
-                    ></space-filters-display>
-                    <space-list
+                    ></new-space-filters-display>
+                    <new-space-list
                         *ngIf="view === 'list'; else map_view"
                         [active]="displayed?.id"
                         [selected]="selected_ids"
                         [favorites]="favorites"
                         (toggleFav)="toggleFavourite($event)"
                         (onSelect)="displayed = $event"
-                        class="h-1/2 flex-1 bg-base-200"
-                    ></space-list>
+                    ></new-space-list>
                 </div>
-                <space-details
-                    [space]="displayed"
-                    [alert]="(room_alerts | async)[displayed?.id]"
-                    class="absolute z-20 flex h-full w-full min-w-[20rem] bg-base-100 sm:relative sm:h-[65vh] sm:max-w-[20rem] sm:flex-col"
-                    [class.hidden]="!displayed"
-                    [class.inset-0]="displayed"
-                    [hide_map]="view === 'map'"
-                    [active]="selected_ids.includes(displayed?.id)"
-                    (activeChange)="setSelected(displayed, $event)"
-                    [fav]="displayed && this.favorites.includes(displayed?.id)"
-                    (toggleFav)="toggleFavourite(displayed)"
-                    (close)="displayed = null"
-                ></space-details>
+                <div
+                    class="h-full w-full overflow-auto rounded border border-base-300 shadow sm:w-[20rem] lg:block"
+                    [class.hidden]="show_filters || !displayed"
+                    [class.sm:hidden]="!displayed"
+                    [class.md:block]="displayed"
+                >
+                    <new-space-details
+                        [space]="displayed"
+                        [active]="selected_ids.includes(displayed?.id)"
+                        [hide_map]="view === 'map'"
+                        (activeChange)="setSelected(displayed, $event)"
+                        [fav]="
+                            displayed && this.favorites.includes(displayed?.id)
+                        "
+                        (toggleFav)="toggleFavourite(displayed)"
+                        (close)="displayed = null"
+                    ></new-space-details>
+                </div>
+                <button
+                    icon
+                    matRipple
+                    class="absolute right-2 top-3 z-20 border border-base-200 bg-base-100 sm:hidden"
+                    (click)="show_filters = !show_filters"
+                    *ngIf="!displayed"
+                >
+                    <icon>{{ show_filters ? 'close' : 'filter_list' }}</icon>
+                </button>
             </main>
             <footer
-                class="flex w-full flex-col-reverse items-center justify-end border-t border-base-200 px-2 pb-[5.5rem] pt-2 sm:hidden"
+                class="flex w-full items-center justify-between space-x-2 rounded border-none bg-base-200 p-2"
             >
                 <button
                     btn
                     matRipple
-                    name="spaces-return"
-                    class="inverse w-full sm:hidden"
-                    *ngIf="displayed"
-                    (click)="displayed = null"
-                >
-                    {{ 'COMMON.BACK' | translate }}
-                </button>
-                <button
-                    btn
-                    matRipple
-                    name="save-spaces"
+                    name="space-return"
                     [mat-dialog-close]="selected"
-                    [class.mb-2]="displayed"
-                    class="w-full sm:mb-0 sm:w-32"
+                    class="inverse bg-base-100 text-secondary"
                 >
-                    {{ 'COMMON.VIEW_LIST' | translate }}
-                </button>
-            </footer>
-            <footer
-                class="hidden w-full items-center justify-between border-t border-base-200 p-2 sm:flex"
-            >
-                <button
-                    btn
-                    matRipple
-                    name="spaces-return"
-                    [mat-dialog-close]="selected"
-                    class="clear text-secondary"
-                >
-                    <div class="flex items-center">
+                    <div class="flex items-center space-x-2">
                         <icon class="text-xl">arrow_back</icon>
-                        <div class="mr-1 underline">
+                        <div class="pr-2">
                             {{ 'COMMON.BACK_TO_FORM' | translate }}
                         </div>
                     </div>
                 </button>
-                <p class="text-sm opacity-60">
-                    {{
-                        'CALENDAR_EVENT.SPACE_SELECT_COUNT'
-                            | translate: { count: selected.length }
-                    }}
-                </p>
                 <button
                     btn
                     matRipple
@@ -165,30 +168,32 @@ import { SpaceListComponent } from './space-list.component';
             </footer>
         </div>
         <ng-template #map_view>
-            <space-map
-                class="h-1/2 w-full flex-1"
-                [selected]="selected_ids"
+            <new-space-map
+                class="h-full w-full"
                 [is_displayed]="!!displayed"
                 [active]="displayed?.id"
                 (onSelect)="displayed = $event"
             >
-            </space-map>
+            </new-space-map>
         </ng-template>
     `,
     styles: [``],
     imports: [
         CommonModule,
-        MatRippleModule,
         TranslatePipe,
-        SpaceDetailsComponent,
-        SpaceListComponent,
-        SpaceFiltersComponent,
-        SpaceFiltersDisplayComponent,
         IconComponent,
+        MatRippleModule,
         MatDialogModule,
+        MatTooltipModule,
+        NewSpaceMapComponent,
+        NewSpaceListComponent,
+        NewSpaceDetailsComponent,
+        NewSpaceFiltersComponent,
+        NewSpaceFiltersDisplayComponent,
     ],
 })
 export class NewSpaceSelectModalComponent {
+    public show_filters = false;
     public displayed?: Space;
     public selected: Space[] = [];
     public view = 'list';

@@ -52,6 +52,8 @@
         "EMPTY": "N/A",
         "UNKNOWN": "Unknown",
         "RESULTS_COUNT": "{{ count }} result(s) found",
+        "RESULTS_COUNT_1": "{{ count }} result found",
+        "RESULTS_COUNT_N": "{{ count }} results found",
         "AVAILABLE_COUNT": "{{ count }} of {{ total }} available",
         "ITEM_COUNT": "{{ count }} item(s)",
         "VIEW_LIST": "View List",
@@ -234,7 +236,9 @@
         "REQUIRE_APPROVAL": "Bookings require approval",
         "WFO": "Work from Office",
         "WFH": "Work from Home",
-        "AOL": "Away on Leave"
+        "AOL": "Away on Leave",
+        "END_OF_LIST": "End of list",
+        "NO_DESCRIPTION": "No description"
     },
     "LANGUAGE": {
         "ENGLISH": "English",

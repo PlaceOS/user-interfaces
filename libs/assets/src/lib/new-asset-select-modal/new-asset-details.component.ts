@@ -1,0 +1,138 @@
+import { CommonModule } from '@angular/common';
+import {
+    Component,
+    EventEmitter,
+    Input,
+    OnChanges,
+    OnInit,
+    Output,
+    SimpleChanges,
+} from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { ImageCarouselComponent } from 'libs/components/src/lib/image-carousel.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { CounterComponent } from 'libs/form-fields/src/lib/counter.component';
+import { AssetGroup } from '../asset.class';
+
+@Component({
+    selector: 'new-asset-details',
+    template: `
+        <ng-container *ngIf="item; else empty_state">
+            <section image class="relative h-64 w-full bg-base-200 sm:h-40">
+                <image-carousel
+                    [images]="item.images"
+                    class="absolute inset-0"
+                ></image-carousel>
+                <button
+                    icon
+                    matRipple
+                    close
+                    (click)="close.emit()"
+                    class="absolute left-2 top-2 bg-base-100 lg:hidden"
+                >
+                    <icon>arrow_back</icon>
+                </button>
+                <button
+                    icon
+                    matRipple
+                    fav
+                    [class.text-info-content]="fav"
+                    (click)="toggleFav.emit()"
+                    class="absolute right-2 top-2 bg-base-100"
+                >
+                    <icon
+                        [className]="
+                            fav
+                                ? 'material-symbols-rounded'
+                                : 'material-symbols-outlined'
+                        "
+                        >favorite</icon
+                    >
+                </button>
+            </section>
+            <div class="h-1/2 flex-1 space-y-4 p-2">
+                <h2 class="my-2 px-2 text-xl font-medium">
+                    {{ item.name }}
+                </h2>
+                <section actions class="z-0 flex items-center justify-between">
+                    <p class="px-2">
+                        {{
+                            (item.available != null
+                                ? item.available
+                                : item.assets?.length) || 0
+                        }}
+                        Available
+                    </p>
+                    <a-counter
+                        [(ngModel)]="item.quantity"
+                        (ngModelChange)="countChange.emit($event)"
+                        [min]="1"
+                        [max]="
+                            (item.available != null
+                                ? item.available
+                                : item.assets?.length) || 1
+                        "
+                    ></a-counter>
+                </section>
+                <section
+                    details
+                    class="relative space-y-2 rounded border border-base-400 px-3 pb-2 pt-2"
+                >
+                    <h2
+                        class="absolute left-2 top-0 -translate-y-1/2 bg-base-100 px-2 text-lg font-medium"
+                    >
+                        Details
+                    </h2>
+                    <div class="flex items-center space-x-2 px-2 pb-1">
+                        <p>{{ item.description }}</p>
+                        @if (!item.description) {
+                            <div class="w-full text-center opacity-30">
+                                {{ 'COMMON.NO_DESCRIPTION' | translate }}
+                            </div>
+                        }
+                    </div>
+                </section>
+            </div>
+        </ng-container>
+        <ng-template #empty_state>
+            <div
+                empty
+                class="flex h-full w-full flex-col items-center justify-center space-y-2 p-8"
+            >
+                <p class="text-center opacity-30">
+                    {{ 'BOOKINGS.ASSETS_SELECT' | translate }}
+                </p>
+            </div>
+        </ng-template>
+    `,
+    styles: [``],
+    imports: [
+        CommonModule,
+        ImageCarouselComponent,
+        IconComponent,
+        TranslatePipe,
+        MatRippleModule,
+        CounterComponent,
+    ],
+})
+export class NewAssetDetailsComponent implements OnInit, OnChanges {
+    @Input() public item?: AssetGroup;
+    @Input() public active = false;
+    @Input() public fav = false;
+
+    @Output() public toggleFav = new EventEmitter<void>();
+    @Output() public activeChange = new EventEmitter<boolean>();
+    @Output() public countChange = new EventEmitter<number>();
+    @Output() public close = new EventEmitter<void>();
+
+    public ngOnInit() {
+        if (this.item && !this.item.quantity) this.item.quantity = 1;
+    }
+
+    public ngOnChanges(changes: SimpleChanges) {
+        if (changes.item && this.item) {
+            if (!this.item.quantity) this.item.quantity = 1;
+        }
+    }
+}

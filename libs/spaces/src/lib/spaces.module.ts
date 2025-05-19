@@ -1,10 +1,12 @@
 import { NgModule, Type } from '@angular/core';
 
-import { NewSpaceSelectModalComponent } from './space-select-modal/new-space-select-modal.component';
+import { SpaceSelectModalComponent } from './space-select-modal/space-select-modal.component';
 
+import { NewSpaceSelectModalComponent } from './new-space-select-modal/new-space-select-modal.component';
 import { SpacePipe } from './space.pipe';
 
 const STANDALONE_COMPONENTS: Type<any>[] = [
+    SpaceSelectModalComponent,
     NewSpaceSelectModalComponent,
     SpacePipe,
 ];

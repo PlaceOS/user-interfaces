@@ -11,8 +11,8 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { BookingAsset } from './booking-form.service';
 import {
     FAV_PARKING_KEY,
-    ParkingSpaceSelectModalComponent,
-} from './parking-select-modal/parking-select-modal.component';
+    NewParkingSelectModalComponent,
+} from './new-parking-select-modal/new-parking-select-modal.component';
 
 const EMPTY_FAVS: string[] = [];
 
@@ -157,7 +157,7 @@ export class ParkingSpaceListFieldComponent implements ControlValueAccessor {
 
     /** Add or edit selected spaces */
     public changeResources() {
-        const ref = this._dialog.open(ParkingSpaceSelectModalComponent, {
+        const ref = this._dialog.open(NewParkingSelectModalComponent, {
             data: {
                 spaces: this.spaces,
                 options: {

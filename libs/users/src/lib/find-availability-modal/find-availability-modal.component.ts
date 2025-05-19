@@ -57,192 +57,196 @@ export interface FindAvailabilityData {
 @Component({
     selector: 'find-availability-modal',
     template: `
-        <header class="relative flex items-center justify-center p-4">
-            <h2 class="text-center">
-                {{ 'CALENDAR_EVENT.FIND_AVAILABILITY' | translate }}
-            </h2>
-            <button
-                icon
-                matRipple
-                mat-dialog-close
-                class="absolute left-1 top-1/2 -translate-y-1/2"
+        <div class="flex flex-col space-y-2 p-2">
+            <header
+                class="flex h-14 w-full items-center justify-between space-x-2 rounded border-none bg-base-200 p-2"
             >
-                <icon>close</icon>
-            </button>
-        </header>
-        <main
-            class="flex h-[calc(100vh-7rem)] flex-col overflow-hidden sm:h-[65vh]"
-        >
-            <div
-                class="flex w-full flex-col space-y-2 p-2 sm:flex-row sm:space-x-2 sm:space-y-0"
-            >
-                <a-date-field
-                    [(ngModel)]="date"
-                    class="max-h-[3.25rem] flex-1"
-                    (ngModelChange)="on_change.next(on_change.getValue() + 1)"
-                ></a-date-field>
-                <a-user-search-field
-                    [(ngModel)]="user"
-                    (ngModelChange)="addUser($event)"
-                    class="max-h-[3.25rem] flex-1"
-                ></a-user-search-field>
-            </div>
-            <div
-                class="relative grid h-1/2 w-full max-w-[100vw] flex-1 divide-x divide-y divide-base-200 overflow-hidden border-t border-base-200 sm:max-w-[80vw]"
+                <h2 class="flex-1 px-2 text-xl font-medium capitalize">
+                    {{ 'CALENDAR_EVENT.FIND_AVAILABILITY' | translate }}
+                </h2>
+                <button icon matRipple mat-dialog-close>
+                    <icon>close</icon>
+                </button>
+            </header>
+            <main
+                class="flex h-[calc(100vh-9rem)] flex-col overflow-hidden rounded border border-base-300 sm:h-[65vh]"
             >
                 <div
-                    times
-                    class="col-start-2 flex h-10 overflow-hidden border-l border-base-200"
+                    class="flex w-full flex-col space-y-2 p-2 sm:flex-row sm:space-x-2 sm:space-y-0"
+                >
+                    <a-date-field
+                        [(ngModel)]="date"
+                        class="max-h-[3.25rem] flex-1"
+                        (ngModelChange)="
+                            on_change.next(on_change.getValue() + 1)
+                        "
+                    ></a-date-field>
+                    <a-user-search-field
+                        [(ngModel)]="user"
+                        (ngModelChange)="addUser($event)"
+                        class="max-h-[3.25rem] flex-1"
+                    ></a-user-search-field>
+                </div>
+                <div
+                    class="relative grid h-1/2 w-full max-w-[100vw] flex-1 divide-x divide-y divide-base-200 overflow-hidden border-t border-base-200 sm:max-w-[80vw]"
                 >
                     <div
-                        hour
-                        *ngFor="let hr of hours; let hour = index"
-                        class="relative h-10 min-w-[5rem] border-r border-base-200 p-2 text-sm"
-                        [attr.disabled]="today && current_hour > hour"
-                        [style.left]="-offset_x + 'px'"
+                        times
+                        class="col-start-2 flex h-10 overflow-hidden border-l border-base-200"
                     >
-                        <span>{{ hr | date: 'haa' }}</span>
-                    </div>
-                </div>
-                <div users class="row-start-2 w-24 overflow-hidden">
-                    <div
-                        host
-                        class="relative flex h-32 w-24 flex-col items-center justify-center border-b border-base-200 py-2"
-                        [style.top]="-offset_y + 'px'"
-                    >
-                        <a-user-avatar
-                            class="text-2xl"
-                            [user]="host"
-                        ></a-user-avatar>
                         <div
-                            class="max-w-full overflow-hidden break-words px-2 text-center text-xs"
+                            hour
+                            *ngFor="let hr of hours; let hour = index"
+                            class="relative h-10 min-w-[5rem] border-r border-base-200 p-2 text-sm"
+                            [attr.disabled]="today && current_hour > hour"
+                            [style.left]="-offset_x + 'px'"
                         >
-                            {{ host.name || host.email }}
+                            <span>{{ hr | date: 'haa' }}</span>
                         </div>
                     </div>
-                    <div
-                        person
-                        class="relative flex h-32 w-24 flex-col items-center justify-center border-b border-base-200 py-2"
-                        [style.top]="-offset_y + 'px'"
-                        *ngFor="let user of users | async"
-                    >
-                        <a-user-avatar
-                            class="text-2xl"
-                            [user]="user"
-                        ></a-user-avatar>
+                    <div users class="row-start-2 w-24 overflow-hidden">
                         <div
-                            class="max-w-full break-words px-2 text-center text-xs"
+                            host
+                            class="relative flex h-32 w-24 flex-col items-center justify-center border-b border-base-200 py-2"
+                            [style.top]="-offset_y + 'px'"
                         >
-                            {{ user.name || host.email }}
-                        </div>
-                        <button
-                            icon
-                            class="absolute -left-1 -top-1"
-                            (click)="removeUser(user)"
-                        >
-                            <icon>close</icon>
-                        </button>
-                    </div>
-                </div>
-                <div blocks class="relative row-start-2 overflow-hidden">
-                    <div fixed class="absolute inset-0 flex overflow-hidden">
-                        <div
-                            divider
-                            class="relative h-full min-w-[5rem] border-l border-base-200"
-                            [style.left]="-(offset_x + 1) + 'px'"
-                            [attr.disabled]="today && current_hour > h"
-                            *ngFor="let _ of hours; let h = index"
-                        ></div>
-                        <div
-                            selection
-                            class="absolute inset-y-0 z-20 cursor-grab !border-x-2 !border-info active:cursor-grabbing"
-                            [style.left]="
-                                'calc(' +
-                                selection_left +
-                                'rem - ' +
-                                offset_x +
-                                'px)'
-                            "
-                            [style.width]="selection_width + 'rem'"
-                            (mousedown)="startMovePeriod($event)"
-                            (touchstart)="startMovePeriod($event)"
-                        >
+                            <a-user-avatar
+                                class="text-2xl"
+                                [user]="host"
+                            ></a-user-avatar>
                             <div
-                                class="absolute inset-0 bg-info opacity-30"
-                            ></div>
-                            <div
-                                handle
-                                class="absolute -left-px top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-info"
-                            ></div>
-                            <div
-                                handle
-                                class="absolute -right-px top-1/2 h-3 w-3 -translate-y-1/2 translate-x-1/2 rounded-full bg-info hover:h-4 hover:w-4 active:bg-secondary"
-                                (mousedown)="startMoveDuration($event)"
-                                (touchstart)="startMoveDuration($event)"
-                            ></div>
-                            <div
-                                class="absolute left-1/2 top-2 -translate-x-1/2 whitespace-nowrap rounded border border-base-200 bg-base-100 p-2 text-xs shadow"
+                                class="max-w-full overflow-hidden break-words px-2 text-center text-xs"
                             >
-                                {{ duration | duration }}
-                            </div>
-                            <div
-                                *ngIf="move_time"
-                                class="absolute left-1/2 top-12 -translate-x-1/2 whitespace-nowrap rounded border border-base-200 bg-base-100 p-2 text-xs shadow"
-                            >
-                                {{ date | date: 'shortTime' }}
+                                {{ host.name || host.email }}
                             </div>
                         </div>
-                    </div>
-                    <div
-                        scroll
-                        #container
-                        class="absolute inset-0 overflow-auto"
-                        (scroll)="onScroll()"
-                    >
-                        <user-availability-list
-                            class="pointer-events-none"
-                            [user]="host"
-                            [date]="date"
-                            [availability]="
-                                (availability | async)
-                                    ? (availability | async)[host.email]
-                                    : []
-                            "
-                        ></user-availability-list>
-                        <user-availability-list
-                            class="pointer-events-none"
+                        <div
+                            person
+                            class="relative flex h-32 w-24 flex-col items-center justify-center border-b border-base-200 py-2"
+                            [style.top]="-offset_y + 'px'"
                             *ngFor="let user of users | async"
-                            [user]="user"
-                            [date]="date"
-                            [availability]="
-                                (availability | async)
-                                    ? (availability | async)[
-                                          user.email.toLowerCase()
-                                      ]
-                                    : []
-                            "
-                        ></user-availability-list>
+                        >
+                            <a-user-avatar
+                                class="text-2xl"
+                                [user]="user"
+                            ></a-user-avatar>
+                            <div
+                                class="max-w-full break-words px-2 text-center text-xs"
+                            >
+                                {{ user.name || host.email }}
+                            </div>
+                            <button
+                                icon
+                                class="absolute -left-1 -top-1"
+                                (click)="removeUser(user)"
+                            >
+                                <icon>close</icon>
+                            </button>
+                        </div>
+                    </div>
+                    <div blocks class="relative row-start-2 overflow-hidden">
+                        <div
+                            fixed
+                            class="absolute inset-0 flex overflow-hidden"
+                        >
+                            <div
+                                divider
+                                class="relative h-full min-w-[5rem] border-l border-base-200"
+                                [style.left]="-(offset_x + 1) + 'px'"
+                                [attr.disabled]="today && current_hour > h"
+                                *ngFor="let _ of hours; let h = index"
+                            ></div>
+                            <div
+                                selection
+                                class="absolute inset-y-0 z-20 cursor-grab !border-x-2 !border-info active:cursor-grabbing"
+                                [style.left]="
+                                    'calc(' +
+                                    selection_left +
+                                    'rem - ' +
+                                    offset_x +
+                                    'px)'
+                                "
+                                [style.width]="selection_width + 'rem'"
+                                (mousedown)="startMovePeriod($event)"
+                                (touchstart)="startMovePeriod($event)"
+                            >
+                                <div
+                                    class="absolute inset-0 bg-info opacity-30"
+                                ></div>
+                                <div
+                                    handle
+                                    class="absolute -left-px top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-info"
+                                ></div>
+                                <div
+                                    handle
+                                    class="absolute -right-px top-1/2 h-3 w-3 -translate-y-1/2 translate-x-1/2 rounded-full bg-info hover:h-4 hover:w-4 active:bg-secondary"
+                                    (mousedown)="startMoveDuration($event)"
+                                    (touchstart)="startMoveDuration($event)"
+                                ></div>
+                                <div
+                                    class="absolute left-1/2 top-2 -translate-x-1/2 whitespace-nowrap rounded border border-base-200 bg-base-100 p-2 text-xs shadow"
+                                >
+                                    {{ duration | duration }}
+                                </div>
+                                <div
+                                    *ngIf="move_time"
+                                    class="absolute left-1/2 top-12 -translate-x-1/2 whitespace-nowrap rounded border border-base-200 bg-base-100 p-2 text-xs shadow"
+                                >
+                                    {{ date | date: 'shortTime' }}
+                                </div>
+                            </div>
+                        </div>
+                        <div
+                            scroll
+                            #container
+                            class="absolute inset-0 overflow-auto"
+                            (scroll)="onScroll()"
+                        >
+                            <user-availability-list
+                                class="pointer-events-none"
+                                [user]="host"
+                                [date]="date"
+                                [availability]="
+                                    (availability | async)
+                                        ? (availability | async)[host.email]
+                                        : []
+                                "
+                            ></user-availability-list>
+                            <user-availability-list
+                                class="pointer-events-none"
+                                *ngFor="let user of users | async"
+                                [user]="user"
+                                [date]="date"
+                                [availability]="
+                                    (availability | async)
+                                        ? (availability | async)[
+                                              user.email.toLowerCase()
+                                          ]
+                                        : []
+                                "
+                            ></user-availability-list>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </main>
-        <footer
-            class="flex w-full items-center justify-between border-t border-base-200 p-2"
-        >
-            <button
-                btn
-                matRipple
-                [mat-dialog-close]="true"
-                class="clear text-secondary"
+            </main>
+            <footer
+                class="flex h-14 w-full items-center justify-between space-x-2 rounded border-none bg-base-200 p-2"
             >
-                <div class="flex items-center">
-                    <icon class="text-xl">arrow_back</icon>
-                    <div class="mr-1 underline">
-                        {{ 'COMMON.BACK_TO_FORM' | translate }}
+                <button
+                    btn
+                    matRipple
+                    [mat-dialog-close]="true"
+                    class="clear text-secondary"
+                >
+                    <div class="flex items-center">
+                        <icon class="text-xl">arrow_back</icon>
+                        <div class="mr-1 underline">
+                            {{ 'COMMON.BACK_TO_FORM' | translate }}
+                        </div>
                     </div>
-                </div>
-            </button>
-        </footer>
+                </button>
+            </footer>
+        </div>
     `,
     styles: [
         `

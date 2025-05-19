@@ -1,0 +1,442 @@
+import { Component, Input } from '@angular/core';
+import {
+    flatten,
+    MapsPeopleService,
+    SettingsService,
+    unique,
+} from '@placeos/common';
+import { addDays, endOfDay, startOfDay } from 'date-fns';
+import { combineLatest } from 'rxjs';
+import { map } from 'rxjs/operators';
+
+import { CommonModule } from '@angular/common';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatRippleModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { Region } from '@placeos/organisation';
+import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
+import { DateFieldComponent } from 'libs/form-fields/src/lib/date-field.component';
+import { DurationFieldComponent } from 'libs/form-fields/src/lib/duration-field.component';
+import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.component';
+import { Building } from 'libs/organisation/src/lib/building.class';
+import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
+import { SpacesService } from '../spaces.service';
+
+@Component({
+    selector: `new-space-filters`,
+    template: `
+        <div
+            class="sticky top-0 z-10 flex items-center border-b border-base-300 bg-base-100 px-4 py-4"
+        >
+            <h3 class="text-xl font-medium">
+                {{ 'COMMON.FILTERS' | translate }}
+            </h3>
+        </div>
+        <form
+            class="max-h-[65vh] w-full max-w-[100vw] divide-y divide-base-200 overflow-y-auto overflow-x-hidden p-2"
+            [formGroup]="form"
+        >
+            <section details>
+                <h2 class="mb-1 text-lg font-medium">
+                    {{ 'CALENDAR_EVENT.DETAILS' | translate }}
+                </h2>
+                <div class="flex min-w-[8rem] flex-1 flex-col">
+                    <label
+                        for="location"
+                        *ngIf="
+                            !hide_levels &&
+                            !(use_region && (regions | async)?.length) &&
+                            !(!use_region && (buildings | async)?.length > 1)
+                        "
+                    >
+                        {{ 'CALENDAR_EVENT.SPACE_LOCATION' | translate }}
+                    </label>
+                    <mat-form-field
+                        appearance="outline"
+                        class="w-full"
+                        *ngIf="use_region && (regions | async)?.length"
+                    >
+                        <mat-select
+                            name="region"
+                            [ngModel]="region"
+                            (ngModelChange)="setRegion($event)"
+                            [ngModelOptions]="{ standalone: true }"
+                            [placeholder]="
+                                'CALENDAR_EVENT.SPACE_REGION_ANY' | translate
+                            "
+                        >
+                            <mat-option
+                                *ngFor="let reg of regions | async"
+                                [value]="reg"
+                            >
+                                {{ reg.display_name || reg.name }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <mat-form-field
+                        appearance="outline"
+                        class="w-full"
+                        *ngIf="!use_region && (buildings | async)?.length > 1"
+                    >
+                        <mat-select
+                            name="building"
+                            [ngModel]="building | async"
+                            (ngModelChange)="setBuilding($event)"
+                            [ngModelOptions]="{ standalone: true }"
+                            [placeholder]="
+                                (building | async)?.display_name ||
+                                (building | async)?.name
+                            "
+                        >
+                            <mat-option
+                                *ngFor="let bld of buildings | async"
+                                [value]="bld"
+                            >
+                                {{ bld.display_name || bld.name }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <mat-form-field
+                        appearance="outline"
+                        class="w-full"
+                        *ngIf="!hide_levels"
+                    >
+                        <mat-select
+                            name="location"
+                            [ngModel]="(options | async)?.zones"
+                            (ngModelChange)="setOptions({ zones: $event })"
+                            [ngModelOptions]="{ standalone: true }"
+                            [placeholder]="
+                                'CALENDAR_EVENT.SPACE_LEVEL_ANY' | translate
+                            "
+                            [multiple]="true"
+                        >
+                            <mat-option
+                                *ngFor="let lvl of levels | async"
+                                [value]="lvl.id"
+                            >
+                                <div class="flex flex-col-reverse">
+                                    <div
+                                        class="text-xs opacity-30"
+                                        *ngIf="use_region"
+                                    >
+                                        {{
+                                            (lvl.parent_id | building)
+                                                ?.display_name
+                                        }}
+                                        <span class="opacity-0"> - </span>
+                                    </div>
+                                    <div>
+                                        {{ lvl.display_name || lvl.name }}
+                                    </div>
+                                </div>
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+                <div class="flex flex-wrap items-center sm:space-x-2">
+                    <div class="min-w-[8rem] flex-1">
+                        <label for="date">
+                            {{ 'FORM.DATE' | translate }}<span>*</span>
+                        </label>
+                        <a-date-field
+                            name="date"
+                            [ngModel]="form.getRawValue().date"
+                            (ngModelChange)="form.patchValue({ date: $event })"
+                            [ngModelOptions]="{ standalone: true }"
+                            [to]="end_date"
+                            [short]="true"
+                            [timezone]="timezone"
+                            [range]="multiday ? 1 : 0"
+                        >
+                            {{ 'FORM.DATE_ERROR' | translate }}
+                        </a-date-field>
+                    </div>
+                    <div class="relative min-w-[8rem] flex-1" *ngIf="multiday">
+                        <label for="date">
+                            {{ 'FORM.DATE_END' | translate }}<span>*</span>
+                        </label>
+                        <a-date-field
+                            name="date"
+                            [ngModel]="form.getRawValue().date_end"
+                            (ngModelChange)="
+                                form.patchValue({ date_end: $event })
+                            "
+                            [ngModelOptions]="{ standalone: true }"
+                            [from]="start_date"
+                            [to]="end_date"
+                            [short]="true"
+                            [timezone]="timezone"
+                            [range]="2"
+                        >
+                            {{ 'FORM.DATE_ERROR' | translate }}
+                        </a-date-field>
+                    </div>
+                </div>
+                <!-- All Day -->
+                <div *ngIf="allow_all_day" class="-mt-2 mb-2 flex justify-end">
+                    <mat-checkbox formControlName="all_day">
+                        {{ 'COMMON.ALL_DAY' | translate }}
+                    </mat-checkbox>
+                </div>
+                <div
+                    class="flex items-center space-x-2"
+                    *ngIf="!form.value.all_day"
+                >
+                    <div class="w-1/3 flex-1">
+                        <label for="start-time">
+                            {{ 'FORM.TIME_START' | translate }}<span>*</span>
+                        </label>
+                        <a-time-field
+                            name="start-time"
+                            [ngModel]="form.getRawValue().date"
+                            (ngModelChange)="form.patchValue({ date: $event })"
+                            [ngModelOptions]="{ standalone: true }"
+                            [use_24hr]="use_24hr"
+                            [timezone]="timezone"
+                        ></a-time-field>
+                    </div>
+                    <div class="w-1/3 flex-1" *ngIf="multiday">
+                        <label for="end-time">
+                            {{ 'FORM.TIME_END' | translate }}<span>*</span>
+                        </label>
+                        <a-time-field
+                            name="end-time"
+                            [ngModel]="form.value.date_end"
+                            (ngModelChange)="
+                                form.patchValue({ date_end: $event })
+                            "
+                            [ngModelOptions]="{ standalone: true }"
+                            [from]="form?.getRawValue()?.date"
+                            [use_24hr]="use_24hr"
+                            [timezone]="timezone"
+                        ></a-time-field>
+                    </div>
+                    <div class="w-1/3 flex-1" *ngIf="!multiday">
+                        <label for="end-time">
+                            {{ 'FORM.TIME_END' | translate }}<span>*</span>
+                        </label>
+                        <a-duration-field
+                            name="end-time"
+                            formControlName="duration"
+                            [time]="form?.getRawValue()?.date"
+                            [max]="max_duration"
+                            [use_24hr]="use_24hr"
+                            [timezone]="timezone"
+                        ></a-duration-field>
+                    </div>
+                </div>
+            </section>
+            @let has_mapspeople = using_mapspeople | async;
+            <section
+                favs
+                class="space-y-2 pb-4"
+                *ngIf="!hide_levels && (!viewing_map || !has_mapspeople)"
+            >
+                <h2 class="mt-2 text-lg font-medium">
+                    {{ 'COMMON.FAVOURITES' | translate }}
+                </h2>
+                <div class="flex w-full items-center">
+                    <settings-toggle
+                        class="w-full"
+                        [name]="'COMMON.FAVOURITES_ONLY' | translate"
+                        [ngModel]="(options | async)?.show_fav"
+                        (ngModelChange)="setOptions({ show_fav: $event })"
+                        [ngModelOptions]="{ standalone: true }"
+                    ></settings-toggle>
+                </div>
+            </section>
+            <section
+                features
+                class="space-y-2"
+                *ngIf="
+                    (features | async)?.length &&
+                    (!viewing_map || !has_mapspeople) &&
+                    !hide_levels
+                "
+            >
+                <h2 class="mt-2 text-lg font-medium">Facilities</h2>
+                <ng-container *ngFor="let feat of features | async">
+                    <div
+                        class="flex items-center"
+                        *ngIf="!hide_features.includes(feat)"
+                    >
+                        <settings-toggle
+                            class="w-full"
+                            [name]="feature_display[feat] || feat"
+                            [ngModel]="
+                                (options | async)?.features?.includes(feat)
+                            "
+                            (ngModelChange)="toggleFeature(feat, $event)"
+                            [ngModelOptions]="{ standalone: true }"
+                        ></settings-toggle>
+                    </div>
+                </ng-container>
+            </section>
+        </form>
+        <div
+            class="w-full border-t border-base-200 px-2 pt-2"
+            *ngIf="can_close"
+        >
+            <button
+                btn
+                matRipple
+                class="w-full"
+                name="apply-space-filters"
+                (click)="close()"
+            >
+                {{ 'COMON.APPLY' | translate }}
+            </button>
+        </div>
+    `,
+    styles: [
+        `
+            :host {
+                display: flex;
+                flex-direction: column;
+                width: 100%;
+                max-width: 100vw;
+            }
+        `,
+    ],
+    imports: [
+        CommonModule,
+        MatRippleModule,
+        TranslatePipe,
+        SettingsToggleComponent,
+        DurationFieldComponent,
+        TimeFieldComponent,
+        MatCheckboxModule,
+        DateFieldComponent,
+        MatFormFieldModule,
+        MatSelectModule,
+        FormsModule,
+        ReactiveFormsModule,
+    ],
+})
+export class NewSpaceFiltersComponent {
+    @Input() public multiday: boolean;
+    @Input() public hide_levels: boolean;
+    @Input() public viewing_map: boolean;
+    public can_close = false;
+    public readonly options = this._event_form.options$;
+
+    public readonly building = this._org.active_building;
+    public readonly buildings = this._org.active_buildings;
+
+    public readonly levels = combineLatest([
+        this._org.active_region,
+        this._org.active_building,
+    ]).pipe(
+        map(([region, bld]) => {
+            const level_list = this.use_region
+                ? this._org.levelsForRegion(region)
+                : this._org.levelsForBuilding(bld);
+            const viewable_levels = level_list.filter(
+                (lvl) => !lvl.tags.includes('parking'),
+            );
+            return viewable_levels.sort(
+                (a, b) =>
+                    a.parent_id.localeCompare(b.parent_id) ||
+                    (a.display_name || '').localeCompare(b.display_name || ''),
+            );
+        }),
+    );
+
+    public readonly regions = this._org.region_list;
+
+    public readonly using_mapspeople = this._mapspeople.available$;
+
+    public readonly features = combineLatest([
+        this._spaces.features,
+        this._event_form.available_spaces,
+    ]).pipe(
+        map(([features, spaces]) =>
+            unique(features.concat(flatten(spaces.map((_) => _.features)))),
+        ),
+    );
+
+    public get allow_all_day() {
+        return !!this._settings.get('app.events.allow_all_day');
+    }
+
+    public get use_region() {
+        return !!this._settings.get('app.use_region');
+    }
+
+    public get timezone() {
+        return this._settings.get('app.events.use_building_timezone')
+            ? this._org.building.timezone
+            : '';
+    }
+
+    public readonly setOptions = (o) => this._event_form.setOptions(o);
+
+    public get bld() {
+        return this._org.building;
+    }
+
+    public get region() {
+        return this._org.region;
+    }
+
+    public get form() {
+        return this._event_form.form;
+    }
+
+    public get max_duration() {
+        return this._settings.get('app.events.max_duration') || 480;
+    }
+
+    public get feature_display() {
+        return this._settings.get('app.events.feature_decriptions') || {};
+    }
+
+    public get hide_features() {
+        return this._settings.get('app.events.hide_features') || [];
+    }
+
+    public get use_24hr() {
+        return this._settings.get('app.use_24_hour_time');
+    }
+
+    public get start_date() {
+        return startOfDay(this.form.getRawValue().date).valueOf();
+    }
+
+    public get end_date() {
+        return endOfDay(
+            addDays(
+                Date.now(),
+                this._settings.get('app.events.allowed_future_days') || 180,
+            ),
+        );
+    }
+
+    constructor(
+        private _settings: SettingsService,
+        private _event_form: EventFormService,
+        private _org: OrganisationService,
+        private _spaces: SpacesService,
+        private _mapspeople: MapsPeopleService,
+    ) {}
+
+    public setBuilding(bld: Building) {
+        this._org.building = bld;
+    }
+
+    public setRegion(region: Region) {
+        this._org.region = region;
+    }
+
+    public async toggleFeature(feat: string, state: boolean) {
+        const { features } = this._event_form.filters;
+        const new_list = (features || []).filter((_) => feat !== _);
+        if (state) new_list.push(feat);
+        this._event_form.setFilters({ features: new_list });
+    }
+}

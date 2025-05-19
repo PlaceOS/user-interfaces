@@ -17,7 +17,7 @@ import { OrganisationService } from '@placeos/organisation';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { NewSpaceSelectModalComponent } from 'libs/spaces/src/lib/space-select-modal/new-space-select-modal.component';
+import { NewSpaceSelectModalComponent } from 'libs/spaces/src/lib/new-space-select-modal/new-space-select-modal.component';
 import { Space } from 'libs/spaces/src/lib/space.class';
 import { BehaviorSubject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
@@ -229,6 +229,7 @@ export class SpaceListFieldComponent
     /** Add or edit selected spaces */
     public changeSpaces() {
         this._dialog_ref = this._dialog.open(NewSpaceSelectModalComponent, {
+            // this._dialog_ref = this._dialog.open(SpaceSelectModalComponent, {
             data: {
                 spaces: this.spaces.getValue(),
                 options: { capacity: this.room_size },

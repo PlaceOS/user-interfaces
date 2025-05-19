@@ -14,11 +14,11 @@ import {
     randomString,
 } from '@placeos/common';
 import { endOfDay, startOfDay } from 'date-fns';
-import { AssetSelectModalComponent } from 'libs/assets/src/lib/asset-select-modal/asset-select-modal.component';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { AssetItem, AssetRequest } from './asset-request.class';
 import { AssetStateService } from './asset-state.service';
+import { NewAssetSelectModalComponent } from './new-asset-select-modal/new-asset-select-modal.component';
 
 const EMPTY_FAVS: string[] = [];
 
@@ -287,7 +287,7 @@ export class AssetListFieldComponent implements ControlValueAccessor {
                     (requested[item.id] || 0) + item?.quantity || 0;
             }
         }
-        const ref = this._dialog.open(AssetSelectModalComponent, {
+        const ref = this._dialog.open(NewAssetSelectModalComponent, {
             data: {
                 items: order.items,
                 details: {
