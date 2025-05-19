@@ -104,7 +104,8 @@ export function fromEventRecurrence(r: RecurrenceDetails): Recurrence {
         recurr.weekdays = new Set(r.days_of_week as DayIndex[]);
     }
 
-    if (r.pattern === 'monthly') {
+    if (r.pattern === 'monthly' || r.pattern === 'month_day') {
+        recurr.type = 'monthly';
         recurr.monthly_type = 'day_of_week';
         if (r.days_of_week?.length) {
             recurr.weekdays = new Set(r.days_of_week as DayIndex[]);
@@ -155,6 +156,9 @@ export function toEventRecurrence(
     };
     if ((r.type === 'weekly' || r.type === 'monthly') && r.weekdays) {
         details.days_of_week = Array.from(r.weekdays);
+        if (r.type === 'monthly') details.pattern = 'month_day';
+    } else if (r.type === 'monthly') {
+        details.days_of_week = [];
     }
     if (r.type === 'monthly' || r.type === 'yearly') {
         details.end = endOfMonth(end).valueOf();
