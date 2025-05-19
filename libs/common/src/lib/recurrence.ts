@@ -157,11 +157,9 @@ export function toEventRecurrence(
         details.days_of_week = Array.from(r.weekdays);
     }
     if (r.type === 'monthly' || r.type === 'yearly') {
-        end = endOfMonth(end).valueOf();
+        details.end = endOfMonth(end).valueOf();
     }
-    if (r.type === 'weekly') {
-        end = endOfWeek(end).valueOf();
-    }
+    if (r.type === 'weekly') details.end = endOfWeek(end).valueOf();
     return details;
 }
 
