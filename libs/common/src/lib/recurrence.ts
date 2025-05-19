@@ -132,12 +132,6 @@ export function toEventRecurrence(
     }
     let date_obj = new Date(date);
     let end = addMonths(date, 6).valueOf();
-    if (r.type === 'monthly' || r.type === 'yearly') {
-        end = endOfMonth(end).valueOf();
-    }
-    if (r.type === 'weekly') {
-        end = endOfWeek(end).valueOf();
-    }
     if (r.end_type === 'date' && r.end_date) {
         end = r.end_date;
     } else if (r.end_type === 'instances') {
@@ -161,6 +155,12 @@ export function toEventRecurrence(
     };
     if ((r.type === 'weekly' || r.type === 'monthly') && r.weekdays) {
         details.days_of_week = Array.from(r.weekdays);
+    }
+    if (r.type === 'monthly' || r.type === 'yearly') {
+        end = endOfMonth(end).valueOf();
+    }
+    if (r.type === 'weekly') {
+        end = endOfWeek(end).valueOf();
     }
     return details;
 }
