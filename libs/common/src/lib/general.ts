@@ -1,6 +1,6 @@
 import { FormGroup } from '@angular/forms';
 import { formatDuration as duration } from 'date-fns';
-import { lastValueFrom, Observable, take } from 'rxjs';
+import { first, lastValueFrom, Observable, take } from 'rxjs';
 import { i18n, i18nAvailable } from './locale.service';
 import { HashMap } from './types';
 
@@ -568,4 +568,14 @@ export function formatDuration(
  */
 export function nextValueFrom<T = any>(obs: Observable<T>): Promise<T> {
     return obs ? lastValueFrom(obs.pipe(take(1))) : Promise.resolve(null);
+}
+
+/**
+ * Create a promise that returns the first truthy value returned by the given observable
+ * @param obs Observable to use
+ */
+export function firstTruthyValueFrom<T = any>(obs: Observable<T>): Promise<T> {
+    return obs
+        ? lastValueFrom(obs.pipe(first((_) => !!_)))
+        : Promise.resolve(null);
 }
