@@ -104,6 +104,9 @@ export class LockerGridComponent {
 
     public status(locker: Locker) {
         if (!locker) return this.color('not-bookable');
+        if (this.selected && locker.id === this.selected) {
+            return this.color('pending');
+        }
         let value = this.bank_status[locker.id] || 'free';
         if (!this.bank_status[locker.id] && !locker?.available) {
             value = this.default_status;

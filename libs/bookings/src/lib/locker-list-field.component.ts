@@ -8,12 +8,11 @@ import { MatRippleModule } from '@angular/material/core';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { LevelPipe } from 'libs/components/src/lib/level.pipe';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { BookingAsset } from './booking-form.service';
-import {
-    FAV_LOCKER_KEY,
-    LockerSelectModalComponent,
-} from './locker-select-modal/locker-select-modal.component';
+import { FAV_LOCKER_KEY } from './locker-select-modal/locker-select-modal.component';
+import { NewLockerSelectModalComponent } from './new-locker-select-modal/new-locker-select-modal.component';
 
 const EMPTY_FAVS: string[] = [];
 
@@ -137,6 +136,7 @@ const EMPTY_FAVS: string[] = [];
         MatRippleModule,
         AuthenticatedImageDirective,
         MatCheckboxModule,
+        LevelPipe,
     ],
 })
 export class LockerListFieldComponent implements ControlValueAccessor {
@@ -160,7 +160,7 @@ export class LockerListFieldComponent implements ControlValueAccessor {
 
     /** Add or edit selected items */
     public changeResources() {
-        const ref = this._dialog.open(LockerSelectModalComponent, {
+        const ref = this._dialog.open(NewLockerSelectModalComponent, {
             data: {
                 items: this.items,
                 options: { capacity: this.room_size },
@@ -168,6 +168,7 @@ export class LockerListFieldComponent implements ControlValueAccessor {
         });
         ref.afterClosed().subscribe((items?: BookingAsset[]) => {
             if (!items) items = ref.componentInstance.selected;
+            console.log('Items:', items);
             this.setValue(items);
         });
     }
