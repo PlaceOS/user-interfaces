@@ -57,10 +57,10 @@ const routes: Routes = [
                 path: 'upcoming',
                 component: UpcomingBookingsComponent,
             },
-            { path: '**', pathMatch: 'full', redirectTo: '/book/meeting' },
+            { path: '**', redirectTo: 'book/meeting' },
         ],
     },
-    { path: '**', pathMatch: 'full', redirectTo: '/book/meeting' },
+    { path: '**', redirectTo: 'book/meeting', pathMatch: 'full' },
 ];
 
 @NgModule({

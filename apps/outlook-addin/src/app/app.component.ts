@@ -5,6 +5,7 @@ import {
     AsyncHandler,
     current_user,
     currentUser,
+    firstTruthyValueFrom,
     log,
     setAppName,
     setNotifyOutlet,
@@ -17,8 +18,6 @@ import { invalidateToken, isMock, setToken, token } from '@placeos/ts-client';
 import { setDefaultCreator } from 'libs/events/src/lib/event.class';
 import { setInternalUserDomain } from 'libs/users/src/lib/user.utilities';
 import { first } from 'rxjs/operators';
-
-import * as MOCKS from '@placeos/mocks';
 
 declare let Office: any;
 declare let OfficeRuntime: any;
@@ -48,20 +47,18 @@ export class AppComponent extends AsyncHandler implements OnInit {
         console.info(`Initialising application...`);
         window.history.replaceState = (data: null, unused: null) => {};
 
-        log('APP', 'MOCKS:', MOCKS);
-
         setNotifyOutlet(this._snackbar);
         console.info(`Waiting for application settings...`);
-        await this._settings.initialised.pipe(first((_) => _)).toPromise();
-        console.info(`Waiting for office library to initialise...`);
+        await firstTruthyValueFrom(this._settings.initialised);
+        log('Outlook', `Waiting for library initialisation...`);
         await Office.onReady();
-        console.info(`Initialising auth...`);
+        log('Outlook', `Initialising auth...`);
         await this._initialiseAuth();
-        console.info(`Checking for existing auth...`);
+        log('Outlook', `Checking existing auth...`);
         if (token()) return this._finishInitialise();
         console.info(`No existing auth...`);
         try {
-            console.info(`Checking for office token...`);
+            log('Outlook', `Checking for token...`);
             this.timeout(
                 'error',
                 () => {
@@ -73,17 +70,17 @@ export class AppComponent extends AsyncHandler implements OnInit {
             const tkn = await (get_token || Promise.resolve());
             this.clearTimeout('error');
             if (!tkn) throw 'Unable to get office token...';
-            console.info(`Loaded office token. ${tkn}`);
+            log('Outlook', `Loaded office token. ${tkn}`);
             sessionStorage.setItem('OFFICE.token', tkn);
             await this._initialiseAuth(false);
             this._finishInitialise();
         } catch (e) {
             console.info(JSON.stringify(e));
-            if (!Office?.context?.ui) {
-                console.info(`Error office API not loaded.`);
+            if (!Office?.context) {
+                log('Outlook', `Error office API not loaded.`);
                 await this._initialiseAuth(false);
             } else {
-                await this._authenticateWithOffice();
+                await this._authenticateGraphAPI();
             }
         }
     }
@@ -113,8 +110,8 @@ export class AppComponent extends AsyncHandler implements OnInit {
         );
     }
 
-    private async _authenticateWithOffice() {
-        console.info(`Authenticating with office...`);
+    private async _authenticateGraphAPIWithDialog() {
+        log('Outlook', `Authenticating...`);
         this.timeout('office_auth', () => {
             const path = `${location.origin}${location.pathname}#ms-auth=true`;
             console.info(
@@ -123,12 +120,12 @@ export class AppComponent extends AsyncHandler implements OnInit {
             Office.context.ui.displayDialogAsync(
                 path,
                 { height: 60, width: 30 },
-                (result) => {
-                    console.info(`Authenticated with office from dialog...`);
+                (result: any) => {
+                    log('Outlook', `Authenticating with dialog...`);
                     const dialog = result.value;
                     dialog.addEventHandler(
                         Office.EventType.DialogMessageReceived,
-                        (token) => {
+                        (token: string) => {
                             if (token) setToken(token);
                             this._finishInitialise();
                             dialog.close();
@@ -143,12 +140,33 @@ export class AppComponent extends AsyncHandler implements OnInit {
             sessionStorage.getItem('ms-auth')
         ) {
             sessionStorage.setItem('ms-auth', 'true');
-            console.info(`Authenticating with office from a dialog...`);
+            log('Outlook', `Authenticating with dialog...`);
             this.clearTimeout('office_auth');
             await this._initialiseAuth(false);
             if (!token()) return;
             Office.context.ui.messageParent(token() || '');
         }
+    }
+
+    private _authenticateGraphAPI() {
+        return Office.context.auth.getAccessTokenAsync().then((result: any) => {
+            if (result.status === 'succeeded') {
+                // Use the token to call your backend or Microsoft Graph
+                const token = result.value;
+                log('Outlook', 'SSO token acquired successfully');
+                if (token) setToken(token);
+                this._finishInitialise();
+            } else {
+                // Handle errors or fallback to dialog authentication
+                log(
+                    'Outlook',
+                    'SSO failed: ' + result.error.message,
+                    undefined,
+                    'error',
+                );
+                return this._authenticateGraphAPIWithDialog(); // Your fallback method if SSO fails
+            }
+        });
     }
 
     private onInitError() {
