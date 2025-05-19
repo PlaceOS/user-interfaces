@@ -21,10 +21,10 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { OrganisationService } from '@placeos/organisation';
 import { endOfDay, startOfDay } from 'date-fns';
 import { CateringItem } from 'libs/catering/src/lib/catering-item.class';
-import { NewCateringOrderModalComponent } from 'libs/catering/src/lib/catering-order-modal/new-catering-order-modal.component';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { CateringOrder } from './catering-order.class';
+import { NewCateringSelectModalComponent } from './new-catering-order-modal/new-catering-select-modal.component';
 
 const EMPTY_FAVS = [];
 
@@ -348,7 +348,7 @@ export class CateringListFieldComponent
     }
 
     public editOrder(order: CateringOrder = new CateringOrder()) {
-        const ref = this._dialog.open(NewCateringOrderModalComponent, {
+        const ref = this._dialog.open(NewCateringSelectModalComponent, {
             data: {
                 caterer: order.items[0]?.caterer,
                 items: order.items,
