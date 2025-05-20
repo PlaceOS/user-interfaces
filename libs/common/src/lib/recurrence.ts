@@ -244,7 +244,7 @@ export function toBookingRecurrence(r: Recurrence): BookingRecurrence {
         let days = 0;
         // Convert day indices (0-6) to bit flags
         r.weekdays.forEach((day) => {
-            days |= 1 << (6 - day);
+            days |= 1 << day;
         });
         booking.recurrence_days = days;
     }
@@ -253,6 +253,7 @@ export function toBookingRecurrence(r: Recurrence): BookingRecurrence {
         booking.recurrence_nth_of_month = r.week;
     }
 
+    console.log('Recurrence:', r, booking);
     return booking;
 }
 
