@@ -149,24 +149,34 @@ export class AppComponent extends AsyncHandler implements OnInit {
     }
 
     private _authenticateGraphAPI() {
-        return Office.context.auth.getAccessTokenAsync().then((result: any) => {
-            if (result.status === 'succeeded') {
-                // Use the token to call your backend or Microsoft Graph
-                const token = result.value;
-                log('Outlook', 'SSO token acquired successfully');
-                if (token) setToken(token);
-                this._finishInitialise();
-            } else {
-                // Handle errors or fallback to dialog authentication
-                log(
-                    'Outlook',
-                    'SSO failed: ' + result.error.message,
-                    undefined,
-                    'error',
+        if (!Office.context.auth) {
+            if (Office.context.ui)
+                return this._authenticateGraphAPIWithDialog();
+            else
+                return this.timeout('retry_graph_auth', () =>
+                    this._authenticateGraphAPI(),
                 );
-                return this._authenticateGraphAPIWithDialog(); // Your fallback method if SSO fails
-            }
-        });
+        }
+        return Office.context.auth
+            ?.getAccessTokenAsync()
+            .then((result: any) => {
+                if (result.status === 'succeeded') {
+                    // Use the token to call your backend or Microsoft Graph
+                    const token = result.value;
+                    log('Outlook', 'SSO token acquired successfully');
+                    if (token) setToken(token);
+                    this._finishInitialise();
+                } else {
+                    // Handle errors or fallback to dialog authentication
+                    log(
+                        'Outlook',
+                        'SSO failed: ' + result.error.message,
+                        undefined,
+                        'error',
+                    );
+                    return this._authenticateGraphAPIWithDialog(); // Your fallback method if SSO fails
+                }
+            });
     }
 
     private onInitError() {

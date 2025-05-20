@@ -126,13 +126,10 @@ import { Space } from '../space.class';
                     >
                         {{ 'CALENDAR_EVENT.FACILITIES' | translate }}
                     </h2>
-                    <div
-                        class="flex items-center space-x-2"
-                        *ngFor="let feature of space.features"
-                        class="flex flex-wrap items-center"
-                    >
+                    <div class="flex flex-wrap items-center">
                         <div
                             for="feat"
+                            *ngFor="let feature of space.features"
                             class="m-1 rounded-full border border-base-300 px-4 py-2 text-sm capitalize"
                         >
                             {{ feature }}
