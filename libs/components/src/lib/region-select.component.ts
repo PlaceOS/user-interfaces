@@ -6,18 +6,27 @@ import { CustomTooltipData } from './custom-tooltip.component';
     selector: 'region-select',
     template: `
         <div
-            class="relative -right-1 -top-12 flex max-h-[65vh] w-[18.5rem] flex-col overflow-auto rounded bg-base-100 p-2 shadow"
+            class="relative -right-1 -top-12 flex max-h-[65vh] w-[18.5rem] flex-col overflow-auto rounded bg-base-100 pb-3 shadow"
             (click)="close()"
         >
-            <div class="flex items-center space-x-2">
+            <div
+                matRipple
+                class="flex items-center space-x-2 border-b border-base-300 px-2 py-3"
+            >
                 <icon class="text-2xl">arrow_back</icon>
-                <div class="">
-                    {{
-                        (region | async)?.display_name || (region | async)?.name
-                    }}
+                <div class="leading-tight">
+                    <div>
+                        {{
+                            (region | async)?.display_name ||
+                                (region | async)?.name
+                        }}
+                    </div>
+                    <div class="text-xs opacity-30">
+                        {{ 'RESOURCE.REGION' | translate }}
+                    </div>
                 </div>
             </div>
-            <div class="mb-4 px-2 text-xs opacity-60">
+            <div class="px-4 py-2 text-xs opacity-60">
                 {{ 'COMMON.REGION_SELECT' | translate }}
             </div>
             <mat-radio-group

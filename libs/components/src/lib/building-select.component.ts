@@ -6,19 +6,27 @@ import { CustomTooltipData } from './custom-tooltip.component';
     selector: 'building-select',
     template: `
         <div
-            class="relative -right-1 -top-12 flex max-h-[65vh] w-[18.5rem] flex-col overflow-auto rounded bg-base-100 p-2 shadow"
+            class="relative -right-1 -top-12 flex max-h-[65vh] w-[18.5rem] flex-col overflow-auto rounded bg-base-100 pb-3 shadow"
             (click)="close()"
         >
-            <div class="flex items-center space-x-2">
+            <div
+                matRipple
+                class="flex items-center space-x-2 border-b border-base-300 px-2 py-3"
+            >
                 <icon class="text-2xl">arrow_back</icon>
-                <div class="">
-                    {{
-                        (building | async)?.display_name ||
-                            (building | async)?.name
-                    }}
+                <div class="leading-tight">
+                    <div>
+                        {{
+                            (building | async)?.display_name ||
+                                (building | async)?.name
+                        }}
+                    </div>
+                    <div class="text-xs opacity-30">
+                        {{ 'RESOURCE.BUILDING' | translate }}
+                    </div>
                 </div>
             </div>
-            <div class="mb-4 px-2 text-xs opacity-60">
+            <div class="px-4 py-2 text-xs opacity-60">
                 {{ 'COMMON.BUILDING_SELECT' | translate }}
             </div>
             <mat-radio-group

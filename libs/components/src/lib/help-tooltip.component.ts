@@ -6,42 +6,34 @@ import { CustomTooltipData } from './custom-tooltip.component';
     selector: 'help-tooltip',
     template: `
         <div
-            class="relative -right-1 -top-12 flex w-[18.5rem] flex-col divide-y divide-base-200 rounded bg-base-100 shadow"
+            class="relative -right-1 -top-12 flex w-[18.5rem] flex-col rounded bg-base-100 shadow"
             (click)="close()"
         >
-            <div class="flex items-center space-x-2 border-b p-2">
+            <div
+                matRipple
+                class="flex items-center space-x-2 border-b border-base-300 px-2 py-4"
+            >
                 <icon class="text-2xl">arrow_back</icon>
                 <div class="">{{ 'COMMON.CONTROLS_HELP' | translate }}</div>
             </div>
             <a
-                btn
                 matRipple
                 *ngFor="let tile of tiles"
-                class="clear h-auto w-full text-left"
+                class="w-full p-2 text-left"
                 target="_blank"
                 ref="noreferer noopener"
                 [href]="tile.link"
             >
-                <div class="flex w-full items-center space-x-2 py-2">
-                    <div
-                        class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
-                    >
-                        <icon class="text-xl" [icon]="tile.icon"></icon>
-                    </div>
-                    <div class="flex-1">{{ tile.name }}</div>
+                <div
+                    class="flex w-full items-center space-x-2 rounded p-2 hover:bg-base-200"
+                >
+                    <icon class="text-xl" [icon]="tile.icon"></icon>
+                    <div>{{ tile.name }}</div>
                 </div>
             </a>
         </div>
     `,
-    styles: [
-        `
-            a:not(:last-child) {
-                border-bottom-width: 1px !important;
-                border-bottom-style: solid !important;
-                border-radius: 0;
-            }
-        `,
-    ],
+    styles: [``],
     standalone: false,
 })
 export class HelpTooltipComponent {

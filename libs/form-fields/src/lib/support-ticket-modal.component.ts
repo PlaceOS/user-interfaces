@@ -34,8 +34,12 @@ export interface SupportRequestType {
 @Component({
     selector: 'support-ticket-modal',
     template: `
-        <header class="flex items-center justify-between">
-            <h2 class="text-lg font-medium">Raise a support ticket</h2>
+        <header
+            class="m-2 flex h-14 w-[calc(100%-1rem)] items-center space-x-2 rounded border-none bg-base-200 p-2"
+        >
+            <h2 class="flex-1 px-2 text-xl font-medium capitalize">
+                Raise a support ticket
+            </h2>
             <button icon matRipple mat-dialog-close>
                 <icon class="text-2xl">close</icon>
             </button>
@@ -111,7 +115,7 @@ export interface SupportRequestType {
                         </mat-select>
                     </mat-form-field>
                 </div>
-                <div>
+                <div class="">
                     <label class="mb-4">
                         {{ 'COMMON.SUPPORT_DESCRIPTION' | translate }}
                         <span>*</span>
@@ -124,7 +128,7 @@ export interface SupportRequestType {
                         {{ 'COMMON.SUPPORT_DESCRIPTION_REQUIRED' | translate }}
                     </mat-error>
                 </div>
-                <div *ngIf="allow_images">
+                <div *ngIf="allow_images" class="pt-4">
                     <label class="mb-4">{{
                         'COMMON.SUPPORT_IMAGES' | translate
                     }}</label>

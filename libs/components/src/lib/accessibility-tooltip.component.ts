@@ -6,9 +6,13 @@ import { CustomTooltipData } from './custom-tooltip.component';
     selector: 'accessibility-tooltip',
     template: `
         <div
-            class="relative -right-1 -top-12 flex w-[18.5rem] flex-col overflow-hidden rounded bg-base-100 shadow"
+            class="relative -right-1 -top-12 flex max-h-[65vh] w-[20rem] flex-col overflow-auto rounded bg-base-100 pb-3 shadow"
         >
-            <div class="flex items-center space-x-2 p-2" (click)="close()">
+            <div
+                matRipple
+                class="flex items-center space-x-2 border-b border-base-300 px-2 py-3"
+                (click)="close()"
+            >
                 <icon class="text-2xl">arrow_back</icon>
                 <div class="">
                     {{ 'COMMON.CONTROLS_ACCESSIBILITY' | translate }}
@@ -17,37 +21,30 @@ import { CustomTooltipData } from './custom-tooltip.component';
             <div
                 action
                 *ngIf="can_change_dark_mode"
-                class="flex h-auto w-full items-center space-x-2 px-4 text-left"
+                class="w-full p-2 text-left"
             >
-                <div
-                    class="my-2 flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
-                >
-                    <icon class="text-xl">mode_night</icon>
-                </div>
-                <div class="flex-1 text-sm">
-                    {{ 'COMMON.DARK_MODE' | translate }}
-                </div>
-                <mat-slide-toggle
+                <settings-toggle
                     [ngModel]="dark_mode"
                     (ngModelChange)="setDarkMode($event)"
-                ></mat-slide-toggle>
-            </div>
-            <div
-                action
-                class="flex h-auto w-full items-center space-x-2 px-4 text-left"
-            >
-                <div
-                    class="my-2 flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
+                    [toggle]="true"
                 >
-                    <icon class="text-xl">playlist_add</icon>
-                </div>
-                <div class="flex-1 text-sm">
-                    {{ 'COMMON.TEXT_SIZE' | translate }}
-                </div>
-                <mat-slide-toggle
+                    <div class="flex items-center space-x-2">
+                        <icon class="-ml-2 text-xl">mode_night</icon>
+                        <div>{{ 'COMMON.DARK_MODE' | translate }}</div>
+                    </div>
+                </settings-toggle>
+            </div>
+            <div action class="w-full px-2 pb-2 text-left">
+                <settings-toggle
                     [ngModel]="accessible"
                     (ngModelChange)="applySetting('accessible', $event)"
-                ></mat-slide-toggle>
+                    [toggle]="true"
+                >
+                    <div class="flex items-center space-x-2">
+                        <icon class="-ml-2 text-xl">playlist_add</icon>
+                        <div>{{ 'COMMON.TEXT_SIZE' | translate }}</div>
+                    </div>
+                </settings-toggle>
             </div>
             <ng-container *ngIf="accessible">
                 <div class="bg-base-200 px-8 py-4 text-center">
@@ -78,13 +75,7 @@ import { CustomTooltipData } from './custom-tooltip.component';
             </ng-container>
         </div>
     `,
-    styles: [
-        `
-            :host > div > [action] {
-                border-top: 1px solid #ccc;
-            }
-        `,
-    ],
+    styles: [``],
     standalone: false,
 })
 export class AccessibilityTooltipComponent extends AsyncHandler {
@@ -108,7 +99,7 @@ export class AccessibilityTooltipComponent extends AsyncHandler {
         this.timeout(
             'apply_setting',
             () => this._settings.saveUserSetting(n, v),
-            1000,
+            500,
         );
 
     public readonly close = () => this._data?.close();

@@ -39,7 +39,7 @@ import { IconComponent } from './icon.component';
                         [class.!border-info]="value"
                     >
                         <div
-                            class="absolute top-1/2 flex h-6 w-6 -translate-x-0.5 -translate-y-1/2 items-center justify-center rounded-full shadow"
+                            class="absolute top-1/2 flex h-6 w-6 -translate-x-0.5 -translate-y-1/2 items-center justify-center rounded-full text-black shadow"
                             [class.left-1]="!value"
                             [class.left-5]="value"
                             [class.bg-base-400]="!value"
