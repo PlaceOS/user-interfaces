@@ -6,10 +6,11 @@ import { OrganisationService } from '@placeos/organisation';
 
 @Component({
     selector: 'parking-flow-confirm',
-    template: ` <header
-            class="m-2 flex h-12 items-center justify-between rounded bg-base-200 p-2"
+    template: `
+        <header
+            class="sticky top-2 z-10 mx-auto mb-4 flex h-14 w-full max-w-[calc(100%-1rem)] items-center justify-between rounded border-none bg-base-200 px-4 py-2"
         >
-            <h2 class="px-2 text-xl font-medium">
+            <h2 class="m-0 flex-1 text-xl font-medium capitalize">
                 {{ 'APP.WORKPLACE.PARKING_CONFIRM_TITLE' | translate }}
             </h2>
             <div class="">
@@ -88,7 +89,8 @@ import { OrganisationService } from '@placeos/organisation';
             >
                 {{ 'COMMON.CONFIRM' | translate }}
             </button>
-        </footer>`,
+        </footer>
+    `,
     styles: [
         `
             section > icon {

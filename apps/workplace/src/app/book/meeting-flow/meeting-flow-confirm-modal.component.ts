@@ -27,42 +27,36 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 @Component({
     selector: 'meeting-flow-confirm-modal',
     template: `
-        <div
-            header
-            class="relative flex items-center justify-center border-b border-base-200 p-4"
+        <header
+            class="sticky top-0 z-10 m-2 flex h-14 w-[40rem] max-w-full items-center justify-between rounded border-none bg-base-200 px-4 py-2"
         >
-            <button
-                icon
-                name="close-meeting-confirm"
-                matRipple
-                mat-dialog-close
-                *ngIf="show_close"
-                class="absolute left-2 top-1/2 -translate-y-1/2"
-            >
-                <icon>close</icon>
-            </button>
-            <h2 class="text-xl font-medium">
+            <h2 class="text-xl font-medium capitalize">
                 {{ 'APP.WORKPLACE.MEETING_CONFIRM' | translate }}
             </h2>
+            <button icon matRipple mat-dialog-close *ngIf="!(loading | async)">
+                <icon>close</icon>
+            </button>
             <mat-spinner
                 diameter="32"
                 class="absolute right-2 top-1/2 -translate-y-1/2"
-                [class.opacity-0]="!(loading | async)"
+                *ngIf="loading | async"
             ></mat-spinner>
-        </div>
+        </header>
         <main
-            class="max-h-[65vh] min-w-[48rem] flex-1 space-y-4 divide-y divide-base-200 overflow-auto p-4"
+            class="max-w-screen grid max-h-[65vh] w-full flex-1 grid-cols-2 gap-4 overflow-auto px-4 py-2"
         >
-            <div class="flex divide-x divide-base-200">
-                <div class="relative flex-1 space-y-2 py-4 pl-16 pr-4">
+            <div>
+                <div class="mb-2 flex items-center space-x-4">
                     <div
-                        class="absolute left-4 top-4 flex items-center justify-center rounded-full border border-success text-2xl text-success"
+                        class="flex items-center justify-center rounded-full border border-success text-success"
                     >
-                        <icon>done</icon>
+                        <icon class="text-2xl">done</icon>
                     </div>
-                    <h3 class="!mt-0 text-xl">
+                    <h3 class="text-xl">
                         {{ event.title || 'Meeting Details' }}
                     </h3>
+                </div>
+                <div class="space-y-1 pl-10">
                     <div class="flex items-center space-x-2">
                         <icon class="text-2xl">today</icon>
                         <div date>{{ event.date | date: 'fullDate' }}</div>
@@ -84,19 +78,20 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                         </div>
                     </div>
                 </div>
-                <div
-                    class="relative flex-1 space-y-2 py-4 pl-16 pr-4"
-                    *ngIf="event.resources?.length"
-                >
+            </div>
+            <div *ngIf="event.resources?.length">
+                <div class="mb-2 flex items-center space-x-4">
                     <div
-                        class="absolute left-4 top-4 flex items-center justify-center rounded-full border border-success text-2xl text-success"
+                        class="flex items-center justify-center rounded-full border border-success text-success"
                     >
-                        <icon>done</icon>
+                        <icon class="text-2xl">done</icon>
                     </div>
-                    <h3 class="!mt-0 text-xl">
+                    <h3 class="text-xl">
                         {{ 'APP.WORKPLACE.MEETING_BOOKED_ROOM' | translate }}
                     </h3>
-                    <ng-container *ngFor="let s of event.resources">
+                </div>
+                <div class="space-y-1 pl-10">
+                    @for (s of event.resources; track s.email) {
                         @let space = s.email | space | async;
                         @let level = space?.zones | level;
                         <div class="flex items-center space-x-2">
@@ -106,29 +101,28 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                                 {{ s.display_name || s.name }}
                             </div>
                         </div>
-                    </ng-container>
+                    }
                     <div class="flex items-center space-x-2" *ngIf="location">
                         <icon class="text-2xl">place</icon>
                         <div>{{ location }}</div>
                     </div>
                 </div>
             </div>
-            <div
-                class="relative space-y-2 py-4 pl-16 pr-4"
-                *ngIf="event.attendees?.length"
-            >
-                <div
-                    class="absolute left-4 top-4 flex items-center justify-center rounded-full border border-success text-2xl text-success"
-                >
-                    <icon>done</icon>
+            <div *ngIf="event.attendees?.length">
+                <div class="mb-2 flex items-center space-x-4">
+                    <div
+                        class="flex items-center justify-center rounded-full border border-success text-success"
+                    >
+                        <icon class="text-2xl">done</icon>
+                    </div>
+                    <h3 class="text-xl">
+                        {{
+                            'CALENDAR_EVENT.ATTENDEE_COUNT'
+                                | translate: { count: event.attendees?.length }
+                        }}
+                    </h3>
                 </div>
-                <h3 class="!mt-0 text-xl">
-                    {{
-                        'CALENDAR_EVENT.ATTENDEE_COUNT'
-                            | translate: { count: event.attendees?.length }
-                    }}
-                </h3>
-                <div attendee-list>
+                <div class="pl-10" attendee-list>
                     <mat-chip-list #chipList aria-label="User selection">
                         <mat-chip *ngFor="let user of event.attendees">
                             <div class="flex items-center">
@@ -140,22 +134,21 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                 </div>
             </div>
             <div
-                class="flex divide-x divide-base-200"
+                class="col-span-2"
                 *ngIf="event.catering?.length || event.assets?.length"
             >
-                <div
-                    class="relative flex-1 space-y-2 py-4 pl-16 pr-4"
-                    *ngIf="event.catering?.length"
-                >
-                    <div
-                        class="absolute left-4 top-4 flex items-center justify-center rounded-full border border-success text-2xl text-success"
-                    >
-                        <icon>done</icon>
+                <div class="w-full" *ngIf="event.catering?.length">
+                    <div class="mb-2 flex items-center space-x-4">
+                        <div
+                            class="flex items-center justify-center rounded-full border border-success text-success"
+                        >
+                            <icon class="text-2xl">done</icon>
+                        </div>
+                        <h3 class="text-xl">
+                            {{ 'RESOURCE.CATERING' | translate }}
+                        </h3>
                     </div>
-                    <h3 class="!mt-0 text-xl">
-                        {{ 'RESOURCE.CATERING' | translate }}
-                    </h3>
-                    <div class="flex flex-col space-y-2">
+                    <div class="flex w-full flex-col space-y-2 pl-12">
                         <div
                             order
                             *ngFor="let order of catering_orders"
@@ -266,24 +259,23 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                         </div>
                     </div>
                 </div>
-                <div
-                    class="relative flex-1 space-y-2 py-4 pl-16 pr-4"
-                    *ngIf="assets?.length"
-                >
-                    <div
-                        class="absolute left-4 top-4 flex items-center justify-center rounded-full border border-success text-2xl text-success"
-                        [class.!border-error]="has_conflict"
-                        [class.!text-error]="has_conflict"
-                    >
-                        <icon>{{ has_conflict ? 'close' : 'done' }}</icon>
+                <div class="w-ull col-span-2" *ngIf="assets?.length">
+                    <div class="mb-2 flex items-center space-x-4">
+                        <div
+                            class="flex items-center justify-center rounded-full border border-success text-success"
+                            [class.!border-error]="has_conflict"
+                            [class.!text-error]="has_conflict"
+                        >
+                            <icon>{{ has_conflict ? 'close' : 'done' }}</icon>
+                        </div>
+                        <h3 class="text-xl">
+                            {{ 'RESOURCE.ASSETS' | translate }}
+                        </h3>
                     </div>
-                    <h3 class="!mt-0 text-xl">
-                        {{ 'RESOURCE.ASSETS' | translate }}
-                    </h3>
                     <div
                         request
                         *ngFor="let request of assets"
-                        class="overflow-hidden rounded-xl border bg-base-100"
+                        class="w-full overflow-hidden rounded-xl border bg-base-100"
                         [class.border-error]="end_time < request.deliver_at"
                         [class.border-base-300]="end_time >= request.deliver_at"
                     >
