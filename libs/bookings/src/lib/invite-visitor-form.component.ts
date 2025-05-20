@@ -7,7 +7,7 @@ import {
     Output,
     SimpleChanges,
 } from '@angular/core';
-import { ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { first } from 'rxjs/operators';
 
 import { CommonModule } from '@angular/common';
@@ -26,6 +26,7 @@ import {
     generateGoogleCalendarLink,
     generateMicrosoftCalendarLink,
 } from '@placeos/common';
+import { SanitizePipe } from '@placeos/components';
 import { getInvalidFields, randomString } from 'libs/common/src/lib/general';
 import { notifyError } from 'libs/common/src/lib/notifications';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -414,6 +415,8 @@ import { Booking } from './booking.class';
         DateFieldComponent,
         MatSelectModule,
         MatProgressSpinnerModule,
+        FormsModule,
+        SanitizePipe,
     ],
 })
 export class InviteVisitorFormComponent

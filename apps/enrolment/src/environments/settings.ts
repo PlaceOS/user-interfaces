@@ -12,9 +12,9 @@ export const DEFAULT_SETTINGS: any = {
         local_login: true,
     },
     app: {
-        name: 'Workplace',
-        title: 'Workplace Application',
-        description: 'PlaceOS Workplace UI written with Angular Framework',
+        name: 'Enrolment',
+        title: 'Enrolment Application',
+        description: 'PlaceOS Enrolment UI written with Angular Framework',
         short_name: 'STAFF',
         logo_light: {
             type: 'img',

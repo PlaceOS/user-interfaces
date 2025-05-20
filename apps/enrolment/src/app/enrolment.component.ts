@@ -8,13 +8,17 @@ import { EnrolmentStateService } from './enrolment-state.service';
 @Component({
     selector: 'app-enrolment',
     template: `
-        <div class="absolute inset-0 flex flex-col bg-[#424242]">
-            <div class="z-20 h-16 w-full bg-secondary p-2 shadow">
+        <div class="absolute inset-0 flex flex-col bg-base-300">
+            <div
+                class="z-20 h-16 w-full bg-secondary p-2 text-secondary-content shadow"
+            >
+                @let logo_path = (logo | async)?.src || (logo | async);
                 <img
                     auth
-                    class="h-10"
+                    class="h-12"
                     alt="Logo"
-                    [source]="(logo | async)?.src || (logo | async)"
+                    [src]="logo_path"
+                    [source]="logo_path"
                 />
             </div>
             <div
@@ -47,7 +51,7 @@ import { EnrolmentStateService } from './enrolment-state.service';
         </div>
         <ng-template #load_state>
             <div
-                class="flex h-full w-full flex-col items-center justify-center space-y-2 p-16 text-white"
+                class="flex h-full w-full flex-col items-center justify-center space-y-2 p-16"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
                 <p>{{ loading | async }}</p>
@@ -66,8 +70,8 @@ export class EnrolmentComponent extends AsyncHandler {
         map(
             () =>
                 (this._settings.theme === 'dark'
-                    ? this._settings.get('app.logo_dark')
-                    : this._settings.get('app.logo_light')) || {},
+                    ? this._settings.get('app.logo_light')
+                    : this._settings.get('app.logo_dark')) || {},
         ),
     );
 

@@ -41,7 +41,7 @@ import { EnrolmentStateService } from './enrolment-state.service';
                     <mat-error>Organisation is required</mat-error>
                 </mat-form-field>
             </div>
-            <div class="flex flex-col">
+            <div class="flex min-h-12 flex-col">
                 <label>Identification:</label>
                 <div class="mb-4 border border-base-200 bg-base-200 p-2">
                     <upload-list formControlName="attachments"></upload-list>
@@ -59,20 +59,22 @@ import { EnrolmentStateService } from './enrolment-state.service';
             </mat-checkbox>
             <div class="flex items-center justify-center space-x-4">
                 <button
+                    btn
                     matRipple
-                    class="w-32"
+                    class="inverse w-32"
                     [disabled]="!form.valid"
                     (click)="updateGuest()"
                 >
-                    Save
+                    {{ 'COMMON.UPDATE' | translate }}
                 </button>
                 <button
+                    btn
                     matRipple
                     class="w-32"
                     [disabled]="!form.valid"
                     (click)="checkin()"
                 >
-                    Check-in
+                    {{ 'COMMON.CHECK_IN' | translate }}
                 </button>
             </div>
         </div>
