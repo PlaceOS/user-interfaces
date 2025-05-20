@@ -39,12 +39,14 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { authority, queryUsers } from '@placeos/ts-client';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { searchGuests } from 'libs/users/src/lib/guests.fn';
 import { NewUserModalComponent } from 'libs/users/src/lib/new-user-modal.component';
 import { searchStaff } from 'libs/users/src/lib/staff.fn';
 import { User } from 'libs/users/src/lib/user.class';
 import { USER_DOMAIN } from 'libs/users/src/lib/user.utilities';
+import { PlaceUserPipe } from './place-user.pipe';
 
 function validateEmail(email) {
     const re =
@@ -241,6 +243,8 @@ const DENIED_FILE_TYPES = [
         FormsModule,
         MatRippleModule,
         TranslatePipe,
+        IconComponent,
+        PlaceUserPipe,
     ],
 })
 export class UserListFieldComponent

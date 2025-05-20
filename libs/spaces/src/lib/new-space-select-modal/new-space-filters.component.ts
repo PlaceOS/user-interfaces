@@ -16,6 +16,7 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { Region } from '@placeos/organisation';
+import { BuildingPipe } from 'libs/components/src/lib/building.pipe';
 import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
@@ -125,7 +126,7 @@ import { SpacesService } from '../spaces.service';
                                         *ngIf="use_region"
                                     >
                                         {{
-                                            (lvl.parent_id | building)
+                                            (lvl?.parent_id | building)
                                                 ?.display_name
                                         }}
                                         <span class="opacity-0"> - </span>
@@ -316,6 +317,7 @@ import { SpacesService } from '../spaces.service';
         MatSelectModule,
         FormsModule,
         ReactiveFormsModule,
+        BuildingPipe,
     ],
 })
 export class NewSpaceFiltersComponent {

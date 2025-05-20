@@ -46,6 +46,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
     public async ngOnInit() {
         console.info(`Initialising application...`);
         window.history.replaceState = (data: null, unused: null) => {};
+        window.history.pushState = (data: null, unused: null) => {};
 
         setNotifyOutlet(this._snackbar);
         console.info(`Waiting for application settings...`);

@@ -26,18 +26,21 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 @Component({
     selector: 'meeting-flow-confirm',
     template: `
-        <button
-            icon
-            matRipple
-            class="absolute right-2 top-2"
-            *ngIf="show_close"
-            (click)="dismiss()"
+        <header
+            class="sticky top-2 z-10 mx-auto mb-4 flex h-14 w-full max-w-[calc(100%-1rem)] items-center justify-between rounded border-none bg-base-200 px-4 py-2"
         >
-            <icon class="text-2xl">close</icon>
-        </button>
-        <header class="mt-4 flex items-center justify-between px-4">
-            <h2>{{ 'APP.WORKPLACE.MEETING_CONFIRM' | translate }}</h2>
+            <h2 class="m-0 flex-1 text-xl font-medium capitalize">
+                {{ 'APP.WORKPLACE.MEETING_CONFIRM' | translate }}
+            </h2>
             <mat-spinner diameter="32" *ngIf="loading | async"></mat-spinner>
+            <button
+                icon
+                matRipple
+                *ngIf="show_close && !(loading | async)"
+                (click)="dismiss()"
+            >
+                <icon class="text-2xl">close</icon>
+            </button>
         </header>
         <section period class="flex space-x-1 px-2">
             <icon class="mt-1 text-success">done</icon>
@@ -67,7 +70,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
         </section>
         <section
             attendees
-            class="flex space-x-1 px-2"
+            class="mt-2 flex space-x-1 px-2"
             *ngIf="event.attendees?.length"
         >
             <icon class="mt-1 text-success">done</icon>
@@ -83,14 +86,16 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                         <mat-chip *ngFor="let user of event.attendees">
                             <div class="flex items-center">
                                 <icon class="mr-2">business</icon>
-                                {{ user.name || user.email }}
+                                <div class="max-w-[50vw] truncate">
+                                    {{ user.name || user.email }}
+                                </div>
                             </div>
                         </mat-chip>
                     </mat-chip-list>
                 </div>
             </div>
         </section>
-        <section spaces class="flex space-x-1 px-2" *ngIf="space?.id">
+        <section spaces class="mt-2 flex space-x-1 px-2" *ngIf="space?.id">
             <icon class="mt-1 text-success">done</icon>
             <div details class="leading-6">
                 <h3>{{ 'APP.WORKPLACE.MEETING_BOOKED_ROOM' | translate }}</h3>
@@ -109,9 +114,8 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                 </div>
             </div>
         </section>
-        <section class="px-2 pt-4">
+        <section class="px-2 pt-4" *ngIf="requires_approval">
             <div
-                *ngIf="requires_approval"
                 class="rounded !border-none bg-warning px-2 py-1 text-center text-sm text-warning-content"
             >
                 {{ 'CALENDAR_EVENT.APPROVAL_REQUIRED_MSG' | translate }}
@@ -123,7 +127,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                 name="confirm-meeting"
                 matRipple
                 class="w-full"
-                *ngIf="!(loading | async)"
+                [disabled]="loading | async"
                 (click)="postForm()"
             >
                 {{ 'COMMON.CONFIRM' | translate }}
@@ -284,9 +288,11 @@ export class MeetingFlowConfirmComponent
     }
 
     public async ngOnInit() {
+        console.log('Event:', this.event.resources[0]);
         this._space =
-            (await this._space_pipe.transform(this.event.resources[0].email)) ||
-            this._space;
+            (await this._space_pipe.transform(
+                this.event.resources[0]?.email,
+            )) || this._space;
     }
 
     public optionList(item: CateringItem) {
