@@ -3,33 +3,42 @@ import { AsyncHandler, currentUser } from '@placeos/common';
 import { CalendarEvent } from '@placeos/events';
 
 import { ScheduleStateService } from 'apps/workplace/src/app/schedule/schedule-state.service';
+import { startOfMinute } from 'date-fns';
 
 @Component({
     selector: 'placeos-upcoming-bookings',
     template: `
-        <div class="z-0 flex h-full w-full flex-1 flex-col bg-base-200">
-            <h3 class="flex items-center p-4 pl-6 text-xl font-bold">
-                Your Bookings
-            </h3>
+        <div class="absolute inset-0 overflow-auto bg-base-200">
             <div
-                class="h-1/2 flex-1 space-y-4 overflow-auto px-4 pb-4"
-                *ngIf="!(loading$ | async); else load_state"
+                class="mx-auto min-h-full w-[40rem] max-w-full border-x border-base-300 bg-base-100"
             >
-                <ng-container
-                    *ngIf="(events$ | async)?.length; else empty_state"
+                <header
+                    class="sticky top-2 z-10 mx-auto mb-2 flex h-14 w-full max-w-[calc(100%-1rem)] items-center justify-between rounded border-none bg-base-200 px-4 py-2"
                 >
-                    <ng-container
-                        *ngFor="let item of events$ | async; trackBy: trackByFn"
-                    >
-                        <event-card
-                            *ngIf="isEvent(item); else booking_card"
-                            [event]="item"
-                        ></event-card>
-                        <ng-template #booking_card>
-                            <booking-card [booking]="item"></booking-card>
-                        </ng-template>
+                    <h2 class="text-xl font-medium capitalize">
+                        {{ 'APP.WORKPLACE.UPCOMING' | translate }}
+                    </h2>
+                </header>
+                <h3 class="px-4 pt-4 text-lg font-medium">
+                    {{ now | date: 'EEE dd LLL yyyy' }}
+                </h3>
+                <div
+                    class="h-1/2 flex-1 space-y-4 p-4"
+                    *ngIf="!(loading$ | async); else load_state"
+                >
+                    @let event_list = events$ | async;
+                    <ng-container *ngIf="event_list?.length; else empty_state">
+                        @for (item of event_list; track item.id) {
+                            <event-card
+                                *ngIf="isEvent(item); else booking_card"
+                                [event]="item"
+                            ></event-card>
+                            <ng-template #booking_card>
+                                <booking-card [booking]="item"></booking-card>
+                            </ng-template>
+                        }
                     </ng-container>
-                </ng-container>
+                </div>
             </div>
         </div>
         <ng-template #load_state>
@@ -46,7 +55,7 @@ import { ScheduleStateService } from 'apps/workplace/src/app/schedule/schedule-s
                 empty
                 class="my-6 flex h-3/4 w-full flex-1 flex-col items-center justify-center space-y-2 p-8 text-center"
             >
-                <p>No bookings found</p>
+                <p>{{ 'APP.WORKPLACE.UPCOMING_EMPTY' | translate }}</p>
             </div>
         </ng-template>
     `,
@@ -57,6 +66,10 @@ export class UpcomingBookingsComponent extends AsyncHandler implements OnInit {
     public user = currentUser();
     public readonly loading$ = this._schedule.loading;
     public readonly events$ = this._schedule.filtered_bookings;
+
+    public get now() {
+        return startOfMinute(Date.now());
+    }
 
     constructor(private _schedule: ScheduleStateService) {
         super();
@@ -70,9 +83,5 @@ export class UpcomingBookingsComponent extends AsyncHandler implements OnInit {
 
     public isEvent(item: any) {
         return item instanceof CalendarEvent;
-    }
-
-    public trackByFn(_: number, item: any) {
-        return item?.id;
     }
 }

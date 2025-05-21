@@ -20,6 +20,8 @@ import { UpcomingBookingsComponent } from './upcoming-bookings.component';
 
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { BookingCardComponent } from '@placeos/bookings';
+import { EventCardComponent } from '@placeos/events';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { DateFieldComponent } from 'libs/form-fields/src/lib/date-field.component';
@@ -53,6 +55,9 @@ const STANDALONE_COMPONENTS = [
     UserSearchFieldComponent,
     UserListFieldComponent,
     SpaceListFieldComponent,
+
+    EventCardComponent,
+    BookingCardComponent,
 ];
 
 @NgModule({
