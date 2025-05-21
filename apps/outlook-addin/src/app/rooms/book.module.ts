@@ -20,6 +20,7 @@ import { UpcomingBookingsComponent } from './upcoming-bookings.component';
 
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { BookingCardComponent } from '@placeos/bookings';
 import { EventCardComponent } from '@placeos/events';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -44,6 +45,7 @@ const MAT_MODULES = [
     MatButtonToggleModule,
     MatInputModule,
     MatFormFieldModule,
+    MatProgressSpinnerModule,
 ];
 
 const STANDALONE_COMPONENTS = [

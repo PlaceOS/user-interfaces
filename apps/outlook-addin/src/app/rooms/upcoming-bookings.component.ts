@@ -24,7 +24,7 @@ import { startOfMinute } from 'date-fns';
                 </h3>
                 <div
                     class="h-1/2 flex-1 space-y-4 p-4"
-                    *ngIf="!(loading$ | async); else load_state"
+                    [class.hidden]="loading$ | async"
                 >
                     @let event_list = events$ | async;
                     <ng-container *ngIf="event_list?.length; else empty_state">
@@ -39,17 +39,16 @@ import { startOfMinute } from 'date-fns';
                         }
                     </ng-container>
                 </div>
+                <div
+                    loading
+                    [class.hidden]="!(loading$ | async)"
+                    class="my-6 flex h-3/4 w-full flex-1 flex-col items-center justify-center space-y-4"
+                >
+                    <mat-spinner [diameter]="32"></mat-spinner>
+                    <p>Retrieving bookings...</p>
+                </div>
             </div>
         </div>
-        <ng-template #load_state>
-            <div
-                loading
-                class="my-6 flex h-3/4 w-full flex-1 flex-col items-center justify-center space-y-4"
-            >
-                <mat-spinner [diameter]="32"></mat-spinner>
-                <p>Retrieving bookings...</p>
-            </div>
-        </ng-template>
         <ng-template #empty_state>
             <div
                 empty

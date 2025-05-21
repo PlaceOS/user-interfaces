@@ -258,11 +258,13 @@ export class EventCardComponent
     public async ngOnInit() {
         this.subscription(
             'route.query',
-            this._route.queryParamMap.subscribe((params) =>
-                params.has('event') && this.event?.id === params.get('event')
-                    ? this.viewDetails()
-                    : '',
-            ),
+            this._route.queryParamMap.subscribe((params) => {
+                if (params.has('event')) {
+                    this.event?.id === params.get('event')
+                        ? this.viewDetails()
+                        : '';
+                }
+            }),
         );
         this.location = await this.getLocationString();
     }
@@ -299,7 +301,6 @@ export class EventCardComponent
 
     public viewDetails() {
         if (!this.event) return;
-        console.log('View Details:', this.edit_fn, this.remove_fn);
         this.timeout('open', () => {
             if (this.event.extension_data?.shared_event) {
                 this._dialog.open(GroupEventDetailsModalComponent, {

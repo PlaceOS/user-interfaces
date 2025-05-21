@@ -19,4 +19,6 @@ export interface RecurrenceDetails {
     interval: number;
     /** Number of re-occurences to create for this event */
     occurrences?: number;
+    /** Index of the week in the month on which the event should be repeated */
+    week_of_month?: -2 | -1 | 0 | 1 | 2 | 3 | 4 | 5;
 }
