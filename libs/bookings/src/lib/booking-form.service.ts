@@ -491,6 +491,8 @@ export class BookingFormService extends AsyncHandler {
         const options = this._options.getValue();
         const value = this.form.getRawValue();
 
+        console.log('i18n:', i18n('BOOKINGS.CONFIRM_MSG'));
+
         const content = i18n(
             options.group
                 ? 'BOOKINGS.CONFIRM_MSG_GROUP'

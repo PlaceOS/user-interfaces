@@ -7,6 +7,7 @@ import { MatRippleModule } from '@angular/material/core';
 
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 
+import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { UserFormComponent } from './user-form.component';
 import { User } from './user.class';
 import { generateUserForm } from './user.utilities';
@@ -69,6 +70,7 @@ import { generateUserForm } from './user.utilities';
         MatRippleModule,
         UserFormComponent,
         MatDialogModule,
+        IconComponent,
     ],
 })
 export class NewUserModalComponent extends AsyncHandler implements OnInit {

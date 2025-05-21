@@ -16,7 +16,7 @@ import { BookingFormService } from '@placeos/bookings';
                 </header>
                 <desk-booking-form></desk-booking-form>
                 <div
-                    class="sticky bottom-0 flex flex-col items-center space-y-2 border-t border-base-200 px-4 py-2 sm:flex-row sm:space-x-2 sm:space-y-0"
+                    class="sticky bottom-0 flex flex-col items-center space-y-2 border-t border-base-200 bg-base-100 px-4 py-2 sm:flex-row sm:space-x-2 sm:space-y-0"
                 >
                     <button
                         btn

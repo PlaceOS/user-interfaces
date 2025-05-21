@@ -156,11 +156,14 @@ const EMPTY_FAVS: string[] = [];
                     [class.text-info]="favorites.includes(space?.id)"
                     (click)="toggleFavourite(space)"
                 >
-                    <icon>{{
-                        favorites.includes(space?.id)
-                            ? 'favorite'
-                            : 'favorite_border'
-                    }}</icon>
+                    <icon
+                        [className]="
+                            favorites.includes(space?.id)
+                                ? 'material-symbols-rounded'
+                                : 'material-symbols-outlined'
+                        "
+                        >favorite</icon
+                    >
                 </button>
             </div>
         </div>

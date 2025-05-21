@@ -31,9 +31,6 @@ export interface ConfirmModalData {
 
 export const CONFIRM_METADATA = {
     height: 'auto',
-    width: '28em',
-    maxHeight: 'calc(100vh - 2em)',
-    maxWidth: 'calc(100vw - 2em)',
 };
 
 export interface ConfirmRepsonse {
@@ -68,21 +65,28 @@ export async function openConfirmModal(
 @Component({
     selector: 'confirm-modal',
     template: `
-        <header class="px-4 py-3">
-            <h3 class="text-xl font-medium">{{ title | translate }}</h3>
+        <header
+            class="sticky top-0 z-10 m-2 h-14 w-[calc(100%-1rem)] rounded border-none bg-base-200 p-2"
+        >
+            <h2 class="px-2 text-xl font-medium">{{ title }}</h2>
         </header>
         <main
             *ngIf="!loading; else load_state"
-            class="flex max-w-[80vw] flex-col items-center space-y-4 p-4"
+            class="flex w-[28rem] max-w-[85vw] flex-col items-center space-y-4 p-4 sm:h-auto"
         >
             <icon [icon]="icon" class="text-5xl"></icon>
             <p content class="text-center" [innerHTML]="content"></p>
         </main>
         <footer
-            class="flex items-center justify-center space-x-4 p-4"
+            class="sticky bottom-0 m-2 flex items-center justify-center space-x-2 rounded border-none bg-base-200 p-2"
             *ngIf="!loading"
         >
-            <button btn matRipple class="inverse flex-1" mat-dialog-close>
+            <button
+                btn
+                matRipple
+                class="inverse flex-1 bg-base-100"
+                mat-dialog-close
+            >
                 {{ cancel_text | translate }}
             </button>
             <button

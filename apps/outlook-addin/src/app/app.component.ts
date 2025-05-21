@@ -6,10 +6,12 @@ import {
     current_user,
     currentUser,
     firstTruthyValueFrom,
+    LocaleService,
     log,
     setAppName,
     setNotifyOutlet,
     SettingsService,
+    setTranslationService,
     setupCache,
     setupPlace,
 } from '@placeos/common';
@@ -39,6 +41,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
         private _org: OrganisationService, // For init
         private _cache: SwUpdate,
         private _snackbar: MatSnackBar,
+        private _locales: LocaleService,
     ) {
         super();
     }
@@ -47,6 +50,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
         console.info(`Initialising application...`);
         window.history.replaceState = (data: null, unused: null) => {};
         window.history.pushState = (data: null, unused: null) => {};
+        setTranslationService(this._locales);
 
         setNotifyOutlet(this._snackbar);
         console.info(`Waiting for application settings...`);
