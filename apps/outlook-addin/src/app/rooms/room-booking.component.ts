@@ -10,10 +10,10 @@ import { FeaturesFilterService } from './features-filter.service';
     template: `
         <div class="absolute inset-0 overflow-auto bg-base-200">
             <div
-                class="mx-auto min-h-full w-[40rem] max-w-full border-x border-base-300 bg-base-100"
+                class="mx-auto min-h-full w-[40rem] max-w-full border-x border-base-300 bg-base-100 pt-2"
             >
                 <header
-                    class="sticky top-2 z-10 mx-auto mb-2 flex h-14 w-full max-w-[calc(100%-1rem)] items-center justify-between rounded border-none bg-base-200 px-4 py-2"
+                    class="sticky top-0 z-10 mx-auto mb-2 flex h-14 w-full max-w-[calc(100%-1rem)] items-center justify-between rounded border-none bg-base-200 px-4 py-2"
                 >
                     <h2 class="text-xl font-medium capitalize">Book Room</h2>
                 </header>
@@ -104,7 +104,7 @@ import { FeaturesFilterService } from './features-filter.service';
                     </section>
 
                     <section
-                        class="sticky bottom-0 flex flex-col items-center space-y-2 px-4 py-2 sm:flex-row sm:space-x-2 sm:space-y-0"
+                        class="sticky bottom-0 flex flex-col items-center space-y-2 bg-base-100 px-4 py-2 sm:flex-row sm:space-x-2 sm:space-y-0"
                     >
                         <button
                             btn
