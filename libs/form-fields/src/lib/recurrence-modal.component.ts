@@ -214,6 +214,12 @@ export class RecurrenceModalComponent extends AsyncHandler implements OnInit {
                 this._onEndTypeChange(type),
             ),
         );
+        this.subscription(
+            'month_type',
+            this.form.controls.monthly_type.valueChanges.subscribe((type) =>
+                this._onMonthlyTypeChange(type),
+            ),
+        );
         this.form.patchValue({ ...this._data.value, _custom: true });
         if (!this.form.value.type || this.form.value.type === 'none') {
             this.form.patchValue({ type: 'daily' });
@@ -238,5 +244,13 @@ export class RecurrenceModalComponent extends AsyncHandler implements OnInit {
         type !== 'instances'
             ? this.form.controls.end_instances.disable()
             : this.form.controls.end_instances.enable();
+    }
+
+    private _onMonthlyTypeChange(type: 'day_of_month' | 'day_of_week') {
+        if (type === 'day_of_month') {
+            this.form.patchValue({ week: 0 });
+        } else {
+            this.form.patchValue({ week: this.week });
+        }
     }
 }
