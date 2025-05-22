@@ -302,6 +302,7 @@ export class EventCardComponent
     public viewDetails() {
         if (!this.event) return;
         this.timeout('open', () => {
+            this._dialog.closeAll();
             if (this.event.extension_data?.shared_event) {
                 this._dialog.open(GroupEventDetailsModalComponent, {
                     data: {

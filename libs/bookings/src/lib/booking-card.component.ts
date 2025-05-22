@@ -286,6 +286,7 @@ export class BookingCardComponent
     public viewDetails() {
         if (!this.booking) return;
         this.timeout('open', () => {
+            this._dialog.closeAll();
             const view_component: any =
                 this.booking.booking_type === 'group-event'
                     ? GroupEventDetailsModalComponent
