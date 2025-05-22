@@ -14,11 +14,7 @@ import {
     notifyInfo,
     unique,
 } from '@placeos/common';
-import {
-    MapLocateModalComponent,
-    MapPinComponent,
-    SanitizePipe,
-} from '@placeos/components';
+import { MapLocateModalComponent, MapPinComponent } from '@placeos/components';
 import {
     Building,
     BuildingLevel,
@@ -28,6 +24,7 @@ import { ViewerFeature } from '@placeos/svg-viewer';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
+import { SanitizePipe } from 'libs/components/src/lib/sanitise.pipe';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { Space } from 'libs/spaces/src/lib/space.class';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';

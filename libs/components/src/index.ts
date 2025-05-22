@@ -13,8 +13,6 @@ export * from './lib/maps-indoors.component';
 export * from './lib/misconfigured.component';
 export * from './lib/popout-menu.component';
 export * from './lib/redirect.component';
-export * from './lib/safe.pipe';
-export * from './lib/sanitise.pipe';
 export * from './lib/status-overlay.component';
 export * from './lib/user-controls.component';
 

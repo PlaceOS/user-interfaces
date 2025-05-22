@@ -7,13 +7,14 @@ import {
     MatDialogRef,
 } from '@angular/material/dialog';
 import { notifyError } from '@placeos/common';
-import { SafePipe, SanitizePipe } from '@placeos/components';
 import {
     generateCalendarFileLink,
     generateGoogleCalendarLink,
     generateMicrosoftCalendarLink,
 } from 'libs/common/src/lib/calendar-links';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { SafePipe } from 'libs/components/src/lib/safe.pipe';
+import { SanitizePipe } from 'libs/components/src/lib/sanitise.pipe';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { CalendarEvent } from './event.class';
 

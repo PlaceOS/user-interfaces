@@ -19,7 +19,6 @@ import {
     notifyError,
     SettingsService,
 } from '@placeos/common';
-import { SanitizePipe } from '@placeos/components';
 import { getModule } from '@placeos/ts-client';
 import { CateringItem } from 'libs/catering/src/lib/catering-item.class';
 import { BindingDirective } from 'libs/components/src/lib/binding.directive';
@@ -28,6 +27,7 @@ import { ImageCarouselComponent } from 'libs/components/src/lib/image-carousel.c
 import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
 import { MapLocateModalComponent } from 'libs/components/src/lib/map-locate-modal.component';
 import { MapPinComponent } from 'libs/components/src/lib/map-pin.component';
+import { SanitizePipe } from 'libs/components/src/lib/sanitise.pipe';
 import { StatusPillComponent } from 'libs/components/src/lib/status-pill.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { UserAvatarComponent } from 'libs/components/src/lib/user-avatar.component';

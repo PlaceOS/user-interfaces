@@ -1,5 +1,6 @@
 import { Overlay, OverlayRef } from '@angular/cdk/overlay';
-import { CdkPortal } from '@angular/cdk/portal';
+import { CdkPortal, PortalModule } from '@angular/cdk/portal';
+import { CommonModule } from '@angular/common';
 import {
     AfterViewInit,
     Component,
@@ -9,6 +10,7 @@ import {
     ViewChild,
 } from '@angular/core';
 import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
+import { SanitizePipe } from './sanitise.pipe';
 
 @Component({
     selector: '[printable]',
@@ -23,7 +25,7 @@ import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
             ></div>
         </ng-template>
     `,
-    standalone: false,
+    imports: [CommonModule, SanitizePipe, PortalModule],
 })
 export class PrintableComponent
     extends AsyncHandler

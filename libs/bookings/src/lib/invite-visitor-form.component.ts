@@ -26,10 +26,10 @@ import {
     generateGoogleCalendarLink,
     generateMicrosoftCalendarLink,
 } from '@placeos/common';
-import { SanitizePipe } from '@placeos/components';
 import { getInvalidFields, randomString } from 'libs/common/src/lib/general';
 import { notifyError } from 'libs/common/src/lib/notifications';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { SanitizePipe } from 'libs/components/src/lib/sanitise.pipe';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { DateFieldComponent } from 'libs/form-fields/src/lib/date-field.component';
 import { DurationFieldComponent } from 'libs/form-fields/src/lib/duration-field.component';

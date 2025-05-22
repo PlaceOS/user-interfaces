@@ -139,7 +139,6 @@ const COMPONENTS = [
     HelpTooltipComponent,
     AccessibilityTooltipComponent,
     LanguageSelectComponent,
-    PrintableComponent,
     AttachedResourceConfigModalComponent,
 
     LoginComponent,
@@ -168,6 +167,7 @@ const STANDALONE_COMPONENTS = [
     UserAvatarComponent,
     StatusPillComponent,
     DeskHeightPresetsComponent,
+    PrintableComponent,
 
     UnauthorisedComponent,
     FullscreenModalShellComponent,

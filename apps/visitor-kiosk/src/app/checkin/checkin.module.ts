@@ -11,10 +11,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
-import { SanitizePipe } from '@placeos/components';
-import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { LevelPipe } from 'libs/components/src/lib/level.pipe';
-import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+
 import { TakePhotoComponent } from '../components/take-photo.component';
 import { CheckinCovidComponent } from './checkin-covid.component';
 import { CheckinDetailsComponent } from './checkin-details.component';
@@ -26,6 +23,13 @@ import { CheckinQRScanComponent } from './checkin-qr-scan.component';
 import { CheckinResultsComponent } from './checkin-result.component';
 import { CheckinComponent } from './checkin.component';
 import { CheckoutComponent } from './checkout.component';
+
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { LevelPipe } from 'libs/components/src/lib/level.pipe';
+import { PrintableComponent } from 'libs/components/src/lib/printable.component';
+import { SanitizePipe } from 'libs/components/src/lib/sanitise.pipe';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { UserAvatarComponent } from 'libs/components/src/lib/user-avatar.component';
 
 const ROUTES: Route[] = [
     {
@@ -61,8 +65,10 @@ const MAT_MODULES = [
 const STANDALONE_COMPONENTS = [
     IconComponent,
     TranslatePipe,
-    SanitizePipe,
     LevelPipe,
+    UserAvatarComponent,
+    PrintableComponent,
+    SanitizePipe,
 ];
 
 @NgModule({

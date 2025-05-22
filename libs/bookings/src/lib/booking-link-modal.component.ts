@@ -2,7 +2,6 @@ import { CommonModule } from '@angular/common';
 import { Component, Inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
-import { SafePipe, SanitizePipe } from '@placeos/components';
 import {
     generateCalendarFileLink,
     generateGoogleCalendarLink,
@@ -10,6 +9,8 @@ import {
 } from 'libs/common/src/lib/calendar-links';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { SafePipe } from 'libs/components/src/lib/safe.pipe';
+import { SanitizePipe } from 'libs/components/src/lib/sanitise.pipe';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { Booking } from './booking.class';
 
