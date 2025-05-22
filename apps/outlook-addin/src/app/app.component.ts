@@ -90,7 +90,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
         }
     }
 
-    private async _initialiseAuth(local = false) {
+    private async _initialiseAuth(local = true) {
         setAppName(this._settings.get('app.short_name'));
         const settings = this._settings.get('composer') || {};
         settings.local_login = local;
