@@ -75,7 +75,6 @@ export class UpcomingBookingsComponent extends AsyncHandler implements OnInit {
     }
 
     public ngOnInit(): void {
-        this._schedule.toggleType('desk', true);
         this._schedule.toggleType('parking', true);
         this.subscription('poll', this._schedule.startPolling());
     }
