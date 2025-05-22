@@ -225,6 +225,12 @@ export class RecurrenceModalComponent extends AsyncHandler implements OnInit {
             this.form.patchValue({ type: 'daily' });
         }
         this._onEndTypeChange(this.form.value.end_type);
+        if (this.form.value.type === 'monthly' && this.form.value.week) {
+            const set = this.form.value.weekdays;
+            set.clear();
+            set.add(new Date(this.date).getDay() as any);
+            this.form.patchValue({ weekdays: set });
+        }
     }
 
     public hasDate(idx: DayIndex) {
@@ -250,7 +256,10 @@ export class RecurrenceModalComponent extends AsyncHandler implements OnInit {
         if (type === 'day_of_month') {
             this.form.patchValue({ week: 0 });
         } else {
-            this.form.patchValue({ week: this.week });
+            const set = this.form.value.weekdays;
+            set.clear();
+            set.add(new Date(this.date).getDay() as any);
+            this.form.patchValue({ week: this.week, weekdays: set });
         }
     }
 }
