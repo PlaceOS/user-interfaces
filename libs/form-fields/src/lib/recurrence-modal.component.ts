@@ -191,7 +191,7 @@ export class RecurrenceModalComponent extends AsyncHandler implements OnInit {
         type: new FormControl<RecurrType>('daily'),
         interval: new FormControl(1),
         weekdays: new FormControl(
-            new Set<DayIndex>([new Date().getDay() as any]),
+            new Set<DayIndex>([new Date(this.date).getDay() as any]),
         ),
         week: new FormControl(0),
         monthly_type: new FormControl<MonthlyType>('day_of_month'),

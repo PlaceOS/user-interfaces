@@ -252,8 +252,6 @@ export function toBookingRecurrence(r: Recurrence): BookingRecurrence {
     if ((r.type === 'monthly' || r.type === 'yearly') && r.week) {
         booking.recurrence_nth_of_month = r.week;
     }
-
-    console.log('Recurrence:', r, booking);
     return booking;
 }
 

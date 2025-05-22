@@ -146,7 +146,7 @@ export class RecurrenceFieldComponent
 
     public toRaw(data: Recurrence) {
         return this.type === 'event'
-            ? toEventRecurrence(data)
+            ? toEventRecurrence(data, this.date)
             : toBookingRecurrence(data);
     }
 
