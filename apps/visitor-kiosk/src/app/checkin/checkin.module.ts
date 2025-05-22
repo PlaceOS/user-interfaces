@@ -13,6 +13,7 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { TakePhotoComponent } from '../components/take-photo.component';
 import { CheckinCovidComponent } from './checkin-covid.component';
 import { CheckinDetailsComponent } from './checkin-details.component';
 import { CheckinErrorComponent } from './checkin-error.component';
@@ -69,6 +70,8 @@ const STANDALONE_COMPONENTS = [IconComponent, TranslatePipe];
         CheckinCovidComponent,
         CheckinInductionComponent,
         CheckoutComponent,
+
+        TakePhotoComponent,
     ],
     imports: [
         CommonModule,

@@ -41,7 +41,6 @@ import { GlobalBannerComponent } from 'libs/components/src/lib/global-banner.com
 import { GlobalLoadingComponent } from 'libs/components/src/lib/global-loading.component';
 import { SanitizePipe } from 'libs/components/src/lib/sanitise.pipe';
 import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-field.component';
-import { TakePhotoComponent } from './components/take-photo.component';
 import { TopbarHeaderComponent } from './components/topbar-header.component';
 
 const MAT_MODULES = [
@@ -70,7 +69,6 @@ const STANDALONE_COMPONENTS = [
         BootstrapComponent,
         WelcomeComponent,
         VisitorRegistrationComponent,
-        TakePhotoComponent,
         TopbarHeaderComponent,
     ],
     bootstrap: [AppComponent],
