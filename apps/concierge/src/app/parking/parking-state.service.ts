@@ -28,6 +28,7 @@ import { showMetadata, updateMetadata } from '@placeos/ts-client';
 import { User } from '@placeos/users';
 import { addHours, endOfDay, getUnixTime, set, startOfDay } from 'date-fns';
 import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
+import { UserPipe } from 'libs/users/src/lib/user.pipe';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import {
     debounceTime,
@@ -68,6 +69,8 @@ export interface ParkingUser {
     notes: string;
     deny: boolean;
 }
+
+const USER_PIPE = new UserPipe();
 
 @Injectable({
     providedIn: 'root',
@@ -275,11 +278,15 @@ export class ParkingStateService extends AsyncHandler {
         ) {
             const users = await nextValueFrom(this.users);
             const user = users.find((_) => _.email === new_space.assigned_to);
+            const user_details = await USER_PIPE.transform(
+                new_space.assigned_to,
+            );
             const date = set(Date.now(), { hours: 1, minutes: 0, seconds: 0 });
             await saveBooking(
                 new Booking({
-                    user_id: new_space.assigned_to,
+                    user_id: user_details.id || new_space.assigned_to,
                     user_email: new_space.assigned_to,
+                    user_name: user_details.name,
                     booking_start: getUnixTime(date),
                     booking_end: getUnixTime(addHours(date, 22)),
                     type: 'parking',
