@@ -182,13 +182,17 @@ export class CheckinPreferencesComponent
                             undefined,
                             'info',
                         );
-                        this.next();
                     }
                 });
             },
             1000,
         );
-        this.subscription('menu', this.menu.subscribe());
+        this.subscription(
+            'menu',
+            this.menu.subscribe((l) =>
+                l.length ? (this.loading = false) : '',
+            ),
+        );
     }
 
     public async update() {
