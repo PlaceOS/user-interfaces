@@ -182,6 +182,7 @@ export class CheckinPreferencesComponent
                             undefined,
                             'info',
                         );
+                        this.next();
                     }
                 });
             },

@@ -11,7 +11,9 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
+import { SanitizePipe } from '@placeos/components';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { LevelPipe } from 'libs/components/src/lib/level.pipe';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { TakePhotoComponent } from '../components/take-photo.component';
 import { CheckinCovidComponent } from './checkin-covid.component';
@@ -56,7 +58,12 @@ const MAT_MODULES = [
     MatCheckboxModule,
 ];
 
-const STANDALONE_COMPONENTS = [IconComponent, TranslatePipe];
+const STANDALONE_COMPONENTS = [
+    IconComponent,
+    TranslatePipe,
+    SanitizePipe,
+    LevelPipe,
+];
 
 @NgModule({
     declarations: [
