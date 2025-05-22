@@ -35,6 +35,7 @@ import * as Sentry from '@sentry/angular';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { GlobalBannerComponent } from 'libs/components/src/lib/global-banner.component';
 import { GlobalLoadingComponent } from 'libs/components/src/lib/global-loading.component';
@@ -50,6 +51,7 @@ const MAT_MODULES = [
     MatSelectModule,
     MatInputModule,
     MatMenuModule,
+    MatCheckboxModule,
 ];
 
 const STANDALONE_COMPONENTS = [

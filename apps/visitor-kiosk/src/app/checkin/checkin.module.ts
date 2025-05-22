@@ -3,6 +3,7 @@ import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Route, RouterModule } from '@angular/router';
 
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -51,6 +52,7 @@ const MAT_MODULES = [
     MatInputModule,
     MatMenuModule,
     MatRadioModule,
+    MatCheckboxModule,
 ];
 
 const STANDALONE_COMPONENTS = [IconComponent, TranslatePipe];
