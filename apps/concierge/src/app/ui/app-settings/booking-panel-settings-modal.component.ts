@@ -16,7 +16,7 @@ import {
     querySettings,
     updateSettings,
 } from '@placeos/ts-client';
-import { of } from 'rxjs';
+import { lastValueFrom, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
 import { validateURL } from '@placeos/spaces';
@@ -406,13 +406,14 @@ export class BookingPanelSettingsModalComponent extends AsyncHandler {
         // }
         const new_setting = {
             ...unencrypted_settings,
+            parent_id: this._data.zone.id,
             settings_string: yaml.dump(new_settings_blob),
         };
         this.loading = 'Saving changes to booking panel settings...';
         const update = unencrypted_settings.id
             ? updateSettings(unencrypted_settings.id, new_setting)
             : addSettings(new_setting);
-        await update.toPromise().catch((e) => {
+        await lastValueFrom(update).catch((e) => {
             this._dialog_ref.disableClose = false;
             this.loading = '';
             notifyError('Error saving changes to booking panel settings');
