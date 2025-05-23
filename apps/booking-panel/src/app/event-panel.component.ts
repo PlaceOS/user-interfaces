@@ -110,7 +110,7 @@ import { PanelStateService } from './panel-state.service';
                     (click)="toggleQRShow()"
                     class="absolute left-px top-1/2 z-20 -translate-x-full -translate-y-1/2 rounded-l-lg border-y border-l border-base-300 bg-base-100 px-1 py-4 uppercase"
                 >
-                    {{ 'COMMON.BOOK' | transition }}
+                    {{ 'COMMON.BOOK' | translate }}
                 </button>
                 <div
                     qr-code-out

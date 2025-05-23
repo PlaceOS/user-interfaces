@@ -48,6 +48,7 @@ import localeIt from '@angular/common/locales/it';
 import localeJa from '@angular/common/locales/ja';
 import localeZh from '@angular/common/locales/zh';
 import { MatDialogModule } from '@angular/material/dialog';
+import { SanitizePipe } from 'libs/components/src/lib/sanitise.pipe';
 
 const MAT_MODULES: any[] = [
     MatFormFieldModule,
@@ -65,6 +66,7 @@ const STANDALONE_COMPONENTS = [
     AuthenticatedImageDirective,
     TranslatePipe,
     SafePipe,
+    SanitizePipe,
 ];
 
 @NgModule({
