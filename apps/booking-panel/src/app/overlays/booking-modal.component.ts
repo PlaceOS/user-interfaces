@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Inject, Output } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormControl, FormGroup } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 
 import {
@@ -140,7 +140,9 @@ export async function openBookingModal(
             </div>
         </div>
         <ng-template #load_state>
-            <div class="flex flex-col items-center p-8">
+            <div
+                class="flex h-64 flex-col items-center justify-center space-y-4 p-8"
+            >
                 <mat-spinner [diameter]="32"></mat-spinner>
                 <p>
                     {{ 'APP.BOOKING_PANEL.BOOKING_LOADING' | translate }}
@@ -165,9 +167,7 @@ export class BookingModalComponent extends AsyncHandler {
     public max_duration = this._data.max_duration || 480;
     /** Form */
     public form: FormGroup = new FormGroup({
-        organiser: new FormControl<User>(this._data.user || null, [
-            Validators.required,
-        ]),
+        organiser: new FormControl<User>(this._data.user || null),
         room_ids: new FormControl<string[]>([this._data.space?.email || '']),
         date: new FormControl(this._data.date || new Date().valueOf()),
         duration: new FormControl(Math.min(this._data.min_duration || 15, 30)),

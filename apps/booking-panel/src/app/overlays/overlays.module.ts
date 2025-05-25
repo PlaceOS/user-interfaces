@@ -8,6 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { BookingModalComponent } from './booking-modal.component';
 import { EmbeddedControlModalComponent } from './embedded-control-modal.component';
 
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { SafePipe } from 'libs/components/src/lib/safe.pipe';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
@@ -29,6 +30,7 @@ const OVERLAYS: Type<any>[] = [
         MatDialogModule,
         MatFormFieldModule,
         MatInputModule,
+        MatProgressSpinnerModule,
         UserSearchFieldComponent,
         DurationFieldComponent,
     ],
