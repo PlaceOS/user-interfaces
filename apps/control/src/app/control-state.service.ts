@@ -247,7 +247,7 @@ export class ControlStateService extends AsyncHandler {
             l.filter(
                 (_) =>
                     !_.hidden &&
-                    (!_.hide_on_join || !j) &&
+                    (!_.hide_on_join || !j?.room_ids?.length) &&
                     (!_.id || (a || []).includes(_.id)),
             ),
         ),
