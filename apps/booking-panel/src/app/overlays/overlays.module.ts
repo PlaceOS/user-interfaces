@@ -8,6 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { BookingModalComponent } from './booking-modal.component';
 import { EmbeddedControlModalComponent } from './embedded-control-modal.component';
 
+import { ReactiveFormsModule } from '@angular/forms';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { SafePipe } from 'libs/components/src/lib/safe.pipe';
@@ -33,6 +34,7 @@ const OVERLAYS: Type<any>[] = [
         MatProgressSpinnerModule,
         UserSearchFieldComponent,
         DurationFieldComponent,
+        ReactiveFormsModule,
     ],
     exports: [...OVERLAYS],
 })
