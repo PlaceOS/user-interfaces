@@ -77,7 +77,7 @@ enum TOOLTIP {
             icon
             matRipple
             [matMenuTriggerFor]="menu"
-            class="mr-2 bg-none sm:hidden"
+            class="mr-2 text-base-content sm:hidden"
         >
             <icon>more_vert</icon>
         </button>

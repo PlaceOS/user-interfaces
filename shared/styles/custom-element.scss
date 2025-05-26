@@ -22,6 +22,10 @@ code {
     text-decoration-line: line-through;
 }
 
+#placeos .cdk-overlay-connected-position-bounding-box {
+    z-index: 1001;
+}
+
 .panel {
     .mdc-icon-button {
         display: flex;
