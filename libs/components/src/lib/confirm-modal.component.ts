@@ -2,6 +2,7 @@ import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
 import {
     MAT_DIALOG_DATA,
     MatDialog,
+    MatDialogModule,
     MatDialogRef,
 } from '@angular/material/dialog';
 import { first } from 'rxjs/operators';
@@ -117,6 +118,7 @@ export async function openConfirmModal(
         TranslatePipe,
         IconComponent,
         MatRippleModule,
+        MatDialogModule,
     ],
 })
 export class ConfirmModalComponent extends AsyncHandler implements OnInit {
