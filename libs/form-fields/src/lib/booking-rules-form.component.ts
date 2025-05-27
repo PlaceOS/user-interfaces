@@ -15,6 +15,7 @@ import {
     Validators,
 } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import {
     BookingRuleset,
@@ -440,10 +441,11 @@ import { ItemListFieldComponent } from './item-list-field.component';
     imports: [
         CommonModule,
         MatFormFieldModule,
+        MatInputModule,
+        MatSelectModule,
         FormsModule,
         ReactiveFormsModule,
         ItemListFieldComponent,
-        MatSelectModule,
         DateFieldComponent,
         DurationFieldComponent,
         SettingsToggleComponent,
