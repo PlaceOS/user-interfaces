@@ -10,12 +10,12 @@ import { debounceTime, map } from 'rxjs/operators';
     selector: 'help-modal',
     template: `
         <div
-            class="absolute inset-0 flex flex-col items-center overflow-hidden rounded bg-base-100 sm:relative sm:inset-auto sm:h-[80vh] sm:w-[80vw] sm:flex-row"
+            class="flex h-screen w-screen flex-col items-center overflow-hidden rounded bg-base-100 sm:h-[80vh] sm:w-[80vw] sm:flex-row"
         >
             <div sidebar class="w-full bg-base-300 sm:h-full sm:w-64">
                 <img
                     auth
-                    class="mx-auto mt-6 w-32 sm:mb-8"
+                    class="mx-auto my-2 w-48 sm:mb-8 sm:mt-6 sm:w-32"
                     [source]="(logo | async)?.src || (logo | async)"
                 />
                 <ul class="hidden list-none space-y-2 p-0 pl-4 sm:block">

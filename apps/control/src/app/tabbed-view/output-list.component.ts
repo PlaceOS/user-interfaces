@@ -5,32 +5,22 @@ import { ControlStateService } from '../control-state.service';
 @Component({
     selector: 'device-output-list',
     template: `
-        <ng-container
-            *ngIf="(outputs | async)?.length > 1 || (preview_outputs | async)"
-        >
-            <device-output-list-item
-                *ngFor="let output of outputs | async"
-                [item]="output"
-                [active]="(active_output | async) === output.id"
-            ></device-output-list-item>
-        </ng-container>
+        <div class="flex h-full w-full items-center overflow-x-auto">
+            <ng-container
+                *ngIf="
+                    (outputs | async)?.length > 1 || (preview_outputs | async)
+                "
+            >
+                <device-output-list-item
+                    *ngFor="let output of outputs | async"
+                    [item]="output"
+                    [active]="(active_output | async) === output.id"
+                    class="max-w-1/2 w-64"
+                ></device-output-list-item>
+            </ng-container>
+        </div>
     `,
-    styles: [
-        `
-            :host {
-                display: flex;
-                width: 100%;
-                height: 100%;
-                overflow: auto;
-                align-items: center;
-                margin-bottom: -0.5rem;
-            }
-
-            :host > * {
-                min-width: 25%;
-            }
-        `,
-    ],
+    styles: [``],
     standalone: false,
 })
 export class DeviceOutputListComponent {

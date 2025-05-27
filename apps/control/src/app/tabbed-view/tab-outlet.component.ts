@@ -16,11 +16,9 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
             bind="join_code"
             [(model)]="join_code"
         ></i>
-        <div
-            class="flex h-full w-full flex-col items-center space-y-2 overflow-auto px-2 py-2"
-        >
+        <div class="flex h-full w-full flex-col items-center p-1">
             <div
-                class="relative -mb-2 flex w-full items-center overflow-hidden px-1 !pt-2"
+                class="relative flex w-[calc(100%-1rem)] items-center overflow-hidden px-1 pt-2"
                 [style.padding-right]="(join_code ? 6 : 0) + 'rem'"
             >
                 <a
@@ -59,10 +57,10 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
                 </div>
             </div>
             <div
-                class="flex h-1/2 w-full flex-1 items-center divide-x divide-base-200 rounded bg-base-100 text-base-content shadow"
+                class="mb-1 flex h-1/2 w-[calc(100%-1rem)] flex-1 items-center divide-x divide-base-200 overflow-auto rounded bg-base-100 text-base-content shadow"
             >
                 <div
-                    class="h-full w-64 space-y-2 overflow-auto px-4 pb-4 pt-2"
+                    class="h-full w-64 min-w-64 space-y-2 overflow-auto px-4 pb-4 pt-2 sm:min-w-0"
                     *ngIf="(inputs | async)?.length > 1"
                 >
                     <h3 class="p-2 text-center text-lg font-medium">
@@ -90,7 +88,7 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
                 </div>
                 <div
                     style="flex: 2"
-                    class="relative h-full min-h-full overflow-auto"
+                    class="relative h-full min-h-full min-w-full overflow-auto sm:min-w-0"
                 >
                     <ng-container [ngSwitch]="(tab | async)?.controls">
                         <ng-container *ngSwitchCase="'vidconf-controls'">

@@ -19,7 +19,7 @@ export enum ZoomDirection {
             class="my-2 flex flex-col rounded bg-base-100 shadow"
             *ngIf="(camera_list | async)?.length; else empty_state"
         >
-            <mat-form-field appearance="outline" class="m-4 h-12">
+            <mat-form-field appearance="outline" class="no-subscript m-2">
                 <mat-select
                     [(ngModel)]="active_camera"
                     (ngModelChange)="selectCamera($event)"
@@ -33,11 +33,13 @@ export enum ZoomDirection {
                     </mat-option>
                 </mat-select>
             </mat-form-field>
-            <div class="relative mt-1 flex border-t border-base-200">
+            <div
+                class="relative mt-1 flex flex-col border-t border-base-200 sm:flex-row"
+            >
                 <div
-                    class="relative flex flex-col items-center space-y-2 border-r border-base-200 p-4"
+                    class="relative flex flex-col items-center space-y-2 border-b border-base-200 p-4 sm:border-b-0 sm:border-r"
                 >
-                    <h3 class="mb-2 pr-12 text-xl font-medium">
+                    <h3 class="mb-2 w-full pr-12 text-xl font-medium">
                         {{ 'APP.CONTROL.CAMERA_PRESETS' | translate }}
                     </h3>
                     <ng-container *ngIf="presets?.length; else no_presets">
@@ -67,7 +69,7 @@ export enum ZoomDirection {
                         </div>
                     </ng-container>
                     <ng-template #no_presets>
-                        <p>
+                        <p class="w-full rounded bg-base-300 p-8 opacity-30">
                             {{ 'APP.CONTROL.CAMERA_PRESETS_EMPTY' | translate }}
                         </p>
                     </ng-template>
