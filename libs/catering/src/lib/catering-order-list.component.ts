@@ -6,6 +6,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { SimpleTableComponent } from 'libs/components/src/lib/simple-table.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { CateringOrderItemComponent } from './catering-order-item.component';
@@ -250,6 +251,7 @@ import { statusList } from './catering.vars';
         MatMenuModule,
         SimpleTableComponent,
         MatProgressBarModule,
+        IconComponent,
     ],
 })
 export class CateringOrderListComponent extends AsyncHandler implements OnInit {
