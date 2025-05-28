@@ -15,7 +15,7 @@ import { ControlStateService } from '../control-state.service';
                     *ngFor="let output of outputs | async"
                     [item]="output"
                     [active]="(active_output | async) === output.id"
-                    class="max-w-1/2 w-64"
+                    class="max-w-1/2 w-64 sm:min-w-64"
                 ></device-output-list-item>
             </ng-container>
         </div>
