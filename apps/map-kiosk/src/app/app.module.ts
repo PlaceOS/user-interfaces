@@ -26,14 +26,18 @@ import { ExploreMapStackComponent } from './explore-map-stack.component';
 import { ExploreComponent } from './explore.component';
 import { FooterMenuComponent } from './footer-menu.component';
 
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
 import { GlobalBannerComponent } from 'libs/components/src/lib/global-banner.component';
 import { GlobalLoadingComponent } from 'libs/components/src/lib/global-loading.component';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
+import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { VirtualKeyboardComponent } from 'libs/components/src/lib/virtual-keyboard.component';
+import { ParkingComponent } from './parking.component';
 
 const MAT_MODULES = [
     MatSnackBarModule,
@@ -41,6 +45,8 @@ const MAT_MODULES = [
     MatProgressSpinnerModule,
     MatRippleModule,
     MatSlideToggleModule,
+    MatSelectModule,
+    MatFormFieldModule,
 ];
 
 const STANDALONE_COMPONENTS = [
@@ -52,6 +58,7 @@ const STANDALONE_COMPONENTS = [
     InteractiveMapComponent,
     CustomTooltipComponent,
     VirtualKeyboardComponent,
+    SettingsToggleComponent,
 ];
 
 @NgModule({
@@ -64,6 +71,7 @@ const STANDALONE_COMPONENTS = [
         DeskBookingComponent,
         FooterMenuComponent,
         AccessibilityControlsComponent,
+        ParkingComponent,
     ],
     imports: [
         BrowserModule,

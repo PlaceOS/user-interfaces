@@ -4,6 +4,7 @@ import { UnauthorisedComponent } from 'libs/components/src/lib/unauthorised.comp
 import { BootstrapComponent } from './bootstrap.component';
 import { DeskBookingComponent } from './desk-booking.component';
 import { ExploreComponent } from './explore.component';
+import { ParkingComponent } from './parking.component';
 
 const routes: Routes = [
     {
@@ -13,6 +14,7 @@ const routes: Routes = [
     { path: 'bootstrap', component: BootstrapComponent },
     { path: 'explore', component: ExploreComponent },
     { path: 'desks', component: DeskBookingComponent },
+    { path: 'parking', component: ParkingComponent },
     { path: '**', redirectTo: 'bootstrap' },
 ];
 

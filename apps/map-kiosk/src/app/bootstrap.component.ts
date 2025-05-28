@@ -25,10 +25,7 @@ import { first } from 'rxjs/operators';
                 <div>Map Kiosk</div>
                 <div class="rounded px-2 py-1 font-mono text-sm">SETUP</div>
             </header>
-            <div
-                class="flex flex-col space-y-2 px-4"
-                *ngIf="!loading; else load_state"
-            >
+            <div class="flex flex-col px-4" *ngIf="!loading; else load_state">
                 <ng-container *ngIf="(regions | async)?.length > 1">
                     <label>Select a region from the dropdown below</label>
                     <mat-form-field appearance="outline" class="no-subscript">
@@ -165,6 +162,12 @@ import { first } from 'rxjs/operators';
                             </mat-option>
                         </mat-select>
                     </mat-form-field>
+                    <settings-toggle
+                        *ngIf="active_level?.tags.includes('parking')"
+                        [(ngModel)]="parking"
+                        class="mt-2"
+                        >Show as fixed parking display</settings-toggle
+                    >
                 </ng-container>
                 <ng-container *ngIf="rotations && rotations.length">
                     <div></div>
@@ -277,6 +280,8 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
     public active_rotation: Identity;
     /** Actively selected location */
     public active_location: Identity;
+    /** Whether to show the map as a parking view */
+    public parking = false;
 
     public rotations: Identity[] = [];
 
@@ -326,6 +331,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
                 if (params.has('clear') && params.get('clear') === 'true') {
                     localStorage.removeItem('KIOSK.building');
                     localStorage.removeItem('KIOSK.level');
+                    localStorage.removeItem('KIOSK.parking');
                     localStorage.removeItem('KIOSK.orientation');
                 }
                 if (params.has('level')) {
@@ -372,6 +378,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
                     this.active_building?.id || this.active_level.parent_id,
                 );
                 localStorage.setItem('KIOSK.level', this.active_level.id);
+                if (this.parking) localStorage.setItem('KIOSK.parking', `true`);
                 if (this.active_rotation) {
                     localStorage.setItem(
                         'KIOSK.orientation',
@@ -385,7 +392,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
                     );
                 }
             }
-            this._router.navigate(['/explore']);
+            this._router.navigate([this.parking ? '/parking' : '/explore']);
         }
         this.loading = null;
     }
@@ -397,8 +404,9 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
         this.loading = 'Checking for existing parameters...';
         const building_id = localStorage?.getItem('KIOSK.building');
         const level_id = localStorage?.getItem('KIOSK.level');
+        const parking = localStorage?.getItem('KIOSK.parking');
         if (building_id && level_id) {
-            this._router.navigate(['/explore']);
+            this._router.navigate([parking ? '/parking' : '/explore']);
         }
         VirtualKeyboardComponent.enabled =
             localStorage.getItem('OSK.enabled') === 'true';
