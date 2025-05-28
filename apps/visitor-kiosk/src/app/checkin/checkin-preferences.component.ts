@@ -42,6 +42,7 @@ import { CheckinStateService } from './checkin-state.service';
             class="relative flex w-[36rem] flex-col items-center overflow-hidden rounded bg-base-100 p-4 shadow"
             *ngIf="!loading; else load_state"
         >
+            @let has_beverage = !!(event | async)?.extension_data.beverage;
             <h3 class="mb-2 w-full text-xl">
                 {{ 'APP.VISITOR_KIOSK.BEVERAGE_MSG' | translate }}
             </h3>
@@ -62,8 +63,20 @@ import { CheckinStateService } from './checkin-state.service';
                     </mat-select>
                 </mat-form-field>
             </div>
+            <div
+                *ngIf="has_beverage"
+                class="rounded bg-warning px-2 py-1 text-warning-content"
+            >
+                You have already selected a beverage.
+            </div>
             <div class="flex w-full items-center justify-end">
-                <button btn matRipple class="w-32" (click)="update()">
+                <button
+                    btn
+                    matRipple
+                    class="w-32"
+                    [disabled]="has_beverage"
+                    (click)="update()"
+                >
                     {{
                         (beverage
                             ? 'APP.VISITOR_KIOSK.SAVE'
