@@ -30,18 +30,15 @@ import { ControlStateService } from '../control-state.service';
                                     [sys]="id"
                                     [mod]="mic.module_id || mic.mod"
                                     [bind]="mic.binding"
-                                    [(model)]="room.muted"
+                                    [(model)]="room.state"
                                 ></i>
                             </div>
                             <settings-toggle
+                                class="m-1"
                                 [toggle]="true"
-                                [ngModel]="room.muted !== mic.falsy_value"
+                                [ngModel]="room.state !== mic.falsy_value"
                                 (ngModelChange)="
-                                    setRoomMute(
-                                        mic.module_id || mic.mod,
-                                        room,
-                                        !$event
-                                    )
+                                    setRoomMute(mic.name, room.name, !$event)
                                 "
                             >
                                 {{ room.name }}
@@ -101,10 +98,7 @@ import { ControlStateService } from '../control-state.service';
                     *ngFor="let mic of microphones | async; let i = index"
                 >
                     <label [for]="mic.name">{{ mic.name }}</label>
-                    <div
-                        class="mt-2 flex flex-wrap space-x-2"
-                        *ngIf="mic.rooms"
-                    >
+                    <div class="mt-2 flex flex-wrap" *ngIf="mic.rooms">
                         @for (room of mic.rooms; track room.name) {
                             <div hidden>
                                 <i
@@ -112,18 +106,15 @@ import { ControlStateService } from '../control-state.service';
                                     [sys]="id"
                                     [mod]="mic.module_id || mic.mod"
                                     [bind]="mic.binding"
-                                    [(model)]="room.muted"
+                                    [(model)]="room.state"
                                 ></i>
                             </div>
                             <settings-toggle
+                                class="m-1"
                                 [toggle]="true"
-                                [ngModel]="!room.muted"
+                                [ngModel]="room.state !== mic.falsy_value"
                                 (ngModelChange)="
-                                    setRoomMute(
-                                        mic.module_id || mic.mod,
-                                        room,
-                                        !$event
-                                    )
+                                    setRoomMute(mic.name, room.name, !$event)
                                 "
                             >
                                 {{ room.name }}
@@ -221,10 +212,10 @@ export class MicrophoneTooltipComponent extends AsyncHandler {
         super();
     }
 
-    public setRoomMute(mod_id: string, room: { ids: string[] }, state: string) {
-        const mod = getModule(this.id, mod_id);
+    public setRoomMute(mic: string, room: string, state: string) {
+        const mod = getModule(this.id, 'System');
         if (!mod) return;
-        mod.execute('mute', [room.ids, state]);
+        mod.execute('mic_room_selection', [mic, room, state]);
     }
 
     public setVolume(idx: number, value: number) {
